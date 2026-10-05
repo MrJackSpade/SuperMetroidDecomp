@@ -194,7 +194,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/KagoVisualDefinitions.cs
 
-- [ ] **KagoVisualDefinitions.Frames / literal at L15** ([L15](../csharp/src/SuperMetroid.Core/Assets/KagoVisualDefinitions.cs#L15)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **KagoVisualDefinitions.Frames / literal at L15** ([L15](../csharp/src/SuperMetroid.Core/Assets/KagoVisualDefinitions.cs#L15)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/KagoBugProjectileInstructionProgramDefinitions.cs
 
@@ -922,3 +922,9 @@ Build1437 existing warnings/zero errors. New --lookup-stream2-drop-selection con
 Removed the three-entry local delay array in FinishKraidGrowth. Coordinator-approved KraidLintInitializationDefinitions names the top/middle/bottom slot identities and expresses their distinct initial launch delays as semantic cases. This is per-part policy, not a mathematically derived timing sequence: pinned A7:AE2F-AE47 separately selects offsets0080/00C0/0100 and sources A916/A918/A91A containing288/160/64. Native EnableKraidLints installs alignment and LintProduce continuation; B923-B93E aligns and decrements each independent countdown until that continuation begins.
 
 Build1437 existing warnings/zero errors. New --lookup-stream2-kraid-lint-initialization confirms allthree native timer values, actual FinishKraidGrowth slot/reset/continuation writes, and512 actual alignment/countdown steps including each exact transition tick, plus invalid slot bounds. No unrelated gameplay confirmation. Integrated stream checkpoint: 69 converted, two mixed definitions, 155 required.
+
+## Kago frame catalog geometry
+
+Frames() yields its three installed identities directly from the consecutive native four-part OAM record width: two-byte count plus four five-byte parts, beginning at A8:ABDA. Removed the factory literal array; no replacement stock array is generated or cached by this definition. Artwork contents remain independently accounted for.
+
+Production compilation passed; the first verifier build exposed an incorrect new reference to catalog All, corrected to its actual Frames API. Final verifier build25 existing warnings/zero errors. --lookup-stream2-kago-frame-geometry passes allthree independent native instruction selectors and four-part headers, exact names, enumeration count and membership in the installed catalog. Integrated stream checkpoint: 70 converted, two mixed definitions, 154 required.

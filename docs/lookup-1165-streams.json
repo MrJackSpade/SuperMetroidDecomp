@@ -3165,6 +3165,7 @@
     ,{"path":"csharp/src/SuperMetroid.Core/Game/RidleyTailDefinitions.cs","stream":4,"purpose":"Named native quarter-turn and ideal segment separation; initial angle calculation only; unresolved distances stay required"}
     ,{"path":"csharp/src/SuperMetroid.Core/Game/RidleySamusInteractionDefinitions.cs","stream":4,"purpose":"Named movement-policy grab/release operations; preserve full byte domain and prove unconsumed native bits"}
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainAttackPaintDefinitions.cs","stream":3,"purpose":"Only reviewed5640/0C63 attack paint anchors and named RGB compositions; recovery-neutral dependency remains unresolved"}
+    ,{"path":"csharp/src/SuperMetroid.Verification/Program.SparkMovementDefinitions.cs","stream":3,"purpose":"After reproduced stale read expectation, compare exact native visuals and require zero reads; preserve producer/tangibility/sleep/allocation checks"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

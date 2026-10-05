@@ -11192,4 +11192,11 @@
     "native":  "A9:8D1E-8D27 copies 15 colors from94B4-D0;8FC7 uploads attack sheet. Palette7FE0,6B20,5640,03FF,02BF,015F,001F,29F9,2173,150C,6318,4631,294A,7FFF,0C63.",
     "state":  "approved-pending-decomposition-and-integration",
     "workerEvidence":  "13f577d16"
+},"kagoFrameGeometryIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; three native instruction selectors,four-part headers,stable names,enumeration count and installed catalog membership pass.",
+    "completed":  "KagoVisualDefinitions.Frames / literal at L15",
+    "workerCommit":  "e67f9f4937ad2b91441ae4adc3726dd122fb92fa",
+    "state":  "converted",
+    "algorithm":  "Three identities from consecutive two-byte count plus four five-byte OAM record geometry; yields catalog entries without literal stock array.",
+    "remaining":  "463 converted,11 justified retained/mixed,654 pending. Independent artwork remains required."
 }}

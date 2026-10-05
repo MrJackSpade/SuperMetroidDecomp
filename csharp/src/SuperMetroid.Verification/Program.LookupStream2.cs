@@ -7,6 +7,22 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2KagoFrameGeometry(ISnesAddressSpace rom)
+    {
+        int count = 0;
+        foreach (var frame in KagoVisualDefinitions.Frames())
+        {
+            ushort native = ReadVerificationWord(rom, 0xa8ab20 + 4 * count);
+            AssertEqual((byte)0xa8, frame.Bank, "Kago native frame bank");
+            AssertEqual(native, frame.Pointer, "Kago native animation selects generated identity");
+            AssertEqual((ushort)4, ReadVerificationWord(rom, 0xa80000 | native), "Kago native four-part record width");
+            AssertEqual($"kago_cycle_{count}", frame.Name, "Kago installed resource name");
+            AssertTrue(EnemySpritemapDefinitions.Frames.Contains(frame), "Generated Kago identity reaches installed catalog");
+            count++;
+        }
+        AssertEqual(3, count, "Kago frame enumeration count");
+        Console.WriteLine("Kago frames:three native selectors/four-part headers, stable names and installed catalog membership pass.");
+    }
     private static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

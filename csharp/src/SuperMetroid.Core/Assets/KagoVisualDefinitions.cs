@@ -11,12 +11,15 @@ internal static class KagoVisualDefinitions
     /// <summary>Native bank for the Kago enemy definition and spritemaps.</summary>
     internal const byte Bank = 0xa8;
 
-    internal static EnemySpritemapDefinition[] Frames() =>
-    [
-        new(Bank, 0xabda, "kago_cycle_0"),
-        new(Bank, 0xabf0, "kago_cycle_1"),
-        new(Bank, 0xac06, "kago_cycle_2"),
-    ];
+    /// <summary>Spritemap_Kago_0 at $A8:ABDA begins three consecutive four-part OAM records.</summary>
+    private const ushort FirstFrame = 0xabda;
+
+    /// <summary>Each composition occupies its two-byte count plus four five-byte parts.</summary>
+    internal static IEnumerable<EnemySpritemapDefinition> Frames()
+    {
+        for (int phase = 0; phase < 3; phase++)
+            yield return new(Bank, (ushort)(FirstFrame + phase * (2 + 4 * 5)), $"kago_cycle_{phase}");
+    }
 
     /// <summary>Accepts only visual operands in Kago's two native loops.</summary>
     internal static ushort FrameAt(ushort operandAddress)

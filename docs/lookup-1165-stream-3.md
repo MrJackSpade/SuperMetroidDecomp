@@ -1142,3 +1142,9 @@ Integrated5f00aef40's additional reopenings: Pickup Words energy8/ammunition5 at
 ### Integrated Mochtroid visual selection and registration
 
 Both original visual entries calculate: two0,1,2,1pose cycles select six named frames from native record strides. NativeA3:A9B0 flight records advance2+5*6 through preceding records;AA06 attached records advance2+5*4. Root --lookup-mochtroid-visuals independently walks six native counted records, checks eight operands/rejection, and runs existing real initializer/state-switch/two-loop checks with mechanics reads denied. Build1445warnings/0errors. Worker c5a12a507. Timing14/5,shake amplitude and artwork remain required; master549 converted/16retained-mixed/563 pending.
+
+### Independent Mochtroid visual-cadence review
+
+Root source review approves only the14-tick flight and5-tick attached pulse cadences as chosen animation content. NativeA3:A745-A76B contains duration/map records andGoto without callbacks;A790 dispatches independent movement. A953-A9A7 uses separate80-contact damage and global-frame sound timing. HeaderA0:D8FF fixes10x12collision radii;A0:A08C's nonzero-map gate and fixed-radius contact do not distinguish the six nonzero poses. GenericA0:C276-C2AC only updates animation timer/map/cursor. Managed movement and touch consumers preserve this separation.
+
+Generating a different pulse tempo invents a different visible performance; arithmetic encoding of the exact chosen tempo would simply disguise retained content. This narrow nonsense disposition excludes list-reset1,damage80,steering/shake,artwork and other enemy cadences. Worker follow-up will name/document the two inputs; Words remains pending until integrated review. No count change.

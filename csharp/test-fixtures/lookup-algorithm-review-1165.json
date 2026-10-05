@@ -11427,4 +11427,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "Eight equal-width directional attacks and mirrored cooldown groups calculate 96 control positions and 52 visual addresses; named callbacks preserve carry roles.",
     "remaining":  "Words required: holds 5/3/80/4 have no exception. 499 converted, 15 justified retained/mixed, 614 pending."
+},"walkingPirateStructureIntegration":{
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. All 92 native words, eight production programs, both three-laser attacks with offset/velocity checks, 50 actual installed frame selections, source-read guards, bounds and zero per-lookup allocation pass.",
+    "completed":  "WalkingSpacePirateInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "d54a31aeb20ddc5652ea349b268e5b6b470461a7",
+    "state":  "partial-one-converted",
+    "algorithm":  "Stack-only composition of shared flinch, walk, three-shot attack and look/turn records calculates 92 control positions and 50 visual addresses.",
+    "remaining":  "Words required: holds 16/10/24/8/32 and shot offsets +8/+2/-8 have no exception. 500 converted, 15 justified retained/mixed, 613 pending."
 }}

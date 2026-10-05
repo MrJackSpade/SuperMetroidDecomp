@@ -656,7 +656,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/WalkingSpacePirateInstructionProgramDefinitions.cs
 
 - [ ] **WalkingSpacePirateInstructionProgramDefinitions.Words** ([L32](../csharp/src/SuperMetroid.Core/Game/WalkingSpacePirateInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **WalkingSpacePirateInstructionProgramDefinitions.PresentationWords** ([L72](../csharp/src/SuperMetroid.Core/Game/WalkingSpacePirateInstructionProgramDefinitions.cs#L72)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **WalkingSpacePirateInstructionProgramDefinitions.PresentationWords** ([L72](../csharp/src/SuperMetroid.Core/Game/WalkingSpacePirateInstructionProgramDefinitions.cs#L72)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Rendering/XrayRoomDisplayRules.cs
 
@@ -960,3 +960,8 @@ Root Verification build: 1445 warnings, zero errors. --lookup-stream5-ceres-door
 Calculated 96 control positions and 52 visual addresses from eight 22-byte directional attacks and mirrored cooldown groups. Named directional callbacks preserve diagonal-to-vertical carry behavior. Native A8:9F6F-A096 confirms record widths and ordering. Holds 5/3/80/4 remain explicit unresolved inputs; Words stays unchecked without an exception. Integrated checkpoint: 75 converted, two mixed, one retained, 147 required.
 
 Root Verification build: 1445 warnings, zero errors. --yapping-maw-instruction-program-definitions passed all 96 native controls, fourteen actual attack/cooldown entries, seven carry/sound callbacks, 52 compiled selectors, source-read guards, bounds and allocation assertions.
+
+### Walking Space Pirate structural integration
+A stack-only layout cursor calculates 92 control positions and 50 visual addresses: two 12-byte flinches and two 130-byte facing groups comprising walk, three-shot attack and look/turn. Native B2:FB4C-FC67 and named callbacks establish widths and control ordering. Holds 16/10/24/8/32 and shot offsets +8/+2/-8 remain explicit unresolved inputs. Words stays unchecked without exemption. Integrated checkpoint: 76 converted, two mixed, one retained, 146 required.
+
+Root Verification build: 1445 warnings, zero errors. --walking-space-pirate-instruction-mechanics passed 92 native words, eight actual programs, both three-laser attacks with offsets/velocities, all 50 installed frame selections, source-read guards, bounds and zero per-lookup allocation.

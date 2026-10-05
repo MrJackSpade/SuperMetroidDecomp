@@ -1305,7 +1305,12 @@ if (args.Length == 3 && args[0] == "--metroid-power-bomb-farming-capture")
 if (args.Length == 3 && args[0] == "--metroid-farming-compare")
     return MetroidFarmingComparison.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--save-load-rng-audit")
-    return SaveLoadRandomAudit.Run(args[1]);
+{
+    string rngFixtureRoot = Path.GetFullPath("csharp/test-temp/save-load-rng-installed-content");
+    var rngFixtureInstallation = SuperMetroid.AssetExtraction.GameAssetInstaller.EnsureInstalled(rngFixtureRoot) ??
+        SuperMetroid.AssetExtraction.GameAssetInstaller.Install(args[1], rngFixtureRoot);
+    return SaveLoadRandomAudit.Run(args[1], game => InstalledInputReplay.Bind(game, rngFixtureInstallation));
+}
 if (args.Length >= 2 && args[0] == "--metroid-audit")
 {
     string metroidRomPath = string.Join(' ', args[1..]).Trim('"');

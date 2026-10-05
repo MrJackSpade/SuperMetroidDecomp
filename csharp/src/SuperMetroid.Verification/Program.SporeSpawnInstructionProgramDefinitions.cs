@@ -33,7 +33,7 @@ internal static partial class Program
                 $"Spore Spawn mechanics word $A5:{definition.Address:X4}");
         }
 
-        var guarded = new SporeSpawnInstructionReadGuard(rom);
+        var guarded = new SporeSpawnInstructionReadGuard(rom) { DenyPresentationReads = true };
         (RoomEnemySystem deadSystem, RoomEnemySlot dead) = RunSporeSpawnProgram(
             guarded,
             SporeSpawnInstructionProgramDefinitions.InitialDead,
@@ -75,19 +75,23 @@ internal static partial class Program
         AssertTrue(deathSystem.SporeSpawn!.DeathDropRequested,
             "Spore Spawn death program executes compiled drop callback");
 
-        AssertEqual(
-            SporeSpawnInstructionProgramDefinitions.PresentationWordCount,
-            guarded.ObservedPresentationWords.Count,
-            "all live Spore Spawn spritemap words remain cartridge reads");
-        for (int index = 0;
-             index < SporeSpawnInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        var selected = new HashSet<ushort>();
+        foreach ((ushort pointer, int frames) in new (ushort, int)[]
+                 { (0xe6b9, 4), (0xe6c7, 260), (0xe6d5, 2200), (0xe729, 1600), (0xe77d, 500) })
+            _ = ReadReferenceSporeSpawnProgram(rom, pointer, frames, selected);
+        AssertEqual(SporeSpawnInstructionProgramDefinitions.PresentationWordCount,
+            selected.Count, "all native Spore Spawn selectors execute in the five fixture programs");
+        for (int index = 0; index < SporeSpawnInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address =
-                SporeSpawnInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guarded.ObservedPresentationWords.Contains(address),
-                $"production execution reads presentation word $A5:{address:X4}");
+            ushort address = SporeSpawnInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(selected.Contains(address), "native stream covers the declared selector");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa5, address, out ushort value),
+                "Spore Spawn selector is compiled");
+            AssertEqual(ReadSporeSpawnProgramWord(rom, address), value,
+                $"compiled Spore Spawn selector matches cartridge at {address:X4}");
         }
+        AssertEqual(0, guarded.ObservedPresentationWords.Count,
+            "production Spore Spawn programs never read cartridge selectors");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production execution avoids every compiled Spore Spawn mechanics byte");
 
@@ -129,7 +133,7 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.TileArtwork = artwork;
+        enemies.TileArtwork = artwork ?? runtimeFixtureInstallation.Value.LoadEnemyTiles();
         RoomEnemySlot body = enemies.Slots[0];
         body.EnemyDefinitionPointer = RoomEnemySystem.SporeSpawnDefinition;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 };

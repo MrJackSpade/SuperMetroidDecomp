@@ -918,3 +918,8 @@ Root integration Verification build1444 existing warnings/zero errors; --phantoo
 Calculated36 visual operand addresses and46 control positions from tracking,paired closing/opening and mount record widths. PresentationWords is complete. Words remains required: eyelid cadence8/48/5,active cadence10 and activation delay32 are independent inputs without approved exceptions. Closing/opening reversal and reused closed-state hold are calculated. Integrated checkpoint73 converted,one mixed,one retained,150 required.
 
 Root Verification build: 1444 existing warnings, zero errors. --morph-ball-eye-instruction-program-definitions passed 46 native controls, eleven actual programs, six initializer roles, 36 native selectors, zero presentation reads, bounds, save/load and allocation assertions. Native A8:8FAC-904E confirms the record layout and independent timing inputs.
+
+### Crocomire rumble envelope integration
+Calculated record offsets, signs, timing flags, terminators, approach deltas and regular buildup/decay envelope. Negative amplitudes double every two buildup cycles then halve per decay cycle; positive returns reuse approach deltas. Cooldowns rise by four from eight to sixteen, hold, then halve. The last live hold is three instead of four, and restored-prefix targets four/one remain explicit independent inputs. Definitions remains unchecked with no exception; counts unchanged. Integrated worker commits 68ffc222, 007b64d7 and 154d8fe9 for this file only.
+
+Root Verification build: 1444 existing warnings, zero errors. --lookup-stream5-crocomire-rumble passed all 32 native words and 537 exact production frames with original source reads forbidden. Native A4:98CA-9909 independently confirms the complete sequence.

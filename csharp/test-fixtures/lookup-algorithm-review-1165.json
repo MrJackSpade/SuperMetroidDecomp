@@ -11379,4 +11379,15 @@
     "state":  "partial-one-converted",
     "algorithm":  "Record widths calculate 36 visual addresses and 46 control positions for tracking, paired eyelid transitions and mounts.",
     "remaining":  "Words remains required: eyelid holds 8/48/5, tracking cadence 10 and activation delay 32. No exception. 497 converted, 14 justified retained/mixed, 617 pending."
+},"crocomireRumbleEnvelopeIntegration":{
+    "scope":  "CrocomireRumbleDefinitions.Definitions remains unchecked",
+    "confirmation":  "Root Verification build: 1444 warnings, zero errors. All 32 native words and 537 exact production frames pass with original source reads forbidden.",
+    "workerCommits":  [
+                          "68ffc22228d6850bc1f7f8a7474d685e691ef4c4",
+                          "007b64d7e2d1175be708ab6a4a8c695f6d964cb7",
+                          "154d8fe9616064673bd2f25e53d3770d617eddc8"
+                      ],
+    "state":  "partial-required",
+    "algorithm":  "Record widths, sign/timing flags, terminators, power-of-two amplitude buildup/decay, symmetric approach speeds and regular cooldown envelope are calculated.",
+    "remaining":  "Final decay hold 3 and restored-prefix targets 4/1 remain unresolved independent inputs. No exception. 497 converted, 14 justified retained/mixed, 617 pending unchanged."
 }}

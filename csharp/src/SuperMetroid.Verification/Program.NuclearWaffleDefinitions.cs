@@ -101,21 +101,29 @@ internal static partial class Program
 
         // Twelve three-frame entries total 36 frames; the margin proves the terminal goto
         // restarts the production stream rather than merely reaching its target.
+        var installed = new HashSet<ushort>();
         for (int frame = 0; frame < 40; frame++)
+        {
             process.Invoke(programSystem, arguments);
+            ushort operand = unchecked((ushort)(programSlot.CurrentInstruction - 2));
+            AssertEqual(ReadNuclearWaffleWord(rom, 0xa60000 | operand), programSlot.SpritemapPointer,
+                "actual installed Nuclear Waffle native visual selector");
+            installed.Add(operand);
+        }
 
         AssertEqual(
             NuclearWaffleInstructionProgramDefinitions.PresentationWordCount,
-            programGuard.ObservedPresentationWords.Count,
-            "all live Nuclear Waffle spritemap words remain cartridge reads");
+            installed.Count,
+            "all twelve native Nuclear Waffle selectors execute");
+        AssertEqual(0, programGuard.ObservedPresentationWords.Count, "Nuclear Waffle installed selectors avoid live reads");
         for (int index = 0;
              index < NuclearWaffleInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(programGuard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Nuclear Waffle presentation word $A6:{address:X4}");
+            AssertTrue(installed.Contains(address),
+                $"production execution selects Nuclear Waffle presentation operand $A6:{address:X4}");
         }
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids every compiled Nuclear Waffle mechanics byte");
@@ -138,7 +146,7 @@ internal static partial class Program
         Console.WriteLine(
             "Nuclear Waffle definitions: twelve geometry words, both complete production " +
             "initializers, 14 compiled instruction words, and the full body loop pass with " +
-            "mechanics reads forbidden; 12 spritemap words remain live.");
+            "mechanics reads forbidden; 12 installed selectors match native operands.");
     }
 
     private static int ProbeNuclearWaffleInstructionMechanicsAllocation()

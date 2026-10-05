@@ -5,6 +5,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        VerifyLookupStream1NuclearWaffle(rom);
         VerifyLookupStream1DeathDefinitions(rom);
         VerifyLookupStream1Sciser(rom);
         VerifyLookupStream1PowampMotion(rom);
@@ -421,5 +422,46 @@ internal static partial class Program
             AssertEqual(segments[segmentIndex++], segment, "death transfer enumeration preserves ordering");
         AssertEqual(initialFrames.Length, frameIndex, "death frame enumerable count");
         AssertEqual(segments.Length, segmentIndex, "death transfer enumerable count");
+    }
+    private static void VerifyLookupStream1NuclearWaffle(ISnesAddressSpace rom)
+    {
+        Confirm(0xa6, 0x9490, NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord,
+            NuclearWaffleInstructionProgramDefinitions.IsCompiledMechanicsByte,
+            index => { var word = NuclearWaffleInstructionProgramDefinitions.MechanicsWord(index); return (word.Address, word.Value); },
+            NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress);
+        Confirm(0x86, 0xbb5e, NuclearWaffleProjectileInstructionProgramDefinitions.ReadMechanicsWord,
+            NuclearWaffleProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte,
+            index => { var word = NuclearWaffleProjectileInstructionProgramDefinitions.MechanicsWord(index); return (word.Address, word.Value); },
+            NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        void Confirm(int bank, int start, Func<ushort, ushort> read, Func<int, bool> guarded,
+            Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> visual)
+        {
+            var nativeControls = new HashSet<int>();
+            for (int frame = 0; frame < 12; frame++)
+            {
+                nativeControls.Add(start + frame * 4);
+                AssertEqual((ushort)(start + frame * 4 + 2), visual(frame), "Nuclear Waffle native visual positions");
+            }
+            nativeControls.Add(start + 48);
+            nativeControls.Add(start + 50);
+            int index = 0;
+            for (int pointer = start - 1; pointer <= start + 52; pointer++)
+            {
+                AssertEqual(nativeControls.Contains(pointer) || nativeControls.Contains(pointer - 1),
+                    guarded(bank << 16 | pointer), "Nuclear Waffle exact byte guard");
+                if (nativeControls.Contains(pointer))
+                {
+                    var actual = mechanics(index++);
+                    AssertEqual((ushort)pointer, actual.Address, "Nuclear Waffle control ordering");
+                    AssertEqual((ushort)(rom.ReadByte(bank << 16 | pointer) | rom.ReadByte(bank << 16 | (pointer + 1)) << 8),
+                        actual.Value, "Nuclear Waffle native controls");
+                }
+                else AssertThrows<InvalidDataException>(() => read((ushort)pointer), "Nuclear Waffle noncontrol rejection");
+            }
+            foreach (int invalid in new[] { int.MinValue, -1, 14, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => mechanics(invalid), "Nuclear Waffle control index bounds");
+            foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => visual(invalid), "Nuclear Waffle visual index bounds");
+        }
     }
 }

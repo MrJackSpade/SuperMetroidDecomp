@@ -46,6 +46,7 @@ internal static partial class Program
             .ToArray();
         AssertEqual(4, projectiles.Length,
             "real Nuclear Waffle initialization spawns four projectile body links");
+        var installed = new HashSet<ushort>();
         foreach (RoomEnemyProjectileSlot projectile in projectiles)
         {
             AssertEqual(NuclearWaffleProjectileInstructionProgramDefinitions.Initial,
@@ -69,16 +70,17 @@ internal static partial class Program
 
         AssertEqual(
             NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Nuclear Waffle projectile spritemap operands remain cartridge reads");
+            installed.Count,
+            "all twelve installed Nuclear Waffle body operands execute");
+        AssertEqual(0, guard.ObservedPresentationWords.Count, "Nuclear Waffle body installed selectors avoid live reads");
         for (int index = 0;
              index < NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = NuclearWaffleProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Nuclear Waffle projectile presentation $86:{address:X4}");
+            AssertTrue(installed.Contains(address),
+                $"production execution selects Nuclear Waffle projectile presentation $86:{address:X4}");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -101,7 +103,7 @@ internal static partial class Program
         Console.WriteLine(
             "Nuclear Waffle projectile instruction mechanics: fourteen compiled words, " +
             "four real articulated links, complete twelve-frame loops, shared deletion, " +
-            "and all twelve live spritemap reads pass with mechanics bytes forbidden.");
+            "and all twelve installed native operands pass with mechanics bytes forbidden.");
 
         void RunForcedTicks(RoomEnemyProjectileSlot projectile, int count)
         {
@@ -109,6 +111,12 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                if (projectile.IsActive)
+                {
+                    AssertEqual((ushort)(NuclearWaffleProjectileInstructionProgramDefinitions.Initial + 2 + tick % 12 * 4),
+                        projectile.PresentationOperandAddress, "actual Nuclear Waffle body selects exact native timed operand");
+                    installed.Add(projectile.PresentationOperandAddress);
+                }
             }
         }
     }

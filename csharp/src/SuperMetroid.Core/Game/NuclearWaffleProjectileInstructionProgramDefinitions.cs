@@ -7,7 +7,7 @@ internal readonly record struct NuclearWaffleProjectileInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the twelve-frame articulated Nuclear Waffle/Puromi body loop.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands select independently installed presentation data.
 /// </summary>
 internal static class NuclearWaffleProjectileInstructionProgramDefinitions
 {
@@ -19,72 +19,32 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort LoopCommand = 0xbb8e;
 
-    private static readonly NuclearWaffleProjectileInstructionMechanicsWord[] Words =
-    [
-        new(Initial, 0x0003),
-        new(0xbb62, 0x0003),
-        new(0xbb66, 0x0003),
-        new(0xbb6a, 0x0003),
-        new(0xbb6e, 0x0003),
-        new(0xbb72, 0x0003),
-        new(0xbb76, 0x0003),
-        new(0xbb7a, 0x0003),
-        new(0xbb7e, 0x0003),
-        new(0xbb82, 0x0003),
-        new(0xbb86, 0x0003),
-        new(0xbb8a, 0x0003),
-        new(LoopCommand, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xbb90, Initial),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xbb60, 0xbb64, 0xbb68, 0xbb6c, 0xbb70, 0xbb74,
-        0xbb78, 0xbb7c, 0xbb80, 0xbb84, 0xbb88, 0xbb8c,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static NuclearWaffleProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    private const int FrameCount = 12;
+    internal static int MechanicsWordCount => FrameCount + 2;
+    internal static int PresentationWordCount => FrameCount;
+    internal static NuclearWaffleProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort address = (ushort)(Initial + (index < FrameCount ? index * 4 : FrameCount * 4 + (index - FrameCount) * 2));
+        return new(address, ReadMechanicsWord(address));
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(Initial + index * 4 + 2);
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            NuclearWaffleProjectileInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Nuclear Waffle projectile mechanics pointer $86:{address:X4} is not compiled.");
+        int offset = address - Initial;
+        if ((uint)offset < FrameCount * 4 && offset % 4 == 0) return 3;
+        if (offset == FrameCount * 4) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+        if (offset == FrameCount * 4 + 2) return Initial;
+        throw new InvalidDataException($"Nuclear Waffle projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
-
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
+        int offset = (ushort)address - Initial;
+        return (uint)offset < FrameCount * 4 + 4 && (offset >= FrameCount * 4 || offset % 4 < 2);
     }
 }

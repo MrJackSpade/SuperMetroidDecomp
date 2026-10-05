@@ -234,6 +234,10 @@ static void VerifySamusPowerBeamProjectiles()
     const int width = 32;
     const int height = 16;
     var nativeProjectileRom = SeedNativeProjectileFixture(bus);
+    var fixtureChargeColors = SamusChargeColorCatalog.Load(
+        new MemoryStream(SamusChargeColorExtractor.Extract(bus)));
+    var fixtureSuitColors = SamusSuitColorCatalog.Load(
+        new MemoryStream(SamusSuitColorExtractor.Extract(bus)));
     var fixtureFlarePlacement = ChargeFlarePlacementCatalog.Load(
         new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
     var fixtureFlareSprites = ChargeFlareSpriteCatalog.Load(
@@ -465,6 +469,8 @@ static void VerifySamusPowerBeamProjectiles()
         EquippedBeams = 0x1000,
     };
     BindSyntheticSamusRendering(bus, chargeSamus);
+    chargeSamus.ChargeColors = fixtureChargeColors;
+    chargeSamus.SuitColors = fixtureSuitColors;
     var chargeBombs = CreateSyntheticBombs();
     var chargeProjectiles = CreateSyntheticProjectiles();
     var flareOam = new OamBuffer();
@@ -635,9 +641,9 @@ static void VerifySamusPowerBeamProjectiles()
             {
                 SamusBeamChargePaletteStepResult liveChargeStep =
                     chargeProjectiles.UpdateBeamChargePalette(bus, liveChargeCgram, chargeSamus);
-                ushort expectedPointer = pseudoScrew
-                    ? pseudoScrewPalettePointers[suit, palette]
-                    : beamChargePalettePointers[suit, palette];
+                // The palette identity stays native; installed colors come from the synthetic bus.
+                ushort expectedPointer = NativeWord(0x910000 |
+                    (NativeWord((pseudoScrew ? 0x91d7ff : 0x91d7d5) + suit * 2) + palette * 2));
                 AssertEqual(
                     pseudoScrew
                         ? SamusBeamChargePaletteAction.PseudoScrewCycle
@@ -862,6 +868,8 @@ static void VerifySamusPowerBeamProjectiles()
         HyperBeam = 0x8000,
     };
     BindSyntheticSamusRendering(bus, hyperSamus);
+    hyperSamus.ChargeColors = fixtureChargeColors;
+    hyperSamus.SuitColors = fixtureSuitColors;
     var hyperBombs = CreateSyntheticBombs();
     var hyperProjectiles = CreateSyntheticProjectiles();
     hyperBombs.StepFrame(bus, air, hyperSamus, 0, 0);
@@ -908,7 +916,7 @@ static void VerifySamusPowerBeamProjectiles()
                 $"Hyper body glow call {call + 1} loads palette");
             AssertEqual(palette, paletteStep.HyperPaletteIndex,
                 $"Hyper body glow call {call + 1} reports descending table index");
-            AssertEqual(hyperShotPalettePointers[palette], paletteStep.PalettePointer,
+            AssertEqual(NativeWord(0x91d829 + 0x14 - palette * 2), paletteStep.PalettePointer,
                 $"Hyper body glow call {call + 1} reads exact pointer");
             ushort[] expectedPalette = Enumerable.Range(0, 16)
                 .Select(color => unchecked((ushort)(0x2000 + palette * 0x20 + color)))

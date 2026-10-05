@@ -364,8 +364,23 @@ internal static partial class Program
             "Botwoon adds sixteen distinct visible head compositions");
         AssertEqual(EnemySpritemapDefinitions.PreGunshipFrameCount +
                 GunshipVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreMamaTurtleFrameCount,
             "Gunship adds two hull and eleven entrance-pad compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreMamaTurtleFrameCount +
+                MamaTurtleVisualDefinitions.FrameCount + ZeroVisualDefinitions.FrameCount +
+                FriendlyAnimalVisualDefinitions.EtecoonFrameCount +
+                FriendlyAnimalVisualDefinitions.DachoraFrameCount +
+                FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount +
+                FriendlyAnimalVisualDefinitions.EscapeDachoraFrameCount +
+                HibashiVisualDefinitions.FrameCount + ZebetiteVisualDefinitions.FrameCount +
+                WreckedShipGhostVisualDefinitions.FrameCount + PowampVisualDefinitions.FrameCount +
+                SparkVisualDefinitions.FrameCount + ShitroidVisualDefinitions.FrameCount +
+                KraidLintVisualDefinitions.FrameCount + NuclearWaffleVisualDefinitions.FrameCount +
+                2 + // Single-frame Kzan and Polyp.
+                RidleyBreakupVisualDefinitions.Legs.Length + RidleyBreakupVisualDefinitions.Torso.Length +
+                RidleyBreakupVisualDefinitions.Head.Length + RidleyBreakupVisualDefinitions.Claw.Length,
+            EnemySpritemapDefinitions.Frames.Length,
+            "post-Gunship installed composition groups account for the complete current catalog");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))

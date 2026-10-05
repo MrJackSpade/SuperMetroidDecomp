@@ -16,7 +16,7 @@ internal static partial class Program
             for (int i = 0; i < maps.Length; i++) maps[i] = retail.ReadByte(0x8d8000 + i);
             bus.WriteBytes(0x8d8000, maps);
             bus.WriteBytes(0xa19600, [0xff, 0xff]);
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
             enemies.Load(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), () => 0, level: level, samus: new SamusState());
             enemies.ApplyDownwardGateProjectileRequest(plms.TakeDownwardGateProjectileRequests().Single(), level.WidthInBlocks);
             enemies.StepEnemyProjectiles(level, null);

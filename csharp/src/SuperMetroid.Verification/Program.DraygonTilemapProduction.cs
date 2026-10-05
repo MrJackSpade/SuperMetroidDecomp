@@ -10,13 +10,15 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, DraygonProductionAuditDefinitions.Room);
-        var assets = CartridgeRoomAssets.Load(bus, room);
+        var installation = runtimeFixtureInstallation.Value;
+        var assets = CartridgeRoomAssets.Load(bus, room, installation.LoadRoomCharacters(),
+            installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram(); var cgram = new SnesCgram(); assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState(0x1234);
         var samus = new SamusState { Health = 999, MaxHealth = 999, XPosition = 256, YPosition = 64,
             Pose = SamusPoseIds.FacingRightNormalPose };
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem { TileArtwork = installation.LoadEnemyTiles() };
         enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram,
             random.NextRandom, random.SetRandomNumber, readRandomNumber: () => random.RandomNumber,
             level: assets.LevelData, samus: samus, isAreaBossDefeated: () => false);

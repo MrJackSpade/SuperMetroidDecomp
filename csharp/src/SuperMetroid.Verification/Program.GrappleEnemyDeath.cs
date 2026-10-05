@@ -11,6 +11,7 @@ internal static partial class Program
         samus.XPosition = 220;
         samus.YPosition = 180;
         var fixture = CreateEnemyDropFixture(samus, [1]);
+        fixture.System.TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles();
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (int bank in new[] { 0x860000, 0x8d0000 })
         {
@@ -43,7 +44,7 @@ internal static partial class Program
         AssertEqual(100, explosion.XPosition, "death explosion preserves enemy X");
         AssertEqual(100, explosion.YPosition, "death explosion preserves enemy Y");
         AssertEqual(header, explosion.EnemyHeaderPointer, "death actor retains drop-table identity");
-        var spriteMaps = new HashSet<ushort>();
+        var spriteFrames = new HashSet<string>();
         bool sawPickup = false;
         bool heardDeath = false;
         for (int frame = 0; frame < 100; frame++)
@@ -61,9 +62,9 @@ internal static partial class Program
             var oam = new OamBuffer();
             fixture.System.DrawEnemyProjectiles(oam, 0, 0);
             AssertTrue(oam.NextByteOffset > 0, $"grapple death explosion is visible on frame {frame}");
-            spriteMaps.Add(explosion.SpritemapPointer);
+            spriteFrames.Add(Convert.ToHexString(oam.LowTable[..oam.NextByteOffset]));
         }
-        AssertEqual(6, spriteMaps.Count, "grapple death displays all six retail small-explosion frames");
+        AssertEqual(6, spriteFrames.Count, "grapple death displays all six retail small-explosion frames");
         AssertTrue(sawPickup, "retail death instruction list converts the explosion into a pickup");
         AssertTrue(heardDeath,
             "grapple death emits the retail enemy-killed sound from its instruction list");
@@ -85,6 +86,7 @@ internal static partial class Program
             samus.XPosition = 220;
             samus.YPosition = 100;
             var fixture = CreateEnemyDropFixture(samus, [1]);
+        fixture.System.TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles();
             var enemy = fixture.System.Slots[0];
             enemy.EnemyDefinitionPointer = 0x9000;
             enemy.Definition = default(RoomEnemyDefinition) with

@@ -148,6 +148,14 @@ internal static partial class Program
                 AssertEqual((byte)editedFrames[angle], edited.Resolve((byte)angle), "stream 3 independently edited swing art frame");
             editedFrames[editedAngle] = original;
         }
+        VerifyCreditsPresentation(Path.GetFullPath("Super Metroid.smc"));
+        byte[] creditsJson = SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(rom);
+        var credits = CreditsPresentation.Load(new MemoryStream(creditsJson));
+        AssertTrue(typeof(CreditsPresentation).GetField("fixtureRows", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(credits) is null, "stream 3 credits stock has no cached row storage");
+        AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(creditsJson)), credits.ContentIdentity, "stream 3 credits source identity preserved");
+        foreach (int invalid in new[] { -1, credits.RowCount, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = credits.GetRow(invalid).Length, "stream 3 calculated credits row bounds");
         VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.CartridgeImportAddressSpace)rom);
         foreach (var lightning in CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
         {

@@ -150,7 +150,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/CreditsPresentation.cs
 
-- [ ] **CreditsPresentation.rows** ([L9](../csharp/src/SuperMetroid.Core/Assets/CreditsPresentation.cs#L9)) - installed stock table. Original/default payload behind CreditsPresentation.rows. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **CreditsPresentation.rows** ([L9](../csharp/src/SuperMetroid.Core/Assets/CreditsPresentation.cs#L9)) - installed stock table. Original/default payload behind CreditsPresentation.rows. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/CreditsPresentationDefinitions.cs
 
@@ -845,6 +845,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Removed the old dark-row retention claim based on irregular values and lack of a supported formula. Both independent color payloads remain pending. The actual installed storage is `Assets/RoomPaletteFxPresentation.cs`, owned outside stream 3; the coordinator will route its conversion and this stream has not edited it.
 - Concrete pending surface-color formula recorded by the previous source investigation: for frame indices 0..12, phase sequence is `0,1,2,3,4,3,2,1,0,4,3,2,1`; colors are `0x2D6C + 0x18C6 * phase - 0x0421 * color` for phases zero through three and solid `0x7FFF` for phase four, with color indices zero through seven. The cross-owned installed payload still requires implementation and focused confirmation of this formula. Unused-dark frames use five color phases in order `A,B,C,D,E,D,C,B,A,A,E,D,C,B`, with E black; this phase correspondence is not a justification for retaining its nonzero colors.
 - One original inventory entry completed, including all nested control rows, bringing converted entries to 63 plus the separate decorative-anchor retention. No external source-hash dependency found.
+### Confirmed batch 27: Credits rows rendered from text
+
+- Removed the stock 520-by-32 compiled tile-word lookup. Requested rows now derive directly from validated editable text, line spacing, column, font glyph calculation, top/bottom half and palette attributes. Initial/interline/section/trailing blanks and blank-glyph attribute behavior remain exact. Source-content hashing is unchanged.
+- Loader validation still rejects invalid identities, text, columns, palettes and glyphs, but stores no generated stock rows. The existing explicit `FromCompiledRowsForVerification` constructor keeps copied synthetic rows only for its fixture callers. Ordered line-definition metadata remains a separate required inventory entry.
+- Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed the existing fixture's 520 native rows (16,640 words), full real scrolling cadence through completion, editable text/column/palette behavior and strict validation. Additional checks confirmed source identity, row bounds and absent stock row storage.
+- One entry completed, bringing converted entries to 64 plus the separate decorative-anchor retention. No external source-hash dependency found.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

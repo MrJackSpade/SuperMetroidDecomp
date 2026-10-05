@@ -6,18 +6,38 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable staff-credit text compiled into the cartridge's fixed row cadence.</summary>
 public sealed class CreditsPresentation
 {
-    private readonly ushort[][] rows;
+    private readonly CreditsLineDocument[]? lines;
+    private readonly ushort[][]? fixtureRows;
 
-    private CreditsPresentation(ushort[][] rows, string contentIdentity)
+    private CreditsPresentation(CreditsLineDocument[]? lines, ushort[][]? fixtureRows, string contentIdentity)
     {
-        this.rows = rows;
+        this.lines = lines;
+        this.fixtureRows = fixtureRows;
         ContentIdentity = contentIdentity;
     }
 
     public string ContentIdentity { get; }
-    public int RowCount => rows.Length;
-    public ReadOnlySpan<ushort> GetRow(int index) => rows[index];
-
+    public int RowCount => fixtureRows?.Length ?? CreditsPresentationDefinitions.ExpectedCompiledRows;
+    public ReadOnlySpan<ushort> GetRow(int index)
+    {
+        if ((uint)index >= RowCount)
+            throw new IndexOutOfRangeException();
+        if (fixtureRows is not null)
+            return fixtureRows[index];
+        int row = 0;
+        for (int line = 0; line < lines!.Length; line++)
+        {
+            var definition = CreditsPresentationDefinitions.Lines[line];
+            row += definition.BlankRowsBefore;
+            if (index < row)
+                return BlankRow();
+            int height = definition.Style == CreditsLineStyle.Large ? 2 : 1;
+            if (index < row + height)
+                return RenderLine(definition, lines[line], bottom: index != row);
+            row += height;
+        }
+        return BlankRow();
+    }
     public static CreditsPresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -50,8 +70,7 @@ public sealed class CreditsPresentation
                 $"exactly {definitions.Count} ordered lines.");
         }
 
-        var compiled = new List<ushort[]>(
-            CreditsPresentationDefinitions.ExpectedCompiledRows);
+        int compiledRows = 0;
         for (int index = 0; index < definitions.Count; index++)
         {
             CreditsLineDefinition definition = definitions[index];
@@ -72,17 +91,17 @@ public sealed class CreditsPresentation
                     $"Credits line '{definition.Id}' exceeds the 32-column tilemap.");
             }
 
-            AddBlankRows(compiled, definition.BlankRowsBefore);
-            CompileLine(compiled, definition, line);
+            compiledRows += definition.BlankRowsBefore + (definition.Style == CreditsLineStyle.Large ? 2 : 1);
+            ValidateLine(definition, line);
         }
-        AddBlankRows(compiled, CreditsPresentationDefinitions.TrailingBlankRows);
-        if (compiled.Count != CreditsPresentationDefinitions.ExpectedCompiledRows)
+        compiledRows += CreditsPresentationDefinitions.TrailingBlankRows;
+        if (compiledRows != CreditsPresentationDefinitions.ExpectedCompiledRows)
         {
             throw new InvalidDataException(
-                $"Credits compiled to {compiled.Count} rows; expected " +
+                $"Credits compiled to {compiledRows} rows; expected " +
                 $"{CreditsPresentationDefinitions.ExpectedCompiledRows}.");
         }
-        return new(compiled.ToArray(), Convert.ToHexString(SHA256.HashData(source)));
+        return new(document.Lines, null, Convert.ToHexString(SHA256.HashData(source)));
     }
 
     public static void Write(Stream output, CreditsPresentationDocument document)
@@ -103,56 +122,40 @@ public sealed class CreditsPresentation
             throw new ArgumentException(
                 "Verification credits rows must be nonempty 32-word rows.", nameof(rows));
         }
-        return new(rows.Select(row => row.ToArray()).ToArray(), "VERIFICATION");
+        return new(null, rows.Select(row => row.ToArray()).ToArray(), "VERIFICATION");
     }
 
-    private static void CompileLine(List<ushort[]> target,
-        CreditsLineDefinition definition, CreditsLineDocument line)
+    private static void ValidateLine(CreditsLineDefinition definition, CreditsLineDocument line)
     {
-        ushort attributes = unchecked((ushort)(line.Palette <<
-            CreditsPresentationDefinitions.PaletteShift));
-        ushort[] top = BlankRow();
-        ushort[]? bottom = definition.Style == CreditsLineStyle.Large
-            ? BlankRow()
-            : null;
-        for (int index = 0; index < line.Text.Length; index++)
+        foreach (char character in line.Text)
         {
-            char character = line.Text[index];
-            ushort topGlyph;
-            ushort? bottomGlyph;
             try
             {
-                topGlyph = CreditsPresentationDefinitions.CompileGlyph(
-                    character, definition.Style);
-                bottomGlyph = bottom is null ? null :
-                    CreditsPresentationDefinitions.CompileGlyph(
-                        character, definition.Style, bottom: true);
+                _ = CreditsPresentationDefinitions.CompileGlyph(character, definition.Style);
+                if (definition.Style == CreditsLineStyle.Large)
+                    _ = CreditsPresentationDefinitions.CompileGlyph(character, definition.Style, bottom: true);
             }
             catch (ArgumentOutOfRangeException error)
             {
                 throw new InvalidDataException(
                     $"Credits line '{definition.Id}' contains an unsupported glyph.", error);
             }
-            int column = line.Column + index;
-            top[column] = ApplyAttributes(topGlyph, attributes);
-            if (bottomGlyph is { } glyph)
-                bottom![column] = ApplyAttributes(glyph, attributes);
         }
-        target.Add(top);
-        if (bottom is not null)
-            target.Add(bottom);
     }
 
+    private static ushort[] RenderLine(CreditsLineDefinition definition, CreditsLineDocument line, bool bottom)
+    {
+        ushort[] row = BlankRow();
+        ushort attributes = (ushort)(line.Palette << CreditsPresentationDefinitions.PaletteShift);
+        for (int index = 0; index < line.Text.Length; index++)
+            row[line.Column + index] = ApplyAttributes(
+                CreditsPresentationDefinitions.CompileGlyph(line.Text[index], definition.Style, bottom), attributes);
+        return row;
+    }
     private static ushort ApplyAttributes(ushort glyph, ushort attributes) =>
         glyph == CreditsPresentationDefinitions.BlankWord
             ? glyph
             : unchecked((ushort)(glyph | attributes));
-
-    private static void AddBlankRows(List<ushort[]> target, int count)
-    {
-        for (int index = 0; index < count; index++)
-            target.Add(BlankRow());
-    }
 
     private static ushort[] BlankRow() =>
         Enumerable.Repeat(CreditsPresentationDefinitions.BlankWord,

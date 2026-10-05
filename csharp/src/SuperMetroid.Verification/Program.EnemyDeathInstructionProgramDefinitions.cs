@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -39,6 +40,9 @@ internal static partial class Program
                 $"generic enemy-death mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new EnemyDeathInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -104,17 +108,19 @@ internal static partial class Program
                 $"death variant {program.Variant} executes the compiled respawn/delete tail");
         }
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "EnemyDeath execution performs no live spritemap operand reads");
         AssertEqual(EnemyDeathInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all generic enemy-death spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < EnemyDeathInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+            executedOperands.Count, "EnemyDeath executes every native visual operand");
+        for (int index = 0; index < EnemyDeathInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address =
-                EnemyDeathInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads generic enemy-death presentation $86:{address:X4}");
+            ushort address = EnemyDeathInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"EnemyDeath executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "EnemyDeath has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "EnemyDeath compiled selector matches the cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids all compiled generic enemy-death mechanics bytes");
@@ -134,11 +140,14 @@ internal static partial class Program
 
         Console.WriteLine(
             "Generic enemy-death instruction mechanics: all five real death variants, " +
-            "the shared respawn tail, 66 compiled words, and 31 live spritemap reads pass " +
+            "the shared respawn tail, 66 compiled words, and 31 installed sprite frames match native OAM " +
             "with mechanics bytes forbidden.");
 
-        void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile) =>
+        void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
+        {
             process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
+        }
     }
 
     private static int ProbeEnemyDeathInstructionMechanicsAllocation()

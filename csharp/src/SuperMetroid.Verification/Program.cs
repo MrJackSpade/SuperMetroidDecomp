@@ -3680,6 +3680,11 @@ if (args is ["--ceres-debris-instruction-mechanics"])
     VerifyCeresFallingDebrisInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--ceres-debris-fixture"])
+{
+    VerifyCeresFallingDebrisInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--save-station-electricity-instruction-mechanics"])
 {
     VerifySaveStationElectricityInstructionProgramDefinitions();

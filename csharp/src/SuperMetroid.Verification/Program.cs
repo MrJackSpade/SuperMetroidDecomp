@@ -3730,6 +3730,11 @@ if (args is ["--hud-state"])
     VerifyHudStateAndBg3Rendering();
     return 0;
 }
+if (args is ["--area-map-assets"])
+{
+    VerifyAreaMapAssets();
+    return 0;
+}
 if (args is ["--cacatac-instruction-mechanics"])
 {
     VerifyCacatacInstructionProgramDefinitions();

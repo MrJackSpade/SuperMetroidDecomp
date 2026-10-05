@@ -13,5 +13,6 @@
     <Compile Include="../../test-support/ReferencePaletteFxColorSource.cs" Link="ReferencePaletteFxColorSource.cs" />
     <Compile Include="../../test-support/ImportedSpritemapOracle.cs" Link="ImportedSpritemapOracle.cs" />
     <Compile Include="../../test-support/ImportedVramOracle.cs" Link="ImportedVramOracle.cs" />
+    <Compile Include="../SuperMetroid.DebugRunner/Assets/MapAssetExtractor.cs" Link="MapAssetExtractor.cs" />
   </ItemGroup>
 </Project>

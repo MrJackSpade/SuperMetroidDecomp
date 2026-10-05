@@ -7,6 +7,36 @@ internal static partial class Program
 {
     private static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
+        IntroCinematicRomData.Palette.Regions[] introRegions =
+        [IntroCinematicRomData.Palette.Gameplay, IntroCinematicRomData.Palette.GameplayClear,
+         IntroCinematicRomData.Palette.Narration, IntroCinematicRomData.Palette.Discovery];
+        IntroPaletteSpan[][] expectedIntroRegions =
+        [
+            [new(0, 20), new(96, 16), new(466, 6)],
+            [new(0, 16), new(96, 16), new(466, 6)],
+            [new(40, 3), new(224, 16), new(384, 32), new(480, 16)],
+            [new(64, 16), new(448, 9)],
+        ];
+        int[][] nativeIntroOperands =
+        [ [0x8bb258, 0x8bb261, 0x8bb26a], [0x8bb3c8, 0x8bb3d1, 0x8bb3da],
+          [0x8bb273, 0x8bb27c, 0x8bb285, 0x8bb28e], [0x8bb2f5, 0x8bb2fe] ];
+        for (int group = 0; group < introRegions.Length; group++)
+        {
+            AssertTrue(introRegions[group].SequenceEqual(expectedIntroRegions[group]),
+                "stream 3 intro scene region order, offsets and color counts");
+            for (int index = 0; index < nativeIntroOperands[group].Length; index++)
+            {
+                int address = nativeIntroOperands[group][index];
+                AssertEqual((byte)0xa2, rom.ReadByte(address), "stream 3 intro native LDX region");
+                AssertEqual((byte)0xa0, rom.ReadByte(address + 3), "stream 3 intro native LDY color count");
+                AssertEqual((int)introRegions[group][index].ByteOffset,
+                    rom.ReadByte(address + 1) | rom.ReadByte(address + 2) << 8, "stream 3 intro native offset");
+                AssertEqual((int)introRegions[group][index].ByteCount,
+                    rom.ReadByte(address + 4) | rom.ReadByte(address + 5) << 8, "stream 3 intro native count");
+            }
+            foreach (int invalid in new[] { -1, introRegions[group].Count, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => _ = introRegions[group][invalid], "stream 3 intro region bounds");
+        }
         ushort[] motherBrainRoots =
         [
             0xa586, 0xa5bf, 0xa5f8, 0xa62c, 0xa660, 0xa694, 0xa69b, 0xa6d9, 0xa717,

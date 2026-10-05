@@ -88,38 +88,77 @@ public static class IntroCinematicRomData
     /// <summary>Palette slices used by the repeating flashback/narration crossfades.</summary>
     public static class Palette
     {
-        private static readonly IntroPaletteSpan[] GameplayRegions =
-        [
-            new(0x0000, 0x0014),
-            new(0x0060, 0x0010),
-            new(0x01d2, 0x0006),
-        ];
-        private static readonly IntroPaletteSpan[] GameplayClearRegions =
-        [
-            new(0x0000, 0x0010),
-            new(0x0060, 0x0010),
-            new(0x01d2, 0x0006),
-        ];
-        private static readonly IntroPaletteSpan[] NarrationRegions =
-        [
-            new(0x0028, 0x0003),
-            new(0x00e0, 0x0010),
-            new(0x0180, 0x0020),
-            new(0x01e0, 0x0010),
-        ];
-        private static readonly IntroPaletteSpan[] DiscoveryRegions =
-        [
-            new(0x0040, 0x0010),
-            new(0x01c0, 0x0009),
-        ];
 
         public const ushort CrossfadeInitialCounter = 0x007f;
         public const ushort CounterSignBit = 0x8000;
         public const ushort StepEveryFourFramesMask = 0x0003;
-        public static ReadOnlySpan<IntroPaletteSpan> Gameplay => GameplayRegions;
-        public static ReadOnlySpan<IntroPaletteSpan> GameplayClear => GameplayClearRegions;
-        public static ReadOnlySpan<IntroPaletteSpan> Narration => NarrationRegions;
-        public static ReadOnlySpan<IntroPaletteSpan> Discovery => DiscoveryRegions;
+        public static Regions Gameplay { get; } = new(Scene.Gameplay);
+        public static Regions GameplayClear { get; } = new(Scene.GameplayClear);
+        public static Regions Narration { get; } = new(Scene.Narration);
+        public static Regions Discovery { get; } = new(Scene.Discovery);
+
+        /// <summary>Mutually exclusive intro palette-region selections.</summary>
+        public enum Scene { Gameplay, GameplayClear, Narration, Discovery }
+
+        /// <summary>Ordered scene operations, selected without a stored region table.</summary>
+        public sealed class Regions : System.Collections.Generic.IReadOnlyList<IntroPaletteSpan>
+        {
+            private readonly Scene scene;
+            internal Regions(Scene scene) => this.scene = scene;
+            public int Count => scene switch { Scene.Narration => 4, Scene.Discovery => 2, _ => 3 };
+            public bool IsEmpty => Count == 0;
+            public IntroPaletteSpan this[int index] => scene switch
+            {
+                Scene.Gameplay or Scene.GameplayClear => index switch
+                {
+                    0 => scene == Scene.Gameplay ? GameplayBackground : GameplayClearBackground,
+                    1 => GameplayEnvironment,
+                    2 => GameplaySamus,
+                    _ => throw new IndexOutOfRangeException(),
+                },
+                Scene.Narration => index switch
+                {
+                    0 => NarrationText,
+                    1 => NarrationBackground,
+                    2 => NarrationPortrait,
+                    3 => NarrationObjects,
+                    _ => throw new IndexOutOfRangeException(),
+                },
+                Scene.Discovery => index switch
+                {
+                    0 => DiscoveryBackground,
+                    1 => DiscoveryObjects,
+                    _ => throw new IndexOutOfRangeException(),
+                },
+                _ => throw new InvalidOperationException(),
+            };
+            public System.Collections.Generic.IEnumerator<IntroPaletteSpan> GetEnumerator()
+            {
+                for (int index = 0; index < Count; index++) yield return this[index];
+            }
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        /// <summary>$8B:B258/B25B, CrossFadeToSamusGameplay: first background row and four colors of the next.</summary>
+        private static IntroPaletteSpan GameplayBackground => new(0, 16 + 4);
+        /// <summary>$8B:B3C8/B3CB: gameplay initialization clears only the first background row.</summary>
+        private static IntroPaletteSpan GameplayClearBackground => new(0, 16);
+        /// <summary>$8B:B261/B264: gameplay background row 3.</summary>
+        private static IntroPaletteSpan GameplayEnvironment => new(3 * 32, 16);
+        /// <summary>$8B:B26A/B26D: six colors at object row 6, color 9.</summary>
+        private static IntroPaletteSpan GameplaySamus => new((8 + 6) * 32 + 9 * 2, 6);
+        /// <summary>$8B:B273/B276: three narration colors at background row 1, color 4.</summary>
+        private static IntroPaletteSpan NarrationText => new(32 + 4 * 2, 3);
+        /// <summary>$8B:B27C/B27F: narration background row 7.</summary>
+        private static IntroPaletteSpan NarrationBackground => new(7 * 32, 16);
+        /// <summary>$8B:B285/B288: two narration object rows starting at row 4.</summary>
+        private static IntroPaletteSpan NarrationPortrait => new((8 + 4) * 32, 2 * 16);
+        /// <summary>$8B:B28E/B291: narration object row 7.</summary>
+        private static IntroPaletteSpan NarrationObjects => new((8 + 7) * 32, 16);
+        /// <summary>$8B:B2F5/B2F8, CrossFadeToScientistCutscene: background row 2.</summary>
+        private static IntroPaletteSpan DiscoveryBackground => new(2 * 32, 16);
+        /// <summary>$8B:B2FE/B301: nine scientist cutscene colors in object row 6.</summary>
+        private static IntroPaletteSpan DiscoveryObjects => new((8 + 6) * 32, 9);
     }
 
     /// <summary>Demo records and fixed Mother Brain room payload.</summary>

@@ -10713,4 +10713,18 @@
   "remaining": "278 converted, one justified retained,849 pending. No new exception.",
   "confirmation": "Verification build1437 warnings/zero errors; focused --lookup-stream5-actor-layouts passes14 native actors/28 coordinates, all28 independent coordinate edits, canonical content identity, no stock row storage and index bounds. Source index refreshed; no source contract hash dependency found.",
   "implementationCommit": "ff4f55119"
+},"chozoOrbProgramIntegration":{
+  "scope": "Torizo Chozo orb mechanics and visual operand locations, two complete definitions.",
+  "remaining": "280 converted, one justified retained,847 pending.",
+  "implementationCommit": "337acd1b1",
+  "confirmation": "Verification1438 warnings/zero errors; focused orb check passes40 native words,18 selectors,four real producers,wall/floor lifetimes and both shot/drop paths. ResourceAudit zero warnings/errors. Static index refreshed.",
+  "state": "converted",
+  "algorithm": "Shared moving loops, impact property setup, five-pose wall/shot animation, floor timing ramp and shot-drop dispatch."
+},"tubeRampPartialIntegration":{
+  "scope": "ChozoAndTubeColorCatalog.tubeCracks partial conversion",
+  "convertedFields": "Eight-color linear RGB5 ramp and duplicate16-color half calculate; only eight seed colors remain stored for stock.",
+  "implementationCommit": "e236900e1",
+  "confirmation": "All32 native colors, full CGRAM writes,32 independent edits, other palettes and canonical identity pass. Reviewed catalog source hash refreshed.",
+  "state": "unreviewed",
+  "remaining": "Eight seed colors require conversion or specific acceptable justification. Container remains unchecked; no retention exemption."
 }}

@@ -21,7 +21,7 @@ internal static class SequenceColorClosedContractDefinitions
             "Load compiles all sixteen fourteen-color body/leg rows, eight fifteen-color corpse rows and fourteen exploded-door colors before private construction. Every reviewed resolver bounds-checks the selected complete row/color domain."),
         new("SuperMetroid.Core.Assets.ChozoAndTubeColorCatalog", "chozo-tube-v1-complete-fixed-palettes",
             ["ApplyTubeCracks", "ApplyWreckedShip", "ApplyLowerNorfair"],
-            [new("csharp/src/SuperMetroid.Core/Assets/ChozoAndTubeColorCatalog.cs", "7DF5D85B8486C8D5B04947D5B46FE68786B6EEA8E813EF304785B6C7C9EE2495"),
+            [new("csharp/src/SuperMetroid.Core/Assets/ChozoAndTubeColorCatalog.cs", "EE948CC33B289E0DCAB0BD8A905A1AE3189C03180C245C3E9F21DDC90FD2E467"),
              new("csharp/src/SuperMetroid.Core/Game/ChozoAndTubeColorRomData.cs", "6A9A2B10A9A97A66584EC7DD28C562D687E7E1CC45376990A57D2DCB1D4B452B")],
             "Load requires all three fixed 32-color images before private construction. These Apply operations transfer only the corresponding loaded array; raw color resolvers are not covered by this rule."),
         new("SuperMetroid.Core.Assets.GameplayBasePaletteCatalog", "gameplay-base-v1-complete-cgram-image",

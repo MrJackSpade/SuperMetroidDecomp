@@ -8,6 +8,8 @@ public sealed class SpriteComposition
     private readonly IReadOnlyList<CompiledSpritePart> parts;
     internal SpriteComposition(CompiledSpritePart[] parts) => this.parts = (CompiledSpritePart[])parts.Clone();
     private SpriteComposition(IReadOnlyList<CompiledSpritePart> parts) => this.parts = parts;
+    /// <summary>Wraps an immutable calculated part view. The caller must supply an immutable view, never a mutable document/list.</summary>
+    internal static SpriteComposition FromCalculated(IReadOnlyList<CompiledSpritePart> parts) => new(parts);
     internal int PartCount => parts.Count;
     internal CompiledSpritePart Part(int index) => parts[index];
 

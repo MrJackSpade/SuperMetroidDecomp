@@ -28,10 +28,10 @@ public sealed class EscapeTimerPresentation
         ArgumentNullException.ThrowIfNull(timer);
         ArgumentNullException.ThrowIfNull(oam);
 
-        DrawFrame(EscapeTimerPresentationDefinitions.LabelFrame, anchors["Label"]);
-        DrawPair(timer.MinutesBcd, anchors["Minutes"]);
-        DrawPair(timer.SecondsBcd, anchors["Seconds"]);
-        DrawPair(timer.CentisecondsBcd, anchors["Centiseconds"]);
+        DrawFrame(EscapeTimerPresentationDefinitions.LabelFrame, Anchor("Label"));
+        DrawPair(timer.MinutesBcd, Anchor("Minutes"));
+        DrawPair(timer.SecondsBcd, Anchor("Seconds"));
+        DrawPair(timer.CentisecondsBcd, Anchor("Centiseconds"));
 
         void DrawPair(byte packedBcd, MapLabelPoint anchor)
         {
@@ -48,9 +48,13 @@ public sealed class EscapeTimerPresentation
         {
             ushort x = unchecked((ushort)(timer.XPixel + anchor.X));
             ushort y = unchecked((ushort)(timer.YPixel + anchor.Y));
-            frames[name].DrawOnScreen(oam, x, y, PaletteBits);
+            (frames.TryGetValue(name, out var supplied) ? supplied : EscapeTimerPresentationDefinitions.DefaultFrame(name))
+                .DrawOnScreen(oam, x, y, PaletteBits);
         }
     }
+
+    private MapLabelPoint Anchor(string name) => anchors.TryGetValue(name, out var supplied)
+        ? supplied : EscapeTimerPresentationDefinitions.DefaultAnchor(name);
 
     public static EscapeTimerPresentation Load(Stream json)
     {
@@ -102,7 +106,8 @@ public sealed class EscapeTimerPresentation
                 compiled[index] = new(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
                     unchecked((byte)(sbyte)part.OffsetY), attributes, part.Palette is null);
             }
-            frames.Add(name, new SpriteComposition(compiled));
+            if (!compiled.SequenceEqual(EscapeTimerPresentationDefinitions.DefaultParts(name)))
+                frames.Add(name, new SpriteComposition(compiled));
         }
 
         var anchors = new Dictionary<string, MapLabelPoint>(StringComparer.Ordinal);
@@ -112,7 +117,7 @@ public sealed class EscapeTimerPresentation
                 throw new InvalidDataException($"Escape timer anchor {name} is null.");
             if (point.X is < -256 or > 255 || point.Y is < -224 or > 223)
                 throw new InvalidDataException($"Escape timer anchor {name} is outside the supported screen-relative range.");
-            anchors.Add(name, point);
+            if (point != EscapeTimerPresentationDefinitions.DefaultAnchor(name)) anchors.Add(name, point);
         }
         return new(frames, anchors, document.DigitSpacing, document.Palette);
     }

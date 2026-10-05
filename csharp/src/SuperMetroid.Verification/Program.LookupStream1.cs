@@ -5,6 +5,106 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] json = EscapeTimerPresentationExtractor.Extract(rom);
+        var stock = EscapeTimerPresentation.Load(new MemoryStream(json));
+        var document = System.Text.Json.JsonSerializer.Deserialize<EscapeTimerPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        int Count(EscapeTimerPresentation value, string name) => ((System.Collections.IDictionary)typeof(EscapeTimerPresentation).GetField(name, flags)!.GetValue(value)!).Count;
+        AssertEqual(0, Count(stock, "frames"), "Timer stock stores no calculated frame fallbacks");
+        AssertEqual(0, Count(stock, "anchors"), "Timer stock stores no calculated anchor fallbacks");
+        int parts = 0;
+        foreach (string name in document.Frames.Keys)
+        {
+            int address = name == "Label" ? 0x80a060 : 0x800000 | Word(0x809fd4 + int.Parse(name.AsSpan(6)) * 2);
+            var calculated = EscapeTimerPresentationDefinitions.DefaultParts(name);
+            AssertEqual((int)Word(address), calculated.Count, "Timer part count matches native sprite record");
+            for (int index = 0; index < calculated.Count; index++)
+            {
+                int native = address + 2 + index * 5;
+                var part = calculated[index];
+                AssertEqual(Word(native), part.X.Raw, "Timer calculated X/size native word");
+                AssertEqual(rom.ReadByte(native + 2), part.Y, "Timer calculated native Y");
+                AssertEqual((ushort)(Word(native + 3) & ~0x0e00), part.Attributes.Raw, "Timer calculated native tile/priority/flips with inherited palette removed");
+                AssertTrue(part.InheritPalette, "Timer part inherits independently supplied timer palette");
+                parts++;
+            }
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated[-1], "Timer part negative index rejects");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated[calculated.Count], "Timer part upper index rejects");
+        }
+        AssertEqual(25, parts, "All twenty-five native timer parts are calculated");
+        foreach ((string name, int address) in new[] { ("Label", 0x809f73), ("Minutes", 0x809f7c), ("Seconds", 0x809f85), ("Centiseconds", 0x809f8e) })
+            AssertEqual(new MapLabelPoint(unchecked((short)Word(address)), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(name), "Timer centered anchor matches native renderer immediate");
+        var timer = new EscapeTimer(); timer.Clear();
+        for (int digit = 0; digit < 10; digit++)
+        {
+            timer.SetTime((byte)(digit * 17), 0, (byte)(digit * 17));
+            var native = new OamBuffer(); var actual = new OamBuffer();
+            DrawImportedEscapeTimer(rom, timer, native);
+            stock.Draw(timer, actual);
+            EqualOam(native, actual, "Every calculated decimal glyph draws exact native OAM");
+        }
+        foreach (string name in document.Frames.Keys)
+        {
+            var edited = Read();
+            edited.Frames[name][0] = edited.Frames[name][0] with { OffsetX = edited.Frames[name][0].OffsetX + 3,
+                OffsetY = edited.Frames[name][0].OffsetY + 2, TileNumber = edited.Frames[name][0].TileNumber ^ 1,
+                Size = 16, Priority = 1, Palette = 2, FlipX = true, FlipY = true };
+            var compiled = Load(edited);
+            AssertEqual(1, Count(compiled, "frames"), "One timer frame edit stores exactly one independent frame");
+            AssertEqual(0, Count(compiled, "anchors"), "Frame edits do not store unchanged timer anchors");
+            int digit = name == "Label" ? 0 : int.Parse(name.AsSpan(6));
+            timer.SetTime((byte)(digit * 17), 0, (byte)(digit * 17));
+            var actual = new OamBuffer(); compiled.Draw(timer, actual);
+            EqualOam(DrawDocument(edited), actual, "Edited timer geometry, size, tile, priority, palette and flips remain exact");
+        }
+        foreach (string anchor in document.Anchors.Keys)
+        {
+            var edited = Read(); edited.Anchors[anchor] = edited.Anchors[anchor] with { X = edited.Anchors[anchor].X + 2, Y = 3 };
+            edited = edited with { DigitSpacing = 10, Palette = 1 };
+            var compiled = Load(edited);
+            AssertEqual(1, Count(compiled, "anchors"), "One timer anchor edit stores exactly one independent anchor");
+            AssertEqual(0, Count(compiled, "frames"), "Anchor, spacing and palette edits do not store native frames");
+            timer.SetTime(0x12, 0x34, 0x56);
+            var actual = new OamBuffer(); compiled.Draw(timer, actual);
+            EqualOam(DrawDocument(edited), actual, "Independent anchor, digit spacing and palette edits preserve selected document");
+        }
+        Console.WriteLine("Escape timer layout:25 native parts,4 native anchors, zero stock dictionaries,10 decimal OAM fixtures and independent frame/anchor/spacing/palette edits pass.");
+
+        EscapeTimerPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<EscapeTimerPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+        static EscapeTimerPresentation Load(EscapeTimerPresentationDocument value)
+        {
+            using var stream = new MemoryStream(); EscapeTimerPresentation.Write(stream, value); stream.Position = 0;
+            return EscapeTimerPresentation.Load(stream);
+        }
+        static void EqualOam(OamBuffer expected, OamBuffer actual, string message)
+        {
+            AssertEqual(expected.NextByteOffset, actual.NextByteOffset, message + " count");
+            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable), message);
+        }
+        OamBuffer DrawDocument(EscapeTimerPresentationDocument selected)
+        {
+            var result = new OamBuffer();
+            Draw("Label", selected.Anchors["Label"]);
+            Pair(timer.MinutesBcd, "Minutes"); Pair(timer.SecondsBcd, "Seconds"); Pair(timer.CentisecondsBcd, "Centiseconds");
+            return result;
+            void Pair(byte bcd, string anchor)
+            {
+                Draw($"Digit.{bcd >> 4}", selected.Anchors[anchor]);
+                Draw($"Digit.{bcd & 15}", selected.Anchors[anchor] with { X = selected.Anchors[anchor].X + selected.DigitSpacing });
+            }
+            void Draw(string frame, MapLabelPoint anchor)
+            {
+                foreach (var part in selected.Frames[frame])
+                    result.AddOnScreenSpritePart(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16), unchecked((byte)(sbyte)part.OffsetY),
+                        SnesObjAttributeWord.Create(part.TileNumber, part.Palette ?? selected.Palette, part.Priority,
+                            (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (part.FlipY ? SnesTileFlipFlags.Vertical : 0)),
+                        unchecked((ushort)(timer.XPixel + anchor.X)), unchecked((ushort)(timer.YPixel + anchor.Y)));
+            }
+        }
+    }
     private static void VerifyLookupStream1FlarePlacement(ISnesAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));

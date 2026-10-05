@@ -183,8 +183,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs
 
-- [ ] **EscapeTimerPresentation.frames** ([L10](../csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs#L10)) - installed stock table. Original/default payload behind EscapeTimerPresentation.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **EscapeTimerPresentation.anchors** ([L11](../csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs#L11)) - installed stock table. Original/default payload behind EscapeTimerPresentation.anchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **EscapeTimerPresentation.frames** ([L10](../csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs#L10)) - installed stock table. Original/default payload behind EscapeTimerPresentation.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **EscapeTimerPresentation.anchors** ([L11](../csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs#L11)) - installed stock table. Original/default payload behind EscapeTimerPresentation.anchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentationDefinitions.cs
 
@@ -918,3 +918,10 @@ Verification-only correction; totals remain176 wholly converted, six mixed,44 un
 ChargeFlarePlacementCatalog.offsets is complete (8a9a850a5 and c5da84b64). Named direction/turn cases replace stock beam origins; Grapple shares ordinary origins and resolves all low-nibble overreads through the exact adjacent physical-origin or calculated swing-selector owner. Explicit LoadGrapple import preserves resource identity and independently editable coordinates; both stock catalogs store zero overrides. No retention exception is used.
 
 Root confirmation: Verification build1445 warnings/zero errors;128 direct native words,128 independent axis edits,bounds and four actual beam OAM fixtures with reads unavailable pass. ResourceAudit builds with zero warnings/errors; reviewed source dependencies include bounded physical-origin owners. Inventory550 converted/17 retained-mixed/561 pending. Separate sprite and tile artwork remains required.
+
+
+## Integrated escape timer composition and anchors
+
+EscapeTimerPresentation.frames and anchors are converted (24e5e2eaa). Decimal glyphs use two eight-pixel parts and arithmetic font tile selection; the TIME label consumes the three remaining label tiles plus separators. Three two-digit groups and two separator cells determine centered anchors. The stock dictionaries are empty; immutable calculated parts preserve native drawing order. Independently edited parts, anchors, spacing and palette remain exact overrides.
+
+Root confirmation: Verification build 1445 warnings/zero errors; 25 native parts, four native anchors, ten native-vs-installed decimal OAM fixtures, eleven frame edits, four anchor edits with spacing/palette changes, and bounds pass. ResourceAudit source closure includes the immutable factory and font extent. Font ink remains independently required in EscapeTimerTileAtlas.transfer; no artwork or timing exemption. Inventory 552 converted/17 retained-mixed/559 pending.

@@ -1,7 +1,7 @@
 
 ## Integrated stream progress
 
-The original snapshot below contains 1128 definitions. As of the first integrated batches, 550 are converted, 17 are justified retained, and 561 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
+The original snapshot below contains 1128 definitions. As of the first integrated batches, 552 are converted, 17 are justified retained, and 559 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
 # Remaining lookup-table definitions - issue 1165
 
 Remaining: **1128 canonical table definitions in 523 source files**.
@@ -915,8 +915,8 @@ Remaining table definitions: **1**.
 
 Remaining table definitions: **2**.
 
-- [ ] **EscapeTimerPresentation.frames** - installed stock table ([L10](../csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs#L10)). Original/default payload behind EscapeTimerPresentation.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **EscapeTimerPresentation.anchors** - installed stock table ([L11](../csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs#L11)). Original/default payload behind EscapeTimerPresentation.anchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **EscapeTimerPresentation.frames** - installed stock table ([L10](../csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs#L10)). Original/default payload behind EscapeTimerPresentation.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **EscapeTimerPresentation.anchors** - installed stock table ([L11](../csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs#L11)). Original/default payload behind EscapeTimerPresentation.anchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentationDefinitions.cs
 

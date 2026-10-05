@@ -104,6 +104,33 @@ internal static partial class Program
         VerifyStream3PainfulWalking(rom);
         VerifyStream3DeathSelectors(rom);
         VerifyMotherBrainContactHitboxes();
+        byte[] grappleSpriteJson = SuperMetroid.AssetExtraction.GrappleSpriteExtractor.Extract(rom);
+        var grappleSprites = GrappleSpriteCatalog.Load(new MemoryStream(grappleSpriteJson));
+        AssertTrue(typeof(GrappleSpriteCatalog).GetField("segments", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(grappleSprites) is null, "stream 3 stock rope attribute rows discarded");
+        AssertTrue(GrappleSpriteDefinitions.SegmentAttributeAddresses.SequenceEqual(new[] { 0x94b18d, 0x94b191, 0x94b195, 0x94b199 }),
+            "stream 3 segment address enumeration");
+        for (int frame = 0; frame < 4; frame++)
+        {
+            int address = 0x94b18d + 4 * frame;
+            AssertEqual((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8), grappleSprites.Segment(frame), "stream 3 calculated native rope attributes");
+            foreach (string field in new[] { "tileColumn", "tileRow", "palette", "priority", "flipX", "flipY" })
+            {
+                var node = System.Text.Json.Nodes.JsonNode.Parse(grappleSpriteJson)!;
+                var style = node["segments"]![frame]!;
+                int bit = field switch { "tileColumn" => 1, "tileRow" => 16, "palette" => 0x200, "priority" => 0x1000, "flipX" => 0x4000, _ => 0x8000 };
+                if (field is "flipX" or "flipY") style[field] = !style[field]!.GetValue<bool>();
+                else style[field] = style[field]!.GetValue<int>() ^ 1;
+                var edited = GrappleSpriteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
+                for (int check = 0; check < 4; check++)
+                    AssertEqual((ushort)(grappleSprites.Segment(check) ^ (check == frame ? bit : 0)), edited.Segment(check), "stream 3 independent rope attribute edit");
+            }
+        }
+        foreach (int invalid in new[] { -1, 4, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => _ = GrappleSpriteDefinitions.SegmentAttributeAddresses[invalid], "stream 3 rope operand address bounds");
+            AssertThrows<InvalidDataException>(() => grappleSprites.Segment(invalid), "stream 3 rope attribute bounds");
+        }
         var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)

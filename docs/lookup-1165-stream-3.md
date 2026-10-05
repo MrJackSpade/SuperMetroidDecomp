@@ -274,11 +274,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/GrappleSpriteCatalog.cs
 
-- [ ] **GrappleSpriteCatalog.segments** ([L10](../csharp/src/SuperMetroid.Core/Assets/GrappleSpriteCatalog.cs#L10)) - installed stock table. Original/default payload behind GrappleSpriteCatalog.segments. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GrappleSpriteCatalog.segments** ([L10](../csharp/src/SuperMetroid.Core/Assets/GrappleSpriteCatalog.cs#L10)) - installed stock table. Original/default payload behind GrappleSpriteCatalog.segments. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/GrappleSpriteDefinitions.cs
 
-- [ ] **GrappleSpriteDefinitions.SegmentAttributeAddresses** ([L11](../csharp/src/SuperMetroid.Core/Assets/GrappleSpriteDefinitions.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GrappleSpriteDefinitions.SegmentAttributeAddresses** ([L11](../csharp/src/SuperMetroid.Core/Assets/GrappleSpriteDefinitions.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs
 
@@ -826,6 +826,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Converted the stock installed 256-entry displayed-frame mapping into nearest-eight-angle rounding and modulo-32 wrap. Import discards stock-compatible mappings; independently edited frame selections remain supplied exactly. The physical body-offset arrays remain separate required work.
 - Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed every native selector byte at $9B:C1C2, a reflection check proving stock storage is absent, and every independently changed angle against all 256 output angles. The real connection fixture also passed using the calculated installed mapping.
 - One entry completed, bringing converted entries to 58 plus the separately justified decorative retention. No external source-hash dependency found.
+### Confirmed batch 24: Rope segment attributes and operand addresses
+
+- Converted the four attribute operand addresses to a calculated four-byte stride, preserving indexing, enumeration and existing caller length semantics. Converted installed stock attributes to consecutive OBJ tiles $21-$24 with palette five, priority three and no flips, matching $94:B18B-$B19A. These fields name the texture animation's contiguous cells and common draw policy; no generated attribute array is retained.
+- Independently supplied endpoint appearance stays unchanged. A segment style override remains exact for every field; stock-compatible segment rows are discarded at import.
+- Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed all four native attributes and addresses, enumeration/bounds, absent stock attribute storage and 24 independent field edits covering tile column/row, palette, priority and both flips. Existing real Grapple connection checks also passed.
+- Two entries completed, bringing the converted count to 60 plus the separate decorative-anchor retention. No external source-hash dependency found.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

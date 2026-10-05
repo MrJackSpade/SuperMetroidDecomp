@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using System.Text.Json.Nodes;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -9,11 +11,18 @@ internal static partial class Program
         var bus = new TestAddressSpace();
         // A native 64-angle-wide beam selects gradients 32/96, both exactly 1.
         // This retains the indirect-run/carry fixture without replacing engine lookup data.
-        WriteTestWord(bus, MotherBrainBeamRomData.ColorTable, 31);
-        WriteTestWord(bus, MotherBrainBeamRomData.ColorTable + 2, 123);
-        WriteTestWord(bus, MotherBrainBeamRomData.ColorTable + 4, 992);
-        WriteTestWord(bus, MotherBrainBeamRomData.ColorTable + 8, ushort.MaxValue);
-        var beam = new MotherBrainRainbowBeamHdmaState();
+        var paletteDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(
+            runtimeFixtureInstallation.Value.MapDirectory, MotherBrainRainbowPaletteFormat.FileName)))!;
+        var cycle = new JsonArray();
+        for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount; frame++)
+            cycle.Add(new JsonObject { ["red"] = frame % 2 == 0 ? 31 : 0,
+                ["green"] = frame % 2 == 0 ? 0 : 31, ["blue"] = 0 });
+        paletteDocument["beamCycle"] = cycle;
+        var beam = new MotherBrainRainbowBeamHdmaState
+        {
+            PresentationColors = MotherBrainRainbowPalettePresentation.Load(new MemoryStream(
+                System.Text.Encoding.UTF8.GetBytes(paletteDocument.ToJsonString()))),
+        };
         void Step() => beam.Step(bus, true, 100, 95, SnesAngle.QuarterTurn, 0x4000);
         Step();
         AssertEqual(MotherBrainBeamRomData.InitialColor, beam.Color, "beam first frame uses E767 fixed color");
@@ -26,7 +35,15 @@ internal static partial class Program
         Step();
         AssertEqual((ushort)31, beam.Color, "first cycling frame reads entry zero");
         Step();
-        AssertEqual((ushort)992, beam.Color, "color cursor skips odd words");
+        AssertEqual((ushort)992, beam.Color, "color cursor advances to the second installed sample");
+        for (int frame = 2; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount; frame++)
+        {
+            Step();
+            AssertEqual((ushort)(frame % 2 == 0 ? 31 : 992), beam.Color,
+                $"beam installed cycle color {frame}");
+            AssertEqual((frame + 1) * MotherBrainBeamRomData.ColorStride, beam.ColorCursor,
+                "beam retains native byte-cursor stride");
+        }
         Step();
         AssertEqual((ushort)31, beam.Color, "negative terminator selects entry zero");
         AssertEqual(0, beam.ColorCursor, "reset frame does not increment color cursor");

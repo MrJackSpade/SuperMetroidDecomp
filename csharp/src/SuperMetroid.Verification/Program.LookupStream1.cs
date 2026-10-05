@@ -5,6 +5,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        VerifyLookupStream1CommonFrames(rom);
         VerifyLookupStream1EnemyMovement(rom);
         VerifyLookupStream1CadencePrograms(rom);
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -245,5 +246,27 @@ internal static partial class Program
             foreach (int invalid in new[] { 0x850000 | first, 0x860000 | (first - 1), 0x860000 | end, int.MinValue, int.MaxValue })
                 AssertTrue(!owns(invalid), "spark/spike outside byte-domain rejection");
         }
+    }
+    private static void VerifyLookupStream1CommonFrames(ISnesAddressSpace rom)
+    {
+        byte[] originalBanks = [0xa0, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xb2, 0xb3];
+        AssertTrue(originalBanks.SequenceEqual(CommonEnemyEmptyExtendedFrameDefinitions.SupportedBanks), "common empty-frame original bank order");
+        for (int bank = 0; bank <= byte.MaxValue; bank++)
+        {
+            bool expected = originalBanks.Contains((byte)bank);
+            AssertEqual(expected, CommonEnemyEmptyExtendedFrameDefinitions.HasFrame((byte)bank, 0x804f), "common empty extended-frame exact bank domain");
+            AssertEqual(expected, CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap((byte)bank, 0x804d), "common empty OAM exact bank domain");
+            AssertTrue(!CommonEnemyEmptyExtendedFrameDefinitions.HasFrame((byte)bank, 0x8050), "common empty frame excludes neighboring pointer");
+            if (expected)
+            {
+                AssertEqual((byte)0, rom.ReadByte(bank << 16 | 0x804d), "native common OAM has zero components");
+                AssertEqual((byte)1, rom.ReadByte(bank << 16 | 0x804f), "native common extended frame has one component");
+            }
+        }
+        var deletion = CommonEnemyProjectileInstructionProgramDefinitions.MechanicsWord(0);
+        AssertEqual((ushort)0x84fc, deletion.Address, "shared projectile delete identity");
+        AssertEqual((ushort)(rom.ReadByte(0x8684fc) | rom.ReadByte(0x8684fd) << 8), deletion.Value, "shared projectile delete native instruction");
+        foreach (int invalid in new[] { int.MinValue, -1, 1, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => CommonEnemyProjectileInstructionProgramDefinitions.MechanicsWord(invalid), "shared delete enumeration bounds");
     }
 }

@@ -157,11 +157,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CommonEnemyEmptyExtendedFrameDefinitions.cs
 
-- [ ] **CommonEnemyEmptyExtendedFrameDefinitions.Banks** ([L18](../csharp/src/SuperMetroid.Core/Game/CommonEnemyEmptyExtendedFrameDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CommonEnemyEmptyExtendedFrameDefinitions.Banks** ([L18](../csharp/src/SuperMetroid.Core/Game/CommonEnemyEmptyExtendedFrameDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CommonEnemyProjectileInstructionProgramDefinitions.cs
 
-- [ ] **CommonEnemyProjectileInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/CommonEnemyProjectileInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CommonEnemyProjectileInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/CommonEnemyProjectileInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/DragonVisualDefinitions.cs
 
@@ -696,3 +696,11 @@ Two more definitions converted;121 complete and105 unchecked. No retained except
 - Random cries directly dispatch the three named library-two sound variants with the exact native slot order and2/3/3 distribution. Source identities live in XML catalog constants; RNG advancement and sound queuing remain unchanged.
 - Evidence: pinned bankA3 `BombedOffVelocities` `$EA3F..EA4E` and `Instruction_Metroid_PlayRandomMetroidSFX.SFX` `$EAD6..EAE5`.
 - Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-1` passed. Existing verifier is wired unchanged: all16 original words,65536 actual escape selectors and eight production cry instruction selections agree with source reads forbidden.
+## Batch 13: common empty-frame bank domain and projectile delete
+
+Two more definitions converted;123 complete and103 unchecked. No retained exception.
+
+- Supported common empty-frame banks are expressed as native bank ranges, with ordered enumeration generated directly. Exact bank-local frame and OAM-pointer requirements remain unchanged.
+- The shared projectile delete program returns its sole mechanics word directly, with the same rejected enumeration indices. Existing direct reader and byte ownership logic are unchanged.
+- Evidence: pinned enemy-bank common `$804D/$804F` empty OAM/one-component records in bankA0,A2..AA,B2..B3, and bank86 `InstList_EnemyProjectile_Delete` `$84FC`.
+- Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-1` passed. New focused check covers all256 bank values, exact twelve-bank enumeration order, original OAM/extended-frame component counts, neighboring-pointer rejection, native delete word and invalid enumeration indices.

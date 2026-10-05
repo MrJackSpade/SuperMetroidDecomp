@@ -1,7 +1,7 @@
 
 ## Integrated stream progress
 
-The original snapshot below contains 1128 definitions. As of the first integrated batches, 547 are converted, 16 are justified retained, and 565 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
+The original snapshot below contains 1128 definitions. As of the first integrated batches, 549 are converted, 16 are justified retained, and 563 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
 # Remaining lookup-table definitions - issue 1165
 
 Remaining: **1128 canonical table definitions in 523 source files**.
@@ -1211,8 +1211,8 @@ Remaining table definitions: **1**.
 
 Remaining table definitions: **2**.
 
-- [ ] **MochtroidVisualDefinitions.Selectors** - stored definition ([L14](../csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs#L14)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MochtroidVisualDefinitions.Frames / literal at L22** - method-local definition ([L22](../csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs#L22)). Fixed values inside a method; not an array parameter/return declaration.
+- [x] **MochtroidVisualDefinitions.Selectors** - stored definition ([L14](../csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs#L14)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MochtroidVisualDefinitions.Frames / literal at L22** - method-local definition ([L22](../csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs#L22)). Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Assets/MorphBallEyeVisualDefinitions.cs
 

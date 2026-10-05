@@ -358,8 +358,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs
 
-- [ ] **MochtroidVisualDefinitions.Selectors** ([L14](../csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MochtroidVisualDefinitions.Frames / literal at L22** ([L22](../csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs#L22)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **MochtroidVisualDefinitions.Selectors** ([L14](../csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MochtroidVisualDefinitions.Frames / literal at L22** ([L22](../csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs#L22)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs
 
@@ -1138,3 +1138,7 @@ Mochtroid Words14free-flight/5attached, YellowPipeBug Words4straight/1arc and Ri
 ### Further early timing audit corrections
 
 Integrated5f00aef40's additional reopenings: Pickup Words energy8/ammunition5 at86:ED8D-EDFD; Fireflea Words2/1 atA3:8C2F-8D02; Choot Words idle1,jump/fall8then1 atA2:D82C-D84A. Earlier Mochtroid/YellowPipeBug/Ripper reopenings already applied in0f38142d4. Original batch3–6 claims now distinguish finished structure from unresolved timing. No runtime code changes; source inspection establishes these are pending magnitudes without a derivation or accepted exception. Master547 converted/16retained-mixed/565 pending.
+
+### Integrated Mochtroid visual selection and registration
+
+Both original visual entries calculate: two0,1,2,1pose cycles select six named frames from native record strides. NativeA3:A9B0 flight records advance2+5*6 through preceding records;AA06 attached records advance2+5*4. Root --lookup-mochtroid-visuals independently walks six native counted records, checks eight operands/rejection, and runs existing real initializer/state-switch/two-loop checks with mechanics reads denied. Build1445warnings/0errors. Worker c5a12a507. Timing14/5,shake amplitude and artwork remain required; master549 converted/16retained-mixed/563 pending.

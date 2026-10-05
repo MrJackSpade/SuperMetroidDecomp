@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-mochtroid-visuals"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mochtroid oracle revision");
+    VerifyStream3MochtroidVisuals(rom);
+    VerifyMochtroidInstructionProgramDefinitions(rom);
+    Console.WriteLine("Mochtroid: six native registrations, eight selectors, address rejection and production instruction checks pass.");
+    return 0;
+}
 if (args is ["--lookup-stream2-environmental-catalogs"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

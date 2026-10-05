@@ -6,6 +6,36 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3MochtroidVisuals(ISnesAddressSpace rom)
+    {
+        EnemySpritemapDefinition[] frames = MochtroidVisualDefinitions.Frames().ToArray();
+        AssertEqual(6, frames.Length, "Mochtroid calculated registration count");
+        for (int family = 0; family < 2; family++)
+        {
+            int start = family == 0 ? 0xa747 : 0xa75b;
+            int pointer = family == 0 ? 0xa9b0 : 0xaa06;
+            for (int pose = 0; pose < 3; pose++)
+            {
+                var frame = frames[family * 3 + pose];
+                AssertEqual((byte)0xa3, frame.Bank, "Mochtroid native frame bank");
+                AssertEqual((ushort)pointer, frame.Pointer, "Mochtroid native counted-record stride");
+                AssertEqual($"mochtroid_{(family == 0 ? "flight" : "attached")}_{pose}", frame.Name, "Mochtroid legacy frame name");
+                int count = rom.ReadByte(0xa30000 | pointer) | rom.ReadByte(0xa30000 | (pointer + 1)) << 8;
+                pointer += 2 + 5 * count;
+            }
+            for (int offset = -1; offset <= 16; offset++)
+            {
+                ushort operand = (ushort)(start + offset);
+                if (offset >= 0 && offset <= 12 && offset % 4 == 0)
+                {
+                    ushort expected = (ushort)(rom.ReadByte(0xa30000 | operand) | rom.ReadByte(0xa30000 | (operand + 1)) << 8);
+                    AssertEqual(expected, MochtroidVisualDefinitions.FrameAt(operand), "Mochtroid native ping-pong selector");
+                }
+                else
+                    AssertThrows<InvalidDataException>(() => MochtroidVisualDefinitions.FrameAt(operand), "Mochtroid rejects non-selector address");
+            }
+        }
+    }
     private static void VerifyStream3MenuSpriteGeometry(ISnesAddressSpace rom)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;

@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 public sealed class SamusAtmosphericArtworkCatalog
 {
-    private readonly ushort[] typeOne;
-    private readonly ushort[] sharedTypeFour;
+    private readonly Dictionary<int, ushort> typeOne = new();
+    private readonly Dictionary<int, ushort> sharedTypeFour = new();
 
     public SamusAtmosphericArtworkCatalog(ushort[] typeOne, ushort[] sharedTypeFour)
     {
@@ -19,34 +19,51 @@ public sealed class SamusAtmosphericArtworkCatalog
         if (typeOne.Length != SamusMovementRomData.Environment.DirectAtmosphericFrameCount ||
             sharedTypeFour.Length != SamusMovementRomData.Environment.DirectAtmosphericFrameCount)
             throw new InvalidDataException("Samus atmospheric small-OBJ lists must each contain four frames.");
-        this.typeOne = (ushort[])typeOne.Clone();
-        this.sharedTypeFour = (ushort[])sharedTypeFour.Clone();
+        for (int frame = 0; frame < typeOne.Length; frame++)
+        {
+            if (typeOne[frame] != SamusAtmosphericArtworkDefinitions.Attributes(true, frame))
+                this.typeOne.Add(frame, typeOne[frame]);
+            if (sharedTypeFour[frame] != SamusAtmosphericArtworkDefinitions.Attributes(false, frame))
+                this.sharedTypeFour.Add(frame, sharedTypeFour[frame]);
+        }
+        TypeOne = new FrameSequence(this, true);
+        SharedTypeFour = new FrameSequence(this, false);
     }
 
     /// <summary>SHA-256 of both selected atmospheric small-OBJ lists.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusAtmosphericArtworkCatalog), content =>
     {
-        content.AppendWords("type one", this.typeOne);
-        content.AppendWords("shared type four", this.sharedTypeFour);
+        content.AppendWords("type one", TypeOne.ToArray());
+        content.AppendWords("shared type four", SharedTypeFour.ToArray());
     });
 
-    public ReadOnlySpan<ushort> TypeOne => typeOne;
-    public ReadOnlySpan<ushort> SharedTypeFour => sharedTypeFour;
+    public IReadOnlyList<ushort> TypeOne { get; }
+    public IReadOnlyList<ushort> SharedTypeFour { get; }
 
     public bool TryResolve(byte type, byte frame, out ushort attributes)
     {
-        ushort[]? list = type switch
-        {
-            1 => typeOne,
-            4 or 6 or 7 => sharedTypeFour,
-            _ => null,
-        };
-        if (list is null || frame >= list.Length)
+        if (type is not (1 or 4 or 6 or 7) || frame >= SamusMovementRomData.Environment.DirectAtmosphericFrameCount)
         {
             attributes = 0;
             return false;
         }
-        attributes = list[frame];
+        attributes = Resolve(type == 1, frame);
         return true;
+    }
+
+    private ushort Resolve(bool footstep, int frame) =>
+        (footstep ? typeOne : sharedTypeFour).TryGetValue(frame, out ushort attributes)
+            ? attributes : SamusAtmosphericArtworkDefinitions.Attributes(footstep, frame);
+
+    private sealed class FrameSequence(SamusAtmosphericArtworkCatalog owner, bool footstep) : IReadOnlyList<ushort>
+    {
+        public int Count => SamusMovementRomData.Environment.DirectAtmosphericFrameCount;
+        public ushort this[int index] => (uint)index < Count
+            ? owner.Resolve(footstep, index) : throw new ArgumentOutOfRangeException(nameof(index));
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int frame = 0; frame < Count; frame++) yield return this[frame];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

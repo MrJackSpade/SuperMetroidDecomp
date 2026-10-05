@@ -966,3 +966,8 @@ Root Verification build1445 warnings/zero errors; --lookup-stream-1-cannon-poses
 Partial conversion from2d31d7a,5bea8d416 and ab9d94a8c:130 descriptor direction/mode bytes use named cases;24 adjacent bytes reuse the existing SBA power-bomb cost calculation. Constant-origin descriptors and fixed horizontal running/moonwalking origins derive216 repeated coordinate bytes from their own earlier basis. Independent edits preserve all608 selected bytes without coupling frames.
 
 Exactly238 independent coordinate bytes remain required; drawingData stays unchecked. This is no artwork or timing exemption. Root Verification build1230 warnings/zero errors; --lookup-stream-1-cannon-drawing passes608 native outputs, exact basis/override membership,608 isolated edits, bounds and the253-pose canonical-hash checks. ResourceAudit build0/0. Inventory remains558 converted/20 retained-mixed/550 pending.
+## Integrated atmospheric OBJ identity progression
+
+Partial conversion4328cc579: both four-frame small-OBJ lists calculate consecutive tile identities using the native nine-bit OBJ format. Read-only views and independent full-word overrides preserve supplied artwork and canonical hashes. Palette5, priority2 and pixel artwork remain required; neither aggregate is marked complete.
+
+Root Verification build1445 warnings/zero errors; --lookup-stream-1-atmospheric-attributes passes eight native words, zero stock overrides, eight arbitrary full-word edits, hashes and input isolation, plus16 actual authored OAM frames and the type2 live-WRAM boundary. ResourceAudit0/0. Inventory unchanged558 converted/20 retained-mixed/550 pending.

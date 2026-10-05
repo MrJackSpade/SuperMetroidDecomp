@@ -1274,4 +1274,50 @@ internal static partial class Program
         Console.WriteLine("Cannon drawing:130 native controls,24 cost aliases,216 repeated coordinates,238 exact basis bytes and608 independent edits pass.");
     }
 
+    private static void VerifyLookupStream1AtmosphericAttributes(ISnesAddressSpace rom)
+    {
+        ushort[] Native(int address) => Enumerable.Range(0, 4).Select(frame =>
+            (ushort)(rom.ReadByte(address + frame * 2) | rom.ReadByte(address + frame * 2 + 1) << 8)).ToArray();
+        ushort[] one = Native(0x908C0F), shared = Native(0x908C17);
+        var stock = new SamusAtmosphericArtworkCatalog(one, shared);
+        int Stored(SamusAtmosphericArtworkCatalog catalog, string name) =>
+            ((System.Collections.IDictionary)typeof(SamusAtmosphericArtworkCatalog).GetField(name,
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!).Count;
+        string Identity(ushort[] first, ushort[] second) => SelectedPresentationHash.Create(nameof(SamusAtmosphericArtworkCatalog), hash =>
+        { hash.AppendWords("type one", first); hash.AppendWords("shared type four", second); });
+        AssertEqual(Identity(one, shared), stock.ContentIdentity, "atmospheric canonical selected identity unchanged");
+        AssertEqual(0, Stored(stock, "typeOne"), "atmospheric footsteps contain no stock overrides");
+        AssertEqual(0, Stored(stock, "sharedTypeFour"), "atmospheric lava/dust contains no stock overrides");
+        for (int kind = 0; kind < 2; kind++)
+        for (int frame = 0; frame < 4; frame++)
+        {
+            ushort expected = (kind == 0 ? one : shared)[frame];
+            AssertEqual(expected, SamusAtmosphericArtworkDefinitions.Attributes(kind == 0, frame), "atmospheric direct native packed default");
+            var packed = new SnesObjAttributeWord(expected);
+            AssertEqual(SamusAtmosphericArtworkDefinitions.Palette, packed.PaletteIndex, "atmospheric required palette basis");
+            AssertEqual(SamusAtmosphericArtworkDefinitions.Priority, packed.Priority, "atmospheric required priority basis");
+            AssertEqual((kind == 0 ? SamusAtmosphericArtworkDefinitions.FootstepFirstTile : SamusAtmosphericArtworkDefinitions.LavaDustFirstTile) + frame,
+                packed.TileNumber, "atmospheric nine-bit tile progression");
+            ushort[] editOne = one.ToArray(), editShared = shared.ToArray();
+            ushort changedWord = (ushort)(expected ^ 0xFFFF);
+            (kind == 0 ? editOne : editShared)[frame] = changedWord;
+            var edited = new SamusAtmosphericArtworkCatalog(editOne, editShared);
+            AssertEqual(1, Stored(edited, kind == 0 ? "typeOne" : "sharedTypeFour"), "atmospheric one full-word supplied exception");
+            AssertEqual(0, Stored(edited, kind == 0 ? "sharedTypeFour" : "typeOne"), "atmospheric other list unchanged");
+            AssertEqual(Identity(editOne, editShared), edited.ContentIdentity, "atmospheric edited identity uses exact supplied words");
+            editOne[frame] = 0; editShared[frame] = 0;
+            foreach (byte type in new byte[] { 1, 4, 6, 7 })
+            for (byte other = 0; other < 4; other++)
+            {
+                AssertTrue(edited.TryResolve(type, other, out ushort value), "atmospheric admitted type/frame");
+                AssertEqual((type == 1) == (kind == 0) && other == frame ? changedWord : (type == 1 ? one : shared)[other], value,
+                    "atmospheric supplied full word and caller-input isolation");
+            }
+        }
+        AssertTrue(!stock.TryResolve(2, 0, out _), "atmospheric null pointer remains outside installed domain");
+        AssertTrue(!stock.TryResolve(1, 4, out _), "atmospheric next frame rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.TypeOne[-1], "atmospheric negative view index");
+        Console.WriteLine("Atmospheric attributes: eight direct native defaults, exact OBJ field basis, zero stock overrides, eight full-word edits and canonical identities pass.");
+    }
+
 }

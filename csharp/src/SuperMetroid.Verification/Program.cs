@@ -26,6 +26,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream-1-atmospheric-attributes"])
+{
+    string sourceRom = Path.GetFullPath("Super Metroid.smc");
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+    VerifyLookupStream1AtmosphericAttributes(rom);
+    VerifySamusAtmosphereArtworkBoundary(sourceRom);
+    return 0;
+}
 if (args is ["--lookup-stream-1-cannon-drawing"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

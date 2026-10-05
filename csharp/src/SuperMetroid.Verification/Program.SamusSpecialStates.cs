@@ -47,11 +47,15 @@ static void VerifySamusCrystalFlash()
     // Palette handler seven splits sprite palette six into ten body colors and six bubble
     // colors. Distinct synthetic records expose both destination ranges, their independent
     // timers, and `$90:ACC2`'s full beam-palette restoration at finish.
-    WriteTestWord(bus, 0x91dc00, 0x9500);
+    for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
+        WriteTestWord(bus, SamusPaletteRomData.CrystalFlash.BodyRecords + frame * 4, 0x9500);
+    for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
+        WriteTestWord(bus, SamusPaletteRomData.CrystalFlash.BubblePointers + frame * 2, 0x9620);
     WriteTestWord(bus, 0x91dc02, 10);
     WriteTestWord(bus, 0x91dc28, 0x9600);
     WriteTestWord(bus, 0x91dc2a, 0x9620);
-    WriteTestWord(bus, 0x90c3c9, 0x9700);
+    for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
+        WriteTestWord(bus, SamusProjectileRomData.Beams.PalettePointers + selection * 2, 0x9700);
     for (ushort color = 0; color < 10; color++)
         WriteTestWord(bus, 0x9b9500 + color * 2, unchecked((ushort)(0x0100 + color)));
     for (ushort color = 0; color < 6; color++)
@@ -67,6 +71,10 @@ static void VerifySamusCrystalFlash()
     // observable without depending on a second copy of the production state machine.
     bus.WriteBytes(0x888d85 + 3 * 3, [0x04, 0x03, 0x02]);
 
+    var crystalColors = CrystalFlashColorCatalog.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.CrystalFlashColorExtractor.Extract(bus)));
+    var beamPalettes = BeamPaletteCatalog.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.BeamPaletteExtractor.Extract(bus)));
     const ushort chord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
     var samus = new SamusState
     {
@@ -110,7 +118,7 @@ static void VerifySamusCrystalFlash()
         "Crystal Flash installs palette handler seven");
 
     var crystalCgram = new SnesCgram();
-    AssertTrue(samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus),
+    AssertTrue(samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus, beamPalettes, crystalColors),
         "Crystal Flash palette handler owns first visible frame");
     AssertEqual(0x0100, crystalCgram.Colors[0xe0],
         "Crystal Flash body palette begins at sprite palette-six color zero");
@@ -134,7 +142,7 @@ static void VerifySamusCrystalFlash()
     // Five more calls expire only the bubble timer and select pointer one. The ten-call
     // body timer remains halfway through its first record.
     for (int paletteCall = 0; paletteCall < 5; paletteCall++)
-        samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus);
+        samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus, beamPalettes, crystalColors);
     AssertEqual(0x0220, crystalCgram.Colors[0xea],
         "Crystal Flash bubble palette advances independently");
     AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer,
@@ -167,7 +175,11 @@ static void VerifySamusCrystalFlash()
     AssertTrue(!samus.CrystalFlash.ConsumeActivationSoundRequest(),
         "consumed Crystal Flash sound cannot replay while ammo drains");
 
-    var crystalWindow = new SamusPowerBombExplosionState();
+    var crystalWindow = new SamusPowerBombExplosionState
+    {
+        PresentationColors = PowerBombFixedColorCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.PowerBombFixedColorExtractor.Extract(bus))),
+    };
     crystalWindow.Arm();
     crystalWindow.BeginCrystalFlash(samus.XPosition, samus.YPosition);
     AssertTrue(!crystalWindow.IsArmed,
@@ -193,12 +205,24 @@ static void VerifySamusCrystalFlash()
     AssertEqual(4, crystalWindow.FixedColorRed,
         "Crystal Flash transition selects shared fixed-color entry three");
 
-    // Low-byte timer reload retains FF in the high byte after underflow. Components
-    // 4/3/2 decrement on calls 1..4; call 5 observes zero and executes cleanup.
-    for (int hdmaCall = 1; hdmaCall <= 4; hdmaCall++)
+    // Editable RGB reaches black after four calls, but the native lifetime remains
+    // tied to the stock color row. Compare that lifetime against the cartridge itself.
+    var nativeColors = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc"));
+    int stockFadeSteps = Enumerable.Range(0, 3).Max(component =>
+        nativeColors.ReadByte(0x888d85 + 3 * 3 + component));
+    for (int hdmaCall = 1; hdmaCall <= stockFadeSteps; hdmaCall++)
+    {
         AssertTrue(!crystalWindow.StepFrame(bus), $"Crystal Flash afterglow call {hdmaCall}");
+        AssertEqual(Math.Max(0, 4 - hdmaCall), (int)crystalWindow.FixedColorRed,
+            "custom Crystal Flash red fades without shortening native lifetime");
+        AssertEqual(Math.Max(0, 3 - hdmaCall), (int)crystalWindow.FixedColorGreen,
+            "custom Crystal Flash green fade");
+        AssertEqual(Math.Max(0, 2 - hdmaCall), (int)crystalWindow.FixedColorBlue,
+            "custom Crystal Flash blue fade");
+    }
     AssertTrue(crystalWindow.StepFrame(bus),
-        "Crystal Flash afterglow call five performs cleanup");
+        "Crystal Flash cleans up on the call after the native fade count");
     AssertEqual(PowerBombExplosionPhase.Inactive, crystalWindow.Phase,
         "Crystal Flash HDMA cleanup clears phase");
     AssertEqual(0, crystalWindow.Status,
@@ -254,7 +278,7 @@ static void VerifySamusCrystalFlash()
     AssertTrue(cleanup.Completed, "following beta pass restores normal movement handler");
     AssertEqual(0xffff, samus.CrystalFlash.SpecialPaletteTimer,
         "cleanup requests normal palette restoration");
-    AssertTrue(samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus),
+    AssertTrue(samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus, beamPalettes, crystalColors),
         "Crystal Flash finish restores beam palette");
     AssertEqual(0x0300, crystalCgram.Colors[0xe0],
         "Crystal Flash finish restores beam palette color zero");
@@ -341,12 +365,17 @@ static void VerifySamusXray()
     WriteTestWord(bus, SamusXrayRomData.Window.AbsoluteTangentTable + 0x4a * 2, 0x03fe);
 
     var cgram = new SnesCgram();
+    var xrayColors = SamusVisorColorCatalog.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.SamusVisorColorExtractor.Extract(bus)));
+    var xraySuitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
     var standing = new SamusState
     {
         Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 100,
         YPosition = 200,
     };
+    standing.Xray.PresentationColors = xrayColors;
     standing.RefreshCollisionRadii(bus);
     standing.InitializeAnimation(bus);
 
@@ -376,7 +405,7 @@ static void VerifySamusXray()
 
     // Palette handler eight runs in the palette-FX phase. Timer one expires immediately,
     // writes only visor color four, advances byte offset zero to two, and reloads five.
-    AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems),
+    AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems, xraySuitColors),
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, cgram.Colors[196], "first widening visor color");
     AssertEqual(2, standing.Xray.SpecialPaletteFrame, "widening palette offset advances");
@@ -432,7 +461,7 @@ static void VerifySamusXray()
     AssertEqual(248, xrayFrame[0].R,
         "X-ray gameplay window never modifies the IRQ-owned HUD band");
 
-    AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems),
+    AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems, xraySuitColors),
         "full beam enters visor cycle");
     AssertEqual(1, standing.Xray.BeamSizeFlag, "full beam palette flag");
     AssertEqual(0x43ff, cgram.Colors[196], "first full-beam visor color");
@@ -505,7 +534,7 @@ static void VerifySamusXray()
         "X-ray teardown sound is consumable exactly once");
     AssertTrue(!standing.Xray.ConsumeDeactivationSoundRequest(),
         "consumed X-ray teardown sound cannot replay");
-    AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems),
+    AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems, xraySuitColors),
         "X-ray teardown restores normal suit palette");
     AssertEqual(0x0104, cgram.Colors[196], "normal palette replaces visor color");
     AssertEqual(0, standing.Xray.SpecialPaletteType, "X-ray palette handler clears");

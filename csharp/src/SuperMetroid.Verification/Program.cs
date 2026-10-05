@@ -54,6 +54,7 @@ if (args is ["--saved-map-fixture"]) { VerifySavedGameMapFrontend(); return 0; }
 if (args is ["--map-cancel-fixture"]) { VerifyMapCancelPresentation(); return 0; }
 if (args is ["--station-marker-fixture"]) { VerifyFileSelectStationMarker(); return 0; }
 if (args is ["--inventory-fixture"]) { VerifyInvalidBeamSelection(); return 0; }
+if (args is ["--special-palette-fixtures"]) { VerifySamusCrystalFlash(); VerifySamusXray(); return 0; }
 if (args is ["--samus-palette-fixtures"]) { VerifySamusVisorPalette(); VerifySamusHurtFlashPalette(); VerifySamusVisorColors(); return 0; }
 if (args is ["--power-bomb-fixtures"]) { VerifyPowerBombFuse(); VerifyPowerBombColorMathWindow(); return 0; }
 if (args is ["--horizontal-speed-fixture"]) { VerifySamusHorizontalSpeed(); return 0; }

@@ -3912,6 +3912,20 @@ if (args is ["--sbug-instruction-mechanics"])
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--projectile-radius-instruction-fixtures"])
+{
+    var projectileFixtureRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc"));
+    VerifyProjectileRadii(projectileFixtureRom);
+    VerifyProjectileInstructions(projectileFixtureRom);
+    return 0;
+}
+if (args is ["--power-bomb-shape-fixture"])
+{
+    VerifyCompiledPowerBombShape(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--absolute-tangent-runtime"])
 {
     VerifyCompiledAbsoluteTangent(

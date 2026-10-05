@@ -30,24 +30,36 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
         {
+            int record = SamusProjectileRomData.Banks.Projectile | pointer;
+            ushort Word(int offset) => (ushort)(rom.ReadByte(record + offset) |
+                rom.ReadByte(record + offset + 1) << 8);
             var nativeShot = new SamusProjectileSlot(0)
-                { InstructionPointer = pointer, InstructionTimer = 1, Damage = 30 };
+            {
+                InstructionPointer = unchecked((ushort)(pointer + 8)),
+                InstructionTimer = Word(0), SpritemapPointer = Word(2),
+                XRadius = rom.ReadByte(record + 4), YRadius = rom.ReadByte(record + 5),
+                AnimationFrame = Word(6), Damage = 30,
+            };
+            var nativeBomb = new SamusBombProjectileSlot(0)
+            {
+                InstructionPointer = nativeShot.InstructionPointer,
+                InstructionTimer = nativeShot.InstructionTimer,
+                SpritemapPointer = nativeShot.SpritemapPointer,
+                XRadius = nativeShot.XRadius, YRadius = nativeShot.YRadius,
+                Type = 0x0500, Damage = 30,
+            };
             var installedShot = new SamusProjectileSlot(0)
                 { InstructionPointer = pointer, InstructionTimer = 1, Damage = 30 };
-            var nativeBomb = new SamusBombProjectileSlot(0)
-                { InstructionPointer = pointer, InstructionTimer = 1, Type = 0x0500, Damage = 30 };
             var installedBomb = new SamusBombProjectileSlot(0)
                 { InstructionPointer = pointer, InstructionTimer = 1, Type = 0x0500, Damage = 30 };
             var shots = new SamusProjectileSystem { FrameBindings = stock };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
-            var nativeShots = new SamusProjectileSystem();
-            var nativeBombs = new SamusBombProjectileSystem();
-            AssertEqual(nativeShots.RunProjectileInstructionHandler(rom, nativeShot),
-                shots.RunProjectileInstructionHandler(guard, installedShot),
-                "installed projectile frame keeps native timed/deletion result");
-            AssertEqual((bool)runBomb.Invoke(nativeBombs, [rom, nativeBomb])!,
-                (bool)runBomb.Invoke(bombs, [guard, installedBomb])!,
-                "installed bomb frame keeps native timed/deletion result");
+            AssertTrue(nativeShot.InstructionTimer > 0 && nativeShot.InstructionTimer < 0x8000,
+                "native inventory contains timed records");
+            AssertEqual(false, shots.RunProjectileInstructionHandler(guard, installedShot),
+                "installed projectile timed record survives");
+            AssertEqual(false, (bool)runBomb.Invoke(bombs, [guard, installedBomb])!,
+                "installed bomb timed record survives");
             AssertEqual(nativeShot.SpritemapPointer, installedShot.SpritemapPointer,
                 "installed projectile frame selects the native sprite");
             AssertEqual(nativeBomb.SpritemapPointer, installedBomb.SpritemapPointer,

@@ -1,4 +1,7 @@
 using System.Reflection;
+using System.Text.Json;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -99,6 +102,17 @@ internal static partial class Program
                 () => SamusProjectileRadiusDefinitions.ReadByte(address),
                 "Unknown radius address fails instead of reading mixed cartridge data");
 
+        byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
+        var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(stockJson));
+        var editedDocument = JsonSerializer.Deserialize<ProjectileFrameBindingDocument>(stockJson,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        ushort[] replacementSprites = ProjectileSpriteDefinitions.NativePointers.ToArray();
+        foreach (ushort frame in SamusProjectileRadiusDefinitions.TimedRecordPointers)
+            editedDocument.Frames[ProjectileFrameBindingFormat.FrameName(frame)] =
+                ProjectileSpriteDefinitions.Name(stock.Resolve(frame) == replacementSprites[0]
+                    ? replacementSprites[1] : replacementSprites[0]);
+        var edited = ProjectileFrameBindingCatalog.Load(
+            new MemoryStream(ProjectileFrameBindingCatalog.Write(editedDocument)));
         var projectiles = new SamusProjectileSystem();
         var bombs = new SamusBombProjectileSystem();
         var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -108,11 +122,14 @@ internal static partial class Program
             ushort pointer = (ushort)(address - 4);
             ushort duration = Word(0x930000 | pointer);
             AssertTrue(duration < 0x8000, "Inventory entry is a timed frame, not executable data");
-            guard.ActiveRecord = 0x930000 | pointer;
+            int activeRecord = 0x930000 | pointer;
             foreach (bool replaceArt in new[] { false, true })
             {
-                guard.ReplaceArt = replaceArt;
-                ushort expectedSprite = replaceArt ? (ushort)0x8123 : Word(guard.ActiveRecord + 2);
+                projectiles.FrameBindings = bombs.FrameBindings = replaceArt ? edited : stock;
+                ushort nativeSprite = Word(activeRecord + 2);
+                ushort expectedSprite = replaceArt
+                    ? (nativeSprite == replacementSprites[0] ? replacementSprites[1] : replacementSprites[0])
+                    : nativeSprite;
                 var slot = new SamusProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer, Damage = 30 };
                 AssertEqual(false, projectiles.RunProjectileInstructionHandler(guard, slot), "Timed projectile record survives");
                 AssertEqual(duration, slot.InstructionTimer, "Frame duration unchanged");
@@ -141,15 +158,11 @@ internal static partial class Program
     private sealed class ProjectileRadiusReadGuard(ISnesAddressSpace source, int[] addresses) : ISnesAddressSpace, IImportCartridgeSource
     {
         private readonly HashSet<int> _radii = addresses.SelectMany(a => new[] { a, a + 1 }).ToHashSet();
-        public int ActiveRecord { get; set; }
-        public bool ReplaceArt { get; set; }
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)
         {
             if (_radii.Contains(address)) throw new InvalidDataException($"Projectile collision still reads ROM ${address:X6}.");
-            if (ReplaceArt && address == ActiveRecord + 2) return 0x23;
-            if (ReplaceArt && address == ActiveRecord + 3) return 0x81;
             return source.ReadByte(address);
         }
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

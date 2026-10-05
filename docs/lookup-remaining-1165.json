@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 554,
+  "remainingTableDefinitionCount": 553,
   "fileCount": 523,
   "entries": [
     {
@@ -1735,21 +1735,25 @@
       "line": 13,
       "name": "ProjectileFrameBindingCatalog.sprites",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ProjectileFrameBindingCatalog.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ProjectileFrameBindingCatalog.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "identityConversionDependency": "Selected startup stages1/3/6/7 axial and2/4/8/10 diagonal remain required; calculating NativePointers addresses does not derive this selection policy."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteCatalog.cs",
       "line": 10,
       "name": "ProjectileSpriteCatalog.frames",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ProjectileSpriteCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ProjectileSpriteCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "identityConversionDependency": "All chosen OAM footprint counts,ordered shapes and artwork remain required; NativePointers uses physical record extents without exempting this content."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteDefinitions.cs",
       "line": 12,
       "name": "ProjectileSpriteDefinitions.NativePointers",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "5f7affb9f739d6ed897f3a785e7f065f49fc48b3"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlas.cs",
@@ -21474,6 +21478,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 555,
+  "convertedSinceSnapshot": 556,
   "justifiedRetainedSinceSnapshot": 19
 }

@@ -7,6 +7,70 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
+    {
+        var expected = new SortedSet<ushort>();
+        foreach (ushort record in SamusProjectileRadiusDefinitions.TimedRecordPointers)
+            expected.Add(ReadVerificationWord(rom, (0x930000 | record) + 2));
+        int physicalAddress = 0x93f0fa;
+        int physicalRecords = 0;
+        for (int orientation = 0; orientation < 8; orientation++)
+        {
+            bool diagonal = orientation % 4 >= 2;
+            for (int length = 1; length <= (diagonal ? 5 : 7); length++)
+            {
+                int parts = length * (diagonal ? 2 : 1);
+                AssertEqual((ushort)parts, ReadVerificationWord(rom, physicalAddress), "Every selected and unselected native Plasma growth record has its calculated physical extent");
+                physicalAddress += 2 + 5 * parts;
+                physicalRecords++;
+            }
+        }
+        AssertEqual(48, physicalRecords, "All48 physical Plasma startup records including omitted stages");
+        AssertEqual(0x93f5e2, physicalAddress, "Native Plasma startup layout end after the final ten-part composition");
+        AssertEqual(417, expected.Count, "Native805 timed records reference417 distinct compositions");
+        int ordinal = 0;
+        foreach (ushort pointer in expected)
+            AssertEqual(pointer, ProjectileSpriteDefinitions.NativePointers[ordinal++], "Calculated projectile identity equals native sorted selector union");
+        AssertTrue(expected.SequenceEqual(ProjectileSpriteDefinitions.NativePointers), "Projectile identity enumeration preserves native order");
+        byte[] json = ProjectileSpriteExtractor.Extract(rom);
+        var selected = ProjectileSpriteCatalog.Load(new MemoryStream(json));
+        foreach (ushort pointer in expected)
+        {
+            var native = new OamBuffer();
+            var actual = new OamBuffer();
+            DrawImportedProjectileSpritemap(rom, native, pointer, 255, 255);
+            selected.Draw(pointer, actual, 255, 255);
+            AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "All417 calculated/remaining identities extract and draw exact native OAM");
+        }
+        var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
+        var document = System.Text.Json.JsonSerializer.Deserialize<ProjectileSpriteDocument>(json, options)!;
+        ushort editedPointer = ProjectileSpriteDefinitions.NativePointers[1];
+        string editedName = ProjectileSpriteDefinitions.Name(editedPointer);
+        var before = document.Frames[editedName][0];
+        document.Frames[editedName][0] = before with { OffsetX = before.OffsetX + 1 };
+        var edited = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+        var baselineOam = new OamBuffer();
+        var editedOam = new OamBuffer();
+        selected.Draw(editedPointer, baselineOam, 255, 255);
+        edited.Draw(editedPointer, editedOam, 255, 255);
+        AssertEqual(unchecked((byte)(baselineOam.LowTable[0] + 1)), editedOam.LowTable[0], "Independent composition edit reaches calculated identity");
+        document.Frames[editedName][0] = before;
+        var ownedOam = new OamBuffer();
+        edited.Draw(editedPointer, ownedOam, 255, 255);
+        AssertTrue(ownedOam.LowTable.SequenceEqual(editedOam.LowTable), "Loaded composition owns independent edited content");
+        var flare = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
+        for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
+        {
+            var native = new OamBuffer();
+            var actual = new OamBuffer();
+            DrawImportedProjectileSpritemap(rom, native, ChargeFlareSpriteDefinitions.Selectors[selector], 255, 255);
+            flare.Draw(selector, actual, 255, 255);
+            AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "Existing flare span caller preserves exact extracted OAM");
+        }
+        AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
+        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities calculate; independent frame selection/composition/art inputs remain pending.");
+    }
     private static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
     {
         var norfair = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All;

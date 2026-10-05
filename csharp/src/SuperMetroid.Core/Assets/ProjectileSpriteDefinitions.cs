@@ -7,44 +7,223 @@ public static class ProjectileSpriteDefinitions
     public const string FileName = "projectile-compositions.json";
     public const int MaximumParts = 128;
     public const int TileColumns = 16, TileRows = 32;
-    /// <summary>The 417 distinct bank-$93 identities referenced by the 805 timed records; excludes separate flare/trail selectors.</summary>
-    public static ReadOnlySpan<ushort> NativePointers =>
-    [
-        0xa117, 0xa24d, 0xa254, 0xa25b, 0xa262, 0xa269, 0xa270, 0xa277, 0xa27e, 0xa37d, 0xa393, 0xa3b3,
-        0xa3c9, 0xa7c9, 0xa7d0, 0xa7e6, 0xa7fc, 0xa812, 0xa828, 0xa83e, 0xa854, 0xa86a, 0xa880, 0xa896,
-        0xaa84, 0xaa9a, 0xaab0, 0xaac6, 0xab04, 0xab2e, 0xab97, 0xab9e, 0xaba5, 0xabb3, 0xabba, 0xabc1,
-        0xabd7, 0xabed, 0xac03, 0xad45, 0xad4c, 0xad53, 0xad5a, 0xad61, 0xad6d, 0xad7e, 0xad8a, 0xad9b,
-        0xada7, 0xadb8, 0xadc4, 0xadd5, 0xade1, 0xadf2, 0xadfe, 0xae0f, 0xae1b, 0xae2c, 0xae38, 0xae65,
-        0xae6c, 0xae73, 0xae7a, 0xae81, 0xae88, 0xae8f, 0xae96, 0xae9d, 0xaea4, 0xaeab, 0xaeb2, 0xaeb9,
-        0xaec0, 0xaec7, 0xaece, 0xaed5, 0xaedc, 0xaee3, 0xaeea, 0xaef1, 0xaef8, 0xaeff, 0xaf06, 0xaf0d,
-        0xaf14, 0xaf1b, 0xaf22, 0xaf29, 0xaf30, 0xaf37, 0xaf3e, 0xaf45, 0xaf4c, 0xaf62, 0xaf78, 0xafa2,
-        0xafcc, 0xaff6, 0xb020, 0xb04a, 0xb074, 0xb09e, 0xb0c8, 0xb0f2, 0xb11c, 0xb146, 0xb170, 0xb19a,
-        0xb1c4, 0xb1ee, 0xb218, 0xb242, 0xb26c, 0xb296, 0xb2c0, 0xb2ea, 0xb314, 0xb33e, 0xb394, 0xb3be,
-        0xb3e8, 0xb412, 0xb43c, 0xb466, 0xb490, 0xb4ba, 0xb672, 0xb688, 0xb69e, 0xb6c8, 0xb6f2, 0xb71c,
-        0xb746, 0xb770, 0xb79a, 0xb7c4, 0xb7ee, 0xb818, 0xb842, 0xb86c, 0xb896, 0xb8c0, 0xb8ea, 0xb914,
-        0xb93e, 0xb968, 0xb992, 0xb9bc, 0xb9e6, 0xba10, 0xba3a, 0xba64, 0xbaba, 0xbae4, 0xbb0e, 0xbb38,
-        0xbb62, 0xbb8c, 0xbbb6, 0xbbe0, 0xbc0a, 0xbc20, 0xbc4a, 0xbc74, 0xbc9e, 0xbcc8, 0xbced, 0xbd35,
-        0xbd7d, 0xbdc5, 0xbe0d, 0xbe2d, 0xbe6b, 0xbea9, 0xbee7, 0xbf25, 0xbf59, 0xbfbf, 0xc025, 0xc08b,
-        0xc0f1, 0xc107, 0xc131, 0xc15b, 0xc185, 0xc1af, 0xc1d4, 0xc21c, 0xc264, 0xc2ac, 0xc3b2, 0xc3d7,
-        0xc41f, 0xc467, 0xc4af, 0xc669, 0xc6a7, 0xc721, 0xc79b, 0xc815, 0xc94d, 0xc972, 0xc9ba, 0xca02,
-        0xca4a, 0xcc04, 0xcc42, 0xccbc, 0xcd36, 0xcdb0, 0xce2a, 0xce4a, 0xce88, 0xcec6, 0xcf04, 0xcf42,
-        0xcf76, 0xcfdc, 0xd042, 0xd0a8, 0xd10e, 0xd124, 0xd162, 0xd1a0, 0xd1de, 0xd21c, 0xd25a, 0xd270,
-        0xd2ae, 0xd2ec, 0xd32a, 0xd368, 0xd3a6, 0xd3bc, 0xd3fa, 0xd438, 0xd476, 0xd4f2, 0xd508, 0xd546,
-        0xd584, 0xd5c2, 0xd600, 0xd63e, 0xd64a, 0xd66a, 0xd68a, 0xd6aa, 0xd6ca, 0xd6ea, 0xd6f6, 0xd716,
-        0xd736, 0xd756, 0xd776, 0xd796, 0xd7a2, 0xd7c2, 0xd7e2, 0xd802, 0xd822, 0xd842, 0xd84e, 0xd86e,
-        0xd88e, 0xd8ae, 0xd8ce, 0xd8ee, 0xd904, 0xd942, 0xd980, 0xd9be, 0xd9fc, 0xda3a, 0xda50, 0xda8e,
-        0xdacc, 0xdb0a, 0xdb48, 0xdb86, 0xdba6, 0xdc02, 0xdc5e, 0xdcba, 0xdd16, 0xdd72, 0xdd92, 0xddee,
-        0xde4a, 0xdea6, 0xdf02, 0xdf5e, 0xdf7e, 0xdfda, 0xe036, 0xe092, 0xe0ee, 0xe14a, 0xe16a, 0xe1c6,
-        0xe222, 0xe27e, 0xe2da, 0xe336, 0xe356, 0xe3b2, 0xe40e, 0xe46a, 0xe4c6, 0xe522, 0xe542, 0xe59e,
-        0xe5fa, 0xe656, 0xe6b2, 0xe70e, 0xe724, 0xe762, 0xe7a0, 0xe7de, 0xe81c, 0xe85a, 0xe870, 0xe8ae,
-        0xe8ec, 0xe92a, 0xe968, 0xe9a6, 0xe9bc, 0xe9fa, 0xea38, 0xea76, 0xeab4, 0xeaf2, 0xeb08, 0xeb46,
-        0xeb84, 0xebc2, 0xec00, 0xec3e, 0xec54, 0xec6a, 0xec80, 0xec96, 0xecac, 0xecc2, 0xecd8, 0xecee,
-        0xed04, 0xed1a, 0xed30, 0xed46, 0xed5c, 0xed72, 0xed88, 0xed9e, 0xedb4, 0xedca, 0xede0, 0xedf6,
-        0xedfd, 0xee04, 0xee0b, 0xee12, 0xee19, 0xee4c, 0xee58, 0xee8e, 0xee95, 0xeec8, 0xeed4, 0xef0a,
-        0xef11, 0xef44, 0xef50, 0xef86, 0xef8d, 0xf002, 0xf009, 0xf03c, 0xf048, 0xf07e, 0xf085, 0xf0b8,
-        0xf0c4, 0xf0fa, 0xf10d, 0xf14f, 0xf16f, 0xf194, 0xf1a7, 0xf1e9, 0xf209, 0xf22e, 0xf23a, 0xf270,
-        0xf29a, 0xf2ce, 0xf2da, 0xf310, 0xf33a, 0xf36e, 0xf381, 0xf3c3, 0xf3e3, 0xf408, 0xf41b, 0xf45d,
-        0xf47d, 0xf4a2, 0xf4ae, 0xf4e4, 0xf50e, 0xf542, 0xf54e, 0xf584, 0xf5ae,
-    ];
+    /// <summary>The417 timed-projectile identities in their original sorted order; selected OAM groups derive from two-byte headers and five-byte parts.</summary>
+    public static PointerSequence NativePointers => default;
+    public readonly struct PointerSequence : IReadOnlyList<ushort>
+    {
+        public int Count => 417;
+        public int Length => Count;
+        public ushort this[int index] => PointerAt(index);
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    /// <summary>$93:A117: native Nothing projectile composition group.</summary>
+    private const ushort NothingStart = 0xa117;
+    /// <summary>$93:A24D: native Power projectile composition group.</summary>
+    private const ushort PowerStart = 0xa24d;
+    /// <summary>$93:A83E: native BombExplosion projectile composition group.</summary>
+    private const ushort BombExplosionStart = 0xa83e;
+    /// <summary>$93:AB97: native PowerBomb projectile composition group.</summary>
+    private const ushort PowerBombStart = 0xab97;
+    /// <summary>$93:AD45: native Bomb projectile composition group.</summary>
+    private const ushort BombStart = 0xad45;
+    /// <summary>$93:AD61: native Missile projectile composition group.</summary>
+    private const ushort MissileStart = 0xad61;
+    /// <summary>$93:ADD5: native SuperMissile projectile composition group.</summary>
+    private const ushort SuperMissileStart = 0xadd5;
+    /// <summary>$93:AE65: native Wave projectile composition group.</summary>
+    private const ushort WaveStart = 0xae65;
+    /// <summary>$93:EC3E: native ChargedPower projectile composition group.</summary>
+    private const ushort ChargedPowerStart = 0xec3e;
+    /// <summary>$93:ED9E: native ChargedIce projectile composition group.</summary>
+    private const ushort ChargedIceStart = 0xed9e;
+    /// <summary>$93:EDF6: native Ice projectile composition group.</summary>
+    private const ushort IceStart = 0xedf6;
+    /// <summary>Native bank93 compositions serialize a two-byte part count then five bytes per OAM part.</summary>
+    private static int RecordBytes(int parts) => sizeof(ushort) + 5 * parts;
+    private static ushort PointerAt(int index)
+    {
+        if ((uint)index >= 417) throw new IndexOutOfRangeException();
+        if (index < 1) return (ushort)(NothingStart + index * RecordBytes(0));
+        index -= 1;
+        if (index < 8) return (ushort)(PowerStart + index * RecordBytes(1));
+        index -= 8;
+        if (index < 4) return (ushort)(PlasmaStart + index / 2 * (RecordBytes(4) + RecordBytes(6)) + index % 2 * RecordBytes(4));
+        index -= 4;
+        if (index < 6) return (ushort)(MissileExplosionStart + (index == 0 ? 0 : RecordBytes(1) + (index - 1) * RecordBytes(4)));
+        index -= 6;
+        if (index < 5) return (ushort)(BombExplosionStart + index * RecordBytes(4));
+        index -= 5;
+        if (index < 6) return SuperMissileExplosionPointer(index);
+        index -= 6;
+        if (index < 3) return (ushort)(PowerBombStart + index * RecordBytes(1));
+        index -= 3;
+        if (index < 6) return (ushort)(BeamExplosionStart + Math.Min(index, 2) * RecordBytes(1) + Math.Max(0, index - 2) * RecordBytes(4));
+        index -= 6;
+        if (index < 4) return (ushort)(BombStart + index * RecordBytes(1));
+        index -= 4;
+        if (index < 8) return (ushort)(MissileStart + index / 2 * (RecordBytes(2) + RecordBytes(3)) + index % 2 * RecordBytes(2));
+        index -= 8;
+        if (index < 8) return (ushort)(SuperMissileStart + index / 2 * (RecordBytes(2) + RecordBytes(3)) + index % 2 * RecordBytes(2));
+        index -= 8;
+        if (index < 33) return (ushort)(WaveStart + index * RecordBytes(1));
+        index -= 33;
+        if (index < 34) return ChargedWavePointer(ChargedWaveStart, index);
+        index -= 34;
+        if (index < 34) return ChargedWavePointer(ChargedIceWaveStart, index);
+        index -= 34;
+        if (index < 60) return PlasmaWavePointer(index);
+        index -= 60;
+        if (index < 47) return SpazerPointer(index);
+        index -= 47;
+        if (index < 72) return ChargedSpazerPointer(index);
+        index -= 72;
+        if (index < 16) return (ushort)(ChargedPowerStart + index * RecordBytes(4));
+        index -= 16;
+        if (index < 4) return (ushort)(ChargedIceStart + index * RecordBytes(4));
+        index -= 4;
+        if (index < 4) return (ushort)(IceStart + index * RecordBytes(1));
+        index -= 4;
+        if (index < 22) return SpazerStartupPointer(index);
+        index -= 22;
+        return PlasmaStartupPointer(index);
+    }
+    /// <summary>$93:AF4C/B672, ChargedWave_WaveSBA/ChargedIceWave: two four-quadrant core poses, then paired four-quadrant lobes.</summary>
+    private const ushort ChargedWaveStart = 0xaf4c, ChargedIceWaveStart = 0xb672;
+    /// <summary>$93:D10E, S_SI_SW_SIW: four orientations of four-part beams, then four of two-part beams; spread repeats each seed on three lanes.</summary>
+    private const ushort SpazerStart = 0xd10e;
+    /// <summary>$93:D8EE, Charged_S_SI_SW_SIW: two four-part axial groups, six six-part diagonal groups, then four four-part axial groups.</summary>
+    private const ushort ChargedSpazerStart = 0xd8ee;
+    private static ushort ChargedWavePointer(ushort start, int index)
+    {
+        // B368/B37E and BA8E/BAA4 each contain two unselected four-part
+        // compositions between the first24 paired-lobe phases and the last8.
+        return (ushort)(start + Math.Min(index, 2) * RecordBytes(4) +
+            Math.Max(0, index - 2) * RecordBytes(8) + (index >= 26 ? 2 * RecordBytes(4) : 0));
+    }
+    private static int SpreadGroupBytes(int seedParts) => RecordBytes(seedParts) + 5 * RecordBytes(3 * seedParts);
+    private static int SpreadPhaseOffset(int seedParts, int phase) =>
+        phase == 0 ? 0 : RecordBytes(seedParts) + (phase - 1) * RecordBytes(3 * seedParts);
+    private static ushort SpazerPointer(int index)
+    {
+        // D4B4 is an unreferenced twelve-part spread pose at the end of the
+        // third large-beam orientation. It occupies native layout space only.
+        int physical = index + (index >= 17 ? 1 : 0);
+        int group = physical / 6, phase = physical % 6;
+        int seedParts = group < 4 ? 4 : 2;
+        return (ushort)(SpazerStart + Math.Min(group, 4) * SpreadGroupBytes(4) +
+            Math.Max(0, group - 4) * SpreadGroupBytes(2) + SpreadPhaseOffset(seedParts, phase));
+    }
+    private static ushort ChargedSpazerPointer(int index)
+    {
+        int group = index / 6, phase = index % 6;
+        int seedParts = group is >= 2 and < 8 ? 6 : 4;
+        return (ushort)(ChargedSpazerStart + Math.Min(group, 2) * SpreadGroupBytes(4) +
+            Math.Clamp(group - 2, 0, 6) * SpreadGroupBytes(6) + Math.Max(0, group - 8) * SpreadGroupBytes(4) +
+            SpreadPhaseOffset(seedParts, phase));
+    }
+    /// <summary>$93:A37D: Plasma/PlasmaIce axial four-tile strips alternate with six-part diagonal strips.</summary>
+    private const ushort PlasmaStart = 0xa37d;
+    /// <summary>$93:A7C9: missile explosion grows from one central tile to five four-quadrant poses.</summary>
+    private const ushort MissileExplosionStart = 0xa7c9;
+    /// <summary>$93:ABB3: beam explosion has two single-tile core poses followed by four four-quadrant poses.</summary>
+    private const ushort BeamExplosionStart = 0xabb3;
+    /// <summary>$93:EE12: six Spazer startup orientation groups serialize length1..4 strips then one/two/three two-tile pairs.</summary>
+    private const ushort SpazerStartupStart = 0xee12;
+    private static ushort SpazerStartupPointer(int index)
+    {
+        // The fourth orientation selects only its first two poses. Its other
+        // native records still occupy layout space before the fifth group.
+        int physical = index + (index >= 14 ? 2 : 0);
+        int group = physical / 4, phase = physical % 4;
+        int strips = phase < 2 ? phase : 4;
+        int prefix = strips * sizeof(ushort) + 5 * strips * (strips + 1) / 2;
+        if (phase == 3) prefix += RecordBytes(2);
+        int groupBytes = 7 * sizeof(ushort) + 5 * (4 * 5 / 2 + 2 * (3 * 4 / 2));
+        return (ushort)(SpazerStartupStart + group * groupBytes + prefix);
+    }
+    /// <summary>$93:AA84: SuperMissileExplosion starts with three four-quadrant cores, followed by core/spikes, a large-part ring, then ring/spikes.</summary>
+    private const ushort SuperMissileExplosionStart = 0xaa84;
+    private static ushort SuperMissileExplosionPointer(int phase) => (ushort)(SuperMissileExplosionStart +
+        Math.Min(phase, 3) * RecordBytes(4) + (phase >= 4 ? RecordBytes(4 + 4 * 2) : 0) +
+        (phase >= 5 ? RecordBytes(4 * 2) : 0));
+
+    /// <summary>Native Charged_PW_PIW composition groups, identified by the actual directional instruction consumers at $93:8D4F/8D9B/8DE7/8E33 and $93:9C1B..9E3D.</summary>
+    private enum PlasmaWaveShape
+    {
+        HorizontalShort, HorizontalLong, DownRightShort, DownRightLong,
+        VerticalShort, VerticalLong, HorizontalAlternate, DownRightAlternate,
+        VerticalAlternate, DownLeftAlternate, DownLeftShort, DownLeftLong,
+    }
+    /// <summary>$93:BC0A/BCC8: horizontal uncharged four-tile and charged seven-tile cores.</summary>
+    private const ushort PlasmaWaveHorizontalShort = 0xbc0a, PlasmaWaveHorizontalLong = 0xbcc8;
+    /// <summary>$93:BE0D/BF25: down-right/up-left diagonal six-part and ten-part cores.</summary>
+    private const ushort PlasmaWaveDownRightShort = 0xbe0d, PlasmaWaveDownRightLong = 0xbf25;
+    /// <summary>$93:C0F1/C1AF: vertical uncharged four-tile and charged seven-tile cores.</summary>
+    private const ushort PlasmaWaveVerticalShort = 0xc0f1, PlasmaWaveVerticalLong = 0xc1af;
+    /// <summary>$93:C3B2/C669: alternate charged horizontal seven-part and down-right twelve-part cores, after native unselected composition groups.</summary>
+    private const ushort PlasmaWaveHorizontalAlternate = 0xc3b2, PlasmaWaveDownRightAlternate = 0xc669;
+    /// <summary>$93:C94D/CC04: alternate charged vertical seven-part and down-left twelve-part cores, after native unselected composition groups.</summary>
+    private const ushort PlasmaWaveVerticalAlternate = 0xc94d, PlasmaWaveDownLeftAlternate = 0xcc04;
+    /// <summary>$93:CE2A/CF42: down-left/up-right diagonal six-part and ten-part cores.</summary>
+    private const ushort PlasmaWaveDownLeftShort = 0xce2a, PlasmaWaveDownLeftLong = 0xcf42;
+    private static ushort PlasmaWavePointer(int index)
+    {
+        // Core part counts describe the native chosen footprints. Their full
+        // independent OAM design remains required under ProjectileSpriteCatalog.frames.
+        (ushort start, int coreParts) = (PlasmaWaveShape)(index / 5) switch
+        {
+            PlasmaWaveShape.HorizontalShort => (PlasmaWaveHorizontalShort, 4),
+            PlasmaWaveShape.HorizontalLong => (PlasmaWaveHorizontalLong, 7),
+            PlasmaWaveShape.DownRightShort => (PlasmaWaveDownRightShort, 6),
+            PlasmaWaveShape.DownRightLong => (PlasmaWaveDownRightLong, 10),
+            PlasmaWaveShape.VerticalShort => (PlasmaWaveVerticalShort, 4),
+            PlasmaWaveShape.VerticalLong => (PlasmaWaveVerticalLong, 7),
+            PlasmaWaveShape.HorizontalAlternate => (PlasmaWaveHorizontalAlternate, 7),
+            PlasmaWaveShape.DownRightAlternate => (PlasmaWaveDownRightAlternate, 12),
+            PlasmaWaveShape.VerticalAlternate => (PlasmaWaveVerticalAlternate, 7),
+            PlasmaWaveShape.DownLeftAlternate => (PlasmaWaveDownLeftAlternate, 12),
+            PlasmaWaveShape.DownLeftShort => (PlasmaWaveDownLeftShort, 6),
+            PlasmaWaveShape.DownLeftLong => (PlasmaWaveDownLeftLong, 10),
+            _ => throw new IndexOutOfRangeException(),
+        };
+        int phase = index % 5;
+        return (ushort)(start + (phase == 0 ? 0 : RecordBytes(coreParts) + (phase - 1) * RecordBytes(2 * coreParts)));
+    }
+
+    /// <summary>$93:F0FA: Charged_P_PI_PW_PIW startup, two axial orientation groups then two diagonal groups, repeated with alternate orientation/art.</summary>
+    private const ushort PlasmaStartupStart = 0xf0fa;
+    /// <summary>Four selected growth stages of the native startup instruction streams. Their selected sizes remain independent FrameBindingCatalog policy.</summary>
+    private enum PlasmaGrowthStage { Core, Short, Long, Full }
+    private static ushort PlasmaStartupPointer(int index)
+    {
+        int group = index / 4, localGroup = group % 4;
+        bool diagonal = localGroup >= 2;
+        // Native physical groups include every axial length1..7 or paired
+        // diagonal length2..10. Unselected intermediate records still occupy space.
+        int axialBytes = 7 * sizeof(ushort) + 5 * (7 * 8 / 2);
+        int diagonalBytes = 5 * sizeof(ushort) + 5 * 2 * (5 * 6 / 2);
+        int groupOffset = group / 4 * (2 * axialBytes + 2 * diagonalBytes) +
+            Math.Min(localGroup, 2) * axialBytes + Math.Max(0, localGroup - 2) * diagonalBytes;
+        int selectedLength = ((PlasmaGrowthStage)(index % 4), diagonal) switch
+        {
+            (PlasmaGrowthStage.Core, false) => 1,
+            (PlasmaGrowthStage.Short, false) => 3,
+            (PlasmaGrowthStage.Long, false) => 6,
+            (PlasmaGrowthStage.Full, false) => 7,
+            (PlasmaGrowthStage.Core, true) => 1,
+            (PlasmaGrowthStage.Short, true) => 2,
+            (PlasmaGrowthStage.Long, true) => 4,
+            (PlasmaGrowthStage.Full, true) => 5,
+            _ => throw new IndexOutOfRangeException(),
+        };
+        int preceding = selectedLength - 1;
+        int offset = preceding * sizeof(ushort) + 5 * (diagonal ? 2 : 1) * preceding * (preceding + 1) / 2;
+        return (ushort)(PlasmaStartupStart + groupOffset + offset);
+    }
     public static string Name(ushort pointer) => $"sprite_{pointer:X4}";
 }

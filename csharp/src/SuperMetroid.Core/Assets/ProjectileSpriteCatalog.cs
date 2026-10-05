@@ -17,12 +17,13 @@ public sealed class ProjectileSpriteCatalog
     }
 
     public static ProjectileSpriteCatalog Load(Stream json)
-        => LoadFrames(json, ProjectileSpriteDefinitions.NativePointers);
+        => LoadFrames(json, default, useProjectilePointers: true);
 
     // Charge flares use the same native part format but have a separate required
     // identity set, so existing projectile overrides remain compatible.
-    internal static ProjectileSpriteCatalog LoadFrames(Stream json, ReadOnlySpan<ushort> requiredPointers)
+    internal static ProjectileSpriteCatalog LoadFrames(Stream json, ReadOnlySpan<ushort> requiredPointers, bool useProjectilePointers = false)
     {
+        int requiredCount = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers.Length : requiredPointers.Length;
         ProjectileSpriteDocument document;
         try
         {
@@ -35,11 +36,12 @@ public sealed class ProjectileSpriteCatalog
             }) ?? throw new InvalidDataException("Projectile composition document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid projectile composition JSON.", error); }
-        if (document.Version != ProjectileSpriteDefinitions.Version || document.Frames is null || document.Frames.Count != requiredPointers.Length)
+        if (document.Version != ProjectileSpriteDefinitions.Version || document.Frames is null || document.Frames.Count != requiredCount)
             throw new InvalidDataException("Projectile compositions require version 1 and every required sprite identity.");
         var frames = new Dictionary<ushort, CompiledSpritePart[]>();
-        foreach (ushort id in requiredPointers)
+        for (int pointerIndex = 0; pointerIndex < requiredCount; pointerIndex++)
         {
+            ushort id = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers[pointerIndex] : requiredPointers[pointerIndex];
             string name = ProjectileSpriteDefinitions.Name(id);
             if (!document.Frames.TryGetValue(name, out var parts) || parts is null || parts.Length > ProjectileSpriteDefinitions.MaximumParts)
                 throw new InvalidDataException($"Projectile sprite {name} is missing or exceeds OAM capacity.");

@@ -338,7 +338,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteDefinitions.cs
 
-- [ ] **ProjectileSpriteDefinitions.NativePointers** ([L12](../csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ProjectileSpriteDefinitions.NativePointers** ([L12](../csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlas.cs
 
@@ -1073,3 +1073,12 @@ Root integrated5f90fd61fb9446c4d94eb0cf6a9cf99725be023c: viewed native backdrop,
 ### Integrated environmental owner catalogs
 
 Four Norfair heat/palette owners and two Old Tourian railings/panels owners use calculated definition/program/loop offsets and semantic CGRAM placements. Both Definitions entries complete; accent Durations and colors remain required. Root six native bindings,292mechanics words,16phase bytes,complete/repeating cycles,live colors,enumeration/bounds pass; Verification1445warnings/0errors. Worker67cbb0ed71ea4a75e452ab09799cb786123fcd9c.
+
+
+## Integrated projectile sprite identity geometry
+
+ProjectileSpriteDefinitions.NativePointers is converted (d30b18a514,6df4c64b0,5f7affb9f). All417 addresses calculate from named directional/variant groups, two-byte headers and five-byte OAM parts. Core/paired-lobe/spread geometry and triangular startup extents include unselected physical records; no literal residual address table or expanded cached pointer array remains. Span-based flare callers retain their separate required identities.
+
+Selected startup stages1/3/6/7 axial and2/4/8/10 diagonal remain independently required under ProjectileFrameBindingCatalog.sprites. Chosen part counts,ordered footprints and artwork remain required under ProjectileSpriteCatalog.frames. These dependencies are explicit in the master JSON; no selection or artwork exception is claimed.
+
+Root Verification build1445 warnings/zero errors; --lookup-stream2-projectile-identity-geometry passes the417 identity union from805 native selectors,48 selected/unselected physical startup headers through93:F5E2,417 extracted native-vs-installed OAM draws,independent edited composition/ownership,54 flare selectors and bounds. ResourceAudit source hashes refreshed. Inventory556 converted/19 retained-mixed/553 pending.

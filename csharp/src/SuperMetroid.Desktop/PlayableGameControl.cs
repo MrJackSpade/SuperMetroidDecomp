@@ -645,6 +645,8 @@ public sealed partial class PlayableGameControl : UserControl
     private void PersistSaveRamToDisk() =>
         GameSaveFileStore.WriteAtomic(addressSpace, saveFilePath);
 
+    private bool CanAdvanceAudioFrame() => audioEngine is null || audioDevice is null || audioDevice.CanAcceptFrame;
+
     private void StepFrame(ushort? forcedInput = null)
     {
         FrontendFrame? frame = AdvanceOneFrame(forcedInput);
@@ -654,10 +656,11 @@ public sealed partial class PlayableGameControl : UserControl
 
     /// <summary>
     /// Selects exactly one live or replay word, records it before execution, and advances
-    /// the translated dispatcher. Null means an exhausted replay and never means input zero.
+    /// the translated dispatcher. Null means exhausted replay or deferred audio capacity, never input zero.
     /// </summary>
     private FrontendFrame? AdvanceOneFrame(ushort? forcedInput = null)
     {
+        if (!CanAdvanceAudioFrame()) return null;
         ushort input;
         if (replay is not null)
         {
@@ -801,8 +804,10 @@ public sealed partial class PlayableGameControl : UserControl
             return;
 
         var batch = PlaybackFrameBatch.Run(
-            framesToRun, BuildControllerWord, input => AdvanceOneFrame(input));
+            framesToRun, BuildControllerWord, input => AdvanceOneFrame(input), CanAdvanceAudioFrame);
         pendingPlaybackFrames -= batch.CompletedFrames;
+        // A stalled endpoint must not accumulate an unbounded catch-up debt.
+        pendingPlaybackFrames = Math.Min(pendingPlaybackFrames, MaximumCatchUpFrames);
         if (batch.LastFrame is { } frame)
             RefreshFrame(frame);
     }

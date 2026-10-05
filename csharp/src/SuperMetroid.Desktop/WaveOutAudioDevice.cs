@@ -1,5 +1,4 @@
 using System.Buffers;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
@@ -20,7 +19,7 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
     private readonly BufferSlot[] slots = [];
     private readonly short[] prerollSilence = [];
     private readonly int volumePercent;
-    private readonly BlockingCollection<QueuedPcmFrame> pendingFrames = new(
+    private readonly PendingFrameQueue pendingFrames = new(
         WaveOutAudioPolicy.ManagedQueueCapacityFrames);
     private readonly object deviceGate = new();
     private readonly Thread submissionWorker = null!;
@@ -94,6 +93,13 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
         }
     }
 
+    /// <summary>
+    /// UI-owner preflight before emulation consumes input or produces PCM. Only the UI
+    /// adds frames, so the worker can only increase capacity after this observation.
+    /// A failed worker remains eligible so Submit reports its original device failure
+    /// through the existing recoverable audio boundary instead of freezing gameplay.
+    /// </summary>
+    internal bool CanAcceptFrame => Volatile.Read(ref workerFailure) is not null || pendingFrames.HasCapacity;
     public void Submit(ReadOnlySpan<short> samples)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
@@ -337,7 +343,7 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
                 RecordFailure(failures, NativeMethods.Close(device), "waveOutClose");
                 device = 0;
             }
-            pendingFrames.Dispose();
+
             if (failures.Count != 0)
             {
                 throw new AggregateException(
@@ -452,6 +458,58 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
             Marshal.FreeHGlobal(Header);
             if (samplesHandle.IsAllocated)
                 samplesHandle.Free();
+        }
+    }
+
+    // Keep capacity and removal in one lock. BlockingCollection.Count can decrease
+    // before its free-slot semaphore is released; a preflight based on that count
+    // can therefore pass immediately before TryAdd fails on the sole producer.
+    private sealed class PendingFrameQueue(int capacity)
+    {
+        private readonly object sync = new();
+        private readonly Queue<QueuedPcmFrame> frames = new();
+        private bool completed;
+        internal int Count { get { lock (sync) return frames.Count; } }
+        internal bool HasCapacity { get { lock (sync) return !completed && frames.Count < capacity; } }
+
+        internal bool TryAdd(QueuedPcmFrame frame)
+        {
+            lock (sync)
+            {
+                if (completed) throw new InvalidOperationException("The audio submission queue is closed.");
+                if (frames.Count == capacity) return false;
+                frames.Enqueue(frame);
+                Monitor.Pulse(sync);
+                return true;
+            }
+        }
+
+        internal bool TryTake(out QueuedPcmFrame frame)
+        {
+            lock (sync) return frames.TryDequeue(out frame);
+        }
+
+        internal IEnumerable<QueuedPcmFrame> GetConsumingEnumerable()
+        {
+            while (true)
+            {
+                QueuedPcmFrame frame;
+                lock (sync)
+                {
+                    while (frames.Count == 0 && !completed) Monitor.Wait(sync);
+                    if (!frames.TryDequeue(out frame)) yield break;
+                }
+                yield return frame;
+            }
+        }
+
+        internal void CompleteAdding()
+        {
+            lock (sync)
+            {
+                completed = true;
+                Monitor.PulseAll(sync);
+            }
         }
     }
 

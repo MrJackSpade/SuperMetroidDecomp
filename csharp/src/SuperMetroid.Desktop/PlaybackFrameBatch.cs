@@ -12,7 +12,8 @@ internal static class PlaybackFrameBatch
     internal static (int CompletedFrames, FrontendFrame? LastFrame) Run(
         int requestedFrames,
         Func<ushort> readInput,
-        Func<ushort, FrontendFrame?> advanceFrame)
+        Func<ushort, FrontendFrame?> advanceFrame,
+        Func<bool>? canAdvance = null)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(requestedFrames);
         ArgumentNullException.ThrowIfNull(readInput);
@@ -22,6 +23,7 @@ internal static class PlaybackFrameBatch
         int completed = 0;
         for (int index = 0; index < requestedFrames; index++)
         {
+            if (canAdvance is not null && !canAdvance()) break;
             // Rendering/audio can consume enough wall time for a complete pad tap
             // inside this batch. Poll at each emulated frame boundary, just as the
             // single-step path does; never reuse a stale word for catch-up frames.

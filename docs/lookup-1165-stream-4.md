@@ -316,7 +316,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 - [ ] **MamaTurtleInstructionProgramDefinitions.Words** ([L43](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L43)) - factory-built stock table. Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [x] **MamaTurtleInstructionProgramDefinitions.PresentationWords** ([L45](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L45)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [x] **MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202** ([L202](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L202)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [ ] **MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202** ([L202](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L202)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/MamaTurtleShellContourDefinitions.cs
 
@@ -897,7 +897,7 @@ Three more definitions converted;58 complete and167 unchecked. No retained excep
 
 ## Batch 18 checklist reconciliation
 
-The separately inventoried AddBabyCrawl two-duration literal was removed with its entire factory helper in592e59b21. Its two ten-tick poses are calculated in TryCrawl and covered by the same117-native-word confirmation. Marking that already-completed entry brings totals to59 complete and166 unchecked; no production change or additional exemption.
+The AddBabyCrawl factory was removed, but its independent ten-tick hold remains required. The entry is unchecked; structural conversion alone does not complete its values.
 
 ## Coordinator timing re-audit
 
@@ -1089,3 +1089,7 @@ Four presentation-address entries are complete: Stoke (12), Stoke projectile (2)
 All four mechanics entries remain unchecked. Stoke walking holds 8/16/8/8 and attack holds 16, projectile cadence 16, and shared Skree/Metaree idle 10, preparation 16/8, dive 2 and stop 1 remain required independent inputs. The worker's walking-timing correction is included; root review also keeps the fixed cadences open. Four entries complete, not the worker's original eight. No exception is granted.
 
 Root Verification build passed with 1445 warnings and zero errors. Focused stoke-instruction-mechanics, stoke-projectile-instruction-mechanics and skree-metaree-instruction-mechanics checks pass: 26/4/40 native control words, all directional walks/attacks/spawns and projectile loops/deletion, all eight Skree/Metaree programs and callbacks, 36 compiled presentation selections, guards/bounds/allocations. Projectile path checks explicitly advance timers and do not claim separate elapsed-time simulation. Overall checkpoint: 526 converted, 15 justified retained/mixed, 587 pending.
+
+### Root correction: Baby Turtle crawl timing remains required
+
+Reopened `MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202`. Removing its factory and repeating a scalar did not resolve the chosen ten-tick duration: TryCrawl returns10 for fields2/6 in each ten-byte record. Native A2:8B82/8B86 through8BC8/8BCC and8C74/8C78 through8CBA/8CBE retain32 such samples. Structure/presentation conversions remain intact, but this timing entry has no accepted derivation or impossible/nonsense disposition. No gameplay code changed for this correction.

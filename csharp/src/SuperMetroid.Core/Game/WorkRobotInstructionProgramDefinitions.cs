@@ -54,6 +54,12 @@ internal static class WorkRobotInstructionProgramDefinitions
     private const int PresentationOperand = -1;
     /// <summary>$A8:CB77, first code after the complete robot instruction region.</summary>
     private const ushort EndAddress = 0xcb77;
+    /// <summary>$A8:C6D3/D9/DF: unpowered pose hold before sleep; the maximum positive timer choice remains pending.</summary>
+    private const ushort UnresolvedUnpoweredTicks = (ushort)short.MaxValue;
+    /// <summary>$A8:C6E9/C73F/C92D/C985/CA01: entry pose scheduling before the ongoing gait; pending.</summary>
+    private const ushort UnresolvedEntryTicks = 1;
+    /// <summary>$A8:C6F1/C6FB/C731 and mirrored shot checks: delay before the callback within a gait pose; pending.</summary>
+    private const ushort UnresolvedShootingOpportunityTicks = 1;
     /// <summary>$A8:C6E5, initial stationary pose before walking; independent hold remains pending.</summary>
     private const ushort UnresolvedInitialTicks = 32;
     /// <summary>$A8:C6ED and mirrored gait: common walking cadence; its independent magnitude remains pending.</summary>
@@ -123,7 +129,7 @@ internal static class WorkRobotInstructionProgramDefinitions
         {
             start = (ushort)(NoPowerNeutral + (address - NoPowerNeutral) / 6 * 6);
             var idle = new WordSelector(address, start);
-            idle.Timed((ushort)short.MaxValue);
+            idle.Timed(UnresolvedUnpoweredTicks);
             idle.Command(CommonEnemyInstructionCodes.Sleep);
             return idle.Value;
         }
@@ -165,7 +171,7 @@ internal static class WorkRobotInstructionProgramDefinitions
     private static void Walk(ref WordSelector writer, bool right)
     {
         ushort move = MoveForward(right, hitWallOnly: false);
-        writer.Timed(1);
+        writer.Timed(UnresolvedEntryTicks);
         if (right)
         {
             ShootingOpportunity(ref writer, WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownRight);
@@ -189,17 +195,17 @@ internal static class WorkRobotInstructionProgramDefinitions
     }
     private static void ShootingOpportunity(ref WordSelector writer, ushort callback)
     {
-        // The callback is scheduled one tick into a pose; the remainder completes
+        // The callback is scheduled within a pose; the remainder completes
         // the same ten-tick gait exposure if no shooting branch replaces the list.
-        writer.Timed(1);
+        writer.Timed(UnresolvedShootingOpportunityTicks);
         writer.Command(callback);
-        writer.Timed(UnresolvedWalkTicks - 1);
+        writer.Timed(UnresolvedWalkTicks - UnresolvedShootingOpportunityTicks);
     }
     private static void Retreat(ref WordSelector writer, bool right, bool wallResponse)
     {
         ushort cadence = wallResponse ? UnresolvedWalkTicks : ShotResponseTicks;
         ushort move = MoveBackward(right, hitWallOnly: !wallResponse);
-        if (wallResponse || right) writer.Timed(1);
+        if (wallResponse || right) writer.Timed(UnresolvedEntryTicks);
         for (int stride = 0; stride < 2; stride++)
         {
             if (stride == 0)

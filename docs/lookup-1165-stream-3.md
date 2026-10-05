@@ -615,7 +615,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionProgramDefinitions.cs
 
 - [ ] **ShaktoolInstructionProgramDefinitions.Words** ([L62](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionProgramDefinitions.cs#L62)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ShaktoolInstructionProgramDefinitions.PresentationWords** ([L146](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionProgramDefinitions.cs#L146)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ShaktoolInstructionProgramDefinitions.PresentationWords** ([L146](../csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionProgramDefinitions.cs#L146)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ShaktoolProjectileInstructionProgramDefinitions.cs
 
@@ -1072,3 +1072,9 @@ The 594-word dense map is replaced with calculated unpowered, walking, retreat, 
 `WorkRobotInstructionProgramDefinitions.Words` remains unchecked. Independent inputs still required: initial32, walking10, laser5/2, upward step4, recoil16/96, ledge128, right-retreat contact10, unpowered32767, one-tick entry scheduling and one-tick shooting-callback scheduling. The repeated/twice-speed structure is not an exemption for its magnitude.
 
 Root build passed (1445 warnings, zero errors). `--work-robot-instruction-program-definitions` passes367 native mechanics words,227 installed selectors,22 production entry paths/callback execution, read guards, rejection boundaries and allocation checks. This fixture advances timers; it does not establish elapsed-time behavior. No definition completed or new retention approved by this partial conversion.
+
+### Root integration: synchronized Shaktool instruction structure
+
+Saw loops and eight head-facing record strides now calculate all15 presentation addresses. Semantic attack/bob phases calculate complementary waits for the head and arms without stored word arrays. PresentationWords is complete; Words remains required for independent timing inputs576,128,64,20,4,10,3,119,1908, terminal1 and the one-tick facing increment. No retention exception is granted. Work Robot's already-pending unpowered32767/entry1/callback1 now have explicit source names as well.
+
+Root build passed (1445 warnings, zero errors). Shaktool focused confirmation passes110 native words,15 installed selectors,21 production programs, reset/movement/read guards/bounds/allocation; Work Robot confirmation again passes367 native words,227 selectors and22 production entry paths. Fixtures advance timers, so these checks establish instruction/control behavior rather than elapsed-time simulation. With the separate Baby Crawl reopening, counts stay531 converted,15 justified retained/mixed,582 pending.

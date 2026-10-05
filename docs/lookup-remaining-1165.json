@@ -4620,7 +4620,7 @@
       "name": "MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202",
       "kind": "method-local definition",
       "note": "Fixed values inside a method; not an array parameter/return declaration.",
-      "state": "converted",
+      "state": "pending",
       "implementationCommit": "139eaa64a"
     },
     {
@@ -7907,7 +7907,9 @@
       "line": 146,
       "name": "ShaktoolInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "81054e4cc4b9a3acae43349e1b9ebbdbec66fb7a"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ShaktoolProjectileInstructionProgramDefinitions.cs",

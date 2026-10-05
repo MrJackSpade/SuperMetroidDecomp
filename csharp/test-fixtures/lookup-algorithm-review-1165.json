@@ -11639,4 +11639,12 @@
     "confirmation":  "Root1445warnings/0errors;256native colors,768edits,CGRAM/bytes/extractor round-trip/canonical hash/bounds pass; zero stock correction entries.",
     "algorithm":  "Shared native palette sections/backdrops/fills and nearest RGB5 endpoint ramp; direct CGRAM access with independent custom edits and transient serialization bytes.",
     "state":  "partial"
+},"shaktoolStructureAndTimingReview":{
+    "confirmation":  "Root1445/0; Shaktool110native/15selectors/21programs and WorkRobot367native/227selectors/22entries pass. Forced timer fixtures, not elapsed timing.",
+    "algorithm":  "Semantic synchronized attack/bob complements, saw loops and head-facing record strides; Work Robot names its12pending holds.",
+    "completed":  "ShaktoolInstructionProgramDefinitions.PresentationWords",
+    "workerCommits":  "81054e4cc;7774f0ba0",
+    "state":  "partial-one-converted-one-reopened",
+    "reopened":  "MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202",
+    "remaining":  "Shaktool Words timing inputs including facing step1 required; Baby Crawl10-tick hold reopened.531converted/15justified retained-mixed/582pending."
 }}

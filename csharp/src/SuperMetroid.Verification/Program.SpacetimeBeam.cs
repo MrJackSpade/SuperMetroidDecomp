@@ -32,7 +32,7 @@ internal static partial class Program
             CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
         };
-        var selection = new PauseMenuState(
+        var selection = CreateRetailPauseFixture(
             bus,
             samus,
             new Bank80SystemState(),
@@ -83,8 +83,8 @@ internal static partial class Program
         system.LoadMapStationBytes(a5Maps);
         system.LoadSavedLoadingGameState(SaveLoadingGameStates.OpeningCinematic);
 
-        var shared = new SamusBombProjectileSystem();
-        var projectiles = new SamusProjectileSystem();
+        var shared = CreateBombFixture();
+        var projectiles = CreateProjectileFixture();
         system.WritePersistentMirror(bus);
         for (int index = 0; index < SaveRamLayout.ProgressionPaddingByteCount; index++)
         {

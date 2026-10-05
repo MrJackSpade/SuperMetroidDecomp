@@ -39,8 +39,12 @@ internal static partial class Program
     }
 
     private sealed class ProjectileSoundRoutingForbiddenBus(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
+        private readonly ISnesMutableMemory memory = ReferenceMutableMemory.From(source);
+
+        public byte ReadWorkRamByte(int address) => memory.ReadWorkRamByte(address);
+        public byte ReadSaveRamByte(int address) => memory.ReadSaveRamByte(address);
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)

@@ -14,10 +14,11 @@ internal static partial class Program
             "untranslated PPU register remains a loud failure");
         AssertThrows<InvalidOperationException>(() => bus.ReadByte(0x907fff),
             "plain high-level address reads do not acquire an invented open-bus value");
+        var artwork = projectileFixtureArt.Value.BeamTiles;
         for (ushort beam = 0; beam < 12; beam++)
         {
             var ordinary = new SnesCgram();
-            SamusProjectileSystem.LoadBeamTilesAndPalette(bus, new SnesVram(), ordinary, beam);
+            SamusProjectileSystem.LoadBeamTilesAndPalette(bus, new SnesVram(), ordinary, beam, artwork);
             int table = SamusProjectileRomData.Beams.PalettePointers + beam * 2;
             int source = 0x900000 | bus.ReadByte(table) | bus.ReadByte(table + 1) << 8;
             for (int color = 0; color < 16; color++)
@@ -35,11 +36,11 @@ internal static partial class Program
             if (queued)
             {
                 var writes = new VramWriteQueue();
-                SamusProjectileSystem.QueueBeamTilesAndLoadPalette(bus, writes, cgram, 0x000d);
+                SamusProjectileSystem.QueueBeamTilesAndLoadPalette(bus, writes, cgram, 0x000d, artwork);
                 AssertEqual(1, writes.Entries.Count, "Chainsaw queues one native graphics transfer");
-                writes.DrainTo(vram, ReferenceMutableMemory.From(bus));
+                writes.DrainTo(vram, ReferenceMutableMemory.From(bus), artwork);
             }
-            else SamusProjectileSystem.LoadBeamTilesAndPalette(bus, vram, cgram, 0x000d);
+            else SamusProjectileSystem.LoadBeamTilesAndPalette(bus, vram, cgram, 0x000d, artwork);
             for (int offset = 0; offset < 256; offset++)
                 AssertEqual(bus.ReadByte(0x9ac421 + offset), vram.ReadByte(0xc600 + offset),
                     $"Chainsaw native DMA byte {offset}, queued={queued}");

@@ -26,6 +26,15 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var disabledWords = new List<ushort>();
         var plms = new RoomPlmSystem();
+        // These six short programs are authored below, independently of compiled retail control data.
+        foreach ((ushort pointer, int length) in new (ushort, int)[]
+                 { (0xe000, 14), (0xe020, 13), (0xe040, 8),
+                   (0xe100, 14), (0xe120, 13), (0xe140, 8) })
+        {
+            byte[] instructions = Enumerable.Range(0, length)
+                .Select(offset => bus.ReadByte(0x840000 | (pointer + offset))).ToArray();
+            plms.SupplyInstructionFragmentForVerification(pointer, instructions);
+        }
 
         AssertEqual(4, plms.LoadRoomPopulation(
             bus,

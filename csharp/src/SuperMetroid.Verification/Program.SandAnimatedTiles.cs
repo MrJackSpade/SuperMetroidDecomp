@@ -11,8 +11,10 @@ internal static partial class Program
         var vram = new SnesVram();
         var queue = new VramWriteQueue();
         var sand = new RoomSandAnimatedTilesState();
-        bus.WriteBytes(0x839100, new byte[16]);
-        bus.WriteBytes(0x83910e, [0x0c]);
+        const ushort sandFxRecord = 0x9e44;
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        AssertEqual((byte)0x0c, rom.ReadByte(0x830000 | (sandFxRecord + 14)),
+            "selected retail FX record enables ceiling and falling sand");
         ushort[] definitions = [AnimatedTileObjectPointers.MaridiaSandCeiling, AnimatedTileObjectPointers.MaridiaSandFalling];
         for (int slot = 0; slot < 2; slot++)
         {
@@ -28,12 +30,16 @@ internal static partial class Program
                         definition.TransferByteCount).ToArray());
             }
         }
-        sand.LoadRoom(bus, 0x9100, 0, AreaId.Maridia);
+        var atlas = RoomFxAnimatedTileAtlas.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.RoomFxAnimatedTileAtlasExtractor.Extract(bus)));
+        var provider = new RoomFxArtworkTestProvider(atlas);
+        var guarded = new RoomFxArtworkForbiddenBus(bus);
+        sand.LoadRoom(guarded, sandFxRecord, 0, AreaId.Maridia);
         AssertEqual(2, sand.Count, "both FX sand bits create objects");
         for (int tick = 0; tick < 31; tick++)
         {
             byte before = vram.ReadByte(0x2000);
-            sand.Step(bus, vram, queue);
+            sand.Step(guarded, vram, queue);
             AssertEqual(before, vram.ReadByte(0x2000), "sand animation does not bypass NMI");
             AssertEqual(tick % 10 == 0 ? 2 : 0, queue.Entries.Count,
                 "sand source changes follow compiled cartridge durations");
@@ -48,7 +54,7 @@ internal static partial class Program
                     AssertEqual(expectedSource, queue.Entries[slot].SourceAddress,
                         "sand NMI transfer uses the compiled artwork source identity");
                 }
-            queue.DrainTo(vram, ReferenceMutableMemory.From(bus));
+            queue.DrainTo(vram, ReferenceMutableMemory.From(bus), provider);
             for (int slot = 0; slot < 2; slot++)
             {
                 AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
@@ -63,10 +69,11 @@ internal static partial class Program
                 }
             }
         }
-        sand.LoadRoom(bus, 0, 0, AreaId.Maridia);
+        sand.LoadRoom(guarded, 0, 0, AreaId.Maridia);
         AssertEqual(0, sand.Count, "next room without FX clears sand owners");
-        sand.Step(bus, vram, queue);
+        sand.Step(guarded, vram, queue);
         AssertEqual(0, queue.Entries.Count, "departed room cannot continue writing sand graphics");
+        AssertEqual(0, guarded.ForbiddenReads, "sand runtime never reads artwork from ROM");
         Console.WriteLine("  Sand animation: FX selection, timed loops, NMI visibility, and room reset agree.");
     }
 }

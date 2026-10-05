@@ -201,7 +201,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs
 
 - [ ] **EscapeDachoraInstructionProgramDefinitions.Words** ([L40](../csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **EscapeDachoraInstructionProgramDefinitions.PresentationWords** ([L163](../csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs#L163)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EscapeDachoraInstructionProgramDefinitions.PresentationWords** ([L163](../csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs#L163)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/EscapeEtecoonDefinitions.cs
 
@@ -932,3 +932,10 @@ Root confirmation: Verification build 1445 warnings/zero errors; 25 native parts
 PowampInstructionProgramDefinitions.PresentationWords is converted (c6eae9881): two three-frame body loops and two three-frame sleeping transitions determine all twelve visual operand locations. Control addresses/opcodes/targets now calculate from the same native program structure. Words remains pending: exact holds 5, 9, 1, 6 and 160 are independent required inputs, with no accepted exemption.
 
 Root Verification build 1445 warnings/zero errors. After terminal build completion, --lookup-stream-1-powamp-programs passed independent native traversal of 18 controls and 12 visual operands, native values/order, exact byte-domain classification, wrong-bank and bounds rejection. An earlier premature no-build invocation used the old binary and reached an unrelated legacy missing-palette fixture; it is not passing evidence and no changes were made for that fixture. No gameplay or lifecycle equivalence claim. Inventory 554 converted/17 retained-mixed/557 pending.
+
+
+## Integrated escape Dachora program structure
+
+EscapeDachoraInstructionProgramDefinitions.PresentationWords is converted (ecb3b4450). Six-frame directional runs at two tide states and the initial/departure frames determine all 43 visual operand addresses. Calculated controls preserve timer setup, movement callbacks, acid/escape branches, loop targets and departure progression. Words remains pending nine independent repeat/hold/acceleration inputs; no retention exception.
+
+Root Verification build 1445 warnings/zero errors; --lookup-stream-1-dachora-programs passes independent native traversal of 119 controls and 43 visual operands, every native callback/target/hold, exact order/read domains/full byte classification and bank/index/address rejection. No gameplay or lifecycle equivalence claim. Inventory 555 converted/17 retained-mixed/556 pending.

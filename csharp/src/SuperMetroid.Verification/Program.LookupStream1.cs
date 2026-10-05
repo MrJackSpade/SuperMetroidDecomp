@@ -5,6 +5,48 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1EscapeDachoraPrograms(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(0xb30000 | address) | rom.ReadByte(0xb30000 | address + 1) << 8);
+        var controls = new List<ushort>(); var visuals = new List<ushort>();
+        for (int cursor = 0xe964; cursor < 0xeaa8;)
+        {
+            ushort value = Word(cursor); controls.Add((ushort)cursor); cursor += 2;
+            if ((value & 0x8000) == 0) { visuals.Add((ushort)cursor); cursor += 2; }
+            else if (value is CommonEnemyInstructionCodes.Goto or CommonEnemyInstructionCodes.SetTimer or CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate
+                or EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfAcidLessThanCE or EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfCrittersEscaped)
+            { controls.Add((ushort)cursor); cursor += 2; }
+            else AssertTrue(value is EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6
+                or EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6, "Dachora native operand-free movement callback");
+        }
+        AssertEqual(controls.Count, EscapeDachoraInstructionProgramDefinitions.MechanicsWordCount, "Dachora native control count");
+        AssertEqual(visuals.Count, EscapeDachoraInstructionProgramDefinitions.PresentationWordCount, "Dachora native visual count");
+        for (int index = 0; index < controls.Count; index++)
+        {
+            var actual = EscapeDachoraInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(controls[index], actual.Address, "Dachora ordered native control identity");
+            AssertEqual(Word(actual.Address), actual.Value, "Dachora native branch target/callback/required duration");
+            AssertEqual(actual.Value, EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(actual.Address), "Dachora calculated reader");
+        }
+        for (int index = 0; index < visuals.Count; index++)
+        {
+            AssertEqual(visuals[index], EscapeDachoraInstructionProgramDefinitions.PresentationWordAddress(index), "Dachora native visual operand location");
+            AssertThrows<InvalidDataException>(() => EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(visuals[index]), "Dachora visual operands are not controls");
+        }
+        for (int address = 0xe963; address <= 0xeaa9; address++)
+        {
+            AssertEqual(controls.Any(word => address == word || address == word + 1),
+                EscapeDachoraInstructionProgramDefinitions.IsCompiledMechanicsByte(0xb30000 | address), "Dachora exact control byte coverage");
+            AssertTrue(!EscapeDachoraInstructionProgramDefinitions.IsCompiledMechanicsByte(0xb20000 | address), "Dachora wrong bank rejects");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, controls.Count, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => EscapeDachoraInstructionProgramDefinitions.MechanicsWord(invalid), "Dachora control bounds");
+        foreach (int invalid in new[] { int.MinValue, -1, visuals.Count, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => EscapeDachoraInstructionProgramDefinitions.PresentationWordAddress(invalid), "Dachora visual bounds");
+        foreach (ushort invalid in new ushort[] { 0xe963, 0xe965, 0xeaa8, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() => EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(invalid), "Dachora odd/adjacent control pointers reject");
+        Console.WriteLine("Escape Dachora:119 controls/43 visual operands match independent native traversal; exact branches/order/domains pass; selected holds and acceleration cadence remain required.");
+    }
     private static void VerifyLookupStream1PowampPrograms(ISnesAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(rom.ReadByte(0xa80000 | pointer) | rom.ReadByte(0xa80000 | pointer + 1) << 8);

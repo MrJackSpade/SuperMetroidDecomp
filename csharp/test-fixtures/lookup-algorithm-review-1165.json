@@ -11133,4 +11133,11 @@
     "state":  "integrated",
     "mixed":  "SamusPoseProjectileOriginDefinitions.YCorrections: 253 real-pose cases, three adjacent instruction bytes 91BE15=C2 / BE1D=16 / BE25=85 retained as nonsense",
     "remaining":  "454 converted, 11 justified retained/mixed, 663 pending."
+},"speedBoosterRevealIntegration":{
+    "confirmation":  "Root Verification build 1444 warnings/zero errors and focused stream1 pass, including native draw mapping and actual one-frame bomb reveal/deletion with source reads forbidden. Audit source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "SpeedBoosterBlockPlmDrawDefinitions.BombReveal and All",
+    "workerCommit":  "a72f3175d926ecb04463d568a81de471b7dffe93",
+    "state":  "converted",
+    "algorithm":  "Physical type-B word plus named SpeedBoosterParent already calculated; import/export DTO retained, singleton enumeration now yields calculated record. Reconciles stale inventory, no gameplay behavior change.",
+    "remaining":  "456 converted,11 justified retained/mixed,661 pending."
 }}

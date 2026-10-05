@@ -140,6 +140,7 @@ if (args is ["--lookup-stream-1"])
     VerifyPoseCollisionDefinitions(rom);
     VerifyPoseProjectileOrigin(rom);
     VerifyProjectileOrigins(rom);
+    VerifyCompiledSpeedBoosterPlmPrograms();
     VerifyLookupStream1(rom);
     VerifyBrinstarPipeBugInstructionProgramDefinitions();
     VerifyMetroidBehaviorDefinitions(rom);

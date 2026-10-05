@@ -20,8 +20,11 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
                 new(1, new ushort[] { BombRevealWord }, 0, 0),
             });
 
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
-        [BombReveal];
+    /// <summary>Enumerates the sole calculated bomb-reveal record for artwork import/export.</summary>
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
+    {
+        get { yield return BombReveal; }
+    }
 
     internal static string VisualId(ushort pointer) => pointer == SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw
         ? BombRevealVisualId

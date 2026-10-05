@@ -5915,7 +5915,7 @@
       "name": "RidleyExplosionDefinitions.PartRecords",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "converted",
+      "state": "pending",
       "implementationCommit": "898664e1c23e483afa611faa0667c27b53f961e5"
     },
     {
@@ -8913,7 +8913,9 @@
       "line": 30,
       "name": "MaridiaElevatubePlmDefinitions.AllDraws",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "d66140ddbde0be8b9fb3805e5de6459d615bda6a"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Rooms/MetroidsClearedPlmRomData.cs",

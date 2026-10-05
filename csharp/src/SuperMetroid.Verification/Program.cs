@@ -2060,6 +2060,12 @@ if (args is ["--lookup-stream-4-oum-layout"])
     VerifyLookupStream4OumListLayout(oracle);
     return 0;
 }
+if (args is ["--lookup-stream-4-elevatube"])
+{
+    VerifyMaridiaElevatubePlm();
+    VerifyMaridiaElevatubeVisuals();
+    return 0;
+}
 if (args is ["--lookup-stream-3"])
 {
     var oracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

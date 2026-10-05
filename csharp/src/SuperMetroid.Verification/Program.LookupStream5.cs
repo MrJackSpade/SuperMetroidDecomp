@@ -5,6 +5,73 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5CeresDoorRamp(SuperMetroidAddressSpace rom)
+    {
+        var document = new CeresDoorVisualDocument
+        {
+            Version = 1,
+            Normal = Colors(CeresDoorVisualRomData.NormalColors,15),
+            Escape = Colors(CeresDoorVisualRomData.EscapeColors,15),
+            Animation = Enumerable.Range(0,8).Select(row => Colors(CeresDoorVisualRomData.AnimationColors +16*row,6)).ToArray(),
+            Mode7DoorFrames = Enumerable.Range(0,2).Select(frame => Enumerable.Range(0,4)
+                .Select(index => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource +4*frame+index)).ToArray()).ToArray(),
+        };
+        byte[] planar = Enumerable.Range(0,CeresDoorVisualRomData.TileByteCount)
+            .Select(index => rom.ReadByte(CeresDoorVisualRomData.TileSource+index)).ToArray();
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out int width,out int height);
+        using var png = new MemoryStream();
+        IndexedPng.Write(png,width,height,pixels,SnesGraphics.DiagnosticPalette(16));
+        byte[] pngBytes = png.ToArray();
+        CeresDoorVisualCatalog Load(CeresDoorVisualDocument value) => CeresDoorVisualCatalog.Load(
+            new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualCatalog.Write(value)));
+        var stock = Load(document);
+        Check(stock,document);
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        AssertEqual(6,((ushort[])typeof(CeresDoorVisualCatalog).GetField("animationSeeds",flags)!.GetValue(stock)!).Length,"Ceres animation retains six unresolved seeds");
+        AssertEqual(4,((Dictionary<int,ushort>)typeof(CeresDoorVisualCatalog).GetField("animationPhaseResiduals",flags)!.GetValue(stock)!).Count,"Ceres animation retains four unresolved phase colors");
+        AssertEqual(0,((Dictionary<int,ushort>)typeof(CeresDoorVisualCatalog).GetField("animationRowEdits",flags)!.GetValue(stock)!).Count,"stock reverse phases require no row storage");
+        for (int edited = 0; edited <48; edited++)
+        {
+            var rows = document.Animation.Select(row => row.ToArray()).ToArray();
+            var original = rows[edited/6][edited%6];
+            rows[edited/6][edited%6] = new PaletteRgb5 { Red = original.Red ^1, Green = original.Green, Blue = original.Blue };
+            var changed = document with { Animation = rows };
+            Check(Load(changed),changed);
+        }
+        AssertThrows<IndexOutOfRangeException>(() => stock.LoadAnimationColors(new SnesCgram(),-1),"Ceres animation lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => stock.LoadAnimationColors(new SnesCgram(),8),"Ceres animation upper bound");
+        Console.WriteLine("Stream 5 Ceres door ramp:48 native colors,48 independently edited cells, actual CGRAM, untouched setup colors and canonical identities pass; six seeds/four phase residuals remain pending.");
+
+        PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
+        {
+            ushort word = ReadVerificationWord(rom,source+2*index);
+            return new PaletteRgb5 { Red = word &31, Green = (word>>5)&31, Blue = (word>>10)&31 };
+        }).ToArray();
+        static ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green<<5 | color.Blue<<10);
+        void Check(CeresDoorVisualCatalog actual,CeresDoorVisualDocument expected)
+        {
+            var cgram = new SnesCgram();
+            for(int row =0;row<8;row++)
+            {
+                actual.LoadAnimationColors(cgram,row);
+                for(int color=0;color<6;color++) AssertEqual(Pack(expected.Animation[row][color]),cgram.Colors[CeresDoorVisualRomData.AnimationTargetColor+color],"Ceres independent animation color");
+            }
+            actual.LoadNormalColors(cgram,0);
+            for(int color=0;color<15;color++) AssertEqual(Pack(expected.Normal[color]),cgram.Colors[color],"Ceres normal palette unchanged");
+            actual.LoadEscapeColors(cgram,0);
+            for(int color=0;color<15;color++) AssertEqual(Pack(expected.Escape[color]),cgram.Colors[color],"Ceres escape palette unchanged");
+            string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
+            {
+                content.Append("tiles",planar);
+                content.AppendWords("normal",expected.Normal.Select(Pack).ToArray());
+                content.AppendWords("escape",expected.Escape.Select(Pack).ToArray());
+                content.AppendWordFrames("animation",expected.Animation.Select(row=>row.Select(Pack).ToArray()).ToArray());
+                content.Append("mode7-frames",expected.Mode7DoorFrames.Length);
+                foreach(var frame in expected.Mode7DoorFrames) content.Append("mode7-frame",frame.Select(value=>(byte)value).ToArray());
+            });
+            AssertEqual(identity,actual.ContentIdentity,"Ceres calculated colors preserve canonical resource identity");
+        }
+    }
     private static void VerifyLookupStream5CorpseViews()
     {
         var expected = new List<DeadMonsterVramTransferDefinition>();

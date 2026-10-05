@@ -16,14 +16,28 @@ internal static partial class Program
             shared.Bank << 16 | shared.PalettePointer,
             "Installed gold-Pirate sheet owns the native ninja target-palette source");
 
-        (RoomEnemySlot nativeSlot, SnesCgram nativeColors) = Initialize(bus, null);
+        // $B2:F5DE copies sixteen raw gold-Pirate colors into target palette seven.
+        // Keep the oracle independent of the installed catalog and runtime callback.
+        var nativeColors = new SnesCgram();
+        for (int color = 0; color < SnesCgram.ColorCount; color++)
+            nativeColors.SetColor(color, (ushort)(color * 17));
+        for (int color = 0; color < 16; color++)
+        {
+            int address = 0xb28727 + color * 2;
+            nativeColors.SetColor(240 + color,
+                (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+        }
+        // Native initialization for x=$100, span=$80, facing left: midpoint=$C0;
+        // 32 acceleration steps sum to $4200, so the adjusted right post is $102.
+        const ushort nativeX = 0x0102;
+        const ushort nativeInstruction = 0xf2da;
         (RoomEnemySlot stockSlot, SnesCgram stockColors) = Initialize(
             new NinjaPaletteReadGuard(bus), stock);
         AssertTrue(nativeColors.Colors.SequenceEqual(stockColors.Colors),
             "Installed ninja target palette preserves full native CGRAM including neighbors");
-        AssertEqual(nativeSlot.XPosition, stockSlot.XPosition,
+        AssertEqual(nativeX, stockSlot.XPosition,
             "Installing ninja palette does not change initial post placement");
-        AssertEqual(nativeSlot.CurrentInstruction, stockSlot.CurrentInstruction,
+        AssertEqual(nativeInstruction, stockSlot.CurrentInstruction,
             "Installing ninja palette does not change initial animation");
 
         string overrideDirectory = Path.Combine(stockDirectory, "ninja-palette-overrides");
@@ -43,7 +57,7 @@ internal static partial class Program
                 (color == NinjaSpacePiratePaletteDefinitions.TargetColor + 4 ? 1 : 0)),
                 editedColors.Colors[color],
                 "Gold-Pirate color edit changes only its shared ninja target color");
-        AssertEqual(nativeSlot.XPosition, editedSlot.XPosition,
+        AssertEqual(nativeX, editedSlot.XPosition,
             "Edited ninja palette does not change physical post placement");
 
         byte[] savedOverride = File.ReadAllBytes(overridePath);
@@ -60,7 +74,7 @@ internal static partial class Program
         Console.WriteLine("Ninja Pirate palette: shared gold-Pirate sheet matches native CGRAM; live edit, ROM guard, placement isolation and override persistence pass.");
 
         static (RoomEnemySlot Slot, SnesCgram Colors) Initialize(
-            ISnesAddressSpace source, EnemyTileArtworkCatalog? artwork)
+            ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };

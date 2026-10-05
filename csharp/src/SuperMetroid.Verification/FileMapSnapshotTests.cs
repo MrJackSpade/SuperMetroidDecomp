@@ -15,14 +15,15 @@ internal static partial class Program
         int samples = 0;
         for (int area = 0; area < 6; area++)
         {
-            var graphics = new FileSelectAreaMapGraphics(bus, area);
+            var graphics = new FileSelectAreaMapGraphics(bus, area, RetailPresentationFixture().Tiles, RetailPresentationFixture().Palettes, RetailPresentationFixture().Screens, RetailPresentationFixture().WorldArtwork, RetailPresentationFixture().Sprites);
+            graphics.BindLabels(RetailPresentationFixture().Labels);
             foreach (bool backdrop in new[] { false, true })
             foreach (ushort used in new ushort[] { 0, 1, ushort.MaxValue })
             {
                 ushort[] masks = Enumerable.Repeat(used, 6).ToArray();
                 Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(masks, backdrop), "area labels/subscreen");
             }
-            var room = new FileSelectRoomMapGraphics(bus, new Bank80SystemState(), (AreaId)area);
+            var room = new FileSelectRoomMapGraphics(bus, new Bank80SystemState(), (AreaId)area, mapPresentation: RetailPresentationFixture());
             Compare(room.RenderFrameOnly(), room.CaptureRenderSnapshot(frameOnly: true), "room frame only");
             foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
                 Compare(room.RenderBackgrounds(scroll, scroll), room.CaptureRenderSnapshot(scroll, scroll), "room wrapped scroll");
@@ -33,8 +34,8 @@ internal static partial class Program
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
             saves.SaveSlot(0, save);
-            var legacy = new FileSelectMapMenuState(bus, new CartridgeAudioState(), saves.ReadSlot(0)!, 0);
-            var capture = new FileSelectMapMenuState(bus, new CartridgeAudioState(), saves.ReadSlot(0)!, 0);
+            var legacy = new FileSelectMapMenuState(bus, new CartridgeAudioState(), saves.ReadSlot(0)!, 0, RetailPresentationFixture());
+            var capture = new FileSelectMapMenuState(bus, new CartridgeAudioState(), saves.ReadSlot(0)!, 0, RetailPresentationFixture());
             var phases = new HashSet<FileSelectMapNavigationPhase>();
             LayeredRenderSnapshot? previous = null;
             Rgba32[]? previousPixels = null;
@@ -67,7 +68,7 @@ internal static partial class Program
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
             new SuperMetroidSaveRam(owner).SaveSlot(0, save);
         }
-        var game = new SuperMetroidGame(leftBus); var capturedGame = new SuperMetroidGame(rightBus);
+        var game = CreateRetailGameFixture(leftBus); var capturedGame = CreateRetailGameFixture(rightBus);
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
         game.BindMapPresentation(presentation);
         capturedGame.BindMapPresentation(presentation);

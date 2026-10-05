@@ -80,7 +80,7 @@ static void VerifyControllerBindingsAndOptionsSubmenus()
         GameOptionsRomData.TilemapByteCount,
         0);
     var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-    var options = new GameOptionsMenuState(bus);
+    var options = new GameOptionsMenuState(bus, mapPresentation: RetailPresentationFixture());
     StepOptionsUntil(options, GameOptionsPhase.Main);
 
     for (int row = 0; row < 3; row++)
@@ -334,7 +334,7 @@ static void VerifyEndingCreditsState()
 
     var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     var audio = new SuperMetroid.Core.Audio.CartridgeAudioState();
-    var ending = new EndingCreditsState(bus, audio, gameTimeHours: 2, gameTimeMinutes: 59);
+    var ending = CreateRetailEndingFixture(bus, audio, gameTimeHours: 2, gameTimeMinutes: 59);
     ending.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
         SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus))));
     EndingCreditsPhase previous = ending.Phase;
@@ -369,8 +369,8 @@ static void VerifyEndingCreditsState()
     AssertTrue(renderedTransitions >= 20,
         "ending renders each materially different cartridge phase");
 
-    var middle = new EndingCreditsState(bus, audio, gameTimeHours: 3, gameTimeMinutes: 0);
-    var slow = new EndingCreditsState(bus, audio, gameTimeHours: 10, gameTimeMinutes: 0);
+    var middle = CreateRetailEndingFixture(bus, audio, gameTimeHours: 3, gameTimeMinutes: 0);
+    var slow = CreateRetailEndingFixture(bus, audio, gameTimeHours: 10, gameTimeMinutes: 0);
     AssertEqual(EndingReward.Suitless, ending.EndingReward, "under-three-hour ending branch");
     AssertEqual(EndingReward.Helmetless, middle.EndingReward, "three-to-ten-hour ending branch");
     AssertEqual(EndingReward.Armored, slow.EndingReward, "ten-hour ending branch");
@@ -389,7 +389,8 @@ static void VerifyEndingCreditsState()
             MaxPowerBombs: 50,
             CollectedItems: 0xf32f,
             CollectedBeams: 0x100f),
-        japaneseText: false);
+        japaneseText: false, presentation: RetailPresentationFixture().EndingText,
+        installedSequence: EndingTextSequence.ItemPercentage);
     var percentageVram = new SnesVram();
     for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)
         percentage.Step(percentageVram);

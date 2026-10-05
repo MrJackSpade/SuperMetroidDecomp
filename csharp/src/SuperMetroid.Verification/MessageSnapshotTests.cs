@@ -22,7 +22,7 @@ internal static partial class Program
         foreach (GameplayMessageId id in Enum.GetValues<GameplayMessageId>())
         {
             if (id == GameplayMessageId.None) continue;
-            var state = new GameplayMessageBoxState();
+            var state = CreateGameplayMessageFixture();
             AssertTrue(GameplayMessageBoxRenderer.Capture(state) is null, "inactive message has no overlay");
             state.Begin(bus, id);
             int previousRadius = -1;

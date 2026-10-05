@@ -32,12 +32,12 @@ internal static partial class Program
              raw <= (byte)GameplayMessageId.GravitySuit;
              raw++)
         {
-            var state = new GameplayMessageBoxState();
+            var state = CreateGameplayMessageFixture();
             state.Begin(guard, (GameplayMessageId)raw);
             AssertTrue(state.TilemapRowCount >= GameplayMessageRomData.Layout.MinimumRows,
                 $"message {raw:X2} builds from compiled definition metadata");
         }
-        var gunship = new GameplayMessageBoxState();
+        var gunship = CreateGameplayMessageFixture();
         gunship.Begin(guard, GameplayMessageId.GunshipSaveConfirmation);
         AssertTrue(gunship.TilemapRowCount >= GameplayMessageRomData.Layout.MinimumRows,
             "gunship message builds from compiled definition metadata");

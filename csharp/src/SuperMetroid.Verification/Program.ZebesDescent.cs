@@ -7,7 +7,7 @@ internal static partial class Program
     {
         VerifyOffScreenCinematicOam();
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var scene = new CeresDestructionCinematicState(bus);
+        var scene = CreateRetailDestructionFixture(bus);
         int previousBottom = FrontendFrame.Height;
         int visibleFrames = 0, slideFrames = 0;
         for (int frame = 0; frame < 2500 && !scene.Finished; frame++)

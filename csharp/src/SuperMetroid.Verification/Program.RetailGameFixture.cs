@@ -116,6 +116,27 @@ internal static partial class Program
         };
     }
 
+    private static CeresDestructionCinematicState CreateRetailDestructionFixture(ISnesAddressSpace bus,
+        CartridgeAudioState? audio = null) => new(bus, audio, RetailPresentationFixture().PowerBombFixedColors,
+            runtimeFixtureInstallation.Value.LoadIntroCinematicArt(), RetailPresentationFixture().RoomPaletteFx);
+
+    private static EndingCreditsState CreateRetailEndingFixture(ISnesAddressSpace bus,
+        CartridgeAudioState audio, ushort gameTimeHours, ushort gameTimeMinutes,
+        EndingInventorySnapshot inventory = default, bool japaneseText = false)
+    {
+        var installation = runtimeFixtureInstallation.Value;
+        var maps = RetailPresentationFixture();
+        var ending = new EndingCreditsState(bus, audio, gameTimeHours, gameTimeMinutes, inventory,
+            japaneseText, maps.EndingText);
+        ending.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
+        ending.BindMode7Artwork(installation.LoadEndingMode7Art());
+        ending.BindObjectArtwork(installation.LoadEndingObjectArt());
+        ending.BindPaletteArtwork(installation.LoadEndingPalettes());
+        ending.BindPaletteFxColors(maps.RoomPaletteFx);
+        ending.BindEndingFont(maps.EndingFont);
+        ending.BindStaffCredits(maps.StaffCredits);
+        return ending;
+    }
     private static IntroCinematicState CreateRetailIntroFixture(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
     {
         var installation = runtimeFixtureInstallation.Value;

@@ -8,6 +8,13 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static GameplayMessageBoxState CreateGameplayMessageFixture()
+    {
+        var maps = RetailPresentationFixture();
+        var state = new GameplayMessageBoxState();
+        state.BindPresentation(maps.GameplayMessageTitles, maps.GameplayMessagePanels, maps.GameplayMessageNotices);
+        return state;
+    }
     private static AreaMapPresentationCatalog? retailPresentationFixture;
 
     private static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus,

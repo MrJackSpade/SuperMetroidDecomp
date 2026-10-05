@@ -17,7 +17,7 @@ internal static partial class Program
         // Use private in-memory SRAM. Copy/clear validation must never edit player saves.
         foreach (bool clear in new[] { false, true })
         {
-            var menu = new FileSelectMenuState(bus);
+            var menu = new FileSelectMenuState(bus, mapPresentation: RetailPresentationFixture());
             void Tick(ushort input = 0) => Check(menu.Render, menu.CaptureRenderSnapshot, () => menu.Step(input));
             void Press(SnesButton input) { Tick(); Tick((ushort)input); }
             void Until(FileSelectPhase phase)
@@ -39,7 +39,7 @@ internal static partial class Program
             Tick();
         }
 
-        var options = new GameOptionsMenuState(bus);
+        var options = new GameOptionsMenuState(bus, mapPresentation: RetailPresentationFixture());
         void OptionTick(ushort input = 0) => Check(options.Render, options.CaptureRenderSnapshot,
             () => options.Step(input));
         void OptionPress(SnesButton input) { OptionTick(); OptionTick((ushort)input); }

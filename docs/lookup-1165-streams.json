@@ -3153,6 +3153,7 @@
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.YappingMawBodyProjectileInstructionProgramDefinitions.cs","stream":5,"purpose":"Reproduced stale transport expectation: exact native selectors and zero live reads; preserve producer/sleep/delete checks"}
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.PolypRockInstructionProgramDefinitions.cs","stream":5,"purpose":"Reproduced missing selector confirmation and exact native visuals; preserve producer/sleep/delete checks"}
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.SamusArmCannonDefinitions.cs","stream":1,"purpose":"Direct six native DesiredOpenFlag values instead of span binding; preserve actual cover transitions"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Game/SamusPoseId.cs","stream":1,"purpose":"Add32 missing native pose identities with pinned XML; preserve existing values and distinguish adjacent-code observations"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

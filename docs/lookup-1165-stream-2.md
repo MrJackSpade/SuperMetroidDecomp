@@ -163,7 +163,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs
 
 - [x] **CrystalFlashColorCatalog.body** ([L14](../csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs#L14)) - installed stock table. Original/default payload behind CrystalFlashColorCatalog.body. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **CrystalFlashColorCatalog.bubble** ([L15](../csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs#L15)) - installed stock table. Original/default payload behind CrystalFlashColorCatalog.bubble. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **CrystalFlashColorCatalog.bubble** - Mixed conversion/justified retention:35 rotating RGB5 ramp words calculate; only independently painted frame5/color0 white at9B:9774 remains supplied. Independent source/consumer review approved this one sample; see disposition below. Not fully converted.
 
 ### csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs
 
@@ -896,3 +896,11 @@ Verification build passed1437 warnings/zero errors. Reran --projectile-trail-coo
 ## Golden Torizo initial/landing control batch
 
 Pinned AA:C9CB-C9E1 and CDAF-CDD6 establish these control-flow cases. Removed both stored Words lists without recreating arrays. `--lookup-stream2-golden-control` confirms allseven initial words with an independent native-width cursor, all20 landing words via the existing focused verifier, exact installed initial sprite selector, lookup values, both-byte ownership, and adjacent/index boundaries. Build1437 existing warnings/zero errors. No remaining animation-hold payload was exempted: these lists install a single static pose or dispatch attack/return operations. Integrated stream checkpoint:65 converted, one mixed trail selector,160 required. Other worker batches remain queued for review.
+
+## Crystal Flash bubble: independently reviewed narrow disposition
+
+Coordinator review accepted only frame5/color0 at9B:9774 as an independent painted color choice. Pinned9B:96D4-977E and supported ROM SHA25612B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72 confirm the final row bytesFF7F BF77 7F6F 5F6B 3F67 FF7F. Its leading white7FFF differs from calculated7BDF. Pinned91:DBA0-DBBD advances every five ticks uniformly;91:DC88-DCAE copies six words into sprite palette6 colorsA-F. There is no phase-specific operation from which to derive the extra white. Encoding its exact frame/color/value as a formula exception would merely restate this independent painted choice.
+
+The other35 words remain calculated rotating ramp values. The exception does not cover any other palette or permit a reconstructed stock table. Custom edits remain independent sparse supplied content. Existing --lookup-stream2-crystal-body confirmation already passed all136 native body/bubble colors, actual CGRAM writes, all independent edits and stock residual countone. This commit changes comments/disposition only; no executable behavior or confirmation scope changed.
+
+Integrated Stream2 checkpoint:65 converted and two mixed conversion/justified-retention definitions;159 required. Other queued worker conversions are not counted here.

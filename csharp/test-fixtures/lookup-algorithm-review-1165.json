@@ -11086,7 +11086,7 @@
 },"crystalFlashSingleColorIndependentReview":{
   "reason": "Other35words calculate from rotated pink-to-white levels. Native91DBA0-DBBD uses uniform5tick cyclic traversal;91DC88-DCAE copies six colors with no frame-specific functional choice. The isolated white substitution for7BDF is independent painted content; generating it requires reencoding the exact frame/color exception.",
   "native": "9B9774=7FFF; full six-word native row7FFF,77BF,6F7F,6B5F,673F,7FFF directly confirmed in pinned ROM",
-  "state": "approved-pending-worker-record-and-integration",
+  "workerCommit": "e4fd495638d470823245b702afb055b20d222515", "state": "integrated",
   "scope": "CrystalFlashColorCatalog.bubble frame5/color0 only",
-  "limits": "No blanket palette exemption; other35words calculated, independent edits preserved. Original inventory remains pending until worker disposition is integrated."
+  "limits": "No blanket palette exemption; other35words calculated, independent edits preserved. Original inventory now records this mixed definition as justified-retained;448 converted,5 retained,675 pending. Audit source hash refreshed; ResourceAudit build passed1405warnings/zeroerrors."
 }}

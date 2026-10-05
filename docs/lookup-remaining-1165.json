@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 676,
+  "remainingTableDefinitionCount": 675,
   "fileCount": 523,
   "entries": [
     {
@@ -460,7 +460,10 @@
       "line": 15,
       "name": "CrystalFlashColorCatalog.bubble",
       "kind": "installed stock table",
-      "note": "Original/default payload behind CrystalFlashColorCatalog.bubble. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind CrystalFlashColorCatalog.bubble. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "e4fd495638d470823245b702afb055b20d222515",
+      "disposition": "Mixed:35 of36 stock words calculate by rotating RGB5 ramp. Retain only frame5/color0 at9B9774=7FFF instead of7BDF: independent painted choice, uniform5tick traversal/six-word copy provide no functional phase rule; encoding that exact frame/color exception merely restates the content."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs",
@@ -21219,5 +21222,5 @@
     }
   ],
   "convertedSinceSnapshot": 448,
-  "justifiedRetainedSinceSnapshot": 4
+  "justifiedRetainedSinceSnapshot": 5
 }

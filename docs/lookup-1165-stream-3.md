@@ -141,8 +141,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.Durations** ([L59](../csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs#L59)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.Definitions** ([L61](../csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs#L61)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.Durations** ([L59](../csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs#L59)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.Definitions** ([L61](../csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs#L61)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs
 
@@ -832,6 +832,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Independently supplied endpoint appearance stays unchanged. A segment style override remains exact for every field; stock-compatible segment rows are discarded at import.
 - Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed all four native attributes and addresses, enumeration/bounds, absent stock attribute storage and 24 independent field edits covering tile column/row, palette, priority and both flips. Existing real Grapple connection checks also passed.
 - Two entries completed, bringing the converted count to 60 plus the separate decorative-anchor retention. No external source-hash dependency found.
+### Confirmed batch 25: Crateria escape lightning control
+
+- Converted the two-owner catalog into named yellow-lightning and CRE-pixel program cases, preserving definition order and index bounds. Their shared eleven-frame duration schedule now dispatches the three quiet intervals (49, 17, 24 ticks) and one-tick flash records directly; no stored duration list remains. Existing per-program addresses, waits, loop control and frame geometry already calculate directly.
+- Removed stale comments that justified retaining color payloads because no simpler numeric rule was known or because they were independently addressed. Color payload conversion remains required; this control-only batch grants no color retention exception.
+- Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed the existing two-program fixture: all 52 native mechanics words, excluded color operands, real 98-frame cycles and repeat behavior with mechanics source reads forbidden. Owner ordering and invalid owner/duration bounds also passed.
+- Two entries completed, bringing converted entries to 62 plus the separately justified decorative retention. No external source-hash dependency found.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

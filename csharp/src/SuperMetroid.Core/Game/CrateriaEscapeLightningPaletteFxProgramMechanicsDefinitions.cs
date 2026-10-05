@@ -23,9 +23,8 @@ public static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions
     /// + 2 * color, with frame and color each bounded to 0..10. The eleven
     /// frames reuse four distinct authored color rows in order
     /// A,B,C,D,C,A,C,A,C,D,C. All 121 words match the pinned NTSC J/U
-    /// v1.0 ROM and the bank-$8D annotation. Values within each row vary
-    /// by color slot without a simpler justified lossless numeric rule;
-    /// retain the authored presentation content and its live reads.
+    /// v1.0 ROM and the bank-$8D annotation. The independent color payload
+    /// remains required under #1165; this catalog converts its control program only.
     /// </remarks>
     public const ushort YellowLightningProgramStart = 0xfe01;
     /// <summary><c>PalFxDef_Crateria40</c> at <c>$8D:FFED</c>.</summary>
@@ -37,8 +36,8 @@ public static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions
     /// word at $8D:FE07 + 26 * frame + 2 * (color + 6). All 55 pairs match
     /// the pinned NTSC J/U v1.0 ROM and bank-$8D annotation: this program
     /// repeats the last five colors of each eleven-color lightning row at
-    /// CGRAM byte $00AE. Keep the independently addressed authored stream
-    /// live; frame/color bounds exclude the neighboring control words.
+    /// CGRAM byte $00AE. Frame/color bounds exclude neighboring control words;
+    /// the shared color payload remains a separate conversion obligation.
     /// </remarks>
     public const ushort CreBlockPixelProgramStart = 0xff27;
     /// <summary>Both loops contain eleven timed records.</summary>
@@ -46,44 +45,45 @@ public static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions
     /// <summary>Both complete loops last 98 frames.</summary>
     public const int CycleFrames = 98;
 
-    /// <summary>Shared eleven-record late-Crateria escape duration schedule.</summary>
-    /// <remarks>
-    /// For the only valid frame indices 0..10, duration is 49 at frame zero,
-    /// 17 at frame five, 24 at frame seven, and one otherwise. This sparse
-    /// rule totals 98 frames. Both native streams use it: duration words are
-    /// at $8D:FE05 + 26 * frame for yellow lightning and $8D:FF2B +
-    /// 14 * frame for the CRE pixel. All 22 words match the pinned NTSC
-    /// J/U v1.0 ROM. Their terminal gotos target $FE05 and $FF2B respectively;
-    /// frame eleven would be control, not a twelfth duration.
-    /// </remarks>
-    private static readonly ushort[] Durations = [49, 1, 1, 1, 1, 17, 1, 24, 1, 1, 1];
-    private static readonly CrateriaEscapeLightningPaletteFxProgramDefinition[] Definitions =
-    [
-        new(CrateriaEscapeLightningPaletteOwner.YellowLightning,
-            YellowLightningDefinitionPointer, YellowLightningProgramStart, 0x00a2, 11),
-        new(CrateriaEscapeLightningPaletteOwner.CreBlockPixel,
-            CreBlockPixelDefinitionPointer, CreBlockPixelProgramStart, 0x00ae, 5),
-    ];
-    private static readonly IReadOnlyList<CrateriaEscapeLightningPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+    /// <summary>$8D:FFE9 yellow-lightning program targets eleven colors from CGRAM byte $A2.</summary>
+    private static readonly CrateriaEscapeLightningPaletteFxProgramDefinition YellowLightning = new(
+        CrateriaEscapeLightningPaletteOwner.YellowLightning, YellowLightningDefinitionPointer,
+        YellowLightningProgramStart, 0x00a2, 11);
+    /// <summary>$8D:FFED CRE pixel program targets the shared five-color tail from CGRAM byte $AE.</summary>
+    private static readonly CrateriaEscapeLightningPaletteFxProgramDefinition CreBlockPixel = new(
+        CrateriaEscapeLightningPaletteOwner.CreBlockPixel, CreBlockPixelDefinitionPointer,
+        CreBlockPixelProgramStart, 0x00ae, 5);
+    private static readonly ProgramList Programs = new();
 
     /// <summary>The yellow-lightning and CRE-pixel programs in definition order.</summary>
-    public static IReadOnlyList<CrateriaEscapeLightningPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+    public static IReadOnlyList<CrateriaEscapeLightningPaletteFxProgramDefinition> All => Programs;
 
-    /// <summary>Resolves one compiled mechanics word across both programs.</summary>
-    public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
+    private sealed class ProgramList : IReadOnlyList<CrateriaEscapeLightningPaletteFxProgramDefinition>
     {
-        foreach (CrateriaEscapeLightningPaletteFxProgramDefinition definition in Definitions)
+        public int Count => 2;
+        public CrateriaEscapeLightningPaletteFxProgramDefinition this[int index] => index switch
         {
-            if (definition.TryReadMechanicsWord(pointer, out value))
-                return true;
-        }
-        value = 0;
-        return false;
+            0 => YellowLightning,
+            1 => CreBlockPixel,
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+        public IEnumerator<CrateriaEscapeLightningPaletteFxProgramDefinition> GetEnumerator()
+        { yield return YellowLightning; yield return CreBlockPixel; }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-
-    internal static ushort Duration(int frame) => Durations[frame];
+    /// <summary>Resolves one compiled mechanics word across both programs.</summary>
+    public static bool TryReadMechanicsWord(ushort pointer, out ushort value) =>
+        YellowLightning.TryReadMechanicsWord(pointer, out value) ||
+        CreBlockPixel.TryReadMechanicsWord(pointer, out value);
+    /// <summary>$8D:FE05/$FF2B duration schedule: three quiet intervals between one-tick flashes.</summary>
+    internal static ushort Duration(int frame) => frame switch
+    {
+        0 => 49,
+        5 => 17,
+        7 => 24,
+        >= 0 and < FrameCount => 1,
+        _ => throw new IndexOutOfRangeException(),
+    };
 }
 
 /// <summary>One complete late-Crateria escape palette control program.</summary>

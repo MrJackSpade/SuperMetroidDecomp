@@ -19,15 +19,15 @@ public static class DraygonCannonData
     /// <summary>Unused bottom cannon word initialized to one by Draygon's body setup.</summary>
     public const ushort UnusedBottomDisabledWord = 0x880a;
 
-    /// <summary>Selectable firing positions indexed by <c>(random &amp; 3)</c>.</summary>
-    internal static readonly DraygonCannonTarget[] FiringTargets =
-    [
-        new(LowerLeftDisabledWord, 0x0034, 0x012f),
-        new(UpperRightDisabledWord, 0x01cc, 0x0101),
-        new(LowerRightDisabledWord, 0x01cc, 0x015e),
-        new(UnusedBottomDisabledWord, 0x01bc, 0x0188),
-    ];
-
+    /// <summary>$A5:87AA HandleFiringWallTurret selects four roles; $A5:87E4..87F3 holds their wall muzzle coordinates.</summary>
+    internal static DraygonCannonTarget FiringTarget(int selector) => (DraygonFiringCannon)selector switch
+    {
+        DraygonFiringCannon.LowerLeft => new(LowerLeftDisabledWord, 52, 303),
+        DraygonFiringCannon.UpperRight => new(UpperRightDisabledWord, 460, 257),
+        DraygonFiringCannon.LowerRight => new(LowerRightDisabledWord, 460, 350),
+        DraygonFiringCannon.UnusedBottom => new(UnusedBottomDisabledWord, 444, 392),
+        _ => throw new IndexOutOfRangeException(),
+    };
     public static bool IsControlWord(ushort address) => address is
         UpperLeftDisabledWord or LowerLeftDisabledWord or UpperRightDisabledWord or
         LowerRightDisabledWord or UnusedBottomDisabledWord;
@@ -38,3 +38,16 @@ internal readonly record struct DraygonCannonTarget(
     ushort DisabledWord,
     ushort X,
     ushort Y);
+
+/// <summary>Four mutually exclusive cannon roles selected by HandleFiringWallTurret's low random bits.</summary>
+internal enum DraygonFiringCannon
+{
+    /// <summary>$A5:87E4 HandleFiringWallTurret origin, controlled by $7E:8804.</summary>
+    LowerLeft,
+    /// <summary>$A5:87E8 HandleFiringWallTurret origin, controlled by $7E:8806.</summary>
+    UpperRight,
+    /// <summary>$A5:87EC HandleFiringWallTurret origin, controlled by $7E:8808.</summary>
+    LowerRight,
+    /// <summary>$A5:87F0 HandleFiringWallTurret origin, controlled by $7E:880A.</summary>
+    UnusedBottom,
+}

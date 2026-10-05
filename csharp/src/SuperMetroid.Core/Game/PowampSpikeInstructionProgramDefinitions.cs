@@ -22,60 +22,43 @@ internal static class PowampSpikeInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_PowampSpike_Delete</c> at $86:D218.</summary>
     internal const ushort Delete = 0xd218;
 
-    private static readonly PowampSpikeInstructionMechanicsWord[] Words =
-    [
-        new(Initial, 0x0006),
-        new(0xd20c, 0x0006),
-        new(0xd210, 0x0006),
-        new(LoopCommand, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xd216, Initial),
-        new(Delete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
+    internal static int MechanicsWordCount => 6;
+    internal static int PresentationWordCount => 3;
 
-    private static readonly ushort[] PresentationWords = [0xd20a, 0xd20e, 0xd212];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static PowampSpikeInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    internal static ushort ReadMechanicsWord(ushort address)
+    internal static PowampSpikeInstructionMechanicsWord MechanicsWord(int index)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            PowampSpikeInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Powamp-spike instruction mechanics pointer $86:{address:X4} is not compiled.");
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort address = (ushort)(index < 3 ? Initial + index * 4 : LoopCommand + (index - 3) * 2);
+        return new(address, ReadMechanicsWord(address));
     }
+
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(Initial + index * 4 + 2);
+    }
+
+    internal static ushort ReadMechanicsWord(ushort address) => TryRead(address, out ushort value)
+        ? value : throw new InvalidDataException($"Powamp-spike instruction mechanics pointer $86:{address:X4} is not compiled.");
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
+        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
+        int offset = (address & 0xffff) - Initial;
+        return offset >= 0 && TryRead((ushort)(Initial + (offset & ~1)), out _);
+    }
 
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
+    // Three six-frame drawings repeat until the producer chooses the separate delete program.
+    private static bool TryRead(ushort address, out ushort value)
+    {
+        value = 0;
+        if (address >= Initial && address < LoopCommand && (address - Initial) % 4 == 0)
+        { value = 6; return true; }
+        if (address == LoopCommand)
+        { value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY; return true; }
+        if (address == LoopCommand + 2) { value = Initial; return true; }
+        if (address == Delete)
+        { value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete; return true; }
         return false;
     }
 }

@@ -8,21 +8,8 @@ internal static partial class Program
     private static void VerifyIntroMotherBrainDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (int pointer = IntroMotherBrainInstructionDefinitions.StartPointer;
-             pointer < IntroMotherBrainInstructionDefinitions.EndPointer; pointer++)
-            AssertEqual(retail.ReadByte(IntroMotherBrainDefinitions.NativeBank | pointer),
-                IntroMotherBrainInstructionDefinitions.ReadByte((ushort)pointer),
-                $"intro Mother Brain instruction byte $8B:{pointer:X4}");
-        for (int pointer = IntroMotherBrainExplosionInstructionDefinitions.StartPointer;
-             pointer < IntroMotherBrainExplosionInstructionDefinitions.EndPointer; pointer++)
-            AssertEqual(retail.ReadByte(IntroMotherBrainDefinitions.NativeBank | pointer),
-                IntroMotherBrainExplosionInstructionDefinitions.ReadByte((ushort)pointer),
-                $"intro Mother Brain explosion instruction byte $8B:{pointer:X4}");
-        for (int pointer = IntroMotherBrainExplosionInstructionDefinitions.DeletePointer;
-             pointer < IntroMotherBrainExplosionInstructionDefinitions.DeletePointer + 2; pointer++)
-            AssertEqual(retail.ReadByte(IntroMotherBrainDefinitions.NativeBank | pointer),
-                IntroMotherBrainExplosionInstructionDefinitions.ReadByte((ushort)pointer),
-                $"intro Mother Brain explosion delete byte $8B:{pointer:X4}");
+        VerifyIntroMotherBrainInstructions(retail);
+        VerifyIntroMotherBrainExplosionPrograms(retail);
 
         IntroMotherBrainActorDefinition[] actors =
         [

@@ -6,28 +6,43 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Fixed trail timing/commands in bank $90; appearance words remain external presentation.</summary>
 public static class ProjectileTrailProgramDefinitions
 {
-    /// <summary>$90:B4C9/B523/B585/B59F/B5B1: the empty, ice-left, ice-right, wave and missile terminators.</summary>
-    private static ReadOnlySpan<ushort> Ends => [0xb4c9, 0xb523, 0xb585, 0xb59f, 0xb5b1];
-    /// <summary>$90:B4E3..B51D: inline MoveLeftProjectileTrailDownOnePixel commands in the left ice list.</summary>
-    private static ReadOnlySpan<ushort> LeftMoves => [0xb4e3, 0xb4ed, 0xb4f3, 0xb4f9, 0xb4ff, 0xb505, 0xb50b, 0xb511, 0xb517, 0xb51d];
-    /// <summary>$90:B545..B57F: inline MoveRightProjectileTrailDownOnePixel commands in the right ice list.</summary>
-    private static ReadOnlySpan<ushort> RightMoves => [0xb545, 0xb54f, 0xb555, 0xb55b, 0xb561, 0xb567, 0xb56d, 0xb573, 0xb579, 0xb57f];
-    /// <summary>$90:B51F/B581 are the ice lists' four-frame tails; wave/missile frames all last four ticks.</summary>
-    private static ReadOnlySpan<ushort> FourTickFrames => [0xb51f, 0xb581, 0xb58f, 0xb593, 0xb597, 0xb59b, 0xb5a1, 0xb5a5, 0xb5a9, 0xb5ad];
+    /// <summary>Each ice list contains seventeen poses and ten downward steps before its terminator.</summary>
+    public const int IceTerminatorOffset = 17 * 4 + 10 * 2;
+    /// <summary>Wave and missile each contain four four-byte timed records.</summary>
+    public const int ShortTerminatorOffset = 4 * 4;
 
     public static bool TryRead(int address, out ushort word)
     {
         word = 0;
         if ((address & ~0xffff) != SamusProjectileRomData.Banks.Movement) return false;
         ushort pointer = (ushort)address;
-        if (Ends.Contains(pointer)) return true;
-        if (LeftMoves.Contains(pointer)) { word = SamusProjectileRomData.Trails.MoveLeftDown; return true; }
-        if (RightMoves.Contains(pointer)) { word = SamusProjectileRomData.Trails.MoveRightDown; return true; }
-        if (!ProjectileTrailVisualDefinitions.Frames.Contains(pointer)) return false;
-        word = (ushort)(FourTickFrames.Contains(pointer) ? 4 : 1);
-        return true;
+        if (pointer == ProjectileTrailDefinitions.Empty ||
+            pointer == ProjectileTrailDefinitions.LeftIce + IceTerminatorOffset ||
+            pointer == ProjectileTrailDefinitions.RightIce + IceTerminatorOffset ||
+            pointer == ProjectileTrailDefinitions.Wave + ShortTerminatorOffset ||
+            pointer == ProjectileTrailDefinitions.Missile + ShortTerminatorOffset) return true;
+        if (IsIceFallCommand(pointer - ProjectileTrailDefinitions.LeftIce))
+        { word = SamusProjectileRomData.Trails.MoveLeftDown; return true; }
+        if (IsIceFallCommand(pointer - ProjectileTrailDefinitions.RightIce))
+        { word = SamusProjectileRomData.Trails.MoveRightDown; return true; }
+        foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
+        {
+            if (pointer != frame) continue;
+            bool longHold = pointer == ProjectileTrailDefinitions.LeftIce + IceTerminatorOffset - 4 ||
+                pointer == ProjectileTrailDefinitions.RightIce + IceTerminatorOffset - 4 ||
+                pointer >= ProjectileTrailDefinitions.Wave;
+            word = (ushort)(longHold ? 4 : 1);
+            return true;
+        }
+        return false;
     }
 
+    /// <summary>
+    /// $90:B4CB/B52D: the ice sprite first falls after six poses, then after two more,
+    /// then after every remaining one-tick pose. A command occupies two bytes and a pose four.
+    /// </summary>
+    private static bool IsIceFallCommand(int offset) => offset == 6 * 4 ||
+        (offset >= 8 * 4 + 2 && offset < IceTerminatorOffset - 4 && (offset - (8 * 4 + 2)) % 6 == 0);
     /// <summary>
     /// Reads compiled high-bank mechanics or a genuine mutable bank-$90 low-half alias.
     /// Presentation words and unrelated cartridge bytes are not valid program entries.

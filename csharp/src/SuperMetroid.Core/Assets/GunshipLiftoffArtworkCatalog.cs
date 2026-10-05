@@ -10,27 +10,46 @@ internal readonly record struct GunshipLiftoffTransferDefinition(
 internal static class GunshipLiftoffTransferDefinitions
 {
     internal const ushort ByteCount = 0x0400;
+    /// <summary>$94:C800, first gunship takeoff character chunk selected by $A2:AC07.</summary>
+    private const int FirstSourceAddress = 0x94c800;
+    /// <summary>$7600, first VRAM word selected by the destination list at $A2:AC11.</summary>
+    private const int FirstDestinationWord = 0x7600;
 
     /// <summary>First $94:C800 character chunk, uploaded to VRAM word $7600.</summary>
-    internal static readonly GunshipLiftoffTransferDefinition First =
-        new(0x94c800, 0x7600, VramAssetId.GunshipLiftoffFirstTiles);
+    internal static GunshipLiftoffTransferDefinition First => Frame(0);
     /// <summary>Second $94:CC00 character chunk, uploaded to VRAM word $7800.</summary>
-    internal static readonly GunshipLiftoffTransferDefinition Second =
-        new(0x94cc00, 0x7800, VramAssetId.GunshipLiftoffSecondTiles);
+    internal static GunshipLiftoffTransferDefinition Second => Frame(1);
     /// <summary>Third $94:D000 character chunk, uploaded to VRAM word $7A00.</summary>
-    internal static readonly GunshipLiftoffTransferDefinition Third =
-        new(0x94d000, 0x7a00, VramAssetId.GunshipLiftoffThirdTiles);
+    internal static GunshipLiftoffTransferDefinition Third => Frame(2);
     /// <summary>Fourth $94:D400 character chunk, uploaded to VRAM word $7C00.</summary>
-    internal static readonly GunshipLiftoffTransferDefinition Fourth =
-        new(0x94d400, 0x7c00, VramAssetId.GunshipLiftoffFourthTiles);
+    internal static GunshipLiftoffTransferDefinition Fourth => Frame(3);
     /// <summary>Fifth $94:D800 character chunk, uploaded to VRAM word $7E00.</summary>
-    internal static readonly GunshipLiftoffTransferDefinition Fifth =
-        new(0x94d800, 0x7e00, VramAssetId.GunshipLiftoffFifthTiles);
+    internal static GunshipLiftoffTransferDefinition Fifth => Frame(4);
 
-    private static readonly GunshipLiftoffTransferDefinition[] Entries =
-        [First, Second, Third, Fourth, Fifth];
+    /// <summary>$A2:AC07/$AC11 select five consecutive $400-byte source and VRAM regions.</summary>
+    private static GunshipLiftoffTransferDefinition Frame(int index)
+    {
+        if ((uint)index >= 5)
+            throw new IndexOutOfRangeException();
+        return new(FirstSourceAddress + index * ByteCount, (ushort)(FirstDestinationWord + index * ByteCount / 2),
+            VramAssetId.GunshipLiftoffFirstTiles + index);
+    }
 
-    internal static ReadOnlySpan<GunshipLiftoffTransferDefinition> Frames => Entries;
+    internal static TransferSequence Frames => default;
+
+    /// <summary>Calculated view over the five contiguous character transfers; no records are cached.</summary>
+    internal readonly struct TransferSequence : IReadOnlyList<GunshipLiftoffTransferDefinition>
+    {
+        public int Count => 5;
+        public int Length => Count;
+        public GunshipLiftoffTransferDefinition this[int index] => Frame(index);
+        public IEnumerator<GunshipLiftoffTransferDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++)
+                yield return Frame(index);
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }
 
 /// <summary>Five installed, palette-indexed takeoff frames resolved at accepted NMI.</summary>

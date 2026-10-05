@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Core.Hardware.SnesAddressMath;
 
 namespace SuperMetroid.Core.Game;
 
@@ -66,56 +65,28 @@ public static class SamusPoseTransitionTable
         ushort held = (ushort)(canonicalHeldInput & ~StartAndSelectMask);
         ushort newlyPressed = (ushort)(canonicalNewInput & ~StartAndSelectMask);
 
-        if (!SamusPoseInputDefinitions.TryGet(currentPose, out ushort tablePointer, out var rules))
+        if (!SamusPoseInputDefinitions.TryGetPointer(currentPose, out ushort tablePointer))
         {
             throw new InvalidDataException(
                 $"Pose ${currentPose:X2} has no authored input-transition graph; " +
                 "adjacent bank-$91 code is not mechanics metadata.");
         }
-        int entryAddress = SamusMovementRomData.Banks.Pose | tablePointer;
+        SamusPoseInputMatch match = SamusPoseInputDefinitions.Match(tablePointer, held, newlyPressed);
+        if (match.Rule is not { } rule)
+            return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: match.HasConditions);
 
-        for (int entryIndex = 0; ; entryIndex++)
-        {
-            if (entryIndex == rules.Length)
-            {
-                return new SamusPoseTransitionLookup(
-                    null,
-                    UsesPoseDefinitionFallback: entryIndex != 0);
-            }
+        // Native $91:81E7 returns directly when the winning condition keeps this pose.
+        if (rule.TargetPose == currentPose)
+            return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: false);
 
-            SamusPoseInputRule rule = rules[entryIndex];
-            ushort requiredNew = rule.RequiredNewInput;
-            ushort requiredHeld = rule.RequiredHeldInput;
-            ushort prospectivePose = rule.TargetPose;
-
-            // Assembly complements the actual inputs and rejects an entry if any required
-            // bit is absent. Expressing that as (required & actual)==required is equivalent
-            // and makes clear that extra held buttons are allowed. ROM order supplies
-            // priority when several entries match the same larger chord.
-            bool newMatches = requiredNew == 0 || (requiredNew & newlyPressed) == requiredNew;
-            bool heldMatches = requiredHeld == 0 || (requiredHeld & held) == requiredHeld;
-            if (newMatches && heldMatches)
-            {
-                // $91:81E7 treats a transition back to the current pose as not found.
-                if (prospectivePose == currentPose)
-                {
-                    return new SamusPoseTransitionLookup(
-                        null,
-                        UsesPoseDefinitionFallback: false);
-                }
-
-                return new SamusPoseTransitionLookup(
-                    new SamusPoseTransition(
-                        CurrentPose: currentPose,
-                        ProspectivePose: prospectivePose,
-                        RequiredNewInput: requiredNew,
-                        RequiredHeldInput: requiredHeld,
-                        EntryAddress: entryAddress),
-                    UsesPoseDefinitionFallback: false);
-            }
-
-            entryAddress = AddWithinBank(entryAddress, 6);
-        }
+        return new SamusPoseTransitionLookup(
+            new SamusPoseTransition(
+                CurrentPose: currentPose,
+                ProspectivePose: rule.TargetPose,
+                RequiredNewInput: rule.RequiredNewInput,
+                RequiredHeldInput: rule.RequiredHeldInput,
+                EntryAddress: SamusMovementRomData.Banks.Pose | (tablePointer + match.Index * 6)),
+            UsesPoseDefinitionFallback: false);
     }
 
 }

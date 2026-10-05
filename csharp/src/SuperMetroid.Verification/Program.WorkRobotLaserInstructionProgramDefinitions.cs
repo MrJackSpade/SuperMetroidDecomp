@@ -25,6 +25,7 @@ internal static partial class Program
                 $"Work Robot laser mechanics word $86:{definition.Address:X4}");
         }
 
+        var observedInstalledOperands = new HashSet<ushort>();
         var guard = new WorkRobotLaserInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
@@ -84,16 +85,17 @@ internal static partial class Program
             "Work Robot laser shot reaction reaches the compiled shared delete program");
 
         AssertEqual(WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Work Robot laser spritemap operands remain cartridge reads");
+            observedInstalledOperands.Count,
+            "all Work Robot laser presentation operands select installed artwork");
+        AssertEqual(0, guard.ObservedPresentationWords.Count, "Work Robot laser presentation requires no runtime cartridge reads");
         for (int index = 0;
              index < WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = WorkRobotLaserInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Work Robot laser presentation $86:{address:X4}");
+            AssertTrue(observedInstalledOperands.Contains(address),
+                $"production execution selects installed Work Robot laser presentation $86:{address:X4}");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -115,14 +117,29 @@ internal static partial class Program
         Console.WriteLine(
             "Work Robot laser instruction mechanics: nine compiled words, all five real " +
             "definitions, complete prefix/loop execution, shared shot deletion, and seven " +
-            "live spritemap reads pass with mechanics bytes forbidden.");
+            "installed presentation operands pass without runtime cartridge reads.");
 
         void RunForcedTicks(RoomEnemyProjectileSlot projectile, int count)
         {
             for (int tick = 0; tick < count; tick++)
             {
+                ushort nativeCursor = projectile.InstructionPointer;
+                // The final native Goto operand returns to the fourth frame, after the prefix.
+                if (ReadWorkRobotLaserInstructionWord(rom, nativeCursor) == EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY)
+                    nativeCursor = ReadWorkRobotLaserInstructionWord(rom, (ushort)(nativeCursor + 2));
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                if (projectile.IsActive)
+                {
+                    ushort expectedOperand = (ushort)(nativeCursor + 2);
+                    AssertEqual(expectedOperand, projectile.PresentationOperandAddress,
+                        "Work Robot laser selects native presentation operand after instruction control flow");
+                    AssertTrue(EnemyProjectilePresentationFrameDefinitions.Contains(expectedOperand),
+                        "Work Robot laser selected operand belongs to installed artwork");
+                    AssertEqual(ReadWorkRobotLaserInstructionWord(rom, nativeCursor), projectile.InstructionTimer,
+                        "Work Robot laser native duration survives calculated mechanics");
+                    observedInstalledOperands.Add(projectile.PresentationOperandAddress);
+                }
             }
         }
     }

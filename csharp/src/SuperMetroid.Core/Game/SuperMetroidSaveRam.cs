@@ -308,7 +308,7 @@ public sealed class SuperMetroidSaveRam
     private static int GetSlotOffset(int slot)
     {
         ValidateSlot(slot);
-        return SaveRamLayout.SlotOffsets[slot];
+        return SaveRamLayout.SlotOffset(slot);
     }
 
     private static void ValidateSlot(int slot)

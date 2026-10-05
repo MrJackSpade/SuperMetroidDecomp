@@ -66,12 +66,7 @@ internal static partial class Program
                 AssertEqual(nativeWord, stock.FinalLine.Words.Span[index],
                     $"opening divider tile {index} matches cartridge source");
             }
-            for (int offset = IntroEyeAnimationDefinitions.StartPointer;
-                 offset < IntroEyeAnimationDefinitions.EndPointer; offset++)
-                AssertEqual(bus.ReadByte((int)new SnesAddress(
-                        IntroCinematicRomData.Banks.Spritemaps, (ushort)offset)),
-                    IntroEyeAnimationDefinitions.ReadByte((ushort)offset),
-                    $"opening eye timing byte {offset:X4} matches cartridge");
+            VerifyIntroEyeInstructions(bus);
             for (int frame = 0; frame < IntroEyeTilemapFormat.FrameCount; frame++)
             {
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
@@ -671,12 +666,7 @@ internal static partial class Program
     private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
-        for (int offset = IntroCaretInstructionDefinitions.StartPointer;
-             offset < IntroCaretInstructionDefinitions.EndPointer; offset++)
-            AssertEqual(bus.ReadByte((int)new SnesAddress(
-                    IntroCinematicRomData.Banks.CinematicCode >> 16, (ushort)offset)),
-                IntroCaretInstructionDefinitions.ReadByte((ushort)offset),
-                $"opening caret instruction byte {offset:X4} matches cartridge");
+        VerifyIntroCaretInstructions(bus);
         const ushort originX = 8;
         const ushort originY = 24;
         ushort paletteBits = IntroCinematicRomData.Objects.ScientistPalette.Raw;
@@ -798,11 +788,7 @@ internal static partial class Program
     private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {
-        byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            IntroCinematicRomData.Assets.MotherBrainLevelData,
-            IntroCinematicRomData.Flashback.MotherBrainLevelByteCount);
-        AssertTrue(IntroMotherBrainCollisionDefinitions.SourceBytes.SequenceEqual(native),
-            "compiled Mother Brain flashback physical level matches all 448 cartridge bytes");
+        byte[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
         var guarded = new IntroArtworkSourceReadGuard(bus);
         var state = new IntroCinematicState(guarded, characterArtwork: stock);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

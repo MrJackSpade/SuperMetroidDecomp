@@ -9,47 +9,9 @@ internal static partial class Program
     private static void VerifyIntroBabyActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        foreach ((int start, int end) in new[]
-        {
-            (IntroBabyDiscoveryInstructionDefinitions.EggStart,
-                IntroBabyDiscoveryInstructionDefinitions.EggEnd),
-            (IntroBabyDiscoveryInstructionDefinitions.BabyStart,
-                IntroBabyDiscoveryInstructionDefinitions.BabyEnd),
-            (IntroBabyDiscoveryInstructionDefinitions.DeletePointer,
-                IntroBabyDiscoveryInstructionDefinitions.DeletePointer + 2),
-        })
-            for (int pointer = start; pointer < end; pointer++)
-                AssertEqual(retail.ReadByte(IntroBabyActorDefinitions.NativeBank | pointer),
-                    IntroBabyDiscoveryInstructionDefinitions.ReadByte((ushort)pointer),
-                    $"SR388 egg/baby instruction byte $8B:{pointer:X4}");
-        foreach ((int start, int end) in new[]
-        {
-            (IntroScientistInstructionDefinitions.DeliveryStart,
-                IntroScientistInstructionDefinitions.DeliveryEnd),
-            (IntroScientistInstructionDefinitions.ExaminationStart,
-                IntroScientistInstructionDefinitions.ExaminationEnd),
-            (IntroScientistInstructionDefinitions.DeletePointer,
-                IntroScientistInstructionDefinitions.DeletePointer + 2),
-        })
-            for (int pointer = start; pointer < end; pointer++)
-                AssertEqual(retail.ReadByte(IntroBabyActorDefinitions.NativeBank | pointer),
-                    IntroScientistInstructionDefinitions.ReadByte((ushort)pointer),
-                    $"intro scientist instruction byte $8B:{pointer:X4}");
-        AssertThrows<InvalidDataException>(() =>
-            IntroScientistInstructionDefinitions.ReadWord(
-                IntroScientistInstructionDefinitions.ExaminationEnd),
-            "scientist actor reader rejects the confused-baby program");
-        foreach ((int start, int end) in new[]
-        {
-            (IntroBabyDiscoveryInputDefinitions.ListStart,
-                IntroBabyDiscoveryInputDefinitions.ListEnd),
-            (IntroBabyDiscoveryInputDefinitions.HeaderStart,
-                IntroBabyDiscoveryInputDefinitions.HeaderEnd),
-        })
-            for (int pointer = start; pointer < end; pointer++)
-                AssertEqual(retail.ReadByte(DemoInputRomData.BankBase | pointer),
-                    IntroBabyDiscoveryInputDefinitions.ReadByte((ushort)pointer),
-                    $"SR388 discovery demo byte $91:{pointer:X4}");
+        VerifyIntroBabyDiscoveryInstructions(retail);
+        VerifyIntroScientistInstructions(retail);
+        VerifyIntroBabyDiscoveryInput(retail);
         AssertThrows<InvalidDataException>(() =>
             IntroBabyDiscoveryInputDefinitions.ReadWord(
                 IntroBabyDiscoveryInputDefinitions.ListEnd),
@@ -111,11 +73,7 @@ internal static partial class Program
         }
 
         var guarded = new IntroBabyActorDefinitionReadGuard(retail);
-        byte[] nativeCollision = RomDataReader.ReadFixedBank(retail,
-            IntroBabyDiscoveryCollisionDefinitions.SourceAddress,
-            IntroBabyDiscoveryCollisionDefinitions.SourceByteCount);
-        AssertTrue(IntroBabyDiscoveryCollisionDefinitions.SourceBytes.SequenceEqual(nativeCollision),
-            "SR388 discovery physical level matches every cartridge source byte");
+        byte[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
         var discovery = new IntroBabyDiscoveryState(guarded);
         var referenceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));

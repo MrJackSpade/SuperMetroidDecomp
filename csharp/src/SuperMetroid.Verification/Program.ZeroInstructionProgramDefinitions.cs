@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -58,17 +59,17 @@ internal static partial class Program
                 $"Zero {orientation} completes and loops all six frames");
         }
 
-        AssertEqual(ZeroInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Zero spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Zero production loops use compiled visual selectors without cartridge reads");
         for (int index = 0;
              index < ZeroInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
-            ushort address =
-                ZeroInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Zero presentation word $A3:{address:X4}");
+            ushort address = ZeroInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa3, address, out ushort actual),
+                $"Zero presentation word $A3:{address:X4} has a compiled selector");
+            AssertEqual(ReadZeroInstructionWord(rom, address), actual,
+                $"Zero compiled visual selector $A3:{address:X4} matches original operand");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Zero mechanics byte");
@@ -91,7 +92,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Zero instruction mechanics: forty compiled words, all four production surface " +
-            "loops and movement callbacks, and twenty-four live spritemap reads pass with " +
+            "loops and movement callbacks, and twenty-four compiled spritemap selectors pass with " +
             "mechanics bytes forbidden.");
     }
 

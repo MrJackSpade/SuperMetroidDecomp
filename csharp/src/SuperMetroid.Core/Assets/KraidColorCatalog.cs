@@ -15,25 +15,26 @@ public sealed class KraidColorCatalog
             Append(KraidPaletteSource.Health, health);
             Append(KraidPaletteSource.Secondary, secondary);
             Append(KraidPaletteSource.DeathArm, deathArm);
-            void Append(KraidPaletteSource source, ushort[] row)
+            void Append(KraidPaletteSource source, IReadOnlyList<ushort> row)
             {
                 content.Append("source", (int)source);
-                content.AppendWords("colors", row);
+                content.AppendWords("colors", row.ToArray());
             }
         });
 
-    private readonly ushort[] roomBackdrop;
-    private readonly ushort[] initialTarget;
-    private readonly ushort[] health;
-    private readonly ushort[] secondary;
-    private readonly ushort[] deathArm;
+    private readonly IReadOnlyList<ushort> roomBackdrop;
+    private readonly IReadOnlyList<ushort> initialTarget;
+    private readonly IReadOnlyList<ushort> health;
+    private readonly IReadOnlyList<ushort> secondary;
+    private readonly IReadOnlyList<ushort> deathArm;
 
     private KraidColorCatalog(KraidColorDocument document)
     {
         roomBackdrop = Compile(document.RoomBackdrop, KraidPaletteSource.RoomBackdrop);
         initialTarget = Compile(document.InitialTarget, KraidPaletteSource.InitialTarget);
-        health = Compile(document.Health, KraidPaletteSource.Health);
-        secondary = Compile(document.Secondary, KraidPaletteSource.Secondary);
+        health = new HealthPalette(Compile(document.Health, KraidPaletteSource.Health));
+        ushort[] suppliedSecondary = Compile(document.Secondary, KraidPaletteSource.Secondary);
+        secondary = suppliedSecondary.SequenceEqual(health) ? health : new HealthPalette(suppliedSecondary);
         deathArm = Compile(document.DeathArm, KraidPaletteSource.DeathArm);
     }
 
@@ -43,7 +44,7 @@ public sealed class KraidColorCatalog
     /// </summary>
     public ushort Resolve(KraidPaletteSource source, int index)
     {
-        ushort[] band = source switch
+        IReadOnlyList<ushort> band = source switch
         {
             KraidPaletteSource.RoomBackdrop => roomBackdrop,
             KraidPaletteSource.InitialTarget => initialTarget,
@@ -52,11 +53,76 @@ public sealed class KraidColorCatalog
             KraidPaletteSource.DeathArm => deathArm,
             _ => throw new ArgumentOutOfRangeException(nameof(source)),
         };
-        if ((uint)index >= band.Length)
+        if ((uint)index >= band.Count)
             throw new ArgumentOutOfRangeException(nameof(index));
         return band[index];
     }
 
+    /// <summary>
+    /// The nine $A7:B3D3/$B513 bands comprise a white flash and eight RGB5
+    /// health steps. Normal channels interpolate their endpoint colors to nearest
+    /// integer. The transparent slot switches from the first to final backdrop
+    /// after the first normal band. Exact supplied deviations remain independent.
+    /// Endpoint artwork and the two original color-six deviations still require
+    /// separate review under #1165; they are not retention exemptions.
+    /// </summary>
+    private sealed class HealthPalette : IReadOnlyList<ushort>
+    {
+        private readonly ushort[] first;
+        private readonly ushort[] last;
+        private readonly Dictionary<int, ushort> deviations = new();
+
+        internal HealthPalette(ushort[] supplied)
+        {
+            first = supplied.AsSpan(KraidPaletteRomData.BandColors, KraidPaletteRomData.BandColors).ToArray();
+            last = supplied.AsSpan((KraidPaletteRomData.HealthBandCount - 1) * KraidPaletteRomData.BandColors).ToArray();
+
+            for (int index = 0; index < supplied.Length; index++)
+                if (Calculate(index) != supplied[index])
+                    deviations.Add(index, supplied[index]);
+        }
+
+        public int Count => KraidPaletteRomData.HealthBandCount * KraidPaletteRomData.BandColors;
+        public ushort this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count)
+                    throw new ArgumentOutOfRangeException(nameof(index));
+                return deviations.TryGetValue(index, out ushort supplied) ? supplied : Calculate(index);
+            }
+        }
+
+        private ushort Calculate(int index)
+        {
+            int band = index / KraidPaletteRomData.BandColors;
+            int color = index % KraidPaletteRomData.BandColors;
+            // Every channel saturates during the stock hit flash.
+            if (band == 0)
+                return 31 | 31 << 5 | 31 << 10;
+            if (color == 0)
+                return band == 1 ? first[color] : last[color];
+            int result = 0;
+            int intervals = KraidPaletteRomData.HealthBandCount - 2;
+            for (int shift = 0; shift <= 10; shift += 5)
+            {
+                int start = first[color] >> shift & 31;
+                int end = last[color] >> shift & 31;
+                int delta = end - start;
+                int channel = start + Math.Sign(delta) *
+                    ((Math.Abs(delta) * (band - 1) + intervals / 2) / intervals);
+                result |= channel << shift;
+            }
+            return (ushort)result;
+        }
+
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++)
+                yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     public static KraidColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);

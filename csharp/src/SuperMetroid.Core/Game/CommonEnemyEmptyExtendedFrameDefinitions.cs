@@ -14,13 +14,20 @@ internal static class CommonEnemyEmptyExtendedFrameDefinitions
     /// <summary>Bank-local one-point hitbox list at $8059.</summary>
     internal const ushort PointHitboxList = 0x8059;
 
-    private static readonly byte[] Banks =
-        [0xa0, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xb2, 0xb3];
+    /// <summary>Enemy banks carrying the common $804D/$804F/$8059 frame records.</summary>
+    internal static IEnumerable<byte> SupportedBanks
+    {
+        get
+        {
+            yield return 0xa0;
+            for (byte bank = 0xa2; bank <= 0xaa; bank++) yield return bank;
+            for (byte bank = 0xb2; bank <= 0xb3; bank++) yield return bank;
+        }
+    }
 
-    internal static ReadOnlySpan<byte> SupportedBanks => Banks;
-
+    private static bool IsSupportedBank(byte bank) => bank is 0xa0 or >= 0xa2 and <= 0xaa or 0xb2 or 0xb3;
     internal static bool HasFrame(byte bank, ushort pointer) =>
-        pointer == Frame && Banks.AsSpan().Contains(bank);
+        pointer == Frame && IsSupportedBank(bank);
 
     /// <summary>
     /// The ordinary $804D OAM record is a zero-part frame in every supported
@@ -28,7 +35,7 @@ internal static class CommonEnemyEmptyExtendedFrameDefinitions
     /// entered a visible animation, independently of the $804F extended frame.
     /// </summary>
     internal static bool HasEmptySpritemap(byte bank, ushort pointer) =>
-        pointer == EmptySpritemap && Banks.AsSpan().Contains(bank);
+        pointer == EmptySpritemap && IsSupportedBank(bank);
 
     internal static ushort Callback(bool selectShot) => selectShot
         ? EnemyAiCodePointers.BankA0.NormalEnemyShot

@@ -9,19 +9,39 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresDestructionActorLayout
 {
-    private readonly CeresDestructionActorPlacement[] placements;
+    private readonly CeresDestructionActorPlacement[]? placements;
 
-    private CeresDestructionActorLayout(CeresDestructionActorPlacement[] placements) =>
-        this.placements = placements;
+    private CeresDestructionActorLayout(CeresDestructionActorPlacement[] placements)
+    {
+        bool stock = true;
+        for (int index = 0; index < placements.Length; index++)
+            stock &= placements[index] == DefaultPlacement(index);
+        this.placements = stock ? null : placements;
+    }
 
-    public CeresDestructionActorPlacement this[int actorIndex] => placements[actorIndex];
+    public CeresDestructionActorPlacement this[int actorIndex]
+    {
+        get
+        {
+            if ((uint)actorIndex >= CeresDestructionActorDefinitions.InitialActorCount)
+                throw new IndexOutOfRangeException();
+            return placements is null ? DefaultPlacement(actorIndex) : placements[actorIndex];
+        }
+    }
 
+    /// <summary>Resolves native named-actor initializer placement without a second stock lookup.</summary>
+    private static CeresDestructionActorPlacement DefaultPlacement(int index)
+    {
+        var actor = CeresDestructionActorDefinitions.InitialActor(index);
+        return new() { Id = CeresDestructionActorDefinitions.InitialPlacementId(index), X = actor.X, Y = actor.Y };
+    }
     /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresDestructionActorLayout), content =>
     {
-        content.Append("actors", placements.Length);
-        foreach (CeresDestructionActorPlacement placement in placements)
+        content.Append("actors", CeresDestructionActorDefinitions.InitialActorCount);
+        for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
         {
+            CeresDestructionActorPlacement placement = this[index];
             content.Append("id", System.Text.Encoding.UTF8.GetBytes(placement.Id));
             content.Append("x", placement.X);
             content.Append("y", placement.Y);

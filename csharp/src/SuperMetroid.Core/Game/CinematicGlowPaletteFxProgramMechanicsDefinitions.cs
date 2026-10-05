@@ -29,29 +29,46 @@ public static class CinematicGlowPaletteFxProgramMechanicsDefinitions
     /// <summary>Both glow loops contain fourteen timed records.</summary>
     public const int FrameCount = 14;
 
-    private static readonly CinematicGlowPaletteFxProgramDefinition[] Definitions =
-    [
-        new(
-            CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights,
-            definitionPointer: 0xe1bc,
-            programStart: 0xc9ba,
-            colorByteIndex: 0x0028,
-            colorsPerFrame: 3,
-            frameDuration: 6),
-        new(
-            CinematicGlowPaletteFxProgramOwner.GunshipGlow,
-            definitionPointer: 0xe1c0,
-            programStart: 0xca4e,
-            colorByteIndex: 0x01fe,
-            colorsPerFrame: 1,
-            frameDuration: 5),
-    ];
-    private static readonly IReadOnlyList<CinematicGlowPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+    /// <summary>$8D:E1BC: old Mother Brain background-light palette-FX definition.</summary>
+    private const ushort MotherBrainDefinition = 0xe1bc;
+    /// <summary>$8D:C9BA: old Mother Brain three-color pulse program.</summary>
+    private const ushort MotherBrainProgram = 0xc9ba;
+    /// <summary>$0028: CGRAM byte destination of the old Mother Brain lights.</summary>
+    private const ushort MotherBrainColorByte = 0x0028;
+    /// <summary>$8D:E1C0: cinematic gunship-glow palette-FX definition.</summary>
+    private const ushort GunshipDefinition = 0xe1c0;
+    /// <summary>$8D:CA4E: cinematic gunship one-color pulse program.</summary>
+    private const ushort GunshipProgram = 0xca4e;
+    /// <summary>$01FE: CGRAM byte destination of the cinematic gunship glow.</summary>
+    private const ushort GunshipColorByte = 0x01fe;
 
+    private static readonly IReadOnlyList<CinematicGlowPaletteFxProgramDefinition> Definitions = new ProgramEntries();
+    private sealed class ProgramEntries : IReadOnlyList<CinematicGlowPaletteFxProgramDefinition>
+    {
+        public int Count => 2;
+        public CinematicGlowPaletteFxProgramDefinition this[int index] =>
+            (CinematicGlowPaletteFxProgramOwner)index switch
+            {
+                CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights => new(
+                    CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights,
+                    MotherBrainDefinition, MotherBrainProgram, MotherBrainColorByte,
+                    colorsPerFrame: 3, frameDuration: 6),
+                CinematicGlowPaletteFxProgramOwner.GunshipGlow => new(
+                    CinematicGlowPaletteFxProgramOwner.GunshipGlow,
+                    GunshipDefinition, GunshipProgram, GunshipColorByte,
+                    colorsPerFrame: 1, frameDuration: 5),
+                _ => throw new ArgumentOutOfRangeException(nameof(index)),
+            };
+        public IEnumerator<CinematicGlowPaletteFxProgramDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++)
+                yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>The old-Mother-Brain and gunship glow programs in definition order.</summary>
     public static IReadOnlyList<CinematicGlowPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+        Definitions;
 
     /// <summary>Resolves one compiled mechanics word across both programs.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)

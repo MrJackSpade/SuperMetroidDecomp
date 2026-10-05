@@ -35,8 +35,95 @@ internal static partial class Program
             }
             PngWriter.WriteIndexedAsRgba(Path.Combine(directory, source.Item2 + ".png"), 256, 256, pixels, palette, 2);
             Console.WriteLine($"{source.Item2}: {count} original parts, {pixels.Count(pixel => pixel != 0)} visible pixels");
+            if (source.Item1 is 0xa472 or 0xa4b0 or 0xa516)
+            {
+                InspectEndingGlowPixelBands(pixels, source.Item2);
+                InspectEndingGlowCircleBands(pixels, source.Item2);
+                Console.WriteLine("Original upper-left24x24 color indexes (0 is transparent):");
+                for (int y = 104; y < 128; y++)
+                    Console.WriteLine(Convert.ToHexString(pixels.AsSpan(y * 256 + 104, 24)));
+            }
         }
         Console.WriteLine(directory);
+    }
+
+    private static void InspectEndingGlowPixelBands(byte[] pixels, string name)
+    {
+        // Source inspection only: measure lattice depth from the supplied original mask.
+        var depths = new int[pixels.Length];
+        var pending = new Queue<int>();
+        for (int index = 0; index < pixels.Length; index++)
+        {
+            depths[index] = pixels[index] == 0 ? 0 : int.MaxValue;
+            if (pixels[index] == 0) pending.Enqueue(index);
+        }
+        while (pending.TryDequeue(out int index))
+        {
+            int x = index % 256, y = index / 256;
+            void Visit(int next)
+            {
+                if (depths[next] <= depths[index] + 1) return;
+                depths[next] = depths[index] + 1;
+                pending.Enqueue(next);
+            }
+            if (x > 0) Visit(index - 1);
+            if (x < 255) Visit(index + 1);
+            if (y > 0) Visit(index - 256);
+            if (y < 255) Visit(index + 256);
+        }
+        int rimDifferences = 0;
+        var baselineDifferences = new List<string>();
+        for (int y = 104; y < 128; y++)
+        for (int x = 104; x < 128; x++)
+        {
+            int index = y * 256 + x;
+            if ((pixels[index] == 14) != (depths[index] == 1)) rimDifferences++;
+            if (name != "glow") continue;
+            int band = depths[index] switch { 0 => 0, 1 => 14, 2 => 13, 3 => 12, 4 => 10, _ => 9 };
+            if (band != pixels[index]) baselineDifferences.Add($"({x - 104},{y - 104}) depth{depths[index]} original{pixels[index]:X} baseline{band:X}");
+        }
+        Console.WriteLine($"{name}: outer-rim versus four-neighbor depth1 differences={rimDifferences}");
+        if (name == "glow") Console.WriteLine("glow base-band differences: " + string.Join(", ", baselineDifferences));
+        foreach (byte color in pixels.Where(pixel => pixel != 0).Distinct().Order())
+            Console.WriteLine($"color{color:X}: lattice depths " + string.Join(",", Enumerable.Range(0, pixels.Length)
+                .Where(index => pixels[index] == color).Select(index => depths[index]).Distinct().Order()));
+    }
+
+    private static void InspectEndingGlowCircleBands(byte[] pixels, string name)
+    {
+        // A symmetric circle centered at(c,c) requires every inside pixel to have
+        // smaller squared distance than every outside pixel. Subtracting the two
+        // distances cancels c*c and gives an exact linear bound on c. This reports
+        // feasibility, not a historical generator or a production conversion.
+        foreach (int innerLimit in new[] { 9, 10, 12, 13, 14 })
+        {
+            var inside = new List<(int X, int Y, int Sum, int Squared)>();
+            var outside = new List<(int X, int Y, int Sum, int Squared)>();
+            for (int y = 0; y < 24; y++)
+            for (int x = 0; x < 24; x++)
+            {
+                byte color = pixels[(104 + y) * 256 + 104 + x];
+                var point = (x, y, x + y, x * x + y * y);
+                (color > 0 && color <= innerLimit ? inside : outside).Add(point);
+            }
+            double lower = double.NegativeInfinity, upper = double.PositiveInfinity;
+            int contradictions = 0;
+            string? witness = null;
+            foreach (var included in inside)
+            foreach (var excluded in outside)
+            {
+                int constant = included.Squared - excluded.Squared;
+                int coefficient = 2 * (included.Sum - excluded.Sum);
+                if (coefficient > 0) lower = Math.Max(lower, (double)constant / coefficient);
+                else if (coefficient < 0) upper = Math.Min(upper, (double)constant / coefficient);
+                else if (constant >= 0)
+                {
+                    contradictions++;
+                    witness ??= $"inside({included.X},{included.Y}) versus outside({excluded.X},{excluded.Y})";
+                }
+            }
+            Console.WriteLine($"{name} inner<={innerLimit:X}: circle center interval({lower:R},{upper:R}), equal-sum contradictions={contradictions}; {witness}");
+        }
     }
 
     private static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
@@ -75,10 +162,10 @@ internal static partial class Program
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
         static SpriteComposition Calculate(ushort pointer, SpriteComposition supplied) =>
-            EndingExplosionGridParts.CalculateIfMatching(pointer, EndingExplosionQuadrantParts.CalculateIfMatching(pointer, EndingExplosionStarfieldParts.CalculateIfMatching(pointer, supplied)));
-        for (int pose = 0; pose < 14; pose++)
+            EndingExplosionGridParts.CalculateIfMatching(pointer, EndingExplosionQuadrantParts.CalculateIfMatching(pointer, EndingExplosionStarfieldParts.CalculateIfMatching(pointer, EndingExplosionAfterglowParts.CalculateIfMatching(pointer, EndingExplosionSilhouetteParts.CalculateIfMatching(pointer, supplied)))));
+        for (int pose = 0; pose < 16; pose++)
         {
-            ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : pose == 12 ? (ushort)0xa516 : (ushort)0xa28b;
+            ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : pose == 12 ? (ushort)0xa516 : pose == 13 ? (ushort)0xa28b : pose == 14 ? (ushort)0xa5e2 : (ushort)0xa57c;
             int count = bus.ReadByte(0x8c0000 | pointer) | bus.ReadByte(0x8c0000 | (pointer + 1)) << 8;
             var visual = new SpriteVisualPart[count];
             for (int index = 0; index < count; index++)
@@ -95,6 +182,14 @@ internal static partial class Program
                 };
             }
             SpriteComposition original = IntroCinematicSpriteCompiler.Compile(visual, "native grid");
+            if (pose == 14)
+            {
+                for (int index = 0; index < visual.Length; index++)
+                    AssertEqual(visual[index].TileRow * 16 + visual[index].TileColumn,
+                        EndingExplosionAfterglowParts.StockTile(index), "original afterglow ordered tile runs");
+                foreach (int invalid in new[] { int.MinValue, -1, 37, int.MaxValue })
+                    AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionAfterglowParts.StockTile(invalid), "afterglow tile sequence bounds");
+            }
             SpriteComposition calculated = Calculate(pointer, original);
             AssertTrue(!ReferenceEquals(original, calculated), "original grid uses calculated parts");
             string Identity(SpriteComposition composition) => SelectedPresentationHash.Create("grid", composition.AppendIdentity);
@@ -114,6 +209,12 @@ internal static partial class Program
             SpriteVisualPart first = visual[0];
             if (pose is >= 10 and <= 12)
             {
+                var role = (EndingExplosionSpriteDefinitions.Pose)pose;
+                int basisCount = pose == 10 ? 3 : 5;
+                for (int index = 0; index < basisCount; index++)
+                    AssertEqual(original.Part(index), EndingExplosionQuadrantParts.StockBasis(role, index), "original packed quadrant basis");
+                foreach (int invalid in new[] { int.MinValue, -1, basisCount, int.MaxValue })
+                    AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionQuadrantParts.StockBasis(role, invalid), "quadrant basis index bounds");
                 SpriteComposition editedBasis = IntroCinematicSpriteCompiler.Compile(
                     visual.Select(part => part with { TileRow = part.TileRow + 1, Palette = 3 }).ToArray(), "edited symmetric quadrants");
                 SpriteComposition calculatedBasis = Calculate(pointer, editedBasis);
@@ -131,16 +232,19 @@ internal static partial class Program
             {
                 visual[0] = edited;
                 SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, "edited grid");
-                AssertTrue(pose == 13 ? Identity(supplied) == Identity(Calculate(pointer, supplied)) : ReferenceEquals(supplied, Calculate(pointer, supplied)),
+                AssertTrue(pose >= 13 ? Identity(supplied) == Identity(Calculate(pointer, supplied)) : ReferenceEquals(supplied, Calculate(pointer, supplied)),
                     "independent edited field keeps supplied composition");
             }
             visual[0] = first;
             (visual[0], visual[1]) = (visual[1], visual[0]);
             SpriteComposition reordered = IntroCinematicSpriteCompiler.Compile(visual, "reordered grid");
-            AssertTrue(pose == 13 ? Identity(reordered) == Identity(Calculate(pointer, reordered)) : ReferenceEquals(reordered, Calculate(pointer, reordered)), "edited part order is preserved");
+            AssertTrue(pose >= 13 ? Identity(reordered) == Identity(Calculate(pointer, reordered)) : ReferenceEquals(reordered, Calculate(pointer, reordered)), "edited part order is preserved");
             SpriteComposition shortened = IntroCinematicSpriteCompiler.Compile(visual[..^1], "shortened grid");
-            AssertTrue(pose == 13 ? Identity(shortened) == Identity(Calculate(pointer, shortened)) : ReferenceEquals(shortened, Calculate(pointer, shortened)), "edited part count is preserved");
+            AssertTrue(pose >= 13 ? Identity(shortened) == Identity(Calculate(pointer, shortened)) : ReferenceEquals(shortened, Calculate(pointer, shortened)), "edited part count is preserved");
         }
+        foreach (int invalid in new[] { int.MinValue, -1, 0, 9, 13, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionQuadrantParts.StockBasis(
+                (EndingExplosionSpriteDefinitions.Pose)invalid, 0), "quadrant basis role bounds");
     }
 
     private static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)

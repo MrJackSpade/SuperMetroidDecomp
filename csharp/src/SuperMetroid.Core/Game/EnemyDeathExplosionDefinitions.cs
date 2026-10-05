@@ -13,33 +13,23 @@ internal enum EnemyDeathAnimation : ushort
 /// <summary>Compiled instruction selectors shared by generic and family-specific enemy deaths.</summary>
 internal static class EnemyDeathExplosionDefinitions
 {
-    /// <summary>
-    /// <c>InstListPointers_EnemyDeathExplosion</c> at <c>$86:EFD5-$86:EFDE</c>,
-    /// indexed by the bounded death-animation variant.
-    /// </summary>
-    private static readonly ushort[] InstructionPointers =
-    [
-        EnemyDeathInstructionProgramDefinitions.SmallExplosion,
-        EnemyDeathInstructionProgramDefinitions.KilledBySamusContact,
-        EnemyDeathInstructionProgramDefinitions.NormalExplosion,
-        EnemyDeathInstructionProgramDefinitions.MiniKraidExplosion,
-        EnemyDeathInstructionProgramDefinitions.BigExplosion,
-    ];
-
     /// <summary>$86:ECA3 blank-map wait used after a drop is collected or expires.</summary>
     internal const ushort NoDropTailInstruction =
         EnemyDeathInstructionProgramDefinitions.RespawnTail;
 
-    /// <summary>Returns the bank-$86 instruction list for one authored death variant.</summary>
+    /// <summary>Dispatches $86:EFD5-$86:EFDE by the mutually exclusive enemy-death animation variant.</summary>
     internal static ushort InstructionPointer(ushort animation)
     {
-        if (animation >= InstructionPointers.Length)
+        return (EnemyDeathAnimation)animation switch
         {
-            throw new ArgumentOutOfRangeException(
+            EnemyDeathAnimation.SmallExplosion => EnemyDeathInstructionProgramDefinitions.SmallExplosion,
+            EnemyDeathAnimation.KilledBySamusContact => EnemyDeathInstructionProgramDefinitions.KilledBySamusContact,
+            EnemyDeathAnimation.NormalExplosion => EnemyDeathInstructionProgramDefinitions.NormalExplosion,
+            EnemyDeathAnimation.MiniKraidExplosion => EnemyDeathInstructionProgramDefinitions.MiniKraidExplosion,
+            EnemyDeathAnimation.BigExplosion => EnemyDeathInstructionProgramDefinitions.BigExplosion,
+            _ => throw new ArgumentOutOfRangeException(
                 nameof(animation), animation,
-                "Enemy death animation must be zero through four.");
-        }
-
-        return InstructionPointers[animation];
+                "Enemy death animation must be zero through four."),
+        };
     }
 }

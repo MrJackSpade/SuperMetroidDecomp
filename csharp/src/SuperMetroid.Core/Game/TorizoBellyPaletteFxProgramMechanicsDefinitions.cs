@@ -21,15 +21,39 @@ public enum TorizoBellyPaletteOwner
 /// </remarks>
 public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
 {
-    private static readonly ushort[] FrameDurations = [10, 8, 8, 10, 8, 8];
-    private static readonly TorizoBellyPaletteFxProgramDefinition[] Definitions =
-    [
-        new(TorizoBellyPaletteOwner.BombTorizo, 0xf759, 0xe2e9, 0xe2f1, 0xe32d),
-        new(TorizoBellyPaletteOwner.GoldenTorizo, 0xf75d, 0xe331, 0xe339, 0xe375),
-    ];
-    private static readonly IReadOnlyList<TorizoBellyPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+    /// <summary>Bomb Torizo palette-FX identity at $8D:F759.</summary>
+    private const ushort BombDefinition = 0xf759;
+    /// <summary>Golden Torizo palette-FX identity at $8D:F75D.</summary>
+    private const ushort GoldenDefinition = 0xf75d;
+    /// <summary>Bomb Torizo belly setup program at $8D:E2E9.</summary>
+    private const ushort BombProgram = 0xe2e9;
+    /// <summary>Golden Torizo belly setup program at $8D:E331.</summary>
+    private const ushort GoldenProgram = 0xe331;
+    private static readonly IReadOnlyList<TorizoBellyPaletteFxProgramDefinition> Definitions =
+        new ProgramDefinitions();
 
+    private sealed class ProgramDefinitions : IReadOnlyList<TorizoBellyPaletteFxProgramDefinition>
+    {
+        public int Count => 2;
+        public TorizoBellyPaletteFxProgramDefinition this[int index] => index switch
+        {
+            (int)TorizoBellyPaletteOwner.BombTorizo => Create(TorizoBellyPaletteOwner.BombTorizo, BombDefinition, BombProgram),
+            (int)TorizoBellyPaletteOwner.GoldenTorizo => Create(TorizoBellyPaletteOwner.GoldenTorizo, GoldenDefinition, GoldenProgram),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+
+        private static TorizoBellyPaletteFxProgramDefinition Create(
+            TorizoBellyPaletteOwner owner, ushort definition, ushort start) =>
+            new(owner, definition, start, (ushort)(start + 8),
+                (ushort)(start + 8 + FrameCount * FrameByteCount));
+
+        public IEnumerator<TorizoBellyPaletteFxProgramDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++)
+                yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>
     public const int ColorsPerFrame = 3;
 
@@ -47,7 +71,7 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
 
     /// <summary>The Bomb and Golden Torizo programs in palette-definition order.</summary>
     public static IReadOnlyList<TorizoBellyPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+        Definitions;
 
     /// <summary>Resolves one compiled mechanics word across both Torizo programs.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
@@ -69,9 +93,9 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
     /// </remarks>
     internal static ushort Duration(int frame)
     {
-        if ((uint)frame >= FrameDurations.Length)
+        if ((uint)frame >= FrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
-        return FrameDurations[frame];
+        return (ushort)(frame % 3 == 0 ? 10 : 8);
     }
 }
 
@@ -117,20 +141,7 @@ public sealed class TorizoBellyPaletteFxProgramDefinition
     }
 
     /// <summary>Returns one contiguous presentation-color address within a frame.</summary>
-    /// <remarks>
-    /// Bomb Torizo's valid frames f=0..5 select authored BGR555 row
-    /// d=min(f,6-f): ($6F7F,$51F8,$410E),
-    /// ($56BC,$3935,$284B), ($4639,$28B2,$1828),
-    /// ($2D74,$100D,$0403) for d=0..3. Color c=0..2 is at
-    /// $8D:E2F3 + 10*f + 2*c. All eighteen pinned-ROM words match;
-    /// channel changes are irregular, so the four rows remain live
-    /// authored presentation data. Frame six reaches loop control.
-    /// Golden Torizo separately uses rows ($73E0,$4F20,$2A20),
-    /// ($5380,$2E20,$0920), ($3AC0,$1560,$0480),
-    /// ($2200,$00A0,$0020) for the same d=min(f,6-f), at
-    /// $8D:E33B + 10*f + 2*c. All eighteen pinned-ROM words match;
-    /// its different channel steps and floors remain authored and live.
-    /// </remarks>
+    /// <remarks>Color payload derivation remains pending under issue #1165.</remarks>
     public ushort ColorPointer(int frame, int color)
     {
         if ((uint)color >= TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame)

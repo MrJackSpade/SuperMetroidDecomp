@@ -6,9 +6,15 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Displayed swing-frame selection only; physical body placement remains compiled separately.</summary>
 public sealed class GrappleSwingFrameCatalog
 {
-    private readonly byte[] frames;
-    private GrappleSwingFrameCatalog(byte[] frames) => this.frames = frames;
-    public byte Resolve(byte angle) => frames[angle];
+    private readonly byte[]? frames;
+    private GrappleSwingFrameCatalog(byte[] frames)
+    {
+        for (int angle = 0; angle < frames.Length; angle++)
+            if (frames[angle] != GrappleSwingFrameDefinitions.FrameForAngle((byte)angle))
+            { this.frames = frames; return; }
+    }
+    public byte Resolve(byte angle) => frames is null
+        ? GrappleSwingFrameDefinitions.FrameForAngle(angle) : frames[angle];
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -57,4 +63,6 @@ public static class GrappleSwingFrameDefinitions
     public const int AngleCount = 256;
     /// <summary>$9B:BD95: Grapple swing art has 32 orientation frames per facing.</summary>
     public const int FrameCount = 32;
+    /// <summary>$9B:C1C2 angle selector rounds to the nearest eight-angle frame, wrapping at 32.</summary>
+    public static byte FrameForAngle(byte angle) => (byte)(((angle + 4) >> 3) & (FrameCount - 1));
 }

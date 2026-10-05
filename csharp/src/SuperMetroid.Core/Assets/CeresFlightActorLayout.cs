@@ -9,19 +9,39 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresFlightActorLayout
 {
-    private readonly CeresFlightActorPlacement[] placements;
+    private readonly CeresFlightActorPlacement[]? placements;
 
-    private CeresFlightActorLayout(CeresFlightActorPlacement[] placements) =>
-        this.placements = placements;
+    private CeresFlightActorLayout(CeresFlightActorPlacement[] placements)
+    {
+        bool stock = true;
+        for (int index = 0; index < placements.Length; index++)
+            stock &= placements[index] == DefaultPlacement(index);
+        this.placements = stock ? null : placements;
+    }
 
-    public CeresFlightActorPlacement this[int actorIndex] => placements[actorIndex];
+    public CeresFlightActorPlacement this[int actorIndex]
+    {
+        get
+        {
+            if ((uint)actorIndex >= CeresFlightActorDefinitions.RearViewActorCount)
+                throw new IndexOutOfRangeException();
+            return placements is null ? DefaultPlacement(actorIndex) : placements[actorIndex];
+        }
+    }
 
+    /// <summary>Resolves native named-actor initializer placement without a second stock lookup.</summary>
+    private static CeresFlightActorPlacement DefaultPlacement(int index)
+    {
+        var actor = CeresFlightActorDefinitions.RearViewActor(index);
+        return new() { Id = CeresFlightActorDefinitions.RearViewPlacementSource(index).Id, X = actor.X, Y = actor.Y };
+    }
     /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresFlightActorLayout), content =>
     {
-        content.Append("actors", placements.Length);
-        foreach (CeresFlightActorPlacement placement in placements)
+        content.Append("actors", CeresFlightActorDefinitions.RearViewActorCount);
+        for (int index = 0; index < CeresFlightActorDefinitions.RearViewActorCount; index++)
         {
+            CeresFlightActorPlacement placement = this[index];
             content.Append("id", System.Text.Encoding.UTF8.GetBytes(placement.Id));
             content.Append("x", placement.X);
             content.Append("y", placement.Y);

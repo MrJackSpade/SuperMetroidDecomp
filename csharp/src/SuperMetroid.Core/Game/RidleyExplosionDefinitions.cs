@@ -38,6 +38,12 @@ internal static class RidleyExplosionDefinitions
     /// <summary><c>EnemyHeaders_RidleyExplosion</c> at <c>$A0:E1BF</c>.</summary>
     public const ushort EnemyDefinition = 0xe1bf;
 
+    /// <summary>$A6:C6FE RidleyExplosionInitialization_0, first of seven tail-fragment initializers.</summary>
+    private const ushort TailInitializerStart = 0xc6fe;
+    /// <summary>$A6:C7DA RidleyExplosionInitialization_E, first of five body-fragment initializers.</summary>
+    private const ushort BodyInitializerStart = 0xc7da;
+    /// <summary>$A6:CA95 InstList_RidleyTailTip_PointingDown, first of sixteen orientation programs.</summary>
+    private const ushort TailTipProgramStart = 0xca95;
     /// <summary>
     /// Native allocation order encoded by <c>SpawnEnemy_RidleyExplosion</c> at
     /// <c>$A6:C932-$A6:C986</c>. Enemy-slot/OAM order makes this sequence observable.
@@ -56,26 +62,6 @@ internal static class RidleyExplosionDefinitions
         RidleyExplosionParts.Torso,
         RidleyExplosionParts.OpenHeadAndNeck,
         RidleyExplosionParts.Claw,
-    ];
-
-    /// <summary>
-    /// Parameters, lifetimes from <c>$A6:C6CE-$A6:C6E5</c>, and native initializer
-    /// callbacks from <c>$A6:C6E6-$A6:C6FD</c>, in parameter-index order.
-    /// </summary>
-    private static readonly RidleyExplosionPartDefinition[] PartRecords =
-    [
-        new(0x0000, 0x0048, 0xc6fe),
-        new(0x0002, 0x0050, 0xc716),
-        new(0x0004, 0x0058, 0xc72e),
-        new(0x0006, 0x0060, 0xc746),
-        new(0x0008, 0x0068, 0xc75e),
-        new(0x000a, 0x0070, 0xc776),
-        new(0x000c, 0x0078, 0xc78e),
-        new(0x000e, 0x0028, 0xc7da),
-        new(0x0010, 0x0030, 0xc80c),
-        new(0x0012, 0x0038, 0xc83e),
-        new(0x0014, 0x0080, 0xc870),
-        new(0x0016, 0x0040, 0xc8a2),
     ];
 
     /// <summary>
@@ -98,24 +84,26 @@ internal static class RidleyExplosionDefinitions
     ];
 
     /// <summary>
-    /// Tail-tip instruction-list selectors at <c>$A6:C7BA-$A6:C7D9</c>, ordered by
-    /// the high nibble of the rounded combined segment-five/tip angle.
+    /// $A6:C6CE lifetimes and $A6:C6E6 initializer pointers, selected by the even
+    /// parameter at $0FB4. Tail segments expire eight frames apart and their
+    /// equal-sized initializers advance by 24 bytes.
     /// </summary>
-    private static ReadOnlySpan<ushort> TailTipInstructionLists =>
-    [
-        0xca95, 0xca9b, 0xcaa1, 0xcaa7,
-        0xcaad, 0xcab3, 0xcab9, 0xcabf,
-        0xcac5, 0xcacb, 0xcad1, 0xcad7,
-        0xcadd, 0xcae3, 0xcae9, 0xcaef,
-    ];
-
-    /// <summary>Returns the definition selected by the even parameter at <c>$0FB4</c>.</summary>
     public static RidleyExplosionPartDefinition GetPart(ushort parameter)
     {
         if ((parameter & 1) != 0 || parameter > RidleyExplosionParts.Claw)
             throw new ArgumentOutOfRangeException(nameof(parameter));
 
-        return PartRecords[parameter >> 1];
+        int part = parameter >> 1;
+        if (parameter <= RidleyExplosionParts.TailTip)
+            return new(parameter, (ushort)(0x48 + 8 * part), (ushort)(TailInitializerStart + 0x18 * part));
+
+        // Body initializers have the same two-facing layout, so their native
+        // addresses advance by 50 bytes. Torso is the last fragment to expire;
+        // the other body parts follow the eight-frame lifetime progression.
+        int body = (parameter - RidleyExplosionParts.Wings) / 2;
+        ushort lifetime = parameter == RidleyExplosionParts.Torso ? (ushort)0x80
+            : (ushort)(0x28 + 8 * (body - (parameter == RidleyExplosionParts.Claw ? 1 : 0)));
+        return new(parameter, lifetime, (ushort)(BodyInitializerStart + 0x32 * body));
     }
 
     /// <summary>Returns one authored small-explosion position selected by its cyclic index.</summary>
@@ -127,7 +115,7 @@ internal static class RidleyExplosionDefinitions
     }
 
     /// <summary>
-    /// Selects the fixed tail instruction list loaded by <c>$A6:C6FE-$A6:C7B9</c>.
+    /// Selects the fixed tail instruction list loaded by <c>$A6:C6FE-$A6:C7B9</c>. Each of the sixteen tip programs selected at $A6:C7BA occupies six bytes.
     /// <paramref name="tailTipOrientation"/> is ignored for the first six segments.
     /// </summary>
     public static ushort SelectTailInstructionList(
@@ -138,7 +126,7 @@ internal static class RidleyExplosionDefinitions
         RidleyExplosionParts.Tail2 or RidleyExplosionParts.Tail3 => 0xca4d,
         RidleyExplosionParts.Tail4 or RidleyExplosionParts.Tail5 => 0xca53,
         RidleyExplosionParts.TailTip when (uint)tailTipOrientation < 16 =>
-            TailTipInstructionLists[tailTipOrientation],
+            (ushort)(TailTipProgramStart + 6 * tailTipOrientation),
         RidleyExplosionParts.TailTip =>
             throw new ArgumentOutOfRangeException(nameof(tailTipOrientation)),
         _ => throw new ArgumentOutOfRangeException(nameof(parameter)),

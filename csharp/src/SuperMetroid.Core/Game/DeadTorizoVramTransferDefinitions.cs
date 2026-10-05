@@ -24,28 +24,41 @@ internal static class DeadTorizoVramTransferDefinitions
     /// <summary>The native interpreter's finite corrupt-table guard.</summary>
     internal const int MaximumNativeRecords = 64;
 
-    private static readonly DeadTorizoVramTransferDefinition[] Even =
-    [
-        new(0x00c0, 0x7e00, 0x2060, 0x7090),
-        new(0x00c0, 0x7e00, 0x21a0, 0x7190),
-        new(0x0100, 0x7e00, 0x22c0, 0x7280),
-        new(0x0100, 0x7e00, 0x2400, 0x7380),
-        new(0x0100, 0x7e00, 0x2540, 0x7480),
-        new(0x0100, 0x7e00, 0x2680, 0x7580),
-        new(0x0120, 0x7e00, 0x9620, 0x7100),
-    ];
+    /// <summary>Twelve ten-tile body rows start at $7E:2000 and VRAM word$7060.</summary>
+    private const ushort BodySource = 0x2000;
+    private const ushort BodyDestination = 0x7060;
+    /// <summary>Sand strips at $7E:9500/$9620 upload alternately to VRAM$7000/$7100.</summary>
+    private const ushort SandSource = 0x9500;
+    private const ushort SandDestination = 0x7000;
 
-    private static readonly DeadTorizoVramTransferDefinition[] Odd =
-    [
-        new(0x0100, 0x7e00, 0x27c0, 0x7680),
-        new(0x0100, 0x7e00, 0x2900, 0x7780),
-        new(0x0100, 0x7e00, 0x2a40, 0x7880),
-        new(0x0120, 0x7e00, 0x2b60, 0x7970),
-        new(0x0140, 0x7e00, 0x2c80, 0x7a60),
-        new(0x0140, 0x7e00, 0x2dc0, 0x7b60),
-        new(0x0100, 0x7e00, 0x9500, 0x7000),
-    ];
+    internal static PhaseRows ForPhase(ushort phase) => new((phase & 1) != 0);
 
-    internal static ReadOnlySpan<DeadTorizoVramTransferDefinition> ForPhase(
-        ushort phase) => (phase & 1) != 0 ? Odd : Even;
+    /// <summary>Six body rows and one sand strip; body bounds clip unused tiles on each scanline.</summary>
+    internal readonly struct PhaseRows(bool odd) : IReadOnlyList<DeadTorizoVramTransferDefinition>
+    {
+        public int Count => 7;
+        public int Length => Count;
+        public DeadTorizoVramTransferDefinition this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if (index == 6)
+                    return new(odd ? (ushort)0x100 : (ushort)0x120, 0x7e00,
+                        (ushort)(SandSource + (odd ? 0 : 0x120)),
+                        (ushort)(SandDestination + (odd ? 0 : 0x100)));
+                int row = index + (odd ? 6 : 0);
+                int firstTile = row < 2 ? 3 : Math.Clamp(10 - row, 0, 2);
+                int tileCount = row < 2 ? 6 : 10 - firstTile;
+                return new((ushort)(32 * tileCount), 0x7e00,
+                    (ushort)(BodySource + row * 320 + firstTile * 32),
+                    (ushort)(BodyDestination + row * 256 + firstTile * 16));
+            }
+        }
+        public IEnumerator<DeadTorizoVramTransferDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }

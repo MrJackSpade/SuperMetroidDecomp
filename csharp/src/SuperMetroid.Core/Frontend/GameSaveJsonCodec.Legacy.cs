@@ -26,7 +26,7 @@ public static partial class GameSaveJsonCodec
             if (slots[index] is null) continue;
             JsonObject slot = slots[index] as JsonObject ?? throw new InvalidDataException($"slots[{index}] must be an object");
             JsonObject resources = slot["resources"] as JsonObject ?? throw new InvalidDataException($"slots[{index}].resources is required");
-            int origin = SaveRamLayout.SlotOffsets[index];
+            int origin = SaveRamLayout.SlotOffset(index);
             resources["reserveMissiles"] = Word(SaveRamLayout.ReserveMissilesOffset);
             slot["japaneseText"] = Word(SaveRamLayout.JapaneseTextOffset) != 0;
             slot["loadedItemCount"] = Word(SaveRamLayout.LoadedItemCountOffset);

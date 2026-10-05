@@ -13,10 +13,16 @@ public sealed class ShitroidColorCatalog
             content.AppendWords("sidehopper", sidehopper);
             content.AppendWords("shitroid", shitroid);
             content.AppendWords("deadSidehopper", deadSidehopper);
-            content.AppendWordFrames("normal", normal);
+            content.Append("normal", ShitroidColorRomData.NormalFrameCount);
+            for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
+            {
+                var row = new ushort[ShitroidColorRomData.NormalColorsPerFrame];
+                for (int color = 0; color < row.Length; color++) row[color] = NormalColor(frame, color);
+                content.AppendWords("row", row);
+            }
         });
 
-    private readonly ushort[][] normal;
+    private readonly ColorPulse normal;
     private readonly ushort[] sidehopper;
     private readonly ushort[] shitroid;
     private readonly ushort[] deadSidehopper;
@@ -24,7 +30,7 @@ public sealed class ShitroidColorCatalog
     private ShitroidColorCatalog(ushort[][] normal, ushort[] sidehopper,
         ushort[] shitroid, ushort[] deadSidehopper)
     {
-        this.normal = normal;
+        this.normal = new ColorPulse(normal);
         this.sidehopper = sidehopper;
         this.shitroid = shitroid;
         this.deadSidehopper = deadSidehopper;
@@ -38,8 +44,8 @@ public sealed class ShitroidColorCatalog
     };
 
     public ushort NormalColor(int frame, int color) =>
-        (uint)frame < normal.Length && (uint)color < ShitroidColorRomData.NormalColorsPerFrame
-            ? normal[frame][color]
+        (uint)frame < ShitroidColorRomData.NormalFrameCount && (uint)color < ShitroidColorRomData.NormalColorsPerFrame
+            ? normal.Resolve(frame, color)
             : throw new ArgumentOutOfRangeException(nameof(frame),
                 $"Shitroid normal frame {frame}, color {color} is outside the authored image.");
 
@@ -107,6 +113,58 @@ public sealed class ShitroidColorCatalog
             compiled[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         }
         return compiled;
+    }
+
+    private sealed class ColorPulse
+    {
+        private readonly uint[] origins;
+        private readonly ushort minimum;
+        private readonly ushort[][]? supplied;
+
+        public ColorPulse(ushort[][] frames)
+        {
+            origins = new uint[ShitroidColorRomData.NormalColorsPerFrame];
+            for (int channel = 0; channel < 3; channel++)
+            {
+                int floor = 31;
+                foreach (ushort[] frame in frames)
+                foreach (ushort color in frame)
+                    floor = Math.Min(floor, color >> (5 * channel) & 31);
+                minimum |= (ushort)(floor << (5 * channel));
+            }
+            for (int color = 0; color < origins.Length; color++)
+            for (int channel = 0; channel < 3; channel++)
+            {
+                int floor = minimum >> (5 * channel) & 31;
+                int origin = floor;
+                for (int phase = 0; phase < 4; phase++)
+                {
+                    int value = frames[phase][color] >> (5 * channel) & 31;
+                    if (value > floor) origin = Math.Max(origin, value + 5 * phase);
+                }
+                origins[color] |= (uint)origin << (8 * channel);
+            }
+            // Four dimming levels subtract five per RGB channel, then retrace.
+            // The red highlights begin above RGB5's ceiling; dark reds have a floor.
+            for (int frame = 0; frame < frames.Length; frame++)
+            for (int color = 0; color < origins.Length; color++)
+                if (Resolve(frame, color) != frames[frame][color])
+                { supplied = frames; return; }
+        }
+
+        public ushort Resolve(int frame, int color)
+        {
+            if (supplied is not null) return supplied[frame][color];
+            int phase = Math.Min(frame, 7 - frame);
+            int result = 0;
+            for (int channel = 0; channel < 3; channel++)
+            {
+                int origin = (int)(origins[color] >> (8 * channel) & 255);
+                int floor = minimum >> (5 * channel) & 31;
+                result |= Math.Clamp(origin - 5 * phase, floor, 31) << (5 * channel);
+            }
+            return (ushort)result;
+        }
     }
 
     private static void RejectDuplicates(JsonElement value)

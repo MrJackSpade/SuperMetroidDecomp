@@ -15,15 +15,10 @@ internal static class CommonEnemyProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Delete</c> at $86:84FC.</summary>
     internal const ushort Delete = 0x84fc;
 
-    private static readonly CommonEnemyProjectileInstructionMechanicsWord[] Words =
-    [
-        new(Delete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static CommonEnemyProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-
+    internal static int MechanicsWordCount => 1;
+    internal static CommonEnemyProjectileInstructionMechanicsWord MechanicsWord(int index) => index == 0
+        ? new(Delete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete)
+        : throw new IndexOutOfRangeException();
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address == Delete)

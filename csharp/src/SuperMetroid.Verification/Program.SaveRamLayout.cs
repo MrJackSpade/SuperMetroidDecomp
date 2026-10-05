@@ -66,21 +66,19 @@ internal static partial class Program
         AssertEqual(SaveRamLayout.SlotByteCount, previousEnd,
             "packed map terminates exactly at slot boundary");
 
-        ReadOnlySpan<ushort> slotOffsets = SaveRamLayout.SlotOffsets;
-        AssertEqual(SaveRamLayout.SlotCount, slotOffsets.Length,
-            "SRAM layout publishes every native slot");
-        for (int slot = 1; slot < slotOffsets.Length; slot++)
+
+        for (int slot = 1; slot < SaveRamLayout.SlotCount; slot++)
         {
             AssertEqual(
-                slotOffsets[slot - 1] + SaveRamLayout.SlotByteCount,
-                slotOffsets[slot],
+                SaveRamLayout.SlotOffset(slot - 1) + SaveRamLayout.SlotByteCount,
+                SaveRamLayout.SlotOffset(slot),
                 $"SRAM slot {slot - 1} ends where slot {slot} begins");
         }
-        AssertTrue(slotOffsets[^1] + SaveRamLayout.SlotByteCount <=
+        AssertTrue(SaveRamLayout.SlotOffset(SaveRamLayout.SlotCount - 1) + SaveRamLayout.SlotByteCount <=
             SaveRamLayout.SelectedSlotOffset,
             "slot payloads do not overlap selected-slot directory");
         AssertTrue(SaveRamLayout.PrimaryComplementOffset +
-            SaveRamLayout.SlotCount * SaveRamLayout.WordByteCount <= slotOffsets[0],
+            SaveRamLayout.SlotCount * SaveRamLayout.WordByteCount <= SaveRamLayout.SlotOffset(0),
             "primary checksum directories do not overlap slot zero");
         AssertTrue(SaveRamLayout.SelectedSlotComplementOffset + SaveRamLayout.WordByteCount <=
             SaveRamLayout.BackupChecksumOffset,

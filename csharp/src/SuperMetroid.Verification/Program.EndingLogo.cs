@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -62,6 +63,14 @@ internal static partial class Program
             "circle-left-1", "circle-left-2", "circle-left-3"];
         var catalog = EndingLogoSpriteDefinitions.Frames;
         AssertEqual(8, catalog.Count, "logo frame count");
+        SpriteComposition ReadComposition(int index)
+        {
+            var definition = catalog[index];
+            return IntroCinematicSpriteCompiler.Compile(IntroCinematicSpriteFrameExtractor.Extract(
+                bus, definition.Pointer, definition.StockPartCount, definition.Name), definition.Name);
+        }
+        SpriteComposition upper = ReadComposition(0).CalculateIfMatching(new EndingLogoUpperParts()),
+            completeRight = EndingLogoWrapParts.CalculateIfMatching(ReadComposition(4));
         for (int i = 0; i < operands.Length; i++)
         {
             int operand = 0x8b0000 | operands[i];
@@ -71,6 +80,7 @@ internal static partial class Program
             AssertEqual(pointer, catalog[i].Pointer, "logo frame address from original instruction operand");
             AssertEqual(count, catalog[i].StockPartCount, "logo part count from original OAM header");
             AssertEqual(names[i], catalog[i].Name, "logo published asset key");
+            VerifyEndingLogoRelatedParts(bus, i, catalog[i], upper, completeRight);
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "logo catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
@@ -108,6 +118,74 @@ internal static partial class Program
         }
         foreach (ushort invalid in new ushort[] { 0, 0xee5c, 0xee9b, 0xffff })
             AssertThrows<InvalidDataException>(() => EndingLogoInstructionDefinitions.ReadWord(invalid), "logo program bounds");
+    }
+
+    private static void VerifyEndingLogoRelatedParts(ISnesAddressSpace bus, int frame,
+        EndingLogoSpriteFrameDefinition definition, SpriteComposition upper, SpriteComposition completeRight)
+    {
+        SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,
+            definition.Pointer, definition.StockPartCount, definition.Name);
+        SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
+        if (frame == 4)
+        {
+            for (int index = 0; index < visual.Length; index++)
+            {
+                var choice = EndingLogoWrapParts.StockSelection(index);
+                int originalTile = visual[index].TileRow * 16 + visual[index].TileColumn;
+                AssertEqual(originalTile, choice.Tile, "original wrap tile selection");
+                AssertEqual(originalTile == 0x48 && visual[index].Size == 8, choice.Cropped, "original cropped cap selection");
+            }
+            foreach (int invalid in new[] { int.MinValue, -1, 25, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoWrapParts.StockSelection(invalid), "wrap selection bounds");
+        }
+        SpriteComposition Calculate(SpriteComposition value) => frame == 0
+            ? value.CalculateIfMatching(new EndingLogoUpperParts())
+            : frame == 4 ? EndingLogoWrapParts.CalculateIfMatching(value)
+            : EndingLogoRelatedParts.CalculateIfMatching(frame, value, upper, completeRight);
+        SpriteComposition calculated = Calculate(supplied);
+        AssertTrue(!ReferenceEquals(supplied, calculated), "logo calculated relationship selection");
+        string Identity(SpriteComposition value) => SelectedPresentationHash.Create("logo-related", value.AppendIdentity);
+        AssertEqual(Identity(supplied), Identity(calculated), "all original logo related fields and ordering");
+        if (frame == 4)
+        {
+            SpriteVisualPart[] reordered = (SpriteVisualPart[])visual.Clone();
+            (reordered[0], reordered[1]) = (reordered[1], reordered[0]);
+            foreach (SpriteVisualPart[] editedParts in new[] { reordered, visual[..^1] })
+            {
+                SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(editedParts, "edited wrap selection");
+                SpriteComposition editedCalculation = Calculate(edited);
+                AssertTrue(!ReferenceEquals(edited, editedCalculation), "edited tile sequence retains calculated placement");
+                AssertEqual(Identity(edited), Identity(editedCalculation), "edited tile order and count stay supplied");
+            }
+        }
+        foreach (ushort y in new ushort[] { 72, 0xfff8 })
+        {
+            var originalOam = new OamBuffer();
+            var calculatedOam = new OamBuffer();
+            originalOam.BeginFrame(); calculatedOam.BeginFrame();
+            DrawImportedSpritemap(bus, originalOam, 0x8c0000 | definition.Pointer, 120, y, 0x0800, originIsOnScreen: y == 72);
+            if (y == 72) calculated.DrawOnScreen(calculatedOam, 120, y, 0x0800);
+            else calculated.DrawOffScreen(calculatedOam, 120, y, 0x0800);
+            originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
+            AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
+                "logo relationship preserves native OAM and clipping");
+        }
+        SpriteVisualPart first = visual[0];
+        foreach (SpriteVisualPart edit in new[]
+        {
+            first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
+            first with { TileColumn = (first.TileColumn + 1) % 14 }, first with { TileRow = first.TileRow + 1 },
+            first with { Size = first.Size == 16 ? 8 : 16, TileColumn = Math.Min(14, first.TileColumn) },
+            first with { Priority = 2 }, first with { Palette = 3 },
+            first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
+        })
+        {
+            visual[0] = edit;
+            SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(visual, "edited logo");
+            AssertTrue(ReferenceEquals(edited, Calculate(edited)), "independent logo artwork edits stay supplied");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, calculated.PartCount, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated.Part(invalid), "logo part bounds");
     }
 
     private static void VerifyEndingLogoDefinitions(ISnesAddressSpace bus)

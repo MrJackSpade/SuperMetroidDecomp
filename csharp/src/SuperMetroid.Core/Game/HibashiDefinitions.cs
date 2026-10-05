@@ -25,36 +25,10 @@ internal static class HibashiDefinitions
     /// <summary>
     /// $A6:8DBB/$A6:8DE7, the 22 eruption Y offsets and collision half-heights.
     /// </summary>
-    private static readonly HibashiActivityDefinition[] ActivityFrames =
-    [
-        new(0x0005, 0x0018),
-        new(0x000a, 0x0018),
-        new(0x000f, 0x0018),
-        new(0x0014, 0x0018),
-        new(0x0019, 0x0018),
-        new(0x001e, 0x0018),
-        new(0x0023, 0x0018),
-        new(0x0028, 0x0018),
-        new(0x002d, 0x0018),
-        new(0x0032, 0x0018),
-        new(0x0037, 0x0018),
-        new(0x003c, 0x0018),
-        new(0x0041, 0x0018),
-        new(0x0046, 0x0018),
-        new(0x004b, 0x0018),
-        new(0x0050, 0x0018),
-        new(0x0055, 0x0018),
-        new(0x005a, 0x0018),
-        new(0x005f, 0x0014),
-        new(0x0064, 0x0010),
-        new(0x0069, 0x000c),
-        new(0x006e, 0x0008),
-    ];
-
     internal static HibashiActivityDefinition ActivityFrame(int index)
     {
-        if ((uint)index >= ActivityFrames.Length)
+        if ((uint)index >= 22)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return ActivityFrames[index];
+        return new((ushort)((index + 1) * 5), (ushort)(24 - Math.Max(0, index - 17) * 4));
     }
 }

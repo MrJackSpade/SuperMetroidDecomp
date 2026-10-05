@@ -37,292 +37,154 @@ public readonly record struct CrateriaLightningPaletteFrame(
 /// </remarks>
 public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
 {
-    private static readonly CrateriaLightningPaletteFxProgramDefinition[] Definitions =
-    [
-        CreateSurfaceLightning(),
-        CreateDarkLightning(),
-    ];
-    private static readonly IReadOnlyList<CrateriaLightningPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+    private static readonly CrateriaLightningPaletteFxProgramDefinition Surface = new(CrateriaLightningPaletteOwner.SurfaceLightning);
+    private static readonly CrateriaLightningPaletteFxProgramDefinition Dark = new(CrateriaLightningPaletteOwner.UnusedDarkLightning);
+    private static readonly ProgramList Programs = new();
 
     /// <summary>The live and unused-dark programs in cartridge definition order.</summary>
-    public static IReadOnlyList<CrateriaLightningPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
-
-    /// <summary>
-    /// Samus Y boundary used by <c>PaletteFxPreInstruction_SwitchAboveY380</c> and its
-    /// second-program counterpart. Values below $0380 restart the neutral record.
-    /// </summary>
+    public static IReadOnlyList<CrateriaLightningPaletteFxProgramDefinition> All => Programs;
+    /// <summary>$8D:EC59/$ED84 restart the neutral record when Samus is above Y=$0380.</summary>
     public const ushort VerticalSwitchSamusY = 0x0380;
 
-    /// <summary>Resolves one compiled word-sized mechanic across both programs.</summary>
-    public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
+    public static bool TryReadMechanicsWord(ushort pointer, out ushort value) =>
+        Surface.TryReadWord(pointer, out value) || Dark.TryReadWord(pointer, out value);
+    public static bool TryReadMechanicsByte(ushort pointer, out byte value) =>
+        Surface.TryReadByte(pointer, out value) || Dark.TryReadByte(pointer, out value);
+
+    private sealed class ProgramList : IReadOnlyList<CrateriaLightningPaletteFxProgramDefinition>
     {
-        foreach (CrateriaLightningPaletteFxProgramDefinition definition in Definitions)
+        public int Count => 2;
+        public CrateriaLightningPaletteFxProgramDefinition this[int index] => index switch
         {
-            foreach (PaletteFxMechanicsWord word in definition.MechanicsWords)
-            {
-                if (word.Pointer != pointer)
-                    continue;
-                value = word.Value;
-                return true;
-            }
-        }
-
-        value = 0;
-        return false;
-    }
-
-    /// <summary>Resolves one compiled byte-sized timer operand across both programs.</summary>
-    public static bool TryReadMechanicsByte(ushort pointer, out byte value)
-    {
-        foreach (CrateriaLightningPaletteFxProgramDefinition definition in Definitions)
-        {
-            foreach (PaletteFxMechanicsByte item in definition.MechanicsBytes)
-            {
-                if (item.Pointer != pointer)
-                    continue;
-                value = item.Value;
-                return true;
-            }
-        }
-
-        value = 0;
-        return false;
-    }
-
-    /// <summary>Native $8D:F765 Landing Site lightning control at $8D:EB3B.</summary>
-    /// <remarks>
-    /// The bounded program starts with a $F0-frame neutral record at $EB43.
-    /// Timer two repeats seven flash records of lengths 2,1,1,1,1,1,2 twice;
-    /// a second $F0-frame neutral record follows. Timer one runs four final
-    /// records of lengths 1,1,1,2 once, then $EC55 goes to $EB43. Thus one
-    /// complete cycle lasts 240 + 2 * 9 + 240 + 5 = 503 frames. The $EC59
-    /// pre-instruction restarts the neutral record for Samus Y below $0380.
-    /// All 38 word mechanics and two timer bytes match the pinned NTSC J/U
-    /// v1.0 ROM; the thirteen records' eight colors each stay live.
-    /// </remarks>
-    private static CrateriaLightningPaletteFxProgramDefinition CreateSurfaceLightning() =>
-        Create(
-            CrateriaLightningPaletteOwner.SurfaceLightning,
-            definitionPointer: 0xf765,
-            programStart: 0xeb3b,
-            preInstruction: PaletteFxPreInstructionCodes.SwitchAboveY380,
-            colorByteIndex: 0x00a8,
-            timerTwoPointer: 0xeb57,
-            repeatedFramesPointer: 0xeb5a,
-            decrementTwoPointer: 0xebe6,
-            neutralFrames: [new(0xebea, 0x00f0, 8)],
-            timerOnePointer: 0xebfe,
-            finalFramesPointer: 0xec01,
-            decrementOnePointer: 0xec51,
-            gotoPointer: 0xec55,
-            firstFrame: new(0xeb43, 0x00f0, 8),
-            repeatedFrames:
-            [
-                new(0xeb5a, 2, 8), new(0xeb6e, 1, 8), new(0xeb82, 1, 8),
-                new(0xeb96, 1, 8), new(0xebaa, 1, 8), new(0xebbe, 1, 8),
-                new(0xebd2, 2, 8),
-            ],
-            finalFrames:
-            [
-                new(0xec01, 1, 8), new(0xec15, 1, 8),
-                new(0xec29, 1, 8), new(0xec3d, 2, 8),
-            ],
-            cycleFrames: 503,
-            displayedRecordsPerCycle: 21);
-
-    /// <summary>Unused native $8D:F769 dark-lightning control at $8D:EC6E.</summary>
-    /// <remarks>
-    /// The $EC76 neutral record lasts $F0 frames. Timer two repeats seven
-    /// flash records of lengths 2,1,1,1,1,1,2 twice; two more $F0-frame
-    /// neutral records follow. Timer one runs four final records of lengths
-    /// 1,1,1,2 once, then $ED80 goes to $EC76. One complete cycle is
-    /// 240 + 2 * 9 + 2 * 240 + 5 = 743 frames. The $ED84 pre-instruction
-    /// restarts the neutral record for Samus Y below $0380. All 40 word
-    /// mechanics and two timer bytes match the pinned NTSC J/U v1.0 ROM;
-    /// the fourteen records' seven colors each remain live presentation data.
-    /// </remarks>
-    private static CrateriaLightningPaletteFxProgramDefinition CreateDarkLightning() =>
-        Create(
-            CrateriaLightningPaletteOwner.UnusedDarkLightning,
-            definitionPointer: 0xf769,
-            programStart: 0xec6e,
-            preInstruction: PaletteFxPreInstructionCodes.SwitchAboveY380Second,
-            colorByteIndex: 0x0082,
-            timerTwoPointer: 0xec88,
-            repeatedFramesPointer: 0xec8b,
-            decrementTwoPointer: 0xed09,
-            neutralFrames:
-            [
-                new(0xed0d, 0x00f0, 7),
-                new(0xed1f, 0x00f0, 7),
-            ],
-            timerOnePointer: 0xed31,
-            finalFramesPointer: 0xed34,
-            decrementOnePointer: 0xed7c,
-            gotoPointer: 0xed80,
-            firstFrame: new(0xec76, 0x00f0, 7),
-            repeatedFrames:
-            [
-                new(0xec8b, 2, 7), new(0xec9d, 1, 7), new(0xecaf, 1, 7),
-                new(0xecc1, 1, 7), new(0xecd3, 1, 7), new(0xece5, 1, 7),
-                new(0xecf7, 2, 7),
-            ],
-            finalFrames:
-            [
-                new(0xed34, 1, 7), new(0xed46, 1, 7),
-                new(0xed58, 1, 7), new(0xed6a, 2, 7),
-            ],
-            cycleFrames: 743,
-            displayedRecordsPerCycle: 22);
-
-    private static CrateriaLightningPaletteFxProgramDefinition Create(
-        CrateriaLightningPaletteOwner owner,
-        ushort definitionPointer,
-        ushort programStart,
-        ushort preInstruction,
-        ushort colorByteIndex,
-        ushort timerTwoPointer,
-        ushort repeatedFramesPointer,
-        ushort decrementTwoPointer,
-        CrateriaLightningPaletteFrame[] neutralFrames,
-        ushort timerOnePointer,
-        ushort finalFramesPointer,
-        ushort decrementOnePointer,
-        ushort gotoPointer,
-        CrateriaLightningPaletteFrame firstFrame,
-        CrateriaLightningPaletteFrame[] repeatedFrames,
-        CrateriaLightningPaletteFrame[] finalFrames,
-        int cycleFrames,
-        int displayedRecordsPerCycle)
-    {
-        var frames = new List<CrateriaLightningPaletteFrame>
-        {
-            firstFrame,
+            0 => Surface,
+            1 => Dark,
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
-        frames.AddRange(repeatedFrames);
-        frames.AddRange(neutralFrames);
-        frames.AddRange(finalFrames);
-
-        var words = new List<PaletteFxMechanicsWord>
-        {
-            new(programStart, PaletteFxInstructionCodes.SetPreInstruction),
-            new(unchecked((ushort)(programStart + 2)), preInstruction),
-            new(unchecked((ushort)(programStart + 4)), PaletteFxInstructionCodes.SetColorIndex),
-            new(unchecked((ushort)(programStart + 6)), colorByteIndex),
-            new(timerTwoPointer, PaletteFxInstructionCodes.SetTimer),
-            new(decrementTwoPointer, PaletteFxInstructionCodes.DecrementTimerAndGoto),
-            new(unchecked((ushort)(decrementTwoPointer + 2)), repeatedFramesPointer),
-            new(timerOnePointer, PaletteFxInstructionCodes.SetTimer),
-            new(decrementOnePointer, PaletteFxInstructionCodes.DecrementTimerAndGoto),
-            new(unchecked((ushort)(decrementOnePointer + 2)), finalFramesPointer),
-            new(gotoPointer, PaletteFxInstructionCodes.Goto),
-            new(unchecked((ushort)(gotoPointer + 2)), firstFrame.Pointer),
-        };
-        foreach (CrateriaLightningPaletteFrame frame in frames)
-        {
-            words.Add(new(frame.Pointer, frame.Duration));
-            words.Add(new(frame.WaitInstructionPointer, PaletteFxInstructionCodes.Wait));
-        }
-
-        return new CrateriaLightningPaletteFxProgramDefinition(
-            owner,
-            definitionPointer,
-            programStart,
-            colorByteIndex,
-            firstFrame.Pointer,
-            frames.ToArray(),
-            words.ToArray(),
-            [new(unchecked((ushort)(timerTwoPointer + 2)), 2),
-             new(unchecked((ushort)(timerOnePointer + 2)), 1)],
-            cycleFrames,
-            displayedRecordsPerCycle);
+        public IEnumerator<CrateriaLightningPaletteFxProgramDefinition> GetEnumerator()
+        { yield return Surface; yield return Dark; }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
 
-/// <summary>One complete Crateria lightning palette control program.</summary>
+/// <summary>Calculated setup, two repeated flash groups and neutral intervals for one lightning owner.</summary>
 public sealed class CrateriaLightningPaletteFxProgramDefinition
 {
-    internal CrateriaLightningPaletteFxProgramDefinition(
-        CrateriaLightningPaletteOwner owner,
-        ushort definitionPointer,
-        ushort programStart,
-        ushort colorByteIndex,
-        ushort firstFramePointer,
-        CrateriaLightningPaletteFrame[] frames,
-        PaletteFxMechanicsWord[] mechanicsWords,
-        PaletteFxMechanicsByte[] mechanicsBytes,
-        int cycleFrames,
-        int displayedRecordsPerCycle)
+    internal CrateriaLightningPaletteFxProgramDefinition(CrateriaLightningPaletteOwner owner)
     {
         Owner = owner;
-        DefinitionPointer = definitionPointer;
-        ProgramStart = programStart;
-        ColorByteIndex = colorByteIndex;
-        FirstFramePointer = firstFramePointer;
-        Frames = Array.AsReadOnly(frames);
-        MechanicsWords = Array.AsReadOnly(mechanicsWords);
-        MechanicsBytes = Array.AsReadOnly(mechanicsBytes);
-        CycleFrames = cycleFrames;
-        DisplayedRecordsPerCycle = displayedRecordsPerCycle;
+        Frames = new CalculatedList<CrateriaLightningPaletteFrame>(12 + NeutralCount, Frame);
+        MechanicsWords = new CalculatedList<PaletteFxMechanicsWord>(12 + Frames.Count * 2, Word);
+        MechanicsBytes = new CalculatedList<PaletteFxMechanicsByte>(2, TimerByte);
     }
 
-    /// <summary>The live or unused-dark lightning owner.</summary>
     public CrateriaLightningPaletteOwner Owner { get; }
-
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
-    public ushort DefinitionPointer { get; }
-
-    /// <summary>The setup entry for this program.</summary>
-    public ushort ProgramStart { get; }
-
-    /// <summary>The byte index of the first CGRAM color written by this program.</summary>
-    public ushort ColorByteIndex { get; }
-
-    /// <summary>The neutral record selected by the vertical-position pre-instruction.</summary>
-    public ushort FirstFramePointer { get; }
-
-    /// <summary>Every unique timed record in cartridge order.</summary>
+    private bool IsSurface => Owner == CrateriaLightningPaletteOwner.SurfaceLightning;
+    /// <summary>$8D:F765 live surface-lightning definition or $F769 unused dark-lightning definition.</summary>
+    public ushort DefinitionPointer => IsSurface ? (ushort)0xf765 : (ushort)0xf769;
+    /// <summary>$8D:EB3B/$EC6E setup starts: pre-instruction and CGRAM destination.</summary>
+    public ushort ProgramStart => IsSurface ? (ushort)0xeb3b : (ushort)0xec6e;
+    /// <summary>Surface uses CGRAM byte $A8; unused dark lightning uses byte $82.</summary>
+    public ushort ColorByteIndex => IsSurface ? (ushort)0x00a8 : (ushort)0x0082;
+    /// <summary>$8D:EB43/$EC76 first neutral frame follows the eight-byte setup.</summary>
+    public ushort FirstFramePointer => (ushort)(ProgramStart + 8);
+    public int ColorsPerFrame => IsSurface ? 8 : 7;
     public IReadOnlyList<CrateriaLightningPaletteFrame> Frames { get; }
-
-    /// <summary>Every word-sized mechanics operand owned by this program.</summary>
     public IReadOnlyList<PaletteFxMechanicsWord> MechanicsWords { get; }
-
-    /// <summary>The two byte-sized timer operands owned by this program.</summary>
     public IReadOnlyList<PaletteFxMechanicsByte> MechanicsBytes { get; }
+    public int CycleFrames => 240 * (1 + NeutralCount) + 2 * 9 + 5;
+    public int DisplayedRecordsPerCycle => 1 + 14 + NeutralCount + 4 + 1;
 
-    /// <summary>Frames from initial display through the next initial display.</summary>
-    public int CycleFrames { get; }
+    private int NeutralCount => IsSurface ? 1 : 2;
+    private int FrameByteCount => 2 * (ColorsPerFrame + 2);
+    private ushort TimerTwoPointer => (ushort)(FirstFramePointer + FrameByteCount);
+    private ushort RepeatedFramesPointer => (ushort)(TimerTwoPointer + 3);
+    private ushort DecrementTwoPointer => (ushort)(RepeatedFramesPointer + 7 * FrameByteCount);
+    private ushort NeutralFramesPointer => (ushort)(DecrementTwoPointer + 4);
+    private ushort TimerOnePointer => (ushort)(NeutralFramesPointer + NeutralCount * FrameByteCount);
+    private ushort FinalFramesPointer => (ushort)(TimerOnePointer + 3);
+    private ushort DecrementOnePointer => (ushort)(FinalFramesPointer + 4 * FrameByteCount);
+    private ushort GotoPointer => (ushort)(DecrementOnePointer + 4);
 
-    /// <summary>Number of records displayed including the repeated initial record.</summary>
-    public int DisplayedRecordsPerCycle { get; }
+    private CrateriaLightningPaletteFrame Frame(int index)
+    {
+        if (index == 0)
+            return new(FirstFramePointer, 240, ColorsPerFrame);
+        if (index <= 7)
+            return new((ushort)(RepeatedFramesPointer + (index - 1) * FrameByteCount),
+                index is 1 or 7 ? (ushort)2 : (ushort)1, ColorsPerFrame);
+        if (index < 8 + NeutralCount)
+            return new((ushort)(NeutralFramesPointer + (index - 8) * FrameByteCount), 240, ColorsPerFrame);
+        int final = index - 8 - NeutralCount;
+        return new((ushort)(FinalFramesPointer + final * FrameByteCount), final == 3 ? (ushort)2 : (ushort)1, ColorsPerFrame);
+    }
 
-    /// <summary>The uniform BGR555 color count in each timed record.</summary>
-    public int ColorsPerFrame => Frames[0].ColorCount;
+    private PaletteFxMechanicsWord Word(int index)
+    {
+        if (index >= 12)
+        {
+            var frame = Frame((index - 12) / 2);
+            return (index & 1) == 0 ? new(frame.Pointer, frame.Duration)
+                : new(frame.WaitInstructionPointer, PaletteFxInstructionCodes.Wait);
+        }
+        return index switch
+        {
+            0 => new(ProgramStart, PaletteFxInstructionCodes.SetPreInstruction),
+            1 => new((ushort)(ProgramStart + 2), IsSurface ? PaletteFxPreInstructionCodes.SwitchAboveY380 : PaletteFxPreInstructionCodes.SwitchAboveY380Second),
+            2 => new((ushort)(ProgramStart + 4), PaletteFxInstructionCodes.SetColorIndex),
+            3 => new((ushort)(ProgramStart + 6), ColorByteIndex),
+            4 => new(TimerTwoPointer, PaletteFxInstructionCodes.SetTimer),
+            5 => new(DecrementTwoPointer, PaletteFxInstructionCodes.DecrementTimerAndGoto),
+            6 => new((ushort)(DecrementTwoPointer + 2), RepeatedFramesPointer),
+            7 => new(TimerOnePointer, PaletteFxInstructionCodes.SetTimer),
+            8 => new(DecrementOnePointer, PaletteFxInstructionCodes.DecrementTimerAndGoto),
+            9 => new((ushort)(DecrementOnePointer + 2), FinalFramesPointer),
+            10 => new(GotoPointer, PaletteFxInstructionCodes.Goto),
+            _ => new((ushort)(GotoPointer + 2), FirstFramePointer),
+        };
+    }
 
-    /// <summary>Returns one presentation-owned BGR555 word in a timed record.</summary>
-    /// <remarks>
-    /// Surface-lightning record indices 0..12 have phase sequence
-    /// 0,1,2,3,4,3,2,1,0,4,3,2,1. For phase k=0..3 and color c=0..7,
-    /// the exact word is $2D6C + $18C6 * k - $0421 * c; phase four is
-    /// solid $7FFF for every color. All 104 words match the pinned NTSC
-    /// J/U v1.0 ROM and bank-$8D annotation. Production still reads the
-    /// live authored BGR555 payload; both indices are checked before access.
-    /// The unused dark-lightning owner has fourteen seven-color records.
-    /// Their five distinct authored rows occur in sequence
-    /// A,B,C,D,E,D,C,B,A,A,E,D,C,B, with E all zero. All 98 color words
-    /// match the same pinned ROM and annotation. The nonzero BGR555 rows
-    /// vary irregularly across channels and slots; retain their live
-    /// authored payload rather than assert an unsupported color formula.
-    /// </remarks>
+    private PaletteFxMechanicsByte TimerByte(int index) => index == 0
+        ? new((ushort)(TimerTwoPointer + 2), 2) : new((ushort)(TimerOnePointer + 2), 1);
+
+    internal bool TryReadWord(ushort pointer, out ushort value)
+    {
+        for (int index = 0; index < MechanicsWords.Count; index++)
+        {
+            var word = Word(index);
+            if (word.Pointer == pointer) { value = word.Value; return true; }
+        }
+        value = 0;
+        return false;
+    }
+
+    internal bool TryReadByte(ushort pointer, out byte value)
+    {
+        if (pointer == TimerTwoPointer + 2) { value = 2; return true; }
+        if (pointer == TimerOnePointer + 2) { value = 1; return true; }
+        value = 0;
+        return false;
+    }
+
+    /// <summary>Presentation operand after the duration; independent color payloads remain required under #1165.</summary>
     public ushort ColorPointer(int frame, int color)
     {
         if ((uint)frame >= Frames.Count)
             throw new ArgumentOutOfRangeException(nameof(frame));
-        CrateriaLightningPaletteFrame definition = Frames[frame];
+        var definition = Frames[frame];
         if ((uint)color >= definition.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(definition.FirstColorPointer + color * sizeof(ushort)));
+        return (ushort)(definition.FirstColorPointer + 2 * color);
+    }
+
+    private sealed class CalculatedList<T>(int count, Func<int, T> at) : IReadOnlyList<T>
+    {
+        public int Count => count;
+        public T this[int index] => (uint)index < Count ? at(index) : throw new ArgumentOutOfRangeException(nameof(index));
+        public IEnumerator<T> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++)
+                yield return at(index);
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

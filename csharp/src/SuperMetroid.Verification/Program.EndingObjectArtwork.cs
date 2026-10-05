@@ -57,6 +57,40 @@ internal static partial class Program
             AssertEqual(map, catalog[index].Pointer, "cloud native pointer operand");
             AssertEqual(count, catalog[index].StockPartCount, "cloud native OAM count");
             AssertEqual(names[index], catalog[index].Name, "cloud published asset key");
+            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus, map, count, names[index]);
+            SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, names[index]);
+            var grid = new EndingCloudGridParts((EndingCloudSpriteDefinitions.Role)index);
+            SpriteComposition calculated = supplied.CalculateIfMatching(grid);
+            AssertTrue(!ReferenceEquals(supplied, calculated), "all original cloud parts use calculated grid");
+            string Identity(SpriteComposition value) => SelectedPresentationHash.Create("cloud", value.AppendIdentity);
+            AssertEqual(Identity(supplied), Identity(calculated), "cloud grid complete visual identity");
+            foreach (ushort y in new ushort[] { 72, 0xfff8 })
+            {
+                var originalOam = new OamBuffer();
+                var calculatedOam = new OamBuffer();
+                originalOam.BeginFrame(); calculatedOam.BeginFrame();
+                DrawImportedSpritemap(bus, originalOam, header, 120, y, 0x0800, originIsOnScreen: y == 72);
+                if (y == 72) calculated.DrawOnScreen(calculatedOam, 120, y, 0x0800);
+                else calculated.DrawOffScreen(calculatedOam, 120, y, 0x0800);
+                originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
+                AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
+                    "cloud grid preserves native OAM and clipping");
+            }
+            SpriteVisualPart first = visual[0];
+            foreach (SpriteVisualPart edit in new[]
+            {
+                first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
+                first with { TileColumn = first.TileColumn + 1 }, first with { TileRow = first.TileRow + 1 },
+                first with { Size = 16 }, first with { Priority = 2 }, first with { Palette = 3 },
+                first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
+            })
+            {
+                visual[0] = edit;
+                SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(visual, "edited cloud");
+                AssertTrue(ReferenceEquals(edited, edited.CalculateIfMatching(grid)), "independent cloud edits stay supplied");
+            }
+            foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => _ = grid[invalid], "cloud grid part bounds");
             ushort list = unchecked((ushort)(EndingCloudInstructionDefinitions.Start + index * 8));
             var nativeActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
             var installedActor = new IntroDiscoverySprite(120, 72, 0x0800, list);
@@ -73,7 +107,10 @@ internal static partial class Program
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "cloud catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })
+        {
             AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "cloud catalog bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = new EndingCloudGridParts((EndingCloudSpriteDefinitions.Role)invalid), "cloud grid role bounds");
+        }
         foreach (ushort invalid in new ushort[] { 0, 0xecec, 0xecee, 0xed1d, 0xffff })
             AssertThrows<InvalidDataException>(() => EndingCloudInstructionDefinitions.ReadWord(invalid), "cloud program bounds");
     }

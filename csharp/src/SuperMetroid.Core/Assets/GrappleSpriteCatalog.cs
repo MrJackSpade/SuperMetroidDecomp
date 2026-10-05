@@ -7,11 +7,19 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable Grapple visual attributes; cadence, placement, geometry and physics are not editable here.</summary>
 public sealed class GrappleSpriteCatalog
 {
-    private readonly ushort[] segments;
+    private readonly ushort[]? segments;
     public ushort Endpoint { get; }
-    private GrappleSpriteCatalog(ushort endpoint, ushort[] segments) { Endpoint = endpoint; this.segments = segments; }
+    private GrappleSpriteCatalog(ushort endpoint, ushort[] segments)
+    {
+        Endpoint = endpoint;
+        for (int frame = 0; frame < segments.Length; frame++)
+            if (segments[frame] != GrappleSpriteDefinitions.StockSegment(frame))
+            { this.segments = segments; return; }
+    }
     public ushort Segment(int frame)
-        => (uint)frame < segments.Length ? segments[frame] : throw new InvalidDataException($"Invalid Grapple visual frame {frame}.");
+        => (uint)frame < GrappleSpriteDefinitions.SegmentFrameCount
+            ? segments is null ? GrappleSpriteDefinitions.StockSegment(frame) : segments[frame]
+            : throw new InvalidDataException($"Invalid Grapple visual frame {frame}.");
 
     private static readonly JsonSerializerOptions Options = new()
     {

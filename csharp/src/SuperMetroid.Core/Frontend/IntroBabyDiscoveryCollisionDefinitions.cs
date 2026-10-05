@@ -22,26 +22,15 @@ internal static class IntroBabyDiscoveryCollisionDefinitions
     /// <summary>The native setup copies exactly $300 bytes.</summary>
     internal const int SourceByteCount = Columns * SourceRows * sizeof(ushort);
 
-    private static readonly byte[] sourceBytes = BuildSourceBytes();
+    /// <summary>Native room height, including four zero-initialized rows beyond the imported region.</summary>
+    internal const int RoomRows = 16;
 
-    internal static ReadOnlySpan<byte> SourceBytes => sourceBytes;
-
-    /// <summary>Return a fresh copy for the room's mutable foreground allocation.</summary>
-    internal static byte[] CopySourceBytes() => (byte[])sourceBytes.Clone();
-
-    private static byte[] BuildSourceBytes()
+    /// <summary>Construct mutable room state directly from its two horizontal collision strips.</summary>
+    internal static ushort[] CreateForeground()
     {
-        var bytes = new byte[SourceByteCount];
-        for (int row = ZeroRows; row < SourceRows; row++)
-        {
-            ushort word = row == SourceRows - 1 ? FinalRowWord : PenultimateRowWord;
-            for (int column = 0; column < Columns; column++)
-            {
-                int offset = (row * Columns + column) * sizeof(ushort);
-                bytes[offset] = (byte)word;
-                bytes[offset + 1] = (byte)(word >> 8);
-            }
-        }
-        return bytes;
+        var foreground = new ushort[Columns * RoomRows];
+        foreground.AsSpan(ZeroRows * Columns, Columns).Fill(PenultimateRowWord);
+        foreground.AsSpan((SourceRows - 1) * Columns, Columns).Fill(FinalRowWord);
+        return foreground;
     }
 }

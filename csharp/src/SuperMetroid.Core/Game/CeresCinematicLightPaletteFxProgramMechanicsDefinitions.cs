@@ -99,22 +99,32 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
     public const int NavigationLightsCycleFrames = 56;
 
     /// <summary>All native definitions whose mechanics are owned by this catalog.</summary>
-    public static IReadOnlyList<CeresCinematicLightPaletteFxProgramDefinition> All { get; } =
-    [
-        new(
-            CeresCinematicLightPaletteFxProgramOwner.GunshipEngine,
-            GunshipEngineDefinitionPointer,
-            GunshipEngineProgramStart),
-        new(
-            CeresCinematicLightPaletteFxProgramOwner.SpriteNavigationLights,
-            SpriteNavigationLightsDefinitionPointer,
-            SpriteNavigationLightsProgramStart),
-        new(
-            CeresCinematicLightPaletteFxProgramOwner.BackgroundNavigationLights,
-            BackgroundNavigationLightsDefinitionPointer,
-            BackgroundNavigationLightsProgramStart),
-    ];
+    public static IReadOnlyList<CeresCinematicLightPaletteFxProgramDefinition> All { get; } = new ProgramEntries();
 
+    private sealed class ProgramEntries : IReadOnlyList<CeresCinematicLightPaletteFxProgramDefinition>
+    {
+        public int Count => 3;
+        public CeresCinematicLightPaletteFxProgramDefinition this[int index] =>
+            (CeresCinematicLightPaletteFxProgramOwner)index switch
+            {
+                CeresCinematicLightPaletteFxProgramOwner.GunshipEngine => new(
+                    CeresCinematicLightPaletteFxProgramOwner.GunshipEngine,
+                    GunshipEngineDefinitionPointer, GunshipEngineProgramStart),
+                CeresCinematicLightPaletteFxProgramOwner.SpriteNavigationLights => new(
+                    CeresCinematicLightPaletteFxProgramOwner.SpriteNavigationLights,
+                    SpriteNavigationLightsDefinitionPointer, SpriteNavigationLightsProgramStart),
+                CeresCinematicLightPaletteFxProgramOwner.BackgroundNavigationLights => new(
+                    CeresCinematicLightPaletteFxProgramOwner.BackgroundNavigationLights,
+                    BackgroundNavigationLightsDefinitionPointer, BackgroundNavigationLightsProgramStart),
+                _ => throw new ArgumentOutOfRangeException(nameof(index)),
+            };
+        public IEnumerator<CeresCinematicLightPaletteFxProgramDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++)
+                yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>Returns one gunship-engine timed-record pointer.</summary>
     public static ushort GunshipEngineFramePointer(int frame)
     {

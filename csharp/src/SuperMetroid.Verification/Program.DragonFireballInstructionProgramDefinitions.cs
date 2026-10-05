@@ -27,6 +27,7 @@ internal static partial class Program
         }
 
         var guard = new DragonFireballInstructionReadGuard(rom);
+        var selectedPresentation = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeDragon", instanceFlags)!
@@ -103,16 +104,18 @@ internal static partial class Program
 
         AssertEqual(
             DragonFireballInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Dragon-fireball spritemap operands remain cartridge reads");
+            selectedPresentation.Count,
+            "all Dragon-fireball installed presentation operands are selected");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Dragon-fireball installed presentation requires zero cartridge reads");
         for (int index = 0;
              index < DragonFireballInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 DragonFireballInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Dragon-fireball presentation $86:{address:X4}");
+            AssertTrue(selectedPresentation.Contains(address),
+                $"production execution selects installed Dragon-fireball presentation $86:{address:X4}");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -133,7 +136,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Dragon-fireball instruction mechanics: sixteen compiled words, four complete " +
-            "rising/falling loops, both zero-crossing handoffs, eight live spritemap reads, " +
+            "rising/falling loops, both zero-crossing handoffs, eight installed spritemap selections, " +
             "and shared shot deletion pass with mechanics bytes forbidden.");
 
         void RunLoop(
@@ -146,6 +149,9 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+                AssertEqual((ushort)(program + 2 + (step % 2) * 4), projectile.PresentationOperandAddress,
+                    $"Dragon-fireball {name} selects the exact native frame operand");
+                selectedPresentation.Add(projectile.PresentationOperandAddress);
             }
             AssertEqual(unchecked((ushort)(program + 4)), projectile.InstructionPointer,
                 $"Dragon-fireball {name} loops and schedules its first frame again");

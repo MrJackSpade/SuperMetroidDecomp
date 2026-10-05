@@ -24,84 +24,74 @@ public static class CreditsPresentationDefinitions
     /// <summary>Font-3 tile used by the lower half of the credits period.</summary>
     public const ushort LargePeriodBottom = 0x007e;
 
-    public static IReadOnlyList<CreditsLineDefinition> Lines { get; } =
-    [
-        Small("staff-heading", InitialBlankRows),
-        Small("producer-heading"),
-        Large("producer-name"),
-        Small("director-heading"),
-        Large("director-name"),
-        Small("background-designers-heading"),
-        Large("background-designer-1"),
-        Large("background-designer-2"),
-        Large("background-designer-3"),
-        Small("object-designers-heading"),
-        Large("object-designer-1"),
-        Large("object-designer-2"),
-        Small("samus-original-designer-heading"),
-        Large("samus-original-designer-name"),
-        Small("samus-designer-heading"),
-        Large("samus-designer-name"),
-        Small("sound-program-heading"),
-        Small("sound-effects-heading", blankRowsBefore: 0),
-        Large("sound-programmer-name"),
-        Small("music-composers-heading"),
-        Large("music-composer-1"),
-        Large("music-composer-2"),
-        Small("program-director-heading"),
-        Large("program-director-name"),
-        Small("system-coordinator-heading"),
-        Large("system-coordinator-name"),
-        Small("system-programmer-heading"),
-        Large("system-programmer-name"),
-        Small("samus-programmer-heading"),
-        Large("samus-programmer-name"),
-        Small("event-programmer-heading"),
-        Large("event-programmer-name"),
-        Small("enemy-programmer-heading"),
-        Large("enemy-programmer-name"),
-        Small("map-programmer-heading"),
-        Large("map-programmer-name"),
-        Small("assistant-programmer-heading"),
-        Large("assistant-programmer-name"),
-        Small("coordinators-heading"),
-        Large("coordinator-1"),
-        Large("coordinator-2"),
-        Small("printed-art-work-heading"),
-        Large("printed-art-work-1"),
-        Large("printed-art-work-2"),
-        Large("printed-art-work-3"),
-        Large("printed-art-work-4"),
-        Large("printed-art-work-5"),
-        Large("printed-art-work-6"),
-        Small("special-thanks-heading"),
-        Large("special-thanks-01"),
-        Large("special-thanks-02"),
-        Large("special-thanks-03"),
-        Large("special-thanks-04"),
-        Large("special-thanks-05"),
-        Large("special-thanks-06"),
-        Large("special-thanks-07"),
-        Large("special-thanks-08"),
-        Large("special-thanks-09"),
-        Large("special-thanks-10"),
-        Large("special-thanks-11"),
-        Large("special-thanks-12"),
-        Large("special-thanks-13"),
-        Large("special-thanks-14"),
-        Large("special-thanks-15"),
-        Large("special-thanks-r-and-d"),
-        Small("general-manager-heading"),
-        Large("general-manager-name"),
-    ];
+    private static readonly CreditRoles Roles = new();
+    public static IReadOnlyList<CreditsLineDefinition> Lines => Roles;
 
-    private static CreditsLineDefinition Small(string id,
-        int blankRowsBefore = SectionBlankRows) =>
-        new(id, CreditsLineStyle.Small, blankRowsBefore);
+    private sealed class CreditRoles : IReadOnlyList<CreditsLineDefinition>
+    {
+        public int Count => 67;
+        public CreditsLineDefinition this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                string id = RoleId(index);
+                bool heading = id.EndsWith("-heading", StringComparison.Ordinal);
+                int blankRows = index == 0 ? InitialBlankRows : index == 17 ? 0
+                    : heading ? SectionBlankRows : InterLineBlankRows;
+                return new(id, heading ? CreditsLineStyle.Small : CreditsLineStyle.Large, blankRows);
+            }
+        }
+        public IEnumerator<CreditsLineDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 
-    private static CreditsLineDefinition Large(string id) =>
-        new(id, CreditsLineStyle.Large, InterLineBlankRows);
+    private static string RoleId(int index) => index switch
+    {
+        0 => "staff-heading",
+        1 => "producer-heading",
+        2 => "producer-name",
+        3 => "director-heading",
+        4 => "director-name",
+        5 => "background-designers-heading",
+        >= 6 and <= 8 => $"background-designer-{index - 5}",
+        9 => "object-designers-heading",
+        10 or 11 => $"object-designer-{index - 9}",
+        12 => "samus-original-designer-heading",
+        13 => "samus-original-designer-name",
+        14 => "samus-designer-heading",
+        15 => "samus-designer-name",
+        16 => "sound-program-heading",
+        17 => "sound-effects-heading",
+        18 => "sound-programmer-name",
+        19 => "music-composers-heading",
+        20 or 21 => $"music-composer-{index - 19}",
+        >= 22 and <= 37 => ProgrammingRole((index - 22) / 2) + (index % 2 == 0 ? "-heading" : "-name"),
+        38 => "coordinators-heading",
+        39 or 40 => $"coordinator-{index - 38}",
+        41 => "printed-art-work-heading",
+        >= 42 and <= 47 => $"printed-art-work-{index - 41}",
+        48 => "special-thanks-heading",
+        >= 49 and <= 63 => FormattableString.Invariant($"special-thanks-{index - 48:D2}"),
+        64 => "special-thanks-r-and-d",
+        65 => "general-manager-heading",
+        _ => "general-manager-name",
+    };
 
+    private static string ProgrammingRole(int index) => index switch
+    {
+        0 => "program-director",
+        1 => "system-coordinator",
+        2 => "system-programmer",
+        3 => "samus-programmer",
+        4 => "event-programmer",
+        5 => "enemy-programmer",
+        6 => "map-programmer",
+        _ => "assistant-programmer",
+    };
     public static ushort CompileGlyph(char character, CreditsLineStyle style,
         bool bottom = false) => (style, character, bottom) switch
     {

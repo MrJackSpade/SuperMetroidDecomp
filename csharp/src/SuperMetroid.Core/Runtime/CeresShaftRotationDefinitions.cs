@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Runtime;
 
-/// <summary>Immutable timer and Mode 7 records authored for the Ceres escape shaft.</summary>
+/// <summary>Calculated delay ramps and Mode 7 coefficients for the Ceres escape shaft.</summary>
 public static class CeresShaftRotationDefinitions
 {
     /// <summary>$89:AD5F, RoomCode_CeresElevatorShaft timer/sine/cosine records.</summary>
@@ -17,25 +17,35 @@ public static class CeresShaftRotationDefinitions
     /// certify each trig rounding. All 65,536 phase values are checked, including the 138
     /// valid aliases created by wrapped 16-bit multiplication before indexing.
     /// This proves a compatible generator, not the original authoring tool. The existing
-    /// coefficient logic already matches it; the separate timer schedule remains unsolved.
+    /// coefficient logic matches it; the separate timer ramp is described below.
     /// </remarks>
     public const int ReferenceAddress = 0x89ad5f;
 
     /// <summary>$89:AD5F-$AEFC contains 69 records, from sine -34 through +34.</summary>
     public const int RecordCount = 69;
 
-    /// <summary>Native record timers ordered by absolute sine magnitude, zero through 34.</summary>
+    /// <summary>Quantized delay ramps for absolute sine magnitude zero through34.</summary>
     /// <remarks>
     /// $89:AD5F supplies 69 timers symmetric in absolute sine, represented here by
-    /// 35 values. Native DEC/BMI makes a loaded timer last timer+1 room-main calls.
-    /// The exact timing rule remains required conversion work under #1165.
-    /// No retention exception has been established for this schedule.
+    /// 35 values. Native DEC/BPL makes a loaded timer last timer+1 room-main calls.
+    /// The delay slope doubles across four linear bands: one tick per four magnitude
+    /// steps through15 (ceiling), one per two at16..21 (floor), one at22..26,
+    /// and two at27..33. The last three bands start from delay5 at16, delay8 at22,
+    /// and delay12 at26 respectively. Zero keeps the minimum one-tick delay.
+    /// Magnitude34 uses delay60 at each turnaround. This exact bounded piecewise
+    /// construction is independently compared with all69 native timer words and both
+    /// wrapped phase aliases; it does not assert which historical tool authored the ramps.
     /// </remarks>
-    private static ReadOnlySpan<ushort> Timers =>
-    [
-        1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5,
-        5, 6, 6, 7, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 60,
-    ];
+    private static ushort Timer(int magnitude) => magnitude switch
+    {
+        0 => 1,
+        <= 15 => (ushort)((magnitude + 3) / 4),
+        <= 21 => (ushort)(5 + (magnitude - 16) / 2),
+        <= 26 => (ushort)(8 + magnitude - 22),
+        <= 33 => (ushort)(12 + 2 * (magnitude - 26)),
+        34 => 60,
+        _ => throw new ArgumentOutOfRangeException(nameof(magnitude)),
+    };
 
     /// <summary>Resolves the native wrapping six-byte offset, including encoded reverse phases.</summary>
     public static (ushort Timer, ushort Sine, ushort Cosine) Read(ushort phase)
@@ -49,6 +59,6 @@ public static class CeresShaftRotationDefinitions
         int sine = record - 34;
         int magnitude = Math.Abs(sine);
         ushort cosine = (ushort)(256 - (magnitude * magnitude + 255) / 512);
-        return (Timers[magnitude], unchecked((ushort)sine), cosine);
+        return (Timer(magnitude), unchecked((ushort)sine), cosine);
     }
 }

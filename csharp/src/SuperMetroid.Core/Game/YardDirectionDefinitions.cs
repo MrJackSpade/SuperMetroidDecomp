@@ -19,63 +19,81 @@ internal readonly record struct YardAirborneInstructionDefinition(
 /// <summary>Fixed direction and airborne-animation definitions for Yard.</summary>
 internal static class YardDirectionDefinitions
 {
-    /// <summary>
-    /// The eight direction records at <c>$A3:CD42-$A3:CD81</c>, joined with their
-    /// corresponding opposite-direction words at <c>$A3:CDC2-$A3:CDD1</c> and movement
-    /// functions at <c>$A3:CDD2-$A3:CDE1</c>.
-    /// </summary>
-    private static readonly YardDirectionDefinition[] Directions =
-    [
-        new(YardInstructionProgramDefinitions.CrawlingUpsideRightMovingUp, 0x0002,
-            YardInstructionProgramDefinitions.HidingUpsideRightMovingUp, 0, 1,
-            YardMovementFunction.CrawlingUpsideDownMovingLeft),
-        new(YardInstructionProgramDefinitions.CrawlingUpsideRightMovingDown, 0x0003,
-            YardInstructionProgramDefinitions.HidingUpsideRightMovingDown, 1, 0,
-            YardMovementFunction.CrawlingUpsideRightMovingDown),
-        new(YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingUp, 0x0002,
-            YardInstructionProgramDefinitions.HidingUpsideLeftMovingUp, 1, 3,
-            YardMovementFunction.CrawlingUpsideLeftMovingUp),
-        new(YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingDown, 0x0003,
-            YardInstructionProgramDefinitions.HidingUpsideLeftMovingDown, 0, 2,
-            YardMovementFunction.CrawlingUpsideLeftMovingDown),
-        new(YardInstructionProgramDefinitions.CrawlingUpsideDownMovingLeft, 0x0000,
-            YardInstructionProgramDefinitions.HidingUpsideDownMovingLeft, 1, 5,
-            YardMovementFunction.CrawlingUpsideRightMovingUp),
-        new(YardInstructionProgramDefinitions.CrawlingUpsideDownMovingRight, 0x0001,
-            YardInstructionProgramDefinitions.HidingUpsideDownMovingRight, 0, 4,
-            YardMovementFunction.CrawlingUpsideDownMovingRight),
-        new(YardInstructionProgramDefinitions.CrawlingUpsideUpMovingLeft, 0x0000,
-            YardInstructionProgramDefinitions.HidingUpsideUpMovingLeft, 0, 7,
-            YardMovementFunction.CrawlingUpsideUpMovingLeft),
-        new(YardInstructionProgramDefinitions.CrawlingUpsideUpMovingRight, 0x0001,
-            YardInstructionProgramDefinitions.HidingUpsideUpMovingRight, 1, 6,
-            YardMovementFunction.CrawlingUpsideUpMovingRight),
-    ];
+    /// <summary>The eight mutually exclusive surface orientations at $A3:CD42.</summary>
+    private enum SurfaceDirection : ushort
+    {
+        UpsideRightMovingUp,
+        UpsideRightMovingDown,
+        UpsideLeftMovingUp,
+        UpsideLeftMovingDown,
+        UpsideDownMovingLeft,
+        UpsideDownMovingRight,
+        UpsideUpMovingLeft,
+        UpsideUpMovingRight,
+    }
 
     /// <summary>
-    /// The facing-left and facing-right pairs duplicated at <c>$A3:D1AB-$A3:D1B2</c>,
-    /// <c>$A3:D50F-$A3:D516</c>, and <c>$A3:D5A4-$A3:D5AB</c> by the native detach,
-    /// contact-kick, and shot-launch routines.
+    /// Dispatches the physical orientation to its crawling/hiding animations and native
+    /// movement callback ($A3:CD42, $CDC2 and $CDD2). Direction pairs reverse motion on
+    /// the same surface. Property bit zero selects positive motion and bit one vertical motion.
     /// </summary>
-    private static readonly YardAirborneInstructionDefinition[] AirborneInstructions =
-    [
-        new(YardInstructionProgramDefinitions.AirborneFacingLeft,
+    internal static YardDirectionDefinition ForDirection(ushort direction)
+    {
+        var selected = (SurfaceDirection)direction switch
+        {
+            SurfaceDirection.UpsideRightMovingUp => new YardDirectionDefinition(
+                YardInstructionProgramDefinitions.CrawlingUpsideRightMovingUp, 0,
+                YardInstructionProgramDefinitions.HidingUpsideRightMovingUp, 0, 0,
+                YardMovementFunction.CrawlingUpsideDownMovingLeft),
+            SurfaceDirection.UpsideRightMovingDown => new YardDirectionDefinition(
+                YardInstructionProgramDefinitions.CrawlingUpsideRightMovingDown, 0,
+                YardInstructionProgramDefinitions.HidingUpsideRightMovingDown, 1, 0,
+                YardMovementFunction.CrawlingUpsideRightMovingDown),
+            SurfaceDirection.UpsideLeftMovingUp => new YardDirectionDefinition(
+                YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingUp, 0,
+                YardInstructionProgramDefinitions.HidingUpsideLeftMovingUp, 1, 0,
+                YardMovementFunction.CrawlingUpsideLeftMovingUp),
+            SurfaceDirection.UpsideLeftMovingDown => new YardDirectionDefinition(
+                YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingDown, 0,
+                YardInstructionProgramDefinitions.HidingUpsideLeftMovingDown, 0, 0,
+                YardMovementFunction.CrawlingUpsideLeftMovingDown),
+            SurfaceDirection.UpsideDownMovingLeft => new YardDirectionDefinition(
+                YardInstructionProgramDefinitions.CrawlingUpsideDownMovingLeft, 0,
+                YardInstructionProgramDefinitions.HidingUpsideDownMovingLeft, 1, 0,
+                YardMovementFunction.CrawlingUpsideRightMovingUp),
+            SurfaceDirection.UpsideDownMovingRight => new YardDirectionDefinition(
+                YardInstructionProgramDefinitions.CrawlingUpsideDownMovingRight, 0,
+                YardInstructionProgramDefinitions.HidingUpsideDownMovingRight, 0, 0,
+                YardMovementFunction.CrawlingUpsideDownMovingRight),
+            SurfaceDirection.UpsideUpMovingLeft => new YardDirectionDefinition(
+                YardInstructionProgramDefinitions.CrawlingUpsideUpMovingLeft, 0,
+                YardInstructionProgramDefinitions.HidingUpsideUpMovingLeft, 0, 0,
+                YardMovementFunction.CrawlingUpsideUpMovingLeft),
+            SurfaceDirection.UpsideUpMovingRight => new YardDirectionDefinition(
+                YardInstructionProgramDefinitions.CrawlingUpsideUpMovingRight, 0,
+                YardInstructionProgramDefinitions.HidingUpsideUpMovingRight, 1, 0,
+                YardMovementFunction.CrawlingUpsideUpMovingRight),
+            _ => throw new InvalidDataException(
+                $"Yard direction ${direction:X4} exceeds its eight cartridge definitions."),
+        };
+        return selected with
+        {
+            PropertyBits = (ushort)((direction & 1) | (direction < 4 ? 2 : 0)),
+            OppositeDirection = (ushort)(direction ^ 1),
+        };
+    }
+
+    /// <summary>
+    /// Chooses visible and hidden airborne animations by facing. Native detach,
+    /// contact-kick and shot-launch repeat these pairs at $A3:D1AB, $D50F and $D5A4.
+    /// </summary>
+    internal static YardAirborneInstructionDefinition ForAirborneFacing(ushort facing) => facing switch
+    {
+        0 => new(YardInstructionProgramDefinitions.AirborneFacingLeft,
             YardInstructionProgramDefinitions.HiddenUpsideUpMovingLeft),
-        new(YardInstructionProgramDefinitions.AirborneFacingRight,
+        1 => new(YardInstructionProgramDefinitions.AirborneFacingRight,
             YardInstructionProgramDefinitions.HiddenUpsideUpMovingRight),
-    ];
-
-    /// <summary>Returns one of the eight physical surface-direction definitions.</summary>
-    internal static YardDirectionDefinition ForDirection(ushort direction) =>
-        direction < Directions.Length
-            ? Directions[direction]
-            : throw new InvalidDataException(
-                $"Yard direction ${direction:X4} exceeds its eight cartridge definitions.");
-
-    /// <summary>Returns the animation pair for native airborne facing zero or one.</summary>
-    internal static YardAirborneInstructionDefinition ForAirborneFacing(ushort facing) =>
-        facing < AirborneInstructions.Length
-            ? AirborneInstructions[facing]
-            : throw new InvalidDataException(
-                $"Yard airborne facing ${facing:X4} exceeds its two cartridge definitions.");
+        _ => throw new InvalidDataException(
+            $"Yard airborne facing ${facing:X4} exceeds its two cartridge definitions."),
+    };
 }

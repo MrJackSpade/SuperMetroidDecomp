@@ -13,28 +13,23 @@ internal static class EnemyPickupDefinitions
     /// pointers at <c>$86:EF04-$86:EF0F</c>. <see cref="EnemyPickupKind.NoDrop"/> is not
     /// part of this table and is handled by the dormant pickup path.
     /// </summary>
-    private static readonly ushort[] InstructionLists =
-    [
-        0x0000,
-        EnemyPickupInstructionProgramDefinitions.SmallEnergy,
-        EnemyPickupInstructionProgramDefinitions.BigEnergy,
-        EnemyPickupInstructionProgramDefinitions.PowerBombs,
-        EnemyPickupInstructionProgramDefinitions.Missiles,
-        EnemyPickupInstructionProgramDefinitions.SuperMissiles,
-    ];
-
-    /// <summary>Returns the native table offset and instruction list for a table-backed kind.</summary>
     internal static EnemyPickupAnimationDefinition Animation(EnemyPickupKind kind)
     {
         int index = (int)kind;
-        if ((uint)index >= InstructionLists.Length)
+        ushort instruction = kind switch
         {
-            throw new InvalidDataException(
-                $"Enemy pickup kind ${index:X4} has no animation-table entry.");
-        }
+            EnemyPickupKind.None => 0,
+            EnemyPickupKind.SmallEnergy => EnemyPickupInstructionProgramDefinitions.SmallEnergy,
+            EnemyPickupKind.BigEnergy => EnemyPickupInstructionProgramDefinitions.BigEnergy,
+            EnemyPickupKind.PowerBomb => EnemyPickupInstructionProgramDefinitions.PowerBombs,
+            EnemyPickupKind.Missile => EnemyPickupInstructionProgramDefinitions.Missiles,
+            EnemyPickupKind.SuperMissile => EnemyPickupInstructionProgramDefinitions.SuperMissiles,
+            _ => throw new InvalidDataException(
+                $"Enemy pickup kind ${index:X4} has no animation-table entry."),
+        };
 
         return new EnemyPickupAnimationDefinition(
             checked((ushort)(index * 2)),
-            InstructionLists[index]);
+            instruction);
     }
 }

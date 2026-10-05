@@ -44,88 +44,40 @@ internal static class CrawlerAnimationDefinitions
     /// The four-word initial tables at <c>$A3:E2CC</c>, <c>$B667</c>, <c>$96DB</c>,
     /// <c>$992B</c>, and <c>$E03B</c>, indexed by <see cref="CrawlerAnimationFamily"/>.
     /// </summary>
-    private static readonly CrawlerAnimationDefinition[] InitialFamilies =
-    [
-        new(
+    private static CrawlerAnimationDefinition Family(CrawlerAnimationFamily family) => family switch
+    {
+        CrawlerAnimationFamily.Shared => new(
             SharedCrawlerInstructionProgramDefinitions.UpsideRight,
             SharedCrawlerInstructionProgramDefinitions.UpsideLeft,
             SharedCrawlerInstructionProgramDefinitions.UpsideDown,
             SharedCrawlerInstructionProgramDefinitions.UpsideUp),
-        new(
+        CrawlerAnimationFamily.Viola => new(
             ViolaInstructionProgramDefinitions.UpsideRight,
             ViolaInstructionProgramDefinitions.UpsideLeft,
             ViolaInstructionProgramDefinitions.UpsideDown,
             ViolaInstructionProgramDefinitions.UpsideUp),
-        new(
+        CrawlerAnimationFamily.Sciser => new(
             SciserInstructionProgramDefinitions.UpsideRight,
             SciserInstructionProgramDefinitions.UpsideLeft,
             SciserInstructionProgramDefinitions.UpsideDown,
             SciserInstructionProgramDefinitions.UpsideUp),
-        new(
+        CrawlerAnimationFamily.Zero => new(
             ZeroInstructionProgramDefinitions.UpsideRight,
             ZeroInstructionProgramDefinitions.UpsideLeft,
             ZeroInstructionProgramDefinitions.UpsideDown,
             ZeroInstructionProgramDefinitions.UpsideUp),
-        new(
+        CrawlerAnimationFamily.HZoomer => new(
             HZoomerInstructionProgramDefinitions.UpsideRight,
             HZoomerInstructionProgramDefinitions.UpsideLeft,
             HZoomerInstructionProgramDefinitions.UpsideDown,
             HZoomerInstructionProgramDefinitions.UpsideUp),
-    ];
-
-    /// <summary>
-    /// The six species rows transposed from the parallel tables at
-    /// <c>$A3:E630-$E65F</c>. Rows zero through two intentionally share lists.
-    /// </summary>
-    private static readonly CrawlerAnimationDefinition[] SurfaceSpecies =
-    [
-        new(
-            SharedCrawlerInstructionProgramDefinitions.UpsideRight,
-            SharedCrawlerInstructionProgramDefinitions.UpsideLeft,
-            SharedCrawlerInstructionProgramDefinitions.UpsideDown,
-            SharedCrawlerInstructionProgramDefinitions.UpsideUp),
-        new(
-            SharedCrawlerInstructionProgramDefinitions.UpsideRight,
-            SharedCrawlerInstructionProgramDefinitions.UpsideLeft,
-            SharedCrawlerInstructionProgramDefinitions.UpsideDown,
-            SharedCrawlerInstructionProgramDefinitions.UpsideUp),
-        new(
-            SharedCrawlerInstructionProgramDefinitions.UpsideRight,
-            SharedCrawlerInstructionProgramDefinitions.UpsideLeft,
-            SharedCrawlerInstructionProgramDefinitions.UpsideDown,
-            SharedCrawlerInstructionProgramDefinitions.UpsideUp),
-        new(
-            ViolaInstructionProgramDefinitions.UpsideRight,
-            ViolaInstructionProgramDefinitions.UpsideLeft,
-            ViolaInstructionProgramDefinitions.UpsideDown,
-            ViolaInstructionProgramDefinitions.UpsideUp),
-        new(
-            SciserInstructionProgramDefinitions.UpsideRight,
-            SciserInstructionProgramDefinitions.UpsideLeft,
-            SciserInstructionProgramDefinitions.UpsideDown,
-            SciserInstructionProgramDefinitions.UpsideUp),
-        new(
-            ZeroInstructionProgramDefinitions.UpsideRight,
-            ZeroInstructionProgramDefinitions.UpsideLeft,
-            ZeroInstructionProgramDefinitions.UpsideDown,
-            ZeroInstructionProgramDefinitions.UpsideUp),
-    ];
-
+        _ => throw new InvalidDataException(
+            $"Crawler animation family {(int)family} exceeds five authored tables."),
+    };
     /// <summary>Returns one family-specific initial instruction list.</summary>
     internal static ushort InitialInstruction(
         CrawlerAnimationFamily family,
-        CrawlerSurfaceOrientation orientation)
-    {
-        int index = (int)family;
-        if ((uint)index >= InitialFamilies.Length)
-        {
-            throw new InvalidDataException(
-                $"Crawler animation family {index} exceeds five authored tables.");
-        }
-
-        return InitialFamilies[index].ForOrientation(orientation);
-    }
-
+        CrawlerSurfaceOrientation orientation) => Family(family).ForOrientation(orientation);
     /// <summary>Returns one shared surface list using the native even species offset.</summary>
     internal static ushort SurfaceInstruction(
         ushort speciesByteOffset,
@@ -137,6 +89,15 @@ internal static class CrawlerAnimationDefinitions
                 $"Crawler instruction-table offset ${speciesByteOffset:X4} is invalid.");
         }
 
-        return SurfaceSpecies[speciesByteOffset >> 1].ForOrientation(orientation);
+        // $A3:E630-$E65F: the first three species share the common animation;
+        // the remaining species select Viola, Sciser and Zero respectively.
+        CrawlerAnimationFamily family = speciesByteOffset switch
+        {
+            <= 4 => CrawlerAnimationFamily.Shared,
+            6 => CrawlerAnimationFamily.Viola,
+            8 => CrawlerAnimationFamily.Sciser,
+            _ => CrawlerAnimationFamily.Zero,
+        };
+        return Family(family).ForOrientation(orientation);
     }
 }

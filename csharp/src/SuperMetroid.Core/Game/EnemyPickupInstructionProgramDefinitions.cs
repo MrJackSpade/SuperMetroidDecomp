@@ -26,66 +26,78 @@ internal static class EnemyPickupInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Pickup_PowerBombs</c> at $86:EDEB.</summary>
     internal const ushort PowerBombs = 0xedeb;
 
-    private static readonly EnemyPickupInstructionMechanicsWord[] Words =
-    [
-        new(SmallEnergy, 0x0008),
-        new(0xed91, 0x0008),
-        new(0xed95, 0x0008),
-        new(0xed99, 0x0008),
-        new(0xed9d, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xed9f, SmallEnergy),
-        new(0xeda1, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(BigEnergy, 0x0008),
-        new(0xeda7, 0x0008),
-        new(0xedab, 0x0008),
-        new(0xedaf, 0x0008),
-        new(0xedb3, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xedb5, BigEnergy),
-        new(0xedb7, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(Missiles, 0x0005),
-        new(0xedbd, 0x0005),
-        new(0xedc1, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xedc3, Missiles),
-        new(0xedc5, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(SuperMissiles, 0x0005),
-        new(0xede1, 0x0005),
-        new(0xede5, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xede7, SuperMissiles),
-        new(0xede9, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(PowerBombs, 0x0005),
-        new(0xedef, 0x0005),
-        new(0xedf3, 0x0005),
-        new(0xedf7, 0x0005),
-        new(0xedfb, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xedfd, PowerBombs),
-    ];
+    internal static int MechanicsWordCount => 30;
+    internal static int PresentationWordCount => 16;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xed8f, 0xed93, 0xed97, 0xed9b,
-        0xeda5, 0xeda9, 0xedad, 0xedb1,
-        0xedbb, 0xedbf,
-        0xeddf, 0xede3,
-        0xeded, 0xedf1, 0xedf5, 0xedf9,
-    ];
+    /// <summary>
+    /// Energy pickups display four frames for eight ticks each. Missiles display
+    /// two frames and Power Bombs four, for five ticks each. Every program loops;
+    /// the four earlier programs also have an unreachable trailing sleep command.
+    /// </summary>
+    private static PickupLoop ProgramAt(int program) => program switch
+    {
+        0 => new(SmallEnergy, 4, 8, true),
+        1 => new(BigEnergy, 4, 8, true),
+        2 => new(Missiles, 2, 5, true),
+        3 => new(SuperMissiles, 2, 5, true),
+        4 => new(PowerBombs, 4, 5, false),
+        _ => throw new ArgumentOutOfRangeException(nameof(program)),
+    };
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static EnemyPickupInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    private readonly record struct PickupLoop(ushort Start, int Frames, ushort Duration, bool HasSleep)
+    {
+        internal int MechanicsWords => Frames + (HasSleep ? 3 : 2);
+        internal EnemyPickupInstructionMechanicsWord Word(int index)
+        {
+            if (index < Frames)
+                return new((ushort)(Start + 4 * index), Duration);
+            int command = index - Frames;
+            return new((ushort)(Start + 4 * Frames + 2 * command), command switch
+            {
+                0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+                1 => Start,
+                _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep,
+            });
+        }
+    }
+
+    internal static EnemyPickupInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        for (int program = 0; program < 5; program++)
+        {
+            PickupLoop loop = ProgramAt(program);
+            if (index < loop.MechanicsWords)
+                return loop.Word(index);
+            index -= loop.MechanicsWords;
+        }
+        throw new IndexOutOfRangeException();
+    }
+
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        for (int program = 0; program < 5; program++)
+        {
+            PickupLoop loop = ProgramAt(program);
+            if (index < loop.Frames)
+                return (ushort)(loop.Start + 4 * index + 2);
+            index -= loop.Frames;
+        }
+        throw new IndexOutOfRangeException();
+    }
 
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) =>
         (kind is RoomEnemyProjectileKind.EnemyDeathPickup or
             RoomEnemyProjectileKind.EnemyDeathExplosion) &&
-        FindWord(address) >= 0;
+        TryRead(address, out _);
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int index = FindWord(address);
-        if (index >= 0)
-            return Words[index].Value;
-
+        if (TryRead(address, out ushort value))
+            return value;
         throw new InvalidDataException(
             $"Enemy-pickup mechanics pointer $86:{address:X4} is not compiled.");
     }
@@ -94,37 +106,35 @@ internal static class EnemyPickupInstructionProgramDefinitions
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;
-
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        return TryRead(bankAddress, out _) || TryRead(unchecked((ushort)(bankAddress - 1)), out _);
+    }
+
+    private static bool TryRead(ushort address, out ushort value)
+    {
+        for (int program = 0; program < 5; program++)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
+            PickupLoop loop = ProgramAt(program);
+            int offset = address - loop.Start;
+            if (offset < 0)
+                continue;
+            if (offset < loop.Frames * 4)
             {
+                if ((offset & 3) == 0)
+                {
+                    value = loop.Duration;
+                    return true;
+                }
+                continue;
+            }
+            int command = offset - loop.Frames * 4;
+            if (command == 0 || command == 2 || (command == 4 && loop.HasSleep))
+            {
+                value = loop.Word(loop.Frames + command / 2).Value;
                 return true;
             }
         }
-
+        value = 0;
         return false;
-    }
-
-    private static int FindWord(ushort address)
-    {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            EnemyPickupInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return middle;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        return -1;
     }
 }

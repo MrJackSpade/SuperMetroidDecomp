@@ -45,8 +45,7 @@ internal sealed class IntroBabyDiscoveryState
 
         // $8B:AFDF copies exactly $300 bytes into a room declared 32x16 blocks. The final
         // 128 foreground words and all BTS bytes retain the earlier zero initialization.
-        byte[] source = IntroBabyDiscoveryCollisionDefinitions.CopySourceBytes();
-        Level = CreateLevel(source);
+        Level = CreateLevel();
 
         demo.Clear();
         demo.Enable();
@@ -395,13 +394,11 @@ internal sealed class IntroBabyDiscoveryState
         return actor;
     }
 
-    private static RoomLevelData CreateLevel(ReadOnlySpan<byte> source)
+    private static RoomLevelData CreateLevel()
     {
-        const int width = 32;
-        const int height = 16;
-        var foreground = new ushort[width * height];
-        for (int offset = 0; offset < source.Length; offset += 2)
-            foreground[offset / 2] = (ushort)(source[offset] | (source[offset + 1] << 8));
+        const int width = IntroBabyDiscoveryCollisionDefinitions.Columns;
+        const int height = IntroBabyDiscoveryCollisionDefinitions.RoomRows;
+        ushort[] foreground = IntroBabyDiscoveryCollisionDefinitions.CreateForeground();
         return new RoomLevelData(
             width,
             height,

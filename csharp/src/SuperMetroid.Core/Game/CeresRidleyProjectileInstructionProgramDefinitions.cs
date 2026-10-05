@@ -76,108 +76,69 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
     /// </remarks>
     internal const ushort DirectionalAfterburn = 0x9606;
 
-    private static readonly CeresRidleyProjectileInstructionMechanicsWord[] Words =
-    [
-        new(Fireball, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0x9554, 0x0004),
-        new(0x9558, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0x955a, EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_RidleyFireball),
-        new(0x955c, 0x0004),
-        new(FireballLoop, 0x0002),
-        new(0x9564, 0x0002),
-        new(0x9568, 0x0002),
-        new(0x956c, 0x0002),
-        new(0x9570, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x9572, FireballLoop),
+    // Each draw occupies a duration word and a presentation operand. Spawning
+    // programs insert their callback immediately after the first draw.
+    internal static int MechanicsWordCount => 42;
+    internal static int PresentationWordCount => 26;
 
-        new(AfterburnFinal,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0x9576, 0x0005),
-        new(0x957a, 0x0005),
-        new(0x957e, 0x0005),
-        new(0x9582, 0x0005),
-        new(0x9586, 0x0005),
-        new(0x958a, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    internal static CeresRidleyProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        int address;
+        if (index < 11)
+        {
+            address = index switch
+            {
+                0 => Fireball,
+                1 => Fireball + 2,
+                2 => Fireball + 6,
+                3 => Fireball + 8,
+                4 => Fireball + 10,
+                < 9 => FireballLoop + (index - 5) * 4,
+                _ => FireballLoop + 16 + (index - 9) * 2,
+            };
+        }
+        else if (index < 18)
+        {
+            int step = index - 11;
+            address = AfterburnFinal + (step == 0 ? 0 : step == 6 ? 22 : 2 + (step - 1) * 4);
+        }
+        else
+        {
+            int step = (index - 18) % 8;
+            address = SpawnProgram((index - 18) / 8) + (step switch
+            {
+                0 => 0,
+                1 => 2,
+                2 => 6,
+                < 7 => 8 + (step - 3) * 4,
+                _ => 24,
+            });
+        }
+        return new((ushort)address, ReadMechanicsWord((ushort)address));
+    }
 
-        new(HorizontalCenter,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0x95a2, 0x0005),
-        new(0x95a6,
-            EnemyProjectileCodePointers.Instruction_Spawn_HorizontalAfterburn_EnemyProjectiles),
-        new(0x95a8, 0x0005),
-        new(0x95ac, 0x0005),
-        new(0x95b0, 0x0005),
-        new(0x95b4, 0x0005),
-        new(0x95b8, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    /// <summary>Calculated locations of the interleaved bank-$86 spritemap operands.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 6)
+            return (ushort)(index == 0 ? Fireball + 4 : index == 1 ? Fireball + 12 : FireballLoop + 2 + (index - 2) * 4);
+        if (index < 11)
+            return (ushort)(AfterburnFinal + 4 + (index - 6) * 4);
+        int frame = (index - 11) % 5;
+        return (ushort)(SpawnProgram((index - 11) / 5) + 4 + frame * 4 + (frame == 0 ? 0 : 2));
+    }
 
-        new(VerticalCenter,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0x95d5, 0x0005),
-        new(0x95d9,
-            EnemyProjectileCodePointers.Instruction_Spawn_VerticalAfterburn_EnemyProjectiles),
-        new(0x95db, 0x0005),
-        new(0x95df, 0x0005),
-        new(0x95e3, 0x0005),
-        new(0x95e7, 0x0005),
-        new(0x95eb, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-
-        new(DirectionalAfterburn,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0x9608, 0x0005),
-        new(0x960c,
-            EnemyProjectileCodePointers.Instruction_SpawnNext_Afterburn_EnemyProjectile),
-        new(0x960e, 0x0005),
-        new(0x9612, 0x0005),
-        new(0x9616, 0x0005),
-        new(0x961a, 0x0005),
-        new(0x961e, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
-
-    /// <summary>Addresses of live bank-$86 spritemap operands in the compiled programs.</summary>
-    /// <remarks>
-    /// The six fireball operands at $9556, $955E, and $9562..956E read
-    /// $80CA, $80CA, $80CA, $80D1, $80D8, and $80DF in the pinned ROM.
-    /// Their four distinct bank-$8D targets are contiguous seven-byte records:
-    /// a one-component count followed by one five-byte component, so target
-    /// address = $80CA + 7 * frame index for frame indices zero through three.
-    /// The repeated first target supplies the two four-tick setup poses and
-    /// first loop pose. The component tile/attribute words differ by frame;
-    /// retain these authored pointers and payloads as live presentation data.
-    /// The five final-impact operands at $9578, $957C, $9580, $9584, and
-    /// $9588 point to $8D:80E6 + 7 * frame index, for indices zero through
-    /// four. Each target again has a one-component count and five-byte
-    /// component, ending just before $8109. Their coordinates and tile words
-    /// vary across frames, so these authored presentation records also stay
-    /// live rather than becoming compiled control words.
-    /// The horizontal-center operands at $95A4, $95AA, $95AE, $95B2, and
-    /// $95B6 independently read those same five $8D:80E6..8102 records in
-    /// that order. This is shared authored animation data, not five more
-    /// records; retain the live pointer reads and shared target payloads.
-    /// The vertical-center operands at $95D7, $95DD, $95E1, $95E5, and
-    /// $95E9 independently read the identical five target records, again in
-    /// order. Their operand addresses are the horizontal-center addresses
-    /// plus $33; the target pointers themselves do not change. Retain these
-    /// live reads of the shared authored animation.
-    /// The directional-afterburn operands at $960A, $9610, $9614, $9618,
-    /// and $961C also read $8D:80E6 + 7 * frame index for indices zero
-    /// through four. The four right/left/up/down owners share this same
-    /// five-record animation; retain its live pointers and authored payloads.
-    /// </remarks>
-    private static readonly ushort[] PresentationWords =
-    [
-        0x9556, 0x955e, 0x9562, 0x9566, 0x956a, 0x956e,
-        0x9578, 0x957c, 0x9580, 0x9584, 0x9588,
-        0x95a4, 0x95aa, 0x95ae, 0x95b2, 0x95b6,
-        0x95d7, 0x95dd, 0x95e1, 0x95e5, 0x95e9,
-        0x960a, 0x9610, 0x9614, 0x9618, 0x961c,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static CeresRidleyProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    private static ushort SpawnProgram(int kind) => kind switch
+    {
+        0 => HorizontalCenter,
+        1 => VerticalCenter,
+        2 => DirectionalAfterburn,
+        _ => throw new IndexOutOfRangeException(),
+    };
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.CeresRidleyFireball or
         RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter or
@@ -189,40 +150,82 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitions
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            CeresRidleyProjectileInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        if (TryRead(address, out ushort value))
+            return value;
         throw new InvalidDataException(
             $"Ceres Ridley projectile mechanics pointer $86:{address:X4} is not compiled.");
+    }
+
+    private static bool TryRead(int address, out ushort value)
+    {
+        int offset = address - Fireball;
+        if (offset is 0 or 2 or 6 or 8 or 10)
+        {
+            value = offset switch
+            {
+                0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction,
+                6 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY,
+                8 => EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_RidleyFireball,
+                _ => 4,
+            };
+            return true;
+        }
+        offset = address - FireballLoop;
+        if (offset >= 0 && offset <= 12 && offset % 4 == 0)
+        {
+            value = 2;
+            return true;
+        }
+        if (offset is 16 or 18)
+        {
+            value = offset == 16 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : FireballLoop;
+            return true;
+        }
+        if (TryAfterburn(address - AfterburnFinal, false, 0, out value))
+            return true;
+        for (int kind = 0; kind < 3; kind++)
+        {
+            ushort callback = kind switch
+            {
+                0 => EnemyProjectileCodePointers.Instruction_Spawn_HorizontalAfterburn_EnemyProjectiles,
+                1 => EnemyProjectileCodePointers.Instruction_Spawn_VerticalAfterburn_EnemyProjectiles,
+                _ => EnemyProjectileCodePointers.Instruction_SpawnNext_Afterburn_EnemyProjectile,
+            };
+            if (TryAfterburn(address - SpawnProgram(kind), true, callback, out value))
+                return true;
+        }
+        value = 0;
+        return false;
+    }
+
+    private static bool TryAfterburn(int offset, bool spawns, ushort callback, out ushort value)
+    {
+        if (offset == 0)
+        {
+            value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction;
+            return true;
+        }
+        if (spawns && offset == 6)
+        {
+            value = callback;
+            return true;
+        }
+        if (spawns && offset >= 8)
+            offset -= 2;
+        if (offset >= 2 && offset <= 18 && (offset - 2) % 4 == 0)
+        {
+            value = 5;
+            return true;
+        }
+        value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
+        return offset == 22;
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        int bankAddress = (ushort)address;
+        return TryRead(bankAddress, out _) || TryRead(bankAddress - 1, out _);
     }
 }

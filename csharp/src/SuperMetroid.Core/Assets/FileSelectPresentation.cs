@@ -13,8 +13,8 @@ public sealed class FileSelectPresentation
 {
     private readonly Dictionary<string, ushort[]> pages;
     private readonly Dictionary<string, FileSelectCompiledPatch> patches;
-    private readonly ushort[] digits;
-    private readonly ushort[] slotLetters;
+    private readonly ushort[]? digits;
+    private readonly ushort[]? slotLetters;
     private readonly Dictionary<string, SpriteComposition> sprites;
     private readonly FileSelectPresentationDocument document;
 
@@ -29,13 +29,20 @@ public sealed class FileSelectPresentation
     {
         this.pages = pages;
         this.patches = patches;
-        this.digits = digits;
-        this.slotLetters = slotLetters;
+        this.digits = PreserveEditedGlyphs(digits, FileSelectLayout.DigitTileBase);
+        this.slotLetters = PreserveEditedGlyphs(slotLetters, FileSelectLayout.SamusLetterTileBase);
         this.sprites = sprites;
         this.document = document;
         ContentIdentity = contentIdentity;
     }
 
+    private static ushort[]? PreserveEditedGlyphs(ushort[] values, ushort first)
+    {
+        for (int index = 0; index < values.Length; index++)
+            if (values[index] != first + index)
+                return values;
+        return null;
+    }
     public string ContentIdentity { get; }
     public int CursorFrameDuration => document.CursorFrameDuration;
     public int HelmetFrameDuration => document.HelmetFrameDuration;
@@ -75,18 +82,18 @@ public sealed class FileSelectPresentation
 
     internal void WriteDigit(Span<ushort> tilemap, MapLabelPoint anchor, int offset, int digit)
     {
-        if ((uint)digit >= digits.Length)
+        if ((uint)digit >= FileSelectPresentationDefinitions.DigitCount)
             throw new ArgumentOutOfRangeException(nameof(digit));
         tilemap[anchor.Y * FileSelectPresentationDefinitions.Width + anchor.X + offset] =
-            digits[digit];
+            digits is null ? (ushort)(FileSelectLayout.DigitTileBase + digit) : digits[digit];
     }
 
     internal void WriteSlotLetter(Span<ushort> tilemap, MapLabelPoint anchor, int slot)
     {
-        if ((uint)slot >= slotLetters.Length)
+        if ((uint)slot >= FileSelectPresentationDefinitions.SlotLetterCount)
             throw new ArgumentOutOfRangeException(nameof(slot));
         tilemap[anchor.Y * FileSelectPresentationDefinitions.Width + anchor.X] =
-            slotLetters[slot];
+            slotLetters is null ? (ushort)(FileSelectLayout.SamusLetterTileBase + slot) : slotLetters[slot];
     }
 
     internal MapLabelPoint DynamicAnchor(string name) =>
@@ -386,6 +393,10 @@ public static class FileSelectPresentationDefinitions
     public const int CellCount = Width * Height;
     public const int CharacterColumns = 32;
     public const int CharacterRows = 32;
+    /// <summary>Ten consecutive digit cells beginning at FileSelectLayout.DigitTileBase.</summary>
+    public const int DigitCount = 10;
+    /// <summary>Three consecutive save-slot letters beginning at FileSelectLayout.SamusLetterTileBase.</summary>
+    public const int SlotLetterCount = 3;
 
     public const string BackgroundPage = "Background";
     public const string MainWithDataPage = "Main.WithData";

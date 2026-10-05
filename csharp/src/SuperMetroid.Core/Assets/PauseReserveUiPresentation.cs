@@ -9,8 +9,8 @@ public sealed class PauseReserveUiPresentation
 {
     private readonly Dictionary<string, (int Offset, byte[] Cells)> labels;
     private readonly int digitOffset;
-    private readonly byte[][] digits;
-    private readonly int[] arrowOffsets;
+    private readonly byte[][]? digits;
+    private readonly int[]? arrowOffsets;
     private readonly int enabledPalette, disabledPalette;
     private readonly ushort solidColor6, solidColor11;
     private readonly (ushort Color6, ushort Color11)[] arrowFrames;
@@ -19,12 +19,30 @@ public sealed class PauseReserveUiPresentation
         byte[][] digits, int[] arrowOffsets, int enabledPalette, int disabledPalette,
         ushort solidColor6, ushort solidColor11, (ushort, ushort)[] arrowFrames)
     {
-        this.labels = labels; this.digitOffset = digitOffset; this.digits = digits;
-        this.arrowOffsets = arrowOffsets; this.enabledPalette = enabledPalette;
+        this.labels = labels; this.digitOffset = digitOffset;
+        bool stockDigits = true;
+        for (int digit = 0; digit < digits.Length; digit++)
+            stockDigits &= BinaryPrimitives.ReadUInt16LittleEndian(digits[digit]) == DigitWord(digit);
+        this.digits = stockDigits ? null : digits;
+        bool stockArrow = true;
+        for (int cell = 0; cell < arrowOffsets.Length; cell++)
+            stockArrow &= arrowOffsets[cell] == ArrowOffset(cell);
+        this.arrowOffsets = stockArrow ? null : arrowOffsets;
+        this.enabledPalette = enabledPalette;
         this.disabledPalette = disabledPalette; this.solidColor6 = solidColor6;
         this.solidColor11 = solidColor11; this.arrowFrames = arrowFrames;
     }
 
+    /// <summary>$82:8F70 selects the ten consecutive digit glyphs starting with native word $0804.</summary>
+    private static ushort DigitWord(int digit) => (ushort)(PauseReserveUiDefinitions.DigitZeroWord + digit);
+
+    /// <summary>
+    /// Native reserve-arrow cells form an eight-cell vertical stem followed by a two-cell
+    /// horizontal arm; each tilemap cell occupies two bytes in the32-column equipment page.
+    /// </summary>
+    private static int ArrowOffset(int cell) => sizeof(ushort) * (cell < PauseReserveUiDefinitions.VerticalCount
+        ? PauseReserveUiDefinitions.VerticalStartCell + cell * PauseReserveUiDefinitions.RowStrideCells
+        : PauseReserveUiDefinitions.HorizontalStartCell + cell - PauseReserveUiDefinitions.VerticalCount);
     public void ApplyLabel(Span<byte> tilemap, string name, bool preserveAttributes = false)
     {
         if (!labels.TryGetValue(name, out var label)) throw new InvalidDataException($"Unknown reserve label {name}.");
@@ -42,16 +60,19 @@ public sealed class PauseReserveUiPresentation
 
     public void ApplyDigit(Span<byte> tilemap, int position, int value)
     {
-        if ((uint)position >= PauseReserveUiDefinitions.SupplyDigitPlaces || (uint)value >= digits.Length)
+        if ((uint)position >= PauseReserveUiDefinitions.SupplyDigitPlaces || (uint)value >= PauseReserveUiDefinitions.DigitCount)
             throw new ArgumentOutOfRangeException();
-        digits[value].CopyTo(tilemap.Slice(digitOffset + position * sizeof(ushort), sizeof(ushort)));
+        ushort word = digits is null ? DigitWord(value) : BinaryPrimitives.ReadUInt16LittleEndian(digits[value]);
+        BinaryPrimitives.WriteUInt16LittleEndian(tilemap.Slice(digitOffset + position * sizeof(ushort)), word);
     }
 
     public void ApplyArrowTilePalettes(Span<byte> tilemap, bool enabled)
     {
         int palette = enabled ? enabledPalette : disabledPalette;
-        foreach (int offset in arrowOffsets)
+        int cells = PauseReserveUiDefinitions.VerticalCount + PauseReserveUiDefinitions.HorizontalCount;
+        for (int cell = 0; cell < cells; cell++)
         {
+            int offset = arrowOffsets is null ? ArrowOffset(cell) : arrowOffsets[cell];
             var word = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(tilemap.Slice(offset)));
             BinaryPrimitives.WriteUInt16LittleEndian(tilemap.Slice(offset), word.WithPaletteIndex(palette).Raw);
         }

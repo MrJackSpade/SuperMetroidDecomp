@@ -16,7 +16,7 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/BossOamFrameDefinitions.cs", "E406FF3323E0D9BD239376294BC30C5EFD13AECFC4DDCFF20C8E63D567660DC5"),
              new("csharp/src/SuperMetroid.Core/Assets/PirateArtworkNameDefinitions.cs", "83D8AAFF4A60C7C24263F7705BF52169EA3369B01F54121B320F3A110667F4F4"),
              new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs", "7B073282CE479E5B5BBA16DB8190B6B94A45C439407B622999E85D7BDD95307E"),
-             new("csharp/src/SuperMetroid.Core/Game/CommonEnemyEmptyExtendedFrameDefinitions.cs", "9BC211358C2707E6875D1A13C1D96DCA6B24848E318097600F82C4B451F8BAF1")],
+             new("csharp/src/SuperMetroid.Core/Game/CommonEnemyEmptyExtendedFrameDefinitions.cs", "FDA923F284D3E91EA136F923E9C66D4B1C264306F149450AFAABA76E5DA3ACC0")],
             "Load alone reaches the private constructor. Current input requires every compiled extended frame and binding; selected targets are installed members of the same frame family. Historical overrides inherit complete private stock and replace only earlier members. TryGetDisplay falls back to physical artwork, including the explicitly compiled empty extended frame. Ordered on-demand definitions supply both installation and valid-domain identities; the sequence, boss-root and Pirate-name generators are pinned here, while other family dependencies remain checked separately. Known unowned bank/pointer pairs stay findings. GetDisplayPointer has its own independent non-resource projection rule. This is availability, not arbitrary slot IDs, BG2 placement, collision, timing or pixels."),
     ];
 }

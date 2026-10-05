@@ -14,12 +14,42 @@ public sealed class WorkRobotPaletteCycle
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1", content =>
         {
-            content.AppendWordFrames("frames", frames);
+            content.Append("frames", WorkRobotPaletteTimingDefinitions.RecordCount);
+            Span<ushort> row = stackalloc ushort[WorkRobotPaletteRomData.ColorCount];
+            for (int frame = 0; frame < WorkRobotPaletteTimingDefinitions.RecordCount; frame++)
+            {
+                for (int color = 0; color < row.Length; color++)
+                    row[color] = Resolve(frame, color);
+                content.AppendWords("row", row);
+            }
         });
 
-    private readonly ushort[][] frames;
+    private readonly ushort[][]? frames;
 
-    private WorkRobotPaletteCycle(ushort[][] frames) => this.frames = frames;
+    private WorkRobotPaletteCycle(ushort[][] frames)
+    {
+        for (int frame = 0; frame < frames.Length; frame++)
+        for (int color = 0; color < frames[frame].Length; color++)
+        {
+            if (frames[frame][color] != StockColor(frame, color))
+            {
+                this.frames = frames;
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// $A8:CCC1, six four-color Work Robot records: red-only brightness rotates
+    /// forward three positions and back. The four brightness levels form two
+    /// pairs separated by sixteen, with seven between the members of each pair.
+    /// </summary>
+    private static ushort StockColor(int frame, int color)
+    {
+        int phase = Math.Min(frame, 6 - frame);
+        int position = (color + phase) & 3;
+        return (ushort)(31 - 16 * (position >> 1) - 7 * (position & 1));
+    }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -30,11 +60,11 @@ public sealed class WorkRobotPaletteCycle
 
     public ushort Resolve(int frame, int color)
     {
-        if ((uint)frame >= frames.Length)
+        if ((uint)frame >= WorkRobotPaletteTimingDefinitions.RecordCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
-        if ((uint)color >= frames[frame].Length)
+        if ((uint)color >= WorkRobotPaletteRomData.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return frames[frame][color];
+        return frames is null ? StockColor(frame, color) : frames[frame][color];
     }
 
     public void ApplyFrame(SnesCgram cgram, int frame, int destination)

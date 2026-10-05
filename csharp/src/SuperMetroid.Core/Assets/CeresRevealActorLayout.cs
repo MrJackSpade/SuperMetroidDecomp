@@ -10,19 +10,39 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresRevealActorLayout
 {
-    private readonly CeresRevealActorPlacement[] placements;
+    private readonly CeresRevealActorPlacement[]? placements;
 
-    private CeresRevealActorLayout(CeresRevealActorPlacement[] placements) =>
-        this.placements = placements;
+    private CeresRevealActorLayout(CeresRevealActorPlacement[] placements)
+    {
+        bool stock = true;
+        for (int index = 0; index < placements.Length; index++)
+            stock &= placements[index] == DefaultPlacement(index);
+        this.placements = stock ? null : placements;
+    }
 
-    public CeresRevealActorPlacement this[int actorIndex] => placements[actorIndex];
+    public CeresRevealActorPlacement this[int actorIndex]
+    {
+        get
+        {
+            if ((uint)actorIndex >= CeresDestructionActorDefinitions.ZebesActorCount)
+                throw new IndexOutOfRangeException();
+            return placements is null ? DefaultPlacement(actorIndex) : placements[actorIndex];
+        }
+    }
 
+    /// <summary>Resolves native named-actor initializer placement without a second stock lookup.</summary>
+    private static CeresRevealActorPlacement DefaultPlacement(int index)
+    {
+        var actor = CeresDestructionActorDefinitions.ZebesActor(index);
+        return new() { Id = CeresDestructionActorDefinitions.ZebesPlacementSource(index).Id, X = actor.X, Y = actor.Y };
+    }
     /// <summary>Identity of ordered selected actor IDs and both initial visual coordinates.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresRevealActorLayout), content =>
     {
-        content.Append("actors", placements.Length);
-        foreach (CeresRevealActorPlacement placement in placements)
+        content.Append("actors", CeresDestructionActorDefinitions.ZebesActorCount);
+        for (int index = 0; index < CeresDestructionActorDefinitions.ZebesActorCount; index++)
         {
+            CeresRevealActorPlacement placement = this[index];
             content.Append("id", System.Text.Encoding.UTF8.GetBytes(placement.Id));
             content.Append("x", placement.X);
             content.Append("y", placement.Y);

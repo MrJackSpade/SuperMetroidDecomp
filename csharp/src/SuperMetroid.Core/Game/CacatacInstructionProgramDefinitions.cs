@@ -52,115 +52,80 @@ internal static class CacatacInstructionProgramDefinitions
     /// </summary>
     internal const ushort UpsideDownAttack = 0x9f00;
 
-    private static readonly CacatacInstructionMechanicsWord[] Words =
-    [
-        new(0x9e8a, EnemyInstructionCodePointers.Instruction_Cacatac_SetFunction_MovingLeftRight),
-        new(0x9e8c, 8), new(0x9e90, 8), new(0x9e94, 8), new(0x9e98, 8),
-        new(0x9e9c, 8), new(0x9ea0, 8), new(0x9ea4, 8), new(0x9ea8, 8),
-        new(0x9eac, CommonEnemyInstructionCodes.Goto),
-        new(0x9eae, UpsideUpIdle),
+    internal static int MechanicsWordCount => 56;
+    internal static int PresentationWordCount => 24;
 
-        new(0x9eb0, 0x0015), new(0x9eb4, 5),
-        new(0x9eb8, 0x0015), new(0x9ebc, 5),
-        new(0x9ec0, EnemyInstructionCodePointers.Instruction_Cacatac_PlaySpikesSFX),
-        new(0x9ec2, EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY),
-        new(0x9ec4, (ushort)CacatacSpikeDirection.LeftFacingUp),
-        new(0x9ec6, EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY),
-        new(0x9ec8, (ushort)CacatacSpikeDirection.UpLeft),
-        new(0x9eca, EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY),
-        new(0x9ecc, (ushort)CacatacSpikeDirection.Up),
-        new(0x9ece, EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY),
-        new(0x9ed0, (ushort)CacatacSpikeDirection.UpRight),
-        new(0x9ed2, EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY),
-        new(0x9ed4, (ushort)CacatacSpikeDirection.RightFacingUp),
-        new(0x9ed6, CommonEnemyInstructionCodes.Goto),
-        new(0x9ed8, UpsideUpIdle),
+    internal static CacatacInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int start = UpsideUpIdle + index / 28 * 80;
+        int step = index % 28;
+        int offset = step switch
+        {
+            0 => 0,
+            < 9 => 2 + (step - 1) * 4,
+            < 11 => 34 + (step - 9) * 2,
+            < 15 => 38 + (step - 11) * 4,
+            _ => 54 + (step - 15) * 2,
+        };
+        ushort address = (ushort)(start + offset);
+        return new(address, ReadMechanicsWord(address));
+    }
 
-        new(0x9eda, EnemyInstructionCodePointers.Instruction_Cacatac_SetFunction_MovingLeftRight),
-        new(0x9edc, 8), new(0x9ee0, 8), new(0x9ee4, 8), new(0x9ee8, 8),
-        new(0x9eec, 8), new(0x9ef0, 8), new(0x9ef4, 8), new(0x9ef8, 8),
-        new(0x9efc, CommonEnemyInstructionCodes.Goto),
-        new(0x9efe, UpsideDownIdleLoop),
-
-        new(0x9f00, 0x0015), new(0x9f04, 5),
-        new(0x9f08, 0x0015), new(0x9f0c, 5),
-        new(0x9f10, EnemyInstructionCodePointers.Instruction_Cacatac_PlaySpikesSFX),
-        new(0x9f12, EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY),
-        new(0x9f14, (ushort)CacatacSpikeDirection.LeftFacingDown),
-        new(0x9f16, EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY),
-        new(0x9f18, (ushort)CacatacSpikeDirection.DownLeft),
-        new(0x9f1a, EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY),
-        new(0x9f1c, (ushort)CacatacSpikeDirection.Down),
-        new(0x9f1e, EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY),
-        new(0x9f20, (ushort)CacatacSpikeDirection.DownRight),
-        new(0x9f22, EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY),
-        new(0x9f24, (ushort)CacatacSpikeDirection.RightFacingDown),
-        new(0x9f26, CommonEnemyInstructionCodes.Goto),
-        new(0x9f28, UpsideDownIdle),
-    ];
-
-    /// <summary>
-    /// Compiled visual-selector operand addresses in the four $A2 Cacatac lists.
-    /// In the two idle lists, pose i = 0..7 uses address $9E8E + 4*i
-    /// upright or $9EDE + 4*i inverted. The pinned cartridge stores
-    /// spritemap pointer $A0BB + $20*i or $A223 + $20*i respectively;
-    /// corresponding inverted pointers are $0168 above upright pointers.
-    /// In the attack lists, i = 0..3 uses operand address $9EB2 + 4*i
-    /// upright or $9F02 + 4*i inverted. Upright pointers follow the authored
-    /// sequence {$A0BB, $A1BB, $A1EF, $A1BB}; inverted pointers are each
-    /// $0168 higher. The repeated second pose is part of the sequence.
-    /// The address sequence is compiled in EnemySpritemapDefinitions rather than
-    /// exposed as editable instruction control.
-    /// </summary>
-    private static readonly ushort[] PresentationWords =
-    [
-        0x9e8e, 0x9e92, 0x9e96, 0x9e9a, 0x9e9e, 0x9ea2, 0x9ea6, 0x9eaa,
-        0x9eb2, 0x9eb6, 0x9eba, 0x9ebe,
-        0x9ede, 0x9ee2, 0x9ee6, 0x9eea, 0x9eee, 0x9ef2, 0x9ef6, 0x9efa,
-        0x9f02, 0x9f06, 0x9f0a, 0x9f0e,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static CacatacInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        int pose = index % 12;
+        return (ushort)(UpsideUpIdle + index / 12 * 80 + (pose < 8 ? 4 + pose * 4 : 40 + (pose - 8) * 4));
+    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            CacatacInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        if (TryRead(address, out ushort value)) return value;
         throw new InvalidDataException(
             $"Cacatac instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    private static bool TryRead(int address, out ushort value)
     {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        int offset = address - UpsideUpIdle;
+        value = 0;
+        if (offset < 0 || offset >= 160 || (offset & 1) != 0) return false;
+        bool inverted = offset >= 80;
+        offset %= 80;
+        ushort idle = inverted ? UpsideDownIdle : UpsideUpIdle;
+        if (offset < 38)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
+            if (offset == 0) value = EnemyInstructionCodePointers.Instruction_Cacatac_SetFunction_MovingLeftRight;
+            else if (offset < 34 && offset % 4 == 2) value = 8;
+            else if (offset == 34) value = CommonEnemyInstructionCodes.Goto;
+            else if (offset == 36) value = inverted ? UpsideDownIdleLoop : UpsideUpIdle;
+            else return false;
+            return true;
+        }
+        offset -= 38;
+        if (offset < 16)
+        {
+            if (offset % 4 != 0) return false;
+            value = (ushort)(((offset / 4) & 1) == 0 ? 21 : 5);
+        }
+        else if (offset == 16) value = EnemyInstructionCodePointers.Instruction_Cacatac_PlaySpikesSFX;
+        else if (offset < 38)
+        {
+            if ((offset - 18) % 4 == 0)
+                value = EnemyInstructionCodePointers.Instruction_Cacatac_SpawnSpikeProjectileWithParameterInY;
+            else
             {
-                return true;
+                int shot = (offset - 20) / 4;
+                // Sweep from left through vertical to right, interleaving diagonals.
+                value = (ushort)((shot & 1) == 0 ? (int)(inverted ? CacatacSpikeDirection.LeftFacingDown : CacatacSpikeDirection.LeftFacingUp) + shot
+                    : (int)(inverted ? CacatacSpikeDirection.DownLeft : CacatacSpikeDirection.UpLeft) + shot - 1);
             }
         }
-
-        return false;
+        else value = offset == 38 ? CommonEnemyInstructionCodes.Goto : idle;
+        return true;
     }
+
+    internal static bool IsCompiledMechanicsByte(int address) =>
+        (address & 0xff0000) == 0xa20000 && TryRead((ushort)(address & ~1), out _);
 }

@@ -1,9 +1,10 @@
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Immutable bank-$8C Samus-eye BG-object timing/position streams. The first stream
-/// starts at $D5DF and the page-six stream at $D613; both end before unrelated
-/// cinematic objects at $D629. Tile appearances are installed separately.
+/// Calculated bank-$8C eye programs: two four-phase blinks for pages1..5,
+/// then page6 closed/half-open/deadpan phases with a deadpan self-loop.
+/// NativeD5DF..D628 durations, fixed position and sixteen-byte frame stride are
+/// independently verified, including odd-address word reads. Artwork stays separate.
 /// </summary>
 internal static class IntroEyeAnimationDefinitions
 {
@@ -21,21 +22,49 @@ internal static class IntroEyeAnimationDefinitions
     internal const int FrameColumns = 3;
     /// <summary>Native portrait-eye rectangle height in BG tiles.</summary>
     internal const int FrameRows = 2;
+    /// <summary>$8C:D61F, page-six deadpan record and final self-loop target.</summary>
+    private const ushort DeadpanLoop = 0xd61f;
+    /// <summary>Native BG record position bytes17,13: portrait eye tile column/row.</summary>
+    private const ushort PackedPosition = 17 | (13 << 8);
 
-    private static ReadOnlySpan<byte> Program =>
-    [
-        0x80, 0x00, 0x11, 0x0d, 0x81, 0xd7, 0x0a, 0x00, 0x11, 0x0d, 0x91, 0xd7, 0x0a, 0x00, 0x11, 0x0d,
-        0xa1, 0xd7, 0x0a, 0x00, 0x11, 0x0d, 0x91, 0xd7, 0x50, 0x00, 0x11, 0x0d, 0x81, 0xd7, 0x08, 0x00,
-        0x11, 0x0d, 0x91, 0xd7, 0x08, 0x00, 0x11, 0x0d, 0xa1, 0xd7, 0x08, 0x00, 0x11, 0x0d, 0x91, 0xd7,
-        0x1e, 0x97, 0xdf, 0xd5, 0x40, 0x00, 0x11, 0x0d, 0xa1, 0xd7, 0x08, 0x00, 0x11, 0x0d, 0x91, 0xd7,
-        0x10, 0x00, 0x11, 0x0d, 0xb1, 0xd7, 0x1e, 0x97, 0x1f, 0xd6,
-    ];
+    private enum EyeFrame { Open, HalfOpen, Closed, Deadpan }
+
+    private static ushort ProgramWord(int index)
+    {
+        if (index is 24 or 35) return CinematicCodePointers.CinematicBackgroundObject_Instruction_Goto;
+        if (index == 25) return StartPointer;
+        if (index == 36) return DeadpanLoop;
+        int duration, frame, field;
+        if (index < 24)
+        {
+            int record = index / 3, phase = record % 4;
+            bool firstBlink = record < 4;
+            duration = phase == 0 ? (firstBlink ? 128 : 80) : (firstBlink ? 10 : 8);
+            frame = 2 - Math.Abs(2 - phase); // open, halfway, closed, halfway
+            field = index % 3;
+        }
+        else
+        {
+            int record = (index - 26) / 3;
+            (duration, EyeFrame eye) = record switch
+            {
+                0 => (64, EyeFrame.Closed),
+                1 => (8, EyeFrame.HalfOpen),
+                _ => (16, EyeFrame.Deadpan),
+            };
+            frame = (int)eye;
+            field = (index - 26) % 3;
+        }
+        return field == 0 ? (ushort)duration : field == 1 ? PackedPosition
+            : (ushort)(FrameStartPointer + FrameStride * frame);
+    }
 
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer < StartPointer || pointer >= EndPointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
-        return Program[pointer - StartPointer];
+        int offset = pointer - StartPointer;
+        return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
     internal static bool TryReadWord(ushort pointer, out ushort word)
@@ -47,8 +76,7 @@ internal static class IntroEyeAnimationDefinitions
         }
         if (pointer == EndPointer - 1)
             throw new InvalidDataException("Opening eye script read crosses its compiled program boundary.");
-        int offset = pointer - StartPointer;
-        word = (ushort)(Program[offset] | Program[offset + 1] << 8);
+        word = (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
         return true;
     }
 

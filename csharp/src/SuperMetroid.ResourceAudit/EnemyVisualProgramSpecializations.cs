@@ -15,7 +15,7 @@ internal static class EnemyVisualProgramSpecializations
     // invalidates that disposition rather than granting a permanent exemption.
     private static readonly Dictionary<string, string> ControlOnly = new Dictionary<string, string>
     {
-        [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "4B9F47E80680DDFA78FC9716121B938E915AADCB4FBB4C09D5DEA9F5BB21B3B2",
+        [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "E681BB9CF421324D916B1AD8F50D4780A17678158323A05EBA36ABB7A9E3509D",
         [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "D2A9DC8911732A71F49E80E9D95AD47D1976AD324D20D9712A364BEC8E090DF1",
         [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "315A995B59B5806888D50068184CBEABDE80B749B6F830B81650586C6F1F80DB",
         [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "F00EF6C4538BC256AC8C6FED813F52C2BC2334B36D640B3312333E5B54C76BB1",

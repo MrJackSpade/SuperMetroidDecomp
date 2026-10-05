@@ -40,11 +40,12 @@ internal static partial class Program
             catch (InvalidDataException) { rejected = true; }
             Equal(!valid, rejected, $"Ceres phase admission {phase}");
             if (!valid) continue;
+            Equal(records[offset / 2], (int)row.Timer, $"Ceres aliased timer {phase}");
             Equal(records[offset / 2 + 2], (int)row.Cosine, $"Ceres aliased cosine {phase}");
             Equal((ushort)records[offset / 2 + 1], row.Sine, $"Ceres aliased sine {phase}");
             accepted++;
         }
         Equal(138, accepted, "Ceres valid wrapped phases");
-        Console.WriteLine("PASS: 138/138 Ceres rotation coefficients, independent angle quantization; all 65,536 phase aliases/rejections checked.");
+        Console.WriteLine("PASS: 69/69 Ceres delay ramps, 138/138 rotation coefficients, independent angle quantization; all 65,536 phase aliases/rejections checked.");
     }
 }

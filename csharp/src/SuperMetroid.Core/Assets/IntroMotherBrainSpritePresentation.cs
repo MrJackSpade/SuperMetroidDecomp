@@ -37,10 +37,10 @@ public sealed class IntroMotherBrainSpritePresentation
         {
             throw new InvalidDataException("Invalid intro Mother Brain sprite JSON.", error);
         }
-        ReadOnlySpan<IntroMotherBrainSpriteFrameDefinition> definitions =
+        IReadOnlyList<IntroMotherBrainSpriteFrameDefinition> definitions =
             IntroMotherBrainSpriteDefinitions.Frames;
         if (document.Version != IntroMotherBrainSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Length)
+            document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Intro Mother Brain requires three named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
         foreach (IntroMotherBrainSpriteFrameDefinition definition in definitions)
@@ -49,7 +49,8 @@ public sealed class IntroMotherBrainSpritePresentation
                 visual is null)
                 throw new InvalidDataException($"Intro Mother Brain frame {definition.Name} is missing.");
             frames.Add(definition.Pointer,
-                IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
+                IntroMotherBrainParts.CalculateIfMatching(definition.Pointer,
+                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new IntroMotherBrainSpritePresentation(frames);
     }

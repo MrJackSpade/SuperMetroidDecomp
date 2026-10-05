@@ -42,10 +42,10 @@ public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePres
         {
             throw new InvalidDataException("Invalid intro egg effect sprite JSON.", error);
         }
-        ReadOnlySpan<IntroEggEffectSpriteFrameDefinition> definitions =
+        IReadOnlyList<IntroEggEffectSpriteFrameDefinition> definitions =
             IntroEggEffectSpriteDefinitions.Frames;
         if (document.Version != IntroEggEffectSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Length)
+            document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException(
                 "Intro egg effects require eleven named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
@@ -56,7 +56,8 @@ public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePres
                 throw new InvalidDataException(
                     $"Intro egg effect frame {definition.Name} is missing.");
             frames.Add(definition.Pointer,
-                IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
+                IntroEggEffectParts.CalculateIfMatching(definition.Pointer,
+                    IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new IntroEggEffectSpritePresentation(frames);
     }

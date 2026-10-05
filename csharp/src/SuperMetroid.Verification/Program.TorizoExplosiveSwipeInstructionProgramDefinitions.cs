@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -57,9 +58,16 @@ internal static partial class Program
         AssertTrue(!swipe.IsActive,
             "Torizo explosive swipe deletes on the tick after five five-frame poses");
 
-        AssertEqual(TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Torizo explosive-swipe spritemaps remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "compiled Torizo swipe visuals require no cartridge reads");
+        for (int index = 0; index < TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "Torizo swipe compiled selector exists");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "Torizo swipe compiled selector matches original operand");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Torizo explosive-swipe mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -78,7 +86,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Torizo explosive-swipe instruction mechanics: seven compiled words, the " +
-            "real producer's exact 25-frame lifetime, and five live spritemap reads pass " +
+            "real producer's exact 25-frame lifetime, and five native compiled selectors pass " +
             "with mechanics bytes forbidden.");
     }
 

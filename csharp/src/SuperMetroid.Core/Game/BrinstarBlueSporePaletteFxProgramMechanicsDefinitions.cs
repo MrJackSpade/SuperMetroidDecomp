@@ -9,13 +9,13 @@ public enum BrinstarBlueSporePaletteOwner
 
 /// <summary>Immutable control words for the two Brinstar blue-spore palette loops.</summary>
 /// <remarks>
-/// Palette-FX definitions <c>$F775</c> and <c>$F779</c> contain the same live BGR555
+/// Palette-FX definitions <c>$F775</c> and <c>$F779</c> contain the same presentation BGR555
 /// sequence. The Spore Spawn variant additionally installs the area-mini-boss death
 /// pre-instruction. This catalog owns setup, timing, waits, and loop control only.
 /// Standard $8D:ED99 selects CGRAM byte $00E2 and enters records at
 /// $ED9D + 10*i; Spore Spawn $8D:EE2D first installs pre-instruction
 /// $EEC5, selects the same index, and enters records at $EE35 + 10*i.
-/// Each valid i=0..13 lasts ten frames, writes three live colors, and
+/// Each valid i=0..13 lasts ten frames, writes three presentation colors, and
 /// ends in $C595 wait. Their $C61E gotos at $EE29 and $EEC1 return to
 /// the respective first records, giving 140-frame cycles; i=14 reaches
 /// loop control. All 66 control words across both programs match the
@@ -23,16 +23,27 @@ public enum BrinstarBlueSporePaletteOwner
 /// </remarks>
 public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
 {
-    private static readonly BrinstarBlueSporePaletteFxProgramDefinition[] Definitions =
-    [
-        new(BrinstarBlueSporePaletteOwner.StandardRooms, 0xf775, 0xed99, 0xed9d, 0xee29,
-            deletesWithAreaMiniBoss: false),
-        new(BrinstarBlueSporePaletteOwner.SporeSpawnRoom, 0xf779, 0xee2d, 0xee35, 0xeec1,
-            deletesWithAreaMiniBoss: true),
-    ];
-    private static readonly IReadOnlyList<BrinstarBlueSporePaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+    private static readonly BrinstarBlueSporePaletteFxProgramDefinition Standard =
+        new(BrinstarBlueSporePaletteOwner.StandardRooms);
+    private static readonly BrinstarBlueSporePaletteFxProgramDefinition SporeSpawn =
+        new(BrinstarBlueSporePaletteOwner.SporeSpawnRoom);
 
+    private sealed class ProgramOwners : IReadOnlyList<BrinstarBlueSporePaletteFxProgramDefinition>
+    {
+        public int Count => 2;
+        public BrinstarBlueSporePaletteFxProgramDefinition this[int index] => index switch
+        {
+            0 => Standard,
+            1 => SporeSpawn,
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+        public IEnumerator<BrinstarBlueSporePaletteFxProgramDefinition> GetEnumerator()
+        {
+            yield return Standard;
+            yield return SporeSpawn;
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>Fourteen ten-frame records form one complete spore-color cycle.</summary>
     public const int FrameCount = 14;
 
@@ -49,18 +60,14 @@ public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
     public const int CycleFrames = 140;
 
     /// <summary>The standard-room and Spore Spawn variants in definition order.</summary>
-    public static IReadOnlyList<BrinstarBlueSporePaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+    public static IReadOnlyList<BrinstarBlueSporePaletteFxProgramDefinition> All { get; } = new ProgramOwners();
 
     /// <summary>Resolves one compiled mechanics word across both blue-spore programs.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        foreach (BrinstarBlueSporePaletteFxProgramDefinition definition in Definitions)
-        {
-            if (definition.TryReadMechanicsWord(pointer, out value))
-                return true;
-        }
-
+        if (Standard.TryReadMechanicsWord(pointer, out value) ||
+            SporeSpawn.TryReadMechanicsWord(pointer, out value))
+            return true;
         value = 0;
         return false;
     }
@@ -69,40 +76,32 @@ public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
 /// <summary>One room-specific entry into the fourteen-frame blue-spore palette loop.</summary>
 public sealed class BrinstarBlueSporePaletteFxProgramDefinition
 {
-    internal BrinstarBlueSporePaletteFxProgramDefinition(
-        BrinstarBlueSporePaletteOwner owner,
-        ushort definitionPointer,
-        ushort programStart,
-        ushort firstFramePointer,
-        ushort loopInstructionPointer,
-        bool deletesWithAreaMiniBoss)
+    internal BrinstarBlueSporePaletteFxProgramDefinition(BrinstarBlueSporePaletteOwner owner)
     {
+        if (owner is not (BrinstarBlueSporePaletteOwner.StandardRooms or BrinstarBlueSporePaletteOwner.SporeSpawnRoom))
+            throw new ArgumentOutOfRangeException(nameof(owner));
         Owner = owner;
-        DefinitionPointer = definitionPointer;
-        ProgramStart = programStart;
-        FirstFramePointer = firstFramePointer;
-        LoopInstructionPointer = loopInstructionPointer;
-        DeletesWithAreaMiniBoss = deletesWithAreaMiniBoss;
     }
 
     /// <summary>The room family represented by this program.</summary>
     public BrinstarBlueSporePaletteOwner Owner { get; }
 
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
-    public ushort DefinitionPointer { get; }
+    /// <summary>Native palette-FX definitions $8D:F775 (standard) and $8D:F779 (Spore Spawn).</summary>
+    public ushort DefinitionPointer => (ushort)(0xf775 + 4 * (int)Owner);
 
-    /// <summary>The setup entry for this program.</summary>
-    public ushort ProgramStart { get; }
+    /// <summary>Native blue-spore setup entries $8D:ED99 (standard) and $8D:EE2D (Spore Spawn).</summary>
+    public ushort ProgramStart => DeletesWithAreaMiniBoss ? (ushort)0xee2d : (ushort)0xed99;
 
-    /// <summary>The first timed color record.</summary>
-    public ushort FirstFramePointer { get; }
+    /// <summary>$8D:ED9D/$EE35, after color-index setup and the optional death-preinstruction pair.</summary>
+    public ushort FirstFramePointer => (ushort)(ProgramStart + (DeletesWithAreaMiniBoss ? 8 : 4));
 
-    /// <summary>The terminal <c>goto</c> command after the fourteenth record.</summary>
-    public ushort LoopInstructionPointer { get; }
+    /// <summary>$8D:EE29/$EEC1, after fourteen ten-byte timed color records.</summary>
+    public ushort LoopInstructionPointer => (ushort)(FirstFramePointer +
+        BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount *
+        BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameByteCount);
 
-    /// <summary>Whether this owner installs the area-mini-boss death callback.</summary>
-    public bool DeletesWithAreaMiniBoss { get; }
-
+    /// <summary>The Spore Spawn room installs the area-mini-boss death callback at $8D:EE2D.</summary>
+    public bool DeletesWithAreaMiniBoss => Owner == BrinstarBlueSporePaletteOwner.SporeSpawnRoom;
     /// <summary>Returns one timed-record pointer.</summary>
     public ushort FramePointer(int frame)
     {
@@ -114,16 +113,16 @@ public sealed class BrinstarBlueSporePaletteFxProgramDefinition
 
     /// <summary>Returns one contiguous presentation-color address within a frame.</summary>
     /// <remarks>
-    /// Both native lists contain identical live colors for frame f=0..13
+    /// Both native lists contain identical presentation colors for frame f=0..13
     /// and color c=0..2, at FirstFramePointer + 10*f + 2 + 2*c.
-    /// Let d=min(f,14-f) and s=(0,1,2,2,3,3,4,4)[d]. With BGR555 word
+    /// Let d=min(f,14-f) and s=(d+2)/2, except s=0 at d=0. With BGR555 word
     /// r + 32*g + 1024*b, the (r,g,b) channels are
     /// c=0: (max(0,2-d), 9-d, 23-d);
     /// c=1: (max(0,3-s), max(0,3-s), 17-s);
     /// c=2: (0, max(0,2-s), 6-s).
     /// These rules match all 84 words in the two pinned NTSC J/U v1.0 ROM
     /// tables. Frame fourteen reaches loop control, not a color record.
-    /// The palette-FX caller continues to read each color from the ROM.
+    /// Color payload resolution belongs to the installed presentation layer.
     /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {

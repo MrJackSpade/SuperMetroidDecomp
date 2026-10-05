@@ -22,12 +22,12 @@ internal static partial class Program
         foreach (MotherBrainContactPart part in parts)
         {
             int address = MotherBrainContactHitboxDefinitions.GetSourceAddress(part);
-            ReadOnlySpan<MotherBrainContactHitbox> hitboxes =
+            MotherBrainContactHitboxes hitboxes =
                 MotherBrainContactHitboxDefinitions.Get(part);
-            AssertEqual(hitboxes.Length, ReadMotherBrainHitboxWord(rom, address),
+            AssertEqual(hitboxes.Count, ReadMotherBrainHitboxWord(rom, address),
                 $"Mother Brain {part} hitbox count");
 
-            for (int index = 0; index < hitboxes.Length; index++)
+            for (int index = 0; index < hitboxes.Count; index++)
             {
                 int record = address + 2 + index * 8;
                 MotherBrainContactHitbox hitbox = hitboxes[index];

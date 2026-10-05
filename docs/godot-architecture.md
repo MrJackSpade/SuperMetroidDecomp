@@ -396,6 +396,170 @@ those semantics explicitly. Ordinary Godot sprite composition is suitable only
 where it preserves the required result. Existing software output and
 [render packets](../csharp/RENDER_PACKET_FORMAT.md) are useful staged boundaries.
 
+## Sprite and animation migration
+
+The finished Godot project needs composed, inspectable, editable actor animations.
+Importing the current tile sheets as textures alone does not meet that goal.
+Treat sprite conversion as a migration workstream alongside scene conversion,
+with the same future-only scope as this document.
+
+### Existing artwork and animation ownership
+
+The current representation separates indexed pixels, composition, visual selection,
+and animation mechanics. These inspected sources provide starting boundaries:
+
+| Existing source | Migration-relevant information |
+| --- | --- |
+| [SamusBodyArtworkFiles](../csharp/src/SuperMetroid.AssetExtraction/SamusBodyArtworkFiles.cs) and [SamusSpritemapArtworkCatalog](../csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs) | Indexed upper/lower tile atlases, pose/frame graphics selectors, and ordered sprite parts. The atlas chunks are transfer definitions, not finished animation frames. |
+| [SpriteComposition](../csharp/src/SuperMetroid.Core/Assets/SpriteComposition.cs) | Ordered visual regions with offsets, size, flips, priority, and explicit or inherited palette selection. |
+| [EnemySpritemapCatalog](../csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs) | Native frame identities and editable display bindings; changing artwork does not replace the AI's frame pointer. |
+| [EnemyExtendedFrameFiles](../csharp/src/SuperMetroid.AssetExtraction/EnemyExtendedFrameFiles.cs) and [EnemyBg2FrameFiles](../csharp/src/SuperMetroid.AssetExtraction/EnemyBg2FrameFiles.cs) | Multipart visual roots, including bodies mixing ordinary sprites with background tilemap drawing. Gameplay hitboxes and callbacks are separate. |
+
+When defining a conversion slice, inventory its artwork selectors, composition
+rules, graphics transfers, palettes, and animation consumers statically. Follow
+current definition APIs, including calculated definitions. Do not discover frames
+by running gameplay until no new pictures appear, or assume atlas order specifies
+animation order. This evidence establishes the path for the selected family;
+it is not a claim that every visual family has already been mapped.
+
+### From chunks to composed frames
+
+When the selected parts determine a complete picture independently of other
+drawing, prefer an import-time compositor that produces complete frames, packed
+atlases if useful, and explicit metadata. Resolve the original graphics selection
+before assembling parts. Preserve part offsets, dimensions, flips, transparency,
+overlap order, and palette bindings; a tile index alone does not identify the
+pixels when graphics slots are reused. Consume installed artwork and selected
+overrides through their existing boundaries without adding gameplay ROM reads.
+
+Keep the actor origin stable across frames. Either use a common canvas around
+that origin or retain each cropped frame's offset from it. Independently centering
+cropped images produces visible movement even when simulation coordinates match.
+Record any visual attachment anchors separately from gameplay-owned projectile
+origins and hitboxes; neither should be inferred from opaque pixels. Deduplicated
+textures may share storage without merging distinct frame identities or timings.
+
+When composition depends on retained graphics state, make that state part of the
+resolution contract. For example,
+[SamusTileTransferState](../csharp/src/SuperMetroid.Core/Game/SamusTileTransferState.cs)
+selects upper and lower transfers, retains the previous lower selection when a
+record specifies no new lower transfer, and applies enabled transfers at NMI.
+A converter keyed only by the current pose/frame can therefore omit a dependency.
+Prefer bounded explicit variants or a state-aware composition adapter, selected
+from the actual consumer contract. Preserve the existing display-latching boundary
+when publishing the resolved frame; do not substitute the newest logical pose.
+
+When parts can move, select graphics, or change palette independently, prefer an
+editable actor scene with composed component frames and explicit layer bindings.
+The editor should show the assembled actor while allowing its relevant parts to
+be edited. Samus's body halves and separately selected cannon artwork need their
+dependencies resolved before choosing whether a particular frame can be flattened.
+Do not require one node per native tile or bake every possible component combination.
+
+When parts interleave with other actors or background layers, flatten only groups
+whose external ordering remains equivalent. A single actor texture and one Godot
+Z value cannot represent every original per-part ordering. Preserve ordered layers
+or use the presentation backend required for that effect. Mixed sprite/background
+boss bodies, clipping and wrapping, color math, and any modeled sprite-capacity
+behavior need explicit dispositions before their slice is replaced. A flattened
+editor thumbnail can still help inspect such an actor without defining its runtime
+rendering strategy.
+
+When colors change independently of shape, retain indexed artwork and palette
+bindings through an appropriate material or equivalent palette-aware compositor.
+Fixed RGBA variants are suitable only when they cover the required state without
+losing palette changes. Preserve transparent-index interpretation, color precision,
+and the timing of palette publication. Choose texture import and sampling settings
+that preserve the intended pixels, including atlas padding where needed; generic
+filtering or color conversion must not silently change indexed data.
+
+### Godot animation resources and runtime playback
+
+When an animation is an ordinary sequence of complete pictures, prefer a Godot
+`SpriteFrames` resource with meaningful animation names and a stable mapping from
+the original visual selectors to its frames. `AnimatedSprite2D` exposes these
+resources in its editor. When presentation needs coordinated component tracks,
+prefer an actor scene with explicit bindings and, where useful, presentation-only
+`AnimationPlayer` tracks. Choose the representation per family rather than forcing
+all actors into one flat strip.
+[Godot SpriteFrames reference](https://docs.godotengine.org/en/stable/classes/class_spriteframes.html),
+[Godot AnimatedSprite2D reference](https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html)
+
+When animation advancement affects behavior, keep its timer, instruction cursor,
+branching, and side effects in the original simulation phases. The existing
+[Samus animation path](../csharp/src/SuperMetroid.Core/Game/SamusState.Rendering.cs)
+depends on liquid state, rising versus falling, running momentum, and special
+handlers that write frame/timer state. Enemy instruction processing likewise
+belongs to the domain dispatcher. These are not all fixed-FPS loops.
+
+Prefer having the adapter select the published animation/frame or component state
+explicitly, with automatic gameplay playback disabled. Render repetition, catch-up,
+visibility, and editor scrubbing must not advance gameplay or duplicate actions.
+Damage, spawning, sounds already scheduled by the simulation, and death completion
+must not move into animation-finished signals or method tracks. Seeking an
+`AnimationPlayer` skips intervening events, so it cannot substitute for executing
+the original instruction path.
+[Godot AnimationPlayer reference](https://docs.godotengine.org/en/stable/classes/class_animationplayer.html#class-animationplayer-method-seek)
+
+When a sequence has fixed durations, store exact simulation-tick durations in its
+binding metadata and derive editor preview timing from them. When it branches,
+waits, or changes rate from live state, expose the relevant visual sequences and
+conditions rather than inventing one authoritative clip length. Preview playback
+may use declared conditions or an isolated simulation session; identify those
+conditions and keep the active game untouched. Artwork, frame composition, and
+visual bindings remain editable. Changing original gameplay timing or transition
+rules is a separate mechanics change, not an incidental sprite import option.
+
+### Editable ownership and import records
+
+When generated resources will also be edited, establish ownership before the first
+import. Prefer reproducible generated defaults plus explicit authored overrides,
+or a deliberate one-way handoff to Godot-authored assets. Reimport must preserve
+edits by stable identity and report conflicts. Do not let both a legacy chunk
+sheet and its independently edited composed frame silently claim authority over
+the same pixels. Reverse-splitting a replacement full frame into the original
+shared tiles is not a prerequisite for a usable Godot authoring workflow.
+
+Keep enough metadata to explain and regenerate a converted family:
+
+- Stable actor, visual-frame, and animation identities, with original selector
+  mappings independent of atlas packing and editor display names.
+- Selected source artwork identity, import format/version, and authored override
+  ownership; stale generated output must be detectable.
+- Origin, crop offset, component transforms/order, and palette or material bindings.
+- Fixed tick durations where applicable, or the simulation selector and conditions
+  that drive state-dependent playback.
+- Rendering requirements and any explicit unresolved case for that family.
+
+When an original blank frame is meaningful, retain its identity and duration.
+Missing artwork must produce a diagnostic rather than silently becoming blank.
+Scene resources, composed textures, materials, and binding metadata must travel
+together in the exported project; loading them should not require a developer's
+private extraction paths. Presentation edits should change selected content
+identities under this plan's state/recording compatibility policy.
+
+### Staged conversion and confirmation
+
+For each selected sprite family, prefer this sequence:
+
+1. Establish its source and animation contracts from current code, including
+   persistent graphics state and any multipart or background participation.
+2. Build composed frames or composed layers with origin and selector metadata.
+   Keep unsupported cases explicit rather than exporting misleading placeholders.
+3. Generate editable Godot resources and an actor scene that presents the assembled
+   result, then establish its reimport/override behavior.
+4. Bind the existing phase-owned animation state to those resources at the correct
+   publication point, replacing the old drawing for that family exactly once.
+5. Confirm the changed contract with the smallest faithful fixture: relevant pixels,
+   origin, layer/palette result, and frame/timer or side-effect ordering as applicable.
+
+For a selected conversion, confirm a real edit survives reimport and affects the
+runtime presentation while the unchanged mechanics follow their original path.
+Choose retained-half, palette, or overlap cases only when they are dependencies of
+that conversion. These are scoped confirmation examples, not an agent-owned
+whole-game capture campaign. The intermediate framebuffer host remains useful,
+but it does not complete sprite migration or provide editable composed animations.
+
 ## Editable scenes and original data constraints
 
 When a scene becomes an authoring source, prefer a validated conversion into
@@ -528,6 +692,7 @@ Examples of suitable properties, when that specific boundary is being changed:
 | Enemy phase extraction | A selected overlapping-shot fixture preserves the winning target, projectile mutation, and subsequent AI result. |
 | Phase admission or slot reuse | The identified spawn/replacement path runs at its original point using the correct occupant. |
 | Draw preparation | State evolution is unchanged when presentation is skipped or repeated. |
+| Sprite composition and animation binding | The selected frame preserves pixels, origin, applicable layering/palette state, and phase-owned timing; its authored edit survives reimport. |
 | Input and audio adapter | The selected tap/catch-up case consumes edges correctly and preserves command/acknowledgement order. |
 | Scene conversion | An unchanged selected fixture preserves definitions; an intentional edit reaches the expected production behavior. |
 | Restore and rebind | Shared identities and the selected continuation survive restoration without duplicate registration or initialization. |
@@ -554,6 +719,7 @@ player validation as required by AGENTS.md.
 | Actual phase interfaces | Static control flow for each selected slice, including nested passes and continuations. |
 | Service boundaries and lifetimes | Read/write ownership, aliases, initialization dependencies, and state carried across transitions. |
 | Scene schema and identity model | Existing slot/callback constraints, editable fields, import ownership, and stock/new-content compatibility. |
+| Composed sprite and animation resources | Per-family composition, persistent graphics state, palette/layer requirements, stable visual bindings, and ownership of reimported artwork edits. |
 | Presentation backend | The effects and composition semantics needed by the scoped conversion and target export platform. |
 | State compatibility | Existing save, debugger graph, recording, and content-identity contracts. |
 

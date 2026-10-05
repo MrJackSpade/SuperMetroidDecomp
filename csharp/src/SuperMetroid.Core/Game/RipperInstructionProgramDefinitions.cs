@@ -28,53 +28,41 @@ internal static class RipperInstructionProgramDefinitions
     /// <summary><c>Spritemap_GRipper_Ripper2_Frozen_FacingRight</c> at $A2:E44B.</summary>
     internal const ushort FrozenFacingRightSpritemap = 0xe44b;
 
-    private static readonly RipperInstructionMechanicsWord[] Words =
-    [
-        new(0xe19b, 8), new(0xe19f, 7), new(0xe1a3, 8), new(0xe1a7, 7),
-        new(0xe1ab, CommonEnemyInstructionCodes.Goto), new(0xe1ad, GRipperMovingLeft),
-        new(0xe1af, 8), new(0xe1b3, 7), new(0xe1b7, 8), new(0xe1bb, 7),
-        new(0xe1bf, CommonEnemyInstructionCodes.Goto), new(0xe1c1, GRipperMovingRight),
-        new(0xe2e0, 8), new(0xe2e4, 7), new(0xe2e8, 8), new(0xe2ec, 7),
-        new(0xe2f0, CommonEnemyInstructionCodes.Goto), new(0xe2f2, Ripper2MovingRight),
-        new(0xe2f4, 8), new(0xe2f8, 7), new(0xe2fc, 8), new(0xe300, 7),
-        new(0xe304, CommonEnemyInstructionCodes.Goto), new(0xe306, Ripper2MovingLeft),
-        new(0xe477, 8), new(0xe47b, 7), new(0xe47f, 8), new(0xe483, 7),
-        new(0xe487, CommonEnemyInstructionCodes.Goto), new(0xe489, RipperMovingRight),
-        new(0xe48b, 8), new(0xe48f, 7), new(0xe493, 8), new(0xe497, 7),
-        new(0xe49b, CommonEnemyInstructionCodes.Goto), new(0xe49d, RipperMovingLeft),
-    ];
+    internal static int MechanicsWordCount => 36;
+    internal static int PresentationWordCount => 24;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe19d, 0xe1a1, 0xe1a5, 0xe1a9,
-        0xe1b1, 0xe1b5, 0xe1b9, 0xe1bd,
-        0xe2e2, 0xe2e6, 0xe2ea, 0xe2ee,
-        0xe2f6, 0xe2fa, 0xe2fe, 0xe302,
-        0xe479, 0xe47d, 0xe481, 0xe485,
-        0xe48d, 0xe491, 0xe495, 0xe499,
-    ];
+    /// <summary>Three family pairs; each direction is four timed records followed by Goto and its target.</summary>
+    private static ushort ProgramStart(int program) => (ushort)((program / 2) switch
+    {
+        0 => GRipperMovingLeft + 20 * (program & 1),
+        1 => Ripper2MovingRight + 20 * (program & 1),
+        2 => RipperMovingRight + 20 * (program & 1),
+        _ => throw new ArgumentOutOfRangeException(nameof(program)),
+    });
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static RipperInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static RipperInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        ushort start = ProgramStart(index / 6);
+        int record = index % 6;
+        int offset = record < 4 ? record * 4 : 16 + 2 * (record - 4);
+        ushort value = record < 4 ? (ushort)(8 - (record & 1)) :
+            record == 4 ? CommonEnemyInstructionCodes.Goto : start;
+        return new((ushort)(start + offset), value);
+    }
+
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(ProgramStart(index / 4) + 4 * (index % 4) + 2);
+    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            RipperInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        if (TryRead(address, out ushort value))
+            return value;
         throw new InvalidDataException(
             $"Ripper-family instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
@@ -83,18 +71,30 @@ internal static class RipperInstructionProgramDefinitions
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;
-
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        return TryRead(bankAddress, out _) || TryRead(unchecked((ushort)(bankAddress - 1)), out _);
+    }
+
+    private static bool TryRead(ushort address, out ushort value)
+    {
+        for (int program = 0; program < 6; program++)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
+            ushort start = ProgramStart(program);
+            int offset = address - start;
+            if (offset < 0 || offset >= 20)
+                continue;
+            if (offset < 16 && (offset & 3) == 0)
             {
+                value = (ushort)(8 - ((offset / 4) & 1));
+                return true;
+            }
+            if (offset is 16 or 18)
+            {
+                value = offset == 16 ? CommonEnemyInstructionCodes.Goto : start;
                 return true;
             }
         }
-
+        value = 0;
         return false;
     }
 }

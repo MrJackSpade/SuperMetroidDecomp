@@ -27,17 +27,6 @@ public static class UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefiniti
     /// <summary>The complete loop lasts 63 frames.</summary>
     public const int CycleFrames = 63;
 
-    /// <summary>Fourteen timed red-flash records in their native order.</summary>
-    /// <remarks>
-    /// For the only valid frame indices 0..13, duration is
-    /// abs(7 - frame) + 1. The unsigned words at $8D:FD01 + 18 * frame
-    /// all match this integer triangle in the pinned NTSC J/U v1.0 ROM.
-    /// Their sum is 63 frames. The $C61E goto at $FDFD returns to $FD01;
-    /// frame fourteen is control rather than another duration. Seven
-    /// interleaved BGR555 colors per frame remain live presentation data.
-    /// </remarks>
-    private static readonly ushort[] Durations = [8, 7, 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 6, 7];
-
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)
     {
@@ -53,9 +42,9 @@ public static class UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefiniti
     /// appear: frames 0..7 use rows 0..7, and frames 8..13 mirror rows
     /// 6..1, so the source row is frame when frame is at most seven and
     /// 14 - frame afterward. All 98 words match the pinned NTSC J/U v1.0
-    /// ROM and bank-$8D annotation. Individual seven-color BGR555 values
-    /// vary irregularly, including the center pose; retain their live
-    /// authored payloads rather than imposing an unproved color formula.
+    /// ROM and bank-$8D annotation. Independent seven-color BGR555 values
+    /// are still supplied presentation payloads; their derivation remains
+    /// pending under issue #1165.
     /// </remarks>
     public static ushort ColorPointer(int frame, int color)
     {
@@ -66,6 +55,10 @@ public static class UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefiniti
     }
 
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>
+    /// <remarks>For frame 0..13, duration is abs(7-frame)+1, totaling 63 ticks.
+    /// This integer triangle matches all fourteen words at $8D:FD01 + 18*frame
+    /// in the pinned NTSC J/U v1.0 ROM. Frame fourteen reaches the goto command.
+    /// </remarks>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
         value = pointer switch
@@ -84,7 +77,7 @@ public static class UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefiniti
             int offset = pointer - FramePointer(frame);
             value = offset switch
             {
-                0 => Durations[frame],
+                0 => (ushort)(Math.Abs(FrameCount / 2 - frame) + 1),
                 FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
                 _ => 0,
             };

@@ -70,8 +70,7 @@ public sealed partial class RoomEnemySystem
         int blockY)
     {
         int offsetWord = request.Parameter >> 1;
-        ReadOnlySpan<short> offsets = EyeDoorEnemyProjectileRomData.ProjectileOriginOffsets;
-        if ((request.Parameter & 1) != 0 || offsetWord + 1 >= offsets.Length)
+        if ((request.Parameter & 1) != 0 || offsetWord + 1 >= EyeDoorEnemyProjectileRomData.ProjectileOriginWordCount)
         {
             throw new InvalidDataException(
                 $"Eye-door projectile parameter ${request.Parameter:X4} is outside " +
@@ -81,10 +80,10 @@ public sealed partial class RoomEnemySystem
         projectile.Variable1 = request.DoorBit;
         projectile.XPosition = unchecked((ushort)(
             blockX * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock + 8 +
-            offsets[offsetWord]));
+            EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord)));
         projectile.YPosition = unchecked((ushort)(
             blockY * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock +
-            offsets[offsetWord + 1]));
+            EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord + 1)));
     }
 
     private static void InitializeEyeDoorSweat(
@@ -94,8 +93,7 @@ public sealed partial class RoomEnemySystem
         int blockY)
     {
         int velocityWord = parameter >> 1;
-        ReadOnlySpan<short> velocities = EyeDoorEnemyProjectileRomData.SweatVelocities;
-        if ((parameter & 1) != 0 || velocityWord + 1 >= velocities.Length)
+        if ((parameter & 1) != 0 || velocityWord + 1 >= EyeDoorEnemyProjectileRomData.SweatVelocityWordCount)
         {
             throw new InvalidDataException(
                 $"Eye-door sweat parameter ${parameter:X4} is outside " +
@@ -106,8 +104,8 @@ public sealed partial class RoomEnemySystem
             blockX * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock - 8));
         projectile.YPosition = unchecked((ushort)(
             (blockY + 1) * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock));
-        projectile.XVelocity = unchecked((ushort)velocities[velocityWord]);
-        projectile.YVelocity = unchecked((ushort)velocities[velocityWord + 1]);
+        projectile.XVelocity = unchecked((ushort)EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord));
+        projectile.YVelocity = unchecked((ushort)EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord + 1));
     }
 
     private void InitializeEyeDoorSmoke(

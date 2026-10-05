@@ -16,7 +16,7 @@ internal static class EnemyVisualProgramRoutingContracts
         ["SetEnemyProjectileVisualOperand"] = "7769ECC83131B76FAEF68F04B0287AE7DB2E148B966162AA430CA4BB4EC0E701",
         ["DrawEnemySpritemap"] = "FF3713D52CC84D611BF9FA437F66F910A8AA8A85EEC5AC623C19246C599F3DBD",
         ["ProcessInstructions"] = "DF37BF0A5EF5A7936D7F8AA3479A4C1BEF5524786309361310F23D0623C94444",
-        ["ProcessEnemyProjectileInstructions"] = "158D73DA8E0B49FF52984E8E67FE6470B8D865E5A02FAFAE3D69B895242B9856",
+        ["ProcessEnemyProjectileInstructions"] = "2801B6B17F37304D16488D341FDCD4526625AE8BD4BEE3330290D8099EF16222",
     };
 
     internal static void Inspect(CSharpCompilation compilation, AuditReport report)

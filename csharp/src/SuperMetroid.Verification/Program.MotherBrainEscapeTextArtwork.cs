@@ -22,15 +22,23 @@ internal static partial class Program
         SnesVram installedVram = TransferMotherBrainEscapeTextPages(stock,
             new MotherBrainEscapeTextReadGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")));
-        SnesVram cartridgeVram = TransferMotherBrainEscapeTextPages(null,
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
-        for (int page = 0; page < MotherBrainEscapeTextArtworkDefinitions.PageSources.Length; page++)
+        // The oracle owns cartridge bytes; production has no uninstalled-ROM fallback.
+        var cartridgeVram = new SnesVram();
+        for (int page = 0; page < 5; page++)
         {
-            int sourceOffset = checked((int)MotherBrainEscapeTextArtworkDefinitions.PageSources[page] -
+            int record = 0xa6c4d9 + 7 * page;
+            int count = rom.ReadByte(record) | rom.ReadByte(record + 1) << 8;
+            int source = rom.ReadByte(record + 2) | rom.ReadByte(record + 3) << 8 | rom.ReadByte(record + 4) << 16;
+            int destination = rom.ReadByte(record + 5) | rom.ReadByte(record + 6) << 8;
+            cartridgeVram.LoadBytes(destination * 2, RomDataReader.ReadFixedBank(rom, source, count));
+        }
+        for (int page = 0; page < MotherBrainEscapeTextArtworkDefinitions.PageCount; page++)
+        {
+            int sourceOffset = checked((int)MotherBrainEscapeTextArtworkDefinitions.PageSource(page) -
                 MotherBrainEscapeTextArtworkDefinitions.SourceAddress);
             int destinationOffset =
-                MotherBrainEscapeTextArtworkDefinitions.PageDestinations[page] * 2;
-            int byteCount = MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[page];
+                MotherBrainEscapeTextArtworkDefinitions.PageDestination(page) * 2;
+            int byteCount = MotherBrainEscapeTextArtworkDefinitions.PageByteCount(page);
             AssertTrue(installedVram.Bytes.Slice(destinationOffset, byteCount)
                 .SequenceEqual(native.AsSpan(sourceOffset, byteCount)),
                 $"installed Mother Brain escape-text VRAM page {page} matches native bytes");
@@ -56,14 +64,14 @@ internal static partial class Program
         SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited,
             new MotherBrainEscapeTextReadGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc")));
-        int firstDestination = MotherBrainEscapeTextArtworkDefinitions.PageDestinations[0] * 2;
+        int firstDestination = MotherBrainEscapeTextArtworkDefinitions.PageDestination(0) * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
             editedVram.ReadByte(firstDestination),
             "Mother Brain escape-text PNG pixel edit changes live sprite VRAM");
         AssertTrue(installedVram.Bytes.Slice(firstDestination + 1,
-                MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[0] - 1)
+                MotherBrainEscapeTextArtworkDefinitions.PageByteCount(0) - 1)
             .SequenceEqual(editedVram.Bytes.Slice(firstDestination + 1,
-                MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[0] - 1)),
+                MotherBrainEscapeTextArtworkDefinitions.PageByteCount(0) - 1)),
             "Mother Brain escape-text edit leaves neighboring source bytes unchanged");
         RoomCharacterAtlas reloaded = EnemyTileArtworkFiles.Load(directory, overrideDirectory)
             .MotherBrainEscapeText!;
@@ -79,7 +87,7 @@ internal static partial class Program
     }
 
     private static SnesVram TransferMotherBrainEscapeTextPages(
-        EnemyTileArtworkCatalog? artwork, ISnesAddressSpace bus)
+        EnemyTileArtworkCatalog artwork, ISnesAddressSpace bus)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
@@ -88,13 +96,13 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         MethodInfo transfer = typeof(RoomEnemySystem).GetMethod(
             "ApplyMotherBrainRainbowTileTransfer", flags)!;
-        for (int page = 0; page < MotherBrainEscapeTextArtworkDefinitions.PageSources.Length; page++)
+        for (int page = 0; page < MotherBrainEscapeTextArtworkDefinitions.PageCount; page++)
         {
             var request = new MotherBrainSpriteTileTransferRequest(
                 (ushort)(page + 2),
-                MotherBrainEscapeTextArtworkDefinitions.PageByteCounts[page],
-                MotherBrainEscapeTextArtworkDefinitions.PageSources[page],
-                MotherBrainEscapeTextArtworkDefinitions.PageDestinations[page]);
+                MotherBrainEscapeTextArtworkDefinitions.PageByteCount(page),
+                MotherBrainEscapeTextArtworkDefinitions.PageSource(page),
+                MotherBrainEscapeTextArtworkDefinitions.PageDestination(page));
             transfer.Invoke(enemies, [request]);
         }
         return vram;

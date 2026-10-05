@@ -7,13 +7,13 @@ internal static partial class Program
 {
     private static void VerifyRidleyMovementTargets(SuperMetroidAddressSpace rom)
     {
-        ushort[] Table(int address, ReadOnlySpan<ushort> compiled)
+        ushort[] Table(int address, Func<int, ushort> compiled, int count = 3)
         {
-            var native = new ushort[compiled.Length];
+            var native = new ushort[count];
             for (int i = 0; i < native.Length; i++)
             {
                 native[i] = (ushort)(rom.ReadByte(address + i * 2) | rom.ReadByte(address + i * 2 + 1) << 8);
-                AssertEqual(native[i], compiled[i], "Native Ridley target/divisor record");
+                AssertEqual(native[i], compiled(i), "Native Ridley target/divisor record");
             }
             return native;
         }
@@ -22,8 +22,8 @@ internal static partial class Program
         var ground = Table(EnemyRomTablePointers.Ridley.GroundAttackTargetXWords, RidleyMovementTargets.GroundAttackX);
         var carry = Table(EnemyRomTablePointers.Ridley.CarryAnchorXWords, RidleyMovementTargets.CarryAnchorX);
         var release = Table(EnemyRomTablePointers.Ridley.CarryReleaseXWords, RidleyMovementTargets.CarryReleaseX);
-        var hover = Table(EnemyRomTablePointers.Ridley.HoverMovementDivisorIndexWords, RidleyMovementTargets.HoverDivisorIndexes);
-        var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords, RidleyMovementTargets.GrabDivisorIndexes);
+        var hover = Table(EnemyRomTablePointers.Ridley.HoverMovementDivisorIndexWords, RidleyMovementTargets.HoverDivisorIndexes, 4);
+        var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords, RidleyMovementTargets.GrabDivisorIndexes, 4);
         var enemies = new RoomEnemySystem();
         const BindingFlags instance = BindingFlags.NonPublic | BindingFlags.Instance;
         typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, new SlopeHeightNoReadBus());

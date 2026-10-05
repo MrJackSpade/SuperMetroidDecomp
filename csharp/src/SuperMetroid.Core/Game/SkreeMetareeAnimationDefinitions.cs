@@ -15,50 +15,26 @@ public enum SkreeMetareeAnimationPhase : ushort
 /// <summary>Compiled fixed animation-program selectors for Skree and Metaree.</summary>
 internal static class SkreeMetareeAnimationDefinitions
 {
-    /// <summary>
-    /// Metaree idling, preparation, launched-attack, and unused stop-animation lists at
-    /// <c>$A3:894E-$A3:8955</c>.
-    /// </summary>
-    private static readonly ushort[] MetareeInstructionLists =
-    [
-        SkreeMetareeInstructionProgramDefinitions.MetareeIdling,
-        SkreeMetareeInstructionProgramDefinitions.MetareePreparingAttack,
-        SkreeMetareeInstructionProgramDefinitions.MetareeDiving,
-        SkreeMetareeInstructionProgramDefinitions.MetareeStopAnimating,
-    ];
-
-    /// <summary>
-    /// Skree idling, preparation, launched-attack, and unused stop-animation lists at
-    /// <c>$A3:C69C-$A3:C6A3</c>.
-    /// </summary>
-    private static readonly ushort[] SkreeInstructionLists =
-    [
-        SkreeMetareeInstructionProgramDefinitions.SkreeIdling,
-        SkreeMetareeInstructionProgramDefinitions.SkreePreparingAttack,
-        SkreeMetareeInstructionProgramDefinitions.SkreeDiving,
-        SkreeMetareeInstructionProgramDefinitions.SkreeStopAnimating,
-    ];
-
-    /// <summary>Returns the authored Metaree list for one animation phase.</summary>
-    internal static ushort MetareeInstructionList(SkreeMetareeAnimationPhase phase) =>
-        Select(MetareeInstructionLists, phase, "Metaree");
-
-    /// <summary>Returns the authored Skree list for one animation phase.</summary>
-    internal static ushort SkreeInstructionList(SkreeMetareeAnimationPhase phase) =>
-        Select(SkreeInstructionLists, phase, "Skree");
-
-    private static ushort Select(
-        ushort[] instructionLists,
-        SkreeMetareeAnimationPhase phase,
-        string enemyName)
+    /// <summary>$A3:894E: select the Metaree program for its named animation phase.</summary>
+    internal static ushort MetareeInstructionList(SkreeMetareeAnimationPhase phase) => phase switch
     {
-        int index = (int)phase;
-        if ((uint)index >= instructionLists.Length)
-        {
-            throw new InvalidDataException(
-                $"{enemyName} animation phase ${index:X4} exceeds its four-entry table.");
-        }
+        SkreeMetareeAnimationPhase.Idling => SkreeMetareeInstructionProgramDefinitions.MetareeIdling,
+        SkreeMetareeAnimationPhase.PreparingAttack => SkreeMetareeInstructionProgramDefinitions.MetareePreparingAttack,
+        SkreeMetareeAnimationPhase.Diving => SkreeMetareeInstructionProgramDefinitions.MetareeDiving,
+        SkreeMetareeAnimationPhase.StopAnimating => SkreeMetareeInstructionProgramDefinitions.MetareeStopAnimating,
+        _ => throw InvalidPhase(phase, "Metaree"),
+    };
 
-        return instructionLists[index];
-    }
+    /// <summary>$A3:C69C: select the Skree program for its named animation phase.</summary>
+    internal static ushort SkreeInstructionList(SkreeMetareeAnimationPhase phase) => phase switch
+    {
+        SkreeMetareeAnimationPhase.Idling => SkreeMetareeInstructionProgramDefinitions.SkreeIdling,
+        SkreeMetareeAnimationPhase.PreparingAttack => SkreeMetareeInstructionProgramDefinitions.SkreePreparingAttack,
+        SkreeMetareeAnimationPhase.Diving => SkreeMetareeInstructionProgramDefinitions.SkreeDiving,
+        SkreeMetareeAnimationPhase.StopAnimating => SkreeMetareeInstructionProgramDefinitions.SkreeStopAnimating,
+        _ => throw InvalidPhase(phase, "Skree"),
+    };
+
+    private static InvalidDataException InvalidPhase(SkreeMetareeAnimationPhase phase, string enemyName) =>
+        new($"{enemyName} animation phase ${(int)phase:X4} exceeds its four-entry table.");
 }

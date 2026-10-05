@@ -16,24 +16,17 @@ internal static class MagdollitePhaseDefinitions
     /// $A8:AF55/$A8:AF67/$A8:AF79: distance thresholds, body animation lists,
     /// and body-to-overlay Y offsets for the nine authored phases.
     /// </summary>
-    private static readonly MagdollitePhaseDefinition[] Phases =
-    [
-        new(0x0000, MagdolliteInstructionProgramDefinitions.PillarPhase0, 0x000c),
-        new(0x0010, MagdolliteInstructionProgramDefinitions.PillarPhase0, 0x000c),
-        new(0x0020, MagdolliteInstructionProgramDefinitions.PillarPhase1, 0x0014),
-        new(0x0030, MagdolliteInstructionProgramDefinitions.PillarPhase2, 0x001c),
-        new(0x0040, MagdolliteInstructionProgramDefinitions.PillarPhase3, 0x0024),
-        new(0x0050, MagdolliteInstructionProgramDefinitions.PillarPhase4, 0x002c),
-        new(0x0060, MagdolliteInstructionProgramDefinitions.PillarPhase5, 0x0034),
-        new(0x0070, MagdolliteInstructionProgramDefinitions.PillarPhase6, 0x003c),
-        new(0x0080, MagdolliteInstructionProgramDefinitions.PillarPhase7, 0x0044),
-    ];
-
     internal static MagdollitePhaseDefinition Phase(int index)
     {
-        if ((uint)index >= Phases.Length)
+        if ((uint)index >= 9)
             throw new InvalidDataException(
                 $"Magdollite phase {index} is outside the nine authored records.");
-        return Phases[index];
+        // The zero-distance setup repeats the first visible pillar. Each following
+        // sixteen-pixel rise selects the next six-byte frame/sleep program and moves
+        // the overlay down one eight-pixel tile relative to the body.
+        int visiblePhase = Math.Max(0, index - 1);
+        return new((ushort)(16 * index),
+            (ushort)(MagdolliteInstructionProgramDefinitions.PillarPhase0 + 6 * visiblePhase),
+            (ushort)(12 + 8 * visiblePhase));
     }
 }

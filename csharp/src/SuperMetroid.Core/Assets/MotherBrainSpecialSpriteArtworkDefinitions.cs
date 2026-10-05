@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>One contiguous source sheet used by a fixed Mother Brain OBJ transfer list.</summary>
@@ -16,6 +18,12 @@ public readonly record struct MotherBrainSpecialSpriteSheetDefinition(
     /// <summary>Whether a transfer starts inside this source sheet.</summary>
     public bool ContainsSource(uint sourceAddress) =>
         sourceAddress >= SourceAddress && sourceAddress < SourceAddress + ByteCount;
+
+    /// <summary>Calculates a page's native OBJ transfer, including its list-relative entry index.</summary>
+    public MotherBrainSpriteTileTransferRequest Transfer(int page) => (uint)page < PageCount
+        ? new((ushort)page, PageByteCount, (uint)(SourceAddress + page * PageByteCount),
+            (ushort)(FirstDestinationWord + page * DestinationWordStride))
+        : throw new IndexOutOfRangeException();
 
     /// <summary>Checks the cartridge's page alignment, size and destination.</summary>
     public int ResolvePage(uint sourceAddress, ushort byteCount, ushort destinationWord)

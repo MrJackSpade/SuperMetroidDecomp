@@ -6,39 +6,26 @@ internal readonly record struct MetroidEscapeDisplacement(short X, short Y);
 /// <summary>Compiled fixed behavior definitions for ordinary Metroids.</summary>
 internal static class MetroidBehaviorDefinitions
 {
-    /// <summary>
-    /// Four X/Y displacement pairs from <c>BombedOffVelocities</c> at
-    /// <c>$A3:EA3F-$A3:EA4E</c>. The escape countdown selects a frame with its low two bits.
-    /// </summary>
-    private static readonly MetroidEscapeDisplacement[] EscapeDisplacements =
-    [
-        new(2, 0),
-        new(0, -2),
-        new(-2, 0),
-        new(0, 2),
-    ];
+    /// <summary>Library-two cry $50, selected by native random slots0/3 at $A3:EAD6/$EADC.</summary>
+    private const ushort FirstCry = 0x0050;
+    /// <summary>Library-two cry $58, selected by native random slots1/4/6 at $A3:EAD8/$EADE/$EAE2.</summary>
+    private const ushort SecondCry = 0x0058;
+    /// <summary>Library-two cry $5A, selected by native random slots2/5/7 at $A3:EADA/$EAE0/$EAE4.</summary>
+    private const ushort ThirdCry = 0x005a;
 
-    /// <summary>
-    /// Library-two Metroid cry IDs from <c>Instruction_Metroid_PlayRandomMetroidSFX.SFX</c>
-    /// at <c>$A3:EAD6-$A3:EAE5</c>.
-    /// </summary>
-    private static readonly ushort[] RandomCrySoundEffects =
-    [
-        0x0050,
-        0x0058,
-        0x005a,
-        0x0050,
-        0x0058,
-        0x005a,
-        0x0058,
-        0x005a,
-    ];
+    /// <summary><c>BombedOffVelocities</c> at $A3:EA3F: four successive two-pixel cardinal displacements.</summary>
+    internal static MetroidEscapeDisplacement EscapeDisplacement(ushort countdown)
+    {
+        int phase = countdown & 3;
+        int signedRadius = 2 - 2 * (phase & 2);
+        return (phase & 1) == 0 ? new((short)signedRadius, 0) : new(0, (short)-signedRadius);
+    }
 
-    /// <summary>Returns the native displacement selected by the countdown's low two bits.</summary>
-    internal static MetroidEscapeDisplacement EscapeDisplacement(ushort countdown) =>
-        EscapeDisplacements[countdown & 3];
-
-    /// <summary>Returns the native cry selected by the random word's low three bits.</summary>
-    internal static ushort RandomCrySoundEffect(ushort random) =>
-        RandomCrySoundEffects[random & 7];
+    /// <summary><c>Instruction_Metroid_PlayRandomMetroidSFX.SFX</c> at $A3:EAD6 preserves the native2/3/3 choice distribution and order.</summary>
+    internal static ushort RandomCrySoundEffect(ushort random) => (random & 7) switch
+    {
+        0 or 3 => FirstCry,
+        1 or 4 or 6 => SecondCry,
+        _ => ThirdCry,
+    };
 }

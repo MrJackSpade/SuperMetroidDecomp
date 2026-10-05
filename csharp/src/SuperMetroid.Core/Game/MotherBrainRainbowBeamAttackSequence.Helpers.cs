@@ -88,7 +88,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         if (reachedTarget)
         {
             int timerIndex = Math.Min(PainfulWalkingStage, (ushort)7);
-            PainfulWalkingFunctionTimer = PainfulWalkingFunctionTimers[timerIndex];
+            PainfulWalkingFunctionTimer = MotherBrainPainfulWalkingDefinitions.FunctionTimer(timerIndex);
         }
         return requested;
     }
@@ -394,14 +394,14 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     private MotherBrainSpriteTileTransferRequest CreateNextCorpseTileTransfer()
     {
         int index = CorpseTileTransferIndex;
-        if ((uint)index >= (uint)CorpseTileSources.Length)
+        if ((uint)index >= (uint)MotherBrainCorpseArtworkDefinitions.RowCount)
             throw new InvalidOperationException("Mother Brain corpse tile transfer list is already complete.");
 
         var request = new MotherBrainSpriteTileTransferRequest(
             EntryIndex: (ushort)index,
             Size: MotherBrainCorpseArtworkDefinitions.VramPageByteCount,
-            SourceAddress: CorpseTileSources[index],
-            VramDestination: CorpseTileDestinations[index]);
+            SourceAddress: MotherBrainCorpseArtworkDefinitions.VramPageSource(index),
+            VramDestination: MotherBrainCorpseArtworkDefinitions.VramPageDestination(index));
         CorpseTileTransferIndex++;
         return request;
     }
@@ -409,10 +409,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     private MotherBrainSpriteTileTransferRequest CreateNextEscapeTimerTileTransfer()
     {
         int index = EscapeTimerTileTransferIndex;
-        if ((uint)index >= (uint)EscapeTimerTileTransfers.Length)
+        if ((uint)index >= (uint)MotherBrainEscapeTextArtworkDefinitions.TransferCount)
             throw new InvalidOperationException("Escape-timer sprite-tile transfer list is already complete.");
 
-        MotherBrainSpriteTileTransferRequest request = EscapeTimerTileTransfers[index];
+        MotherBrainSpriteTileTransferRequest request = MotherBrainEscapeTextArtworkDefinitions.Transfer(index);
         EscapeTimerTileTransferIndex++;
         return request;
     }
@@ -420,10 +420,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     private MotherBrainSpriteTileTransferRequest CreateNextExplodedDoorTileTransfer()
     {
         int index = ExplodedDoorTileTransferIndex;
-        if ((uint)index >= (uint)ExplodedDoorTileTransfers.Length)
+        if ((uint)index >= (uint)MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.PageCount)
             throw new InvalidOperationException("Exploded-door sprite-tile transfer list is already complete.");
 
-        MotherBrainSpriteTileTransferRequest request = ExplodedDoorTileTransfers[index];
+        MotherBrainSpriteTileTransferRequest request = MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(index);
         ExplodedDoorTileTransferIndex++;
         return request;
     }
@@ -443,10 +443,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         DeathExplosionIntervalTimer = mixed ? (ushort)0x0008 : (ushort)0x0010;
         DeathExplosionIndex = unchecked((ushort)(DeathExplosionIndex - 1));
         if ((DeathExplosionIndex & 0x8000) != 0)
-            DeathExplosionIndex = 6;
+            DeathExplosionIndex = MotherBrainDeathExplosionDefinitions.GroupCount - 1;
 
-        int simultaneousCount = mixed ? 4 : 2;
-        int pairIndex = DeathExplosionIndex * 4;
+        int simultaneousCount = mixed ? MotherBrainDeathExplosionDefinitions.AnchorsPerGroup : 2;
+        int pairIndex = DeathExplosionIndex * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
         for (int explosionIndex = 0; explosionIndex < simultaneousCount; explosionIndex++)
         {
             // The global RNG is called once per projectile, not once per visual batch. A
@@ -462,7 +462,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             ushort parameter = mixed
                 ? random < 0x4000 ? (ushort)0 : random < 0xe000 ? (ushort)1 : (ushort)2
                 : (ushort)1;
-            (short xOffset, short yOffset) = DeathExplosionOffsets[pairIndex + explosionIndex];
+            (short xOffset, short yOffset) = MotherBrainDeathExplosionDefinitions.Anchor(pairIndex + explosionIndex);
             requests.Add(new MotherBrainDeathExplosionRequest(
                 PatternIndex: DeathExplosionIndex,
                 XOffset: xOffset,

@@ -45,19 +45,35 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
     /// <summary>The complete shared loop lasts 28 frames.</summary>
     public const int CycleFrames = 28;
 
-    private static readonly TourianEscapeSharedRedFlashPaletteFxProgramDefinition[] Definitions =
-    [
-        new(TourianEscapeSharedRedFlashPaletteOwner.GeneralLevel,
-            GeneralLevelDefinitionPointer, GeneralLevelProgramStart, 0x00a8, usesGoto: true),
-        new(TourianEscapeSharedRedFlashPaletteOwner.ArkanoidBlocksAndRedOrbs,
-            ArkanoidDefinitionPointer, ArkanoidProgramStart, 0x00e8, usesGoto: false),
-    ];
-    private static readonly IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
-
+    /// <summary>CGRAM byte $A8: general-level red-flash destination.</summary>
+    private const ushort GeneralColorByte = 0x00a8;
+    /// <summary>CGRAM byte $E8: Arkanoid-block and red-orb flash destination.</summary>
+    private const ushort ArkanoidColorByte = 0x00e8;
+    private static readonly IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> Definitions = new ProgramEntries();
+    private sealed class ProgramEntries : IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition>
+    {
+        public int Count => 2;
+        public TourianEscapeSharedRedFlashPaletteFxProgramDefinition this[int index] =>
+            (TourianEscapeSharedRedFlashPaletteOwner)index switch
+            {
+                TourianEscapeSharedRedFlashPaletteOwner.GeneralLevel => new(
+                    TourianEscapeSharedRedFlashPaletteOwner.GeneralLevel,
+                    GeneralLevelDefinitionPointer, GeneralLevelProgramStart, GeneralColorByte, usesGoto: true),
+                TourianEscapeSharedRedFlashPaletteOwner.ArkanoidBlocksAndRedOrbs => new(
+                    TourianEscapeSharedRedFlashPaletteOwner.ArkanoidBlocksAndRedOrbs,
+                    ArkanoidDefinitionPointer, ArkanoidProgramStart, ArkanoidColorByte, usesGoto: false),
+                _ => throw new ArgumentOutOfRangeException(nameof(index)),
+            };
+        public IEnumerator<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++)
+                yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>The two entries into the shared red-flash loop.</summary>
     public static IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+        Definitions;
 
     /// <summary>Returns one shared timed-record pointer.</summary>
     public static ushort FramePointer(int frame)

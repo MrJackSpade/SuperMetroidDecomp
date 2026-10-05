@@ -40,10 +40,9 @@ public static class BullMovementDefinitions
     /// The native initializer multiplies parameter one by four and copies this
     /// word to both the timer reset and live timer. Selector 13 would read the
     /// following code and is rejected.
-    /// #625 / #650 retains the 13 interleaved deceleration words at
-    /// $A8:D897+4*selector: 1,1,2,2,2,3,3,4,4,5,5,6,6. All match the same
-    /// ROM and disassembly. A half-rate formula needs an exception at selector
-    /// 4's extra hold, so the short authored timing sequence is clearer.
+    /// Deceleration at $A8:D897+4*selector advances every two selectors, with
+    /// the two-frame interval held once more at selector four. Calculate the
+    /// two half-rate segments on either side of that hold.
     /// VerifyCompiledBullMovement covers all 13 values through 104 real
     /// initializer combinations without a ROM bus.
     /// </remarks>
@@ -51,7 +50,19 @@ public static class BullMovementDefinitions
     {
         if (selector >= IntervalCount)
             throw new InvalidDataException($"Bull interval selector {selector} has no compiled authored entry.");
-        ReadOnlySpan<ushort> deceleration = [1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6];
-        return ((ushort)(selector + 3), deceleration[selector]);
+        int deceleration = selector < 4 ? (selector + 2) / 2 : (selector + 1) / 2;
+        return ((ushort)(selector + 3), (ushort)deceleration);
+    }
+    /// <summary>
+    /// $A8:D871 BullConstants_AngleToMove: convert the ten facing-dependent
+    /// projectile directions to eight compass angles. Down occupies two slots;
+    /// up appears at both ends. Each distinct direction advances a 32-unit octant.
+    /// </summary>
+    internal static ushort ShotAngle(int direction)
+    {
+        if ((uint)direction >= 10)
+            throw new InvalidDataException($"Bull immune-shot reaction received invalid projectile direction {direction}.");
+        int octant = direction - (direction >= 5 ? 1 : 0);
+        return (ushort)((0xc0 + 0x20 * octant) & 0xff);
     }
 }

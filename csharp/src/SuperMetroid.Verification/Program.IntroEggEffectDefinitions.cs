@@ -7,20 +7,7 @@ internal static partial class Program
     private static void VerifyIntroEggEffectDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        for (int pointer = IntroEggEffectInstructionDefinitions.StartPointer;
-             pointer < IntroEggEffectInstructionDefinitions.EndPointer; pointer++)
-            AssertEqual(retail.ReadByte(IntroEggEffectDefinitions.NativeDefinitionBank | pointer),
-                IntroEggEffectInstructionDefinitions.ReadByte((ushort)pointer),
-                $"intro egg effect instruction byte $8B:{pointer:X4}");
-        for (int pointer = IntroEggEffectInstructionDefinitions.DeletePointer;
-             pointer < IntroEggEffectInstructionDefinitions.DeletePointer + 2; pointer++)
-            AssertEqual(retail.ReadByte(IntroEggEffectDefinitions.NativeDefinitionBank | pointer),
-                IntroEggEffectInstructionDefinitions.ReadByte((ushort)pointer),
-                $"intro egg effect shared delete byte $8B:{pointer:X4}");
-        AssertThrows<InvalidDataException>(
-            () => IntroEggEffectInstructionDefinitions.ReadWord(
-                IntroEggEffectInstructionDefinitions.EndPointer),
-            "intro egg effect instruction reader rejects a foreign list");
+        VerifyIntroEggEffectPrograms(retail);
         for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
             VerifyIntroEggEffectActor(retail, IntroEggEffectDefinitions.Particle(index),
                 $"intro egg particle {index}");

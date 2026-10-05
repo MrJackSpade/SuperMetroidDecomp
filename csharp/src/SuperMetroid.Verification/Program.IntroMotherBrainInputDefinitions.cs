@@ -9,17 +9,7 @@ internal static partial class Program
     private static void VerifyIntroMotherBrainDemoInput(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {
-        foreach ((int start, int end) in new[]
-        {
-            (IntroMotherBrainInputDefinitions.ListStart,
-                IntroMotherBrainInputDefinitions.ListEnd),
-            (IntroMotherBrainInputDefinitions.HeaderStart,
-                IntroMotherBrainInputDefinitions.HeaderEnd),
-        })
-            for (int pointer = start; pointer < end; pointer++)
-                AssertEqual(bus.ReadByte(DemoInputRomData.BankBase | pointer),
-                    IntroMotherBrainInputDefinitions.ReadByte((ushort)pointer),
-                    $"intro Mother Brain demo byte $91:{pointer:X4}");
+        VerifyIntroMotherBrainInputSource(bus);
         AssertThrows<InvalidDataException>(() =>
             IntroMotherBrainInputDefinitions.ReadWord(
                 IntroMotherBrainInputDefinitions.ListEnd),

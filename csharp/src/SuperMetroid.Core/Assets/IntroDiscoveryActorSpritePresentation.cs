@@ -41,10 +41,10 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
         {
             throw new InvalidDataException("Invalid intro discovery actor sprite JSON.", error);
         }
-        ReadOnlySpan<IntroDiscoveryActorSpriteFrameDefinition> definitions =
+        IReadOnlyList<IntroDiscoveryActorSpriteFrameDefinition> definitions =
             IntroDiscoveryActorSpriteDefinitions.Frames;
         if (document.Version != IntroDiscoveryActorSpriteFormat.Version ||
-            document.Frames is null || document.Frames.Count != definitions.Length)
+            document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Intro discovery actors require twenty named visual frames.");
         var frames = new Dictionary<ushort, SpriteComposition>();
         foreach (IntroDiscoveryActorSpriteFrameDefinition definition in definitions)
@@ -52,8 +52,14 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException($"Intro discovery actor frame {definition.Name} is missing.");
+            SpriteComposition compiled = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
+            compiled = CeresLargeAsteroidParts.CalculateIfMatching(definition.Pointer, compiled);
+            compiled = IntroEggRockingParts.CalculateIfMatching(definition.Pointer, compiled);
+            compiled = IntroEggCrackingParts.CalculateIfMatching(definition.Pointer, compiled);
             frames.Add(definition.Pointer,
-                IntroCinematicSpriteCompiler.Compile(visual, definition.Name));
+                IntroConfusedBabyParts.CalculateIfMatching(definition.Pointer,
+                    IntroEggRemnantParts.CalculateIfMatching(definition.Pointer,
+                        compiled)));
         }
         return new IntroDiscoveryActorSpritePresentation(frames);
     }

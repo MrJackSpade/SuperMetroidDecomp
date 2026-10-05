@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -70,17 +71,17 @@ internal static partial class Program
                 $"gunship dust program {programIndex} exits its decrement branch and deletes");
         }
 
-        AssertEqual(GunshipDustInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all gunship dust spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled gunship visuals require no cartridge reads");
         for (int index = 0;
              index < GunshipDustInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = GunshipDustInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads gunship dust presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "compiled gunship selector exists");
+            AssertEqual(ReadVerificationWord(rom, (0x86 << 16) | address), selector,
+                "compiled gunship selector matches original operand");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids gunship dust mechanics bytes");
@@ -100,7 +101,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Gunship dust instruction mechanics: seventy-six compiled words, all six " +
-            "real producers, frame loops, deletions, and forty-six live spritemap reads pass.");
+            "real producers, frame loops, deletions, and forty-six native compiled spritemap operands pass.");
 
         RoomEnemySystem NewSystem()
         {

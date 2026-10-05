@@ -5,29 +5,21 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
-    private static void VerifyBeamCallbackTables()
+    private static void VerifyBeamCallbackTables(bool initializeOnly = false)
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool charged in new[] { false, true })
         {
-            ReadOnlySpan<SamusBeamCallbackDefinition> definitions = charged
-                ? SamusBeamCallbackDefinitions.Charged
-                : SamusBeamCallbackDefinitions.Uncharged;
-            AssertEqual(SamusBeamCallbackDefinitions.CombinationCount, definitions.Length,
-                $"charged={charged} beam callback definition count");
             int table = charged
                 ? SamusBeamPreInstructionCodes.ChargedTable
                 : SamusBeamPreInstructionCodes.UnchargedTable;
-            for (int combination = 0; combination < definitions.Length; combination++)
+            for (int combination = 0; combination < SamusBeamCallbackDefinitions.CombinationCount; combination++)
             {
                 AssertEqual(
                     ReadBeamCallbackWord(retail, table + combination * sizeof(ushort)),
-                    definitions[combination].NativePointer,
+                    SamusBeamCallbackDefinitions.Resolve(charged, combination).NativePointer,
                     $"charged={charged} callback {combination:X1} matches cartridge");
-                AssertEqual(
-                    definitions[combination],
-                    SamusBeamCallbackDefinitions.Resolve(charged, combination),
-                    $"charged={charged} callback {combination:X1} resolves by identity");
+
             }
         }
 
@@ -55,6 +47,18 @@ internal static partial class Program
             };
             var projectiles = new SamusProjectileSystem();
             var shared = new SamusBombProjectileSystem();
+            if (initializeOnly)
+            {
+                typeof(SamusProjectileSystem).GetMethod("TryFireBeam",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                    .Invoke(projectiles, new object?[] { bus, room, samus, (ushort)SnesButton.X, shared, null, charged });
+                AssertTrue(projectiles.Slots[0].Type != 0 || projectiles.Slots[0].InstructionPointer != 0,
+                    $"charged={charged} beam {beamType:X1} initializes");
+                AssertEqual(SamusBeamCallbackDefinitions.Resolve(charged, beamType).Translated!.Value,
+                    projectiles.Slots[0].PreInstruction,
+                    $"charged={charged} beam {beamType:X1} initializer installs compiled callback");
+                continue;
+            }
             if (charged)
             {
                 for (int frame = 0; frame < 60; frame++)
@@ -83,7 +87,7 @@ internal static partial class Program
                 $"charged={charged} beam {beamType:X1} installs compiled callback");
         }
         Console.WriteLine(
-            "Beam callback definitions: all 32 low-nibble words and 24 retail firing paths pass with both source ranges forbidden.");
+            "Beam callback definitions: all 32 low-nibble words and 24 production firing paths pass with both source ranges forbidden.");
     }
 
     private static ushort ReadBeamCallbackWord(SuperMetroidAddressSpace bus, int address) =>

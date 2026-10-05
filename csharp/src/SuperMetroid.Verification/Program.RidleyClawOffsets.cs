@@ -9,8 +9,10 @@ internal static partial class Program
         short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
         short[] x = Enumerable.Range(0, 3).Select(i => Word(EnemyRomTablePointers.Ridley.ClawXOffsetWords + i * 2)).ToArray();
         short[] y = Enumerable.Range(0, 9).Select(i => Word(EnemyRomTablePointers.Ridley.ClawYOffsetWords + i * 2)).ToArray();
-        AssertTrue(x.AsSpan().SequenceEqual(RidleyClawOffsets.X), "All authored claw X words");
-        AssertTrue(y.AsSpan(0, 3).SequenceEqual(RidleyClawOffsets.Y), "Only three claw Y words are authored geometry");
+        for (ushort index = 0; index < 3; index++)
+            AssertEqual(x[index], RidleyClawOffsets.ReadX(index), "All authored claw X words");
+        for (ushort index = 0; index < 3; index++)
+            AssertEqual(y[index], RidleyClawOffsets.ReadY((ushort)(index * 2)), "Only three claw Y words are authored geometry");
         for (int word = 0; word <= ushort.MaxValue; word++)
         {
             AssertEqual(x[Math.Min(word, 2)], RidleyClawOffsets.ReadX((ushort)word), "Existing facing clamp preserved");

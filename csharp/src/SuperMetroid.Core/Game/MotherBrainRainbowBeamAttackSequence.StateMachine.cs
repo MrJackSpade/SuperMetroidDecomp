@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 using SuperMetroid.Core.Rooms;
@@ -415,11 +416,11 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // The outer function updates delay and neck delta after *every* nested call.
                 // Stage six is therefore observed on the exact call which ends its prior
                 // pause, before the stage-six forward walk has even begun.
-                if (PainfulWalkingStage < PainfulWalkingAnimationDelays.Length)
+                if (PainfulWalkingStage < MotherBrainPainfulWalkingDefinitions.StageCount)
                 {
                     PainfulWalkingAnimationDelay =
-                        PainfulWalkingAnimationDelays[PainfulWalkingStage];
-                    NeckAngleDelta = PainfulWalkingNeckAngleDeltas[PainfulWalkingStage];
+                        MotherBrainPainfulWalkingDefinitions.AnimationDelay(PainfulWalkingStage);
+                    NeckAngleDelta = MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(PainfulWalkingStage);
                 }
                 if (PainfulWalkingStage == 6)
                 {
@@ -873,7 +874,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // ProcessSpriteTilesTransfers handles one record per call and notices the
                 // following zero terminator on the sixth call, just like the Baby tile list.
                 spriteTileTransfer = CreateNextCorpseTileTransfer();
-                if (CorpseTileTransferIndex == CorpseTileSources.Length)
+                if (CorpseTileTransferIndex == MotherBrainCorpseArtworkDefinitions.RowCount)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupFadeToGrey;
                     FunctionTimer = 0x0020;
@@ -971,7 +972,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadEscapeTimerTiles:
                 escapeSequenceTileTransfers.Add(CreateNextEscapeTimerTileTransfer());
-                if (EscapeTimerTileTransferIndex == EscapeTimerTileTransfers.Length)
+                if (EscapeTimerTileTransferIndex == MotherBrainEscapeTextArtworkDefinitions.TransferCount)
                 {
                     // Carry set after entry six clears the shared list cursor, installs
                     // `$B26D`, and falls through far enough to emit exploded-door entry zero
@@ -983,7 +984,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape:
                 escapeSequenceTileTransfers.Add(CreateNextExplodedDoorTileTransfer());
-                if (ExplodedDoorTileTransferIndex != ExplodedDoorTileTransfers.Length)
+                if (ExplodedDoorTileTransferIndex != MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.PageCount)
                     break;
 
                 // The second door record observes the zero terminator and performs the full
@@ -994,7 +995,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 escapeMusicTrackQueued = true;        // Eight-frame-delay music value `$0007`.
                 EarthquakeType = 5;
                 EarthquakeTimer = 0xffff;
-                escapePaletteFxRequests.AddRange([0xffc9, 0xffcd, 0xffd1, 0xffd5]);
+                escapePaletteFxRequests.Add(TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ShutterDefinitionPointer);
+                escapePaletteFxRequests.Add(TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.BackgroundDefinitionPointer);
+                escapePaletteFxRequests.Add(TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.GeneralLevelDefinitionPointer);
+                escapePaletteFxRequests.Add(TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ArkanoidDefinitionPointer);
                 MotherBrainUnpauseHookEnabled = false;
                 escapeTypewriterSetupRequested = true;
                 FunctionTimer = 0x0020;

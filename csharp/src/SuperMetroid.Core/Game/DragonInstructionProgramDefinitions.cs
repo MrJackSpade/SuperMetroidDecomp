@@ -7,9 +7,8 @@ internal readonly record struct DragonInstructionMechanicsWord(
 
 /// <summary>Compiled mechanics words from Dragon's body, wing, and attack programs.</summary>
 /// <remarks>
-/// Durations, loop control, sleeps, and the attack-completion callback are immutable
-/// simulation data. The sixteen interleaved spritemap pointers remain live cartridge
-/// presentation data.
+/// Control words derive from the idle, wing and attack layouts; sixteen interleaved
+/// spritemap operands belong to the compiled presentation definitions.
 /// </remarks>
 internal static class DragonInstructionProgramDefinitions
 {
@@ -34,61 +33,62 @@ internal static class DragonInstructionProgramDefinitions
     /// <summary><c>$A2:E5FB</c>, marks the current body attack animation complete.</summary>
     internal const ushort AttackFinishedCallback = 0xe5fb;
 
-    private static readonly DragonInstructionMechanicsWord[] Words =
-    [
-        new(0xe59b, 0x0001), new(0xe59f, 0x812f),
+    internal static int MechanicsWordCount => 26;
+    internal static int PresentationWordCount => 16;
 
-        new(0xe5a1, 0x0005), new(0xe5a5, 0x0005),
-        new(0xe5a9, 0x80ed), new(0xe5ab, 0xe5a1),
+    internal static DragonInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 12)
+        {
+            int side = index / 6;
+            int local = index % 6;
+            ushort idle = side == 0 ? IdleFacingLeft : IdleFacingRight;
+            ushort wings = side == 0 ? WingsFacingLeft : WingsFacingRight;
+            if (local < 2)
+                return new((ushort)(idle + 4 * local), local == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
+            int wingWord = local - 2;
+            return new((ushort)(wings + (wingWord < 3 ? 4 * wingWord : 10)),
+                wingWord < 2 ? (ushort)5 : wingWord == 2 ? CommonEnemyInstructionCodes.Goto : wings);
+        }
+        int attackWord = (index - 12) % 7;
+        ushort attack = index < 19 ? AttackingFacingLeft : AttackingFacingRight;
+        ushort value = attackWord switch
+        {
+            0 => 32, // Hold the initial attack pose before extension.
+            1 or 3 => 3, // Symmetric extension/retraction poses.
+            2 => 7, // Fully extended attack.
+            4 => 1, // Return to the initial pose before completion.
+            5 => AttackFinishedCallback,
+            _ => CommonEnemyInstructionCodes.Sleep,
+        };
+        return new((ushort)(attack + (attackWord < 6 ? 4 * attackWord : 22)), value);
+    }
 
-        new(0xe5ad, 0x0001), new(0xe5b1, 0x812f),
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 6)
+        {
+            ushort idle = index < 3 ? IdleFacingLeft : IdleFacingRight;
+            int local = index % 3;
+            return (ushort)(idle + (local == 0 ? 2 : 4 + 4 * local));
+        }
+        ushort attack = index < 11 ? AttackingFacingLeft : AttackingFacingRight;
+        return (ushort)(attack + 2 + 4 * ((index - 6) % 5));
+    }
 
-        new(0xe5b3, 0x0005), new(0xe5b7, 0x0005),
-        new(0xe5bb, 0x80ed), new(0xe5bd, 0xe5b3),
-
-        new(0xe5bf, 0x0020), new(0xe5c3, 0x0003),
-        new(0xe5c7, 0x0007), new(0xe5cb, 0x0003),
-        new(0xe5cf, 0x0001), new(0xe5d3, AttackFinishedCallback),
-        new(0xe5d5, 0x812f),
-
-        new(0xe5d7, 0x0020), new(0xe5db, 0x0003),
-        new(0xe5df, 0x0007), new(0xe5e3, 0x0003),
-        new(0xe5e7, 0x0001), new(0xe5eb, AttackFinishedCallback),
-        new(0xe5ed, 0x812f),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe59d,
-        0xe5a3, 0xe5a7,
-        0xe5af,
-        0xe5b5, 0xe5b9,
-        0xe5c1, 0xe5c5, 0xe5c9, 0xe5cd, 0xe5d1,
-        0xe5d9, 0xe5dd, 0xe5e1, 0xe5e5, 0xe5e9,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static DragonInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    /// <summary>Returns fixed Dragon control or rejects pointers outside all six programs.</summary>
+    /// <summary>Returns Dragon control derived from the six program layouts.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            int middle = low + ((high - low) >> 1);
-            DragonInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            DragonInstructionMechanicsWord word = MechanicsWord(index);
+            if (word.Address == address)
+                return word.Value;
         }
-
         throw new InvalidDataException(
             $"Dragon instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
@@ -98,14 +98,11 @@ internal static class DragonInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa20000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
+            ushort wordAddress = MechanicsWord(index).Address;
+            if (bankAddress == wordAddress || bankAddress == wordAddress + 1)
                 return true;
-            }
         }
         return false;
     }

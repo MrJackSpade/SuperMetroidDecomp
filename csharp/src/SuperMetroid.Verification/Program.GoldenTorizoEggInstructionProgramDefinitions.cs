@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -176,9 +177,16 @@ internal static partial class Program
         AssertTrue(!shot.IsActive,
             "Golden Torizo egg shot path completes shared Chozo-orb break program");
 
-        AssertEqual(GoldenTorizoEggInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Golden Torizo egg spritemaps remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "compiled Golden Torizo egg visuals require no cartridge reads");
+        for (int index = 0; index < GoldenTorizoEggInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = GoldenTorizoEggInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "Golden Torizo egg compiled selector exists");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "Golden Torizo egg compiled selector matches original operand");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Golden Torizo egg mechanics byte");
         AssertThrows<InvalidDataException>(

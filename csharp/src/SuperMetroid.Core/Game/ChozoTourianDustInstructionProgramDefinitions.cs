@@ -19,59 +19,62 @@ internal static class ChozoTourianDustInstructionProgramDefinitions
     /// <summary>Tourian entrance-statue descent dust at $86:AF14.</summary>
     internal const ushort TourianDescentDust = 0xaf14;
 
-    private static readonly ChozoTourianDustInstructionMechanicsWord[] Words =
-    [
-        new(Footsteps,
-            EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius),
-        new(0xaec6, 0x000f),
-        new(0xaec8, 0x030f),
-        new(0xaeca, 0x0002),
-        new(0xaece, 0x0002),
-        new(0xaed2, 0x0002),
-        new(0xaed6, 0x0002),
-        new(0xaeda, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-        new(SpikeClearingExplosions,
-            EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius),
-        new(0xaede, 0x000f),
-        new(0xaee0, 0x030f),
-        new(0xaee2, 0x0005),
-        new(0xaee6, 0x0005),
-        new(0xaeea, 0x0005),
-        new(0xaeee, 0x0005),
-        new(0xaef2, 0x0005),
-        new(0xaef6, 0x0005),
-        new(0xaefa, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-        new(TourianDescentDust,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
-        new(0xaf16, 0x0040),
-        new(0xaf18, TourianStatueRomData.ResetDustPosition),
-        new(0xaf1a,
-            EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius),
-        new(0xaf1c, 0x003f),
-        new(0xaf1e, 0x0003),
-        new(0xaf20, 0x0002),
-        new(0xaf24, 0x0002),
-        new(0xaf28, 0x0002),
-        new(0xaf2c, 0x0002),
-        new(0xaf30,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
-        new(0xaf32, 0xaf18),
-        new(0xaf34, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
+    /// <summary>Reset/randomize loop at $86:AF18, after the initial loop counter.</summary>
+    internal const ushort TourianLoop = TourianDescentDust + 4;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xaecc, 0xaed0, 0xaed4, 0xaed8,
-        0xaee4, 0xaee8, 0xaeec, 0xaef0, 0xaef4, 0xaef8,
-        0xaf22, 0xaf26, 0xaf2a, 0xaf2e,
-    ];
+    internal static int MechanicsWordCount => 31;
+    internal static int PresentationWordCount => 14;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ChozoTourianDustInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ChozoTourianDustInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 18)
+        {
+            bool explosion = index >= 8;
+            int local = explosion ? index - 8 : index;
+            ushort start = explosion ? SpikeClearingExplosions : Footsteps;
+            int frames = explosion ? 6 : 4;
+            if (local == 0)
+                return new(start, EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius);
+            if (local < 3)
+                return new((ushort)(start + 2 * local), local == 1 ? (ushort)15 : (ushort)0x030f);
+            if (local < 3 + frames)
+                return new((ushort)(start + 6 + 4 * (local - 3)), explosion ? (ushort)5 : (ushort)2);
+            return new((ushort)(start + 6 + 4 * frames), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        }
 
+        int dust = index - 18;
+        if (dust < 6)
+        {
+            ushort value = dust switch
+            {
+                0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY,
+                1 => 64,
+                2 => TourianStatueRomData.ResetDustPosition,
+                3 => EnemyProjectileCodePointers.Instruction_MoveRandomlyWithinXRadius_YRadius,
+                4 => 63,
+                _ => 3,
+            };
+            return new((ushort)(TourianDescentDust + 2 * dust), value);
+        }
+        if (dust < 10)
+            return new((ushort)(TourianDescentDust + 12 + 4 * (dust - 6)), 2);
+        ushort control = dust switch
+        {
+            10 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero,
+            11 => TourianLoop,
+            _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+        };
+        return new((ushort)(TourianDescentDust + 28 + 2 * (dust - 10)), control);
+    }
+
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 4) return (ushort)(Footsteps + 8 + 4 * index);
+        if (index < 10) return (ushort)(SpikeClearingExplosions + 8 + 4 * (index - 4));
+        return (ushort)(TourianDescentDust + 14 + 4 * (index - 10));
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate or
@@ -80,11 +83,11 @@ internal static class ChozoTourianDustInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            ChozoTourianDustInstructionMechanicsWord candidate = Words[middle];
+            ChozoTourianDustInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -101,8 +104,9 @@ internal static class ChozoTourianDustInstructionProgramDefinitions
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        foreach (ChozoTourianDustInstructionMechanicsWord word in Words)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
+            ChozoTourianDustInstructionMechanicsWord word = MechanicsWord(index);
             if (bankAddress == word.Address ||
                 bankAddress == unchecked((ushort)(word.Address + 1)))
                 return true;

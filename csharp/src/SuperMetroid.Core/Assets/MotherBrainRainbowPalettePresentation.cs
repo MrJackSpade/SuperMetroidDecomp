@@ -8,20 +8,20 @@ namespace SuperMetroid.Core.Assets;
 public sealed class MotherBrainRainbowPalettePresentation
 {
     private readonly PaletteFrame[] rainbow;
-    private readonly PaletteFrame[] toGrey;
-    private readonly PaletteFrame[] fromGrey;
-    private readonly ushort[][] fakeDeathToGrey;
+    private readonly PaletteFade toGrey;
+    private readonly QuantizedPaletteFade fromGrey;
+    private readonly PaletteFade fakeDeathToGrey;
     private readonly PaletteFrame normal;
     private readonly ushort beamInitial;
     private readonly ushort[] beamCycle;
 
     private MotherBrainRainbowPalettePresentation(PaletteFrame[] rainbow, PaletteFrame[] toGrey,
-        PaletteFrame[] fromGrey, ushort[][] fakeDeathToGrey, PaletteFrame normal,
+        PaletteFrame[] fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
         ushort beamInitial, ushort[] beamCycle)
     {
         this.rainbow = rainbow;
-        this.toGrey = toGrey;
-        this.fromGrey = fromGrey;
+        this.toGrey = new PaletteFade(toGrey);
+        this.fromGrey = new QuantizedPaletteFade(fromGrey);
         this.fakeDeathToGrey = fakeDeathToGrey;
         this.normal = normal;
         this.beamInitial = beamInitial;
@@ -65,7 +65,9 @@ public sealed class MotherBrainRainbowPalettePresentation
         ArgumentNullException.ThrowIfNull(cgram);
         if ((uint)frame >= fakeDeathToGrey.Length)
             throw new InvalidDataException($"Mother Brain fake-death grey frame {frame} is outside the authored sequence.");
-        ApplyBrainColors(cgram, fakeDeathToGrey[frame]);
+        for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
+            cgram.SetColor(MotherBrainFakeDeathPaletteRomData.BrainColor + color,
+                fakeDeathToGrey.Body(frame, color));
     }
 
     /// <summary>Restores only those three colors, reusing the cartridge's revival source table.</summary>
@@ -74,13 +76,8 @@ public sealed class MotherBrainRainbowPalettePresentation
         ArgumentNullException.ThrowIfNull(cgram);
         if ((uint)frame >= fromGrey.Length)
             throw new InvalidDataException($"Mother Brain fake-death revival frame {frame} is outside the authored sequence.");
-        ApplyBrainColors(cgram, fromGrey[frame].Body);
-    }
-
-    private static void ApplyBrainColors(SnesCgram cgram, ushort[] colors)
-    {
         for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
-            cgram.SetColor(MotherBrainFakeDeathPaletteRomData.BrainColor + color, colors[color]);
+            cgram.SetColor(MotherBrainFakeDeathPaletteRomData.BrainColor + color, fromGrey.Body(frame, color));
     }
 
     private static void ApplyFull(SnesCgram cgram, PaletteFrame[] frames, int frame)
@@ -92,15 +89,21 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     private static void ApplyGrey(ISnesAddressSpace bus, SnesCgram cgram,
-        PaletteFrame[] frames, int frame)
+        IPaletteFade frames, int frame)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
         if ((uint)frame >= frames.Length)
             throw new InvalidDataException($"Mother Brain grey-transition frame {frame} is outside the authored sequence.");
-        PaletteFrame selected = frames[frame];
-        ApplyColors(cgram, selected, MotherBrainDrainedPaletteRomData.BackLegColor);
-        ushort trailing = selected.TrailingColor!.Value;
+        for (int color = 0; color < frames.BodyCount; color++)
+        {
+            ushort value = frames.Body(frame, color);
+            cgram.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + color, value);
+            cgram.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + color, value);
+        }
+        for (int color = 0; color < frames.LegCount; color++)
+            cgram.SetColor(MotherBrainDrainedPaletteRomData.BackLegColor + color, frames.Leg(frame, color));
+        ushort trailing = frames.Trailing(frame)!.Value;
         bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram, (byte)trailing);
         bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram + 1, (byte)(trailing >> 8));
     }
@@ -112,8 +115,8 @@ public sealed class MotherBrainRainbowPalettePresentation
             cgram.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + color, selected.Body[color]);
             cgram.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + color, selected.Body[color]);
         }
-        for (int color = 0; color < selected.BackLegs.Length; color++)
-            cgram.SetColor(legDestination + color, selected.BackLegs[color]);
+        for (int color = 0; color < selected.LegCount; color++)
+            cgram.SetColor(legDestination + color, selected.Leg(color));
     }
 
     public static MotherBrainRainbowPalettePresentation Load(Stream json,
@@ -144,15 +147,15 @@ public sealed class MotherBrainRainbowPalettePresentation
                 nameof(document.BeamCycle)));
     }
 
-    private static ushort[][] CompileFakeDeathFrames(PaletteRgb5[][]? source)
+    private static PaletteFade CompileFakeDeathFrames(PaletteRgb5[][]? source)
     {
         if (source is null || source.Length != MotherBrainFakeDeathPaletteRomData.FrameCount)
             throw new InvalidDataException("Mother Brain fake-death fade requires eight frames.");
-        var frames = new ushort[source.Length][];
+        var frames = new PaletteFrame[source.Length];
         for (int frame = 0; frame < source.Length; frame++)
-            frames[frame] = CompileColors(source[frame],
-                MotherBrainFakeDeathPaletteRomData.ColorCount, $"fake-death frame {frame}");
-        return frames;
+            frames[frame] = new PaletteFrame(CompileColors(source[frame],
+                MotherBrainFakeDeathPaletteRomData.ColorCount, $"fake-death frame {frame}"), [], null);
+        return new PaletteFade(frames);
     }
 
     private static PaletteFrame[] CompileFrames(MotherBrainRainbowPaletteFrameDocument[]? source,
@@ -199,7 +202,154 @@ public sealed class MotherBrainRainbowPalettePresentation
         json.Write(bytes);
     }
 
-    private sealed record PaletteFrame(ushort[] Body, ushort[] BackLegs, ushort? TrailingColor);
+    private sealed class PaletteFrame
+    {
+        private readonly ushort[]? backLegs;
+
+        public PaletteFrame(ushort[] body, ushort[] legs, ushort? trailingColor)
+        {
+            Body = body;
+            LegCount = legs.Length;
+            TrailingColor = trailingColor;
+            // Rainbow legs use half-intensity body colors, rounding RGB5 upward.
+            // Select this relationship only when every supplied color agrees.
+            if (body.Length != legs.Length)
+            { backLegs = legs; return; }
+            for (int color = 0; color < legs.Length; color++)
+                if (HalfIntensity(body[color]) != legs[color])
+                { backLegs = legs; return; }
+        }
+
+        public ushort[] Body { get; }
+        public int LegCount { get; }
+        public ushort? TrailingColor { get; }
+        public ushort Leg(int color) => backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
+
+        private static ushort HalfIntensity(ushort color) => (ushort)(
+            ((color & 31) + 1) / 2 | (((color >> 5 & 31) + 1) / 2) << 5
+            | (((color >> 10 & 31) + 1) / 2) << 10);
+    }
+
+    private interface IPaletteFade
+    {
+        int Length { get; }
+        int BodyCount { get; }
+        int LegCount { get; }
+        ushort Body(int frame, int color);
+        ushort Leg(int frame, int color);
+        ushort? Trailing(int frame);
+    }
+
+    // Revival colors interpolate before RGB5 quantization. Endpoint intervals are inferred
+    // from supplied colors; every row must agree before a channel's samples are discarded.
+    // Unmatched channels remain explicit supplied content, with no retention exemption.
+    private sealed class QuantizedPaletteFade : IPaletteFade
+    {
+        private readonly Channel[] channels;
+
+        public QuantizedPaletteFade(PaletteFrame[] frames)
+        {
+            Length = frames.Length;
+            BodyCount = frames[0].Body.Length;
+            LegCount = frames[0].LegCount;
+            channels = new Channel[(BodyCount + LegCount + 1) * 3];
+            for (int color = 0; color < channels.Length / 3; color++)
+                for (int component = 0; component < 3; component++)
+                {
+                    var values = new byte[Length];
+                    for (int frame = 0; frame < Length; frame++)
+                    {
+                        ushort packed = color < BodyCount ? frames[frame].Body[color]
+                            : color < BodyCount + LegCount ? frames[frame].Leg(color - BodyCount)
+                            : frames[frame].TrailingColor!.Value;
+                        values[frame] = (byte)(packed >> (5 * component) & 31);
+                    }
+                    channels[color * 3 + component] = new Channel(values);
+                }
+        }
+
+        public int Length { get; }
+        public int BodyCount { get; }
+        public int LegCount { get; }
+        public ushort Body(int frame, int color) => Color(frame, color);
+        public ushort Leg(int frame, int color) => Color(frame, BodyCount + color);
+        public ushort? Trailing(int frame) => Color(frame, BodyCount + LegCount);
+        private ushort Color(int frame, int color) => (ushort)(channels[color * 3].At(frame, Length)
+            | channels[color * 3 + 1].At(frame, Length) << 5 | channels[color * 3 + 2].At(frame, Length) << 10);
+
+        private sealed class Channel
+        {
+            private readonly int first;
+            private readonly int last;
+            private readonly byte[]? supplied;
+
+            public Channel(byte[] values)
+            {
+                int intervals = values.Length - 1;
+                for (int start = values[0] * 8; start < values[0] * 8 + 8; start++)
+                    for (int end = values[^1] * 8; end < values[^1] * 8 + 8; end++)
+                    {
+                        bool matches = true;
+                        for (int frame = 0; frame < values.Length; frame++)
+                            if ((start * (intervals - frame) + end * frame) / (8 * intervals) != values[frame])
+                            { matches = false; break; }
+                        if (matches)
+                        { first = start; last = end; return; }
+                    }
+                supplied = values;
+            }
+
+            public int At(int frame, int length) => supplied is not null ? supplied[frame]
+                : (first * (length - 1 - frame) + last * frame) / (8 * (length - 1));
+        }
+    }
+    private sealed class PaletteFade : IPaletteFade
+    {
+        private readonly PaletteFrame first;
+        private readonly PaletteFrame last;
+        private readonly PaletteFrame[]? supplied;
+
+        public PaletteFade(PaletteFrame[] frames)
+        {
+            first = frames[0];
+            last = frames[^1];
+            Length = frames.Length;
+            // The drain and fake-death rows round each RGB5 channel to the nearest
+            // point on a straight endpoint fade. Keep independently edited rows verbatim.
+            for (int frame = 0; frame < Length; frame++)
+            {
+                for (int color = 0; color < BodyCount; color++)
+                    if (Body(frame, color) != frames[frame].Body[color])
+                    { supplied = frames; return; }
+                for (int color = 0; color < LegCount; color++)
+                    if (Leg(frame, color) != frames[frame].Leg(color))
+                    { supplied = frames; return; }
+                if (Trailing(frame) != frames[frame].TrailingColor)
+                { supplied = frames; return; }
+            }
+        }
+
+        public int Length { get; }
+        public int BodyCount => first.Body.Length;
+        public int LegCount => first.LegCount;
+        public ushort Body(int frame, int color) => supplied is null
+            ? Interpolate(first.Body[color], last.Body[color], frame) : supplied[frame].Body[color];
+        public ushort Leg(int frame, int color) => supplied is null
+            ? Interpolate(first.Leg(color), last.Leg(color), frame) : supplied[frame].Leg(color);
+        public ushort? Trailing(int frame) => supplied is not null ? supplied[frame].TrailingColor
+            : first.TrailingColor is ushort start && last.TrailingColor is ushort end
+                ? Interpolate(start, end, frame) : null;
+
+        private ushort Interpolate(ushort start, ushort end, int frame)
+        {
+            int intervals = Length - 1;
+            int result = 0;
+            for (int shift = 0; shift < 15; shift += 5)
+                result |= (((start >> shift & 31) * (intervals - frame)
+                    + (end >> shift & 31) * frame + intervals / 2) / intervals) << shift;
+            return (ushort)result;
+        }
+    }
 }
 
 public sealed record MotherBrainRainbowPaletteDocument

@@ -35,9 +35,6 @@ public static class OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
     /// <summary>The complete loop lasts 42 frames.</summary>
     public const int CycleFrames = 42;
 
-    /// <summary>Color offsets around the two inline CGRAM-index skips.</summary>
-    private static readonly ushort[] ColorOffsets = [2, 4, 6, 10, 12, 14, 16, 20];
-
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)
     {
@@ -51,7 +48,10 @@ public static class OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
     {
         if ((uint)color >= ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return unchecked((ushort)(FramePointer(frame) + ColorOffsets[color]));
+        // Each preceding inline command occupies one word without supplying a color.
+        int skippedCommands = (color >= 3 ? 1 : 0) + (color >= 7 ? 1 : 0);
+        return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) *
+            (1 + color + skippedCommands)));
     }
 
     /// <summary>Resolves one compiled mechanics word while excluding live colors.</summary>

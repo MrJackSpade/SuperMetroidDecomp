@@ -19,24 +19,28 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_MetareeParticle</c> at $86:8AC5.</summary>
     internal const ushort Metaree = 0x8ac5;
 
-    private static readonly SkreeMetareeParticleInstructionMechanicsWord[] Words =
-    [
-        new(Skree, 0x0010),
-        new(0x8ac1, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x8ac3, Skree),
-        new(Metaree, 0x0010),
-        new(0x8ac9, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x8acb, Metaree),
-    ];
+    internal static int MechanicsWordCount => 6;
+    internal static int PresentationWordCount => 2;
 
-    private static readonly ushort[] PresentationWords = [0x8abf, 0x8ac7];
+    /// <summary>Each eight-byte loop is a sixteen-frame drawing followed by goto-self.</summary>
+    internal static SkreeMetareeParticleInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort start = index < 3 ? Skree : Metaree;
+        int field = index % 3;
+        return field switch
+        {
+            0 => new(start, 16),
+            1 => new((ushort)(start + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+            _ => new((ushort)(start + 6), start),
+        };
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static SkreeMetareeParticleInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)((index == 0 ? Skree : Metaree) + 2);
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.SkreeParticleDownRight or
         RoomEnemyProjectileKind.SkreeParticleUpRight or
@@ -49,20 +53,17 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitions
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        int offset = address - Skree;
+        if ((uint)offset < 16)
         {
-            int middle = low + ((high - low) >> 1);
-            SkreeMetareeParticleInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            ushort start = offset < 8 ? Skree : Metaree;
+            switch (offset % 8)
+            {
+                case 0: return 16;
+                case 4: return EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY;
+                case 6: return start;
+            }
         }
-
         throw new InvalidDataException(
             $"Skree/Metaree particle instruction mechanics pointer $86:{address:X4} " +
             "is not compiled.");
@@ -74,9 +75,9 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

@@ -3,32 +3,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Pinned bank-$90 horizontal mechanics, separate from animation and palette definitions.</summary>
 internal static class SamusHorizontalMotionDefinitions
 {
-    /// <summary>$90:9F55 SamusXSpeedTable_Normal: 26 authored maximum-speed records, in movement-byte order.</summary>
-    private static ReadOnlySpan<uint> AirMaximums =>
-    [
-        0, 0x2c000, 0x14000, 0x16000, 0x34000, 0, 0x10000, 0x10000,
-        0x10000, 0x20000, 0x50000, 0, 0, 0x20000, 0, 0x14000,
-        0x08000, 0x34000, 0x14000, 0x10000, 0x16000, 0, 0x14000, 0, 0, 0x50000,
-    ];
-
-    /// <summary>$90:A08D SamusXSpeedTable_InWater: 28 authored maximum-speed records.</summary>
-    private static ReadOnlySpan<uint> WaterMaximums =>
-    [
-        0, 0x2c000, 0x14000, 0x16000, 0x2c000, 0, 0x10000, 0x10000,
-        0x18000, 0x20000, 0x50000, 0, 0, 0x20000, 0, 0x14000,
-        0x08000, 0x2c000, 0x14000, 0x18000, 0x16000, 0, 0x14000, 0,
-        0, 0x08000, 0x50000, 0x50000,
-    ];
-
-    /// <summary>$90:A1DD SamusXSpeedTable_InAcidLava: 28 authored maximum-speed records.</summary>
-    private static ReadOnlySpan<uint> LavaMaximums =>
-    [
-        0, 0x1c000, 0x14000, 0x16000, 0x2c000, 0, 0x10000, 0x10000,
-        0x16000, 0x20000, 0x50000, 0, 0, 0x20000, 0, 0x14000,
-        0x08000, 0x2c000, 0x14000, 0x16000, 0x16000, 0, 0x14000, 0,
-        0, 0x08000, 0x50000, 0x50000,
-    ];
-
+    /// <summary>$90:9F55..A08C normal-air speed records end after damage boost.</summary>
+    private const int AirRecordCount = 26;
+    /// <summary>$90:A08D and A1DD water/lava records additionally include held and special movement.</summary>
+    private const int LiquidRecordCount = 28;
     /// <summary>
     /// Resolves exact records in the three adjacent native tables. Address-based selection
     /// deliberately lets air movement bytes 26/27 read water rows 0/1. Addresses outside
@@ -37,29 +15,43 @@ internal static class SamusHorizontalMotionDefinitions
     internal static bool TryResolveIndexed(int address, out SpeedTableEntry entry)
     {
         int offset = address - (SamusMovementRomData.Banks.Movement | SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable);
-        int count = AirMaximums.Length + WaterMaximums.Length + LavaMaximums.Length;
+        int count = AirRecordCount + 2 * LiquidRecordCount;
         if (offset < 0 || offset >= count * SpeedTableEntry.ByteCount || offset % SpeedTableEntry.ByteCount != 0)
         {
             entry = default;
             return false;
         }
         int row = offset / SpeedTableEntry.ByteCount;
-        bool air = row < AirMaximums.Length;
-        uint maximum;
+        bool air = row < AirRecordCount;
+        bool water = false;
         ushort deceleration;
         if (air)
         {
-            maximum = AirMaximums[row];
             deceleration = 0x8000;
         }
         else
         {
-            row -= AirMaximums.Length;
-            bool water = row < WaterMaximums.Length;
-            if (!water) row -= WaterMaximums.Length;
-            maximum = water ? WaterMaximums[row] : LavaMaximums[row];
+            row -= AirRecordCount;
+            water = row < LiquidRecordCount;
+            if (!water) row -= LiquidRecordCount;
             deceleration = water ? (ushort)0x0800 : (ushort)0x4000;
         }
+        uint maximum = (SamusMovementType)row switch
+        {
+            SamusMovementType.Running => air || water ? 0x2c000u : 0x1c000u,
+            SamusMovementType.NormalJumping or SamusMovementType.PostureTransition or
+                SamusMovementType.SpringBallInAir or SamusMovementType.Grappling => 0x14000u,
+            SamusMovementType.SpinJumping or SamusMovementType.WallJumping => 0x16000u,
+            SamusMovementType.MorphBallGround or SamusMovementType.SpringBallGround => air ? 0x34000u : 0x2c000u,
+            SamusMovementType.Falling or SamusMovementType.UnusedGlitchBall => 0x10000u,
+            SamusMovementType.MorphBallFalling or SamusMovementType.SpringBallFalling =>
+                air ? 0x10000u : water ? 0x18000u : 0x16000u,
+            SamusMovementType.UnusedGlitchBallAlternate or SamusMovementType.Unused0D => 0x20000u,
+            SamusMovementType.Knockback or SamusMovementType.DraygonHeld or SamusMovementType.Special => 0x50000u,
+            SamusMovementType.Moonwalking => 0x08000u,
+            SamusMovementType.DamageBoost => air ? 0x50000u : 0x08000u,
+            _ => 0,
+        };
         // All rows use the same authored acceleration except these named movement cases.
         uint acceleration = (SamusMovementType)row switch
         {

@@ -15,37 +15,45 @@ internal static class BullInstructionProgramDefinitions
     /// <summary><c>InstList_Bull_Shot_1</c> at $A8:D859.</summary>
     internal const ushort ShotLoop = 0xd859;
 
-    private static readonly BullInstructionMechanicsWord[] Words =
-    [
-        new(0xd841, 10), new(0xd845, 10), new(0xd849, 10), new(0xd84d, 10),
-        new(0xd851, CommonEnemyInstructionCodes.Goto), new(0xd853, Normal),
+    internal static int MechanicsWordCount => 16;
+    internal static int PresentationWordCount => 8;
 
-        new(0xd855, CommonEnemyInstructionCodes.SetTimer), new(0xd857, 5),
-        new(0xd859, 3), new(0xd85d, 3), new(0xd861, 3), new(0xd865, 3),
-        new(0xd869, CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
-        new(0xd86b, ShotLoop),
-        new(0xd86d, CommonEnemyInstructionCodes.Goto), new(0xd86f, Normal),
-    ];
+    /// <summary>Normal loops four ten-frame drawings; shot loops four three-frame drawings five times and returns to normal.</summary>
+    internal static BullInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 4) return new((ushort)(Normal + 4 * index), 10);
+        if (index is >= 8 and < 12) return new((ushort)(ShotLoop + 4 * (index - 8)), 3);
+        return index switch
+        {
+            4 => new(Normal + 16, CommonEnemyInstructionCodes.Goto),
+            5 => new(Normal + 18, Normal),
+            6 => new(Shot, CommonEnemyInstructionCodes.SetTimer),
+            7 => new(Shot + 2, 5),
+            12 => new(ShotLoop + 16, CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
+            13 => new(ShotLoop + 18, ShotLoop),
+            14 => new(ShotLoop + 20, CommonEnemyInstructionCodes.Goto),
+            _ => new(ShotLoop + 22, Normal),
+        };
+    }
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xd843, 0xd847, 0xd84b, 0xd84f,
-        0xd85b, 0xd85f, 0xd863, 0xd867,
-    ];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)((index < 4 ? Normal : ShotLoop) + 2 + 4 * (index % 4));
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static BullInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
-
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - (address < ShotLoop ? Normal + 2 : ShotLoop + 2);
+        return (uint)offset < 16 && offset % 4 == 0;
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            if (MechanicsWord(index).Address == address)
+                return MechanicsWord(index).Value;
         }
 
         throw new InvalidDataException(
@@ -58,9 +66,9 @@ internal static class BullInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

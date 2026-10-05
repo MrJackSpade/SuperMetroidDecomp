@@ -412,6 +412,12 @@ public sealed partial class ManagedSpcPlayer
         LoopPartOne();
     }
 
+    /// <summary>Explicit native DSP publication dispatch, replacing the descending
+    /// SPC1E52 destination and1E5C direct-page source maps (ten paired entries).
+    /// Preserve both KOF writes, the intervening noise/pitch updates and KON ordering.
+    /// Negative echo countdown skips FLG/echo; an unsettled delay skips only echo.
+    /// Independently checked against the original maps and pinned Spc_Loop_Part1
+    /// for1165; the pending key masks clear only after publication.</summary>
     private void LoopPartOne()
     {
         WriteDsp(SnesDspRegisterMap.Global.KeyOff, keyOff);

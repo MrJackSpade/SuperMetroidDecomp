@@ -116,23 +116,6 @@ public sealed partial class RoomEnemySystem
     private const ushort WreckedShipGhostInitialVerticalVelocityWhole = 1;
     private const int WreckedShipGhostVerticalAccelerationFraction = 0x1800;
 
-    // $A8:9ACC. Offset zero is intentionally present even though the normal appearance
-    // path begins at byte offset two; once the terminal word is reached, native code resets
-    // the offset to zero and permanently clears invisibility for that appearance.
-    private static readonly short[] WreckedShipGhostFlickerDurations =
-    [
-        1, 8, 1, 8, 1, 7, 1, 7, 2, 6, 2, 6, 3, 5, 3, 5, -1,
-    ];
-
-    // $A8:9AA8. Horizontal classes 0/4/8 and vertical classes 0/12/24 add to a byte
-    // offset; dividing by two selects one of these signed (X,Y) pairs.
-    private static readonly (short X, short Y)[] WreckedShipGhostSpawnOffsets =
-    [
-        (-64, -64), (0, -64), (64, -64),
-        (-64,   0), (0,   0), (64,   0),
-        (-64,  64), (0,  64), (64,  64),
-    ];
-
     // $A8:99AC. This is the target after the initial white flash and again after each
     // reappearance. Words remain native BGR555 so every component step is auditable.
     private static readonly ushort[] WreckedShipGhostPalette =
@@ -332,14 +315,14 @@ public sealed partial class RoomEnemySystem
         ushort samusY)
     {
         int byteOffset = state.HorizontalMovementClass + state.VerticalMovementClass;
-        if ((byteOffset & 3) != 0 || (uint)(byteOffset / 4) >= WreckedShipGhostSpawnOffsets.Length)
+        if ((byteOffset & 3) != 0 || (uint)(byteOffset / 4) >= WreckedShipGhostAppearanceDefinitions.SpawnCount)
         {
             throw new InvalidDataException(
                 $"Wrecked Ship ghost movement classes ${state.HorizontalMovementClass:X4}/" +
                 $"${state.VerticalMovementClass:X4} do not select a retail spawn offset.");
         }
 
-        (short xOffset, short yOffset) = WreckedShipGhostSpawnOffsets[byteOffset / 4];
+        (short xOffset, short yOffset) = WreckedShipGhostAppearanceDefinitions.SpawnOffset(byteOffset / 4);
         slot.XPosition = unchecked((ushort)(samusX + xOffset));
         slot.YPosition = unchecked((ushort)(samusY + yOffset));
         state.Function = WreckedShipGhostAiFunction.BrighteningAndFlickering;
@@ -462,13 +445,13 @@ public sealed partial class RoomEnemySystem
                 return;
 
             int tableIndex = state.FlickerTableOffset / 2;
-            if ((uint)tableIndex >= WreckedShipGhostFlickerDurations.Length)
+            if ((uint)tableIndex >= WreckedShipGhostAppearanceDefinitions.FlickerCount)
             {
                 throw new InvalidDataException(
                     $"Wrecked Ship ghost flicker offset ${state.FlickerTableOffset:X4} exceeds $A8:9ACC.");
             }
 
-            short duration = WreckedShipGhostFlickerDurations[tableIndex];
+            short duration = WreckedShipGhostAppearanceDefinitions.FlickerDuration(tableIndex);
             if (duration < 0)
             {
                 state.PhaseTimer = 0;

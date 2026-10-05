@@ -22,56 +22,49 @@ internal static class HZoomerInstructionProgramDefinitions
     /// <summary><c>Instruction_HZoomer_FunctionInY</c> immediately before the programs.</summary>
     internal const ushort AdjacentFunctionCode = 0xdfc2;
 
-    private static readonly HZoomerInstructionMechanicsWord[] Words =
-    [
-        new(UpsideRight, EnemyInstructionCodePointers.Instruction_HZoomer_FunctionInY),
-        new(0xdfcd, (ushort)CrawlerEnemyFunction.HZoomerCrawlingVertically),
-        new(0xdfcf, 3), new(0xdfd3, 3), new(0xdfd7, 3), new(0xdfdb, 3),
-        new(0xdfdf, 3), new(0xdfe3, CommonEnemyInstructionCodes.Goto),
-        new(0xdfe5, 0xdfcf),
+    internal static int MechanicsWordCount => 36;
+    internal static int PresentationWordCount => 20;
 
-        new(UpsideLeft, EnemyInstructionCodePointers.Instruction_HZoomer_FunctionInY),
-        new(0xdfe9, (ushort)CrawlerEnemyFunction.HZoomerCrawlingVertically),
-        new(0xdfeb, 3), new(0xdfef, 3), new(0xdff3, 3), new(0xdff7, 3),
-        new(0xdffb, 3), new(0xdfff, CommonEnemyInstructionCodes.Goto),
-        new(0xe001, 0xdfeb),
+    /// <summary>Each surface initializes its axis, shows five three-tick frames, then loops to the first frame.</summary>
+    internal static HZoomerInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        int surface = index / 9;
+        int word = index % 9;
+        ushort start = (ushort)(UpsideRight + 28 * surface);
+        return word switch
+        {
+            0 => new(start, EnemyInstructionCodePointers.Instruction_HZoomer_FunctionInY),
+            1 => new((ushort)(start + 2), (ushort)(surface < 2
+                ? CrawlerEnemyFunction.HZoomerCrawlingVertically : CrawlerEnemyFunction.HZoomerCrawlingHorizontally)),
+            < 7 => new((ushort)(start + 4 + 4 * (word - 2)), 3),
+            7 => new((ushort)(start + 24), CommonEnemyInstructionCodes.Goto),
+            _ => new((ushort)(start + 26), (ushort)(start + 4)),
+        };
+    }
 
-        new(UpsideDown, EnemyInstructionCodePointers.Instruction_HZoomer_FunctionInY),
-        new(0xe005, (ushort)CrawlerEnemyFunction.HZoomerCrawlingHorizontally),
-        new(0xe007, 3), new(0xe00b, 3), new(0xe00f, 3), new(0xe013, 3),
-        new(0xe017, 3), new(0xe01b, CommonEnemyInstructionCodes.Goto),
-        new(0xe01d, 0xe007),
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(UpsideRight + 28 * (index / 5) + 6 + 4 * (index % 5));
+    }
 
-        new(UpsideUp, EnemyInstructionCodePointers.Instruction_HZoomer_FunctionInY),
-        new(0xe021, (ushort)CrawlerEnemyFunction.HZoomerCrawlingHorizontally),
-        new(0xe023, 3), new(0xe027, 3), new(0xe02b, 3), new(0xe02f, 3),
-        new(0xe033, 3), new(0xe037, CommonEnemyInstructionCodes.Goto),
-        new(0xe039, 0xe023),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xdfd1, 0xdfd5, 0xdfd9, 0xdfdd, 0xdfe1,
-        0xdfed, 0xdff1, 0xdff5, 0xdff9, 0xdffd,
-        0xe009, 0xe00d, 0xe011, 0xe015, 0xe019,
-        0xe025, 0xe029, 0xe02d, 0xe031, 0xe035,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static HZoomerInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
-
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - UpsideRight;
+        int local = offset % 28;
+        return offset >= 0 && offset < 4 * 28 && local >= 6 && local <= 22 && (local - 6) % 4 == 0;
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            HZoomerInstructionMechanicsWord candidate = Words[middle];
+            HZoomerInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -89,9 +82,9 @@ internal static class HZoomerInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa30000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

@@ -1,0 +1,3061 @@
+{
+  "issue": 1165,
+  "inventory": "lookup-remaining-1165.json",
+  "inventorySnapshotUtc": "2026-10-04T20:43:25.3086366Z",
+  "generatedUtc": "2026-10-04T20:46:58.4542168Z",
+  "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
+  "definitionCount": 1128,
+  "fileCount": 523,
+  "allocation": "Keep filename families together; greedily assign largest families to the least-loaded stream by definition count. Counts estimate assignment size, not implementation time.",
+  "sharedFileOwner": "Coordinator: master inventories, this manifest/index, shared review fixtures, existing shared test entry points, project files and git/publication operations.",
+  "streams": [
+    {
+      "id": 1,
+      "document": "lookup-1165-stream-1.md",
+      "definitionCount": 226,
+      "fileCount": 82,
+      "families": [
+        "Samus",
+        "Escape",
+        "Powamp",
+        "Cacatac",
+        "Dragon",
+        "Metroid",
+        "Charge",
+        "Nuclear",
+        "Bull",
+        "Owtch",
+        "Brinstar",
+        "Hibashi",
+        "Sciser",
+        "Common",
+        "Falling",
+        "Metroids",
+        "Puyo",
+        "Speed",
+        "World",
+        "Misc",
+        "Spc"
+      ],
+      "files": [
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Brinstar",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/BrinstarPipeBugInstructionProgramDefinitions.cs",
+          "family": "Brinstar",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/BullInstructionProgramDefinitions.cs",
+          "family": "Bull",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/BullMovementDefinitions.cs",
+          "family": "Bull",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Bull.cs",
+          "family": "Bull",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CacatacInstructionProgramDefinitions.cs",
+          "family": "Cacatac",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CacatacMovementDefinitions.cs",
+          "family": "Cacatac",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CacatacProjectileDefinitions.cs",
+          "family": "Cacatac",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CacatacProjectileInstructionProgramDefinitions.cs",
+          "family": "Cacatac",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementCatalog.cs",
+          "family": "Charge",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteDefinitions.cs",
+          "family": "Charge",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ChargeFlareAnimationDefinitions.cs",
+          "family": "Charge",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CommonEnemyEmptyExtendedFrameDefinitions.cs",
+          "family": "Common",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CommonEnemyProjectileInstructionProgramDefinitions.cs",
+          "family": "Common",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/DragonVisualDefinitions.cs",
+          "family": "Dragon",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DragonAnimationDefinitions.cs",
+          "family": "Dragon",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DragonFireballInstructionProgramDefinitions.cs",
+          "family": "Dragon",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DragonInstructionProgramDefinitions.cs",
+          "family": "Dragon",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs",
+          "family": "Escape",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentationDefinitions.cs",
+          "family": "Escape",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs",
+          "family": "Escape",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterPresentation.cs",
+          "family": "Escape",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs",
+          "family": "Escape",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EscapeEtecoonDefinitions.cs",
+          "family": "Escape",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EscapeEtecoonInstructionProgramDefinitions.cs",
+          "family": "Escape",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EscapeTimer.cs",
+          "family": "Escape",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/FallingSparkInstructionProgramDefinitions.cs",
+          "family": "Falling",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/HibashiDefinitions.cs",
+          "family": "Hibashi",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/HibashiInstructionProgramDefinitions.cs",
+          "family": "Hibashi",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MetroidVisualDefinitions.cs",
+          "family": "Metroid",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MetroidBehaviorDefinitions.cs",
+          "family": "Metroid",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs",
+          "family": "Metroid",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/MetroidsClearedPlmRomData.cs",
+          "family": "Metroids",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MiscDustProjectileDefinitions.cs",
+          "family": "Misc",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/NuclearWaffleDefinitions.cs",
+          "family": "Nuclear",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/NuclearWaffleInstructionProgramDefinitions.cs",
+          "family": "Nuclear",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/NuclearWaffleProjectileInstructionProgramDefinitions.cs",
+          "family": "Nuclear",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/OwtchStokeVisualDefinitions.cs",
+          "family": "Owtch",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/OwtchInstructionProgramDefinitions.cs",
+          "family": "Owtch",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs",
+          "family": "Powamp",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PowampSpikeInstructionProgramDefinitions.cs",
+          "family": "Powamp",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Powamp.cs",
+          "family": "Powamp",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PowampSpikes.cs",
+          "family": "Powamp",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PuyoInstructionProgramDefinitions.cs",
+          "family": "Puyo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
+          "family": "Samus",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/SamusAtmosphericArtworkCatalog.cs",
+          "family": "Samus",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
+          "family": "Samus",
+          "definitions": 11
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/SamusHurtColorCatalog.cs",
+          "family": "Samus",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs",
+          "family": "Samus",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/SamusVisorColorCatalog.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs",
+          "family": "Samus",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusArmCannonDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusAtmosphericAnimationDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs",
+          "family": "Samus",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusBeamCallbackDefinitions.cs",
+          "family": "Samus",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusBombSpreadLaunchDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusHorizontalMotionDefinitions.cs",
+          "family": "Samus",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs",
+          "family": "Samus",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusPoseAimDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusPoseCollisionDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusPoseDispatchDefinitions.cs",
+          "family": "Samus",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusPoseInputDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesEarly.cs",
+          "family": "Samus",
+          "definitions": 35
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusPoseInputRulesLate.cs",
+          "family": "Samus",
+          "definitions": 43
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusPoseProjectileOriginDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusProjectileCooldownDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusProjectileDamageDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusProjectileInstructionDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusProjectileMotionDefinitions.cs",
+          "family": "Samus",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusProjectileOriginDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusProjectileRadiusDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSoundRoutingDefinitions.cs",
+          "family": "Samus",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusShinesparkState.cs",
+          "family": "Samus",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusSpecialSequenceRomData.cs",
+          "family": "Samus",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SamusVerticalMotionDefinitions.cs",
+          "family": "Samus",
+          "definitions": 7
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/SciserVisualDefinitions.cs",
+          "family": "Sciser",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SciserInstructionProgramDefinitions.cs",
+          "family": "Sciser",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
+          "family": "Spc",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmDrawDefinitions.cs",
+          "family": "Speed",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/WorldMapArtwork.cs",
+          "family": "World",
+          "definitions": 2
+        }
+      ],
+      "issueNumber": 1238,
+      "issueUrl": "https://github.com/MrJackSpade/SuperMetroidDecomp/issues/1238"
+    },
+    {
+      "id": 2,
+      "document": "lookup-1165-stream-2.md",
+      "definitionCount": 226,
+      "fileCount": 111,
+      "families": [
+        "Torizo",
+        "Kraid",
+        "Projectile",
+        "Pause",
+        "Chozo",
+        "Norfair",
+        "Pipe",
+        "Extracted",
+        "Yard",
+        "Kago",
+        "Wrecked",
+        "Gunship",
+        "Sbug",
+        "Crawler",
+        "Old",
+        "Waver",
+        "Crystal",
+        "H",
+        "Ninja",
+        "Scroll",
+        "Viola",
+        "Zero",
+        "Pickups",
+        "Upper"
+      ],
+      "files": [
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/ChozoAndTubeColorCatalog.cs",
+          "family": "Chozo",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ChozoCarryMotionDefinitions.cs",
+          "family": "Chozo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ChozoStatueInstructionProgramDefinitions.cs",
+          "family": "Chozo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ChozoTourianDustInstructionProgramDefinitions.cs",
+          "family": "Chozo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CrawlerAnimationDefinitions.cs",
+          "family": "Crawler",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CrawlerSpeedDefinitions.cs",
+          "family": "Crawler",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs",
+          "family": "Crystal",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs",
+          "family": "Extracted",
+          "definitions": 6
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GunshipLiftoffArtworkCatalog.cs",
+          "family": "Gunship",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GunshipDustInstructionProgramDefinitions.cs",
+          "family": "Gunship",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GunshipInstructionProgramDefinitions.cs",
+          "family": "Gunship",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/HZoomerInstructionProgramDefinitions.cs",
+          "family": "H",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/KagoVisualDefinitions.cs",
+          "family": "Kago",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/KagoBugProjectileInstructionProgramDefinitions.cs",
+          "family": "Kago",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/KagoInstructionProgramDefinitions.cs",
+          "family": "Kago",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/KraidColorCatalog.cs",
+          "family": "Kraid",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/KraidHeadTilemapAtlas.cs",
+          "family": "Kraid",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
+          "family": "Kraid",
+          "definitions": 11
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidGrowth.cs",
+          "family": "Kraid",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs",
+          "family": "Kraid",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/NinjaSpacePirateInstructionProgramDefinitions.cs",
+          "family": "Ninja",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Norfair",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/NorfairLavaJumpDefinitions.cs",
+          "family": "Norfair",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs",
+          "family": "Norfair",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/NorfairPipeBugInstructionProgramDefinitions.cs",
+          "family": "Norfair",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs",
+          "family": "Norfair",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Old",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Old",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/PauseBackdropPresentation.cs",
+          "family": "Pause",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBaseDefinitions.cs",
+          "family": "Pause",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBasePresentation.cs",
+          "family": "Pause",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs",
+          "family": "Pause",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs",
+          "family": "Pause",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/PauseWireframePresentation.cs",
+          "family": "Pause",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Pickups.cs",
+          "family": "Pickups",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs",
+          "family": "Pipe",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PipeBugDefinitions.cs",
+          "family": "Pipe",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs",
+          "family": "Pipe",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/ProjectileFrameBindingCatalog.cs",
+          "family": "Projectile",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteCatalog.cs",
+          "family": "Projectile",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteDefinitions.cs",
+          "family": "Projectile",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlas.cs",
+          "family": "Projectile",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/ProjectileTrailCatalog.cs",
+          "family": "Projectile",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/ProjectileTrailVisualDefinitions.cs",
+          "family": "Projectile",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
+          "family": "Projectile",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailDefinitions.cs",
+          "family": "Projectile",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailProgramDefinitions.cs",
+          "family": "Projectile",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SbugInstructionProgramDefinitions.cs",
+          "family": "Sbug",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SbugMovementDefinitions.cs",
+          "family": "Sbug",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs",
+          "family": "Scroll",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/BombTorizoMovementDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DeadTorizoInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningCollisionDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 8
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoEggInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoInitialInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoJumpLandingInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftFootOrbCollisionDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftFootOrbInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftOrbCollisionDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftOrbInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftTurnInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightOrbCollisionDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightOrbInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightSonicCollisionDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightSonicInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardCollisionDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoStunnedInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoSuperMissileInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingCollisionDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
+          "family": "Torizo",
+          "definitions": 10
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs",
+          "family": "Torizo",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoChozoOrbInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoCollisionDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoExplosiveSwipeInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoFallingLeftCollisionDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoFallingLeftInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.BombLeft.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.BombRight.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.GoldenLeft.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.GoldenRight.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.Shared.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionVramTransferDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoJumpBackCollisionDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoJumpBackInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoJumpBackLeftCollisionDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoJumpBackLeftInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoLandingDustInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TorizoSonicBoomInstructionProgramDefinitions.cs",
+          "family": "Torizo",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Upper",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ViolaInstructionProgramDefinitions.cs",
+          "family": "Viola",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/WaverAnimationDefinitions.cs",
+          "family": "Waver",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/WaverInstructionProgramDefinitions.cs",
+          "family": "Waver",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs",
+          "family": "Wrecked",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/WreckedShipGhostInstructionProgramDefinitions.cs",
+          "family": "Wrecked",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/YardVisualDefinitions.cs",
+          "family": "Yard",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/YardDirectionDefinitions.cs",
+          "family": "Yard",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/YardInstructionProgramDefinitions.cs",
+          "family": "Yard",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/YardTurnDefinitions.cs",
+          "family": "Yard",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ZeroInstructionProgramDefinitions.cs",
+          "family": "Zero",
+          "definitions": 2
+        }
+      ],
+      "issueNumber": 1239,
+      "issueUrl": "https://github.com/MrJackSpade/SuperMetroidDecomp/issues/1239"
+    },
+    {
+      "id": 3,
+      "document": "lookup-1165-stream-3.md",
+      "definitionCount": 226,
+      "fileCount": 105,
+      "families": [
+        "Mother Brain",
+        "Enemy",
+        "Intro",
+        "Grapple",
+        "Game",
+        "Shaktool",
+        "Choot",
+        "Explored",
+        "Mochtroid",
+        "File",
+        "Work",
+        "Door",
+        "Ripper",
+        "Crateria",
+        "Hopper",
+        "Spark",
+        "Credits",
+        "Fireflea",
+        "Multiviola",
+        "Rio",
+        "Stock",
+        "Yellow",
+        "Nintendo",
+        "Super"
+      ],
+      "files": [
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs",
+          "family": "Choot",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs",
+          "family": "Choot",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs",
+          "family": "Choot",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Crateria",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Crateria",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CreditsPresentation.cs",
+          "family": "Credits",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CreditsPresentationDefinitions.cs",
+          "family": "Credits",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs",
+          "family": "Door",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs",
+          "family": "Door",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorCatalog.cs",
+          "family": "Enemy",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorDefinitions.cs",
+          "family": "Enemy",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs",
+          "family": "Enemy",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs",
+          "family": "Enemy",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EnemyPaletteSheet.cs",
+          "family": "Enemy",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs",
+          "family": "Enemy",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs",
+          "family": "Enemy",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs",
+          "family": "Enemy",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EnemyDeathExplosionDefinitions.cs",
+          "family": "Enemy",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EnemyDeathInstructionProgramDefinitions.cs",
+          "family": "Enemy",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EnemyDropChanceDefinitions.cs",
+          "family": "Enemy",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EnemyPickupDefinitions.cs",
+          "family": "Enemy",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs",
+          "family": "Enemy",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs",
+          "family": "Enemy",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EnemyVulnerabilityDefinitions.cs",
+          "family": "Enemy",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ExploredMapPackingDefinitions.cs",
+          "family": "Explored",
+          "definitions": 6
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs",
+          "family": "File",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs",
+          "family": "Fireflea",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs",
+          "family": "Game",
+          "definitions": 8
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs",
+          "family": "Game",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GrappleSpriteCatalog.cs",
+          "family": "Grapple",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GrappleSpriteDefinitions.cs",
+          "family": "Grapple",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs",
+          "family": "Grapple",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs",
+          "family": "Grapple",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs",
+          "family": "Grapple",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GrappleBodyPlacementDefinitions.cs",
+          "family": "Grapple",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs",
+          "family": "Grapple",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/HopperAnimationDefinitions.cs",
+          "family": "Hopper",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/HopperInstructionProgramDefinitions.cs",
+          "family": "Hopper",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/IntroCaretSpriteDefinitions.cs",
+          "family": "Intro",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs",
+          "family": "Intro",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicPalette.cs",
+          "family": "Intro",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs",
+          "family": "Intro",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/IntroFinalLineTilemap.cs",
+          "family": "Intro",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/IntroFontAtlas.cs",
+          "family": "Intro",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs",
+          "family": "Intro",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs",
+          "family": "Intro",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs",
+          "family": "Intro",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MochtroidVisualDefinitions.cs",
+          "family": "Mochtroid",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs",
+          "family": "Mochtroid",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs",
+          "family": "Mochtroid",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs",
+          "family": "Mother Brain",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs",
+          "family": "Mother Brain",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MotherBrainEscapeTextArtworkDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs",
+          "family": "Mother Brain",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs",
+          "family": "Mother Brain",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
+          "family": "Mother Brain",
+          "definitions": 7
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
+          "family": "Mother Brain",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs",
+          "family": "Mother Brain",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/BabyMetroidRouteDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainBeamRomData.cs",
+          "family": "Mother Brain",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainBodyInstructionProgramDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs",
+          "family": "Mother Brain",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainDeathExplosionDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainDoorFragmentDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainEnemyProjectileSystem.cs",
+          "family": "Mother Brain",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubeInstructionDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubePopulationDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 6
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs",
+          "family": "Mother Brain",
+          "definitions": 8
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.StateMachine.cs",
+          "family": "Mother Brain",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainTopTubeInstructionProgramDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainTurretInstructionProgramDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs",
+          "family": "Mother Brain",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwo.cs",
+          "family": "Mother Brain",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwoProjectiles.cs",
+          "family": "Mother Brain",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ShitroidInstructionProgramDefinitions.cs",
+          "family": "Mother Brain",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MultiviolaInstructionProgramDefinitions.cs",
+          "family": "Multiviola",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Nintendo",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RioInstructionProgramDefinitions.cs",
+          "family": "Rio",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs",
+          "family": "Ripper",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs",
+          "family": "Ripper",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs",
+          "family": "Shaktool",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs",
+          "family": "Shaktool",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionDefinitions.cs",
+          "family": "Shaktool",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionProgramDefinitions.cs",
+          "family": "Shaktool",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ShaktoolProjectileInstructionProgramDefinitions.cs",
+          "family": "Shaktool",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SparkInstructionProgramDefinitions.cs",
+          "family": "Spark",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SparkMovementDefinitions.cs",
+          "family": "Spark",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs",
+          "family": "Stock",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Input/StockAttractInputProgramsCatalog.cs",
+          "family": "Stock",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs",
+          "family": "Super",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/WorkRobotPaletteCycle.cs",
+          "family": "Work",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/WorkRobotVisualDefinitions.cs",
+          "family": "Work",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/WorkRobotInstructionProgramDefinitions.cs",
+          "family": "Work",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/WorkRobotLaserDefinitions.cs",
+          "family": "Work",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs",
+          "family": "Yellow",
+          "definitions": 2
+        }
+      ],
+      "issueNumber": 1240,
+      "issueUrl": "https://github.com/MrJackSpade/SuperMetroidDecomp/issues/1240"
+    },
+    {
+      "id": 4,
+      "document": "lookup-1165-stream-4.md",
+      "definitionCount": 225,
+      "fileCount": 112,
+      "families": [
+        "Ridley",
+        "Gameplay",
+        "Room",
+        "Draygon",
+        "Spore",
+        "Title",
+        "Ending",
+        "Maridia",
+        "Skree",
+        "Eye",
+        "Zebes",
+        "Managed",
+        "Botwoon",
+        "Mama",
+        "Stoke",
+        "Fly",
+        "Save",
+        "Area",
+        "Beam",
+        "Etecoon",
+        "Lower",
+        "Power",
+        "Skultera",
+        "Wall",
+        "Kzan",
+        "Planet"
+      ],
+      "files": [
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationAsset.cs",
+          "family": "Area",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/BeamPaletteCatalog.cs",
+          "family": "Beam",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs",
+          "family": "Beam",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/BotwoonColorCatalog.cs",
+          "family": "Botwoon",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/BotwoonMovementSampleData.cs",
+          "family": "Botwoon",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/BotwoonNavigationDefinitions.cs",
+          "family": "Botwoon",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmDrawDefinitions.cs",
+          "family": "Botwoon",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs",
+          "family": "Draygon",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DraygonBurialEvirDefinitions.cs",
+          "family": "Draygon",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DraygonCannonData.cs",
+          "family": "Draygon",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs",
+          "family": "Draygon",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Oam.cs",
+          "family": "Draygon",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DraygonInstructionProgramDefinitions.cs",
+          "family": "Draygon",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DraygonProjectileInstructionProgramDefinitions.cs",
+          "family": "Draygon",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EndingFontAtlas.cs",
+          "family": "Ending",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs",
+          "family": "Ending",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EndingPaletteCatalog.cs",
+          "family": "Ending",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs",
+          "family": "Ending",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsRomData.cs",
+          "family": "Ending",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EtecoonInstructionProgramDefinitions.cs",
+          "family": "Etecoon",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EyeDoorEnemyProjectileRomData.cs",
+          "family": "Eye",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs",
+          "family": "Eye",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EyeDoorSweatInstructionProgramDefinitions.cs",
+          "family": "Eye",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/FlyVisualDefinitions.cs",
+          "family": "Fly",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/FlyInstructionProgramDefinitions.cs",
+          "family": "Fly",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs",
+          "family": "Gameplay",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs",
+          "family": "Gameplay",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
+          "family": "Gameplay",
+          "definitions": 9
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs",
+          "family": "Gameplay",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs",
+          "family": "Gameplay",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelPresentation.cs",
+          "family": "Gameplay",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs",
+          "family": "Gameplay",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GameplayMessageDefinitions.cs",
+          "family": "Gameplay",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs",
+          "family": "Gameplay",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/KzanInstructionProgramDefinitions.cs",
+          "family": "Kzan",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs",
+          "family": "Lower",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs",
+          "family": "Mama",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MamaTurtleShellContourDefinitions.cs",
+          "family": "Mama",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Audio/ManagedPcmSample.cs",
+          "family": "Managed",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs",
+          "family": "Managed",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Maridia",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailCollisionDefinitions.cs",
+          "family": "Maridia",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailInstructionDefinitions.cs",
+          "family": "Maridia",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailInstructionProgramDefinitions.cs",
+          "family": "Maridia",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs",
+          "family": "Maridia",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PlanetZebesTextPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Planet",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/PowerBombFixedColorCatalog.cs",
+          "family": "Power",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
+          "family": "Ridley",
+          "definitions": 8
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyMode7ColorCatalog.cs",
+          "family": "Ridley",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/NorfairRidleyColorCatalog.cs",
+          "family": "Ridley",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/RidleySupplementalVisualDefinitions.cs",
+          "family": "Ridley",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CeresRidleyProjectileInstructionProgramDefinitions.cs",
+          "family": "Ridley",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RidleyAttackChoices.cs",
+          "family": "Ridley",
+          "definitions": 6
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RidleyClawOffsets.cs",
+          "family": "Ridley",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs",
+          "family": "Ridley",
+          "definitions": 6
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs",
+          "family": "Ridley",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RidleyInstructionProgramDefinitions.cs",
+          "family": "Ridley",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RidleyMovementTargets.cs",
+          "family": "Ridley",
+          "definitions": 7
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RidleyPogoDefinitions.cs",
+          "family": "Ridley",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs",
+          "family": "Ridley",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs",
+          "family": "Ridley",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyMode7.cs",
+          "family": "Ridley",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs",
+          "family": "Ridley",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileAtlas.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/RoomMetatileAtlas.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/RoomPaletteFxPresentation.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/RoomSkyTilemapCatalog.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/RoomStaticPalette.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemyAuxiliaryDefinitionCatalog.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemyDefinitionCatalog.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment0.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment1.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment0.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment1.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment2.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment3.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySpawnNameDefinitions.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomSpriteObjectDefinitions.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomSpriteObjectInstructionProgramDefinitions.cs",
+          "family": "Room",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/RoomBackgroundTilemapSourceDefinitions.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/RoomLevelStreamDefinitions.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/RoomScrollDefinitions.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs",
+          "family": "Room",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs",
+          "family": "Room",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SaveRamLayout.cs",
+          "family": "Save",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SaveStationElectricityInstructionProgramDefinitions.cs",
+          "family": "Save",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SkreeMetareeAnimationDefinitions.cs",
+          "family": "Skree",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SkreeMetareeInstructionProgramDefinitions.cs",
+          "family": "Skree",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SkreeMetareeParticleInstructionProgramDefinitions.cs",
+          "family": "Skree",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SkulteraInstructionProgramDefinitions.cs",
+          "family": "Skultera",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs",
+          "family": "Spore",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SporeSpawnCollisionDefinitions.cs",
+          "family": "Spore",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SporeSpawnInstructionProgramDefinitions.cs",
+          "family": "Spore",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileDefinitions.cs",
+          "family": "Spore",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs",
+          "family": "Spore",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/StokeInstructionProgramDefinitions.cs",
+          "family": "Stoke",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/StokeProjectileInstructionProgramDefinitions.cs",
+          "family": "Stoke",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/TitleGradientPresentation.cs",
+          "family": "Title",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs",
+          "family": "Title",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs",
+          "family": "Title",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/TitleSpriteDefinitions.cs",
+          "family": "Title",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Frontend/TitleSequenceInstructionDefinitions.cs",
+          "family": "Title",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs",
+          "family": "Title",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Title",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/WallSpacePirateInstructionProgramDefinitions.cs",
+          "family": "Wall",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ZebesEscapeExplosionDefinitions.cs",
+          "family": "Zebes",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Zebes",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Zebes",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Zebes",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Zebes",
+          "definitions": 1
+        }
+      ],
+      "issueNumber": 1241,
+      "issueUrl": "https://github.com/MrJackSpade/SuperMetroidDecomp/issues/1241"
+    },
+    {
+      "id": 5,
+      "document": "lookup-1165-stream-5.md",
+      "definitionCount": 225,
+      "fileCount": 113,
+      "families": [
+        "Ceres",
+        "Map",
+        "Phantoon",
+        "Dead",
+        "Crocomire",
+        "Compiled",
+        "Tourian",
+        "Noob",
+        "Morph",
+        "Dachora",
+        "Magdollite",
+        "Zebetite",
+        "Yapping",
+        "Ki",
+        "Space",
+        "Evir",
+        "Rinka",
+        "Xray",
+        "Downward",
+        "Hud",
+        "Polyp",
+        "Shared",
+        "Walking",
+        "Cinematic",
+        "Library",
+        "Slope"
+      ],
+      "files": [
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CeresDestructionActorLayout.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CeresDestructionArtworkCatalog.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CeresDestructionSpritePresentation.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CeresDoorVisualCatalog.cs",
+          "family": "Ceres",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs",
+          "family": "Ceres",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileArtwork.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CeresFlightActorLayout.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CeresFlightArtworkCatalog.cs",
+          "family": "Ceres",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CeresFlightPalette.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CeresRevealActorLayout.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CeresBabyInstructionProgramDefinitions.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CeresCinematicLightPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CeresDoorInitializationDefinitions.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CeresDoorInstructionProgramDefinitions.cs",
+          "family": "Ceres",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CeresDoorQuakeDefinitions.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CeresFallingDebrisInstructionProgramDefinitions.cs",
+          "family": "Ceres",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs",
+          "family": "Ceres",
+          "definitions": 7
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CeresSteamCollisionDefinitions.cs",
+          "family": "Ceres",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CeresSteamDefinitions.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CeresSteamInstructionProgramDefinitions.cs",
+          "family": "Ceres",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresDoor.cs",
+          "family": "Ceres",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CinematicGlowPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Cinematic",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank86.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA2.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA3.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA4.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA5.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA6.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA7.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA8.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA9.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankAA.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankB2.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankB3.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankB4.Definitions.cs",
+          "family": "Compiled",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
+          "family": "Crocomire",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CrocomireMeltingArtwork.cs",
+          "family": "Crocomire",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/CrocomireSkeletonTransferDefinitions.cs",
+          "family": "Crocomire",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireBodyCollisionDefinitions.cs",
+          "family": "Crocomire",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireBridgeFragmentDefinitions.cs",
+          "family": "Crocomire",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireInstructionProgramDefinitions.cs",
+          "family": "Crocomire",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/CrocomireRumbleDefinitions.cs",
+          "family": "Crocomire",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CrocomireArena.cs",
+          "family": "Crocomire",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs",
+          "family": "Dachora",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DachoraInstructionProgramDefinitions.cs",
+          "family": "Dachora",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/DeadTourianCorpseVisualDefinitions.cs",
+          "family": "Dead",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs",
+          "family": "Dead",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DeadSidehopperInstructionProgramDefinitions.cs",
+          "family": "Dead",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DeadSidehopperLaunchDefinitions.cs",
+          "family": "Dead",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DeadTourianCorpseDefinitions.cs",
+          "family": "Dead",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DeadTourianCorpseInstructionProgramDefinitions.cs",
+          "family": "Dead",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadSidehopper.cs",
+          "family": "Dead",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs",
+          "family": "Dead",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/DownwardGateProjectileInstructionProgramDefinitions.cs",
+          "family": "Downward",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/EvirVisualDefinitions.cs",
+          "family": "Evir",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/EvirInstructionProgramDefinitions.cs",
+          "family": "Evir",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/HudTileAtlas.cs",
+          "family": "Hud",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/HudReserveLayout.cs",
+          "family": "Hud",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/KiHunterAcidSpitInstructionProgramDefinitions.cs",
+          "family": "Ki",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/KiHunterInstructionProgramDefinitions.cs",
+          "family": "Ki",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramGeneratedDefinitions.cs",
+          "family": "Library",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MagdollitePaletteCycle.cs",
+          "family": "Magdollite",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MagdolliteInstructionProgramDefinitions.cs",
+          "family": "Magdollite",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MagdolliteLavaInstructionProgramDefinitions.cs",
+          "family": "Magdollite",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MagdollitePhaseDefinitions.cs",
+          "family": "Magdollite",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MapLandmarkLayout.cs",
+          "family": "Map",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MapObjectTileArtwork.cs",
+          "family": "Map",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MapPaletteCycle.cs",
+          "family": "Map",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MapScreenPresentation.cs",
+          "family": "Map",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MapStaticPalettes.cs",
+          "family": "Map",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MapStationLayout.cs",
+          "family": "Map",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MapTileAtlas.cs",
+          "family": "Map",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
+          "family": "Map",
+          "definitions": 12
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Frontend/MapScrollControls.cs",
+          "family": "Map",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Frontend/MapStationDiscoveryRules.cs",
+          "family": "Map",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/MorphBallEyeVisualDefinitions.cs",
+          "family": "Morph",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/MorphBallEyeInstructionProgramDefinitions.cs",
+          "family": "Morph",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MorphBallEye.cs",
+          "family": "Morph",
+          "definitions": 5
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/NoobTubeProjectileInstructionProgramDefinitions.cs",
+          "family": "Noob",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/NoobTubeProjectileRomData.cs",
+          "family": "Noob",
+          "definitions": 6
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs",
+          "family": "Phantoon",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs",
+          "family": "Phantoon",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs",
+          "family": "Phantoon",
+          "definitions": 7
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PhantoonInstructionProgramDefinitions.cs",
+          "family": "Phantoon",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs",
+          "family": "Phantoon",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PhantoonProjectileInstructionProgramDefinitions.cs",
+          "family": "Phantoon",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PhantoonSoundDefinitions.cs",
+          "family": "Phantoon",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PhantoonTimerDefinitions.cs",
+          "family": "Phantoon",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PolypInstructionProgramDefinitions.cs",
+          "family": "Polyp",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/PolypRockInstructionProgramDefinitions.cs",
+          "family": "Polyp",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RinkaInstructionProgramDefinitions.cs",
+          "family": "Rinka",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Rinka.cs",
+          "family": "Rinka",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SharedCrawlerInstructionProgramDefinitions.cs",
+          "family": "Shared",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SlopeSpeedDefinitions.cs",
+          "family": "Slope",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SpacePirateCollisionDefinitions.cs",
+          "family": "Space",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/SpacePirateProjectileInstructionProgramDefinitions.cs",
+          "family": "Space",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs",
+          "family": "Tourian",
+          "definitions": 4
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TourianEntranceStatueInstructionProgramDefinitions.cs",
+          "family": "Tourian",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Tourian",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Tourian",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TourianStatueGreyPaletteFxProgramMechanicsDefinitions.cs",
+          "family": "Tourian",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TourianStatueProjectileInstructionProgramDefinitions.cs",
+          "family": "Tourian",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/TourianStatueUnlockDefinitions.cs",
+          "family": "Tourian",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/WalkingSpacePirateInstructionProgramDefinitions.cs",
+          "family": "Walking",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rendering/XrayRoomDisplayRules.cs",
+          "family": "Xray",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs",
+          "family": "Xray",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.YappingMaw.cs",
+          "family": "Yapping",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/YappingMawBodyProjectileInstructionProgramDefinitions.cs",
+          "family": "Yapping",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/YappingMawInstructionProgramDefinitions.cs",
+          "family": "Yapping",
+          "definitions": 2
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Assets/ZebetiteColorCatalog.cs",
+          "family": "Zebetite",
+          "definitions": 1
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs",
+          "family": "Zebetite",
+          "definitions": 3
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs",
+          "family": "Zebetite",
+          "definitions": 2
+        }
+      ],
+      "issueNumber": 1242,
+      "issueUrl": "https://github.com/MrJackSpade/SuperMetroidDecomp/issues/1242"
+    }
+  ],
+  "additionalOwnership": [
+    {
+      "stream": 1,
+      "path": "csharp/src/SuperMetroid.Verification/Program.LookupStream1.cs",
+      "purpose": "Exclusive stream verification partial; coordinator owns Program.cs wiring"
+    },
+    {
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.LookupStream2.cs",
+      "purpose": "Exclusive stream verification partial; coordinator owns Program.cs wiring"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs",
+      "purpose": "Exclusive stream verification partial; coordinator owns Program.cs wiring"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs",
+      "purpose": "Exclusive stream verification partial; coordinator owns Program.cs wiring"
+    },
+    {
+      "stream": 5,
+      "path": "csharp/src/SuperMetroid.Verification/Program.LookupStream5.cs",
+      "purpose": "Exclusive stream verification partial; coordinator owns Program.cs wiring"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Core/Game/ShaktoolProjectilePlacementDefinitions.cs",
+      "purpose": "Shaktool projectile placement domain catalog"
+    },
+    {
+      "stream": 5,
+      "path": "csharp/src/SuperMetroid.Verification/Program.CeresEscapeVramTransferDefinitions.cs",
+      "purpose": "Existing focused DMA proof collection API adaptation"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Core/Assets/TourianStatueGreyColorDefinitions.cs",
+      "purpose": "Calculated grey-out interpolation with independent endpoint and supplied-edit preservation"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.RidleyAttackChoices.cs",
+      "purpose": "Adapt existing focused Ridley mapping fixture API while preserving original assertions"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.RidleyMovementTargets.cs",
+      "purpose": "Adapt existing focused Ridley mapping fixture API while preserving original assertions"
+    },
+    {
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.ZeroInstructionProgramDefinitions.cs",
+      "purpose": "Correct obsolete presentation-ROM-read assertion; preserve exact native operand and production loop verification"
+    },
+    {
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Core/Game/WreckedShipGhostAppearanceDefinitions.cs",
+      "purpose": "Ghost spawn grid and flicker timing domain calculation"
+    },
+    {
+      "stream": 1,
+      "path": "csharp/src/SuperMetroid.Verification/Program.BeamCallbackTables.cs",
+      "purpose": "Adapt callback table proof to semantic dispatch while preserving native and firing assertions"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainRainbowBeam.cs",
+      "purpose": "Adapt corpse page transfer consumer to calculated page addresses"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainCorpseArtwork.cs",
+      "purpose": "Adapt focused corpse page fixture to calculated page API while retaining assertions"
+    },
+    {
+      "stream": 1,
+      "path": "csharp/src/SuperMetroid.Core/Game/SamusPoseTransitionTable.cs",
+      "purpose": "Convert pose input consumer to ordered semantic button decisions"
+    },
+    {
+      "stream": 1,
+      "path": "csharp/src/SuperMetroid.Verification/Program.PoseInputDefinitions.cs",
+      "purpose": "Adapt pose graph proof while preserving original priority, entry identity and fallback assertions"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.Helpers.cs",
+      "purpose": "Adapt corpse, escape-text and exploded-door transfers and painful walking timer callers to calculated domain APIs"
+    },
+    {
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.EnemyTileArtwork.GunshipLiftoff.cs",
+      "purpose": "Adapt explicit span binding to calculated transfer view while retaining existing proof"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainEscapeTextArtwork.cs",
+      "purpose": "Adapt five-page escape text fixture to calculated transfer API while preserving assertions"
+    },
+    {
+      "stream": 5,
+      "path": "csharp/src/SuperMetroid.Verification/Program.CeresSteamInstructionProgramDefinitions.cs",
+      "purpose": "Correct obsolete visual read count and verify all compiled operands against native source"
+    },
+    {
+      "stream": 5,
+      "path": "csharp/src/SuperMetroid.Verification/Program.CeresFallingDebrisInstructionProgramDefinitions.cs",
+      "purpose": "Correct obsolete visual read count and verify compiled operands against native source"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs",
+      "purpose": "Remove rejected Power Bomb palette retention rationale; document actual derivation and unresolved tail"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Core/Game/MotherBrainPainfulWalkingDefinitions.cs",
+      "purpose": "Calculate painful walking stagger curves in a dedicated domain catalog"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainContactHitboxes.cs",
+      "purpose": "Adapt contact geometry view API while preserving original native and contact behavior fixture"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DraygonProjectiles.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.EyeDoorProjectiles.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.RidleyClawOffsets.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Core/Game/SuperMetroidSaveRam.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.DebugRunner/ReplaySaveRamExporter.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.GameSaveJson.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.SaveRamLayout.cs",
+      "purpose": "Adapt geometry or save slot layout consumer and focused proof to calculated domain API"
+    },
+    {
+      "stream": 5,
+      "path": "csharp/src/SuperMetroid.Verification/Program.MagdolliteLavaInstructionProgramDefinitions.cs",
+      "purpose": "Confirm converted program and replace stale visual ROM read assertions with exact compiled selector evidence"
+    },
+    {
+      "stream": 5,
+      "path": "csharp/src/SuperMetroid.Verification/Program.DownwardGateProjectileInstructionProgramDefinitions.cs",
+      "purpose": "Confirm converted program and replace stale visual ROM read assertions with exact compiled selector evidence"
+    }
+    ,{
+      "stream": 5,
+      "path": "csharp/src/SuperMetroid.Verification/Program.CeresSteamCollisionDefinitions.cs",
+      "purpose": "Adapt explicit component span to calculated view and confirm native component collision contract"
+    }
+    ,{
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.DraygonProjectileInstructionProgramDefinitions.cs",
+      "purpose": "Replace obsolete presentation ROM read count with exact native selector evidence while retaining mechanics and behavior assertions"
+    }
+    ,{
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.DeadTorizoArtwork.cs",
+      "purpose": "Adapt explicit span binding to calculated phase view while retaining artwork and DMA assertions"
+    }
+    ,{
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.TorizoExplosiveSwipeInstructionProgramDefinitions.cs",
+      "purpose": "Replace stale presentation ROM reads with exact native selectors and preserve lifetime and producer checks"
+    },
+    {
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainTurretInstructionProgramDefinitions.cs",
+      "purpose": "Replace stale presentation ROM reads with exact native selectors and preserve mechanics and producer checks"
+    }
+    ,{
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Verification/Program.WorkRobotLaserInstructionProgramDefinitions.cs",
+      "purpose": "Replace stale visual ROM reads with native operand and installed selector evidence while retaining actual producer checks"
+    }
+    ,{
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.TorizoChozoOrbInstructionProgramDefinitions.cs",
+      "purpose": "Confirm exact native presentation operands and zero runtime reads while preserving real producer checks"
+    }
+    ,{
+      "stream": 4,
+      "path": "csharp/src/SuperMetroid.Verification/Program.EnemyTileArtwork.DraygonOamCollision.cs",
+      "purpose": "Exclude confirmed BG2 frame roots from OAM-only fixture while preserving native collision assertions"
+    }
+    ,{
+      "stream": 3,
+      "path": "csharp/src/SuperMetroid.Verification/Program.GrappleConnectionDefinitions.cs",
+      "purpose": "Initialize required installed swing artwork while retaining all connection behavior assertions"
+    },
+    {
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.GunshipInstructionProgramDefinitions.cs",
+      "purpose": "Replace stale visual ROM reads with native selector evidence while preserving actual program checks"
+    },
+    {
+      "stream": 2,
+      "path": "csharp/src/SuperMetroid.Verification/Program.GunshipDustInstructionProgramDefinitions.cs",
+      "purpose": "Replace stale visual ROM reads with native selector evidence while preserving initializer and lifetime checks"
+    }
+    ,{"stream": 2, "path": "csharp/src/SuperMetroid.Verification/Program.GoldenTorizoEggInstructionProgramDefinitions.cs", "purpose": "Preserve real producer and native selector confirmation while correcting obsolete visual ROM-read expectation"}
+    ,{"stream": 2, "path": "csharp/src/SuperMetroid.Verification/Program.KagoBugProjectileInstructionProgramDefinitions.cs", "purpose": "Confirm installed native selectors and preserve actual projectile behavior assertions"},
+    {"stream": 1, "path": "csharp/src/SuperMetroid.Verification/Program.DragonFireballInstructionProgramDefinitions.cs", "purpose": "Confirm installed native operands and preserve actual fireball loop assertions"}
+    ,{"stream": 2, "path": "csharp/src/SuperMetroid.Verification/Program.ChozoTourianDustInstructionProgramDefinitions.cs", "purpose": "Confirm native installed selectors and preserve real dust producer and lifetime assertions"}
+    ,{"stream": 1, "path": "csharp/src/SuperMetroid.Core/Game/PowampMotionDefinitions.cs", "purpose": "Calculate Powamp wiggle, balloon offsets and directional acceleration from native domains"}
+    ,{"stream": 2, "path": "csharp/src/SuperMetroid.Verification/Program.WreckedShipGhostInstructionProgramDefinitions.cs", "purpose": "Confirm native installed selectors while preserving actual ghost animation and bounds assertions"}
+    ,{"stream": 3, "path": "csharp/src/SuperMetroid.Core/Frontend/DoorTransitionPaletteDefinitions.cs", "purpose": "Express owned transition palette operations with named native slot identities"}
+    ,{"stream": 1, "path": "csharp/src/SuperMetroid.Verification/Program.EscapeEtecoonDefinitions.cs", "purpose": "Preserve real Etecoon programs and motion assertions while confirming native installed operands"}
+    ,{"stream": 4, "path": "csharp/src/SuperMetroid.Core/Assets/CrateriaLightningColorDefinitions.cs", "purpose": "Calculate surface lightning stock colors while preserving independent replacement colors"}
+    ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.EyeDoorProjectileInstructionProgramDefinitions.cs", "purpose": "Confirm installed native visual operands while preserving eye-door projectile behavior assertions"}
+    ,{"stream": 5, "path": "csharp/src/SuperMetroid.Verification/Program.NoobTubeProjectileInstructionProgramDefinitions.cs", "purpose": "Confirm native installed visual operands while preserving all tube projectile producer and lifetime assertions"},
+    {"stream": 3, "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainRoomPaletteProgramDefinitions.cs", "purpose": "Confirm installed CGRAM, pointer and timer behavior against native room-palette loop"},
+    {"stream": 5, "path": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Phantoon.cs", "purpose": "Narrow consumer binding adjustment for calculated casual-flame sequence; other behavior unchanged"}
+    ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.EnemyTileArtwork.DraygonBg2Frames.cs", "purpose": "Adapt explicit component sequence binding while preserving all native BG2 frame assertions"}
+    ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.StokeProjectileInstructionProgramDefinitions.cs", "purpose": "Confirm installed native projectile operands while preserving actual loop and collision/delete checks"}
+    ,{"stream": 5, "path": "csharp/src/SuperMetroid.Verification/Program.DeadTourianCorpseDefinitions.cs", "purpose": "Supply scoped native artwork required by actual corpse initializer fixture"}
+    ,{"stream": 5, "path": "csharp/src/SuperMetroid.Verification/Program.DeadTourianCorpseInstructionProgramDefinitions.cs", "purpose": "Supply scoped native artwork while preserving corpse control and sleep assertions"}
+    ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.SporeSpawnProjectileInstructionProgramDefinitions.cs", "purpose": "Confirm exact installed native operands while preserving all real projectile producer and lifecycle assertions"}
+    ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.EtecoonInstructionProgramDefinitions.cs", "purpose": "Confirm native installed visual operands while preserving all friendly Etecoon continuation, sleep, jump, flex and loop assertions"}
+    ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.MaridiaLargeSnailInstructionDefinitions.cs", "purpose": "Confirm exact executed native visuals while preserving snail program, rotation, sound and completion assertions"}
+    ,{"purpose":"Confirm native installed selectors while preserving real facing, held-Samus, fireball and flight assertions","stream":4,"path":"csharp/src/SuperMetroid.Verification/Program.RidleyInstructionProgramDefinitions.cs"}
+    ,{"purpose":"Only three palette-span helper signatures supporting owned palette-region conversion","stream":3,"path":"csharp/src/SuperMetroid.Core/Frontend/IntroCinematicState.cs"}
+    ,{"purpose":"Palette-span fixture parameter binding supporting owned region conversion","stream":3,"path":"csharp/src/SuperMetroid.Verification/Program.IntroCinematicRomData.cs"}
+    ,{"purpose":"Dedicated native catalog for calculated directional eye mounts and beam intensity","stream":5,"path":"csharp/src/SuperMetroid.Core/Game/MorphBallEyeGeometryDefinitions.cs"}
+  ],
+  "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
+}

@@ -20,33 +20,17 @@ public enum DragonAnimationSelector : ushort
 /// <summary>Compiled fixed animation-program selectors and phase mappings for Dragon.</summary>
 internal static class DragonAnimationDefinitions
 {
-    /// <summary>
-    /// Idle-left/right, wings-left/right, and attack-left/right lists at
-    /// <c>$A2:E5EF-$A2:E5FA</c>.
-    /// </summary>
-    private static readonly ushort[] InstructionLists =
-    [
-        DragonInstructionProgramDefinitions.IdleFacingLeft,
-        DragonInstructionProgramDefinitions.IdleFacingRight,
-        DragonInstructionProgramDefinitions.WingsFacingLeft,
-        DragonInstructionProgramDefinitions.WingsFacingRight,
-        DragonInstructionProgramDefinitions.AttackingFacingLeft,
-        DragonInstructionProgramDefinitions.AttackingFacingRight,
-    ];
-
-    /// <summary>Returns the authored instruction list for a live selector.</summary>
-    internal static ushort InstructionList(DragonAnimationSelector selector)
+    /// <summary>$A2:E5EF InstListPointers_Dragon: idle, wing and attacking body dispatch by facing.</summary>
+    internal static ushort InstructionList(DragonAnimationSelector selector) => selector switch
     {
-        int index = (int)selector;
-        if ((uint)index >= InstructionLists.Length)
-        {
-            throw new InvalidDataException(
-                $"Dragon animation selector ${index:X4} exceeds its six-entry table.");
-        }
-
-        return InstructionLists[index];
-    }
-
+        DragonAnimationSelector.IdleFacingLeft => DragonInstructionProgramDefinitions.IdleFacingLeft,
+        DragonAnimationSelector.IdleFacingRight => DragonInstructionProgramDefinitions.IdleFacingRight,
+        DragonAnimationSelector.WingsFacingLeft => DragonInstructionProgramDefinitions.WingsFacingLeft,
+        DragonAnimationSelector.WingsFacingRight => DragonInstructionProgramDefinitions.WingsFacingRight,
+        DragonAnimationSelector.AttackingFacingLeft => DragonInstructionProgramDefinitions.AttackingFacingLeft,
+        DragonAnimationSelector.AttackingFacingRight => DragonInstructionProgramDefinitions.AttackingFacingRight,
+        _ => throw new InvalidDataException($"Dragon animation selector ${(int)selector:X4} exceeds its six-entry domain."),
+    };
     /// <summary>Preserves the phase pair while selecting its left or right member.</summary>
     internal static DragonAnimationSelector WithFacing(
         DragonAnimationSelector selector,
@@ -69,7 +53,7 @@ internal static class DragonAnimationDefinitions
     private static int RequireLiveIndex(DragonAnimationSelector selector)
     {
         int index = (int)selector;
-        if ((uint)index >= InstructionLists.Length)
+        if ((uint)index >= 6)
         {
             throw new InvalidDataException(
                 $"Dragon animation selector ${index:X4} is not a live phase.");

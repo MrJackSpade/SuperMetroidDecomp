@@ -28,157 +28,112 @@ internal static class LowerNorfairRioInstructionProgramDefinitions
     /// <summary><c>UNUSED_HoltzConstants_A2C6C0</c>, adjacent data at $A2:C6C0.</summary>
     internal const ushort AdjacentMovementDefinitions = 0xc6c0;
 
-    private static readonly LowerNorfairRioInstructionMechanicsWord[] Words =
-        BuildMechanicsWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
+    internal static int MechanicsWordCount => 51;
+    internal static int PresentationWordCount => 32;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static LowerNorfairRioInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static LowerNorfairRioInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        for (int address = Idle; address < AdjacentMovementDefinitions; address += 2)
+        {
+            if (!IsPresentationWord((ushort)address) && index-- == 0)
+                return new((ushort)address, ReadMechanicsWord((ushort)address));
+        }
+        throw new IndexOutOfRangeException();
+    }
+
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        for (int address = Idle; address < AdjacentMovementDefinitions; address += 2)
+        {
+            if (IsPresentationWord((ushort)address) && index-- == 0)
+                return (ushort)address;
+        }
+        throw new IndexOutOfRangeException();
+    }
+
+    private static ushort ProgramAt(ushort address) => address switch
+    {
+        >= Idle and < PrepareToSwoop => Idle,
+        >= PrepareToSwoop and < Descending => PrepareToSwoop,
+        >= Descending and < AscendingPart1 => Descending,
+        >= AscendingPart1 and < AscendingPart2 => AscendingPart1,
+        >= AscendingPart2 and < Cooldown => AscendingPart2,
+        >= Cooldown and < Flames => Cooldown,
+        >= Flames and < AdjacentMovementDefinitions => Flames,
+        _ => 0,
+    };
+
+    private static int FrameCount(ushort program) => program switch
+    {
+        Idle => 4,
+        PrepareToSwoop or Cooldown => 9,
+        Descending => 1,
+        _ => 3,
+    };
 
     internal static bool IsPresentationWord(ushort address)
     {
-        for (int index = 0; index < PresentationWords.Length; index++)
-        {
-            if (PresentationWords[index] == address)
-                return true;
-        }
-
-        return false;
+        ushort program = ProgramAt(address);
+        if (program == 0)
+            return false;
+        int offset = address - program - (program == Flames ? 0 : 2);
+        return offset >= 2 && offset < 4 * FrameCount(program) && offset % 4 == 2;
     }
 
-    /// <summary>Returns fixed Lower Norfair Rio control or rejects non-mechanics pointers.</summary>
+    /// <summary>Returns Lower Norfair Rio control or rejects non-mechanics pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        ushort program = ProgramAt(address);
+        if (program != 0 && (address & 1) == 0 && !IsPresentationWord(address))
         {
-            int middle = low + ((high - low) >> 1);
-            LowerNorfairRioInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            int offset = address - program;
+            if (program != Flames)
+            {
+                if (offset == 0)
+                    return program is AscendingPart2 or Cooldown
+                        ? LowerNorfairRioInstructionCodes.ShowFlames
+                        : LowerNorfairRioInstructionCodes.HideFlames;
+                offset -= 2;
+            }
+            int frames = FrameCount(program);
+            if (offset < frames * 4)
+                return Duration(program, offset / 4);
+            bool loops = program is Idle or AscendingPart2 or Flames;
+            if (offset == frames * 4)
+                return loops ? CommonEnemyInstructionCodes.Goto
+                    : program == Descending ? CommonEnemyInstructionCodes.Sleep
+                    : LowerNorfairRioInstructionCodes.SetAnimationFinishedFlag;
+            return loops ? (ushort)(program + (program == Flames ? 0 : 2))
+                : CommonEnemyInstructionCodes.Sleep;
         }
-
         throw new InvalidDataException(
             $"Lower Norfair Rio instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
+
+    private static ushort Duration(ushort program, int frame) => program switch
+    {
+        Idle => 11,
+        Descending => 1,
+        AscendingPart1 => 3,
+        AscendingPart2 => 2,
+        // The turnaround speeds up toward pose 7, then slows away from it.
+        PrepareToSwoop => (ushort)Math.Min(3, 1 + Math.Abs(frame - 5)),
+        // Reverse turnaround has the same ramp, then three one-tick closing poses.
+        Cooldown => frame >= 6 ? (ushort)1 : (ushort)Math.Min(3, 1 + Math.Abs(frame - 3)),
+        // Flame poses halve their extra dwell above the three-tick minimum.
+        Flames => (ushort)(3 + (3 >> frame)),
+        _ => throw new InvalidDataException(),
+    };
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
         if ((address & 0xff0000) != 0xa20000)
             return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static LowerNorfairRioInstructionMechanicsWord[] BuildMechanicsWords()
-    {
-        var words = new List<LowerNorfairRioInstructionMechanicsWord>(capacity: 51);
-        AddCallback(words, Idle, LowerNorfairRioInstructionCodes.HideFlames);
-        AddLoop(words, unchecked((ushort)(Idle + 2)), [11, 11, 11, 11],
-            unchecked((ushort)(Idle + 2)));
-
-        AddCallback(words, PrepareToSwoop, LowerNorfairRioInstructionCodes.HideFlames);
-        AddFrames(words, unchecked((ushort)(PrepareToSwoop + 2)),
-            [3, 3, 3, 3, 2, 1, 2, 3, 3]);
-        AddCallback(words, unchecked((ushort)(PrepareToSwoop + 38)),
-            LowerNorfairRioInstructionCodes.SetAnimationFinishedFlag);
-        AddSleep(words, unchecked((ushort)(PrepareToSwoop + 40)));
-
-        AddCallback(words, Descending, LowerNorfairRioInstructionCodes.HideFlames);
-        AddFrames(words, unchecked((ushort)(Descending + 2)), [1]);
-        AddSleep(words, unchecked((ushort)(Descending + 6)));
-
-        AddCallback(words, AscendingPart1, LowerNorfairRioInstructionCodes.HideFlames);
-        AddFrames(words, unchecked((ushort)(AscendingPart1 + 2)), [3, 3, 3]);
-        AddCallback(words, unchecked((ushort)(AscendingPart1 + 14)),
-            LowerNorfairRioInstructionCodes.SetAnimationFinishedFlag);
-        AddSleep(words, unchecked((ushort)(AscendingPart1 + 16)));
-
-        AddCallback(words, AscendingPart2, LowerNorfairRioInstructionCodes.ShowFlames);
-        AddLoop(words, unchecked((ushort)(AscendingPart2 + 2)), [2, 2, 2],
-            unchecked((ushort)(AscendingPart2 + 2)));
-
-        AddCallback(words, Cooldown, LowerNorfairRioInstructionCodes.ShowFlames);
-        AddFrames(words, unchecked((ushort)(Cooldown + 2)), [3, 3, 2, 1, 2, 3, 1, 1, 1]);
-        AddCallback(words, unchecked((ushort)(Cooldown + 38)),
-            LowerNorfairRioInstructionCodes.SetAnimationFinishedFlag);
-        AddSleep(words, unchecked((ushort)(Cooldown + 40)));
-
-        AddLoop(words, Flames, [6, 4, 3], Flames);
-        return words.ToArray();
-    }
-
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new List<ushort>(capacity: 32);
-        AddPresentationWords(words, unchecked((ushort)(Idle + 2)), 4);
-        AddPresentationWords(words, unchecked((ushort)(PrepareToSwoop + 2)), 9);
-        AddPresentationWords(words, unchecked((ushort)(Descending + 2)), 1);
-        AddPresentationWords(words, unchecked((ushort)(AscendingPart1 + 2)), 3);
-        AddPresentationWords(words, unchecked((ushort)(AscendingPart2 + 2)), 3);
-        AddPresentationWords(words, unchecked((ushort)(Cooldown + 2)), 9);
-        AddPresentationWords(words, Flames, 3);
-        return words.ToArray();
-    }
-
-    private static void AddFrames(
-        List<LowerNorfairRioInstructionMechanicsWord> words,
-        ushort firstDuration,
-        ReadOnlySpan<ushort> durations)
-    {
-        for (int frame = 0; frame < durations.Length; frame++)
-        {
-            words.Add(new(
-                unchecked((ushort)(firstDuration + frame * 4)),
-                durations[frame]));
-        }
-    }
-
-    private static void AddLoop(
-        List<LowerNorfairRioInstructionMechanicsWord> words,
-        ushort firstDuration,
-        ReadOnlySpan<ushort> durations,
-        ushort target)
-    {
-        AddFrames(words, firstDuration, durations);
-        ushort gotoAddress = unchecked((ushort)(firstDuration + durations.Length * 4));
-        words.Add(new(gotoAddress, CommonEnemyInstructionCodes.Goto));
-        words.Add(new(unchecked((ushort)(gotoAddress + 2)), target));
-    }
-
-    private static void AddCallback(
-        List<LowerNorfairRioInstructionMechanicsWord> words,
-        ushort address,
-        ushort callback) => words.Add(new(address, callback));
-
-    private static void AddSleep(
-        List<LowerNorfairRioInstructionMechanicsWord> words,
-        ushort address) => words.Add(new(address, CommonEnemyInstructionCodes.Sleep));
-
-    private static void AddPresentationWords(
-        List<ushort> words,
-        ushort firstDuration,
-        int frameCount)
-    {
-        for (int frame = 0; frame < frameCount; frame++)
-            words.Add(unchecked((ushort)(firstDuration + frame * 4 + 2)));
+        ushort word = (ushort)(address & ~1);
+        return ProgramAt(word) != 0 && !IsPresentationWord(word);
     }
 }

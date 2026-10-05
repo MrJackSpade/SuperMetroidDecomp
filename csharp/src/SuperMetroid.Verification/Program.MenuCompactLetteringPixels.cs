@@ -12,14 +12,35 @@ internal static partial class Program
         var image = IndexedPng.Read(new MemoryStream(files[MapSpriteFormat.PngFile]), 128, 128);
         var font = new MenuCompactLetteringArtwork(image);
         AssertEqual(80, font.StoredInkByteCount, "twenty shared six-row glyph silhouettes only");
-        AssertEqual(1, font.StoredEditCount, "only the unresolved Tourian T-cap pixel remains pending; EXIT/SELECT/START need no deviations");
-        AssertTrue(font.HasPixelOverride(8, 2, 2), "the pending source pixel is Tourian's left T-cap corner");
+        AssertEqual(1, font.StoredEditCount, "only the authored Tourian T-cap outline differs; EXIT/SELECT/START need no deviations");
+        AssertTrue(font.HasPixelOverride(8, 2, 2), "the retained drawing pixel is Tourian's left T-cap corner");
         AssertTrue(!font.HasPixelOverride(0xb7, 6, 2), "EXIT's mirrored T-cap corner is calculated by the ordinary bevel");
         AssertTrue(!font.HasPixelOverride(0xaa, 0, 4), "START R's enclosed shadow gap is calculated without an override");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(3360, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");
         var native = new byte[8192];
         for (int index = 0; index < native.Length; index++) native[index] = rom.ReadByte(0xb6c000 + index);
+        byte OriginalPixel(int tile, int x, int y)
+        {
+            int result = 0;
+            for (int plane = 0; plane < 4; plane++)
+                result |= ((native[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] >> (7 - x)) & 1) << plane;
+            return (byte)result;
+        }
+        // Complete T plus one outline column on either side, including both terminal rows.
+        // The only difference after reflection is the particular Tourian cap choice.
+        for (int y = 0; y < 8; y++)
+        for (int x = 2; x <= 6; x++)
+        {
+            byte tourian = OriginalPixel(8, x, y), exit = OriginalPixel(0xb7, 8 - x, y);
+            AssertEqual(tourian == 11, exit == 11, "complete reflected T ink matches");
+            if (x == 2 && y == 2)
+            {
+                AssertEqual((byte)15, tourian, "Tourian retains black below the outer cap tip");
+                AssertEqual((byte)0, exit, "EXIT trims the reflected cap tip");
+            }
+            else AssertEqual(tourian, exit, "all other reflected T pixels match");
+        }
         foreach (int destination in new[] { 0x4000, 0xc000 })
         {
             var vram = new SnesVram(); stock.LoadArtworkTo(vram, destination);

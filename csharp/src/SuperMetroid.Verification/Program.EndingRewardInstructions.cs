@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -55,6 +56,7 @@ internal static partial class Program
             AssertEqual(pointer, catalog[i].Pointer, "reward original frame pointer");
             AssertEqual(count, catalog[i].StockPartCount, "reward original OAM part count");
             AssertEqual(names[i], catalog[i].Name, "reward published artwork key");
+            VerifyEndingRewardCalculatedParts(bus, catalog[i]);
         }
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "reward catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 37, int.MaxValue })
@@ -95,5 +97,132 @@ internal static partial class Program
                     $"reward actor ${start:X4} lifetime at frame {frame}");
             }
         }
+    }
+
+    private static void VerifyEndingRewardCalculatedParts(ISnesAddressSpace bus, EndingRewardSpriteFrameDefinition definition)
+    {
+        SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,
+            definition.Pointer, definition.StockPartCount, definition.Name);
+        SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
+        SpriteComposition Calculate(SpriteComposition value)
+        {
+            value = EndingRewardHeadParts.CalculateIfMatching(definition.Pointer, value);
+            value = EndingRewardStandingParts.CalculateIfMatching(definition.Pointer, value);
+            value = EndingRewardPrepareJumpParts.CalculateIfMatching(definition.Pointer, value);
+            value = EndingRewardJumpParts.CalculateIfMatching(definition.Pointer, value);
+            value = EndingRewardSuitlessGridParts.CalculateIfMatching(definition.Pointer, value);
+            value = EndingRewardSuitlessStandingParts.CalculateIfMatching(definition.Pointer, value);
+            value = EndingRewardShootingSceneParts.CalculateIfMatching(definition.Pointer, value);
+            value = EndingRewardArmParts.CalculateIfMatching(definition.Pointer, value);
+            return EndingRewardHairParts.CalculateIfMatching(definition.Pointer, value);
+        }
+        SpriteComposition calculated = Calculate(supplied);
+        bool isArm = definition.Pointer >= EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.SamusArmFromEndingFrame1)
+            && definition.Pointer <= EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.SamusArmFromEndingFrame8);
+        AssertTrue(!ReferenceEquals(supplied, calculated), "original reward composition uses calculated layout");
+        string Identity(SpriteComposition value) => SelectedPresentationHash.Create("reward-head", value.AppendIdentity);
+        AssertEqual(Identity(supplied), Identity(calculated), "original reward composition fields and ordering");
+        if (definition.Pointer >= EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame2)
+            && definition.Pointer <= EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame4))
+        {
+            var opposite = EndingRewardHairParts.OppositeForearm((visual[2].OffsetX, visual[2].OffsetY));
+            AssertEqual(visual[3].OffsetX, opposite.X, "original hair forearm reflection X");
+            AssertEqual(visual[3].OffsetY, opposite.Y, "original hair forearm registration Y");
+            SpriteVisualPart[] paired = (SpriteVisualPart[])visual.Clone();
+            paired[2] = paired[2] with { OffsetX = paired[2].OffsetX - 2, OffsetY = paired[2].OffsetY + 3 };
+            paired[3] = paired[3] with { OffsetX = paired[3].OffsetX + 2, OffsetY = paired[3].OffsetY + 3 };
+            SpriteComposition pairedSource = IntroCinematicSpriteCompiler.Compile(paired, "moved paired forearms");
+            SpriteComposition pairedResult = Calculate(pairedSource);
+            AssertTrue(!ReferenceEquals(pairedSource, pairedResult), "paired forearms remain calculated after anchor edit");
+            AssertEqual(Identity(pairedSource), Identity(pairedResult), "paired forearm edit remains exact");
+            for (int piece = 2; piece <= 3; piece++)
+            {
+                SpriteVisualPart[] moved = (SpriteVisualPart[])visual.Clone();
+                moved[piece] = moved[piece] with { OffsetX = moved[piece].OffsetX + 3, OffsetY = moved[piece].OffsetY - 2 };
+                SpriteComposition source = IntroCinematicSpriteCompiler.Compile(moved, "independent hair-pose placement");
+                SpriteComposition result = Calculate(source);
+                AssertTrue(!ReferenceEquals(source, result), "independent hair-pose position remains an input");
+                AssertEqual(Identity(source), Identity(result), "independent hair-pose position remains exact");
+            }
+        }
+        if (isArm)
+        {
+            int shoulder = visual.Length - 3;
+            EndingRewardSpriteFrame pose = EndingRewardSpriteFrame.SamusArmFromEndingFrame1;
+            while (EndingRewardSpriteDefinitions.FramePointer(pose) != definition.Pointer) pose++;
+            for (int piece = 0; piece < shoulder; piece++)
+                AssertEqual(visual[piece].TileRow * 16 + visual[piece].TileColumn,
+                    EndingRewardArmParts.StockTile(pose, piece), "original arm tile selection");
+            foreach (int invalid in new[] { int.MinValue, -1, shoulder, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardArmParts.StockTile(pose, invalid), "arm tile selection bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardArmParts.StockTile(EndingRewardSpriteFrame.SamusHeadFromEndingFrame1, 0), "arm tile pose bounds");
+            if (pose == EndingRewardSpriteFrame.SamusArmFromEndingFrame2)
+            {
+                for (int piece = 0; piece < shoulder; piece++)
+                {
+                    var offset = EndingRewardArmParts.SplitOffset(piece);
+                    AssertEqual(visual[piece].OffsetX, visual[1].OffsetX + offset.X, "original split-arm grid X");
+                    AssertEqual(visual[piece].OffsetY, visual[1].OffsetY + offset.Y, "original split-arm grid Y");
+                }
+                SpriteVisualPart[] translated = (SpriteVisualPart[])visual.Clone();
+                for (int piece = 0; piece < shoulder; piece++)
+                    translated[piece] = translated[piece] with { OffsetX = translated[piece].OffsetX - 7, OffsetY = translated[piece].OffsetY + 3 };
+                SpriteComposition source = IntroCinematicSpriteCompiler.Compile(translated, "translated split arm");
+                SpriteComposition result = Calculate(source);
+                AssertTrue(!ReferenceEquals(source, result), "translated split arm keeps calculated structure");
+                AssertEqual(Identity(source), Identity(result), "translated split-arm origin stays supplied");
+                foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
+                    AssertThrows<ArgumentOutOfRangeException>(() => EndingRewardArmParts.SplitOffset(invalid), "split-arm piece bounds");
+            }
+            SpriteVisualPart[] shifted = (SpriteVisualPart[])visual.Clone();
+            for (int part = shoulder; part < shifted.Length; part++)
+                shifted[part] = shifted[part] with { OffsetX = shifted[part].OffsetX + 2, OffsetY = shifted[part].OffsetY + 1 };
+            SpriteComposition shiftedSource = IntroCinematicSpriteCompiler.Compile(shifted, "shifted shoulder");
+            SpriteComposition shiftedResult = Calculate(shiftedSource);
+            AssertTrue(!ReferenceEquals(shiftedSource, shiftedResult), "shared shoulder translation remains calculated");
+            AssertEqual(Identity(shiftedSource), Identity(shiftedResult), "supplied shoulder anchor remains exact");
+            foreach (SpriteVisualPart edit in new[]
+            {
+                visual[shoulder] with { OffsetX = 255 },
+                visual[shoulder] with { OffsetY = -128 },
+                visual[shoulder] with { TileColumn = visual[shoulder].TileColumn + 1 },
+            })
+            {
+                SpriteVisualPart[] changed = (SpriteVisualPart[])visual.Clone();
+                changed[shoulder] = edit;
+                SpriteComposition source = IntroCinematicSpriteCompiler.Compile(changed, "independent shoulder edit");
+                AssertTrue(ReferenceEquals(source, Calculate(source)), "independent shoulder and coordinate-edge edits remain supplied");
+            }
+        }
+        foreach (ushort y in new ushort[] { 72, 0xfff8 })
+        {
+            var originalOam = new OamBuffer();
+            var calculatedOam = new OamBuffer();
+            originalOam.BeginFrame(); calculatedOam.BeginFrame();
+            DrawImportedSpritemap(bus, originalOam, 0x8c0000 | definition.Pointer, 120, y, 0x0800, originIsOnScreen: y == 72);
+            if (y == 72) calculated.DrawOnScreen(calculatedOam, 120, y, 0x0800);
+            else calculated.DrawOffScreen(calculatedOam, 120, y, 0x0800);
+            originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
+            AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
+                "reward composition preserves native OAM and clipping");
+        }
+        SpriteVisualPart first = visual[0];
+        foreach (SpriteVisualPart edit in new[]
+        {
+            first with { OffsetX = first.OffsetX + 1 }, first with { OffsetY = first.OffsetY + 1 },
+            first with { TileColumn = (first.TileColumn + 1) % 14 }, first with { TileRow = first.TileRow + 1 },
+            first with { Size = first.Size == 16 ? 8 : 16, TileColumn = Math.Min(14, first.TileColumn) },
+            first with { Priority = 2 }, first with { Palette = 3 },
+            first with { FlipX = !first.FlipX }, first with { FlipY = !first.FlipY },
+        })
+        {
+            visual[0] = edit;
+            SpriteComposition edited = IntroCinematicSpriteCompiler.Compile(visual, "edited reward composition");
+            SpriteComposition editedCalculation = Calculate(edited);
+            AssertEqual(Identity(edited), Identity(editedCalculation), "independent reward composition edits stay exact");
+            if (!isArm) AssertTrue(ReferenceEquals(edited, editedCalculation), "independent reward composition edits stay supplied");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, calculated.PartCount, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated.Part(invalid), "reward composition part bounds");
     }
 }

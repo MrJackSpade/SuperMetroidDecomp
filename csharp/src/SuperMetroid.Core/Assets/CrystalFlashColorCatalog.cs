@@ -11,13 +11,24 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CrystalFlashColorCatalog
 {
-    private readonly ushort[][] body;
-    private readonly ushort[][] bubble;
+    private readonly ushort[][]? body;
+    private readonly Dictionary<int, ushort> bubble = [];
 
     private CrystalFlashColorCatalog(ushort[][] body, ushort[][] bubble)
     {
-        this.body = body;
-        this.bubble = bubble;
+        // Discard stock body rows only after checking every supplied color. Edited
+        // resources keep their complete, independent palette content.
+        bool calculated = true;
+        for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
+        for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
+            calculated &= body[frame][color] == CalculateBody(frame, color);
+        this.body = calculated ? null : body;
+        // The rotating ramp accounts for 35 stock words. The final leading white
+        // sample remains an unresolved residual; arbitrary supplied edits are also exact.
+        for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
+        for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
+            if (bubble[frame][color] != CalculateBubble(frame, color))
+                this.bubble.Add(frame * CrystalFlashColorFormat.BubbleColorCount + color, bubble[frame][color]);
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -27,14 +38,65 @@ public sealed class CrystalFlashColorCatalog
         WriteIndented = true,
     };
 
-    public ushort ResolveBody(int frame, int color) => Resolve(body, frame, color);
-    public ushort ResolveBubble(int frame, int color) => Resolve(bubble, frame, color);
+    public ushort ResolveBody(int frame, int color)
+    {
+        if ((uint)frame >= CrystalFlashColorFormat.BodyFrameCount)
+            throw new ArgumentOutOfRangeException(nameof(frame));
+        if ((uint)color >= CrystalFlashColorFormat.BodyColorCount)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return body is null ? CalculateBody(frame, color) : body[frame][color];
+    }
 
-    public void ApplyBody(SnesCgram cgram, int frame) => Apply(cgram, body, frame,
-        SamusPaletteRomData.CrystalFlash.BodyCgramStart);
+    /// <summary>
+    /// $9B:96C0-$9773 body colors, selected by ten $91:DC00 records: the first
+    /// frame is neutral grey16; subsequent frames pulse 19,23,27,23 twice and
+    /// return to19. All nine visible body colors share that intensity. The
+    /// transparent color is the fixed RGB5 backdrop (0,0,14) in every frame.
+    /// </summary>
+    private static ushort CalculateBody(int frame, int color)
+    {
+        if (color == 0)
+            return 14 << 10;
+        int grey = frame == 0 ? 16 : 27 - 4 * Math.Abs((frame - 1) % 4 - 2);
+        return (ushort)(grey | grey << 5 | grey << 10);
+    }
+    public ushort ResolveBubble(int frame, int color)
+    {
+        if ((uint)frame >= CrystalFlashColorFormat.BubbleFrameCount)
+            throw new ArgumentOutOfRangeException(nameof(frame));
+        if ((uint)color >= CrystalFlashColorFormat.BubbleColorCount)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return bubble.TryGetValue(frame * CrystalFlashColorFormat.BubbleColorCount + color, out ushort supplied)
+            ? supplied : CalculateBubble(frame, color);
+    }
 
-    public void ApplyBubble(SnesCgram cgram, int frame) => Apply(cgram, bubble, frame,
-        SamusPaletteRomData.CrystalFlash.BubbleCgramStart);
+    /// <summary>
+    /// $9B:96D4 + 32*frame rotates six pink-to-white levels one color per frame.
+    /// Red stays31; green/blue descend from31 to25 with nearest-integer interpolation
+    /// across five intervals. Original frame5/color0 differs and remains supplied data.
+    /// </summary>
+    private static ushort CalculateBubble(int frame, int color)
+    {
+        int phase = (color - frame + CrystalFlashColorFormat.BubbleColorCount)
+            % CrystalFlashColorFormat.BubbleColorCount;
+        int channel = 31 - (6 * phase + 2) / 5;
+        return (ushort)(31 | channel << 5 | channel << 10);
+    }
+
+    public void ApplyBody(SnesCgram cgram, int frame)
+    {
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
+            cgram.SetColor(SamusPaletteRomData.CrystalFlash.BodyCgramStart + color,
+                ResolveBody(frame, color));
+    }
+    public void ApplyBubble(SnesCgram cgram, int frame)
+    {
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
+            cgram.SetColor(SamusPaletteRomData.CrystalFlash.BubbleCgramStart + color,
+                ResolveBubble(frame, color));
+    }
 
     public static CrystalFlashColorCatalog Load(Stream json)
     {
@@ -64,22 +126,6 @@ public sealed class CrystalFlashColorCatalog
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));
         return bytes;
-    }
-
-    private static ushort Resolve(ushort[][] source, int frame, int color)
-    {
-        if ((uint)frame >= source.Length) throw new ArgumentOutOfRangeException(nameof(frame));
-        if ((uint)color >= source[frame].Length) throw new ArgumentOutOfRangeException(nameof(color));
-        return source[frame][color];
-    }
-
-    private static void Apply(SnesCgram cgram, ushort[][] source, int frame, int start)
-    {
-        ArgumentNullException.ThrowIfNull(cgram);
-        if ((uint)frame >= source.Length) throw new ArgumentOutOfRangeException(nameof(frame));
-        ushort[] colors = source[frame];
-        for (int index = 0; index < colors.Length; index++)
-            cgram.SetColor(start + index, colors[index]);
     }
 
     private static ushort[][] Compile(PaletteRgb5[][]? source, int frameCount,

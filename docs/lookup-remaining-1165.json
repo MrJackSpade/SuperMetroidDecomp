@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 642,
+  "remainingTableDefinitionCount": 640,
   "fileCount": 523,
   "entries": [
     {
@@ -6522,14 +6522,18 @@
       "line": 672,
       "name": "RoomEnemySystem.RidleyTailTouchesTerrain / segmentIndexes",
       "kind": "method-local definition",
-      "note": "Five indexed joint selections 6 through 2; calculate the reverse traversal directly."
+      "note": "Five indexed joint selections 6 through 2; calculate the reverse traversal directly.",
+      "state": "converted",
+      "implementationCommit": "59de66ec124daa702d298c06d1e64ea2bbc2381d"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs",
       "line": 673,
       "name": "RoomEnemySystem.RidleyTailTouchesTerrain / yOffsets",
       "kind": "method-local definition",
-      "note": "Tip probe offset 16 followed by four joint offsets 18; express the tip/joint distinction directly."
+      "note": "Tip probe offset 16 followed by four joint offsets 18; express the tip/joint distinction directly.",
+      "state": "converted",
+      "implementationCommit": "59de66ec124daa702d298c06d1e64ea2bbc2381d"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Rinka.cs",
@@ -21293,6 +21297,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 475,
+  "convertedSinceSnapshot": 477,
   "justifiedRetainedSinceSnapshot": 11
 }

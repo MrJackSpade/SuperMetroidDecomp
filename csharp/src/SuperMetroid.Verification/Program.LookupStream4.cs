@@ -8,6 +8,37 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4TailTerrain(ISnesAddressSpace rom)
+    {
+        var touches = typeof(RoomEnemySystem).GetMethod("RidleyTailTouchesTerrain", BindingFlags.NonPublic | BindingFlags.Static)!
+            .CreateDelegate<Func<RidleyEnemyState, RoomLevelData?, bool>>();
+        for (int solidRow = 0; solidRow < 2; solidRow++)
+        {
+            ushort[] blocks = new ushort[2];
+            blocks[solidRow] = 0x8000;
+            var level = new RoomLevelData(1, 2, blocks, new byte[2], new ushort[2], []);
+            for (int segmentIndex = 0; segmentIndex < 7; segmentIndex++)
+            foreach (ushort y in new ushort[] { 13, 14, 15, 0xfff0, 0xfff1 })
+            {
+                var state = new RidleyEnemyState
+                {
+                    TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment { XPosition = 256 }).ToArray(),
+                };
+                state.TailSegments[segmentIndex].XPosition = 0;
+                state.TailSegments[segmentIndex].YPosition = y;
+                bool expected = false;
+                if (segmentIndex >= 2)
+                {
+                    int operand = 0xa6b7f2 + (6 - segmentIndex) * 0x14;
+                    int nativeOffset = rom.ReadByte(operand) | rom.ReadByte(operand + 1) << 8;
+                    expected = (unchecked((ushort)(y + nativeOffset)) >> 4) == solidRow;
+                }
+                AssertEqual(expected, touches(state, level), "Actual tail terrain probes retain each native joint, ADC offset and word wrap");
+            }
+            AssertTrue(!touches(new RidleyEnemyState(), level), "Incomplete tail keeps terrain gate");
+        }
+        AssertTrue(!touches(new RidleyEnemyState(), null), "Missing terrain keeps tail gate");
+    }
     private static void VerifyLookupStream4NoticeRegions(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -116,6 +147,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        VerifyLookupStream4TailTerrain(rom);
         VerifyLookupStream4MessageDispatch(rom);
         VerifyLookupStream4NoticeRegions(rom);
         for (ushort offset = 0; offset <= 24; offset += 8)

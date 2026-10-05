@@ -669,13 +669,12 @@ public sealed partial class RoomEnemySystem
             return false;
 
         // $B7E7 samples the tip and the next four joints with the exact +16/+18 Y probes.
-        int[] segmentIndexes = [6, 5, 4, 3, 2];
-        int[] yOffsets = [16, 18, 18, 18, 18];
-        for (int index = 0; index < segmentIndexes.Length; index++)
+        int tipIndex = state.TailSegments.Length - 1;
+        for (int index = tipIndex; index >= 2; index--)
         {
-            RidleyTailSegment segment = state.TailSegments[segmentIndexes[index]];
+            RidleyTailSegment segment = state.TailSegments[index];
             ushort x = segment.XPosition;
-            ushort y = unchecked((ushort)(segment.YPosition + yOffsets[index]));
+            ushort y = unchecked((ushort)(segment.YPosition + (index == tipIndex ? 16 : 18)));
             if ((x >> 4) >= level.WidthInBlocks || (y >> 4) >= level.HeightInBlocks)
                 continue;
             if (level.GetCollisionBlockAtPixel(x, y).CollisionType != 0)

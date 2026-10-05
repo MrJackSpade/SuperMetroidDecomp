@@ -466,8 +466,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs
 
 - [ ] **RoomEnemySystem.RidleySamusMovementFlags** ([L15](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RoomEnemySystem.RidleyTailTouchesTerrain / segmentIndexes** ([L672](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L672)) - method-local definition. Five indexed joint selections 6 through 2; calculate the reverse traversal directly.
-- [ ] **RoomEnemySystem.RidleyTailTouchesTerrain / yOffsets** ([L673](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L673)) - method-local definition. Tip probe offset 16 followed by four joint offsets 18; express the tip/joint distinction directly.
+- [x] **RoomEnemySystem.RidleyTailTouchesTerrain / segmentIndexes** ([L672](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L672)) - method-local definition. Five indexed joint selections 6 through 2; calculate the reverse traversal directly.
+- [x] **RoomEnemySystem.RidleyTailTouchesTerrain / yOffsets** ([L673](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L673)) - method-local definition. Tip probe offset 16 followed by four joint offsets 18; express the tip/joint distinction directly.
 
 ### csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs
 
@@ -940,3 +940,11 @@ Three definitions converted: 65 integrated conversions, 160 unchecked. Notice te
 - Evidence: pinned bank85 MessageTilemaps map/energy/missile completion content at917F/923F/92FF and save question at93BF. Original geometry is exactly (0,8,15),(2,10,10) for map/energy; (0,8,14),(2,10,10) for missiles; and (0,8,14),(1,8,8),(3,10,3),(3,19,2) for save. Both save owners share the latter source.
 - Confirmation: Verification build includes the AssetExtraction dependency; final build1193 warnings/zero errors. --lookup-stream-4 passed all14 original rectangles across five notices, complete native border/content output and actual installed initial tilemaps, both real YES-to-NO transitions, and a live MAP TEST edit with every cell outside its rectangle unchanged. Phase/window radius and exact stock restoration remain intact with cartridge reads forbidden during actual message use. No stale lifecycle verifier was reused as a native oracle.
 - Integration dependency: ResourceAudit/MessageClosedContractDefinitions.cs line29 hashes GameplayMessageNoticeDefinitions.cs. Coordinator owns its refresh; no audit file was changed here.
+
+## Batch 52: Ridley tail terrain traversal and physical probe offsets
+
+Two definitions converted: 67 wholly converted, 158 unchecked.
+
+- Replaced the five joint-index samples with direct reverse traversal from the tail tip through joint two. Replaced the five Y-offset samples with the physical distinction between the tip (16 pixels) and ordinary joints (18 pixels). The seven-segment/null-level gates, unchecked word addition, room bounds and first-hit return remain intact.
+- Evidence: pinned CheckForTailCollisionWithFloor at A6:B7E7..B84C explicitly probes segments 6,5,4,3,2 in that order. ADC immediates at B7F2/B806/B81A/B82E/B842 hold16/18/18/18/18. This is an unrolled sequence of collision operations, now represented directly as iteration and geometry rather than local lookup arrays.
+- Confirmation: Verification root integration build1444 warnings/zero errors; --lookup-stream-4 passed. New focused actual-method checks isolate each of the seven segments against two solid rows and five boundary/wrapping Y coordinates (70 cases), obtaining expected offsets from the original native ADC operands. Segments0/1 stay excluded; missing terrain and incomplete-tail gates remain false. Static review confirms descending first-hit order. No gameplay discovery was performed, and no source-hash dependency was found for this partial.

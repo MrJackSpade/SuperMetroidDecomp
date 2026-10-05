@@ -314,7 +314,8 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// $AD:F0BF/F1EB and EEB8 share drained body paint. Cortex shades interpolate
     /// in RGB5 over three intervals; tissue shades interpolate before RGB5 quantization
     /// over four intervals. Plates reuse normal health paint; white/black are neutral.
-    /// Three independent paint endpoints (including tissue RGB8 precision) remain supplied.
+    /// Stock uses the three narrowly approved drained paint anchors; independent edits
+    /// retain their own calculated endpoints or exact supplied colors.
     /// </summary>
     internal sealed class DrainedBodyColors
     {
@@ -327,6 +328,14 @@ public sealed class MotherBrainRainbowPalettePresentation
         internal DrainedBodyColors(ushort[] colors)
         {
             if (colors.Length is not (13 or 15)) { supplied = colors; return; }
+            var light = MotherBrainDrainedPaintDefinitions.HighlightRgb8;
+            var dark = MotherBrainDrainedPaintDefinitions.DarkestTissueRgb8;
+            tissueLight = new(light.Red, light.Green, light.Blue);
+            tissueDark = new(dark.Red, dark.Green, dark.Blue);
+            outline = MotherBrainDrainedPaintDefinitions.Outline;
+            bool stock = true;
+            for (int color = 0; stock && color < colors.Length; color++) stock = colors[color] == Calculate(color);
+            if (stock) return;
             outline = colors[3];
             if (!TryChannel(0, out int lr, out int dr) ||
                 !TryChannel(5, out int lg, out int dg) ||

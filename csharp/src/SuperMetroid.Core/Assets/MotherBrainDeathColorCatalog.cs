@@ -99,7 +99,7 @@ public sealed class MotherBrainDeathColorCatalog
     /// $AD:F119 corpse channels interpolate between endpoints, rounded to nearest
     /// over seven intervals. These rules match every original intermediate color.
     /// Starting colors calculate from health state three; the corpse final palette calculates shared
-    /// drained shade rules from its still-independent paint endpoints.
+    /// drained shade rules from the three narrowly approved drained-paint anchors.
     /// Unmatched edited endpoints and frames remain exact and independent of the health document.
     /// </summary>
     private sealed class ColorFade

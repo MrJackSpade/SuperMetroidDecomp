@@ -5586,6 +5586,11 @@ if (args is ["--mother-brain"])
     VerifyBabyMetroidCutsceneEntrance();
     return 0;
 }
+if (args is ["--mother-brain-death-handoff"])
+{
+    VerifyMotherBrainDeathHandoff();
+    return 0;
+}
 if (args is ["--mother-brain-transfer-sources"])
 {
     VerifyMotherBrainSpriteTransferSources();

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -9,9 +10,10 @@ internal static partial class Program
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
         const int textAddress = 0xa68000;
-        // Delay two, destination $4800, A, space, exclamation, terminator.
-        bus.WriteBytes(textAddress, [1, 0, 2, 0, 13, 0, 0, 0x48, (byte)'A', (byte)' ', (byte)'!', 0, 0]);
-        var text = new EscapeTypewriterState(textAddress, EscapeTypewriterRomData.ZebesTileBase);
+        // The installed program keeps the same glyphs and destination; delay two is engine-owned.
+        var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Zebes, textAddress,
+            [new EscapeTypewriterLine(0x4800, "A !")]);
+        var text = new EscapeTypewriterState(program, EscapeTypewriterRomData.ZebesTileBase);
         AssertTrue(!text.Step(bus, vram), "typewriter first glyph is not completion");
         AssertEqual(EscapeTypewriterRomData.ZebesTileBase, vram.ReadWord(0x4800), "text glyph reaches actual VRAM");
         AssertTrue(!text.ClickRequested, "first glyph does not click");

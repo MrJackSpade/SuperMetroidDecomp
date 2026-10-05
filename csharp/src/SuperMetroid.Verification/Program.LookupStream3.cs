@@ -34,6 +34,14 @@ internal static partial class Program
             for (int row = 0; row < count; row++)
                 AssertEqual(new MapLabelPoint(LookupWord(rom, address + row * 4), LookupWord(rom, address + row * 4 + 2)),
                     loaded.CursorPosition(page, row), "native options cursor anchor");
+        var stockLabels = (Dictionary<string, ushort[]>)typeof(GameOptionsPresentation).GetField("controllerLabels",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(loaded)!;
+        AssertEqual(0, stockLabels.Count, "options stock button glyphs retain no tilemap rows");
+        for (int button = 0; button < 7; button++)
+        for (int cell = 0; cell < 6; cell++)
+            AssertEqual(LookupWord(rom, 0x82f659 + button * 12 + cell * 2),
+                GameOptionsPresentationDefinitions.ControllerLabelWord(GameOptionsPresentationDefinitions.ControllerLabelName(button), cell),
+                "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
         var edited = ReadDocument();
         for (int action = 0; action < edited.ControllerLabelAnchors.Length; action++)
@@ -41,6 +49,9 @@ internal static partial class Program
             MapLabelPoint old = edited.ControllerLabelAnchors[action];
             edited.ControllerLabelAnchors[action] = new(old.X + 1, old.Y);
         }
+        foreach (MapPresentationCell[] label in edited.ControllerLabels.Values)
+            for (int cell = 0; cell < label.Length; cell++)
+                label[cell] = label[cell] with { FlipX = !label[cell].FlipX, Palette = 1 };
         edited.LanguageRegions[0].Cells[0] = 0;
         edited.SpecialToggles[GameOptionsPresentationDefinitions.IconCancelToggle].EnabledCells[0] = 0;
         foreach (string page in edited.HeadingAnchors.Keys.ToArray())
@@ -84,7 +95,10 @@ internal static partial class Program
                 MapLabelPoint point = document.ControllerLabelAnchors[action];
                 for (int cell = 0; cell < 6; cell++)
                 {
-                    ushort word = LookupWord(rom, 0x82f659 + button * 12 + cell * 2);
+                    MapPresentationCell source = document.ControllerLabels[GameOptionsPresentationDefinitions.ControllerLabelName(button)][cell];
+                    ushort word = SnesBgTilemapWord.Create(source.TileRow * MapTileAtlasFormat.TileColumns + source.TileColumn, source.Palette, source.Priority,
+                        (source.FlipX ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
+                        (source.FlipY ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)).Raw;
                     System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(((point.Y + cell / 3) * 32 + point.X + cell % 3) * 2), word);
                 }
                 presentation.ApplyControllerLabel(actual, action, button);

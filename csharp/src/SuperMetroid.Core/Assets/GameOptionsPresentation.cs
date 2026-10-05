@@ -30,7 +30,9 @@ public sealed class GameOptionsPresentation
         string contentIdentity)
     {
         this.pages = pages;
-        this.controllerLabels = controllerLabels;
+        this.controllerLabels = controllerLabels.Where(pair => pair.Value.Where((word, cell) =>
+            word != GameOptionsPresentationDefinitions.ControllerLabelWord(pair.Key, cell)).Any())
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         this.sprites = sprites;
         controllerLabelAnchors = document.ControllerLabelAnchors.Where((point, index) =>
             point != GameOptionsPresentationDefinitions.ControllerAnchor(index)).Any() ? document.ControllerLabelAnchors : null;
@@ -95,7 +97,7 @@ public sealed class GameOptionsPresentation
         if ((uint)action >= GameOptionsRomData.Rows.ControllerActionCount)
             throw new ArgumentOutOfRangeException(nameof(action));
         string label = GameOptionsPresentationDefinitions.ControllerLabelName(button);
-        ushort[] cells = controllerLabels[label];
+        controllerLabels.TryGetValue(label, out ushort[]? cells);
         MapLabelPoint anchor = controllerLabelAnchors?[action] ?? GameOptionsPresentationDefinitions.ControllerAnchor(action);
         for (int row = 0; row < GameOptionsPresentationDefinitions.ControllerLabelHeight; row++)
         for (int column = 0; column < GameOptionsPresentationDefinitions.ControllerLabelWidth; column++)
@@ -104,7 +106,8 @@ public sealed class GameOptionsPresentation
                 anchor.X + column;
             BinaryPrimitives.WriteUInt16LittleEndian(
                 page.Slice(destination * sizeof(ushort)),
-                cells[row * GameOptionsPresentationDefinitions.ControllerLabelWidth + column]);
+                cells is not null ? cells[row * GameOptionsPresentationDefinitions.ControllerLabelWidth + column]
+                    : GameOptionsPresentationDefinitions.ControllerLabelWord(label, row * GameOptionsPresentationDefinitions.ControllerLabelWidth + column));
         }
     }
 
@@ -447,6 +450,64 @@ public static class GameOptionsPresentationDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(page)),
     };
 
+    /// <summary>$82:F665 ButtonTilemaps_A: upper-left A glyph; right half mirrors it.</summary>
+    private const int AButtonTile = 0x90;
+    /// <summary>$82:F671 ButtonTilemaps_B: upper-left B glyph; right half is next in atlas.</summary>
+    private const int BButtonTile = 0x91;
+    /// <summary>$82:F659 ButtonTilemaps_X: diagonal half; opposite half flips both axes.</summary>
+    private const int XButtonTile = 0x93;
+    /// <summary>$82:F689 ButtonTilemaps_Y: upper-left Y glyph; right half mirrors it.</summary>
+    private const int YButtonTile = 0x94;
+    /// <summary>$82:F67D ButtonTilemaps_Select: three consecutive tiles per atlas row.</summary>
+    private const int SelectButtonTile = 0x95;
+    /// <summary>$82:F695/F6A1 ButtonTilemaps_L/R: common shoulder outline corner.</summary>
+    private const int ShoulderCornerTile = 0x9a;
+    /// <summary>$82:F697 ButtonTilemaps_L: central L glyph; lower half follows one atlas row.</summary>
+    private const int LeftShoulderTile = 0x9b;
+    /// <summary>$82:F6A3 ButtonTilemaps_R: central R glyph; lower half follows one atlas row.</summary>
+    private const int RightShoulderTile = 0x9c;
+    /// <summary>$82:F65D and sibling two-column labels pad the third column with tile $0F.</summary>
+    private const int ButtonPaddingTile = 0x0f;
+    /// <summary>$82:F659-F6AC glyph upper/lower halves occupy adjacent 16-character atlas rows.</summary>
+    private const int ButtonAtlasRowStride = 16;
+
+    /// <summary>Builds the native button glyph from its letter, atlas rows and geometric reflections.</summary>
+    internal static ushort ControllerLabelWord(string label, int cell)
+    {
+        if ((uint)cell >= ControllerLabelCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
+        int row = cell / ControllerLabelWidth;
+        int column = cell % ControllerLabelWidth;
+        int tile;
+        SnesTileFlipFlags flips = SnesTileFlipFlags.None;
+        switch (label)
+        {
+            case "A":
+            case "Y":
+                tile = column == 2 ? ButtonPaddingTile : (label == "A" ? AButtonTile : YButtonTile) + row * ButtonAtlasRowStride;
+                if (column == 1) flips = SnesTileFlipFlags.Horizontal;
+                break;
+            case "X":
+                tile = column == 2 ? ButtonPaddingTile : XButtonTile + (row ^ column) * ButtonAtlasRowStride;
+                if (column == 1) flips = SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical;
+                break;
+            case "B":
+                tile = column == 2 ? ButtonPaddingTile : BButtonTile + column + row * ButtonAtlasRowStride;
+                break;
+            case "Select":
+                tile = SelectButtonTile + column + row * ButtonAtlasRowStride;
+                break;
+            case "L":
+            case "R":
+                tile = column == 1 ? (label == "L" ? LeftShoulderTile : RightShoulderTile) + row * ButtonAtlasRowStride : ShoulderCornerTile;
+                if (column != 1)
+                    flips = (row == 1 ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)
+                        | (column == 2 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(label));
+        }
+        return SnesBgTilemapWord.Create(tile, 0, false, flips).Raw;
+    }
     /// <summary>$82:F639 controller label destinations: three tile rows per action.</summary>
     internal static MapLabelPoint ControllerAnchor(int action)
     {

@@ -11140,4 +11140,11 @@
     "state":  "converted",
     "algorithm":  "Physical type-B word plus named SpeedBoosterParent already calculated; import/export DTO retained, singleton enumeration now yields calculated record. Reconciles stale inventory, no gameplay behavior change.",
     "remaining":  "456 converted,11 justified retained/mixed,661 pending."
+},"controllerGlyphIntegration":{
+    "confirmation":  "Root Verification build 1444 warnings/zero errors; scoped stream3 passes 42 native words,49 placements and independently edited palette/reflection rendering. Audit source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "GameOptionsPresentation.controllerLabels",
+    "workerCommit":  "205f03608661d62e52274fef421990d49d826249",
+    "state":  "converted",
+    "algorithm":  "Semantic button glyphs from atlas row stride, consecutive columns, shared shoulder corners and geometric reflections; stock rows absent, independent edited labels retained.",
+    "remaining":  "457 converted,11 justified retained/mixed,660 pending."
 }}

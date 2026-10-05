@@ -234,6 +234,8 @@ static void VerifySamusPowerBeamProjectiles()
     const int width = 32;
     const int height = 16;
     var nativeProjectileRom = SeedNativeProjectileFixture(bus);
+    var fixtureTrails = ProjectileTrailCatalog.Load(
+        new MemoryStream(ProjectileTrailExtractor.Extract(bus)));
     var fixtureChargeColors = SamusChargeColorCatalog.Load(
         new MemoryStream(SamusChargeColorExtractor.Extract(bus)));
     var fixtureSuitColors = SamusSuitColorCatalog.Load(
@@ -509,7 +511,7 @@ static void VerifySamusPowerBeamProjectiles()
         // Runtime's later `$93:82F7` draw phase must run on every simulated gameplay frame.
         // The ordinary power beam periodically allocates two empty streams; `$90:B6A9`
         // consumes their zero terminators immediately instead of leaving timer-one slots.
-        chargeProjectiles.HandleTrailsAndDraw(bus, flareOam, 0, 0, timeIsFrozen: false);
+        chargeProjectiles.HandleTrailsAndDraw(bus, flareOam, 0, 0, timeIsFrozen: false, artwork: fixtureTrails);
         flareBecameVisible |= flareOam.NextByteOffset != 0;
     }
     AssertEqual(60, chargeProjectiles.FlareCounter,
@@ -990,7 +992,7 @@ static void VerifySamusPowerBeamProjectiles()
 
     var trailOam = new OamBuffer();
     trailOam.BeginFrame();
-    chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: false);
+    chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: false, artwork: fixtureTrails);
     AssertEqual(4, trailOam.NextByteOffset, "charged power's left stream emits one raw OBJ");
     AssertEqual(0, chargedTrail.Right.InstructionTimer,
         "charged power's empty right stream terminates without drawing");
@@ -1004,7 +1006,7 @@ static void VerifySamusPowerBeamProjectiles()
     ushort frozenTrailPointer = chargedTrail.Left.InstructionPointer;
     ushort frozenTrailTimer = chargedTrail.Left.InstructionTimer;
     trailOam.BeginFrame();
-    chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: true);
+    chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: true, artwork: fixtureTrails);
     AssertEqual(frozenTrailPointer, chargedTrail.Left.InstructionPointer,
         "frozen trail retains instruction pointer");
     AssertEqual(frozenTrailTimer, chargedTrail.Left.InstructionTimer,
@@ -1017,7 +1019,7 @@ static void VerifySamusPowerBeamProjectiles()
     for (int call = 0; call < 6; call++)
     {
         trailOam.BeginFrame();
-        chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: false);
+        chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: false, artwork: fixtureTrails);
     }
     AssertEqual(unchecked((ushort)(beforeTrailCommandY + 1)), chargedTrail.Left.YPosition,
         "inline `$B525` command moves the left trail down one pixel");
@@ -1340,7 +1342,7 @@ static void VerifySamusPowerBeamProjectiles()
     SamusProjectileTrailSlot missileTrail =
         missileProjectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
     missileOam.BeginFrame();
-    missileProjectiles.HandleTrailsAndDraw(bus, missileOam, 0, 0, timeIsFrozen: false);
+    missileProjectiles.HandleTrailsAndDraw(bus, missileOam, 0, 0, timeIsFrozen: false, artwork: fixtureTrails);
     AssertEqual(4, missileOam.NextByteOffset, "missile left trail emits one small OBJ");
     AssertEqual(0x048, missileOam.GetEntry(0).TileNumber,
         "missile trail starts at retail tile `$2A48`");

@@ -577,7 +577,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/MultiviolaInstructionProgramDefinitions.cs
 
 - [ ] **MultiviolaInstructionProgramDefinitions.Words** ([L17](../csharp/src/SuperMetroid.Core/Game/MultiviolaInstructionProgramDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MultiviolaInstructionProgramDefinitions.PresentationWords** ([L26](../csharp/src/SuperMetroid.Core/Game/MultiviolaInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MultiviolaInstructionProgramDefinitions.PresentationWords** ([L26](../csharp/src/SuperMetroid.Core/Game/MultiviolaInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs
 
@@ -586,7 +586,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/RioInstructionProgramDefinitions.cs
 
 - [ ] **RioInstructionProgramDefinitions.Words** ([L32](../csharp/src/SuperMetroid.Core/Game/RioInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RioInstructionProgramDefinitions.PresentationWords** ([L57](../csharp/src/SuperMetroid.Core/Game/RioInstructionProgramDefinitions.cs#L57)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RioInstructionProgramDefinitions.PresentationWords** ([L57](../csharp/src/SuperMetroid.Core/Game/RioInstructionProgramDefinitions.cs#L57)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs
 
@@ -1042,3 +1042,11 @@ Root Verification build passed with 1445 warnings and zero errors. --shitroid-in
 PresentationWords is complete: timed-record strides, tangible/intangible callbacks, loop back-edges and the terminal sleep calculate 33 control positions and 26 visual addresses from native A8:E5A7-E61B. Words remains unchecked. All ten activation holds 1/2/1/2/1/2/1/1/2/2, loop cadence 3 and deactivation cadence 1 remain required independent choices. Root review explicitly preserves the latter two obligations as well; no retention exception is granted.
 
 Root Verification build passed with 1445 warnings and zero errors. --spark-instruction-mechanics confirms all 33 native words, 26 exact compiled selectors, four actual programs, tangibility callbacks and terminal sleep, initializer selections, source-read guards, boundaries and allocations. Overall checkpoint: 507 converted, 15 justified retained/mixed, 606 pending.
+
+## Integrated Multiviola and Rio layouts
+
+Both PresentationWords entries are complete. Multiviola's fourteen four-byte poses and back-edge calculate 16 control positions and 14 visual addresses. Rio's idle, swoop and recovery block widths calculate 32 controls and 24 visual addresses, including fallthrough and animation-finished/sleep tails. Pinned A2:B2DC-B316 and BB4B-BBB9 establish those structures.
+
+Both Words entries remain unchecked: Multiviola's ten-tick cadence and Rio's four-tick idle and three-tick swoop/recovery cadences remain required independent inputs. This integration resolves two entries, not the four claimed in the worker batch; no retention exception is granted.
+
+Root Verification build passed with 1445 warnings and zero errors. --multiviola-instruction-mechanics confirms all 16 native words and the complete production loop. --rio-instruction-mechanics confirms all 32 native words, actual initializer, idle fallthrough/return, both swoop phases and cooldown completion. Both preserve compiled-selector execution, read guards, boundary and allocation checks. Overall checkpoint: 509 converted, 15 justified retained/mixed, 604 pending.

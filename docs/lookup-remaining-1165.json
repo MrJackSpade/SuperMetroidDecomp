@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 606,
+  "remainingTableDefinitionCount": 604,
   "fileCount": 523,
   "entries": [
     {
@@ -5152,7 +5152,9 @@
       "line": 26,
       "name": "MultiviolaInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "1b192490e07ab9b3fc854d13af68878f931c5ad3"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NinjaSpacePirateInstructionProgramDefinitions.cs",
@@ -6037,7 +6039,9 @@
       "line": 57,
       "name": "RioInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "1b192490e07ab9b3fc854d13af68878f931c5ad3"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs",

@@ -11511,4 +11511,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "Timed-record strides, callbacks, loop back-edges and terminal sleep calculate 33 control positions and 26 visual addresses.",
     "remaining":  "Words required: ten activation holds 1/2/1/2/1/2/1/1/2/2, loop cadence 3 and deactivation cadence 1. No exception. 507 converted, 15 justified retained/mixed, 606 pending."
+},"multiviolaRioStructureIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Focused native word checks and actual full Multiviola loop, Rio initializer/fallthrough/swoop/cooldown, compiled selectors, read guards, bounds and allocations pass.",
+    "completed":  "MultiviolaInstructionProgramDefinitions.PresentationWords; RioInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "1b192490e07ab9b3fc854d13af68878f931c5ad3",
+    "state":  "partial-two-converted",
+    "algorithm":  "Timed-pose block widths and loop/callback tails calculate 16/32 controls and 14/24 visual addresses.",
+    "remaining":  "Both Words entries required: Multiviola cadence 10; Rio idle 4 and swoop/recovery 3. Two conversions, not four. No exception. 509 converted, 15 justified retained/mixed, 604 pending."
 }}

@@ -27,8 +27,8 @@ internal static partial class Program
         foreach (bool charged in new[] { false, true })
         foreach (ushort edge in new ushort[] { 0, (ushort)SnesButton.X })
         {
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = CreateProjectileFixture();
+            var shared = CreateBombFixture();
             var samus = new SamusState { Pose = 1, XPosition = 128, YPosition = 128, EquippedBeams = beam };
             var result = ((int? Slot, ushort Sound))fire.Invoke(projectiles,
                 new object?[] { bus, room, samus, edge, shared, null, charged })!;
@@ -39,8 +39,8 @@ internal static partial class Program
         }
         foreach (ushort beam in new ushort[] { 0, 10 })
         {
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = CreateProjectileFixture();
+            var shared = CreateBombFixture();
             var samus = new SamusState { Pose = 1, XPosition = 128, YPosition = 128, EquippedBeams = beam };
             var frames = new List<int>();
             for (int frame = 0; frame < 70; frame++)
@@ -58,8 +58,8 @@ internal static partial class Program
         }
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = CreateProjectileFixture();
+            var shared = CreateBombFixture();
             var samus = new SamusState { Pose = 1, XPosition = 128, YPosition = 128,
                 EquippedBeams = beam, SelectedHudItem = 3, PowerBombs = 10 };
             AssertTrue(projectiles.TryActivateCombo(bus, samus, shared, out _),
@@ -70,9 +70,11 @@ internal static partial class Program
         Console.WriteLine("Projectile cooldowns: 59 native bytes, bounded SpaceTime observation, loud non-catalog rejection, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
     }
 
-    private sealed class ProjectileCooldownReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class ProjectileCooldownReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
+        public byte ReadWorkRamByte(int address) => ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+        public byte ReadSaveRamByte(int address) => ((ISnesMutableMemory)source).ReadSaveRamByte(address);
 
         public byte ReadByte(int address)
         {

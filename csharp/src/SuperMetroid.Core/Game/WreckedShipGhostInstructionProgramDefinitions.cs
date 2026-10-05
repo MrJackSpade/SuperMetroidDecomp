@@ -19,29 +19,30 @@ internal static class WreckedShipGhostInstructionProgramDefinitions
     /// <summary>The first non-program word after <c>InstList_Coven</c>, at $A8:9A9C.</summary>
     internal const ushort FirstAdjacentConstant = 0x9a9c;
 
-    private static readonly WreckedShipGhostInstructionMechanicsWord[] Words =
-    [
-        new(0x9a8c, 0x0010),
-        new(0x9a90, 0x0010),
-        new(0x9a94, 0x0010),
-        new(LoopOpcode, CommonEnemyInstructionCodes.Goto),
-        new(0x9a9a, Floating),
-    ];
+    internal static int MechanicsWordCount => 5;
+    internal static int PresentationWordCount => 3;
 
-    private static readonly ushort[] PresentationWords = [0x9a8e, 0x9a92, 0x9a96];
+    /// <summary>Three sixteen-tick poses followed by the native goto and loop target.</summary>
+    internal static WreckedShipGhostInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < PresentationWordCount) return new((ushort)(Floating + 4 * index), 16);
+        return index == PresentationWordCount
+            ? new(LoopOpcode, CommonEnemyInstructionCodes.Goto)
+            : new((ushort)(LoopOpcode + 2), Floating);
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static WreckedShipGhostInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(Floating + 2 + 4 * index);
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            if (MechanicsWord(index).Address == address)
+                return MechanicsWord(index).Value;
         }
 
         throw new InvalidDataException(
@@ -54,9 +55,9 @@ internal static class WreckedShipGhostInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

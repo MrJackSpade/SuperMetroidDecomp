@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -54,9 +55,16 @@ internal static partial class Program
                 WreckedShipGhostInstructionProgramDefinitions.Floating + 4)),
             ghost.CurrentInstruction,
             "Wrecked Ship ghost loop completes its native goto and first repeated frame");
-        AssertEqual(WreckedShipGhostInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Wrecked Ship ghost spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "ghost visual selectors require no runtime cartridge reads");
+        for (int index = 0; index < WreckedShipGhostInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = WreckedShipGhostInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa8, address, out ushort selector),
+                $"ghost visual selector $A8:{address:X4} is compiled");
+            AssertEqual(ReadWreckedShipGhostInstructionWord(rom, address), selector,
+                $"ghost visual selector $A8:{address:X4} preserves its native operand");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Wrecked Ship ghost mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -78,8 +86,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Wrecked Ship ghost instruction mechanics: five compiled words, the real " +
-            "initializer, the complete floating loop, and three live spritemap reads " +
-            "pass with mechanics bytes forbidden.");
+            "initializer, the complete floating loop, and three native compiled selectors " +
+            "pass with zero runtime ROM reads.");
     }
 
     private static int ProbeWreckedShipGhostInstructionMechanicsAllocation()

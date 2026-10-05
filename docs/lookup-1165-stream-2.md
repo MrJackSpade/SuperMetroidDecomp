@@ -663,8 +663,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/WreckedShipGhostInstructionProgramDefinitions.cs
 
-- [ ] **WreckedShipGhostInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/WreckedShipGhostInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **WreckedShipGhostInstructionProgramDefinitions.PresentationWords** ([L31](../csharp/src/SuperMetroid.Core/Game/WreckedShipGhostInstructionProgramDefinitions.cs#L31)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **WreckedShipGhostInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/WreckedShipGhostInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **WreckedShipGhostInstructionProgramDefinitions.PresentationWords** ([L31](../csharp/src/SuperMetroid.Core/Game/WreckedShipGhostInstructionProgramDefinitions.cs#L31)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/YardVisualDefinitions.cs
 
@@ -855,3 +855,15 @@ Removed the mechanics and visual-address arrays. Footsteps and spike explosions 
 Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). `--chozo-tourian-dust-instruction-mechanics` passed all31 native mechanics words, actual footstep and Tourian producers, alternate explosion initialization, positions, counted-loop/deletion behavior,14 exact native compiled visual selectors and zero runtime ROM reads. Initial execution passed the behavioral assertions and reached the obsolete expected14 visual reads versus actual0; the assigned verifier now confirms zero reads and all native operands, retaining every behavior check.
 
 Fifty-five stream2 definitions complete;171 remain required. Unresolved independent payloads and code-byte observations remain pending.
+### Pending ghost palette source review
+
+The16 target words at$A8:99AC are copied unchanged by$A8:9B9B-$9BA9, then every RGB component advances independently toward its target through$A8:9E88-$9F4E. This establishes transport/fading, not irreducibility. Static decoding of pinned$B1:A600's1024 bytes against all three actual OAM compositions at$A8:9E46/$9E5C/$9E72 shows only palette slots2..8 used by visible pixels. Counts across the three frames are: slot2=6/6/6,3=170/170/171,4=266/260/256,5=5/5/5,6=31/31/29,7=83/79/87,8=117/123/122. Slot0 is transparent; slots1 and9..15 are unused throughout all32 source tiles. The shared head uses tiles0..3/16..19; the three lower-body compositions together use every remaining tile. Render inspection associates2/5 with skull highlights,3/4 with shadow/outline and6/7/8 with intermediate skull/body shades. All visible colors have equal red/green components, but their shade levels and blue offsets are not a uniform ramp.
+
+All16 words exactly match Kago's palette at$A8:AAFE. The first nine also match Yapping Maw at$A8:9F4F, whose last seven are zero. Thus the ghost's unused red/orange tail is shared palette content rather than eye or body colors; an earlier proposed color-role inference was incorrect. All target words still participate in component fading, so unused sprite slots have not been dropped. Independent review of the shared artistic shade choices and any derivable subset remains pending. No retention exception or completion is claimed.
+### Batch 21: ghost floating program structure
+
+Removed the ghost mechanics and visual-address tables. Three sixteen-tick poses calculate their four-byte stride, followed by goto and the first-pose target. The actual initializer and looping behavior are unchanged.
+
+Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). `--wrecked-ship-ghost-instruction-mechanics` passed all5 native words, the actual initializer, complete floating loop,3 exact native compiled selectors and zero runtime ROM reads. Initial execution passed program behavior before failing the obsolete expected3 reads versus actual0; assigned verification now asserts zero reads and all original operands, preserving runtime and rejection checks.
+
+Fifty-seven stream2 named definitions complete;169 remain required. The ghost palette remains pending as documented above.

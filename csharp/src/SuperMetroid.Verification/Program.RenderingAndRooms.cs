@@ -1299,7 +1299,7 @@ static void VerifyPowerBombColorMathWindow()
 
     const ushort centerX = 100;
     const ushort centerY = 100;
-    var explosion = new SamusPowerBombExplosionState();
+    var explosion = new SamusPowerBombExplosionState { PresentationColors = SuperMetroid.Core.Assets.PowerBombFixedColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.PowerBombFixedColorExtractor.Extract(bus))) };
     explosion.Arm();
     explosion.Spawn(centerX, centerY);
 
@@ -1340,22 +1340,26 @@ static void VerifyPowerBombColorMathWindow()
     // the explosion Y coordinate; it is not indexed by adding a screen-space midpoint.
     while (explosion.Phase == PowerBombExplosionPhase.PreExplosionWhite)
         explosion.StepFrame(bus);
-    bus.WriteBytes(0x889f06, [0x07, 0x03, 0x00]);
+    var shapeReference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     explosion.StepFrame(bus);
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");
     Rgba32[] shapeFrame = CreateOpaqueBlackGameplayFrame();
     SnesGameplayFrameRenderer.ApplyPowerBombColorMath(shapeFrame, bus, explosion, 0, 0);
-    AssertEqual(fixedColor,
-        shapeFrame[centerY * SnesGameplayFrameRenderer.Width + centerX + 7],
-        "pre-scaled profile byte zero draws center half-width");
-    AssertEqual(fixedColor,
-        shapeFrame[(centerY + 1) * SnesGameplayFrameRenderer.Width + centerX + 3],
-        "pre-scaled profile byte one draws mirrored adjacent line");
-    AssertEqual(new Rgba32(0, 0, 0, 255),
-        shapeFrame[(centerY + 2) * SnesGameplayFrameRenderer.Width + centerX],
-        "pre-scaled zero terminates shape extent");
-
+    AssertEqual(0x9f06, explosion.RenderedShapeDefinitionPointer,
+        "first yellow frame selects the native profile");
+    for (int y = 0; y < SnesGameplayFrameRenderer.Height; y++)
+    {
+        int row = Math.Abs(y - centerY);
+        int halfWidth = row < 192 ? shapeReference.ReadByte(0x889f06 + row) : 0;
+        for (int x = 0; x < SnesGameplayFrameRenderer.Width; x++)
+        {
+            bool inside = y >= SnesGameplayFrameRenderer.HudHeight && halfWidth != 0 && Math.Abs(x - centerX) <= halfWidth;
+            AssertEqual(inside ? fixedColor : new Rgba32(0, 0, 0, 255),
+                shapeFrame[y * SnesGameplayFrameRenderer.Width + x],
+                $"native pre-scaled profile pixel ({x},{y})");
+        }
+    }
     Console.WriteLine("  Power bomb: ROM curve bands, rendered-frame timing, and center-outward shapes agree.");
 }
 

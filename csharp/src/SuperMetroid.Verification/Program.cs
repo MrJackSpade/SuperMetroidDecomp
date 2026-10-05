@@ -46,6 +46,7 @@ VerifySamusMorphBallMovement();
 VerifyBombChargeRejection();
 VerifyGroundedBombSpread();
 return 0; }
+if (args is ["--power-bomb-fixtures"]) { VerifyPowerBombFuse(); VerifyPowerBombColorMathWindow(); return 0; }
 if (args is ["--horizontal-speed-fixture"]) { VerifySamusHorizontalSpeed(); return 0; }
 if (args is ["--demo-input-fixture"]) { VerifyDemoInputObject(); return 0; }
 if (args is ["--cacatac-fixture"]) { VerifyCacatacProjectileInstructionProgramDefinitions(); return 0; }

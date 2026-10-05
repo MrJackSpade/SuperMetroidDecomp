@@ -7,6 +7,107 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2EquipmentLabels(SuperMetroidAddressSpace rom)
+    {
+        byte[] json = PauseEquipmentLabelExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<PauseEquipmentLabelDocument>(json,
+            MapPresentationFormat.JsonOptions)!;
+        var stock = PauseEquipmentLabelPresentation.Load(new MemoryStream(json));
+        int words = 0;
+        foreach ((string key, PauseEquipmentLabel label) in document.Labels)
+        {
+            byte[] native = PauseTileGrid.Compile(label.Cells, key);
+            AssertEqual((label.Row * 32 + label.Column) * 2,
+                PauseEquipmentLabelDefinitions.StockDestinationByte(key), "Native semantic label placement");
+            for (int cell = 0; cell < label.Cells.Length; cell++)
+            {
+                AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(cell * 2)),
+                    PauseEquipmentLabelDefinitions.StockWord(key, cell), "Native packed glyph fragment");
+                words++;
+            }
+        }
+        int changedCells = 0;
+        foreach (var identity in PauseEquipmentLabelDefinitions.Labels())
+        {
+            string key = identity.Key;
+            PauseEquipmentLabel label = document.Labels[key];
+            for (int edit = -1; edit < label.Cells.Length; edit++)
+            {
+                PauseBackdropCell[] cells = label.Cells.ToArray();
+                if (edit >= 0) cells[edit] = cells[edit] with { FlipX = !cells[edit].FlipX };
+                var labels = document.Labels.ToDictionary(pair => pair.Key, pair => pair.Value);
+                labels[key] = label with { Cells = cells };
+                using var encoded = new MemoryStream();
+                PauseEquipmentLabelPresentation.Write(encoded, document with { Labels = labels });
+                byte[] selectedJson = encoded.ToArray();
+                var selected = PauseEquipmentLabelPresentation.Load(new MemoryStream(selectedJson));
+                AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(selectedJson)),
+                    selected.ContentIdentity, "Label selection preserves source identity");
+                byte[] selectedWords = PauseTileGrid.Compile(cells, "Expected edited label");
+                foreach (bool disabled in new[] { false, true })
+                {
+                    byte[] actual = Enumerable.Repeat((byte)0x55, 32 * 32 * 2).ToArray();
+                    byte[] expected = actual.ToArray();
+                    int length = label.Cells.Length;
+                    for (int cell = 0; cell < length; cell++)
+                    {
+                        ushort value = System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(selectedWords.AsSpan(cell * 2));
+                        if (disabled) value = new SnesBgTilemapWord(value).WithPaletteIndex(document.DisabledPalette).Raw;
+                        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
+                            expected.AsSpan((label.Row * 32 + label.Column + cell) * 2), value);
+                    }
+                    selected.ApplyLabel(actual, identity.Category, identity.Item, length, disabled);
+                    AssertTrue(expected.AsSpan().SequenceEqual(actual), "Actual label patch/disabled recolor preserves every cell and surrounding byte");
+                }
+                if (edit >= 0) changedCells++;
+            }
+        }
+        byte[] overrun = new byte[32 * 32 * 2];
+        stock.ApplyLabel(overrun, 1, 4, 9, false);
+        PauseEquipmentLabel plasma = document.Labels[PauseEquipmentLabelDefinitions.PlasmaKey];
+        PauseEquipmentLabel varia = document.Labels[PauseEquipmentLabelDefinitions.VariaKey];
+        byte[] tail = PauseTileGrid.Compile(varia.Cells, "Native contiguous Varia tail");
+        AssertTrue(tail.AsSpan(0, 8).SequenceEqual(overrun.AsSpan((plasma.Row * 32 + plasma.Column + 5) * 2, 8)),
+            "Nine-word Plasma patch retains four exact contiguous Varia words");
+        // Hyper's five consumed cells pass through the actual inventory path; its
+        // four unused trailing words are still checked against native above.
+        for (int edit = 0; edit < PauseEquipmentLabelDefinitions.BeamWords; edit++)
+        {
+            var labels = document.Labels.ToDictionary(pair => pair.Key, pair => pair.Value);
+            PauseEquipmentLabel hyper = labels[PauseEquipmentLabelDefinitions.HyperKey];
+            PauseBackdropCell[] cells = hyper.Cells.ToArray();
+            cells[edit] = cells[edit] with { FlipX = !cells[edit].FlipX };
+            labels[PauseEquipmentLabelDefinitions.HyperKey] = hyper with { Cells = cells };
+            using var output = new MemoryStream();
+            PauseEquipmentLabelPresentation.Write(output, document with { Labels = labels });
+            var selected = PauseEquipmentLabelPresentation.Load(new MemoryStream(output.ToArray()));
+            byte[] actual = new byte[32 * 32 * 2];
+            selected.ApplyInventory(actual, 0, 0, 0, 0, true);
+            byte[] expected = PauseTileGrid.Compile(cells, "Selected Hyper words");
+            AssertTrue(expected.AsSpan(0, 10).SequenceEqual(actual.AsSpan((hyper.Row * 32 + hyper.Column) * 2, 10)),
+                "Actual Hyper label preserves each independently edited cell");
+        }
+        var movedLabels = document.Labels.ToDictionary(pair => pair.Key, pair => pair.Value);
+        PauseEquipmentLabel charge = movedLabels["Beam.Charge"];
+        movedLabels["Beam.Charge"] = charge with { Column = charge.Column + 1 };
+        using var movedJson = new MemoryStream();
+        PauseEquipmentLabelPresentation.Write(movedJson, document with { Labels = movedLabels });
+        var moved = PauseEquipmentLabelPresentation.Load(new MemoryStream(movedJson.ToArray()));
+        byte[] movedActual = Enumerable.Repeat((byte)0x55, 32 * 32 * 2).ToArray();
+        byte[] movedExpected = movedActual.ToArray();
+        PauseTileGrid.Compile(charge.Cells, "Native Charge text").CopyTo(movedExpected,
+            (charge.Row * 32 + charge.Column + 1) * 2);
+        moved.ApplyLabel(movedActual, 1, 0, 5, false);
+        AssertTrue(movedExpected.AsSpan().SequenceEqual(movedActual),
+            "Independent moved label retains its edited destination and untouched original cell");
+        AssertEqual(115, words, "All native equipment glyph words");
+        AssertEqual(106, changedCells, "All ordinary label glyph cells edited independently");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord("unknown", 0), "Unknown label rejected");
+        AssertThrows<IndexOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord("Beam.Ice", -1), "Negative label cell rejected");
+        AssertThrows<IndexOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord("Beam.Ice", 5), "Label cell upper bound rejected");
+        Console.WriteLine("Pause equipment labels:115 native words/15placements,106 ordinary and five Hyper cell edits, disabled recoloring, exact Plasma/Varia overrun, source hashes and bounds pass; glyph artwork remains independent.");
+    }
+
     private static void VerifyLookupStream2EquipmentBlank(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = PauseEquipmentLabelExtractor.Extract(rom);

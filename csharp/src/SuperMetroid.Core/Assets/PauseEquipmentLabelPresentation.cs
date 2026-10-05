@@ -53,8 +53,7 @@ public sealed class PauseEquipmentLabelPresentation
                     PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
             }
             CompiledLabel hyper = labels[PauseEquipmentLabelDefinitions.HyperKey];
-            hyper.Bytes.AsSpan(0, PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort))
-                .CopyTo(tilemap.Slice(hyper.DestinationByte,
+            hyper.CopyTo(tilemap.Slice(hyper.DestinationByte,
                     PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
         }
         for (int category = 1; category <= 3; category++)
@@ -72,7 +71,7 @@ public sealed class PauseEquipmentLabelPresentation
                 WriteBlank(destination);
             else
             {
-                label.Bytes.CopyTo(destination);
+                label.CopyTo(destination);
                 if ((equipped & mask) == 0) Recolor(destination, DisabledPalette);
             }
         }
@@ -90,14 +89,13 @@ public sealed class PauseEquipmentLabelPresentation
         if (wordCount < 0 || wordCount > PauseEquipmentLabelDefinitions.EquipmentWords)
             throw new ArgumentOutOfRangeException(nameof(wordCount));
         Span<byte> destination = tilemap.Slice(label.DestinationByte, wordCount * sizeof(ushort));
-        int ordinaryBytes = Math.Min(destination.Length, label.Bytes.Length);
-        label.Bytes.AsSpan(0, ordinaryBytes).CopyTo(destination);
+        int ordinaryBytes = Math.Min(destination.Length, label.WordCount * sizeof(ushort));
+        label.CopyTo(destination[..ordinaryBytes]);
         if (ordinaryBytes < destination.Length)
         {
             if (key != PauseEquipmentLabelDefinitions.PlasmaKey)
                 throw new InvalidDataException($"Pause label {key} cannot supply a {wordCount}-word native overrun.");
-            labels[PauseEquipmentLabelDefinitions.VariaKey].Bytes.AsSpan(0, destination.Length - ordinaryBytes)
-                .CopyTo(destination[ordinaryBytes..]);
+            labels[PauseEquipmentLabelDefinitions.VariaKey].CopyTo(destination[ordinaryBytes..]);
         }
         if (disabled) Recolor(destination, DisabledPalette);
     }
@@ -154,7 +152,7 @@ public sealed class PauseEquipmentLabelPresentation
                     if (!occupied.Add(cell)) throw new InvalidDataException($"Pause equipment label {key} overlaps another label.");
                 }
             }
-            compiled.Add(key, new(destinationCell * sizeof(ushort), words,
+            compiled.Add(key, CompiledLabel.Load(key, destinationCell * sizeof(ushort),
                 PauseTileGrid.Compile(label.Cells, key)));
         }
 
@@ -205,7 +203,32 @@ public sealed class PauseEquipmentLabelPresentation
         }
     }
 
-    private sealed record CompiledLabel(int DestinationByte, int WordCount, byte[] Bytes);
+    private sealed class CompiledLabel(string key, int? destinationEdit, Dictionary<int, ushort> edits)
+    {
+        internal int DestinationByte => destinationEdit ?? PauseEquipmentLabelDefinitions.StockDestinationByte(key);
+        internal int WordCount => PauseEquipmentLabelDefinitions.StockWordCount(key);
+
+        internal static CompiledLabel Load(string key, int destination, ReadOnlySpan<byte> bytes)
+        {
+            var edits = new Dictionary<int, ushort>();
+            for (int cell = 0; cell < bytes.Length / sizeof(ushort); cell++)
+            {
+                ushort value = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(cell * sizeof(ushort))..]);
+                if (value != PauseEquipmentLabelDefinitions.StockWord(key, cell)) edits.Add(cell, value);
+            }
+            int? changedDestination = destination == PauseEquipmentLabelDefinitions.StockDestinationByte(key)
+                ? null : destination;
+            return new(key, changedDestination, edits);
+        }
+
+        internal void CopyTo(Span<byte> destination)
+        {
+            for (int cell = 0; cell < destination.Length / sizeof(ushort); cell++)
+                BinaryPrimitives.WriteUInt16LittleEndian(destination[(cell * sizeof(ushort))..],
+                    edits.TryGetValue(cell, out ushort selected) ? selected
+                        : PauseEquipmentLabelDefinitions.StockWord(key, cell));
+        }
+    }
 }
 
 public sealed record PauseEquipmentLabelDocument

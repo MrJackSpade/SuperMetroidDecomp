@@ -561,7 +561,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/PhantoonInstructionProgramDefinitions.cs
 
 - [ ] **PhantoonInstructionProgramDefinitions.Words** ([L57](../csharp/src/SuperMetroid.Core/Game/PhantoonInstructionProgramDefinitions.cs#L57)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **PhantoonInstructionProgramDefinitions.PresentationWords** ([L95](../csharp/src/SuperMetroid.Core/Game/PhantoonInstructionProgramDefinitions.cs#L95)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PhantoonInstructionProgramDefinitions.PresentationWords** ([L95](../csharp/src/SuperMetroid.Core/Game/PhantoonInstructionProgramDefinitions.cs#L95)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs
 
@@ -873,3 +873,13 @@ Removed Polyp's two-row mechanics array: the one-tick pose and terminal sleep de
 Root integration Verification build passed (1444 warnings, zero errors). Corrected --polyp-instruction-mechanics passes both native control words, actual initializer-to-sleep execution and exact produced sprite pointer$B5FB against the native operand, with zero presentation reads. Existing rejected-boundary and allocation assertions remain intact. This reproduces and fixes the identified program-contract failure; no gameplay discovery was performed. The player-facing missing-selector correction awaits player validation.
 
 Integrated checkpoint:64 converted,one mixed,160 required. Other timing/palette/artwork residuals are unchanged.
+
+### Phantoon program structural integration
+
+Calculated58 control positions/commands and27 visual operand addresses through named sleep,eye transition,callback,tentacle loop and mouth layouts. PresentationWords is complete. Words remains REQUIRED: eye-transition10,tentacle-pose8 and mouth-preparation5 are still independent dwell inputs,now named explicitly with native addresses. No retention exception and no claim that removing the container resolves timing.
+
+Worker2b31939a's full control-table completion claim is not accepted. The focused verifier retains all actual program/callback,bounds,save/load and allocation assertions; its obsolete27 live visual reads expectation is corrected to zero and all27 installed selectors are independently compared with native operands.
+
+Integrated checkpoint:65 converted,one mixed,159 required.
+
+Root integration Verification build1444 existing warnings/zero errors. --phantoon-instruction-program-definitions passed58 native control words,all19 actual programs,four callbacks,27 exact native compiled selectors with zero presentation reads,bounds,save/load and allocation assertions.

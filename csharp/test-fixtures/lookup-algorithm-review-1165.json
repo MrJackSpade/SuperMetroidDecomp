@@ -11323,4 +11323,11 @@
     "state":  "converted",
     "algorithm":  "Four-byte pose width derives one-tick pose and terminal sleep; narrow installed selector resolvesA2B51C toB5FB.",
     "remaining":  "488 converted,13 justified retained/mixed,627 pending. Missing-selector correction awaits player validation on1242."
+},"phantoonProgramStructureIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors;58 native controls,19 actual programs,four callbacks,27 compiled native selectors,zero presentation reads,bounds,save/load and allocation checks pass.",
+    "completed":  "PhantoonInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "2b31939a3be34484ab94f05f54a49144c44cfc95",
+    "state":  "partial-one-converted",
+    "algorithm":  "Named program widths derive27 visual operand addresses and58 control locations/commands.",
+    "remaining":  "Words remains required: eye10,tentacle8,mouth5 independent dwell inputs explicitly named. No exception.489 converted,13 justified retained/mixed,626 pending."
 }}

@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 627,
+  "remainingTableDefinitionCount": 626,
   "fileCount": 523,
   "entries": [
     {
@@ -5483,7 +5483,9 @@
       "line": 95,
       "name": "PhantoonInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "2b31939a3be34484ab94f05f54a49144c44cfc95"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs",
@@ -21325,6 +21327,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 488,
+  "convertedSinceSnapshot": 489,
   "justifiedRetainedSinceSnapshot": 13
 }

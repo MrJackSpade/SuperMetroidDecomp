@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -144,8 +145,8 @@ internal static partial class Program
             PhantoonInstructionProgramDefinitions.InitialMouth,
             calls: 2);
 
-        AssertEqual(27, guard.ObservedPresentationWords.Count,
-            "all reachable Phantoon extended-spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "all reachable Phantoon programs use compiled extended-spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Phantoon production execution avoids compiled mechanics bytes");
         for (int index = 0;
@@ -154,8 +155,10 @@ internal static partial class Program
         {
             ushort address =
                 PhantoonInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Phantoon presentation $A7:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa7, address, out ushort selected),
+                "Every Phantoon visual operand has an installed selector");
+            AssertEqual(ReadPhantoonInstructionWord(rom, address), selected,
+                "Exact native Phantoon visual operand");
             AssertThrows<InvalidDataException>(
                 () => PhantoonInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Phantoon presentation $A7:{address:X4} is rejected as mechanics");
@@ -174,7 +177,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Phantoon instruction mechanics: 58 compiled words, all 19 reachable " +
-            "programs, four callbacks, and 27 live presentation reads pass.");
+            "programs, four callbacks, and 27 exact native compiled selectors pass with zero presentation reads.");
     }
 
     private static RoomEnemySystem CreatePhantoonInstructionSystem(ISnesAddressSpace bus)

@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -50,10 +51,14 @@ internal static partial class Program
             "real Polyp-rock producer selects the named single-frame program");
 
         RunForcedTick(rock);
+        AssertEqual(ReadPolypRockInstructionWord(rom,
+                PolypRockInstructionProgramDefinitions.PresentationWord), rock.SpritemapPointer,
+            "actual Polyp rock installs the native sprite selector");
         AssertEqual(PolypRockInstructionProgramDefinitions.Sleep,
             rock.InstructionPointer,
             "Polyp rock reaches its terminal sleep after the authored frame");
         RunForcedTick(rock);
+
         AssertEqual(PolypRockInstructionProgramDefinitions.Sleep,
             rock.InstructionPointer,
             "Polyp rock remains at its authored terminal sleep");
@@ -62,11 +67,18 @@ internal static partial class Program
 
         rock.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         RunForcedTick(rock);
+
         AssertTrue(!rock.IsActive,
             "Polyp-rock shot reaction reaches the compiled shared delete program");
 
-        AssertTrue(guard.ObservedPresentationWord,
-            "production execution reads the live Polyp-rock spritemap operand");
+        AssertTrue(!guard.ObservedPresentationWord,
+            "production uses the installed Polyp-rock selector without ROM reads");
+        AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86,
+                PolypRockInstructionProgramDefinitions.PresentationWord, out ushort selector),
+            "Polyp-rock selector is compiled");
+        AssertEqual(ReadPolypRockInstructionWord(rom,
+                PolypRockInstructionProgramDefinitions.PresentationWord), selector,
+            "compiled Polyp-rock selector equals the native operand");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Polyp-rock and shared-delete mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -86,7 +98,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Polyp-rock instruction mechanics: two compiled words, the real producer, " +
-            "terminal sleep, shared shot deletion, and the live spritemap read pass with " +
+            "terminal sleep, shared shot deletion, and the native installed selector pass with " +
             "mechanics bytes forbidden.");
 
         void RunForcedTick(RoomEnemyProjectileSlot projectile)

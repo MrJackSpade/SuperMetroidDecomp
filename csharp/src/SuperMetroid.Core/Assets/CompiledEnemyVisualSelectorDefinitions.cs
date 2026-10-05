@@ -196,6 +196,11 @@ internal static partial class CompiledEnemyVisualSelectors
     };
     internal static bool TryGet(byte bank, ushort operandAddress, out ushort pointer)
     {
+        if (bank == 0x86 && operandAddress == PolypRockInstructionProgramDefinitions.PresentationWord)
+        {
+            pointer = PolypRockInstructionProgramDefinitions.FrameAt(operandAddress);
+            return true;
+        }
         int key = (bank << 16) | operandAddress;
         if (IsCalculatedSelector(key))
         {

@@ -590,7 +590,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/PolypRockInstructionProgramDefinitions.cs
 
-- [ ] **PolypRockInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/PolypRockInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PolypRockInstructionProgramDefinitions.Words** - Single-pose/sleep controls and visual operand locations calculate from program widths; see Polyp-rock/Yapping Maw batch below.
 
 ### csharp/src/SuperMetroid.Core/Game/RinkaInstructionProgramDefinitions.cs
 
@@ -673,8 +673,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/YappingMawBodyProjectileInstructionProgramDefinitions.cs
 
-- [ ] **YappingMawBodyProjectileInstructionProgramDefinitions.Words** ([L25](../csharp/src/SuperMetroid.Core/Game/YappingMawBodyProjectileInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWords** ([L32](../csharp/src/SuperMetroid.Core/Game/YappingMawBodyProjectileInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **YappingMawBodyProjectileInstructionProgramDefinitions.Words** - Single-pose/sleep controls and visual operand locations calculate from program widths; see Polyp-rock/Yapping Maw batch below.
+- [x] **YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWords** - Single-pose/sleep controls and visual operand locations calculate from program widths; see Polyp-rock/Yapping Maw batch below.
 
 ### csharp/src/SuperMetroid.Core/Game/YappingMawInstructionProgramDefinitions.cs
 
@@ -845,3 +845,13 @@ Removed three mount tables in favor of named left/right/up/down cases with one-t
 Verification build passed (1432 warnings, zero errors). New --lookup-stream5-eye-geometry passes all four native mount tuples, eight actual initializer cases confirming signed offset wrap at zero/65535 and exact programs, all sixteen native red/green/blue records, actual full-beam updates and the phase wrap, and unsupported bounds. No player-facing behavior change is intended.
 
 Fifty-six stream5 definitions resolved:55 converted/removed and1 mixed narrowly justified retention.169 remain required. Other eye animation timing and visual payloads remain pending.
+
+## Polyp-rock and Yapping Maw body program batch
+
+Three definitions converted: Polyp-rock Words and Yapping Maw body Words/PresentationWords. Static pose followed by terminal sleep determines the controls; two facing programs use six-byte spacing. No replacement table is allocated. Pinned bank86 BBD5-BBD9 and EC56-EC60 confirm all six control words and three native sprite operands.
+
+The existing focused Polyp-rock check reproduced a missing compiled selector at86:BBD7 before its first actual pose. Supported ROM bytes01 00 40 93 59 81 and pinned8D:9340 identify EnemyProjSpritemaps_LavaquakeRocks. The granted shared dispatch now delegates only this exact operand to the named catalog selector. --polyp-rock-instruction-mechanics passes both native controls, the actual producer and exact produced native sprite9340, sleep, shared deletion, rejected boundaries and allocation checks, with zero live operand reads. This separate player-facing selector correction is awaiting-player-validation for1242 when integrated.
+
+The Yapping Maw check first confirmed its obsolete expectedtwo live reads versus actualzero. Its corrected --yapping-maw-body-projectile-instruction-mechanics passes four native controls, both exact compiled native selectors, actual both-facing producers/eight links, sleep, deletion, bounds and allocation checks with zero source reads. Runtime stores the exact PresentationOperandAddress and a blank placeholder for draw-time installed artwork; the actual-state assertion respects that documented representation rather than comparing the placeholder to a native target. No production workaround was added for the initially incorrect assertion.
+
+Build passed1433 existing warnings/zero errors; final verifier rebuild25 warnings/zero errors. Integrated checkpoint60resolved (59converted,one mixed bridge),165required. No independent timing or artwork choice received a new exception.

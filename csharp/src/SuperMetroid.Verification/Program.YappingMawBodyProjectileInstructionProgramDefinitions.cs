@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -62,9 +63,17 @@ internal static partial class Program
                 AssertEqual(expected, body.InstructionPointer,
                     $"real {facing}-facing Yapping Maw body selects its named pose");
                 RunForcedTick(enemies, body);
+                AssertEqual(unchecked((ushort)(expected + 2)), body.PresentationOperandAddress,
+                    $"actual {facing}-facing body selects its installed presentation operand");
+                AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, body.SpritemapPointer,
+                    $"actual {facing}-facing body defers artwork resolution to the draw pass");
                 AssertEqual(unchecked((ushort)(expected + 4)), body.InstructionPointer,
                     $"{facing}-facing Yapping Maw body schedules its terminal sleep");
                 RunForcedTick(enemies, body);
+                AssertEqual(unchecked((ushort)(expected + 2)), body.PresentationOperandAddress,
+                    $"actual {facing}-facing body selects its installed presentation operand");
+                AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, body.SpritemapPointer,
+                    $"actual {facing}-facing body defers artwork resolution to the draw pass");
                 AssertEqual(unchecked((ushort)(expected + 4)), body.InstructionPointer,
                     $"{facing}-facing Yapping Maw body sleeps at the authored opcode");
                 AssertEqual((ushort)0, body.InstructionTimer,
@@ -91,18 +100,18 @@ internal static partial class Program
         AssertTrue(!deletion.IsActive,
             "Yapping Maw body shot reaction reaches the compiled shared delete program");
 
-        AssertEqual(
-            YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "both live Yapping Maw body spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "both Yapping Maw body selectors execute without ROM reads");
         for (int index = 0;
              index < YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = YappingMawBodyProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Yapping Maw body presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                $"Yapping Maw body selector $86:{address:X4} is compiled");
+            AssertEqual(ReadYappingMawBodyProjectileInstructionWord(rom, address), selector,
+                $"Yapping Maw body selector $86:{address:X4} equals the native operand");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -127,7 +136,7 @@ internal static partial class Program
         Console.WriteLine(
             "Yapping Maw body-projectile instruction mechanics: four compiled words, " +
             "both real facing producers, eight terminal sleeps, shared shot deletion, " +
-            "and both live spritemap reads pass with mechanics bytes forbidden.");
+            "and both native installed selectors pass with source reads forbidden.");
     }
 
     private static int ProbeYappingMawBodyProjectileInstructionMechanicsAllocation()

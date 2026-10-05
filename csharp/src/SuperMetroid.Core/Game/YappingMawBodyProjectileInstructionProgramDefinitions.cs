@@ -7,7 +7,7 @@ internal readonly record struct YappingMawBodyProjectileInstructionMechanicsWord
 
 /// <summary>
 /// Compiled timing and terminal sleep control for the two Yapping Maw body-link poses.
-/// Their interleaved spritemap operands remain live cartridge presentation data.
+/// Their interleaved sprite operands select installed presentation artwork.
 /// </summary>
 internal static class YappingMawBodyProjectileInstructionProgramDefinitions
 {
@@ -21,30 +21,27 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort FacingUp = 0xec5c;
 
-    private static readonly YappingMawBodyProjectileInstructionMechanicsWord[] Words =
-    [
-        new(FacingDown, 0x0001),
-        new(0xec5a, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(FacingUp, 0x0001),
-        new(0xec60, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-    ];
+    internal static int MechanicsWordCount => 4;
+    internal static int PresentationWordCount => 2;
 
-    private static readonly ushort[] PresentationWords = [0xec58, 0xec5e];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static YappingMawBodyProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    /// <summary>$86:EC56-EC61 contains two six-byte single-pose/sleep programs, down then up.</summary>
+    internal static YappingMawBodyProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int operation = index & 1;
+        return new((ushort)(FacingDown + index / 2 * 6 + operation * 4),
+            operation == 0 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
+    }
+    internal static ushort PresentationWordAddress(int index) => (uint)index < PresentationWordCount
+        ? (ushort)(FacingDown + index * 6 + sizeof(ushort)) : throw new IndexOutOfRangeException();
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            YappingMawBodyProjectileInstructionMechanicsWord candidate = Words[middle];
+            YappingMawBodyProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -63,9 +60,9 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

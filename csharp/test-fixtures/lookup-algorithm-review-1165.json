@@ -10840,7 +10840,7 @@
     "ddd11b3b6"
   ],
   "confirmation": "Verification1438 warnings/zero errors. Rio51 native words,32 selectors,seven actual parent/flame programs and three callbacks; Draygon38 native words,27 actual visual selections,real goop/turret producers,touch/drop callbacks and all private programs. Source reads forbidden. Corrected standalone Rio flag to avoid invoking unrelated Draygon check; combined stream keeps both. No reviewed-source hash dependency; static index refreshed.",
-  "scope": "Lower Norfair Rio and Draygon projectile control/presentation-address arrays:four definitions."
+  "scope": "Three definitions complete: Lower Norfair Rio presentation addresses and Draygon projectile control/presentation addresses. Rio Words remains pending for independent turnaround/cooldown/flame timing."
 },"steamEvirBridgeIntegration":{
   "implementationCommits": [
     "bfde3a167",
@@ -10923,7 +10923,7 @@
     "3481b7188",
     "3debae639"
   ],
-  "scope": "Five complete definitions: Draygon empty OAM membership,two turtle programs and two eye-door programs. Surface/dark lightning colors partially calculated.",
+  "scope": "Four complete definitions: Draygon empty OAM membership,Turtle presentation addresses and two eye-door programs. Turtle mechanics remains pending for independent spin/shell timing; surface/dark lightning partially calculated.",
   "algorithm": "Extended-frame component strides and triangular sizes; semantic crawl/spin/shell cases; eye-door aim/impact duration ramps and control cases. Lightning phase/shade arithmetic and clamped per-channel fading remove195 samples.",
   "remaining": "370 converted,four justified retained,754 pending. Surface lightning base/brightness parameters and seven dark inputs remain required,along with unchecked collision/artwork payloads; no new exception.",
   "state": "partial"
@@ -10959,7 +10959,7 @@
   "reason": "These values choose the particular olive-grey cortex/tissue highlight,silhouette/internal outline and darkest mouth/neck paint. A generic grayscale or lighting transform would invent different paint. All shades,shared plates,neutral colors,duplicate highlight and cross-sequence relationships still calculate.",
   "evidence": "Coordinator inspected headA9A586/neckA9A694 artwork and index1/4/13 masks,guarded exporter tile mapping,pinnedAD:EEB8/F0BF/F1EB and copy routingEF1F-44/EF5C-81/F0FA-100. Direct supported ROM SHA12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72 and15endpoint words independently confirmed.",
   "scope": "Only highlight4F38,outline0CA5,dark tissue1949,represented by exact quantized gradient endpoints. No whole palette exemption.",
-  "state": "approved-pending-integration",
+  "state": "integrated",
   "limits": "RGB8 endpoints193/200/155 and79/83/55 are an exact quantized representation,not a historical-tool provenance claim. Revival and other channel endpoints still need dispositions. Worker must use dedicated domain catalog and preserve independent installed edits."
 },"flareOwtchPuyoIntegration":{
   "scope": "13 flare/timer/Dragon identities, Owtch/Stoke layouts, Puyo programs, smoke geometry and Metroid quota dispatch definitions",
@@ -11013,4 +11013,15 @@
     "d34d2cd22"
   ],
   "remaining": "425converted,4retained,699pending. Separately inventoried Metroid FrameDurations and HUD posture observations stay pending. No new exception."
+},"drainedPaintIntegrationAndTimingReaudit":{
+  "remaining": "425converted,4original justified-retained,699pending:two completed palette definitions offset two reopened timing definitions. New drained paint dependency separately documented; all other palette endpoints remain required.",
+  "reopened": "MamaTurtleInstructionProgramDefinitions.Words spin1/4/5/5/5 and unequal shell holds; LowerNorfairRioInstructionProgramDefinitions.Words turnaround/cooldown endpoint exceptions and flame6/4/3. Ordinal value agreement is insufficient explanation. Both are unchecked in master/report/issues; source corrections isolate exact pending timing inputs and integrated Verification1442warnings/zeroerrors plus focused stream4 pass.",
+  "scope": "CorpseFade and fakeDeathToGrey calculate from separately reviewed health/drained paints; new dedicated retained dependency MotherBrainDrainedPaintDefinitions has exactly3 RGB5 paints and reviewed exact RGB8 gradient precision,not an added original snapshot entry.",
+  "implementationCommits": [
+    "ccdf4da9d",
+    "317f87990",
+    "f3ff467a5"
+  ],
+  "confirmation": "Integrated Verification1442warnings/zeroerrors and stream3 pass native drain/corpse/fake-death rows, independent edit preservation and absent stock endpoint storage. ResourceAudit zero warnings/errors; reviewed source hashes and new dependency closure refreshed.",
+  "state": "integrated"
 }}

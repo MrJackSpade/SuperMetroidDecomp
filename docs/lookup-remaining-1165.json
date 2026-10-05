@@ -1311,7 +1311,9 @@
       "line": 21,
       "name": "MotherBrainDeathColorCatalog.corpseFade",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainDeathColorCatalog.corpseFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MotherBrainDeathColorCatalog.corpseFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "317f87990"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs",
@@ -1392,7 +1394,9 @@
       "line": 13,
       "name": "MotherBrainRainbowPalettePresentation.fakeDeathToGrey",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainRainbowPalettePresentation.fakeDeathToGrey. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MotherBrainRainbowPalettePresentation.fakeDeathToGrey. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "f3ff467a5"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs",
@@ -4440,9 +4444,7 @@
       "line": 31,
       "name": "LowerNorfairRioInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored LowerNorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
-      "state": "converted",
-      "implementationCommit": "142a42552"
+      "note": "Stored LowerNorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs",
@@ -4499,9 +4501,7 @@
       "line": 43,
       "name": "MamaTurtleInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
-      "state": "converted",
-      "implementationCommit": "3481b7188"
+      "note": "Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs",

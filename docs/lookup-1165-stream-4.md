@@ -309,12 +309,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs
 
-- [x] **LowerNorfairRioInstructionProgramDefinitions.Words** ([L31](../csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs#L31)) - factory-built stock table. Stored LowerNorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [ ] **LowerNorfairRioInstructionProgramDefinitions.Words** ([L31](../csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs#L31)) - factory-built stock table. Stored LowerNorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [x] **LowerNorfairRioInstructionProgramDefinitions.PresentationWords** ([L33](../csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs#L33)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs
 
-- [x] **MamaTurtleInstructionProgramDefinitions.Words** ([L43](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L43)) - factory-built stock table. Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [ ] **MamaTurtleInstructionProgramDefinitions.Words** ([L43](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L43)) - factory-built stock table. Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [x] **MamaTurtleInstructionProgramDefinitions.PresentationWords** ([L45](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L45)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [x] **MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202** ([L202](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L202)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
@@ -791,10 +791,10 @@ Three definitions converted; 43 complete and 182 unchecked. No retained exceptio
 - Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-4` passed. The new focused check compares all44 control words with the original ROM and all26 interleaved operand addresses in order, checks both bytes, rejects unaligned reads, adjacent code, wrong banks and invalid enumeration indices. Existing stream checks also pass.
 ## Batch 10: Lower Norfair Rio animation programs
 
-Two definitions converted; 45 complete and 180 unchecked. No retained exception.
+PresentationWords converted; Words remains required for independent preparation, cooldown and flame holds. No retained exception.
 
 - Removed both startup-generated arrays and their list builders. Program ranges identify idle, preparation, descent, ascent, cooldown and flame behavior; frame strides calculate presentation operands. Direct control evaluation preserves flame visibility callbacks, animation-finished signals, sleep and loop targets. Indexed views enumerate the calculated program without storing rows.
-- Idle/descent/ascent use their constant frame durations. Preparation and cooldown calculate the capped linear timing ramp around spritemap pose7; cooldown ends with three one-tick closing poses. The three flame durations calculate a three-tick base plus successively halved extra dwell. These are exact arithmetic descriptions of the native values, not claims about the historical authoring tool.
+- Idle/descent/ascent share uniform holds. Preparation/cooldown endpoint exceptions and flame 6/4/3 timing remain unexplained input choices. Matching them with ordinal expressions does not establish a conversion; Words stays unchecked until those inputs have a valid disposition.
 - Evidence: pinned bankA2 `InstList_Holtz_Idle_0` through `InstList_Holtz_Flames`, `$C61A..C6BF`; both turnaround sequences select pose7 at their one-tick center.
 - Confirmation: Verification build passed (1431 warnings, zero errors), and `--lookup-stream-4` passed. The existing `VerifyLowerNorfairRioInstructionProgramDefinitions` is now wired into this focused command unchanged: all51 control words,32 presentation selectors, all seven actual interpreter programs, three callback effects, initializer selections and mechanics-read guards pass. No unrelated gameplay investigation.
 ## Batch 11: Draygon projectile programs
@@ -870,9 +870,9 @@ Partial payload conversion inside the still-open `RoomPaletteFxPresentation.colo
 
 ## Batch 18: Mama/Baby Turtle instruction layouts
 
-Two more definitions converted;53 complete and172 unchecked. No retained exception.
+PresentationWords converted; Words remains required for independent spin and shell-transition holds. No retained exception.
 
-- Removed both factory-built arrays and all list-building helpers. Eight crawl steps calculate their ten-byte callback/draw layout; spinning programs preserve the baby's extra stoppable callback; named shell programs calculate entry, hide and exit cadence, directional rise callbacks and terminal sleeps.
+- Removed both factory-built arrays and all list-building helpers. Eight crawl steps calculate their ten-byte callback/draw layout; spinning programs preserve the baby's extra stoppable callback; named shell programs calculate record layout, directional rise callbacks and terminal sleeps. Unequal spin and shell-transition timing is unresolved.
 - Direct control resolution uses these semantic program rules. Native-order enumeration scans the bounded program region without caching; every sub-$8000 control is a draw duration whose following word owns presentation, yielding all75 operand addresses without storing a second mapping.
 - Evidence: pinned bankA2 thirteen `InstList_MamaTurtle/BabyTurtle` programs from `$8B80` through `$8D4E`, excluding adjacent code gaps and movement definitions starting `$8D50`.
 - Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Existing unchanged focused turtle verifier confirms117 original control words in strict order, both-byte ownership,75 unique presentation addresses and their mechanics exclusion, adjacent movement rejection and allocation-free direct resolution. This verifier is a definition-boundary check; its legacy console wording about executing all programs is broader than its actual assertions, so no such execution claim is made here.
@@ -898,3 +898,7 @@ Three more definitions converted;58 complete and167 unchecked. No retained excep
 ## Batch 18 checklist reconciliation
 
 The separately inventoried AddBabyCrawl two-duration literal was removed with its entire factory helper in592e59b21. Its two ten-tick poses are calculated in TryCrawl and covered by the same117-native-word confirmation. Marking that already-completed entry brings totals to59 complete and166 unchecked; no production change or additional exemption.
+
+## Coordinator timing re-audit
+
+MamaTurtleInstructionProgramDefinitions.Words and LowerNorfairRioInstructionProgramDefinitions.Words are reopened. Native value agreement confirmed behavior but did not justify independent timing choices. The integrated stream now has57 complete and168 unchecked; uniform AddBabyCrawl and presentation-address conversions remain complete. Source corrections isolate the exact pending timing inputs; integrated Verification1442warnings/zeroerrors and focused stream4 checks pass. No retention exception is granted.

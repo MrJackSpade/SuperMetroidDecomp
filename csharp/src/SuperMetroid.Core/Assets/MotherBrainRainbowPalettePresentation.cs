@@ -205,12 +205,17 @@ public sealed class MotherBrainRainbowPalettePresentation
     private sealed class PaletteFrame
     {
         private readonly ushort[]? backLegs;
+        private readonly bool stockRear;
 
         public PaletteFrame(ushort[] body, ushort[] legs, ushort? trailingColor)
         {
-            Body = body;
+            Body = new BodyColors(body);
             LegCount = legs.Length;
             TrailingColor = trailingColor;
+            bool matchesRear = legs.Length == MotherBrainRainbowPaletteRomData.ColorCount;
+            for (int color = 0; matchesRear && color < legs.Length; color++)
+                matchesRear = legs[color] == MotherBrainHealthPalettePresentation.StockBaseColor(true, color);
+            if (matchesRear) { stockRear = true; return; }
             // Rainbow legs use half-intensity body colors, rounding RGB5 upward.
             // Select this relationship only when every supplied color agrees.
             if (body.Length != legs.Length)
@@ -220,16 +225,35 @@ public sealed class MotherBrainRainbowPalettePresentation
                 { backLegs = legs; return; }
         }
 
-        public ushort[] Body { get; }
+        public BodyColors Body { get; }
         public int LegCount { get; }
         public ushort? TrailingColor { get; }
-        public ushort Leg(int color) => backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
+        public ushort Leg(int color) => stockRear
+            ? MotherBrainHealthPalettePresentation.StockBaseColor(true, color)
+            : backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
 
         private static ushort HalfIntensity(ushort color) => (ushort)(
             ((color & 31) + 1) / 2 | (((color >> 5 & 31) + 1) / 2) << 5
             | (((color >> 10 & 31) + 1) / 2) << 10);
     }
 
+    /// <summary>Recognizes normal body paint without retaining a repeated palette row.</summary>
+    private sealed class BodyColors
+    {
+        private readonly ushort[]? supplied;
+        public int Length { get; }
+        public BodyColors(ushort[] colors)
+        {
+            Length = colors.Length;
+            if (Length != MotherBrainRainbowPaletteRomData.ColorCount)
+            { supplied = colors; return; }
+            for (int color = 0; color < Length; color++)
+                if (colors[color] != MotherBrainHealthPalettePresentation.StockBaseColor(false, color))
+                { supplied = colors; return; }
+        }
+        public ushort this[int color] => supplied is null
+            ? MotherBrainHealthPalettePresentation.StockBaseColor(false, color) : supplied[color];
+    }
     private interface IPaletteFade
     {
         int Length { get; }

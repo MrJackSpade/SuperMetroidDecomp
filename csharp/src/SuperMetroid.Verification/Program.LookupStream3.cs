@@ -741,6 +741,12 @@ internal static partial class Program
             Set(original);
         }
         CheckRainbow(stock);
+        object normalFrame = typeof(MotherBrainRainbowPalettePresentation).GetField("normal", privateFields)!.GetValue(stock)!;
+        object normalBody = normalFrame.GetType().GetProperty("Body")!.GetValue(normalFrame)!;
+        AssertTrue(normalBody.GetType().GetField("supplied", privateFields)!.GetValue(normalBody) is null,
+            "stream 3 normal body calculates from shared health paint without a stored row");
+        AssertTrue(normalFrame.GetType().GetField("backLegs", privateFields)!.GetValue(normalFrame) is null,
+            "stream 3 normal rear palette calculates from shared health lighting without a stored row");
         var storedRainbow = (Array)typeof(MotherBrainRainbowPalettePresentation).GetField("rainbow",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
         foreach (object frame in storedRainbow)

@@ -17,12 +17,15 @@ public sealed class MotherBrainHealthPalettePresentation
     }
 
     /// <summary>
-    /// The $AD:EA0A death body and $AD:EA26 rear-leg starting palettes are health state three.
-    /// The $AD:F119 corpse starts with the same full fifteen-color brain palette.
+    /// $A9:9474/9494 normal restoration repeats the $AD:E6AC/E74C health-state-zero bases.
     /// Independent installed documents use this only when their own supplied colors match.
     /// </summary>
+    internal static ushort StockBaseColor(bool backLeg, int color) =>
+        (backLeg ? BasePalette.StockRear : BasePalette.StockBody).Color(color);
+
+    /// <summary>$AD:EA0A/EA26 and F119 use health state three as their death-fade starting point.</summary>
     internal static ushort StockDeathStartColor(bool backLeg, int color) =>
-        TintColor((backLeg ? BasePalette.StockRear : BasePalette.StockBody).Color(color), 3, backLeg);
+        TintColor(StockBaseColor(backLeg, color), 3, backLeg);
 
     private static ushort TintColor(ushort initial, int state, bool backLeg)
     {

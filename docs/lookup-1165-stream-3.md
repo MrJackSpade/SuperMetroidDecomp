@@ -945,6 +945,12 @@ Artifacts in that tool's `output` directory include `head-a586.png`, its `-index
 - Verification build passed (1432 warnings, zero errors); `--lookup-stream-3` passed all 568 native death words, all 1704 independent death-channel edits, unchanged content identities, absent starting/frame arrays and the existing 120 native health words plus 360 independent health edits.
 - Body and leg fades are converted: every color now derives from the already narrowly approved health paints. Corpse's final fifteen-color endpoint and the fourteen exploded-door colors remain required; this conversion grants no new paint exception. Converted count is 81 plus the same two narrowly justified retained entries.
 - Coordinator must refresh health's `RemainingEnemyColorClosedContractDefinitions.cs` source hash and death's `SequenceColorClosedContractDefinitions.cs` source hash.
+### Confirmed batch 40: Normal restoration reuses health paint and lighting
+
+- Source $A9:9474/9494 repeats the fifteen body and fifteen rear colors at health state zero. Recognized these exact rows through the shared six-anchor base generator. Normal restoration now calculates both rows without independently storing another palette payload; nonmatching installed body/rear edits retain exact fallback colors.
+- Verification build passed (final rebuild 1217 warnings, zero errors); `--lookup-stream-3` passed all thirty original restoration colors and ninety independent normal-channel edits, with explicit absent-row assertions. The existing 900 rainbow channel-edit checks and other drain/revival/health/death checks also passed after the shared frame representation change.
+- The source inventory has no separate normal field entry. This removes an additional nested payload without marking the still-pending rainbow table complete; counts remain 81 converted plus two narrowly justified retained entries. Drain/revival/corpse grey endpoints remain required.
+- Coordinator must refresh the existing health and rainbow-presentation source hashes in `RemainingEnemyColorClosedContractDefinitions.cs` and `SequenceColorClosedContractDefinitions.cs`.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

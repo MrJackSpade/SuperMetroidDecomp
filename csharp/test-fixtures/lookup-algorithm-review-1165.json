@@ -10761,4 +10761,14 @@
   "evidence": "Pinned bank90 Spawn_ProjectileTrail B657-B698 masks beam selector with003F, doubles it and reads right baseB609. Indices39..63 therefore read50 physical instruction bytes beyond the39-word table. Source begins PHB/LDA projectile type and ends RTL atB687 plus LDA opcode atB688; its immediate operand is outside window.",
   "confirmation": "Independent static native/caller inspection and direct50-byte comparison against supported ROM, with SHA256 verified. No gameplay search or new behavior test needed for this source-only review.",
   "state": "reviewed-retention-awaiting-integration"
+},"lightningProgramControlIntegration":{
+  "confirmation": "Verification1438 warnings/zero errors; integrated --lookup-stream-3 passes52 escape native words and both98-frame loops;78 surface/dark native words,four timer bytes,both503/743-frame cycles and vertical restart; bounds and excluded color operands preserved. Source index refreshed; no reviewed-source hash dependency found.",
+  "remaining": "296 converted,one justified retained,831 pending. Independent color payloads remain required; invalid blanket retention prose removed.",
+  "scope": "Escape lightning owner/duration definitions and surface/dark lightning programs including nested frame/control arrays, three original definitions.",
+  "implementationCommits": [
+    "6b186b529",
+    "bbd2896d1"
+  ],
+  "algorithm": "Named owner cases, explicit quiet-interval timing, repeated flash groups and neutral records calculate all frame/word/byte entries without cached arrays.",
+  "state": "converted"
 }}

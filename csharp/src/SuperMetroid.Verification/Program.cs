@@ -26,6 +26,20 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-mochtroid-shake"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    foreach (ushort timer in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfff8, 0xfff9, 0xfffa, 0xfffb, 0xfffc, 0xfffd, 0xfffe, 0xffff })
+    {
+        int offset = timer & 6;
+        short x = unchecked((short)(rom.ReadByte(0xa3a76d + offset) | rom.ReadByte(0xa3a76e + offset) << 8));
+        short y = unchecked((short)(rom.ReadByte(0xa3a775 + offset) | rom.ReadByte(0xa3a776 + offset) << 8));
+        AssertEqual(((int)x, (int)y), MochtroidShakeDefinitions.Offset(timer), "Native cardinal shake and timer-bit mask");
+    }
+    VerifyMochtroidInstructionProgramDefinitions(rom);
+    Console.WriteLine("Mochtroid shake: sixteen native masked-timer comparisons pass; amplitude remains required.");
+    return 0;
+}
 if (args is ["--lookup-mochtroid-visuals"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

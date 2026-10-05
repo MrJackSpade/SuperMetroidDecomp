@@ -208,11 +208,9 @@ public sealed partial class RoomEnemySystem
     {
         // This third dispatch entry is unused by retail callers but present in the shipped
         // table. The low two even bits select right/up/left/down, then the timer counts down.
-        int tableIndex = (state.ShakeTimer & 0x0006) >> 1;
-        ReadOnlySpan<short> xOffsets = [2, 0, -2, 0];
-        ReadOnlySpan<short> yOffsets = [0, -2, 0, 2];
-        slot.XPosition = unchecked((ushort)(slot.XPosition + xOffsets[tableIndex]));
-        slot.YPosition = unchecked((ushort)(slot.YPosition + yOffsets[tableIndex]));
+        (int x, int y) = MochtroidShakeDefinitions.Offset(state.ShakeTimer);
+        slot.XPosition = unchecked((ushort)(slot.XPosition + x));
+        slot.YPosition = unchecked((ushort)(slot.YPosition + y));
         StoreMochtroidXVelocity(state, 0);
         StoreMochtroidYVelocity(state, 0);
         state.ShakeTimer = unchecked((ushort)(state.ShakeTimer - 1));

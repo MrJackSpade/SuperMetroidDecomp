@@ -363,7 +363,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs
 
-- [ ] **MochtroidInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MochtroidInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **MochtroidInstructionProgramDefinitions.PresentationWords** ([L28](../csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs
@@ -1148,3 +1148,9 @@ Both original visual entries calculate: two0,1,2,1pose cycles select six named f
 Root source review approves only the14-tick flight and5-tick attached pulse cadences as chosen animation content. NativeA3:A745-A76B contains duration/map records andGoto without callbacks;A790 dispatches independent movement. A953-A9A7 uses separate80-contact damage and global-frame sound timing. HeaderA0:D8FF fixes10x12collision radii;A0:A08C's nonzero-map gate and fixed-radius contact do not distinguish the six nonzero poses. GenericA0:C276-C2AC only updates animation timer/map/cursor. Managed movement and touch consumers preserve this separation.
 
 Generating a different pulse tempo invents a different visible performance; arithmetic encoding of the exact chosen tempo would simply disguise retained content. This narrow nonsense disposition excludes list-reset1,damage80,steering/shake,artwork and other enemy cadences. Worker follow-up will name/document the two inputs; Words remains pending until integrated review. No count change.
+
+### Integrated reviewed Mochtroid cadence and partial shake
+
+Worker f0dda1607 names14/5pulse tempos with the root-reviewed narrow visual-performance rationale. Words is mixed: layout/control/repetition calculated, two chosen visual tempos retained. List-reset1,damage80,movement and artwork are outside this disposition. Worker5e99435f6 removes both cardinal shake arrays using axis/sign calculation; independent amplitude2 remains explicitly required, both shake entries unchecked.
+
+Root Verification1445warnings/0errors; --lookup-mochtroid-shake matches16native masked-timer cases and existing12word/initializer/state-switch/two-loop/eightselector checks with reads denied. Position wrap,countdown and velocity reset retain their original operations. Master549converted/17retained-mixed/562pending.

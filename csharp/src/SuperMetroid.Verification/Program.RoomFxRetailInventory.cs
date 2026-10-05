@@ -629,7 +629,7 @@ internal static partial class Program
     {
         CartridgeDoorHeader door = doors.Single(candidate =>
             candidate.Pointer == RetailRoomFxDefinitions.RisingLavaRoom28.EntryDoor);
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

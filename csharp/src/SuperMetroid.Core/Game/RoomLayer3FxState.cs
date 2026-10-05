@@ -124,7 +124,21 @@ public sealed class RoomLayer3FxState
         ushort fxPointer,
         ushort doorPointer,
         ushort randomNumber,
-        ushort roomHeaderPointer = 0)
+        ushort roomHeaderPointer = 0) =>
+        LoadCore(bus, vram, cgram, fxPointer, doorPointer, randomNumber, roomHeaderPointer, null);
+
+    /// <summary>Loads an explicit immutable FX definition through the normal room-load path.</summary>
+    internal void LoadDefinition(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram,
+        RoomFxRecordDefinition definition, ushort randomNumber)
+    {
+        ArgumentNullException.ThrowIfNull(definition);
+        LoadCore(bus, vram, cgram, definition.Pointer, definition.DoorPointer,
+            randomNumber, 0, definition);
+    }
+
+    private void LoadCore(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram,
+        ushort fxPointer, ushort doorPointer, ushort randomNumber, ushort roomHeaderPointer,
+        RoomFxRecordDefinition? suppliedDefinition)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -149,10 +163,10 @@ public sealed class RoomLayer3FxState
         if (fxPointer == 0)
             return;
 
-        ushort record = RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
+        ushort record = suppliedDefinition?.Pointer ?? RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
         if (record == 0)
             return;
-        RoomFxRecordDefinition definition = RoomFxRecordDefinitions.Get(record);
+        RoomFxRecordDefinition definition = suppliedDefinition ?? RoomFxRecordDefinitions.Get(record);
 
         BaseYPosition = definition.BaseYPosition;
         TargetYPosition = definition.TargetYPosition;

@@ -19,7 +19,7 @@ internal static partial class Program
 
         // Installing the callback is instruction-list work, even when its eventual
         // pre-instruction will return early for frozen gameplay.
-        fx.Load(bus, vram, cgram, record, 0, 0);
+        LoadSyntheticRoomFx(fx, bus, vram, cgram, record);
         fx.AdvanceHdmaSharedState(system, true);
         fx.AdvanceHdmaSharedState(system, false);
         AssertEqual(swaps ? 0x3412 : 0x1234, system.RandomNumber, $"{type} frozen startup still installs callback");
@@ -31,9 +31,9 @@ internal static partial class Program
 
         // Leave the existing visual tests with a freshly loaded effect, proving
         // that reloading does not retain the previous room's callback phase.
-        fx.Load(bus, vram, cgram, record, 0, 0);
+        LoadSyntheticRoomFx(fx, bus, vram, cgram, record);
         fx.AdvanceHdmaSharedState(system, false);
         AssertEqual(0x1234, system.RandomNumber, $"{type} reload restores initialization delay");
-        fx.Load(bus, vram, cgram, record, 0, 0);
+        LoadSyntheticRoomFx(fx, bus, vram, cgram, record);
     }
 }

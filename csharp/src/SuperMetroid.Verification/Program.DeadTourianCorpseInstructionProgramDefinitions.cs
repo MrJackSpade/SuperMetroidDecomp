@@ -38,7 +38,7 @@ internal static partial class Program
         {
             for (int variantIndex = 0; variantIndex < family.VariantCount; variantIndex++)
             {
-                var enemies = new RoomEnemySystem();
+                var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
                 Type type = typeof(RoomEnemySystem);
                 type.GetField("_bus", flags)!.SetValue(enemies, guard);
                 var initialize = type.GetMethod("InitializeDeadTourianCorpse", flags)!

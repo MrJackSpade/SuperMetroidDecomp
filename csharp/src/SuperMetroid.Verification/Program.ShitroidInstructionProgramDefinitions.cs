@@ -27,7 +27,8 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort randomNumber = 0;
         var guard = new ShitroidInstructionReadGuard(rom);
-        var enemies = new RoomEnemySystem();
+        var executedOperands = new HashSet<ushort>();
+        var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
         type.GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
@@ -49,7 +50,7 @@ internal static partial class Program
         object?[] processArguments =
             [shitroid, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
         ExecuteShitroidProgram(
-            enemies,
+            rom, executedOperands, enemies,
             process,
             processArguments,
             shitroid,
@@ -60,7 +61,7 @@ internal static partial class Program
             "finish-draining program falls through to normal program");
 
         ExecuteShitroidProgram(
-            enemies,
+            rom, executedOperands, enemies,
             process,
             processArguments,
             shitroid,
@@ -71,7 +72,7 @@ internal static partial class Program
             "normal callback loops and installs its first repeated frame");
 
         ExecuteShitroidProgram(
-            enemies,
+            rom, executedOperands, enemies,
             process,
             processArguments,
             shitroid,
@@ -83,7 +84,7 @@ internal static partial class Program
 
         randomNumber = 0;
         ExecuteShitroidProgram(
-            enemies,
+            rom, executedOperands, enemies,
             process,
             processArguments,
             shitroid,
@@ -95,7 +96,7 @@ internal static partial class Program
 
         randomNumber = 0x8000;
         ExecuteShitroidProgram(
-            enemies,
+            rom, executedOperands, enemies,
             process,
             processArguments,
             shitroid,
@@ -107,9 +108,13 @@ internal static partial class Program
         AssertEqual((ushort?)0x0052, enemies.LastShitroidSoundEffectLibrary2,
             "set-high-bit remorse branch publishes native Shitroid cry");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Shitroid sprite selection performs zero live cartridge reads");
         AssertEqual(ShitroidInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Shitroid spritemap operands remain cartridge reads");
+            executedOperands.Count, "all Shitroid visual operands execute");
+        for (int index = 0; index < ShitroidInstructionProgramDefinitions.PresentationWordCount; index++)
+            AssertTrue(executedOperands.Contains(ShitroidInstructionProgramDefinitions.PresentationWordAddress(index)),
+                "every Shitroid program frame executes with its native selector");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Shitroid mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -131,11 +136,13 @@ internal static partial class Program
         Console.WriteLine(
             "Shitroid instruction mechanics: thirty-five compiled words, the real " +
             "initializer, finish-draining fallthrough, normal/latched loops, both remorse " +
-            "branches, native cry, and thirty live spritemap reads pass with mechanics " +
-            "bytes forbidden.");
+            "branches, native cry, and thirty native sprite selections pass with mechanics " +
+            "bytes forbidden and zero live visual operand reads.");
     }
 
     private static void ExecuteShitroidProgram(
+        SuperMetroidAddressSpace rom,
+        HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
         MethodInfo process,
         object?[] processArguments,
@@ -148,6 +155,13 @@ internal static partial class Program
         {
             shitroid.InstructionTimer = 1;
             process.Invoke(enemies, processArguments);
+            if (shitroid.InstructionTimer != 0)
+            {
+                ushort operand = unchecked((ushort)(shitroid.CurrentInstruction - 2));
+                executedOperands.Add(operand);
+                AssertEqual(ReadShitroidInstructionWord(rom, operand), shitroid.SpritemapPointer,
+                    $"Shitroid executed visual operand $A9:{operand:X4} matches the cartridge");
+            }
         }
     }
 

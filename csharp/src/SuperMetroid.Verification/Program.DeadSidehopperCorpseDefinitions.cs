@@ -70,7 +70,7 @@ internal static partial class Program
         DeadSidehopperCorpseDefinition expected)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
             new DeadSidehopperCorpseDefinitionReadGuard(rom));

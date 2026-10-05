@@ -10788,4 +10788,14 @@
     "state":  "converted",
     "algorithm":  "Opening timing follows a clamped acceleration ramp with named entry/intermediate holds; closing reverses it. Dust shape, entry layout and capped paired-frame duration calculate without stored records.",
     "remaining":  "303 converted,one justified retained,824 pending. No new exception."
+},"trailSelectorsAndEggIntegration":{
+  "implementationCommits": [
+    "04fb37ae0",
+    "901c5d0a0"
+  ],
+  "remaining": "305 converted,one justified retained,822 pending. Egg definitions complete. Trail inventory entry remains pending until the already-reviewed25-word native-code residual disposition is integrated.",
+  "algorithm": "Trail first78 selectors dispatch by beam flags and projectile family. Egg bounce, hatch, charge and break layouts calculate mirrored program strides and semantic operations.",
+  "state": "partial",
+  "confirmation": "Build1438 warnings/zero errors. Trail103 native words and64 real spawn selections pass with full selector window forbidden. Egg53 native words,26 exact installed selectors,both actual producers through bounce/hatch/charge/floor break and shared shot break pass. Source index refreshed; no reviewed-source hash dependency.",
+  "scope": "Trail selection and two Golden Torizo egg program definitions."
 }}

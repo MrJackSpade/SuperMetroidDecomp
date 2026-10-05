@@ -11741,4 +11741,10 @@
     "state":  "one-converted",
     "algorithm":  "Clear selected destination width; store only explicit nonzero edited cells.",
     "remaining":  "Labels/artwork/placements separate and required.541converted/16justified retained-mixed/571pending."
+},"deadTorizoCropIndependentReview":{
+    "scope":  "RoomEnemySystem.DeadTorizoInitialGraphicsCopies and DeadTorizoColumnMinimumY remain pending.",
+    "evidence":  "Root read pinned A9:D6E2-D760:24large parts plus one8x8 tile197,97source tiles; DE18-DEBF twelve native MVN ranges. E272 onward column bounds follow same crop. Root viewed static native-art/OAM diagnostic. Worker cf2a4194f independently compares exact tile-set equality.",
+    "finding":  "Crop follows stock sprite composition coverage. Existing LeftColumn/EndColumn/source6 constants still encode the chosen stepped shape; evidence alone does not complete their implementation.",
+    "next":  "Derive row extents/source crop origin and column minima from immutable stock sprite geometry while preserving fixed staging under editable display-art changes. Keep composition artwork independently required; no new retention exception.",
+    "state":  "functional-derivation-supported-implementation-pending"
 }}

@@ -1176,7 +1176,8 @@ static void VerifyCeresRidleyRoomEntry()
          address < 0xa6c4cb;
          address++)
         bus.WriteByte(address, 0);
-    enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x1234);
+    enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x1234,
+        readRandomNumber: () => 0x1234);
 
     RoomEnemySlot ridley = enemies.Slots[0];
     RidleyEnemyState state = enemies.CeresRidley
@@ -1234,7 +1235,11 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual((ushort)RidleyAiFunction.InitialDelay, (ushort)state.Function,
         "Ceres Ridley door-clear transition");
     AssertEqual(511, state.FunctionTimer, "Ceres Ridley first delay decrement");
-    AssertEqual(0x9000, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
+    var nativeRidleyRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc"));
+    ushort initialRidleyMap = (ushort)(nativeRidleyRom.ReadByte(0xa6e53e) |
+        nativeRidleyRom.ReadByte(0xa6e53f) << 8);
+    AssertEqual(initialRidleyMap, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
     AssertEqual(0xe540, ridley.CurrentInstruction, "Ceres Ridley initial list sleeps");
 
     for (int frame = 0; frame < 512; frame++)

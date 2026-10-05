@@ -2,7 +2,7 @@
     "issue":  1165,
     "generatedUtc":  "2026-10-04T20:43:25.3086366Z",
     "countingUnit":  "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-    "remainingTableDefinitionCount":  866,
+    "remainingTableDefinitionCount":  860,
     "fileCount":  523,
     "entries":  [
                     {
@@ -1470,14 +1470,18 @@
                         "line":  17,
                         "name":  "PauseEquipmentBaseDefinitions.equipmentLabelRegions",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "a9ec2a301"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBaseDefinitions.cs",
                         "line":  29,
                         "name":  "PauseEquipmentBaseDefinitions.reserveRegions",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "a9ec2a301"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBasePresentation.cs",
@@ -3095,14 +3099,18 @@
                         "line":  28,
                         "name":  "DeadTorizoVramTransferDefinitions.Even",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "25ef94ab8"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs",
                         "line":  39,
                         "name":  "DeadTorizoVramTransferDefinitions.Odd",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "25ef94ab8"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/DeadTourianCorpseDefinitions.cs",
@@ -7744,14 +7752,18 @@
                         "line":  18,
                         "name":  "TorizoExplosiveSwipeInstructionProgramDefinitions.Words",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "25ef94ab8"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/TorizoExplosiveSwipeInstructionProgramDefinitions.cs",
                         "line":  29,
                         "name":  "TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWords",
                         "kind":  "stored definition",
-                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+                        "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+                        "state":  "converted",
+                        "implementationCommit":  "25ef94ab8"
                     },
                     {
                         "file":  "csharp/src/SuperMetroid.Core/Game/TorizoFallingLeftCollisionDefinitions.cs",
@@ -20835,6 +20847,6 @@
                                "inactive":  false
                            }
                        ],
-    "convertedSinceSnapshot":  261,
+    "convertedSinceSnapshot":  267,
     "justifiedRetainedSinceSnapshot":  1
 }

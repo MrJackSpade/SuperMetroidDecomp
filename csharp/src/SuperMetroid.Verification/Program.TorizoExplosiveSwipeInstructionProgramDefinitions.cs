@@ -67,7 +67,8 @@ internal static partial class Program
                 "Torizo swipe compiled selector exists");
             AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
                 "Torizo swipe compiled selector matches original operand");
-        }        AssertEqual(0, guard.ForbiddenReadAttempts,
+        }
+        AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Torizo explosive-swipe mechanics byte");
         AssertThrows<InvalidDataException>(
             () => TorizoExplosiveSwipeInstructionProgramDefinitions.ReadMechanicsWord(0xa4af),

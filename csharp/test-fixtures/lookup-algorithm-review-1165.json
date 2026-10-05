@@ -10679,4 +10679,14 @@
                                   "f894eecb6",
                                   "d951fc7cc"
                               ]
+},"torizoPauseGeometryIntegration":{
+    "scope":  "Six definitions: Dead Torizo even/odd DMA, explosive swipe mechanics/presentation, pause equipment/reserve ownership.",
+    "remaining":  "267 converted, one justified retained, 860 pending. No new exception.",
+    "confirmation":  "Verification build 1437 warnings, zero errors. Focused checks pass 56 native DMA fields and fourteen actual transfers; seven swipe words, five selectors and actual 25-frame lifetime; all 1024 menu ownership cells and adjacent bounds including nine-cell Plasma overlap. ResourceAudit build zero warnings/errors. Reviewed DMA and pause source hashes refreshed.",
+    "state":  "converted",
+    "algorithm":  "Calculate clipped body rows and alternating sand transfers; packed sound then five five-tick poses and deletion; menu ownership from native row/column geometry.",
+    "implementationCommits":  [
+                                  "25ef94ab8",
+                                  "a9ec2a301"
+                              ]
 }}

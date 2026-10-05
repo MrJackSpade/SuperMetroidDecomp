@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -26,6 +27,9 @@ internal static partial class Program
                 $"KiHunter acid-spit mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("KiHunter fixture requires installed projectile sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new KiHunterAcidSpitInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -84,16 +88,20 @@ internal static partial class Program
             "KiHunter acid shot reaction reaches the compiled shared delete program");
 
         AssertEqual(KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "both introductions and impact execute every native visual operand");
+        AssertEqual(0,
             guard.ObservedPresentationWords.Count,
-            "all live KiHunter acid-spit spritemap operands remain cartridge reads");
+            "KiHunter acid-spit execution performs no live spritemap operand reads");
         for (int index = 0;
              index < KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = KiHunterAcidSpitInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads KiHunter acid presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                $"KiHunter acid presentation $86:{address:X4} has an installed selector");
+            AssertEqual(ReadKiHunterAcidSpitInstructionWord(rom, address), selector,
+                $"installed KiHunter acid selector $86:{address:X4} matches the cartridge");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -115,7 +123,7 @@ internal static partial class Program
         Console.WriteLine(
             "KiHunter acid-spit instruction mechanics: twenty-seven compiled words, both " +
             "real directional producers, terminal sleeps, real floor impact, complete " +
-            "splash, shared shot deletion, and nineteen live spritemap reads pass.");
+            "splash, shared shot deletion, and nineteen native selectors with zero live reads pass.");
 
         RoomEnemyProjectileSlot Find(RoomEnemyProjectileKind kind) =>
             enemies.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
@@ -143,6 +151,26 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                if (projectile.IsActive && projectile.InstructionTimer != 0)
+                {
+                    ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));
+                    AssertEqual(operand, projectile.PresentationOperandAddress,
+                        "executed KiHunter frame retains its native presentation operand");
+                    executedOperands.Add(operand);
+                    var expected = new OamBuffer();
+                    var actual = new OamBuffer();
+                    expected.BeginFrame();
+                    actual.BeginFrame();
+                    DrawImportedEnemyProjectileSpritemap(rom, expected,
+                        ReadKiHunterAcidSpitInstructionWord(rom, operand), 128, 112, 0, true);
+                    actual.AddEnemySpritemap(spriteArtwork.GetProgramFrame(operand).Span,
+                        128, 112, 0, 0, clipVerticalWrap: true, originYIsOnScreen: true);
+                    AssertEqual(expected.NextByteOffset, actual.NextByteOffset,
+                        $"KiHunter frame $86:{operand:X4} native sprite part count");
+                    AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) &&
+                        expected.HighTable.SequenceEqual(actual.HighTable),
+                        $"KiHunter frame $86:{operand:X4} installed composition matches native OAM");
+                }
             }
         }
     }

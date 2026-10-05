@@ -207,7 +207,7 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(5073, CompiledEnemyVisualSelectors.Count,
+        AssertEqual(5102, CompiledEnemyVisualSelectors.Count,
             "generated fixed visual-selector count");
         foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectors.Count, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CompiledEnemyVisualSelectors.At(index),

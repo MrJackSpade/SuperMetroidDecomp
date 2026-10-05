@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream2-power-direction-bindings"])
+{
+    VerifyLookupStream2PowerDirectionBindings(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--lookup-stream-1-escape-text"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

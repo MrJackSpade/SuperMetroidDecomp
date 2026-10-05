@@ -16,6 +16,7 @@ public sealed class ProjectileFrameBindingCatalog
     public ushort Resolve(ushort instructionPointer) =>
         sprites.TryGetValue(instructionPointer, out ushort sprite)
             ? sprite
+            : ProjectileSpriteDefinitions.TryCalculatedFrameSprite(instructionPointer, out sprite) ? sprite
             : throw new InvalidDataException(
                 $"Timed projectile frame $93:{instructionPointer:X4} has no installed visual binding.");
 
@@ -48,7 +49,8 @@ public sealed class ProjectileFrameBindingCatalog
                     System.Globalization.CultureInfo.InvariantCulture, out ushort sprite) ||
                 !legalSprites.Contains(sprite))
                 throw new InvalidDataException($"Projectile frame {key} has no legal sprite identity.");
-            compiled.Add(pointer, sprite);
+            if (!ProjectileSpriteDefinitions.TryCalculatedFrameSprite(pointer, out ushort calculated) || sprite != calculated)
+                compiled.Add(pointer, sprite);
         }
         return new(compiled);
     }

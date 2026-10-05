@@ -38,9 +38,26 @@ internal static partial class Program
         var frames = (System.Collections.IDictionary)typeof(ProjectileSpriteCatalog).GetField("frames", fields)!.GetValue(selected)!;
         int calculatedCompositions = 0;
         foreach (SpriteComposition composition in frames.Values)
-            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.PowerParts)
+            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.SingleBeamParts)
                 calculatedCompositions++;
-        AssertEqual(8, calculatedCompositions, "All eight stock Power compositions calculate without cached part arrays");
+        AssertEqual(12, calculatedCompositions, "Eight Power and four Ice compositions calculate without cached part arrays");
+        int calculatedQuads = 0;
+        foreach (SpriteComposition composition in frames.Values)
+            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.ChargedBeamParts)
+                calculatedQuads++;
+        AssertEqual(19, calculatedQuads, "Nineteen charged Power/Ice quadrant compositions calculate without cached part arrays");
+        int calculatedWaves = 0;
+        foreach (SpriteComposition composition in frames.Values)
+            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.WaveParts)
+                calculatedWaves++;
+        AssertEqual(33, calculatedWaves, "All33 stock Wave compositions share directional geometry without cached parts");
+        int calculatedLobes = 0;
+        foreach (SpriteComposition composition in frames.Values)
+            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.VerticalChargedWaveParts)
+                calculatedLobes++;
+        AssertEqual(20, calculatedLobes, "Both charged-Wave families share centered/vertical lobe geometry without cached parts");
+        var firstCharged = (SpriteComposition)frames[(ushort)0xec3e]!;
+        AssertTrue(typeof(SpriteComposition).GetField("parts", fields)!.GetValue(firstCharged) is CompiledSpritePart[], "Distinct initial charged-Power ordering stays explicitly supplied/pending");
         foreach (ushort pointer in expected)
         {
             var native = new OamBuffer();
@@ -65,6 +82,30 @@ internal static partial class Program
         var ownedOam = new OamBuffer();
         edited.Draw(editedPointer, ownedOam, 255, 255);
         AssertTrue(ownedOam.LowTable.SequenceEqual(editedOam.LowTable), "Loaded composition owns independent edited content");
+        const ushort quadPointer = 0xed9e;
+        string quadName = ProjectileSpriteDefinitions.Name(quadPointer);
+        var originalQuadPart = document.Frames[quadName][0];
+        document.Frames[quadName][0] = originalQuadPart with { FlipX = !originalQuadPart.FlipX };
+        var editedQuadCatalog = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+        var nativeQuad = new OamBuffer();
+        var editedQuad = new OamBuffer();
+        selected.Draw(quadPointer, nativeQuad, 255, 255);
+        editedQuadCatalog.Draw(quadPointer, editedQuad, 255, 255);
+        byte[] expectedQuad = nativeQuad.LowTable.ToArray();
+        expectedQuad[3] ^= 0x40;
+        AssertTrue(expectedQuad.AsSpan().SequenceEqual(editedQuad.LowTable) && nativeQuad.HighTable.SequenceEqual(editedQuad.HighTable), "Independent one-quadrant reflection edit changes only its exact emitted OAM attribute bit");
+        const ushort wavePointer = 0xaea4;
+        string waveName = ProjectileSpriteDefinitions.Name(wavePointer);
+        var wavePart = document.Frames[waveName][0];
+        document.Frames[waveName][0] = wavePart with { OffsetY = wavePart.OffsetY + 1 };
+        var editedWaveCatalog = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+        var nativeWave = new OamBuffer();
+        var editedWave = new OamBuffer();
+        selected.Draw(wavePointer, nativeWave, 255, 255);
+        editedWaveCatalog.Draw(wavePointer, editedWave, 255, 255);
+        byte[] expectedWave = nativeWave.LowTable.ToArray();
+        expectedWave[1]++;
+        AssertTrue(expectedWave.AsSpan().SequenceEqual(editedWave.LowTable) && nativeWave.HighTable.SequenceEqual(editedWave.HighTable), "Independent diagonal Wave Y edit changes exactly its emitted coordinate and preserves X ninth bit");
         var flare = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
         {
@@ -76,7 +117,7 @@ internal static partial class Program
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
-        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and eight stock Power compositions calculate; independent frame selection/composition/art inputs remain pending.");
+        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and 84 stock Power/Ice/Wave compositions calculate; independent frame selection/composition/art inputs remain pending.");
     }
     private static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
     {
@@ -1779,4 +1820,85 @@ internal static partial class Program
                     AssertEqual(Pack(colors[index]), actual.Resolve(source, index), "Every original or independently supplied Kraid color");
             }
         }
-    }}
+    }    private static void VerifyLookupStream2PowerDirectionBindings(ISnesAddressSpace rom)
+    {
+        byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
+        var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(json));
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var remaining = (System.Collections.IDictionary)typeof(ProjectileFrameBindingCatalog).GetField("sprites", fields)!.GetValue(stock)!;
+        AssertEqual(645, remaining.Count, "One hundred sixty beam/effect bindings calculate; other645 selections remain required");
+        foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
+            AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), stock.Resolve(pointer), "Every installed selector retains its exact native target");
+        var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
+        var document = System.Text.Json.JsonSerializer.Deserialize<ProjectileFrameBindingDocument>(json, options)!;
+        for (int direction = 0; direction < 8; direction++)
+        {
+            ushort pointer = (ushort)(0x86db + direction * 12);
+            AssertTrue(!remaining.Contains(pointer), "Stock compass selector is absent from stored residuals");
+            var shot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
+            var system = new SamusProjectileSystem { FrameBindings = stock };
+            _ = system.RunProjectileInstructionHandler(rom, shot);
+            AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
+            string key = ProjectileFrameBindingFormat.FrameName(pointer);
+            string original = document.Frames[key];
+            document.Frames[key] = ProjectileSpriteDefinitions.Name(ProjectileSpriteDefinitions.NativePointers[0]);
+            var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+            var editedShot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
+            system.FrameBindings = edited;
+            _ = system.RunProjectileInstructionHandler(rom, editedShot);
+            AssertEqual(ProjectileSpriteDefinitions.NativePointers[0], editedShot.SpritemapPointer, "Independent direction edit overrides calculation in actual handler");
+            AssertEqual(shot.InstructionTimer, editedShot.InstructionTimer, "Visual edit preserves duration");
+            AssertEqual(shot.InstructionPointer, editedShot.InstructionPointer, "Visual edit preserves control flow");
+            AssertEqual(shot.XRadius, editedShot.XRadius, "Visual edit preserves horizontal radius");
+            AssertEqual(shot.YRadius, editedShot.YRadius, "Visual edit preserves vertical radius");
+            document.Frames[key] = original;
+        }
+        int checkedWaveIce = 0;
+        foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
+        {
+            if (!(pointer >= 0x873b && pointer < 0x8973) &&
+                !(pointer >= 0x8e77 && pointer < 0x8f17) &&
+                !(pointer >= 0x912f && pointer < 0x914f) &&
+                !(pointer >= 0xa007 && pointer < 0xa113) &&
+                !(pointer >= 0x9ebb && pointer < 0xa007)) continue;
+            AssertTrue(!remaining.Contains(pointer), "Calculated Wave/Ice selector is absent from stored residuals");
+            var shot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
+            var system = new SamusProjectileSystem { FrameBindings = stock };
+            _ = system.RunProjectileInstructionHandler(rom, shot);
+            AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
+            string key = ProjectileFrameBindingFormat.FrameName(pointer);
+            string original = document.Frames[key];
+            ushort replacement = stock.Resolve(pointer) == ProjectileSpriteDefinitions.NativePointers[0]
+                ? ProjectileSpriteDefinitions.NativePointers[1] : ProjectileSpriteDefinitions.NativePointers[0];
+            document.Frames[key] = ProjectileSpriteDefinitions.Name(replacement);
+            var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+            system.FrameBindings = edited;
+            var editedShot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
+            _ = system.RunProjectileInstructionHandler(rom, editedShot);
+            AssertEqual(replacement, editedShot.SpritemapPointer, "Every Wave/Ice supplied edit takes precedence");
+            AssertEqual(shot.InstructionTimer, editedShot.InstructionTimer, "Wave/Ice visual edit preserves duration");
+            AssertEqual(shot.InstructionPointer, editedShot.InstructionPointer, "Wave/Ice visual edit preserves flow");
+            AssertEqual(shot.XRadius, editedShot.XRadius, "Wave/Ice visual edit preserves X radius");
+            AssertEqual(shot.YRadius, editedShot.YRadius, "Wave/Ice visual edit preserves Y radius");
+            document.Frames[key] = original;
+            checkedWaveIce++;
+        }
+        AssertEqual(152, checkedWaveIce, "Wave/Ice/charged Power,32 effect records and31 missile/link/bomb records");
+        var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        int checkedBombs = 0;
+        foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
+        {
+            if (pointer < 0x9f87 || pointer >= 0xa007) continue;
+            var bomb = new SamusBombProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1, Type = 0x0500 };
+            var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
+            _ = runBomb.Invoke(bombs, [rom, bomb]);
+            AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");
+            checkedBombs++;
+        }
+        AssertEqual(14, checkedBombs, "Both normal/fast PowerBomb and Bomb visual cycles");
+        AssertThrows<InvalidDataException>(() => stock.Resolve(0x87c3), "Wave self-jump is not accepted as a timed record");
+        AssertThrows<InvalidDataException>(() => stock.Resolve(0x86dc), "Program interior is not accepted as a timed record");
+        Console.WriteLine("Stream2 Power bindings: 160calculated beam/effect selectors,805native operands,645explicit residuals and160actual handler/edit paths pass.");
+    }
+}

@@ -603,7 +603,7 @@ static void VerifyDemoInputObject()
     var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     demo.Clear();
     demo.Enable();
-    demo.LoadObject(bus, DemoInputRomData.IntroMotherBrain.Object);
+    demo.LoadObject(bus, DemoInputRomData.IntroMotherBrain.Object, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
 
     int[] boundaries = [90, 1, 40, 1, 29, 70];
     ushort[] held =
@@ -616,7 +616,7 @@ static void VerifyDemoInputObject()
     {
         for (int frame = 0; frame < boundaries[record]; frame++)
         {
-            demo.Step(bus);
+            demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
             AssertEqual(held[record], demo.Held, $"demo record {record} held frame {frame}");
             AssertEqual(newlyPressed[record], demo.NewlyPressed,
                 $"demo record {record} new frame {frame}");
@@ -638,9 +638,9 @@ static void VerifyDemoInputObject()
         var retailDemo = new DemoInputState();
         var retailBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(File.ReadAllBytes(retailPath));
         retailDemo.Enable();
-        retailDemo.LoadObject(retailBus, DemoInputRomData.IntroMotherBrain.Object);
+        retailDemo.LoadObject(retailBus, DemoInputRomData.IntroMotherBrain.Object, definitionWord: pointer => ReadDemoFixtureWord(retailBus, pointer));
         for (int frame = 0; frame < elapsed; frame++)
-            retailDemo.Step(retailBus);
+            retailDemo.Step(retailBus, instructionWord: pointer => ReadDemoFixtureWord(retailBus, pointer));
         AssertEqual(demo.InstructionPointer, retailDemo.InstructionPointer,
             "retail old-Mother-Brain stream reaches catalogued record boundary");
         AssertEqual(demo.Held, retailDemo.Held,
@@ -667,14 +667,14 @@ static void VerifyDemoInputObject()
     bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     demo.Clear();
     demo.Enable();
-    demo.LoadObject(bus, 0x8720);
-    demo.Step(bus);
+    demo.LoadObject(bus, 0x8720, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
+    demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
     AssertEqual(fixtureHeld, demo.Held, "demo opcode fixture first held word");
     AssertEqual(2, demo.Timer, "demo set-timer opcode");
-    demo.Step(bus);
+    demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
     AssertEqual(1, demo.Timer, "demo decrement/goto loops while nonzero");
     AssertEqual(fixtureHeld, demo.Held, "demo loop replays input record");
-    demo.Step(bus);
+    demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
     AssertEqual(0, demo.Timer, "demo decrement/goto falls through at zero");
     AssertEqual(0, demo.InstructionPointer, "demo delete clears list pointer");
     AssertEqual(0, demo.Held, "demo delete clears held input");
@@ -691,9 +691,9 @@ static void VerifyDemoInputObject()
     bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     demo.Clear();
     demo.Enable();
-    demo.LoadObject(bus, 0x8730);
+    demo.LoadObject(bus, 0x8730, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
     int specialInstructionCalls = 0;
-    demo.Step(bus, specialInstruction: (state, instruction, argumentPointer) =>
+    demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer), specialInstruction: (state, instruction, argumentPointer) =>
     {
         AssertEqual(0x8739, instruction, "demo special instruction pointer");
         specialInstructionCalls++;
@@ -707,6 +707,9 @@ static void VerifyDemoInputObject()
     Console.WriteLine("  Demo input: records, edges, shared opcodes, special dispatch, and deletion agree.");
 }
 
+static ushort ReadDemoFixtureWord(ISnesAddressSpace bus, ushort pointer) =>
+    (ushort)(bus.ReadByte(DemoInputRomData.BankBase | pointer) |
+        bus.ReadByte(DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1))) << 8);
 static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);

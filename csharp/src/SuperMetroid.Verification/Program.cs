@@ -46,6 +46,8 @@ VerifySamusMorphBallMovement();
 VerifyBombChargeRejection();
 VerifyGroundedBombSpread();
 return 0; }
+if (args is ["--horizontal-speed-fixture"]) { VerifySamusHorizontalSpeed(); return 0; }
+if (args is ["--demo-input-fixture"]) { VerifyDemoInputObject(); return 0; }
 if (args is ["--cacatac-fixture"]) { VerifyCacatacProjectileInstructionProgramDefinitions(); return 0; }
 if (args is ["--color-window-fixture"]) { VerifyColorWindowSnapshots(); return 0; }
 if (args is ["--title-fixtures"]) { VerifyTitleRenderSnapshots(); VerifyTitleSequenceRomData(); return 0; }

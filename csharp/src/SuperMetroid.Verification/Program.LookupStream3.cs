@@ -610,7 +610,6 @@ internal static partial class Program
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
-        PaletteRgb5[] Zeros(int count) => Enumerable.Range(0, count).Select(_ => Color(0)).ToArray();
         MotherBrainRainbowPaletteFrameDocument ReadFull(int bodySource, int legSource) => new()
         {
             Body = Enumerable.Range(0, 15).Select(color => Color(Read(bodySource + 2 * color))).ToArray(),
@@ -647,7 +646,8 @@ internal static partial class Program
         {
             Version = 3, Rainbow = rainbow,
             ToGrey = drain, FromGrey = revival,
-            FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494), BeamInitial = Color(0), BeamCycle = Zeros(38),
+            FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494), BeamInitial = Color(0x3ce0),
+            BeamCycle = Enumerable.Range(0, 38).Select(index => Color(Read(0x88e833 + 4 * index))).ToArray(),
         };
         MotherBrainRainbowPalettePresentation Load(MotherBrainRainbowPaletteDocument value,
             MotherBrainRainbowPalettePresentation? stock = null) => MotherBrainRainbowPalettePresentation.Load(
@@ -674,6 +674,29 @@ internal static partial class Program
             }
         }
         var stock = Load(document);
+        void CheckBeam(MotherBrainRainbowPalettePresentation palette)
+        {
+            for (int index = 0; index < 38; index++)
+                AssertEqual(Word(document.BeamCycle[index]), palette.BeamColorWord(index * 4),
+                    "stream 3 beam wheel matches every native sampled color");
+            AssertEqual(ushort.MaxValue, palette.BeamColorWord(152), "stream 3 beam signed loop terminator");
+            AssertEqual((ushort)0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
+        }
+        CheckBeam(stock);
+        const System.Reflection.BindingFlags beamFields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object beamColors = typeof(MotherBrainRainbowPalettePresentation).GetField("beamCycle", beamFields)!.GetValue(stock)!;
+        AssertTrue(beamColors.GetType().GetField("supplied", beamFields)!.GetValue(beamColors) is null,
+            "stream 3 beam wheel retains no stock lookup row");
+        for (int index = 0; index < 38; index++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            PaletteRgb5 original = document.BeamCycle[index];
+            document.BeamCycle[index] = Color((ushort)(Word(original) ^ 1 << (5 * channel)));
+            CheckBeam(Load(document));
+            document.BeamCycle[index] = original;
+        }
+        foreach (int invalid in new[] { -1, 1, 2, 3, 153, 156, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => stock.BeamColorWord(invalid), "stream 3 beam cursor bounds and alignment");
         Check(stock);
         void CheckRainbow(MotherBrainRainbowPalettePresentation palette)
         {

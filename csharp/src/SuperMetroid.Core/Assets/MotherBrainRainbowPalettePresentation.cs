@@ -13,7 +13,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     private readonly PaletteFade fakeDeathToGrey;
     private readonly PaletteFrame normal;
     private readonly ushort beamInitial;
-    private readonly ushort[] beamCycle;
+    private readonly BeamColors beamCycle;
 
     private MotherBrainRainbowPalettePresentation(PaletteFrame[] rainbow, PaletteFrame[] toGrey,
         PaletteFrame[] fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
@@ -25,9 +25,61 @@ public sealed class MotherBrainRainbowPalettePresentation
         this.fakeDeathToGrey = fakeDeathToGrey;
         this.normal = normal;
         this.beamInitial = beamInitial;
-        this.beamCycle = beamCycle;
+        this.beamCycle = new BeamColors(beamCycle);
     }
 
+    /// <summary>
+    /// $88:E833-E8C7, Set_RainbowBeam_ColorMathSubscreenBackdropColor.table:
+    /// five linear hue legs sampled every other word. The native blue-to-magenta leg
+    /// delays red by one step and adds a one-step green tint in its upper half.
+    /// Falling green/blue changes its rounding bias after local step eight.
+    /// These phase boundaries preserve the source's asymmetric wheel exactly.
+    /// </summary>
+    private sealed class BeamColors
+    {
+        private readonly ushort[]? supplied;
+        public int Length { get; }
+        public BeamColors(ushort[] colors)
+        {
+            Length = colors.Length;
+            for (int index = 0; index < Length; index++)
+                if (colors[index] != Calculate(index))
+                { supplied = colors; return; }
+        }
+        public ushort this[int index] => supplied is null ? Calculate(index) : supplied[index];
+
+        private static ushort Calculate(int index)
+        {
+            int step = index * MotherBrainBeamRomData.ColorStride / sizeof(ushort);
+            int red, green, blue;
+            if (step <= 15)
+            {
+                red = 31; green = Rising(step); blue = 0;
+            }
+            else if (step <= 30)
+            {
+                red = Rising(30 - step); green = 31; blue = 0;
+            }
+            else if (step <= 45)
+            {
+                red = 0; green = Falling(step - 30); blue = Rising(step - 30);
+            }
+            else if (step < 60)
+            {
+                int phase = step - 45;
+                red = 2 * phase - (phase >= 7 ? 1 : 0);
+                green = phase >= 8 ? 1 : 0;
+                blue = 31;
+            }
+            else
+            {
+                red = 31; green = 0; blue = Falling(step - 60);
+            }
+            return (ushort)(red | green << 5 | blue << 10);
+        }
+        private static int Rising(int step) => (31 * step + 7) / 15;
+        private static int Falling(int step) => 31 - 2 * step - (step >= 9 ? 1 : 0);
+    }
     /// <summary>Fixed-color backdrop used on the beam's first active HDMA frame.</summary>
     public ushort BeamInitialColor => beamInitial;
 

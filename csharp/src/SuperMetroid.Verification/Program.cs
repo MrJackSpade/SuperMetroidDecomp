@@ -145,6 +145,7 @@ if (args is ["--lookup-stream-4"])
     VerifyBotwoonHoleRightBounds(rom);
     VerifyBotwoonHoleBottomBounds(rom);
     VerifyBotwoonWallStockMapping(rom);
+    VerifyCompiledDraygonOamCollision(rom);
     Console.WriteLine("Stream 4 lookup conversions: focused original-source and domain checks pass.");
     return 0;
 }

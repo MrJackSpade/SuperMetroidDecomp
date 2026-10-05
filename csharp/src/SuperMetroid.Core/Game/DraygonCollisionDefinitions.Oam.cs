@@ -6,30 +6,52 @@ internal static partial class DraygonCollisionDefinitions
     /// <summary>$A5:ABDD, the second empty hitbox list used by mirrored OAM frames.</summary>
     internal const ushort OtherEmptyList = 0xabdd;
 
-    // The cartridge gives every component of these 48 frames either $AAC7
-    // or $ABDD, both zero-record hitbox lists. Thus the native walker can
-    // never select a callback, regardless of the component's visual offset.
-    // The $EE/$EF frames elsewhere in the visual catalog are Spore Spawn,
-    // not Draygon, and deliberately do not belong to this set.
-    private static readonly HashSet<ushort> EmptyOamFrames =
-    [
-        0xa2df, 0xa2e9, 0xa2f3, 0xa2fd, 0xa307, 0xa311,
-        0xa3c5, 0xa3cf, 0xa3d9, 0xa3e3,
-        0xa40b, 0xa41d, 0xa42f, 0xa441, 0xa453, 0xa465,
-        0xa477, 0xa489, 0xa4a3, 0xa4c5, 0xa4ef, 0xa521,
-        0xa55b, 0xa59d,
-        0xa607, 0xa611, 0xa61b, 0xa625, 0xa62f, 0xa639,
-        0xa6ed, 0xa6f7, 0xa701, 0xa70b,
-        0xa779, 0xa78b, 0xa79d, 0xa7af, 0xa7c1, 0xa7d3,
-        0xa7e5, 0xa7f7, 0xa811, 0xa833, 0xa85d, 0xa88f,
-        0xa8c9, 0xa90b,
-    ];
+    /// <summary><c>ExtendedSpritemap_Draygon_4</c> at $A5:A2DF: first of six one-component frames.</summary>
+    private const ushort LeftSingleFrames = 0xa2df;
+    /// <summary><c>ExtendedSpritemap_Draygon_1B</c> at $A5:A3C5: first of four one-component frames.</summary>
+    private const ushort LeftOtherSingleFrames = 0xa3c5;
+    /// <summary><c>ExtendedSpritemap_Draygon_22</c> at $A5:A40B: first of seven two-component frames.</summary>
+    private const ushort LeftPairedFrames = 0xa40b;
+    /// <summary><c>ExtendedSpritemap_Draygon_29</c> at $A5:A489: first of six growing frames with three through eight components, then another eight-component frame.</summary>
+    private const ushort LeftExpandingFrames = 0xa489;
+    /// <summary><c>ExtendedSpritemap_Draygon_34</c> at $A5:A607: mirrored six one-component frames.</summary>
+    private const ushort RightSingleFrames = 0xa607;
+    /// <summary><c>ExtendedSpritemap_Draygon_4B</c> at $A5:A6ED: mirrored four one-component frames.</summary>
+    private const ushort RightOtherSingleFrames = 0xa6ed;
+    /// <summary><c>ExtendedSpritemap_Draygon_59</c> at $A5:A779: mirrored seven two-component frames.</summary>
+    private const ushort RightPairedFrames = 0xa779;
+    /// <summary><c>ExtendedSpritemap_Draygon_60</c> at $A5:A7F7: mirrored growing component frames and terminal eight-component frame.</summary>
+    private const ushort RightExpandingFrames = 0xa7f7;
 
     internal static bool IsEmptyOamFrame(ushort pointer) =>
-        EmptyOamFrames.Contains(pointer);
+        InFixedFrames(pointer, LeftSingleFrames, 6, 1) ||
+        InFixedFrames(pointer, RightSingleFrames, 6, 1) ||
+        InFixedFrames(pointer, LeftOtherSingleFrames, 4, 1) ||
+        InFixedFrames(pointer, RightOtherSingleFrames, 4, 1) ||
+        InFixedFrames(pointer, LeftPairedFrames, 7, 2) ||
+        InFixedFrames(pointer, RightPairedFrames, 7, 2) ||
+        InExpandingFrames(pointer, LeftExpandingFrames) ||
+        InExpandingFrames(pointer, RightExpandingFrames);
 
-    internal static int EmptyOamFrameCount => EmptyOamFrames.Count;
+    internal static int EmptyOamFrameCount => 2 * (6 + 4 + 7 + 7);
 
+    private static bool InFixedFrames(ushort pointer, ushort first, int frames, int components)
+    {
+        int stride = 2 + components * 8;
+        int offset = pointer - first;
+        return offset >= 0 && offset < frames * stride && offset % stride == 0;
+    }
+
+    private static bool InExpandingFrames(ushort pointer, ushort first)
+    {
+        // Two-byte counts and eight-byte components; the component count starts
+        // at three and grows through eight in the six preceding frames.
+        int offset = pointer - first;
+        for (int frame = 0; frame < 7; frame++)
+            if (offset == 2 * frame + 8 * (3 * frame + frame * (frame - 1) / 2))
+                return true;
+        return false;
+    }
     private static ReadOnlySpan<DraygonCollisionComponent> OamComponentsAt(
         ushort pointer)
     {

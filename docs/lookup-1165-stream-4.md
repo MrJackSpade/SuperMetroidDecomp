@@ -186,7 +186,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Oam.cs
 
-- [ ] **DraygonCollisionDefinitions.EmptyOamFrames** ([L15](../csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Oam.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DraygonCollisionDefinitions.EmptyOamFrames** ([L15](../csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Oam.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/DraygonInstructionProgramDefinitions.cs
 
@@ -833,3 +833,19 @@ Two definitions resolved;50 complete and175 unchecked. No retained exception.
 - `BotwoonWallPlmDrawDefinitions.All` was already converted in this worktree baseline. Static call review confirms gameplay uses `LevelWordAt`'s bounded constant air fill; `All` materializes an export DTO only. Pinned bank84 `$930F..9324` is one vertical run of nine `$00FF` words plus zero terminator. This entry is reconciled as implemented, not exempted; no duplicate production rewrite.
 - Confirmation: build passed (1433 warnings on full build;25 on final incremental, zero errors), `--lookup-stream-4` passed. Native hole left/top/right/bottom and centers match; existing actual detection confirms exclusive right/bottom boundaries and rejects all invalid ushort offsets. Existing wall-stock mapping confirms native words, selected content identity and editable override independence.
 - Removed an accidentally added Draygon verifier invocation from the standalone Rio command; combined execution remains scoped to `--lookup-stream-4`.
+## Batch 15: Draygon empty OAM frame membership
+
+One definition converted;51 complete and174 unchecked. No retained exception.
+
+- Removed the48-address membership set. Each facing has six and four one-component frames (ten-byte stride), seven two-component frames (eighteen-byte stride), and seven frame starts determined by preceding component counts3..8. The final frame repeats eight components; only its start is part of the membership calculation. Every component still resolves to a zero-count native hitbox list.
+- Evidence: pinned bankA5 `ExtendedSpritemap_Draygon_4/1B/22/29` and mirrored `34/4B/59/60`; named XML anchors identify the native starts. Record layout is two-byte count plus eight bytes per component.
+- Confirmation: build passed (1433 warnings on full build;1218 on final incremental, zero errors); `--lookup-stream-4` passed. Existing native OAM fixture confirms all48 frames and130 original zero-hitbox components, actual shot/touch walkers with ROM reads forbidden, and exclusion of12 Spore Spawn frames.
+- The fixture initially treated newly catalogued BG2 roots as OAM, failing on `draygon_bg2_A31B`. With coordinator ownership granted, it now skips only proven `DraygonBg2FrameDefinitions.IsFrame` roots. Existing native component/list and actual callback assertions are preserved.
+
+### Rotation handoff after batch15
+
+Stream4 remains unfinished (174 entries). Partial palettes still require Tourian/Draygon/Botwoon endpoints, Botwoon transparent-slot words, Power Bomb explosion tail, and their unchecked containers. Other unresolved scope includes Draygon BG2 collision/programs, Botwoon movement corpus, Spore movement, remaining enemy programs, room/presentation content and artwork.
+
+Static beam-art review is pending, not an exemption: native first256-byte/eight-tile sheets at `$9A:F200/F400/F600/F800/FA00` selected by `$90:C3B1` have blank final3 tiles in Power/Ice, shared diagonal fragments in Power/Wave and Plasma/Spazer, plus nonuniform highlights. Any computable blank/repeated structure must be separated before a narrower impossible/nonsense disposition. No beam artwork changes were made.
+
+Worker rotates back to stream1; no stream4 edits should be copied into that isolated worktree.

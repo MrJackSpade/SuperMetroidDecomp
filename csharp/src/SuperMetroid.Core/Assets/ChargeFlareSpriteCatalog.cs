@@ -9,7 +9,7 @@ public sealed class ChargeFlareSpriteCatalog
     private ChargeFlareSpriteCatalog(ProjectileSpriteCatalog sprites) => this.sprites = sprites;
 
     public static ChargeFlareSpriteCatalog Load(Stream json)
-        => new(ProjectileSpriteCatalog.LoadFrames(json, ChargeFlareSpriteDefinitions.NativePointers));
+        => new(ProjectileSpriteCatalog.LoadFrames(json, ChargeFlareSpriteDefinitions.NativePointers.ToArray()));
 
     /// <summary>Draws a valid native charge-flare selector without consulting ROM.</summary>
     public void Draw(ushort selector, OamBuffer oam, ushort x, ushort y)

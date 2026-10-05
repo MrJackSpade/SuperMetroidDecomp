@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -5,6 +7,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        VerifyLookupStream1VisualCatalogs(rom);
         VerifyLookupStream1NuclearWaffle(rom);
         VerifyLookupStream1DeathDefinitions(rom);
         VerifyLookupStream1Sciser(rom);
@@ -462,6 +465,55 @@ internal static partial class Program
                 AssertThrows<IndexOutOfRangeException>(() => mechanics(invalid), "Nuclear Waffle control index bounds");
             foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
                 AssertThrows<IndexOutOfRangeException>(() => visual(invalid), "Nuclear Waffle visual index bounds");
+        }
+    }
+    private static void VerifyLookupStream1VisualCatalogs(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var selectors = ChargeFlareSpriteDefinitions.Selectors;
+        var nativePointers = new List<ushort>();
+        byte[] json = ChargeFlareSpriteExtractor.Extract(rom);
+        var stock = ChargeFlareSpriteCatalog.Load(new MemoryStream(json));
+        for (ushort selector = 0; selector < 54; selector++)
+        {
+            ushort pointer = Word(0x93a1a1 + selector * 2);
+            AssertEqual(pointer, selectors[selector], "native charge flare phased selector");
+            if (!nativePointers.Contains(pointer)) nativePointers.Add(pointer);
+            var expected = new OamBuffer();
+            var actual = new OamBuffer();
+            DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, selector, 100, 100);
+            stock.Draw(selector, actual, 100, 100);
+            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+                "calculated flare selector draws exact native composition");
+            AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "calculated flare native OAM cursor");
+        }
+        AssertEqual(28, nativePointers.Count, "native unique flare identity count");
+        AssertTrue(nativePointers.SequenceEqual(ChargeFlareSpriteDefinitions.NativePointers), "native flare identity order preserved");
+        for (int index = 0; index < nativePointers.Count; index++)
+            AssertEqual((ushort)(index < 3 ? 1 : index == 3 ? 4 : 3), Word(0x930000 | nativePointers[index]), "native flare object record sizes");
+        foreach (int invalid in new[] { int.MinValue, -1, 54, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = selectors[invalid], "charge flare selector bounds");
+        foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = ChargeFlareSpriteDefinitions.NativePointers[invalid], "flare pointer bounds");
+        for (int digit = 0; digit < 10; digit++)
+        {
+            ushort pointer = EscapeTimerPresentationDefinitions.DigitSpritemapPointer(digit);
+            AssertEqual(Word(0x809fd4 + digit * 2), pointer, "native escape timer digit pointer");
+            AssertEqual((ushort)2, Word(0x800000 | pointer), "native two-object digit record");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTimerPresentationDefinitions.DigitSpritemapPointer(invalid), "escape digit bounds");
+        var dragon = DragonVisualDefinitions.Frames();
+        ushort[] operands = [0xe59d, 0xe5a3, 0xe5a7, 0xe5af, 0xe5b5, 0xe5b9, 0xe5c1, 0xe5c5, 0xe5c9, 0xe5d9, 0xe5dd, 0xe5e1];
+        string[] names = ["body_idle_left", "wing_left_0", "wing_left_1", "body_idle_right", "wing_right_0", "wing_right_1",
+            "body_attack_left_0", "body_attack_left_1", "body_attack_left_2", "body_attack_right_0", "body_attack_right_1", "body_attack_right_2"];
+        AssertEqual(12, dragon.Length, "Dragon visual identity count");
+        for (int index = 0; index < dragon.Length; index++)
+        {
+            AssertEqual(Word(0xa20000 | operands[index]), dragon[index].Pointer, "native Dragon visual pointer");
+            AssertEqual((byte)0xa2, dragon[index].Bank, "Dragon visual bank");
+            AssertEqual("dragon_" + names[index], dragon[index].Name, "Dragon stable editable identity");
+            AssertEqual((ushort)(index is 1 or 2 or 4 or 5 ? 1 : 8), Word(0xa20000 | dragon[index].Pointer), "native Dragon record size");
         }
     }
 }

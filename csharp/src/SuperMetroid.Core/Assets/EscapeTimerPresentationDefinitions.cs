@@ -10,18 +10,12 @@ public static class EscapeTimerPresentationDefinitions
     /// <summary>Bank-$80 table at <c>$80:9FD4</c> containing one spritemap pointer per decimal digit.</summary>
     public const int DigitPointerTable = 0x809fd4;
 
-    /// <summary>
-    /// The ten immutable words at $80:9FD4-$9FE7. These select stock spritemap
-    /// records; the selected glyph shapes remain editable presentation assets.
-    /// </summary>
-    private static readonly ushort[] DigitSpritemaps =
-        [0x9fe8, 0x9ff4, 0xa000, 0xa00c, 0xa018, 0xa024, 0xa030, 0xa03c, 0xa048, 0xa054];
-
-    /// <summary>Resolves the compiled bank-$80 spritemap pointer for a decimal digit.</summary>
-    public static ushort DigitSpritemapPointer(int digit) => (uint)digit < DigitSpritemaps.Length
-        ? DigitSpritemaps[digit]
+    /// <summary>$80:9FE8: first decimal digit's two-object, twelve-byte spritemap.</summary>
+    private const ushort FirstDigitSpritemap = 0x9fe8;
+    /// <summary>Resolves the $80:9FD4 decimal digit selection from consecutive two-object records.</summary>
+    public static ushort DigitSpritemapPointer(int digit) => (uint)digit < 10
+        ? (ushort)(FirstDigitSpritemap + digit * 12)
         : throw new ArgumentOutOfRangeException(nameof(digit));
-
     /// <summary>The five-part <c>TIME</c> label spritemap at <c>$80:A060</c>.</summary>
     public const int LabelSpritemap = 0x80a060;
 

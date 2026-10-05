@@ -147,8 +147,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteDefinitions.cs
 
-- [ ] **ChargeFlareSpriteDefinitions.Selectors** ([L69](../csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteDefinitions.cs#L69)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ChargeFlareSpriteDefinitions.NativePointers** ([L127](../csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteDefinitions.cs#L127)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChargeFlareSpriteDefinitions.Selectors** ([L69](../csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteDefinitions.cs#L69)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChargeFlareSpriteDefinitions.NativePointers** ([L127](../csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteDefinitions.cs#L127)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ChargeFlareAnimationDefinitions.cs
 
@@ -165,7 +165,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/DragonVisualDefinitions.cs
 
-- [ ] **DragonVisualDefinitions.Frames / literal at L16** ([L16](../csharp/src/SuperMetroid.Core/Assets/DragonVisualDefinitions.cs#L16)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **DragonVisualDefinitions.Frames / literal at L16** ([L16](../csharp/src/SuperMetroid.Core/Assets/DragonVisualDefinitions.cs#L16)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/DragonAnimationDefinitions.cs
 
@@ -188,7 +188,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentationDefinitions.cs
 
-- [ ] **EscapeTimerPresentationDefinitions.DigitSpritemaps** ([L18](../csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentationDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EscapeTimerPresentationDefinitions.DigitSpritemaps** ([L18](../csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentationDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs
 
@@ -786,3 +786,13 @@ Five more definitions converted; 149 complete and 77 unchecked. No retained exce
 - Evidence: pinned bankA6 parent `$9490..94C3`, sweep endpoints/angle spacing/turn thresholds `$95F6..960D`; bank86 articulated body `$BB5E..BB91`.
 - Independently reproduced stale verifier transport expectations: both parent and projectile fixtures expected 12 live presentation reads and observed zero. They now assert zero live reads and capture all actual executed installed operands; parent values match original ROM selectors, projectile operands match each native frame position. These are fixture corrections, not claimed production fixes. Existing initializers, four spawned body links, full loops, shared deletion and source guards remain intact.
 - Confirmation: full Verification build 1432 warnings/zero errors; final fixture rebuild 25 warnings/zero errors; `--lookup-stream-1` passed. Existing fixtures verify all twelve geometry words, both complete initializers, actual parent loop and four projectile loops/deletion. New checks confirm native control ordering, all visual identities, exact byte/control domains and index rejection. Existing allocation assertions pass.
+
+## Batch 23: flare, timer digit and Dragon visual identities
+
+Four more definitions converted; 153 complete and 73 unchecked. Actual sprite artwork remains independently required. No retained exception.
+
+- Charge-flare selectors calculate thirty alternating growth-phase selections (0/1, then 2/1, then 2/3), followed by the slow/fast right/left spark runs. The 28 unique identities derive three seven-byte main-flare record steps and two twelve-record, seventeen-byte spark groups. The fourth main flare is a four-object crest; its larger size does not affect the preceding calculated addresses. The initial new count assertion mistakenly expected one object there; pinned `$93:AB81` confirmed four and the assertion/XML were corrected before final confirmation.
+- Runtime selectors and unique pointer indexing use calculated readonly views. The extractor and loader materialize only transient inputs required by their existing span-based import APIs; no cached replacement pointer table is introduced.
+- Escape-timer decimal glyph pointers calculate twelve-byte record strides. Dragon's catalog calculates four eight-object body records and two one-object wing records per facing direction while preserving the existing idle/wing/attack order and editable names.
+- Evidence: pinned bank93 selectors `$A1A1..A20C`, main flare `$AB6C/$AB73/$AB7A/$AB81`, spark groups `$A6FD..A7C8` and `$A8DE..A9A9`; bank80 digit selectors `$9FD4..9FE7` and two-object maps beginning `$9FE8`; bankA2 Dragon program operands `$E59B..E5EE`, maps beginning `$E80C`.
+- Confirmation: Verification and AssetExtraction dependency build passed (final 1217 warnings/zero errors); `--lookup-stream-1` passed. Focused checks compare all 54 native flare selectors and actual native-versus-installed OAM at one fixed position, ordered 28-pointer identity set/object counts, all ten native digit pointers, twelve Dragon native pointers/banks/names/object counts and exact index bounds. Existing Dragon behavior fixture remains passing. No broad installation/playthrough check was used.

@@ -8,7 +8,7 @@ public static class ChargeFlareSpriteExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] json = ProjectileSpriteExtractor.ExtractFrames(bus, ChargeFlareSpriteDefinitions.NativePointers);
+        byte[] json = ProjectileSpriteExtractor.ExtractFrames(bus, ChargeFlareSpriteDefinitions.NativePointers.ToArray());
         _ = ChargeFlareSpriteCatalog.Load(new MemoryStream(json));
         return json;
     }

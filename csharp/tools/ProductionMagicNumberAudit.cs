@@ -172,6 +172,10 @@ internal static partial class ProductionMagicNumberAudit
         List<MagicNumberFinding> findings)
     {
         string fileName = Path.GetFileName(relativePath);
+        // Generated partial catalogs have the same definition ownership as their
+        // handwritten companion. Generated functional classes remain audited.
+        if (fileName.EndsWith(".Generated.cs", StringComparison.OrdinalIgnoreCase))
+            fileName = fileName[..^".Generated.cs".Length] + ".cs";
         if (ReviewedDefinitionSuffixes.Any(
                 suffix => fileName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)))
         {

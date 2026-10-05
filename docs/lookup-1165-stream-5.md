@@ -180,7 +180,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CeresBabyInstructionProgramDefinitions.cs
 
-- [ ] **CeresBabyInstructionProgramDefinitions.Words** ([L49](../csharp/src/SuperMetroid.Core/Game/CeresBabyInstructionProgramDefinitions.cs#L49)) - factory-built stock table. Stored CeresBabyInstructionMechanicsWord[] initialized by CreateWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **CeresBabyInstructionProgramDefinitions.Words** ([L49](../csharp/src/SuperMetroid.Core/Game/CeresBabyInstructionProgramDefinitions.cs#L49)) - factory-built stock table. Stored CeresBabyInstructionMechanicsWord[] initialized by CreateWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/CeresCinematicLightPaletteFxProgramMechanicsDefinitions.cs
 
@@ -821,3 +821,11 @@ Removed the five copy/column tables. Each silhouette has five staged tile rows o
 Verification build passed (1432 warnings, zero errors). New --lookup-stream5-sidehopper-geometry compares all ten native MVN source/destination/length triples at$A9:DEC1/DF08 and all ten unrolled column operands/clips at$A9:E468/E564. Actual installed-artwork initialization matches every staged byte. Actual copy/move methods match independent native-operand reference results at pixel rows0,7,8,37,38, covering missing top tiles, tile-row wrap, final copying and clearing; the nonzero full-word variant also passes. Collection bounds pass. This is focused confirmation of the replaced geometry, with no gameplay discovery.
 
 Forty-nine stream5 definitions resolved:48 converted/removed and1 mixed narrowly justified retention.176 remain required. No new retention exception is claimed; pending timing/artwork/palette evidence remains pending.
+
+### Batch 17: Ceres baby control-program layout
+
+Removed the cached43-word mechanics array and its literal-building factory. The initial program calculates two conditional four-pose groups with ten-tick holds. The expressive program calculates twelve callback/pose pairs with duration2+abs(frame-4), followed by named palette-reset and conditional/unconditional loop controls. No replacement table is built or retained; native pointers derive from these instruction widths.
+
+Verification build passed (1432 warnings, zero errors). Existing --ceres-baby-instruction-mechanics passed all43 native control words, twenty compiled spritemap selectors, thirteen palette selectors and the complete actual production animation loop. Its existing save/load and branch assertions remain intact.
+
+Fifty stream5 definitions resolved:49 converted/removed and1 mixed narrowly justified retention.175 remain required. No new retention exception is claimed.

@@ -46,7 +46,7 @@ internal static class CeresBabyInstructionProgramDefinitions
     /// </summary>
     internal const ushort ExpressiveLoop = 0xbf59;
 
-    private static readonly CeresBabyInstructionMechanicsWord[] Words = CreateWords();
+
 
     /// <summary>
     /// Visual operand layout in the two draw programs.
@@ -64,10 +64,45 @@ internal static class CeresBabyInstructionProgramDefinitions
     /// its pointer is $BFFD + $001B*q using the same four-pose cycle
     /// q = {0, 1, 2, 1} repeated three times.
     /// </summary>
-    internal static int MechanicsWordCount => Words.Length;
+    internal static int MechanicsWordCount => 43;
 
-    internal static CeresBabyInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
+    internal static CeresBabyInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 12)
+        {
+            int group = index / 6;
+            int word = index % 6;
+            int address = Initial + group * 20 + (word < 2 ? word * 2 : 4 + (word - 2) * 4);
+            ushort value = word switch
+            {
+                0 => CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoXIfNotFalling,
+                1 => ExpressiveLoop,
+                _ => 10,
+            };
+            return new((ushort)address, value);
+        }
+        if (index < 14)
+            return new((ushort)(ExpressiveLoop + (index - 12) * 2), index == 12
+                ? CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_PlayCrySFXOrGotoX : Initial);
+        if (index < 38)
+        {
+            int frame = (index - 14) / 2;
+            bool callback = (index & 1) == 0;
+            return new((ushort)(ExpressiveLoop + 4 + frame * 8 + (callback ? 0 : 4)),
+                callback ? CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_UpdateColors
+                    : (ushort)(2 + Math.Abs(frame - 4)));
+        }
+        int tail = index - 38;
+        return new((ushort)(ExpressiveLoop + 100 + (tail == 0 ? 0 : 2 + tail * 2)), tail switch
+        {
+            0 => CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_UpdateColors,
+            1 => CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoXIfNotFalling,
+            2 => ExpressiveLoop,
+            3 => CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoX,
+            _ => Initial,
+        });
+    }
 
     internal const int SpritemapOperandCount = 20;
     internal const int PaletteOperandCount = 13;
@@ -165,11 +200,11 @@ internal static class CeresBabyInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            CeresBabyInstructionMechanicsWord candidate = Words[middle];
+            CeresBabyInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -187,73 +222,13 @@ internal static class CeresBabyInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa60000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1)))
                 return true;
         }
         return false;
     }
 
-    private static CeresBabyInstructionMechanicsWord[] CreateWords()
-    {
-        var words = new List<CeresBabyInstructionMechanicsWord>();
-
-        Add(words, 0xbf31, CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoXIfNotFalling);
-        Add(words, 0xbf33, ExpressiveLoop);
-        AddFrame(words, 0xbf35, 10);
-        AddFrame(words, 0xbf39, 10);
-        AddFrame(words, 0xbf3d, 10);
-        AddFrame(words, 0xbf41, 10);
-        Add(words, 0xbf45, CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoXIfNotFalling);
-        Add(words, 0xbf47, ExpressiveLoop);
-        AddFrame(words, 0xbf49, 10);
-        AddFrame(words, 0xbf4d, 10);
-        AddFrame(words, 0xbf51, 10);
-        AddFrame(words, 0xbf55, 10);
-
-        Add(words, 0xbf59, CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_PlayCrySFXOrGotoX);
-        Add(words, 0xbf5b, Initial);
-        AddPaletteFrame(words, 0xbf5d, 0xbf61, 6);
-        AddPaletteFrame(words, 0xbf65, 0xbf69, 5);
-        AddPaletteFrame(words, 0xbf6d, 0xbf71, 4);
-        AddPaletteFrame(words, 0xbf75, 0xbf79, 3);
-        AddPaletteFrame(words, 0xbf7d, 0xbf81, 2);
-        AddPaletteFrame(words, 0xbf85, 0xbf89, 3);
-        AddPaletteFrame(words, 0xbf8d, 0xbf91, 4);
-        AddPaletteFrame(words, 0xbf95, 0xbf99, 5);
-        AddPaletteFrame(words, 0xbf9d, 0xbfa1, 6);
-        AddPaletteFrame(words, 0xbfa5, 0xbfa9, 7);
-        AddPaletteFrame(words, 0xbfad, 0xbfb1, 8);
-        AddPaletteFrame(words, 0xbfb5, 0xbfb9, 9);
-        Add(words, 0xbfbd, CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_UpdateColors);
-        Add(words, 0xbfc1, CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoXIfNotFalling);
-        Add(words, 0xbfc3, ExpressiveLoop);
-        Add(words, 0xbfc5, CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_GotoX);
-        Add(words, 0xbfc7, Initial);
-
-        return [.. words];
-    }
-
-    private static void AddPaletteFrame(
-        List<CeresBabyInstructionMechanicsWord> words,
-        ushort callbackAddress,
-        ushort durationAddress,
-        ushort duration)
-    {
-        Add(words, callbackAddress,
-            CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_UpdateColors);
-        AddFrame(words, durationAddress, duration);
-    }
-
-    private static void AddFrame(
-        List<CeresBabyInstructionMechanicsWord> words,
-        ushort address,
-        ushort duration) => Add(words, address, duration);
-
-    private static void Add(
-        List<CeresBabyInstructionMechanicsWord> words,
-        ushort address,
-        ushort value) => words.Add(new(address, value));
 }

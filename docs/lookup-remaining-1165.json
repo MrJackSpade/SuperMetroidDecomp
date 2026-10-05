@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 559,
+  "remainingTableDefinitionCount": 558,
   "fileCount": 523,
   "entries": [
     {
@@ -1157,7 +1157,9 @@
       "line": 70,
       "name": "IntroNarrationDefinitions.NativePages",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "6d8a8df8f2990d6687cd9f96ffab7fa7bf514aa6"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs",
@@ -21466,6 +21468,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 552,
+  "convertedSinceSnapshot": 553,
   "justifiedRetainedSinceSnapshot": 17
 }

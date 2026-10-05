@@ -26,6 +26,26 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-intro-narration-registry"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var narrationSources = IntroNarrationDefinitions.Pages.ToArray();
+        AssertEqual(6, narrationSources.Length, "narration native registry has six pages");
+        byte[] narrationJson = SuperMetroid.AssetExtraction.IntroNarrationExtractor.Extract(rom);
+        var narration = IntroNarrationPresentation.Load(new MemoryStream(narrationJson, writable: false));
+        for (int page = 0; page < narrationSources.Length; page++)
+        {
+            IntroNarrationNativePage source = narrationSources[page];
+            AssertEqual((IntroNarrationPageId)(page + 1), source.Id, "narration native registry order");
+            int address = 0x8c0000 | source.InstructionPointer;
+            AssertEqual(source.BeginOpcode, (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8), "narration native begin callback");
+            AssertTrue(narration.Compile(source.Id).Length > 0, "native narration extracts and compiles every page through finish callback");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationDefinitions.NativePage((IntroNarrationPageId)0), "narration registry lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationDefinitions.NativePage((IntroNarrationPageId)7), "narration registry upper bound");
+    Console.WriteLine("Narration registry: six native page boundaries, extraction, compilation, order and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-stream-1-timer-layout"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

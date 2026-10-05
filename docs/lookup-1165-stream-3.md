@@ -343,7 +343,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs
 
-- [ ] **IntroNarrationDefinitions.NativePages** ([L70](../csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs#L70)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **IntroNarrationDefinitions.NativePages** ([L70](../csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs#L70)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs
 
@@ -1154,3 +1154,10 @@ Generating a different pulse tempo invents a different visible performance; arit
 Worker f0dda1607 names14/5pulse tempos with the root-reviewed narrow visual-performance rationale. Words is mixed: layout/control/repetition calculated, two chosen visual tempos retained. List-reset1,damage80,movement and artwork are outside this disposition. Worker5e99435f6 removes both cardinal shake arrays using axis/sign calculation; independent amplitude2 remains explicitly required, both shake entries unchecked.
 
 Root Verification1445warnings/0errors; --lookup-mochtroid-shake matches16native masked-timer cases and existing12word/initializer/state-switch/two-loop/eightselector checks with reads denied. Position wrap,countdown and velocity reset retain their original operations. Master549converted/17retained-mixed/562pending.
+
+
+## Integrated narration page registry
+
+IntroNarrationDefinitions.NativePages is converted (6d8a8df8f). Named mutually exclusive Page1..Page6 cases preserve source/begin/finish identities and ordered enumeration without a stored registry. Its sole extractor consumer continues to enumerate all pages. This conversion does not dispose of narrative text, placement, delays or glyph artwork.
+
+Root confirmation: Verification build 1445 warnings/zero errors; --lookup-intro-narration-registry passes all six native begin/finish boundaries through extraction, text compilation, ordering and invalid page rejection. ResourceAudit builds with zero warnings/errors. The worker's broader legacy fixture lacked mandatory installed cinematic artwork and was not claimed as passing; this focused check covers the changed registry contract. Inventory 553 converted/17 retained-mixed/558 pending.

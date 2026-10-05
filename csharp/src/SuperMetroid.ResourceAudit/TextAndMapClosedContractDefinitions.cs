@@ -11,7 +11,7 @@ internal static class TextAndMapClosedContractDefinitions
             "The sole private-constructor loader requires both non-None escape programs before publication. Get selects that complete membership set. Returned Lines arrays are mutable, so this proves program identity coverage only, not post-publication line/glyph integrity or typewriter behavior."),
         new("SuperMetroid.Core.Assets.IntroNarrationPresentation", "narration-complete-compiled-pages", ["GetLines", "Compile"],
             [new("csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs", "E7C01AC369BDD560135F469FF8E5DEA39E44D50B69D30681A659B739501B16BD"),
-             new("csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs", "E4C3A28CF6D33EC61265864EF63979C7A1C062CA50CA235162A3F90C8B1CB21C")],
+             new("csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs", "AE9B62B38D66878650CB5C2FF40325191B61F81FA777C8EBCEEF0C62CE77FF12")],
             "Private construction requires all six pages with nonempty, ordered, bounded lines and supported glyphs. The loader copies arrays of immutable line records; Compile uses the same guarded glyph compiler. Complete page/glyph coverage does not certify caret, timing or scene transitions."),
         new("SuperMetroid.Core.Assets.EndingTextPresentation", "ending-text-complete-panels-and-sequences", ["Compile", "BuildResultPanel", "BuildCopyrightPanel"],
             [new("csharp/src/SuperMetroid.Core/Assets/EndingTextLayoutDefinitions.cs", "0EEF8D4B1EB7F8A22B8E4EDD43CE263C9A7A191B8296B47B60DC79D8EFCA5011"),

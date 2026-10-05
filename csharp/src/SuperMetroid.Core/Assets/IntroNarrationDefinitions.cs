@@ -66,18 +66,26 @@ public static class IntroNarrationDefinitions
     public static readonly IntroNarrationNativePage Page6Native =
         new(IntroNarrationPageId.Page6, 0xd511, 0xb228, 0xb240);
 
-    private static readonly IntroNarrationNativePage[] NativePages =
-    [
-        Page1Native,
-        Page2Native,
-        Page3Native,
-        Page4Native,
-        Page5Native,
-        Page6Native,
-    ];
+    /// <summary>Native source and callback boundaries for one mutually exclusive narration page.</summary>
+    public static IntroNarrationNativePage NativePage(IntroNarrationPageId page) => page switch
+    {
+        IntroNarrationPageId.Page1 => Page1Native,
+        IntroNarrationPageId.Page2 => Page2Native,
+        IntroNarrationPageId.Page3 => Page3Native,
+        IntroNarrationPageId.Page4 => Page4Native,
+        IntroNarrationPageId.Page5 => Page5Native,
+        IntroNarrationPageId.Page6 => Page6Native,
+        _ => throw new ArgumentOutOfRangeException(nameof(page), page, "Unknown narration page."),
+    };
 
-    public static ReadOnlySpan<IntroNarrationNativePage> Pages => NativePages;
-
+    public static IEnumerable<IntroNarrationNativePage> Pages
+    {
+        get
+        {
+            for (int page = (int)IntroNarrationPageId.Page1; page <= (int)IntroNarrationPageId.Page6; page++)
+                yield return NativePage((IntroNarrationPageId)page);
+        }
+    }
     public static ushort CompileGlyph(char character) => character switch
     {
         ' ' => BlankCharacterWord,

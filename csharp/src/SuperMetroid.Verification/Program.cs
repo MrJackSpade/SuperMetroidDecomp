@@ -102,6 +102,7 @@ if (args is ["--lookup-stream-1"])
     VerifyMetroidBehaviorDefinitions(rom);
     VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(rom);
     VerifyDragonFireballInstructionProgramDefinitions();
+    VerifyDragonInstructionProgramDefinitions();
     VerifyCacatacInstructionProgramDefinitions();
     VerifyBullInstructionProgramDefinitions(rom);
     VerifyChargeFlareDefinitions(rom);

@@ -178,8 +178,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/DragonInstructionProgramDefinitions.cs
 
-- [ ] **DragonInstructionProgramDefinitions.Words** ([L38](../csharp/src/SuperMetroid.Core/Game/DragonInstructionProgramDefinitions.cs#L38)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **DragonInstructionProgramDefinitions.PresentationWords** ([L61](../csharp/src/SuperMetroid.Core/Game/DragonInstructionProgramDefinitions.cs#L61)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DragonInstructionProgramDefinitions.Words** ([L38](../csharp/src/SuperMetroid.Core/Game/DragonInstructionProgramDefinitions.cs#L38)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DragonInstructionProgramDefinitions.PresentationWords** ([L61](../csharp/src/SuperMetroid.Core/Game/DragonInstructionProgramDefinitions.cs#L61)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs
 
@@ -738,3 +738,12 @@ Five more definitions converted; 135 complete and 91 unchecked. No retained exce
 - Eight clockwise spike directions calculate signed 8.8 X acceleration; Y uses a quarter-turn rotation. Horizontal collision still returns before Y acceleration or movement. Native selector bounds remain enforced.
 - Evidence: pinned bank A8 `PowampWiggleTable` `$C1A1..C1B8`, `HandlePowampBalloonYOffset` offsets `$C277..C282`; bank86 `PowampSpike_VelocityTable_X/Y` `$D21A..D239` and pre-instruction `$D263`.
 - Confirmation: Verification build passed (1432 warnings, zero errors); `--lookup-stream-1` passed. Focused native comparison confirms all34 motion words and invalid selector boundaries. Source diff confirms unchanged cursor fallback, collision ordering and signed velocity wrapping.
+
+## Batch 18: Dragon body, wing and attack layouts
+
+Two more definitions converted; 137 complete and 89 unchecked. No retained exception.
+
+- Idle sleep, two-pose five-tick wing loops and five-pose attack programs derive their26 control words and16 presentation addresses from facing and program layout. Attack durations use semantic initial hold, extension/retraction, fully extended and return phases; completion callback and sleep remain explicit.
+- Removed the two stored arrays and binary search over rows. Calculated enumeration preserves native address ordering, rejection and byte ownership; presentation remains owned by compiled visual definitions.
+- Evidence: pinned bankA2 `InstList_Dragon_Idle/Wings/Attacking_FacingLeft/Right`, `$E59B..E5EE`, and attack-completion callback `$E5FB`.
+- Confirmation: Verification build passed (1432 warnings, zero errors); `--lookup-stream-1` passed. Existing unchanged Dragon verifier compares all26 original control words,16 compiled visual operands and six actual programs, including loop/sleep cursors and attack-completion state, with source mechanics reads forbidden.

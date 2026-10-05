@@ -164,7 +164,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs
 
-- [ ] **DoorScrollPrograms.Programs** ([L33](../csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DoorScrollPrograms.Programs** ([L33](../csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorCatalog.cs
 
@@ -969,6 +969,13 @@ Artifacts in that tool's `output` directory include `head-a586.png`, its `-index
 - Moved the six already approved paint constants from the nested presentation implementation into `Assets/MotherBrainHealthPaintDefinitions.cs`, with their exact values and native-address/art-role XML summaries unchanged. Existing health, normal-restoration and death calculations continue using the same six anchors.
 - Organization-only correction requested during integration review; no new retained content or changed disposition. Verification project build passed (1432 warnings, zero errors). Counts remain 84 converted plus two narrowly justified retained entries.
 - Coordinator must use the updated health-presentation hash and include the new dedicated paint catalog in its reviewed source closure.
+### Confirmed batch 44: Pure door-scroll callback programs
+
+- Replaced the dictionary and all seventy-four stored write arrays with named native callback cases executing Red/Blue/Green stores in original order. Recognition and execution share the same dispatcher; pointer enumeration retains its original order without a registration array. Unknown callbacks remain no-ops; null target arguments remain rejected by TryApply.
+- Removed the invalid original retention rationale. The native source consists of straight-line programs, so these are translated executable cases rather than an exempted data mapping. No retention exception is asserted.
+- Reused the existing DebugRunner audit's bounded straight-line instruction interpreter inside the owned stream verifier, scoped only to these seventy-four changed callbacks. It compares all fifty scroll bytes, including untouched cells and native word-store effects. Full ushort recognition and original pointer enumeration order also pass.
+- Build passed (final rebuild 1217 warnings, zero errors); `--lookup-stream-3` passed. One entry completed: 85 converted plus two narrowly justified retained entries. No external source-hash dependency found for DoorScrollPrograms.
+- Included coordinator-requested formatting-only corrections: split nested closing braces in MotherBrainSpecialSpriteArtworkDefinitions and restore MotherBrainVisualDefinitions' final newline. The former's existing MotherBrainSheets source hash must use the formatted source.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

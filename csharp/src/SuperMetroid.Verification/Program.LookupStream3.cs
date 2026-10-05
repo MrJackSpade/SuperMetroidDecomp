@@ -2,11 +2,107 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
     private static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
+        ushort[] expectedDoorCallbacks =
+        [
+            DoorCodes.DoorCode_Scroll6_Green,
+            DoorCodes.DoorASM_Scroll_0_Blue,
+            DoorCodes.DoorASM_Scroll_13_Blue,
+            DoorCodes.DoorASM_Scroll_4_Red_8_Green,
+            DoorCodes.DoorASM_Scroll_8_9_A_B_Red,
+            DoorCodes.DoorASM_Scroll_2_3_4_5_B_C_D_11_Red,
+            DoorCodes.DoorASM_Scroll_1_4_Green,
+            DoorCodes.DoorASM_Scroll_2_Blue,
+            DoorCodes.DoorASM_Scroll_17_Blue,
+            DoorCodes.DoorASM_Scroll_4_Blue,
+            DoorCodes.DoorASM_Scroll_6_Green_duplicate,
+            DoorCodes.DoorASM_Scroll_3_Green,
+            DoorCodes.DoorASM_Scroll_18_1C_Green,
+            DoorCodes.DoorASM_Scroll_5_6_Blue,
+            DoorCodes.DoorASM_Scroll_1D_Blue,
+            DoorCodes.DoorASM_Scroll_2_3_Green,
+            DoorCodes.DoorASM_Scroll_0_Red_1_Green,
+            DoorCodes.DoorASM_Scroll_B_Green,
+            DoorCodes.DoorASM_Scroll_Scroll_1C_Red_1D_Blue,
+            DoorCodes.DoorASM_Scroll_4_Red,
+            DoorCodes.DoorASM_Scroll_20_24_25_Green,
+            DoorCodes.DoorASM_Scroll_2_Blue_duplicate,
+            DoorCodes.DoorASM_Scroll_0_Green,
+            DoorCodes.DoorASM_Scroll_6_7_Green,
+            DoorCodes.DoorASM_Scroll_1_Blue_2_Red,
+            DoorCodes.DoorASM_Scroll_1_Blue_3_Red,
+            DoorCodes.DoorASM_Scroll_0_Red_4_Blue,
+            DoorCodes.DoorASM_Scroll_2_3_Blue,
+            DoorCodes.DoorASM_Scroll_0_1_Green,
+            DoorCodes.DoorASM_Scroll_1_Green,
+            DoorCodes.DoorASM_Scroll_F_12_Green,
+            DoorCodes.DoorASM_Scroll_6_Green_duplicate_again,
+            DoorCodes.DoorASM_Scroll_0_Green_1_Blue,
+            DoorCodes.DoorASM_Scroll_2_Green,
+            DoorCodes.DoorASM_Scroll_3_4_Red_6_7_8_Blue,
+            DoorCodes.DoorASM_Scroll_1_2_3_Blue_4_Green_6_Red,
+            DoorCodes.DoorASM_Scroll_0_1_Blue,
+            DoorCodes.DoorASM_Scroll_0_Blue_1_Red,
+            DoorCodes.DoorASM_Scroll_A_Green,
+            DoorCodes.DoorASM_Scroll_0_2_Green,
+            DoorCodes.DoorASM_Scroll_6_7_Blue_8_Red,
+            DoorCodes.DoorASM_Scroll_2_Red_3_Blue,
+            DoorCodes.DoorASM_Scroll_7_Green,
+            DoorCodes.DoorASM_Scroll_1_Red_2_Blue,
+            DoorCodes.DoorASM_Scroll_0_Blue_3_Red,
+            DoorCodes.DoorASM_Scroll_1_Blue_4_Red,
+            DoorCodes.DoorASM_Scroll_0_Blue_1_2_3_Red,
+            DoorCodes.DoorASM_Scroll_0_Green_duplicate,
+            DoorCodes.DoorASM_Scroll_0_1_Blue_4_Red,
+            DoorCodes.DoorASM_Scroll_0_Blue_3_Red_duplicate,
+            DoorCodes.DoorASM_Scroll_0_Blue_duplicate,
+            DoorCodes.DoorASM_Scroll_0_Blue_1_Red_duplicate,
+            DoorCodes.DoorASM_Scroll_18_Blue,
+            DoorCodes.DoorASM_Scroll_2_Blue_3_Red,
+            DoorCodes.DoorASM_Scroll_E_Red,
+            DoorCodes.DoorASM_Scroll_1_Blue,
+            DoorCodes.DoorASM_Scroll_0_Green_duplicate_again,
+            DoorCodes.DoorASM_Scroll_3_Red_4_Blue,
+            DoorCodes.DoorASM_Scroll_29_Blue,
+            DoorCodes.DoorASM_Scroll_28_2E_Green,
+            DoorCodes.DoorASM_Scroll_6_7_8_9_A_B_Red,
+            DoorCodes.DoorASM_Scroll_A_Red_B_Blue,
+            DoorCodes.DoorASM_Scroll_0_Red_4_Blue_duplicate,
+            DoorCodes.DoorASM_Scroll_0_Red_1_Blue,
+            DoorCodes.DoorASM_Scroll_9_Red_A_Blue,
+            DoorCodes.DoorASM_Scroll_0_2_Red_1_Blue,
+            DoorCodes.DoorASM_Scroll_1_Blue_duplicate,
+            DoorCodes.DoorASM_Scroll_6_Blue,
+            DoorCodes.DoorASM_Scroll_4_Red_duplicate,
+            DoorCodes.DoorASM_Scroll_4_7_Red,
+            DoorCodes.DoorASM_Scroll_1_Blue_2_Red_duplicate,
+            DoorCodes.DoorASM_Scroll_0_2_Green_duplicate,
+            DoorCodes.DoorASM_Scroll_0_1_Green_duplicate,
+            DoorCodes.DoorASM_Scroll_18_Blue_19_Red,
+        ];
+        AssertTrue(expectedDoorCallbacks.SequenceEqual(SuperMetroid.Core.Rooms.DoorScrollPrograms.Pointers),
+            "stream 3 pure door callback original registration order");
+        var expectedCallbacks = expectedDoorCallbacks.ToHashSet();
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+            AssertEqual(expectedCallbacks.Contains((ushort)pointer),
+                SuperMetroid.Core.Rooms.DoorScrollPrograms.Contains((ushort)pointer), "stream 3 exact callback ownership");
+        foreach (ushort pointer in expectedDoorCallbacks)
+        {
+            byte[] expected = Enumerable.Repeat((byte)0x7f, RoomScrollGrid.StorageByteCount).ToArray();
+            var actual = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), expected, 10, 5);
+            ExecuteStream3DoorScroll(rom, pointer, expected);
+            AssertTrue(SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(pointer, actual), "stream 3 callback recognized");
+            AssertTrue(actual.Storage.SequenceEqual(expected), "stream 3 native ordered door writes and all untouched cells");
+        }
+        var unchangedScroll = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), new byte[50], 10, 5);
+        AssertTrue(!SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(0, unchangedScroll), "stream 3 unknown callback no-op");
+        AssertThrows<ArgumentNullException>(() => SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(0, null!),
+            "stream 3 door callback null argument remains rejected before dispatch");
         for (int pair = 0; pair < 16; pair++)
         {
             int address = 0xadde5f + 2 * pair;
@@ -630,6 +726,7 @@ internal static partial class Program
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+
         MotherBrainRainbowPaletteFrameDocument ReadFull(int bodySource, int legSource) => new()
         {
             Body = Enumerable.Range(0, 15).Select(color => Color(Read(bodySource + 2 * color))).ToArray(),
@@ -1556,4 +1653,71 @@ internal static partial class Program
                     }
                 }
     }
+    private static void ExecuteStream3DoorScroll(
+        ISnesAddressSpace bus,
+        ushort pointer,
+        Span<byte> scrolls)
+    {
+        int pc = 0x8f0000 | pointer;
+        bool accumulatorIsEightBit = false;
+        ushort accumulator = 0;
+
+        for (int instruction = 0; instruction < 32; instruction++)
+        {
+            byte opcode = bus.ReadByte(pc++);
+            switch (opcode)
+            {
+                case 0x08: // PHP
+                case 0x28: // PLP
+                    break;
+
+                case 0xe2: // SEP #$20
+                    byte sepMask = bus.ReadByte(pc++);
+                    if (sepMask != 0x20)
+                        throw UnsupportedStream3DoorScroll(pointer, opcode, pc - 2);
+                    accumulatorIsEightBit = true;
+                    break;
+
+                case 0xa9: // LDA immediate
+                    accumulator = bus.ReadByte(pc++);
+                    if (!accumulatorIsEightBit)
+                        accumulator |= unchecked((ushort)(bus.ReadByte(pc++) << 8));
+                    break;
+
+                case 0x8f: // STA long
+                    int destination = bus.ReadByte(pc) |
+                        (bus.ReadByte(pc + 1) << 8) |
+                        (bus.ReadByte(pc + 2) << 16);
+                    pc += 3;
+                    int storageIndex = destination - RoomScrollGrid.WorkRamAddress;
+                    if ((uint)storageIndex >= RoomScrollGrid.StorageByteCount)
+                        throw UnsupportedStream3DoorScroll(pointer, opcode, pc - 4);
+                    scrolls[storageIndex] = unchecked((byte)accumulator);
+                    if (!accumulatorIsEightBit)
+                    {
+                        if (storageIndex + 1 >= scrolls.Length)
+                            throw UnsupportedStream3DoorScroll(pointer, opcode, pc - 4);
+                        scrolls[storageIndex + 1] = unchecked((byte)(accumulator >> 8));
+                    }
+                    break;
+
+                case 0x60: // RTS
+                    return;
+
+                default:
+                    throw UnsupportedStream3DoorScroll(pointer, opcode, pc - 1);
+            }
+        }
+
+        throw new InvalidDataException(
+            $"Door callback $8F:{pointer:X4} did not return within 32 instructions.");
+    }
+
+    private static InvalidDataException UnsupportedStream3DoorScroll(
+        ushort pointer,
+        byte opcode,
+        int opcodeAddress) =>
+        new(
+            $"Door callback $8F:{pointer:X4} uses unsupported reference-audit opcode " +
+            $"${opcode:X2} at ${opcodeAddress >> 16:X2}:{opcodeAddress & 0xffff:X4}.");
 }

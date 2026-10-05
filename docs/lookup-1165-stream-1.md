@@ -236,8 +236,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MetroidBehaviorDefinitions.cs
 
-- [ ] **MetroidBehaviorDefinitions.EscapeDisplacements** ([L14](../csharp/src/SuperMetroid.Core/Game/MetroidBehaviorDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MetroidBehaviorDefinitions.RandomCrySoundEffects** ([L26](../csharp/src/SuperMetroid.Core/Game/MetroidBehaviorDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MetroidBehaviorDefinitions.EscapeDisplacements** ([L14](../csharp/src/SuperMetroid.Core/Game/MetroidBehaviorDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MetroidBehaviorDefinitions.RandomCrySoundEffects** ([L26](../csharp/src/SuperMetroid.Core/Game/MetroidBehaviorDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs
 
@@ -688,3 +688,11 @@ Two more definitions converted;119 complete and107 unchecked. No retained except
 - Mechanics and presentation addresses enumerate this layout without stored or generated arrays; readers and byte classification calculate exact native domains. All eight entry constants now carry original symbol/address XML documentation.
 - Evidence: pinned bankB3 `InstList_Zeb_FacingLeft/Right_Rising/Shooting`, `$87AB..882A`, and `InstList_Zebbo_FacingLeft/Right_Rising/Shooting`, `$8A1D..8A6C`.
 - Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-1` passed. Existing Brinstar Pipe Bug verification is wired unchanged and confirms60 original control words,44 visual selectors, all eight actual animation programs and complete loops with mechanics source words forbidden, plus rejected pointers and zero-allocation assertions.
+## Batch 12: Metroid escape motion and cry dispatch
+
+Two more definitions converted;121 complete and105 unchecked. No retained exception.
+
+- Escape displacement calculates a two-pixel cardinal rotation from the countdown's low two bits. X/Y signs and zero components preserve all restored ushort selectors.
+- Random cries directly dispatch the three named library-two sound variants with the exact native slot order and2/3/3 distribution. Source identities live in XML catalog constants; RNG advancement and sound queuing remain unchanged.
+- Evidence: pinned bankA3 `BombedOffVelocities` `$EA3F..EA4E` and `Instruction_Metroid_PlayRandomMetroidSFX.SFX` `$EAD6..EAE5`.
+- Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-1` passed. Existing verifier is wired unchanged: all16 original words,65536 actual escape selectors and eight production cry instruction selections agree with source reads forbidden.

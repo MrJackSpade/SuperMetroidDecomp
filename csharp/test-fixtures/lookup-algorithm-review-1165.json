@@ -10646,4 +10646,14 @@
     "confirmation": "Integrated --lookup-stream-4 passes native colors, storage/domain checks, five independent edits, guarded Power Bomb and Crystal Flash lifecycles and the existing 95-frame Ceres effect check. Verification build: 1436 warnings, zero errors. ResourceAudit build: zero warnings/errors. Reviewed source contract and static index refreshed.",
     "remaining": "Snapshot: 247 converted, one justified retained, 880 pending. Explosion container stays unchecked. Its rejected irregular-tail retention prose has been removed; no new exception."
   }
+,
+  "paletteDispositionDocumentationRecheck": {
+    "id": "palette-rationale-cleanup-and-death-cadence-recheck",
+    "state": "unreviewed",
+    "implementationCommit": "eaad3d1fd",
+    "scope": "SamusPaletteRomData normal suit, hurt/intro colors and death-explosion timing documentation.",
+    "evidence": "Normal suit selectors already use semantic cases. Failed uniform-ramp fitting is not a retention reason; independent intro colors remain required. Pinned 9B:B75B advances a drawing index after its countdown; 9B:B823 contains the nine dwell choices; 92:EDBE selects fixed-position left/right drawings by that index. Existing death-timing exception covers only those chosen cinematic dwell times, not palette or control fields.",
+    "confirmation": "Source and native consumer inspection only: no runtime behavior changed, so no new gameplay tests. Refreshed reviewed SamusPaletteRomData source hash and static index.",
+    "remaining": "No new completion or exemption in the 1128-definition snapshot. Counts remain 247 converted, one justified retained, 880 pending."
+  }
 }

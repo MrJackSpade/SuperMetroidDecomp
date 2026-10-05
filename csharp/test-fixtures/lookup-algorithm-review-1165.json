@@ -11110,4 +11110,11 @@
   "native": "Pinned91BE11..BE28 and ROM rows08-8B-4B-AB-C2-30-8A-EB /29-00-FF-85-16-84-18-A5 /12-38-E5-14-85-1A-10-08",
   "limits": "Actual00-FC policies require meaningful conversion; five containing definitions must be mixed, not fully converted. No other pose/artwork exemption; inventory pending until integration.",
   "state": "approved-pending-worker-disposition-and-integration"
+},"ceresDoorSelectorIntegration":{
+    "confirmation":  "Verification build: 1444 warnings, zero errors. Existing focused check passes 97 controls, 33 selectors, seven variants and actual transitions with ROM reads forbidden.",
+    "completed":  "CeresDoorInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "6a566201311d63e11a16a2fbc3204d23262ae323",
+    "state":  "converted",
+    "algorithm":  "Program widths and semantic opening phases derive 33 operand addresses and selectors; OAM records have 8,8,6,6,6 parts, giving 42/32-byte widths and 180 bytes per facing.",
+    "remaining":  "453 converted, 5 justified retained, 670 pending."
 }}

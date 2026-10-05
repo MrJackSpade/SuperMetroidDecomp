@@ -246,60 +246,87 @@ internal static class CeresDoorInstructionProgramDefinitions
         };
         return new((ushort)(RidleyRoomFacingRight + offset), value);
     }
-    /// <summary>
-    /// Stock spritemap selectors across the seven Ceres door variants.
-    /// The Ridley-room right-door program uses $F540, $F548, $F54C,
-    /// $F550, $F554, $F55A, and $F560, storing respectively $FAA7,
-    /// $FAA7, $FA87, $FA67, $FA3D, $FA13, and $FA13 in the pinned ROM.
-    /// Its repeated endpoints and mixed $20/$2A pose gaps preserve authored
-    /// presentation rather than a uniform pointer progression.
-    /// The ordinary right-door program uses $FA13 for its initial and
-    /// closed holds and $FAA7 for its open hold. Its four close-transition
-    /// operands at $F58A + 4*i are {$FAA7, $FA87, $FA67, $FA3D}; its four
-    /// open-transition operands at $F5A8 + 4*i are exactly that sequence
-    /// reversed, for i = 0..3.
-    /// The left-door close-transition operands at $F5DC + 4*i are
-    /// {$F9F3, $F9D3, $F9B3, $F989}; the open-transition operands at
-    /// $F5FA + 4*i reverse them. Each of these eight pointers is the
-    /// corresponding right-door transition pointer minus $00B4. The
-    /// left-door holds are authored separately: initial $FA13 and
-    /// open/closed $F95F, outside that offset rule.
-    /// The four single-frame control-actor variants have one pointer
-    /// each: variant 2 at $F614 stores $F921, variant 4 at $F624 stores
-    /// $F95F, variant 5 at $F62E stores $FACE, and variant 6 at $F638
-    /// stores $FB2F. The $F95F pose is shared with the left-door holds;
-    /// the remaining visual identities are authored per variant.
-    /// </summary>
-    private static readonly (ushort Address, ushort Frame)[] PresentationWords =
-    [
-        (0xf540, 0xfaa7), (0xf548, 0xfaa7), (0xf54c, 0xfa87),
-        (0xf550, 0xfa67), (0xf554, 0xfa3d), (0xf55a, 0xfa13),
-        (0xf560, 0xfa13), (0xf572, 0xfa13), (0xf57a, 0xfaa7),
-        (0xf58a, 0xfaa7), (0xf58e, 0xfa87), (0xf592, 0xfa67),
-        (0xf596, 0xfa3d), (0xf59e, 0xfa13), (0xf5a8, 0xfa3d),
-        (0xf5ac, 0xfa67), (0xf5b0, 0xfa87), (0xf5b4, 0xfaa7),
-        (0xf5c4, 0xfa13), (0xf5cc, 0xf95f), (0xf5dc, 0xf9f3),
-        (0xf5e0, 0xf9d3), (0xf5e4, 0xf9b3), (0xf5e8, 0xf989),
-        (0xf5f0, 0xf95f), (0xf5fa, 0xf989), (0xf5fe, 0xf9b3),
-        (0xf602, 0xf9d3), (0xf606, 0xf9f3), (0xf614, 0xf921),
-        (0xf624, 0xf95f), (0xf62e, 0xface), (0xf638, 0xfb2f),
-    ];
+    /// <summary>Spritemap_CeresDoor_RotatingElevRoomPreExplosionDoorOverlay at $A6:F921.</summary>
+    private const ushort ElevatorOverlaySpritemap = 0xf921;
+    /// <summary>Spritemap_CeresDoor_FacingLeft_Closed at $A6:F95F, followed by both facing pose sets.</summary>
+    private const ushort LeftClosedSpritemap = 0xf95f;
+    /// <summary>Spritemap_CeresDoor_RidleyEscapeMode7LeftWall at $A6:FACE.</summary>
+    private const ushort LeftWallSpritemap = 0xface;
+    /// <summary>Spritemap_CeresDoor_RidleyEscapeMode7RightWall at $A6:FB2F.</summary>
+    private const ushort RightWallSpritemap = 0xfb2f;
 
     internal static int MechanicsWordCount => 97;
-    internal static int PresentationWordCount => PresentationWords.Length;
+    internal static int PresentationWordCount => 33;
 
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index].Address;
-    internal static ushort PresentationWordFrame(int index) => PresentationWords[index].Frame;
+    internal static ushort PresentationWordAddress(int index) => PresentationWord(index).Address;
+    internal static ushort PresentationWordFrame(int index) => PresentationWord(index).Frame;
 
+    /// <summary>
+    /// $A6:F95F-FAC6 contains five opening poses per facing. Four inner OAM parts
+    /// accompany four outer parts for the closed/first-opening pose, then two outer
+    /// parts for the remaining poses. A record is a two-byte count plus five bytes
+    /// per part: the first two widths are 42 and the final three 32. This derives
+    /// selector identity only; independently authored part geometry remains artwork.
+    /// </summary>
+    private static ushort DoorPose(bool facingRight, int openingPhase)
+    {
+        const int wideRecord = 2 + 5 * (4 + 4);
+        const int narrowRecord = 2 + 5 * (4 + 2);
+        int facingBytes = 2 * wideRecord + 3 * narrowRecord;
+        return (ushort)(LeftClosedSpritemap + (facingRight ? facingBytes : 0) +
+            Math.Min(openingPhase, 2) * wideRecord + Math.Max(openingPhase - 2, 0) * narrowRecord);
+    }
+
+    private static (ushort Address, ushort Frame) PresentationWord(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 7)
+        {
+            if (index is >= 1 and <= 4)
+                return ((ushort)(RidleyRoomFacingRight + 14 + 4 * (index - 1)), DoorPose(true, 5 - index));
+            return index switch
+            {
+                0 => ((ushort)(RidleyRoomFacingRight + 6), DoorPose(true, 4)),
+                5 => ((ushort)(RidleyRoomFacingRight + 32), DoorPose(true, 0)),
+                _ => ((ushort)(RidleyRoomFacingRightWait + 2), DoorPose(true, 0)),
+            };
+        }
+        if (index < 29)
+        {
+            int local = (index - 7) % 11;
+            bool facingRight = index < 18;
+            int start = facingRight ? NormalFacingRight : NormalFacingLeft;
+            if (local is >= 2 and <= 5)
+                return ((ushort)(start + 30 + 4 * (local - 2)), DoorPose(facingRight, 6 - local));
+            if (local >= 7)
+                return ((ushort)(start + 60 + 4 * (local - 7)), DoorPose(facingRight, local - 6));
+            return local switch
+            {
+                // Both invisible initial entries select the right-facing closed map.
+                0 => ((ushort)(start + 6), DoorPose(true, 0)),
+                // The native left hold uses its closed map; its actor is invisible here.
+                1 => ((ushort)(start + 14), DoorPose(facingRight, facingRight ? 4 : 0)),
+                _ => ((ushort)(start + 50), DoorPose(facingRight, 0)),
+            };
+        }
+        return index switch
+        {
+            29 => ((ushort)(RotatingElevatorPreExplosionOverlayLoop + 2), ElevatorOverlaySpritemap),
+            30 => ((ushort)(RotatingElevatorInvisibleWallLoop + 2), DoorPose(false, 0)),
+            31 => ((ushort)(RidleyEscapeMode7LeftWallLoop + 2), LeftWallSpritemap),
+            _ => ((ushort)(RidleyEscapeMode7RightWallLoop + 2), RightWallSpritemap),
+        };
+    }
     /// <summary>Returns the authored spritemap selector at a bank-$A6 operand.</summary>
     internal static ushort ReadPresentationFrame(ushort address)
     {
         int low = 0;
-        int high = PresentationWords.Length - 1;
+        int high = PresentationWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            var candidate = PresentationWords[middle];
+            var candidate = PresentationWord(middle);
             if (candidate.Address == address)
                 return candidate.Frame;
             if (candidate.Address < address)

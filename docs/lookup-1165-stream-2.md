@@ -234,7 +234,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidGrowth.cs
 
-- [ ] **RoomEnemySystem.FinishKraidGrowth / lintTimers** ([L157](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidGrowth.cs#L157)) - method-local definition. Three fixed lint spawn delays indexed by part ordinal. Replace the stored delays with their native timing rule or semantic part cases.
+- [x] **RoomEnemySystem.FinishKraidGrowth / lintTimers** ([L157](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidGrowth.cs#L157)) - method-local definition. Three fixed lint spawn delays indexed by part ordinal. Replace the stored delays with their native timing rule or semantic part cases.
 
 ### csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs
 
@@ -916,3 +916,9 @@ Build1437 existing warnings/zero errors. New --lookup-stream2-pipe-bug-formation
 Replaced the six-entry return-kind array with named semantic column cases in coordinator-granted EnemyDropSelectionDefinitions. Native86:F25E-F263 maps small energy, big energy, missiles, no-drop, Super Missiles and Power Bombs in that probability-column order. Only the final selected identity changes representation; both minor/major accumulator loops, probabilities, resource eligibility, critical-health hysteresis and RNG behavior remain unchanged. Stream3 probability definitions were not edited.
 
 Build1437 existing warnings/zero errors. New --lookup-stream2-drop-selection confirms allsix native return bytes and six actual cumulative selections using the native first probability record; invokes only existing selection-rule assertions for zero RNG reroll,30..49health hysteresis and full-resource eligibility, plus invalid column bounds. No unrelated pickup collision or gameplay cases ran. Integrated stream checkpoint: 68 converted, two mixed definitions, 156 required.
+
+## Kraid lint initial policy dispatch
+
+Removed the three-entry local delay array in FinishKraidGrowth. Coordinator-approved KraidLintInitializationDefinitions names the top/middle/bottom slot identities and expresses their distinct initial launch delays as semantic cases. This is per-part policy, not a mathematically derived timing sequence: pinned A7:AE2F-AE47 separately selects offsets0080/00C0/0100 and sources A916/A918/A91A containing288/160/64. Native EnableKraidLints installs alignment and LintProduce continuation; B923-B93E aligns and decrements each independent countdown until that continuation begins.
+
+Build1437 existing warnings/zero errors. New --lookup-stream2-kraid-lint-initialization confirms allthree native timer values, actual FinishKraidGrowth slot/reset/continuation writes, and512 actual alignment/countdown steps including each exact transition tick, plus invalid slot bounds. No unrelated gameplay confirmation. Integrated stream checkpoint: 69 converted, two mixed definitions, 155 required.

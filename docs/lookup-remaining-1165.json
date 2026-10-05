@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 656,
+  "remainingTableDefinitionCount": 655,
   "fileCount": 523,
   "entries": [
     {
@@ -6290,7 +6290,9 @@
       "line": 157,
       "name": "RoomEnemySystem.FinishKraidGrowth / lintTimers",
       "kind": "method-local definition",
-      "note": "Three fixed lint spawn delays indexed by part ordinal. Replace the stored delays with their native timing rule or semantic part cases."
+      "note": "Three fixed lint spawn delays indexed by part ordinal. Replace the stored delays with their native timing rule or semantic part cases.",
+      "state": "converted",
+      "implementationCommit": "e7e848f5a46b60108501c0baa29bfcf9afd35b6e"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs",
@@ -21265,6 +21267,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 461,
+  "convertedSinceSnapshot": 462,
   "justifiedRetainedSinceSnapshot": 11
 }

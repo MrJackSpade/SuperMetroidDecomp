@@ -3162,6 +3162,7 @@
     ,{"path":"csharp/src/SuperMetroid.AssetExtraction/GameplayMessageNoticeExtractor.cs","stream":4,"purpose":"Pass existing imported template to calculated notice-region view; preserve export and independent edits"}
     ,{"path":"csharp/src/SuperMetroid.Core/Game/MotherBrainRoomColorRomData.cs","stream":3,"purpose":"Named attack/glass/tube palette slot and range identities only; independent endpoints stay required"}
     ,{"path":"csharp/src/SuperMetroid.Core/Game/KraidLintInitializationDefinitions.cs","stream":2,"purpose":"Semantic top/middle/bottom initial timer policy with pinned native identities; preserve timed transitions"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Game/RidleyTailDefinitions.cs","stream":4,"purpose":"Named native quarter-turn and ideal segment separation; initial angle calculation only; unresolved distances stay required"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

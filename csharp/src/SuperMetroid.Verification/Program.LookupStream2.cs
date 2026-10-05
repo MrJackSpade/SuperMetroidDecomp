@@ -7,6 +7,42 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem();
+        var state = new KraidEnemyState();
+        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 1));
+        var finish = typeof(RoomEnemySystem).GetMethod("FinishKraidGrowth", flags)!
+            .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies);
+        var align = typeof(RoomEnemySystem).GetMethod("AlignKraidPart", flags)!
+            .CreateDelegate<Action<RoomEnemySlot, KraidPartState>>(enemies);
+        var body = enemies.Slots[0];
+        body.XPosition = 200; body.YPosition = 300;
+        for (int slot = 2; slot <= 4; slot++) enemies.Slots[slot].VariableB = 17;
+        finish(body, state);
+        for (int slot = 2; slot <= 4; slot++)
+        {
+            var lint = enemies.Slots[slot];
+            ushort expected = Word(0xa7a916 + (slot - 2) * 2);
+            AssertEqual(expected, KraidLintInitializationDefinitions.InitialDelayForSlot(slot), "Native per-part initial delay");
+            AssertEqual(expected, lint.VariableF, "Actual post-growth timer write");
+            AssertEqual((ushort)0, lint.VariableB, "Actual lint growth resets extension");
+            AssertEqual(KraidAiFunction.LintProduce, state.Parts[slot].NextFunction, "Actual lint continuation");
+            for (int remaining = expected - 1; remaining >= 0; remaining--)
+            {
+                align(lint, state.Parts[slot]);
+                AssertEqual((ushort)remaining, lint.VariableF, "Actual per-part countdown");
+                AssertEqual((ushort)(remaining == 0 ? KraidAiFunction.LintProduce : KraidAiFunction.AlignPartToKraid),
+                    lint.VariableA, "Actual lint transition occurs on its own final tick");
+                AssertEqual(unchecked((ushort)(body.XPosition - lint.XRadius)), lint.XPosition, "Alignment continues during delay");
+            }
+        }
+        foreach (int invalid in new[] { -1, 0, 1, 5, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => KraidLintInitializationDefinitions.InitialDelayForSlot(invalid), "Only lint slots have launch policy");
+        Console.WriteLine("Kraid lint initialization: three native policies, actual slot writes and all 512 countdown transitions pass.");
+    }
     private static void VerifyLookupStream2DropSelection(SuperMetroidAddressSpace rom)
     {
         // Native first record weights60,60,60,5,60,10 yield cumulative thresholds

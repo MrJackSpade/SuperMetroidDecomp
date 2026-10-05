@@ -154,13 +154,13 @@ public sealed partial class RoomEnemySystem
     private void FinishKraidGrowth(RoomEnemySlot body, KraidEnemyState state)
     {
         SetupKraidSecondPhaseThinking(body, state);
-        ushort[] lintTimers = [0x0120, 0x00a0, 0x0040];
-        for (int index = 0; index < lintTimers.Length; index++)
+
+        for (int slot = KraidLintInitializationDefinitions.TopSlot; slot <= KraidLintInitializationDefinitions.BottomSlot; slot++)
         {
-            RoomEnemySlot lint = _slots[index + 2];
-            lint.VariableF = lintTimers[index];
+            RoomEnemySlot lint = _slots[slot];
+            lint.VariableF = KraidLintInitializationDefinitions.InitialDelayForSlot(slot);
             lint.VariableA = (ushort)KraidAiFunction.AlignPartToKraid;
-            state.Parts[index + 2].NextFunction = KraidAiFunction.LintProduce;
+            state.Parts[slot].NextFunction = KraidAiFunction.LintProduce;
             lint.VariableB = 0;
         }
         for (int nailIndex = 0; nailIndex < 2; nailIndex++)

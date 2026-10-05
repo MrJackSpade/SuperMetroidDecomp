@@ -457,7 +457,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 - [ ] **RoomEnemySystem.CeresRidleyWingAnimationDeltas** ([L10](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **RoomEnemySystem.UpdateRidleyTailDistances / maximumDistances** ([L323](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs#L323)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **RoomEnemySystem.UpdateRidleyTailDistances / neutralDistances** ([L324](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs#L324)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemySystem.UpdateRidleyTailDistances / neutralDistances** ([L324](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs#L324)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyMode7.cs
 
@@ -1120,3 +1120,12 @@ One definition converted: 109 wholly converted, one mixed, one retained, 114 unc
 - Native evidence: A6:ACBC..ACD9 gates on NMI&3, increments then masks the stored phase, and selects pointers ACDA..ACE1. These are ACE2, ACF5, AD08, ACF5. Each record contains two nine-byte low-byte VRAM descriptors and its zero terminator. The calculation preserves the 0,1,2,1 reflected phase without a replacement pointer lookup.
 - Confirmation: Verification build 1433 warnings/zero errors; --lookup-stream-4-baby-phase passes all four native identity operands and invalid-domain rejection. A focused invocation of the actual getaway handler across one 16-NMI cycle confirms advance-before-select, unchanged phase on other NMIs, exact four Baby tilemap bytes from original transfer descriptors, and preservation of character high bytes. Palette assets are supplied explicitly and the runtime bus denies cartridge reads. No other timing or transfer payload is exempted.
 - No ResourceAudit source-hash reference was found for either changed production file. The only newly granted path is csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs; its existing transfer arrays/content are untouched.
+
+## Batch 66: one shared Ridley tail rest geometry
+
+One duplicate mapping converted: 110 wholly converted, one mixed, one retained, 113 unchecked. CreateInitialRidleyTailSegments/distances remains required for three chosen base/shaft/tip lengths, and maximumDistances remains required separately.
+
+- Initialization and shrink thresholds now consume RidleyTailDefinitions.RestDistance. It selects the physical base, five shaft links or tip and returns their shared rest separation. Removed both repeated seven-element local arrays; the three chosen lengths2/8/5 pixels are explicitly documented required inputs, not claimed as calculated or exempt.
+- Native evidence: A6:D37C..D389 installs seven8.8-pixel separations0200/0800/0800/0800/0800/0800/0500. The six shrink instructions load exactly the matching initialized separations at CF7F, CFB5, CFEB, D021, D057 and D08D. The base is excluded from updates. This establishes the neutral mapping as a functional alias of initial rest geometry; it does not explain or exempt the three chosen lengths.
+- Confirmation: Verification build 1433 warnings/zero errors; --lookup-stream-4-tail-rest passes all seven native initialized distances and six independently read shrink immediates, plus the existing initial angle/direction/stagger checks. Actual updater checks preserve below/equal/above threshold behavior, subtraction by native half-pixel decrement, unchanged base, and the existing ordering that clears a passed target then still extends/clamps on that frame. Invalid rest indices preserve IndexOutOfRangeException.
+- No ResourceAudit source-hash reference was found for the three changed production files. The separate maximum-distance array and all independent angular/movement parameters are unchanged.

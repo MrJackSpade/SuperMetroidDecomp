@@ -9,6 +9,54 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4TailRestGeometry(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        VerifyLookupStream4TailAngles(rom);
+        for (int link = 0; link < 7; link++)
+            AssertEqual(Word(0xa6d37c + link * 2), RidleyTailDefinitions.RestDistance(link), "Shared tail rest geometry preserves the native initial separation");
+        for (int link = 1; link < 7; link++)
+            AssertEqual(Word(0xa6cf7f + (link - 1) * 0x36), RidleyTailDefinitions.RestDistance(link), "Native shrink threshold equals initialized rest geometry");
+        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => RidleyTailDefinitions.RestDistance(invalid), "Shared rest geometry preserves bounded array selection");
+        var update = typeof(RoomEnemySystem).GetMethod("UpdateRidleyTailDistances", BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Action<RidleyEnemyState>>();
+        foreach (int delta in new[] { -1, 0, 1 })
+        {
+            var state = new RidleyEnemyState
+            {
+                TailSegments = Enumerable.Range(0, 7).Select(link => new RidleyTailSegment
+                {
+                    Distance = (ushort)(Word(0xa6d37c + link * 2) + delta),
+                }).ToArray(),
+            };
+            update(state);
+            for (int link = 0; link < 7; link++)
+            {
+                int before = Word(0xa6d37c + link * 2) + delta;
+                ushort expected = (ushort)(before - (link != 0 && delta > 0 ? Word(0xa6cf8b + (link - 1) * 0x36) : 0));
+                AssertEqual(expected, state.TailSegments[link].Distance, "Actual tail shrinking preserves strict threshold, native decrement and excluded base");
+            }
+        }
+        var extending = new RidleyEnemyState
+        {
+            TailExtensionSpeed = 0xf0,
+            TailSegments = Enumerable.Range(0, 7).Select(link => new RidleyTailSegment
+            {
+                Distance = link == 0 ? (ushort)123 : (ushort)(Word(0xa6cf72 + (link - 1) * 0x36) - 1),
+                TargetDistance = 1,
+            }).ToArray(),
+        };
+        update(extending);
+        for (int link = 1; link < 7; link++)
+        {
+            AssertEqual((ushort)0, extending.TailSegments[link].TargetDistance, "Actual tail extension clears the passed target first");
+            AssertEqual(Word(0xa6cf72 + (link - 1) * 0x36), extending.TailSegments[link].Distance, "Actual tail still extends and clamps on the target-clearing frame");
+        }
+        AssertEqual((ushort)123, extending.TailSegments[0].Distance, "Tail base stays outside extension updates");
+        Console.WriteLine("Tail rest geometry: seven initial distances, six original shrink thresholds and actual boundary/extension ordering pass; chosen lengths remain required.");
+    }
+
     private static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

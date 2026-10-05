@@ -911,15 +911,14 @@ public sealed partial class RoomEnemySystem
     private static RidleyTailSegment[] CreateInitialRidleyTailSegments()
     {
         // Each successive link begins one ideal angular separation beyond its predecessor.
-        // The independent distance payload remains required lookup-conversion work.
-        ushort[] distances = [0x0200, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0500];
+        // The chosen base/shaft/tip lengths remain required inputs in the tail catalog.
         var segments = new RidleyTailSegment[7];
         for (int index = 0; index < segments.Length; index++)
         {
             segments[index] = new RidleyTailSegment
             {
                 MovementDirection = 0x8000,
-                Distance = distances[index],
+                Distance = RidleyTailDefinitions.RestDistance(index),
                 Angle = RidleyTailDefinitions.InitialAngle(index),
                 StaggerAngle = 0x0011,
             };

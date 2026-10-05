@@ -11695,4 +11695,11 @@
     "state":  "one-converted",
     "algorithm":  "Reflected phase min(phase,4-phase) selects consecutive equally sized transfer records; existing NMI gate and advance-before-select preserved.",
     "remaining":  "Transfer artwork and other timing inputs remain required.536converted/16justified retained-mixed/576pending."
+},"ridleyTailRestIntegration":{
+    "confirmation":  "Root1445warnings/0errors;seven native initial distances,six shrink immediates and actual updater threshold/extension ordering pass.",
+    "completed":  "RoomEnemySystem.UpdateRidleyTailDistances / neutralDistances",
+    "workerCommit":  "dab3adb773d29fdd506c2e61b6bdf4cc6e2d3fe9",
+    "state":  "one-converted",
+    "algorithm":  "Native shrink thresholds alias initialized base/shaft/tip geometry; both duplicate arrays removed.",
+    "remaining":  "Initial lengths2/8/5 and maximum distances remain required.537converted/16justified retained-mixed/575pending."
 }}

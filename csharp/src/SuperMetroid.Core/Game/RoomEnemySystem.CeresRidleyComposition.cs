@@ -321,7 +321,6 @@ public sealed partial class RoomEnemySystem
     private static void UpdateRidleyTailDistances(RidleyEnemyState state)
     {
         ushort[] maximumDistances = [0, 0x1800, 0x1800, 0x1600, 0x1600, 0x1200, 0x0500];
-        ushort[] neutralDistances = [0x0200, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0500];
         for (int index = 1; index < state.TailSegments.Length; index++)
         {
             RidleyTailSegment segment = state.TailSegments[index];
@@ -333,7 +332,7 @@ public sealed partial class RoomEnemySystem
                     maximumDistances[index],
                     segment.Distance + state.TailExtensionSpeed));
             }
-            else if (segment.Distance > neutralDistances[index])
+            else if (segment.Distance > RidleyTailDefinitions.RestDistance(index))
             {
                 segment.Distance = unchecked((ushort)(segment.Distance - 0x0080));
             }

@@ -6284,7 +6284,9 @@
       "line": 324,
       "name": "RoomEnemySystem.UpdateRidleyTailDistances / neutralDistances",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "dab3adb773d29fdd506c2e61b6bdf4cc6e2d3fe9"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyMode7.cs",

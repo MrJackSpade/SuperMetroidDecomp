@@ -23,7 +23,7 @@ internal static partial class Program
                 type == RoomCollisionType.Air ? (ushort)0x00fe : definition.TopLeft,
                 definition.TopRight, definition.BottomLeft, definition.BottomRight)));
         }
-        runtime.XrayRevealVisuals = new XrayRevealVisualCatalog(visualEntries);
+        runtime.XrayRevealVisuals = new XrayRevealVisualCatalog(visualEntries, runtime.XrayRevealVisuals!.Overlays);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -58,8 +58,9 @@ internal static partial class Program
         // or a single late VRAM snapshot cannot pass this page-ownership assertion.
         runtime.Vram.ExecuteWordTransfer(new ushort[XrayTilemapLayout.ScreenWords],
             SnesPpuLayout.GameplayBg1TilemapWord + XrayTilemapLayout.ScreenWords, 1);
-        int source = SamusXrayRomData.Palette.VisorWords;
-        first[0] = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+        // Queue a mutable-memory transfer from the already captured second page.
+        int source = XraySetupMemory.SavedBg1SecondScreen;
+        first[0] = second[0];
         runtime.VramWrites.Enqueue(sizeInBytes: 2, sourceAddress: source,
             encodedVramDestination: SnesPpuLayout.GameplayBg1TilemapWord);
         var captured = new SnesVram();
@@ -78,7 +79,7 @@ internal static partial class Program
         AssertTrue(!original.SequenceEqual(expected),
             "installed X-ray visual selection changes the actual room reveal map");
         XrayRevealOverlays.Apply(bus, runtime.LevelData!, expected, runtime.Plms.Collectibles, runtime.System,
-            room.State.XrayPointer, scroll.Layer1XPosition, scroll.Layer1YPosition);
+            room.State.XrayPointer, scroll.Layer1XPosition, scroll.Layer1YPosition, runtime.XrayRevealVisuals);
         runtime.StepFrame(held);
         VerifySaved(XraySetupMemory.SavedBg1, first, "stage-three read completes before stage-four build");
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(bus)), "stage four builds from the separately captured pages and overlays");

@@ -54,6 +54,8 @@ if (args is ["--saved-map-fixture"]) { VerifySavedGameMapFrontend(); return 0; }
 if (args is ["--map-cancel-fixture"]) { VerifyMapCancelPresentation(); return 0; }
 if (args is ["--station-marker-fixture"]) { VerifyFileSelectStationMarker(); return 0; }
 if (args is ["--inventory-fixture"]) { VerifyInvalidBeamSelection(); return 0; }
+if (args is ["--space-screw-fixture"]) { VerifySamusSpaceJumpAndScrewAttack(); return 0; }
+if (args is ["--xray-overlay-fixtures"]) { VerifyXrayOverlays(); VerifyXraySetupBuffers(); return 0; }
 if (args is ["--grapple-sound-refire-fixtures"]) { VerifyGrappleSounds(); VerifyGrapplePoseRefire(); return 0; }
 if (args is ["--attract-input-fixtures"]) { VerifyAttractDemoScene(); VerifyGrappleDemoTrajectory(); return 0; }
 if (args is ["--mother-brain-beam-fixture"]) { VerifyMotherBrainBeamWindow(); return 0; }

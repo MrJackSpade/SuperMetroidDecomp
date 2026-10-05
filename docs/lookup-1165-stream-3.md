@@ -595,7 +595,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs
 
-- [ ] **RipperInstructionProgramDefinitions.Words** ([L32](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RipperInstructionProgramDefinitions.Words** ([L32](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **RipperInstructionProgramDefinitions.PresentationWords** ([L48](../csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs#L48)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs
@@ -1177,3 +1177,10 @@ Both are narrow reviews, not blanket visual-data exemptions. Inventory remains55
 IntroNarrationPresentation.pages is mixed complete (a665c6e51). Six semantic pages retain only the approved English story strings and the deliberate break before GALACTIC CIVILIZATION. Greedy 29-column wrapping and row4+2*line calculate all31 lines, with no cached stock line-record table. A formula cannot derive the selected story prose without encoding it as content; this exception does not extend to timings, glyph mapping, callbacks or artwork. Exact candidate comparison preserves all independently edited records.
 
 Root Verification build1445 warnings/zero errors; --lookup-narration-layout passes770 direct native glyph/column/row records, six calculated page views, exactly one retained hard break,31 text edits plus three spacing/row edits and bounds. ResourceAudit source contract now describes calculated views and independent fallback records. Inventory555 converted/18 retained-mixed/555 pending.
+
+
+## Integrated Ripper chosen visual holds
+
+RipperInstructionProgramDefinitions.Words is mixed complete (7f9babb19). Existing program structure is calculated; only reviewed neutral8/alternate7 visual holds remain, now explicitly named rather than encoded as an unexplained subtraction. Native animation-only loops, fixed body/hitbox and independent movement/freeze evidence are recorded above. Speed,collision,grapple,freeze,reset1 and all artwork remain excluded from the exception.
+
+Root Verification build1445 warnings/zero errors; --ripper-instruction-mechanics passes36 native words, all six production-installed loops and24 visual selectors with original bytes forbidden. Inventory555 converted/19 retained-mixed/554 pending.

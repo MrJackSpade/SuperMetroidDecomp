@@ -28,6 +28,17 @@ internal static class RipperInstructionProgramDefinitions
     /// <summary><c>Spritemap_GRipper_Ripper2_Frozen_FacingRight</c> at $A2:E44B.</summary>
     internal const ushort FrozenFacingRightSpritemap = 0xe44b;
 
+    /// <summary>$A2:E19B/E1AF/E2E0/E2F4/E477/E48B: selected eight-tick hold of the
+    /// neutral pose, repeated between the two alternate wing/accessory poses. Reviewed
+    /// visual cadence only; population speed, fixed collision and reversal scheduling are separate.</summary>
+    private const ushort NeutralVisualHoldTicks = 8;
+    /// <summary>The second/fourth visual records of those six loops hold each alternate
+    /// pose for seven ticks. This chosen visual performance does not control movement,
+    /// grapple/freeze behavior or the one-tick list reset on direction reversal.</summary>
+    private const ushort AlternateVisualHoldTicks = 7;
+
+    private static ushort VisualHold(int phase) =>
+        (phase & 1) == 0 ? NeutralVisualHoldTicks : AlternateVisualHoldTicks;
     internal static int MechanicsWordCount => 36;
     internal static int PresentationWordCount => 24;
 
@@ -47,7 +58,7 @@ internal static class RipperInstructionProgramDefinitions
         ushort start = ProgramStart(index / 6);
         int record = index % 6;
         int offset = record < 4 ? record * 4 : 16 + 2 * (record - 4);
-        ushort value = record < 4 ? (ushort)(8 - (record & 1)) :
+        ushort value = record < 4 ? VisualHold(record) :
             record == 4 ? CommonEnemyInstructionCodes.Goto : start;
         return new((ushort)(start + offset), value);
     }
@@ -85,7 +96,7 @@ internal static class RipperInstructionProgramDefinitions
                 continue;
             if (offset < 16 && (offset & 3) == 0)
             {
-                value = (ushort)(8 - ((offset / 4) & 1));
+                value = VisualHold(offset / 4);
                 return true;
             }
             if (offset is 16 or 18)

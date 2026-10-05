@@ -128,6 +128,7 @@ internal static partial class Program
         VerifyStream3BabyFade(rom);
         VerifyStream3DrainFades(rom);
         VerifyStream3ShitroidPulse(rom);
+        VerifyStream3HealthTint(rom);
         VerifyStream3CorpseGeometry(rom);
         VerifyStream3EscapeGeometry(rom);
         VerifyStream3PainfulWalking(rom);
@@ -1212,5 +1213,72 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(0, invalid),
                 "stream 3 Work Robot color bounds");
+    }
+    private static void VerifyStream3HealthTint(ISnesAddressSpace rom)
+    {
+        byte[] json = SuperMetroid.AssetExtraction.MotherBrainHealthPaletteExtractor.Extract(rom);
+        var stock = MotherBrainHealthPalettePresentation.Load(new MemoryStream(json));
+        var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        foreach (string name in new[] { "body", "backLegs" })
+        {
+            object palette = typeof(MotherBrainHealthPalettePresentation).GetField(name, flags)!.GetValue(stock)!;
+            var channels = (Array)palette.GetType().GetField("channels", flags)!.GetValue(palette)!;
+            foreach (object channel in channels)
+                AssertTrue(channel.GetType().GetProperty("Supplied")!.GetValue(channel) is null,
+                    "stream 3 native health tint has no stored channel trajectory");
+        }
+        for (int state = 0; state < 4; state++)
+        {
+            var actual = new SnesCgram();
+            stock.Apply(actual, state);
+            foreach (var (table, destination) in new[]
+            {
+                (MotherBrainHealthPaletteRomData.BrainTable, MotherBrainRainbowPaletteRomData.BodyColor),
+                (MotherBrainHealthPaletteRomData.BackLegTable, MotherBrainRainbowPaletteRomData.SecondaryColor),
+            })
+            {
+                int pointer = rom.ReadByte(table + state * 2) | rom.ReadByte(table + state * 2 + 1) << 8;
+                for (int color = 0; color < 15; color++)
+                {
+                    int address = 0xad0000 | pointer + color * 2;
+                    ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                    AssertEqual(expected, actual.Colors[destination + color], "stream 3 all native health tint words");
+                }
+            }
+            for (int color = 0; color < 15; color++)
+                AssertEqual(actual.Colors[MotherBrainRainbowPaletteRomData.BodyColor + color],
+                    actual.Colors[MotherBrainRainbowPaletteRomData.BrainColor + color], "stream 3 health tint body/brain copies");
+        }
+        foreach (string group in new[] { "body", "backLegs" })
+            for (int state = 0; state < 4; state++)
+                for (int color = 0; color < 15; color++)
+                    foreach (string component in new[] { "red", "green", "blue" })
+                    {
+                        var editedNode = node.DeepClone();
+                        var rgb = editedNode[group]![state]![color]!;
+                        rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                        var edited = MotherBrainHealthPalettePresentation.Load(new MemoryStream(
+                            System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
+                        for (int checkState = 0; checkState < 4; checkState++)
+                        {
+                            var actual = new SnesCgram();
+                            edited.Apply(actual, checkState);
+                            foreach (var (checkGroup, destination) in new[]
+                            {
+                                ("body", MotherBrainRainbowPaletteRomData.BodyColor),
+                                ("backLegs", MotherBrainRainbowPaletteRomData.SecondaryColor),
+                            })
+                                for (int checkColor = 0; checkColor < 15; checkColor++)
+                                {
+                                    var expectedRgb = editedNode[checkGroup]![checkState]![checkColor]!;
+                                    ushort expected = (ushort)(expectedRgb["red"]!.GetValue<int>() |
+                                        expectedRgb["green"]!.GetValue<int>() << 5 |
+                                        expectedRgb["blue"]!.GetValue<int>() << 10);
+                                    AssertEqual(expected, actual.Colors[destination + checkColor],
+                                        "stream 3 independent health palette edit and unaffected channels");
+                                }
+                        }
+                    }
     }
 }

@@ -7,16 +7,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable damage-state colors for Mother Brain's final-phase body and rear legs.</summary>
 public sealed class MotherBrainHealthPalettePresentation
 {
-    private readonly ushort[][] body;
-    private readonly ushort[][] backLegs;
+    private readonly TintPalette body;
+    private readonly TintPalette backLegs;
 
     private MotherBrainHealthPalettePresentation(ushort[][] body, ushort[][] backLegs)
     {
-        this.body = body;
-        this.backLegs = backLegs;
+        this.body = new TintPalette(body, backLeg: false);
+        this.backLegs = new TintPalette(backLegs, backLeg: true);
     }
 
-    /// <summary>Copies one authored color pair to the three native CGRAM destinations.</summary>
+    /// <summary>Calculates one damage-tinted color pair to the three native CGRAM destinations.</summary>
     public void Apply(SnesCgram cgram, int damageState)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -24,12 +24,73 @@ public sealed class MotherBrainHealthPalettePresentation
             throw new ArgumentOutOfRangeException(nameof(damageState));
         for (int color = 0; color < MotherBrainRainbowPaletteRomData.ColorCount; color++)
         {
-            cgram.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + color, body[damageState][color]);
-            cgram.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + color, body[damageState][color]);
-            cgram.SetColor(MotherBrainRainbowPaletteRomData.SecondaryColor + color, backLegs[damageState][color]);
+            cgram.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + color, body.Color(damageState, color));
+            cgram.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + color, body.Color(damageState, color));
+            cgram.SetColor(MotherBrainRainbowPaletteRomData.SecondaryColor + color, backLegs.Color(damageState, color));
         }
     }
 
+    /// <summary>
+    /// The four native palettes fit an RGB8 red tint before RGB5 quantization.
+    /// Body strength is state*(state+1)/30; rear legs add 2/30 after state zero.
+    /// Independent base colors remain supplied; matching intermediate rows are discarded.
+    /// </summary>
+    private sealed class TintPalette
+    {
+        private readonly TintChannel[] channels;
+        private readonly bool backLeg;
+
+        public TintPalette(ushort[][] rows, bool backLeg)
+        {
+            this.backLeg = backLeg;
+            channels = new TintChannel[MotherBrainRainbowPaletteRomData.ColorCount * 3];
+            for (int color = 0; color < MotherBrainRainbowPaletteRomData.ColorCount; color++)
+                for (int component = 0; component < 3; component++)
+                {
+                    int first = (rows[0][color] >> (component * 5)) & 31;
+                    int basis = first * 8;
+                    for (; basis < first * 8 + 8; basis++)
+                    {
+                        bool matches = true;
+                        for (int state = 0; state < MotherBrainHealthPaletteFormat.StateCount; state++)
+                            if (Tint(basis, component, state, backLeg) !=
+                                ((rows[state][color] >> (component * 5)) & 31))
+                            { matches = false; break; }
+                        if (matches) break;
+                    }
+                    byte[]? supplied = null;
+                    if (basis == first * 8 + 8)
+                    {
+                        supplied = new byte[MotherBrainHealthPaletteFormat.StateCount];
+                        for (int state = 0; state < supplied.Length; state++)
+                            supplied[state] = (byte)((rows[state][color] >> (component * 5)) & 31);
+                    }
+                    channels[color * 3 + component] = new TintChannel(basis, supplied);
+                }
+        }
+
+        public ushort Color(int state, int color)
+        {
+            int result = 0;
+            for (int component = 0; component < 3; component++)
+            {
+                TintChannel channel = channels[color * 3 + component];
+                int value = channel.Supplied is { } supplied ? supplied[state] :
+                    Tint(channel.Basis, component, state, backLeg);
+                result |= value << (component * 5);
+            }
+            return (ushort)result;
+        }
+
+        private static int Tint(int basis, int component, int state, bool backLeg)
+        {
+            int amount = state * (state + 1) + (backLeg && state != 0 ? 2 : 0);
+            int redTarget = component == 0 ? 31 * 8 : 0;
+            return (basis * (30 - amount) + redTarget * amount) / (30 * 8);
+        }
+
+        private readonly record struct TintChannel(int Basis, byte[]? Supplied);
+    }
     public static MotherBrainHealthPalettePresentation Load(Stream json)
     {
         MotherBrainHealthPaletteDocument document = JsonAssetDocument.Read<MotherBrainHealthPaletteDocument>(

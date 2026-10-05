@@ -5,6 +5,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        VerifyLookupStream1HibashiDragonFireball(rom);
         VerifyLookupStream1CommonFrames(rom);
         VerifyLookupStream1EnemyMovement(rom);
         VerifyLookupStream1CadencePrograms(rom);
@@ -268,5 +269,54 @@ internal static partial class Program
         AssertEqual((ushort)(rom.ReadByte(0x8684fc) | rom.ReadByte(0x8684fd) << 8), deletion.Value, "shared projectile delete native instruction");
         foreach (int invalid in new[] { int.MinValue, -1, 1, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CommonEnemyProjectileInstructionProgramDefinitions.MechanicsWord(invalid), "shared delete enumeration bounds");
+    }
+    private static void VerifyLookupStream1HibashiDragonFireball(ISnesAddressSpace rom)
+    {
+        Check(0x860000, 0xb4bf, 0xb4ef, 16, 8,
+            address => (address - 0xb4bf) % 12 is 2 or 6,
+            i => { var w = DragonFireballInstructionProgramDefinitions.MechanicsWord(i); return (w.Address, w.Value); },
+            DragonFireballInstructionProgramDefinitions.PresentationWordAddress,
+            DragonFireballInstructionProgramDefinitions.ReadMechanicsWord,
+            DragonFireballInstructionProgramDefinitions.IsCompiledMechanicsByte);
+        Check(0xa60000, 0x8d1b, 0x8daf, 50, 24,
+            address => address == 0x8dab || address >= 0x8d1f && address <= 0x8da3 && (address - 0x8d1f) % 6 == 0,
+            i => { var w = HibashiInstructionProgramDefinitions.MechanicsWord(i); return (w.Address, w.Value); },
+            HibashiInstructionProgramDefinitions.PresentationWordAddress,
+            HibashiInstructionProgramDefinitions.ReadMechanicsWord,
+            HibashiInstructionProgramDefinitions.IsCompiledMechanicsByte);
+        void Check(int bank, int first, int end, int count, int visualCount, Func<int, bool> isVisual,
+            Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> presentation,
+            Func<ushort, ushort> read, Func<int, bool> owns)
+        {
+            int m = 0, p = 0;
+            for (int address = first; address < end; address += 2)
+            {
+                bool visual = isVisual(address);
+                if (visual)
+                {
+                    AssertEqual((ushort)address, presentation(p++), "Hibashi/Dragon native presentation order");
+                    AssertThrows<InvalidDataException>(() => read((ushort)address), "Hibashi/Dragon presentation excluded from mechanics");
+                }
+                else
+                {
+                    var word = mechanics(m++);
+                    AssertEqual((ushort)address, word.Address, "Hibashi/Dragon native control order");
+                    ushort value = (ushort)(rom.ReadByte(bank | address) | rom.ReadByte(bank | (address + 1)) << 8);
+                    AssertEqual(value, word.Value, "Hibashi/Dragon original native control value");
+                    AssertEqual(value, read((ushort)address), "Hibashi/Dragon direct control read");
+                }
+                AssertEqual(!visual, owns(bank | address), "Hibashi/Dragon low-byte ownership");
+                AssertEqual(!visual, owns(bank | (address + 1)), "Hibashi/Dragon high-byte ownership");
+                AssertThrows<InvalidDataException>(() => read((ushort)(address + 1)), "Hibashi/Dragon unaligned reads rejected");
+            }
+            AssertEqual(count, m, "Hibashi/Dragon control count");
+            AssertEqual(visualCount, p, "Hibashi/Dragon presentation count");
+            foreach (int invalid in new[] { -1, count, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => mechanics(invalid), "Hibashi/Dragon control index domain");
+            foreach (int invalid in new[] { -1, visualCount, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => presentation(invalid), "Hibashi/Dragon presentation index domain");
+            foreach (int invalid in new[] { bank | (first - 1), bank | end, (bank ^ 0x10000) | first })
+                AssertTrue(!owns(invalid), "Hibashi/Dragon external byte domain");
+        }
     }
 }

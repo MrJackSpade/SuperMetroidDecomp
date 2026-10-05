@@ -23,84 +23,47 @@ internal static class DragonFireballInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_DragonFireball_Falling_Right</c> at $86:B4E3.</summary>
     internal const ushort FallingRight = 0xb4e3;
 
-    private static readonly DragonFireballInstructionMechanicsWord[] Words =
-    [
-        new(RisingLeft, 0x0005),
-        new(0xb4c3, 0x0005),
-        new(0xb4c7, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb4c9, RisingLeft),
+    internal static int MechanicsWordCount => 16;
+    internal static int PresentationWordCount => 8;
 
-        new(RisingRight, 0x0005),
-        new(0xb4cf, 0x0005),
-        new(0xb4d3, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb4d5, RisingRight),
+    internal static DragonFireballInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int step = index % 4;
+        ushort address = (ushort)(RisingLeft + index / 4 * 12 + (step < 3 ? step * 4 : 10));
+        return new(address, ReadMechanicsWord(address));
+    }
 
-        new(FallingLeft, 0x0005),
-        new(0xb4db, 0x0005),
-        new(0xb4df, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb4e1, FallingLeft),
-
-        new(FallingRight, 0x0005),
-        new(0xb4e7, 0x0005),
-        new(0xb4eb, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb4ed, FallingRight),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xb4c1,
-        0xb4c5,
-        0xb4cd,
-        0xb4d1,
-        0xb4d9,
-        0xb4dd,
-        0xb4e5,
-        0xb4e9,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static DragonFireballInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(RisingLeft + index / 2 * 12 + index % 2 * 4 + 2);
+    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            DragonFireballInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        if (TryRead(address, out ushort value)) return value;
         throw new InvalidDataException(
-            $"Dragon-fireball instruction mechanics pointer $86:{address:X4} " +
-            "is not compiled.");
+            $"Dragon-fireball instruction mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    private static bool TryRead(int address, out ushort value)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        int offset = address - RisingLeft;
+        value = 0;
+        if (offset < 0 || offset >= 48) return false;
+        int step = offset % 12;
+        value = step switch
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
+            0 or 4 => 5,
+            8 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+            10 => (ushort)(RisingLeft + offset / 12 * 12),
+            _ => 0,
+        };
+        return value != 0;
     }
+
+    internal static bool IsCompiledMechanicsByte(int address) =>
+        (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
+        (TryRead((ushort)address, out _) || TryRead((ushort)address - 1, out _));
 }

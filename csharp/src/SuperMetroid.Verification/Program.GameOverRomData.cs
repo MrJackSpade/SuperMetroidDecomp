@@ -6,7 +6,7 @@ using SuperMetroid.Core.Input;
 internal static partial class Program
 {
     /// <summary>
-    /// Drives a constructed bank-$82 Baby stream through a sound opcode and end-loop,
+    /// Compares the live Baby animation against the original bank-$82 stream,
     /// then reaches the live menu to cover its fixed text and selection layout.
     /// </summary>
     static void VerifyGameOverRomData()
@@ -16,35 +16,59 @@ internal static partial class Program
             "game-over tilemap row stride");
 
         var bus = new TestAddressSpace();
-        SeedGameOverText(bus);
-        SeedGameOverBabyAnimation(bus);
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        ushort Word(int offset) => (ushort)(rom.ReadCartridgeByte(0x820000 | (ushort)offset) |
+            rom.ReadCartridgeByte(0x820000 | (ushort)(offset + 1)) << 8);
         var audio = new CartridgeAudioState();
-        var menu = new GameOverMenuState(bus, audio);
-
-        menu.Step(0);
-        AssertEqual(GameOverRomData.BabyAnimation.FirstInstruction,
-            menu.BabyInstructionPointer,
-            "game-over Baby starts at the catalogued instruction");
-        AssertEqual(GameOverRomData.BabyAnimation.InitialSpritemap,
-            menu.BabySpritemap,
-            "game-over Baby starts on the first frame");
-
-        StepFrames(9, _ => menu.Step(0));
-        AssertEqual(0xbc2f, menu.BabyInstructionPointer,
-            "game-over Baby consumes the eight-byte cry opcode");
-        AssertEqual(0x0066, menu.BabySpritemap,
-            "game-over Baby advances to the constructed second frame");
-        AssertTrue(audio.HasQueuedSounds,
-            "game-over Baby cry enters the typed library-three queue");
-
-        StepFrames(2, _ => menu.Step(0));
-        AssertEqual(GameOverRomData.BabyAnimation.FirstInstruction,
-            menu.BabyInstructionPointer,
-            "game-over Baby end marker loops to the first instruction");
-        AssertEqual(GameOverRomData.BabyAnimation.InitialSpritemap,
-            menu.BabySpritemap,
-            "game-over Baby loop restores its first frame");
-
+        var menu = new GameOverMenuState(bus, audio, RetailPresentationFixture());
+        const System.Reflection.BindingFlags flags =
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var queues = (byte[,])typeof(CartridgeAudioState).GetField("_soundQueues", flags)!.GetValue(audio)!;
+        var writes = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", flags)!.GetValue(audio)!;
+        ushort pointer = GameOverRomData.BabyAnimation.FirstInstruction;
+        int timer = Word(pointer), cries = 0, records = 0, ticks = 0;
+        bool looped = false;
+        while (!looped && ticks < 1000)
+        {
+            if (--timer == 0)
+            {
+                records++;
+                int next = pointer + 6;
+                ushort command = Word(next);
+                if (command == ushort.MaxValue)
+                {
+                    next = GameOverRomData.BabyAnimation.FirstInstruction;
+                    looped = true;
+                }
+                else if ((command & 0x8000) != 0)
+                {
+                    // Native cry callbacks load their effect as an immediate word.
+                    AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x820000 | command),
+                        "game-over reference cry starts with LDA immediate");
+                    menu.Step(0);
+                    AssertEqual((byte)Word(command + 1), queues[2, cries],
+                        "game-over cry queues the exact native library-three effect");
+                    cries++;
+                    next += 2;
+                }
+                else menu.Step(0);
+                if (looped) menu.Step(0);
+                pointer = (ushort)next;
+                timer = Word(pointer);
+            }
+            else menu.Step(0);
+            ticks++;
+            AssertEqual(pointer, menu.BabyInstructionPointer,
+                "game-over live pointer matches independent ROM stream each tick");
+            AssertEqual(Word(pointer + 2), menu.BabySpritemap,
+                "game-over live spritemap matches independent ROM stream each tick");
+            AssertEqual((byte)cries, writes[2], "game-over cry queue changes only at native handoffs");
+        }
+        AssertTrue(looped, "game-over Baby reaches the native end marker and loops");
+        AssertEqual(60, records, "game-over loop visits all sixty native frame records");
+        AssertEqual(3, cries, "game-over loop dispatches all three cries");
+        AssertTrue(audio.HasQueuedSounds, "game-over Baby cries remain in the typed queue");
         int framesToMenu = StepUntil(
             () => menu.Phase == GameOverMenuPhase.Main,
             frame =>
@@ -53,7 +77,7 @@ internal static partial class Program
                 _ = audio.AdvanceFrame(bus, default);
             },
             maximumFrames: 160,
-            "constructed game-over menu fade-in");
+            "game-over menu fade-in");
         AssertTrue(framesToMenu > GameOverRomData.MaximumBrightness,
             "game-over menu waits for queued music before fading");
 
@@ -71,38 +95,4 @@ internal static partial class Program
             "music wait, cursor, and frame geometry agree.");
     }
 
-    private static void SeedGameOverText(TestAddressSpace bus)
-    {
-        GameOverTextStream[] streams = GameOverRomData.Text.All.ToArray();
-        WriteTestWords(
-            bus,
-            GameOverRomData.TextBank | streams[0].SourcePointer,
-            0x1234,
-            GameOverRomData.TextNextLine,
-            0x5678,
-            GameOverRomData.TextEnd);
-        for (int index = 1; index < streams.Length; index++)
-        {
-            WriteTestWord(
-                bus,
-                GameOverRomData.TextBank | streams[index].SourcePointer,
-                GameOverRomData.TextEnd);
-        }
-    }
-
-    private static void SeedGameOverBabyAnimation(TestAddressSpace bus)
-    {
-        int first = GameOverRomData.SpriteBank | GameOverRomData.BabyAnimation.FirstInstruction;
-        WriteTestWords(
-            bus,
-            first,
-            GameOverRomData.BabyAnimation.InitialFrameDuration,
-            GameOverRomData.BabyAnimation.InitialSpritemap,
-            0xbd00,
-            GameOverRomData.BabyAnimation.CryOpcode23,
-            2,
-            0x0066,
-            0xbd20,
-            GameOverRomData.BabyAnimation.End);
-    }
 }

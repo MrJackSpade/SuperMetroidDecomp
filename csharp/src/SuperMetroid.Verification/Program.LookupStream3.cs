@@ -104,6 +104,23 @@ internal static partial class Program
         VerifyStream3PainfulWalking(rom);
         VerifyStream3DeathSelectors(rom);
         VerifyMotherBrainContactHitboxes();
+        var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.GrappleSwingFrameExtractor.Extract(rom)));
+        for (int angle = 0; angle < 256; angle++)
+            AssertEqual(rom.ReadByte(0x9bc1c2 + angle), swingFrames.Resolve((byte)angle), "stream 3 native calculated swing art frame");
+        AssertTrue(typeof(GrappleSwingFrameCatalog).GetField("frames", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(swingFrames) is null, "stream 3 stock swing frame lookup discarded");
+        int[] editedFrames = Enumerable.Range(0, 256).Select(angle => (int)rom.ReadByte(0x9bc1c2 + angle)).ToArray();
+        for (int editedAngle = 0; editedAngle < 256; editedAngle++)
+        {
+            int original = editedFrames[editedAngle];
+            editedFrames[editedAngle] = (original + 1) & 31;
+            var edited = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameCatalog.Write(new()
+            { Version = 1, Frames = editedFrames })));
+            for (int angle = 0; angle < 256; angle++)
+                AssertEqual((byte)editedFrames[angle], edited.Resolve((byte)angle), "stream 3 independently edited swing art frame");
+            editedFrames[editedAngle] = original;
+        }
         VerifyGrappleConnectionDefinitions((SuperMetroidAddressSpace)rom);
         VerifyWorkRobotLaserInstructionProgramDefinitions((SuperMetroidAddressSpace)rom);
         VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom);

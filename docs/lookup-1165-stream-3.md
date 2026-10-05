@@ -282,7 +282,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs
 
-- [ ] **GrappleSwingFrameCatalog.frames** ([L9](../csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs#L9)) - installed stock table. Original/default payload behind GrappleSwingFrameCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GrappleSwingFrameCatalog.frames** ([L9](../csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs#L9)) - installed stock table. Original/default payload behind GrappleSwingFrameCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs
 
@@ -821,6 +821,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 - The separate special-angle physical records remain required. This batch does not claim a physical geometry exception or conversion.
 - The existing additionally assigned fixture initially lacked installed swing-frame, flare-placement and Samus body-art definitions required by migrated production paths. Initialized them using existing native extractors, retaining every connection, exact-angle, cancellation/refire and dropped-pose assertion. Each failed path was rerun after setup correction; production gained no fallback.
 - Full build passed (1431 warnings, zero errors); final verifier rebuild passed (25 warnings, zero errors). `--lookup-stream-3` passed 100 native words and 48 policy bytes, 3072 address classifications and the existing actual connection/angle/cancel/drop checks with migrated source reads forbidden. Four entries completed, bringing the converted count to 57 plus the separate approved decorative retention. No external source-hash dependency found.
+### Confirmed batch 23: Installed Grapple swing-angle frames
+
+- Converted the stock installed 256-entry displayed-frame mapping into nearest-eight-angle rounding and modulo-32 wrap. Import discards stock-compatible mappings; independently edited frame selections remain supplied exactly. The physical body-offset arrays remain separate required work.
+- Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed every native selector byte at $9B:C1C2, a reflection check proving stock storage is absent, and every independently changed angle against all 256 output angles. The real connection fixture also passed using the calculated installed mapping.
+- One entry completed, bringing converted entries to 58 plus the separately justified decorative retention. No external source-hash dependency found.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

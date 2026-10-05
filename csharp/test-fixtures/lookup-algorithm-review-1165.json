@@ -11309,4 +11309,11 @@
     "state":  "converted",
     "algorithm":  "Restore five native equality branches from91D158-D172 as direct conditional cases.",
     "remaining":  "485 converted,13 justified retained/mixed,630 pending."
+},"tourianEntranceStatueIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; three native words,all actual initializer/delete paths,unused program rejection,forbidden mechanics reads and allocation confirmation pass. Fixture installs required native palette.",
+    "completed":  "TourianEntranceStatueInstructionProgramDefinitions.InitialPrograms,Words",
+    "workerCommit":  "3d29e03edadfc8fe5d3e6f5819d6e7feac7fed25",
+    "state":  "converted",
+    "algorithm":  "Named statue-role cases and native ten-byte instruction layout derive three immediate-delete programs.",
+    "remaining":  "487 converted,13 justified retained/mixed,628 pending."
 }}

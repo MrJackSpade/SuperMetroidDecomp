@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 630,
+  "remainingTableDefinitionCount": 628,
   "fileCount": 523,
   "entries": [
     {
@@ -8377,14 +8377,18 @@
       "line": 24,
       "name": "TourianEntranceStatueInstructionProgramDefinitions.InitialPrograms",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "3d29e03edadfc8fe5d3e6f5819d6e7feac7fed25"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TourianEntranceStatueInstructionProgramDefinitions.cs",
       "line": 26,
       "name": "TourianEntranceStatueInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "3d29e03edadfc8fe5d3e6f5819d6e7feac7fed25"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
@@ -21319,6 +21323,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 485,
+  "convertedSinceSnapshot": 487,
   "justifiedRetainedSinceSnapshot": 13
 }

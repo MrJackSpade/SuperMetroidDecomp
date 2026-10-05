@@ -20,34 +20,38 @@ internal static class TourianEntranceStatueInstructionProgramDefinitions
     /// <summary>First unused visible-loop list immediately after the live programs.</summary>
     internal const ushort AdjacentUnusedProgram = 0xd7bb;
 
-    private static readonly ushort[] InitialPrograms =
-        [BaseDecoration, Ridley, Phantoon];
-    private static readonly TourianEntranceStatueInstructionMechanicsWord[] Words =
-    [
-        new(Ridley, CommonEnemyInstructionCodes.StopScript),
-        new(Phantoon, CommonEnemyInstructionCodes.StopScript),
-        new(BaseDecoration, CommonEnemyInstructionCodes.StopScript),
-    ];
+    internal static int MechanicsWordCount => 3;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static TourianEntranceStatueInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-
+    /// <summary>
+    /// $AA:D7A5/D7AF/D7B9: each live list stops immediately. The native layout
+    /// separates entries by the two-byte stop plus an unused four-byte pose
+    /// and four-byte back-edge; unused presentation remains outside this catalog.
+    /// </summary>
+    internal static TourianEntranceStatueInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        return new((ushort)(Ridley + index * (2 + 4 + 4)), CommonEnemyInstructionCodes.StopScript);
+    }
     /// <summary>Returns the list selected by native even parameter zero, two, or four.</summary>
     internal static ushort GetInitialInstruction(ushort parameter)
     {
         if (parameter > 4 || (parameter & 1) != 0)
             throw new ArgumentOutOfRangeException(nameof(parameter));
-        return InitialPrograms[parameter >> 1];
+        return parameter switch
+        {
+            0 => BaseDecoration,
+            2 => Ridley,
+            _ => Phantoon,
+        };
     }
 
     /// <summary>Returns a live program word or rejects adjacent unused presentation data.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            if (MechanicsWord(index).Address == address)
+                return MechanicsWord(index).Value;
         }
 
         throw new InvalidDataException(
@@ -60,9 +64,9 @@ internal static class TourianEntranceStatueInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

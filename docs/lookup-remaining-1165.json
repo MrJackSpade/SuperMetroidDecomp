@@ -728,7 +728,9 @@
       "line": 15,
       "name": "FileSelectPresentation.patches",
       "kind": "installed stock table",
-      "note": "Original/default payload behind FileSelectPresentation.patches. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind FileSelectPresentation.patches. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "99a34fa47c2a71b5b5ab14e72db75a929b09128c"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs",

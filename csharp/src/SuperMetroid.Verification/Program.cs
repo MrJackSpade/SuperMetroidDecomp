@@ -26,6 +26,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-file-select-patches"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    var data = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom);
+    VerifyStream3FileSelectPatches(rom, data, FileSelectPresentation.Load(new MemoryStream(data)));
+    Console.WriteLine("File-select patches: native cells, zero stock fallback, independent edits and actual placement pass.");
+    return 0;
+}
 if (args is ["--lookup-stream2-equipment-blank"])
 {
     VerifyLookupStream2EquipmentBlank(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

@@ -11747,4 +11747,11 @@
     "finding":  "Crop follows stock sprite composition coverage. Existing LeftColumn/EndColumn/source6 constants still encode the chosen stepped shape; evidence alone does not complete their implementation.",
     "next":  "Derive row extents/source crop origin and column minima from immutable stock sprite geometry while preserving fixed staging under editable display-art changes. Keep composition artwork independently required; no new retention exception.",
     "state":  "functional-derivation-supported-implementation-pending"
+},"fileSelectPatchIntegration":{
+    "confirmation":  "RootVerification1445warnings/0errors;ResourceAudit0/0 after corrected hash-update text.16native cells/3terminators,zero stock fallbacks,96attribute edits,16coordinate edits,reversed order and actual ApplyPatch pass.",
+    "completed":  "FileSelectPresentation.patches",
+    "workerCommit":  "99a34fa47c2a71b5b5ab14e72db75a929b09128c",
+    "state":  "one-converted",
+    "algorithm":  "Semantic ENERGY/colon/NO DATA dispatch calculates glyph IDs and row positions; stock cells discarded,independent supplied content/order/coordinates preserved.",
+    "remaining":  "Pages and sprite artwork required.542converted/16justified retained-mixed/570pending."
 }}

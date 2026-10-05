@@ -6,6 +6,77 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        FileSelectPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        foreach ((string name, string field, int address, int count) in new[]
+        {
+            (FileSelectPresentationDefinitions.EnergyPatch, "energyPatch", 0x81b496, 4),
+            (FileSelectPresentationDefinitions.TimeColonPatch, "timeColonPatch", 0x81b4a8, 1),
+            (FileSelectPresentationDefinitions.NoDataPatch, "noDataPatch", 0x81b4ac, 11),
+        })
+        {
+            FileSelectCompiledPatch Compiled(FileSelectPresentation value) => (FileSelectCompiledPatch)typeof(FileSelectPresentation).GetField(field, flags)!.GetValue(value)!;
+            AssertTrue(typeof(FileSelectCompiledPatch).GetField("suppliedCells", flags)!.GetValue(Compiled(stock)) is null,
+                "file-select stock patch retains no cells " + name);
+            for (int index = 0; index < count; index++)
+            {
+                ushort word = (ushort)(rom.ReadByte(address + index * 2) | rom.ReadByte(address + index * 2 + 1) << 8);
+                AssertEqual(new FileSelectCompiledPatchCell(index, 0, word), FileSelectPresentationDefinitions.PatchCell(name, index),
+                    "file-select calculated patch exact native cell");
+                foreach (int bit in new[] { 1, 32, 0x400, 0x2000, 0x4000, 0x8000 })
+                {
+                    var document = Read();
+                    var original = document.Patches[name].Cells[index];
+                    var cell = original.Cell;
+                    cell = bit switch
+                    {
+                        1 => cell with { TileColumn = cell.TileColumn ^ 1 },
+                        32 => cell with { TileRow = cell.TileRow ^ 1 },
+                        0x400 => cell with { Palette = cell.Palette ^ 1 },
+                        0x2000 => cell with { Priority = !cell.Priority },
+                        0x4000 => cell with { FlipX = !cell.FlipX },
+                        _ => cell with { FlipY = !cell.FlipY },
+                    };
+                    document.Patches[name].Cells[index] = original with { Cell = cell };
+                    Confirm(Load(document), document.Patches[name].Cells);
+                }
+                var moved = Read();
+                moved.Patches[name].Cells[index] = moved.Patches[name].Cells[index] with { X = count, Y = 1 };
+                Confirm(Load(moved), moved.Patches[name].Cells);
+            }
+            AssertEqual((byte)0xff, rom.ReadByte(address + count * 2), "file-select native patch terminator low");
+            AssertEqual((byte)0xff, rom.ReadByte(address + count * 2 + 1), "file-select native patch terminator high");
+            Confirm(stock, Read().Patches[name].Cells);
+            var reversed = Read();
+            Array.Reverse(reversed.Patches[name].Cells);
+            Confirm(Load(reversed), reversed.Patches[name].Cells);
+
+            void Confirm(FileSelectPresentation presentation, FileSelectPatchCellDocument[] cells)
+            {
+                var expected = new ushort[1024];
+                var actual = new ushort[1024];
+                var compiled = Compiled(presentation);
+                AssertEqual(cells.Length, compiled.Count, "file-select supplied patch count");
+                for (int index = 0; index < cells.Length; index++)
+                {
+                    var source = cells[index];
+                    var cell = source.Cell;
+                    ushort word = SnesBgTilemapWord.Create(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn,
+                        cell.Palette, cell.Priority, (cell.FlipX ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
+                        (cell.FlipY ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)).Raw;
+                    AssertEqual(new FileSelectCompiledPatchCell(source.X, source.Y, word), compiled.Cell(index),
+                        "file-select independent supplied order and coordinates");
+                    expected[(3 + source.Y) * 32 + 4 + source.X] = word;
+                }
+                presentation.ApplyPatch(actual, name, new MapLabelPoint(4, 3));
+                AssertTrue(actual.SequenceEqual(expected), "file-select exact stock or independently edited patch placement");
+            }
+        }
+    }
     private static void VerifyStream3GameOverText(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(rom);

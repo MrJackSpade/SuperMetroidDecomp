@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -26,6 +27,9 @@ internal static partial class Program
                 $"Torizo explosion mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new TorizoExplosionInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -48,6 +52,7 @@ internal static partial class Program
         for (int frame = 1; frame <= 36; frame++)
         {
             process.Invoke(lowEnemies, [low, null, (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, low, spriteArtwork, executedOperands);
             AssertTrue(low.IsActive,
                 $"low-health explosion remains active through frame {frame}");
             if (frame == 1)
@@ -79,6 +84,7 @@ internal static partial class Program
             }
         }
         process.Invoke(lowEnemies, [low, null, (ushort)0, (ushort)0]);
+        VerifyExecutedProjectileFrame(rom, low, spriteArtwork, executedOperands);
         AssertTrue(!low.IsActive,
             "low-health explosion deletes after three exact twelve-frame cycles");
         AssertEqual(0, lowRandom.Count,
@@ -103,9 +109,20 @@ internal static partial class Program
             secondCycleFrame: 33,
             "smoke");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "TorizoExplosion execution performs no live spritemap operand reads");
         AssertEqual(TorizoExplosionInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Torizo explosion spritemaps remain cartridge reads");
+            executedOperands.Count, "TorizoExplosion executes every native visual operand");
+        for (int index = 0; index < TorizoExplosionInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = TorizoExplosionInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"TorizoExplosion executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "TorizoExplosion has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "TorizoExplosion compiled selector matches the cartridge");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Torizo explosion mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -153,6 +170,7 @@ internal static partial class Program
             for (int frame = 1; frame <= visibleFrames; frame++)
             {
                 process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+                VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
                 AssertTrue(projectile.IsActive,
                     $"Torizo death {scenario} remains active through frame {frame}");
                 if (frame == 1)
@@ -175,6 +193,7 @@ internal static partial class Program
                 }
             }
             process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             AssertTrue(!projectile.IsActive,
                 $"Torizo death {scenario} deletes after its second complete cycle");
             AssertEqual(0, random.Count,

@@ -15,7 +15,7 @@ internal static class CinematicClosedContractDefinitions
         new("SuperMetroid.Core.Assets.TitleGraphicsPresentation", "title-complete-compiled-sprite-identities", ["DrawSprite"],
             [new("csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs", "63DA8A009914CFAB103B3736C75C1814E9D9979699ADAAF1CF8D51D0F2854450"),
              new("csharp/src/SuperMetroid.Core/Assets/TitleSpriteDefinitions.cs", "B15995F810C682F2D384220B8C926DF91E96FDD7A6DF5273BE0EF521750FF353"),
-             new("csharp/src/SuperMetroid.Core/Frontend/TitleSequenceInstructionDefinitions.cs", "966AB9FEFA30153F1EB1A90199F4D9CCE4776F34BCD595EF1535000A5DD02981"),
+             new("csharp/src/SuperMetroid.Core/Frontend/TitleSequenceInstructionDefinitions.cs", "31FAF7D48183E3CDCAA3AFB3CA7926FEDB1C0BC1824494AF4CFFF6915331733C"),
              new("csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs", "E89BAFBD284004D1204EB17A10C8770D64A6E7E1228EF1137F65F88462164B44")],
             "The sole private-constructor loader validates all sheets/map dimensions and requires each of the 31 compiled sprite selectors, not merely 31 arbitrary entries. DrawSprite selects the complete sparse pointer set. Blank timed entries are not artwork. Tile DMA, clipping and scene order are not certified."),
         new("SuperMetroid.Core.Assets.IntroEyeTilemapPresentation", "intro-complete-eye-rectangles", ["FrameWords"],

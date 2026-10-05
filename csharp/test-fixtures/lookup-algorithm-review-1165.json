@@ -11532,4 +11532,11 @@
     "state":  "converted",
     "algorithm":  "Native B4:BC65-BC77 dispatches object-kind to initial program through BDA8-BE23. Meaningful cases preserve 62 mutually exclusive program identities, including unused native kinds.",
     "remaining":  "No exemption for program timing, visual selectors or artwork. 511 converted, 15 justified retained/mixed, 602 pending."
+},"titleCardLayoutIntegration":{
+    "scope":  "TitleSequenceInstructionDefinitions.Program remains unchecked",
+    "confirmation":  "Root Verification build 1445 warnings, zero errors. All 140 native bytes, 139 aligned/unaligned words and exact boundaries pass. Cinematic source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "workerCommit":  "4dd1a379bcdbf7d81d5bfbd67609d9bd4751bc39",
+    "state":  "partial-required",
+    "algorithm":  "Progressive text addresses derive from cumulative OAM record widths with split Metroid groups and blank-space reveal; named scene commands terminate each card.",
+    "remaining":  "Holds 60/8/45/120/32 remain required independent inputs. No timing/artwork exception. Counts unchanged: 511 converted, 15 justified retained/mixed, 602 pending."
 }}

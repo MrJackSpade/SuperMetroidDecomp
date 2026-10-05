@@ -1029,3 +1029,11 @@ Root Verification build passed with 1445 warnings and zero errors. --lookup-stre
 InstructionPointers is complete as meaningful program dispatch. Native B4:BC65-BC77 consumes the object-kind argument, selects its program at BDA8-BE23, installs that program and loads its initial timer. The switch preserves all 62 mutually exclusive native program identities, with source symbols and addresses documented on catalog members, including unused native programs. This is the permitted giant-case conversion; it does not exempt any program timing, visual selectors or artwork payloads.
 
 Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-sprite-dispatch confirms all 62 native entries and actual guarded spawns, exact initial instruction/timer/visual, retained kind/position/graphics arguments and invalid selectors. Overall checkpoint: 511 converted, 15 justified retained/mixed, 602 pending.
+
+## Integrated title-card layout (partial)
+
+TitleSequenceInstructionDefinitions calculates progressive text addresses from cumulative two-byte OAM headers and two five-byte objects per letter. Explicit structural groups preserve Metroid's split lists around the unused debug copyright map and its blank-space reveal. Named scene triggers and deletion follow each card. Native 8B:A03D-A0C8 and the corresponding bank-8C lists establish the layout.
+
+Program remains unchecked: initial hold 60, reveal cadence 8, final holds 45/120 and logo hold 32 remain required independent values. The worker's full-conversion claim is not accepted; no timing or artwork exemption is granted.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-title-card confirms all 140 native bytes, 139 aligned/unaligned word windows, outer bounds and trailing partial-word rejection. Refreshed the cinematic source-audit hash; ResourceAudit builds with zero warnings/errors. Counts unchanged: 511 converted, 15 justified retained/mixed, 602 pending.

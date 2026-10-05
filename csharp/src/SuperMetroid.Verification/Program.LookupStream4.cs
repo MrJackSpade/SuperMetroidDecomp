@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -8,6 +9,26 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyTitleCardLayout(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int address = TitleSequenceInstructionDefinitions.StartAddress;
+             address < TitleSequenceInstructionDefinitions.EndAddress; address++)
+        {
+            AssertEqual(rom.ReadByte(address), TitleSequenceInstructionDefinitions.ReadByte(address), "native title program byte");
+            if (address + 1 < TitleSequenceInstructionDefinitions.EndAddress)
+                AssertEqual(Word(address), TitleSequenceInstructionDefinitions.ReadWord(address), "native title aligned/unaligned word");
+        }
+        foreach (int invalid in new[] { int.MinValue, TitleSequenceInstructionDefinitions.StartAddress - 1,
+            TitleSequenceInstructionDefinitions.EndAddress, int.MaxValue })
+        {
+            AssertThrows<InvalidDataException>(() => TitleSequenceInstructionDefinitions.ReadByte(invalid), "title byte domain");
+            AssertThrows<InvalidDataException>(() => TitleSequenceInstructionDefinitions.ReadWord(invalid), "title word domain");
+        }
+        AssertThrows<InvalidDataException>(() => TitleSequenceInstructionDefinitions.ReadWord(
+            TitleSequenceInstructionDefinitions.EndAddress - 1), "title trailing partial word rejected");
+        Console.WriteLine("Title card layout: 140 native bytes, 139 aligned/unaligned word windows and bounds pass.");
+    }
     private static void VerifyRoomSpriteDispatch(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

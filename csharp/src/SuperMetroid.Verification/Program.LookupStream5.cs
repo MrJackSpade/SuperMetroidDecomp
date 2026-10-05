@@ -953,4 +953,71 @@ internal static partial class Program
         }
         Console.WriteLine("Ceres quake byte decoding:56 actual wrapped low/high OAM frames match full native overlapping-word reads.");
     }
+    private static void VerifyLookupStream5CeresFlightPalette(SuperMetroidAddressSpace rom)
+    {
+        var colors = new PaletteRgb5[SnesCgram.ColorCount];
+        for (int index = 0; index < colors.Length; index++)
+        {
+            ushort value = ReadVerificationWord(rom, CeresFlightRomData.Assets.Palette + index * sizeof(ushort));
+            colors[index] = new PaletteRgb5 { Red = value & 31, Green = value >> 5 & 31, Blue = value >> 10 & 31 };
+        }
+        CeresFlightPalette stock = Check();
+        var edits = (System.Collections.IDictionary)typeof(CeresFlightPalette).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, edits.Count, "Native shared sections and endpoint ramp need no residual corrections");
+        int independent = ((System.Collections.IDictionary)typeof(CeresFlightPalette).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count;
+        for (int index = 0; index < colors.Length; index++)
+        {
+            PaletteRgb5 original = colors[index];
+            for (int channel = 0; channel < 3; channel++)
+            {
+                colors[index] = new PaletteRgb5
+                {
+                    Red = channel == 0 ? original.Red ^ 1 : original.Red,
+                    Green = channel == 1 ? original.Green ^ 1 : original.Green,
+                    Blue = channel == 2 ? original.Blue ^ 1 : original.Blue,
+                };
+                _ = Check();
+            }
+            colors[index] = original;
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(-1), "Ceres palette lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(SnesCgram.ColorCount), "Ceres palette upper bound");
+        AssertThrows<ArgumentException>(() => stock.CopyTransferTo(new byte[SnesCgram.ByteCount - 1]), "Ceres palette output extent");
+        IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.CeresFlightArtworkExtractor.Extract(rom);
+        var catalog = CeresFlightArtworkCatalog.Load(Open(CeresFlightArtworkFormat.Mode7FileName),
+            Open(CeresFlightArtworkFormat.MapFileName), Open(CeresFlightArtworkFormat.ObjectFileName),
+            Open(CeresFlightPaletteFormat.FileName), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
+        byte[] nativeBytes = new byte[SnesCgram.ByteCount];
+        for (int index = 0; index < nativeBytes.Length; index++) nativeBytes[index] = rom.ReadByte(CeresFlightRomData.Assets.Palette + index);
+        string expectedHash = SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
+        {
+            content.Append("mode7-characters", catalog.Mode7Characters.Span);
+            content.Append("mode7-maps", catalog.Mode7Maps.Span);
+            content.Append("object-characters", catalog.ObjectCharacters.Span);
+            content.Append("palette", nativeBytes);
+            content.Append("sprites", Convert.FromHexString(catalog.Sprites.ContentIdentity));
+            content.Append("actors", Convert.FromHexString(catalog.Actors.ContentIdentity));
+        });
+        AssertEqual(expectedHash, catalog.ContentIdentity, "Ceres flight canonical hash retains original palette byte framing");
+        Console.WriteLine($"Ceres flight palette:256 native colors,768 independent channel edits,actual CGRAM,byte serialization and catalog identity pass; {independent} independent color inputs remain required.");
+
+        MemoryStream Open(string name) => new(files[name], writable: false);
+        CeresFlightPalette Check()
+        {
+            var document = new CeresFlightPaletteDocument { Version = 1, Colors = colors };
+            using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
+            CeresFlightPalette actual = CeresFlightPalette.Load(json);
+            var cgram = new SnesCgram(); actual.LoadTo(cgram);
+            Span<byte> bytes = stackalloc byte[SnesCgram.ByteCount]; actual.CopyTransferTo(bytes);
+            for (int index = 0; index < colors.Length; index++)
+            {
+                PaletteRgb5 color = colors[index];
+                ushort expected = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+                AssertEqual(expected, actual.ColorAt(index), "Every selected color remains independent");
+                AssertEqual(expected, cgram.Colors[index], "Calculated colors reach actual CGRAM");
+                AssertEqual(expected, System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(bytes.Slice(index * sizeof(ushort))), "Serialized colors retain exact native byte order");
+            }
+            return actual;
+        }
+    }
 }

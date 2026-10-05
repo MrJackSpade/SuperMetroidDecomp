@@ -119,9 +119,11 @@ internal static class CeresFlightArtworkExtractor
             new MemoryStream(actorsFile, writable: false));
         if (!roundTrip.Mode7Characters.Span.SequenceEqual(characters) ||
             !roundTrip.Mode7Maps.Span.SequenceEqual(map) ||
-            !roundTrip.ObjectCharacters.Span.SequenceEqual(objectCharacters) ||
-            !roundTrip.Palette.Transfer.Span.SequenceEqual(nativePalette))
+            !roundTrip.ObjectCharacters.Span.SequenceEqual(objectCharacters))
             throw new InvalidDataException("Ceres flight PNG/JSON export did not round-trip cartridge bytes.");
+        for (int index = 0; index < SnesCgram.ColorCount; index++)
+            if (roundTrip.Palette.ColorAt(index) != BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * sizeof(ushort))))
+                throw new InvalidDataException("Ceres flight palette export did not round-trip cartridge colors.");
         return new Dictionary<string, byte[]>(StringComparer.Ordinal)
         {
             [CeresFlightArtworkFormat.Mode7FileName] = mode7Png,

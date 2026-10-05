@@ -35,7 +35,9 @@ public sealed class CeresFlightArtworkCatalog
         content.Append("mode7-characters", Mode7Characters.Span);
         content.Append("mode7-maps", Mode7Maps.Span);
         content.Append("object-characters", ObjectCharacters.Span);
-        content.Append("palette", Palette.Transfer.Span);
+        Span<byte> paletteBytes = stackalloc byte[SuperMetroid.Core.Hardware.SnesCgram.ByteCount];
+        Palette.CopyTransferTo(paletteBytes);
+        content.Append("palette", paletteBytes);
         content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
         content.Append("actors", Convert.FromHexString(Actors.ContentIdentity));
     });

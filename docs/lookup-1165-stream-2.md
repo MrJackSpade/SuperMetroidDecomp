@@ -310,7 +310,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Pickups.cs
 
-- [ ] **RoomEnemySystem.EnemyDropAccumulatorOrder** ([L29](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Pickups.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.EnemyDropAccumulatorOrder** ([L29](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Pickups.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs
 
@@ -910,3 +910,9 @@ Integrated Stream2 checkpoint:65 converted and two mixed conversion/justified-re
 Removed both runtime local arrays in RunNorfairPipeBugSamusWait. Physical member order is center, upper-near, upper-far, lower-near, lower-far; release counters derive from center104 plus eight ticks per signed vertical rank. Named semantic role cases select the existing native post-rise functions. Dedicated PipeBugDefinitions documents native setup operandsB3:8C64-8CA4 and NTSC/PAL distinction; runtime simply applies the catalog operations. No table is regenerated or cached.
 
 Build1437 existing warnings/zero errors. New --lookup-stream2-pipe-bug-formation confirms allten native immediate operands, actual five-member setup facing both directions, exact stored release counters/functions, rising programs and preserved leader-only instruction/loop timer resets, plus invalid member bounds. No gameplay discovery. Integrated stream checkpoint: 67 converted, two mixed definitions, 157 required.
+
+## Enemy drop probability-column dispatch
+
+Replaced the six-entry return-kind array with named semantic column cases in coordinator-granted EnemyDropSelectionDefinitions. Native86:F25E-F263 maps small energy, big energy, missiles, no-drop, Super Missiles and Power Bombs in that probability-column order. Only the final selected identity changes representation; both minor/major accumulator loops, probabilities, resource eligibility, critical-health hysteresis and RNG behavior remain unchanged. Stream3 probability definitions were not edited.
+
+Build1437 existing warnings/zero errors. New --lookup-stream2-drop-selection confirms allsix native return bytes and six actual cumulative selections using the native first probability record; invokes only existing selection-rule assertions for zero RNG reroll,30..49health hysteresis and full-resource eligibility, plus invalid column bounds. No unrelated pickup collision or gameplay cases ran. Integrated stream checkpoint: 68 converted, two mixed definitions, 156 required.

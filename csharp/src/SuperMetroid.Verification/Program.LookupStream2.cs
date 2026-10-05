@@ -7,6 +7,32 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2DropSelection(SuperMetroidAddressSpace rom)
+    {
+        // Native first record weights60,60,60,5,60,10 yield cumulative thresholds
+        //60,120,180,185,245,255 when all resources are eligible.
+        ushort[] randomValues = [1, 61, 121, 181, 186, 246];
+        for (int column = 0; column < 6; column++)
+        {
+            EnemyPickupKind expected = (EnemyPickupKind)rom.ReadByte(0x86f25e + column);
+            AssertEqual(expected, EnemyDropSelectionDefinitions.ForProbabilityColumn(column),
+                "Native probability-column pickup identity");
+            var samus = CreateDropTestSamus();
+            samus.Health = 50;
+            samus.MaxMissiles = samus.MaxSuperMissiles = samus.MaxPowerBombs = 5;
+            var fixture = CreateEnemyDropFixture(samus, [randomValues[column]]);
+            var projectile = fixture.System.EnemyProjectiles[0];
+            projectile.ItemDropChancesPointerOverride = NativeDropChancePointer;
+            AssertEqual(expected, fixture.System.SelectRandomEnemyDrop(projectile),
+                "Actual cumulative selection preserves each semantic column");
+        }
+        VerifyEnemyDropSelectionRules();
+        AssertThrows<IndexOutOfRangeException>(() => EnemyDropSelectionDefinitions.ForProbabilityColumn(-1),
+            "Drop column lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => EnemyDropSelectionDefinitions.ForProbabilityColumn(6),
+            "Drop column upper bound");
+        Console.WriteLine("Enemy drop selection:six native identities and actual cumulative selections, RNG-zero reroll, energy hysteresis and full-resource eligibility pass.");
+    }
     private static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

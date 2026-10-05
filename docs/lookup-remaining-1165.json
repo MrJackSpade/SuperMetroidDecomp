@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 657,
+  "remainingTableDefinitionCount": 656,
   "fileCount": 523,
   "entries": [
     {
@@ -6419,7 +6419,9 @@
       "line": 29,
       "name": "RoomEnemySystem.EnemyDropAccumulatorOrder",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "fb8148076ad735611c2775bc8883de425ac6ca5a"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs",
@@ -21263,6 +21265,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 460,
+  "convertedSinceSnapshot": 461,
   "justifiedRetainedSinceSnapshot": 11
 }

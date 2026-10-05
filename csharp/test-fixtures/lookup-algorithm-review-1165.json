@@ -11170,4 +11170,11 @@
     "state":  "converted",
     "algorithm":  "Release counter104+8*signed vertical rank; named center/upper/lower movement roles replace both local arrays.",
     "remaining":  "460 converted,11 justified retained/mixed,657 pending."
+},"enemyDropSelectionIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; six native bytes,six actual cumulative selections,zero RNG reroll,critical-health hysteresis,full-resource eligibility and bounds pass.",
+    "completed":  "RoomEnemySystem.EnemyDropAccumulatorOrder",
+    "workerCommit":  "fb8148076ad735611c2775bc8883de425ac6ca5a",
+    "state":  "converted",
+    "algorithm":  "Six semantic probability-column pickup cases; both accumulators,probabilities and RNG behavior unchanged.",
+    "remaining":  "461 converted,11 justified retained/mixed,656 pending. Independent drop magnitudes remain required."
 }}

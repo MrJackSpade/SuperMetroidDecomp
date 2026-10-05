@@ -1226,10 +1226,11 @@ internal static partial class Program
         foreach (string name in new[] { "body", "backLegs" })
         {
             object palette = typeof(MotherBrainHealthPalettePresentation).GetField(name, flags)!.GetValue(stock)!;
-            var channels = (Array)palette.GetType().GetField("channels", flags)!.GetValue(palette)!;
-            foreach (object channel in channels)
-                AssertTrue(channel.GetType().GetProperty("Supplied")!.GetValue(channel) is null,
-                    "stream 3 native health tint has no stored channel trajectory");
+            AssertTrue(palette.GetType().GetField("supplied", flags)!.GetValue(palette) is null,
+                "stream 3 native health tint has no stored intermediate rows");
+            object basis = palette.GetType().GetField("basis", flags)!.GetValue(palette)!;
+            AssertTrue(basis.GetType().GetField("supplied", flags)!.GetValue(basis) is null,
+                "stream 3 native health shade ramps calculated from paint endpoints");
         }
         for (int state = 0; state < 4; state++)
         {

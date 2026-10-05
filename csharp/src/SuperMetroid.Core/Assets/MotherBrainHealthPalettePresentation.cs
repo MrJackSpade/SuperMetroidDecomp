@@ -31,65 +31,90 @@ public sealed class MotherBrainHealthPalettePresentation
     }
 
     /// <summary>
-    /// The four native palettes fit an RGB8 red tint before RGB5 quantization.
-    /// Body strength is state*(state+1)/30; rear legs add 2/30 after state zero.
-    /// Independent base colors remain supplied; matching intermediate rows are discarded.
+    /// RGB8 red tint with a shared one-unit quantization bias. Body strength is
+    /// state*(state+1)/30; rear legs add 2/30 after state zero.
     /// </summary>
     private sealed class TintPalette
     {
-        private readonly TintChannel[] channels;
+        private readonly BasePalette basis;
         private readonly bool backLeg;
+        private readonly ushort[][]? supplied;
 
         public TintPalette(ushort[][] rows, bool backLeg)
         {
             this.backLeg = backLeg;
-            channels = new TintChannel[MotherBrainRainbowPaletteRomData.ColorCount * 3];
-            for (int color = 0; color < MotherBrainRainbowPaletteRomData.ColorCount; color++)
-                for (int component = 0; component < 3; component++)
-                {
-                    int first = (rows[0][color] >> (component * 5)) & 31;
-                    int basis = first * 8;
-                    for (; basis < first * 8 + 8; basis++)
-                    {
-                        bool matches = true;
-                        for (int state = 0; state < MotherBrainHealthPaletteFormat.StateCount; state++)
-                            if (Tint(basis, component, state, backLeg) !=
-                                ((rows[state][color] >> (component * 5)) & 31))
-                            { matches = false; break; }
-                        if (matches) break;
-                    }
-                    byte[]? supplied = null;
-                    if (basis == first * 8 + 8)
-                    {
-                        supplied = new byte[MotherBrainHealthPaletteFormat.StateCount];
-                        for (int state = 0; state < supplied.Length; state++)
-                            supplied[state] = (byte)((rows[state][color] >> (component * 5)) & 31);
-                    }
-                    channels[color * 3 + component] = new TintChannel(basis, supplied);
-                }
+            basis = new BasePalette(rows[0], backLeg);
+            for (int state = 0; state < rows.Length; state++)
+                for (int color = 0; color < rows[state].Length; color++)
+                    if (Calculate(state, color) != rows[state][color])
+                    { supplied = rows; return; }
         }
 
-        public ushort Color(int state, int color)
+        public ushort Color(int state, int color) => supplied is null ? Calculate(state, color) : supplied[state][color];
+
+        private ushort Calculate(int state, int color)
         {
+            int amount = state * (state + 1) + (backLeg && state != 0 ? 2 : 0);
             int result = 0;
+            ushort initial = basis.Color(color);
             for (int component = 0; component < 3; component++)
             {
-                TintChannel channel = channels[color * 3 + component];
-                int value = channel.Supplied is { } supplied ? supplied[state] :
-                    Tint(channel.Basis, component, state, backLeg);
+                int rgb8 = (((initial >> (component * 5)) & 31) * 8) + 1;
+                int target = component == 0 ? 31 * 8 : 0;
+                int value = (rgb8 * (30 - amount) + target * amount) / (30 * 8);
                 result |= value << (component * 5);
             }
             return (ushort)result;
         }
+    }
 
-        private static int Tint(int basis, int component, int state, bool backLeg)
+    /// <summary>Independent paint colors plus calculated quarter/fifth shade ramps.</summary>
+    private sealed class BasePalette
+    {
+        private readonly ushort highlight;
+        private readonly ushort midtone;
+        private readonly ushort shadow;
+        private readonly ushort outline;
+        private readonly ushort gray;
+        private readonly ushort brown;
+        private readonly bool backLeg;
+        private readonly ushort[]? supplied;
+
+        public BasePalette(ushort[] colors, bool backLeg)
         {
-            int amount = state * (state + 1) + (backLeg && state != 0 ? 2 : 0);
-            int redTarget = component == 0 ? 31 * 8 : 0;
-            return (basis * (30 - amount) + redTarget * amount) / (30 * 8);
+            this.backLeg = backLeg;
+            highlight = colors[0];
+            midtone = colors[1];
+            shadow = colors[2];
+            outline = colors[3];
+            gray = colors[4];
+            brown = colors[8];
+            for (int color = 0; color < colors.Length; color++)
+                if (Calculate(color) != colors[color])
+                { supplied = colors; return; }
         }
 
-        private readonly record struct TintChannel(int Basis, byte[]? Supplied);
+        public ushort Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+
+        private ushort Calculate(int color) => color switch
+        {
+            0 => backLeg ? (ushort)0 : highlight,
+            1 => backLeg ? (ushort)0 : midtone,
+            2 => backLeg ? (ushort)0 : shadow,
+            3 => outline,
+            >= 4 and <= 7 => Shade(gray, 8 - color, 4),
+            >= 8 and <= 12 => backLeg ? (ushort)0 : Shade(brown, 13 - color, 5),
+            13 => backLeg ? gray : (ushort)((31 << 10) | (31 << 5) | 31),
+            _ => 0,
+        };
+
+        private static ushort Shade(ushort source, int numerator, int denominator)
+        {
+            int result = 0;
+            for (int shift = 0; shift < 15; shift += 5)
+                result |= ((((source >> shift) & 31) * numerator + denominator / 2) / denominator) << shift;
+            return (ushort)result;
+        }
     }
     public static MotherBrainHealthPalettePresentation Load(Stream json)
     {

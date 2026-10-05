@@ -3735,6 +3735,11 @@ if (args is ["--area-map-assets"])
     VerifyAreaMapAssets();
     return 0;
 }
+if (args is ["--file-select-fresh-save"])
+{
+    VerifyFileSelectFreshSaveTilemap();
+    return 0;
+}
 if (args is ["--cacatac-instruction-mechanics"])
 {
     VerifyCacatacInstructionProgramDefinitions();

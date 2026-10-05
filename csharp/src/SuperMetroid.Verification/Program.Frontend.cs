@@ -188,7 +188,8 @@ static void VerifyBgPriorityPlaneRendering()
 
 static void VerifyFileSelectFreshSaveTilemap()
 {
-    var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
+    var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace
+        .LoadRetailRom(Path.GetFullPath("Super Metroid.smc")).Rom.ToArray();
 
     // FileSelectMenuState also loads the labels surrounding NO DATA. Empty streams are
     // sufficient for this focused fixture, but each one still needs the native $FFFF
@@ -265,7 +266,14 @@ static void VerifyFileSelectFreshSaveTilemap()
     mapStations[0] = 0xff;
 
     var addressSpace = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-    var menu = new FileSelectMenuState(addressSpace);
+    string overrideRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
+        "file-select-label-fixture-" + Guid.NewGuid().ToString("N")));
+    Directory.CreateDirectory(overrideRoot);
+    File.WriteAllBytes(Path.Combine(overrideRoot, FileSelectPresentationDefinitions.FileName),
+        SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(addressSpace));
+    var fixturePresentation = AreaMapPresentationCatalog.Load(
+        runtimeFixtureInstallation.Value.MapDirectory, overrideRoot);
+    var menu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
     ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap;
 
     // Native empty-slot origins are energy-field X plus one $40-byte row: rows 6, 11,
@@ -324,7 +332,7 @@ static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(0x80, saved.ExploredMapBytes[0x07], "unpacked explored-map first exported byte");
     AssertEqual(0x04, saved.ExploredMapBytes[0x84], "unpacked explored-map sparse byte");
 
-    var savedMenu = new FileSelectMenuState(addressSpace);
+    var savedMenu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
     ReadOnlySpan<ushort> savedTilemap = savedMenu.BackgroundTilemap;
     AssertEqual(0x209d, savedTilemap[0x15c / 2], "saved slot ENERGY first tile");
     AssertEqual(0x2069, savedTilemap[(0x15c + 0x42) / 2], "saved slot energy tens");
@@ -339,7 +347,7 @@ static void VerifyFileSelectFreshSaveTilemap()
 
     // Drive the real newly-pressed latch and fade states into COPY. Slot zero is the only
     // nonempty source, destination one is the first native choice, and YES is the default.
-    var copyMenu = new FileSelectMenuState(addressSpace);
+    var copyMenu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
     AdvanceFileSelectToMain(copyMenu);
     PulseFileSelect(copyMenu, SnesButton.Down);
     PulseFileSelect(copyMenu, SnesButton.Down);
@@ -365,7 +373,7 @@ static void VerifyFileSelectFreshSaveTilemap()
     // Re-enter the main screen from the copied SRAM image and clear slot A. This exercises
     // the actual confirmation default and the native four-directory invalidation, not a
     // host-only hidden flag.
-    var clearMenu = new FileSelectMenuState(addressSpace);
+    var clearMenu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
     AdvanceFileSelectToMain(clearMenu);
     for (int move = 0; move < 4; move++)
         PulseFileSelect(clearMenu, SnesButton.Down);

@@ -964,6 +964,11 @@ Artifacts in that tool's `output` directory include `head-a586.png`, its `-index
 - Falling-tube selectors now use the shared final five visual-catalog records, whose roots calculate from native OAM record widths. Removed the duplicate five-pointer array; instruction duration, sleep cadence, visual/mechanics separation and address validation remain unchanged.
 - Verification build passed (1432 warnings, zero errors); `--lookup-stream-3` passed all sixteen native dispatcher targets and bounds, plus the existing actual five falling-tube frame/sleep executions with compiled source reads forbidden and all five native visual operands.
 - Two entries completed: 84 converted plus two narrowly justified retained entries. Coordinator must refresh `MotherBrainBeamRomData.cs` in `SequenceColorClosedContractDefinitions.cs`; no external source hash found for the other three production files.
+### Confirmed batch 45: Dedicated health paint catalog
+
+- Moved the six already approved paint constants from the nested presentation implementation into `Assets/MotherBrainHealthPaintDefinitions.cs`, with their exact values and native-address/art-role XML summaries unchanged. Existing health, normal-restoration and death calculations continue using the same six anchors.
+- Organization-only correction requested during integration review; no new retained content or changed disposition. Verification project build passed (1432 warnings, zero errors). Counts remain 84 converted plus two narrowly justified retained entries.
+- Coordinator must use the updated health-presentation hash and include the new dedicated paint catalog in its reviewed source closure.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

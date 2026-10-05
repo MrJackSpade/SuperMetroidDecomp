@@ -17,6 +17,7 @@ public sealed partial class FileSelectMenuState
     private int operationSourceSlot;
     private int operationDestinationSlot;
     private int confirmationSelection;
+    private int copyArrowPaletteTimer;
 
     private bool HasAnySave => saveSlots.Any(slot => slot is not null);
 
@@ -143,6 +144,7 @@ public sealed partial class FileSelectMenuState
                 StepCopyDestination(pressed);
                 break;
             case FileSelectPhase.CopyConfirm:
+                StepCopyArrowPalette();
                 StepConfirmation(pressed, copy: true);
                 break;
             case FileSelectPhase.ClearSelectSlot:
@@ -225,9 +227,23 @@ public sealed partial class FileSelectMenuState
         }
         operationDestinationSlot = submenuSelection;
         confirmationSelection = 0;
+        copyArrowPaletteTimer = FileCopyArrowDefinitions.InitialPaletteDelay;
         BuildCopyConfirmationTilemap();
         UploadBg1Tilemap();
         Phase = FileSelectPhase.CopyConfirm;
+    }
+
+    private void StepCopyArrowPalette()
+    {
+        if (copyArrowPaletteTimer == 0 || --copyArrowPaletteTimer != 0)
+            return;
+        copyArrowPaletteTimer = FileCopyArrowDefinitions.PaletteDelay;
+        int first = FileCopyArrowDefinitions.FirstColor;
+        int last = first + FileCopyArrowDefinitions.ColorCount - 1;
+        ushort color = ppu.Cgram.Colors[first];
+        for (int index = first; index < last; index++)
+            ppu.Cgram.SetColor(index, ppu.Cgram.Colors[index + 1]);
+        ppu.Cgram.SetColor(last, color);
     }
 
     private void StepConfirmation(SnesButton pressed, bool copy)

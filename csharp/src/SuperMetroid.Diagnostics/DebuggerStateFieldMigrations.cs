@@ -534,13 +534,18 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Older debugger state predates the statue sequence; it initializes on room entry.");
             return current.Where(field => field.Name != "_tourianStatues").ToArray();
         }
-        if (type == typeof(FileSelectMenuState) && count == current.Length - 1 &&
+        if (type == typeof(FileSelectMenuState) && count == current.Length - 1)
+        {
+            Console.Error.WriteLine("WARNING: Older file-select state lacks Copy arrow palette timing; restarting its initial delay.");
+            return current.Where(field => field.Name != "copyArrowPaletteTimer").ToArray();
+        }
+        if (type == typeof(FileSelectMenuState) && count == current.Length - 2 &&
             current.Any(field => field.Name == "currentPresentationPage"))
         {
             Console.Error.WriteLine(
                 "WARNING: Older file-select state lacks its installed-presentation page; " +
                 "reconstructing it from the captured menu phase.");
-            return current.Where(field => field.Name != "currentPresentationPage").ToArray();
+            return current.Where(field => field.Name is not ("currentPresentationPage" or "copyArrowPaletteTimer")).ToArray();
         }
         if (type == typeof(SuperMetroidSaveSlot) && count == current.Length - 1 &&
             current.Any(field => field.Name == "<LoadingGameState>k__BackingField"))
@@ -681,10 +686,13 @@ internal static class DebuggerStateFieldMigrations
         {
             system.LoadSavedLoadingGameState(SaveLoadingGameStates.MainGame);
         }
-        if (instance is FileSelectMenuState fileSelect && serializedCount ==
-            GetCurrentInstanceFieldCount(typeof(FileSelectMenuState)) - 1)
+        if (instance is FileSelectMenuState fileSelect && serializedCount <
+            GetCurrentInstanceFieldCount(typeof(FileSelectMenuState)))
         {
-            RestoreLegacyFileSelectPresentationPage(fileSelect);
+            typeof(FileSelectMenuState).GetField("copyArrowPaletteTimer", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(fileSelect, FileCopyArrowDefinitions.InitialPaletteDelay);
+            if (serializedCount == GetCurrentInstanceFieldCount(typeof(FileSelectMenuState)) - 2)
+                RestoreLegacyFileSelectPresentationPage(fileSelect);
         }
         if (instance is SuperMetroidSaveSlot saveSlot && serializedCount ==
             GetCurrentInstanceFieldCount(typeof(SuperMetroidSaveSlot)) - 1)

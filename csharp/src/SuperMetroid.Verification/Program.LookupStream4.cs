@@ -9,6 +9,111 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4EndingResultPanel(ISnesAddressSpace rom)
+    {
+        byte[] source = EndingTextExtractor.Extract(rom);
+        ushort[] native = ReadEndingWords(rom, EndingTextDefinitions.Native.ResultPanel,
+            EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth);
+        var stock = EndingTextPresentation.Load(new MemoryStream(source));
+        AssertTrue(native.AsSpan().SequenceEqual(stock.BuildResultPanel()), "Calculated credit lines preserve all288 original producer-panel cells");
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var stockOverrides = (Dictionary<int, ushort>)typeof(EndingTextPresentation).GetField("resultOverrides", flags)!.GetValue(stock)!;
+        AssertEqual(0, stockOverrides.Count, "Every stock producer-panel cell is calculated, without fallback samples");
+        for (int cell = 0; cell < native.Length; cell++)
+            AssertEqual(native[cell], EndingTextLayoutDefinitions.ResultWord(cell, "PRODUCED BY"), "Direct credit layout agrees with original cell independently of overrides");
+        foreach (int editedCell in new[] { 0, 75, 107, 233 })
+        {
+            var document = System.Text.Json.Nodes.JsonNode.Parse(source)!;
+            document["resultPanel"]!["template"]![editedCell]!["raw"] = native[editedCell] ^ 0x4000;
+            byte[] selected = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
+            var edited = EndingTextPresentation.Load(new MemoryStream(selected));
+            ushort[] expected = native.ToArray();
+            expected[editedCell] ^= 0x4000;
+            AssertTrue(expected.AsSpan().SequenceEqual(edited.BuildResultPanel()), "Blank, group top/bottom and team edits remain independent of calculated panel cells");
+            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(selected)), edited.ContentIdentity, "Result layout preserves raw document identity");
+            ushort[] mutableOutput = edited.BuildResultPanel();
+            mutableOutput[editedCell] ^= 1;
+            AssertTrue(expected.AsSpan().SequenceEqual(edited.BuildResultPanel()), "Result output snapshots remain independent of the catalog");
+            AssertTrue(native.AsSpan().SequenceEqual(stock.BuildResultPanel()), "Independent result edits leave the original catalog immutable");
+        }
+        var changedHeading = System.Text.Json.Nodes.JsonNode.Parse(source)!;
+        changedHeading["resultPanel"]!["text"] = "TEST";
+        changedHeading["resultPanel"]!["template"]![10]!["raw"] = 0xffff;
+        var heading = EndingTextPresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(changedHeading.ToJsonString())));
+        ushort[] expectedHeading = native.ToArray();
+        var region = EndingTextDefinitions.ResultProducedBy;
+        Array.Fill(expectedHeading, EndingTextDefinitions.ResultBlankWord, region.Column, region.Width);
+        for (int letter = 0; letter < 4; letter++)
+            expectedHeading[region.Column + letter] = EndingTextDefinitions.CompileGlyph("TEST"[letter], EndingTextStyle.ResultSmall);
+        AssertTrue(expectedHeading.AsSpan().SequenceEqual(heading.BuildResultPanel()), "Provided heading retains original fixed origin, padding and precedence over template words");
+        foreach (int invalid in new[] { -1, native.Length })
+            AssertThrows<IndexOutOfRangeException>(() => EndingTextLayoutDefinitions.ResultWord(invalid, "PRODUCED BY"), "Calculated result layout bounds");
+        Console.WriteLine("Ending result panel:288 direct native cells, zero stock fallback samples, independent edits, heading precedence and immutable output snapshots pass; chosen labels/styles remain required.");
+    }
+
+    private static void VerifyLookupStream4EndingSubtitle(ISnesAddressSpace rom)
+    {
+        byte[] source = EndingTextExtractor.Extract(rom);
+        ushort[] native = ReadEndingWords(rom, EndingTextDefinitions.Native.JapaneseSubtitle,
+            EndingTextDefinitions.JapaneseSubtitleRows * EndingTextDefinitions.TilemapWidth);
+        var stock = EndingTextPresentation.Load(new MemoryStream(source));
+        var stockOverrides = (Dictionary<int, ushort>)typeof(EndingTextPresentation).GetField("subtitleOverrides", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, stockOverrides.Count, "Every stock subtitle cell is calculated without fallback samples");
+        for (int cell = 0; cell < native.Length; cell++)
+            AssertEqual(native[cell], EndingTextLayoutDefinitions.SubtitleWord(cell), "Direct subtitle calculation agrees with native independently of overrides");
+        Verify(stock, -1);
+        AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(source)), stock.ContentIdentity, "Subtitle conversion preserves complete document identity");
+        foreach (int editedCell in new[] { 0, 9, 14, 41 })
+        {
+            var document = System.Text.Json.Nodes.JsonNode.Parse(source)!;
+            document["japaneseSubtitle"]![editedCell]!["raw"] = native[editedCell] ^ 0x4000;
+            byte[] editedSource = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
+            var edited = EndingTextPresentation.Load(new MemoryStream(editedSource));
+            Verify(edited, editedCell);
+            Verify(stock, -1);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, native.Length, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = stock.JapaneseSubtitle[invalid], "Calculated subtitle preserves indexed bounds");
+        ushort[] shortBuffer = new ushort[native.Length - 1];
+        Array.Fill(shortBuffer, (ushort)0x1234);
+        AssertThrows<ArgumentException>(() => stock.JapaneseSubtitle.CopyTo(shortBuffer), "Subtitle rejects short output before writing");
+        AssertTrue(shortBuffer.All(value => value == 0x1234), "Failed subtitle copy is atomic");
+        Console.WriteLine("Ending subtitle:64 native cells, atlas wrapping, centered placement, independent blank/top/wrap/bottom edits and actual draw/clear transfer pass.");
+
+        void Verify(EndingTextPresentation presentation, int editedCell)
+        {
+            ushort[] expected = native.ToArray();
+            if (editedCell >= 0) expected[editedCell] ^= 0x4000;
+            AssertEqual(expected.Length, presentation.JapaneseSubtitle.Count, "Subtitle view keeps native dimensions");
+            AssertTrue(expected.SequenceEqual(presentation.JapaneseSubtitle), "Calculated subtitle enumerates exact native or independently edited cells");
+            ushort[] copied = Enumerable.Repeat((ushort)0x5678, expected.Length + 1).ToArray();
+            presentation.JapaneseSubtitle.CopyTo(copied);
+            AssertTrue(expected.AsSpan().SequenceEqual(copied.AsSpan(0, expected.Length)), "Subtitle direct copy preserves every cell");
+            AssertEqual((ushort)0x5678, copied[^1], "Subtitle copy leaves the destination suffix untouched");
+            ushort[] tilemap = Enumerable.Repeat((ushort)0x2222, EndingCreditsRomData.Rendering.TilemapWords).ToArray();
+            var state = new EndingBackgroundTextState(new FrontendCartridgeReadGuard(rom), tilemap,
+                EndingTextDefinitions.Native.ItemPercentage, default, japaneseText: true,
+                presentation: presentation, installedSequence: EndingTextSequence.ItemPercentage);
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            typeof(EndingBackgroundTextState).GetField("installedInitialMarkerPending", flags)!.SetValue(state, false);
+            typeof(EndingBackgroundTextState).GetField("installedCharacterIndex", flags)!.SetValue(state,
+                presentation.Compile(EndingTextSequence.ItemPercentage).Length);
+            var vram = new SnesVram();
+            state.Step(vram);
+            int destination = EndingCreditsRomData.Text.JapaneseSubtitleDestination;
+            AssertTrue(expected.AsSpan().SequenceEqual(tilemap.AsSpan(destination, expected.Length)), "Actual ending state draws the calculated/edited subtitle");
+            for (int cell = 0; cell < expected.Length; cell++)
+            {
+                int address = (EndingCreditsRomData.Rendering.PostCreditsTilemapWord + destination + cell) * 2;
+                AssertEqual(expected[cell], (ushort)(vram.Bytes[address] | vram.Bytes[address + 1] << 8), "Actual subtitle reaches VRAM unchanged");
+            }
+            typeof(EndingBackgroundTextState).GetField("instructionTimer", flags)!.SetValue(state, (ushort)1);
+            state.Step(vram);
+            AssertTrue(tilemap.AsSpan(destination, expected.Length).ToArray().All(word => word == EndingCreditsRomData.Rendering.BlankTile), "Actual ending state clears the subtitle at its hold boundary");
+            AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
+        }
+    }
+
     private static void VerifyLookupStream4TailRestGeometry(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

@@ -26,6 +26,23 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream-4-ending-subtitle"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Subtitle oracle revision");
+    VerifyLookupStream4EndingSubtitle(rom);
+    return 0;
+}
+if (args is ["--lookup-stream-4-ending-panel"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Producer panel oracle revision");
+    VerifyLookupStream4EndingResultPanel(rom);
+    VerifyLookupStream4EndingSubtitle(rom);
+    return 0;
+}
 if (args is ["--lookup-stream2-golden-awakening-layout"])
 {
     VerifyGoldenTorizoAwakeningDefinitions(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

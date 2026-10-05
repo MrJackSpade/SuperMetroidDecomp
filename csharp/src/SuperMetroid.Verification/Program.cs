@@ -5114,6 +5114,11 @@ if (args is ["--projectile-frame-bindings"])
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--pause-equipment-interaction-fixture"])
+{
+    VerifyPauseMenuEquipmentInteraction();
+    return 0;
+}
 if (args is ["--intro-artwork-components-fixture"])
 {
     VerifyIntroCinematicArtwork(Path.GetFullPath("Super Metroid.smc"), presentationOnly: true);

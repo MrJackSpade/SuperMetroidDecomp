@@ -35,7 +35,7 @@ internal static partial class Program
                     $"gunship frame {index} byte {offset} matches cartridge art");
         }
 
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.Enemies.TileArtwork = stock;
         VramWriteQueue stockQueue = QueueAllTakeoffFrames(stock);
         var nativeQueue = new VramWriteQueue();

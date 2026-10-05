@@ -1552,6 +1552,14 @@ public sealed partial class RoomEnemySystem
                     projectile.YRadius = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6
+                    when projectile.Kind == RoomEnemyProjectileKind.BombTorizoStatueBreaking:
+                {
+                    EnemySoundRequest sound = BombTorizoStatueInstructionProgramDefinitions.ReleaseSound(cursor);
+                    QueueEnemySound(sound.SoundEffect, sound.MaximumQueued);
+                    cursor = unchecked((ushort)(cursor + 3));
+                    break;
+                }
                 case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProjectile_QueueMusicTrackInY:
                 case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max6_868309:
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6:

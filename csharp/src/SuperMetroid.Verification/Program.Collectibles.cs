@@ -431,15 +431,18 @@ internal static partial class Program
     private static void VerifyPermanentItemMessageBox()
     {
         var bus = new TestAddressSpace();
-        SeedPermanentItemMessageBoxRom(bus);
-        var message = new GameplayMessageBoxState();
+        var message = CreatePermanentMessageFixture();
 
         message.Begin(bus, GameplayMessageIds.EnergyTank);
         AssertEqual(GameplayMessageBoxPhase.Opening, message.Phase,
             "item message enters shared opening coroutine");
         AssertEqual(3, message.TilemapRowCount, "small item message has border/content/border");
-        AssertEqual((ushort)0x3801, message.Tilemap[0], "small item message reads ROM border");
-        AssertEqual((ushort)0x3801, message.Tilemap[32], "small item message reads ROM content");
+        AssertEqual((ushort)0x3801, message.Tilemap[0], "small item message uses custom installed border");
+        AssertEqual(GameplayMessageTitleDefinitions.TransparentWord, message.Tilemap[32],
+            "small item message preserves transparent outer columns");
+        ushort[] expectedTitle = [0x38f3, 0x38e4, 0x38f2, 0x38f3];
+        AssertTrue(message.Tilemap.Slice(45, 4).SequenceEqual(expectedTitle),
+            "small item message centers the installed TEST title with palette six");
 
         for (int openingFrame = 0; openingFrame < 13; openingFrame++)
         {
@@ -509,7 +512,7 @@ internal static partial class Program
         // small-border drawing routine but delimits three complete content rows. This
         // verifies the native variable-length copy instead of inferring height from the
         // border routine's name, and exercises that shape through the compositor too.
-        message = new GameplayMessageBoxState();
+        message = CreatePermanentMessageFixture();
         message.Begin(bus, GameplayMessageIds.MapDataAccessCompleted);
         AssertEqual(5, message.TilemapRowCount,
             "map-station message accepts three rows inside the small border");
@@ -553,7 +556,7 @@ internal static partial class Program
             var retailBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(File.ReadAllBytes(romPath));
             for (byte messageId = 1; messageId <= 26; messageId++)
             {
-                var retailMessage = new GameplayMessageBoxState();
+                var retailMessage = CreateGameplayMessageFixture();
                 retailMessage.Begin(
                     retailBus,
                     GameplayMessageIds.FromCartridge(messageId, "retail definition-table audit"));
@@ -586,7 +589,9 @@ internal static partial class Program
         WriteWord(bus, 0x9b9400, 0x001f);
         WriteWord(bus, 0x9b9520, 0x03e0);
         WriteWord(bus, 0x9b9800, 0x7c00);
-        VerifySuitPickupHistory(bus);
+        SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
+            new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+        VerifySuitPickupHistory(bus, suitColors);
         var cgram = new SnesCgram();
         var samus = new SamusState
         {
@@ -597,8 +602,6 @@ internal static partial class Program
             EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit,
             CollectedItems = (ushort)SamusEquipmentFlags.VariaSuit,
         };
-        SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
-            new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
         samus.SuitColors = suitColors;
         SamusState.LoadPowerSuitPalette(bus, cgram, suitColors);
 
@@ -667,7 +670,7 @@ internal static partial class Program
             "normal suit palette loader gives Gravity priority over Varia");
     }
 
-    private static void VerifySuitPickupHistory(TestAddressSpace bus)
+    private static void VerifySuitPickupHistory(TestAddressSpace bus, SamusSuitColorCatalog suitColors)
     {
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         foreach (bool otherSuit in new[] { false, true })
@@ -675,6 +678,7 @@ internal static partial class Program
             var samus = new SamusState { EquippedItems = otherSuit
                 ? (ushort)(kind == SamusSuitPickupKind.Varia ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit)
                 : (ushort)0 };
+            samus.SuitColors = suitColors;
             var history = samus.PoseHistory;
             history.PreviousPose = SamusPoseIds.SpinJumpRightPose;
             history.PreviousDirectionAndMovement = 0x0308;
@@ -698,23 +702,6 @@ internal static partial class Program
             AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
                 history.PreviousDirectionAndMovement, "suit reveal commits suited metadata");
             AssertTrue(!history.AllowsWallJumpProbe, "suit reveal clears pre-acquisition spin eligibility");
-        }
-    }
-
-    private static void SeedPermanentItemMessageBoxRom(TestAddressSpace bus)
-    {
-        for (int word = 0; word < 32; word++)
-        {
-            WriteWord(bus, 0x858000 + word * 2, 0x3801);
-            WriteWord(bus, 0x858040 + word * 2, 0x3801);
-            WriteWord(bus, 0x85877f + word * 2, 0x3801);
-        }
-        for (int word = 0; word < 128; word++)
-            WriteWord(bus, 0x8587bf + word * 2, 0x3801);
-        for (int row = 0; row < 3; row++)
-        {
-            for (int word = 0; word < 32; word++)
-                WriteWord(bus, 0x85917f + (row * 32 + word) * 2, (ushort)(0x3820 + row));
         }
     }
 

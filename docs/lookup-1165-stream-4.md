@@ -544,7 +544,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Rooms/RoomBackgroundTilemapSourceDefinitions.cs
 
-- [ ] **RoomBackgroundTilemapSources.Sources** ([L13](../csharp/src/SuperMetroid.Core/Rooms/RoomBackgroundTilemapSourceDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomBackgroundTilemapSources.Sources** ([L13](../csharp/src/SuperMetroid.Core/Rooms/RoomBackgroundTilemapSourceDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Rooms/RoomLevelStreamDefinitions.cs
 
@@ -911,3 +911,11 @@ One definition converted; 58 integrated complete and 167 unchecked. Installed bl
 - Each theme and source member documents its native symbol/address. These are mutually exclusive resource identities, not combinable flags. This converts semantic artwork-resource dispatch under the user's case-statement allowance; it makes no claim that artwork contents derive from a theme name.
 - Evidence: pinned bank8F Tileset_Table_0_UpperCrateria through Tileset_Table_1C_Draygon at E6A2..E7A6 and selector table E7A7..E7DF. Each native record contains three24-bit resource identities.
 - Confirmation: Verification build passed (1433 warnings, zero errors); --lookup-stream-4 passed. Focused checks compare all116 native pointer/resource fields across29 themes, including shared-source and independent-palette choices, and preserve invalid1D/7F/FF rejection. No room execution or room sweep was used.
+
+## Batch 47: derive compressed background source identities from commands
+
+One definition converted; 59 integrated complete and 166 unchecked. LibraryBackgroundProgramDefinitions command payloads remain independently required in their owning stream; this conversion does not modify or dispose of them.
+
+- Removed the separate58-address lookup. Membership walks DecompressToWorkRam operands; the calculated immutable list enumerates successive distinct source addresses in ascending order without caching a second source table. Count and indexing derive from that same view, preserving IReadOnlyList behavior and index rejection.
+- Evidence: native bank8F library-background command lists selected by retail states contain the compressed source identities as command0004 operands. The independent import-time LibraryBackgroundSourceInventory scanner reads those original operands and yields exactly the previous58 distinct addresses. Other transfer command operands are excluded.
+- Confirmation: final Verification build passed (1193 warnings, zero errors); --lookup-stream-4 passed. Focused checks compare the complete native58-source set, count, ordered enumeration and every indexed value; all source memberships pass, adjacent interior bytes and absent identities reject, and negative/past-end/extreme indexes retain their exception type. Confirmation only walks source metadata, without room execution or gameplay discovery.

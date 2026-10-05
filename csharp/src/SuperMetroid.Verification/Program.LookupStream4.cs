@@ -46,6 +46,23 @@ internal static partial class Program
         foreach (byte invalid in new byte[] { 0x1d, 0x7f, 0xff })
             AssertThrows<InvalidDataException>(() => RoomTilesetDefinitions.Get(invalid), "tileset exact graphics-theme domain");
         int Long(int address) => Word(address) | rom.ReadByte(address + 2) << 16;
+        int[] nativeBackgroundSources = LibraryBackgroundSourceInventory.Scan(rom)
+            .Where(instruction => instruction.Command == LibraryBackgroundCommand.DecompressToWorkRam)
+            .Select(instruction => instruction.SourceAddress).Distinct().Order().ToArray();
+        AssertEqual(58, nativeBackgroundSources.Length, "native distinct compressed background source count");
+        AssertEqual(nativeBackgroundSources.Length, RoomBackgroundTilemapSources.All.Count, "calculated background source view count");
+        AssertTrue(nativeBackgroundSources.SequenceEqual(RoomBackgroundTilemapSources.All), "background source view exact native distinct order");
+        for (int index = 0; index < nativeBackgroundSources.Length; index++)
+        {
+            AssertEqual(nativeBackgroundSources[index], RoomBackgroundTilemapSources.All[index], "background source indexed view native identity");
+            AssertTrue(RoomBackgroundTilemapSources.Contains(nativeBackgroundSources[index]), "background source native member accepted");
+            AssertTrue(!RoomBackgroundTilemapSources.Contains(nativeBackgroundSources[index] + 1), "background source interior byte is not an identity");
+        }
+        foreach (int invalid in new[] { -1, 58, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = RoomBackgroundTilemapSources.All[invalid], "background source exact index domain");
+        foreach (int invalid in new[] { -1, 0, 0xffffff, int.MaxValue })
+            AssertTrue(!RoomBackgroundTilemapSources.Contains(invalid), "background source absent identity rejected");
+
 
         for (int pattern = 0; pattern < 4; pattern++)
         for (int stage = 0; stage < 6; stage++)

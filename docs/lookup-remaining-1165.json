@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 678,
+  "remainingTableDefinitionCount": 677,
   "fileCount": 523,
   "entries": [
     {
@@ -8731,7 +8731,9 @@
       "line": 13,
       "name": "RoomBackgroundTilemapSources.Sources",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "6950c8ddadf0d4b4d635bfe21d8af8bb91f98cca"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Rooms/RoomLevelStreamDefinitions.cs",
@@ -21214,6 +21216,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 446,
+  "convertedSinceSnapshot": 447,
   "justifiedRetainedSinceSnapshot": 4
 }

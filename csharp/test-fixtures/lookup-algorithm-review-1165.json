@@ -11069,4 +11069,11 @@
   "state": "converted",
   "workerCommit": "d41da2cb97d3a02ebe0d63d2ede533e4cda6ceda",
   "confirmation": "Integrated Verification1444warnings/zeroerrors and stream3 scoped checks pass:7native label anchors,17native cursor pairs,49label placements,language/toggle states,headingOAMscroll,edited geometry and absent stock collections. Menu audit source hash/description refreshed and ResourceAudit builds."
+},"backgroundSourceViewIntegration":{
+  "state": "converted",
+  "confirmation": "Integrated Verification1444warnings/zeroerrors; scoped stream4 proof passes all58native identities/order/index/membership and invalid domains. ResourceAudit builds; source closure now includes library program definitions, generated operands and command identities.",
+  "completed": "RoomBackgroundTilemapSources.Sources",
+  "algorithm": "Distinct ascending decompression-command source operands provide uncached membership/count/index/enumeration view; underlying commands remain separately required.",
+  "workerCommit": "6950c8ddadf0d4b4d635bfe21d8af8bb91f98cca",
+  "remaining": "447converted,4original justified retained,677pending."
 }}

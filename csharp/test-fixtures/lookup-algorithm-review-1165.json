@@ -10656,4 +10656,15 @@
     "confirmation": "Source and native consumer inspection only: no runtime behavior changed, so no new gameplay tests. Refreshed reviewed SamusPaletteRomData source hash and static index.",
     "remaining": "No new completion or exemption in the 1128-definition snapshot. Counts remain 247 converted, one justified retained, 880 pending."
   }
+,
+  "enemyGeometrySaveSlotsIntegration": {
+    "id": "enemy-geometry-and-save-slots-seven-definitions",
+    "state": "converted",
+    "implementationCommit": "10bf97f12",
+    "scope": "Draygon cannon roles, eye-door origins and sweat velocity, Oum animation dispatch, Ridley claw X/Y and native SRAM slot offsets.",
+    "algorithm": "Named cannon/animation roles dispatch directly; eye-door block geometry and signed launch pairs calculate; claw facing and foot-stage heights calculate; save slots advance by their exact payload stride. All affected callers use domain methods.",
+    "evidence": "Native cannon, eye-door, Oum and slot fields match with bounds preserved. Existing overlapping eye-door pairs, Ridley facing clamp and adjacent read window retain their original behavior.",
+    "confirmation": "Integrated --lookup-stream-4 passes all native geometry/domain checks, 1179648 actual carry placements, 228150 collision comparisons and SRAM region/directory boundaries. Verification build: 1436 warnings, zero errors. DebugRunner build: 56 warnings, zero errors. Source index refreshed.",
+    "remaining": "Snapshot: 254 converted, one justified retained, 873 pending. Ridley adjacent-code payload remains independently unresolved; no exception added."
+  }
 }

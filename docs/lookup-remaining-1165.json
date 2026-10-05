@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 723,
+  "remainingTableDefinitionCount": 719,
   "fileCount": 523,
   "entries": [
     {
@@ -3347,21 +3347,27 @@
       "line": 28,
       "name": "DraygonCollisionDefinitions.FirstBody",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "a8958ff8c"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs",
       "line": 30,
       "name": "DraygonCollisionDefinitions.Empty",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "a8958ff8c"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs",
       "line": 32,
       "name": "DraygonCollisionDefinitions.SecondBody",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "a8958ff8c"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs",
@@ -4499,7 +4505,9 @@
       "line": 202,
       "name": "MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "139eaa64a"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MamaTurtleShellContourDefinitions.cs",
@@ -21124,6 +21132,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 401,
+  "convertedSinceSnapshot": 405,
   "justifiedRetainedSinceSnapshot": 4
 }

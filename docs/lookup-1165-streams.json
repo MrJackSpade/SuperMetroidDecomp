@@ -3082,6 +3082,9 @@
     ,{"stream":1,"purpose":"Materialize calculated native pointers only at existing span-based import/load boundaries; runtime indexing stays calculated","path":"csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteCatalog.cs"}
     ,{"stream":1,"purpose":"Materialize calculated native pointers only at existing span-based import/load boundaries; runtime indexing stays calculated","path":"csharp/src/SuperMetroid.AssetExtraction/ChargeFlareSpriteExtractor.cs"}
     ,{"stream":3,"path":"csharp/src/SuperMetroid.Core/Game/SmallExplosionAnimationDefinitions.cs","purpose":"Share native ignition/expansion/burst/fade timing phases between the two owned explosion catalogs, with exact source pose evidence"}
+    ,{"stream":1,"path":"csharp/src/SuperMetroid.Core/Game/SamusShinesparkProjectileRomData.cs","purpose":"Named departure-angle catalog operation for assigned ShinesparkState"}
+    ,{"stream":3,"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainDrainedPaintDefinitions.cs","purpose":"Dedicated catalog for independently reviewed three drained paint anchors"}
+    ,{"stream":3,"path":"csharp/src/SuperMetroid.Core/Game/MotherBrainDrainedPaletteRomData.cs","purpose":"Derived rear palette source index and native trailing highlight routing"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

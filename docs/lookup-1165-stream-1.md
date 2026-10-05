@@ -971,3 +971,8 @@ Exactly238 independent coordinate bytes remain required; drawingData stays unche
 Partial conversion4328cc579: both four-frame small-OBJ lists calculate consecutive tile identities using the native nine-bit OBJ format. Read-only views and independent full-word overrides preserve supplied artwork and canonical hashes. Palette5, priority2 and pixel artwork remain required; neither aggregate is marked complete.
 
 Root Verification build1445 warnings/zero errors; --lookup-stream-1-atmospheric-attributes passes eight native words, zero stock overrides, eight arbitrary full-word edits, hashes and input isolation, plus16 actual authored OAM frames and the type2 live-WRAM boundary. ResourceAudit0/0. Inventory unchanged558 converted/20 retained-mixed/550 pending.
+## Integrated escape warning program selection and layout
+
+Partial conversion c962486be: named Ceres/Zebes selection replaces the program dictionary; calculated line views preserve independent text/destination differences and added/removed lines. Retention covers only the five exact English warning strings at A6:C458,C472,C488,C4A4,C4B6. Their wording is narrative content; generating different text from arithmetic would not preserve it. Glyph identities and geometry are separate.
+
+First column5,row8,row step2,three/two-line grouping and character delay2 remain required; the aggregate stays unchecked. Root Verification build1445 warnings/zero errors; --lookup-stream-1-escape-text passes five native lines, zero stock overrides, independent edits/counts/bounds and271 actual production calls compared to native command parsing for timing,destinations,clicks,glyphs and VRAM with cartridge reads denied. ResourceAudit0/0. Inventory unchanged558 converted/20 retained-mixed/550 pending.

@@ -6,9 +6,9 @@ internal static class TextAndMapClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.EscapeTypewriterPresentation", "escape-text-complete-program-membership", ["Get"],
-            [new("csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterPresentation.cs", "AD5C59F78F8A1F494545B46609AB0FF4A31E2E087AAE515F09293C66918D9177"),
-             new("csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterDefinitions.cs", "0F881988966CED5AF34B1F21DBD73FDBD7CBA043418F37A939A11E02496D3C05")],
-            "The sole private-constructor loader requires both non-None escape programs before publication. Get selects that complete membership set. Returned Lines arrays are mutable, so this proves program identity coverage only, not post-publication line/glyph integrity or typewriter behavior."),
+            [new("csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterPresentation.cs", "9B7FD2D1E324E9CAA51030FD66CC86476DFD38D9FECEBA5A01FCE3EDC7EAB697"),
+             new("csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterDefinitions.cs", "97DDAE9DB2CFA2B045C318BE6BCFC45724E56AA863BC0210076151122E966913")],
+            "The sole private-constructor loader requires both non-None escape programs before publication. Get selects that complete membership set. Lines are read-only calculated views with independently supplied line differences. This proves program identity coverage only, not glyph rendering or typewriter behavior."),
         new("SuperMetroid.Core.Assets.IntroNarrationPresentation", "narration-complete-compiled-pages", ["GetLines", "Compile"],
             [new("csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs", "509DE2F8FA095E97CB4A7618ED6CB98E5D4B8DC9DC7EDD4DF872FDF069C8A126"),
              new("csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs", "AE9B62B38D66878650CB5C2FF40325191B61F81FA777C8EBCEEF0C62CE77FF12")],

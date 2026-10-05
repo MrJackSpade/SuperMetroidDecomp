@@ -26,6 +26,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream-1-escape-text"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyLookupStream1EscapeText(rom);
+    return 0;
+}
 if (args is ["--lookup-stream-1-atmospheric-attributes"])
 {
     string sourceRom = Path.GetFullPath("Super Metroid.smc");

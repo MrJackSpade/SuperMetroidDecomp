@@ -6,23 +6,27 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable escape-warning text and visual line placement.</summary>
 public sealed class EscapeTypewriterPresentation
 {
-    private readonly Dictionary<EscapeTypewriterProgramId, EscapeTypewriterProgram> programs;
+    private readonly EscapeTypewriterProgram ceres;
+    private readonly EscapeTypewriterProgram zebes;
 
     private EscapeTypewriterPresentation(
         Dictionary<EscapeTypewriterProgramId, EscapeTypewriterProgram> programs,
         string contentIdentity)
     {
-        this.programs = programs;
+        ceres = programs[EscapeTypewriterProgramId.Ceres];
+        zebes = programs[EscapeTypewriterProgramId.Zebes];
         ContentIdentity = contentIdentity;
     }
 
     public string ContentIdentity { get; }
 
-    public EscapeTypewriterProgram Get(EscapeTypewriterProgramId id) =>
-        programs.TryGetValue(id, out EscapeTypewriterProgram? program)
-            ? program
-            : throw new ArgumentOutOfRangeException(nameof(id), id,
-                "Escape typewriter program is not present in the installed catalog.");
+    public EscapeTypewriterProgram Get(EscapeTypewriterProgramId id) => id switch
+    {
+        EscapeTypewriterProgramId.Ceres => ceres,
+        EscapeTypewriterProgramId.Zebes => zebes,
+        _ => throw new ArgumentOutOfRangeException(nameof(id), id,
+            "Escape typewriter program is not present in the installed catalog."),
+    };
 
     public static EscapeTypewriterPresentation Load(Stream json)
     {
@@ -64,8 +68,8 @@ public sealed class EscapeTypewriterPresentation
                 ?? throw new InvalidDataException($"Escape typewriter program {id} is null.");
             if (program.Lines is null || program.Lines.Length == 0)
                 throw new InvalidDataException($"Escape typewriter program {id} has no lines.");
-            var lines = new EscapeTypewriterLine[program.Lines.Length];
-            for (int index = 0; index < lines.Length; index++)
+            var differences = new Dictionary<int, EscapeTypewriterLine>();
+            for (int index = 0; index < program.Lines.Length; index++)
             {
                 EscapeTypewriterLineDocument line = program.Lines[index]
                     ?? throw new InvalidDataException($"Escape typewriter program {id} line {index} is null.");
@@ -76,12 +80,29 @@ public sealed class EscapeTypewriterPresentation
                     throw new InvalidDataException(
                         $"Escape typewriter program {id} line {index} has invalid text or VRAM placement.");
                 }
-                lines[index] = new(unchecked((ushort)line.Destination), line.Text);
+                var supplied = new EscapeTypewriterLine(unchecked((ushort)line.Destination), line.Text);
+                if (index >= EscapeTypewriterDefinitions.LineCount(id) || supplied != EscapeTypewriterDefinitions.Line(id, index))
+                    differences.Add(index, supplied);
             }
-            programs.Add(id, new(id, EscapeTypewriterDefinitions.SourceAddress(id), lines));
+            programs.Add(id, new(id, EscapeTypewriterDefinitions.SourceAddress(id), new LineSequence(id, program.Lines.Length, differences)));
         }
 
         return new(programs, Convert.ToHexString(SHA256.HashData(source)));
+    }
+
+    private sealed class LineSequence(EscapeTypewriterProgramId id, int count,
+        Dictionary<int, EscapeTypewriterLine> differences) : IReadOnlyList<EscapeTypewriterLine>
+    {
+        private readonly Dictionary<int, EscapeTypewriterLine> overrides = differences;
+        public int Count => count;
+        public EscapeTypewriterLine this[int index] => (uint)index < Count
+            ? overrides.TryGetValue(index, out EscapeTypewriterLine? line) ? line : EscapeTypewriterDefinitions.Line(id, index)
+            : throw new ArgumentOutOfRangeException(nameof(index));
+        public IEnumerator<EscapeTypewriterLine> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     public static void Write(Stream output, EscapeTypewriterDocument document)
@@ -102,7 +123,7 @@ public enum EscapeTypewriterProgramId : byte
 public sealed record EscapeTypewriterProgram(
     EscapeTypewriterProgramId Id,
     int SourceAddress,
-    EscapeTypewriterLine[] Lines);
+    IReadOnlyList<EscapeTypewriterLine> Lines);
 
 public sealed record EscapeTypewriterLine(ushort Destination, string Text);
 

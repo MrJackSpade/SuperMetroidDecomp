@@ -1320,4 +1320,101 @@ internal static partial class Program
         Console.WriteLine("Atmospheric attributes: eight direct native defaults, exact OBJ field basis, zero stock overrides, eight full-word edits and canonical identities pass.");
     }
 
+    private static void VerifyLookupStream1EscapeText(ISnesAddressSpace rom)
+    {
+        byte[] json = EscapeTypewriterExtractor.Extract(rom);
+        var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var document = System.Text.Json.JsonSerializer.Deserialize<EscapeTypewriterDocument>(json, options)!;
+        EscapeTypewriterPresentation Load(EscapeTypewriterDocument value)
+        {
+            using var output = new MemoryStream();
+            EscapeTypewriterPresentation.Write(output, value);
+            output.Position = 0;
+            return EscapeTypewriterPresentation.Load(output);
+        }
+        var stock = Load(document);
+        int Stored(EscapeTypewriterProgram program) => ((System.Collections.IDictionary)program.Lines.GetType()
+            .GetField("overrides", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(program.Lines)!).Count;
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        int totalFrames = 0;
+        foreach (EscapeTypewriterProgramId id in new[] { EscapeTypewriterProgramId.Ceres, EscapeTypewriterProgramId.Zebes })
+        {
+            var program = stock.Get(id);
+            var original = document.Programs[id.ToString()].Lines;
+            AssertEqual(original.Length, EscapeTypewriterDefinitions.LineCount(id), "escape text required line grouping");
+            AssertEqual(0, Stored(program), "escape text stock contains no sampled line overrides");
+            for (int index = 0; index < original.Length; index++)
+            {
+                var expected = new EscapeTypewriterLine((ushort)original[index].Destination, original[index].Text);
+                AssertEqual(expected, EscapeTypewriterDefinitions.Line(id, index), "escape text direct original placement and wording");
+                AssertEqual(expected, program.Lines[index], "escape text installed line");
+                var editedLines = original.ToArray();
+                editedLines[index] = original[index] with { Text = "TEST!", Destination = original[index].Destination + 7 };
+                var programs = new Dictionary<string, EscapeTypewriterProgramDocument>(document.Programs)
+                { [id.ToString()] = new() { Lines = editedLines } };
+                var edited = Load(document with { Programs = programs });
+                AssertEqual(1, Stored(edited.Get(id)), "escape text single supplied line exception");
+                for (int other = 0; other < original.Length; other++)
+                    AssertEqual(other == index ? new EscapeTypewriterLine((ushort)editedLines[index].Destination, "TEST!")
+                        : program.Lines[other], edited.Get(id).Lines[other], "escape text independent line edit");
+            }
+            // Independently interpret original control words and characters; the production
+            // side receives only the installed calculated view and no cartridge reader.
+            ushort tileBase = id == EscapeTypewriterProgramId.Ceres ? (ushort)0x3582 : (ushort)0x2610;
+            var actual = new EscapeTypewriterState(program, tileBase);
+            var actualVram = new SnesVram(); var expectedVram = new SnesVram();
+            int cursor = EscapeTypewriterDefinitions.SourceAddress(id), glyphs = 0;
+            ushort destination = 0, delay = 0, timer = 0;
+            bool done = false;
+            for (int frame = 0; !done && frame < 1000; frame++)
+            {
+                bool click = false;
+                if (timer != 0) timer--;
+                else
+                {
+                    timer = delay;
+                    while (true)
+                    {
+                        ushort command = Word(cursor);
+                        if (command == 0) { done = true; break; }
+                        if (command == 1) { delay = Word(cursor + 2); cursor += 4; continue; }
+                        if (command == 13) { destination = Word(cursor + 2); cursor += 4; continue; }
+                        byte character = rom.ReadByte(cursor++);
+                        if (character != ' ')
+                        {
+                            int glyph = character == '!' ? '[' : character;
+                            expectedVram.ExecuteWordTransfer([(ushort)(tileBase + glyph - 'A')], destination, 1);
+                            click = ++glyphs % 2 == 0;
+                        }
+                        destination++;
+                        break;
+                    }
+                }
+                AssertEqual(done, actual.Step(new ForbiddenEscapeTextBus(), actualVram), "escape text native completion");
+                AssertEqual(destination, actual.Destination, "escape text native destination");
+                AssertEqual(delay, actual.Delay, "escape text native delay");
+                AssertEqual(timer, actual.DelayTimer, "escape text native countdown");
+                AssertEqual(glyphs, actual.GlyphsWritten, "escape text native glyph count");
+                AssertEqual(click, actual.ClickRequested, "escape text native click order");
+                AssertTrue(expectedVram.Bytes.SequenceEqual(actualVram.Bytes), "escape text native per-character VRAM");
+                totalFrames++;
+            }
+            AssertTrue(done, "escape text native program terminates");
+            var extraLines = original.Append(new EscapeTypewriterLineDocument { Destination = 0x6000, Text = "EXTRA!" }).ToArray();
+            var extraPrograms = new Dictionary<string, EscapeTypewriterProgramDocument>(document.Programs)
+            { [id.ToString()] = new() { Lines = extraLines } };
+            var extra = Load(document with { Programs = extraPrograms }).Get(id);
+            AssertEqual(original.Length + 1, extra.Lines.Count, "escape text accepts independently added line");
+            AssertEqual(new EscapeTypewriterLine(0x6000, "EXTRA!"), extra.Lines[^1], "escape text preserves added content");
+            AssertEqual(1, Stored(extra), "escape text stores only added line");
+            extraPrograms[id.ToString()] = new() { Lines = original.Take(1).ToArray() };
+            AssertEqual(1, Load(document with { Programs = extraPrograms }).Get(id).Lines.Count, "escape text preserves shortened document");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = program.Lines[-1], "escape text negative line");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = program.Lines[original.Length], "escape text next line");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Get(EscapeTypewriterProgramId.None), "escape text rejects absent program");
+        Console.WriteLine($"Escape text: five direct native lines, zero stock overrides, independent edits/line counts and {totalFrames} actual native-oracle frames pass.");
+    }
+
 }

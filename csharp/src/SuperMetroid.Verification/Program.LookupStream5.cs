@@ -6,6 +6,88 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5SidehopperGeometry(SuperMetroidAddressSpace rom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        ushort Word(int address) => ReadVerificationWord(rom, address);
+        foreach (ushort variant in new ushort[] { 0, 2, ushort.MaxValue })
+        {
+            bool alternate = variant != 0;
+            var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
+            var enemies = new RoomEnemySystem { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
+            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, memory);
+            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeDeadSidehopperGraphics", flags)!
+                .CreateDelegate<Action<ushort>>(enemies);
+            byte[] expected = new byte[0x800];
+            for (int row = 0; row < 5; row++)
+            {
+                int native = (alternate ? 0xa9df08 : 0xa9dec1) + 14 * row;
+                int source = Word(native + 2) - 0xc000;
+                int destination = Word(native + 5) - 0x2000;
+                int length = Word(native + 8) + 1;
+                AssertEqual((source, destination, length),
+                    DeadMonsterRottingDefinitions.SidehopperInitialCopy(variant, row), "Native Sidehopper MVN geometry");
+                for (int i = 0; i < length; i++) expected[destination + i] = rom.ReadByte(0xb7c000 + source + i);
+            }
+            initialize(variant);
+            for (int i = 0; i < expected.Length; i++)
+                AssertEqual(expected[i], memory.ReadByte(0x7e2000 + i), "Actual installed Sidehopper graphics copy");
+
+            // Native LDA abs,X operands and optional CMP #8 operands, independently read from each unrolled column.
+            int[] sourceOperands = alternate
+                ? [0xa9e56d, 0xa9e587, 0xa9e5a6, 0xa9e5c5, 0xa9e5e4]
+                : [0xa9e476, 0xa9e495, 0xa9e4af, 0xa9e4c9, 0xa9e4e3];
+            int[] minimumOperands = alternate ? [0, 0, 0xa9e59c, 0xa9e5bb, 0xa9e5da]
+                : [0xa9e46c, 0xa9e48b, 0, 0, 0];
+            for (int column = 0; column < 5; column++)
+            {
+                AssertEqual((Word(sourceOperands[column]) - 0x2000) / 2,
+                    DeadMonsterRottingDefinitions.SidehopperColumnWordOffset(variant, column), "Native tile column word offset");
+                AssertEqual(minimumOperands[column] == 0 ? 0 : (int)Word(minimumOperands[column]),
+                    DeadMonsterRottingDefinitions.SidehopperColumnMinimumY(variant, column), "Native missing top-row clipping");
+            }
+            var state = new DeadSidehopperEnemyState(enemies.Slots[0], variant, 0, 0, 0, 0, 0, 0xe240, 0, 0, 0, 0, 148);
+            var copy = typeof(RoomEnemySystem).GetMethod("CopyOrMoveDeadSidehopperPixelRow", flags)!
+                .CreateDelegate<Action<DeadSidehopperEnemyState, ushort, bool>>(enemies);
+            foreach (ushort y in new ushort[] { 0, 7, 8, 37, 38 })
+            foreach (bool move in new[] { false, true })
+            {
+                for (int i = 0; i < expected.Length; i++)
+                {
+                    expected[i] = (byte)(i * 37 + i / 256);
+                    memory.WriteByte(0x7e2000 + i, expected[i]);
+                }
+                int sourceRow = Word(0xa9e240 + (y >> 3) * 2) + (y & 7) * 2;
+                int destinationRow = sourceRow + ((y & 7) >= 6 ? 148 : 0);
+                for (int column = 0; column < 5; column++)
+                {
+                    int minimum = minimumOperands[column] == 0 ? 0 : Word(minimumOperands[column]);
+                    if (y < minimum) continue;
+                    int columnBase = Word(sourceOperands[column]) - 0x2000;
+                    foreach (int plane in new[] { 0, 16 })
+                    {
+                        int source = sourceRow + columnBase + plane;
+                        int destination = destinationRow + columnBase + plane + 2;
+                        if (y < 38)
+                        {
+                            expected[destination] = expected[source];
+                            expected[destination + 1] = expected[source + 1];
+                        }
+                        if (move) { expected[source] = 0; expected[source + 1] = 0; }
+                    }
+                }
+                copy(state, y, move);
+                for (int i = 0; i < expected.Length; i++)
+                    AssertEqual(expected[i], memory.ReadByte(0x7e2000 + i), "Actual Sidehopper pixel copy/move including clipping, wrap and terminal row");
+            }
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SidehopperInitialCopy(0, -1), "Copy row lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SidehopperInitialCopy(0, 5), "Copy row upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SidehopperColumnWordOffset(0, 5), "Column upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SidehopperColumnMinimumY(0, -1), "Column lower bound");
+        Console.WriteLine("Sidehopper geometry: ten native MVN rows, ten column offsets/clips, installed artwork and actual copy/move boundary rows pass; nonzero variant semantics preserved.");
+    }
+
     private static EnemyTileArtworkCatalog LookupStream5CorpseFixtureArtwork(SuperMetroidAddressSpace rom)
     {
         byte[] planar = Enumerable.Range(0,DeadTourianCorpseArtworkDefinitions.ByteCount)

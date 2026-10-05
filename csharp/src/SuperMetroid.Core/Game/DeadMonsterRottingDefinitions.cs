@@ -36,6 +36,39 @@ internal static class DeadMonsterRottingDefinitions
 
     internal static ReadOnlySpan<DeadCorpseTouchHitbox> TorizoTouchHitboxes => TorizoHitboxRecords;
 
+    /// <summary>
+    /// Five tile rows copied by CorpseRottingInit_Sidehopper_Param1_0/2 at $A9:DEC1/DF08.
+    /// The native atlas is sixteen tiles wide; each staged silhouette is five tiles wide.
+    /// The second silhouette starts after five staged rows, nine atlas tiles to the right.
+    /// </summary>
+    internal static (int SourceOffset, int DestinationOffset, int Length) SidehopperInitialCopy(ushort variant, int row)
+    {
+        if ((uint)row >= 5) throw new ArgumentOutOfRangeException(nameof(row));
+        int silhouette = variant == 0 ? 0 : 1;
+        int leftClip = row == 0 && silhouette == 0 ? 2 : 0;
+        int width = row == 0 ? (silhouette == 0 ? 3 : 2) : 5;
+        return ((silhouette * 9 + row * 16 + leftClip) * 32,
+            (silhouette * 25 + row * 5 + leftClip) * 32, width * 32);
+    }
+
+    /// <summary>Planes-0/1 tile-column words used by the $A9:E468/E564 Sidehopper pixel movers.</summary>
+    internal static int SidehopperColumnWordOffset(ushort variant, int column)
+    {
+        if ((uint)column >= 5) throw new ArgumentOutOfRangeException(nameof(column));
+        return ((variant == 0 ? 0 : 25) + column) * 16;
+    }
+
+    /// <summary>
+    /// Missing first-row tiles in the two sidehopper silhouettes: first two columns in
+    /// variant zero, last three in the alternate variant. Native movers $A9:E468/E564
+    /// and copiers $A9:E4F5/E5F6 skip these columns until pixel row eight.
+    /// </summary>
+    internal static int SidehopperColumnMinimumY(ushort variant, int column)
+    {
+        if ((uint)column >= 5) throw new ArgumentOutOfRangeException(nameof(column));
+        return (variant == 0 ? column < 2 : column >= 2) ? 8 : 0;
+    }
+
     internal static ushort RotationOffset(ushort table, ushort yOffset)
     {
         (int count, int tiles) = table switch

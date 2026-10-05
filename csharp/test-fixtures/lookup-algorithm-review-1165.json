@@ -10979,4 +10979,13 @@
   "reviewCorrections": "Queued Stoke Words doubled walking hold, Skultera Words endpoint13, and SporeSpawnProjectile Words unequal holds remain unresolved. Their structural conversions do not establish complete timing disposition; worker agreed and followup is required before those entries can close.",
   "confirmation": "Integrated Verification1442 warnings/zero errors; stream4 passed34 native BG2 component layouts,three hitbox lists,actual guarded shot dispatch,48 OAM frames and117 Turtle control words. Rectangles remain required. No new exception.",
   "scope": "Three Draygon BG2 singleton component arrays and previously removed Baby Turtle crawl literal"
+},"trailDispatchRegularWaveIntegration":{
+  "partial": "170 of870 coordinate records calculate regular reflected Wave oscillations, capped spreads, cardinal offsets and defaults; Frames stays pending for700records. No new exception.",
+  "completed": "ProjectileTrailCoordinateDefinitions.Pointers:174 beam/direction pointer words replaced with semantic flags/direction dispatch and packed record strides",
+  "implementationCommits": [
+    "7582dc90f",
+    "ca28d0a07"
+  ],
+  "state": "partial",
+  "confirmation": "Integrated Verification1442 warnings/zero errors. Focused coordinate verifier confirmed174 native pointers,870 records,6600actualspawns/allfourpositions with coordinate ROM forbidden and196608operand boundary assertions. Legacy PowerShell stderr warning handling produced a wrapper failure despite passed output; explicit PowerShell7 process-exit check repeated same focused command and returned0."
 }}

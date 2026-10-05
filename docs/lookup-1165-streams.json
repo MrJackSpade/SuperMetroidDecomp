@@ -3085,6 +3085,9 @@
     ,{"stream":1,"path":"csharp/src/SuperMetroid.Core/Game/SamusShinesparkProjectileRomData.cs","purpose":"Named departure-angle catalog operation for assigned ShinesparkState"}
     ,{"stream":3,"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainDrainedPaintDefinitions.cs","purpose":"Dedicated catalog for independently reviewed three drained paint anchors"}
     ,{"stream":3,"path":"csharp/src/SuperMetroid.Core/Game/MotherBrainDrainedPaletteRomData.cs","purpose":"Derived rear palette source index and native trailing highlight routing"}
+    ,{"purpose":"Only VerifySamusStoredShineAndShinespark setup and two UpdatePalette calls to install existing synthetic sentinel palettes after reproduced missing-assets failure","path":"csharp/src/SuperMetroid.Verification/Program.SamusShinespark.cs","stream":1}
+    ,{"purpose":"Replace reproduced obsolete15 ROM visual reads assertion with zero reads and15exactnative compiled operands, preserving behavior assertions","path":"csharp/src/SuperMetroid.Verification/Program.TorizoExplosionInstructionProgramDefinitions.cs","stream":2}
+    ,{"purpose":"Isolate pending independent balance magnitudes and derive duplicate/permutation/complement relationships; no exception yet","path":"csharp/src/SuperMetroid.Core/Game/EnemyDropBalanceDefinitions.cs","stream":3}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

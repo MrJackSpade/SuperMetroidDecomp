@@ -7,6 +7,80 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
+    {
+        byte[] json = PauseBackdropExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<PauseBackdropDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var stock = PauseBackdropPresentation.Load(new MemoryStream(json));
+        const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
+        var areaResiduals = (Dictionary<int, ushort>[])typeof(PauseBackdropPresentation).GetField("areas", fields)!.GetValue(stock)!;
+        var buttonResiduals = (Dictionary<int, ushort>)typeof(PauseBackdropPresentation).GetField("buttons", fields)!.GetValue(stock)!;
+        foreach (AreaId area in Enum.GetValues<AreaId>())
+        {
+            int index = AreaIds.ToIndex(area);
+            int label = 0x820000 | ReadVerificationWord(rom, 0x82965f + index * 2);
+            byte[] native = new byte[2048];
+            for (int cell = 0; cell < 1024; cell++)
+            {
+                int address = cell is >= 170 and < 182 ? label + (cell - 170) * 2 : 0xb6e000 + cell * 2;
+                ushort word = ReadVerificationWord(rom, address);
+                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), word);
+                AssertEqual(word != PauseBackdropDefinitions.StockAreaWord(area, cell), areaResiduals[index].ContainsKey(cell), "Exact required backdrop residual membership");
+                if (areaResiduals[index].TryGetValue(cell, out ushort retained)) AssertEqual(word, retained, "Exact independent backdrop input");
+            }
+            ConfirmArea(stock, area, native);
+            Console.WriteLine($"{area} required inputs: " + string.Join(", ", areaResiduals[index].Select(pair => $"({pair.Key % 32},{pair.Key / 32})={pair.Value:X4}")));
+        }
+        AssertEqual(15, areaResiduals.Sum(cells => cells.Count), "Required area residual count" );
+        AssertEqual(1, buttonResiduals.Count, "Required button residual count" );
+        byte[] nativeButtons = new byte[1024];
+        for (int cell = 0; cell < 512; cell++)
+        {
+            ushort word = ReadVerificationWord(rom, 0xb6e400 + cell * 2);
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(nativeButtons.AsSpan(cell * 2), word);
+            AssertEqual(word != PauseBackdropDefinitions.StockButtonWord(cell), buttonResiduals.ContainsKey(cell), "Exact required button residual membership");
+        }
+        AssertTrue(nativeButtons.AsSpan().SequenceEqual(stock.CreateButtonTilemap()), "All512native button-template words");
+        foreach (int edit in new[] { 0, 5 * 32 + 8, 5 * 32 + 12, 10 * 32 + 3, 24 * 32 + 31, 26 * 32 + 29 })
+        {
+            var areas = document.Areas.ToDictionary(pair => pair.Key, pair => pair.Value);
+            var cells = areas[AreaId.Crateria.ToString()].ToArray();
+            cells[edit] = cells[edit] with { FlipX = !cells[edit].FlipX, Palette = 4 };
+            areas[AreaId.Crateria.ToString()] = cells;
+            using var output = new MemoryStream();
+            PauseBackdropPresentation.Write(output, document with { Areas = areas });
+            var selected = PauseBackdropPresentation.Load(new MemoryStream(output.ToArray()));
+            foreach (AreaId area in Enum.GetValues<AreaId>())
+                ConfirmArea(selected, area, PauseTileGrid.Compile(areas[area.ToString()], "Edited area"));
+            AssertTrue(nativeButtons.AsSpan().SequenceEqual(selected.CreateButtonTilemap()), "Area edit does not propagate into independent button template");
+        }
+        foreach (int edit in new[] { 0, 8 * 32 + 2, 9 * 32 + 5, 10 * 32 + 29 })
+        {
+            var cells = document.Buttons.ToArray();
+            cells[edit] = cells[edit] with { FlipY = !cells[edit].FlipY, Palette = 5 };
+            using var output = new MemoryStream();
+            PauseBackdropPresentation.Write(output, document with { Buttons = cells });
+            var selected = PauseBackdropPresentation.Load(new MemoryStream(output.ToArray()));
+            AssertTrue(PauseTileGrid.Compile(cells, "Edited buttons").AsSpan().SequenceEqual(selected.CreateButtonTilemap()), "Independent control-template edit");
+            ConfirmArea(selected, AreaId.Crateria, PauseTileGrid.Compile(document.Areas[AreaId.Crateria.ToString()], "Unchanged area"));
+        }
+        var invalidVram = new SnesVram();
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(invalidVram, -1, AreaId.Crateria), "Backdrop negative VRAM destination");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(invalidVram, SnesVram.ByteCount - 2047, AreaId.Crateria), "Backdrop end-of-VRAM bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(invalidVram, 0, (AreaId)7), "Backdrop area bound");
+        AssertTrue(invalidVram.Bytes.ToArray().All(value => value == 0), "Invalid load fails before any VRAM mutation");
+        Console.WriteLine($"Backdrop geometry:7680native words, exact{areaResiduals.Sum(cells => cells.Count)}area/{buttonResiduals.Count}button residuals,53actual VRAM loads,10independent edits and bounds pass; selected layout/art/style inputs remain required.");
+
+        static void ConfirmArea(PauseBackdropPresentation presentation, AreaId area, byte[] native)
+        {
+            var vram = new SnesVram();
+            byte[] expected = Enumerable.Repeat((byte)0x55, SnesVram.ByteCount).ToArray();
+            vram.LoadBytes(0, expected);
+            native.CopyTo(expected, 0x7000);
+            presentation.LoadTo(vram, 0x7000, area);
+            AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes), "Actual area load preserves every selected word and untouched VRAM byte");
+        }
+    }
     private static void VerifyLookupStream2EquipmentBaseGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentBaseExtractor.Extract(rom);

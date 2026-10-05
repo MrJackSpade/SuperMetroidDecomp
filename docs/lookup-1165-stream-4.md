@@ -535,7 +535,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomSpriteObjectDefinitions.cs
 
-- [ ] **RoomSpriteObjectDefinitions.InstructionPointers** ([L12](../csharp/src/SuperMetroid.Core/Game/RoomSpriteObjectDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomSpriteObjectDefinitions.InstructionPointers** ([L12](../csharp/src/SuperMetroid.Core/Game/RoomSpriteObjectDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomSpriteObjectInstructionProgramDefinitions.cs
 
@@ -1023,3 +1023,9 @@ Mixed disposition for RoomEnemySpawnNameDefinitions.Records: 74 wholly converted
 Frames is complete: dead/closed roots select a single zero-offset head; seven opening roots advance the head layout and oscillate the inner point through B/C/D/C; three fully-open roots hold the final head and cycle B/C/D. Native A5:EE65-EEE5 and EF3D-EF61 establish component count, order, zero offsets and list identities. The intervening unused roots remain rejected. Lists remains unchecked; this does not exempt its hitbox coordinates or callback payloads.
 
 Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-spore-collision confirms all 12 roots and 12 referenced lists, 2376 actual touch/shot comparisons against an independent native-data walker, source-read denial and invalid root/component boundaries. The obsolete generic runtime cartridge oracle was replaced with a fixture-only native walker; production execution stays guarded. Overall checkpoint: 510 converted, 15 justified retained/mixed, 603 pending.
+
+## Integrated room sprite program dispatch
+
+InstructionPointers is complete as meaningful program dispatch. Native B4:BC65-BC77 consumes the object-kind argument, selects its program at BDA8-BE23, installs that program and loads its initial timer. The switch preserves all 62 mutually exclusive native program identities, with source symbols and addresses documented on catalog members, including unused native programs. This is the permitted giant-case conversion; it does not exempt any program timing, visual selectors or artwork payloads.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-sprite-dispatch confirms all 62 native entries and actual guarded spawns, exact initial instruction/timer/visual, retained kind/position/graphics arguments and invalid selectors. Overall checkpoint: 511 converted, 15 justified retained/mixed, 602 pending.

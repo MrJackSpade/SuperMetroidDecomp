@@ -11525,4 +11525,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "Opening head progression, B/C/D/C inner-point oscillation and fully-open B/C/D cycle derive ordered zero-offset components from native frame/list record widths.",
     "remaining":  "Lists remains required; no hitbox geometry or callback payload exemption. 510 converted, 15 justified retained/mixed, 603 pending."
+},"roomSpriteDispatchIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. All 62 native entries and actual guarded spawns preserve initial program/timer/visual, kind, coordinates and graphics; invalid selectors reject.",
+    "completed":  "RoomSpriteObjectDefinitions.InstructionPointers",
+    "workerCommit":  "dcde33876846e0149f233f257d1a83286fb2565a",
+    "state":  "converted",
+    "algorithm":  "Native B4:BC65-BC77 dispatches object-kind to initial program through BDA8-BE23. Meaningful cases preserve 62 mutually exclusive program identities, including unused native kinds.",
+    "remaining":  "No exemption for program timing, visual selectors or artwork. 511 converted, 15 justified retained/mixed, 602 pending."
 }}

@@ -8,6 +8,35 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyRoomSpriteDispatch(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var spriteSpawn = typeof(RoomEnemySystem).GetMethod("SpawnRoomSpriteObject", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .CreateDelegate<Func<RoomEnemySystem, ushort, ushort, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?>>();
+        FieldInfo spriteBus = typeof(RoomEnemySystem).GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        for (ushort objectNumber = 0; objectNumber < 62; objectNumber++)
+        {
+            var kind = (RoomSpriteObjectKind)objectNumber;
+            ushort entry = Word(0xb4bda8 + 2 * objectNumber);
+            AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
+            var enemies = new RoomEnemySystem();
+            spriteBus.SetValue(enemies, new FrontendCartridgeReadGuard(rom));
+            RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, 0x1234, 0x5678, kind, 0x0600);
+            AssertTrue(spawned is not null, "room sprite native case allocates real slot");
+            AssertEqual(entry, spawned!.InstructionPointer, "room sprite actual initial program");
+            AssertEqual(Word(0xb40000 | entry), spawned.InstructionTimer, "room sprite actual initial native duration");
+            AssertEqual(Word(0xb40000 | (entry + 2)), spawned.SpritemapPointer, "room sprite actual initial native visual");
+            AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
+            AssertEqual((ushort)0x1234, spawned.XPosition, "room sprite spawn X preserved");
+            AssertEqual((ushort)0x5678, spawned.YPosition, "room sprite spawn Y preserved");
+            AssertEqual((ushort)0x0600, spawned.GraphicsIndex, "room sprite graphics argument preserved");
+        }
+        foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
+            AssertThrows<ArgumentOutOfRangeException>(
+                () => RoomSpriteObjectDefinitions.InstructionPointer((RoomSpriteObjectKind)invalid),
+                "room sprite native kind domain rejects invalid selector");
+        Console.WriteLine("Room sprite dispatch: 62 native entries and actual spawns, initial timing/visuals, source-read guards and invalid selectors pass.");
+    }
     private static void VerifyLookupStream4EnemyNameRecords(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

@@ -30,7 +30,7 @@ internal static partial class Program
             () => guardedBus.ReadByte(TitleSequenceRomData.Assets.Mode7CharactersAddress),
             "startup ROM guard rejects an otherwise valid title graphics source");
 
-        var native = new SuperMetroidGame(nativeBus);
+        var native = CreateRetailGameFixture(nativeBus);
         var installed = new SuperMetroidGame(guardedBus);
         Action<SuperMetroidGame, bool> bindInstalled = PrepareRomFreeBindings(installation);
         bindInstalled(installed, true);
@@ -102,6 +102,34 @@ internal static partial class Program
         var backgrounds = installation.LoadRoomBackgroundTilemaps();
         var sky = installation.LoadRoomSkyTilemaps();
         var samusEaterVisuals = installation.LoadRoomPlmSamusEaterVisuals();
+        var assetRoomPlmShotBlockVisuals = installation.LoadRoomPlmShotBlockVisuals();
+        var assetRoomPlmGrappleBlockVisuals = installation.LoadRoomPlmGrappleBlockVisuals();
+        var assetRoomPlmStationVisuals = installation.LoadRoomPlmStationVisuals();
+        var assetRoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals();
+        var assetRoomPlmColoredDoorVisuals = installation.LoadRoomPlmColoredDoorVisuals();
+        var assetRoomPlmGreyDoorVisuals = installation.LoadRoomPlmGreyDoorVisuals();
+        var assetRoomPlmEyeDoorVisuals = installation.LoadRoomPlmEyeDoorVisuals();
+        var assetRoomPlmMotherBrainGlassVisuals = installation.LoadRoomPlmMotherBrainGlassVisuals();
+        var assetRoomPlmNoobTubeVisuals = installation.LoadRoomPlmNoobTubeVisuals();
+        var assetRoomPlmDownwardGateVisuals = installation.LoadRoomPlmDownwardGateVisuals();
+        var assetRoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals();
+        var assetRoomPlmEscapeGateVisuals = installation.LoadRoomPlmEscapeGateVisuals();
+        var assetRoomPlmBombTorizoHandVisuals = installation.LoadRoomPlmBombTorizoHandVisuals();
+        var assetRoomPlmDraygonCannonVisuals = installation.LoadRoomPlmDraygonCannonVisuals();
+        var assetRoomPlmChozoStatueVisuals = installation.LoadRoomPlmChozoStatueVisuals();
+        var assetRoomPlmLinkedRestoreVisuals = installation.LoadRoomPlmLinkedRestoreVisuals();
+        var assetRoomPlmTourianAccessVisuals = installation.LoadRoomPlmTourianAccessVisuals();
+        var assetRoomPlmSpeedBoosterVisuals = installation.LoadRoomPlmSpeedBoosterVisuals();
+        var assetRoomPlmMaridiaElevatubeVisuals = installation.LoadRoomPlmMaridiaElevatubeVisuals();
+        var assetRoomPlmSporeSpawnCeilingVisuals = installation.LoadRoomPlmSporeSpawnCeilingVisuals();
+        var assetRoomPlmSamusEaterVisuals = installation.LoadRoomPlmSamusEaterVisuals();
+        var assetRoomPlmBotwoonWallVisuals = installation.LoadRoomPlmBotwoonWallVisuals();
+        var assetRoomPlmKraidVisuals = installation.LoadRoomPlmKraidVisuals();
+        var assetRoomPlmCrocomireVisuals = installation.LoadRoomPlmCrocomireVisuals();
+        var assetRoomPlmMotherBrainFakeDeathVisuals = installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
+        var assetRoomPlmCollectibleVisuals = installation.LoadRoomPlmCollectibleVisuals();
+        var assetRoomPlmDynamicCollectibleArt = installation.LoadRoomPlmDynamicCollectibleArt();
+        var assetXrayRevealVisuals = installation.LoadXrayRevealVisuals();
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         return (game, bindIntro) =>
         {
@@ -109,6 +137,35 @@ internal static partial class Program
             game.BindGameplayBasePalettes(palettes);
             game.BindEnemyTileArtwork(enemies);
             game.BindStandardObjectArt(objects);
+            game.BindRoomPlmShotBlockVisuals(assetRoomPlmShotBlockVisuals);
+            game.BindRoomPlmGrappleBlockVisuals(assetRoomPlmGrappleBlockVisuals);
+            game.BindRoomPlmStationVisuals(assetRoomPlmStationVisuals);
+            game.BindRoomPlmBlueDoorVisuals(assetRoomPlmBlueDoorVisuals);
+            game.BindRoomPlmColoredDoorVisuals(assetRoomPlmColoredDoorVisuals);
+            game.BindRoomPlmGreyDoorVisuals(assetRoomPlmGreyDoorVisuals);
+            game.BindRoomPlmEyeDoorVisuals(assetRoomPlmEyeDoorVisuals);
+            game.BindRoomPlmMotherBrainGlassVisuals(assetRoomPlmMotherBrainGlassVisuals);
+            game.BindRoomPlmNoobTubeVisuals(assetRoomPlmNoobTubeVisuals);
+            game.BindRoomPlmDownwardGateVisuals(assetRoomPlmDownwardGateVisuals);
+            game.BindRoomPlmElevatorPlatformVisuals(assetRoomPlmElevatorPlatformVisuals);
+            game.BindRoomPlmEscapeGateVisuals(assetRoomPlmEscapeGateVisuals);
+            game.BindRoomPlmBombTorizoHandVisuals(assetRoomPlmBombTorizoHandVisuals);
+            game.BindRoomPlmDraygonCannonVisuals(assetRoomPlmDraygonCannonVisuals);
+            game.BindRoomPlmChozoStatueVisuals(assetRoomPlmChozoStatueVisuals);
+            game.BindRoomPlmLinkedRestoreVisuals(assetRoomPlmLinkedRestoreVisuals);
+            game.BindRoomPlmTourianAccessVisuals(assetRoomPlmTourianAccessVisuals);
+            game.BindRoomPlmSpeedBoosterVisuals(assetRoomPlmSpeedBoosterVisuals);
+            game.BindRoomPlmMaridiaElevatubeVisuals(assetRoomPlmMaridiaElevatubeVisuals);
+            game.BindRoomPlmSporeSpawnCeilingVisuals(assetRoomPlmSporeSpawnCeilingVisuals);
+            game.BindRoomPlmSamusEaterVisuals(assetRoomPlmSamusEaterVisuals);
+            game.BindRoomPlmBotwoonWallVisuals(assetRoomPlmBotwoonWallVisuals);
+            game.BindRoomPlmKraidVisuals(assetRoomPlmKraidVisuals);
+            game.BindRoomPlmCrocomireVisuals(assetRoomPlmCrocomireVisuals);
+            game.BindRoomPlmMotherBrainFakeDeathVisuals(assetRoomPlmMotherBrainFakeDeathVisuals);
+            game.BindRoomPlmCollectibleVisuals(assetRoomPlmCollectibleVisuals);
+            game.BindRoomPlmDynamicCollectibleArt(assetRoomPlmDynamicCollectibleArt);
+            game.BindXrayRevealVisuals(assetXrayRevealVisuals);
+            game.BindBeamArtwork(projectiles.BeamTiles);
             // An already-finished intro is deliberately not rebound for the
             // isolated gameplay-room census: its restored DMA side effect
             // would test a retired cinematic, not the room under examination.
@@ -126,6 +183,9 @@ internal static partial class Program
             game.BindProjectileCompositions(projectiles.Catalog);
             game.BindProjectileFrameBindings(projectiles.FrameBindings);
             game.BindTrailArtwork(projectiles.Trails);
+            game.BindChargeFlarePlacement(projectiles.FlarePlacement);
+            game.BindChargeFlareCompositions(projectiles.FlareCompositions);
+            game.BindGrappleArtwork(projectiles.GrappleTiles);
         };
     }
 
@@ -371,6 +431,7 @@ internal static partial class Program
             DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(nativeSnapshot);
         SuperMetroidGame installedRoom =
             DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(installedSnapshot);
+        bindInstalled(nativeRoom, false);
         bindInstalled(installedRoom, false);
         nativeRoom.RuntimeForVerification!.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
         installedRoom.RuntimeForVerification!.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);

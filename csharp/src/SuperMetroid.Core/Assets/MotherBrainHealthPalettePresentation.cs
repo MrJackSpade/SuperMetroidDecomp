@@ -16,6 +16,27 @@ public sealed class MotherBrainHealthPalettePresentation
         this.backLegs = new TintPalette(backLegs, backLeg: true, this.body);
     }
 
+    /// <summary>
+    /// The $AD:EA0A death body and $AD:EA26 rear-leg starting palettes are health state three.
+    /// The $AD:F119 corpse starts with the same full fifteen-color brain palette.
+    /// Independent installed documents use this only when their own supplied colors match.
+    /// </summary>
+    internal static ushort StockDeathStartColor(bool backLeg, int color) =>
+        TintColor((backLeg ? BasePalette.StockRear : BasePalette.StockBody).Color(color), 3, backLeg);
+
+    private static ushort TintColor(ushort initial, int state, bool backLeg)
+    {
+        int amount = state * (state + 1) + (backLeg && state != 0 ? 2 : 0);
+        int result = 0;
+        for (int component = 0; component < 3; component++)
+        {
+            int rgb8 = (((initial >> (component * 5)) & 31) * 8) + 1;
+            int target = component == 0 ? 31 * 8 : 0;
+            int value = (rgb8 * (30 - amount) + target * amount) / (30 * 8);
+            result |= value << (component * 5);
+        }
+        return (ushort)result;
+    }
     /// <summary>Calculates one damage-tinted color pair to the three native CGRAM destinations.</summary>
     public void Apply(SnesCgram cgram, int damageState)
     {
@@ -43,7 +64,7 @@ public sealed class MotherBrainHealthPalettePresentation
         public TintPalette(ushort[][] rows, bool backLeg, TintPalette? front = null)
         {
             this.backLeg = backLeg;
-            basis = new BasePalette(rows[0], backLeg, front?.basis);
+            basis = BasePalette.Create(rows[0], backLeg, front?.basis);
             for (int state = 0; state < rows.Length; state++)
                 for (int color = 0; color < rows[state].Length; color++)
                     if (Calculate(state, color) != rows[state][color])
@@ -52,22 +73,8 @@ public sealed class MotherBrainHealthPalettePresentation
 
         public ushort Color(int state, int color) => supplied is null ? Calculate(state, color) : supplied[state][color];
 
-        private ushort Calculate(int state, int color)
-        {
-            int amount = state * (state + 1) + (backLeg && state != 0 ? 2 : 0);
-            int result = 0;
-            ushort initial = basis.Color(color);
-            for (int component = 0; component < 3; component++)
-            {
-                int rgb8 = (((initial >> (component * 5)) & 31) * 8) + 1;
-                int target = component == 0 ? 31 * 8 : 0;
-                int value = (rgb8 * (30 - amount) + target * amount) / (30 * 8);
-                result |= value << (component * 5);
-            }
-            return (ushort)result;
-        }
+        private ushort Calculate(int state, int color) => TintColor(basis.Color(color), state, backLeg);
     }
-
     /// <summary>Independent paint colors plus calculated quarter/fifth shade ramps.</summary>
     private sealed class BasePalette
     {
@@ -81,6 +88,46 @@ public sealed class MotherBrainHealthPalettePresentation
         private readonly ushort[]? supplied;
         private readonly BasePalette? front;
 
+        internal static BasePalette StockBody { get; } = new(false);
+        internal static BasePalette StockRear { get; } = new(true);
+
+        private BasePalette(bool backLeg)
+        {
+            this.backLeg = backLeg;
+            front = backLeg ? StockBody : null;
+            if (backLeg) return;
+            highlight = Paint.CortexHighlight;
+            midtone = Paint.CortexMidtone;
+            shadow = Paint.CortexShadow;
+            outline = Paint.Outline;
+            gray = Paint.PlateHighlight;
+            brown = Paint.TissueHighlight;
+        }
+
+        internal static BasePalette Create(ushort[] colors, bool backLeg, BasePalette? front)
+        {
+            BasePalette stock = backLeg ? StockRear : StockBody;
+            bool matches = !backLeg || ReferenceEquals(front, StockBody);
+            for (int color = 0; matches && color < colors.Length; color++)
+                matches = colors[color] == stock.Color(color);
+            return matches ? stock : new BasePalette(colors, backLeg, front);
+        }
+
+        private static class Paint
+        {
+            /// <summary>$AD:E6AC: chosen bright cortex patches on the native head artwork.</summary>
+            internal const ushort CortexHighlight = 0x269f;
+            /// <summary>$AD:E6AE: chosen orange cortex middle tones.</summary>
+            internal const ushort CortexMidtone = 0x0159;
+            /// <summary>$AD:E6B0: chosen deep red cortex folds.</summary>
+            internal const ushort CortexShadow = 0x004c;
+            /// <summary>$AD:E6B2: chosen head/limb silhouette and internal outlines.</summary>
+            internal const ushort Outline = 0x0004;
+            /// <summary>$AD:E6B4: chosen skull, teeth, spikes and front-limb plate highlight.</summary>
+            internal const ushort PlateHighlight = 0x5739;
+            /// <summary>$AD:E6BC: chosen lower-face, mouth and neck-joint tissue highlight.</summary>
+            internal const ushort TissueHighlight = 0x367f;
+        }
         public BasePalette(ushort[] colors, bool backLeg, BasePalette? front)
         {
             this.backLeg = backLeg;

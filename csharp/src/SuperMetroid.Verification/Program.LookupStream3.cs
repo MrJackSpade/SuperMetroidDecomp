@@ -928,6 +928,8 @@ internal static partial class Program
         foreach (string name in new[] { "bodyFade", "legFade", "corpseFade" })
         {
             object fade = typeof(MotherBrainDeathColorCatalog).GetField(name, fields)!.GetValue(stock)!;
+            AssertTrue(fade.GetType().GetField("first", fields)!.GetValue(fade) is null,
+                "stream 3 death starts reuse calculated health state three without stored endpoint rows");
             AssertTrue(fade.GetType().GetField("supplied", fields)!.GetValue(fade) is null,
                 "stream 3 original death fade discards its stored frame table");
         }

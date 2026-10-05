@@ -50,6 +50,10 @@ internal static partial class Program
         var metadata = new GrappleFiringReadGuard(rom);
         var guard = new GrappleConnectionReadGuard(metadata);
         var samus = new SamusState();
+        samus.Grapple.FlarePlacement = SuperMetroid.Core.Assets.ChargeFlarePlacementCatalog.Load(
+            new MemoryStream(SuperMetroid.AssetExtraction.GrappleFlarePlacementExtractor.Extract(rom)));
+        samus.Grapple.SwingFrames = SuperMetroid.Core.Assets.GrappleSwingFrameCatalog.Load(
+            new MemoryStream(SuperMetroid.AssetExtraction.GrappleSwingFrameExtractor.Extract(rom)));
         for (byte movement = 0; movement < 28; movement++)
         for (byte direction = 0; direction < 10; direction++)
         for (int vertical = 0; vertical < 3; vertical++)
@@ -104,6 +108,8 @@ internal static partial class Program
         }).ToArray();
         AssertTrue(native.AsSpan().SequenceEqual(GrappleConnectionDefinitions.SpecialAngles), "All 40 native special-angle words");
         var samus = new SamusState();
+        samus.Grapple.FlarePlacement = SuperMetroid.Core.Assets.ChargeFlarePlacementCatalog.Load(
+            new MemoryStream(SuperMetroid.AssetExtraction.GrappleFlarePlacementExtractor.Extract(rom)));
         var g = samus.Grapple;
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
@@ -154,6 +160,12 @@ internal static partial class Program
         var guard = new GrappleConnectionReadGuard(rom);
         var empty = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
         var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 512, YPosition = 512 };
+        using var artworkDirectory = new MapCatalogTestDirectory();
+        SuperMetroid.AssetExtraction.SamusBodyArtworkFiles.Extract(rom, artworkDirectory.Root,
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc")))));
+        samus.TileTransfers.BindArtwork(SuperMetroid.AssetExtraction.SamusBodyArtworkFiles.Load(artworkDirectory.Root, null));
+        samus.Grapple.FlarePlacement = SuperMetroid.Core.Assets.ChargeFlarePlacementCatalog.Load(
+            new MemoryStream(SuperMetroid.AssetExtraction.GrappleFlarePlacementExtractor.Extract(rom)));
         for (byte movement = 0; movement < 28; movement++)
         {
             bool banned = rom.ReadByte(0x9bb8b8 + movement) != 0;

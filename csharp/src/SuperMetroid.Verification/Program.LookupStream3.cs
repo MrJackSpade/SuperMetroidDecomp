@@ -104,6 +104,7 @@ internal static partial class Program
         VerifyStream3PainfulWalking(rom);
         VerifyStream3DeathSelectors(rom);
         VerifyMotherBrainContactHitboxes();
+        VerifyGrappleConnectionDefinitions((SuperMetroidAddressSpace)rom);
         VerifyWorkRobotLaserInstructionProgramDefinitions((SuperMetroidAddressSpace)rom);
         VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom);
         VerifyMotherBrainTurretInstructionProgramDefinitions((SuperMetroidAddressSpace)rom);

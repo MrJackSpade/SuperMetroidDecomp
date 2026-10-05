@@ -24,7 +24,7 @@ internal static partial class Program
                     expectedColumns.Add(x);
         AssertTrue(expectedColumns.Count > 0, "demo room supplies grapple ceiling terrain");
         var connectedColumns = new List<int>();
-        var input = new AttractDemoInput(bus, scene);
+        var input = new ReferenceAttractInput(bus, scene);
         int scriptedShots = 0;
         GrapplePhase previousPhase = GrapplePhase.Inactive;
         for (int frame = 0; frame < scene.Duration; frame++)

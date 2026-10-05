@@ -40,14 +40,14 @@ internal static partial class Program
             throw new InvalidDataException("Demo offsets lost their native X-center/Y-top interpretation.");
         if (SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 1) is not null)
             throw new InvalidDataException("Demo room sentinel did not terminate the set.");
-        var input = new AttractDemoInput(bus, expected);
+        var input = new ReferenceAttractInput(bus, expected);
         input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
         if (input.Script.Held != (ushort)SnesButton.Left || input.Script.InstructionTimer != 5)
             throw new InvalidDataException("Title demo did not publish its first timed input record.");
         input.Step(bus, SuperMetroidGameState.TransitionFromDemoB, SamusMovementType.Standing);
         if (input.Script.InstructionPointer != 0 || input.Script.Held != 0)
             throw new InvalidDataException("Title demo departure did not delete input in the same handler call.");
-        input = new AttractDemoInput(bus, expected);
+        input = new ReferenceAttractInput(bus, expected);
         input.Script.Redirect(DemoInputRomData.Attract.ShinesparkPreInstruction, 0xc000);
         input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.DraygonHeld);
         if (input.Script.Held != (ushort)SnesButton.Left)
@@ -158,7 +158,7 @@ internal static partial class Program
             for (int sceneIndex = 0; sceneIndex < sceneCounts[set]; sceneIndex++)
             {
                 AttractDemoScene scene = StockAttractDemoScenes.Get(set, sceneIndex)!;
-                var runtime = new SuperMetroidRuntime(guard);
+                var runtime = CreateRetailRuntimeFixture(guard);
                 runtime.InitializeAttractDemo(scene);
                 for (int frame = 0; frame < scene.Duration; frame++)
                     runtime.StepFrame(0, advanceGameTime: false);
@@ -184,7 +184,7 @@ internal static partial class Program
         // pre-instruction branches and cancellation before/during/after timed records.
         foreach (int leaveFrame in new[] { -1, 0, 19, (int)scene.Duration })
         {
-            var reference = new AttractDemoInput(bus, scene);
+            var reference = new ReferenceAttractInput(bus, scene);
             var compiled = new AttractDemoInput(scene);
             for (int frame = 0; frame < 6000; frame++)
             {

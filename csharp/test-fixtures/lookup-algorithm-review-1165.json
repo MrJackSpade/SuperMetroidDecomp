@@ -10798,4 +10798,14 @@
   "state": "partial",
   "confirmation": "Build1438 warnings/zero errors. Trail103 native words and64 real spawn selections pass with full selector window forbidden. Egg53 native words,26 exact installed selectors,both actual producers through bounce/hatch/charge/floor break and shared shot break pass. Source index refreshed; no reviewed-source hash dependency.",
   "scope": "Trail selection and two Golden Torizo egg program definitions."
+},"kagoAndDustProgramsIntegration":{
+  "implementationCommits": [
+    "b3bcc7944",
+    "ae4c87683"
+  ],
+  "algorithm": "Shared slow/fast loops, hold loops, semantic state operations, uniform pose strides and counted dust loops calculate words and operand addresses.",
+  "state": "converted",
+  "confirmation": "Verification1438 warnings/zero errors. Kago12 native words/eight selectors/slow and hit loops/bug handoff; bug23 native words/11 selectors/real producer,landed/falling/jump loops,shot/drop deletion; dust31 native words/14 selectors/actual footstep and Tourian producers,alternate,counted lifetime and deletion. Runtime reads forbidden. No reviewed-source hash dependency; source index refreshed.",
+  "scope": "Kago body and bug control/presentation arrays, and Chozo/Tourian dust control/presentation arrays: six definitions.",
+  "remaining": "311 converted,one justified retained,816 pending. No new exception."
 }}

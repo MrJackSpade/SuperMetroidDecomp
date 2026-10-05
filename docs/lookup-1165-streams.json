@@ -3050,6 +3050,7 @@
     ,{"stream": 5, "path": "csharp/src/SuperMetroid.Verification/Program.DeadTourianCorpseDefinitions.cs", "purpose": "Supply scoped native artwork required by actual corpse initializer fixture"}
     ,{"stream": 5, "path": "csharp/src/SuperMetroid.Verification/Program.DeadTourianCorpseInstructionProgramDefinitions.cs", "purpose": "Supply scoped native artwork while preserving corpse control and sleep assertions"}
     ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.SporeSpawnProjectileInstructionProgramDefinitions.cs", "purpose": "Confirm exact installed native operands while preserving all real projectile producer and lifecycle assertions"}
+    ,{"stream": 4, "path": "csharp/src/SuperMetroid.Verification/Program.EtecoonInstructionProgramDefinitions.cs", "purpose": "Confirm native installed visual operands while preserving all friendly Etecoon continuation, sleep, jump, flex and loop assertions"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

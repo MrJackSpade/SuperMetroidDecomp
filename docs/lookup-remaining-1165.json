@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 633,
+  "remainingTableDefinitionCount": 632,
   "fileCount": 523,
   "entries": [
     {
@@ -5791,7 +5791,10 @@
       "line": 19,
       "name": "RidleyClawOffsets.ExistingOutOfRangeWindow",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "b14f058a223f55c946e5ee76f5b664a19e7c3a60",
+      "disposition": "Nonsense: only six adjacent instruction words A6B9E1-B9EC, AF28787EF01F8512100449FF. Unrelated CPU encodings cannot derive from claw geometry. Existing managed bounded window only; ordinary geometry calculates."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs",
@@ -21312,5 +21315,5 @@
     }
   ],
   "convertedSinceSnapshot": 484,
-  "justifiedRetainedSinceSnapshot": 11
+  "justifiedRetainedSinceSnapshot": 12
 }

@@ -11218,7 +11218,7 @@
     "reason":  "Unrelated machine encodings cannot derive from physical claw geometry without reencoding native instructions. No unbounded emulation or exemption for ordinary geometry.",
     "consumer":  "ReadY clamps min(feetDistanceIndex\u003e\u003e1,8), normal indices0..2 calculate; single Ridley claw Y consumer. This is existing managed bound, not claimed native clamp.",
     "native":  "Direct ROM A6B9E1-B9EC: AF28787EF01F8512100449FF; words28AF,7E78,1FF0,1285,0410,FF49. Pinned LDA.l/BEQ/STA/BPL/EOR encodings match.",
-    "state":  "approved-pending-integration"
+    "state":  "integrated-justified-retained"
 },"motherBrainGlassPaintIndependentReview":{
     "scope":  "Only glass-face paint anchor7F8B atA9951A",
     "visualEvidence":  "Independently viewed glass-shard-tilt/back-tilt composites and exact index04 masks showing bright cyan triangular face.",

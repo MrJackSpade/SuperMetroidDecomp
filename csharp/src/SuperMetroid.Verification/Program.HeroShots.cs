@@ -23,8 +23,8 @@ internal static partial class Program
             var room = CreateRoom(vertical ? 16 : 64, vertical ? 64 : 16, blocks, new byte[blocks.Length]);
             var samus = new SamusState { Pose = (byte)(vertical ? 3 : 1), XPosition = 128,
                 YPosition = (ushort)(vertical ? 640 : 128) };
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = CreateProjectileFixture();
+            var shared = CreateBombFixture();
             int deletedFrame = -1, impactFrame = -1;
             for (int frame = 0; frame < 120; frame++)
             {

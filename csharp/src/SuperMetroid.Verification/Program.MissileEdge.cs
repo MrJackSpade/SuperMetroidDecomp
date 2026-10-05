@@ -18,8 +18,8 @@ internal static partial class Program
             var room = CreateRoom(64, 16, blocks, new byte[blocks.Length]);
             var samus = new SamusState { Pose = 1, XPosition = 497, YPosition = 128,
                 SelectedHudItem = 1, Missiles = 5, MaxMissiles = 5 };
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = CreateProjectileFixture();
+            var shared = CreateBombFixture();
             for (int frame = 0; frame < 20; frame++)
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;

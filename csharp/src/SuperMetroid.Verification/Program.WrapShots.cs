@@ -27,8 +27,8 @@ internal static partial class Program
                 XPosition = (ushort)(left != 0 ? 32 : 992), YPosition = 128,
                 EquippedBeams = (ushort)(beam == 0 ? 0 : beam == 1 ? 1 : 5),
             };
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = CreateProjectileFixture();
+            var shared = CreateBombFixture();
             var plms = new RoomPlmSystem();
             int firstRemoteHit = -1;
             for (int frame = 0; frame < 40; frame++)

@@ -202,7 +202,7 @@ static void VerifyMotherBrainBombProjectiles()
         XPosition = 0x004c,
         YPosition = 0x0070,
     };
-    var samusBombs = new SamusBombProjectileSystem();
+    var samusBombs = CreateBombFixture();
     samusBombs.StepFrame(bus, room, bombSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     while (samusBombs.Slots[0].BombTimer != 0)
         samusBombs.StepFrame(bus, room, bombSamus, 0, 0);

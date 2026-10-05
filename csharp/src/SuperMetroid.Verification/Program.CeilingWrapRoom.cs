@@ -52,8 +52,8 @@ internal static partial class Program
         samus.Kinematics.XRadius = 5;
         samus.Kinematics.YRadius = 21;
         var plms = runtime.Plms;
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = CreateProjectileFixture();
+        var bombs = CreateBombFixture();
         ushort blocker = level.GetCollisionBlock(76, 9).LevelWord;
         var before = SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, -65536, plms: plms);
         AssertTrue(before.Collided, "Ordinary speedless contact blocks before ceiling overload");

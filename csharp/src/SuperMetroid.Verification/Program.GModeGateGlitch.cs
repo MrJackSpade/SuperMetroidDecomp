@@ -78,8 +78,8 @@ internal static partial class Program
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = CreateProjectileFixture();
+        var bombs = CreateBombFixture();
         int openedFrame = -1;
         int passedGateFrame = -1;
         for (int frame = 0; frame < 20; frame++)

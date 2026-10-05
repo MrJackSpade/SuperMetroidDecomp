@@ -28,8 +28,8 @@ internal static partial class Program
             var samus = new SamusState { XPosition = (ushort)(originsX[room] + offset), YPosition = (ushort)originsY[room],
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 EquippedBeams = (ushort)(beam == 0 ? 0 : beam == 1 ? 1 : left ? 5 : 9) };
-            var shots = new SamusProjectileSystem();
-            var bombs = new SamusBombProjectileSystem();
+            var shots = CreateProjectileFixture();
+            var bombs = CreateBombFixture();
             var plms = new RoomPlmSystem();
             int hit = -1;
             for (int frame = 0; frame < 40; frame++)

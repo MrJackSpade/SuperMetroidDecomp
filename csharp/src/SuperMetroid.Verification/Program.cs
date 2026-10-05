@@ -29,6 +29,23 @@ try
 if (args is ["--frontend-fixtures"]) { VerifyIntroPoseHistory(); VerifyFrontendRenderCapture(); VerifyGameplayCaptureIntegration(); VerifyAttractCapture(); return 0; }
 if (args is ["--menu-fixtures"]) { VerifyFileMenuRenderSnapshots(); VerifyFileMapSnapshots(); VerifyControllerBindingsAndOptionsSubmenus(); VerifyMessageSnapshots(); VerifyGameplayMessageDefinitions(); return 0; }
 if (args is ["--cinematic-fixtures"]) { VerifyCinematicRenderSnapshots(); VerifyEndingRenderSnapshots(); VerifyEndingCreditsState(); return 0; }
+if (args is ["--projectile-fixtures"]) {
+VerifyMotherBrainBombProjectiles();
+VerifyWrapShotTrace("csharp/test-fixtures/movement-release/wrap-shot-409.csv");
+VerifyWrapShotEnemySeparation();
+VerifyWrapShotWidths("csharp/test-fixtures/movement-release/wrap-width-409.csv");
+VerifyKronicGateBeamCollision();
+VerifyRightFacingGateGlitches();
+VerifyGModeGateGlitch();
+VerifyFrogSpeedwayPoolCollision();
+VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv");
+VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv");
+VerifyBeamSpeedRows();
+VerifyBeamCallbackTables();
+VerifySamusMorphBallMovement();
+VerifyBombChargeRejection();
+VerifyGroundedBombSpread();
+return 0; }
 if (args is ["--title-fixtures"]) { VerifyTitleRenderSnapshots(); VerifyTitleSequenceRomData(); return 0; }
 if (args is ["--mutable-memory-boundary"]) { VerifySuperMetroidAddressSpace(); return 0; }
 if (args is ["--pause-fixtures"])

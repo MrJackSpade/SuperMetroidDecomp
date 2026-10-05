@@ -13,6 +13,14 @@ internal static partial class Program
             GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
     });
 
+    private static readonly Lazy<InstalledProjectilePresentation> projectileFixtureArt =
+        new(() => runtimeFixtureInstallation.Value.LoadProjectiles());
+
+    private static SamusProjectileSystem CreateProjectileFixture() =>
+        new() { FrameBindings = projectileFixtureArt.Value.FrameBindings };
+
+    private static SamusBombProjectileSystem CreateBombFixture() =>
+        new() { FrameBindings = projectileFixtureArt.Value.FrameBindings, PowerBombExplosion = { PresentationColors = RetailPresentationFixture().PowerBombFixedColors } };
     private static readonly Lazy<Action<SuperMetroidRuntime>> runtimeFixtureBindings =
         new(CreateRuntimeFixtureBindings);
 

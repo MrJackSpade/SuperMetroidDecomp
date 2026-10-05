@@ -92,8 +92,8 @@ internal static partial class Program
                 plms.Step(bus, level, streamer, (ushort)cameraX, (ushort)cameraY, 0);
             plms.TakeDownwardGateProjectileRequests();
 
-            var shots = new SamusProjectileSystem();
-            var bombs = new SamusBombProjectileSystem();
+            var shots = CreateProjectileFixture();
+            var bombs = CreateBombFixture();
             for (int frame = 0; frame < 30; frame++)
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;

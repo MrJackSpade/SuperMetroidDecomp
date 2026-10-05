@@ -146,7 +146,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **CrateriaLightningPaletteFxProgramMechanicsDefinitions.Definitions** ([L41](../csharp/src/SuperMetroid.Core/Game/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CrateriaLightningPaletteFxProgramMechanicsDefinitions.Definitions** ([L41](../csharp/src/SuperMetroid.Core/Game/CrateriaLightningPaletteFxProgramMechanicsDefinitions.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/CreditsPresentation.cs
 
@@ -838,6 +838,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Removed stale comments that justified retaining color payloads because no simpler numeric rule was known or because they were independently addressed. Color payload conversion remains required; this control-only batch grants no color retention exception.
 - Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed the existing two-program fixture: all 52 native mechanics words, excluded color operands, real 98-frame cycles and repeat behavior with mechanics source reads forbidden. Owner ordering and invalid owner/duration bounds also passed.
 - Two entries completed, bringing converted entries to 62 plus the separately justified decorative retention. No external source-hash dependency found.
+### Confirmed batch 26: Surface and unused-dark lightning control
+
+- Converted the owner catalog and all nested factory-built arrays. Named surface/dark owners now calculate 13/14 frame records, 38/40 word mechanics and two timer bytes each. Frame widths follow color count; setup, two repeated seven-flash groups, one/two neutral intervals, four final flashes and loop commands determine all pointers and durations. Collection order and bounds remain unchanged; no generated record or operand arrays are cached.
+- Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed the existing native fixture's 78 words/four bytes, excluded color operands, complete real 503/743-frame cycles, vertical-boundary neutral restarts and migrated-source guards, plus collection bounds.
+- Removed the old dark-row retention claim based on irregular values and lack of a supported formula. Both independent color payloads remain pending. The actual installed storage is `Assets/RoomPaletteFxPresentation.cs`, owned outside stream 3; the coordinator will route its conversion and this stream has not edited it.
+- Concrete pending surface-color formula recorded by the previous source investigation: for frame indices 0..12, phase sequence is `0,1,2,3,4,3,2,1,0,4,3,2,1`; colors are `0x2D6C + 0x18C6 * phase - 0x0421 * color` for phases zero through three and solid `0x7FFF` for phase four, with color indices zero through seven. The cross-owned installed payload still requires implementation and focused confirmation of this formula. Unused-dark frames use five color phases in order `A,B,C,D,E,D,C,B,A,A,E,D,C,B`, with E black; this phase correspondence is not a justification for retaining its nonzero colors.
+- One original inventory entry completed, including all nested control rows, bringing converted entries to 63 plus the separate decorative-anchor retention. No external source-hash dependency found.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

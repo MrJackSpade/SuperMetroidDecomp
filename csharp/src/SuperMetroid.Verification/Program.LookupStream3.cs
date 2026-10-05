@@ -148,6 +148,16 @@ internal static partial class Program
                 AssertEqual((byte)editedFrames[angle], edited.Resolve((byte)angle), "stream 3 independently edited swing art frame");
             editedFrames[editedAngle] = original;
         }
+        VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.CartridgeImportAddressSpace)rom);
+        foreach (var lightning in CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
+        {
+            foreach (int invalid in new[] { -1, lightning.Frames.Count, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => _ = lightning.Frames[invalid], "stream 3 lightning frame bounds");
+            foreach (int invalid in new[] { -1, lightning.MechanicsWords.Count, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => _ = lightning.MechanicsWords[invalid], "stream 3 lightning mechanics bounds");
+            foreach (int invalid in new[] { -1, 2, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => _ = lightning.MechanicsBytes[invalid], "stream 3 lightning timer bounds");
+        }
         VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.CartridgeImportAddressSpace)rom);
         var escapePrograms = CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All;
         AssertEqual(2, escapePrograms.Count, "stream 3 escape lightning owner count");

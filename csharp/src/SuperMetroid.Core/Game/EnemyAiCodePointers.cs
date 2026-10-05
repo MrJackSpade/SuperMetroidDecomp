@@ -884,6 +884,10 @@ internal static class EnemyAiCodePointers
         public const ushort KraidNoOpShot = 0x94b5;
         /// <summary>Kraid arm shot callback at $A7:94B6.</summary>
         public const ushort KraidArmShot = 0x94b6;
+        /// <summary>EnemyTouch_KraidNail at $A7:BCCF: normal touch followed by enemy death.</summary>
+        public const ushort KraidNailTouch = 0xbccf;
+        /// <summary>EnemyTouch_KraidNailBad at $A7:BCDE: normal touch followed by enemy death.</summary>
+        public const ushort KraidBadNailTouch = 0xbcde;
     }
 
     /// <summary>Bank-$A8 ordinary enemy interaction callbacks.</summary>

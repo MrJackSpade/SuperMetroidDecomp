@@ -114,6 +114,26 @@ internal static class KraidHeadInstructionDefinitions
     }
 
     /// <summary>
+    /// $A7:AFB7-AFBF / B19C-B1A4: collision reads the hitbox word four or two
+    /// bytes before the live next-instruction cursor, even when no frame ran yet.
+    /// </summary>
+    public static ushort ReadCollisionHitbox(ISnesAddressSpace bus, ushort nextInstruction, bool innerMouth)
+    {
+        ushort address = unchecked((ushort)(nextInstruction - (innerMouth ? 2 : 4)));
+        foreach (KraidHeadInstructionDefinition frame in All)
+        {
+            if (frame.Kind != KraidHeadInstructionKind.Frame)
+                continue;
+            if (address == frame.Pointer + 4) return frame.VulnerableHitbox;
+            if (address == frame.Pointer + 6) return frame.InvulnerableHitbox;
+        }
+        if (address < 0x8000)
+            return (ushort)(ReadLiveByte(bus, address) |
+                ReadLiveByte(bus, unchecked((ushort)(address + 1))) << 8);
+        throw new InvalidDataException($"Kraid collision selector $A7:{address:X4} is outside the compiled head frames.");
+    }
+
+    /// <summary>
     /// Reads the word at cursor + 2 used by HandleKraidPhase1 at $A7:C026.
     /// This is a tilemap only for timed frames; sound/terminal cursors read the next
     /// record's first word without executing it. Authored upper-ROM records use the

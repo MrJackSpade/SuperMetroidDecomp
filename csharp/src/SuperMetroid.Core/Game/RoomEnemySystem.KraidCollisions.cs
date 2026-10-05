@@ -84,9 +84,11 @@ public sealed partial class RoomEnemySystem
         }
 
         int mouthHits = 0;
-        if (lastSlot != 0 && state.InvulnerableMouthHitbox != ushort.MaxValue)
+        ushort innerMouth = lastSlot == 0 ? ushort.MaxValue :
+            KraidHeadInstructionDefinitions.ReadCollisionHitbox(bus, body.VariableB, innerMouth: true);
+        if (lastSlot != 0 && innerMouth != ushort.MaxValue)
         {
-            KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, state.InvulnerableMouthHitbox);
+            KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, innerMouth);
             for (int index = lastSlot; index >= 0; index--)
             {
                 KraidCollisionShot shot = ReadShot(index);
@@ -153,7 +155,8 @@ public sealed partial class RoomEnemySystem
         int bodyHits = 0;
         if (lastSlot != 0)
         {
-            KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, state.VulnerableMouthHitbox);
+            ushort outerMouth = KraidHeadInstructionDefinitions.ReadCollisionHitbox(bus, body.VariableB, innerMouth: false);
+            KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, outerMouth);
             for (int index = lastSlot; index >= 0; index--)
             {
                 KraidCollisionShot shot = ReadShot(index);

@@ -49,6 +49,7 @@ if (args is ["--frozen-metroid-shell"]) return VerifyFrozenMetroidShell();
 if (args is ["--tourian-statue-water"]) return VerifyTourianStatueWater();
 if (args is ["--crocomire-spike-animation"]) return VerifyCrocomirePresentation(true);
 if (args is ["--crocomire-comeback-rumble"]) return VerifyCrocomirePresentation(false);
+if (args is ["--kraid-reported-collisions"]) return VerifyKraidSuperMissileDamage(collisionReport: true);
 if (args is ["--kraid-super-missile-damage"])
 {
     return VerifyKraidSuperMissileDamage();

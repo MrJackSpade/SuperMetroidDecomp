@@ -183,6 +183,11 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == MotherBrainHeadTouchAi;
             bool isKraidArm = slot.EnemyDefinitionPointer == KraidArmDefinition &&
                 slot.Definition.TouchAiPointer == KraidArmTouchAi;
+            bool isKraidNail =
+                slot.EnemyDefinitionPointer == KraidGoodNailDefinition &&
+                slot.Definition.TouchAiPointer == EnemyAiCodePointers.BankA7.KraidNailTouch ||
+                slot.EnemyDefinitionPointer == KraidBadNailDefinition &&
+                slot.Definition.TouchAiPointer == EnemyAiCodePointers.BankA7.KraidBadNailTouch;
             bool isDeadTorizo = slot.EnemyDefinitionPointer == DeadTorizoDefinition &&
                 slot.Definition.TouchAiPointer == DeadTorizoTouchAndShotAi;
             bool isDeadSidehopper =
@@ -229,6 +234,7 @@ public sealed partial class RoomEnemySystem
                 isDraygonBody ||
                 isMotherBrainHead ||
                 isKraidArm ||
+                isKraidNail ||
                 isDeadTorizo ||
                 isDeadSidehopper ||
                 isDeadTourianCorpse ||
@@ -282,6 +288,16 @@ public sealed partial class RoomEnemySystem
             if (!overlapsSamus)
             {
                 continue;
+            }
+
+            if (isKraidNail)
+            {
+                ResolveNormalEnemyTouch(slot, samus, controllerInput);
+                // The callback passes the common routine's remaining-health accumulator
+                // to EnemyDeath; its bounded animation selector normalizes values >= 5.
+                if (slot.EnemyDefinitionPointer != 0)
+                    StartGenericEnemyDeath(slot, slot.Health);
+                return true;
             }
 
             if (isKraidArm)

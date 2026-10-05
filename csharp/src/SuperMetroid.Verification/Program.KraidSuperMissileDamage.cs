@@ -10,7 +10,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
-    private static int VerifyKraidSuperMissileDamage()
+    private static int VerifyKraidSuperMissileDamage(bool collisionReport = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         string fixtureRoot = Path.GetFullPath("out/workbook-investigation/kraid-super-missile-install");
@@ -89,6 +89,7 @@ internal static partial class Program
         samus.XPosition=120;samus.YPosition=(ushort)(512-samus.Kinematics.YRadius);samus.InputLocked=false;
         runtime.Camera!.SetPosition(0,384);
         typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game,SuperMetroidGameState.MainGameplay);
+        if (collisionReport) return VerifyKraidReportedCollisions(bus, game, runtime, body, state);
         var renderer=new CartridgeAudioRenderer(installation.LoadAudio());
         ushort oldHealth=body.Health;
         for(int frame=0;frame<60;frame++)
@@ -148,6 +149,7 @@ internal static partial class Program
             body.YPosition = 592;
             body.Health = 1000;
             body.VariableA = (ushort)KraidAiFunction.MainAttackWithMouthOpen;
+            body.VariableB = 0x96f4;
             state.InvulnerableMouthHitbox = 0x97c0;
             state.VulnerableMouthHitbox = 0x97a0;
         }

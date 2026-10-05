@@ -46,6 +46,8 @@ public sealed partial class RoomEnemySystem
     private void RunKraidLintMain(RoomEnemySlot lint, SamusState? samus)
     {
         KraidEnemyState state = RequireKraidState(lint);
+        if (samus is not null)
+            ResolveKraidLintContact(lint, samus);
         lint.InstructionTimer = 0x7fff;
         KraidPartState part = state.Parts[lint.SlotIndex];
         switch ((KraidAiFunction)lint.VariableA)

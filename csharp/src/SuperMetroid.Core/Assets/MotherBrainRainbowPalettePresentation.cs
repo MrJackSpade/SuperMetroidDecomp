@@ -289,22 +289,97 @@ public sealed class MotherBrainRainbowPalettePresentation
             | (((color >> 10 & 31) + 1) / 2) << 10);
     }
 
-    /// <summary>Recognizes normal body paint without retaining a repeated palette row.</summary>
+    /// <summary>Recognizes normal and drained body paint without repeated palette rows.</summary>
     private sealed class BodyColors
     {
         private readonly ushort[]? supplied;
+        private readonly DrainedBodyColors? drained;
         public int Length { get; }
         public BodyColors(ushort[] colors)
         {
             Length = colors.Length;
-            if (Length != MotherBrainRainbowPaletteRomData.ColorCount)
-            { supplied = colors; return; }
-            for (int color = 0; color < Length; color++)
-                if (colors[color] != MotherBrainHealthPalettePresentation.StockBaseColor(false, color))
-                { supplied = colors; return; }
+            bool normal = Length == MotherBrainRainbowPaletteRomData.ColorCount;
+            for (int color = 0; normal && color < Length; color++)
+                normal = colors[color] == MotherBrainHealthPalettePresentation.StockBaseColor(false, color);
+            if (normal) return;
+            drained = new DrainedBodyColors(colors);
+            if (!drained.Calculated) { drained = null; supplied = colors; }
         }
-        public ushort this[int color] => supplied is null
-            ? MotherBrainHealthPalettePresentation.StockBaseColor(false, color) : supplied[color];
+        public ushort this[int color] => supplied is not null ? supplied[color]
+            : drained is not null ? drained[color]
+            : MotherBrainHealthPalettePresentation.StockBaseColor(false, color);
+    }
+
+    /// <summary>
+    /// $AD:F0BF/F1EB and EEB8 share drained body paint. Cortex shades interpolate
+    /// in RGB5 over three intervals; tissue shades interpolate before RGB5 quantization
+    /// over four intervals. Plates reuse normal health paint; white/black are neutral.
+    /// Three independent paint endpoints (including tissue RGB8 precision) remain supplied.
+    /// </summary>
+    internal sealed class DrainedBodyColors
+    {
+        private readonly Rgb8 tissueLight;
+        private readonly Rgb8 tissueDark;
+        private readonly ushort outline;
+        private readonly ushort[]? supplied;
+        internal bool Calculated => supplied is null;
+
+        internal DrainedBodyColors(ushort[] colors)
+        {
+            if (colors.Length is not (13 or 15)) { supplied = colors; return; }
+            outline = colors[3];
+            if (!TryChannel(0, out int lr, out int dr) ||
+                !TryChannel(5, out int lg, out int dg) ||
+                !TryChannel(10, out int lb, out int db))
+            { supplied = colors; return; }
+            tissueLight = new(lr, lg, lb);
+            tissueDark = new(dr, dg, db);
+            for (int color = 0; color < colors.Length; color++)
+                if (Calculate(color) != colors[color]) { supplied = colors; return; }
+
+            bool TryChannel(int shift, out int first, out int last)
+            {
+                int low = (colors[8] >> shift & 31) * 8;
+                int high = (colors[12] >> shift & 31) * 8;
+                for (int start = low; start < low + 8; start++)
+                    for (int end = high; end < high + 8; end++)
+                    {
+                        bool matches = true;
+                        for (int step = 0; step <= 4; step++)
+                            if ((start * (4 - step) + end * step) / 32 != (colors[8 + step] >> shift & 31))
+                            { matches = false; break; }
+                        if (matches) { first = start; last = end; return true; }
+                    }
+                first = last = 0;
+                return false;
+            }
+        }
+        internal ushort this[int color] => supplied is null ? Calculate(color) : supplied[color];
+
+        private ushort Calculate(int color)
+        {
+            if (color is >= 4 and <= 7)
+                return MotherBrainHealthPalettePresentation.StockBaseColor(false, color);
+            if (color == 13) return (31 << 10) | (31 << 5) | 31;
+            if (color == 14) return 0;
+            int result = 0;
+            for (int component = 0; component < 3; component++)
+            {
+                int channel = color < 4
+                    ? ((tissueLight.Component(component) / 8) * (3 - color)
+                        + (outline >> (component * 5) & 31) * color + 1) / 3
+                    : (tissueLight.Component(component) * (12 - color)
+                        + tissueDark.Component(component) * (color - 8)) / 32;
+                result |= channel << (component * 5);
+            }
+            return (ushort)result;
+        }
+
+        private readonly record struct Rgb8(int Red, int Green, int Blue)
+        {
+            internal int Component(int index) => index switch
+            { 0 => Red, 1 => Green, 2 => Blue, _ => throw new IndexOutOfRangeException() };
+        }
     }
     private interface IPaletteFade
     {

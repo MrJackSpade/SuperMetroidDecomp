@@ -98,14 +98,15 @@ public sealed class MotherBrainDeathColorCatalog
     /// $AD:EA0A body/leg channels fade to black as (initial*(15-frame)+1)/15.
     /// $AD:F119 corpse channels interpolate between endpoints, rounded to nearest
     /// over seven intervals. These rules match every original intermediate color.
-    /// Starting colors calculate from health state three; the corpse final palette remains supplied.
+    /// Starting colors calculate from health state three; the corpse final palette calculates shared
+    /// drained shade rules from its still-independent paint endpoints.
     /// Unmatched edited endpoints and frames remain exact and independent of the health document.
     /// </summary>
     private sealed class ColorFade
     {
         private readonly ushort[]? first;
         private readonly bool backLeg;
-        private readonly ushort[]? last;
+        private readonly MotherBrainRainbowPalettePresentation.DrainedBodyColors? last;
         private readonly ushort[][]? supplied;
         internal int FrameCount { get; }
         internal int ColorCount { get; }
@@ -117,7 +118,7 @@ public sealed class MotherBrainDeathColorCatalog
             for (int color = 0; color < ColorCount; color++)
                 if (frames[0][color] != MotherBrainHealthPalettePresentation.StockDeathStartColor(backLeg, color))
                 { first = frames[0]; break; }
-            last = toBlack ? null : frames[^1];
+            last = toBlack ? null : new MotherBrainRainbowPalettePresentation.DrainedBodyColors(frames[^1]);
             FrameCount = frames.Length;
             for (int frame = 0; frame < FrameCount; frame++)
             for (int color = 0; color < ColorCount; color++)

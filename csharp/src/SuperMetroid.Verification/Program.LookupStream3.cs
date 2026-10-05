@@ -881,6 +881,12 @@ internal static partial class Program
             Set(original);
         }
         CheckRainbow(stock);
+        object drainFade = typeof(MotherBrainRainbowPalettePresentation).GetField("toGrey", privateFields)!.GetValue(stock)!;
+        object drainEnd = drainFade.GetType().GetField("last", privateFields)!.GetValue(drainFade)!;
+        object drainBody = drainEnd.GetType().GetProperty("Body")!.GetValue(drainEnd)!;
+        var drainedPaint = (MotherBrainRainbowPalettePresentation.DrainedBodyColors)drainBody.GetType()
+            .GetField("drained", privateFields)!.GetValue(drainBody)!;
+        AssertTrue(drainedPaint.Calculated, "stream 3 drained final gray body palette has no stored row");
         object normalFrame = typeof(MotherBrainRainbowPalettePresentation).GetField("normal", privateFields)!.GetValue(stock)!;
         object normalBody = normalFrame.GetType().GetProperty("Body")!.GetValue(normalFrame)!;
         AssertTrue(normalBody.GetType().GetField("supplied", privateFields)!.GetValue(normalBody) is null,
@@ -1078,6 +1084,13 @@ internal static partial class Program
                 "stream 3 death starts reuse calculated health state three without stored endpoint rows");
             AssertTrue(fade.GetType().GetField("supplied", fields)!.GetValue(fade) is null,
                 "stream 3 original death fade discards its stored frame table");
+            if (name == "corpseFade")
+            {
+                var endpoint = (MotherBrainRainbowPalettePresentation.DrainedBodyColors)fade.GetType()
+                    .GetField("last", fields)!.GetValue(fade)!;
+                AssertTrue(endpoint.Calculated, "stream 3 corpse final gray palette has no stored row");
+                AssertEqual(0, endpoint[14], "stream 3 corpse neutral black endpoint");
+            }
         }
         foreach (ushort[][] frames in new[] { body, leg, corpse })
         for (int frame = 0; frame < frames.Length; frame++)

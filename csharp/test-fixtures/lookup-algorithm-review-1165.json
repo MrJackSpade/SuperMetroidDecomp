@@ -11390,4 +11390,11 @@
     "state":  "partial-required",
     "algorithm":  "Record widths, sign/timing flags, terminators, power-of-two amplitude buildup/decay, symmetric approach speeds and regular cooldown envelope are calculated.",
     "remaining":  "Final decay hold 3 and restored-prefix targets 4/1 remain unresolved independent inputs. No exception. 497 converted, 14 justified retained/mixed, 617 pending unchanged."
+},"tourianStatueRampsIntegration":{
+    "scope":  "TourianStatueColorCatalog.baseColors and greyColors remain unchecked",
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. All 56 native colors, 72 independent RGB channel edits, actual CGRAM writes, canonical identities, unchanged statue/eye colors and bounds pass. ResourceAudit build: zero warnings/errors; source hash refreshed.",
+    "workerCommit":  "11bf93de09d31f30761a634789198d48243bc09e",
+    "state":  "partial-required",
+    "algorithm":  "Nearest-integer RGB5 endpoint interpolation calculates base colors 1..8 and grey colors 1..7. Independent supplied deviations remain exact without caching complete ramps.",
+    "remaining":  "Independent endpoint/outside colors and grey color 6 green channel 7 instead of 8 at 87:83A8 remain required. No exception. Counts unchanged: 497 converted, 14 justified retained/mixed, 617 pending."
 }}

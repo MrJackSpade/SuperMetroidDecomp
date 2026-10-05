@@ -6,6 +6,78 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5StatueRamps(SuperMetroidAddressSpace rom)
+    {
+        byte[] nativeJson = SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<TourianStatueColorDocument>(nativeJson,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var stock = Check(document);
+        CheckResidualCount("baseColors", 0);
+        CheckResidualCount("greyColors", 1);
+        foreach (bool grey in new[] { false, true })
+        {
+            PaletteRgb5[] source = grey ? document.Grey : document.Base;
+            for (int color = 0; color < source.Length; color++)
+            for (int channel = 0; channel < 3; channel++)
+            {
+                var changed = (PaletteRgb5[])source.Clone();
+                changed[color] = channel switch
+                {
+                    0 => changed[color] with { Red = changed[color].Red ^ 1 },
+                    1 => changed[color] with { Green = changed[color].Green ^ 1 },
+                    _ => changed[color] with { Blue = changed[color].Blue ^ 1 },
+                };
+                Check(grey ? document with { Grey = changed } : document with { Base = changed });
+            }
+        }
+        AssertThrows<IndexOutOfRangeException>(() => stock.ResolveBase(-1), "Base ramp lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => stock.ResolveGrey(8), "Grey ramp upper bound");
+        Console.WriteLine("Tourian statue ramps: all56 native palette colors,72 independent channel edits, actual CGRAM and canonical identities pass; one grey residual color and independent endpoints/outside colors remain pending.");
+
+        void CheckResidualCount(string field, int expected)
+        {
+            object ramp = typeof(TourianStatueColorCatalog).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+            var edits = (Dictionary<int, ushort>)ramp.GetType().GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(ramp)!;
+            AssertEqual(expected, edits.Count, "Exact stock ramp residual count");
+        }
+
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+
+        static TourianStatueColorCatalog Check(TourianStatueColorDocument expected)
+        {
+            var actual = TourianStatueColorCatalog.Load(new MemoryStream(TourianStatueColorCatalog.Write(expected), writable: false));
+            var cgram = new SnesCgram();
+            actual.ApplyEntrance(cgram);
+            for (int color = 0; color < expected.Base.Length; color++)
+            {
+                AssertEqual(Pack(expected.Base[color]), actual.ResolveBase(color), "Exact independent base ramp color");
+                AssertEqual(Pack(expected.Base[color]), cgram.Colors[TourianStatuePaletteRomData.BaseCgramIndex + color], "Actual base CGRAM");
+                AssertEqual(Pack(expected.Statue[color]), cgram.Colors[TourianStatuePaletteRomData.StatueCgramIndex + color], "Unchanged statue CGRAM");
+            }
+            actual.ApplyGrey(cgram, 0);
+            for (int color = 0; color < expected.Grey.Length; color++)
+            {
+                AssertEqual(Pack(expected.Grey[color]), actual.ResolveGrey(color), "Exact independent grey ramp color");
+                AssertEqual(Pack(expected.Grey[color]), cgram.Colors[color], "Actual grey CGRAM");
+            }
+            for (int row = 0; row < expected.Eye.Length; row++)
+            {
+                actual.ApplyEye(cgram, (ushort)(row * 2));
+                for (int color = 0; color < expected.Eye[row].Length; color++)
+                    AssertEqual(Pack(expected.Eye[row][color]), cgram.Colors[TourianStatuePaletteRomData.EyeCgramIndex + color], "Unchanged eye CGRAM");
+            }
+            string identity = SelectedPresentationHash.Create("TourianStatueColorCatalog-v1", hash =>
+            {
+                hash.AppendWords("baseColors", expected.Base.Select(Pack).ToArray());
+                hash.AppendWords("statueColors", expected.Statue.Select(Pack).ToArray());
+                hash.AppendWords("greyColors", expected.Grey.Select(Pack).ToArray());
+                hash.AppendWordFrames("eyeColors", expected.Eye.Select(row => row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(identity, actual.ContentIdentity, "Exact canonical selected palette identity");
+            return actual;
+        }
+    }
+
     private static void VerifyLookupStream5PhantoonMarkers(SuperMetroidAddressSpace rom)
     {
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),

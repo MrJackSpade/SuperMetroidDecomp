@@ -36,7 +36,7 @@ internal static class BossColorClosedContractDefinitions
             "Private construction requires all eight sixteen-color health bands, sixteen fade colors and 112 power-on colors. CheckBand/Get guard indices into these complete arrays; no further identity is selected."),
         new("SuperMetroid.Core.Assets.TourianStatueColorCatalog", "tourian-statue-v1-complete-eye-palettes",
             ["ApplyEntrance", "ApplyEye", "ApplyGrey"],
-            [new("csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs", "5A838AFA770C570075919B8EA2D30ECE071D5AC9AAA84621CB4C1D4D056FD27D"),
+            [new("csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs", "7FDE8ED04F0B0ACAD46756A1F3FA5739E023D347A1CD08025AA7AC6A2F837FC7"),
              new("csharp/src/SuperMetroid.Core/Game/TourianStatuePaletteRomData.cs", "8B40EBE9A88CA5DF57EE8E5DAE29AD520907B69E38210D28A192A3B53FC1E577")],
             "Load validates complete base/statue/grey arrays and four four-color eye rows before private construction. ApplyEye accepts only even doubled indices 0..6; entrance/grey transfer fixed arrays. Unreviewed raw Resolve methods are excluded."),
     ];

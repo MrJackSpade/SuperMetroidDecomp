@@ -125,8 +125,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CacatacInstructionProgramDefinitions.cs
 
-- [ ] **CacatacInstructionProgramDefinitions.Words** ([L56](../csharp/src/SuperMetroid.Core/Game/CacatacInstructionProgramDefinitions.cs#L56)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **CacatacInstructionProgramDefinitions.PresentationWords** ([L116](../csharp/src/SuperMetroid.Core/Game/CacatacInstructionProgramDefinitions.cs#L116)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CacatacInstructionProgramDefinitions.Words** ([L56](../csharp/src/SuperMetroid.Core/Game/CacatacInstructionProgramDefinitions.cs#L56)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CacatacInstructionProgramDefinitions.PresentationWords** ([L116](../csharp/src/SuperMetroid.Core/Game/CacatacInstructionProgramDefinitions.cs#L116)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CacatacMovementDefinitions.cs
 
@@ -721,3 +721,12 @@ Four more definitions converted;128 complete and98 unchecked. No retained except
 - Evidence: pinned bank86 `$B4BF..B4EE`; bankA6 `$8D1B..8DAE`, `Instruction_Hibashi_PlaySFX` `$8DAF`, `ActivityFrame0` `$8E13`, and following callbacks starting `$8E2D`.
 - Confirmation: full build passed (1432 warnings, zero errors), final incremental verifier build passed (25 warnings, zero errors); `--lookup-stream-1` passed. New checks compare all66 original control words,32 presentation addresses, original order, both-byte ownership, unaligned/presentation/outer/bank rejection and enumeration bounds. Existing Dragon-fireball production loops, both velocity-zero-crossing handoffs and shared deletion pass with mechanics reads forbidden.
 - The old Dragon verifier expected8 live ROM presentation reads. With coordinator-granted ownership, it now asserts every actual loop step's exact installed operand identity and zero presentation reads; existing mechanics and behavior assertions remain.
+## Batch 16: Cacatac idle and attack layouts
+
+Two more definitions converted;130 complete and96 unchecked. No retained exception.
+
+- Upright/inverted idle records calculate eight eight-tick draws and their distinct loop targets: upright reexecutes movement setup, inverted skips that setup on subsequent loops.
+- Attack records calculate alternating21/5-tick poses, sound dispatch and five left-to-right spike commands interleaving cardinal/diagonal selectors. Named direction identities anchor the arithmetic; attack completion returns to the orientation's initial idle entry.
+- All56 mechanics words and24 presentation operands derive from shared80-byte orientation layouts; no stored or generated row arrays remain.
+- Evidence: pinned bankA2 `InstList_Cacatac_UpsideUp/Down_Idling/Attacking`, `$9E8A..9F29`.
+- Confirmation: Verification build passed (1432 warnings on full build,1192 on final incremental, zero errors); `--lookup-stream-1` passed. Existing Cacatac verifier is wired unchanged and confirms all56 native words,24 compiled visual selectors, four actual complete programs and ten real spike spawns with source bytes forbidden.

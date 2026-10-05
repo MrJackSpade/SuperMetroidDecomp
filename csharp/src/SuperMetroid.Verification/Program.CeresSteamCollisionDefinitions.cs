@@ -117,7 +117,7 @@ internal static partial class Program
                 foreach (ushort y in ys)
                 for (int shot = 0; shot <= 1; shot++)
                 {
-object?[] compiledArguments =
+                    object?[] compiledArguments =
                         [compiledSlot, x, y, (ushort)0, (ushort)0, shot != 0, (ushort)0];
                     bool nativeHit = NativeHit(frame, originX, originY, x, y, shot != 0, out ushort nativeCallback);
                     bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;

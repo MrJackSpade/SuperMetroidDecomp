@@ -3070,6 +3070,7 @@
     ,{"purpose":"Dedicated catalog for six already justified paint constants","stream":3,"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPaintDefinitions.cs"}
     ,{"purpose":"Confirm native installed selectors and zero live reads preserving actual producer and lifetime checks","stream":3,"path":"csharp/src/SuperMetroid.Verification/Program.EnemyDeathInstructionProgramDefinitions.cs"}
     ,{"stream":5,"path":"csharp/src/SuperMetroid.Verification/Program.PhantoonProjectileInstructionProgramDefinitions.cs","purpose":"Confirm native installed selectors and zero live reads preserving actual flame producer and lifetimes"}
+    ,{"stream":4,"path":"csharp/src/SuperMetroid.Core/Assets/ZebesExplosionWhiteoutColorDefinitions.cs","purpose":"Calculate exact grayscale carry cadence preserving independent installed overrides"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

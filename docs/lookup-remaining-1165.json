@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 771,
+  "remainingTableDefinitionCount": 759,
   "fileCount": 523,
   "entries": [
     {
@@ -2684,7 +2684,9 @@
       "line": 156,
       "name": "CeresDoorInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "d7d2e037e"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresDoorInstructionProgramDefinitions.cs",
@@ -2799,21 +2801,27 @@
       "line": 25,
       "name": "CeresSteamCollisionDefinitions.DirectionBases",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "0cf3e49b2"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresSteamCollisionDefinitions.cs",
       "line": 27,
       "name": "CeresSteamCollisionDefinitions.DirectionLists",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "0cf3e49b2"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresSteamCollisionDefinitions.cs",
       "line": 35,
       "name": "CeresSteamCollisionDefinitions.Frames",
       "kind": "factory-built stock table",
-      "note": "Stored Dictionary<ushort, CeresSteamCollisionComponent[]> initialized by BuildFrames(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored Dictionary<ushort, CeresSteamCollisionComponent[]> initialized by BuildFrames(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "0cf3e49b2"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresSteamCollisionDefinitions.cs",
@@ -3113,14 +3121,18 @@
       "line": 9,
       "name": "DeadMonsterRottingDefinitions.RotationRows",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "9542eeb10"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs",
       "line": 19,
       "name": "DeadMonsterRottingDefinitions.Transfers",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "9542eeb10"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs",
@@ -3134,14 +3146,18 @@
       "line": 47,
       "name": "DeadMonsterRottingDefinitions.SandDestinations",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "9542eeb10"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs",
       "line": 49,
       "name": "DeadMonsterRottingDefinitions.SandSources",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "9542eeb10"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DeadSidehopperInstructionProgramDefinitions.cs",
@@ -3236,14 +3252,18 @@
       "line": 24,
       "name": "DownwardGateProjectileInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "856f171bd"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DownwardGateProjectileInstructionProgramDefinitions.cs",
       "line": 56,
       "name": "DownwardGateProjectileInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "856f171bd"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DragonAnimationDefinitions.cs",
@@ -4414,14 +4434,18 @@
       "line": 25,
       "name": "MagdolliteLavaInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "856f171bd"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MagdolliteLavaInstructionProgramDefinitions.cs",
       "line": 37,
       "name": "MagdolliteLavaInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "856f171bd"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MagdollitePhaseDefinitions.cs",
@@ -21028,6 +21052,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 353,
+  "convertedSinceSnapshot": 365,
   "justifiedRetainedSinceSnapshot": 4
 }

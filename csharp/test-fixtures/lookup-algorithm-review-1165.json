@@ -11654,4 +11654,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "Pose widths/packed sound byte/callbacks/loops derive instruction positions; tail increments halve8/4/2.",
     "remaining":  "Words timing magnitudes/eye sequence/initial tail8/burst4 required; no exception.532converted/15justified retained-mixed/581pending."
+},"goldenEyeBeamIntegration":{
+    "confirmation":  "Root1445/0;28native controls,2producers,collision selection,exact wall/floor lifetime and damage transition,17native installed selectors/zero reads,bounds/allocation pass.",
+    "completed":  "GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "dd2af7f27b77ddd44e384b2ea76a615f81d07914",
+    "state":  "partial-one-converted",
+    "algorithm":  "Wall/floor/flight pose/control layout; packed sound byte and damage mask; unit-step explosion waits.",
+    "remaining":  "Words:wall4/landing8/flight1/explosion start4+increment1/damage enabling phase2 required; no exception.533converted/15justified retained-mixed/580pending."
 }}

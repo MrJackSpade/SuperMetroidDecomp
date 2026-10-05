@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -178,9 +179,16 @@ internal static partial class Program
         AssertTrue(!enabledBeam.IsActive,
             "enabled Golden Torizo eye-beam floor impact deletes after exact lifetime");
 
-        AssertEqual(GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Golden Torizo eye-beam spritemaps remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Golden Torizo eye-beam visuals use installed selectors without live reads");
+        for (int index = 0; index < GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "Golden Torizo eye-beam operand has an installed visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "Golden Torizo eye-beam installed selector matches native operand");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Golden Torizo eye-beam mechanics byte");
         AssertThrows<InvalidDataException>(

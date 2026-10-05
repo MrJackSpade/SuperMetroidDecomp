@@ -436,7 +436,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs
 
 - [ ] **GoldenTorizoEyeBeamInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoInitialInstructionProgramDefinitions.cs
 
@@ -994,3 +994,9 @@ Root confirmation: Verification build passed with 1445 warnings and zero errors.
 ColumnWordOffsets is complete: each 32-byte 4bpp tile advances 16 words. InitialGraphicsCopies and ColumnMinimumY remain unchecked. Their address arithmetic and clip thresholds derive from one shared crop, but the top/middle/lower silhouette boundaries and source placement still need a disposition; no artwork exception is granted.
 
 Pinned A9:DE18-DEBF supplies twelve native MVN descriptors; E272/E38B supplies the ten column offsets and clipping limits. Root Verification build passed with 1445 warnings and zero errors. --lookup-stream2-dead-torizo-geometry confirms all descriptors and limits, actual installed-art staging, and 192 actual row copy/move operations against independent native operands, comparing all 4096 work-buffer bytes. Stream checkpoint: 81 converted, two mixed, 143 required. Overall: 505 converted, 15 justified retained/mixed, 608 pending.
+
+### Root integration: Golden Torizo eye-beam layouts
+
+Wall, floor and flight phases calculate pose/control positions, including the floor program's packed sound byte and damage-enable operation. Explosion waits form a unit-step progression. All17 presentation addresses are complete. Words remains required for wall4, landing8, flight1, explosion start4 and increment1, and the selected phase2 damage-enable placement. No retention exception is added.
+
+Root build passed (1445 warnings, zero errors). `--golden-torizo-eye-beam-instruction-mechanics` passes28 native controls, both real producers, collision-to-impact selection, exact wall/floor lifetimes, disabled floor loop, frame-specific damage transition,17 exact native installed selectors with zero live reads, boundaries and allocation checks. The fixture's obsolete live-read expectation was corrected without weakening behavior assertions. Inventory:533 converted,15 justified retained/mixed,580 pending.

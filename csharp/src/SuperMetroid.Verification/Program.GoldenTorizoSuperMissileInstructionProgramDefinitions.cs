@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -27,6 +28,9 @@ internal static partial class Program
                 $"Golden Torizo Super Missile mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new GoldenTorizoSuperMissileInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -65,7 +69,7 @@ internal static partial class Program
             };
             for (int frame = 1; frame <= 49; frame++)
             {
-                process.Invoke(enemies, [missile, samus, (ushort)0, (ushort)0]);
+                Process(enemies, missile, samus);
                 AssertTrue(missile.IsActive,
                     $"Golden Torizo {facingRight} Super Missile held frame {frame}");
             }
@@ -83,7 +87,7 @@ internal static partial class Program
                 $"Golden Torizo {facingRight} Super Missile aim direction");
 
             for (int frame = 1; frame <= 16; frame++)
-                process.Invoke(enemies, [missile, samus, (ushort)0, (ushort)0]);
+                Process(enemies, missile, samus);
             AssertEqual((ushort)2, missile.InstructionTimer,
                 $"Golden Torizo {facingRight} Super Missile reloads sixteen-frame loop");
             AssertEqual(unchecked((ushort)(loop + 4)), missile.InstructionPointer,
@@ -128,7 +132,7 @@ internal static partial class Program
 
         for (int frame = 1; frame <= 30; frame++)
         {
-            process.Invoke(impactEnemies, [impact, null, (ushort)0, (ushort)0]);
+            Process(impactEnemies, impact, null);
             AssertTrue(impact.IsActive,
                 $"Golden Torizo Super Missile impact frame {frame}");
             AssertEqual((ushort)16, impact.XRadius,
@@ -146,14 +150,24 @@ internal static partial class Program
             AssertEqual(EnemyProjectileDrawPriority.High, impact.DrawPriority,
                 $"Golden Torizo Super Missile impact priority frame {frame}");
         }
-        process.Invoke(impactEnemies, [impact, null, (ushort)0, (ushort)0]);
+        Process(impactEnemies, impact, null);
         AssertTrue(!impact.IsActive,
             "Golden Torizo Super Missile impact deletes after six five-frame poses");
 
-        AssertEqual(
-            GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Golden Torizo Super Missile spritemaps remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "GoldenTorizoSuperMissile execution performs no live spritemap operand reads");
+        AssertEqual(GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "GoldenTorizoSuperMissile executes every native visual operand");
+        for (int index = 0; index < GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"GoldenTorizoSuperMissile executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "GoldenTorizoSuperMissile has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "GoldenTorizoSuperMissile compiled selector matches the cartridge");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Golden Torizo Super Missile mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -178,6 +192,11 @@ internal static partial class Program
             "words, both real held/aim/flight loops, and the real wall/shot impact pass " +
             "with mechanics bytes forbidden.");
 
+        void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile, SamusState? samus)
+        {
+            process.Invoke(system, [projectile, samus, (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
+        }
         RoomEnemySystem CreateSystem(ISnesAddressSpace bus)
         {
             var enemies = new RoomEnemySystem();

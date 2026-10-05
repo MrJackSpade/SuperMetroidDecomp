@@ -7,6 +7,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        VerifyLookupStream1SamusPolicyDomains(rom);
         VerifyLookupStream1MetroidLayout(rom);
         VerifyLookupStream1PuyoAndQuota(rom);
         VerifyLookupStream1OwtchStoke(rom);
@@ -653,5 +654,29 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitions.MechanicsWord(invalid), "Metroid control index bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 25, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitions.PresentationWordAddress(invalid), "Metroid visual index bounds");
+    }
+    private static void VerifyLookupStream1SamusPolicyDomains(ISnesAddressSpace rom)
+    {
+        for (int pose = 0; pose <= byte.MaxValue; pose++)
+        {
+            if (pose is >= 0xc9 and <= 0xce)
+            {
+                var angles = SamusShinesparkProjectileRomData.DepartureAngles((byte)pose);
+                AssertEqual(rom.ReadByte(0x90d4c6 + (pose - 0xc9) * 2), angles.First.TableIndex, "native crash first departure angle");
+                AssertEqual(rom.ReadByte(0x90d4c7 + (pose - 0xc9) * 2), angles.Second.TableIndex, "native crash opposite departure angle");
+            }
+            else AssertThrows<InvalidOperationException>(() => SamusShinesparkProjectileRomData.DepartureAngles((byte)pose), "crash departure exact pose domain");
+        }
+        foreach (byte invalid in new byte[] { 28, byte.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => SamusHudDefinitions.MovementHandler((SamusMovementType)invalid), "HUD movement exact domain");
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.WaterSplashFor((SamusMovementType)invalid), "splash exact movement domain");
+        }
+        foreach (ushort invalid in new ushort[] { 10, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.IsRunningFootContact(invalid), "foot-contact exact frame domain");
+        foreach (byte invalid in new byte[] { 16, byte.MaxValue })
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.ForCrateriaRoom(invalid), "atmospheric room exact domain");
+        foreach (var (header, room) in new[] { (0x91f8, 0), (0x93fe, 5), (0x948c, 7), (0x94fd, 9), (0x9552, 10), (0x957d, 11), (0x95a8, 12), (0x95ff, 14) })
+            AssertEqual((byte)room, rom.ReadByte(0x8f0000 | header), "native atmospheric room header identity");
     }
 }

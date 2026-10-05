@@ -5,18 +5,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Compiled weapon-admission policy; HUD artwork and labels are separate assets.</summary>
 internal static class SamusHudDefinitions
 {
-    /// <summary>$90:DD05 Samus_HandleHudSpecificBehaviorAndProjs.pointers: all 28 movement-handler identities.</summary>
-    private static ReadOnlySpan<ushort> MovementHandlers =>
-    [
-        StandardHandler, StandardHandler, StandardHandler, JumpHandler,
-        MorphBallHandler, StandardHandler, StandardHandler, MorphBallHandler,
-        MorphBallHandler, MorphBallHandler, JumpHandler, GrappleHandler,
-        GrappleHandler, JumpHandler, TurningHandler, TransitionHandler,
-        StandardHandler, MorphBallHandler, MorphBallHandler, MorphBallHandler,
-        JumpHandler, StandardHandler, GrappleHandler, TurningHandler,
-        TurningHandler, JumpHandler, DraygonHeldHandler, JumpHandler,
-    ];
-
     /// <summary>
     /// <c>$90:DD75-$DE4F</c>, the complete bounded byte window observed when
     /// <c>HUDSelectionHandler_TransitionPoses</c> subtracts pose <c>$35</c> before indexing
@@ -55,7 +43,24 @@ internal static class SamusHudDefinitions
         0x00, 0x30, 0x07,
     ];
 
-    internal static ushort MovementHandler(SamusMovementType movement) => MovementHandlers[(byte)movement];
+    /// <summary>$90:DD05: movement-state HUD admission dispatch, preserving all 28 native handler identities.</summary>
+    internal static ushort MovementHandler(SamusMovementType movement)
+    {
+        if ((byte)movement > (byte)SamusMovementType.Special) throw new IndexOutOfRangeException();
+        return movement switch
+        {
+            SamusMovementType.SpinJumping or SamusMovementType.Knockback or SamusMovementType.Unused0D or
+            SamusMovementType.WallJumping or SamusMovementType.DamageBoost or SamusMovementType.Special => JumpHandler,
+            SamusMovementType.MorphBallGround or SamusMovementType.UnusedGlitchBall or SamusMovementType.MorphBallFalling or
+            SamusMovementType.UnusedGlitchBallAlternate or SamusMovementType.SpringBallGround or
+            SamusMovementType.SpringBallInAir or SamusMovementType.SpringBallFalling => MorphBallHandler,
+            SamusMovementType.Unused0B or SamusMovementType.Unused0C or SamusMovementType.Grappling => GrappleHandler,
+            SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling => TurningHandler,
+            SamusMovementType.PostureTransition => TransitionHandler,
+            SamusMovementType.DraygonHeld => DraygonHeldHandler,
+            _ => StandardHandler,
+        };
+    }
 
     internal static byte PostureObservation(byte pose)
     {

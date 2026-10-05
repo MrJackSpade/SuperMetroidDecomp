@@ -55,6 +55,10 @@ static void VerifySamusStoredShineAndShinespark()
             unchecked((ushort)(0x1100 + frame)));
     }
     WriteTestWord(bus, 0x9b9400, 0x0321);
+    var suitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+    var cycleColors = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(bus)));
 
     var shine = new SamusState
     {
@@ -71,7 +75,7 @@ static void VerifySamusStoredShineAndShinespark()
     AssertEqual(1, shine.Shinespark.PaletteType, "stored shine installs palette handler one");
 
     var cgram = new SnesCgram();
-    AssertTrue(shine.Shinespark.UpdatePalette(bus, cgram, equippedItems: 0),
+    AssertTrue(shine.Shinespark.UpdatePalette(bus, cgram, equippedItems: 0, suitColors, cycleColors),
         "stored shine copies first ROM palette");
     AssertEqual(0x1100, cgram.Colors[192], "stored shine follows double pointer");
     AssertEqual(179, shine.Shinespark.ShineTimer, "stored palette decrements every frame");
@@ -80,7 +84,7 @@ static void VerifySamusStoredShineAndShinespark()
 
     // Ten further calls arrive with timer 170 on the final call and publish the warning.
     for (int tick = 0; tick < 10; tick++)
-        shine.Shinespark.UpdatePalette(bus, cgram, equippedItems: 0);
+        shine.Shinespark.UpdatePalette(bus, cgram, equippedItems: 0, suitColors, cycleColors);
     AssertTrue(shine.Shinespark.StoredShineWarningSoundRequested,
         "stored timer 170 requests warning sound");
     AssertTrue(shine.Shinespark.ConsumeStoredShineWarningSoundRequest(),

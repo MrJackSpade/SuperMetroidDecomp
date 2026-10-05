@@ -25,104 +25,55 @@ internal enum CrateriaAtmosphericEffectFlags : byte
 /// </summary>
 internal static class SamusAtmosphericEffectDefinitions
 {
-    /// <summary>The 28 movement-type splash selectors at <c>$90:81A4-$81BF</c>.</summary>
-    private static readonly WaterSplashKind[] WaterSplashKinds =
-    [
-        WaterSplashKind.GroundedPair,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.GroundedPair,
-        WaterSplashKind.GroundedPair,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.GroundedPair,
-        WaterSplashKind.GroundedPair,
-        WaterSplashKind.GroundedPair,
-        WaterSplashKind.GroundedPair,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.GroundedPair,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-        WaterSplashKind.Diving,
-    ];
+    /// <summary>$8F:91F8 LandingSite header, room index zero.</summary>
+    private const byte LandingSiteRoom = 0;
+    /// <summary>$8F:93FE WestOcean header, room index five.</summary>
+    private const byte WestOceanRoom = 5;
+    /// <summary>$8F:948C CrateriaKihunter header, room index seven.</summary>
+    private const byte CrateriaKihunterRoom = 7;
+    /// <summary>$8F:94FD EastOcean header, room index nine.</summary>
+    private const byte EastOceanRoom = 9;
+    /// <summary>$8F:9552 ForgottenHighwayKagos header, room index ten.</summary>
+    private const byte ForgottenHighwayKagosRoom = 10;
+    /// <summary>$8F:957D CrabMaze header, room index eleven.</summary>
+    private const byte CrabMazeRoom = 11;
+    /// <summary>$8F:95A8 ForgottenHighwayElbow header, room index twelve.</summary>
+    private const byte ForgottenHighwayElbowRoom = 12;
+    /// <summary>$8F:95FF Moat header, room index fourteen.</summary>
+    private const byte MoatRoom = 14;
 
-    /// <summary>The ten running-animation foot-contact flags at <c>$90:A424-$A42D</c>.</summary>
-    private static readonly bool[] RunningFootContacts =
-    [
-        false, false, true, false, false,
-        false, false, true, false, false,
-    ];
-
-    /// <summary>
-    /// The 16 Crateria room classifications duplicated at <c>$90:EDC9-$EDD8</c> for
-    /// footsteps and <c>$91:F0F3-$F102</c> for landing effects.
-    /// </summary>
-    private static readonly CrateriaAtmosphericEffectFlags[] CrateriaRoomEffects =
-    [
-        CrateriaAtmosphericEffectFlags.LandingSite,
-        CrateriaAtmosphericEffectFlags.None,
-        CrateriaAtmosphericEffectFlags.None,
-        CrateriaAtmosphericEffectFlags.None,
-        CrateriaAtmosphericEffectFlags.None,
-        CrateriaAtmosphericEffectFlags.WreckedShipEntrance,
-        CrateriaAtmosphericEffectFlags.None,
-        CrateriaAtmosphericEffectFlags.WetFootsteps,
-        CrateriaAtmosphericEffectFlags.None,
-        CrateriaAtmosphericEffectFlags.WetFootsteps,
-        CrateriaAtmosphericEffectFlags.WetFootsteps,
-        CrateriaAtmosphericEffectFlags.WetFootsteps,
-        CrateriaAtmosphericEffectFlags.WetFootsteps,
-        CrateriaAtmosphericEffectFlags.None,
-        CrateriaAtmosphericEffectFlags.WetFootsteps,
-        CrateriaAtmosphericEffectFlags.None,
-    ];
-
-    /// <summary>Returns the water-entry particle layout for one native movement type.</summary>
+    /// <summary>$90:81A4: grounded postures produce the paired surface splash; other movement dives.</summary>
     internal static WaterSplashKind WaterSplashFor(SamusMovementType movementType)
     {
-        int index = (byte)movementType;
-        if ((uint)index >= WaterSplashKinds.Length)
+        if ((byte)movementType > (byte)SamusMovementType.Special)
+            throw new InvalidDataException($"Water-splash movement type ${(byte)movementType:X2} is outside 28 retail selectors.");
+        return movementType switch
         {
-            throw new InvalidDataException(
-                $"Water-splash movement type ${index:X2} is outside 28 retail selectors.");
-        }
-
-        return WaterSplashKinds[index];
+            SamusMovementType.Standing or SamusMovementType.MorphBallGround or SamusMovementType.Crouching or
+            SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or SamusMovementType.Moonwalking or
+            SamusMovementType.SpringBallGround or SamusMovementType.RanIntoWall => WaterSplashKind.GroundedPair,
+            _ => WaterSplashKind.Diving,
+        };
     }
-
-    /// <summary>Returns whether one running-animation frame is a foot contact.</summary>
+    /// <summary>$90:A424: one contact at phase two of each five-frame running step.</summary>
     internal static bool IsRunningFootContact(ushort animationFrame)
     {
-        if (animationFrame >= RunningFootContacts.Length)
-        {
-            throw new InvalidDataException(
-                $"Running animation frame {animationFrame} is outside ten foot-contact selectors.");
-        }
-
-        return RunningFootContacts[animationFrame];
+        if (animationFrame >= 10)
+            throw new InvalidDataException($"Running animation frame {animationFrame} is outside ten foot-contact selectors.");
+        return animationFrame % 5 == 2;
     }
-
-    /// <summary>Returns the atmospheric-effect policy for one bounded Crateria room index.</summary>
+    /// <summary>$90:EDC9 and $91:F0F3: room-specific landing/rain and wet-floor policies.</summary>
     internal static CrateriaAtmosphericEffectFlags ForCrateriaRoom(byte roomIndex)
     {
-        if (roomIndex >= CrateriaRoomEffects.Length)
+        if (roomIndex >= 16)
+            throw new InvalidDataException($"Crateria atmospheric room index ${roomIndex:X2} is outside 16 selectors.");
+        return roomIndex switch
         {
-            throw new InvalidDataException(
-                $"Crateria atmospheric room index ${roomIndex:X2} is outside 16 selectors.");
-        }
-
-        return CrateriaRoomEffects[roomIndex];
+            LandingSiteRoom => CrateriaAtmosphericEffectFlags.LandingSite,
+            WestOceanRoom => CrateriaAtmosphericEffectFlags.WreckedShipEntrance,
+            CrateriaKihunterRoom or EastOceanRoom or ForgottenHighwayKagosRoom or CrabMazeRoom or
+            ForgottenHighwayElbowRoom or MoatRoom => CrateriaAtmosphericEffectFlags.WetFootsteps,
+            _ => CrateriaAtmosphericEffectFlags.None,
+        };
     }
 }

@@ -366,9 +366,9 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs
 
-- [ ] **SamusAtmosphericEffectDefinitions.WaterSplashKinds** ([L30](../csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SamusAtmosphericEffectDefinitions.RunningFootContacts** ([L63](../csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs#L63)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SamusAtmosphericEffectDefinitions.CrateriaRoomEffects** ([L73](../csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs#L73)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusAtmosphericEffectDefinitions.WaterSplashKinds** ([L30](../csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusAtmosphericEffectDefinitions.RunningFootContacts** ([L63](../csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs#L63)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusAtmosphericEffectDefinitions.CrateriaRoomEffects** ([L73](../csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs#L73)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusBeamCallbackDefinitions.cs
 
@@ -387,7 +387,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs
 
-- [ ] **SamusHudDefinitions.MovementHandlers** ([L10](../csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusHudDefinitions.MovementHandlers** ([L10](../csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **SamusHudDefinitions.PostureObservationsByPose** ([L27](../csharp/src/SuperMetroid.Core/Game/SamusHudDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusPoseAimDefinitions.cs
@@ -533,7 +533,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusShinesparkState.cs
 
-- [ ] **SamusShinesparkState.FinishCrash / departureAngles** ([L651](../csharp/src/SuperMetroid.Core/Game/SamusShinesparkState.cs#L651)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **SamusShinesparkState.FinishCrash / departureAngles** ([L651](../csharp/src/SuperMetroid.Core/Game/SamusShinesparkState.cs#L651)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusSpecialSequenceRomData.cs
 
@@ -825,3 +825,14 @@ Three layout definitions converted; 165 complete and 61 unchecked. The independe
 - Timing obligation: native five-pose pattern 16/16/6/10/16 repeats four times while chasing and once while draining. The 64-tick total and repeated visual cycle do not independently justify its six/ten-tick split. FrameDurations remains required conversion/disposition work, not exempted as authored or small. Layout-cache completion does not complete that separate value input.
 - Evidence: pinned bankA3 programs `$E9CF..EA3E`, body maps `Spritemap_Metroid_Insides_0..3` at `$F10D/$F137/$F157/$F181`.
 - Confirmation: Verification build 1432 warnings/zero errors; `--lookup-stream-1` passed. Unchanged Metroid fixture executes both complete loops, random/draining sound callbacks, initialization and zero mechanics/presentation reads. New assertions verify all 31 native control values/order, 25 visual identities, four original body pointers/names/banks/object counts and exact byte/control/visual/index domains. No fixture corrections were needed.
+
+## Batch 27: Samus atmospheric/HUD cases and crash departure axes
+
+Five more definitions converted; 170 complete and 56 unchecked. No retained exception. HUD's separately inventoried bounded posture-byte observations remain required.
+
+- Movement-state cases select grounded-pair versus diving splash, and modulo-five running phase selects foot contact. Named native Crateria room identities select landing-site, West Ocean entrance, wet-floor or no-effect policies; all original room bounds remain exact.
+- HUD handler selection is an explicit movement-state dispatch: jump, ball, grapple, turning, transition, Draygon-held or standard. All 28 native handler identities and invalid-domain behavior remain unchanged; no table or cached replacement is retained.
+- Shinespark crash echoes select horizontal/vertical/diagonal axes from the crash pose, with the second angle a half-turn opposite. Dedicated SamusShinesparkProjectileRomData owns this catalog operation. Runtime calls it before any pose restoration and preserves fixed projectile-slot capacity ordering.
+- Evidence: pinned splash `$90:81A4..81BF`, foot contacts `$90:A424..A42D`, duplicated room policy `$90:EDC9..EDD8/$91:F0F3..F102` and corresponding bank8F room-header indices; HUD dispatch `$90:DD05`; crash departure bytes `$90:D4C6..D4D1`.
+- Reproduced stale fixture setup: VerifySamusStoredShineAndShinespark failed at its first palette update because synthetic sentinel colors were supplied only as cartridge bytes. It now extracts/loads those same supplied colors into required suit/cycle catalogs for its two UpdatePalette call sites. All existing movement, collision, timing, sound, health, crash and echo assertions remain unchanged; no production fallback was added.
+- Confirmation: full Verification build 1432 warnings/zero errors, final fixture rebuild 25 warnings/zero errors; `--lookup-stream-1` passed. Existing atmospheric source/actual-particle checks, HUD native dispatch/actual admission/charge checks and stored-shine/shinespark crash fixture pass. New checks compare all twelve native departure angles, all 256 pose acceptance/rejection cases, named room-header identities and bounds for movement/contact/room policies.

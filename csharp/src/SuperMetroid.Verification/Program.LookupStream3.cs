@@ -1231,6 +1231,11 @@ internal static partial class Program
             object basis = palette.GetType().GetField("basis", flags)!.GetValue(palette)!;
             AssertTrue(basis.GetType().GetField("supplied", flags)!.GetValue(basis) is null,
                 "stream 3 native health shade ramps calculated from paint endpoints");
+            ushort[] anchors = basis.GetType().GetFields(flags).Where(field => field.FieldType == typeof(ushort))
+                .Select(field => (ushort)field.GetValue(basis)!).ToArray();
+            AssertEqual(6, anchors.Length, "stream 3 health base exposes only six possible paint anchors");
+            AssertTrue(name == "body" ? anchors.All(value => value != 0) : anchors.All(value => value == 0),
+                "stream 3 stock rear palette stores no independent paint colors");
         }
         for (int state = 0; state < 4; state++)
         {

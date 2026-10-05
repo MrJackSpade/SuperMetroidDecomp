@@ -13,7 +13,7 @@ public sealed class MotherBrainHealthPalettePresentation
     private MotherBrainHealthPalettePresentation(ushort[][] body, ushort[][] backLegs)
     {
         this.body = new TintPalette(body, backLeg: false);
-        this.backLegs = new TintPalette(backLegs, backLeg: true);
+        this.backLegs = new TintPalette(backLegs, backLeg: true, this.body);
     }
 
     /// <summary>Calculates one damage-tinted color pair to the three native CGRAM destinations.</summary>
@@ -40,10 +40,10 @@ public sealed class MotherBrainHealthPalettePresentation
         private readonly bool backLeg;
         private readonly ushort[][]? supplied;
 
-        public TintPalette(ushort[][] rows, bool backLeg)
+        public TintPalette(ushort[][] rows, bool backLeg, TintPalette? front = null)
         {
             this.backLeg = backLeg;
-            basis = new BasePalette(rows[0], backLeg);
+            basis = new BasePalette(rows[0], backLeg, front?.basis);
             for (int state = 0; state < rows.Length; state++)
                 for (int color = 0; color < rows[state].Length; color++)
                     if (Calculate(state, color) != rows[state][color])
@@ -79,16 +79,18 @@ public sealed class MotherBrainHealthPalettePresentation
         private readonly ushort brown;
         private readonly bool backLeg;
         private readonly ushort[]? supplied;
+        private readonly BasePalette? front;
 
-        public BasePalette(ushort[] colors, bool backLeg)
+        public BasePalette(ushort[] colors, bool backLeg, BasePalette? front)
         {
             this.backLeg = backLeg;
-            highlight = colors[0];
-            midtone = colors[1];
-            shadow = colors[2];
-            outline = colors[3];
-            gray = colors[4];
-            brown = colors[8];
+            this.front = front;
+            highlight = backLeg ? (ushort)0 : colors[0];
+            midtone = backLeg ? (ushort)0 : colors[1];
+            shadow = backLeg ? (ushort)0 : colors[2];
+            outline = front is null ? colors[3] : (ushort)0;
+            gray = front is null ? colors[4] : (ushort)0;
+            brown = backLeg ? (ushort)0 : colors[8];
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color])
                 { supplied = colors; return; }
@@ -101,13 +103,37 @@ public sealed class MotherBrainHealthPalettePresentation
             0 => backLeg ? (ushort)0 : highlight,
             1 => backLeg ? (ushort)0 : midtone,
             2 => backLeg ? (ushort)0 : shadow,
-            3 => outline,
-            >= 4 and <= 7 => Shade(gray, 8 - color, 4),
+            3 => Outline,
+            >= 4 and <= 7 => Shade(Gray, 8 - color, 4),
             >= 8 and <= 12 => backLeg ? (ushort)0 : Shade(brown, 13 - color, 5),
-            13 => backLeg ? gray : (ushort)((31 << 10) | (31 << 5) | 31),
+            13 => backLeg ? Gray : (ushort)((31 << 10) | (31 << 5) | 31),
             _ => 0,
         };
 
+        // The rear outline keeps the front red/blue and adds one RGB5 green
+        // step. This names the chosen rear tint; it is not a universal lighting law.
+        private ushort Outline
+        {
+            get
+            {
+                if (front is null) return outline;
+                ushort lit = front.Color(3);
+                int green = Math.Min(31, (lit >> 5 & 31) + 1);
+                return (ushort)((lit & ~(31 << 5)) | green << 5);
+            }
+        }
+        // Rear illumination halves the front gray endpoint, rounding R/G upward
+        // and B downward before generating its own four shade levels.
+        private ushort Gray
+        {
+            get
+            {
+                if (front is null) return gray;
+                ushort lit = front.Color(4);
+                return (ushort)(((lit & 31) + 1) / 2 |
+                    (((lit >> 5 & 31) + 1) / 2) << 5 | ((lit >> 10 & 31) / 2) << 10);
+            }
+        }
         private static ushort Shade(ushort source, int numerator, int denominator)
         {
             int result = 0;

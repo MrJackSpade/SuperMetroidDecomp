@@ -396,8 +396,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs
 
-- [ ] **MotherBrainHealthPalettePresentation.body** ([L10](../csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs#L10)) - installed stock table. Original/default payload behind MotherBrainHealthPalettePresentation.body. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **MotherBrainHealthPalettePresentation.backLegs** ([L11](../csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs#L11)) - installed stock table. Original/default payload behind MotherBrainHealthPalettePresentation.backLegs. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **MotherBrainHealthPalettePresentation.body** ([L10](../csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs#L10)) - installed stock table. Original/default payload behind MotherBrainHealthPalettePresentation.body. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **MotherBrainHealthPalettePresentation.backLegs** ([L11](../csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs#L11)) - installed stock table. Original/default payload behind MotherBrainHealthPalettePresentation.backLegs. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs
 
@@ -894,11 +894,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Native consumer $AD:E3D5-$E42E identifies BG4 as body, OBJ1 as brain, OBJ3 as rear leg. Body source $AD:E6AC-$E6B2 fills CGRAM $41-$44 and $91-$94; gray endpoint $AD:E6B4 supplies calculated ramps at $45-$48 and $95-$98; brown endpoint $AD:E6BC supplies $49-$4D and $99-$9D. Rear-leg outline $AD:E752 fills $B4; gray endpoint $AD:E754 supplies $B5-$B8 and repeated $BE. These are palette-slot assignments, not a claim that each RGB choice is mathematically irreducible.
 - Verification build passed (1432 warnings, zero errors); `--lookup-stream-3` passed all 120 native words, 360 independent channel edits and stock-storage assertions for both shade ramps and intermediate damage rows. Converted count remains 72 plus the separately justified decorative-anchor retention; both health entries remain unchecked.
 - Coordinator must refresh the existing health-presentation source hash in `RemainingEnemyColorClosedContractDefinitions.cs`.
-### Health endpoint artwork evidence for independent review
+### Health endpoint artwork evidence and final narrow disposition
 
 The isolated guarded exporter at `csharp/test-temp/stream3-palette-art` decodes only identified native artwork and produces per-index masks. It does not run gameplay or search for defects. Head source `$B7:8000` is composed with `$A9:A586`; neck uses `$A9:A694`; front/rear standing limb components come from root `$A9:9FA0` and `$B7:9000` leg tiles. The standing root's rear-foot component selects `$A9:A974`, OBJ palette three; its front components select OBJ palette one. Source palette routing agrees with `$AD:E3D5-$E42E`.
 
-| Independent word | Source / palette index | Visible role confirmed by masks | Dependent calculation |
+| Source word (rear values now calculated) | Source / palette index | Visible role confirmed by masks | Dependent calculation |
 | --- | --- | --- | --- |
 | `$269F` | `$AD:E6AC`, body/brain index 1 | Bright patches on exposed brain cortex | Damage tint only |
 | `$0159` | `$AD:E6AE`, index 2 | Orange middle tones across cortex folds | Damage tint only |
@@ -909,7 +909,15 @@ The isolated guarded exporter at `csharp/test-temp/stream3-palette-art` decodes 
 | `$0024` | `$AD:E752`, rear index 4 | Rear-foot and joint outlines | Stronger rear-leg damage tint |
 | `$29AD` | `$AD:E754`, rear index 5 | Dim rear-leg/foot plate highlight | Rear indices 5..8 use quarters; index 14 repeats the endpoint |
 
-Artifacts in that tool's `output` directory include `head-a586.png`, its `-index-01` through `-index-15` masks, `neck-a694.png`, front-limb `standing-part-3-a9a7c2.png`, and rear-foot `standing-part-6-a9a974.png` with masks. The export completed successfully. These visible paint roles and exact shade dependencies support a narrow endpoint review; they do not themselves mark the eight RGB choices exempt, and both health entries remain required pending that review.
+Artifacts in that tool's `output` directory include `head-a586.png`, its `-index-01` through `-index-15` masks, `neck-a694.png`, front-limb `standing-part-3-a9a7c2.png`, and rear-foot `standing-part-6-a9a974.png` with masks. The export completed successfully. Independent review accepted only the six body paint anchors under the nonsense exception: they supply chosen cortex tones, outlines, bone/plate highlights and tissue color, rather than a health or geometry function. Replacing those six choices would invent different paint content. Rear lighting, all shades, damage tint, neutrals and repeated highlights calculate; the rear source words are not independent retained endpoints. This does not grant a general artwork or palette exception.
+### Confirmed batch 35: Final health palette lighting and narrow paint disposition
+
+- Rear gray now derives from the front gray endpoint by halving R/G upward and B downward, followed by the existing quarter-shade ramp. Rear outline preserves front red/blue and adds one RGB5 green step (clamped at the channel bound). This names the specific artistic rear tint; it is not presented as a universal lighting law.
+- Final stock representation holds exactly six nonzero body scalar paint anchors and no independent rear anchors. Both base-row and damage-row fallback arrays are null for stock. Rear fields are zero and its palette references the body basis; independent edits retain exact supplied content without coupling edits across palettes.
+- Independent coordinator review of pinned source, selected native artwork, index masks and final production representation approved the nonsense exception only for the six body anchors identified in the evidence table. Body shade ramps, all damage states, neutral colors, repeated highlights and both rear-lighting rules remain calculated. No performance, size, complexity, provenance or generic authorship rationale is used.
+- Production build passed (1192 warnings, zero errors); final verifier rebuild passed (25 warnings, zero errors). `--lookup-stream-3` passed all 120 native words, 360 independent channel edits, absent stock row storage and explicit six-body/zero-rear anchor assertions.
+- Final per-entry disposition: `body` is mixed calculation plus justified retention of six named paint anchors; `backLegs` is converted. Converted entries now total 73, with two separately justified retained entries (these six paint anchors and the earlier decorative death-scatter anchors).
+- Coordinator must refresh the health-presentation source hash in `RemainingEnemyColorClosedContractDefinitions.cs`.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

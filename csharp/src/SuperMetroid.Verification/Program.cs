@@ -136,6 +136,8 @@ if (args is ["--lookup-stream-1"])
     VerifySamusHudDefinitions(rom);
     VerifySamusStoredShineAndShinespark();
     VerifySamusArmCannonDefinitions(rom);
+    VerifyPoseDispatchDefinitions(rom);
+    VerifyPoseCollisionDefinitions(rom);
     VerifyLookupStream1(rom);
     VerifyBrinstarPipeBugInstructionProgramDefinitions();
     VerifyMetroidBehaviorDefinitions(rom);

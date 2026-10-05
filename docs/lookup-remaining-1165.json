@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 670,
+  "remainingTableDefinitionCount": 665,
   "fileCount": 523,
   "entries": [
     {
@@ -6709,35 +6709,50 @@
       "line": 8,
       "name": "SamusPoseAimDefinitions.Directions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "31816a1159081d743e7b27f137aad7cfe26ae805",
+      "disposition": "Mixed: 253 real-pose semantic cases; only three bounded FD-FF observations of unrelated 65816 instruction bytes retained as nonsense. Exact addresses and consumer bounds: stream 1 Batch 30."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseCollisionDefinitions.cs",
       "line": 8,
       "name": "SamusPoseCollisionDefinitions.VerticalRadii",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "31816a1159081d743e7b27f137aad7cfe26ae805",
+      "disposition": "Mixed: 253 real-pose semantic cases; only three bounded FD-FF observations of unrelated 65816 instruction bytes retained as nonsense. Exact addresses and consumer bounds: stream 1 Batch 30."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseDispatchDefinitions.cs",
       "line": 8,
       "name": "SamusPoseDispatchDefinitions.Facing",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "31816a1159081d743e7b27f137aad7cfe26ae805",
+      "disposition": "Mixed: 253 real-pose semantic cases; only three bounded FD-FF observations of unrelated 65816 instruction bytes retained as nonsense. Exact addresses and consumer bounds: stream 1 Batch 30."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseDispatchDefinitions.cs",
       "line": 29,
       "name": "SamusPoseDispatchDefinitions.Movement",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "31816a1159081d743e7b27f137aad7cfe26ae805",
+      "disposition": "Mixed: 253 real-pose semantic cases; only three bounded FD-FF observations of unrelated 65816 instruction bytes retained as nonsense. Exact addresses and consumer bounds: stream 1 Batch 30."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseDispatchDefinitions.cs",
       "line": 50,
       "name": "SamusPoseDispatchDefinitions.NoInputPose",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "31816a1159081d743e7b27f137aad7cfe26ae805",
+      "disposition": "Mixed: 253 real-pose semantic cases; only three bounded FD-FF observations of unrelated 65816 instruction bytes retained as nonsense. Exact addresses and consumer bounds: stream 1 Batch 30."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseInputDefinitions.cs",
@@ -21232,5 +21247,5 @@
     }
   ],
   "convertedSinceSnapshot": 453,
-  "justifiedRetainedSinceSnapshot": 5
+  "justifiedRetainedSinceSnapshot": 10
 }

@@ -392,17 +392,17 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusPoseAimDefinitions.cs
 
-- [ ] **SamusPoseAimDefinitions.Directions** ([L8](../csharp/src/SuperMetroid.Core/Game/SamusPoseAimDefinitions.cs#L8)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusPoseAimDefinitions.Directions** ([L8](../csharp/src/SuperMetroid.Core/Game/SamusPoseAimDefinitions.cs#L8)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition. **Mixed disposition:** meaningful cases for native poses 00..FC; only the three FD..FF instruction-byte observations retained as nonsense, with exact evidence in Batch 30.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusPoseCollisionDefinitions.cs
 
-- [ ] **SamusPoseCollisionDefinitions.VerticalRadii** ([L8](../csharp/src/SuperMetroid.Core/Game/SamusPoseCollisionDefinitions.cs#L8)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusPoseCollisionDefinitions.VerticalRadii** ([L8](../csharp/src/SuperMetroid.Core/Game/SamusPoseCollisionDefinitions.cs#L8)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition. **Mixed disposition:** meaningful cases for native poses 00..FC; only the three FD..FF instruction-byte observations retained as nonsense, with exact evidence in Batch 30.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusPoseDispatchDefinitions.cs
 
-- [ ] **SamusPoseDispatchDefinitions.Facing** ([L8](../csharp/src/SuperMetroid.Core/Game/SamusPoseDispatchDefinitions.cs#L8)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SamusPoseDispatchDefinitions.Movement** ([L29](../csharp/src/SuperMetroid.Core/Game/SamusPoseDispatchDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SamusPoseDispatchDefinitions.NoInputPose** ([L50](../csharp/src/SuperMetroid.Core/Game/SamusPoseDispatchDefinitions.cs#L50)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusPoseDispatchDefinitions.Facing** ([L8](../csharp/src/SuperMetroid.Core/Game/SamusPoseDispatchDefinitions.cs#L8)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition. **Mixed disposition:** meaningful cases for native poses 00..FC; only the three FD..FF instruction-byte observations retained as nonsense, with exact evidence in Batch 30.
+- [x] **SamusPoseDispatchDefinitions.Movement** ([L29](../csharp/src/SuperMetroid.Core/Game/SamusPoseDispatchDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition. **Mixed disposition:** meaningful cases for native poses 00..FC; only the three FD..FF instruction-byte observations retained as nonsense, with exact evidence in Batch 30.
+- [x] **SamusPoseDispatchDefinitions.NoInputPose** ([L50](../csharp/src/SuperMetroid.Core/Game/SamusPoseDispatchDefinitions.cs#L50)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition. **Mixed disposition:** meaningful cases for native poses 00..FC; only the three FD..FF instruction-byte observations retained as nonsense, with exact evidence in Batch 30.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusPoseInputDefinitions.cs
 
@@ -845,3 +845,30 @@ One more definition converted; 171 complete and 55 unchecked. No retained except
 - Evidence: pinned bank90 `ArmCannonOpenFlags` at `$C7D9..C7DE`, consumed by `UpdateArmCannonIsOpenState` at `$C5EB..C624`; the native HUD item selector is the domain of the cases.
 - Reproduced stale fixture prerequisite: the existing native-policy verifier reached `Arm cannon requires installed drawing definitions` on its first Update because it omitted the installed artwork now required by the state. The fixture explicitly extracts/loads its supplied native arm-cannon artwork and binds it to each tested Samus. This is a fixture correction, not a production behavior fix; all original flag and cover-transition assertions remain.
 - Confirmation: final Verification build 25 warnings/zero errors; `--lookup-stream-1` passed. All six direct flags match native bytes, the actual update waits for the second stable item sample and starts precisely the expected opening transition, policy ROM reads remain forbidden, and out-of-range HUD selection still throws.
+## Batch 29: named-pose facing, movement and no-input dispatch
+
+The native 253-pose dispatch is converted. The three aggregates have a mixed disposition: semantic cases plus the narrow adjacent-code retention approved and documented in Batch 30. They are not counted as wholly converted.
+
+- Removed the three 256-byte pose policy lookups. Cases use the existing exclusive SamusPoseId domain and named movement/facing discriminators; no-input cases select named target poses or the unchanged keep-current sentinel. Turning, moonwalk and unused-record facing values remain exactly native, rather than being inferred from a pose's visible orientation.
+- Added exactly 32 previously unnamed native unused pose identities, each with the pinned disassembly symbol and record address in its XML summary. Existing identities remain unchanged. FD/FE/FF are deliberately not declared as poses: their bounded reads still select the exact adjacent `Calc_Xray_HDMADataTable_OffScreen` instruction bytes, explicitly identified separately in each reader.
+- Evidence: pinned bank91 `PoseDefinitions` at `$B629..BE10`, eight-byte records with facing/movement/no-input columns zero/one/two; adjacent routine begins `$BE11`. No ResourceAudit closure hash references either changed catalog in this worktree.
+- Confirmation: Verification build 1432 warnings/zero errors; `--lookup-stream-1` passed. New assertions independently compare all 768 native column bytes over the full byte domain. Existing pose-dispatch fixture preserves live/prospective facing/movement access, no-input sentinel behavior, actual pose-history publication, invalid adjacent movement errors and warmed allocation checks with all ROM reads forbidden. Existing ordered input graph and native winning-pose checks remain passing.
+## Batch 30: named firing directions and physical pose extents; adjacent-code residual audit
+
+The normal pose portion of Directions and VerticalRadii is converted. These and Batch 29's three aggregates have mixed dispositions: converted native pose policies plus only the specified adjacent-code retention. Totals: 171 wholly converted, five mixed, 50 unchecked.
+
+- Direction cases select named ten-way projectile directions, distinct upper/horizontal/lower turning restrictions, or shooting-disabled. Radius cases assign the physical half-height to each named pose, retaining all crouch, ball, spin, aiming-down, standing and special-pose differences. No pose data array remains; all existing current/prospective APIs and full byte-domain results remain exact.
+- The complete native pose records are $00..FC at $91:B629..BE10. The byte APIs also preserve precisely three bounded adjacent records, FD/FE/FF, from `Calc_Xray_HDMADataTable_OffScreen`. These are not additional pose identities. The exact residuals are:
+
+| Field | FD | FE | FF |
+| --- | --- | --- | --- |
+| Facing | BE11=08, PHP | BE19=29, AND immediate opcode | BE21=12, operand of LDA $12 |
+| Movement | BE12=8B, PHB | BE1A=00, low operand of AND #FF00 | BE22=38, SEC |
+| No-input | BE13=4B, PHK | BE1B=FF, high operand of AND #FF00 | BE23=E5, SBC direct-page opcode |
+| Direction | BE14=AB, PLB | BE1C=85, STA direct-page opcode | BE24=14, operand of SBC $14 |
+| Radius | BE17=8A, TXA | BE1F=18, operand of STY $18 | BE27=10, BPL opcode |
+
+All addresses are bank $91. Approved narrow nonsense retention after independent coordinator comparison against pinned source and ROM: these fifteen values encode unrelated 65816 instructions and operands, not pose geometry or state policy. Producing them from managed pose logic would invent a relationship; preserving the observed native encoding is the compatibility contract. This retention does not exempt any ordinary pose field or any other code-adjacent payload.
+
+- Bounded reachability: `SamusState.PoseMetadata` accepts only a byte pose, current or prospective. Facing, fallback, aim and radius preserve exactly this domain. Typed movement rejects FD=8B and FF=38 above the retail Special=1B dispatcher limit; FE=00 is Standing. No unbounded address evaluation or native memory emulation is introduced, and this does not claim that FD..FF are normal retail poses.
+- Confirmation: Verification build 1432 warnings/zero errors; `--lookup-stream-1` passed. Existing source-guarded pose-dispatch checks confirm all 256 directions; collision fixture confirms all 256 prospective half-heights and actual RefreshCollisionRadii publication with horizontal radius five. Batch 29's 768 native dispatch comparisons and original ordered input/history checks remain passing. No fixture change was necessary.

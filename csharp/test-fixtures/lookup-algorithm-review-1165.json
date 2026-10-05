@@ -11108,8 +11108,8 @@
   "scope": "Only15 adjacent-code observations for selectorsFD-FF, pose columns0/1/2/3/6 (facing,movement,no-input,aim,radius)",
   "reason": "These are unrelated Xray HDMA65816instruction encodings; managed pose policies cannot derive them without reencoding native machine code. Byte-only metadata reader domain bounds observations; typed movement rejects FD8B/FF38 while FE00 remains standing.",
   "native": "Pinned91BE11..BE28 and ROM rows08-8B-4B-AB-C2-30-8A-EB /29-00-FF-85-16-84-18-A5 /12-38-E5-14-85-1A-10-08",
-  "limits": "Actual00-FC policies require meaningful conversion; five containing definitions must be mixed, not fully converted. No other pose/artwork exemption; inventory pending until integration.",
-  "state": "approved-pending-worker-disposition-and-integration"
+  "limits": "Actual00-FC policies require meaningful conversion; five containing definitions must be mixed, not fully converted. No other pose/artwork exemption; all five original definitions now recorded as mixed justified-retained.",
+  "state": "integrated"
 },"ceresDoorSelectorIntegration":{
     "confirmation":  "Verification build: 1444 warnings, zero errors. Existing focused check passes 97 controls, 33 selectors, seven variants and actual transitions with ROM reads forbidden.",
     "completed":  "CeresDoorInstructionProgramDefinitions.PresentationWords",
@@ -11117,4 +11117,12 @@
     "state":  "converted",
     "algorithm":  "Program widths and semantic opening phases derive 33 operand addresses and selectors; OAM records have 8,8,6,6,6 parts, giving 42/32-byte widths and 180 bytes per facing.",
     "remaining":  "453 converted, 5 justified retained, 670 pending."
+},"samusPosePolicyIntegration":{
+    "workerCommits":  [
+                          "3fc3283d65067264ea9f9c7810e156d0a3633de0",
+                          "31816a1159081d743e7b27f137aad7cfe26ae805"
+                      ],
+    "confirmation":  "Root Verification build: 1444 warnings, zero errors. Scoped stream 1 check passes 768 native dispatch bytes, all 256 aims and collision radii, actual pose-history and radius publication with ROM reads forbidden.",
+    "remaining":  "453 wholly converted, 10 justified retained including mixed definitions, 665 pending.",
+    "state":  "integrated"
 }}

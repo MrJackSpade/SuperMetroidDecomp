@@ -7,6 +7,12 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        for (int pose = 0; pose <= byte.MaxValue; pose++)
+        {
+            AssertEqual(rom.ReadByte(0x91b629 + pose * 8), SamusPoseDispatchDefinitions.ReadFacing((byte)pose), "Native named-pose facing case");
+            AssertEqual(rom.ReadByte(0x91b62a + pose * 8), SamusPoseDispatchDefinitions.ReadMovement((byte)pose), "Native named-pose raw movement case");
+            AssertEqual(rom.ReadByte(0x91b62b + pose * 8), SamusPoseDispatchDefinitions.ReadNoInputPose((byte)pose), "Native named-pose no-input case");
+        }
         VerifyLookupStream1SamusPolicyDomains(rom);
         VerifyLookupStream1MetroidLayout(rom);
         VerifyLookupStream1PuyoAndQuota(rom);

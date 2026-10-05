@@ -70,13 +70,6 @@ public sealed partial class RoomEnemySystem
     private const ushort PowampDeathDelayFrames = 0x0020;
     private const ushort PowampWiggleFramesPerOffset = 0x0005;
 
-    // These are the signed ROM words at $A8:C1A1. Index six is centered just like index
-    // zero, which is why both values are legal state-transition boundaries.
-    private static readonly short[] PowampWiggleOffsets =
-        [0, 1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1];
-    private static readonly short[] PowampRisingBalloonYOffsets = [-12, -16, -20];
-    private static readonly short[] PowampSinkingBalloonYOffsets = [-20, -16, -12];
-
     private readonly PowampEnemyState?[] _powampStates =
         new PowampEnemyState?[MaximumEnemyCount];
 
@@ -440,21 +433,21 @@ public sealed partial class RoomEnemySystem
             return false;
 
         state.WiggleTimer = PowampWiggleFramesPerOffset;
-        if (state.WiggleIndex >= PowampWiggleOffsets.Length)
+        if (state.WiggleIndex >= PowampMotionDefinitions.WigglePhaseCount)
         {
             throw new InvalidDataException(
                 $"Powamp wiggle index {state.WiggleIndex} exceeds the 12-word ROM table.");
         }
 
         ushort x = unchecked((ushort)(
-            RequirePowampState(balloon).BalloonSpawnX + PowampWiggleOffsets[state.WiggleIndex]));
+            RequirePowampState(balloon).BalloonSpawnX + PowampMotionDefinitions.WiggleOffset(state.WiggleIndex)));
         balloon.XPosition = x;
         body.XPosition = x;
         if (stopWhenCentered && IsPowampCentered(state.WiggleIndex))
             return true;
 
         state.WiggleIndex = unchecked((ushort)(state.WiggleIndex + 1));
-        if (state.WiggleIndex >= PowampWiggleOffsets.Length)
+        if (state.WiggleIndex >= PowampMotionDefinitions.WigglePhaseCount)
             state.WiggleIndex = 0;
         return false;
     }
@@ -462,16 +455,16 @@ public sealed partial class RoomEnemySystem
     private static void AlignPowampBalloonY(RoomEnemySlot body, RoomEnemySlot balloon)
     {
         ushort cursor = balloon.CurrentInstruction;
-        short[] offsets;
+        bool sinking;
         ushort basePointer;
         if (cursor < PowampInstructionProgramDefinitions.BalloonStartSinking)
         {
-            offsets = PowampRisingBalloonYOffsets;
+            sinking = false;
             basePointer = PowampInstructionProgramDefinitions.BalloonInflate0;
         }
         else
         {
-            offsets = PowampSinkingBalloonYOffsets;
+            sinking = true;
             basePointer = PowampInstructionProgramDefinitions.BalloonStartSinking;
         }
 
@@ -480,7 +473,7 @@ public sealed partial class RoomEnemySystem
         ushort byteOffset = unchecked((ushort)(cursor - 4 - basePointer));
         byteOffset >>= 1;
         int index = byteOffset < 6 ? byteOffset / 2 : 0;
-        balloon.YPosition = unchecked((ushort)(body.YPosition + offsets[index]));
+        balloon.YPosition = unchecked((ushort)(body.YPosition + PowampMotionDefinitions.BalloonOffset(index, sinking)));
     }
 
     private static void StartPowampDeflating(PowampEnemyState state, RoomEnemySlot balloon)

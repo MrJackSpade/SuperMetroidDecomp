@@ -5,6 +5,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        VerifyLookupStream1PowampMotion(rom);
         VerifyLookupStream1HibashiDragonFireball(rom);
         VerifyLookupStream1CommonFrames(rom);
         VerifyLookupStream1EnemyMovement(rom);
@@ -42,6 +43,32 @@ internal static partial class Program
         AssertEqual(rom.ReadByte(0x90c291), SamusProjectileCooldownDefinitions.ReadByte(0x90c291), "stream1 bounded spacetime beam cooldown");
         foreach (int invalid in new[] { int.MinValue, 0x90c253, 0x90c28f, 0x90c290, 0x90c292, int.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusProjectileCooldownDefinitions.ReadByte(invalid), "stream1 invalid cooldown address");
+    }
+    private static void VerifyLookupStream1PowampMotion(ISnesAddressSpace rom)
+    {
+        short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        for (int phase = 0; phase < 12; phase++)
+            AssertEqual(Word(0xa8c1a1 + 2 * phase), PowampMotionDefinitions.WiggleOffset(phase), "Powamp native wiggle triangle");
+        for (int pose = 0; pose < 3; pose++)
+        {
+            AssertEqual(Word(0xa8c277 + 2 * pose), PowampMotionDefinitions.BalloonOffset(pose, false), "Powamp native rising balloon offset");
+            AssertEqual(Word(0xa8c27d + 2 * pose), PowampMotionDefinitions.BalloonOffset(pose, true), "Powamp native sinking balloon offset");
+        }
+        for (int direction = 0; direction < 8; direction++)
+        {
+            AssertEqual(Word(0x86d21a + 2 * direction), PowampMotionDefinitions.SpikeXAcceleration(direction), "Powamp native spike X acceleration");
+            AssertEqual(Word(0x86d22a + 2 * direction), PowampMotionDefinitions.SpikeYAcceleration(direction), "Powamp native spike Y acceleration");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.WiggleOffset(invalid), "Powamp wiggle domain");
+        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
+            for (int sinking = 0; sinking < 2; sinking++)
+                AssertThrows<IndexOutOfRangeException>(() => PowampMotionDefinitions.BalloonOffset(invalid, sinking != 0), "Powamp balloon pose domain");
+        foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
+        {
+            AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.SpikeXAcceleration(invalid), "Powamp X direction domain");
+            AssertThrows<InvalidDataException>(() => PowampMotionDefinitions.SpikeYAcceleration(invalid), "Powamp Y direction domain");
+        }
     }
     private static void VerifyLookupStream1EnemyMovement(ISnesAddressSpace rom)
     {

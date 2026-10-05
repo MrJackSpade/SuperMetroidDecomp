@@ -4,20 +4,11 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>
 /// Bank-$86 projectile $D298 emitted by a Powamp's touch or delayed shot death. All eight
-/// actors begin stationary at the body's center, then add the direction table's signed 8.8
+/// actors begin stationary at the body's center, then add the compass direction's signed 8.8
 /// acceleration every frame. That produces the original expanding, accelerating burst.
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const short PowampSpikeAcceleration = 0x0020;
-
-    private static readonly short[] PowampSpikeXAccelerations =
-        [0, PowampSpikeAcceleration, PowampSpikeAcceleration, PowampSpikeAcceleration,
-         0, -PowampSpikeAcceleration, -PowampSpikeAcceleration, -PowampSpikeAcceleration];
-    private static readonly short[] PowampSpikeYAccelerations =
-        [-PowampSpikeAcceleration, -PowampSpikeAcceleration, 0, PowampSpikeAcceleration,
-         PowampSpikeAcceleration, PowampSpikeAcceleration, 0, -PowampSpikeAcceleration];
-
     /// <summary>Ports <c>FirePowampSpikesIn8Directions</c> at $A8:C223.</summary>
     private void SpawnPowampSpikeBurst(RoomEnemySlot body)
     {
@@ -53,14 +44,14 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         int direction = spike.DirectionParameter;
-        if ((uint)direction >= PowampSpikeXAccelerations.Length)
+        if ((uint)direction >= PowampMotionDefinitions.SpikeDirectionCount)
         {
             throw new InvalidDataException(
                 $"Powamp spike direction {direction} exceeds the eight-entry ROM table.");
         }
 
         spike.XVelocity = unchecked((ushort)(
-            unchecked((short)spike.XVelocity) + PowampSpikeXAccelerations[direction]));
+            unchecked((short)spike.XVelocity) + PowampMotionDefinitions.SpikeXAcceleration(direction)));
         if (MoveProjectileAxis(spike, level, horizontal: true))
         {
             BeginPowampSpikeDeletion(spike);
@@ -68,7 +59,7 @@ public sealed partial class RoomEnemySystem
         }
 
         spike.YVelocity = unchecked((ushort)(
-            unchecked((short)spike.YVelocity) + PowampSpikeYAccelerations[direction]));
+            unchecked((short)spike.YVelocity) + PowampMotionDefinitions.SpikeYAcceleration(direction)));
         if (MoveProjectileAxis(spike, level, horizontal: false))
             BeginPowampSpikeDeletion(spike);
     }

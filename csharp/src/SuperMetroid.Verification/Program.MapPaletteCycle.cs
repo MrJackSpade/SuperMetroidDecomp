@@ -64,15 +64,22 @@ internal static partial class Program
         snapshot.Position = 0;
         pause = DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(snapshot);
         pause.BindMapPresentation(edited);
-        bool visibleEdit = false;
+        bool cycleColorsChanged = false;
         for (int tick = 0; tick < 60; tick++)
         {
             pause.Step(0, 0); nativePause.Step(0, 0);
-            visibleEdit |= !pause.Render().AsSpan().SequenceEqual(nativePause.Render());
+            var editedMemory = pause.CaptureRenderSnapshot().Memory;
+            var stockMemory = nativePause.CaptureRenderSnapshot().Memory;
+            cycleColorsChanged |= !editedMemory.Cgram.Slice(MapAnimationRomData.PaletteDestination, 16)
+                .SequenceEqual(stockMemory.Cgram.Slice(MapAnimationRomData.PaletteDestination, 16));
+            AssertTrue(editedMemory.Cgram.Slice(240, 16).SequenceEqual(stockMemory.Cgram.Slice(240, 16)),
+                "highlight edit leaves the native palette-seven pause cursor colors unchanged");
+            AssertTrue(pause.Render().AsSpan().SequenceEqual(nativePause.Render()),
+                "palette-three highlight edit does not recolor the palette-seven pause cursor");
             AssertEqual(nativePause.MapHorizontalScroll, pause.MapHorizontalScroll, "palette-only edit preserves map horizontal navigation");
             AssertEqual(nativePause.MapVerticalScroll, pause.MapVerticalScroll, "palette-only edit preserves map vertical navigation");
         }
-        AssertTrue(visibleEdit, "edited colors visibly animate in restored pause menu with palette ROM blocked");
+        AssertTrue(cycleColorsChanged, "edited highlight colors animate in restored pause CGRAM with palette ROM blocked");
         pause.BindMapPresentation(original);
         for (int tick = 0; tick < 60; tick++) { pause.Step(0, 0); nativePause.Step(0, 0); }
         AssertTrue(pause.Render().AsSpan().SequenceEqual(nativePause.Render()), "rebind preserves timing and returns to exact stock animated pixels");

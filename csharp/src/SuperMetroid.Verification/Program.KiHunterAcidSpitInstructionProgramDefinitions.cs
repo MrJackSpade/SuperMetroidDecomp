@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -83,17 +84,18 @@ internal static partial class Program
         AssertTrue(!right.IsActive,
             "KiHunter acid shot reaction reaches the compiled shared delete program");
 
-        AssertEqual(KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live KiHunter acid-spit spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "all KiHunter acid-spit installed selectors execute without ROM reads");
         for (int index = 0;
              index < KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = KiHunterAcidSpitInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads KiHunter acid presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                $"KiHunter acid selector $86:{address:X4} is compiled");
+            AssertEqual(ReadKiHunterAcidSpitInstructionWord(rom, address), selector,
+                $"KiHunter acid selector $86:{address:X4} equals the native operand");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -115,7 +117,7 @@ internal static partial class Program
         Console.WriteLine(
             "KiHunter acid-spit instruction mechanics: twenty-seven compiled words, both " +
             "real directional producers, terminal sleeps, real floor impact, complete " +
-            "splash, shared shot deletion, and nineteen live spritemap reads pass.");
+            "splash, shared shot deletion, and nineteen native installed selectors pass without ROM reads.");
 
         RoomEnemyProjectileSlot Find(RoomEnemyProjectileKind kind) =>
             enemies.EnemyProjectiles.Single(projectile => projectile.Kind == kind);

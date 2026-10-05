@@ -418,7 +418,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/KiHunterAcidSpitInstructionProgramDefinitions.cs
 
 - [ ] **KiHunterAcidSpitInstructionProgramDefinitions.Words** ([L24](../csharp/src/SuperMetroid.Core/Game/KiHunterAcidSpitInstructionProgramDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **KiHunterAcidSpitInstructionProgramDefinitions.PresentationWords** ([L55](../csharp/src/SuperMetroid.Core/Game/KiHunterAcidSpitInstructionProgramDefinitions.cs#L55)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **KiHunterAcidSpitInstructionProgramDefinitions.PresentationWords** ([L55](../csharp/src/SuperMetroid.Core/Game/KiHunterAcidSpitInstructionProgramDefinitions.cs#L55)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/KiHunterInstructionProgramDefinitions.cs
 
@@ -946,3 +946,8 @@ Native8C:97D2 ordered(gridX,gridY,glyph): `(-10,0,09) (2,-1,09) (-4,-1,08) (-3,-
 Integrated checkpoint: 73 converted, two mixed, one retained, 149 required.
 
 Root Verification build: 1445 warnings, zero errors. --lookup-stream5-zebes-star-fields passed 29 native parts, 261 independent field edits, exact ordered low/high OAM, calculated stock backing and canonical identity. ResourceAudit build: zero warnings/errors; interface source hash refreshed.
+
+### KiHunter acid structural integration
+Calculated 27 control positions and 19 visual addresses from shared directional introductions, movement handoffs and floor splash. Splash holds 12/10/10/8/8 descend by two every two phases. Native 86:CF34-CF8F confirms the supported layout. Introduction holds 3/3/4/3/1 remain explicit unresolved inputs; Words stays unchecked without an exception. Integrated checkpoint: 74 converted, two mixed, one retained, 148 required.
+
+Root Verification build: 1445 warnings, zero errors. --kihunter-acid-spit-instruction-mechanics passed 27 native controls, both real directional producers, movement handoffs, sleeps, floor impact, full splash, shared deletion, 19 native selectors without ROM reads, bounds and allocation checks.

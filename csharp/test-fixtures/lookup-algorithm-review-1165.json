@@ -11455,4 +11455,11 @@
     "state":  "partial-required",
     "algorithm":  "Consecutive tile IDs and common OBJ settings calculate for both ice sides, wave and missile; independent custom attributes use sparse overrides.",
     "remaining":  "Ice pose boundaries at records 4/8/16 remain required. No exception. Counts unchanged: 500 converted, 15 justified retained/mixed, 613 pending."
+},"chozoStructureIntegration":{
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. All 166 native controls, 52 independently decoded visual addresses and installed selectors, exact native list endpoints, bounds and allocation checks pass.",
+    "completed":  "ChozoStatueInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "3d4df3e72753ee23a249efb0e4e20e3d7c288f61",
+    "state":  "partial-one-converted",
+    "algorithm":  "Shared acquisition/rise/breathing/release structure and carrying strides derive 166 control positions and 52 visual addresses without rebuilding tables.",
+    "remaining":  "Words required: independent acquisition/stride/per-scene holds, four footstep offsets and repeat counts 4/5/16 have no exception. 501 converted, 15 justified retained/mixed, 612 pending."
 }}

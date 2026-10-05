@@ -7,6 +7,42 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2ChozoLayout(SuperMetroidAddressSpace rom)
+    {
+        VerifyChozoStatueInstructionProgramDefinitions(rom);
+        int visual = 0;
+        int mechanics = 0;
+        foreach ((int start, int end) in new[] { (0xe39d, 0xe429), (0xe457, 0xe57f) })
+        {
+            int cursor = start;
+            while (cursor < end)
+            {
+                ushort word = ReadVerificationWord(rom, 0xaa0000 | cursor);
+                mechanics++;
+                if (word < 0x8000)
+                {
+                    ushort operand = (ushort)(cursor + 2);
+                    AssertEqual(operand, ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(visual++),
+                        "Calculated Chozo visual address follows independent native instruction widths");
+                    AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xaa, operand, out ushort selector), "Chozo pose resolves its installed selector");
+                    AssertEqual(ReadVerificationWord(rom, 0xaa0000 | operand), selector, "Chozo installed selector equals its native operand");
+                    cursor += 4;
+                }
+                else
+                {
+                    bool operand = word is 0x806b or 0x8123 or 0x8110 or 0xe5d8 or 0xe58f;
+                    if (operand) mechanics++;
+                    cursor += operand ? 4 : 2;
+                }
+            }
+            AssertEqual(end, cursor, "Chozo native walk terminates exactly before callback code");
+        }
+        AssertEqual(166, mechanics, "Independent native walk counts all Chozo mechanics words");
+        AssertEqual(52, visual, "Independent native walk counts every Chozo pose");
+        AssertThrows<ArgumentOutOfRangeException>(() => ChozoStatueInstructionProgramDefinitions.MechanicsWord(166), "Chozo mechanics upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(-1), "Chozo visual lower bound");
+        Console.WriteLine("Chozo calculated layouts:166 native controls,52 independently decoded native visual operands, exact list boundaries and existing allocation checks pass; hold/footstep payloads remain pending.");
+    }
     private static void VerifyLookupStream2HorizontalCameraTargets(ISnesAddressSpace rom)
     {
         var storage = new byte[RoomScrollGrid.StorageByteCount];

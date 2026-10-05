@@ -7937,7 +7937,9 @@
       "line": 47,
       "name": "ShaktoolProjectileInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "9b973ebd05efd3ecca64d382d7ebd1cd314d6a48"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SharedCrawlerInstructionProgramDefinitions.cs",

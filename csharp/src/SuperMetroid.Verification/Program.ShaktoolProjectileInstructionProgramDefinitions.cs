@@ -26,6 +26,7 @@ internal static partial class Program
                 $"Shaktool attack-circle mechanics word $86:{definition.Address:X4}");
         }
 
+        var observedInstalledOperands = new HashSet<ushort>();
         var guard = new ShaktoolProjectileInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -87,8 +88,9 @@ internal static partial class Program
             "back circle branch displays the held pose in the same tick");
 
         AssertEqual(ShaktoolProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Shaktool attack-circle spritemap operands remain cartridge reads");
+            observedInstalledOperands.Count,
+            "all eight native Shaktool attack-circle operands select installed artwork");
+        AssertEqual(0, guard.ObservedPresentationWords.Count, "Shaktool attack-circle presentation requires zero live reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Shaktool attack-circle mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -107,15 +109,36 @@ internal static partial class Program
 
         Console.WriteLine(
             "Shaktool projectile instruction mechanics: eighteen compiled words, all " +
-            "three real linked-circle producers and eight live spritemap reads pass with " +
-            "mechanics bytes forbidden.");
+            "three real linked-circle producers and eight native installed operands pass with " +
+            "mechanics and presentation reads forbidden.");
+
+        ushort NativeWord(ushort address) => (ushort)(rom.ReadByte(0x860000 | address) |
+            rom.ReadByte(0x860000 | (ushort)(address + 1)) << 8);
 
         void Run(RoomEnemyProjectileSlot projectile, int frames)
         {
             for (int frame = 0; frame < frames; frame++)
             {
+                ushort cursor = projectile.InstructionPointer;
+                while (NativeWord(cursor) >= 0x8000)
+                {
+                    ushort opcode = NativeWord(cursor);
+                    if (opcode == EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY)
+                        cursor = NativeWord((ushort)(cursor + 2));
+                    else if (opcode == EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY)
+                        cursor += 4;
+                    else throw new InvalidOperationException($"Unexpected native Shaktool control {opcode:X4}");
+                }
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                ushort operand = (ushort)(cursor + 2);
+                AssertEqual(operand, projectile.PresentationOperandAddress,
+                    "Shaktool circle selects exact native operand after control flow");
+                AssertTrue(EnemyProjectilePresentationFrameDefinitions.Contains(operand),
+                    "Shaktool circle operand belongs to installed artwork");
+                AssertEqual(NativeWord(cursor), projectile.InstructionTimer,
+                    "Shaktool circle installs the exact native duration word");
+                observedInstalledOperands.Add(operand);
             }
         }
     }

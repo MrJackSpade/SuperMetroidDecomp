@@ -3156,6 +3156,8 @@
     ,{"path":"csharp/src/SuperMetroid.Core/Game/SamusPoseId.cs","stream":1,"purpose":"Add32 missing native pose identities with pinned XML; preserve existing values and distinguish adjacent-code observations"}
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.KiHunterAcidSpitInstructionProgramDefinitions.cs","stream":5,"purpose":"Correct reproduced stale live-read expectation; preserve producer assertions and compare 19 native compiled selectors"}
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.PoseProjectileOrigin.cs","stream":1,"purpose":"Bind installed body artwork for existing varied graphics-offset fixture; preserve physical-versus-visual origin assertions"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Game/GameplayMessageBoxState.cs","stream":4,"purpose":"Only configured button patch and ordered button glyph catalog dispatch; preserve multibit precedence and independent installed edits"}
+    ,{"path":"csharp/src/SuperMetroid.Verification/Program.ShitroidInstructionProgramDefinitions.cs","stream":3,"purpose":"Reproduced missing installed palette fixture; compare 30 native selectors and zero reads while preserving branch assertions"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

@@ -138,6 +138,8 @@ if (args is ["--lookup-stream-1"])
     VerifySamusArmCannonDefinitions(rom);
     VerifyPoseDispatchDefinitions(rom);
     VerifyPoseCollisionDefinitions(rom);
+    VerifyPoseProjectileOrigin(rom);
+    VerifyProjectileOrigins(rom);
     VerifyLookupStream1(rom);
     VerifyBrinstarPipeBugInstructionProgramDefinitions();
     VerifyMetroidBehaviorDefinitions(rom);

@@ -11125,4 +11125,12 @@
     "confirmation":  "Root Verification build: 1444 warnings, zero errors. Scoped stream 1 check passes 768 native dispatch bytes, all 256 aims and collision radii, actual pose-history and radius publication with ROM reads forbidden.",
     "remaining":  "453 wholly converted, 10 justified retained including mixed definitions, 665 pending.",
     "state":  "integrated"
+},"samusProjectileOriginIntegration":{
+    "confirmation":  "Root build 1444 warnings/zero errors; existing origin checks pass 647680 beam cases, Grapple physical-versus-visual launch/cancellation, forty native muzzle words and 343872 real initializations including address spill and coordinate boundaries. Installed artwork prerequisites repaired in fixture only.",
+    "converted":  "SamusProjectileOriginDefinitions.Offsets: twenty physical direction/movement cases",
+    "workerCommit":  "fa92295adc762b139edffb6a1d0807c102261da9",
+    "evidence":  "Pinned bank91 REP immediate opcode, STA $16 operand and STA direct-page opcode independently match native rows; byte selector bounds retained.",
+    "state":  "integrated",
+    "mixed":  "SamusPoseProjectileOriginDefinitions.YCorrections: 253 real-pose cases, three adjacent instruction bytes 91BE15=C2 / BE1D=16 / BE25=85 retained as nonsense",
+    "remaining":  "454 converted, 11 justified retained/mixed, 663 pending."
 }}

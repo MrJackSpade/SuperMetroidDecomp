@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -13,7 +14,20 @@ internal static partial class Program
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
         var bus = new PoseOriginPresentationBus(rom);
         var samus = new SamusState();
+        samus.Grapple.FlarePlacement = ChargeFlarePlacementCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.GrappleFlarePlacementExtractor.Extract(rom)));
         var slot = new SamusProjectileSlot(0);
+        SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
+        var artwork = Enumerable.Range(0, 256).Select(art => new SamusBodyArtworkCatalog(
+            template.TopSetPointers.ToArray(), template.BottomSetPointers.ToArray(),
+            template.PosePointers.ToArray(),
+            Enumerable.Repeat(unchecked((sbyte)art), SamusBodyArtworkCatalog.PoseCount).ToArray(),
+            template.Frames.ToArray(),
+            Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => template.TopSet(index).ToArray()).ToArray(),
+            Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => template.BottomSet(index).ToArray()).ToArray(),
+            template.Spritemaps, template.Atmosphere, template.DeathPalettes,
+            template.DeathTiles, template.ArmCannon, template.LandingYOffsets.ToArray(),
+            template.PostureYOffsets.ToArray(), template.DrainedYOffsets.ToArray())).ToArray();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             byte expected = rom.ReadByte(0x91b629 + pose * 8 + 4);
@@ -25,6 +39,7 @@ internal static partial class Program
         for (int art = 0; art <= byte.MaxValue; art++)
         {
             bus.Pose = samus.Pose = (byte)pose; bus.ArtY = (byte)art;
+            samus.TileTransfers.BindArtwork(artwork[art]);
             samus.XPosition = unchecked((ushort)(pose * 251 + art));
             samus.YPosition = unchecked((ushort)~samus.XPosition);
             byte physicalY = rom.ReadByte(0x91b629 + pose * 8 + 4);

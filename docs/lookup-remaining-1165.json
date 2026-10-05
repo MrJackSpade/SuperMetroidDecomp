@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 665,
+  "remainingTableDefinitionCount": 663,
   "fileCount": 523,
   "entries": [
     {
@@ -7470,7 +7470,10 @@
       "line": 8,
       "name": "SamusPoseProjectileOriginDefinitions.YCorrections",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "fa92295adc762b139edffb6a1d0807c102261da9",
+      "disposition": "Mixed: 253 real-pose physical correction cases; only FD/FE/FF instruction observations 91BE15=C2, BE1D=16, BE25=85 retained as nonsense. Bounded byte consumer and exact instruction evidence: stream 1 Batch 31."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileCooldownDefinitions.cs",
@@ -7529,7 +7532,9 @@
       "line": 8,
       "name": "SamusProjectileOriginDefinitions.Offsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "fa92295adc762b139edffb6a1d0807c102261da9"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileRadiusDefinitions.cs",
@@ -21246,6 +21251,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 453,
-  "justifiedRetainedSinceSnapshot": 10
+  "convertedSinceSnapshot": 454,
+  "justifiedRetainedSinceSnapshot": 11
 }

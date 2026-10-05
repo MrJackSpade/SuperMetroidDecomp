@@ -1,28 +1,272 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical projectile-origin corrections, separate from editable Samus graphics offsets.</summary>
+/// <remarks>
+/// Only FD..FF retain the exact adjacent X-ray HDMA instruction bytes documented below.
+/// They have no managed pose-origin meaning; deriving them as physical corrections would
+/// be nonsense. This narrow compatibility exception does not cover any real pose 00..FC.
+/// </remarks>
 internal static class SamusPoseProjectileOriginDefinitions
 {
-    /// <summary>$91:B629 PoseDefinitions byte four for poses $00..$FC plus the exact adjacent-code observations for $FD..$FF. Native beam/Grapple origin calculations zero-extend this byte.</summary>
-    private static ReadOnlySpan<byte> YCorrections =>
-    [
-        8, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-        6, 6, 6, 8, 8, 8, 8, 6, 6, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 6, 6, 0, 0, 8, 8, 8, 8, 6, 6, 8,
-        8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 0, 0, 0,
-        0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 3, 3, 8, 8, 8,
-        8, 8, 8, 6, 6, 3, 3, 3, 3, 3, 3, 16, 16, 16, 16, 16,
-        16, 16, 16, 12, 12, 12, 12, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 0, 0, 0, 0, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 8, 8, 0, 0, 8, 8, 6, 6, 6, 6, 6, 6, 8,
-        8, 8, 8, 8, 8, 8, 8, 0, 0, 0, 0, 8, 6, 6, 8, 8,
-        8, 8, 0, 0, 3, 3, 3, 3, 6, 6, 6, 6, 8, 8, 6, 6,
-        8, 8, 16, 16, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6,
-        6, 8, 8, 8, 8, 0, 6, 8, 8, 8, 8, 8, 8, 8, 8, 6,
-        6, 6, 6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 6, 6, 0,
-        3, 3, 3, 3, 3, 3, 3, 3, 0xfc, 0xfc, 0xfc, 0xfc, 6, 6, 6, 6,
-        6, 8, 8, 8, 8, 8, 8, 3, 3, 3, 3, 3, 3, 194, 22, 133,
-    ];
-
-    internal static byte ReadYOffset(byte pose) => YCorrections[pose];
+    /// <summary>$91:B62D PoseDefinitions Y offset, record stride eight. Beam/Grapple calculations zero-extend this byte, including the drained-pose $FC correction.</summary>
+    internal static byte ReadYOffset(byte pose) => (SamusPoseId)pose switch
+    {
+        SamusPoseId.SpinJumpRightPose or
+        SamusPoseId.SpinJumpLeftPose or
+        SamusPoseId.SpaceJumpRightPose or
+        SamusPoseId.SpaceJumpLeftPose or
+        SamusPoseId.MorphBallGroundRightPose or
+        SamusPoseId.MorphBallMovingRightPose or
+        SamusPoseId.MorphBallMovingLeftPose or
+        SamusPoseId.UnusedPose20 or
+        SamusPoseId.UnusedPose21 or
+        SamusPoseId.UnusedPose22 or
+        SamusPoseId.UnusedPose23 or
+        SamusPoseId.UnusedPose24 or
+        SamusPoseId.CrouchingRightPose or
+        SamusPoseId.CrouchingLeftPose or
+        SamusPoseId.MorphBallFallingRightPose or
+        SamusPoseId.MorphBallFallingLeftPose or
+        SamusPoseId.UnusedKnockbackRightPose or
+        SamusPoseId.UnusedKnockbackLeftPose or
+        SamusPoseId.CrouchingTransitionRightPose or
+        SamusPoseId.CrouchingTransitionLeftPose or
+        SamusPoseId.MorphingTransitionRightPose or
+        SamusPoseId.MorphingTransitionLeftPose or
+        SamusPoseId.UnusedPose39 or
+        SamusPoseId.UnusedPose3A or
+        SamusPoseId.UnmorphingTransitionRightPose or
+        SamusPoseId.UnmorphingTransitionLeftPose or
+        SamusPoseId.UnusedPose3F or
+        SamusPoseId.UnusedPose40 or
+        SamusPoseId.MorphBallGroundLeftPose or
+        SamusPoseId.UnusedPose42 or
+        SamusPoseId.TurningRightToLeftCrouchingPose or
+        SamusPoseId.TurningLeftToRightCrouchingPose or
+        SamusPoseId.CrouchingAimDiagonalUpRightPose or
+        SamusPoseId.CrouchingAimDiagonalUpLeftPose or
+        SamusPoseId.CrouchingAimDiagonalDownRightPose or
+        SamusPoseId.CrouchingAimDiagonalDownLeftPose or
+        SamusPoseId.SpringBallGroundRightPose or
+        SamusPoseId.SpringBallGroundLeftPose or
+        SamusPoseId.SpringBallMovingRightPose or
+        SamusPoseId.SpringBallMovingLeftPose or
+        SamusPoseId.SpringBallFallingRightPose or
+        SamusPoseId.SpringBallFallingLeftPose or
+        SamusPoseId.SpringBallJumpRightPose or
+        SamusPoseId.SpringBallJumpLeftPose or
+        SamusPoseId.ScrewAttackRightPose or
+        SamusPoseId.ScrewAttackLeftPose or
+        SamusPoseId.CrouchingAimUpRightPose or
+        SamusPoseId.CrouchingAimUpLeftPose or
+        SamusPoseId.TurningRightToLeftCrouchingAimUpPose or
+        SamusPoseId.TurningLeftToRightCrouchingAimUpPose or
+        SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose or
+        SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose or
+        SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose or
+        SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose or
+        SamusPoseId.GrappleCrouchingRightPose or
+        SamusPoseId.GrappleCrouchingLeftPose or
+        SamusPoseId.GrappleCrouchingDownRightPose or
+        SamusPoseId.GrappleCrouchingDownLeftPose or
+        SamusPoseId.GrappleWallContactLeftPose or
+        SamusPoseId.GrappleWallContactRightPose or
+        SamusPoseId.UnusedPoseC5 or
+        SamusPoseId.XrayingCrouchingRightPose or
+        SamusPoseId.XrayingCrouchingLeftPose or
+        SamusPoseId.UnusedPoseDb or
+        SamusPoseId.UnusedPoseDc or
+        SamusPoseId.UnusedPoseDf => 0,
+        SamusPoseId.NeutralJumpTransitionRightPose or
+        SamusPoseId.NeutralJumpTransitionLeftPose or
+        SamusPoseId.NormalJumpTransitionAimUpRightPose or
+        SamusPoseId.NormalJumpTransitionAimUpLeftPose or
+        SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or
+        SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
+        SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or
+        SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose or
+        SamusPoseId.NormalLandingRightPose or
+        SamusPoseId.NormalLandingLeftPose or
+        SamusPoseId.SpinLandingRightPose or
+        SamusPoseId.SpinLandingLeftPose or
+        SamusPoseId.LandingAimUpRightPose or
+        SamusPoseId.LandingAimUpLeftPose or
+        SamusPoseId.LandingAimDiagonalUpRightPose or
+        SamusPoseId.LandingAimDiagonalUpLeftPose or
+        SamusPoseId.LandingAimDiagonalDownRightPose or
+        SamusPoseId.LandingAimDiagonalDownLeftPose or
+        SamusPoseId.FiringLandingRightPose or
+        SamusPoseId.FiringLandingLeftPose or
+        SamusPoseId.StandingTransitionAimUpRightPose or
+        SamusPoseId.StandingTransitionAimUpLeftPose or
+        SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
+        SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or
+        SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
+        SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => 3,
+        SamusPoseId.FacingRightNormalPose or
+        SamusPoseId.FacingLeftNormalPose or
+        SamusPoseId.StandingAimUpRightPose or
+        SamusPoseId.StandingAimUpLeftPose or
+        SamusPoseId.StandingAimDiagonalUpRightPose or
+        SamusPoseId.StandingAimDiagonalUpLeftPose or
+        SamusPoseId.StandingAimDiagonalDownRightPose or
+        SamusPoseId.StandingAimDiagonalDownLeftPose or
+        SamusPoseId.MovingRightNormalPose or
+        SamusPoseId.MovingLeftNormalPose or
+        SamusPoseId.MovingRightGunExtendedPose or
+        SamusPoseId.MovingLeftGunExtendedPose or
+        SamusPoseId.RunningAimUpRightPose or
+        SamusPoseId.RunningAimUpLeftPose or
+        SamusPoseId.RunningAimDiagonalUpRightPose or
+        SamusPoseId.RunningAimDiagonalUpLeftPose or
+        SamusPoseId.RunningAimDiagonalDownRightPose or
+        SamusPoseId.RunningAimDiagonalDownLeftPose or
+        SamusPoseId.NormalJumpAimDownRightPose or
+        SamusPoseId.NormalJumpAimDownLeftPose or
+        SamusPoseId.TurningRightToLeftPose or
+        SamusPoseId.TurningLeftToRightPose or
+        SamusPoseId.FallingAimDownRightPose or
+        SamusPoseId.FallingAimDownLeftPose or
+        SamusPoseId.StandingTransitionRightPose or
+        SamusPoseId.StandingTransitionLeftPose or
+        SamusPoseId.UnusedPose45 or
+        SamusPoseId.UnusedPose46 or
+        SamusPoseId.UnusedPose47 or
+        SamusPoseId.UnusedPose48 or
+        SamusPoseId.MoonwalkFacingLeftPose or
+        SamusPoseId.MoonwalkFacingRightPose or
+        SamusPoseId.KnockbackRightPose or
+        SamusPoseId.KnockbackLeftPose or
+        SamusPoseId.MoonwalkAimUpLeftPose or
+        SamusPoseId.MoonwalkAimUpRightPose or
+        SamusPoseId.MoonwalkAimDownLeftPose or
+        SamusPoseId.MoonwalkAimDownRightPose or
+        SamusPoseId.RanIntoWallRightPose or
+        SamusPoseId.RanIntoWallLeftPose or
+        SamusPoseId.TurningRightToLeftAimUpPose or
+        SamusPoseId.TurningLeftToRightAimUpPose or
+        SamusPoseId.TurningRightToLeftAimDiagonalDownPose or
+        SamusPoseId.TurningLeftToRightAimDiagonalDownPose or
+        SamusPoseId.TurningRightToLeftAimDiagonalUpPose or
+        SamusPoseId.TurningLeftToRightAimDiagonalUpPose or
+        SamusPoseId.GrappleStandingRightPose or
+        SamusPoseId.GrappleStandingLeftPose or
+        SamusPoseId.GrappleStandingDownRightPose or
+        SamusPoseId.GrappleStandingDownLeftPose or
+        SamusPoseId.UnusedPoseAE or
+        SamusPoseId.UnusedPoseAF or
+        SamusPoseId.DraygonGrabbedNeutralLeftPose or
+        SamusPoseId.DraygonGrabbedAimUpLeftPose or
+        SamusPoseId.DraygonGrabbedFiringLeftPose or
+        SamusPoseId.DraygonGrabbedAimDownLeftPose or
+        SamusPoseId.DraygonGrabbedMovingLeftPose or
+        SamusPoseId.MoonwalkTurnJumpLeftPose or
+        SamusPoseId.MoonwalkTurnJumpRightPose or
+        SamusPoseId.UnusedPoseC6 or
+        SamusPoseId.RanIntoWallAimUpRightPose or
+        SamusPoseId.RanIntoWallAimUpLeftPose or
+        SamusPoseId.RanIntoWallAimDownRightPose or
+        SamusPoseId.RanIntoWallAimDownLeftPose or
+        SamusPoseId.CrystalFlashRightPose or
+        SamusPoseId.CrystalFlashLeftPose or
+        SamusPoseId.XrayingStandingRightPose or
+        SamusPoseId.XrayingStandingLeftPose or
+        SamusPoseId.DeathSequenceRightPose or
+        SamusPoseId.DeathSequenceLeftPose or
+        SamusPoseId.UnusedPoseDd or
+        SamusPoseId.UnusedPoseDe or
+        SamusPoseId.DraygonGrabbedNeutralRightPose or
+        SamusPoseId.DraygonGrabbedAimUpRightPose or
+        SamusPoseId.DraygonGrabbedFiringRightPose or
+        SamusPoseId.DraygonGrabbedAimDownRightPose or
+        SamusPoseId.DraygonGrabbedMovingRightPose => 6,
+        SamusPoseId.ForwardFacingPowerSuitPose or
+        SamusPoseId.NormalJumpGunExtendedRightPose or
+        SamusPoseId.NormalJumpGunExtendedLeftPose or
+        SamusPoseId.NormalJumpAimUpRightPose or
+        SamusPoseId.NormalJumpAimUpLeftPose or
+        SamusPoseId.FallingRightPose or
+        SamusPoseId.FallingLeftPose or
+        SamusPoseId.FallingAimUpRightPose or
+        SamusPoseId.FallingAimUpLeftPose or
+        SamusPoseId.TurningRightToLeftJumpPose or
+        SamusPoseId.TurningLeftToRightJumpPose or
+        SamusPoseId.NeutralJumpRightPose or
+        SamusPoseId.NeutralJumpLeftPose or
+        SamusPoseId.DamageBoostLeftPose or
+        SamusPoseId.DamageBoostRightPose or
+        SamusPoseId.NormalJumpForwardRightPose or
+        SamusPoseId.NormalJumpForwardLeftPose or
+        SamusPoseId.FallingGunExtendedRightPose or
+        SamusPoseId.FallingGunExtendedLeftPose or
+        SamusPoseId.NormalJumpAimDiagonalUpRightPose or
+        SamusPoseId.NormalJumpAimDiagonalUpLeftPose or
+        SamusPoseId.NormalJumpAimDiagonalDownRightPose or
+        SamusPoseId.NormalJumpAimDiagonalDownLeftPose or
+        SamusPoseId.FallingAimDiagonalUpRightPose or
+        SamusPoseId.FallingAimDiagonalUpLeftPose or
+        SamusPoseId.FallingAimDiagonalDownRightPose or
+        SamusPoseId.FallingAimDiagonalDownLeftPose or
+        SamusPoseId.WallJumpRightPose or
+        SamusPoseId.WallJumpLeftPose or
+        SamusPoseId.TurningRightToLeftFallingPose or
+        SamusPoseId.TurningLeftToRightFallingPose or
+        SamusPoseId.TurningRightToLeftJumpAimUpPose or
+        SamusPoseId.TurningLeftToRightJumpAimUpPose or
+        SamusPoseId.TurningRightToLeftJumpAimDownPose or
+        SamusPoseId.TurningLeftToRightJumpAimDownPose or
+        SamusPoseId.TurningRightToLeftFallingAimUpPose or
+        SamusPoseId.TurningLeftToRightFallingAimUpPose or
+        SamusPoseId.TurningRightToLeftFallingAimDownPose or
+        SamusPoseId.TurningLeftToRightFallingAimDownPose or
+        SamusPoseId.ForwardFacingSuitedPose or
+        SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose or
+        SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose or
+        SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose or
+        SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose or
+        SamusPoseId.UnusedPoseAC or
+        SamusPoseId.UnusedPoseAD or
+        SamusPoseId.UnusedPoseB0 or
+        SamusPoseId.UnusedPoseB1 or
+        SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
+        SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
+        SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
+        SamusPoseId.MoonwalkTurnJumpAimDownRightPose or
+        SamusPoseId.ShinesparkWindupRightPose or
+        SamusPoseId.ShinesparkWindupLeftPose or
+        SamusPoseId.ShinesparkHorizontalRightPose or
+        SamusPoseId.ShinesparkHorizontalLeftPose or
+        SamusPoseId.ShinesparkVerticalRightPose or
+        SamusPoseId.ShinesparkVerticalLeftPose or
+        SamusPoseId.ShinesparkDiagonalRightPose or
+        SamusPoseId.ShinesparkDiagonalLeftPose or
+        SamusPoseId.CrouchingTransitionAimUpRightPose or
+        SamusPoseId.CrouchingTransitionAimUpLeftPose or
+        SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose or
+        SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose or
+        SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose or
+        SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose => 8,
+        SamusPoseId.UnusedPose63 or
+        SamusPoseId.UnusedPose64 or
+        SamusPoseId.UnusedPose65 or
+        SamusPoseId.UnusedPose66 => 12,
+        SamusPoseId.UnusedPose5B or
+        SamusPoseId.UnusedPose5C or
+        SamusPoseId.UnusedPose5D or
+        SamusPoseId.UnusedPose5E or
+        SamusPoseId.UnusedPose5F or
+        SamusPoseId.UnusedPose60 or
+        SamusPoseId.UnusedPose61 or
+        SamusPoseId.UnusedPose62 or
+        SamusPoseId.GrappleSwingRightPose or
+        SamusPoseId.GrappleSwingLeftPose => 16,
+        SamusPoseId.DrainedCrouchingRightPose or
+        SamusPoseId.DrainedCrouchingLeftPose or
+        SamusPoseId.DrainedStandingRightPose or
+        SamusPoseId.DrainedStandingLeftPose => 252,
+        // Bounded adjacent instruction observations, not additional native pose identities.
+        (SamusPoseId)0xfd => 0xc2, // $91:BE15: REP immediate opcode.
+        (SamusPoseId)0xfe => 0x16, // $91:BE1D: operand of STA direct-page $16.
+        (SamusPoseId)0xff => 0x85, // $91:BE25: STA direct-page opcode.
+    };
 }

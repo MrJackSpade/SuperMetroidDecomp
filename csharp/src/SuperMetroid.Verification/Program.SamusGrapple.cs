@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -15,6 +16,21 @@ internal static partial class Program
 static void VerifySamusGrappleSwingAndRelease()
 {
     var bus = new TestAddressSpace();
+    void BindGrapplePresentation(SamusState state)
+    {
+        BindSyntheticSamusRendering(bus, state);
+        // Capture the fixture's currently authored visual offsets at construction time.
+        state.Grapple.FlarePlacement = ChargeFlarePlacementCatalog.Load(
+            new MemoryStream(GrappleFlarePlacementExtractor.Extract(bus)));
+        state.Grapple.SwingFrames = GrappleSwingFrameCatalog.Load(
+            new MemoryStream(GrappleSwingFrameExtractor.Extract(bus)));
+    }
+    SamusState CreateSamus(byte pose, ushort xPosition, ushort yPosition)
+    {
+        SamusState state = Program.CreateSamus(pose, xPosition, yPosition);
+        BindGrapplePresentation(state);
+        return state;
+    }
 
     // Engine trigonometry is compiled, not a synthetic presentation asset. Leave
     // the sine region absent: geometry must use native vectors, not patched waves.
@@ -427,6 +443,7 @@ static void VerifySamusGrappleSwingAndRelease()
         XPosition = 32,
         YPosition = 48,
     };
+    BindGrapplePresentation(cancelledSamus);
     SamusGrappleMovement.BeginFiring(bus, cancelledSamus);
     GrappleMovementResult cancelQueued = SamusGrappleMovement.StepFiring(
         bus, firingLevel, cancelledSamus, controllerInput: 0);
@@ -488,6 +505,8 @@ static void VerifySamusGrappleSwingAndRelease()
                 XPosition = 40,
                 YPosition = 40,
             };
+
+            BindGrapplePresentation(connectionSamus);
             if (family == 2)
             {
                 // A nonzero fractional half alone must select the vertical table and must
@@ -591,6 +610,8 @@ static void VerifySamusGrappleSwingAndRelease()
         32, 16, swingBlocks, new byte[swingBlocks.Length]);
 
     var samus = new SamusState { XPosition = 10, YPosition = 20 };
+
+    BindGrapplePresentation(samus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         samus,
@@ -647,15 +668,19 @@ static void VerifySamusGrappleSwingAndRelease()
     // Give bank-$93 table index 16 one deliberately recognizable one-piece spritemap.
     // The first flare call must force frame 16/timer three, decrement the timer to two,
     // and draw at the connected Flare origin before any rope or Samus objects are appended.
-    WriteTestWord(bus, 0x93a1a1 + 16 * 2, 0x9000);
-    WriteTestWord(bus, 0x939000, 1);
-    WriteTestWord(bus, 0x939002, 2);
-    bus.WriteByte(0x939004, 0xfd);
-    WriteTestWord(bus, 0x939005, 0x3456);
+    foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
+    {
+        WriteTestWord(bus, 0x930000 | pointer, 1);
+        WriteTestWord(bus, 0x930000 | (pointer + 2), 2);
+        bus.WriteByte(0x930000 | (pointer + 4), 0xfd);
+        WriteTestWord(bus, 0x930000 | (pointer + 5), 0x3456);
+    }
+    var fixtureFlareSprites = ChargeFlareSpriteCatalog.Load(
+        new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
     var grappleFlareOam = new OamBuffer();
     grappleFlareOam.BeginFrame();
     AssertTrue(SamusGrappleMovement.DrawFlareBeforeSamus(
-            bus, samus, grappleFlareOam, layer1X: 100, layer1Y: 50),
+            bus, samus, grappleFlareOam, layer1X: 100, layer1Y: 50, compositions: fixtureFlareSprites),
         "connected grapple flare passes unsigned screen-Y gate");
     AssertEqual(1, samus.Grapple.FlareCounter,
         "grapple flare counter increments only in post-Samus tile pass");
@@ -791,6 +816,7 @@ static void VerifySamusGrappleSwingAndRelease()
     RoomLevelData angularCollisionLevel = CreateRoom(
         16, 16, angularCollisionBlocks, new byte[angularCollisionBlocks.Length]);
     var angularCollisionSamus = new SamusState();
+    BindGrapplePresentation(angularCollisionSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         angularCollisionSamus,
@@ -835,6 +861,7 @@ static void VerifySamusGrappleSwingAndRelease()
         RoomLevelData spikeBlockLevel = CreateRoom(
             16, 16, spikeBlockWords, spikeBlockBts);
         var spikeBlockSamus = new SamusState();
+        BindGrapplePresentation(spikeBlockSamus);
         SamusGrappleMovement.ConnectUnobstructedSwing(
             bus,
             spikeBlockSamus,
@@ -879,6 +906,7 @@ static void VerifySamusGrappleSwingAndRelease()
         spikeAirBts[8 * 16 + 11] = behavior;
         RoomLevelData spikeAirLevel = CreateRoom(16, 16, spikeAirWords, spikeAirBts);
         var spikeAirSamus = new SamusState();
+        BindGrapplePresentation(spikeAirSamus);
         SamusGrappleMovement.ConnectUnobstructedSwing(
             bus,
             spikeAirSamus,
@@ -949,6 +977,7 @@ static void VerifySamusGrappleSwingAndRelease()
     RoomLevelData ropeCollisionLevel = CreateRoom(
         16, 16, ropeCollisionBlocks, ropeCollisionBts);
     var ropeCollisionSamus = new SamusState();
+    BindGrapplePresentation(ropeCollisionSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         ropeCollisionSamus,
@@ -976,6 +1005,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // Gravity creates nonzero momentum, selecting the translated release path rather than
     // the still-untranslated zero-speed dropped handler.
     var disconnectedAnchorSamus = new SamusState();
+    BindGrapplePresentation(disconnectedAnchorSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         disconnectedAnchorSamus,
@@ -1009,6 +1039,7 @@ static void VerifySamusGrappleSwingAndRelease()
     RoomLevelData specialLevel = CreateRoom(
         16, 16, specialBlocks, new byte[specialBlocks.Length]);
     var wallGrabSamus = new SamusState();
+    BindGrapplePresentation(wallGrabSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         wallGrabSamus,
@@ -1106,6 +1137,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // `$C8C5`. Pose `$B9` has direction six and radius sixteen, so table `$C9C4[6]` must
     // choose compact diagonal-down-left `$74`, not a generic falling approximation.
     var expiredWallGrabSamus = new SamusState();
+    BindGrapplePresentation(expiredWallGrabSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         expiredWallGrabSamus,
@@ -1150,6 +1182,7 @@ static void VerifySamusGrappleSwingAndRelease()
     lockedBlocks[7 * 16 + 7] = 0x8000;
     RoomLevelData lockedLevel = CreateRoom(16, 16, lockedBlocks, new byte[lockedBlocks.Length]);
     var lockedSamus = new SamusState();
+    BindGrapplePresentation(lockedSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
         bus,
         lockedSamus,

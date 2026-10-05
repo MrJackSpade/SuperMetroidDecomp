@@ -14,16 +14,14 @@ internal static partial class Program
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
         MethodInfo ceresWalker = typeof(RoomEnemySystem).GetMethod(
-            "ExtendedSpritemapOverlapsRectangle", flags)!;
-        var native = new RoomEnemySystem();
+            "ExtendedSpritemapOverlapsRectangle", BindingFlags.Static | BindingFlags.NonPublic)!;
         var compiled = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(native, rom);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(compiled, denied);
-        RoomEnemySlot nativeSlot = native.Slots[0];
+        var nativeSlot = new RoomEnemySlot(0);
         RoomEnemySlot compiledSlot = compiled.Slots[0];
         nativeSlot.Definition = compiledSlot.Definition =
             default(RoomEnemyDefinition) with { Bank = RidleyCollisionDefinitions.Bank };
-        // The unrelated native definition takes the independent generic cartridge
+        // The reference slot is read by the independent test-side cartridge
         // walker. The installed definition selects the new compiled Ridley branch.
         nativeSlot.EnemyDefinitionPointer = 0xffff;
         compiledSlot.EnemyDefinitionPointer = RoomEnemySystem.NorfairRidleyDefinition;
@@ -106,7 +104,7 @@ internal static partial class Program
                         object?[] compiledArguments =
                         [compiledSlot, xs[xi], ys[yi], radiusX, radiusY,
                             shot != 0, (ushort)0];
-                        bool nativeHit = (bool)walker.Invoke(native, nativeArguments)!;
+                        bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
                         bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
                         AssertEqual(nativeHit, compiledHit,
                             $"Ridley $A6:{frame:X4} overlap {xi},{yi}, shot={shot}");
@@ -123,7 +121,7 @@ internal static partial class Program
                             object?[] ceresArguments =
                                 [compiledSlot, xs[xi], ys[yi], radiusX, radiusY];
                             bool actualCeres = (bool)ceresWalker.Invoke(
-                                compiled, ceresArguments)!;
+                                null, ceresArguments)!;
                             AssertEqual(expectedCeres, actualCeres,
                                 $"Ceres private Ridley projectile overlap $A6:{frame:X4}");
                         }

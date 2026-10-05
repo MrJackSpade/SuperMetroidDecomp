@@ -256,7 +256,9 @@ internal static partial class Program
         {
             object?[] arguments =
                 [slot, x, y, radiusX, radiusY, shot, (ushort)0];
-            bool hit = (bool)walker.Invoke(enemies, arguments)!;
+            bool hit = slot.EnemyDefinitionPointer == 0xffff
+                ? ReferenceExtendedCollision(rom, arguments)
+                : (bool)walker.Invoke(enemies, arguments)!;
             return (hit, (ushort)arguments[6]!);
         }
     }

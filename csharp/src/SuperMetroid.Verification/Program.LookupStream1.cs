@@ -685,4 +685,113 @@ internal static partial class Program
         foreach (var (header, room) in new[] { (0x91f8, 0), (0x93fe, 5), (0x948c, 7), (0x94fd, 9), (0x9552, 10), (0x957d, 11), (0x95a8, 12), (0x95ff, 14) })
             AssertEqual((byte)room, rom.ReadByte(0x8f0000 | header), "native atmospheric room header identity");
     }
+    private static void VerifyLookupStream1ArmCannonTileSources(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var nativeSources = new SortedSet<ushort>();
+        for (int direction = 0; direction < 10; direction++)
+        {
+            int list = 0x900000 | Word(0x90c7a5 + direction * 2);
+            for (int frame = 1; frame < 4; frame++) nativeSources.Add(Word(list + frame * 2));
+        }
+        ushort[] expected = nativeSources.ToArray();
+        var sources = SamusArmCannonArtworkFormat.TileSourcePointers;
+        AssertEqual(expected.Length, sources.Length, "Calculated cannon source count matches distinct native list operands");
+        AssertTrue(expected.SequenceEqual(sources), "Calculated cannon source enumeration retains original ascending tile order");
+        for (int index = 0; index < expected.Length; index++)
+            AssertEqual(expected[index], sources[index], "Calculated cannon source indexing retains native identity");
+        for (int word = 0; word <= ushort.MaxValue; word++)
+        {
+            int nativeIndex = Array.IndexOf(expected, (ushort)word);
+            AssertEqual(nativeIndex, sources.IndexOf((ushort)word), "Calculated cannon reverse index preserves complete word domain");
+            AssertEqual(nativeIndex >= 0, sources.Contains((ushort)word), "Calculated cannon membership rejects interior addresses");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, expected.Length, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = sources[invalid], "Calculated cannon source index bounds preserve array contract");
+        using var directory = new MapCatalogTestDirectory();
+        SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
+        byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
+        var stock = SamusArmCannonArtworkCatalog.Load(new MemoryStream(json), new MemoryStream(png));
+        byte[] nativePlanar = expected.SelectMany(pointer => Enumerable.Range(0, 32).Select(offset => rom.ReadByte((0x9a0000 | pointer) + offset))).ToArray();
+        AssertEqual(ReferenceIdentity(json, nativePlanar), stock.ContentIdentity, "Calculated cannon selectors preserve canonical native content identity");
+        VerifySelectors(stock, -1, 0);
+        for (int direction = 0; direction < 10; direction++)
+        {
+            var document = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+            ushort replacement = expected[(sources.IndexOf(stock.TileSource(direction, 2)) + 1) % expected.Length];
+            document["tileSources"]![direction]![2] = replacement;
+            document["spriteAttributes"]![direction] = stock.SpriteAttributes(direction) ^ 0x4000;
+            byte[] changedJson = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
+            var changed = SamusArmCannonArtworkCatalog.Load(new MemoryStream(changedJson), new MemoryStream(png));
+            VerifySelectors(changed, direction, replacement);
+            AssertEqual(ReferenceIdentity(changedJson, nativePlanar), changed.ContentIdentity, "Independent cannon selector edits preserve canonical hash framing/order");
+            VerifySelectors(stock, -1, 0);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => stock.SpriteAttributes(invalid), "Cannon OBJ selector bounds remain exact");
+            AssertThrows<IndexOutOfRangeException>(() => stock.TileSource(invalid, 0), "Cannon tile direction bounds remain exact");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => stock.TileSource(0, invalid), "Cannon cover frame bounds remain exact");
+        Verify(stock, false);
+        var image = IndexedPng.Read(new MemoryStream(png), sources.Length * 8, 8);
+        byte[] pixels = (byte[])image.Pixels.Clone();
+        pixels[5 * 8] ^= 1;
+        using var editedPng = new MemoryStream();
+        IndexedPng.Write(editedPng, image.Width, image.Height, pixels, image.Palette);
+        editedPng.Position = 0;
+        var edited = SamusArmCannonArtworkCatalog.Load(new MemoryStream(json), editedPng);
+        Verify(edited, true);
+        Verify(stock, false);
+        AssertTrue(!stock.TryResolveTile(0x9b0000 | expected[0], 32, out _), "Cannon transfer retains native bank boundary");
+        AssertTrue(!stock.TryResolveTile(0x9a0000 | expected[0], 31, out _), "Cannon transfer retains native byte-count boundary");
+        AssertTrue(!stock.TryResolveTile((0x9a0000 | expected[0]) + 1, 32, out _), "Cannon transfer rejects interior source address");
+
+        void VerifySelectors(SamusArmCannonArtworkCatalog catalog, int editedDirection, ushort replacement)
+        {
+            for (int direction = 0; direction < 10; direction++)
+            {
+                ushort expectedAttributes = Word(0x90c791 + direction * 2);
+                if (direction == editedDirection) expectedAttributes ^= 0x4000;
+                AssertEqual(expectedAttributes, catalog.SpriteAttributes(direction), "Calculated OBJ reflections preserve native attributes and independent edits");
+                int list = 0x900000 | Word(0x90c7a5 + direction * 2);
+                for (int frame = 0; frame < 4; frame++)
+                {
+                    ushort expectedSource = direction == editedDirection && frame == 2 ? replacement : Word(list + frame * 2);
+                    AssertEqual(expectedSource, catalog.TileSource(direction, frame), "Calculated cannon orientation/frame preserves native selections and independent edits");
+                }
+            }
+        }
+
+        static string ReferenceIdentity(byte[] jsonBytes, byte[] planar)
+        {
+            using var document = System.Text.Json.JsonDocument.Parse(jsonBytes);
+            var root = document.RootElement;
+            return SelectedPresentationHash.Create(nameof(SamusArmCannonArtworkCatalog), content =>
+            {
+                content.AppendWords("pose pointers", root.GetProperty("posePointers").EnumerateArray().Select(value => (ushort)value.GetInt32()).ToArray());
+                content.Append("drawing data", root.GetProperty("drawingData").EnumerateArray().Select(value => (byte)value.GetInt32()).ToArray());
+                content.AppendWords("attributes", root.GetProperty("spriteAttributes").EnumerateArray().Select(value => (ushort)value.GetInt32()).ToArray());
+                foreach (var direction in root.GetProperty("tileSources").EnumerateArray())
+                    content.AppendWords("tile sources", direction.EnumerateArray().Select(value => (ushort)value.GetInt32()).ToArray());
+                content.Append("characters", planar);
+            });
+        }
+        void Verify(SamusArmCannonArtworkCatalog catalog, bool hasEdit)
+        {
+            for (int index = 0; index < expected.Length; index++)
+            {
+                int source = 0x9a0000 | expected[index];
+                AssertTrue(catalog.TryResolveTile(source, 32, out var tile), "Actual cannon transfer resolves every calculated identity");
+                for (int offset = 0; offset < 32; offset++)
+                {
+                    byte native = rom.ReadByte(source + offset);
+                    if (hasEdit && index == 5 && offset == 0) native ^= 0x80;
+                    AssertEqual(native, tile.Span[offset], "Calculated identity retains original tile bytes and isolated edited pixel");
+                }
+            }
+        }
+    }
 }

@@ -11616,4 +11616,15 @@
     "state":  "converted",
     "algorithm":  "Decode signed bytes of neutral/native negative-four impulse; overlapping-word ninth OAM bit proven equivalent. A325 consumed; A326-A328 unread.",
     "remaining":  "No quake table residual or exception.529 converted,15 justified retained/mixed,584 pending overall."
+},"armCannonSelectorsIntegration":{
+    "confirmation":  "Root build1445/0; ResourceAudit0/0; native12addresses/65536reverse inputs/10attributes/40selectors/384tilebytes, independent selector and pixel edits/hash and bounds pass.",
+    "completed":  [
+                      "SamusArmCannonArtworkFormat.TileSourcePointers",
+                      "SamusArmCannonArtworkCatalog.attributes",
+                      "SamusArmCannonArtworkCatalog.tileSources"
+                  ],
+    "workerCommits":  "4719f5d17c31138c286f2d812ec3d2795847355c;408ba8de3707fbcb8070ec13283b9e8675949e82",
+    "state":  "three-converted",
+    "algorithm":  "Twelve source identities from0200-byte block strides; physical aim orientation/opening-frame arithmetic; native direction reflections with shared OBJ fields; sparse custom overrides.",
+    "remaining":  "Pose pointers/drawing bytes/pixels required; no new exception.532converted,15justified retained/mixed,581pending."
 }}

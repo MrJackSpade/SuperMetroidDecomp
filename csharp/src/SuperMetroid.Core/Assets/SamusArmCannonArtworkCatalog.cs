@@ -10,8 +10,8 @@ public sealed class SamusArmCannonArtworkCatalog
 {
     private readonly ushort[] posePointers;
     private readonly byte[] drawingData;
-    private readonly ushort[] attributes;
-    private readonly ushort[][] tileSources;
+    private readonly Dictionary<int, ushort> attributes = new();
+    private readonly Dictionary<int, ushort> tileSources = new();
     private readonly RoomCharacterAtlas tiles;
 
     private SamusArmCannonArtworkCatalog(ushort[] posePointers, byte[] drawingData,
@@ -19,8 +19,14 @@ public sealed class SamusArmCannonArtworkCatalog
     {
         this.posePointers = posePointers;
         this.drawingData = drawingData;
-        this.attributes = attributes;
-        this.tileSources = tileSources;
+        for (int direction = 0; direction < attributes.Length; direction++)
+        {
+            if (attributes[direction] != SamusArmCannonArtworkFormat.StockSpriteAttributes((SamusProjectileDirection)direction))
+                this.attributes.Add(direction, attributes[direction]);
+            for (int frame = 0; frame < SamusArmCannonArtworkFormat.FramesPerDirection; frame++)
+                if (tileSources[direction][frame] != SamusArmCannonArtworkFormat.StockTileSource((SamusProjectileDirection)direction, frame))
+                    this.tileSources.Add(direction * SamusArmCannonArtworkFormat.FramesPerDirection + frame, tileSources[direction][frame]);
+        }
         this.tiles = tiles;
     }
 
@@ -29,9 +35,15 @@ public sealed class SamusArmCannonArtworkCatalog
     {
         content.AppendWords("pose pointers", this.posePointers);
         content.Append("drawing data", this.drawingData);
-        content.AppendWords("attributes", this.attributes);
-        foreach (ushort[] direction in this.tileSources)
-            content.AppendWords("tile sources", direction);
+        Span<ushort> selectedAttributes = stackalloc ushort[SamusRenderingRomData.ArmCannon.DirectionCount];
+        for (int direction = 0; direction < selectedAttributes.Length; direction++) selectedAttributes[direction] = SpriteAttributes(direction);
+        content.AppendWords("attributes", selectedAttributes);
+        Span<ushort> selectedSources = stackalloc ushort[SamusArmCannonArtworkFormat.FramesPerDirection];
+        for (int direction = 0; direction < SamusRenderingRomData.ArmCannon.DirectionCount; direction++)
+        {
+            for (int frame = 0; frame < selectedSources.Length; frame++) selectedSources[frame] = TileSource(direction, frame);
+            content.AppendWords("tile sources", selectedSources);
+        }
         content.Append("characters", this.tiles.Transfer.Span);
     });
 
@@ -130,9 +142,20 @@ public sealed class SamusArmCannonArtworkCatalog
         return drawingData[index];
     }
 
-    public ushort SpriteAttributes(int direction) => attributes[direction];
+    public ushort SpriteAttributes(int direction)
+    {
+        if ((uint)direction >= SamusRenderingRomData.ArmCannon.DirectionCount) throw new IndexOutOfRangeException();
+        return attributes.TryGetValue(direction, out ushort supplied) ? supplied
+            : SamusArmCannonArtworkFormat.StockSpriteAttributes((SamusProjectileDirection)direction);
+    }
 
-    public ushort TileSource(int direction, int frame) => tileSources[direction][frame];
+    public ushort TileSource(int direction, int frame)
+    {
+        if ((uint)direction >= SamusRenderingRomData.ArmCannon.DirectionCount ||
+            (uint)frame >= SamusArmCannonArtworkFormat.FramesPerDirection) throw new IndexOutOfRangeException();
+        return tileSources.TryGetValue(direction * SamusArmCannonArtworkFormat.FramesPerDirection + frame, out ushort supplied) ? supplied
+            : SamusArmCannonArtworkFormat.StockTileSource((SamusProjectileDirection)direction, frame);
+    }
 
     /// <summary>Resolves the queued 32-byte VRAM DMA from the editable indexed PNG.</summary>
     public bool TryResolveTile(int sourceAddress, int byteCount,
@@ -142,7 +165,7 @@ public sealed class SamusArmCannonArtworkCatalog
         {
             int source = sourceAddress & 0xffff;
             if ((sourceAddress & 0xff0000) == SamusRenderingRomData.Banks.CharacterData &&
-                Array.IndexOf(SamusArmCannonArtworkFormat.TileSourcePointers,
+                SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(
                     unchecked((ushort)source)) is int index and >= 0)
             {
                 data = tiles.Transfer.Slice(index * byteCount, byteCount);
@@ -190,12 +213,71 @@ public static class SamusArmCannonArtworkFormat
     public const ushort DrawingDataEndExclusive = 0xcc39;
     public const int DrawingDataByteCount = DrawingDataEndExclusive - DrawingDataStart;
     public const int FramesPerDirection = 4;
-    /// <summary>Twelve distinct bank-$9A 8×8 cover tiles reached through four native lists.</summary>
-    public static readonly ushort[] TileSourcePointers =
-    [
-        0x9a00, 0x9c00, 0x9e00,
-        0xa000, 0xa200, 0xa400,
-        0xa600, 0xa800, 0xaa00,
-        0xac00, 0xae00, 0xb000,
-    ];
+    private enum TileOrientation
+    {
+        /// <summary>$90:C7B9 selects vertical frames from $9A:9A00.</summary>
+        Vertical,
+        /// <summary>$90:C7C1 selects horizontal frames from $9A:A000.</summary>
+        Horizontal,
+        /// <summary>$90:C7C9 selects downward-diagonal frames from $9A:A600.</summary>
+        DownwardDiagonal,
+        /// <summary>$90:C7D1 selects upward-diagonal frames from $9A:AC00.</summary>
+        UpwardDiagonal,
+    }
+    /// <summary>$90:C791..C7A4 assigns OBJ character $1F, palette4 and priority2 to the cannon cover.</summary>
+    private const ushort CoverSpriteIdentity = 0x001f | (4 << 9) | (2 << 12);
+    /// <summary>$90:C791..C7A4 uses bit14 to reflect the selected cover artwork horizontally.</summary>
+    private const ushort HorizontalReflection = 1 << 14;
+    /// <summary>$90:C791..C7A4 uses bit15 to reflect the vertical source for downward aim.</summary>
+    private const ushort VerticalReflection = 1 << 15;
+
+    /// <summary>$90:C7A5..C7D8 chooses a physical artwork orientation and three successive opening frames; frame0 is the closed no-transfer sentinel.</summary>
+    internal static ushort StockTileSource(SamusProjectileDirection direction, int frame)
+    {
+        if (frame == 0) return 0;
+        TileOrientation orientation = direction switch
+        {
+            SamusProjectileDirection.UpRight or SamusProjectileDirection.UpLeft => TileOrientation.UpwardDiagonal,
+            SamusProjectileDirection.Right or SamusProjectileDirection.Left => TileOrientation.Horizontal,
+            SamusProjectileDirection.DownRight or SamusProjectileDirection.DownLeft => TileOrientation.DownwardDiagonal,
+            _ => TileOrientation.Vertical,
+        };
+        return TileSourcePointers[(int)orientation * (FramesPerDirection - 1) + frame - 1];
+    }
+
+    /// <summary>$90:C791..C7A4 reflects the selected vertical/horizontal/diagonal artwork according to native aiming direction.</summary>
+    internal static ushort StockSpriteAttributes(SamusProjectileDirection direction)
+    {
+        bool horizontal = direction is SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingLeft
+            or SamusProjectileDirection.Left or SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft;
+        bool vertical = direction is SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft;
+        return (ushort)(CoverSpriteIdentity | (horizontal ? HorizontalReflection : 0) | (vertical ? VerticalReflection : 0));
+    }
+    /// <summary>$9A:9A00, Tiles_NonClosed_ArmCannon_Vertical_0, first of twelve cover tile sources.</summary>
+    private const int FirstTileSource = 0x9a00;
+    /// <summary>The twelve native cover sources from $9A:9A00 through $9A:B000 occupy successive $200-byte character blocks.</summary>
+    private const int TileSourceStride = 0x0200;
+    /// <summary>Twelve source identities selected by the four three-frame lists at $90:C7B9..C7D8.</summary>
+    public static TileSourceSequence TileSourcePointers => new();
+
+    /// <summary>Calculated source identities in the original exported tile order; no tile pixels are inferred.</summary>
+    public readonly record struct TileSourceSequence : IReadOnlyList<ushort>
+    {
+        public int Count => 12;
+        public int Length => Count;
+        public ushort this[int index] => (uint)index < Count
+            ? (ushort)(FirstTileSource + index * TileSourceStride)
+            : throw new IndexOutOfRangeException();
+        public int IndexOf(ushort source)
+        {
+            int index = (source - FirstTileSource) / TileSourceStride;
+            return (uint)index < Count && this[index] == source ? index : -1;
+        }
+        public bool Contains(ushort source) => IndexOf(source) >= 0;
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }

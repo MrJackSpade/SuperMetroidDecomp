@@ -431,8 +431,7 @@ internal static partial class Program
                 SamusArmCannonArtworkFormat.TileFileName)), writable: false),
             SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8, 8);
         ushort selectedArmTileSource = stock.ArmCannon.TileSource(armSelector & 0x7f, 3);
-        int selectedArmTileIndex = Array.IndexOf(
-            SamusArmCannonArtworkFormat.TileSourcePointers, selectedArmTileSource);
+        int selectedArmTileIndex = SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(selectedArmTileSource);
         AssertTrue(selectedArmTileIndex >= 0,
             "standing Samus's fully open cover selects an extracted tile");
         byte[] armPixels = (byte[])armImage.Pixels.Clone();

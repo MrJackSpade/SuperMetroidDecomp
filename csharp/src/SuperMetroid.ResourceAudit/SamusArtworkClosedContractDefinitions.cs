@@ -22,7 +22,7 @@ internal static class SamusArtworkClosedContractDefinitions
             "Public construction requires both four-word direct atmospheric lists and clones their arrays. Unsupported types or frames return false without demanding absent artwork. This proves only the direct-list membership query, not mutable-memory fallback, timing, uploaded characters or pixels."),
         new("SuperMetroid.Core.Assets.SamusArmCannonArtworkCatalog", "samus-complete-cannon-placement-and-tile-membership",
             ["PoseDrawingData", "ReadDrawingByte", "SpriteAttributes", "TileSource", "TryResolveTile"],
-            [new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "5FC3060A58A9FB345A62521ED7A0DD505D7672A4EBBC8C8A0AFDED67A6268210"),
+            [new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "055CB36A7CD87FA0C44A8B3C27CB4DE570B1541F7EE4B2595E3D966D4ECC9259"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs", "E666CEBCF6BA4F1ECD82464A8377F2A5FD80CB5AC709AA3D0D2F2DA0CA73F4AD"),
              new("csharp/src/SuperMetroid.Core/Game/SamusRenderingRomData.cs", "92B942C3417DA086E5CDCF45B2594A28B339E96AF222EFBC5035DCB6DBEBB8DE"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs", "0C2CD85F446A356CF2A0E226E7F9D45C64F23C118A58097058E2B33152F97512")],

@@ -426,8 +426,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoEggInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoEggInstructionProgramDefinitions.Words** ([L37](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEggInstructionProgramDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoEggInstructionProgramDefinitions.PresentationWords** ([L100](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEggInstructionProgramDefinitions.cs#L100)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoEggInstructionProgramDefinitions.Words** ([L37](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEggInstructionProgramDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoEggInstructionProgramDefinitions.PresentationWords** ([L100](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEggInstructionProgramDefinitions.cs#L100)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.cs
 
@@ -834,3 +834,10 @@ The remaining25 words are physical observations of code bytes at$90:B657-$B688, 
 Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). New `--lookup-stream2-trail-selectors` runs only the existing selector proof's relevant assertions: all103 reachable native words, every64 actual spawn selection, original timers/origin and bounds, with the full selector ROM window forbidden. It does not run the unrelated coordinate catalog checks. The original broader verifier remains unchanged.
 
 Counts remain47 complete and179 required; `ProjectileTrailDefinitions.ReachableSelectors` remains unchecked until its residual disposition is accepted.
+### Batch 18: Golden Torizo egg program structure
+
+Removed mechanics and visual-address tables. Paired facing programs calculate their bounce48-tick sleep, three four-tick pre-hatch poses, shared property handoff, hatched four-pose six-tick loop and five-pose break. Explicit controls preserve sound, movement callback, shared hatch target and deletion; the final left/right break hold remains10/8 ticks. All offsets derive from program layout, including packed sound bytes.
+
+Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). `--golden-torizo-egg-instruction-mechanics` passed all53 original private mechanics words, both actual producers through bounce/hatch/charge/floor-break, the shared shot-break program,26 original compiled visual operands and zero forbidden reads. The first run reached the obsolete visual assertion (expected26 reads, actual0); assigned verification now checks zero reads and exact native selectors while preserving the existing complete producer/state/lifetime assertions.
+
+Forty-nine stream2 named definitions complete;177 remain required. Pending palette seeds/residuals and adjacent trail code observations retain their explicit unresolved status.

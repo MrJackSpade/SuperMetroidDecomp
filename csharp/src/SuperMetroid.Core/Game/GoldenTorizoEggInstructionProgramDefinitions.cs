@@ -33,96 +33,92 @@ internal static class GoldenTorizoEggInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Break_FacingRight</c> at $86:B1A8.</summary>
     internal const ushort BreakRight = 0xb1a8;
 
-    private static readonly GoldenTorizoEggInstructionMechanicsWord[] Words =
-    [
-        new(BouncingLeft, 0x0030),
-        new(0xb108, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(0xb10a, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xb10c, 4),
-        new(0xb110, 4),
-        new(0xb114, 4),
-        new(0xb118, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb11a, Hatch),
+    internal static int MechanicsWordCount => 53;
+    internal static int PresentationWordCount => 26;
 
-        new(BouncingRight, 0x0030),
-        new(0xb120, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(0xb122, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xb124, 4),
-        new(0xb128, 4),
-        new(0xb12c, 4),
-        new(0xb130, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb132, Hatch),
+    internal static GoldenTorizoEggInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 16)
+        {
+            ushort start = (ushort)(BouncingLeft + 24 * (index / 8));
+            int local = index % 8;
+            if (local is >= 3 and < 6) return new((ushort)(start + 8 + 4 * (local - 3)), 4);
+            return local switch
+            {
+                0 => new(start, 48),
+                1 => new((ushort)(start + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
+                2 => new((ushort)(start + 6), EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
+                6 => new((ushort)(start + 20), EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+                _ => new((ushort)(start + 22), Hatch),
+            };
+        }
+        if (index < 21)
+        {
+            int local = index - 16;
+            ushort value = local switch
+            {
+                0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY,
+                1 => 0xdfff,
+                2 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY,
+                3 => 0x8000,
+                _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GoldenTorizoEgg_GoToHatched,
+            };
+            return new((ushort)(Hatch + 2 * local), value);
+        }
+        if (index < 39)
+        {
+            int offset = index - 21;
+            ushort start = (ushort)(HatchedLeft + 27 * (offset / 9));
+            int local = offset % 9;
+            if (local is >= 3 and < 7) return new((ushort)(start + 7 + 4 * (local - 3)), 6);
+            return local switch
+            {
+                0 => new(start, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
+                1 => new((ushort)(start + 3), EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
+                2 => new((ushort)(start + 5), EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_Hatched),
+                7 => new((ushort)(start + 23), EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
+                _ => new((ushort)(start + 25), (ushort)(start + 7)),
+            };
+        }
+        int breakOffset = index - 39;
+        int facing = breakOffset / 7;
+        ushort breakStart = (ushort)(BreakLeft + 24 * facing);
+        int breakWord = breakOffset % 7;
+        if (breakWord == 0) return new(breakStart, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction);
+        if (breakWord == 6) return new((ushort)(breakStart + 22), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        // Four four-tick shattering poses precede the facing-specific final hold.
+        return new((ushort)(breakStart + 2 + 4 * (breakWord - 1)),
+            breakWord == 5 ? (ushort)(facing == 0 ? 10 : 8) : (ushort)4);
+    }
 
-        new(Hatch, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY),
-        new(0xb136, 0xdfff),
-        new(0xb138, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY),
-        new(0xb13a, 0x8000),
-        new(0xb13c, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GoldenTorizoEgg_GoToHatched),
-
-        new(HatchedLeft, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
-        new(0xb14e, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0xb150, EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_Hatched),
-        new(HatchedLeftLoop, 6),
-        new(0xb156, 6),
-        new(0xb15a, 6),
-        new(0xb15e, 6),
-        new(0xb162, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb164, HatchedLeftLoop),
-
-        new(HatchedRight, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
-        new(0xb169, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0xb16b, EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_GoldenTorizoEgg_Hatched),
-        new(HatchedRightLoop, 6),
-        new(0xb171, 6),
-        new(0xb175, 6),
-        new(0xb179, 6),
-        new(0xb17d, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb17f, HatchedRightLoop),
-
-        new(BreakLeft, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xb192, 4),
-        new(0xb196, 4),
-        new(0xb19a, 4),
-        new(0xb19e, 4),
-        new(0xb1a2, 10),
-        new(0xb1a6, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-
-        new(BreakRight, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xb1aa, 4),
-        new(0xb1ae, 4),
-        new(0xb1b2, 4),
-        new(0xb1b6, 4),
-        new(0xb1ba, 8),
-        new(0xb1be, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xb106, 0xb10e, 0xb112, 0xb116,
-        0xb11e, 0xb126, 0xb12a, 0xb12e,
-        0xb154, 0xb158, 0xb15c, 0xb160,
-        0xb16f, 0xb173, 0xb177, 0xb17b,
-        0xb194, 0xb198, 0xb19c, 0xb1a0, 0xb1a4,
-        0xb1ac, 0xb1b0, 0xb1b4, 0xb1b8, 0xb1bc,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static GoldenTorizoEggInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 8)
+        {
+            int local = index % 4;
+            return (ushort)(BouncingLeft + 24 * (index / 4) + (local == 0 ? 2 : 10 + 4 * (local - 1)));
+        }
+        if (index < 16)
+        {
+            int offset = index - 8;
+            return (ushort)(HatchedLeft + 27 * (offset / 4) + 9 + 4 * (offset % 4));
+        }
+        int breakOffset = index - 16;
+        return (ushort)(BreakLeft + 24 * (breakOffset / 5) + 4 + 4 * (breakOffset % 5));
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address is >= TorizoChozoOrbInstructionProgramDefinitions.WallImpact and <= 0xab3f)
             return TorizoChozoOrbInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            GoldenTorizoEggInstructionMechanicsWord candidate = Words[middle];
+            GoldenTorizoEggInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -141,8 +137,9 @@ internal static class GoldenTorizoEggInstructionProgramDefinitions
         }
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);
-        foreach (GoldenTorizoEggInstructionMechanicsWord word in Words)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
+            var word = MechanicsWord(index);
             if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
                 return true;
         }

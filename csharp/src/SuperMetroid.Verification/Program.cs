@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream-1-animation-pointers"])
+{
+    string sourceRom = Path.GetFullPath("Super Metroid.smc");
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Animation pointer oracle revision");
+    VerifySamusAnimationDelayDefinitions(rom, sourceRom);
+    VerifyLookupStream1AnimationAliases(rom);
+    return 0;
+}
 if (args is ["--lookup-stream-1-hud-posture"])
 {
     VerifyLookupStream1HudPosture(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

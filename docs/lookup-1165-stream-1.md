@@ -353,7 +353,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs
 
-- [ ] **SamusAnimationDelayDefinitions.PosePointers** ([L20](../csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusAnimationDelayDefinitions.PosePointers** ([L20](../csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **SamusAnimationDelayDefinitions.DelayStreams** ([L88](../csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs#L88)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusArmCannonDefinitions.cs
@@ -948,3 +948,10 @@ SamusHudDefinitions.PostureObservationsByPose is mixed complete (e68a6acc9). Twe
 These retained bytes encode unrelated native instructions,addresses and branch displacements rather than posture policy. Reconstructing native machine code to synthesize accidental table observations would be nonsense; it would merely re-encode this bounded compatibility content. The exception excludes all12 real flags and every byte outside those exact windows; it does not authorize unbounded memory emulation.
 
 Root Verification build1445 warnings/zero errors; --lookup-stream-1-hud-posture passes all219 native observations,512 actual admission-helper results and DB-FF observation rejection. Inventory556 converted/20 retained-mixed/552 pending.
+
+
+## Integrated named Samus animation selection
+
+SamusAnimationDelayDefinitions.PosePointers is converted (8887f6556). All253 real poses select127 named native animation identities through semantic cases. FD-FF pointer aliases derive from the actual first six delay-stream bytes, preserving the existing low-bank mutable WRAM behavior. There is no cached pointer array or unrelated instruction-byte exception. DelayStreams remains required for every independent timing/command payload.
+
+Root Verification build1445 warnings/zero errors; --lookup-stream-1-animation-pointers confirms pinned ROM identity,256native pointers,every bounded definition byte,actual animation initialization,immutable-domain rejection and all three aliases under six successive WRAM mutations. Inventory557 converted/20 retained-mixed/551 pending.

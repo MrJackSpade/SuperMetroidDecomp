@@ -5,6 +5,25 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1AnimationAliases(CartridgeImportAddressSpace bus)
+    {
+        for (int pose = 0xFD; pose <= 0xFF; pose++)
+        {
+            int source = SamusAnimationDelayDefinitions.DelayStreamsAddress + (pose - 0xFD) * 2;
+            ushort expectedPointer = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+            ushort pointer = SamusAnimationDelayDefinitions.PointerForPose((byte)pose);
+            AssertEqual(expectedPointer, pointer, $"animation alias ${pose:X2} reads its running-delay source");
+            for (int change = 0; change < 2; change++)
+            {
+                byte expected = (byte)(pose - 0xFD + change * 16);
+                bus.WriteByte(0x7E0000 | pointer, expected);
+                AssertEqual(expected, SamusAnimationDelayDefinitions.ReadAnimationByte(bus, pointer, 0),
+                    $"animation alias ${pose:X2} observes WRAM mutation {change}");
+            }
+        }
+        Console.WriteLine("Animation aliases: three original running-delay words and six live WRAM mutations match.");
+    }
+
     private static void VerifyLookupStream1HudPosture(ISnesAddressSpace rom)
     {
         for (int pose = 0; pose < 256; pose++)

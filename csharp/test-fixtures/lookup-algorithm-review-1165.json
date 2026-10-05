@@ -11434,4 +11434,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "Stack-only composition of shared flinch, walk, three-shot attack and look/turn records calculates 92 control positions and 50 visual addresses.",
     "remaining":  "Words required: holds 16/10/24/8/32 and shot offsets +8/+2/-8 have no exception. 500 converted, 15 justified retained/mixed, 613 pending."
+},"torizoMovementReflectionIntegration":{
+    "scope":  "BombTorizoMovementDefinitions.PostureX,PostureY,WalkVelocities remain unchecked",
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. All 88 native words, 32 real standing/sitting applications, 20 real walking consumers and invalid offsets pass with all six source tables forbidden.",
+    "workerCommit":  "723be80bf3ed556a8333d6b66a816f77be30362e",
+    "state":  "partial-required",
+    "algorithm":  "Opposite-facing horizontal posture and walking values calculate by sign reflection, removing duplicated facing sequences.",
+    "remaining":  "Eight base X, eight Y and ten walking values remain required. No exemption. Counts unchanged: 500 converted, 15 justified retained/mixed, 613 pending."
 }}

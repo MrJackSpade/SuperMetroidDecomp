@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream2-torizo-movement"])
+{
+    VerifyBombTorizoMovementDefinitions(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--lookup-stream5-zebes-star-fields"])
 {
     VerifyLookupStream5ZebesStarFields(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

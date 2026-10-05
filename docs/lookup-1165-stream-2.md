@@ -946,3 +946,8 @@ The existing native XOR/reversal rules, accepted context domain, integer-movemen
 Coordinator-approved semantic catalog dispatch replaces the eight stored page references with mutually exclusive named artwork roles. The calculated indexed view preserves the manifest/hash order: shared death, statue crumble, left/right attack, Golden awakening, Golden left/right attack, Chozo debris. Source/extent/filename definitions remain on their dedicated named catalog members; separate pixel payloads remain REQUIRED and receive no exception.
 
 Root integration build1444 existing warnings/zero errors. --lookup-stream2-torizo-page-dispatch checks all eight exact ordered definitions and enumeration/index agreement, decodes each native page into the actual installed atlas representation, confirms complete-page and last-byte resolution, rejects overruns/empty ranges and invalid indexes, and compares canonical content hash to the original ordered native bytes. Integrated stream checkpoint: 76 converted, two mixed definitions, 148 required.
+
+### Bomb Torizo movement reflection integration
+Posture X and walking motion now calculate opposite-facing signs from eight left-facing posture displacements and ten walking values. Native AA:C3EE-C41D/C440-C46F and C4BD-C4E4/C532-C559 confirm reflection and identical standing/sitting and normal/faceless sources. The eight base X values, eight Y values and ten walking values remain required. PostureX, PostureY and WalkVelocities stay unchecked; no choreography exception or completion-count change.
+
+Root Verification build: 1445 warnings, zero errors. --lookup-stream2-torizo-movement passed all 88 native words, 32 real posture applications, 20 real walking consumers and invalid offsets with all six source tables forbidden.

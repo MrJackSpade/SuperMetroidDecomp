@@ -172,7 +172,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorDefinitions.cs
 
-- [ ] **EnemyAuxiliaryColorDefinitions.Definitions** ([L29](../csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EnemyAuxiliaryColorDefinitions.Definitions** ([L29](../csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/EnemyBg2FrameCatalog.cs
 
@@ -1056,3 +1056,11 @@ Root Verification build passed with 1445 warnings and zero errors. --multiviola-
 `phaseTwoRearLeg` now reuses the calculated health-state-zero rear-leg palette: native A9:9494 repeats AD:E74C. The shared health palette already derives its shades from separately reviewed paint anchors; this conversion adds no retained payload or exception. Stock rows are discarded, while independently supplied edits retain their own colors.
 
 Root confirmation: Verification build passed with 1445 warnings and zero errors; ResourceAudit build passed with zero warnings/errors. `--lookup-phase-two-rear-leg` confirms all 15 native colors and CGRAM destinations plus 45 independent RGB edits, preserving every unedited rear-leg color and the attack palette. One inventory definition completed; 527 converted, 15 justified retained/mixed, 586 pending. Other room colors remain required.
+
+### Root integration: auxiliary palette gradients and glow
+
+The four named palette registrations now enumerate explicit domain definitions. Golden Torizo body/belly colors interpolate RGB5 endpoints over seven intervals, holding transparent slot zero until the last band. Face Block mirrors a three-step glow with its separate accent start. Sidehopper drain interpolates actual RGB5 endpoints over five intervals with separate corpse colors; the superseded RGB8 endpoint search was not integrated.
+
+Only `EnemyAuxiliaryColorDefinitions.Definitions` is complete. `EnemyAuxiliaryColorCatalog.frames` remains required: 64 Torizo endpoint words, nine Face Block input colors, and 30 Sidehopper endpoint plus 15 corpse colors still need dispositions. No retention exception is granted.
+
+Root Verification build passed (1445 warnings, zero errors); ResourceAudit build passed (zero warnings/errors). `--lookup-auxiliary-palettes` confirms all 393 native colors, 1179 independent RGB edits, unchanged selected-content hashes, stock calculated-row ownership, and invalid-index boundaries. Inventory: 528 converted, 15 justified retained/mixed, 585 pending.

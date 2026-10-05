@@ -11602,4 +11602,11 @@
     "state":  "converted",
     "algorithm":  "Native A9:9494 repeats AD:E74C health-state-zero rear-leg palette; reuse calculated shades and approved shared paint anchors. No new retention.",
     "remaining":  "Other room palette payloads required. 527 converted, 15 justified retained/mixed, 586 pending."
+},"auxiliaryPaletteIntegration":{
+    "confirmation":  "Root build1445/0; ResourceAudit0/0;393 native colors,1179 individual RGB edits, selected identity and bounds pass.",
+    "completed":  "EnemyAuxiliaryColorDefinitions.Definitions",
+    "workerCommits":  "03e09fdf3,61a97ff2c,14650bb97",
+    "state":  "partial-one-converted",
+    "algorithm":  "Named registration enumeration; nearest RGB5 health/drain gradients and mirrored glow. No RGB8 endpoint search.",
+    "remaining":  "Catalog frames pending:64 Torizo endpoints,9 Face Block inputs,30 Sidehopper endpoints,15 corpse colors. No exemption.528 converted,15 justified retained/mixed,585 pending."
 }}

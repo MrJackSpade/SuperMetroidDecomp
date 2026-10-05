@@ -1938,4 +1938,75 @@ internal static partial class Program
             }
         }
     }
+    private static void VerifyStream3AuxiliaryPalettes(ISnesAddressSpace rom)
+    {
+        EnemyAuxiliaryPaletteDefinition[] definitions =
+        [
+            new(EnemyAuxiliaryPalette.FaceBlock, 0xa8e7cc, 8, 4, 4),
+            new(EnemyAuxiliaryPalette.DeadSidehopper, 0xa9ebcc, 7, 15, 16),
+            new(EnemyAuxiliaryPalette.GoldenTorizoBody, 0x848032, 8, 16, 16),
+            new(EnemyAuxiliaryPalette.GoldenTorizoBelly, 0x848132, 8, 16, 16),
+        ];
+        AssertTrue(definitions.SequenceEqual(EnemyAuxiliaryColorDefinitions.All), "stream 3 auxiliary definition fields/order");
+        foreach (int invalid in new[] { -1, 4, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = EnemyAuxiliaryColorDefinitions.All[invalid], "stream 3 auxiliary definition bounds");
+        var words = definitions.ToDictionary(definition => definition.Id, definition =>
+            Enumerable.Range(0, definition.FrameCount).Select(frame =>
+                Enumerable.Range(0, definition.ColorCount).Select(color =>
+                {
+                    int address = definition.SourceAddress + 2 * (frame * definition.NativeFrameStrideColors + color);
+                    return (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                }).ToArray()).ToArray());
+        EnemyAuxiliaryColorCatalog Load()
+        {
+            var document = new EnemyAuxiliaryColorDocument
+            {
+                Version = 1,
+                Palettes = words.ToDictionary(pair => pair.Key, pair => pair.Value.Select(row => row.Select(word =>
+                    new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 }).ToArray()).ToArray()),
+            };
+            return EnemyAuxiliaryColorCatalog.Load(new MemoryStream(EnemyAuxiliaryColorCatalog.Write(document), writable: false));
+        }
+        void Check(EnemyAuxiliaryColorCatalog catalog)
+        {
+            foreach (var pair in words)
+                for (int frame = 0; frame < pair.Value.Length; frame++)
+                    for (int color = 0; color < pair.Value[frame].Length; color++)
+                        AssertEqual(pair.Value[frame][color], catalog.Resolve(pair.Key, frame, color), "stream 3 exact auxiliary selected color");
+            string expectedIdentity = SelectedPresentationHash.Create("enemy-auxiliary-colors-v1", content =>
+            {
+                foreach (var pair in words.OrderBy(pair => pair.Key))
+                {
+                    content.Append("palette", (int)pair.Key);
+                    content.AppendWordFrames("frames", pair.Value);
+                }
+            });
+            AssertEqual(expectedIdentity, catalog.ContentIdentity, "stream 3 auxiliary selected-content identity unchanged");
+        }
+        var stock = Load();
+        Check(stock);
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        foreach (string name in new[] { "faceBlock", "deadSidehopper", "torizoBody", "torizoBelly" })
+        {
+            object palette = typeof(EnemyAuxiliaryColorCatalog).GetField(name, fields)!.GetValue(stock)!;
+            AssertTrue(palette.GetType().GetField("supplied", fields)!.GetValue(palette) is null,
+                "stream 3 calculated auxiliary cycles have no stored frame rows");
+        }
+        foreach (var palette in definitions.Select(definition => definition.Id))
+        for (int frame = 0; frame < words[palette].Length; frame++)
+        for (int color = 0; color < words[palette][frame].Length; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            ushort original = words[palette][frame][color];
+            words[palette][frame][color] ^= (ushort)(1 << (channel * 5));
+            Check(Load());
+            words[palette][frame][color] = original;
+        }
+        foreach (int invalid in new[] { -1, 8, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, invalid, 0), "stream 3 Torizo band bounds");
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, 0, invalid), "stream 3 Torizo color bounds");
+        foreach (int invalid in new[] { -1, 4, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((EnemyAuxiliaryPalette)invalid, 0, 0), "stream 3 auxiliary palette identities reject unknown values");
+    }
 }

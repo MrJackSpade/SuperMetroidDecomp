@@ -9,24 +9,104 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-auxiliary-colors-v1", content =>
         {
-            foreach ((EnemyAuxiliaryPalette palette, ushort[][] rows) in frames.OrderBy(pair => pair.Key))
+            Span<ushort> row = stackalloc ushort[16];
+            foreach (EnemyAuxiliaryPaletteDefinition definition in EnemyAuxiliaryColorDefinitions.All)
             {
-                content.Append("palette", (int)palette);
-                content.AppendWordFrames("frames", rows);
+                PaletteRows rows = RowsFor(definition.Id);
+                content.Append("palette", (int)definition.Id);
+                content.Append("frames", rows.FrameCount);
+                for (int frame = 0; frame < rows.FrameCount; frame++)
+                {
+                    for (int color = 0; color < rows.ColorCount; color++) row[color] = rows.Color(frame, color);
+                    content.AppendWords("row", row[..rows.ColorCount]);
+                }
             }
         });
 
-    private readonly Dictionary<EnemyAuxiliaryPalette, ushort[][]> frames;
-    private EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, ushort[][]> frames) => this.frames = frames;
+    private readonly PaletteRows faceBlock;
+    private readonly PaletteRows deadSidehopper;
+    private readonly PaletteRows torizoBody;
+    private readonly PaletteRows torizoBelly;
+    private EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, ushort[][]> frames)
+    {
+        faceBlock = new(frames[EnemyAuxiliaryPalette.FaceBlock], healthGradient: false, faceGlow: true);
+        deadSidehopper = new(frames[EnemyAuxiliaryPalette.DeadSidehopper], healthGradient: false, sidehopperDrain: true);
+        torizoBody = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBody], healthGradient: true);
+        torizoBelly = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBelly], healthGradient: true);
+    }
+
+    private PaletteRows RowsFor(EnemyAuxiliaryPalette palette) => palette switch
+    {
+        EnemyAuxiliaryPalette.FaceBlock => faceBlock,
+        EnemyAuxiliaryPalette.DeadSidehopper => deadSidehopper,
+        EnemyAuxiliaryPalette.GoldenTorizoBody => torizoBody,
+        EnemyAuxiliaryPalette.GoldenTorizoBelly => torizoBelly,
+        _ => throw new ArgumentOutOfRangeException(nameof(palette)),
+    };
 
     public ushort Resolve(EnemyAuxiliaryPalette palette, int frame, int color)
     {
-        if (!frames.TryGetValue(palette, out ushort[][]? rows)) throw new ArgumentOutOfRangeException(nameof(palette));
-        if ((uint)frame >= rows.Length) throw new ArgumentOutOfRangeException(nameof(frame));
-        if ((uint)color >= rows[frame].Length) throw new ArgumentOutOfRangeException(nameof(color));
-        return rows[frame][color];
+        PaletteRows rows = RowsFor(palette);
+        if ((uint)frame >= rows.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
+        if ((uint)color >= rows.ColorCount) throw new ArgumentOutOfRangeException(nameof(color));
+        return rows.Color(frame, color);
     }
 
+    /// <summary>
+    /// $84:8032/8132 Golden Torizo body/belly health palettes interpolate RGB5 endpoints
+    /// to nearest over seven intervals. Transparent slot zero holds its initial word until
+    /// the last band. $A8:E7CC face-block glow mirrors a three-step rise; its fourth color
+    /// has a separate resting color and two-step active rise. Endpoint paint and unmatched
+    /// independently supplied rows remain data. $A9:EBCC-EC7C Sidehopper draining interpolates
+    /// actual RGB5 endpoints to nearest over five intervals; EC8C is separate corpse paint.
+    /// </summary>
+    private sealed class PaletteRows
+    {
+        private readonly ushort[] first;
+        private readonly ushort[] last;
+        private readonly ushort[][]? supplied;
+        private readonly bool faceGlow;
+        private readonly ushort glowAccentStart;
+        private readonly ushort[]? corpse;
+
+        internal int FrameCount { get; }
+        internal int ColorCount { get; }
+        internal PaletteRows(ushort[][] rows, bool healthGradient, bool faceGlow = false, bool sidehopperDrain = false)
+        {
+            FrameCount = rows.Length;
+            ColorCount = rows[0].Length;
+            first = rows[0];
+            last = rows[faceGlow ? 3 : sidehopperDrain ? rows.Length - 2 : rows.Length - 1];
+            corpse = sidehopperDrain ? rows[^1] : null;
+            this.faceGlow = faceGlow;
+            glowAccentStart = faceGlow ? rows[1][3] : (ushort)0;
+            if (!healthGradient && !faceGlow && !sidehopperDrain) { supplied = rows; return; }
+            for (int frame = 0; frame < FrameCount; frame++)
+                for (int color = 0; color < ColorCount; color++)
+                    if (Calculate(frame, color) != rows[frame][color]) { supplied = rows; return; }
+
+        }
+        internal ushort Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+        private ushort Calculate(int frame, int color)
+        {
+            if (corpse is not null && frame == FrameCount - 1) return corpse[color];
+            int steps = faceGlow ? 3 : FrameCount - (corpse is null ? 1 : 2);
+            if (faceGlow) frame = Math.Min(frame, FrameCount - 1 - frame);
+            else if (corpse is null && color == 0) return frame == steps ? last[color] : first[color];
+            ushort start = first[color];
+            if (faceGlow && color == 3)
+            {
+                if (frame == 0) return start;
+                start = glowAccentStart;
+                frame--; steps--;
+            }
+            int result = 0;
+            for (int shift = 0; shift < 15; shift += 5)
+                result |= (((start >> shift & 31) * (steps - frame)
+                    + (last[color] >> shift & 31) * frame + steps / 2) / steps) << shift;
+            return (ushort)result;
+        }
+    }
     public static EnemyAuxiliaryColorCatalog Load(Stream source)
     {
         ArgumentNullException.ThrowIfNull(source);

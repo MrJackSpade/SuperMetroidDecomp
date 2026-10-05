@@ -11162,7 +11162,7 @@
                       ],
     "reason":  "Lexical spelling is chosen text with no AI/physics derivation. Numbering/family composition,padding,ASCII packing,record index and identity selection remain calculated; no other payload exemption.",
     "evidence":  "Independent pinned A0:8923-893F copies five opaque ASCII words,8941 reads separate spritemap selector,8948-8968 publishes. B4 literal ATOMIC atDD97,BOTOON atDDDD,BATTA1Na atE205 confirmed. Managed RoomEnemySystem snapshot constructor/ReadSpawnNameWords preserves opaque Word0-4/Word6 metadata.",
-    "state":  "approved-pending-integration"
+    "state":  "integrated-mixed"
 },"pipeBugFormationIntegration":{
     "confirmation":  "Root Verification1444 warnings/zero errors; ten native immediate operands,both actual five-member facing formations,exact roles/rising programs,leader-only timer resets and bounds pass.",
     "completed":  "RunNorfairPipeBugSamusWait staggerTargets and staggerFunctions",
@@ -11293,4 +11293,13 @@
     "state":  "partial-required",
     "algorithm":  "192 stock words reduce to43 inputs through family/common aliases, black slots, RGB5 midpoint and cross-family channels; sparse supplied exceptions preserve edits.",
     "remaining":  "43 independent color inputs required. Inventory unchanged:484 converted,12 justified retained/mixed,632 pending."
+},"enemyNameRecordIntegration":{
+    "workerCommits":  [
+                          "8b48ed007",
+                          "d8eea12ef",
+                          "7150c9575"
+                      ],
+    "confirmation":  "Root Verification1444 warnings/zero errors;90 native referenced identities,540 exact text/index words and absent/unaligned rejection pass. Native A08923-8968 and managed ReadSpawnNameWords preserve opaque labels.",
+    "remaining":  "484 converted,13 justified retained/mixed,631 pending. Exception limited to69 labels and10 fragments in Stream4 Batch49.",
+    "state":  "mixed"
 }}

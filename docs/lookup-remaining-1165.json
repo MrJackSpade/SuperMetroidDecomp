@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 632,
+  "remainingTableDefinitionCount": 631,
   "fileCount": 523,
   "entries": [
     {
@@ -6096,7 +6096,10 @@
       "line": 12,
       "name": "RoomEnemySpawnNameDefinitions.Records",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "7150c9575bb636d5592aa537218fa069ac6539e3",
+      "disposition": "Mixed: record layout, encoding, padding, ordinal and21 family/variant labels calculate. Only69 literal labels and10 fragments enumerated in Stream4 Batch49 retained: opaque chosen spelling has no AI/physics derivation."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
@@ -21315,5 +21318,5 @@
     }
   ],
   "convertedSinceSnapshot": 484,
-  "justifiedRetainedSinceSnapshot": 12
+  "justifiedRetainedSinceSnapshot": 13
 }

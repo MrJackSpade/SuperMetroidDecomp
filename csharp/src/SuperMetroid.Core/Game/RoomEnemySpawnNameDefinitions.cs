@@ -1,114 +1,219 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// The six retained words of each bank-$B4 enemy-name record referenced by the
-/// 148 retail room enemy headers. The native spawn copier omits source word five.
-/// These fixed words are engine snapshot definitions, not presentation assets.
+/// Native ASCII names copied opaquely into the six-word spawn snapshot. Only the chosen
+/// lexical spelling is retained as nonsense to derive; record layout and family composition calculate.
 /// </summary>
 internal static class RoomEnemySpawnNameDefinitions
 {
-    private static readonly IReadOnlyDictionary<ushort, RoomEnemySpawnNameWords> Records =
-        new Dictionary<ushort, RoomEnemySpawnNameWords>
+    private enum DerivedName : ushort
     {
-        [0xdd97] = new(0x5441, 0x4d4f, 0x4349, 0x2020, 0x2020, 0x0001),
-        [0xddb3] = new(0x4142, 0x5454, 0x3141, 0x2020, 0x2020, 0x0003),
-        [0xddcf] = new(0x4142, 0x5454, 0x3341, 0x2020, 0x2020, 0x0005),
-        [0xdddd] = new(0x4f42, 0x4f54, 0x4e4f, 0x2020, 0x2020, 0x0006),
-        [0xddeb] = new(0x4f42, 0x4f59, 0x204e, 0x2020, 0x2020, 0x0007),
-        [0xddf9] = new(0x4544, 0x5353, 0x4547, 0x4745, 0x2041, 0x0008),
-        [0xde07] = new(0x4f44, 0x4952, 0x2020, 0x2020, 0x2020, 0x0009),
-        [0xde15] = new(0x5244, 0x4741, 0x4e4f, 0x2020, 0x2020, 0x000a),
-        [0xde23] = new(0x4245, 0x2049, 0x2020, 0x2020, 0x2020, 0x000b),
-        [0xde31] = new(0x5945, 0x2045, 0x2020, 0x2020, 0x2020, 0x000c),
-        [0xde3f] = new(0x414e, 0x494d, 0x2020, 0x2020, 0x2020, 0x000d),
-        [0xde4d] = new(0x4946, 0x4853, 0x2020, 0x2020, 0x2020, 0x000e),
-        [0xde5b] = new(0x4147, 0x2049, 0x2020, 0x2020, 0x2020, 0x000f),
-        [0xde69] = new(0x4147, 0x454d, 0x2054, 0x2020, 0x2020, 0x0010),
-        [0xde77] = new(0x4547, 0x4745, 0x2041, 0x2020, 0x2020, 0x0011),
-        [0xde85] = new(0x4547, 0x5552, 0x4144, 0x2020, 0x2020, 0x0012),
-        [0xdea1] = new(0x4148, 0x4843, 0x3149, 0x2020, 0x2020, 0x0014),
-        [0xdeaf] = new(0x4148, 0x444e, 0x2020, 0x2020, 0x2020, 0x0015),
-        [0xdebd] = new(0x4948, 0x4142, 0x4853, 0x2049, 0x2020, 0x0016),
-        [0xdecb] = new(0x4948, 0x5552, 0x2020, 0x2020, 0x2020, 0x0017),
-        [0xded9] = new(0x4f48, 0x544c, 0x205a, 0x2020, 0x2020, 0x0018),
-        [0xdee7] = new(0x4f48, 0x4154, 0x5952, 0x2020, 0x2020, 0x0019),
-        [0xdef5] = new(0x5a48, 0x4f4f, 0x454d, 0x2052, 0x2020, 0x001a),
-        [0xdf03] = new(0x414b, 0x4f47, 0x2020, 0x2020, 0x2020, 0x001b),
-        [0xdf11] = new(0x414b, 0x454d, 0x2020, 0x2020, 0x2020, 0x001c),
-        [0xdf1f] = new(0x414b, 0x454d, 0x2052, 0x2020, 0x2020, 0x001d),
-        [0xdf2d] = new(0x414b, 0x494e, 0x2020, 0x2020, 0x2020, 0x001e),
-        [0xdf3b] = new(0x4f4b, 0x414d, 0x2020, 0x2020, 0x2020, 0x001f),
-        [0xdf49] = new(0x5a4b, 0x4e41, 0x2020, 0x2020, 0x2020, 0x0020),
-        [0xdf57] = new(0x414c, 0x4156, 0x414d, 0x204e, 0x2020, 0x0021),
-        [0xdf65] = new(0x454d, 0x4c4c, 0x2041, 0x2020, 0x2020, 0x0022),
-        [0xdf73] = new(0x454d, 0x554d, 0x2020, 0x2020, 0x2020, 0x0023),
-        [0xdf81] = new(0x454d, 0x4f52, 0x2020, 0x2020, 0x2020, 0x0024),
-        [0xdf8f] = new(0x454d, 0x4154, 0x454c, 0x2045, 0x2020, 0x0025),
-        [0xdf9d] = new(0x454d, 0x4d54, 0x444f, 0x2020, 0x2020, 0x0026),
-        [0xdfab] = new(0x454d, 0x5254, 0x494f, 0x2044, 0x2020, 0x0027),
-        [0xdfb9] = new(0x554d, 0x544c, 0x2049, 0x2020, 0x2020, 0x0028),
-        [0xdfc7] = new(0x5a4d, 0x4f4f, 0x454d, 0x2052, 0x2020, 0x0029),
-        [0xdfd5] = new(0x444e, 0x4152, 0x2020, 0x2020, 0x2020, 0x002a),
-        [0xdfe3] = new(0x4f4e, 0x494d, 0x2020, 0x2020, 0x2020, 0x002b),
-        [0xdff1] = new(0x4f4e, 0x4156, 0x2020, 0x2020, 0x2020, 0x002c),
-        [0xdfff] = new(0x554f, 0x204d, 0x2020, 0x2020, 0x2020, 0x002d),
-        [0xe00d] = new(0x554f, 0x554d, 0x2020, 0x2020, 0x2020, 0x002e),
-        [0xe01b] = new(0x4950, 0x4550, 0x2020, 0x2020, 0x2020, 0x002f),
-        [0xe029] = new(0x4f50, 0x594c, 0x2050, 0x2020, 0x2020, 0x0030),
-        [0xe037] = new(0x5550, 0x4f52, 0x494d, 0x2020, 0x2020, 0x0031),
-        [0xe045] = new(0x5550, 0x2055, 0x2020, 0x2020, 0x2020, 0x0032),
-        [0xe053] = new(0x5550, 0x4f59, 0x2020, 0x2020, 0x2020, 0x0033),
-        [0xe061] = new(0x4552, 0x4c46, 0x4345, 0x2020, 0x2020, 0x0034),
-        [0xe06f] = new(0x4952, 0x4b4e, 0x2041, 0x2020, 0x2020, 0x0035),
-        [0xe07d] = new(0x4952, 0x204f, 0x2020, 0x2020, 0x2020, 0x0036),
-        [0xe08b] = new(0x4952, 0x5050, 0x5245, 0x2020, 0x2020, 0x0037),
-        [0xe099] = new(0x4952, 0x5050, 0x5245, 0x2032, 0x2020, 0x0038),
-        [0xe0a7] = new(0x4f52, 0x4f42, 0x2020, 0x2020, 0x2020, 0x0039),
-        [0xe0b5] = new(0x5352, 0x4f54, 0x454e, 0x2020, 0x2020, 0x003a),
-        [0xe0c3] = new(0x4153, 0x4f42, 0x4554, 0x204e, 0x2020, 0x003b),
-        [0xe0d1] = new(0x4253, 0x4755, 0x2020, 0x2020, 0x2020, 0x003c),
-        [0xe0df] = new(0x4353, 0x414c, 0x4459, 0x2020, 0x2020, 0x003d),
-        [0xe0ed] = new(0x4453, 0x4145, 0x4854, 0x2020, 0x2020, 0x003e),
-        [0xe0fb] = new(0x4853, 0x5455, 0x4554, 0x2052, 0x2020, 0x003f),
-        [0xe109] = new(0x4853, 0x5455, 0x4554, 0x3252, 0x2020, 0x0040),
-        [0xe117] = new(0x4953, 0x4544, 0x2020, 0x2020, 0x2020, 0x0041),
-        [0xe125] = new(0x4b53, 0x4552, 0x2045, 0x2020, 0x2020, 0x0042),
-        [0xe133] = new(0x5053, 0x2041, 0x2020, 0x2020, 0x2020, 0x0043),
-        [0xe141] = new(0x5153, 0x4555, 0x5745, 0x5450, 0x2020, 0x0044),
-        [0xe14f] = new(0x5353, 0x4449, 0x2045, 0x2020, 0x2020, 0x0045),
-        [0xe15d] = new(0x5453, 0x4b4f, 0x2045, 0x2020, 0x2020, 0x0046),
-        [0xe16b] = new(0x4f54, 0x4547, 0x2020, 0x2020, 0x2020, 0x0047),
-        [0xe179] = new(0x4956, 0x4c4f, 0x2041, 0x2020, 0x2020, 0x0048),
-        [0xe187] = new(0x4157, 0x4556, 0x2052, 0x2020, 0x2020, 0x0049),
-        [0xe195] = new(0x4159, 0x4452, 0x2020, 0x2020, 0x2020, 0x004a),
-        [0xe1a3] = new(0x455a, 0x2042, 0x2020, 0x2020, 0x2020, 0x004b),
-        [0xe1b1] = new(0x455a, 0x4242, 0x204f, 0x2020, 0x2020, 0x004c),
-        [0xe1bf] = new(0x455a, 0x4c45, 0x2041, 0x2020, 0x2020, 0x004d),
-        [0xe1cd] = new(0x4f5a, 0x2041, 0x2020, 0x2020, 0x2020, 0x004e),
-        [0xe1db] = new(0x4f5a, 0x4d4f, 0x5245, 0x2020, 0x2020, 0x004f),
-        [0xe205] = new(0x4142, 0x5454, 0x3141, 0x614e, 0x2020, 0x0052),
-        [0xe213] = new(0x4142, 0x5454, 0x3141, 0x614d, 0x2020, 0x0053),
-        [0xe221] = new(0x4142, 0x5454, 0x3141, 0x7554, 0x2020, 0x0054),
-        [0xe24b] = new(0x4142, 0x5454, 0x3241, 0x614e, 0x2020, 0x0057),
-        [0xe267] = new(0x4142, 0x5454, 0x3241, 0x7554, 0x2020, 0x0059),
-        [0xe275] = new(0x4142, 0x5454, 0x3341, 0x7242, 0x2020, 0x005a),
-        [0xe283] = new(0x4142, 0x5454, 0x3341, 0x6f4e, 0x2020, 0x005b),
-        [0xe291] = new(0x4142, 0x5454, 0x3341, 0x614e, 0x2020, 0x005c),
-        [0xe29f] = new(0x4142, 0x5454, 0x3341, 0x614d, 0x2020, 0x005d),
-        [0xe2ad] = new(0x4142, 0x5454, 0x3341, 0x7554, 0x2020, 0x005e),
-        [0xe2bb] = new(0x5546, 0x454e, 0x2020, 0x2020, 0x2020, 0x005f),
-        [0xe2c9] = new(0x4148, 0x4843, 0x3249, 0x2020, 0x2020, 0x0060),
-        [0xe2d7] = new(0x4148, 0x4843, 0x3349, 0x2020, 0x2020, 0x0061),
-        [0xe2e5] = new(0x4f52, 0x4f42, 0x2032, 0x2020, 0x2020, 0x0062),
+        /// <summary>$B4:DEF5, EnemyName_HZoomer: prefixed Zoomer label.</summary>
+        HZoomer = 0xdef5,
+        /// <summary>$B4:DFC7, EnemyName_MZoomer: prefixed Zoomer label.</summary>
+        MZoomer = 0xdfc7,
+        /// <summary>$B4:E14F, EnemyName_Sidehopper: prefixed SIDE label.</summary>
+        Sidehopper = 0xe14f,
+        /// <summary>$B4:DDB3, EnemyName_PirateGreyWall: native family/variant label identity.</summary>
+        PirateGreyWall = 0xddb3,
+        /// <summary>$B4:DDCF, EnemyName_PirateGreyWalking: native family/variant label identity.</summary>
+        PirateGreyWalking = 0xddcf,
+        /// <summary>$B4:DEA1, EnemyName_KihunterGreen: native family/variant label identity.</summary>
+        KihunterGreen = 0xdea1,
+        /// <summary>$B4:E099, EnemyName_GRipper_Ripper2: native family/variant label identity.</summary>
+        GRipper_Ripper2 = 0xe099,
+        /// <summary>$B4:E109, EnemyName_Shutter2_Kamer: native family/variant label identity.</summary>
+        Shutter2_Kamer = 0xe109,
+        /// <summary>$B4:E205, EnemyName_PirateGoldWall: native family/variant label identity.</summary>
+        PirateGoldWall = 0xe205,
+        /// <summary>$B4:E213, EnemyName_PirateMagentaWall: native family/variant label identity.</summary>
+        PirateMagentaWall = 0xe213,
+        /// <summary>$B4:E221, EnemyName_PirateSilverWall: native family/variant label identity.</summary>
+        PirateSilverWall = 0xe221,
+        /// <summary>$B4:E24B, EnemyName_PirateGoldNinja: native family/variant label identity.</summary>
+        PirateGoldNinja = 0xe24b,
+        /// <summary>$B4:E267, EnemyName_PirateSilverNinja: native family/variant label identity.</summary>
+        PirateSilverNinja = 0xe267,
+        /// <summary>$B4:E275, EnemyName_PirateGreenWalking: native family/variant label identity.</summary>
+        PirateGreenWalking = 0xe275,
+        /// <summary>$B4:E283, EnemyName_PirateRedWalking: native family/variant label identity.</summary>
+        PirateRedWalking = 0xe283,
+        /// <summary>$B4:E291, EnemyName_PirateGoldWalking: native family/variant label identity.</summary>
+        PirateGoldWalking = 0xe291,
+        /// <summary>$B4:E29F, EnemyName_PirateMagentaWalking: native family/variant label identity.</summary>
+        PirateMagentaWalking = 0xe29f,
+        /// <summary>$B4:E2AD, EnemyName_PirateSilverWalking: native family/variant label identity.</summary>
+        PirateSilverWalking = 0xe2ad,
+        /// <summary>$B4:E2C9, EnemyName_KihunterYellow: native family/variant label identity.</summary>
+        KihunterYellow = 0xe2c9,
+        /// <summary>$B4:E2D7, EnemyName_KihunterRed: native family/variant label identity.</summary>
+        KihunterRed = 0xe2d7,
+        /// <summary>$B4:E2E5, EnemyName_RobotNoPower: native family/variant label identity.</summary>
+        RobotNoPower = 0xe2e5,
+    }
+
+    /// <summary>$B4:DD89, EnemyName_NoData: first fourteen-byte ASCII/population/debug-index record.</summary>
+    private const ushort FirstNameRecord = 0xdd89;
+
+    /// <summary>
+    /// Chosen label text from bank B4, copied opaquely by $A0:8923..8968 and retained in
+    /// RoomEnemySpawnSnapshot.NameWords. No AI/physics quantity determines these spellings.
+    /// Only the exact 69 labels plus ten composing lexical fragments documented in
+    /// docs/lookup-1165-stream-4.md Batch 49 have the reviewed nonsense disposition.
+    /// </summary>
+    private static readonly Dictionary<ushort, string> Names = new Dictionary<ushort, string>
+    {
+        [0xdd97] = "ATOMIC",
+        [0xdddd] = "BOTOON",
+        [0xddeb] = "BOYON",
+        [0xddf9] = "DESSGEEGA",
+        [0xde07] = "DORI",
+        [0xde15] = "DRAGON",
+        [0xde23] = "EBI",
+        [0xde31] = "EYE",
+        [0xde3f] = "NAMI",
+        [0xde4d] = "FISH",
+        [0xde5b] = "GAI",
+        [0xde69] = "GAMET",
+        [0xde77] = "GEEGA",
+        [0xde85] = "GERUDA",
+        [0xdeaf] = "HAND",
+        [0xdebd] = "HIBASHI",
+        [0xdecb] = "HIRU",
+        [0xded9] = "HOLTZ",
+        [0xdee7] = "HOTARY",
+        [0xdf03] = "KAGO",
+        [0xdf11] = "KAME",
+        [0xdf1f] = "KAMER",
+        [0xdf2d] = "KANI",
+        [0xdf3b] = "KOMA",
+        [0xdf49] = "KZAN",
+        [0xdf57] = "LAVAMAN",
+        [0xdf65] = "MELLA",
+        [0xdf73] = "MEMU",
+        [0xdf81] = "MERO",
+        [0xdf8f] = "METALEE",
+        [0xdf9d] = "METMOD",
+        [0xdfab] = "METROID",
+        [0xdfb9] = "MULTI",
+        [0xdfd5] = "NDRA",
+        [0xdfe3] = "NOMI",
+        [0xdff1] = "NOVA",
+        [0xdfff] = "OUM",
+        [0xe00d] = "OUMU",
+        [0xe01b] = "PIPE",
+        [0xe029] = "POLYP",
+        [0xe037] = "PUROMI",
+        [0xe045] = "PUU",
+        [0xe053] = "PUYO",
+        [0xe061] = "REFLEC",
+        [0xe06f] = "RINKA",
+        [0xe07d] = "RIO",
+        [0xe08b] = "RIPPER",
+        [0xe0a7] = "ROBO",
+        [0xe0b5] = "RSTONE",
+        [0xe0c3] = "SABOTEN",
+        [0xe0d1] = "SBUG",
+        [0xe0df] = "SCLAYD",
+        [0xe0ed] = "SDEATH",
+        [0xe0fb] = "SHUTTER",
+        [0xe117] = "SIDE",
+        [0xe125] = "SKREE",
+        [0xe133] = "SPA",
+        [0xe141] = "SQUEEWPT",
+        [0xe15d] = "STOKE",
+        [0xe16b] = "TOGE",
+        [0xe179] = "VIOLA",
+        [0xe187] = "WAVER",
+        [0xe195] = "YARD",
+        [0xe1a3] = "ZEB",
+        [0xe1b1] = "ZEBBO",
+        [0xe1bf] = "ZEELA",
+        [0xe1cd] = "ZOA",
+        [0xe1db] = "ZOOMER",
+        [0xe2bb] = "FUNE",
     };
 
-    /// <summary>Returns the exact retained words for a native bank-$B4 name pointer.</summary>
-    internal static RoomEnemySpawnNameWords Get(ushort pointer) =>
-        Records.TryGetValue(pointer, out RoomEnemySpawnNameWords words)
-            ? words
-            : throw new InvalidDataException(
-                $"Enemy spawn-name pointer $B4:{pointer:X4} is absent from the compiled retail catalog.");
+    /// <summary>
+    /// $A0:88D0 RecordEnemySpawnData copies five little-endian ASCII words, skips the
+    /// debug population pointer, then copies the ordinal debug-spritemap index.
+    /// </summary>
+    internal static RoomEnemySpawnNameWords Get(ushort pointer)
+    {
+        string name = Name(pointer) ?? throw new InvalidDataException(
+            $"Enemy spawn-name pointer $B4:{pointer:X4} is absent from the compiled retail catalog.");
+        return new(Word(0), Word(1), Word(2), Word(3), Word(4),
+            (ushort)((pointer - FirstNameRecord) / 14));
 
-    /// <summary>The identities referenced by all retail enemy headers.</summary>
-    internal static IEnumerable<ushort> Pointers => Records.Keys;
+        ushort Word(int index) => (ushort)(Character(index * 2) | Character(index * 2 + 1) << 8);
+        int Character(int index) => index < name.Length ? name[index] : ' ';
+    }
+
+    /// <summary>The identities referenced by all retail enemy headers, in native record order.</summary>
+    internal static IEnumerable<ushort> Pointers
+    {
+        get
+        {
+            for (int pointer = FirstNameRecord; pointer <= LastNameRecord; pointer += 14)
+                if (Name((ushort)pointer) is not null) yield return (ushort)pointer;
+        }
+    }
+
+    /// <summary>$B4:E2E5, EnemyName_RobotNoPower: final fourteen-byte name record.</summary>
+    private const ushort LastNameRecord = 0xe2e5;
+
+    /// <summary>$B4:E08B, EnemyName_Ripper: lexical stem shared by the Ripper2 label.</summary>
+    private const ushort RipperStem = 0xe08b;
+    /// <summary>$B4:E0FB, EnemyName_ShutterGrowing: lexical stem shared by the Shutter2 label.</summary>
+    private const ushort ShutterStem = 0xe0fb;
+    /// <summary>$B4:E0A7, EnemyName_Robot: lexical stem shared by the RobotNoPower label.</summary>
+    private const ushort RobotStem = 0xe0a7;
+    /// <summary>$B4:E1DB, EnemyName_Zoomer: shared Zoomer label stem.</summary>
+    private const ushort ZoomerStem = 0xe1db;
+    /// <summary>$B4:E117, EnemyName_SidehopperLarge_SidehopperTourian: shared SIDE label stem.</summary>
+    private const ushort SideStem = 0xe117;
+
+    /// <summary>Native BATTA family digits: wall=1, ninja=2, walking=3.</summary>
+    private enum PirateKind { Wall = 1, Ninja = 2, Walking = 3 }
+    /// <summary>Exclusive native pirate color variants used by EnemyName_Pirate* records.</summary>
+    private enum PirateColor { Grey, Green, Red, Gold, Magenta, Silver }
+
+    private static string PirateName(PirateKind kind, PirateColor color) =>
+        "BATTA" + (char)('0' + (int)kind) + (color switch
+        {
+            PirateColor.Grey => "",
+            PirateColor.Green => "Br",
+            PirateColor.Red => "No",
+            PirateColor.Gold => "Na",
+            PirateColor.Magenta => "Ma",
+            PirateColor.Silver => "Tu",
+            _ => throw new InvalidOperationException("Unknown pirate label color."),
+        });
+    // Numeric family identifiers and shared lexical stems are composed per access;
+    // only the chosen lexical stems/suffixes/prefixes have the narrow retained disposition.
+    private static string? Name(ushort pointer) => (DerivedName)pointer switch
+    {
+        DerivedName.HZoomer => 'H' + Names[ZoomerStem],
+        DerivedName.MZoomer => 'M' + Names[ZoomerStem],
+        DerivedName.Sidehopper => 'S' + Names[SideStem],
+        DerivedName.PirateGreyWall => PirateName(PirateKind.Wall, PirateColor.Grey),
+        DerivedName.PirateGreyWalking => PirateName(PirateKind.Walking, PirateColor.Grey),
+        DerivedName.KihunterGreen => "HACHI" + (char)('0' + 1),
+        DerivedName.GRipper_Ripper2 => Names[RipperStem] + '2',
+        DerivedName.Shutter2_Kamer => Names[ShutterStem] + '2',
+        DerivedName.PirateGoldWall => PirateName(PirateKind.Wall, PirateColor.Gold),
+        DerivedName.PirateMagentaWall => PirateName(PirateKind.Wall, PirateColor.Magenta),
+        DerivedName.PirateSilverWall => PirateName(PirateKind.Wall, PirateColor.Silver),
+        DerivedName.PirateGoldNinja => PirateName(PirateKind.Ninja, PirateColor.Gold),
+        DerivedName.PirateSilverNinja => PirateName(PirateKind.Ninja, PirateColor.Silver),
+        DerivedName.PirateGreenWalking => PirateName(PirateKind.Walking, PirateColor.Green),
+        DerivedName.PirateRedWalking => PirateName(PirateKind.Walking, PirateColor.Red),
+        DerivedName.PirateGoldWalking => PirateName(PirateKind.Walking, PirateColor.Gold),
+        DerivedName.PirateMagentaWalking => PirateName(PirateKind.Walking, PirateColor.Magenta),
+        DerivedName.PirateSilverWalking => PirateName(PirateKind.Walking, PirateColor.Silver),
+        DerivedName.KihunterYellow => "HACHI" + (char)('0' + 2),
+        DerivedName.KihunterRed => "HACHI" + (char)('0' + 3),
+        DerivedName.RobotNoPower => Names[RobotStem] + '2',
+        _ => Names.TryGetValue(pointer, out string? name) ? name : null,
+    };
 }

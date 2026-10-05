@@ -531,7 +531,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySpawnNameDefinitions.cs
 
-- [ ] **RoomEnemySpawnNameDefinitions.Records** ([L12](../csharp/src/SuperMetroid.Core/Game/RoomEnemySpawnNameDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySpawnNameDefinitions.Records** - mixed: calculated structure and family names; only precise lexical residual retained ([L12](../csharp/src/SuperMetroid.Core/Game/RoomEnemySpawnNameDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomSpriteObjectDefinitions.cs
 
@@ -1005,3 +1005,15 @@ Twelve expanded runtime rows (192 colors) now retain43 independent stock inputs 
 Required inputs: Power0..8 and15; Ice2..15; Wave and Plasma2..5,7,8,15; Spazer2..4,8,15. These43 values remain unresolved. Palette content receives no exemption.
 
 Root Verification build1444 existing warnings/zero errors; --lookup-stream-4 confirms every native output across12 selections, targeted independent/common/alias/black/endpoint/midpoint/cross-family edits, unchanged neighboring CGRAM and stock immutability, and invalid selectors. Refreshed BeamPaletteCatalog source closure hash; ResourceAudit build zero warnings/errors.
+
+
+## Batch 49: enemy-name family numbering and shared lexical stems
+
+Mixed disposition for RoomEnemySpawnNameDefinitions.Records: 74 wholly converted, one mixed, one retained,149 unchecked. The exact chosen-character residual below is approved; all record metadata and established lexical relationships are calculated.
+
+- Twenty-one of the ninety referenced names now compose their native labels per access. Twelve pirate labels combine BATTA, the wall/ninja/walking family digit, and the exclusive color suffix. Three Kihunters use HACHI plus the family digit. Ripper2/Shutter2/RobotNoPower append their numeric variant to the original stem; H/M Zoomer and S Sidehopper reuse their shared lexical stems. No calculated full-name lookup is cached.
+- Native identity enumeration now walks fourteen-byte record positions and emits only the exact referenced name domain, preserving original order and holes. Existing ten-character space padding, little-endian five-word encoding and numeric debug-spritemap ordinal remain calculated.
+- Exact remaining chosen lexical strings: ATOMIC, BOTOON, BOYON, DESSGEEGA, DORI, DRAGON, EBI, EYE, NAMI, FISH, GAI, GAMET, GEEGA, GERUDA, HAND, HIBASHI, HIRU, HOLTZ, HOTARY, KAGO, KAME, KAMER, KANI, KOMA, KZAN, LAVAMAN, MELLA, MEMU, MERO, METALEE, METMOD, METROID, MULTI, NDRA, NOMI, NOVA, OUM, OUMU, PIPE, POLYP, PUROMI, PUU, PUYO, REFLEC, RINKA, RIO, RIPPER, ROBO, RSTONE, SABOTEN, SBUG, SCLAYD, SDEATH, SHUTTER, SIDE, SKREE, SPA, SQUEEWPT, STOKE, TOGE, VIOLA, WAVER, YARD, ZEB, ZEBBO, ZEELA, ZOA, ZOOMER, FUNE; plus BATTA/HACHI, color suffixes Br/No/Na/Ma/Tu and prefix letters H/M/S. Only these exact chosen characters have the independently reviewed nonsense disposition: the native consumer copies literal text without interpreting it as behavior, and no managed AI/physics quantity can determine the selected spelling (for example BOTOON rather than Botwoon). No entire name-table or other text/artwork exemption is granted.
+- Evidence: bankB4 quoted EnemyName_* records, notably DDB3/DDCF pirate families and E205..E2AD colored variants, DEA1/E2C9/E2D7 Kihunters, and the named stem/alias identities documented in the catalog. Record_EnemySpawnData at A0:8923..893F copies five literal ASCII words,8941 reads the separate numeric index, and8948..8968 publishes the snapshot. It does not parse the chosen lexical spelling into AI or physics.
+- Confirmation: Root integration Verification build1444 warnings/zero errors; --lookup-stream-4 passed the existing independent native90-pointer ordered-domain proof, all540 original text/index words and absent/unaligned identity rejection. No exploratory gameplay or new unrelated fixture was added. No ResourceAudit source hash reference was found for this catalog.
+- Managed consumer confirmation: RoomEnemySystem.InitializeSlot publishes ReadSpawnNameWords(definition) into RoomEnemySpawnSnapshot.NameWords; the reader returns the compiled words (or fixture data) opaquely. RoomEnemyData defines only Word0..Word4 and Word6. Static production usage has no character parsing into AI or physics. Coordinator independently confirmed both native copy instructions and these managed consumers before approving the exact lexical boundary.

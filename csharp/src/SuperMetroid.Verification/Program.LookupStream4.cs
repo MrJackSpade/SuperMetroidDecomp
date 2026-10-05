@@ -8,6 +8,25 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4EnemyNameRecords(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort[] nativeNamePointers = RoomEnemyDefinitionCatalog.Pointers
+            .Select(pointer => ReadNativeEnemyDefinition(rom, pointer).NamePointer)
+            .Where(pointer => pointer != 0).Distinct().Order().ToArray();
+        AssertTrue(nativeNamePointers.SequenceEqual(RoomEnemySpawnNameDefinitions.Pointers),
+            "spawn-name exact native referenced identity order");
+        foreach (ushort pointer in nativeNamePointers)
+        {
+            int address = 0xb40000 | pointer;
+            var native = new RoomEnemySpawnNameWords(Word(address), Word(address + 2), Word(address + 4),
+                Word(address + 6), Word(address + 8), Word(address + 12));
+            AssertEqual(native, RoomEnemySpawnNameDefinitions.Get(pointer), "spawn-name native five text words and debug ordinal");
+        }
+        foreach (ushort invalid in new ushort[] { 0, 0xdd89, 0xdd98, 0xdda5, 0xffff })
+            AssertThrows<InvalidDataException>(() => RoomEnemySpawnNameDefinitions.Get(invalid),
+                "spawn-name unreferenced or unaligned identity rejected");
+    }
     private static void VerifyLookupStream4RidleyFrameDomain(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -286,6 +305,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        VerifyLookupStream4EnemyNameRecords(rom);
         VerifyLookupStream4RidleyFrameDomain(rom);
         VerifyLookupStream4BeamColorRelations(rom);
         VerifyLookupStream4RidleyMovementPolicy(rom);

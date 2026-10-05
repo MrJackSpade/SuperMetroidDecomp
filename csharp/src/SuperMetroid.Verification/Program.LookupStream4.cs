@@ -9,6 +9,48 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4HudDigits(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] json = GameplayHudPresentationExtractor.Extract(rom);
+        var document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        GameplayHudPresentation stock = GameplayHudPresentation.Load(new MemoryStream(json));
+        int Stored(GameplayHudPresentation value, string name) =>
+            ((Dictionary<int, ushort>)typeof(GameplayHudPresentation).GetField(name,
+                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(value)!).Count;
+        AssertEqual(0, Stored(stock, "healthDigits"), "stock health digits are calculated");
+        AssertEqual(0, Stored(stock, "ammoDigits"), "stock ammo digits are calculated");
+        ushort[] tiles = new ushort[96];
+        for (int digit = 0; digit < 10; digit++)
+        {
+            AssertEqual(Word(0x809dbf + digit * 2), GameplayHudDefinitions.DigitWord(digit), "native health digit");
+            AssertEqual(Word(0x809dd3 + digit * 2), GameplayHudDefinitions.DigitWord(digit), "native ammo digit");
+            stock.ApplyEnergy(tiles, (ushort)(digit * 11), 99);
+            for (int place = 0; place < 2; place++)
+                AssertEqual(Word(0x809dbf + digit * 2), tiles[70 + place], "actual stock health digit draw");
+            stock.ApplyAmmo(tiles, 0, (ushort)(digit * 111));
+            for (int place = 0; place < 3; place++)
+                AssertEqual(Word(0x809dd3 + digit * 2), tiles[74 + place], "actual stock ammo digit draw");
+        }
+        document.Digits.Health[3] = document.Digits.Health[3] with { Palette = 2 };
+        document.Digits.Ammo[3] = document.Digits.Ammo[3] with { Palette = 4 };
+        using var changedJson = new MemoryStream();
+        GameplayHudPresentation.Write(changedJson, document);
+        changedJson.Position = 0;
+        GameplayHudPresentation changed = GameplayHudPresentation.Load(changedJson);
+        AssertEqual(1, Stored(changed, "healthDigits"), "only edited health digit stored");
+        AssertEqual(1, Stored(changed, "ammoDigits"), "only edited ammo digit stored");
+        changed.ApplyEnergy(tiles, 23, 99);
+        changed.ApplyAmmo(tiles, 0, 234);
+        AssertEqual(Word(0x809dbf + 4), tiles[70], "unedited health digit unchanged");
+        AssertEqual((ushort)((Word(0x809dbf + 6) & ~0x1c00) | 0x0800), tiles[71], "edited health digit palette applied");
+        AssertEqual(Word(0x809dd3 + 4), tiles[74], "unedited leading ammo digit unchanged");
+        AssertEqual((ushort)((Word(0x809dd3 + 6) & ~0x1c00) | 0x1000), tiles[75], "independent ammo digit palette applied");
+        AssertEqual(Word(0x809dd3 + 8), tiles[76], "unedited trailing ammo digit unchanged");
+        foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.DigitWord(invalid), "HUD digit exact domain");
+    }
     private static void VerifyTitleSpriteIdentities(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

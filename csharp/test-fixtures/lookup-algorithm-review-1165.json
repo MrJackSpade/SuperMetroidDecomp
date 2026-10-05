@@ -11546,4 +11546,11 @@
     "state":  "two-converted",
     "algorithm":  "Enumerate 31 distinct sorted identities directly from calculated card layout; calculate Baby pages as min(frame, 4-frame).",
     "remaining":  "No artwork or timing exemption. 513 converted, 15 justified retained/mixed, 600 pending."
+},"hudDigitsIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Twenty native words, ten numerals through real HUD drawing, zero stock entries, serialized separate edits, unchanged neighbors and invalid digits pass. Source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "GameplayHudPresentation.healthDigits; GameplayHudPresentation.ammoDigits",
+    "workerCommit":  "785a24b227478605ff81b5a5fce692dbc6ef79b8",
+    "state":  "two-converted",
+    "algorithm":  "Calculate cyclic digit glyph ordinal and shared OBJ-independent tile palette/priority settings; store only exact independent health/ammo edits.",
+    "remaining":  "No glyph-pixel exemption. HUD anchors separate. 515 converted, 15 justified retained/mixed, 598 pending."
 }}

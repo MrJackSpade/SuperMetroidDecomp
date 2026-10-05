@@ -9,8 +9,8 @@ public sealed class GameplayHudPresentation
 {
     private readonly ushort[] template;
     private readonly byte[] topRowTransfer;
-    private readonly ushort[] healthDigits;
-    private readonly ushort[] ammoDigits;
+    private readonly Dictionary<int, ushort> healthDigits;
+    private readonly Dictionary<int, ushort> ammoDigits;
     private readonly ushort[] autoFull;
     private readonly ushort[] autoEmpty;
     private readonly MapLabelPoint[] autoAnchors;
@@ -32,8 +32,8 @@ public sealed class GameplayHudPresentation
         FilledEnergyTank = CompileCell(document.EnergyTanks.Filled, "filled energy tank");
         EmptyEnergyTank = CompileCell(document.EnergyTanks.Empty, "empty energy tank");
         energyTankAnchors = CompileAnchors(document.EnergyTanks.Anchors, 14, "energy tank");
-        healthDigits = CompileCells(document.Digits.Health, 10, "health digits");
-        ammoDigits = CompileCells(document.Digits.Ammo, 10, "ammo digits");
+        healthDigits = CompileDigitOverrides(document.Digits.Health, "health digits");
+        ammoDigits = CompileDigitOverrides(document.Digits.Ammo, "ammo digits");
         HealthAnchor = ValidateAnchor(document.Digits.HealthAnchor, 2, 1, "health digits");
         MissileAmmoAnchor = ValidateAnchor(document.Digits.MissileAnchor, 3, 1, "missile digits");
         SuperMissileAmmoAnchor = ValidateAnchor(document.Digits.SuperMissileAnchor, 2, 1, "Super Missile digits");
@@ -189,12 +189,14 @@ public sealed class GameplayHudPresentation
         output.Write(bytes);
     }
 
-    private static void DrawDigits(Span<ushort> tiles, ushort[] glyphs, int value, MapLabelPoint anchor, int count)
+    private static void DrawDigits(Span<ushort> tiles, Dictionary<int, ushort> glyphs, int value, MapLabelPoint anchor, int count)
     {
         int divisor = count == 3 ? 100 : 10;
         for (int digit = 0; digit < count; digit++)
         {
-            tiles[Index(anchor.X + digit, anchor.Y)] = glyphs[(value / divisor) % 10];
+            int numeral = (value / divisor) % 10;
+            tiles[Index(anchor.X + digit, anchor.Y)] = glyphs.TryGetValue(numeral, out ushort edited)
+                ? edited : GameplayHudDefinitions.DigitWord(numeral);
             divisor /= 10;
         }
     }
@@ -222,6 +224,14 @@ public sealed class GameplayHudPresentation
         for (int x = 0; x < 5; x++) Own(MinimapCellIndex(x, y), "minimap");
     }
 
+    private static Dictionary<int, ushort> CompileDigitOverrides(GameplayHudCell[]? cells, string name)
+    {
+        ushort[] compiled = CompileCells(cells, 10, name);
+        var overrides = new Dictionary<int, ushort>();
+        for (int digit = 0; digit < compiled.Length; digit++)
+            if (compiled[digit] != GameplayHudDefinitions.DigitWord(digit)) overrides.Add(digit, compiled[digit]);
+        return overrides;
+    }
     private static ushort[] CompileCells(GameplayHudCell[]? cells, int count, string name)
     {
         if (cells is null || cells.Length != count)

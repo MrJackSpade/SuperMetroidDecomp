@@ -55,6 +55,10 @@ public static class GameplayHudDefinitions
     /// <summary>Native mutable-row indexes for the six vertically repeated AUTO cells.</summary>
     public static ReadOnlySpan<int> AutoReserveCellIndices => [8, 9, 40, 41, 72, 73];
 
+    /// <summary>Both HUD digit rows at $80:9DBF/$9DD3 use palette three, priority, and glyphs 1..9 followed by zero.</summary>
+    internal static ushort DigitWord(int digit) => (uint)digit < 10
+        ? (ushort)(0x2c00 | (digit + 9) % 10)
+        : throw new IndexOutOfRangeException();
     public static string IconName(int itemIndex) => (uint)itemIndex < IconNames.Length
         ? IconNames[itemIndex]
         : throw new ArgumentOutOfRangeException(nameof(itemIndex));

@@ -3,23 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Fixed Phantoon rain placements and shot-response markers.</summary>
 public static class PhantoonPatternDefinitions
 {
-    /// <summary>
-    /// <c>$A7:D40D-$D41E</c>, the nine eye-direction instruction lists selected from the
-    /// computed Samus octant. Direction five is unreachable but remains authored data.
-    /// </summary>
-    private static readonly ushort[] EyeInstructions =
-    [
-        PhantoonInstructionProgramDefinitions.EyeLookingUp,
-        PhantoonInstructionProgramDefinitions.EyeLookingUpRight,
-        PhantoonInstructionProgramDefinitions.EyeLookingRight,
-        PhantoonInstructionProgramDefinitions.EyeLookingDownRight,
-        PhantoonInstructionProgramDefinitions.EyeLookingDown,
-        PhantoonInstructionProgramDefinitions.EyeLookingDown,
-        PhantoonInstructionProgramDefinitions.EyeLookingDownLeft,
-        PhantoonInstructionProgramDefinitions.EyeLookingLeft,
-        PhantoonInstructionProgramDefinitions.EyeLookingUpLeft,
-    ];
-
     /// <summary>$A7:CDAD, Phantoon_FlameRain_PositionTable: figure-eight cursor and world X/Y; each native record also has an unused zero word.</summary>
     public static (ushort Cursor, ushort X, ushort Y) RainPlacement(int pattern) => pattern switch
     {
@@ -33,21 +16,51 @@ public static class PhantoonPatternDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(pattern)),
     };
 
-    /// <summary>$A7:CFC2, first flame positions: starting column before eight successive columns wrap modulo nine.</summary>
-    public static ReadOnlySpan<byte> FirstRainColumns => [5, 7, 0, 7, 5, 3, 1, 3];
+    /// <summary>
+    /// $A7:CFC2 starts the eight-flame rain one column after the body. Wrapping nine
+    /// twenty-pixel columns leaves the gap precisely at the body's rain-placement X.
+    /// </summary>
+    public static RainColumnSequence FirstRainColumns => default;
+
+    public readonly struct RainColumnSequence : IReadOnlyList<byte>
+    {
+        public int Count => 8;
+        public int Length => Count;
+        public byte this[int pattern]
+        {
+            get
+            {
+                if ((uint)pattern >= Count) throw new IndexOutOfRangeException();
+                int origin = PhantoonFlameSpawnDefinitions.RainX(0);
+                int spacing = PhantoonFlameSpawnDefinitions.RainX(1) - origin;
+                int bodyColumn = (RainPlacement(pattern).X - origin) / spacing;
+                return (byte)((bodyColumn + 1) % 9);
+            }
+        }
+        public IEnumerator<byte> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 
     /// <summary>$A7:CDA5, Phantoon_Unknown0FEAValues: shot writes to eye variable B. No native reader is known; preserve the exact exposed state without inventing direction semantics.</summary>
     public static ReadOnlySpan<byte> ShotEyeMarkers => [6, 6, 8, 8, 6, 8, 6, 8];
 
-    /// <summary>Returns the authored eye instruction list for direction zero through eight.</summary>
-    public static ushort EyeInstruction(ushort direction)
+    /// <summary>
+    /// $A7:D40D-$D41E selects the eye program from Samus's relative octant. The unused
+    /// code5 retains the native downward selection; all other values name a direction.
+    /// </summary>
+    public static ushort EyeInstruction(ushort direction) => direction switch
     {
-        if (direction >= EyeInstructions.Length)
-        {
-            throw new InvalidDataException(
-                $"Phantoon eye direction {direction} exceeds nine authored selectors.");
-        }
-
-        return EyeInstructions[direction];
-    }
+        0 => PhantoonInstructionProgramDefinitions.EyeLookingUp,
+        1 => PhantoonInstructionProgramDefinitions.EyeLookingUpRight,
+        2 => PhantoonInstructionProgramDefinitions.EyeLookingRight,
+        3 => PhantoonInstructionProgramDefinitions.EyeLookingDownRight,
+        4 or 5 => PhantoonInstructionProgramDefinitions.EyeLookingDown,
+        6 => PhantoonInstructionProgramDefinitions.EyeLookingDownLeft,
+        7 => PhantoonInstructionProgramDefinitions.EyeLookingLeft,
+        8 => PhantoonInstructionProgramDefinitions.EyeLookingUpLeft,
+        _ => throw new InvalidDataException($"Phantoon eye direction {direction} exceeds nine authored selectors."),
+    };
 }

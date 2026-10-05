@@ -565,8 +565,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs
 
-- [ ] **PhantoonPatternDefinitions.EyeInstructions** ([L11](../csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **PhantoonPatternDefinitions.FirstRainColumns** ([L37](../csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PhantoonPatternDefinitions.EyeInstructions** ([L11](../csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PhantoonPatternDefinitions.FirstRainColumns** ([L37](../csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **PhantoonPatternDefinitions.ShotEyeMarkers** ([L40](../csharp/src/SuperMetroid.Core/Game/PhantoonPatternDefinitions.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PhantoonProjectileInstructionProgramDefinitions.cs
@@ -786,3 +786,10 @@ The eight six-color rows at$A6:F871-$F8EC mirror four phases. Relative to phase1
 Verification build passed (1432 warnings, zero errors). New `--lookup-stream5-ceres-door-ramp` passed all48 native colors through actual CGRAM writes, all48 independent color edits without propagation to other rows/cells, unchanged normal/escape colors, exact canonical identities and row bounds. Stock data retains six seeds, four phase residuals and no reverse-row deviations. Native$A6:F850 uses frame bits3..5 to select these rows uniformly.
 
 This is partial: `CeresDoorVisualCatalog.animation` remains unchecked. Seeds at$A6:F881 and residuals$F877/$F879/$F87B plus$F8A9 still need derivation or specific impossible/nonsense evidence. The last residual is red14 instead of the ramp's15; no semantic explanation is invented for it. Counts remain31 resolved (30 converted/removed,1 mixed narrowly justified retention) and194 required.
+### Batch 12: Phantoon rain-gap geometry and eye-direction dispatch
+
+Removed the first-rain-column table: the nine rain X columns span48..208 at20-pixel spacing, and every body rain placement lies exactly on one column. Starting at the next column then wrapping eight flames leaves the gap at the body. The calculated view preserves indexing/enumeration without rebuilding a table. Removed the eye-selector array in favor of semantic directional program cases, including native unreachable code5's downward selection. Independent shot-marker choices remain required.
+
+Verification build passed (1432 warnings, zero errors). New `--lookup-stream5-phantoon-rain` confirms eight native first columns, all eight actual rain populations with exact stagger/order/Y and the gap at the body's X, nine native eye selectors and all eight actual eye-direction handoffs, with original tables forbidden. Bounds are confirmed. It uses the existing focused producer fixture narrowed to one RNG high byte; it does not run the unrelated65536 shot-marker cases.
+
+Thirty-three stream5 definitions resolved:32 converted/removed and1 mixed narrowly justified retention.192 remain required. Ceres palette seeds/residuals remain explicitly pending.

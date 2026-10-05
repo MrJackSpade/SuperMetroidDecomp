@@ -1,3 +1,4 @@
+using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -5,6 +6,93 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5PhantoonRain(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int i = 0; i < 8; i++)
+        {
+            var placement = PhantoonPatternDefinitions.RainPlacement(i);
+            AssertEqual(Word(0xa7cdad + i * 8), placement.Cursor, "Native rain figure-eight cursor");
+            AssertEqual(Word(0xa7cdaf + i * 8), placement.X, "Native rain body X");
+            AssertEqual(Word(0xa7cdb1 + i * 8), placement.Y, "Native rain body Y");
+            AssertEqual((ushort)0, Word(0xa7cdb3 + i * 8), "Native unused rain record word");
+            AssertEqual(rom.ReadByte(0xa7cfc2 + i), PhantoonPatternDefinitions.FirstRainColumns[i], "Native first rain column");
+        }
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
+            BindingFlags.NonPublic;
+        var busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
+        var randomField = typeof(RoomEnemySystem).GetField("_nextRandom", flags)!;
+        var rainMethod = typeof(RoomEnemySystem).GetMethod("RunPhantoonHiddenFlameRain", flags)!;
+        for (int high = 0; high < 1; high++)
+        for (int pattern = 0; pattern < 8; pattern++)
+        {
+            var enemies = new RoomEnemySystem();
+            busField.SetValue(enemies, new PhantoonPatternReadGuard(rom));
+            ushort random = (ushort)((high << 8) | 0xf8 | pattern);
+            int calls = 0;
+            randomField.SetValue(enemies, (Func<ushort>)(() => { calls++; return random; }));
+            var body = enemies.Slots[0];
+            var eye = enemies.Slots[1];
+            var state = new PhantoonEnemyState(body) { Eye = eye };
+            body.VariableE = 1;
+            eye.VariableC = 123;
+            rainMethod.CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(enemies)(body, state);
+            AssertEqual(Word(0xa7cdad + pattern * 8), body.VariableA, "Real rain cursor handoff");
+            AssertEqual(Word(0xa7cdaf + pattern * 8), body.XPosition, "Real rain body placement X");
+            AssertEqual(Word(0xa7cdb1 + pattern * 8), body.YPosition, "Real rain body placement Y");
+            AssertEqual((ushort)0, eye.VariableC, "Real rain direction reset");
+            AssertEqual((ushort)PhantoonAiFunction.BecomeSolidAfterFlameRain, body.VariableF, "Real rain phase handoff");
+            AssertEqual(1, calls, "Rain consumes one RNG word");
+            var flames = enemies.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.XVelocity).ToArray();
+            AssertEqual(8, flames.Length, "Actual rain population");
+            AssertTrue(flames.All(flame => flame.XPosition != body.XPosition), "Calculated rain gap lies at the body X");
+            for (int i = 0; i < 8; i++)
+            {
+                int column = (rom.ReadByte(0xa7cfc2 + pattern) + i) % 9;
+                AssertEqual((ushort)rom.ReadByte(0x8698f7 + column), flames[i].XPosition, "Actual rain column order with wrap");
+                AssertEqual((ushort)40, flames[i].YPosition, "Actual rain ceiling Y");
+                AssertEqual((ushort)((i + 1) * 8), flames[i].XVelocity, "Actual staggered rain delay");
+            }
+        }
+
+        (short X, short Y, ushort Direction)[] eyeTargets =
+        [
+            (0, -100, 0), (100, -100, 1), (100, 0, 2), (100, 100, 3),
+            (0, 100, 4), (-100, 100, 6), (-100, 0, 7), (-100, -100, 8),
+        ];
+        for (ushort direction = 0; direction < 9; direction++)
+        {
+            AssertEqual(Word(0xa7d40d + direction * 2),
+                PhantoonPatternDefinitions.EyeInstruction(direction),
+                $"native Phantoon eye direction {direction}");
+        }
+        var eyeEnemies = new RoomEnemySystem();
+        busField.SetValue(eyeEnemies, new PhantoonPatternReadGuard(rom));
+        var pointEye = typeof(RoomEnemySystem).GetMethod("PointPhantoonEyeAtSamus", flags)!
+            .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, SamusState>>(eyeEnemies);
+        RoomEnemySlot eyeBody = eyeEnemies.Slots[0];
+        RoomEnemySlot trackingEye = eyeEnemies.Slots[1];
+        eyeBody.XPosition = 0x4000;
+        eyeBody.YPosition = 0x4000;
+        foreach ((short x, short y, ushort direction) in eyeTargets)
+        {
+            pointEye(eyeBody, trackingEye, new SamusState
+            {
+                XPosition = unchecked((ushort)(eyeBody.XPosition + x)),
+                YPosition = unchecked((ushort)(eyeBody.YPosition + y)),
+            });
+            AssertEqual(PhantoonPatternDefinitions.EyeInstruction(direction),
+                trackingEye.CurrentInstruction,
+                $"production Phantoon eye direction {direction}");
+        }
+        AssertThrows<InvalidDataException>(
+            () => PhantoonPatternDefinitions.EyeInstruction(9),
+            "Phantoon eye direction beyond authored table");
+        AssertThrows<IndexOutOfRangeException>(() => _ = PhantoonPatternDefinitions.FirstRainColumns[-1], "rain pattern lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = PhantoonPatternDefinitions.FirstRainColumns[8], "rain pattern upper bound");
+        Console.WriteLine("Stream 5 Phantoon: eight native rain columns, eight actual rain populations/gaps and nine eye selectors/eight actual octants pass with native tables forbidden; shot markers remain pending.");
+    }
+
     private static void VerifyLookupStream5CeresDoorRamp(SuperMetroidAddressSpace rom)
     {
         var document = new CeresDoorVisualDocument

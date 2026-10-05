@@ -3,13 +3,36 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Phantoon mouth schedules retain the native header and reverse-read timer layout.</summary>
 public static class PhantoonCasualFlameDefinitions
 {
-    /// <summary>$A7:CCFD pointer list selects $CD05/$CD13/$CD1D/$CD2F (CasualFlameTimers patterns 0..3). Word zero is the flame count; subsequent words are consumed backwards.</summary>
-    public static ReadOnlySpan<ushort> Pattern(int index) => index switch
+    /// <summary>$A7:CD2F's seven irregular reverse-read intervals; independent timing disposition remains required.</summary>
+    private static ReadOnlySpan<ushort> IrregularIntervals => [16,64,32,64,32,16,32];
+
+    /// <summary>
+    /// $A7:CCFD selects five-, three-, seven-flame uniform bursts, then an irregular
+    /// seven-flame burst. All have180-frame cooldowns. Uniform holds are16 ticks per
+    /// burst rank, with rank1..3 containing2*rank+1 flames.
+    /// </summary>
+    public static Schedule Pattern(int index) => (uint)index < 4
+        ? new Schedule(index) : throw new ArgumentOutOfRangeException(nameof(index));
+
+    public readonly struct Schedule(int pattern) : IReadOnlyList<ushort>
     {
-        0 => [5, 180, 32, 32, 32, 32, 32],
-        1 => [3, 180, 16, 16, 16],
-        2 => [7, 180, 48, 48, 48, 48, 48, 48, 48],
-        3 => [7, 180, 16, 64, 32, 64, 32, 16, 32],
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
+        private int BurstRank => pattern == 0 ? 2 : pattern == 1 ? 1 : 3;
+        public int Count => 2 * BurstRank + 3;
+        public int Length => Count;
+        public ushort this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if (index == 0) return (ushort)(2 * BurstRank + 1);
+                if (index == 1) return 180;
+                return pattern == 3 ? IrregularIntervals[index-2] : (ushort)(16 * BurstRank);
+            }
+        }
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index =0;index<Count;index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }

@@ -543,9 +543,9 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs
 
-- [ ] **PhantoonCasualFlameDefinitions.Pattern / literal at L9** ([L9](../csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs#L9)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **PhantoonCasualFlameDefinitions.Pattern / literal at L10** ([L10](../csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs#L10)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **PhantoonCasualFlameDefinitions.Pattern / literal at L11** ([L11](../csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs#L11)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **PhantoonCasualFlameDefinitions.Pattern / literal at L9** ([L9](../csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs#L9)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **PhantoonCasualFlameDefinitions.Pattern / literal at L10** ([L10](../csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs#L10)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **PhantoonCasualFlameDefinitions.Pattern / literal at L11** ([L11](../csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs#L11)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 - [ ] **PhantoonCasualFlameDefinitions.Pattern / literal at L12** ([L12](../csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs#L12)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs
@@ -576,7 +576,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/PhantoonSoundDefinitions.cs
 
-- [ ] **PhantoonSoundDefinitions.Materialization** ([L10](../csharp/src/SuperMetroid.Core/Game/PhantoonSoundDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PhantoonSoundDefinitions.Materialization** ([L10](../csharp/src/SuperMetroid.Core/Game/PhantoonSoundDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PhantoonTimerDefinitions.cs
 
@@ -800,3 +800,10 @@ Removed ten shard start pointers and all90 stored visual addresses. Nine shard p
 Verification build passed (1432 full-build warnings,25 incremental warnings, zero errors). `--noob-tube-projectile-instruction-mechanics` passed all207 original mechanics words, seventeen actual burst producers (one crack,ten shards,six bubbles), all counted lifecycles, shared shot deletion,90 exact native compiled sprite operands and zero runtime reads. Initial execution passed behavior and reached the obsolete expected90 visual reads versus actual0; assigned verification now confirms zero and every original operand without weakening lifetime/producer assertions.
 
 Thirty-five stream5 definitions resolved:34 converted/removed and1 mixed narrowly justified retention.190 remain required. Only ShardPrograms and PresentationWords are checked off. Words remains required for its five timing residuals; the six placement/velocity arrays and Ceres palette residuals remain pending independently.
+### Batch 14: Phantoon uniform mouth schedules and sound sequence
+
+Removed the three uniform casual-flame pattern arrays. A calculated view retains the count header and180-tick cooldown; burst ranks1..3 contain2*rank+1 flames and16*rank holds, selected in the native middle/short/long order. Pattern3 shares header/cooldown geometry but retains its seven irregular intervals as explicitly pending data. The coordinator-assigned runtime file changes only its explicit sequence binding. Removed the three consecutive materialization sound IDs in favor of base$79 plus the bounded cycle index.
+
+Verification build passed (1432 warnings, zero errors). New `--lookup-stream5-phantoon-schedules` invokes the existing focused schedule/sound proofs:30 original schedule words,65536 masked selector inputs,8192 frame-exact reverse-countdown/mouth transitions, all three original sound IDs and two actual callback cycles, without the original tables. These checks confirm the changed schedules; they do not grant an exception to pattern3.
+
+Thirty-nine stream5 definitions resolved:38 converted/removed and1 mixed narrowly justified retention.186 remain required. The fourth casual-flame pattern, crack flicker intervals, scatter arrays and independent palette residuals remain pending.

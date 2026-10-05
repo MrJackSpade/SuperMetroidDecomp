@@ -7,18 +7,18 @@ internal static class PhantoonSoundDefinitions
     /// <c>Phantoon_MaterializationSFX</c> at <c>$A7:CDED-$A7:CDF2</c>, queued from
     /// sound library two in a repeating three-callback cycle.
     /// </summary>
-    private static readonly ushort[] Materialization = [0x0079, 0x007a, 0x007b];
+    private const ushort FirstMaterializationSound = 0x0079;
 
     /// <summary>Returns the materialization sound for a native zero-through-two index.</summary>
     internal static ushort MaterializationSound(ushort index)
     {
-        if (index >= Materialization.Length)
+        if (index >= 3)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(index), index,
                 "Phantoon materialization sound index must be zero through two.");
         }
 
-        return Materialization[index];
+        return (ushort)(FirstMaterializationSound + index);
     }
 }

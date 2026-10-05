@@ -151,6 +151,13 @@ if (args is ["--lookup-stream-4"])
     Console.WriteLine("Stream 4 lookup conversions: focused original-source and domain checks pass.");
     return 0;
 }
+if (args is ["--lookup-stream5-phantoon-schedules"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyCompiledPhantoonCasualFlames(rom);
+    VerifyPhantoonSoundDefinitions(rom);
+    return 0;
+}
 if (args is ["--lookup-stream5-phantoon-rain"])
 {
     VerifyLookupStream5PhantoonRain(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

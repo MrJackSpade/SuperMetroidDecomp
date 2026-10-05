@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -67,8 +68,8 @@ internal static partial class Program
             object?[] arguments =
                 [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
             process.Invoke(enemies, arguments);
-            AssertEqual(expected.Presentation, guard.LastObservedPresentationWord,
-                $"Zebetite program {programIndex} live spritemap read");
+            AssertEqual(ReadZebetiteInstructionWord(rom, expected.Presentation), slot.SpritemapPointer,
+                $"Zebetite program {programIndex} exact native sprite selection");
             AssertEqual(expected.Sleep, slot.CurrentInstruction,
                 $"Zebetite program {programIndex} frame handoff");
             process.Invoke(enemies, arguments);
@@ -76,17 +77,18 @@ internal static partial class Program
                 $"Zebetite program {programIndex} terminal sleep");
         }
 
-        AssertEqual(ZebetiteInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Zebetite spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "all Zebetite spritemap operands use installed selectors without live ROM reads");
         for (int index = 0;
              index < ZebetiteInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 ZebetiteInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Zebetite presentation word $A6:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa6, address, out ushort selected),
+                $"compiled Zebetite selector $A6:{address:X4}");
+            AssertEqual(ReadZebetiteInstructionWord(rom, address), selected,
+                $"exact native Zebetite selector $A6:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Zebetite mechanics byte");
@@ -109,7 +111,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Zebetite instruction mechanics: 20 compiled words, all ten health-tier " +
-            "programs, and ten live spritemap reads pass with mechanics bytes forbidden.");
+            "programs, and ten exact native compiled sprite selectors pass with zero live reads.");
     }
 
     private static int ProbeZebetiteInstructionMechanicsAllocation()

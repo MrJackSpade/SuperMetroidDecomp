@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 625,
+  "remainingTableDefinitionCount": 620,
   "fileCount": 523,
   "entries": [
     {
@@ -8707,35 +8707,45 @@
       "line": 20,
       "name": "ZebetiteDefinitions.Generations",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "e349324c2913f18d6d270a1bdeef08a9f6bdae3d"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs",
       "line": 40,
       "name": "ZebetiteDefinitions.BigHealthInstructionLists",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "e349324c2913f18d6d270a1bdeef08a9f6bdae3d"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs",
       "line": 53,
       "name": "ZebetiteDefinitions.LinkedHealthInstructionLists",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "e349324c2913f18d6d270a1bdeef08a9f6bdae3d"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs",
       "line": 46,
       "name": "ZebetiteInstructionProgramDefinitions.Programs",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "e349324c2913f18d6d270a1bdeef08a9f6bdae3d"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs",
       "line": 60,
       "name": "ZebetiteInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "e349324c2913f18d6d270a1bdeef08a9f6bdae3d"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ZeroInstructionProgramDefinitions.cs",
@@ -21329,6 +21339,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 490,
+  "convertedSinceSnapshot": 495,
   "justifiedRetainedSinceSnapshot": 13
 }

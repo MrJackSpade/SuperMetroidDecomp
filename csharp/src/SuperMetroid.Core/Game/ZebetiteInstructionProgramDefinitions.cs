@@ -42,50 +42,37 @@ internal static class ZebetiteInstructionProgramDefinitions
     /// <summary><c>Spritemap_Zebetite_Big_HealthGreaterThanEqualTo800</c> at $A6:FE08.</summary>
     internal const ushort FirstSpritemap = 0xfe08;
 
-    private static readonly ZebetiteInstructionProgram[] Programs =
-    [
-        Program(BigHealthAtLeast800),
-        Program(BigHealthBelow800),
-        Program(BigHealthBelow600),
-        Program(BigHealthBelow400),
-        Program(BigHealthBelow200),
-        Program(SmallHealthAtLeast800),
-        Program(SmallHealthBelow800),
-        Program(SmallHealthBelow600),
-        Program(SmallHealthBelow400),
-        Program(SmallHealthBelow200),
-    ];
+    internal static int ProgramCount => 10;
+    internal static int MechanicsWordCount => ProgramCount * 2;
+    internal static int PresentationWordCount => ProgramCount;
 
-    private static readonly ZebetiteInstructionMechanicsWord[] Words =
-    [
-        Word(BigHealthAtLeast800, 0), Word(BigHealthAtLeast800, 4),
-        Word(BigHealthBelow800, 0), Word(BigHealthBelow800, 4),
-        Word(BigHealthBelow600, 0), Word(BigHealthBelow600, 4),
-        Word(BigHealthBelow400, 0), Word(BigHealthBelow400, 4),
-        Word(BigHealthBelow200, 0), Word(BigHealthBelow200, 4),
-        Word(SmallHealthAtLeast800, 0), Word(SmallHealthAtLeast800, 4),
-        Word(SmallHealthBelow800, 0), Word(SmallHealthBelow800, 4),
-        Word(SmallHealthBelow600, 0), Word(SmallHealthBelow600, 4),
-        Word(SmallHealthBelow400, 0), Word(SmallHealthBelow400, 4),
-        Word(SmallHealthBelow200, 0), Word(SmallHealthBelow200, 4),
-    ];
+    /// <summary>
+    /// $A6:FDCC-FE07 contains five large and five split-barrier health stages.
+    /// Each installs one pose (duration and visual selector) then sleeps:
+    /// three words per stage, with no authored animation cadence to index.
+    /// </summary>
+    internal static ZebetiteInstructionProgram ProgramAt(int index)
+    {
+        if ((uint)index >= ProgramCount) throw new IndexOutOfRangeException();
+        return Program((ushort)(BigHealthAtLeast800 + index * 3 * sizeof(ushort)));
+    }
 
-    internal static int ProgramCount => Programs.Length;
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => Programs.Length;
-    internal static ZebetiteInstructionProgram ProgramAt(int index) => Programs[index];
-    internal static ZebetiteInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => Programs[index].Presentation;
+    internal static ZebetiteInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        return Word(ProgramAt(index / 2).Entry, (ushort)((index & 1) * 4));
+    }
 
+    internal static ushort PresentationWordAddress(int index) => ProgramAt(index).Presentation;
     /// <summary>Returns fixed Zebetite control or rejects pointers outside its ten lists.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            ZebetiteInstructionMechanicsWord candidate = Words[middle];
+            ZebetiteInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -103,9 +90,9 @@ internal static class ZebetiteInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa60000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

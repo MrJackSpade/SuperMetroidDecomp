@@ -687,14 +687,14 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs
 
-- [ ] **ZebetiteDefinitions.Generations** ([L20](../csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ZebetiteDefinitions.BigHealthInstructionLists** ([L40](../csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ZebetiteDefinitions.LinkedHealthInstructionLists** ([L53](../csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebetiteDefinitions.Generations** ([L20](../csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebetiteDefinitions.BigHealthInstructionLists** ([L40](../csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebetiteDefinitions.LinkedHealthInstructionLists** ([L53](../csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs
 
-- [ ] **ZebetiteInstructionProgramDefinitions.Programs** ([L46](../csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ZebetiteInstructionProgramDefinitions.Words** ([L60](../csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebetiteInstructionProgramDefinitions.Programs** ([L46](../csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebetiteInstructionProgramDefinitions.Words** ([L60](../csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ## Agent handoff
 
@@ -893,3 +893,7 @@ Laser programs select immediate directional movement after three startup poses,t
 Integrated checkpoint:66 converted,one mixed,158 required.
 
 Root integration Verification build1444 existing warnings/zero errors; --space-pirate-projectile-instruction-mechanics passed58 native controls,both real producers/facings,immediate laser motion,claw loops,shared deletion,42 exact native selectors,zero presentation reads,bounds and allocation assertions.
+
+## Zebetite geometry and health-program batch
+
+Pinned A6:FC03-FC32 and FDCC-FE07 establish alternating large/split geometry and equal pose/sleep programs. Five definitions now calculate directly without stored rows. `--lookup-stream5-zebetite-geometry` invokes existing confirmation:24 generation fields, ten native health selectors, both populations, eight actual initializers,80 health handoffs and both real respawns with migrated sources forbidden. The instruction verifier first confirmed all20 native controls then failed its stale live-spritemap-read expectation. Its scoped correction compares allten compiled selectors and actual selected sprites to native operands, requires zero live reads, and preserves actual health/frame/sleep/bounds/allocation checks. `--zebetite-instruction-program-definitions` passes. Root integration Verification build1444 warnings/zero errors; both focused checks passed. Integrated checkpoint:71 converted,one mixed,153 required.

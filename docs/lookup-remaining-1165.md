@@ -1,7 +1,7 @@
 
 ## Integrated stream progress
 
-The original snapshot below contains 1128 definitions. As of the first integrated batches, 490 are converted, 13 are justified retained, and 625 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
+The original snapshot below contains 1128 definitions. As of the first integrated batches, 495 are converted, 13 are justified retained, and 620 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
 # Remaining lookup-table definitions - issue 1165
 
 Remaining: **1128 canonical table definitions in 523 source files**.
@@ -4169,16 +4169,16 @@ Remaining table definitions: **1**.
 
 Remaining table definitions: **3**.
 
-- [ ] **ZebetiteDefinitions.Generations** - stored definition ([L20](../csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs#L20)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ZebetiteDefinitions.BigHealthInstructionLists** - stored definition ([L40](../csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs#L40)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ZebetiteDefinitions.LinkedHealthInstructionLists** - stored definition ([L53](../csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs#L53)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebetiteDefinitions.Generations** - stored definition ([L20](../csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs#L20)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebetiteDefinitions.BigHealthInstructionLists** - stored definition ([L40](../csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs#L40)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebetiteDefinitions.LinkedHealthInstructionLists** - stored definition ([L53](../csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs#L53)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs
 
 Remaining table definitions: **2**.
 
-- [ ] **ZebetiteInstructionProgramDefinitions.Programs** - stored definition ([L46](../csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs#L46)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ZebetiteInstructionProgramDefinitions.Words** - stored definition ([L60](../csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs#L60)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebetiteInstructionProgramDefinitions.Programs** - stored definition ([L46](../csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs#L46)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebetiteInstructionProgramDefinitions.Words** - stored definition ([L60](../csharp/src/SuperMetroid.Core/Game/ZebetiteInstructionProgramDefinitions.cs#L60)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ZeroInstructionProgramDefinitions.cs
 

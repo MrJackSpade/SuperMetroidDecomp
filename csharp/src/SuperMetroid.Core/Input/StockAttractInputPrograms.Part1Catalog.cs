@@ -2,218 +2,219 @@ namespace SuperMetroid.Core.Input;
 
 public static partial class StockAttractInputPrograms
 {
-    // Decoded bank-$91 records; keys retain native labels for branches and diagnostics.
-    private static void AddPart1(Dictionary<ushort, Command> commands)
+    /// <summary>
+    /// Native command identities from <c>$91:8776</c> through <c>$91:8F9A</c>.
+    /// Input successors follow the six-byte command width; deletion and jumps are executable operations.
+    /// The duration/held/new-input triples are the independently reviewed demonstration choreography;
+    /// generating a gameplay policy would change that performance. Successors and operations calculate.
+    /// </summary>
+    private static Command? CommandPart1(ushort pointer) => pointer switch
     {
-        commands.Add(0x8776, new(Operation.Delete, 0x0000));
-        commands.Add(0x8ace, new(Operation.Input, 0x8ad4, 289, SnesButton.None, SnesButton.None));
-        commands.Add(0x8ad4, new(Operation.Input, 0x8ada, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8ada, new(Operation.Input, 0x8ae0, 6, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8ae0, new(Operation.Input, 0x8ae6, 1, SnesButton.Up | SnesButton.Left, SnesButton.Up));
-        commands.Add(0x8ae6, new(Operation.Input, 0x8aec, 3, SnesButton.Up | SnesButton.Left, SnesButton.None));
-        commands.Add(0x8aec, new(Operation.Input, 0x8af2, 19, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8af2, new(Operation.Input, 0x8af8, 1, SnesButton.Left | SnesButton.A, SnesButton.A));
-        commands.Add(0x8af8, new(Operation.Input, 0x8afe, 40, SnesButton.Left | SnesButton.A, SnesButton.None));
-        commands.Add(0x8afe, new(Operation.Input, 0x8b04, 50, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8b04, new(Operation.Input, 0x8b0a, 36, SnesButton.None, SnesButton.None));
-        commands.Add(0x8b0a, new(Operation.Input, 0x8b10, 1, SnesButton.Right, SnesButton.Right));
-        commands.Add(0x8b10, new(Operation.Input, 0x8b16, 5, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8b16, new(Operation.Input, 0x8b1c, 15, SnesButton.None, SnesButton.None));
-        commands.Add(0x8b1c, new(Operation.Input, 0x8b22, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8b22, new(Operation.Input, 0x8b28, 5, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8b28, new(Operation.Input, 0x8b2e, 34, SnesButton.None, SnesButton.None));
-        commands.Add(0x8b2e, new(Operation.Input, 0x8b34, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8b34, new(Operation.Input, 0x8b3a, 74, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8b3a, new(Operation.Input, 0x8b40, 5, SnesButton.None, SnesButton.None));
-        commands.Add(0x8b40, new(Operation.Input, 0x8b46, 1, SnesButton.Right, SnesButton.Right));
-        commands.Add(0x8b46, new(Operation.Input, 0x8b4c, 5, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8b4c, new(Operation.Input, 0x8b52, 69, SnesButton.None, SnesButton.None));
-        commands.Add(0x8b52, new(Operation.Input, 0x8b58, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8b58, new(Operation.Input, 0x8b5e, 3, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8b5e, new(Operation.Input, 0x8b64, 1, SnesButton.B | SnesButton.Left, SnesButton.B));
-        commands.Add(0x8b64, new(Operation.Input, 0x8b6a, 73, SnesButton.B | SnesButton.Left, SnesButton.None));
-        commands.Add(0x8b6a, new(Operation.Input, 0x8b70, 1, SnesButton.B | SnesButton.Up | SnesButton.Left, SnesButton.Up));
-        commands.Add(0x8b70, new(Operation.Input, 0x8b76, 3, SnesButton.B | SnesButton.Up | SnesButton.Left, SnesButton.None));
-        commands.Add(0x8b76, new(Operation.Input, 0x8b7c, 1, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8b7c, new(Operation.Input, 0x8b82, 2, SnesButton.None, SnesButton.None));
-        commands.Add(0x8b82, new(Operation.Input, 0x8b88, 1, SnesButton.Right, SnesButton.Right));
-        commands.Add(0x8b88, new(Operation.Input, 0x8b8e, 7, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8b8e, new(Operation.Input, 0x8b94, 11, SnesButton.None, SnesButton.None));
-        commands.Add(0x8b94, new(Operation.Input, 0x8b9a, 1, SnesButton.R, SnesButton.R));
-        commands.Add(0x8b9a, new(Operation.Input, 0x8ba0, 31, SnesButton.R, SnesButton.None));
-        commands.Add(0x8ba0, new(Operation.Input, 0x8ba6, 1, SnesButton.Left | SnesButton.R, SnesButton.Left));
-        commands.Add(0x8ba6, new(Operation.Input, 0x8bac, 5, SnesButton.Left | SnesButton.R, SnesButton.None));
-        commands.Add(0x8bac, new(Operation.Input, 0x8bb2, 29, SnesButton.R, SnesButton.None));
-        commands.Add(0x8bb2, new(Operation.Input, 0x8bb8, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8bb8, new(Operation.Input, 0x8bbe, 94, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8bbe, new(Operation.Input, 0x8bc4, 48, SnesButton.None, SnesButton.None));
-        commands.Add(0x8bc4, new(Operation.Input, 0x8bca, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8bca, new(Operation.Input, 0x8bd0, 46, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8bd0, new(Operation.Input, 0x8bd6, 31, SnesButton.None, SnesButton.None));
-        commands.Add(0x8bd6, new(Operation.Input, 0x8bdc, 1, SnesButton.Right, SnesButton.Right));
-        commands.Add(0x8bdc, new(Operation.Input, 0x8be2, 4, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8be2, new(Operation.Input, 0x8be8, 64, SnesButton.None, SnesButton.None));
-        commands.Add(0x8be8, new(Operation.Input, 0x8bee, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8bee, new(Operation.Input, 0x8bf4, 4, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8bf4, new(Operation.Input, 0x8bfa, 40, SnesButton.None, SnesButton.None));
-        commands.Add(0x8bfa, new(Operation.Input, 0x8c00, 1, SnesButton.X, SnesButton.X));
-        commands.Add(0x8c00, new(Operation.Input, 0x8c06, 6, SnesButton.X, SnesButton.None));
-        commands.Add(0x8c06, new(Operation.Input, 0x8c0c, 43, SnesButton.None, SnesButton.None));
-        commands.Add(0x8c0c, new(Operation.Input, 0x8c12, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8c12, new(Operation.Input, 0x8c18, 17, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8c18, new(Operation.Input, 0x8c1e, 7, SnesButton.None, SnesButton.None));
-        commands.Add(0x8c1e, new(Operation.Input, 0x8c24, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8c24, new(Operation.Input, 0x8c2a, 4, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8c2a, new(Operation.Input, 0x8c30, 20, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8c30, new(Operation.Input, 0x8c36, 1, SnesButton.Right | SnesButton.X, SnesButton.X));
-        commands.Add(0x8c36, new(Operation.Input, 0x8c3c, 3, SnesButton.Right | SnesButton.X, SnesButton.None));
-        commands.Add(0x8c3c, new(Operation.Delete, 0x0000));
-        commands.Add(0x8c3e, new(Operation.Input, 0x8c44, 22, SnesButton.None, SnesButton.None));
-        commands.Add(0x8c44, new(Operation.Input, 0x8c4a, 1, SnesButton.Up, SnesButton.Up));
-        commands.Add(0x8c4a, new(Operation.Input, 0x8c50, 3, SnesButton.Up, SnesButton.None));
-        commands.Add(0x8c50, new(Operation.Input, 0x8c56, 5, SnesButton.None, SnesButton.None));
-        commands.Add(0x8c56, new(Operation.Input, 0x8c5c, 1, SnesButton.Up, SnesButton.Up));
-        commands.Add(0x8c5c, new(Operation.Input, 0x8c62, 6, SnesButton.Up, SnesButton.None));
-        commands.Add(0x8c62, new(Operation.Input, 0x8c68, 22, SnesButton.None, SnesButton.None));
-        commands.Add(0x8c68, new(Operation.Input, 0x8c6e, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8c6e, new(Operation.Input, 0x8c74, 5, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8c74, new(Operation.Input, 0x8c7a, 11, SnesButton.None, SnesButton.None));
-        commands.Add(0x8c7a, new(Operation.Input, 0x8c80, 1, SnesButton.X, SnesButton.X));
-        commands.Add(0x8c80, new(Operation.Input, 0x8c86, 78, SnesButton.X, SnesButton.None));
-        commands.Add(0x8c86, new(Operation.Input, 0x8c8c, 1, SnesButton.Left | SnesButton.X, SnesButton.Left));
-        commands.Add(0x8c8c, new(Operation.Input, 0x8c92, 13, SnesButton.Left | SnesButton.X, SnesButton.None));
-        commands.Add(0x8c92, new(Operation.Input, 0x8c98, 1, SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.A));
-        commands.Add(0x8c98, new(Operation.Input, 0x8c9e, 20, SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8c9e, new(Operation.Input, 0x8ca4, 20, SnesButton.Left | SnesButton.X, SnesButton.None));
-        commands.Add(0x8ca4, new(Operation.Input, 0x8caa, 32, SnesButton.X, SnesButton.None));
-        commands.Add(0x8caa, new(Operation.Input, 0x8cb0, 1, SnesButton.Right | SnesButton.X, SnesButton.Right));
-        commands.Add(0x8cb0, new(Operation.Input, 0x8cb6, 15, SnesButton.Right | SnesButton.X, SnesButton.None));
-        commands.Add(0x8cb6, new(Operation.Input, 0x8cbc, 1, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.A));
-        commands.Add(0x8cbc, new(Operation.Input, 0x8cc2, 6, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8cc2, new(Operation.Input, 0x8cc8, 2, SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8cc8, new(Operation.Input, 0x8cce, 1, SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.Left));
-        commands.Add(0x8cce, new(Operation.Input, 0x8cd4, 30, SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8cd4, new(Operation.Input, 0x8cda, 8, SnesButton.Left | SnesButton.X, SnesButton.None));
-        commands.Add(0x8cda, new(Operation.Input, 0x8ce0, 6, SnesButton.X, SnesButton.None));
-        commands.Add(0x8ce0, new(Operation.Input, 0x8ce6, 1, SnesButton.Right | SnesButton.X, SnesButton.Right));
-        commands.Add(0x8ce6, new(Operation.Input, 0x8cec, 11, SnesButton.Right | SnesButton.X, SnesButton.None));
-        commands.Add(0x8cec, new(Operation.Input, 0x8cf2, 1, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.A));
-        commands.Add(0x8cf2, new(Operation.Input, 0x8cf8, 35, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8cf8, new(Operation.Input, 0x8cfe, 58, SnesButton.Right | SnesButton.X, SnesButton.None));
-        commands.Add(0x8cfe, new(Operation.Input, 0x8d04, 1, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.A));
-        commands.Add(0x8d04, new(Operation.Input, 0x8d0a, 19, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8d0a, new(Operation.Input, 0x8d10, 1, SnesButton.Up | SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.Up));
-        commands.Add(0x8d10, new(Operation.Input, 0x8d16, 2, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8d16, new(Operation.Input, 0x8d1c, 8, SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8d1c, new(Operation.Input, 0x8d22, 13, SnesButton.X, SnesButton.None));
-        commands.Add(0x8d22, new(Operation.Input, 0x8d28, 1, SnesButton.Left | SnesButton.X, SnesButton.Left));
-        commands.Add(0x8d28, new(Operation.Input, 0x8d2e, 41, SnesButton.Left | SnesButton.X, SnesButton.None));
-        commands.Add(0x8d2e, new(Operation.Input, 0x8d34, 1, SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.A));
-        commands.Add(0x8d34, new(Operation.Input, 0x8d3a, 7, SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8d3a, new(Operation.Input, 0x8d40, 1, SnesButton.Up | SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.Up));
-        commands.Add(0x8d40, new(Operation.Input, 0x8d46, 2, SnesButton.Up | SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8d46, new(Operation.Input, 0x8d4c, 1, SnesButton.Up | SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8d4c, new(Operation.Input, 0x8d52, 1, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.Right));
-        commands.Add(0x8d52, new(Operation.Input, 0x8d58, 40, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8d58, new(Operation.Input, 0x8d5e, 16, SnesButton.Right | SnesButton.X, SnesButton.None));
-        commands.Add(0x8d5e, new(Operation.Input, 0x8d64, 6, SnesButton.X, SnesButton.None));
-        commands.Add(0x8d64, new(Operation.Input, 0x8d6a, 1, SnesButton.A | SnesButton.X, SnesButton.A));
-        commands.Add(0x8d6a, new(Operation.Input, 0x8d70, 4, SnesButton.A | SnesButton.X, SnesButton.None));
-        commands.Add(0x8d70, new(Operation.Input, 0x8d76, 1, SnesButton.A | SnesButton.X | SnesButton.L, SnesButton.L));
-        commands.Add(0x8d76, new(Operation.Input, 0x8d7c, 18, SnesButton.A | SnesButton.X | SnesButton.L, SnesButton.None));
-        commands.Add(0x8d7c, new(Operation.Input, 0x8d82, 42, SnesButton.L, SnesButton.None));
-        commands.Add(0x8d82, new(Operation.Input, 0x8d88, 1, SnesButton.Right | SnesButton.L, SnesButton.Right));
-        commands.Add(0x8d88, new(Operation.Input, 0x8d8e, 2, SnesButton.Right | SnesButton.L, SnesButton.None));
-        commands.Add(0x8d8e, new(Operation.Input, 0x8d94, 5, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8d94, new(Operation.Input, 0x8d9a, 8, SnesButton.None, SnesButton.None));
-        commands.Add(0x8d9a, new(Operation.Input, 0x8da0, 1, SnesButton.Right, SnesButton.Right));
-        commands.Add(0x8da0, new(Operation.Input, 0x8da6, 17, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8da6, new(Operation.Input, 0x8dac, 1, SnesButton.Right | SnesButton.A, SnesButton.A));
-        commands.Add(0x8dac, new(Operation.Input, 0x8db2, 15, SnesButton.Right | SnesButton.A, SnesButton.None));
-        commands.Add(0x8db2, new(Operation.Input, 0x8db8, 19, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8db8, new(Operation.Input, 0x8dbe, 1, SnesButton.B | SnesButton.Right, SnesButton.B));
-        commands.Add(0x8dbe, new(Operation.Input, 0x8dc4, 41, SnesButton.B | SnesButton.Right, SnesButton.None));
-        commands.Add(0x8dc4, new(Operation.Input, 0x8dca, 1, SnesButton.B | SnesButton.Right | SnesButton.A, SnesButton.A));
-        commands.Add(0x8dca, new(Operation.Input, 0x8dd0, 32, SnesButton.B | SnesButton.Right | SnesButton.A, SnesButton.None));
-        commands.Add(0x8dd0, new(Operation.Input, 0x8dd6, 5, SnesButton.B | SnesButton.A, SnesButton.None));
-        commands.Add(0x8dd6, new(Operation.Input, 0x8ddc, 6, SnesButton.B, SnesButton.None));
-        commands.Add(0x8ddc, new(Operation.Input, 0x8de2, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8de2, new(Operation.Input, 0x8de8, 15, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8de8, new(Operation.Input, 0x8dee, 101, SnesButton.None, SnesButton.None));
-        commands.Add(0x8dee, new(Operation.Delete, 0x0000));
-        commands.Add(0x8df0, new(Operation.Input, 0x8df6, 32, SnesButton.None, SnesButton.None));
-        commands.Add(0x8df6, new(Operation.Input, 0x8dfc, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8dfc, new(Operation.Input, 0x8e02, 2, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8e02, new(Operation.Input, 0x8e08, 1, SnesButton.B | SnesButton.Left, SnesButton.B));
-        commands.Add(0x8e08, new(Operation.Input, 0x8e0e, 238, SnesButton.B | SnesButton.Left, SnesButton.None));
-        commands.Add(0x8e0e, new(Operation.Input, 0x8e14, 1, SnesButton.B | SnesButton.Up | SnesButton.Left, SnesButton.Up));
-        commands.Add(0x8e14, new(Operation.Input, 0x8e1a, 2, SnesButton.B | SnesButton.Left, SnesButton.None));
-        commands.Add(0x8e1a, new(Operation.Input, 0x8e20, 1, SnesButton.B | SnesButton.Right, SnesButton.Right));
-        commands.Add(0x8e20, new(Operation.Input, 0x8e26, 22, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8e26, new(Operation.Input, 0x8e2c, 49, SnesButton.None, SnesButton.None));
-        commands.Add(0x8e2c, new(Operation.Input, 0x8e32, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8e32, new(Operation.Input, 0x8e38, 5, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8e38, new(Operation.Input, 0x8e3e, 19, SnesButton.None, SnesButton.None));
-        commands.Add(0x8e3e, new(Operation.Input, 0x8e44, 1, SnesButton.X, SnesButton.X));
-        commands.Add(0x8e44, new(Operation.Input, 0x8e4a, 8, SnesButton.X, SnesButton.None));
-        commands.Add(0x8e4a, new(Operation.Input, 0x8e50, 17, SnesButton.None, SnesButton.None));
-        commands.Add(0x8e50, new(Operation.Input, 0x8e56, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8e56, new(Operation.Input, 0x8e5c, 27, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8e5c, new(Operation.Input, 0x8e62, 99, SnesButton.None, SnesButton.None));
-        commands.Add(0x8e62, new(Operation.Delete, 0x0000));
-        commands.Add(0x8e64, new(Operation.Input, 0x8e6a, 8, SnesButton.None, SnesButton.None));
-        commands.Add(0x8e6a, new(Operation.Input, 0x8e70, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8e70, new(Operation.Input, 0x8e76, 1, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8e76, new(Operation.Input, 0x8e7c, 266, SnesButton.None, SnesButton.None));
-        commands.Add(0x8e7c, new(Operation.Input, 0x8e82, 1, SnesButton.Right, SnesButton.Right));
-        commands.Add(0x8e82, new(Operation.Input, 0x8e88, 4, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8e88, new(Operation.Input, 0x8e8e, 17, SnesButton.None, SnesButton.None));
-        commands.Add(0x8e8e, new(Operation.Input, 0x8e94, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8e94, new(Operation.Input, 0x8e9a, 4, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8e9a, new(Operation.Input, 0x8ea0, 56, SnesButton.None, SnesButton.None));
-        commands.Add(0x8ea0, new(Operation.Input, 0x8ea6, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8ea6, new(Operation.Input, 0x8eac, 356, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8eac, new(Operation.Input, 0x8eb2, 286, SnesButton.None, SnesButton.None));
-        commands.Add(0x8eb2, new(Operation.Delete, 0x0000));
-        commands.Add(0x8eb4, new(Operation.Input, 0x8eba, 90, SnesButton.None, SnesButton.None));
-        commands.Add(0x8eba, new(Operation.Input, 0x8ec0, 1, SnesButton.Right, SnesButton.Right));
-        commands.Add(0x8ec0, new(Operation.Input, 0x8ec6, 10, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8ec6, new(Operation.Input, 0x8ecc, 1, SnesButton.Right | SnesButton.A, SnesButton.A));
-        commands.Add(0x8ecc, new(Operation.Input, 0x8ed2, 6, SnesButton.Right | SnesButton.A, SnesButton.None));
-        commands.Add(0x8ed2, new(Operation.Input, 0x8ed8, 17, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8ed8, new(Operation.Input, 0x8ede, 32, SnesButton.None, SnesButton.None));
-        commands.Add(0x8ede, new(Operation.Input, 0x8ee4, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8ee4, new(Operation.Input, 0x8eea, 1, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8eea, new(Operation.Input, 0x8ef0, 1, SnesButton.Left | SnesButton.A, SnesButton.A));
-        commands.Add(0x8ef0, new(Operation.Input, 0x8ef6, 20, SnesButton.Left | SnesButton.A, SnesButton.None));
-        commands.Add(0x8ef6, new(Operation.Input, 0x8efc, 3, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8efc, new(Operation.Input, 0x8f02, 20, SnesButton.None, SnesButton.None));
-        commands.Add(0x8f02, new(Operation.Input, 0x8f08, 1, SnesButton.Right, SnesButton.Right));
-        commands.Add(0x8f08, new(Operation.Input, 0x8f0e, 4, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8f0e, new(Operation.Input, 0x8f14, 72, SnesButton.None, SnesButton.None));
-        commands.Add(0x8f14, new(Operation.Input, 0x8f1a, 1, SnesButton.A, SnesButton.A));
-        commands.Add(0x8f1a, new(Operation.Input, 0x8f20, 17, SnesButton.A, SnesButton.None));
-        commands.Add(0x8f20, new(Operation.Input, 0x8f26, 1, SnesButton.Right | SnesButton.A, SnesButton.Right));
-        commands.Add(0x8f26, new(Operation.Input, 0x8f2c, 10, SnesButton.Right | SnesButton.A, SnesButton.None));
-        commands.Add(0x8f2c, new(Operation.Input, 0x8f32, 22, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8f32, new(Operation.Input, 0x8f38, 512, SnesButton.None, SnesButton.None));
-        commands.Add(0x8f38, new(Operation.Delete, 0x0000));
-        commands.Add(0x8f3a, new(Operation.Input, 0x8f40, 61, SnesButton.None, SnesButton.None));
-        commands.Add(0x8f40, new(Operation.Input, 0x8f46, 1, SnesButton.Right, SnesButton.Right));
-        commands.Add(0x8f46, new(Operation.Input, 0x8f4c, 5, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8f4c, new(Operation.Input, 0x8f52, 15, SnesButton.None, SnesButton.None));
-        commands.Add(0x8f52, new(Operation.Input, 0x8f58, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8f58, new(Operation.Input, 0x8f5e, 5, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8f5e, new(Operation.Input, 0x8f64, 39, SnesButton.None, SnesButton.None));
-        commands.Add(0x8f64, new(Operation.Input, 0x8f6a, 1, SnesButton.Left, SnesButton.Left));
-        commands.Add(0x8f6a, new(Operation.Input, 0x8f70, 102, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8f70, new(Operation.Input, 0x8f76, 1, SnesButton.B | SnesButton.Left, SnesButton.B));
-        commands.Add(0x8f76, new(Operation.Input, 0x8f7c, 7, SnesButton.B | SnesButton.Left, SnesButton.None));
-        commands.Add(0x8f7c, new(Operation.Input, 0x8f82, 79, SnesButton.Left, SnesButton.None));
-        commands.Add(0x8f82, new(Operation.Input, 0x8f88, 87, SnesButton.None, SnesButton.None));
-        commands.Add(0x8f88, new(Operation.Input, 0x8f8e, 1, SnesButton.Right, SnesButton.Right));
-        commands.Add(0x8f8e, new(Operation.Input, 0x8f94, 2, SnesButton.Right, SnesButton.None));
-        commands.Add(0x8f94, new(Operation.Input, 0x8f9a, 100, SnesButton.None, SnesButton.None));
-        commands.Add(0x8f9a, new(Operation.Input, 0x8fa0, 1, SnesButton.Right, SnesButton.Right));
-    }
+        0x8ace => InputSpan(pointer, 289, SnesButton.None, SnesButton.None),
+        0x8ad4 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8ada => InputSpan(pointer, 6, SnesButton.Left, SnesButton.None),
+        0x8ae0 => InputSpan(pointer, 1, SnesButton.Up | SnesButton.Left, SnesButton.Up),
+        0x8ae6 => InputSpan(pointer, 3, SnesButton.Up | SnesButton.Left, SnesButton.None),
+        0x8aec => InputSpan(pointer, 19, SnesButton.Left, SnesButton.None),
+        0x8af2 => InputSpan(pointer, 1, SnesButton.Left | SnesButton.A, SnesButton.A),
+        0x8af8 => InputSpan(pointer, 40, SnesButton.Left | SnesButton.A, SnesButton.None),
+        0x8afe => InputSpan(pointer, 50, SnesButton.Left, SnesButton.None),
+        0x8b04 => InputSpan(pointer, 36, SnesButton.None, SnesButton.None),
+        0x8b0a => InputSpan(pointer, 1, SnesButton.Right, SnesButton.Right),
+        0x8b10 => InputSpan(pointer, 5, SnesButton.Right, SnesButton.None),
+        0x8b16 => InputSpan(pointer, 15, SnesButton.None, SnesButton.None),
+        0x8b1c => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8b22 => InputSpan(pointer, 5, SnesButton.Left, SnesButton.None),
+        0x8b28 => InputSpan(pointer, 34, SnesButton.None, SnesButton.None),
+        0x8b2e => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8b34 => InputSpan(pointer, 74, SnesButton.Left, SnesButton.None),
+        0x8b3a => InputSpan(pointer, 5, SnesButton.None, SnesButton.None),
+        0x8b40 => InputSpan(pointer, 1, SnesButton.Right, SnesButton.Right),
+        0x8b46 => InputSpan(pointer, 5, SnesButton.Right, SnesButton.None),
+        0x8b4c => InputSpan(pointer, 69, SnesButton.None, SnesButton.None),
+        0x8b52 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8b58 => InputSpan(pointer, 3, SnesButton.Left, SnesButton.None),
+        0x8b5e => InputSpan(pointer, 1, SnesButton.B | SnesButton.Left, SnesButton.B),
+        0x8b64 => InputSpan(pointer, 73, SnesButton.B | SnesButton.Left, SnesButton.None),
+        0x8b6a => InputSpan(pointer, 1, SnesButton.B | SnesButton.Up | SnesButton.Left, SnesButton.Up),
+        0x8b70 => InputSpan(pointer, 3, SnesButton.B | SnesButton.Up | SnesButton.Left, SnesButton.None),
+        0x8b76 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.None),
+        0x8b7c => InputSpan(pointer, 2, SnesButton.None, SnesButton.None),
+        0x8b82 => InputSpan(pointer, 1, SnesButton.Right, SnesButton.Right),
+        0x8b88 => InputSpan(pointer, 7, SnesButton.Right, SnesButton.None),
+        0x8b8e => InputSpan(pointer, 11, SnesButton.None, SnesButton.None),
+        0x8b94 => InputSpan(pointer, 1, SnesButton.R, SnesButton.R),
+        0x8b9a => InputSpan(pointer, 31, SnesButton.R, SnesButton.None),
+        0x8ba0 => InputSpan(pointer, 1, SnesButton.Left | SnesButton.R, SnesButton.Left),
+        0x8ba6 => InputSpan(pointer, 5, SnesButton.Left | SnesButton.R, SnesButton.None),
+        0x8bac => InputSpan(pointer, 29, SnesButton.R, SnesButton.None),
+        0x8bb2 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8bb8 => InputSpan(pointer, 94, SnesButton.Left, SnesButton.None),
+        0x8bbe => InputSpan(pointer, 48, SnesButton.None, SnesButton.None),
+        0x8bc4 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8bca => InputSpan(pointer, 46, SnesButton.Left, SnesButton.None),
+        0x8bd0 => InputSpan(pointer, 31, SnesButton.None, SnesButton.None),
+        0x8bd6 => InputSpan(pointer, 1, SnesButton.Right, SnesButton.Right),
+        0x8bdc => InputSpan(pointer, 4, SnesButton.Right, SnesButton.None),
+        0x8be2 => InputSpan(pointer, 64, SnesButton.None, SnesButton.None),
+        0x8be8 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8bee => InputSpan(pointer, 4, SnesButton.Left, SnesButton.None),
+        0x8bf4 => InputSpan(pointer, 40, SnesButton.None, SnesButton.None),
+        0x8bfa => InputSpan(pointer, 1, SnesButton.X, SnesButton.X),
+        0x8c00 => InputSpan(pointer, 6, SnesButton.X, SnesButton.None),
+        0x8c06 => InputSpan(pointer, 43, SnesButton.None, SnesButton.None),
+        0x8c0c => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8c12 => InputSpan(pointer, 17, SnesButton.Left, SnesButton.None),
+        0x8c18 => InputSpan(pointer, 7, SnesButton.None, SnesButton.None),
+        0x8c1e => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8c24 => InputSpan(pointer, 4, SnesButton.Left, SnesButton.None),
+        0x8c2a => InputSpan(pointer, 20, SnesButton.Right, SnesButton.None),
+        0x8c30 => InputSpan(pointer, 1, SnesButton.Right | SnesButton.X, SnesButton.X),
+        0x8c36 => InputSpan(pointer, 3, SnesButton.Right | SnesButton.X, SnesButton.None),
+        0x8c3e => InputSpan(pointer, 22, SnesButton.None, SnesButton.None),
+        0x8c44 => InputSpan(pointer, 1, SnesButton.Up, SnesButton.Up),
+        0x8c4a => InputSpan(pointer, 3, SnesButton.Up, SnesButton.None),
+        0x8c50 => InputSpan(pointer, 5, SnesButton.None, SnesButton.None),
+        0x8c56 => InputSpan(pointer, 1, SnesButton.Up, SnesButton.Up),
+        0x8c5c => InputSpan(pointer, 6, SnesButton.Up, SnesButton.None),
+        0x8c62 => InputSpan(pointer, 22, SnesButton.None, SnesButton.None),
+        0x8c68 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8c6e => InputSpan(pointer, 5, SnesButton.Left, SnesButton.None),
+        0x8c74 => InputSpan(pointer, 11, SnesButton.None, SnesButton.None),
+        0x8c7a => InputSpan(pointer, 1, SnesButton.X, SnesButton.X),
+        0x8c80 => InputSpan(pointer, 78, SnesButton.X, SnesButton.None),
+        0x8c86 => InputSpan(pointer, 1, SnesButton.Left | SnesButton.X, SnesButton.Left),
+        0x8c8c => InputSpan(pointer, 13, SnesButton.Left | SnesButton.X, SnesButton.None),
+        0x8c92 => InputSpan(pointer, 1, SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.A),
+        0x8c98 => InputSpan(pointer, 20, SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8c9e => InputSpan(pointer, 20, SnesButton.Left | SnesButton.X, SnesButton.None),
+        0x8ca4 => InputSpan(pointer, 32, SnesButton.X, SnesButton.None),
+        0x8caa => InputSpan(pointer, 1, SnesButton.Right | SnesButton.X, SnesButton.Right),
+        0x8cb0 => InputSpan(pointer, 15, SnesButton.Right | SnesButton.X, SnesButton.None),
+        0x8cb6 => InputSpan(pointer, 1, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.A),
+        0x8cbc => InputSpan(pointer, 6, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8cc2 => InputSpan(pointer, 2, SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8cc8 => InputSpan(pointer, 1, SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.Left),
+        0x8cce => InputSpan(pointer, 30, SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8cd4 => InputSpan(pointer, 8, SnesButton.Left | SnesButton.X, SnesButton.None),
+        0x8cda => InputSpan(pointer, 6, SnesButton.X, SnesButton.None),
+        0x8ce0 => InputSpan(pointer, 1, SnesButton.Right | SnesButton.X, SnesButton.Right),
+        0x8ce6 => InputSpan(pointer, 11, SnesButton.Right | SnesButton.X, SnesButton.None),
+        0x8cec => InputSpan(pointer, 1, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.A),
+        0x8cf2 => InputSpan(pointer, 35, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8cf8 => InputSpan(pointer, 58, SnesButton.Right | SnesButton.X, SnesButton.None),
+        0x8cfe => InputSpan(pointer, 1, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.A),
+        0x8d04 => InputSpan(pointer, 19, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8d0a => InputSpan(pointer, 1, SnesButton.Up | SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.Up),
+        0x8d10 => InputSpan(pointer, 2, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8d16 => InputSpan(pointer, 8, SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8d1c => InputSpan(pointer, 13, SnesButton.X, SnesButton.None),
+        0x8d22 => InputSpan(pointer, 1, SnesButton.Left | SnesButton.X, SnesButton.Left),
+        0x8d28 => InputSpan(pointer, 41, SnesButton.Left | SnesButton.X, SnesButton.None),
+        0x8d2e => InputSpan(pointer, 1, SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.A),
+        0x8d34 => InputSpan(pointer, 7, SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8d3a => InputSpan(pointer, 1, SnesButton.Up | SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.Up),
+        0x8d40 => InputSpan(pointer, 2, SnesButton.Up | SnesButton.Left | SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8d46 => InputSpan(pointer, 1, SnesButton.Up | SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8d4c => InputSpan(pointer, 1, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.Right),
+        0x8d52 => InputSpan(pointer, 40, SnesButton.Right | SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8d58 => InputSpan(pointer, 16, SnesButton.Right | SnesButton.X, SnesButton.None),
+        0x8d5e => InputSpan(pointer, 6, SnesButton.X, SnesButton.None),
+        0x8d64 => InputSpan(pointer, 1, SnesButton.A | SnesButton.X, SnesButton.A),
+        0x8d6a => InputSpan(pointer, 4, SnesButton.A | SnesButton.X, SnesButton.None),
+        0x8d70 => InputSpan(pointer, 1, SnesButton.A | SnesButton.X | SnesButton.L, SnesButton.L),
+        0x8d76 => InputSpan(pointer, 18, SnesButton.A | SnesButton.X | SnesButton.L, SnesButton.None),
+        0x8d7c => InputSpan(pointer, 42, SnesButton.L, SnesButton.None),
+        0x8d82 => InputSpan(pointer, 1, SnesButton.Right | SnesButton.L, SnesButton.Right),
+        0x8d88 => InputSpan(pointer, 2, SnesButton.Right | SnesButton.L, SnesButton.None),
+        0x8d8e => InputSpan(pointer, 5, SnesButton.Right, SnesButton.None),
+        0x8d94 => InputSpan(pointer, 8, SnesButton.None, SnesButton.None),
+        0x8d9a => InputSpan(pointer, 1, SnesButton.Right, SnesButton.Right),
+        0x8da0 => InputSpan(pointer, 17, SnesButton.Right, SnesButton.None),
+        0x8da6 => InputSpan(pointer, 1, SnesButton.Right | SnesButton.A, SnesButton.A),
+        0x8dac => InputSpan(pointer, 15, SnesButton.Right | SnesButton.A, SnesButton.None),
+        0x8db2 => InputSpan(pointer, 19, SnesButton.Right, SnesButton.None),
+        0x8db8 => InputSpan(pointer, 1, SnesButton.B | SnesButton.Right, SnesButton.B),
+        0x8dbe => InputSpan(pointer, 41, SnesButton.B | SnesButton.Right, SnesButton.None),
+        0x8dc4 => InputSpan(pointer, 1, SnesButton.B | SnesButton.Right | SnesButton.A, SnesButton.A),
+        0x8dca => InputSpan(pointer, 32, SnesButton.B | SnesButton.Right | SnesButton.A, SnesButton.None),
+        0x8dd0 => InputSpan(pointer, 5, SnesButton.B | SnesButton.A, SnesButton.None),
+        0x8dd6 => InputSpan(pointer, 6, SnesButton.B, SnesButton.None),
+        0x8ddc => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8de2 => InputSpan(pointer, 15, SnesButton.Left, SnesButton.None),
+        0x8de8 => InputSpan(pointer, 101, SnesButton.None, SnesButton.None),
+        0x8df0 => InputSpan(pointer, 32, SnesButton.None, SnesButton.None),
+        0x8df6 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8dfc => InputSpan(pointer, 2, SnesButton.Left, SnesButton.None),
+        0x8e02 => InputSpan(pointer, 1, SnesButton.B | SnesButton.Left, SnesButton.B),
+        0x8e08 => InputSpan(pointer, 238, SnesButton.B | SnesButton.Left, SnesButton.None),
+        0x8e0e => InputSpan(pointer, 1, SnesButton.B | SnesButton.Up | SnesButton.Left, SnesButton.Up),
+        0x8e14 => InputSpan(pointer, 2, SnesButton.B | SnesButton.Left, SnesButton.None),
+        0x8e1a => InputSpan(pointer, 1, SnesButton.B | SnesButton.Right, SnesButton.Right),
+        0x8e20 => InputSpan(pointer, 22, SnesButton.Right, SnesButton.None),
+        0x8e26 => InputSpan(pointer, 49, SnesButton.None, SnesButton.None),
+        0x8e2c => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8e32 => InputSpan(pointer, 5, SnesButton.Left, SnesButton.None),
+        0x8e38 => InputSpan(pointer, 19, SnesButton.None, SnesButton.None),
+        0x8e3e => InputSpan(pointer, 1, SnesButton.X, SnesButton.X),
+        0x8e44 => InputSpan(pointer, 8, SnesButton.X, SnesButton.None),
+        0x8e4a => InputSpan(pointer, 17, SnesButton.None, SnesButton.None),
+        0x8e50 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8e56 => InputSpan(pointer, 27, SnesButton.Left, SnesButton.None),
+        0x8e5c => InputSpan(pointer, 99, SnesButton.None, SnesButton.None),
+        0x8e64 => InputSpan(pointer, 8, SnesButton.None, SnesButton.None),
+        0x8e6a => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8e70 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.None),
+        0x8e76 => InputSpan(pointer, 266, SnesButton.None, SnesButton.None),
+        0x8e7c => InputSpan(pointer, 1, SnesButton.Right, SnesButton.Right),
+        0x8e82 => InputSpan(pointer, 4, SnesButton.Right, SnesButton.None),
+        0x8e88 => InputSpan(pointer, 17, SnesButton.None, SnesButton.None),
+        0x8e8e => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8e94 => InputSpan(pointer, 4, SnesButton.Left, SnesButton.None),
+        0x8e9a => InputSpan(pointer, 56, SnesButton.None, SnesButton.None),
+        0x8ea0 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8ea6 => InputSpan(pointer, 356, SnesButton.Left, SnesButton.None),
+        0x8eac => InputSpan(pointer, 286, SnesButton.None, SnesButton.None),
+        0x8eb4 => InputSpan(pointer, 90, SnesButton.None, SnesButton.None),
+        0x8eba => InputSpan(pointer, 1, SnesButton.Right, SnesButton.Right),
+        0x8ec0 => InputSpan(pointer, 10, SnesButton.Right, SnesButton.None),
+        0x8ec6 => InputSpan(pointer, 1, SnesButton.Right | SnesButton.A, SnesButton.A),
+        0x8ecc => InputSpan(pointer, 6, SnesButton.Right | SnesButton.A, SnesButton.None),
+        0x8ed2 => InputSpan(pointer, 17, SnesButton.Right, SnesButton.None),
+        0x8ed8 => InputSpan(pointer, 32, SnesButton.None, SnesButton.None),
+        0x8ede => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8ee4 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.None),
+        0x8eea => InputSpan(pointer, 1, SnesButton.Left | SnesButton.A, SnesButton.A),
+        0x8ef0 => InputSpan(pointer, 20, SnesButton.Left | SnesButton.A, SnesButton.None),
+        0x8ef6 => InputSpan(pointer, 3, SnesButton.Left, SnesButton.None),
+        0x8efc => InputSpan(pointer, 20, SnesButton.None, SnesButton.None),
+        0x8f02 => InputSpan(pointer, 1, SnesButton.Right, SnesButton.Right),
+        0x8f08 => InputSpan(pointer, 4, SnesButton.Right, SnesButton.None),
+        0x8f0e => InputSpan(pointer, 72, SnesButton.None, SnesButton.None),
+        0x8f14 => InputSpan(pointer, 1, SnesButton.A, SnesButton.A),
+        0x8f1a => InputSpan(pointer, 17, SnesButton.A, SnesButton.None),
+        0x8f20 => InputSpan(pointer, 1, SnesButton.Right | SnesButton.A, SnesButton.Right),
+        0x8f26 => InputSpan(pointer, 10, SnesButton.Right | SnesButton.A, SnesButton.None),
+        0x8f2c => InputSpan(pointer, 22, SnesButton.Right, SnesButton.None),
+        0x8f32 => InputSpan(pointer, 512, SnesButton.None, SnesButton.None),
+        0x8f3a => InputSpan(pointer, 61, SnesButton.None, SnesButton.None),
+        0x8f40 => InputSpan(pointer, 1, SnesButton.Right, SnesButton.Right),
+        0x8f46 => InputSpan(pointer, 5, SnesButton.Right, SnesButton.None),
+        0x8f4c => InputSpan(pointer, 15, SnesButton.None, SnesButton.None),
+        0x8f52 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8f58 => InputSpan(pointer, 5, SnesButton.Left, SnesButton.None),
+        0x8f5e => InputSpan(pointer, 39, SnesButton.None, SnesButton.None),
+        0x8f64 => InputSpan(pointer, 1, SnesButton.Left, SnesButton.Left),
+        0x8f6a => InputSpan(pointer, 102, SnesButton.Left, SnesButton.None),
+        0x8f70 => InputSpan(pointer, 1, SnesButton.B | SnesButton.Left, SnesButton.B),
+        0x8f76 => InputSpan(pointer, 7, SnesButton.B | SnesButton.Left, SnesButton.None),
+        0x8f7c => InputSpan(pointer, 79, SnesButton.Left, SnesButton.None),
+        0x8f82 => InputSpan(pointer, 87, SnesButton.None, SnesButton.None),
+        0x8f88 => InputSpan(pointer, 1, SnesButton.Right, SnesButton.Right),
+        0x8f8e => InputSpan(pointer, 2, SnesButton.Right, SnesButton.None),
+        0x8f94 => InputSpan(pointer, 100, SnesButton.None, SnesButton.None),
+        0x8f9a => InputSpan(pointer, 1, SnesButton.Right, SnesButton.Right),
+        0x8776 or 0x8c3c or 0x8dee or 0x8e62 or 0x8eb2 or 0x8f38 => DeleteCommand(),
+        _ => null,
+    };
 }

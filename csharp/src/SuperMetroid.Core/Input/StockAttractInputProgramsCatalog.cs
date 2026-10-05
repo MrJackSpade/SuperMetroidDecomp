@@ -28,7 +28,7 @@ public static partial class StockAttractInputPrograms
         0x9e9a => new(DemoInputRomData.Routines.NoOp, DemoInputRomData.Attract.CheckLeave, 0x950a),
         0x9e64 => new(DemoInputRomData.Routines.NoOp, DemoInputRomData.Attract.CheckLeave, 0x8e64),
         0x9e70 => new(DemoInputRomData.Routines.NoOp, DemoInputRomData.Attract.CheckLeave, 0x8f3a),
-        0x9e82 => new(DemoInputRomData.Routines.NoOp, DemoInputRomData.Attract.ShinesparkPreInstruction, 0x933c),
+        0x9e82 => new(DemoInputRomData.Routines.NoOp, DemoInputRomData.Attract.ShinesparkPreInstruction, ShinesparkWait),
         0x9e7c => new(DemoInputRomData.Routines.NoOp, DemoInputRomData.Attract.CheckLeave, 0x9154),
         0x9e6a => new(DemoInputRomData.Routines.NoOp, DemoInputRomData.Attract.CheckLeave, 0x8eb4),
         0x9e8e => new(DemoInputRomData.Routines.NoOp, DemoInputRomData.Attract.CheckLeave, 0x9464),
@@ -41,16 +41,25 @@ public static partial class StockAttractInputPrograms
         _ => throw new InvalidDataException($"Unknown stock attract object $91:{pointer:X4}."),
     };
 
-    /// <summary>Returns a typed stock operation; missing definitions fail loudly.</summary>
+    /// <summary>$91:933C, InstList_DemoInput_Shinespark: hold the current inputs until the pre-instruction redirects.</summary>
+    private const ushort ShinesparkWait = 0x933c;
+
+    /// <summary>$91:9342, the jump back to the shinespark wait at $91:933C.</summary>
+    private const ushort ShinesparkWaitJump = 0x9342;
+
+    /// <summary>Executes the stock command dispatch; unknown command identities fail loudly.</summary>
     public static Command GetCommand(ushort pointer) =>
-        Commands.TryGetValue(pointer, out var command) ? command :
+        CommandPart1(pointer) ?? CommandPart2(pointer) ?? CommandPart3(pointer) ?? CommandPart4(pointer) ??
             throw new InvalidDataException($"Unknown stock attract command $91:{pointer:X4}.");
 
-    private static readonly Dictionary<ushort, Command> Commands = CreateCommands();
-    private static Dictionary<ushort, Command> CreateCommands()
-    {
-        var commands = new Dictionary<ushort, Command>();
-        AddPart1(commands); AddPart2(commands); AddPart3(commands); AddPart4(commands);
-        return commands;
-    }
+    /// <summary>
+    /// $91:840F-$91:8423 reads duration/current/new-input words and advances to the next
+    /// six-byte span. Held and newly pressed buttons are independently supplied native operands.
+    /// </summary>
+    private static Command InputSpan(ushort pointer, ushort duration, SnesButton held, SnesButton newlyPressed) =>
+        new(Operation.Input, unchecked((ushort)(pointer + DemoInputRomData.Instructions.InputRecordBytes)),
+            duration, held, newlyPressed);
+
+    /// <summary>$91:8427, Instruction_DemoInputObject_Delete: terminates an input object with no successor.</summary>
+    private static Command DeleteCommand() => new(Operation.Delete, 0);
 }

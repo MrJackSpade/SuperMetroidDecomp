@@ -8860,7 +8860,10 @@
       "line": 49,
       "name": "StockAttractInputPrograms.Commands",
       "kind": "factory-built stock table",
-      "note": "Stored Dictionary<ushort, Command> initialized by CreateCommands(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored Dictionary<ushort, Command> initialized by CreateCommands(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "justified-retained",
+      "implementationCommit": "4ac4125d418e59f013b4baf8f5aad08940e7dd2e",
+      "disposition": "Mixed:823 executable commands;798 successors calculate,24 delete sites and one jump execute. Only798 authored duration/held/new triples retained as exact demonstration choreography. Scene setup and object selection excluded; independent native consumer review in ledger."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Rendering/XrayRoomDisplayRules.cs",

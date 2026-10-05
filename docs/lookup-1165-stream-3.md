@@ -872,6 +872,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Pinned $AD:E6AC-$E723 and $AD:E74C-$E7C3 provide all 120 native words. Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed all native outputs, shared body/brain destinations, absent stock channel-trajectory storage and 360 independent channel edits against all four complete output palettes.
 - Both independent base palettes remain required, including the latent channel precision selected from their admissible quantization intervals. These two inventory entries stay unchecked; this is not a content-retention exception. Converted count remains 70 plus the separately justified decorative-anchor retention.
 - Coordinator must refresh `RemainingEnemyColorClosedContractDefinitions.cs` source hash for `MotherBrainHealthPalettePresentation.cs` (previous B33D938BDFF9FAF121A6D5E232B8CD0A00443E5EF104E825843EB78B5142A55B).
+### Confirmed batch 32: Mother Brain room-light recovery (partial)
+
+- Replaced all seven stored room-light rows with equal RGB8 intensity steps before RGB5 quantization: `floor(endpoint * (frame + 1) / 56)`. Every one of the 84 native channel trajectories fits an endpoint in the final RGB5 channel's eight-value interval. Stock trajectories are discarded; independent edits remain exact. Older room-color documents still inherit the installed stock recovery object.
+- Pinned $AD:F283-$F409 contains seven reverse-selected rows. Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed all 196 native words at both CGRAM destinations, absent stock channel trajectories, 588 independent channel edits and legacy-document fallback for all seven steps.
+- The independent full-light color basis and its latent precision remain required; this inventory entry stays unchecked. Converted count remains 70 plus the separate decorative-anchor retention.
+- Coordinator must refresh `ClosedPresentationContractDefinitions.cs` source hash for `MotherBrainRoomColorPresentation.cs` (previous 67630C828581AB534E1F6EBF0E8145762623EEE80F26B534157EB72FEC780AE8).
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

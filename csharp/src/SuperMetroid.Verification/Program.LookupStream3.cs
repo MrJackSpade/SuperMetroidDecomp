@@ -129,6 +129,7 @@ internal static partial class Program
         VerifyStream3DrainFades(rom);
         VerifyStream3ShitroidPulse(rom);
         VerifyStream3HealthTint(rom);
+        VerifyStream3RecoveryLights(rom);
         VerifyStream3CorpseGeometry(rom);
         VerifyStream3EscapeGeometry(rom);
         VerifyStream3PainfulWalking(rom);
@@ -1280,5 +1281,68 @@ internal static partial class Program
                                 }
                         }
                     }
+    }
+    private static void VerifyStream3RecoveryLights(ISnesAddressSpace rom)
+    {
+        byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
+        var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object fade = typeof(MotherBrainRoomColorPresentation).GetField("recoveryLights", flags)!.GetValue(stock)!;
+        var channels = (Array)fade.GetType().GetField("channels", flags)!.GetValue(fade)!;
+        foreach (object channel in channels)
+            AssertTrue(channel.GetType().GetProperty("Supplied")!.GetValue(channel) is null,
+                "stream 3 stock recovery light trajectories discarded");
+        for (int frame = 0; frame < 7; frame++)
+        {
+            var actual = new SnesCgram();
+            stock.ApplyRecoveryLights(actual, frame);
+            for (int color = 0; color < 28; color++)
+            {
+                int address = 0xadf3d3 - frame * 0x38 + color * 2;
+                ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                int destination = color < 14 ? MotherBrainRoomColorRomData.RecoveryLightsFirstColor + color :
+                    MotherBrainRoomColorRomData.RecoveryLightsSecondColor + color - 14;
+                AssertEqual(expected, actual.Colors[destination], "stream 3 all native recovery light words");
+            }
+        }
+        for (int frame = 0; frame < 7; frame++)
+            for (int color = 0; color < 28; color++)
+                foreach (string component in new[] { "red", "green", "blue" })
+                {
+                    var editedNode = node.DeepClone();
+                    var rgb = editedNode["recoveryLights"]![frame]![color]!;
+                    rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                    var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                        System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
+                    for (int checkFrame = 0; checkFrame < 7; checkFrame++)
+                    {
+                        var actual = new SnesCgram();
+                        edited.ApplyRecoveryLights(actual, checkFrame);
+                        for (int checkColor = 0; checkColor < 28; checkColor++)
+                        {
+                            var expectedRgb = editedNode["recoveryLights"]![checkFrame]![checkColor]!;
+                            ushort expected = (ushort)(expectedRgb["red"]!.GetValue<int>() |
+                                expectedRgb["green"]!.GetValue<int>() << 5 |
+                                expectedRgb["blue"]!.GetValue<int>() << 10);
+                            int destination = checkColor < 14 ? MotherBrainRoomColorRomData.RecoveryLightsFirstColor + checkColor :
+                                MotherBrainRoomColorRomData.RecoveryLightsSecondColor + checkColor - 14;
+                            AssertEqual(expected, actual.Colors[destination], "stream 3 independent recovery light edit");
+                        }
+                    }
+                }
+        var legacy = node.DeepClone();
+        legacy["version"] = MotherBrainRoomColorFormat.PreRecoveryLightsVersion;
+        legacy.AsObject().Remove("recoveryLights");
+        var oldOverride = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+            System.Text.Encoding.UTF8.GetBytes(legacy.ToJsonString())), stock);
+        for (int frame = 0; frame < 7; frame++)
+        {
+            var expected = new SnesCgram();
+            var actual = new SnesCgram();
+            stock.ApplyRecoveryLights(expected, frame);
+            oldOverride.ApplyRecoveryLights(actual, frame);
+            AssertTrue(expected.Colors.SequenceEqual(actual.Colors), "stream 3 legacy room override reuses calculated stock recovery");
+        }
     }
 }

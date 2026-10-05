@@ -1,11 +1,40 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
     private static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
+        // Confirm the identified copy-list conversion against native STA operands.
+        int[][] nativeDoorCopies =
+        [
+            [0x82e1f4, 0x82e1fa, 0x82e200, 0x82e206, 0x82e20c, 0x82e212, 0x82e218, 0x82e21e],
+            [0x82e22f, 0x82e235, 0x82e23b, 0x82e241, 0x82e247],
+            [0x82e252, 0x82e258, 0x82e25e, 0x82e264],
+        ];
+        int targetPaletteBase = rom.ReadByte(0x82e1f5) + (rom.ReadByte(0x82e1f6) << 8) - 18;
+        ushort[] sourceColors = Enumerable.Range(1, 256).Select(value => (ushort)value).ToArray();
+        for (int group = 0; group < nativeDoorCopies.Length; group++)
+        {
+            ushort[] actual = new ushort[256];
+            ushort[] expected = new ushort[256];
+            foreach (int instruction in nativeDoorCopies[group])
+            {
+                AssertEqual((byte)0x8d, rom.ReadByte(instruction), "stream 3 native door color store opcode");
+                int destination = rom.ReadByte(instruction + 1) + (rom.ReadByte(instruction + 2) << 8);
+                int color = (destination - targetPaletteBase) / 2;
+                expected[color] = sourceColors[color];
+            }
+            switch (group)
+            {
+                case 0: DoorTransitionPaletteDefinitions.PreserveHud(sourceColors, actual); break;
+                case 1: DoorTransitionPaletteDefinitions.PreserveCommonCre(sourceColors, actual); break;
+                case 2: DoorTransitionPaletteDefinitions.PreserveEscapeTimer(sourceColors, actual); break;
+            }
+            AssertTrue(expected.SequenceEqual(actual), "stream 3 exact native door fade preserved and black slots");
+        }
         // Confirm the replaced selector for its complete ushort input domain.
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {

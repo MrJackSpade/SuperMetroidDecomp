@@ -158,9 +158,9 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs
 
-- [ ] **DoorTransitionState.BuildSourceFadeTarget / alwaysPreserved** ([L250](../csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs#L250)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **DoorTransitionState.BuildSourceFadeTarget / commonCreColors** ([L261](../csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs#L261)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **DoorTransitionState.BuildSourceFadeTarget / timerColors** ([L266](../csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs#L266)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **DoorTransitionState.BuildSourceFadeTarget / alwaysPreserved** ([L250](../csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs#L250)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **DoorTransitionState.BuildSourceFadeTarget / commonCreColors** ([L261](../csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs#L261)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **DoorTransitionState.BuildSourceFadeTarget / timerColors** ([L266](../csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs#L266)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Rooms/DoorScrollPrograms.cs
 
@@ -861,6 +861,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Replaced the 67 stored line records with semantic caption-role cases and numbered contributor groups. Heading suffixes select the small font; contributor names select the large font. Initial, heading, adjoining sound-heading and name spacing derive from each role directly. No generated definition array remains.
 - Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed all 67 original role identities and order, all 520 native rendered rows, actual scrolling cadence through completion, editable overrides and strict validation.
 - One entry completed, bringing converted entries to 67 plus the separate decorative-anchor retention. Independent contributor text and glyph artwork remain separate payload obligations. No external source-hash dependency found.
+### Confirmed batch 30: Door-transition palette preservation
+
+- Removed all three method-local color-index arrays. Named catalog operations now copy the eight permanent HUD colors, five common-CRE colors and four timer colors directly. Each slot carries its native palette symbol and instruction address; the existing CRE-bit condition and its nested active-timer condition remain unchanged.
+- Pinned $82:E1F1-$E264 supplies the exact copy operations. The focused fixture independently decodes all seventeen native STA destinations and confirms both copied colors and all untouched black slots for each operation. Verification build passed (1431 warnings, zero errors); `--lookup-stream-3` passed.
+- Three entries completed, bringing converted entries to 70 plus the separate decorative-anchor retention. This converts slot selection only; independent source color payloads remain required. No external source-hash dependency found.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

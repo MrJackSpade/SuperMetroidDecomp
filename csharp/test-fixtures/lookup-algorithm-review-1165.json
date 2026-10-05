@@ -11240,4 +11240,11 @@
     "state":  "converted",
     "algorithm":  "Imported32-cell glyph runs derive rectangles; single interword spaces included,wider/nontext gaps split regions. No duplicate layout table.",
     "remaining":  "474 converted,11 justified retained/mixed,643 pending. Text/template/border payloads remain required."
+},"torizoPageDispatchIntegration":{
+    "confirmation":  "Root build1444 warnings/zero errors. Eight exact native page identities, installed atlas full/tail resolution, overrun/empty/index rejection and canonical content hash pass.",
+    "completed":  "TorizoInstructionVramArtworkDefinitions.Pages",
+    "workerCommit":  "3babe2470127393316bba3453964779626368be7",
+    "state":  "converted",
+    "algorithm":  "Named mutually exclusive artwork role dispatch preserves manifest order; no stored reference table.",
+    "remaining":  "475 converted,11 justified retained/mixed,642 pending. Independent artwork pixels remain required."
 }}

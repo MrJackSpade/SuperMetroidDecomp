@@ -47,13 +47,37 @@ internal static class TorizoInstructionVramArtworkDefinitions
         new(TorizoInstructionTileRomData.ChozoDebrisSource,
             TorizoInstructionTileRomData.ChozoDebrisByteCount, "torizo-chozo-debris-tiles.png");
 
-    private static readonly TorizoInstructionTileSheetDefinition[] Pages =
-    [
+    /// <summary>Mutually exclusive artwork roles in the installed manifest and content-hash order.</summary>
+    private enum PageRole
+    {
         SharedDeath, StatueCrumble, LeftAttack, RightAttack,
         GoldenAwakening, GoldenLeftAttack, GoldenRightAttack, ChozoDebris,
-    ];
+    }
 
-    internal static ReadOnlySpan<TorizoInstructionTileSheetDefinition> All => Pages;
+    internal static PageSequence All => default;
+
+    internal readonly struct PageSequence : IReadOnlyList<TorizoInstructionTileSheetDefinition>
+    {
+        public int Count => 8;
+        public int Length => Count;
+        public TorizoInstructionTileSheetDefinition this[int index] => (PageRole)index switch
+        {
+            PageRole.SharedDeath => SharedDeath,
+            PageRole.StatueCrumble => StatueCrumble,
+            PageRole.LeftAttack => LeftAttack,
+            PageRole.RightAttack => RightAttack,
+            PageRole.GoldenAwakening => GoldenAwakening,
+            PageRole.GoldenLeftAttack => GoldenLeftAttack,
+            PageRole.GoldenRightAttack => GoldenRightAttack,
+            PageRole.ChozoDebris => ChozoDebris,
+            _ => throw new IndexOutOfRangeException(),
+        };
+        public IEnumerator<TorizoInstructionTileSheetDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }
 
 /// <summary>

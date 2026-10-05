@@ -34,6 +34,52 @@ internal static partial class Program
             new(200, 0, 100, 0), new(204, 0, 100, 0), new(0, 0, 0, 8, 1)), "Native mode domain remains validated before tracking");
         Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
     }
+    private static void VerifyLookupStream2TorizoPageDispatch(ISnesAddressSpace rom)
+    {
+        TorizoInstructionTileSheetDefinition[] original =
+        [
+            TorizoInstructionVramArtworkDefinitions.SharedDeath, TorizoInstructionVramArtworkDefinitions.StatueCrumble,
+            TorizoInstructionVramArtworkDefinitions.LeftAttack, TorizoInstructionVramArtworkDefinitions.RightAttack,
+            TorizoInstructionVramArtworkDefinitions.GoldenAwakening, TorizoInstructionVramArtworkDefinitions.GoldenLeftAttack,
+            TorizoInstructionVramArtworkDefinitions.GoldenRightAttack, TorizoInstructionVramArtworkDefinitions.ChozoDebris,
+        ];
+        var pages = new RoomCharacterAtlas[original.Length];
+        var native = new byte[original.Length][];
+        int ordinal = 0;
+        foreach (var page in TorizoInstructionVramArtworkDefinitions.All)
+        {
+            AssertEqual(original[ordinal], page, "Torizo page manifest order/source/extent/filename");
+            AssertEqual(page, TorizoInstructionVramArtworkDefinitions.All[ordinal], "Torizo page enumeration/index agreement");
+            native[ordinal] = Enumerable.Range(0, page.ByteCount).Select(offset => rom.ReadByte(page.SourceAddress + offset)).ToArray();
+            byte[] pixels = SnesGraphics.DecodePlanarTiles(native[ordinal], 4,
+                Math.Min(RoomCharacterAtlasFormat.TileColumns, page.ByteCount / RoomCharacterAtlasFormat.BytesPerTile), out int width, out int height);
+            using var png = new MemoryStream();
+            IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+            png.Position = 0;
+            pages[ordinal++] = RoomCharacterAtlas.Load(png, page.ByteCount);
+        }
+        AssertEqual(8, ordinal, "Torizo page count");
+        var artwork = new TorizoInstructionVramArtwork(pages);
+        string expectedHash = SelectedPresentationHash.Create("TorizoInstructionVramArtwork-v1", content =>
+        {
+            content.Append("pages", original.Length);
+            foreach (var bytes in native) content.Append("tiles", bytes);
+        });
+        AssertEqual(expectedHash, artwork.ContentIdentity, "Torizo canonical hash retains original page order");
+        for (int index = 0; index < original.Length; index++)
+        {
+            var page = original[index];
+            AssertTrue(artwork.TryResolve(page.SourceAddress, page.ByteCount, out var whole), "Actual resolver accepts complete named page");
+            AssertTrue(whole.Span.SequenceEqual(native[index]), "Actual resolver returns exact native page bytes");
+            AssertTrue(artwork.TryResolve(page.SourceAddress + page.ByteCount - 1, 1, out var tail), "Actual resolver accepts final byte");
+            AssertEqual(native[index][^1], tail.Span[0], "Actual resolver returns correct final byte");
+            AssertTrue(!artwork.TryResolve(page.SourceAddress, page.ByteCount + 1, out _), "Actual resolver rejects page overrun");
+            AssertTrue(!artwork.TryResolve(page.SourceAddress, 0, out _), "Actual resolver rejects empty slice");
+        }
+        AssertThrows<IndexOutOfRangeException>(() => _ = TorizoInstructionVramArtworkDefinitions.All[-1], "Torizo page lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = TorizoInstructionVramArtworkDefinitions.All[8], "Torizo page upper bound");
+        Console.WriteLine("Torizo page dispatch:eight exact ordered identities, native decoded page resolution/bounds and canonical content hash pass.");
+    }
     private static void VerifyLookupStream2KagoFrameGeometry(ISnesAddressSpace rom)
     {
         int count = 0;

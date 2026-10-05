@@ -386,7 +386,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs
 
-- [ ] **TorizoInstructionVramArtworkDefinitions.Pages** ([L51](../csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs#L51)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoInstructionVramArtworkDefinitions.Pages** ([L51](../csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs#L51)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs
 
@@ -940,3 +940,9 @@ Build1437 existing warnings/zero errors. New --lookup-stream2-pipe-bug-visual-ge
 Coordinator-approved HorizontalCameraTargetDefinitions replaces both stored facing arrays with named normal/boss/left-edge/right-edge cases. Normal targets are32 pixels either side of the256-pixel viewport center; edge targets sit32 pixels from their respective edges. Boss mode retains its explicit64/80 facing policy. Native90:963F/9647 confirms all eight values; callers88:8347 restore normal, KraidA7:A9E4 and CrocomireA4:8ABA select boss, CrocomireA4:97F3 selects right-edge. No native assignment was found for index4; its name describes only its proven coordinate effect, not an invented historical purpose.
 
 The existing native XOR/reversal rules, accepted context domain, integer-movement gate, speed arithmetic and scroll-boundary consumers are unchanged. Build1437 existing warnings/zero errors. --lookup-stream2-horizontal-camera-targets confirms all eight native offsets and32 actual combinations of mode/facing/normal-knockback-moonwalk-acceleration reversal, exact target positions, unchanged movement speed and invalid-context rejection. Integrated stream checkpoint: 75 converted, two mixed definitions, 149 required.
+
+## Torizo named artwork-page dispatch
+
+Coordinator-approved semantic catalog dispatch replaces the eight stored page references with mutually exclusive named artwork roles. The calculated indexed view preserves the manifest/hash order: shared death, statue crumble, left/right attack, Golden awakening, Golden left/right attack, Chozo debris. Source/extent/filename definitions remain on their dedicated named catalog members; separate pixel payloads remain REQUIRED and receive no exception.
+
+Root integration build1444 existing warnings/zero errors. --lookup-stream2-torizo-page-dispatch checks all eight exact ordered definitions and enumeration/index agreement, decodes each native page into the actual installed atlas representation, confirms complete-page and last-byte resolution, rejects overruns/empty ranges and invalid indexes, and compares canonical content hash to the original ordered native bytes. Integrated stream checkpoint: 76 converted, two mixed definitions, 148 required.

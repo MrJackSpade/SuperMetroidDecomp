@@ -7,6 +7,54 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeNorfairPipeBug", flags)!;
+        MethodInfo wait = typeof(RoomEnemySystem).GetMethod("RunNorfairPipeBugSamusWait", flags)!;
+        for (int member = 0; member < 5; member++)
+        {
+            AssertEqual(Word(0xb38c65 + member * 7), PipeBugDefinitions.NorfairStaggerTarget(member),
+                "Native rank-derived formation release counter");
+            AssertEqual(Word(0xb38c88 + member * 6), (ushort)PipeBugDefinitions.NorfairPostRiseFunction(member),
+                "Native role-specific formation function");
+        }
+        foreach (ushort samusX in new ushort[] { 120, 136 })
+        {
+            var enemies = new RoomEnemySystem();
+            for (int member = 0; member < 5; member++)
+            {
+                var slot = enemies.Slots[member];
+                slot.EnemyDefinitionPointer = PipeBugDefinitions.NorfairEnemyDefinition;
+                slot.XPosition = 128; slot.YPosition = 128; slot.Parameter2 = 64;
+                initialize.Invoke(enemies, [slot]);
+                slot.InstructionTimer = (ushort)(member + 4);
+                slot.Timer = (ushort)(member + 8);
+            }
+            var samus = new SamusState { XPosition = samusX, YPosition = 112 };
+            wait.Invoke(enemies, [enemies.Slots[0], enemies.PipeBugStates[0]!, samus]);
+            for (int member = 0; member < 5; member++)
+            {
+                var state = enemies.PipeBugStates[member]!;
+                AssertEqual(Word(0xb38c65 + member * 7), state.StaggerTarget,
+                    "Actual formation writes native release counter");
+                AssertEqual(Word(0xb38c88 + member * 6), (ushort)state.NorfairPostRiseFunction,
+                    "Actual formation writes native role function");
+                AssertEqual(PipeBugEnemyFunction.NorfairRise, state.Function, "Actual formation begins rising");
+                AssertEqual(samusX < 128 ? NorfairPipeBugInstructionProgramDefinitions.RisingLeft
+                    : NorfairPipeBugInstructionProgramDefinitions.RisingRight,
+                    enemies.Slots[member].CurrentInstruction, "Actual formation selects facing");
+                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.Slots[member].InstructionTimer,
+                    "Only leader instruction timer resets");
+                AssertEqual((ushort)(member == 0 ? 0 : member + 8), enemies.Slots[member].Timer,
+                    "Only leader loop counter resets");
+            }
+        }
+        AssertThrows<IndexOutOfRangeException>(() => PipeBugDefinitions.NorfairStaggerTarget(-1), "Formation lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => PipeBugDefinitions.NorfairPostRiseFunction(5), "Formation upper bound");
+        Console.WriteLine("Norfair Pipe Bug formation:ten native immediates, both actual facing formations and leader-only timer resets pass.");
+    }
     private static void VerifyLookupStream2GoldenControl(SuperMetroidAddressSpace rom)
     {
         VerifyGoldenTorizoJumpLandingDefinitions(rom);

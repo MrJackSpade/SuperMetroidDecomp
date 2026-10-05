@@ -325,8 +325,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs
 
-- [ ] **RoomEnemySystem.RunNorfairPipeBugSamusWait / staggerTargets** ([L453](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs#L453)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **RoomEnemySystem.RunNorfairPipeBugSamusWait / staggerFunctions** ([L455](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs#L455)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemySystem.RunNorfairPipeBugSamusWait / staggerTargets** ([L453](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs#L453)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemySystem.RunNorfairPipeBugSamusWait / staggerFunctions** ([L455](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs#L455)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileFrameBindingCatalog.cs
 
@@ -904,3 +904,9 @@ Coordinator review accepted only frame5/color0 at9B:9774 as an independent paint
 The other35 words remain calculated rotating ramp values. The exception does not cover any other palette or permit a reconstructed stock table. Custom edits remain independent sparse supplied content. Existing --lookup-stream2-crystal-body confirmation already passed all136 native body/bubble colors, actual CGRAM writes, all independent edits and stock residual countone. This commit changes comments/disposition only; no executable behavior or confirmation scope changed.
 
 Integrated Stream2 checkpoint:65 converted and two mixed conversion/justified-retention definitions;159 required. Other queued worker conversions are not counted here.
+
+## Norfair Pipe Bug formation rank and role dispatch
+
+Removed both runtime local arrays in RunNorfairPipeBugSamusWait. Physical member order is center, upper-near, upper-far, lower-near, lower-far; release counters derive from center104 plus eight ticks per signed vertical rank. Named semantic role cases select the existing native post-rise functions. Dedicated PipeBugDefinitions documents native setup operandsB3:8C64-8CA4 and NTSC/PAL distinction; runtime simply applies the catalog operations. No table is regenerated or cached.
+
+Build1437 existing warnings/zero errors. New --lookup-stream2-pipe-bug-formation confirms allten native immediate operands, actual five-member setup facing both directions, exact stored release counters/functions, rising programs and preserved leader-only instruction/loop timer resets, plus invalid member bounds. No gameplay discovery. Integrated stream checkpoint: 67 converted, two mixed definitions, 157 required.

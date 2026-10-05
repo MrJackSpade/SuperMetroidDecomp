@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 659,
+  "remainingTableDefinitionCount": 657,
   "fileCount": 523,
   "entries": [
     {
@@ -6426,14 +6426,18 @@
       "line": 453,
       "name": "RoomEnemySystem.RunNorfairPipeBugSamusWait / staggerTargets",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "371c06dfd1879089147d10e1818200d42f535d24"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs",
       "line": 455,
       "name": "RoomEnemySystem.RunNorfairPipeBugSamusWait / staggerFunctions",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "371c06dfd1879089147d10e1818200d42f535d24"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Powamp.cs",
@@ -21259,6 +21263,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 458,
+  "convertedSinceSnapshot": 460,
   "justifiedRetainedSinceSnapshot": 11
 }

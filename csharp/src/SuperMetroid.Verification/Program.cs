@@ -3106,6 +3106,11 @@ if (args is ["--torizo-sonic-boom-instruction-mechanics"])
     VerifyTorizoSonicBoomInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--power-bomb-afterglow-shape"])
+{
+    VerifyPowerBombAfterglowShape();
+    return 0;
+}
 if (args is ["--file-copy-arrow"])
 {
     VerifyFileCopyArrow();

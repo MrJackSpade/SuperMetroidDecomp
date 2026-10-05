@@ -1259,17 +1259,12 @@ public static partial class SnesGameplayFrameRenderer
             return -1;
         }
 
-        if (renderedPhase == PowerBombExplosionPhase.Afterglow)
-        {
-            // The final `$9E46` table has expanded beyond the 256-pixel viewport. Stage
-            // five stops updating HDMA data and fades the already full-screen fixed color.
-            return Width;
-        }
-
         ushort shapePointer = explosion.RenderedShapeDefinitionPointer;
         if ((renderedPhase is PowerBombExplosionPhase.PreExplosionYellow or
-             PowerBombExplosionPhase.ExplosionWhite) && shapePointer != 0)
+             PowerBombExplosionPhase.ExplosionWhite or PowerBombExplosionPhase.Afterglow) && shapePointer != 0)
         {
+            // $88:8B98 only fades COLDATA: the final white window remains installed.
+            // It can still leave visible corners outside the oval near screen edges.
             // Each 192-byte record is a half-profile, not a 192-line top-to-bottom
             // bitmap. Byte zero is the widest center line; increasing indices travel
             // away from the center until the first zero terminates the native copier.

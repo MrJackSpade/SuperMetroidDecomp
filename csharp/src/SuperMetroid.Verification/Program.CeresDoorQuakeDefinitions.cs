@@ -42,6 +42,13 @@ internal static partial class Program
         door.VariableB = 1;
         door.XPosition = 100;
         door.YPosition = 80;
+        byte[] stockJson = EnemySpritemapFiles.Extract(rom);
+        EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
+            new MemoryStream(stockJson, writable: false));
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+            new Dictionary<ushort, RoomCharacterAtlas>(),
+            new Dictionary<ushort, EnemyPaletteSheet>(),
+            spritemaps: installed);
         short[] expectedOffsets = [0, 0, -4, -1];
         int? baseX = null;
         for (ushort phase = 0; phase < expectedOffsets.Length; phase++)
@@ -56,13 +63,6 @@ internal static partial class Program
                 $"Ceres private door production OAM phase {phase}");
         }
 
-        byte[] stockJson = EnemySpritemapFiles.Extract(rom);
-        EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
-            new MemoryStream(stockJson, writable: false));
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<ushort, RoomCharacterAtlas>(),
-            new Dictionary<ushort, EnemyPaletteSheet>(),
-            spritemaps: installed);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
             new CeresDoorQuakeReadGuard(rom, blockOverlay: true));
         enemies.EarthquakeTimer = 0;

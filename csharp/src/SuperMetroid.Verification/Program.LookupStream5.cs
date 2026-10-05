@@ -915,4 +915,42 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = entries[-1]; }, "Palette entries lower bound");
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = entries[expectedCount]; }, "Palette entries upper bound");
         }
-    }}
+    }    private static void VerifyLookupStream5DoorQuakeDecoding(SuperMetroidAddressSpace rom)
+    {
+        VerifyCeresDoorQuakeDefinitions(rom);
+        byte[] stockJson = SuperMetroid.AssetExtraction.EnemySpritemapFiles.Extract(rom);
+        var installed = EnemySpritemapCatalog.Load(new MemoryStream(stockJson, writable: false));
+        var enemies = new RoomEnemySystem
+        {
+            CeresStatus = 1,
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+                new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), spritemaps: installed),
+        };
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new CeresDoorQuakeReadGuard(rom));
+        typeof(RoomEnemySystem).GetField("_ridleyState", flags)!.SetValue(enemies, new RidleyEnemyState { MovementAnimationEnabled = 0 });
+        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionPointers.CeresRidley;
+        var door = enemies.Slots[1];
+        door.EnemyDefinitionPointer = CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer;
+        door.VariableB = 1; door.YPosition = 80;
+        foreach (ushort x in new ushort[] { 0, 1, 3, 255, 256, 511, ushort.MaxValue })
+        foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })
+        for (ushort phase = 0; phase < 4; phase++)
+        {
+            door.XPosition = x; enemies.EarthquakeTimer = phase;
+            var actual = new OamBuffer(); actual.BeginFrame();
+            enemies.DrawCeresRidleyImmediateBabyAndDoor(actual, camera, 0); actual.FinalizeFrame();
+            ushort native = (ushort)(rom.ReadByte(0xa6a321 + phase) | rom.ReadByte(0xa6a322 + phase) << 8);
+            AssertEqual(native & 0x1ff, CeresDoorQuakeDefinitions.XOffset(phase) & 0x1ff,
+                "Native overlapping high byte retains the same ninth coordinate bit");
+            var expected = new OamBuffer(); expected.BeginFrame();
+            DrawImportedEnemySpritemap(rom, expected, CeresDoorInstructionProgramDefinitions.Bank,
+                CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap,
+                unchecked((ushort)(x - camera + native)), 80, EnemyPaletteBits.Palette2, 0);
+            expected.FinalizeFrame();
+            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+                "Byte-decoded quake preserves actual low/high OAM through coordinate wrap");
+        }
+        Console.WriteLine("Ceres quake byte decoding:56 actual wrapped low/high OAM frames match full native overlapping-word reads.");
+    }
+}

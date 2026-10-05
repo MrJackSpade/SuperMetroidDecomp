@@ -197,7 +197,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CeresDoorQuakeDefinitions.cs
 
-- [ ] **CeresDoorQuakeDefinitions.XOffsets** ([L14](../csharp/src/SuperMetroid.Core/Game/CeresDoorQuakeDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresDoorQuakeDefinitions.XOffsets** ([L14](../csharp/src/SuperMetroid.Core/Game/CeresDoorQuakeDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs
 
@@ -965,3 +965,9 @@ Root Verification build: 1445 warnings, zero errors. --yapping-maw-instruction-p
 A stack-only layout cursor calculates 92 control positions and 50 visual addresses: two 12-byte flinches and two 130-byte facing groups comprising walk, three-shot attack and look/turn. Native B2:FB4C-FC67 and named callbacks establish widths and control ordering. Holds 16/10/24/8/32 and shot offsets +8/+2/-8 remain explicit unresolved inputs. Words stays unchecked without exemption. Integrated checkpoint: 76 converted, two mixed, one retained, 146 required.
 
 Root Verification build: 1445 warnings, zero errors. --walking-space-pirate-instruction-mechanics passed 92 native words, eight actual programs, both three-laser attacks with offsets/velocities, all 50 installed frame selections, source-read guards, bounds and zero per-lookup allocation.
+
+### Root integration: Ceres door quake byte decoding
+
+The four-element offset table is removed. A neutral word followed by the native negative-four impulse yields the low/high signed bytes selected by the timer. Native A6:A2FF-A30D indexes A321 in byte increments. Full overlapping words are 0000/FC00/FFFC/FFFF; the retained ninth OAM coordinate bit agrees with signed-byte extension. Phase three consumes A325; only A326-A328 are unread by this caller. This is native byte decoding, not a newly invented oscillation.
+
+The existing fixture now installs its native spritemap before the first actual draw. Root build passed (1445 warnings, zero errors). `--lookup-stream5-door-quake-decoding` confirms four native bytes, all 65536 timer aliases, actual four-phase drawing and editable overlay/source guards, plus 56 wrapped low/high OAM comparisons against full native words. XOffsets is complete with no retention exception. Inventory: 529 converted, 15 justified retained/mixed, 584 pending.

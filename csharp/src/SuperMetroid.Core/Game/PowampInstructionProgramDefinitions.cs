@@ -37,39 +37,62 @@ internal static class PowampInstructionProgramDefinitions
     /// <summary>The first non-program word after Powamp's instruction streams, at $A8:C19F.</summary>
     internal const ushort FirstAdjacentConstant = 0xc19f;
 
-    private static readonly PowampInstructionMechanicsWord[] Words =
-    [
-        new(0xc163, 5), new(0xc167, 5), new(0xc16b, 5),
-        new(0xc16f, CommonEnemyInstructionCodes.Goto), new(0xc171, BodyFast),
-        new(0xc173, 9), new(0xc177, 9), new(0xc17b, 9),
-        new(0xc17f, CommonEnemyInstructionCodes.Goto), new(0xc181, BodySlow),
-        new(0xc183, 1), new(0xc187, 6), new(0xc18b, 0x00a0),
-        new(0xc18f, CommonEnemyInstructionCodes.Sleep),
-        new(0xc191, 1), new(0xc195, 6),
-        new(0xc199, 0x00a0), new(BalloonDeflatedSleep, CommonEnemyInstructionCodes.Sleep),
-    ];
+    /// <summary>$A8:C163/C167/C16B: fast body hold5 remains a required chosen timing input under1165.</summary>
+    private const ushort FastBodyHold = 5;
+    /// <summary>$A8:C173/C177/C17B: slow body hold9 remains a required chosen timing input under1165.</summary>
+    private const ushort SlowBodyHold = 9;
+    /// <summary>$A8:C183/C191: transition start hold1 remains a required chosen timing input under1165.</summary>
+    private const ushort TransitionStartHold = 1;
+    /// <summary>$A8:C187/C195: intermediate inflation/deflation hold6 remains required under1165.</summary>
+    private const ushort TransitionMiddleHold = 6;
+    /// <summary>$A8:C18B/C199: terminal held balloon pose160 remains a required chosen timing input under1165.</summary>
+    private const ushort BalloonHeldDuration = 160;
+    /// <summary>Both body loops and both balloon transitions have three duration/visual pairs.</summary>
+    private const int FramesPerProgram = 3;
+    /// <summary>$A8:C163..C182: each body loop has three frame controls, Goto and its loop target.</summary>
+    private const int BodyMechanicsCount = FramesPerProgram + 2;
+    /// <summary>$A8:C183..C19E: each balloon transition has three frame controls and Sleep.</summary>
+    private const int BalloonMechanicsCount = FramesPerProgram + 1;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xc165, 0xc169, 0xc16d,
-        0xc175, 0xc179, 0xc17d,
-        0xc185, 0xc189, 0xc18d,
-        0xc193, 0xc197, 0xc19b,
-    ];
+    internal static int MechanicsWordCount => 2 * (BodyMechanicsCount + BalloonMechanicsCount);
+    internal static int PresentationWordCount => 4 * FramesPerProgram;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static PowampInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>Native ordered controls calculated from the two loop programs followed by the two sleeping transitions.</summary>
+    internal static PowampInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        bool body = index < 2 * BodyMechanicsCount;
+        int group = body ? index / BodyMechanicsCount : 2 + (index - 2 * BodyMechanicsCount) / BalloonMechanicsCount;
+        int local = body ? index % BodyMechanicsCount : (index - 2 * BodyMechanicsCount) % BalloonMechanicsCount;
+        ushort start = ProgramStart(group);
+        int offset = local < FramesPerProgram ? local * 4 : FramesPerProgram * 4 + (local - FramesPerProgram) * 2;
+        ushort value = local < FramesPerProgram
+            ? body ? group == 0 ? FastBodyHold : SlowBodyHold
+                : local == 0 ? TransitionStartHold : local == 1 ? TransitionMiddleHold : BalloonHeldDuration
+            : body ? local == FramesPerProgram ? CommonEnemyInstructionCodes.Goto : start : CommonEnemyInstructionCodes.Sleep;
+        return new((ushort)(start + offset), value);
+    }
+
+    /// <summary>Visual operands follow each of the three frame-duration words; native source order is preserved.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(ProgramStart(index / FramesPerProgram) + 4 * (index % FramesPerProgram) + sizeof(ushort));
+    }
+
+    /// <summary>$A8:C163/C173 body programs occupy16bytes each; C183/C191 balloon programs occupy14bytes each.</summary>
+    private static ushort ProgramStart(int group) => group < 2
+        ? (ushort)(BodyFast + group * (FramesPerProgram * 4 + 4))
+        : (ushort)(BalloonInflate0 + (group - 2) * (FramesPerProgram * 4 + 2));
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            PowampInstructionMechanicsWord candidate = Words[middle];
+            PowampInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -88,9 +111,9 @@ internal static class PowampInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

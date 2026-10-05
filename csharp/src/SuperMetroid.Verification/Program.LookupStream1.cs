@@ -5,6 +5,48 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1PowampPrograms(ISnesAddressSpace rom)
+    {
+        ushort Word(int pointer) => (ushort)(rom.ReadByte(0xa80000 | pointer) | rom.ReadByte(0xa80000 | pointer + 1) << 8);
+        var expectedMechanics = new List<ushort>(); var expectedVisual = new List<ushort>();
+        // Traverse original native words, using their instruction/frame encoding rather than the calculated program layout.
+        for (int cursor = 0xc163; cursor < 0xc19f;)
+        {
+            ushort value = Word(cursor);
+            expectedMechanics.Add((ushort)cursor);
+            cursor += 2;
+            if ((value & 0x8000) == 0) { expectedVisual.Add((ushort)cursor); cursor += 2; }
+            else if (value == CommonEnemyInstructionCodes.Goto) { expectedMechanics.Add((ushort)cursor); cursor += 2; }
+            else AssertEqual(CommonEnemyInstructionCodes.Sleep, value, "Powamp native terminal opcode");
+        }
+        AssertEqual(expectedMechanics.Count, PowampInstructionProgramDefinitions.MechanicsWordCount, "Powamp calculated control count");
+        AssertEqual(expectedVisual.Count, PowampInstructionProgramDefinitions.PresentationWordCount, "Powamp calculated visual operand count");
+        for (int index = 0; index < expectedMechanics.Count; index++)
+        {
+            var actual = PowampInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(expectedMechanics[index], actual.Address, "Powamp ordered native control identity");
+            AssertEqual(Word(actual.Address), actual.Value, "Powamp every native control and still-required hold value");
+            AssertEqual(actual.Value, PowampInstructionProgramDefinitions.ReadMechanicsWord(actual.Address), "Powamp control read resolves calculated record");
+        }
+        for (int index = 0; index < expectedVisual.Count; index++)
+        {
+            AssertEqual(expectedVisual[index], PowampInstructionProgramDefinitions.PresentationWordAddress(index), "Powamp calculated native visual operand location");
+            AssertThrows<InvalidDataException>(() => PowampInstructionProgramDefinitions.ReadMechanicsWord(expectedVisual[index]), "Powamp visual operands remain outside control domain");
+        }
+        for (int address = 0xc162; address <= 0xc1a0; address++)
+        {
+            bool expected = expectedMechanics.Any(word => address == word || address == word + 1);
+            AssertEqual(expected, PowampInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa80000 | address), "Powamp exact native control byte coverage");
+            AssertTrue(!PowampInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa70000 | address), "Powamp wrong bank rejects");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 18, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => PowampInstructionProgramDefinitions.MechanicsWord(invalid), "Powamp control index rejection");
+        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => PowampInstructionProgramDefinitions.PresentationWordAddress(invalid), "Powamp visual index rejection");
+        foreach (ushort invalid in new ushort[] { 0xc162, 0xc164, 0xc19f, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() => PowampInstructionProgramDefinitions.ReadMechanicsWord(invalid), "Powamp non-word/adjacent control pointer rejects");
+        Console.WriteLine("Powamp program layout:18 native controls,12 visual operands, exact order/domains/byte classification pass; five chosen timing inputs remain required.");
+    }
     private static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

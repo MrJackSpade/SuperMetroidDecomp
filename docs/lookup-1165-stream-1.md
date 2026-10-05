@@ -281,7 +281,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs
 
 - [ ] **PowampInstructionProgramDefinitions.Words** ([L41](../csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **PowampInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PowampInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PowampSpikeInstructionProgramDefinitions.cs
 
@@ -925,3 +925,10 @@ Root confirmation: Verification build1445 warnings/zero errors;128 direct native
 EscapeTimerPresentation.frames and anchors are converted (24e5e2eaa). Decimal glyphs use two eight-pixel parts and arithmetic font tile selection; the TIME label consumes the three remaining label tiles plus separators. Three two-digit groups and two separator cells determine centered anchors. The stock dictionaries are empty; immutable calculated parts preserve native drawing order. Independently edited parts, anchors, spacing and palette remain exact overrides.
 
 Root confirmation: Verification build 1445 warnings/zero errors; 25 native parts, four native anchors, ten native-vs-installed decimal OAM fixtures, eleven frame edits, four anchor edits with spacing/palette changes, and bounds pass. ResourceAudit source closure includes the immutable factory and font extent. Font ink remains independently required in EscapeTimerTileAtlas.transfer; no artwork or timing exemption. Inventory 552 converted/17 retained-mixed/559 pending.
+
+
+## Integrated Powamp program structure
+
+PowampInstructionProgramDefinitions.PresentationWords is converted (c6eae9881): two three-frame body loops and two three-frame sleeping transitions determine all twelve visual operand locations. Control addresses/opcodes/targets now calculate from the same native program structure. Words remains pending: exact holds 5, 9, 1, 6 and 160 are independent required inputs, with no accepted exemption.
+
+Root Verification build 1445 warnings/zero errors. After terminal build completion, --lookup-stream-1-powamp-programs passed independent native traversal of 18 controls and 12 visual operands, native values/order, exact byte-domain classification, wrong-bank and bounds rejection. An earlier premature no-build invocation used the old binary and reached an unrelated legacy missing-palette fixture; it is not passing evidence and no changes were made for that fixture. No gameplay or lifecycle equivalence claim. Inventory 554 converted/17 retained-mixed/557 pending.

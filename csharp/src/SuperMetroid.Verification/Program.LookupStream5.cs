@@ -6,6 +6,56 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5EyeGeometry(SuperMetroidAddressSpace rom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        for (int direction = 0; direction < 4; direction++)
+        {
+            var expected = (unchecked((short)ReadVerificationWord(rom, 0xa890ca + direction * 2)),
+                unchecked((short)ReadVerificationWord(rom, 0xa890d2 + direction * 2)),
+                ReadVerificationWord(rom, 0xa890da + direction * 2));
+            AssertEqual(expected, MorphBallEyeGeometryDefinitions.Mount(direction), "Native directional mount tuple");
+            foreach (ushort origin in new ushort[] { 0, 65535 })
+            {
+                var enemies = new RoomEnemySystem();
+                var slot = enemies.Slots[0];
+                slot.EnemyDefinitionPointer = RoomEnemySystem.MorphBallEyeDefinition;
+                slot.Parameter2 = (ushort)(0x8000 | direction);
+                slot.XPosition = origin; slot.YPosition = origin;
+                typeof(RoomEnemySystem).GetMethod("InitializeMorphBallEye", flags)!
+                    .CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
+                AssertEqual(unchecked((ushort)(origin + expected.Item1)), slot.XPosition, "Actual mount X with native wrap");
+                AssertEqual(unchecked((ushort)(origin + expected.Item2)), slot.YPosition, "Actual mount Y with native wrap");
+                AssertEqual(expected.Item3, slot.CurrentInstruction, "Actual directional mount program");
+                AssertEqual(MorphBallEyeAiFunction.MountNoOp, enemies.MorphBallEyeStates[0]!.Function, "Mount remains decorative");
+            }
+        }
+        var owner = new RoomEnemySystem();
+        var body = owner.Slots[1];
+        body.EnemyDefinitionPointer = RoomEnemySystem.MorphBallEyeDefinition;
+        typeof(RoomEnemySystem).GetMethod("InitializeMorphBallEye", flags)!
+            .CreateDelegate<Action<RoomEnemySlot>>(owner)(body);
+        owner.MorphBallEyeStates[1]!.ActivatedFlag = 1;
+        owner.MorphBallEyeBeam.BodySlotIndex = 1;
+        owner.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
+        owner.MorphBallEyeBeam.ColorIndex = 0xfff0;
+        var step = typeof(RoomEnemySystem).GetMethod("StepFullMorphBallEyeBeam", flags)!
+            .CreateDelegate<Action>(owner);
+        for (int phase = 0; phase < 16; phase++)
+        {
+            var expected = (rom.ReadByte(0x88ea8b + phase * 4), rom.ReadByte(0x88ea8c + phase * 4));
+            AssertEqual(expected, MorphBallEyeGeometryDefinitions.BeamColor(phase), "Native two-channel triangle");
+            step();
+            AssertEqual(expected.Item1, owner.MorphBallEyeBeam.Red, "Actual raw red COLDATA");
+            AssertEqual(expected.Item2, owner.MorphBallEyeBeam.Green, "Actual raw green COLDATA");
+            AssertEqual(rom.ReadByte(0x88ea8d + phase * 4), owner.MorphBallEyeBeam.Blue, "Actual zero blue intensity");
+            AssertEqual((ushort)((phase + 1) & 15), owner.MorphBallEyeBeam.ColorIndex, "Actual masked cycling and wrap");
+        }
+        AssertThrows<InvalidDataException>(() => MorphBallEyeGeometryDefinitions.Mount(4), "Unsupported mount direction");
+        AssertThrows<ArgumentOutOfRangeException>(() => MorphBallEyeGeometryDefinitions.BeamColor(16), "Beam phase bound");
+        Console.WriteLine("Morph Ball eye: four native mount tuples, eight actual wrapped initializers,16 native beam colors and actual full-beam cycle pass.");
+    }
+
     private static void VerifyLookupStream5MapHighlight(SuperMetroidAddressSpace rom)
     {
         var frames = Enumerable.Range(0, 14).Select(frame => new MapPaletteCycleFrame

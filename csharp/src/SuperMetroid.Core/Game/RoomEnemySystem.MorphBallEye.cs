@@ -156,27 +156,6 @@ public sealed partial class RoomEnemySystem
     private const ushort EyeActivationSound = 0x0017;
     private const ushort EyeDeactivationSound = 0x0071;
 
-    // Parameter two's low nibble selects left/right/up/down. The offset and instruction
-    // tables retain their native ordering rather than hiding the relationship in branches.
-    private static readonly short[] EyeMountXOffsets = [-8, 8, 0, 0];
-    private static readonly short[] EyeMountYOffsets = [0, 0, -8, 8];
-    private static readonly ushort[] EyeMountInstructionLists =
-    [
-        MorphBallEyeInstructionProgramDefinitions.MountFacingLeft,
-        MorphBallEyeInstructionProgramDefinitions.MountFacingRight,
-        MorphBallEyeInstructionProgramDefinitions.MountFacingUp,
-        MorphBallEyeInstructionProgramDefinitions.MountFacingDown,
-    ];
-
-    // $88:EA8B is stored as interleaved COLDATA bytes plus one padding byte per entry.
-    // Selector bits are retained because the fade routine compares/decrements raw bytes.
-    private static readonly byte[] EyeBeamRedCycle =
-        [0x30, 0x2f, 0x2e, 0x2d, 0x2c, 0x2b, 0x2a, 0x29,
-         0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f];
-    private static readonly byte[] EyeBeamGreenCycle =
-        [0x50, 0x4f, 0x4e, 0x4d, 0x4c, 0x4b, 0x4a, 0x49,
-         0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f];
-
     private readonly MorphBallEyeEnemyState?[] _morphBallEyeStates =
         new MorphBallEyeEnemyState?[MaximumEnemyCount];
 
@@ -211,16 +190,11 @@ public sealed partial class RoomEnemySystem
         }
 
         int mountDirection = slot.Parameter2 & 0x000f;
-        if ((uint)mountDirection >= EyeMountInstructionLists.Length)
-        {
-            throw new InvalidDataException(
-                $"Morph-ball eye mount direction {mountDirection} exceeds its four-entry ROM tables.");
-        }
-
-        slot.XPosition = unchecked((ushort)(slot.XPosition + EyeMountXOffsets[mountDirection]));
-        slot.YPosition = unchecked((ushort)(slot.YPosition + EyeMountYOffsets[mountDirection]));
+        var mount = MorphBallEyeGeometryDefinitions.Mount(mountDirection);
+        slot.XPosition = unchecked((ushort)(slot.XPosition + mount.X));
+        slot.YPosition = unchecked((ushort)(slot.YPosition + mount.Y));
         state.Function = MorphBallEyeAiFunction.MountNoOp;
-        slot.CurrentInstruction = EyeMountInstructionLists[mountDirection];
+        slot.CurrentInstruction = mount.Program;
 
         // Native clears all 256 window endpoint words from the mount initializer. Host
         // geometry is generated from BeamState, so resetting that state is the equivalent
@@ -435,8 +409,7 @@ public sealed partial class RoomEnemySystem
         }
 
         int colorIndex = MorphBallEyeBeam.ColorIndex & 0x000f;
-        MorphBallEyeBeam.Red = EyeBeamRedCycle[colorIndex];
-        MorphBallEyeBeam.Green = EyeBeamGreenCycle[colorIndex];
+        (MorphBallEyeBeam.Red, MorphBallEyeBeam.Green) = MorphBallEyeGeometryDefinitions.BeamColor(colorIndex);
         MorphBallEyeBeam.Blue = 0x80;
         MorphBallEyeBeam.ColorIndex = unchecked((ushort)((colorIndex + 1) & 0x000f));
     }

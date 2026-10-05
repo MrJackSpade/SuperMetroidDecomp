@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 689,
+  "remainingTableDefinitionCount": 684,
   "fileCount": 523,
   "entries": [
     {
@@ -6290,35 +6290,45 @@
       "line": 161,
       "name": "RoomEnemySystem.EyeMountXOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "1eef53263350a9a9b2295e27dd29ad98d8e0ddec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MorphBallEye.cs",
       "line": 162,
       "name": "RoomEnemySystem.EyeMountYOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "1eef53263350a9a9b2295e27dd29ad98d8e0ddec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MorphBallEye.cs",
       "line": 164,
       "name": "RoomEnemySystem.EyeMountInstructionLists",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "1eef53263350a9a9b2295e27dd29ad98d8e0ddec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MorphBallEye.cs",
       "line": 174,
       "name": "RoomEnemySystem.EyeBeamRedCycle",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "1eef53263350a9a9b2295e27dd29ad98d8e0ddec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MorphBallEye.cs",
       "line": 177,
       "name": "RoomEnemySystem.EyeBeamGreenCycle",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "1eef53263350a9a9b2295e27dd29ad98d8e0ddec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs",
@@ -21192,6 +21202,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 435,
+  "convertedSinceSnapshot": 440,
   "justifiedRetainedSinceSnapshot": 4
 }

@@ -95,7 +95,7 @@ internal static partial class Program
                 ? stockFrame.Span[0].Tiles.Span[0] : (ushort)0,
             "Phantoon BG2 override leaves stock frame intact");
         ushort firstPointer = PhantoonBg2FrameDefinitions.Frames[0].Pointer;
-        byte[] nativeVram = DrawPhantoonBg2(null, rom, firstPointer,
+        byte[] nativeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitions.Bank, firstPointer,
             newInstructionFrame: true);
         var noCartridge = new FrontendCartridgeReadGuard(rom);
         byte[] stockVram = DrawPhantoonBg2(stock, noCartridge,
@@ -232,7 +232,7 @@ internal static partial class Program
         return found ? (ushort)arguments[6]! : (ushort)0;
     }
 
-    private static byte[] DrawPhantoonBg2(EnemyTileArtworkCatalog? art,
+    private static byte[] DrawPhantoonBg2(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer, bool newInstructionFrame)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

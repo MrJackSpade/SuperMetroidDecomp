@@ -60,7 +60,7 @@ internal static partial class Program
                     $"Draygon {frame.Name} write {index} preserves tile words");
             }
             writeCount += native.Count;
-            AssertTrue(DrawDraygonBg2(null, rom, frame.Pointer, true)
+            AssertTrue(ReadReferenceExtendedBg2Vram(rom, DraygonBg2FrameDefinitions.Bank, frame.Pointer, true)
                     .SequenceEqual(DrawDraygonBg2(stock, noCartridge,
                         frame.Pointer, true)),
                 $"Draygon {frame.Name} stock VRAM matches native without cartridge reads");
@@ -219,7 +219,7 @@ internal static partial class Program
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
-    private static byte[] DrawDraygonBg2(EnemyTileArtworkCatalog? art,
+    private static byte[] DrawDraygonBg2(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer, bool newInstructionFrame)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -231,6 +231,7 @@ internal static partial class Program
             .GetField("_drawQueues", flags)!.GetValue(enemies)!;
         queues[0].Add(0);
         RoomEnemySlot slot = enemies.Slots[0];
+        slot.EnemyDefinitionPointer = DraygonEnemyDefinitionPointers.Body;
         slot.Definition = default(RoomEnemyDefinition) with
         {
             Bank = DraygonBg2FrameDefinitions.Bank,

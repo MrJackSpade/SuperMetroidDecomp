@@ -21,7 +21,7 @@ internal static partial class Program
         var native = new RoomEnemySystem();
         var installed = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(native, rom);
+
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installed,
             new FrontendCartridgeReadGuard(rom));
         var walker = typeof(RoomEnemySystem).GetMethod(
@@ -33,8 +33,7 @@ internal static partial class Program
             {
                 Bank = DraygonBg2FrameDefinitions.Bank,
             };
-        // An unrelated definition deliberately runs the generic cartridge
-        // walker, producing an independent native reference for the same root.
+        // The test-only cartridge walker supplies an independent reference.
         nativeSlot.EnemyDefinitionPointer = 0;
         installedSlot.EnemyDefinitionPointer = RoomEnemySystem.SporeSpawnDefinition;
         nativeSlot.XPosition = installedSlot.XPosition = 0x100;
@@ -82,7 +81,8 @@ internal static partial class Program
                 object?[] installedArguments =
                     [installedSlot, targetX, targetY, (ushort)2, (ushort)2,
                         shot != 0, (ushort)0];
-                bool nativeFound = (bool)walker.Invoke(native, nativeArguments)!;
+                bool nativeFound = ReferenceExtendedCollision(
+                    (SuperMetroid.AssetExtraction.CartridgeImportAddressSpace)rom, nativeArguments);
                 bool installedFound = (bool)walker.Invoke(installed, installedArguments)!;
                 AssertEqual(nativeFound, installedFound,
                     $"Spore Spawn frame {frame.Pointer:X4} native overlap at {x},{y}, shot={shot}");

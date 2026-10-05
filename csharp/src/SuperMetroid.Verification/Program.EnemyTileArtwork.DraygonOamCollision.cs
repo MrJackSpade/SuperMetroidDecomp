@@ -41,7 +41,8 @@ internal static partial class Program
         int sporeFrames = 0;
         int componentsChecked = 0;
         foreach (EnemyExtendedFrameDefinition frame in
-                 EnemyExtendedFrameDefinitions.Frames)
+                 EnemyExtendedFrameDefinitions.Frames.ToArray().Take(
+                     EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount))
         {
             if (frame.Bank != DraygonBg2FrameDefinitions.Bank)
                 continue;

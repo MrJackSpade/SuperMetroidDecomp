@@ -8,6 +8,37 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4TailAngles(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var create = typeof(RoomEnemySystem).GetMethod("CreateInitialRidleyTailSegments", BindingFlags.NonPublic | BindingFlags.Static)!
+            .CreateDelegate<Func<RidleyTailSegment[]>>();
+        var segments = create();
+        AssertEqual(7, segments.Length, "Tail initialization retains seven links");
+        AssertEqual(Word(0xa6d2fe), RidleyTailDefinitions.IdealInterSegmentAngle, "Tail separation matches the native initializer immediate");
+        for (int index = 0; index < segments.Length; index++)
+        {
+            AssertEqual(Word(0xa6d38a + 2 * index), segments[index].Angle, "Actual initialized link angle matches native progression");
+            AssertEqual(Word(0xa6d37c + 2 * index), segments[index].Distance, "Unresolved independent tail distance remains unchanged");
+            AssertEqual(Word(0xa6d36e + 2 * index), segments[index].MovementDirection, "Initial rotation direction remains unchanged");
+            AssertEqual((ushort)(Word(0xa6d2fe) + 1), segments[index].StaggerAngle, "Initial stagger remains ideal separation plus one");
+        }
+        var expectedFrames = new SortedSet<ushort> { 0xdc90, 0xdc97, 0xdc9e };
+        for (int direction = 0; direction < 16; direction++)
+        {
+            ushort expected = Word(0xa6dcba + 2 * direction);
+            AssertEqual(expected, RidleySupplementalVisualDefinitions.TailTipFrameAt(direction), "Calculated reversed tail-tip sector preserves native identity");
+            AssertEqual((ushort)1, Word(0xa60000 | expected), "Each native tail-tip record contains exactly one OAM object");
+            expectedFrames.Add(expected);
+        }
+        for (int frame = 0; frame < 20; frame++) expectedFrames.Add(Word(0xa6db02 + frame * 2));
+        AssertTrue(expectedFrames.SequenceEqual(RidleySupplementalVisualDefinitions.Frames().Select(frame => frame.Pointer)),
+            "Calculated tail-tip source enumeration retains the complete ordered supplemental frame domain");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => RidleySupplementalVisualDefinitions.TailTipFrameAt(invalid), "Tail-tip selector domain remains exact");
+        foreach (int invalid in new[] { -1, 7 })
+            AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailDefinitions.InitialAngle(invalid), "Initial angular domain contains exactly seven links");
+    }
     private static void VerifyLookupStream4TailTerrain(ISnesAddressSpace rom)
     {
         var touches = typeof(RoomEnemySystem).GetMethod("RidleyTailTouchesTerrain", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -147,6 +178,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        VerifyLookupStream4TailAngles(rom);
         VerifyLookupStream4TailTerrain(rom);
         VerifyLookupStream4MessageDispatch(rom);
         VerifyLookupStream4NoticeRegions(rom);

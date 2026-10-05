@@ -155,7 +155,7 @@ public sealed partial class RoomEnemySystem
             TailWhipTargetCounterClockwiseAngle = 0xffff,
             TailWhipRequest = 0,
             TailExtensionSpeed = 0x00f0,
-            IdealInterSegmentTailAngle = 0x0010,
+            IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle,
             TailSegments = CreateInitialRidleyTailSegments(),
         };
 
@@ -910,11 +910,9 @@ public sealed partial class RoomEnemySystem
 
     private static RidleyTailSegment[] CreateInitialRidleyTailSegments()
     {
-        // InitializeTailParts at $A6:D2D6 copies these five seven-word ROM tables into
-        // the bank-$7E tail workspace. Keeping the data together makes the otherwise odd
-        // initial $4000,$4010... phase staggering directly auditable against the cartridge.
+        // Each successive link begins one ideal angular separation beyond its predecessor.
+        // The independent distance payload remains required lookup-conversion work.
         ushort[] distances = [0x0200, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0500];
-        ushort[] angles = [0x4000, 0x4010, 0x4020, 0x4030, 0x4040, 0x4050, 0x4060];
         var segments = new RidleyTailSegment[7];
         for (int index = 0; index < segments.Length; index++)
         {
@@ -922,7 +920,7 @@ public sealed partial class RoomEnemySystem
             {
                 MovementDirection = 0x8000,
                 Distance = distances[index],
-                Angle = angles[index],
+                Angle = RidleyTailDefinitions.InitialAngle(index),
                 StaggerAngle = 0x0011,
             };
         }

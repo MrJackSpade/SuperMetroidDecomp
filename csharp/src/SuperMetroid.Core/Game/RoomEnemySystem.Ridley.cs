@@ -82,7 +82,7 @@ public sealed partial class RoomEnemySystem
             TailWhipTargetClockwiseAngle = 0xffff,
             TailWhipTargetCounterClockwiseAngle = 0xffff,
             TailExtensionSpeed = 0x00f0,
-            IdealInterSegmentTailAngle = 0x0010,
+            IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle,
             TailSegments = CreateInitialRidleyTailSegments(),
         };
 

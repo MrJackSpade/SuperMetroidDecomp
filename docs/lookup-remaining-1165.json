@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 640,
+  "remainingTableDefinitionCount": 638,
   "fileCount": 523,
   "entries": [
     {
@@ -1745,7 +1745,9 @@
       "line": 30,
       "name": "RidleySupplementalVisualDefinitions.TailTipPointers",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "867134ec3ab8f05172bdb54801a563e8b23f8b81"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/RipperVisualDefinitions.cs",
@@ -6183,7 +6185,9 @@
       "line": 917,
       "name": "RoomEnemySystem.CreateInitialRidleyTailSegments / angles",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "867134ec3ab8f05172bdb54801a563e8b23f8b81"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs",
@@ -21297,6 +21301,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 477,
+  "convertedSinceSnapshot": 479,
   "justifiedRetainedSinceSnapshot": 11
 }

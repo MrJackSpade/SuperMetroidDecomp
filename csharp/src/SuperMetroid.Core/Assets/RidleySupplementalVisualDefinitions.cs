@@ -22,18 +22,12 @@ internal static class RidleySupplementalVisualDefinitions
         0xde5a, 0xde3f, 0xde2e, 0xde1d, 0xde02,
     ];
 
-    /// <summary>
-    /// The sixteen clockwise tail-tip directions at $A6:DCBA-$DCD8.
-    /// The order is the native masked-angle index order.
-    /// </summary>
-    private static ReadOnlySpan<ushort> TailTipPointers =>
-    [
-        0xdd2e, 0xdd27, 0xdd20, 0xdd19,
-        0xdd12, 0xdd0b, 0xdd04, 0xdcfd,
-        0xdcf6, 0xdcef, 0xdce8, 0xdce1,
-        0xdcda, 0xdd43, 0xdd3c, 0xdd35,
-    ];
-
+    /// <summary>$A6:DCDA, Spritemap_RidleyTailTip_PointingLeft, first of sixteen consecutive tail-tip records.</summary>
+    private const ushort FirstTailTipFrame = 0xdcda;
+    /// <summary>$A6:DCDA..DD49: each one-object spritemap has a two-byte count and five-byte OAM entry.</summary>
+    private const int TailTipFrameBytes = 2 + 5;
+    /// <summary>$A6:DCD2 selects left in slot12 of the sixteen direction sectors (down=0).</summary>
+    private const int LeftTailTipDirection = 12;
     /// <summary>$A6:DC90, the large base-segment OAM map.</summary>
     internal const ushort LargeSegment = 0xdc90;
 
@@ -44,7 +38,8 @@ internal static class RidleySupplementalVisualDefinitions
     internal const ushort SmallSegment = 0xdc9e;
 
     internal static int WingPointerCount => WingPointers.Length;
-    internal static int TailTipPointerCount => TailTipPointers.Length;
+    /// <summary>$A6:DCBA..DCD8 selects one frame for each sixteenth-turn sector.</summary>
+    internal const int TailTipPointerCount = 16;
 
     internal static ushort WingFrameAt(int index) =>
         (uint)index < WingPointers.Length
@@ -52,8 +47,8 @@ internal static class RidleySupplementalVisualDefinitions
             : throw new InvalidDataException($"Ridley wing frame {index} is outside the native table.");
 
     internal static ushort TailTipFrameAt(int index) =>
-        (uint)index < TailTipPointers.Length
-            ? TailTipPointers[index]
+        (uint)index < TailTipPointerCount
+            ? (ushort)(FirstTailTipFrame + ((LeftTailTipDirection - index) & (TailTipPointerCount - 1)) * TailTipFrameBytes)
             : throw new InvalidDataException($"Ridley tail-tip direction {index} is outside the native table.");
 
     internal static ushort SegmentFrameAt(int index) => index switch
@@ -70,8 +65,8 @@ internal static class RidleySupplementalVisualDefinitions
         {
             LargeSegment, MediumSegment, SmallSegment,
         };
-        foreach (ushort pointer in TailTipPointers)
-            pointers.Add(pointer);
+        for (int direction = 0; direction < TailTipPointerCount; direction++)
+            pointers.Add(TailTipFrameAt(direction));
         foreach (ushort pointer in WingPointers)
             pointers.Add(pointer);
         return [.. pointers.Select(pointer => new EnemySpritemapDefinition(

@@ -388,7 +388,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Assets/RidleySupplementalVisualDefinitions.cs
 
 - [ ] **RidleySupplementalVisualDefinitions.WingPointers** ([L18](../csharp/src/SuperMetroid.Core/Assets/RidleySupplementalVisualDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RidleySupplementalVisualDefinitions.TailTipPointers** ([L30](../csharp/src/SuperMetroid.Core/Assets/RidleySupplementalVisualDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RidleySupplementalVisualDefinitions.TailTipPointers** ([L30](../csharp/src/SuperMetroid.Core/Assets/RidleySupplementalVisualDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CeresRidleyProjectileInstructionProgramDefinitions.cs
 
@@ -451,7 +451,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs
 
 - [ ] **RoomEnemySystem.CreateInitialRidleyTailSegments / distances** ([L916](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs#L916)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **RoomEnemySystem.CreateInitialRidleyTailSegments / angles** ([L917](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs#L917)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemySystem.CreateInitialRidleyTailSegments / angles** ([L917](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs#L917)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs
 
@@ -948,3 +948,12 @@ Two definitions converted: 67 wholly converted, 158 unchecked.
 - Replaced the five joint-index samples with direct reverse traversal from the tail tip through joint two. Replaced the five Y-offset samples with the physical distinction between the tip (16 pixels) and ordinary joints (18 pixels). The seven-segment/null-level gates, unchecked word addition, room bounds and first-hit return remain intact.
 - Evidence: pinned CheckForTailCollisionWithFloor at A6:B7E7..B84C explicitly probes segments 6,5,4,3,2 in that order. ADC immediates at B7F2/B806/B81A/B82E/B842 hold16/18/18/18/18. This is an unrolled sequence of collision operations, now represented directly as iteration and geometry rather than local lookup arrays.
 - Confirmation: Verification root integration build1444 warnings/zero errors; --lookup-stream-4 passed. New focused actual-method checks isolate each of the seven segments against two solid rows and five boundary/wrapping Y coordinates (70 cases), obtaining expected offsets from the original native ADC operands. Segments0/1 stay excluded; missing terrain and incomplete-tail gates remain false. Static review confirms descending first-hit order. No gameplay discovery was performed, and no source-hash dependency was found for this partial.
+
+## Batch 53: Ridley initial angular spacing and circular tip identities
+
+Two definitions converted: 69 wholly converted, 156 unchecked. Independent tail distances, wing cadence, OAM attributes and image payloads remain required.
+
+- Initial angles now calculate a quarter-turn base plus link index times the native ideal inter-segment separation. New granted Game/RidleyTailDefinitions.cs documents the native base and separation; both encounter initializers use the same named separation. The seven independent distance values remain untouched and unchecked.
+- Tail-tip identities now calculate the address of a consecutive seven-byte one-object OAM record. Native direction sector12 points left at the first record; reversing the sixteen-sector circular index preserves every direction and wrap. The frame exporter enumerates this same view instead of a replacement pointer array. Named XML constants identify the native base, record layout and direction orientation.
+- Evidence: InitializeTailParts at A6:D2D6 sets ideal separation16 at D2FD; original D38A..D397 angles are4000 through4060 by16. RidleyTailTipSpritemapPointers at DCBA..DCD8 selects sixteen records DCDA..DD49; each contains one two-byte count plus one five-byte OAM object. This derives identities only, not the independently supplied OAM or pixel content.
+- Confirmation: Root integration Verification build1444 warnings/zero errors; --lookup-stream-4 passed. Actual initialization matches all seven original angle words and preserves distance/direction/stagger fields; native separation immediate matches. Every sixteen-direction identity and original one-object record count matches, the complete sorted supplemental identity enumeration is unchanged, and invalid/extreme direction selectors retain InvalidDataException. Initial-angle bounds contain exactly seven links. No ResourceAudit source-hash reference was found for the changed existing files.

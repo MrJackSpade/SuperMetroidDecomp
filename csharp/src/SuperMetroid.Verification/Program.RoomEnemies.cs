@@ -1166,7 +1166,9 @@ static void VerifyCeresRidleyRoomEntry()
                 [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
             }, spritemaps: EnemySpritemapCatalog.Load(fixtureSpriteJson),
-            ceresDoorVisual: CreateCeresDoorFixtureArtwork(bus).CeresDoorVisual),
+            ceresDoorVisual: CreateCeresDoorFixtureArtwork(bus).CeresDoorVisual,
+            ceresEscapeTiles: runtimeFixtureInstallation.Value.LoadEnemyTiles().CeresEscapeTiles,
+            ceresEscapeOverlayTilemaps: runtimeFixtureInstallation.Value.LoadEnemyTiles().CeresEscapeOverlayTilemaps),
         CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.CeresRidleyColorExtractor.Extract(bus))),
         CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(
@@ -1477,32 +1479,66 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0, escapeWrites.Entries.Count,
         "Mode-7 terminator does not run the new actor function in the same enemy frame");
 
-    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
-    AssertEqual(1, escapeWrites.Entries.Count,
-        "Ceres self-destruct queues only one first-list record per enemy frame");
-    AssertEqual(2, state.FunctionTimer,
-        "Ceres self-destruct remains in first transfer phase while records remain");
-
-    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
-    AssertEqual(3, escapeWrites.Entries.Count,
-        "Ceres self-destruct final first-list record falls through to one second-list record");
+    List<VramWriteEntry> ReadNativeTransfers(int pointer)
+    {
+        ushort Word(int address) => (ushort)(nativeRidleyRom.ReadByte(address) |
+            nativeRidleyRom.ReadByte(address + 1) << 8);
+        var records = new List<VramWriteEntry>();
+        for (int record = 0; record < 32; record++, pointer += 7)
+        {
+            ushort size = Word(pointer);
+            if (size == 0) return records;
+            records.Add(new VramWriteEntry(size,
+                Word(pointer + 2) | nativeRidleyRom.ReadByte(pointer + 4) << 16,
+                Word(pointer + 5)));
+        }
+        throw new InvalidDataException("Native Ceres transfer fixture lacks a terminator.");
+    }
+    var spriteTransfers = ReadNativeTransfers(0xa6c4cb);
+    var backgroundTransfers = ReadNativeTransfers(0xa6c4fe);
+    AssertEqual(7, spriteTransfers.Count, "native Ceres sprite transfer count");
+    AssertEqual(8, backgroundTransfers.Count, "native Ceres background transfer count");
+    for (int record = 0; record < spriteTransfers.Count; record++)
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        bool finalSprite = record == spriteTransfers.Count - 1;
+        AssertEqual(record + 1 + (finalSprite ? 1 : 0), escapeWrites.Entries.Count,
+            "Ceres sprite transfers yield one per frame and fall through on the final record");
+        AssertEqual(finalSprite ? 4 : 2, state.FunctionTimer, "Ceres sprite/background phase handoff");
+    }
+    for (int record = 1; record < backgroundTransfers.Count; record++)
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        bool finalBackground = record == backgroundTransfers.Count - 1;
+        AssertEqual(spriteTransfers.Count + record + 1 + (finalBackground ? 1 : 0),
+            escapeWrites.Entries.Count, "Ceres background transfers yield and append EMERGENCY on the final frame");
+        AssertEqual(finalBackground ? 6 : 4, state.FunctionTimer, "Ceres background/hold phase handoff");
+    }
+    var nativeTransfers = spriteTransfers.Concat(backgroundTransfers).ToArray();
+    for (int index = 0; index < nativeTransfers.Length; index++)
+    {
+        VramWriteEntry expected = nativeTransfers[index];
+        VramWriteEntry actual = escapeWrites.Entries[index];
+        AssertEqual(expected.SizeInBytes, actual.SizeInBytes, $"Ceres transfer {index} native size");
+        if (index < 2)
+        {
+            AssertEqual(0xb0c000 + index * 0x200, expected.SourceAddress,
+                $"Ceres timer {index} native source mapped to installed asset");
+            AssertEqual(index == 0 ? VramAssetId.EscapeTimerFirstTiles : VramAssetId.EscapeTimerSecondTiles,
+                actual.AssetId, $"Ceres timer {index} installed source identity");
+        }
+        else
+            AssertEqual(expected.SourceAddress, actual.SourceAddress, $"Ceres transfer {index} native source");
+        AssertEqual(expected.EncodedVramDestination, actual.EncodedVramDestination,
+            $"Ceres transfer {index} native destination");
+    }
     AssertEqual(VramAssetId.EscapeTimerFirstTiles, escapeWrites.Entries[0].AssetId,
         "Ceres first timer record selects installed artwork");
     AssertEqual(VramAssetId.EscapeTimerSecondTiles, escapeWrites.Entries[1].AssetId,
         "Ceres second timer record selects installed artwork");
-    AssertEqual(0xb09204, escapeWrites.Entries[2].SourceAddress,
-        "Ceres first non-timer warning transfer retains cartridge source");
-    AssertEqual(0x7802, escapeWrites.Entries[2].EncodedVramDestination,
-        "Ceres second warning transfer destination");
-    AssertEqual(4, state.FunctionTimer,
-        "Ceres self-destruct remains in second transfer phase while records remain");
-
-    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
-    AssertEqual(5, escapeWrites.Entries.Count,
-        "Ceres self-destruct queues the final second-list record and emergency tilemap");
-    AssertEqual(0xa6c164, escapeWrites.Entries[4].SourceAddress,
+    AssertEqual(0xa6c164, escapeWrites.Entries[^1].SourceAddress,
         "Ceres EMERGENCY text uses the cartridge tilemap words");
-    AssertEqual(0x50cb, escapeWrites.Entries[4].EncodedVramDestination,
+    AssertEqual(0x50cb, escapeWrites.Entries[^1].EncodedVramDestination,
         "Ceres EMERGENCY text targets BG1 row six");
     AssertEqual(6, state.FunctionTimer,
         "Ceres self-destruct reaches the native 128-frame English hold");

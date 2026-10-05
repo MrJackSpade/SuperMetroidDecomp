@@ -10988,4 +10988,9 @@
   ],
   "state": "partial",
   "confirmation": "Integrated Verification1442 warnings/zero errors. Focused coordinate verifier confirmed174 native pointers,870 records,6600actualspawns/allfourpositions with coordinate ROM forbidden and196608operand boundary assertions. Legacy PowerShell stderr warning handling produced a wrapper failure despite passed output; explicit PowerShell7 process-exit check repeated same focused command and returned0."
+},"doorScrollCaseIntegration":{
+  "scope": "DoorScrollPrograms.Programs:74 native straight-line callbacks translated to named executable cases without stored write arrays/dictionary",
+  "state": "converted",
+  "confirmation": "Integrated Verification rebuild25 warnings/zero errors; stream3 exit0. Bounded independent native instruction interpreter confirms74x50scroll bytes including untouched cells/word stores; all65536callback identities,original enumeration order,unknown no-op and null rejection preserved. No new exception. Existing formatting changes were already integrated and retained. Local conflict-resolution script was initially blocked by legacy shell policy; corrected using PowerShell7, compiled and checked before folding resolution into the unpublished integration commit.",
+  "implementationCommit": "fead8cf4c"
 }}

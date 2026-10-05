@@ -6,6 +6,28 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static EnemyTileArtworkCatalog LookupStream5CorpseFixtureArtwork(SuperMetroidAddressSpace rom)
+    {
+        byte[] planar = Enumerable.Range(0,DeadTourianCorpseArtworkDefinitions.ByteCount)
+            .Select(index => rom.ReadByte(DeadTourianCorpseArtworkDefinitions.SourceAddress+index)).ToArray();
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out int width,out int height);
+        using var png = new MemoryStream();
+        IndexedPng.Write(png,width,height,pixels,SnesGraphics.DiagnosticPalette(16));
+        png.Position=0;
+        RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(png,planar.Length);
+        return EnemyTileArtworkCatalog.FromArtworkForVerification(
+            new Dictionary<ushort,RoomCharacterAtlas> { [RoomEnemySystem.DeadSidehopperDefinition] = atlas },
+            new Dictionary<ushort,EnemyPaletteSheet>
+            {
+                [RoomEnemySystem.DeadSidehopperDefinition] = EnemyPaletteSheet.Load(new MemoryStream(
+                    EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument
+                    {
+                        Version=1,
+                        Colors=Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0,Green=0,Blue=0 }).ToArray(),
+                    }))),
+            },
+            dmaSources: new Dictionary<ushort,int> { [RoomEnemySystem.DeadSidehopperDefinition] = DeadTourianCorpseArtworkDefinitions.SourceAddress });
+    }
     private static void VerifyLookupStream5PhantoonRain(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -24,10 +25,24 @@ internal static partial class Program
                 $"Shitroid mechanics word $A9:{definition.Address:X4}");
         }
 
+        for (int index = 0; index < ShitroidInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = ShitroidInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(ShitroidVisualDefinitions.Bank, address, out ushort selector),
+                "Shitroid presentation operand has an installed visual identity");
+            AssertEqual(ReadShitroidInstructionWord(rom, address), selector,
+                $"Shitroid native visual operand $A9:{address:X4}");
+        }
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort randomNumber = 0;
         var guard = new ShitroidInstructionReadGuard(rom);
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem
+        {
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+                new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
+                shitroidColors: ShitroidColorCatalog.Load(new MemoryStream(
+                    SuperMetroid.AssetExtraction.ShitroidColorExtractor.Extract(rom)))),
+        };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
         type.GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
@@ -107,9 +122,9 @@ internal static partial class Program
         AssertEqual((ushort?)0x0052, enemies.LastShitroidSoundEffectLibrary2,
             "set-high-bit remorse branch publishes native Shitroid cry");
 
-        AssertEqual(ShitroidInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(0,
             guard.ObservedPresentationWords.Count,
-            "all Shitroid spritemap operands remain cartridge reads");
+            "all Shitroid spritemap operands use compiled visual identities without live reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Shitroid mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -131,7 +146,7 @@ internal static partial class Program
         Console.WriteLine(
             "Shitroid instruction mechanics: thirty-five compiled words, the real " +
             "initializer, finish-draining fallthrough, normal/latched loops, both remorse " +
-            "branches, native cry, and thirty live spritemap reads pass with mechanics " +
+            "branches, native cry, and thirty native visual identities pass with mechanics " +
             "bytes forbidden.");
     }
 

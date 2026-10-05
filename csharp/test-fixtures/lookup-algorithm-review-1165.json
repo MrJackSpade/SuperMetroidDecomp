@@ -11497,4 +11497,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "32-byte 4bpp tile columns advance 16 words. Initial copy descriptors and clipping derive from one shared crop geometry.",
     "remaining":  "InitialGraphicsCopies and ColumnMinimumY remain unchecked: independently chosen silhouette and source placement require disposition. No exception. 505 converted, 15 justified retained/mixed, 608 pending."
+},"shitroidStructureIntegration":{
+    "confirmation":  "Root Verification build 1445 warnings, zero errors. 35 native words, 30 exact selectors, actual initialization/fallthrough/loops/both RNG branches/native cry, zero source reads, bounds and allocations pass.",
+    "completed":  "ShitroidInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "624d2dafde30a46249f553357c4c8dd09b6207bc",
+    "state":  "partial-one-converted",
+    "algorithm":  "Timed-pose strides and callback/branch boundaries calculate 35 control positions and 30 visual addresses. Post-cry pulse durations calculate as 2 + abs(frame - 4).",
+    "remaining":  "Words required: finish-drain 128, latched 8/8/5/2, normal 16 and pre-branch remorse 10. Root added the latter two omitted residuals. No exception. 506 converted, 15 justified retained/mixed, 607 pending."
 }}

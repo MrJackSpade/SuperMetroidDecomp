@@ -148,6 +148,34 @@ internal static partial class Program
                 AssertEqual((byte)editedFrames[angle], edited.Resolve((byte)angle), "stream 3 independently edited swing art frame");
             editedFrames[editedAngle] = original;
         }
+        byte[] fileSelectJson = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom);
+        var fileSelect = FileSelectPresentation.Load(new MemoryStream(fileSelectJson));
+        foreach (string field in new[] { "digits", "slotLetters" })
+            AssertTrue(typeof(FileSelectPresentation).GetField(field, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .GetValue(fileSelect) is null, "stream 3 stock file-select glyph sequence discarded");
+        var glyphTilemap = new ushort[1024];
+        for (int glyph = 0; glyph < 13; glyph++)
+        {
+            bool digit = glyph < 10;
+            int index = digit ? glyph : glyph - 10;
+            ushort expected = (ushort)(digit ? 0x2060 + index : 0x206a + index);
+            var anchor = new MapLabelPoint(4, 3);
+            if (digit) fileSelect.WriteDigit(glyphTilemap, anchor, 2, index);
+            else fileSelect.WriteSlotLetter(glyphTilemap, anchor, index);
+            AssertEqual(expected, glyphTilemap[3 * 32 + 4 + (digit ? 2 : 0)], "stream 3 actual file-select calculated glyph write");
+            foreach (string field in new[] { "tileColumn", "tileRow", "palette", "priority", "flipX", "flipY" })
+            {
+                var node = System.Text.Json.Nodes.JsonNode.Parse(fileSelectJson)!;
+                var cell = node[digit ? "digits" : "slotLetters"]![index]!;
+                int bit = field switch { "tileColumn" => 1, "tileRow" => 32, "palette" => 0x400, "priority" => 0x2000, "flipX" => 0x4000, _ => 0x8000 };
+                if (field is "priority" or "flipX" or "flipY") cell[field] = !cell[field]!.GetValue<bool>();
+                else cell[field] = cell[field]!.GetValue<int>() ^ 1;
+                var edited = FileSelectPresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
+                if (digit) edited.WriteDigit(glyphTilemap, anchor, 2, index);
+                else edited.WriteSlotLetter(glyphTilemap, anchor, index);
+                AssertEqual((ushort)(expected ^ bit), glyphTilemap[3 * 32 + 4 + (digit ? 2 : 0)], "stream 3 independent file-select glyph attribute edit");
+            }
+        }
         VerifyCreditsPresentation(Path.GetFullPath("Super Metroid.smc"));
         byte[] creditsJson = SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(rom);
         var credits = CreditsPresentation.Load(new MemoryStream(creditsJson));

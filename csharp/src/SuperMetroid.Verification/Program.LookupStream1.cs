@@ -1183,4 +1183,95 @@ internal static partial class Program
             }
         }
     }
+    private static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
+    {
+        using var directory = new MapCatalogTestDirectory();
+        SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
+        byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
+        var document = System.Text.Json.JsonSerializer.Deserialize<SamusArmCannonArtworkDocument>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Length * 32);
+        SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
+            SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
+        var stock = Load(document);
+        var field = typeof(SamusArmCannonArtworkCatalog).GetField("drawingData",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        Dictionary<int, byte> Stored(SamusArmCannonArtworkCatalog value) => (Dictionary<int, byte>)field.GetValue(value)!;
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var headers = new HashSet<int>();
+        var descriptors = new SortedSet<int>();
+        for (int pose = 0; pose < 253; pose++)
+        {
+            int pointer = Word(0x90C7DF + pose * 2);
+            descriptors.Add(pointer);
+            headers.Add(pointer); headers.Add(pointer + 1);
+            if ((rom.ReadByte(0x900000 | pointer) & 0x80) != 0)
+            { headers.Add(pointer + 2); headers.Add(pointer + 3); }
+        }
+        AssertEqual(130, headers.Count, "cannon original distinct direction/mode control-byte count");
+        for (int address = 0xCC21; address < 0xCC39; address++) headers.Add(address);
+        var aliases = new Dictionary<int, int>();
+        int[] boundaries = descriptors.Append(0xCC21).ToArray();
+        for (int descriptor = 0; descriptor < boundaries.Length - 1; descriptor++)
+        {
+            int pointer = boundaries[descriptor], next = boundaries[descriptor + 1];
+            if ((rom.ReadByte(0x900000 | pointer) & 0x80) != 0 || next - pointer <= 4) continue;
+            bool constantPair = true;
+            for (int address = pointer + 4; address < next; address++)
+                constantPair &= rom.ReadByte(0x900000 | address) == rom.ReadByte(0x900000 | (pointer + 2 + ((address - pointer) & 1)));
+            if (constantPair)
+                for (int address = pointer + 4; address < next; address++) aliases.Add(address, pointer + 2 + ((address - pointer) & 1));
+            else
+            {
+                bool fixedX = true;
+                for (int address = pointer + 4; address < next; address += 2)
+                    fixedX &= rom.ReadByte(0x900000 | address) == rom.ReadByte(0x900000 | (pointer + 2));
+                if (fixedX)
+                    for (int address = pointer + 4; address < next; address += 2) aliases.Add(address, pointer + 2);
+            }
+        }
+        AssertEqual(216, aliases.Count, "cannon original repeated coordinate-byte domain");
+        const int start = 0xC9D9, count = 608, coordinateCount = 238;
+        AssertEqual(coordinateCount, Stored(stock).Count, "cannon stores exactly required coordinate basis");
+        for (int index = 0; index < count; index++)
+        {
+            ushort address = (ushort)(start + index);
+            byte expected = rom.ReadByte(0x900000 | address);
+            bool calculated = SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out byte value);
+            AssertEqual(headers.Contains(address), calculated, "cannon only original controls/cost aliases are calculated");
+            if (calculated) AssertEqual(expected, value, "cannon direct original header/cost calculation");
+            bool alias = SamusArmCannonArtworkFormat.TryStockCoordinateSource(address, out ushort source);
+            AssertEqual(aliases.ContainsKey(address), alias, "cannon direct native constant-origin domain");
+            if (alias)
+            {
+                AssertEqual((ushort)aliases[address], source, "cannon direct original first-pair source");
+                AssertTrue(source < address, "cannon coordinate aliases strictly decrease");
+            }
+            AssertEqual(!calculated && !alias, Stored(stock).ContainsKey(index), "cannon exact coordinate storage membership");
+            AssertEqual(expected, stock.ReadDrawingByte(address), "cannon complete installed byte window");
+            int[] drawing = document.DrawingData.ToArray(); drawing[index] ^= 0xFF;
+            var edited = Load(document with { DrawingData = drawing });
+            int expectedStored = 0;
+            for (int selected = 0; selected < count; selected++)
+            {
+                int selectedAddress = start + selected;
+                bool mandatory = !headers.Contains(selectedAddress) && !aliases.ContainsKey(selectedAddress);
+                int selectedDefault = aliases.TryGetValue(selectedAddress, out int nativeSource)
+                    ? drawing[nativeSource - start] : document.DrawingData[selected];
+                bool shouldStore = mandatory || drawing[selected] != selectedDefault;
+                if (shouldStore) expectedStored++;
+                AssertEqual(shouldStore, Stored(edited).ContainsKey(selected), "cannon exact supplied-basis exception membership");
+            }
+            AssertEqual(expectedStored, Stored(edited).Count, "cannon stores only basis and independently supplied differences");
+            for (int other = 0; other < count; other++)
+                AssertEqual((byte)(other == index ? drawing[index] : document.DrawingData[other]),
+                    edited.ReadDrawingByte((ushort)(start + other)), "cannon independent control/coordinate/cost edit");
+            AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "cannon every supplied byte changes selected identity");
+        }
+        foreach (ushort address in new ushort[] { 0, start - 1, start + count, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() => stock.ReadDrawingByte(address), "cannon drawing bounds remain exact");
+        Console.WriteLine("Cannon drawing:130 native controls,24 cost aliases,216 repeated coordinates,238 exact basis bytes and608 independent edits pass.");
+    }
+
 }

@@ -22,11 +22,13 @@ internal static class SamusArtworkClosedContractDefinitions
             "Public construction requires both four-word direct atmospheric lists and clones their arrays. Unsupported types or frames return false without demanding absent artwork. This proves only the direct-list membership query, not mutable-memory fallback, timing, uploaded characters or pixels."),
         new("SuperMetroid.Core.Assets.SamusArmCannonArtworkCatalog", "samus-complete-cannon-placement-and-tile-membership",
             ["PoseDrawingData", "ReadDrawingByte", "SpriteAttributes", "TileSource", "TryResolveTile"],
-            [new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "14C5290338454F01A903FACF08536C3BCC9550B885DDE749A58EC035E55E8B83"),
+            [new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "0B4E997FFDEC6EB43D645854B167AD54512B062E026ABF494ACE039C68C51612"),
+             new("csharp/src/SuperMetroid.Core/Game/SamusComboMechanicsDefinitions.cs", "09B7001995AF8DD5373C1599A837379832D0257A24CF77B5BD249678B73355B8"),
+             new("csharp/src/SuperMetroid.Core/Game/SamusComboRomData.cs", "EA65CD34CE62929EA176D6B3A840D90DFEB8D52A94C011ADF74E8C6EF3F41767"),
              new("csharp/src/SuperMetroid.Core/Game/SamusPoseId.cs", "012612D5038094238C5FF9442742D744204A07379B433D0B5F9A825419C1A524"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs", "E666CEBCF6BA4F1ECD82464A8377F2A5FD80CB5AC709AA3D0D2F2DA0CA73F4AD"),
              new("csharp/src/SuperMetroid.Core/Game/SamusRenderingRomData.cs", "92B942C3417DA086E5CDCF45B2594A28B339E96AF222EFBC5035DCB6DBEBB8DE"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs", "0C2CD85F446A356CF2A0E226E7F9D45C64F23C118A58097058E2B33152F97512")],
-            "Public Load validates all253 pose descriptors, resolves matching stock through named pose cases and preserves independent pointer overrides, validates drawing bytes, ten attribute/direction rows and four tile selectors per direction, then compiles all twelve cover tiles. Core access to FromPlacement outside the provider, or to mutable TileSourcePointers, revokes this production-loader proof. Unsupported tile source/length queries validly return false. Arbitrary external factory instances, host installation, firing and muzzle position are not certified."),
+            "Public Load validates all253 pose descriptors, resolves matching stock through named pose cases and preserves independent pointer overrides, resolves named drawing controls, existing SBA-cost aliases and repeated origins with independent byte overrides, ten attribute/direction rows and four tile selectors per direction, then compiles all twelve cover tiles. Core access to FromPlacement outside the provider, or to mutable TileSourcePointers, revokes this production-loader proof. Unsupported tile source/length queries validly return false. Arbitrary external factory instances, host installation, firing and muzzle position are not certified."),
     ];
 }

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class SamusArmCannonArtworkCatalog
 {
     private readonly Dictionary<int, ushort> posePointers = new();
-    private readonly byte[] drawingData;
+    private readonly Dictionary<int, byte> drawingData = new();
     private readonly Dictionary<int, ushort> attributes = new();
     private readonly Dictionary<int, ushort> tileSources = new();
     private readonly RoomCharacterAtlas tiles;
@@ -20,7 +20,17 @@ public sealed class SamusArmCannonArtworkCatalog
         for (int pose = 0; pose < posePointers.Length; pose++)
             if (posePointers[pose] != SamusArmCannonArtworkFormat.StockPoseDrawingData(pose))
                 this.posePointers.Add(pose, posePointers[pose]);
-        this.drawingData = drawingData;
+        for (int index = 0; index < drawingData.Length; index++)
+        {
+            ushort address = (ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + index);
+            bool derived = SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out byte calculated);
+            if (!derived && SamusArmCannonArtworkFormat.TryStockCoordinateSource(address, out ushort source))
+            {
+                calculated = drawingData[source - SamusArmCannonArtworkFormat.DrawingDataStart];
+                derived = true;
+            }
+            if (!derived || drawingData[index] != calculated) this.drawingData.Add(index, drawingData[index]);
+        }
         for (int direction = 0; direction < attributes.Length; direction++)
         {
             if (attributes[direction] != SamusArmCannonArtworkFormat.StockSpriteAttributes((SamusProjectileDirection)direction))
@@ -38,7 +48,10 @@ public sealed class SamusArmCannonArtworkCatalog
         Span<ushort> selectedPoses = stackalloc ushort[SamusBodyArtworkCatalog.PoseCount];
         for (int pose = 0; pose < selectedPoses.Length; pose++) selectedPoses[pose] = PoseDrawingData(pose);
         content.AppendWords("pose pointers", selectedPoses);
-        content.Append("drawing data", this.drawingData);
+        Span<byte> selectedDrawing = stackalloc byte[SamusArmCannonArtworkFormat.DrawingDataByteCount];
+        for (int index = 0; index < selectedDrawing.Length; index++)
+            selectedDrawing[index] = ReadDrawingByte((ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + index));
+        content.Append("drawing data", selectedDrawing);
         Span<ushort> selectedAttributes = stackalloc ushort[SamusRenderingRomData.ArmCannon.DirectionCount];
         for (int direction = 0; direction < selectedAttributes.Length; direction++) selectedAttributes[direction] = SpriteAttributes(direction);
         content.AppendWords("attributes", selectedAttributes);
@@ -141,10 +154,13 @@ public sealed class SamusArmCannonArtworkCatalog
     public byte ReadDrawingByte(ushort address)
     {
         int index = address - SamusArmCannonArtworkFormat.DrawingDataStart;
-        if ((uint)index >= drawingData.Length)
+        if ((uint)index >= SamusArmCannonArtworkFormat.DrawingDataByteCount)
             throw new InvalidDataException(
                 $"Arm-cannon drawing byte $90:{address:X4} is not installed.");
-        return drawingData[index];
+        if (drawingData.TryGetValue(index, out byte supplied)) return supplied;
+        if (SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out byte calculated)) return calculated;
+        if (SamusArmCannonArtworkFormat.TryStockCoordinateSource(address, out ushort source)) return ReadDrawingByte(source);
+        throw new InvalidDataException("Arm-cannon coordinate basis is incomplete.");
     }
 
     public ushort SpriteAttributes(int direction)
@@ -650,6 +666,259 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.SpinLandingRightPose => DrawingFacingRightLandingFromSpinJump,
             _ => throw new ArgumentOutOfRangeException(nameof(pose)),
         };
+    }
+
+    /// <summary>$90:C9D9, ArmCannonDrawingData_Default: no cover is drawn.</summary>
+    private const byte HiddenDrawingMode = 0;
+    /// <summary>$90:C9DE and other visible descriptor mode bytes: draw the cover normally.</summary>
+    private const byte NormalDrawingMode = 1;
+    /// <summary>$90:C9DC, ArmCannonDrawingData_FacingForward: forward-facing cover mode.</summary>
+    private const byte ForwardDrawingMode = 2;
+    /// <summary>$90:CA05 and vertical-aim descriptors: initial diagonal selector changes to the next direction word after frame zero.</summary>
+    private const byte FrameDependentDirectionFlag = 0x80;
+    /// <summary>$90:CC21, CostOfSBAsInPowerBombs: the final24 installed drawing-window bytes alias this independent mechanics owner.</summary>
+    private const int AdjacentCostStart = SamusComboRomData.Costs & 0xffff;
+
+    /// <summary>Calculates named descriptor controls and adjacent cost aliases; false identifies a still-required coordinate byte.</summary>
+    internal static bool TryStockDrawingByte(ushort address, out byte value)
+    {
+        if (address >= AdjacentCostStart && address < DrawingDataEndExclusive)
+        {
+            int offset = address - AdjacentCostStart;
+            ushort cost = SamusComboMechanicsDefinitions.GetPowerBombCost(offset / sizeof(ushort));
+            value = (byte)(cost >> ((offset & 1) * 8));
+            return true;
+        }
+        switch (address)
+        {
+            case DrawingFacingForward:
+            case DrawingDefault:
+                value = 0;
+                return true;
+            case DrawingFacingForward + 1:
+                value = ForwardDrawingMode;
+                return true;
+            case DrawingFacingRight:
+            case DrawingMovingRightGunExtended:
+            case DrawingFacingRightNormalJumpNotMovingGunExt:
+            case DrawingFacingRightCrouching:
+            case DrawingFacingLeftMoonwalk:
+            case DrawingFacingRightNormalJumpMovingForward:
+            case DrawingFacingRightFallingGunExtended:
+                value = (byte)SamusProjectileDirection.Right;
+                return true;
+            case DrawingFacingRight + 1:
+            case DrawingFacingLeft + 1:
+            case DrawingFacingRightAimingUp + 1:
+            case DrawingFacingRightAimingUp + 3:
+            case DrawingFacingLeftAimingUp + 1:
+            case DrawingFacingLeftAimingUp + 3:
+            case DrawingFacingRightAimingUpRight + 1:
+            case DrawingFacingLeftAimingUpLeft + 1:
+            case DrawingFacingRightAimingDownRight + 1:
+            case DrawingFacingLeftAimingDownLeft + 1:
+            case DrawingMovingRightGunExtended + 1:
+            case DrawingMovingLeftGunExtended + 1:
+            case DrawingMovingRightAimingUpRight + 1:
+            case DrawingMovingLeftAimingUpLeft + 1:
+            case DrawingMovingRightAimingDownRight + 1:
+            case DrawingMovingLeftAimingDownLeft + 1:
+            case DrawingFacingRightNormalJumpNotMovingGunExt + 1:
+            case DrawingFacingLeftNormalJumpNotMovingGunExt + 1:
+            case DrawingFacingRightNormalJumpAimingUp + 1:
+            case DrawingFacingRightNormalJumpAimingUp + 3:
+            case DrawingFacingLeftNormalJumpAimingUp + 1:
+            case DrawingFacingLeftNormalJumpAimingUp + 3:
+            case DrawingFacingRightNormalJumpAimingDown + 1:
+            case DrawingFacingLeftNormalJumpAimingDown + 1:
+            case DrawingFacingRightCrouching + 1:
+            case DrawingFacingLeftCrouching + 1:
+            case DrawingFacingRightFallingAimingUp + 1:
+            case DrawingFacingRightFallingAimingUp + 3:
+            case DrawingFacingLeftFallingAimingUp + 1:
+            case DrawingFacingLeftFallingAimingUp + 3:
+            case DrawingFacingRightFallingAimingDown + 1:
+            case DrawingFacingLeftFallingAimingDown + 1:
+            case DrawingFacingLeftMoonwalk + 1:
+            case DrawingFacingRightMoonwalk + 1:
+            case DrawingFacingRightNormalJumpTransition + 1:
+            case DrawingFacingRightNormalJumpMovingForward + 1:
+            case DrawingFacingLeftNormalJumpMovingForward + 1:
+            case DrawingFacingRightTransitionAimingUp + 1:
+            case DrawingFacingLeftTransitionAimingUp + 1:
+            case DrawingFacingRightFallingGunExtended + 1:
+            case DrawingFacingLeftFallingGunExtended + 1:
+            case DrawingFacingRightNormalJumpAimingUpRight + 1:
+            case DrawingFacingLeftNormalJumpAimingUpLeft + 1:
+            case DrawingFacingRightNormalJumpAimingDownRight + 1:
+            case DrawingFacingLeftNormalJumpAimingDownLeft + 1:
+            case DrawingFacingRightFallingAimingUpRight + 1:
+            case DrawingFacingLeftFallingAimingUpLeft + 1:
+            case DrawingFacingRightFallingAimingDownRight + 1:
+            case DrawingFacingLeftFallingAimingDownLeft + 1:
+            case DrawingFacingRightCrouchingAimingUpRight + 1:
+            case DrawingFacingLeftCrouchingAimingUpLeft + 1:
+            case DrawingFacingRightCrouchingAimingDownRight + 1:
+            case DrawingFacingLeftCrouchingAimingDownLeft + 1:
+            case DrawingFacingLeftMoonwalkAimingUpLeft + 1:
+            case DrawingFacingRightMoonwalkAimingUpRight + 1:
+            case DrawingFacingLeftMoonwalkAimingDownLeft + 1:
+            case DrawingFacingRightMoonwalkAimingDownRight + 1:
+            case DrawingFacingRightCrouchingAimingUp + 1:
+            case DrawingFacingRightCrouchingAimingUp + 3:
+            case DrawingFacingLeftCrouchingAimingUp + 1:
+            case DrawingFacingLeftCrouchingAimingUp + 3:
+            case DrawingFacingRightLandingFromNormalJump + 1:
+            case DrawingFacingRightLandingFromSpinJump + 1:
+                value = NormalDrawingMode;
+                return true;
+            case DrawingFacingLeft:
+            case DrawingMovingLeftGunExtended:
+            case DrawingFacingLeftNormalJumpNotMovingGunExt:
+            case DrawingFacingLeftCrouching:
+            case DrawingFacingRightMoonwalk:
+            case DrawingFacingLeftNormalJumpMovingForward:
+            case DrawingFacingLeftFallingGunExtended:
+                value = (byte)SamusProjectileDirection.Left;
+                return true;
+            case DrawingFacingRightAimingUp:
+            case DrawingFacingRightNormalJumpAimingUp:
+            case DrawingFacingRightFallingAimingUp:
+            case DrawingFacingRightCrouchingAimingUp:
+                value = (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpRight);
+                return true;
+            case DrawingFacingRightAimingUp + 2:
+            case DrawingFacingRightNormalJumpAimingUp + 2:
+            case DrawingFacingRightFallingAimingUp + 2:
+            case DrawingFacingRightCrouchingAimingUp + 2:
+                value = (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpFacingRight);
+                return true;
+            case DrawingFacingLeftAimingUp:
+            case DrawingFacingLeftNormalJumpAimingUp:
+            case DrawingFacingLeftFallingAimingUp:
+            case DrawingFacingLeftCrouchingAimingUp:
+                value = (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpLeft);
+                return true;
+            case DrawingFacingLeftAimingUp + 2:
+            case DrawingFacingLeftNormalJumpAimingUp + 2:
+            case DrawingFacingLeftFallingAimingUp + 2:
+            case DrawingFacingLeftCrouchingAimingUp + 2:
+                value = (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpFacingLeft);
+                return true;
+            case DrawingFacingRightAimingUpRight:
+            case DrawingMovingRightAimingUpRight:
+            case DrawingFacingRightNormalJumpAimingUpRight:
+            case DrawingFacingRightFallingAimingUpRight:
+            case DrawingFacingRightCrouchingAimingUpRight:
+            case DrawingFacingRightMoonwalkAimingUpRight:
+                value = (byte)SamusProjectileDirection.UpRight;
+                return true;
+            case DrawingFacingLeftAimingUpLeft:
+            case DrawingMovingLeftAimingUpLeft:
+            case DrawingFacingLeftNormalJumpAimingUpLeft:
+            case DrawingFacingLeftFallingAimingUpLeft:
+            case DrawingFacingLeftCrouchingAimingUpLeft:
+            case DrawingFacingLeftMoonwalkAimingUpLeft:
+                value = (byte)SamusProjectileDirection.UpLeft;
+                return true;
+            case DrawingFacingRightAimingDownRight:
+            case DrawingMovingRightAimingDownRight:
+            case DrawingFacingRightNormalJumpTransition:
+            case DrawingFacingRightNormalJumpAimingDownRight:
+            case DrawingFacingRightFallingAimingDownRight:
+            case DrawingFacingRightCrouchingAimingDownRight:
+            case DrawingFacingRightMoonwalkAimingDownRight:
+            case DrawingFacingRightLandingFromNormalJump:
+            case DrawingFacingRightLandingFromSpinJump:
+                value = (byte)SamusProjectileDirection.DownRight;
+                return true;
+            case DrawingFacingLeftAimingDownLeft:
+            case DrawingMovingLeftAimingDownLeft:
+            case DrawingFacingLeftNormalJumpAimingDownLeft:
+            case DrawingFacingLeftFallingAimingDownLeft:
+            case DrawingFacingLeftCrouchingAimingDownLeft:
+            case DrawingFacingLeftMoonwalkAimingDownLeft:
+                value = (byte)SamusProjectileDirection.DownLeft;
+                return true;
+            case DrawingDefault + 1:
+                value = HiddenDrawingMode;
+                return true;
+            case DrawingFacingRightNormalJumpAimingDown:
+            case DrawingFacingRightFallingAimingDown:
+                value = (byte)SamusProjectileDirection.DownFacingRight;
+                return true;
+            case DrawingFacingLeftNormalJumpAimingDown:
+            case DrawingFacingLeftFallingAimingDown:
+                value = (byte)SamusProjectileDirection.DownFacingLeft;
+                return true;
+            case DrawingFacingRightTransitionAimingUp:
+                value = (byte)SamusProjectileDirection.UpFacingRight;
+                return true;
+            case DrawingFacingLeftTransitionAimingUp:
+                value = (byte)SamusProjectileDirection.UpFacingLeft;
+                return true;
+            default: value = 0; return false;
+        }
+    }
+
+    /// <summary>Repeated cover origins and horizontally fixed running/moonwalking profiles.</summary>
+    /// <remarks>Only later XY pairs alias their own first pair, so dependencies strictly decrease in address. The first pair remains required coordinate artwork.</remarks>
+    internal static bool TryStockCoordinateSource(ushort address, out ushort source)
+    {
+        int firstPair = address switch
+        {
+            >= (DrawingFacingRight + 4) and < DrawingFacingLeft => DrawingFacingRight + 2,
+            >= (DrawingFacingLeft + 4) and < DrawingFacingRightAimingUp => DrawingFacingLeft + 2,
+            >= (DrawingFacingRightNormalJumpNotMovingGunExt + 4) and < DrawingFacingLeftNormalJumpNotMovingGunExt => DrawingFacingRightNormalJumpNotMovingGunExt + 2,
+            >= (DrawingFacingLeftNormalJumpNotMovingGunExt + 4) and < DrawingFacingRightNormalJumpAimingUp => DrawingFacingLeftNormalJumpNotMovingGunExt + 2,
+            >= (DrawingFacingRightNormalJumpAimingDown + 4) and < DrawingFacingLeftNormalJumpAimingDown => DrawingFacingRightNormalJumpAimingDown + 2,
+            >= (DrawingFacingLeftNormalJumpAimingDown + 4) and < DrawingFacingRightNormalJumpTransition => DrawingFacingLeftNormalJumpAimingDown + 2,
+            >= (DrawingFacingRightNormalJumpMovingForward + 4) and < DrawingFacingLeftNormalJumpMovingForward => DrawingFacingRightNormalJumpMovingForward + 2,
+            >= (DrawingFacingLeftNormalJumpMovingForward + 4) and < DrawingFacingRightNormalJumpAimingUpRight => DrawingFacingLeftNormalJumpMovingForward + 2,
+            >= (DrawingFacingRightNormalJumpAimingUpRight + 4) and < DrawingFacingLeftNormalJumpAimingUpLeft => DrawingFacingRightNormalJumpAimingUpRight + 2,
+            >= (DrawingFacingLeftNormalJumpAimingUpLeft + 4) and < DrawingFacingRightNormalJumpAimingDownRight => DrawingFacingLeftNormalJumpAimingUpLeft + 2,
+            >= (DrawingFacingRightNormalJumpAimingDownRight + 4) and < DrawingFacingLeftNormalJumpAimingDownLeft => DrawingFacingRightNormalJumpAimingDownRight + 2,
+            >= (DrawingFacingLeftNormalJumpAimingDownLeft + 4) and < DrawingFacingRightFallingGunExtended => DrawingFacingLeftNormalJumpAimingDownLeft + 2,
+            >= (DrawingFacingRightFallingGunExtended + 4) and < DrawingFacingLeftFallingGunExtended => DrawingFacingRightFallingGunExtended + 2,
+            >= (DrawingFacingLeftFallingGunExtended + 4) and < DrawingFacingRightFallingAimingUp => DrawingFacingLeftFallingGunExtended + 2,
+            >= (DrawingFacingRightFallingAimingDown + 4) and < DrawingFacingLeftFallingAimingDown => DrawingFacingRightFallingAimingDown + 2,
+            >= (DrawingFacingLeftFallingAimingDown + 4) and < DrawingFacingRightFallingAimingUpRight => DrawingFacingLeftFallingAimingDown + 2,
+            >= (DrawingFacingRightFallingAimingUpRight + 4) and < DrawingFacingLeftFallingAimingUpLeft => DrawingFacingRightFallingAimingUpRight + 2,
+            >= (DrawingFacingLeftFallingAimingUpLeft + 4) and < DrawingFacingRightFallingAimingDownRight => DrawingFacingLeftFallingAimingUpLeft + 2,
+            >= (DrawingFacingRightFallingAimingDownRight + 4) and < DrawingFacingLeftFallingAimingDownLeft => DrawingFacingRightFallingAimingDownRight + 2,
+            >= (DrawingFacingLeftFallingAimingDownLeft + 4) and < DrawingFacingRightCrouching => DrawingFacingLeftFallingAimingDownLeft + 2,
+            >= (DrawingFacingRightCrouching + 4) and < DrawingFacingLeftCrouching => DrawingFacingRightCrouching + 2,
+            >= (DrawingFacingLeftCrouching + 4) and < DrawingFacingRightCrouchingAimingUpRight => DrawingFacingLeftCrouching + 2,
+            >= (DrawingFacingRightTransitionAimingUp + 4) and < DrawingFacingLeftTransitionAimingUp => DrawingFacingRightTransitionAimingUp + 2,
+            >= (DrawingFacingLeftTransitionAimingUp + 4) and < AdjacentCostStart => DrawingFacingLeftTransitionAimingUp + 2,
+            _ => -1,
+        };
+        if (firstPair >= 0)
+        {
+            source = (ushort)(firstPair + ((address - firstPair) & 1));
+            return true;
+        }
+        // Running/moonwalking keeps its horizontal origin while the vertical
+        // component follows separately supplied animation motion.
+        int firstX = address switch
+        {
+            >= (DrawingMovingRightGunExtended + 4) and < DrawingMovingLeftGunExtended => DrawingMovingRightGunExtended + 2,
+            >= (DrawingMovingLeftGunExtended + 4) and < DrawingMovingRightAimingUpRight => DrawingMovingLeftGunExtended + 2,
+            >= (DrawingMovingRightAimingUpRight + 4) and < DrawingMovingLeftAimingUpLeft => DrawingMovingRightAimingUpRight + 2,
+            >= (DrawingMovingLeftAimingUpLeft + 4) and < DrawingMovingRightAimingDownRight => DrawingMovingLeftAimingUpLeft + 2,
+            >= (DrawingMovingRightAimingDownRight + 4) and < DrawingMovingLeftAimingDownLeft => DrawingMovingRightAimingDownRight + 2,
+            >= (DrawingMovingLeftAimingDownLeft + 4) and < DrawingFacingRightNormalJumpNotMovingGunExt => DrawingMovingLeftAimingDownLeft + 2,
+            >= (DrawingFacingLeftMoonwalk + 4) and < DrawingFacingRightMoonwalk => DrawingFacingLeftMoonwalk + 2,
+            >= (DrawingFacingRightMoonwalk + 4) and < DrawingFacingLeftMoonwalkAimingUpLeft => DrawingFacingRightMoonwalk + 2,
+            >= (DrawingFacingLeftMoonwalkAimingUpLeft + 4) and < DrawingFacingRightMoonwalkAimingUpRight => DrawingFacingLeftMoonwalkAimingUpLeft + 2,
+            >= (DrawingFacingRightMoonwalkAimingUpRight + 4) and < DrawingFacingLeftMoonwalkAimingDownLeft => DrawingFacingRightMoonwalkAimingUpRight + 2,
+            >= (DrawingFacingLeftMoonwalkAimingDownLeft + 4) and < DrawingFacingRightMoonwalkAimingDownRight => DrawingFacingLeftMoonwalkAimingDownLeft + 2,
+            >= (DrawingFacingRightMoonwalkAimingDownRight + 4) and < DrawingFacingRightLandingFromNormalJump => DrawingFacingRightMoonwalkAimingDownRight + 2,
+            _ => -1,
+        };
+        bool fixedX = firstX >= 0 && ((address - firstX) & 1) == 0;
+        source = fixedX ? (ushort)firstX : (ushort)0;
+        return fixedX;
     }
 
     private enum TileOrientation

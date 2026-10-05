@@ -961,3 +961,8 @@ Root Verification build1445 warnings/zero errors; --lookup-stream-1-animation-po
 SamusArmCannonArtworkCatalog.posePointers is converted (1b62d9f1a). Named cases map253 real poses to57 native drawing descriptors. Only independent supplied pointer differences are stored; canonical content hashing and FD-FF rejection remain intact. Drawing coordinates and pixel artwork remain pending.
 
 Root Verification build1445 warnings/zero errors; --lookup-stream-1-cannon-poses passes253 native mappings, zero stock overrides,253 independent pointer edits and canonical hashes, unaffected poses and FD-FF bounds. ResourceAudit build zero warnings/errors. Inventory558 converted/20 retained-mixed/550 pending.
+## Integrated cannon drawing controls and repeated origins
+
+Partial conversion from2d31d7a,5bea8d416 and ab9d94a8c:130 descriptor direction/mode bytes use named cases;24 adjacent bytes reuse the existing SBA power-bomb cost calculation. Constant-origin descriptors and fixed horizontal running/moonwalking origins derive216 repeated coordinate bytes from their own earlier basis. Independent edits preserve all608 selected bytes without coupling frames.
+
+Exactly238 independent coordinate bytes remain required; drawingData stays unchecked. This is no artwork or timing exemption. Root Verification build1230 warnings/zero errors; --lookup-stream-1-cannon-drawing passes608 native outputs, exact basis/override membership,608 isolated edits, bounds and the253-pose canonical-hash checks. ResourceAudit build0/0. Inventory remains558 converted/20 retained-mixed/550 pending.

@@ -26,6 +26,13 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream-1-cannon-drawing"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyLookupStream1CannonDrawingControls(rom);
+    VerifyLookupStream1CannonPoses(rom);
+    return 0;
+}
 if (args is ["--lookup-stream-1-cannon-poses"])
 {
     VerifyLookupStream1CannonPoses(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

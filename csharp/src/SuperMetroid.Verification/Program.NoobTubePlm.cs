@@ -156,12 +156,13 @@ internal static partial class Program
         AssertTrue(samus.StationaryScriptControlLocked, "break sequence installs stationary command-zero animation ownership");
         var fields = typeof(SamusState).GetFields(System.Reflection.BindingFlags.Instance |
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
+            .Where(field => !field.IsDefined(typeof(NonSerializedAttribute), false))
             .OrderBy(field => field.MetadataToken).ToArray();
         AssertTrue(fields.Any(field => field.Name == "<InputLocked>k__BackingField"),
             "existing input-lock serialized identity remains unchanged");
-        var legacy = SuperMetroid.Desktop.DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, fields.Length - 1);
-        AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name != "<StationaryScriptControlLocked>k__BackingField")),
-            "previous Samus layout retains every original field in order");
+        var legacy = SuperMetroid.Desktop.DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, fields.Length - 2);
+        AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name is not "<StationaryScriptControlLocked>k__BackingField" and not "<PreviousHealthForHurtCheck>k__BackingField")),
+            "pre-stationary-command Samus layout retains original fields in order without later draw-time health history");
         using (var saved = new MemoryStream())
         {
             SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(saved, samus);

@@ -3061,6 +3061,15 @@
     ,{"stream":3,"path":"csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamHdmaState.cs","purpose":"Single quadrant direction consumer adaptation preserving null and retain semantics"}
     ,{"stream":5,"path":"csharp/src/SuperMetroid.Verification/Program.PhantoonInstructionProgramDefinitions.cs","purpose":"Confirm all native installed selectors and zero live reads while preserving actual programs and callbacks"}
     ,{"stream":4,"path":"csharp/src/SuperMetroid.Core/Assets/TitleAmbientColorDefinitions.cs","purpose":"Calculate title tube-light ramp while preserving independent installed overrides; endpoint disposition remains pending"}
+    ,{"purpose":"Native selector and zero live read confirmation preserving real projectile lifetimes","stream":5,"path":"csharp/src/SuperMetroid.Verification/Program.SpacePirateProjectileInstructionProgramDefinitions.cs"}
+    ,{"purpose":"Confirm identified missing installed selector through actual initialization and sleep","stream":5,"path":"csharp/src/SuperMetroid.Verification/Program.PolypInstructionProgramDefinitions.cs"}
+    ,{"purpose":"Narrow Polyp dispatch branch only, delegating to owned named selector","stream":5,"path":"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectorDefinitions.cs"}
+    ,{"purpose":"Calculate lava triangle and mirrored afterglow aliases; unresolved inputs stay required","stream":4,"path":"csharp/src/SuperMetroid.Core/Assets/ZebesExplosionAmbientColorDefinitions.cs"}
+    ,{"purpose":"Calculate crust and cloud fades preserving independent installed inputs","stream":4,"path":"csharp/src/SuperMetroid.Core/Assets/ZebesExplosionLayerFadeColorDefinitions.cs"}
+    ,{"purpose":"Calculate black suffix and repeated prefixes preserving independent supplied colors","stream":4,"path":"csharp/src/SuperMetroid.Core/Assets/ZebesExplosionForegroundColorDefinitions.cs"}
+    ,{"purpose":"Dedicated catalog for six already justified paint constants","stream":3,"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPaintDefinitions.cs"}
+    ,{"purpose":"Confirm native installed selectors and zero live reads preserving actual producer and lifetime checks","stream":3,"path":"csharp/src/SuperMetroid.Verification/Program.EnemyDeathInstructionProgramDefinitions.cs"}
+    ,{"stream":5,"path":"csharp/src/SuperMetroid.Verification/Program.PhantoonProjectileInstructionProgramDefinitions.cs","purpose":"Confirm native installed selectors and zero live reads preserving actual flame producer and lifetimes"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

@@ -94,4 +94,5 @@ public static class MotherBrainSpecialSpriteArtworkDefinitions
             for (int index = 0; index < Count; index++) yield return this[index];
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }}
+    }
+}

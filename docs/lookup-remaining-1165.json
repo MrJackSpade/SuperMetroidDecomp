@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 782,
+  "remainingTableDefinitionCount": 771,
   "fileCount": 523,
   "entries": [
     {
@@ -1283,14 +1283,18 @@
       "line": 19,
       "name": "MotherBrainDeathColorCatalog.bodyFade",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainDeathColorCatalog.bodyFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MotherBrainDeathColorCatalog.bodyFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "590fcbb72"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs",
       "line": 20,
       "name": "MotherBrainDeathColorCatalog.legFade",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainDeathColorCatalog.legFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MotherBrainDeathColorCatalog.legFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "590fcbb72"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs",
@@ -1385,7 +1389,9 @@
       "line": 16,
       "name": "MotherBrainRainbowPalettePresentation.beamCycle",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainRainbowPalettePresentation.beamCycle. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MotherBrainRainbowPalettePresentation.beamCycle. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "3fc669949"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
@@ -1441,14 +1447,18 @@
       "line": 58,
       "name": "MotherBrainSpecialSpriteArtworkDefinitions.All",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "e2bd7d33f"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs",
       "line": 18,
       "name": "MotherBrainVisualDefinitions.NativePointers",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "e2bd7d33f"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/NorfairRidleyColorCatalog.cs",
@@ -2284,28 +2294,36 @@
       "line": 92,
       "name": "IntroCinematicRomData.Palette.GameplayRegions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "0102e7514"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs",
       "line": 98,
       "name": "IntroCinematicRomData.Palette.GameplayClearRegions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "0102e7514"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs",
       "line": 104,
       "name": "IntroCinematicRomData.Palette.NarrationRegions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "0102e7514"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs",
       "line": 111,
       "name": "IntroCinematicRomData.Palette.DiscoveryRegions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "0102e7514"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
@@ -4583,7 +4601,9 @@
       "line": 10,
       "name": "MotherBrainBeamRomData.QuadrantDirections",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cf507f9f3"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainBodyInstructionProgramDefinitions.cs",
@@ -4713,7 +4733,9 @@
       "line": 23,
       "name": "MotherBrainFallingTubeInstructionDefinitions.VisualPointers",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cf507f9f3"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubePopulationDefinitions.cs",
@@ -21006,6 +21028,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 342,
+  "convertedSinceSnapshot": 353,
   "justifiedRetainedSinceSnapshot": 4
 }

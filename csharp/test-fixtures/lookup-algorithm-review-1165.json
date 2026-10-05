@@ -11768,4 +11768,11 @@
   "confirmation": "Root1445warnings/0errors;25native parts/97tiles/12MVNs/10column limits,actual staging/192row operations,bounds and independent edited display OAM pass.",
   "completed": "RoomEnemySystem.DeadTorizoInitialGraphicsCopies;RoomEnemySystem.DeadTorizoColumnMinimumY",
   "workerCommit": "aa5dd7e251224d72e7daeb2f5ebe06c0d2487048 with cf2a4194f evidence"
+},"pauseReserveLabelsIntegration":{
+    "confirmation":  "Root1445warnings/0errors;ResourceAudit0/0.22nativewords/4destinations,22cell edits,56actual ordinary/attribute-preserving/moved patches and bounds pass.",
+    "completed":  "PauseReserveUiPresentation.labels",
+    "workerCommit":  "0a3b506a1032a9ad92268ce1bb5864e766573062",
+    "state":  "one-converted",
+    "algorithm":  "Named MODE/RESERVE TANK/MANUAL/AUTO glyph runs and shared mode anchor calculate words/placement with independent edits.",
+    "remaining":  "Glyph artwork and arrow residuals remain required.546converted/16justified retained-mixed/566pending."
 }}

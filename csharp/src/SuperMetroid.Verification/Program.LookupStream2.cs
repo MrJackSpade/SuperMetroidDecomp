@@ -7,6 +7,66 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2ReserveLabels(SuperMetroidAddressSpace rom)
+    {
+        byte[] json = PauseReserveUiExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<PauseReserveUiDocument>(json,
+            MapPresentationFormat.JsonOptions)!;
+        int words = 0;
+        foreach ((string name, PauseReserveLabelVisual label) in document.Labels)
+        {
+            byte[] native = PauseTileGrid.Compile(label.Cells, name);
+            int nativeOffset = (label.Anchor.Row * 32 + label.Anchor.Column) * 2;
+            AssertEqual(nativeOffset, PauseReserveUiDefinitions.StockLabelOffset(name), "Native reserve text destination");
+            for (int cell = 0; cell < label.Cells.Length; cell++)
+            {
+                AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(cell * 2)),
+                    PauseReserveUiDefinitions.StockLabelWord(name, cell), "Native reserve glyph/palette/priority");
+                words++;
+            }
+            for (int edit = -1; edit < label.Cells.Length; edit++)
+            {
+                PauseBackdropCell[] cells = label.Cells.ToArray();
+                if (edit >= 0) cells[edit] = cells[edit] with { FlipX = !cells[edit].FlipX, Palette = 4 };
+                var labels = document.Labels.ToDictionary(pair => pair.Key, pair => pair.Value);
+                labels[name] = label with { Cells = cells };
+                using var output = new MemoryStream();
+                PauseReserveUiPresentation.Write(output, document with { Labels = labels });
+                var selected = PauseReserveUiPresentation.Load(new MemoryStream(output.ToArray()));
+                byte[] selectedWords = PauseTileGrid.Compile(cells, "Edited reserve label");
+                foreach (bool preserve in new[] { false, true })
+                {
+                    byte[] actual = Enumerable.Repeat((byte)0x55, 32 * 32 * 2).ToArray();
+                    byte[] expected = actual.ToArray();
+                    for (int cell = 0; cell < cells.Length; cell++)
+                    {
+                        ushort value = System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(selectedWords.AsSpan(cell * 2));
+                        if (preserve) value = (ushort)(0x5555 & 0xfc00 | value & 0x03ff);
+                        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(nativeOffset + cell * 2), value);
+                    }
+                    selected.ApplyLabel(actual, name, preserve);
+                    AssertTrue(expected.AsSpan().SequenceEqual(actual), "Actual reserve label patch preserves edits, attribute policy and surrounding bytes");
+                }
+            }
+            var movedLabels = document.Labels.ToDictionary(pair => pair.Key, pair => pair.Value);
+            movedLabels[name] = label with { Anchor = label.Anchor with { Column = label.Anchor.Column + 1 } };
+            using var movedJson = new MemoryStream();
+            PauseReserveUiPresentation.Write(movedJson, document with { Labels = movedLabels });
+            var moved = PauseReserveUiPresentation.Load(new MemoryStream(movedJson.ToArray()));
+            byte[] movedActual = new byte[32 * 32 * 2];
+            byte[] movedExpected = movedActual.ToArray();
+            native.CopyTo(movedExpected, nativeOffset + 2);
+            moved.ApplyLabel(movedActual, name);
+            AssertTrue(movedExpected.AsSpan().SequenceEqual(movedActual), "Independent reserve label placement edit");
+        }
+        AssertEqual(22, words, "All native reserve label words");
+        var stock = PauseReserveUiPresentation.Load(new MemoryStream(json));
+        AssertThrows<InvalidDataException>(() => stock.ApplyLabel(new byte[2048], "unknown"), "Unknown reserve label rejected");
+        AssertThrows<ArgumentException>(() => stock.ApplyLabel(new byte[1], "Manual"), "Short reserve destination rejected");
+        AssertThrows<IndexOutOfRangeException>(() => PauseReserveUiDefinitions.StockLabelWord("Auto", 4), "Reserve glyph upper bound rejected");
+        Console.WriteLine("Reserve labels:22 native words/four destinations,22 independent cell edits,56 actual attribute-preserving/ordinary/moved patches and bounds pass; independent glyph/arrow inputs remain required.");
+    }
+
     private static void VerifyLookupStream2EquipmentLabels(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentLabelExtractor.Extract(rom);

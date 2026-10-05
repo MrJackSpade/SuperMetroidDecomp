@@ -1190,7 +1190,7 @@ internal static partial class Program
                                                                     ? CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer
                                                                 : frame.Name.StartsWith("magdollite_", StringComparison.Ordinal)
                                                                                                 ? RoomEnemySystem.MagdolliteDefinition
-                                : RoomEnemySystem.AtomicDefinition);
+                                : RoomEnemySystem.AtomicDefinition, spritemapBank: frame.Bank);
             var nativeRoom = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeRoom, frame.Bank, frame.Pointer,
                 0x0040, 0x0080, 0, 0);
@@ -3597,7 +3597,7 @@ internal static partial class Program
 
         static OamBuffer DrawEnemy(EnemyTileArtworkCatalog art,
             ISnesAddressSpace guard, ushort pointer, ushort definition,
-            Action<RoomEnemySlot>? inspect = null)
+            Action<RoomEnemySlot>? inspect = null, byte? spritemapBank = null)
         {
             var enemies = new RoomEnemySystem { TileArtwork = art };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -3709,6 +3709,10 @@ internal static partial class Program
                           definition == RoomEnemySystem.SkreeDefinition
                             ? EnemySpritemapDefinitions.SkulteraBank
                         : EnemySpritemapDefinitions.BoyonBank };
+            // The catalog-wide composition check includes families newer than the
+            // fixture's actor-name mapping. Its frame identity owns the actual bank.
+            if (spritemapBank is byte bank)
+                slot.Definition = slot.Definition with { Bank = bank };
             slot.SpritemapPointer = pointer;
             slot.InstructionTimer = 7;
             slot.Timer = 9;

@@ -47,15 +47,25 @@ internal static partial class Program
 
         (SnesVram installedVram, CrocomireDeathState installedState,
             CrocomireSkeletonNoReadBus denied) = RunInstalled(stock);
-        var nativeSystem = new RoomEnemySystem();
         var nativeVram = new SnesVram();
-        var nativeState = new CrocomireDeathState();
-        SetRuntimeFields(nativeSystem, rom, nativeVram);
-        for (int index = 0; index <= frames.Length; index++)
-            Upload(nativeSystem, nativeState);
+        ushort nativeCursor = 0;
+        // Independent native $A4:99CB/$99D9 descriptor walker: six 512-byte
+        // bank-$AD uploads, OBSEL base $6000 words, then the $FFFF terminator.
+        for (int index = 0; index < 7; index++)
+        {
+            ushort destination = ReadReferenceWord(0xa499cb + nativeCursor);
+            if (destination == 0xffff)
+                break;
+            ushort source = ReadReferenceWord(0xa499d9 + nativeCursor);
+            var bytes = new byte[512];
+            for (int offset = 0; offset < bytes.Length; offset++)
+                bytes[offset] = rom.ReadByte(0xad0000 | ((source + offset) & 0xffff));
+            nativeVram.LoadBytes((0x6000 + destination) * 2, bytes);
+            nativeCursor += 2;
+        }
         AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
             "all six installed Crocomire skeleton uploads match native full VRAM");
-        AssertEqual(nativeState.TargetHeightOrSkeletonTileIndex,
+        AssertEqual(nativeCursor,
             installedState.TargetHeightOrSkeletonTileIndex,
             "native and installed skeleton upload cursors stop at the same sentinel");
         AssertEqual((ushort)(frames.Length * 2),
@@ -110,6 +120,9 @@ internal static partial class Program
             "malformed Crocomire skeleton override fails loudly");
         Console.WriteLine("Crocomire skeleton art: six native transfers, full-VRAM parity, " +
             "guarded installed upload, isolated visible PNG edit, reload and strict files pass.");
+
+        ushort ReadReferenceWord(int address) =>
+            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
 
         static (SnesVram Vram, CrocomireDeathState State,
             CrocomireSkeletonNoReadBus Guard) RunInstalled(EnemyTileArtworkCatalog art)

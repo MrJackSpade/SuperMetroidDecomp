@@ -350,7 +350,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileTrailVisualDefinitions.cs
 
-- [ ] **ProjectileTrailVisualDefinitions.Frames** ([L10](../csharp/src/SuperMetroid.Core/Assets/ProjectileTrailVisualDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ProjectileTrailVisualDefinitions.Frames** ([L10](../csharp/src/SuperMetroid.Core/Assets/ProjectileTrailVisualDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs
 
@@ -364,10 +364,10 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ProjectileTrailProgramDefinitions.cs
 
-- [ ] **ProjectileTrailProgramDefinitions.Ends** ([L10](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailProgramDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ProjectileTrailProgramDefinitions.LeftMoves** ([L12](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailProgramDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ProjectileTrailProgramDefinitions.RightMoves** ([L14](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailProgramDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ProjectileTrailProgramDefinitions.FourTickFrames** ([L16](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailProgramDefinitions.cs#L16)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ProjectileTrailProgramDefinitions.Ends** ([L10](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailProgramDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ProjectileTrailProgramDefinitions.LeftMoves** ([L12](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailProgramDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ProjectileTrailProgramDefinitions.RightMoves** ([L14](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailProgramDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ProjectileTrailProgramDefinitions.FourTickFrames** ([L16](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailProgramDefinitions.cs#L16)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SbugInstructionProgramDefinitions.cs
 
@@ -867,3 +867,10 @@ Removed the ghost mechanics and visual-address tables. Three sixteen-tick poses 
 Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). `--wrecked-ship-ghost-instruction-mechanics` passed all5 native words, the actual initializer, complete floating loop,3 exact native compiled selectors and zero runtime ROM reads. Initial execution passed program behavior before failing the obsolete expected3 reads versus actual0; assigned verification now asserts zero reads and all original operands, preserving runtime and rejection checks.
 
 Fifty-seven stream2 named definitions complete;169 remain required. The ghost palette remains pending as documented above.
+### Batch 22: projectile-trail program layout and fall cadence
+
+Removed four mechanics membership tables and the42-entry visual record-address table. Ice trails contain six initial poses before their first one-pixel fall, two more poses before the next fall, then a fall after each remaining short pose. Seventeen poses and ten commands determine each terminator; the final ice pose holds four ticks. Wave/missile trails each contain four four-tick poses. A calculated indexed/enumerated view derives every address without caching a regenerated table. Independent artwork payloads and the previously documented adjacent-code selector residual remain pending.
+
+Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors); ResourceAudit build passed without warnings/errors. New `--lookup-stream2-trail-programs` passed all67 native mechanics words,42 independently walked visual addresses, rejected gaps/odd addresses/wrong banks, every frame of all four paired production sequences with frozen frames and sibling-directed Y movement, view bounds and the existing typed mutable-memory alias. The initial copied legacy reference path incorrectly ran production without installed artwork and attempted the retired raw sprite-word fallback at$90:B4CD; it failed as expected. The reference now decodes native ROM instructions independently while the actual side runs the compiled walker with a catalog and forbidden cartridge bus. No production workaround or broader artwork sweep was added.
+
+Sixty-two stream2 named definitions complete;164 remain required. Rotating to stream5 by coordinator instruction; all unresolved palette/trajectory/artwork/code-byte entries remain explicitly required.

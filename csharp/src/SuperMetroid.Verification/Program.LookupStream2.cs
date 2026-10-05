@@ -7,6 +7,92 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
+    {
+        byte[] json = ProjectileTrailExtractor.Extract(bus);
+        var catalog = ProjectileTrailCatalog.Load(new MemoryStream(json));
+        var encountered = new HashSet<ushort>();
+        foreach (ushort start in new[] { ProjectileTrailDefinitions.LeftIce, ProjectileTrailDefinitions.RightIce, ProjectileTrailDefinitions.Wave, ProjectileTrailDefinitions.Missile })
+        {
+            ushort cursor = start;
+            while (true)
+            {
+                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | cursor);
+                if (word == 0) break;
+                if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
+                else { cursor += 2; }
+            }
+            var nativeSystem = new SamusProjectileSystem(); var authoredSystem = new SamusProjectileSystem();
+            foreach (var system in new[] { nativeSystem, authoredSystem })
+            {
+                var pair = system.TrailSlots[0];
+                foreach (var side in new[] { pair.Left, pair.Right })
+                { side.InstructionPointer = start; side.InstructionTimer = 1; side.XPosition = 100; side.YPosition = 100; }
+            }
+            for (int frame = 0; frame < 80; frame++)
+            {
+                var nativeOam = new OamBuffer(); var authoredOam = new OamBuffer();
+                bool frozenFrame = frame % 5 == 0;
+                StepNative(nativeSystem.TrailSlots[0], nativeSystem.TrailSlots[0].Left, nativeOam, frozenFrame);
+                StepNative(nativeSystem.TrailSlots[0], nativeSystem.TrailSlots[0].Right, nativeOam, frozenFrame);
+                authoredSystem.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authoredOam, 0, 0, frozenFrame, catalog);
+                AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
+                foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
+                {
+                    AssertEqual(sides.Item1.InstructionPointer, sides.Item2.InstructionPointer, "Trail artwork cannot change instruction cursor");
+                    AssertEqual(sides.Item1.InstructionTimer, sides.Item2.InstructionTimer, "Trail artwork cannot change live timing");
+                    AssertEqual(sides.Item1.YPosition, sides.Item2.YPosition, "Trail artwork cannot change sibling-targeted movement");
+                }
+            }
+        }
+        AssertTrue(encountered.SetEquals(ProjectileTrailVisualDefinitions.Frames.ToArray()), "Independent native stream walk finds exactly the catalog's appearance records");
+        int programWords = 0;
+        for (int address = 0x90b4c8; address <= 0x90b5b3; address++)
+        {
+            if (ProjectileTrailProgramDefinitions.TryRead(address, out _))
+            {
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailProgramDefinitions.Read(bus, address), "Compiled trail program preserves every authored mechanics word");
+                programWords++;
+            }
+            else
+            {
+                int rejectedAddress = address;
+                AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(bus, rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
+            }
+        }
+        AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(bus, 0x91b4c9), "Trail program rejects a wrong-bank alias");
+        VerifyTrailMutableAlias();
+        AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileTrailVisualDefinitions.Frames[-1], "Calculated trail frame lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileTrailVisualDefinitions.Frames[42], "Calculated trail frame upper bound");
+        Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
+        void StepNative(SamusProjectileTrailSlot pair, SamusProjectileTrailSide side, OamBuffer oam, bool frozen)
+        {
+            if (side.InstructionTimer == 0) return;
+            if (!frozen && --side.InstructionTimer == 0)
+            {
+                ushort cursor = side.InstructionPointer;
+                while (true)
+                {
+                    ushort word = ReadVerificationWord(bus, 0x900000 | cursor);
+                    if (word < 0x8000)
+                    {
+                        side.InstructionTimer = word;
+                        if (word == 0) return;
+                        side.TileNumberAttributes = ReadVerificationWord(bus, 0x900000 | (cursor + 2));
+                        side.InstructionPointer = (ushort)(cursor + 4);
+                        break;
+                    }
+                    cursor += 2;
+                    if (word == SamusProjectileRomData.Trails.MoveLeftDown) pair.Left.YPosition++;
+                    else if (word == SamusProjectileRomData.Trails.MoveRightDown) pair.Right.YPosition++;
+                    else throw new InvalidDataException($"Unexpected native trail command {word:X4}.");
+                }
+            }
+            oam.AddProjectileTrailSprite((byte)side.XPosition, (byte)side.YPosition, side.TileNumberAttributes);
+        }
+    }
+
     private static void VerifyLookupStream2TrailSelectors(ISnesAddressSpace bus)
     {
 

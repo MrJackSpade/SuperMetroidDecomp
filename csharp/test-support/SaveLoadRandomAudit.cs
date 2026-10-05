@@ -28,7 +28,7 @@ internal static class SaveLoadRandomAudit
                 PowerBombs = 5, MaxPowerBombs = 5,
                 Missiles = 10, MaxMissiles = 10, SuperMissiles = 10, MaxSuperMissiles = 10,
             };
-            new SuperMetroidSaveRam(bus).SaveSlot(0, save);
+            new SuperMetroidSaveRam(bus, presentation).SaveSlot(0, save);
             var game = new SuperMetroidGame(bus);
             game.BindMapPresentation(presentation);
             bool insertedWait = false;

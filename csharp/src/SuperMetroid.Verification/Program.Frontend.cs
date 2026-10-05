@@ -300,7 +300,7 @@ static void VerifyFileSelectFreshSaveTilemap()
     // `$8B:C100` saves area six/station zero through the ordinary `$81:8000` encoder.
     // Verify both redundant checksum directories, the decoded player/checkpoint data, and
     // the menu's subsequent ENERGY + HH:MM path against one shared physical SRAM image.
-    var saveRam = new SuperMetroidSaveRam(addressSpace);
+    var saveRam = new SuperMetroidSaveRam(addressSpace, RetailPresentationFixture());
     saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
     {
         Health = 99,
@@ -439,7 +439,7 @@ static void VerifySavedGameLoadAppearance()
     }
 
     var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-    var saveRam = new SuperMetroidSaveRam(bus);
+    var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
     saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
     {
         Health = 99,

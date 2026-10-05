@@ -111,7 +111,7 @@ internal static partial class Program
         byte[] bytes = File.ReadAllBytes(path);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "save marker edit changes content identity");
-        var saves = new SuperMetroidSaveRam(bus);
+        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
         snapshot.MapStationBytes[(int)AreaId.Maridia] = 1;
         snapshot.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;

@@ -16,7 +16,7 @@ internal static class SavedRoomMusicAudit
         byte data = room.State.MusicDataIndex, track = room.State.MusicTrackIndex;
         Console.WriteLine($"Norfair station 0: room {room.Pointer:X4}, music data/track {data:X2}/{track:X2}.");
         if (data == 0 || track == 0) throw new InvalidDataException("Fixture requires an explicit room music bank and track.");
-        var saves = new SuperMetroidSaveRam(bus);
+        var saves = new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus));
         saves.SaveSlot(0, new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Norfair, SaveStation = 0, Health = 99, MaxHealth = 99 });
         saves.SelectSlot(0);
         var game = new SuperMetroidGame(bus, gameOptions: null, renderGameplayFrames: false);

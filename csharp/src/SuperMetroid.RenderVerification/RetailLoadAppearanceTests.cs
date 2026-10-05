@@ -17,7 +17,7 @@ internal static class RetailLoadAppearanceTests
             // In-memory SRAM only, matching the portable saved-file fixture.
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
-            new SuperMetroidSaveRam(bus).SaveSlot(0, save);
+            new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(0, save);
         }
         var legacy = new SuperMetroidGame(left);
         var captured = new SuperMetroidGame(right);

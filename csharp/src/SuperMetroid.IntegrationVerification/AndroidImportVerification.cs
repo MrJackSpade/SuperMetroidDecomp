@@ -30,10 +30,11 @@ internal static class AndroidImportVerification
             Directory.GetFiles(Path.Combine(root, "import-backups")).Length != 1)
             throw new InvalidDataException("Empty-slot import claimed or created a nonexistent previous-state backup.");
 
+        var saveMaps = new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps();
         var importedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-        new SuperMetroidSaveRam(importedBus).SaveSlot(0, new SuperMetroidSaveSnapshot { Health = 17 });
+        new SuperMetroidSaveRam(importedBus, saveMaps).SaveSlot(0, new SuperMetroidSaveSnapshot { Health = 17 });
         string json = Path.Combine(root, "import-source.json");
-        File.WriteAllText(json, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(importedBus)));
+        File.WriteAllText(json, GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(importedBus, saveMaps)));
         string save = Path.Combine(root, "SuperMetroid.save.json");
         byte[] previousSave = File.ReadAllBytes(save);
         // Installed save validation only needs mutable SRAM. Prove it neither opens nor
@@ -49,7 +50,7 @@ internal static class AndroidImportVerification
         if (!failed || !pendingBytes.AsSpan().SequenceEqual(File.ReadAllBytes(pending)))
             throw new InvalidDataException("Invalid JSON displaced the valid pending import.");
         using var restarted = new AndroidSessionData(root, rom, audio);
-        if (new SuperMetroidSaveRam(restarted.Bus).ReadSlot(0)?.Health != 17 || File.Exists(pending))
+        if (new SuperMetroidSaveRam(restarted.Bus, saveMaps).ReadSlot(0)?.Health != 17 || File.Exists(pending))
             throw new InvalidDataException("Next session did not activate the pending regular save exactly once.");
         if (!Directory.GetFiles(Path.Combine(root, "import-backups"))
             .Any(path => previousSave.AsSpan().SequenceEqual(File.ReadAllBytes(path))))

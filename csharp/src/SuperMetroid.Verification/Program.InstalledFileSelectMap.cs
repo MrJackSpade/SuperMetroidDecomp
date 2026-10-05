@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyInstalledFileSelectMenu(ISnesAddressSpace bus, ISnesAddressSpace guard,
         AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited, bool verifyCapturedRendering = false)
     {
-        var saves = new SuperMetroidSaveRam(bus);
+        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
         snapshot.MapStationBytes[(int)AreaId.Maridia] = 1;
         snapshot.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;

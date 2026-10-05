@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifyFileMenuRenderSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var saveRam = new SuperMetroidSaveRam(bus);
+        var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
         int comparisons = 0;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Text;
 using SuperMetroid.Core.Hardware;
 
@@ -13,7 +14,7 @@ public static class GameSaveFileStore
     public static GameSaveLoadResult LoadOrMigrate(
         SuperMetroidAddressSpace addressSpace,
         string jsonPath,
-        string legacySramPath)
+        string legacySramPath, AreaMapPresentationCatalog maps)
     {
         ArgumentNullException.ThrowIfNull(addressSpace);
         ArgumentException.ThrowIfNullOrWhiteSpace(jsonPath);
@@ -23,7 +24,7 @@ public static class GameSaveFileStore
             GameSaveJsonDocument document = GameSaveJsonCodec.Deserialize(
                 File.ReadAllText(jsonPath),
                 jsonPath);
-            GameSaveJsonCodec.Apply(document, addressSpace);
+            GameSaveJsonCodec.Apply(document, addressSpace, maps);
             return new GameSaveLoadResult(jsonPath, MigratedLegacySram: false);
         }
         if (!File.Exists(legacySramPath))
@@ -37,12 +38,12 @@ public static class GameSaveFileStore
                 $"Super Metroid requires exactly {SuperMetroidAddressSpace.SaveRamByteCount} bytes.");
         }
         legacy.CopyTo(addressSpace.SaveRam);
-        WriteAtomic(addressSpace, jsonPath);
+        WriteAtomic(addressSpace, jsonPath, maps);
         return new GameSaveLoadResult(jsonPath, MigratedLegacySram: true);
     }
 
     /// <summary>Writes a deterministic UTF-8 JSON replacement without exposing a partial file.</summary>
-    public static void WriteAtomic(SuperMetroidAddressSpace addressSpace, string jsonPath)
+    public static void WriteAtomic(SuperMetroidAddressSpace addressSpace, string jsonPath, AreaMapPresentationCatalog maps)
     {
         ArgumentNullException.ThrowIfNull(addressSpace);
         ArgumentException.ThrowIfNullOrWhiteSpace(jsonPath);
@@ -55,7 +56,7 @@ public static class GameSaveFileStore
         string backupPath = fullPath + ".bak";
         try
         {
-            string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(addressSpace));
+            string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(addressSpace, maps));
             using (var stream = new FileStream(
                        temporaryPath,
                        FileMode.CreateNew,

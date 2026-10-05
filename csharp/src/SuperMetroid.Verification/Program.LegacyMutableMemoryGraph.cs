@@ -63,7 +63,7 @@ internal static partial class Program
             "truncated retired payload fails inside the harness");
 
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var manager = new SuperMetroidSaveRam(memory);
+        var manager = new SuperMetroidSaveRam(memory, RetailPresentationFixture());
         typeof(SuperMetroidSaveRam).GetField("mutableMemory", System.Reflection.BindingFlags.Instance |
             System.Reflection.BindingFlags.NonPublic)!.SetValue(manager, null);
         DebuggerStateFieldMigrations.InitializeMissingFields(manager, 1);

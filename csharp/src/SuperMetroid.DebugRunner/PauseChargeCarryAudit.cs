@@ -25,7 +25,7 @@ internal static class PauseChargeCarryAudit
             EquippedBeams = (ushort)SamusBeamFlags.Charge,
             CollectedBeams = (ushort)SamusBeamFlags.Charge,
         };
-        new SuperMetroidSaveRam(bus).SaveSlot(0, SuperMetroidSaveSnapshot.Capture(seed, system, 0, 0));
+        new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(0, SuperMetroidSaveSnapshot.Capture(seed, system, 0, 0));
         var game = new SuperMetroidGame(bus, new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         var frame = FrontendAuditDriver.EnterSelectedSlot(game);
         FrontendAuditDriver.StepUntil(game, frame, _ => game.GameplayMovementEnabled, 420, "Load never enabled gameplay.");

@@ -236,6 +236,7 @@ public sealed partial class PlayableGameControl : UserControl
         // exact options with which the debugger-visible session was constructed.
         var installation = new GameInstallation(playerDataDirectory);
         addressSpace = installation.OpenRuntimeAddressSpace();
+        mapPresentation = installation.LoadMaps();
         ExtractedAudioAssetCatalog selectedAudioAssets = LoadAudioAssets();
         if (gameOptions.AudioEnabled)
         {
@@ -253,7 +254,6 @@ public sealed partial class PlayableGameControl : UserControl
         else
             LoadReplaySaveRam();
         game = new SuperMetroidGame(addressSpace, gameOptions);
-        mapPresentation = installation.LoadMaps();
         game.BindMapPresentation(mapPresentation);
         gameplayBasePalettes = installation.LoadGameplayBasePalettes();
         game.BindGameplayBasePalettes(gameplayBasePalettes);
@@ -628,7 +628,8 @@ public sealed partial class PlayableGameControl : UserControl
         GameSaveLoadResult result = GameSaveFileStore.LoadOrMigrate(
             addressSpace,
             saveFilePath,
-            legacySaveRamPath);
+            legacySaveRamPath,
+            mapPresentation ?? throw new InvalidOperationException("Save loading requires installed maps."));
         if (result.MigratedLegacySram)
         {
             Console.WriteLine(
@@ -643,7 +644,8 @@ public sealed partial class PlayableGameControl : UserControl
     /// stopped at a breakpoint or closed immediately after the Ceres checkpoint.
     /// </summary>
     private void PersistSaveRamToDisk() =>
-        GameSaveFileStore.WriteAtomic(addressSpace, saveFilePath);
+        GameSaveFileStore.WriteAtomic(addressSpace, saveFilePath,
+            mapPresentation ?? throw new InvalidOperationException("Save persistence requires installed maps."));
 
     private void StepFrame(ushort? forcedInput = null)
     {

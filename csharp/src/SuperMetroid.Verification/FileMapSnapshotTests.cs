@@ -29,7 +29,7 @@ internal static partial class Program
         }
         foreach (bool cancel in new[] { false, true })
         {
-            var saves = new SuperMetroidSaveRam(bus);
+            var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
             saves.SaveSlot(0, save);
@@ -65,7 +65,7 @@ internal static partial class Program
         {
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
-            new SuperMetroidSaveRam(owner).SaveSlot(0, save);
+            new SuperMetroidSaveRam(owner, RetailPresentationFixture()).SaveSlot(0, save);
         }
         var game = new SuperMetroidGame(leftBus); var capturedGame = new SuperMetroidGame(rightBus);
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();

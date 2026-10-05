@@ -15,4 +15,7 @@
     <Compile Include="../../test-support/ImportedVramOracle.cs" Link="ImportedVramOracle.cs" />
   </ItemGroup>
   <Import Project="../../test-support/RenderFixtures.projitems" />
+  <ItemGroup>
+    <Compile Include="../../test-support/SaveMapPresentationFixture.cs" Link="SaveMapPresentationFixture.cs" />
+  </ItemGroup>
 </Project>

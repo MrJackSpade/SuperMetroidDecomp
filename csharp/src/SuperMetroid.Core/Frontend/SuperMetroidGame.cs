@@ -88,7 +88,7 @@ public sealed partial class SuperMetroidGame
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.gameOptions = gameOptions ?? new SuperMetroidGameOptions();
         this.renderGameplayFrames = renderGameplayFrames;
-        saveRam = new SuperMetroidSaveRam(bus);
+        saveRam = new SuperMetroidSaveRam(bus, mapPresentation);
         selectedSaveSlot = saveRam.ReadSelectedSlot();
     }
 

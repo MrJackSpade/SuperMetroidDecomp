@@ -1,3 +1,7 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Desktop;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -14,11 +18,11 @@ internal static partial class Program
         for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
         {
             ExploredMapPackingDefinition definition =
-                ExploredMapPackingDefinitions.Area(area);
-            ReadOnlySpan<byte> indexes = definition.AreaByteIndexes.Span;
+                ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture());
+            ExploredMapPackingDefinitions.OccupiedByteIndexes indexes = definition.AreaByteIndexes;
             AssertEqual(retail.ReadByte(
                     ExploredMapPackingDefinitions.NativeByteCountTable + area),
-                unchecked((byte)indexes.Length),
+                unchecked((byte)indexes.Count),
                 $"packed map area {area} byte count");
             AssertEqual(Word(
                     ExploredMapPackingDefinitions.NativeDestinationOffsetTable + area * 2),
@@ -28,22 +32,22 @@ internal static partial class Program
                     ExploredMapPackingDefinitions.NativeSourcePointerTable + area * 2),
                 definition.NativeSourcePointer,
                 $"packed map area {area} source pointer");
-            for (int index = 0; index < indexes.Length; index++)
+            for (int index = 0; index < indexes.Count; index++)
             {
                 AssertEqual(retail.ReadByte(0x810000 |
                         unchecked((ushort)(definition.NativeSourcePointer + index))),
                     indexes[index],
                     $"packed map area {area} byte index {index}");
             }
-            exportedByteCount += indexes.Length;
+            exportedByteCount += indexes.Count;
         }
         AssertEqual(327, exportedByteCount, "packed map exported byte count");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => ExploredMapPackingDefinitions.Area(SaveRamLayout.PackedMapAreaCount),
+            () => ExploredMapPackingDefinitions.Area(SaveRamLayout.PackedMapAreaCount, RetailPresentationFixture()),
             "packed map excludes native Ceres list");
 
         var guard = new ExploredMapPackingReadGuard(retail);
-        var saveRam = new SuperMetroidSaveRam(guard);
+        var saveRam = new SuperMetroidSaveRam(guard, RetailPresentationFixture());
         var explored = new byte[
             Bank80SystemState.ExploredMapAreaCount *
             Bank80SystemState.ExploredMapBytesPerArea];
@@ -57,7 +61,7 @@ internal static partial class Program
         for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
         {
             foreach (byte areaByteIndex in
-                ExploredMapPackingDefinitions.Area(area).AreaByteIndexes.Span)
+                ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture()).AreaByteIndexes)
             {
                 exported[area * Bank80SystemState.ExploredMapBytesPerArea +
                     areaByteIndex] = true;
@@ -72,10 +76,84 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "save/load avoids compiled explored-map codec tables");
 
+        VerifyCalculatedMapPackingBindings(retail, explored);
+
         Console.WriteLine(
             "  Explored-map packing: six area records and all 327 exported byte indexes match the cartridge; production save/load round-trips with the native codec tables forbidden.");
     }
 
+    private static void VerifyCalculatedMapPackingBindings(ISnesAddressSpace native, byte[] explored)
+    {
+        string parent = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
+        string root = Directory.CreateDirectory(Path.Combine(parent, "packing-bindings-" + Guid.NewGuid().ToString("N"))).FullName;
+        try
+        {
+            string stock = Path.Combine(root, "game", "maps");
+            string edits = Directory.CreateDirectory(Path.Combine(root, "edits")).FullName;
+            MapPresentationExtractor.Extract(native, stock, "test-provenance");
+            var original = AreaMapPresentationCatalog.Load(stock, null);
+            for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
+            {
+                var document = new MapPresentationDocument
+                {
+                    Version = MapPresentationFormat.Version,
+                    Area = ((AreaId)area).ToString(),
+                    Cells = Enumerable.Range(0, AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles)
+                        .Select(_ => new MapPresentationCell { TileColumn = 31, TileRow = 0, Palette = 0,
+                            Priority = false, FlipX = false, FlipY = false }).ToArray(),
+                };
+                File.WriteAllText(Path.Combine(edits, AreaMapCatalogFormat.FileName((AreaId)area)),
+                    System.Text.Json.JsonSerializer.Serialize(document, MapPresentationFormat.JsonOptions));
+            }
+            var edited = AreaMapPresentationCatalog.Load(stock, edits);
+            var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
+            var snapshot = new SuperMetroidSaveSnapshot { ExploredMapBytes = explored };
+            var unbound = new SuperMetroidSaveRam(memory, null);
+            byte[] emptySram = memory.SaveRam.ToArray();
+            AssertThrows<InvalidOperationException>(() => unbound.SaveSlot(0, snapshot),
+                "unbound map packing fails before persistence");
+            AssertTrue(emptySram.AsSpan().SequenceEqual(memory.SaveRam), "unbound save leaves SRAM unchanged");
+            var saves = new SuperMetroidSaveRam(memory, original);
+            saves.SaveSlot(0, snapshot);
+            byte[] expected = memory.SaveRam.ToArray();
+            AssertThrows<InvalidOperationException>(() => unbound.ReadSlot(0), "unbound map unpacking fails clearly");
+            var editedSaves = new SuperMetroidSaveRam(memory, edited);
+            editedSaves.SaveSlot(0, snapshot);
+            AssertTrue(expected.AsSpan().SequenceEqual(memory.SaveRam), "blank artwork overrides preserve exact SRAM format");
+            for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
+            {
+                var a = ExploredMapPackingDefinitions.Area(area, original);
+                var b = ExploredMapPackingDefinitions.Area(area, edited);
+                AssertTrue(a.AreaByteIndexes.SequenceEqual(b.AreaByteIndexes), "editable artwork retains stock occupied byte order");
+                AssertEqual(a.DestinationOffset, b.DestinationOffset, "editable artwork retains packed offset");
+                AssertThrows<ArgumentOutOfRangeException>(() => _ = a.AreaByteIndexes[-1], "negative packed index rejected");
+                AssertThrows<ArgumentOutOfRangeException>(() => _ = a.AreaByteIndexes[a.AreaByteIndexes.Count], "packed index end rejected");
+            }
+
+            var game = new SuperMetroidGame(memory);
+            game.BindMapPresentation(original);
+            using var graph = new MemoryStream();
+            DebuggerObjectGraphSerializer.Serialize(graph, game);
+            graph.Position = 0;
+            var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(graph);
+            var field = typeof(SuperMetroidGame).GetField("saveRam",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+            var restoredSaves = (SuperMetroidSaveRam)field.GetValue(restored)!;
+            AssertThrows<InvalidOperationException>(() => restoredSaves.ReadSlot(0), "debugger graph omits installed map provider");
+            restored.BindMapPresentation(edited);
+            AssertTrue(restoredSaves.ReadSlot(0) is not null, "frontend rebind restores SRAM decoding");
+            restoredSaves.SaveSlot(0, snapshot);
+            AssertTrue(restoredSaves.ReadSlot(0)!.ExploredMapBytes.AsSpan().SequenceEqual(editedSaves.ReadSlot(0)!.ExploredMapBytes),
+                "rebound debugger game preserves decoded exploration");
+        }
+        finally
+        {
+            string resolved = Path.GetFullPath(root);
+            if (!resolved.StartsWith(parent + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Packing fixture cleanup escaped its temporary parent.");
+            Directory.Delete(resolved, recursive: true);
+        }
+    }
     private sealed class ExploredMapPackingReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
@@ -121,10 +199,10 @@ internal static partial class Program
             for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
             {
                 ExploredMapPackingDefinition definition =
-                    ExploredMapPackingDefinitions.Area(area);
+                    ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture());
                 int start = 0x810000 | definition.NativeSourcePointer;
                 if (address >= start &&
-                    address < start + definition.AreaByteIndexes.Length)
+                    address < start + definition.AreaByteIndexes.Count)
                     return true;
             }
             return false;

@@ -126,7 +126,7 @@ try
     string settings = Path.Combine(root, "SuperMetroid.ini");
     File.WriteAllText(settings, SuperMetroidGameOptionsIni.DefaultFileContents);
     string save = Path.Combine(root, "SuperMetroid.save.json");
-    GameSaveFileStore.WriteAtomic(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), save);
+    GameSaveFileStore.WriteAtomic(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), save, installed.LoadMaps());
     byte[] saveBefore = File.ReadAllBytes(save);
     string waveform = Directory.GetFiles(Path.Combine(installed.AudioDirectory, "samples"), "*.wav")[0];
     byte[] waveBefore = File.ReadAllBytes(waveform);

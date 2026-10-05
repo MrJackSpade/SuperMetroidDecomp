@@ -17,7 +17,7 @@ internal static class ReplaySaveRamExporter
         }
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var saves = new SuperMetroidSaveRam(bus);
+        var saves = new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus));
         if (mainGameSlot is int requestedSlot)
         {
             if ((uint)requestedSlot >= SuperMetroidSaveRam.SlotCount)

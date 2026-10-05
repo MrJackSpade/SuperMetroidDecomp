@@ -76,7 +76,7 @@ internal static class FrontendSkipIntroAudit
         frame = game.Step(0);
         if (frame.GameState != SuperMetroidGameState.MainGameplayFadeIn)
             throw new InvalidOperationException("New-game setup did not enter the Ceres gameplay fade.");
-        SuperMetroidSaveSlot saved = new SuperMetroidSaveRam(bus).ReadSlot(0)
+        SuperMetroidSaveSlot saved = new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).ReadSlot(0)
             ?? throw new InvalidDataException("Ceres setup did not produce a valid slot-A SRAM checkpoint.");
         if (saved.Area != 6 || saved.SaveStation != 0 || saved.Health != 99)
         {
@@ -159,7 +159,7 @@ internal static class FrontendSkipIntroAudit
         };
         var crateriaTime = new GameTimeState();
         crateriaTime.Load(frames: 12, seconds: 56, minutes: 34, hours: 12);
-        new SuperMetroidSaveRam(bus).SaveSlot(
+        new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(
             0,
             SuperMetroidSaveSnapshot.Capture(
                 crateriaSamus,

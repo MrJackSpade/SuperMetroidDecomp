@@ -35,7 +35,7 @@ internal static class RetailFileMapTests
         }
         foreach (bool cancel in new[] { false, true })
         {
-            var saves = new SuperMetroidSaveRam(bus);
+            var saves = new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus));
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
             saves.SaveSlot(0, save);

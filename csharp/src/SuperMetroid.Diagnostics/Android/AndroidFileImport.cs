@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
@@ -65,27 +66,28 @@ internal static class AndroidFileImport
 
     /// <summary>Stages and fully validates an installed-game save without a cartridge payload.</summary>
     public static string StageRegularSave(string root, string source) =>
-        StageRegularSaveCore(root, source, SuperMetroidAddressSpace.CreateWithoutCartridge());
+        StageRegularSaveCore(root, source, SuperMetroidAddressSpace.CreateWithoutCartridge(),
+            new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps());
 
     private static string StageRegularSaveCore(
         string root,
         string source,
-        SuperMetroidAddressSpace bus)
+        SuperMetroidAddressSpace bus, AreaMapPresentationCatalog maps)
     {
         // Validate the full schema and its SRAM application before publishing a pending
         // import. A separate file prevents ongoing gameplay persistence overwriting it.
-        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(File.ReadAllText(source), source), bus);
+        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(File.ReadAllText(source), source), bus, maps);
         ReplaceWithBackup(root, source, PendingPath(root));
         return "Regular save validated and staged for next app launch. Current gameplay is unchanged. Previous save will be backed up before activation.";
     }
 
-    public static void ActivatePendingSave(string root, SuperMetroidAddressSpace bus, string savePath)
+    public static void ActivatePendingSave(string root, SuperMetroidAddressSpace bus, string savePath, AreaMapPresentationCatalog maps)
     {
         string pending = PendingPath(root);
         if (!File.Exists(pending)) return;
-        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(File.ReadAllText(pending), pending), bus);
+        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(File.ReadAllText(pending), pending), bus, maps);
         if (File.Exists(savePath)) Backup(root, savePath);
-        GameSaveFileStore.WriteAtomic(bus, savePath);
+        GameSaveFileStore.WriteAtomic(bus, savePath, maps);
         File.Delete(pending);
     }
 

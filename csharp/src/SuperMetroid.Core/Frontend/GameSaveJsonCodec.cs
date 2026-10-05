@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -18,10 +19,10 @@ public static class GameSaveJsonCodec
         Enum.GetValues<BossBits>().Aggregate((left, right) => left | right);
 
     /// <summary>Captures every valid named slot plus a lossless untranslated-byte image.</summary>
-    public static GameSaveJsonDocument Capture(SuperMetroidAddressSpace addressSpace)
+    public static GameSaveJsonDocument Capture(SuperMetroidAddressSpace addressSpace, AreaMapPresentationCatalog maps)
     {
         ArgumentNullException.ThrowIfNull(addressSpace);
-        var saveRam = new SuperMetroidSaveRam(addressSpace);
+        var saveRam = new SuperMetroidSaveRam(addressSpace, maps);
         var slots = new GameSaveSlotJsonDocument?[SuperMetroidSaveRam.SlotCount];
         for (int slotIndex = 0; slotIndex < slots.Length; slotIndex++)
         {
@@ -79,12 +80,12 @@ public static class GameSaveJsonCodec
     /// </summary>
     public static void Apply(
         GameSaveJsonDocument document,
-        SuperMetroidAddressSpace addressSpace)
+        SuperMetroidAddressSpace addressSpace, AreaMapPresentationCatalog maps)
     {
         ArgumentNullException.ThrowIfNull(addressSpace);
         Validate(document);
         DecodeNativePages(document.PreservedUntranslatedSram).CopyTo(addressSpace.SaveRam);
-        var saveRam = new SuperMetroidSaveRam(addressSpace);
+        var saveRam = new SuperMetroidSaveRam(addressSpace, maps);
         for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
         {
             GameSaveSlotJsonDocument? slot = document.Slots[slotIndex];

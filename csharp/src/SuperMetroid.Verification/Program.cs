@@ -4212,6 +4212,11 @@ if (args is ["--magic-number-audit"])
     VerifyProductionMagicNumberAudit();
     return 0;
 }
+if (args is ["--save-json-persistence"])
+{
+    VerifyGameSaveJsonPersistence();
+    return 0;
+}
 if (args is ["--explored-map-packing-definitions"])
 {
     VerifyExploredMapPackingDefinitions();

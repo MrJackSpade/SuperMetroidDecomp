@@ -9,4 +9,7 @@
   </ItemGroup>
   <Import Project="../../test-support/StateFixtures.projitems" />
   <Import Project="../../test-support/WindowsConsole.projitems" />
+  <ItemGroup>
+    <Compile Include="../../test-support/SaveMapPresentationFixture.cs" Link="SaveMapPresentationFixture.cs" />
+  </ItemGroup>
 </Project>

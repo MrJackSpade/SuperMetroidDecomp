@@ -34,7 +34,7 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         if (existingSave)
-            new SuperMetroidSaveRam(bus).SaveSlot(0, new SuperMetroidSaveSnapshot());
+            new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, new SuperMetroidSaveSnapshot());
         var game = new SuperMetroidGame(bus);
         game.BindMapPresentation(RetailPresentationFixture());
         var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));

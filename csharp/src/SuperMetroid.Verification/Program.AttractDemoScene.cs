@@ -64,7 +64,7 @@ internal static partial class Program
             bus.WriteByte(AttractDemoRomData.CompletionMarkerAddress + index, AttractDemoRomData.CompletionMarker[index]);
         if (frontend.AvailableDemoSetCount() != 3)
             throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked set four.");
-        new SuperMetroidSaveRam(bus).SaveSlot(0, new SuperMetroidSaveSnapshot());
+        new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, new SuperMetroidSaveSnapshot());
         if (frontend.AvailableDemoSetCount() != 4)
             throw new InvalidDataException("Valid completed-game save did not unlock the fourth demo set.");
         bus.WriteByte(AttractDemoRomData.CompletionMarkerAddress, 0);

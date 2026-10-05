@@ -32,7 +32,7 @@ internal static class AutomaticCheckpointSaver
         SamusState samus = runtime.Samus
             ?? throw new InvalidOperationException("Ceres checkpoint requires a live Samus actor.");
         runtime.System.LoadSavedLoadingGameState(loadingGameState);
-        new SuperMetroidSaveRam(bus).SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(
+        new SuperMetroidSaveRam(bus, runtime.MapPresentation).SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(
             samus, runtime.System, area: (ushort)AreaId.Ceres, saveStation: 0,
             gameTime: runtime.GameTime, controllerBindings: runtime.ControllerBindings,
             moonwalkEnabled: runtime.MoonwalkEnabled, iconCancelEnabled: runtime.IconCancelEnabled));
@@ -61,7 +61,7 @@ internal static class AutomaticCheckpointSaver
         // after reload and therefore belongs inside the atomic checkpoint operation.
         runtime.System.LoadSavedLoadingGameState(SaveLoadingGameStates.MainGame);
         runtime.System.MarkSaveStationUsed(areaIndex: AreaId.Crateria, stationBitIndex: 0);
-        new SuperMetroidSaveRam(bus).SaveSlot(
+        new SuperMetroidSaveRam(bus, runtime.MapPresentation).SaveSlot(
             selectedSaveSlot,
             SuperMetroidSaveSnapshot.Capture(
                 samus,

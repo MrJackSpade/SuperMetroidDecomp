@@ -12,7 +12,7 @@ internal static class MoonwalkOptionsAudit
         foreach (bool abandon in new[] { false, true })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
-            var saves = new SuperMetroidSaveRam(bus);
+            var saves = new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus));
             saves.SaveSlot(0, new SuperMetroidSaveSnapshot
             {
                 Area = 0, SaveStation = 1, Health = 99, MaxHealth = 99,

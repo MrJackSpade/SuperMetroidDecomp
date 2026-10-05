@@ -7,18 +7,50 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable small-OBJ appearance keyed by native trail frame; no timing or movement fields.</summary>
 public sealed class ProjectileTrailCatalog
 {
-    private readonly Dictionary<ushort, ushort> attributes;
+    private readonly Dictionary<ushort, ushort> suppliedAttributes = [];
     public ProjectileTrailAtlas? Tiles { get; }
     private ProjectileTrailCatalog(Dictionary<ushort, ushort> attributes, ProjectileTrailAtlas? tiles)
-    { this.attributes = attributes; Tiles = tiles; }
+    {
+        Tiles = tiles;
+        for (int index = 0; index < ProjectileTrailVisualDefinitions.Frames.Count; index++)
+        {
+            ushort frame = ProjectileTrailVisualDefinitions.Frames[index];
+            if (attributes[frame] != DefaultAttributes(index)) suppliedAttributes.Add(frame, attributes[frame]);
+        }
+    }
+
+    /// <summary>$90:B4CB/B52D uses consecutive ice glyphs beginning at tile $38, palette6, priority2.</summary>
+    private const int IceFirstTile = 0x38;
+    /// <summary>$90:B58F uses four consecutive wave glyphs beginning at tile $3C, palette5, priority2.</summary>
+    private const int WaveFirstTile = 0x3c;
+    /// <summary>$90:B5A1 uses four consecutive missile glyphs beginning at tile $48, palette5, priority2.</summary>
+    private const int MissileFirstTile = 0x48;
+
+    /// <summary>
+    /// Shared tile progression and OBJ fields. Ice's independently chosen pose boundaries
+    /// at records4,8,16 remain pending source payload; no timing derivation is claimed.
+    /// </summary>
+    private static ushort DefaultAttributes(int index)
+    {
+        bool ice = index < 34;
+        int phase = ice ? index % 17 : (index - 34) % 4;
+        if (ice) phase = phase < 4 ? 0 : phase < 8 ? 1 : phase < 16 ? 2 : 3;
+        int firstTile = ice ? IceFirstTile : index < 38 ? WaveFirstTile : MissileFirstTile;
+        return SnesObjAttributeWord.Create(firstTile + phase, ice ? 6 : 5, 2, SnesTileFlipFlags.None).Raw;
+    }
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = true,
     };
-    public ushort Resolve(ushort frame) => attributes.TryGetValue(frame, out ushort value)
-        ? value : throw new InvalidDataException($"Missing trail frame {frame:X4}.");
+    public ushort Resolve(ushort frame)
+    {
+        if (suppliedAttributes.TryGetValue(frame, out ushort value)) return value;
+        for (int index = 0; index < ProjectileTrailVisualDefinitions.Frames.Count; index++)
+            if (ProjectileTrailVisualDefinitions.Frames[index] == frame) return DefaultAttributes(index);
+        throw new InvalidDataException($"Missing trail frame {frame:X4}.");
+    }
 
     public ushort ResolveCurrent(ushort nextInstruction, ushort nativeAttributes)
     {

@@ -20,7 +20,7 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteCatalog.cs", "913EEEF871A5E8396356377900A90DAFD951290CAFB6E2D9F5E137A82CF78AAD")],
             "The sole private wrapper construction loads every one of the 28 required flare compositions through the shared exact-set loader. All 54 selector entries resolve within that set; Draw bounds-checks the selector. The partial shared catalog remains private. Cadence, positioning and projectile mechanics are not certified."),
         new("SuperMetroid.Core.Assets.ProjectileTrailCatalog", "trail-complete-timed-appearances-and-retained-start", ["Resolve", "ResolveCurrent"],
-            [new("csharp/src/SuperMetroid.Core/Assets/ProjectileTrailCatalog.cs", "8C1BF36F6377EFC5E85D3A5BCADD664E4489E9D94F27ACED6A10689A3CCE5492"),
+            [new("csharp/src/SuperMetroid.Core/Assets/ProjectileTrailCatalog.cs", "C9E824BB2D780617A33D91B4D658D220D5C3D6A80CADD84A77DE73FB013478F0"),
              new("csharp/src/SuperMetroid.Core/Assets/ProjectileTrailVisualDefinitions.cs", "7D634DDFAF877FA878B7428D66AFDEB1D35A2AE85C73718EB2A917F338940CA5"),
              new("csharp/src/SuperMetroid.Core/Game/ProjectileTrailDefinitions.cs", "809E6328A92274EF0857EA4DC674D75C4EA1FB98E4866F07DDFBB243EB1543CD")],
             "Private construction requires every sparse timed trail appearance. ResolveCurrent either preserves retained native attributes at one of five unconsumed list starts or selects the installed frame four bytes before the next instruction. Those distinct input domains are checked. Optional tile installation and trail clocks are not certified."),

@@ -11448,4 +11448,11 @@
     "state":  "partial-required",
     "algorithm":  "Mirrored phase min(frame,31-frame), channelwise floor interpolation between four supplied endpoint colors, sparse exact independent edits.",
     "remaining":  "Four endpoint colors and six distinct native channel deviations repeated in the mirrored half remain required. No exception or rounding-provenance claim. Counts unchanged: 500 converted, 15 justified retained/mixed, 613 pending."
+},"trailAppearanceIntegration":{
+    "scope":  "ProjectileTrailCatalog.attributes remains unchecked",
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. 42 native attributes, 252 independent field edits, zero stock residuals, invalid frame rejection, 67 native mechanics words, all four real paired-trail lifetimes/freeze/OAM/movement and mutable alias checks pass. ResourceAudit build zero warnings/errors; source hash refreshed.",
+    "workerCommit":  "779b41aab5c4dd6d4460352ea81cfb0fbfc76b09",
+    "state":  "partial-required",
+    "algorithm":  "Consecutive tile IDs and common OBJ settings calculate for both ice sides, wave and missile; independent custom attributes use sparse overrides.",
+    "remaining":  "Ice pose boundaries at records 4/8/16 remain required. No exception. Counts unchanged: 500 converted, 15 justified retained/mixed, 613 pending."
 }}

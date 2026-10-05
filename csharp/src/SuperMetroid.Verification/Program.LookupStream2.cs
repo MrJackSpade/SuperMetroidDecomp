@@ -270,6 +270,46 @@ internal static partial class Program
             "Golden landing control index boundary");
         Console.WriteLine("Golden Torizo control dispatch:7 initial words,20 landing words, native instruction positions, exact installed initial sprite and bounded ownership pass.");
     }
+    private static void VerifyLookupStream2TrailAppearance(ISnesAddressSpace rom)
+    {
+        byte[] json = ProjectileTrailExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<ProjectileTrailDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var stock = ProjectileTrailCatalog.Load(new MemoryStream(json));
+        var edits = (Dictionary<ushort, ushort>)typeof(ProjectileTrailCatalog)
+            .GetField("suppliedAttributes", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, edits.Count, "Stock trail appearance stores no repeated frame attributes");
+        foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
+        {
+            AssertEqual(ReadVerificationWord(rom, 0x900000 | (frame + 2)), stock.Resolve(frame), "Native trail appearance");
+            string name = ProjectileTrailVisualDefinitions.Name(frame);
+            var original = document.Frames[name];
+            for (int field = 0; field < 6; field++)
+            {
+                var changed = field switch
+                {
+                    0 => original with { TileColumn = (original.TileColumn + 1) % 16 },
+                    1 => original with { TileRow = (original.TileRow + 1) % 32 },
+                    2 => original with { Palette = (original.Palette + 1) % 8 },
+                    3 => original with { Priority = (original.Priority + 1) % 4 },
+                    4 => original with { FlipX = !original.FlipX },
+                    _ => original with { FlipY = !original.FlipY },
+                };
+                var frames = new Dictionary<string, ProjectileTrailAppearance>(document.Frames) { [name] = changed };
+                var catalog = ProjectileTrailCatalog.Load(new MemoryStream(ProjectileTrailCatalog.Write(document with { Frames = frames })));
+                foreach (ushort other in ProjectileTrailVisualDefinitions.Frames)
+                {
+                    var appearance = frames[ProjectileTrailVisualDefinitions.Name(other)];
+                    ushort expected = SnesObjAttributeWord.Create(appearance.TileRow * 16 + appearance.TileColumn,
+                        appearance.Palette, appearance.Priority,
+                        (appearance.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (appearance.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw;
+                    AssertEqual(expected, catalog.Resolve(other), "Every independently edited trail field survives");
+                }
+            }
+        }
+        AssertThrows<InvalidDataException>(() => stock.Resolve(0), "Unknown trail frame rejected");
+        VerifyLookupStream2TrailPrograms(rom);
+        Console.WriteLine("Trail appearance:42 native words,252 independent field edits and existing real OAM/lifetime/freeze proof pass; ice phase boundaries remain pending.");
+    }
     private static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
     {
         byte[] json = ProjectileTrailExtractor.Extract(bus);

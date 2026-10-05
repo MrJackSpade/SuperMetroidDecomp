@@ -113,6 +113,18 @@ internal sealed class SelectedPresentationHash
         }
     }
 
+    /// <summary>Hashes calculated OBJ records with the identical ordering and framing as stored spans.</summary>
+    public void AppendEnemyParts(SuperMetroid.Core.Hardware.EnemySpritemapParts parts)
+    {
+        Append("parts", parts.Count);
+        for (int index = 0; index < parts.Count; index++)
+        {
+            var part = parts[index];
+            Append("x-and-size", part.X.Raw);
+            Append("y", part.Y);
+            Append("attributes", part.Attributes.Raw);
+        }
+    }
     private void AppendLength(int value)
     {
         Span<byte> bytes = stackalloc byte[sizeof(int)];

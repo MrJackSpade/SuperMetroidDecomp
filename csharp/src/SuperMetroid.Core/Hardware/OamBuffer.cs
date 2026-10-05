@@ -203,6 +203,17 @@ public sealed class OamBuffer
                 baseTileIndex, clipVerticalWrap, originYIsOnScreen);
     }
 
+    /// <summary>Appends an immutable calculated enemy composition in its original drawing order.</summary>
+    public void AddEnemySpritemap(EnemySpritemapParts parts,
+        ushort originX, ushort originY, ushort paletteBits, ushort baseTileIndex,
+        bool clipVerticalWrap = false, bool originYIsOnScreen = true)
+    {
+        ArgumentNullException.ThrowIfNull(parts);
+        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
+        for (int index = 0; index < parts.Count; index++)
+            AppendEnemySpritemapPart(parts[index], originX, originY, paletteBits,
+                baseTileIndex, clipVerticalWrap, originYIsOnScreen);
+    }
     private void AppendEnemySpritemapPart(EnemySpritemapPart part,
         ushort originX, ushort originY, ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap, bool originYIsOnScreen)

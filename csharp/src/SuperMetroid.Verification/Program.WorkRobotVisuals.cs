@@ -34,13 +34,13 @@ internal static partial class Program
             selectedFrames.Add(installedPointer);
             AssertTrue(stock.Spritemaps!.TryGetDisplay(
                     WorkRobotVisualDefinitions.Bank, installedPointer,
-                    out ReadOnlyMemory<EnemySpritemapPart> installedParts),
+                    out EnemySpritemapParts installedParts),
                 $"Work Robot selector {index} has editable OAM");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, WorkRobotVisualDefinitions.Bank,
                 nativePointer, 128, 128, 0, 0);
-            installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
+            installedOam.AddEnemySpritemap(installedParts, 128, 128, 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,

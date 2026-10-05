@@ -672,20 +672,20 @@ internal static partial class Program
         png.Position = 0;
         // An independently edited display composition is deliberately unrelated to
         // stock tile coverage. Native staging must still copy the same artwork rows.
-        var displayParts = new Dictionary<int, EnemySpritemapPart[]>
+        var displayParts = new Dictionary<int, EnemySpritemapParts>
         {
-            [0xa9d6e2] = [new(SnesSpritemapXWord.Create(70, false), 33,
-                SnesObjAttributeWord.Create(0, 7, 3, SnesTileFlipFlags.Horizontal))],
+            [0xa9d6e2] = EnemySpritemapParts.FromOwnedArray([new(SnesSpritemapXWord.Create(70, false), 33,
+                SnesObjAttributeWord.Create(0, 7, 3, SnesTileFlipFlags.Horizontal))]),
         };
         var displayBindings = new Dictionary<int, int> { [0xa9d6e2] = 0xa9d6e2 };
         var display = (EnemySpritemapCatalog)typeof(EnemySpritemapCatalog)
             .GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
-                [typeof(Dictionary<int, EnemySpritemapPart[]>), typeof(Dictionary<int, int>)], null)!
+                [typeof(Dictionary<int, EnemySpritemapParts>), typeof(Dictionary<int, int>)], null)!
             .Invoke([displayParts, displayBindings]);
-        AssertTrue(display.TryGetDisplay(0xa9, 0xd6e2, out ReadOnlyMemory<EnemySpritemapPart> selectedDisplay),
+        AssertTrue(display.TryGetDisplay(0xa9, 0xd6e2, out EnemySpritemapParts selectedDisplay),
             "Edited Dead Torizo display is selected");
         var editedOam = new OamBuffer();
-        editedOam.AddEnemySpritemap(selectedDisplay.Span, 128, 128, 0, 0);
+        editedOam.AddEnemySpritemap(selectedDisplay, 128, 128, 0, 0);
         AssertEqual(4, editedOam.NextByteOffset, "Edited display draws one small part instead of25stock parts");
         AssertEqual((byte)198, editedOam.LowTable[0], "Edited display origin reaches actual OAM");
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(

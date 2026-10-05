@@ -246,13 +246,13 @@ public sealed partial class RoomEnemySystem
                 "Room sprite objects require installed sprite artwork.");
             if (!spritemaps.TryGetDisplay(
                     RoomSpriteObjectVisualDefinitions.Bank, slot.SpritemapPointer,
-                    out ReadOnlyMemory<EnemySpritemapPart> installed))
+                    out EnemySpritemapParts installed))
             {
                 throw new InvalidDataException(
                     $"Installed room sprite-object artwork lacks " +
                     $"$B4:{slot.SpritemapPointer:X4} for {slot.Kind}.");
             }
-            oam.AddEnemySpritemap(installed.Span, screenX, screenY,
+            oam.AddEnemySpritemap(installed, screenX, screenY,
                 paletteBits, baseTileIndex);
         }
     }

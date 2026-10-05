@@ -1184,3 +1184,11 @@ Root Verification build1445 warnings/zero errors; --lookup-narration-layout pass
 RipperInstructionProgramDefinitions.Words is mixed complete (7f9babb19). Existing program structure is calculated; only reviewed neutral8/alternate7 visual holds remain, now explicitly named rather than encoded as an unexplained subtraction. Native animation-only loops, fixed body/hitbox and independent movement/freeze evidence are recorded above. Speed,collision,grapple,freeze,reset1 and all artwork remain excluded from the exception.
 
 Root Verification build1445 warnings/zero errors; --ripper-instruction-mechanics passes36 native words, all six production-installed loops and24 visual selectors with original bytes forbidden. Inventory555 converted/19 retained-mixed/554 pending.
+
+## Integrated Baby sprite reflection and immutable ordinary-OAM views
+
+Partial6503f14ba: only the three30-part Baby poses A9:F9A8/FA40/FAD8 calculate15 reflected partners from15 supplied half-parts, using x'=-x-size and horizontal flip. Thirty draw-order entries per pose remain supplied. Full matched arrays are discarded; asymmetric edits and changed counts preserve exact owned parts. Ordinary catalog/render/hash APIs now accept immutable indexed views; the span renderer and extended/projectile contracts remain intact.
+
+The selected half-artwork, draw order, pixels and all other compositions remain required; EnemySpritemapCatalog.frames stays unchecked. No broad symmetry/artwork exemption. Compiler integration exposed one previously integrated Dead Torizo fixture's private-constructor/out-view binding; root adapted that binding without changing assertions.
+
+Root terminal Verification rebuild25 warnings/zero errors. --lookup-stream3-baby-sprite-reflection passes90native parts/actual OAM,90 isolated X edits,27 other field edits,reordered/expanded/empty layouts,canonical hashes,bounds and all64 ordinary legacy schemas/54binding schemas. The specifically affected --lookup-stream2-dead-torizo-geometry passes25parts/97tiles/12MVNs/10column limits/192actual row operations and independent edited display. ResourceAudit build0/0. Inventory unchanged558 converted/21 retained-mixed/549 pending.

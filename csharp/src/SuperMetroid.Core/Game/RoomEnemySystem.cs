@@ -2536,9 +2536,9 @@ public sealed partial class RoomEnemySystem
         bool clipVerticalWrap = false, bool originYIsOnScreen = true)
     {
         if (TileArtwork?.Spritemaps?.TryGetDisplay(bank, pointer,
-                out ReadOnlyMemory<EnemySpritemapPart> installed) == true)
+                out EnemySpritemapParts installed) == true)
         {
-            oam.AddEnemySpritemap(installed.Span, originX, originY,
+            oam.AddEnemySpritemap(installed, originX, originY,
                 paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
             return;
         }

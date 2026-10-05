@@ -2292,4 +2292,101 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((EnemyAuxiliaryPalette)invalid, 0, 0), "stream 3 auxiliary palette identities reject unknown values");
     }
+    private static void VerifyStream3BabySpriteReflection(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var definitions = EnemySpritemapDefinitions.Frames.ToArray();
+        var document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.Version,
+            Frames = definitions.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal),
+            DisplayFrames = definitions.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
+        };
+        var selected = definitions.Where(frame => frame.Bank == 0xa9 && frame.Pointer is 0xf9a8 or 0xfa40 or 0xfad8).ToArray();
+        AssertEqual(3, selected.Length, "stream 3 identified native Baby compositions");
+        foreach (var frame in selected)
+        {
+            int source = (frame.Bank << 16) | frame.Pointer;
+            AssertEqual(30, Word(source), "stream 3 native Baby counted-record extent");
+            document.Frames[frame.Name] = Enumerable.Range(0, 30).Select(index =>
+            {
+                int entry = source + 2 + index * 5;
+                var x = new SnesSpritemapXWord(Word(entry));
+                var attributes = new SnesObjAttributeWord(Word(entry + 3));
+                return new SpriteVisualPart
+                {
+                    OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
+                    TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
+                    Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                    FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
+                };
+            }).ToArray();
+        }
+        EnemySpritemapCatalog Load() => EnemySpritemapCatalog.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        void Check(EnemySpritemapCatalog catalog)
+        {
+            foreach (var frame in selected)
+            {
+                AssertTrue(catalog.TryGet(frame.Bank, frame.Pointer, out var parts), "stream 3 Baby view remains installed");
+                AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name)),
+                    "stream 3 exact supplied Baby part order and every visual field");
+            }
+            string expected = SelectedPresentationHash.Create("enemy-oam-v1", content =>
+            {
+                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                {
+                    content.Append("frame", (frame.Bank << 16) | frame.Pointer);
+                    content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name));
+                }
+                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                {
+                    content.Append("native-binding", (frame.Bank << 16) | frame.Pointer);
+                    content.Append("selected-binding", (frame.Bank << 16) | frame.Pointer);
+                }
+            });
+            AssertEqual(expected, catalog.ContentIdentity, "stream 3 indexed OAM view retains canonical hash framing");
+        }
+        var stock = Load();
+        Check(stock);
+        foreach (var frame in selected)
+        {
+            AssertTrue(stock.TryGetDisplay(frame.Bank, frame.Pointer, out var parts), "stream 3 Baby display view");
+            AssertTrue(parts is BabyMetroidSpriteParts, "stream 3 stock Baby full part arrays are discarded");
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            AssertEqual(15, ((EnemySpritemapPart[])parts.GetType().GetField("halfParts", flags)!.GetValue(parts)!).Length,
+                "stream 3 Baby retains only one part per reflected pair");
+            var nativeOam = new OamBuffer();
+            var calculatedOam = new OamBuffer();
+            DrawImportedEnemySpritemap(rom, nativeOam, frame.Bank, frame.Pointer, 128, 128, 0, 0);
+            calculatedOam.AddEnemySpritemap(parts, 128, 128, 0, 0);
+            AssertTrue(nativeOam.LowTable.SequenceEqual(calculatedOam.LowTable) && nativeOam.HighTable.SequenceEqual(calculatedOam.HighTable),
+                "stream 3 calculated Baby view matches native OAM drawing");
+            SpriteVisualPart[] original = document.Frames[frame.Name];
+            for (int index = 0; index < original.Length; index++)
+            {
+                var saved = original[index];
+                original[index] = saved with { OffsetX = saved.OffsetX + 1 };
+                Check(Load());
+                original[index] = saved;
+            }
+            var part = original[0];
+            SpriteVisualPart[] edits =
+            [
+                part with { OffsetX = part.OffsetX + 1 }, part with { OffsetY = part.OffsetY ^ 1 },
+                part with { Size = part.Size == 8 ? 16 : 8 }, part with { TileColumn = (part.TileColumn + 1) % 16 },
+                part with { TileRow = (part.TileRow + 1) % 32 }, part with { Palette = (part.Palette!.Value + 1) % 8 },
+                part with { Priority = (part.Priority + 1) % 4 }, part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY },
+            ];
+            foreach (var edited in edits) { original[0] = edited; Check(Load()); }
+            original[0] = part;
+            document.Frames[frame.Name] = original.Reverse().ToArray(); Check(Load());
+            document.Frames[frame.Name] = original.Append(part).ToArray(); Check(Load());
+            document.Frames[frame.Name] = []; Check(Load());
+            document.Frames[frame.Name] = original;
+            AssertThrows<IndexOutOfRangeException>(() => _ = parts[-1], "stream 3 calculated part lower bound");
+            AssertThrows<IndexOutOfRangeException>(() => _ = parts[30], "stream 3 calculated part upper bound");
+        }
+        VerifyEnemyLegacyOverrides();
+    }
 }

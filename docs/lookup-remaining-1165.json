@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 602,
+  "remainingTableDefinitionCount": 600,
   "fileCount": 523,
   "entries": [
     {
@@ -2143,7 +2143,9 @@
       "line": 8,
       "name": "TitleSpriteDefinitions.Pointers",
       "kind": "factory-built stock table",
-      "note": "Stored ushort[] initialized by CollectPointers(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored ushort[] initialized by CollectPointers(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "4399993246c8338568eeff7548380392c898abb6"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs",
@@ -2518,7 +2520,9 @@
       "line": 94,
       "name": "TitleSequenceRomData.Vram.BabySourcePages",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "4399993246c8338568eeff7548380392c898abb6"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs",

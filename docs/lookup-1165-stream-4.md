@@ -652,7 +652,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/TitleSpriteDefinitions.cs
 
-- [ ] **TitleSpriteDefinitions.Pointers** ([L8](../csharp/src/SuperMetroid.Core/Assets/TitleSpriteDefinitions.cs#L8)) - factory-built stock table. Stored ushort[] initialized by CollectPointers(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **TitleSpriteDefinitions.Pointers** ([L8](../csharp/src/SuperMetroid.Core/Assets/TitleSpriteDefinitions.cs#L8)) - factory-built stock table. Stored ushort[] initialized by CollectPointers(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Frontend/TitleSequenceInstructionDefinitions.cs
 
@@ -660,7 +660,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs
 
-- [ ] **TitleSequenceRomData.Vram.BabySourcePages** ([L94](../csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs#L94)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TitleSequenceRomData.Vram.BabySourcePages** ([L94](../csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs#L94)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs
 
@@ -1037,3 +1037,9 @@ TitleSequenceInstructionDefinitions calculates progressive text addresses from c
 Program remains unchecked: initial hold 60, reveal cadence 8, final holds 45/120 and logo hold 32 remain required independent values. The worker's full-conversion claim is not accepted; no timing or artwork exemption is granted.
 
 Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-title-card confirms all 140 native bytes, 139 aligned/unaligned word windows, outer bounds and trailing partial-word rejection. Refreshed the cinematic source-audit hash; ResourceAudit builds with zero warnings/errors. Counts unchanged: 511 converted, 15 justified retained/mixed, 602 pending.
+
+## Integrated title sprite identities and Baby pages
+
+TitleSpriteDefinitions.Pointers is complete: enumerate the 31 distinct addresses in native sorted order directly from calculated title-card layouts, including copyright and logo, without caching a pointer table. TitleSequenceRomData.Vram.BabySourcePages is complete: min(frame, 4-frame) calculates the four-phase 0/1/2/1 source-page cycle. Pinned 8B:A131-A140 and the referenced DMA descriptors establish the cycle, page size and destination. Artwork and title program timing remain independently required.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-title-identities confirms the independently decoded set and order of all 31 native selectors, all four source pages, native DMA sizes/destinations and invalid phase boundaries. Both cinematic source hashes refreshed; ResourceAudit builds with zero warnings/errors. Overall checkpoint: 513 converted, 15 justified retained/mixed, 600 pending.

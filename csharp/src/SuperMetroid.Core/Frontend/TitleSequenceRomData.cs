@@ -91,7 +91,20 @@ public static class TitleSequenceRomData
     /// <summary>VRAM ranges and page order used by title graphics DMA.</summary>
     public static class Vram
     {
-        private static readonly byte[] BabySourcePages = [0, 1, 2, 1];
+        /// <summary>Four-phase triangular source-page cycle in $8B:A131..A140.</summary>
+        public readonly struct BabyPageSequence : IReadOnlyList<byte>
+        {
+            public int Count => 4;
+            public int Length => Count;
+            public byte this[int frame] => (uint)frame < Length
+                ? (byte)Math.Min(frame, Length - frame)
+                : throw new IndexOutOfRangeException();
+            public IEnumerator<byte> GetEnumerator()
+            {
+                for (int frame = 0; frame < Count; frame++) yield return this[frame];
+            }
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        }
 
         public const int ObjectCharacterDestinationByte = 0xc000;
         public const int ObjectCharacterByteCount = 0x4000;
@@ -103,7 +116,7 @@ public static class TitleSequenceRomData
         public const int BabyCharacterPageByteCount = 0x0100;
         public const ushort Mode7MapLowByteMask = 0x00ff;
         public const int Mode7CharacterByteShift = 8;
-        public static ReadOnlySpan<byte> BabyAnimationSourcePages => BabySourcePages;
+        public static BabyPageSequence BabyAnimationSourcePages => default;
     }
 
     /// <summary>Fixed palette replacements made only by the immediate-title skip path.</summary>

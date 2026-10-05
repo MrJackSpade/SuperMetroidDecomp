@@ -9,6 +9,31 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyTitleSpriteIdentities(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var nativeTitlePointers = new HashSet<ushort> { 0x8103, Word(0x8ba0c7) };
+        foreach (int start in new[] { 0x8ba03d, 0x8ba055, 0x8ba079, 0x8ba09d })
+            for (int entry = start; Word(entry) < 0x8000; entry += 4)
+                if (Word(entry + 2) != 0) nativeTitlePointers.Add(Word(entry + 2));
+        AssertEqual(31, nativeTitlePointers.Count, "native title sprite catalog size");
+        AssertTrue(nativeTitlePointers.Order().SequenceEqual(TitleSpriteDefinitions.NativePointers),
+            "calculated title sprite sequence preserves exact distinct native order");
+        AssertEqual(4, TitleSequenceRomData.Vram.BabyAnimationSourcePages.Length, "title baby animation phase count");
+        for (int frame = 0; frame < 4; frame++)
+        {
+            ushort transfer = Word(0x8ba133 + frame * 4);
+            int nativeSource = Word(0x8b0001 + transfer) | rom.ReadByte(0x8b0003 + transfer) << 16;
+            int firstSource = Word(0x8ba338) | rom.ReadByte(0x8ba33a) << 16;
+            AssertEqual((nativeSource - firstSource) / 256,
+                (int)TitleSequenceRomData.Vram.BabyAnimationSourcePages[frame], "native title baby source page");
+            AssertEqual((ushort)256, Word(0x8b0004 + transfer), "native baby transfer size");
+            AssertEqual((ushort)0x3800, Word(0x8b0006 + transfer), "native baby transfer destination");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = TitleSequenceRomData.Vram.BabyAnimationSourcePages[invalid], "title baby exact phase domain");
+        Console.WriteLine("Title identities: 31 sorted native selectors, four Baby source pages, DMA sizes/destinations and invalid phases pass.");
+    }
     private static void VerifyTitleCardLayout(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

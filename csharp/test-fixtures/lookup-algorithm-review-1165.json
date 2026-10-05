@@ -11539,4 +11539,11 @@
     "state":  "partial-required",
     "algorithm":  "Progressive text addresses derive from cumulative OAM record widths with split Metroid groups and blank-space reveal; named scene commands terminate each card.",
     "remaining":  "Holds 60/8/45/120/32 remain required independent inputs. No timing/artwork exception. Counts unchanged: 511 converted, 15 justified retained/mixed, 602 pending."
+},"titleIdentitiesIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Independent native decoding confirms 31 sorted selectors, four pages, DMA sizes/destinations and invalid phases. Cinematic hashes refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "TitleSpriteDefinitions.Pointers; TitleSequenceRomData.Vram.BabySourcePages",
+    "workerCommit":  "4399993246c8338568eeff7548380392c898abb6",
+    "state":  "two-converted",
+    "algorithm":  "Enumerate 31 distinct sorted identities directly from calculated card layout; calculate Baby pages as min(frame, 4-frame).",
+    "remaining":  "No artwork or timing exemption. 513 converted, 15 justified retained/mixed, 600 pending."
 }}

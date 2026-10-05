@@ -4922,6 +4922,11 @@ if (args is ["--oam-source-routing"])
     VerifyOamSpritemapPacking();
     return 0;
 }
+if (args is ["--room-enemy-loading"])
+{
+    VerifyRoomEnemyLoading();
+    return 0;
+}
 if (args is ["--enemy-tile-artwork"])
 {
     VerifyEnemyTileArtwork();

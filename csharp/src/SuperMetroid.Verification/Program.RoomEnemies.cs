@@ -84,7 +84,42 @@ static void VerifyRoomEnemyLoading()
     WriteWord(bus, populationAddress + 16, 0xffff);
     bus.WriteByte(populationAddress + 18, 1);
 
-    var enemies = new RoomEnemySystem();
+    // Import the explicitly seeded fixture art before exercising the installed-only loader.
+    var stockSheets = new Dictionary<ushort, RoomCharacterAtlas>();
+    var stockColors = new Dictionary<ushort, EnemyPaletteSheet>();
+    foreach ((ushort pointer, int source, int byteCount, int paletteSource) in new[]
+             {
+                 (primaryDefinitionPointer, 0xa29100, 0x40, 0xa29000),
+                 (specialDefinitionPointer, 0xa39320, 0x20, 0xa39300),
+             })
+    {
+        byte[] planar = Enumerable.Range(0, byteCount)
+            .Select(index => bus.ReadByte(source + index)).ToArray();
+        int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, tiles,
+            out int width, out int height);
+        using var png = new MemoryStream();
+        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        stockSheets.Add(pointer, RoomCharacterAtlas.Load(new MemoryStream(png.ToArray()), byteCount));
+        var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
+        for (int color = 0; color < palette.Length; color++)
+        {
+            ushort word = (ushort)(bus.ReadByte(paletteSource + color * 2) |
+                bus.ReadByte(paletteSource + color * 2 + 1) << 8);
+            palette[color] = new PaletteRgb5
+            {
+                Red = word & 31,
+                Green = word >> 5 & 31,
+                Blue = word >> 10 & 31,
+            };
+        }
+        stockColors.Add(pointer, EnemyPaletteSheet.Load(new MemoryStream(
+            EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
+    }
+    var enemies = new RoomEnemySystem
+    {
+        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(stockSheets, stockColors),
+    };
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x9999);
 
     AssertEqual(1, enemies.EnemyCount, "enemy population count");
@@ -143,40 +178,9 @@ static void VerifyRoomEnemyLoading()
         "definition vulnerability pointer offset $3C");
     AssertEqual(0x9200, definition.NamePointer, "definition name pointer offset $3E");
 
-    // The installed-art path must consume exactly the same VRAM geometry while the
+    // Repeating the installed-art load must preserve the same VRAM geometry while the
     // cartridge tile sources are forbidden. The second definition exercises the native
     // high-bit staging branch, so a single hard-coded destination cannot pass.
-    var stockSheets = new Dictionary<ushort, RoomCharacterAtlas>();
-    var stockColors = new Dictionary<ushort, EnemyPaletteSheet>();
-    foreach ((ushort pointer, int source, int byteCount, int paletteSource) in new[]
-             {
-                 (primaryDefinitionPointer, 0xa29100, 0x40, 0xa29000),
-                 (specialDefinitionPointer, 0xa39320, 0x20, 0xa39300),
-             })
-    {
-        byte[] planar = Enumerable.Range(0, byteCount)
-            .Select(index => bus.ReadByte(source + index)).ToArray();
-        int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, tiles,
-            out int width, out int height);
-        using var png = new MemoryStream();
-        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
-        stockSheets.Add(pointer, RoomCharacterAtlas.Load(new MemoryStream(png.ToArray()), byteCount));
-        var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
-        for (int color = 0; color < palette.Length; color++)
-        {
-            ushort word = (ushort)(bus.ReadByte(paletteSource + color * 2) |
-                bus.ReadByte(paletteSource + color * 2 + 1) << 8);
-            palette[color] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
-        }
-        stockColors.Add(pointer, EnemyPaletteSheet.Load(new MemoryStream(
-            EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
-    }
     var installedEnemies = new RoomEnemySystem
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(stockSheets, stockColors),
@@ -235,6 +239,9 @@ private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
 {
     public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
         source.ReadEnemyDefinition(pointer);
+
+    public RoomEnemySpawnNameWords ReadEnemySpawnNameWords(ushort pointer) =>
+        source.ReadEnemySpawnNameWords(pointer);
 
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer) =>
         source.ReadEnemyPopulation(pointer);

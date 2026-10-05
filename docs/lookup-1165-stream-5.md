@@ -586,7 +586,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/PolypInstructionProgramDefinitions.cs
 
-- [ ] **PolypInstructionProgramDefinitions.Words** ([L15](../csharp/src/SuperMetroid.Core/Game/PolypInstructionProgramDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PolypInstructionProgramDefinitions.Words** ([L15](../csharp/src/SuperMetroid.Core/Game/PolypInstructionProgramDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PolypRockInstructionProgramDefinitions.cs
 
@@ -865,3 +865,11 @@ Build passed1433 existing warnings/zero errors. Existing --ceres-door-instructio
 ## Tourian entrance statue batch
 
 Both assigned definitions are converted. Pinned bank AA D7A5-D7B9 establishes the ten-byte layout; parameter cases identify the actual statue role. The focused existing verifier first confirmed all three native control words, then exposed its obsolete missing installed-palette fixture. Installed only the extracted native Tourian palette catalog in that fixture; production has no fallback. The corrected `--tourian-entrance-statue-instruction-program-definitions` passes all three actual initializers and delete programs, rejected unused-program boundary, zero forbidden mechanics reads, and allocation confirmation. Root integration build: 1444 existing warnings, zero errors. Integrated checkpoint: 63 converted, one mixed, 161 required.
+
+### Batch 27: Polyp stationary program and missing compiled selector
+
+Removed Polyp's two-row mechanics array: the one-tick pose and terminal sleep derive from the four-byte frame width. Its focused actual initializer/program check exposed a missing compiled visual selector at$A2:B51C, which failed before the first pose. The supported native operand is Spritemap_Polyp$B5FB. Coordinator-granted shared-dispatch ownership adds only the narrow Polyp branch delegating to the named program selector; no opaque lookup table or unrelated dispatch changed.
+
+Root integration Verification build passed (1444 warnings, zero errors). Corrected --polyp-instruction-mechanics passes both native control words, actual initializer-to-sleep execution and exact produced sprite pointer$B5FB against the native operand, with zero presentation reads. Existing rejected-boundary and allocation assertions remain intact. This reproduces and fixes the identified program-contract failure; no gameplay discovery was performed. The player-facing missing-selector correction awaits player validation.
+
+Integrated checkpoint:64 converted,one mixed,160 required. Other timing/palette/artwork residuals are unchanged.

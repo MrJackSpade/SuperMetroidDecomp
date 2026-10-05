@@ -53,8 +53,13 @@ internal static partial class Program
         AssertEqual(unchecked((ushort)(PolypInstructionProgramDefinitions.Stationary + 4)),
             slot.CurrentInstruction,
             "Polyp program reaches terminal sleep");
-        AssertTrue(guard.SawPresentationWord,
-            "Polyp spritemap operand remains a cartridge read");
+        AssertTrue(!guard.SawPresentationWord,
+            "Polyp uses its compiled stationary visual selector");
+        AssertEqual(ReadPolypInstructionWord(rom, PolypInstructionProgramDefinitions.PresentationWord),
+            slot.SpritemapPointer, "Actual Polyp stationary sprite matches the native operand");
+        AssertEqual(slot.SpritemapPointer,
+            PolypInstructionProgramDefinitions.FrameAt(PolypInstructionProgramDefinitions.PresentationWord),
+            "Named Polyp selector installed by the actual program");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids both compiled Polyp mechanics words");
         AssertThrows<InvalidDataException>(
@@ -74,7 +79,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Polyp instruction mechanics: two compiled words, the real initializer, " +
-            "terminal sleep, and one live spritemap read pass with mechanics bytes forbidden.");
+            "terminal sleep, and its exact native sprite selector pass with zero presentation reads.");
     }
 
     private static int ProbePolypInstructionMechanicsAllocation()

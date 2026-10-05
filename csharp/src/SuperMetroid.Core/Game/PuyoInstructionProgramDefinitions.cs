@@ -38,72 +38,59 @@ internal static class PuyoInstructionProgramDefinitions
     /// <summary>The first word of <c>PuyoHopTable</c>, immediately after the programs at $A2:9A07.</summary>
     internal const ushort FirstAdjacentDefinition = 0x9a07;
 
-    private static readonly PuyoInstructionMechanicsWord[] Words =
-    [
-        new(0x99ad, 5), new(0x99b1, 5), new(0x99b5, 5), new(0x99b9, 5),
-        new(0x99bd, CommonEnemyInstructionCodes.Goto), new(0x99bf, GroundedFast),
-        new(0x99c1, 8), new(0x99c5, 8), new(0x99c9, 8), new(0x99cd, 8),
-        new(0x99d1, CommonEnemyInstructionCodes.Goto), new(0x99d3, GroundedMedium),
-        new(0x99d5, 10), new(0x99d9, 10), new(0x99dd, 10), new(0x99e1, 10),
-        new(0x99e5, CommonEnemyInstructionCodes.Goto), new(0x99e7, GroundedSlow),
-        new(0x99e9, 1), new(0x99ed, CommonEnemyInstructionCodes.Sleep),
-        new(0x99ef, 1), new(0x99f3, CommonEnemyInstructionCodes.Sleep),
-        new(0x99f5, 1), new(0x99f9, CommonEnemyInstructionCodes.Sleep),
-        new(0x99fb, 1), new(0x99ff, CommonEnemyInstructionCodes.Sleep),
-        new(0x9a01, 1), new(LastSleepOpcode, CommonEnemyInstructionCodes.Sleep),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0x99af, 0x99b3, 0x99b7, 0x99bb,
-        0x99c3, 0x99c7, 0x99cb, 0x99cf,
-        0x99d7, 0x99db, 0x99df, 0x99e3,
-        0x99eb, 0x99f1, 0x99f7, 0x99fd, 0x9a03,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static PuyoInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
-
+    internal static int MechanicsWordCount => 28;
+    internal static int PresentationWordCount => 17;
+    internal static PuyoInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int pointer;
+        if (index < 18)
+        {
+            int local = index % 6;
+            pointer = GroundedFast + index / 6 * 20 + (local < 5 ? local * 4 : 18);
+        }
+        else pointer = RightFrame0LeftFrame4 + (index - 18) / 2 * 6 + (index % 2) * 4;
+        return new((ushort)pointer, ReadMechanicsWord((ushort)pointer));
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(index < 12 ? GroundedFast + index / 4 * 20 + index % 4 * 4 + 2 :
+            RightFrame0LeftFrame4 + (index - 12) * 6 + 2);
+    }
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - GroundedFast;
+        if ((uint)offset < 60) return offset % 20 < 16 && offset % 20 % 4 == 2;
+        offset = address - RightFrame0LeftFrame4;
+        return (uint)offset < 30 && offset % 6 == 2;
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        int offset = address - GroundedFast;
+        if ((uint)offset < 60)
         {
-            int middle = low + ((high - low) >> 1);
-            PuyoInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            int local = offset % 20;
+            ushort start = (ushort)(GroundedFast + offset / 20 * 20);
+            if (local < 16 && local % 4 == 0)
+                return start == GroundedFast ? (ushort)5 : start == GroundedMedium ? (ushort)8 : (ushort)10;
+            if (local == 16) return CommonEnemyInstructionCodes.Goto;
+            if (local == 18) return start;
         }
-
-        throw new InvalidDataException(
-            $"Puyo instruction mechanics pointer $A2:{address:X4} is not compiled.");
+        offset = address - RightFrame0LeftFrame4;
+        if ((uint)offset < 30)
+        {
+            if (offset % 6 == 0) return 1;
+            if (offset % 6 == 4) return CommonEnemyInstructionCodes.Sleep;
+        }
+        throw new InvalidDataException($"Puyo instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
-
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa20000) return false;
+        int offset = (ushort)address - GroundedFast;
+        if ((uint)offset < 60) return offset % 20 >= 16 || offset % 20 % 4 < 2;
+        offset = (ushort)address - RightFrame0LeftFrame4;
+        return (uint)offset < 30 && offset % 6 is not (2 or 3);
     }
 }

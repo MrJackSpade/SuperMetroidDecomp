@@ -247,12 +247,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Rooms/MetroidsClearedPlmRomData.cs
 
-- [ ] **MetroidsClearedPlmRomData.PreInstructionByArgumentWord** ([L35](../csharp/src/SuperMetroid.Core/Rooms/MetroidsClearedPlmRomData.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MetroidsClearedPlmRomData.EventByArgumentWord** ([L52](../csharp/src/SuperMetroid.Core/Rooms/MetroidsClearedPlmRomData.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MetroidsClearedPlmRomData.PreInstructionByArgumentWord** ([L35](../csharp/src/SuperMetroid.Core/Rooms/MetroidsClearedPlmRomData.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MetroidsClearedPlmRomData.EventByArgumentWord** ([L52](../csharp/src/SuperMetroid.Core/Rooms/MetroidsClearedPlmRomData.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MiscDustProjectileDefinitions.cs
 
-- [ ] **MiscDustProjectileDefinitions.SmokePlacements** ([L18](../csharp/src/SuperMetroid.Core/Game/MiscDustProjectileDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MiscDustProjectileDefinitions.SmokePlacements** ([L18](../csharp/src/SuperMetroid.Core/Game/MiscDustProjectileDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/NuclearWaffleDefinitions.cs
 
@@ -301,8 +301,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/PuyoInstructionProgramDefinitions.cs
 
-- [ ] **PuyoInstructionProgramDefinitions.Words** ([L42](../csharp/src/SuperMetroid.Core/Game/PuyoInstructionProgramDefinitions.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **PuyoInstructionProgramDefinitions.PresentationWords** ([L57](../csharp/src/SuperMetroid.Core/Game/PuyoInstructionProgramDefinitions.cs#L57)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PuyoInstructionProgramDefinitions.Words** ([L42](../csharp/src/SuperMetroid.Core/Game/PuyoInstructionProgramDefinitions.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PuyoInstructionProgramDefinitions.PresentationWords** ([L57](../csharp/src/SuperMetroid.Core/Game/PuyoInstructionProgramDefinitions.cs#L57)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs
 
@@ -805,3 +805,13 @@ Four more definitions converted; 157 complete and 69 unchecked. No retained exce
 - Owtch visual selection advances through three one-object records for leftward movement and reverses them for rightward movement. Stoke walking/attack phases select calculated positions in each five-record facing group; record object counts are 2/3/2/2/4, giving the native 75-byte facing stride. Both visual row arrays are removed; actual OAM artwork remains independently required.
 - Evidence: pinned bankA2 Owtch programs `$A3AB..A3CE`, one-object maps `$A589/$A590/$A597`; Stoke programs `$8932..897D`, maps `$8ACA..8B5F` with two facing groups and shared pre-attack pose.
 - Confirmation: full Verification build 1432 warnings/zero errors, final focused-check rebuild 25 warnings/zero errors; `--lookup-stream-1` passed. Unchanged fixtures execute both Owtch directional loops/callbacks and both Stoke walking loops/attacks with actual directional projectile spawns, all eighteen native visual choices and source guards. New checks verify original Owtch control order/values, exact mechanics-byte and both visual domains, owner rejection and index bounds. No fixture corrections were needed.
+
+## Batch 25: Puyo programs, centered smoke boxes and Metroid quota dispatch
+
+Five more definitions converted; 162 complete and 64 unchecked. No retained exception.
+
+- Puyo's three grounded loops derive four equal-duration records and a goto (fast/medium/slow durations 5/8/10); five airborne poses derive one tick and sleep. Both arrays are removed, preserving 28 controls and 17 visual identities.
+- Smoke placement calculates a stationary point, centered 8/16-pixel squares, then centered 16x32/32x64 rectangles. Masks are size minus one and offsets are negative half-size, covering all twenty native fields without a record table.
+- The Metroid-clear PLM dispatcher calculates nine consecutive one-byte RTS identities and four sixteen-byte quota observer identities. The latter resolve consecutive semantic events beginning FirstMetroidHallCleared; all no-op identities stay distinct and odd/out-of-range arguments still fail.
+- Evidence: pinned bankA2 Puyo `$99AD..9A06`; bank86 smoke placement `$E47E..E4A5`; bank84 quota pointer table `$DB28..DB40`, nine RTS handlers `$DAD5..DADD`, four observers `$DADE..DB1D` with immediate event operands.
+- Confirmation: full Verification build 1432 warnings/zero errors, final focused-check rebuild 25 warnings/zero errors; `--lookup-stream-1` passed. Unchanged fixtures execute all three grounded/five airborne Puyo programs, all five real smoke placement families with exact X/Y and one RNG advancement, and real PLM population below/at enemy quota with resident sleep lists and invalid-argument rejection. New checks compare thirteen original dispatch pointers/four native event operands, exact Puyo ordered controls/visuals/byte guards, noncontrol rejection and index domains. No fixture corrections were needed.

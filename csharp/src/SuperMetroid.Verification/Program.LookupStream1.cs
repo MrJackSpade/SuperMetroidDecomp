@@ -7,6 +7,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        VerifyLookupStream1PuyoAndQuota(rom);
         VerifyLookupStream1OwtchStoke(rom);
         VerifyLookupStream1VisualCatalogs(rom);
         VerifyLookupStream1NuclearWaffle(rom);
@@ -555,5 +556,58 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitions.PresentationWordAddress(invalid), "Owtch visual bounds");
         AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(0, 0xa3af), "unknown visual owner rejected");
+    }
+    private static void VerifyLookupStream1PuyoAndQuota(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (ushort argument = 0; argument <= 24; argument += 2)
+        {
+            ushort pointer = Word(0x84db28 + argument);
+            AssertEqual(pointer, SuperMetroid.Core.Rooms.MetroidsClearedPlmRomData.ResolvePreInstruction(argument), "native Metroid quota dispatcher identity");
+            var eventNumber = SuperMetroid.Core.Rooms.MetroidsClearedPlmRomData.ResolveEvent(argument);
+            if (argument < 18)
+            {
+                AssertTrue(eventNumber is null, "nine no-op quota identities have no event");
+                AssertEqual((byte)0x60, rom.ReadByte(0x840000 | pointer), "native distinct no-op RTS");
+            }
+            else AssertEqual(Word(0x840000 | (pointer + 9)), (ushort)eventNumber!.Value, "native quota observer event operand");
+        }
+        foreach (ushort invalid in new ushort[] { 1, 17, 25, 26, ushort.MaxValue })
+        {
+            AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.MetroidsClearedPlmRomData.ResolvePreInstruction(invalid), "quota pointer argument domain");
+            AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.MetroidsClearedPlmRomData.ResolveEvent(invalid), "quota event argument domain");
+        }
+        var controls = new HashSet<int>();
+        var visuals = new HashSet<int>();
+        for (int loop = 0; loop < 3; loop++)
+        {
+            foreach (int offset in new[] { 0, 4, 8, 12, 16, 18 }) controls.Add(0x99ad + loop * 20 + offset);
+            foreach (int offset in new[] { 2, 6, 10, 14 }) visuals.Add(0x99ad + loop * 20 + offset);
+        }
+        for (int frame = 0; frame < 5; frame++)
+        {
+            controls.Add(0x99e9 + frame * 6);
+            controls.Add(0x99ed + frame * 6);
+            visuals.Add(0x99eb + frame * 6);
+        }
+        int controlIndex = 0, visualIndex = 0;
+        for (int pointer = 0x99ac; pointer <= 0x9a08; pointer++)
+        {
+            AssertEqual(controls.Contains(pointer) || controls.Contains(pointer - 1),
+                PuyoInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | pointer), "Puyo exact byte guard domain");
+            AssertEqual(visuals.Contains(pointer), PuyoInstructionProgramDefinitions.IsPresentationWord((ushort)pointer), "Puyo exact visual domain");
+            if (controls.Contains(pointer))
+            {
+                var actual = PuyoInstructionProgramDefinitions.MechanicsWord(controlIndex++);
+                AssertEqual((ushort)pointer, actual.Address, "Puyo native control order");
+                AssertEqual(Word(0xa20000 | pointer), actual.Value, "Puyo native control value");
+            }
+            else AssertThrows<InvalidDataException>(() => PuyoInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Puyo noncontrol rejection");
+            if (visuals.Contains(pointer)) AssertEqual((ushort)pointer, PuyoInstructionProgramDefinitions.PresentationWordAddress(visualIndex++), "Puyo native visual order");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitions.MechanicsWord(invalid), "Puyo control bounds");
+        foreach (int invalid in new[] { int.MinValue, -1, 17, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitions.PresentationWordAddress(invalid), "Puyo visual bounds");
     }
 }

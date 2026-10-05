@@ -409,7 +409,7 @@ internal static partial class Program
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
         PaletteRgb5[] Zeros(int count) => Enumerable.Range(0, count).Select(_ => Color(0)).ToArray();
-MotherBrainRainbowPaletteFrameDocument ReadFull(int bodySource, int legSource) => new()
+        MotherBrainRainbowPaletteFrameDocument ReadFull(int bodySource, int legSource) => new()
         {
             Body = Enumerable.Range(0, 15).Select(color => Color(Read(bodySource + 2 * color))).ToArray(),
             BackLegs = Enumerable.Range(0, 15).Select(color => Color(Read(legSource + 2 * color))).ToArray(),

@@ -10626,4 +10626,14 @@
     "confirmation": "Integrated --lookup-stream-3 passed complete turret bank-byte ownership, bounds, 21 turret and seven laser presentation operands and existing actual producer checks. Verification build: 1438 warnings, zero errors. Source index refreshed.",
     "remaining": "Snapshot: 246 converted, one justified retained, 881 pending. No additional retention exception."
   }
+,
+  "motherBrainRevivalQuantizationIntegration": {
+    "id": "mother-brain-revival-partial-quantized-fade",
+    "state": "unreviewed",
+    "implementationCommit": "6e9d816f4",
+    "convertedFields": "56 of 57 revival RGB channel trajectories calculate linear RGB8 endpoint interpolation before quantizing to RGB5. Import discards a trajectory only after every supplied sample matches; independently edited channels remain exact.",
+    "evidence": "All 152 native revival words selected through AD:ED9C match. The sole unmatched green trajectory of body color 10 remains explicit, as do endpoint color obligations. No historical-tool claim or retention exemption follows from fitting.",
+    "confirmation": "Integrated --lookup-stream-3 passed all native colors, body/brain tail preservation, leg and trailing WRAM destinations, fake-death revival behavior, 456 independent channel edits and exactly one stock supplied trajectory. Verification build: 1436 warnings, zero errors. ResourceAudit build: zero warnings/errors. Reviewed source contract and static index refreshed.",
+    "remaining": "Snapshot unchanged: 246 converted, one justified retained, 881 pending. Revival container remains unresolved until endpoints and unmatched channel have acceptable dispositions."
+  }
 }

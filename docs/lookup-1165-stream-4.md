@@ -316,7 +316,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 - [x] **MamaTurtleInstructionProgramDefinitions.Words** ([L43](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L43)) - factory-built stock table. Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [x] **MamaTurtleInstructionProgramDefinitions.PresentationWords** ([L45](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L45)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202** ([L202](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L202)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202** ([L202](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L202)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/MamaTurtleShellContourDefinitions.cs
 
@@ -894,3 +894,7 @@ Three more definitions converted;58 complete and167 unchecked. No retained excep
 - The view preserves length, indexing, foreach and explicit oracle ToArray use; only the BG2 verifier's explicit span binding needed adaptation. Runtime collision callback ordering is unchanged. Eight stored rectangles remain independently unresolved, with no exemption.
 - Evidence: pinned bankA5 `ExtendedSpritemap_Draygon_A` `$A31B` and `ExtendedSpritemap_Draygon_3A` `$A643`, seventeen ten-byte frame records per facing; native hitbox lists `$AA95/$AAC7/$ABAB`.
 - Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Existing BG2 fixture retains all34 native component counts/offsets/list identities, all three hitbox lists and rectangle/callback comparisons, guarded actual shot callback dispatch and invalid-frame rejection. Existing48-frame OAM fixture still passes its empty-component and callback assertions.
+
+## Batch 18 checklist reconciliation
+
+The separately inventoried AddBabyCrawl two-duration literal was removed with its entire factory helper in592e59b21. Its two ten-tick poses are calculated in TryCrawl and covered by the same117-native-word confirmation. Marking that already-completed entry brings totals to59 complete and166 unchecked; no production change or additional exemption.

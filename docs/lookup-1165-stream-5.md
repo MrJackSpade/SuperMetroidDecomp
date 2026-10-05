@@ -669,7 +669,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.YappingMaw.cs
 
-- [ ] **RoomEnemySystem.YappingMawHeldSamusOffsets** ([L134](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.YappingMaw.cs#L134)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.YappingMawHeldSamusOffsets** - Calculate the radius16 Manhattan diamond in eight clockwise steps; each step exchanges eight pixels between components. Granted YappingMawRomData owns native A8:A0A7-A0C6 identity/formula; both actual runtime consumers call it. --lookup-stream5-yapping-maw-offsets confirms16native words, eight actual held-offset callbacks,256 angle-quantized BeginExtension state writes (including wrap), and unchanged invalid-direction bounds. Build1433 existing warnings/zero errors. Integrated stream checkpoint57resolved(56converted,one mixed)/168required.
 
 ### csharp/src/SuperMetroid.Core/Game/YappingMawBodyProjectileInstructionProgramDefinitions.cs
 

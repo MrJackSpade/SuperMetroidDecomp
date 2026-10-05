@@ -128,14 +128,6 @@ public sealed partial class RoomEnemySystem
     private const ushort YappingMawRetractedDelayFrames = 64;
     private const ushort YappingMawAttackSound = 0x002f;
 
-    // $A8:A0A7-$A0C6. These offsets are consumed both immediately after direction selection
-    // and later by animation opcodes as the mouth changes shape during retraction.
-    private static readonly (short X, short Y)[] YappingMawHeldSamusOffsets =
-    [
-        (  0, -16), (  8,  -8), ( 16,   0), (  8,   8),
-        (  0,  16), ( -8,   8), (-16,   0), ( -8,  -8),
-    ];
-
     private readonly YappingMawEnemyState?[] _yappingMawStates =
         new YappingMawEnemyState?[MaximumEnemyCount];
 
@@ -324,7 +316,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         slot.Timer = 0;
 
-        (short heldX, short heldY) = YappingMawHeldSamusOffsets[direction];
+        (short heldX, short heldY) = YappingMawRomData.HeldSamusOffset(direction);
         state.HeldSamusXOffset = unchecked((ushort)heldX);
         state.HeldSamusYOffset = unchecked((ushort)heldY);
         state.Function = YappingMawAiFunction.ExtendingOrRetracting;
@@ -576,7 +568,7 @@ public sealed partial class RoomEnemySystem
         YappingMawEnemyState state,
         int directionIndex)
     {
-        (short x, short y) = YappingMawHeldSamusOffsets[directionIndex];
+        (short x, short y) = YappingMawRomData.HeldSamusOffset(directionIndex);
         state.HeldSamusXOffset = unchecked((ushort)x);
         state.HeldSamusYOffset = unchecked((ushort)y);
     }

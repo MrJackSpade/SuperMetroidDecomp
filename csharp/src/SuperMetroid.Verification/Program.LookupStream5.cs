@@ -6,6 +6,43 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5YappingMawOffsets(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
+        var begin = typeof(RoomEnemySystem).GetMethod("BeginYappingMawExtension", flags)!
+            .CreateDelegate<Action<RoomEnemySlot,YappingMawEnemyState>>();
+        var set = typeof(RoomEnemySystem).GetMethod("SetYappingMawHeldOffset", flags)!
+            .CreateDelegate<Action<YappingMawEnemyState,int>>();
+        var slot = new RoomEnemySystem().Slots[0];
+        var state = new YappingMawEnemyState(slot) { DistanceToSamus = 32 };
+        for (int direction = 0; direction < 8; direction++)
+        {
+            var offset = YappingMawRomData.HeldSamusOffset(direction);
+            AssertEqual(Word(0xa8a0a7 + direction * 4), unchecked((ushort)offset.X), "Native held X");
+            AssertEqual(Word(0xa8a0a9 + direction * 4), unchecked((ushort)offset.Y), "Native held Y");
+            set(state, direction);
+            Check(direction, "Actual held-offset callback");
+        }
+        for (ushort angle = 0; angle < 256; angle++)
+        {
+            state.AimAngle = angle;
+            begin(slot, state);
+            int direction = ((angle + 16) & 255) >> 5;
+            AssertEqual((ushort)(direction * 2), state.DirectionTableByteOffset,
+                "Actual angle quantization/wrap retained");
+            Check(direction, "Actual begin-extension held offset");
+        }
+        AssertThrows<IndexOutOfRangeException>(() => YappingMawRomData.HeldSamusOffset(-1), "Held direction lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => YappingMawRomData.HeldSamusOffset(8), "Held direction upper bound");
+        Console.WriteLine("Yapping Maw offsets:16 native words, eight actual held callbacks,256 angle-quantized begin-extension writes and direction bounds pass.");
+
+        void Check(int direction, string context)
+        {
+            AssertEqual(Word(0xa8a0a7 + direction * 4), state.HeldSamusXOffset, context);
+            AssertEqual(Word(0xa8a0a9 + direction * 4), state.HeldSamusYOffset, context);
+        }
+    }
     private static void VerifyLookupStream5EyeGeometry(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

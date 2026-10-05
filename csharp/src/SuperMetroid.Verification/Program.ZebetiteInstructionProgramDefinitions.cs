@@ -22,7 +22,7 @@ internal static partial class Program
         AssertEqual(20, ZebetiteInstructionProgramDefinitions.MechanicsWordCount,
             "Zebetite compiled mechanics word count");
         AssertEqual(10, ZebetiteInstructionProgramDefinitions.PresentationWordCount,
-            "Zebetite live presentation word count");
+            "Zebetite presentation word count");
 
         for (int index = 0;
              index < ZebetiteInstructionProgramDefinitions.MechanicsWordCount;
@@ -36,6 +36,7 @@ internal static partial class Program
         }
 
         var guard = new ZebetiteInstructionReadGuard(rom);
+        var executedOperands = new HashSet<ushort>();
         MethodInfo select = typeof(RoomEnemySystem).GetMethod(
             "SelectZebetiteHealthAnimation",
             flags)!;
@@ -67,8 +68,11 @@ internal static partial class Program
             object?[] arguments =
                 [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
             process.Invoke(enemies, arguments);
-            AssertEqual(expected.Presentation, guard.LastObservedPresentationWord,
-                $"Zebetite program {programIndex} live spritemap read");
+            AssertEqual(expected.Presentation, unchecked((ushort)(slot.CurrentInstruction - 2)),
+                $"Zebetite program {programIndex} executed visual operand");
+            executedOperands.Add(expected.Presentation);
+            AssertEqual(ReadZebetiteInstructionWord(rom, expected.Presentation), slot.SpritemapPointer,
+                $"Zebetite program {programIndex} selected sprite matches the cartridge");
             AssertEqual(expected.Sleep, slot.CurrentInstruction,
                 $"Zebetite program {programIndex} frame handoff");
             process.Invoke(enemies, arguments);
@@ -76,17 +80,18 @@ internal static partial class Program
                 $"Zebetite program {programIndex} terminal sleep");
         }
 
-        AssertEqual(ZebetiteInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Zebetite spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Zebetite sprite selection performs zero live cartridge reads");
+        AssertEqual(ZebetiteInstructionProgramDefinitions.PresentationWordCount, executedOperands.Count,
+            "all Zebetite visual operands execute");
         for (int index = 0;
              index < ZebetiteInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 ZebetiteInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Zebetite presentation word $A6:{address:X4}");
+            AssertTrue(executedOperands.Contains(address),
+                $"production execution selects Zebetite presentation word $A6:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Zebetite mechanics byte");
@@ -109,7 +114,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Zebetite instruction mechanics: 20 compiled words, all ten health-tier " +
-            "programs, and ten live spritemap reads pass with mechanics bytes forbidden.");
+            "programs, and ten native sprite selections pass with zero live operand reads.");
     }
 
     private static int ProbeZebetiteInstructionMechanicsAllocation()

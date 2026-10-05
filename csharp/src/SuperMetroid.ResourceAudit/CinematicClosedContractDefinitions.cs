@@ -41,7 +41,7 @@ internal static class CinematicClosedContractDefinitions
             "Private construction requires the exact door tile stream, both fifteen-color setup images, eight six-color animation rows and two four-byte Mode-7 maps. Arrays are compiled independently; indexed selections have CLR bounds. CGRAM/VRAM destinations are placement, not resource identities. Door behavior and quake synchronization are not certified."),
         new("SuperMetroid.Core.Assets.EscapeTimerPresentation", "escape-timer-complete-decimal-and-label-art", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentation.cs", "22AB9DE89C78B2D3B38CC90D36C2BAC2EBFFA0C7E607158809424694BE8F38EC"),
-             new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentationDefinitions.cs", "90CAECDC3A6E4EA4ADA5CB53F39D2193584A4DA3EBBE57527A6D538E5EA0D5BB")],
+             new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerPresentationDefinitions.cs", "3AB9B68A67A4782209A674FACEC6BCACB0F4FAFDCF88B5810A4FC14E18217CCC")],
             "Private construction requires Label, all ten decimal digit compositions and four anchors. Draw validates packed BCD before deriving only those loaded digit names. External Core access to mutable AnchorNames revokes this proof. Countdown logic, placement and actual glyph appearance are not certified."),
         new("SuperMetroid.Core.Assets.CeresEscapeOverlayTilemapCatalog", "ceres-overlay-complete-owned-membership-query", ["TryResolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "221707D460C05818CC9C71A2C57936F1F69FBAA7ABF9B03E0B4BF4C334D9227A")],

@@ -15,8 +15,8 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementDefinitions.cs", "4B2475E4CF89A5499187BDE56759F80624226C8F51FCB766829B46AFEA483F6D")],
             "Private construction requires both complete sixteen-direction rows of immutable offset records. Resolve checks direction before selecting standing/running. This includes bounded low-nibble overread directions, not just named aim directions. Actual muzzle placement is not certified."),
         new("SuperMetroid.Core.Assets.ChargeFlareSpriteCatalog", "flare-complete-private-composition-set", ["Draw"],
-            [new("csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteCatalog.cs", "7D0D8F666C0F195D4EB2EAA4FC3B4731FF6D283ED7980A89691E261F8BCEA427"),
-             new("csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteDefinitions.cs", "B6E6668A4579F83232B4D98EE5DD3A9C12FF0644BCFBAD80CB9D5106523C508D"),
+            [new("csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteCatalog.cs", "EB90C33438E95D3EC13189F1BD07B295149ED7A597C86BBB15475AAF799C6B6A"),
+             new("csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteDefinitions.cs", "3F96388018BF08A192874EE222CB512289B191FBEB16D4AAE14254198219A063"),
              new("csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteCatalog.cs", "913EEEF871A5E8396356377900A90DAFD951290CAFB6E2D9F5E137A82CF78AAD")],
             "The sole private wrapper construction loads every one of the 28 required flare compositions through the shared exact-set loader. All 54 selector entries resolve within that set; Draw bounds-checks the selector. The partial shared catalog remains private. Cadence, positioning and projectile mechanics are not certified."),
         new("SuperMetroid.Core.Assets.ProjectileTrailCatalog", "trail-complete-timed-appearances-and-retained-start", ["Resolve", "ResolveCurrent"],
@@ -39,7 +39,7 @@ internal static class ProjectileClosedContractDefinitions
         new("SuperMetroid.Core.Assets.ProjectileSpriteCatalog", "projectile-production-complete-compositions", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteCatalog.cs", "913EEEF871A5E8396356377900A90DAFD951290CAFB6E2D9F5E137A82CF78AAD"),
              new("csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteDefinitions.cs", "FB4C6216393398B4A3C16600A72EF44DB9605F82C53B91A2AEAC27A30D30F365"),
-             new("csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteCatalog.cs", "7D0D8F666C0F195D4EB2EAA4FC3B4731FF6D283ED7980A89691E261F8BCEA427")],
+             new("csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteCatalog.cs", "EB90C33438E95D3EC13189F1BD07B295149ED7A597C86BBB15475AAF799C6B6A")],
             "Production Load requires all 417 sparse projectile compositions. The alternate partial LoadFrames is confined to the source-guarded flare wrapper's private field and the provider itself; any other Core reference revokes this production-consumer proof. No assertion about arbitrary partial instances, host installation, animation or pixels is made."),
     ];
 }

@@ -10961,4 +10961,13 @@
   "scope": "Only highlight4F38,outline0CA5,dark tissue1949,represented by exact quantized gradient endpoints. No whole palette exemption.",
   "state": "approved-pending-integration",
   "limits": "RGB8 endpoints193/200/155 and79/83/55 are an exact quantized representation,not a historical-tool provenance claim. Revival and other channel endpoints still need dispositions. Worker must use dedicated domain catalog and preserve independent installed edits."
+},"flareOwtchPuyoIntegration":{
+  "scope": "13 flare/timer/Dragon identities, Owtch/Stoke layouts, Puyo programs, smoke geometry and Metroid quota dispatch definitions",
+  "state": "converted",
+  "confirmation": "Integrated Verification build1442 warnings/zero errors; focused stream1 passed native identities, exact domains, actual OAM, directional enemy programs/projectile spawns, all smoke families with RNG state, and resident PLM quota events. No new exception. Source contract hashes refreshed.",
+  "implementationCommits": [
+    "f1ef6f08d",
+    "451507846",
+    "a334e0def"
+  ]
 }}

@@ -56,8 +56,8 @@ internal static partial class Program
 
         var guarded = new IntroArtworkSourceReadGuard(bus,
             blockIntroDiscoveryActors: true);
-        var stockState = new IntroCinematicState(guarded, characterArtwork: stock);
-        var editedState = new IntroCinematicState(guarded, characterArtwork: edited);
+        var stockState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
+        var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {

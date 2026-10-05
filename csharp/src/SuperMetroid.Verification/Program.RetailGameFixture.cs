@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -117,8 +118,8 @@ internal static partial class Program
     }
 
     private static CeresDestructionCinematicState CreateRetailDestructionFixture(ISnesAddressSpace bus,
-        CartridgeAudioState? audio = null) => new(bus, audio, RetailPresentationFixture().PowerBombFixedColors,
-            runtimeFixtureInstallation.Value.LoadIntroCinematicArt(), RetailPresentationFixture().RoomPaletteFx);
+        CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) => new(bus, audio, RetailPresentationFixture().PowerBombFixedColors,
+            artwork ?? runtimeFixtureInstallation.Value.LoadIntroCinematicArt(), RetailPresentationFixture().RoomPaletteFx);
 
     private static EndingCreditsState CreateRetailEndingFixture(ISnesAddressSpace bus,
         CartridgeAudioState audio, ushort gameTimeHours, ushort gameTimeMinutes,
@@ -137,13 +138,15 @@ internal static partial class Program
         ending.BindStaffCredits(maps.StaffCredits);
         return ending;
     }
-    private static IntroCinematicState CreateRetailIntroFixture(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
+    private static IntroCinematicState CreateRetailIntroFixture(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+        IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
+        BeamTileCatalog? beamArtwork = null, SamusBodyArtworkCatalog? samusBodyArtwork = null)
     {
         var installation = runtimeFixtureInstallation.Value;
         var maps = RetailPresentationFixture();
         var projectiles = installation.LoadProjectiles();
-        var intro = new IntroCinematicState(bus, audio, maps.IntroFont,
-            installation.LoadIntroCinematicArt(), projectiles.BeamTiles, installation.LoadSamusBodyArt())
+        var intro = new IntroCinematicState(bus, audio, introFont ?? maps.IntroFont,
+            characterArtwork ?? installation.LoadIntroCinematicArt(), beamArtwork ?? projectiles.BeamTiles, samusBodyArtwork ?? installation.LoadSamusBodyArt())
         {
             ProjectileCompositions = projectiles.Catalog,
             ProjectileFrameBindings = projectiles.FrameBindings,

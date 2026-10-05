@@ -33,8 +33,8 @@ internal static partial class Program
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var native = new EndingCreditsState(nativeBus, nativeAudio, 0, 0);
-        var installed = new EndingCreditsState(guardedBus, installedAudio, 0, 0);
+        var native = CreateRetailEndingFixture(nativeBus, nativeAudio, 0, 0);
+        var installed = CreateRetailEndingFixture(guardedBus, installedAudio, 0, 0);
         installed.BindMode7Artwork(stock);
         var phases = new HashSet<EndingCreditsPhase>();
         for (int frame = 0; frame < 10000 &&
@@ -82,7 +82,7 @@ internal static partial class Program
             var sceneBus = new EndingMode7SourceReadGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
             var audio = new CartridgeAudioState();
-            var state = new EndingCreditsState(sceneBus, audio, 0, 0);
+            var state = CreateRetailEndingFixture(sceneBus, audio, 0, 0);
             state.BindMode7Artwork(stock);
             for (int frame = 0; frame < 10000 && state.Phase != target; frame++)
             {
@@ -126,7 +126,7 @@ internal static partial class Program
                 var partialBus = new EndingMode7SourceReadGuard(
                     SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
                 var partialAudio = new CartridgeAudioState();
-                var partial = new EndingCreditsState(partialBus, partialAudio, 0, 0);
+                var partial = CreateRetailEndingFixture(partialBus, partialAudio, 0, 0);
                 partial.BindMode7Artwork(stock);
                 for (int frame = 0; frame < 2000 &&
                     partial.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)

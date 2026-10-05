@@ -22,8 +22,8 @@ internal static partial class Program
             var guardedBus = new EndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
             var nativeAudio = new CartridgeAudioState();
             var installedAudio = new CartridgeAudioState();
-            var native = new EndingCreditsState(nativeBus, nativeAudio, hours, 0);
-            var installed = new EndingCreditsState(guardedBus, installedAudio, hours, 0);
+            var native = CreateRetailEndingFixture(nativeBus, nativeAudio, hours, 0);
+            var installed = CreateRetailEndingFixture(guardedBus, installedAudio, hours, 0);
             native.BindStaffCredits(credits);
             installed.BindStaffCredits(credits);
             installed.BindObjectArtwork(stock);
@@ -189,8 +189,8 @@ internal static partial class Program
                 var editedBus = new EndingObjectSourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
                 var stockAudio = new CartridgeAudioState();
                 var editedAudio = new CartridgeAudioState();
-                var stockState = new EndingCreditsState(stockBus, stockAudio, hours, 0);
-                var editedState = new EndingCreditsState(editedBus, editedAudio, hours, 0);
+                var stockState = CreateRetailEndingFixture(stockBus, stockAudio, hours, 0);
+                var editedState = CreateRetailEndingFixture(editedBus, editedAudio, hours, 0);
                 stockState.BindStaffCredits(credits);
                 editedState.BindStaffCredits(credits);
                 stockState.BindObjectArtwork(stock);

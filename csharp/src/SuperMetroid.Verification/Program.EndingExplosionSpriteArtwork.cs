@@ -356,7 +356,7 @@ internal static partial class Program
                 EndingExplosionSpritePresentation.Write(output, document);
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             var audio = new CartridgeAudioState();
-            var scene = new EndingCreditsState(guard, audio, 0, 0);
+            var scene = CreateRetailEndingFixture(guard, audio, 0, 0);
             scene.BindObjectArtwork(stock);
             for (int frame = 0; frame < 10000 &&
                 scene.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)

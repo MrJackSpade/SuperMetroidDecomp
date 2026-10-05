@@ -63,7 +63,8 @@ internal static partial class Program
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();
-        fragment.Draw(bus, nativeLiveOam);
+        DrawImportedCinematicActor(bus, nativeLiveOam, (IntroDiscoverySprite)typeof(IntroEggParticle)
+            .GetField("sprite", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fragment)!);
         nativeLiveOam.FinalizeFrame();
         AssertTrue(stockOam.LowTable.SequenceEqual(nativeLiveOam.LowTable) &&
                 stockOam.HighTable.SequenceEqual(nativeLiveOam.HighTable),
@@ -88,8 +89,8 @@ internal static partial class Program
         }
 
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var stockState = new IntroCinematicState(guarded, characterArtwork: stock);
-        var editedState = new IntroCinematicState(guarded, characterArtwork: edited);
+        var stockState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
+        var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
             typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!

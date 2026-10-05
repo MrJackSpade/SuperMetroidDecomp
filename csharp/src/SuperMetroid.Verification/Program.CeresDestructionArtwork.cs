@@ -61,8 +61,8 @@ internal static partial class Program
 
         var guard = new IntroArtworkSourceReadGuard(bus,
             blockCeresFlightSprites: true, blockCeresDestructionSprites: true);
-        var native = new CeresDestructionCinematicState(bus);
-        var installed = new CeresDestructionCinematicState(guard, artwork: stock);
+        var native = CreateRetailDestructionFixture(bus);
+        var installed = CreateRetailDestructionFixture(guard, artwork: stock);
         var phases = new HashSet<CeresDestructionPhase>();
         for (int frame = 0; frame < 5000 && !native.Finished; frame++)
         {
@@ -118,8 +118,8 @@ internal static partial class Program
         using (var output = File.Create(actorsOverride))
             CeresRevealActorLayout.Write(output, actorsDocument);
         IntroCinematicArtworkCatalog movedPlanet = installation.LoadIntroCinematicArt();
-        var stockReveal = new CeresDestructionCinematicState(guard, artwork: stock);
-        var movedReveal = new CeresDestructionCinematicState(guard, artwork: movedPlanet);
+        var stockReveal = CreateRetailDestructionFixture(guard, artwork: stock);
+        var movedReveal = CreateRetailDestructionFixture(guard, artwork: movedPlanet);
         for (int frame = 0; frame < 4000 &&
             stockReveal.Phase != CeresDestructionPhase.PlanetZebesTitle; frame++)
         {
@@ -191,8 +191,8 @@ internal static partial class Program
         using (var output = File.Create(destructionActorsOverride))
             CeresDestructionActorLayout.Write(output, destructionActorsDocument);
         IntroCinematicArtworkCatalog movedAsteroid = installation.LoadIntroCinematicArt();
-        var stockDestruction = new CeresDestructionCinematicState(guard, artwork: stock);
-        var movedDestruction = new CeresDestructionCinematicState(guard, artwork: movedAsteroid);
+        var stockDestruction = CreateRetailDestructionFixture(guard, artwork: stock);
+        var movedDestruction = CreateRetailDestructionFixture(guard, artwork: movedAsteroid);
         for (int frame = 0; frame < 36; frame++)
         {
             stockDestruction.Step();
@@ -248,7 +248,7 @@ internal static partial class Program
         using (var output = File.Create(spritesOverride))
             CeresDestructionSpritePresentation.Write(output, spriteDocument);
         IntroCinematicArtworkCatalog editedSprites = installation.LoadIntroCinematicArt();
-        var spriteState = new CeresDestructionCinematicState(guard, artwork: stock);
+        var spriteState = CreateRetailDestructionFixture(guard, artwork: stock);
         for (int frame = 0; frame < 36; frame++) spriteState.Step();
         LayeredRenderSnapshot beforeSprites = spriteState.CaptureRenderSnapshot();
         spriteState.BindArtwork(editedSprites);
@@ -270,7 +270,7 @@ internal static partial class Program
             "a destruction sprite override cannot hide corrupt stock artwork");
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Ceres destruction sprite repair lost installation.");
-        var repairedSpriteState = new CeresDestructionCinematicState(guard,
+        var repairedSpriteState = CreateRetailDestructionFixture(guard,
             artwork: repaired.LoadIntroCinematicArt());
         for (int frame = 0; frame < 36; frame++) repairedSpriteState.Step();
         AssertTrue(repairedSpriteState.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(
@@ -291,7 +291,7 @@ internal static partial class Program
         using (var output = File.Create(ceresOverride))
             CeresDestructionArtworkCatalog.WriteMap(output, ceres);
         IntroCinematicArtworkCatalog editedCeres = installation.LoadIntroCinematicArt();
-        var ceresState = new CeresDestructionCinematicState(guard, artwork: stock);
+        var ceresState = CreateRetailDestructionFixture(guard, artwork: stock);
         for (int frame = 0; frame < 36; frame++) ceresState.Step();
         LayeredRenderSnapshot beforeCeres = ceresState.CaptureRenderSnapshot();
         ceresState.BindArtwork(editedCeres);
@@ -339,7 +339,7 @@ internal static partial class Program
         IntroCinematicArtworkCatalog editedZebesPng = installation.LoadIntroCinematicArt();
         File.Delete(zebesPngOverride);
 
-        var zebesState = new CeresDestructionCinematicState(guard, artwork: stock);
+        var zebesState = CreateRetailDestructionFixture(guard, artwork: stock);
         for (int frame = 0; frame < 3000 &&
             zebesState.Phase != CeresDestructionPhase.FadeInZebes; frame++)
             zebesState.Step();

@@ -10,6 +10,8 @@ internal static partial class Program
         IntroCinematicArtworkCatalog stock)
     {
         VerifyIntroMotherBrainInputSource(bus);
+        ushort ReferenceWord(ushort pointer) => (ushort)(bus.ReadByte(0x910000 | pointer) |
+            bus.ReadByte(0x910000 | unchecked((ushort)(pointer + 1))) << 8);
         AssertThrows<InvalidDataException>(() =>
             IntroMotherBrainInputDefinitions.ReadWord(
                 IntroMotherBrainInputDefinitions.ListEnd),
@@ -24,13 +26,13 @@ internal static partial class Program
         reference.Enable();
         compiled.LoadObject(guarded, IntroMotherBrainInputDefinitions.HeaderStart,
             definitionWord: IntroMotherBrainInputDefinitions.ReadWord);
-        reference.LoadObject(bus, IntroMotherBrainInputDefinitions.HeaderStart);
+        reference.LoadObject(bus, IntroMotherBrainInputDefinitions.HeaderStart, definitionWord: ReferenceWord);
         int endFrame = -1;
         for (int frame = 0; frame < 1024; frame++)
         {
             compiled.Step(guarded, specialInstruction: HandleEnd,
                 instructionWord: IntroMotherBrainInputDefinitions.ReadWord);
-            reference.Step(bus, specialInstruction: HandleEnd);
+            reference.Step(bus, specialInstruction: HandleEnd, instructionWord: ReferenceWord);
             AssertEqual(reference.InstructionPointer, compiled.InstructionPointer,
                 $"intro Mother Brain demo cursor frame {frame}");
             AssertEqual(reference.InstructionTimer, compiled.InstructionTimer,
@@ -52,7 +54,7 @@ internal static partial class Program
 
         // Exercise the actual cinematic owner under the same source guard: both its
         // constructor-time object load and frame-time interpreter must use installed data.
-        var intro = new IntroCinematicState(guarded, characterArtwork: stock);
+        var intro = CreateRetailIntroFixture(guarded, characterArtwork: stock);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!
             .Invoke(intro, null);
@@ -65,8 +67,8 @@ internal static partial class Program
         var nativeFirst = new DemoInputState();
         nativeFirst.Clear();
         nativeFirst.Enable();
-        nativeFirst.LoadObject(bus, IntroMotherBrainInputDefinitions.HeaderStart);
-        nativeFirst.Step(bus);
+        nativeFirst.LoadObject(bus, IntroMotherBrainInputDefinitions.HeaderStart, definitionWord: ReferenceWord);
+        nativeFirst.Step(bus, instructionWord: ReferenceWord);
         AssertEqual(nativeFirst.PreInstructionPointer, live.PreInstructionPointer,
             "production flashback owns the compiled demo header");
         AssertEqual(nativeFirst.InstructionPointer, live.InstructionPointer,

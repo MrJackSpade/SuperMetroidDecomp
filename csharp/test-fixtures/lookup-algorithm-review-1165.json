@@ -11302,4 +11302,11 @@
     "confirmation":  "Root Verification1444 warnings/zero errors;90 native referenced identities,540 exact text/index words and absent/unaligned rejection pass. Native A08923-8968 and managed ReadSpawnNameWords preserve opaque labels.",
     "remaining":  "484 converted,13 justified retained/mixed,631 pending. Exception limited to69 labels and10 fragments in Stream4 Batch49.",
     "state":  "mixed"
+},"xrayBossExclusionIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; --lookup-stream5-xray-room-rules confirms every room/boss word,Fireflea precedence and color-math settings.",
+    "completed":  "XrayRoomDisplayRules.ExcludedBossIds",
+    "workerCommit":  "f4eb31131f298832bc96b8a650732fdd979d3ba8",
+    "state":  "converted",
+    "algorithm":  "Restore five native equality branches from91D158-D172 as direct conditional cases.",
+    "remaining":  "485 converted,13 justified retained/mixed,630 pending."
 }}

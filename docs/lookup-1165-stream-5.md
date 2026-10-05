@@ -660,7 +660,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Rendering/XrayRoomDisplayRules.cs
 
-- [ ] **XrayRoomDisplayRules.ExcludedBossIds** ([L24](../csharp/src/SuperMetroid.Core/Rendering/XrayRoomDisplayRules.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **XrayRoomDisplayRules.ExcludedBossIds** - Restored native equality-branch control flow from CheckIfXrayShouldShowAnyBlocks ($91:D158-D172), replacing the membership array with the same five conditional cases. Existing focused room-rule verifier confirms every room/boss word, Fireflea precedence, and color-math settings via --lookup-stream5-xray-room-rules. Root build 1444 existing warnings, zero errors. Integrated stream checkpoint: 61 converted, one mixed, 163 required.
 
 ### csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs
 

@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifyGrappleTileBinding(SuperMetroidAddressSpace bus, GrappleTileAtlas stock, GrappleTileAtlas edited)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.RunNmi(0, true);
         var samus = runtime.Samus!;
@@ -20,11 +20,21 @@ internal static partial class Program
         samus.Grapple.PointAnimationFrame = 1; samus.Grapple.PointAnimationTimer = 4;
         samus.Grapple.BeamStartX = samus.XPosition; samus.Grapple.BeamStartY = samus.YPosition;
         samus.Grapple.Angle = SnesAngle.FromRaw(0x6000);
-        var game = new SuperMetroidGame(bus);
+        var game = CreateRetailGameFixture(bus);
         var runtimeField = typeof(SuperMetroidGame).GetField("runtime", flags)!;
         runtimeField.SetValue(game, runtime);
         Draw(runtime);
         AssertEqual(2, runtime.VramWrites.Entries.Count, "Actual actor fixture queues endpoint/rope transfers");
+        AssertTrue(runtime.VramWrites.Entries.All(entry => entry.AssetId != VramAssetId.None), "Installed actor queues typed endpoint/rope transfers");
+        // Reconstruct the native records an older snapshot stores, preserving queue order,
+        // byte counts and destinations from the actual actor draw.
+        var entries = (List<VramWriteEntry>)typeof(VramWriteQueue).GetField("_entries", flags)!.GetValue(runtime.VramWrites)!;
+        for (int i = 0; i < entries.Count; i++)
+            entries[i] = entries[i] with
+            {
+                SourceAddress = GrappleTileDefinitions.TransferFor(entries[i].AssetId).SourceAddress,
+                AssetId = VramAssetId.None,
+            };
         AssertTrue(runtime.VramWrites.Entries.All(entry => entry.AssetId == VramAssetId.None), "Legacy fixture stores native sources before binding");
         byte[] legacy = SaveGrappleFixture(game);
         game.BindGrappleArtwork(stock);
@@ -40,6 +50,7 @@ internal static partial class Program
         var restoredRuntime = (SuperMetroidRuntime)runtimeField.GetValue(restored)!;
         AssertTrue(restoredRuntime.GrappleArtwork is null, "Restored state requires current host Grapple artwork");
         byte[] retained = restoredRuntime.Vram.Bytes.ToArray();
+        runtimeFixtureBindings.Value(restoredRuntime);
         restored.BindGrappleArtwork(edited);
         restoredRuntime.RunNmi(0, false);
         AssertTrue(retained.AsSpan().SequenceEqual(restoredRuntime.Vram.Bytes), "Grapple rebind preserves retained lag-frame VRAM");
@@ -53,6 +64,8 @@ internal static partial class Program
         var typedRestored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(typedState);
         typedRestored.BindGrappleArtwork(stock);
         var typedRuntime = (SuperMetroidRuntime)runtimeField.GetValue(typedRestored)!;
+        runtimeFixtureBindings.Value(typedRuntime);
+        typedRestored.BindGrappleArtwork(stock);
         typedRuntime.RunNmi(0, true);
         AssertTrue(stock.Resolve(GrappleTileDefinitions.PointAssetFor(typedRuntime.Samus!.Grapple.PointAnimationFrame)).Span.SequenceEqual(
             typedRuntime.Vram.Bytes.Slice(GrappleTileDefinitions.PointDestination * 2, 32)), "Typed pending state also resolves newly selected endpoint artwork");

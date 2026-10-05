@@ -18,30 +18,6 @@ public sealed partial class RoomEnemySystem
     private const int DeadTorizoWorkBufferSize = 0x1000;
     private const int DeadTorizoSandBufferAddress = 0x7e9500;
 
-    private static readonly DeadTorizoGraphicsCopy[] DeadTorizoInitialGraphicsCopies =
-    [
-        new(0x0120, 0x0060, 0x00c0),
-        new(0x0320, 0x01a0, 0x00c0),
-        new(0x0500, 0x02c0, 0x0100),
-        new(0x0700, 0x0400, 0x0100),
-        new(0x0900, 0x0540, 0x0100),
-        new(0x0b00, 0x0680, 0x0100),
-        new(0x0d00, 0x07c0, 0x0100),
-        new(0x0f00, 0x0900, 0x0100),
-        new(0x1100, 0x0a40, 0x0100),
-        new(0x12e0, 0x0b60, 0x0120),
-        new(0x14c0, 0x0c80, 0x0140),
-        new(0x16c0, 0x0dc0, 0x0140),
-    ];
-
-    // These are word offsets into the 4bpp staging surface. The paired planes-2/3 word is
-    // eight words later, exactly matching `$A9:E272/$E38B`'s repeated indexed accesses.
-    private static ReadOnlySpan<ushort> DeadTorizoColumnWordOffsets =>
-        [0, 16, 32, 48, 64, 80, 96, 112, 128, 144];
-
-    private static ReadOnlySpan<ushort> DeadTorizoColumnMinimumY =>
-        [0x50, 0x48, 0x10, 0, 0, 0, 0, 0, 0, 0x10];
-
     private readonly List<VramWriteEntry> _deadTorizoFrameVramTransfers = [];
     private DeadTorizoEnemyState? _deadTorizo;
 
@@ -261,8 +237,9 @@ public sealed partial class RoomEnemySystem
         ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
         if (installedTiles.IsEmpty)
             throw new InvalidDataException("Dead Torizo requires installed corpse artwork.");
-        foreach (DeadTorizoGraphicsCopy copy in DeadTorizoInitialGraphicsCopies)
+        for (int row = 0; row < DeadTorizoGeometryDefinitions.Rows; row++)
         {
+            DeadTorizoGraphicsCopy copy = DeadTorizoGeometryDefinitions.InitialCopy(row);
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
             {
                 int sourceOffset = copy.SourceOffset + byteIndex;
@@ -301,15 +278,13 @@ public sealed partial class RoomEnemySystem
             ? unchecked((ushort)(state.WrapOffset + sourceOffset))
             : sourceOffset;
 
-        ReadOnlySpan<ushort> columnOffsets = DeadTorizoColumnWordOffsets;
-        ReadOnlySpan<ushort> minimumY = DeadTorizoColumnMinimumY;
-        for (int columnIndex = 0; columnIndex < columnOffsets.Length; columnIndex++)
+        for (int columnIndex = 0; columnIndex < DeadTorizoGeometryDefinitions.Columns; columnIndex++)
         {
-            if (yOffset < minimumY[columnIndex])
+            if (yOffset < DeadTorizoGeometryDefinitions.ColumnMinimumY(columnIndex))
                 continue;
 
-            int sourceWord = sourceOffset / 2 + columnOffsets[columnIndex];
-            int destinationWord = destinationOffset / 2 + columnOffsets[columnIndex] + 1;
+            int sourceWord = sourceOffset / 2 + DeadTorizoGeometryDefinitions.ColumnWordOffset(columnIndex);
+            int destinationWord = destinationOffset / 2 + DeadTorizoGeometryDefinitions.ColumnWordOffset(columnIndex) + 1;
             if (yOffset < 94)
             {
                 WriteWorkWord(destinationWord, ReadWorkWord(sourceWord));
@@ -443,10 +418,6 @@ public sealed partial class RoomEnemySystem
         bus.WriteByte(address + 1, unchecked((byte)(value >> 8)));
     }
 
-    private readonly record struct DeadTorizoGraphicsCopy(
-        int SourceOffset,
-        int DestinationOffset,
-        int Length);
 }
 
 /// <summary>Typed projection of Dead Torizo's bank-$A9 extended WRAM fields.</summary>

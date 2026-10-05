@@ -11490,4 +11490,11 @@
     "state":  "partial-required",
     "algorithm":  "Calculate quarter-pixel ramps shared by native copies A3:E5F0 and A3:CCA2.",
     "remaining":  "Gap parameters 14/16, skipped-step totals 1/4, penultimate eight-pixel magnitude and terminal zero remain required. No exception. Counts unchanged: 504 converted, 15 justified retained/mixed, 609 pending."
+},"deadTorizoGeometryIntegration":{
+    "confirmation":  "Root Verification build 1445 warnings, zero errors. Twelve native MVN descriptors, ten column offsets/clip limits, installed-art staging and 192 actual row copy/move operations match independent native operands across all 4096 work-buffer bytes.",
+    "completed":  "RoomEnemySystem.DeadTorizoColumnWordOffsets",
+    "workerCommit":  "247b541012654a7eedfb7a6832be88fdf16c1d26",
+    "state":  "partial-one-converted",
+    "algorithm":  "32-byte 4bpp tile columns advance 16 words. Initial copy descriptors and clipping derive from one shared crop geometry.",
+    "remaining":  "InitialGraphicsCopies and ColumnMinimumY remain unchecked: independently chosen silhouette and source placement require disposition. No exception. 505 converted, 15 justified retained/mixed, 608 pending."
 }}

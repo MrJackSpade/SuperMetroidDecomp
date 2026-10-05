@@ -541,7 +541,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs
 
 - [ ] **RoomEnemySystem.DeadTorizoInitialGraphicsCopies** ([L22](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs#L22)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RoomEnemySystem.DeadTorizoColumnWordOffsets** ([L40](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.DeadTorizoColumnWordOffsets** ([L40](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **RoomEnemySystem.DeadTorizoColumnMinimumY** ([L43](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs
@@ -988,3 +988,9 @@ Root confirmation: Verification build passed with 1445 warnings and zero errors.
 CrawlerSpeedDefinitions now calculates quarter-pixel ramps in place of 32 stored magnitudes. Both pinned native copies A3:E5F0 and A3:CCA2 agree. Speeds remains unchecked: gaps at parameters 14/16, skipped-step totals 1/4, the penultimate eight-pixel magnitude and terminal zero remain unresolved independent choices. No exception is claimed.
 
 Root confirmation: Verification build passed with 1445 warnings and zero errors. --lookup-stream2-crawler-ramps confirms both 32-word native copies, 384 actual crawler/Yard velocity resets and parameter-bound rejection. Stream counts remain 80 converted, two mixed, 144 required; overall counts remain 504 converted, 15 justified retained/mixed, 609 pending.
+
+## Integrated Dead Torizo crop geometry
+
+ColumnWordOffsets is complete: each 32-byte 4bpp tile advances 16 words. InitialGraphicsCopies and ColumnMinimumY remain unchecked. Their address arithmetic and clip thresholds derive from one shared crop, but the top/middle/lower silhouette boundaries and source placement still need a disposition; no artwork exception is granted.
+
+Pinned A9:DE18-DEBF supplies twelve native MVN descriptors; E272/E38B supplies the ten column offsets and clipping limits. Root Verification build passed with 1445 warnings and zero errors. --lookup-stream2-dead-torizo-geometry confirms all descriptors and limits, actual installed-art staging, and 192 actual row copy/move operations against independent native operands, comparing all 4096 work-buffer bytes. Stream checkpoint: 81 converted, two mixed, 143 required. Overall: 505 converted, 15 justified retained/mixed, 608 pending.

@@ -7,6 +7,96 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2DeadTorizoGeometry(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var expected = new byte[0x1000];
+        for (int row = 0; row < 12; row++)
+        {
+            int cursor = 0xa9de18 + row * 14;
+            int source = Word(cursor + 2) - 0xa800;
+            int destination = Word(cursor + 5) - 0x2000;
+            int length = Word(cursor + 8) + 1;
+            AssertEqual(new DeadTorizoGraphicsCopy(source, destination, length),
+                DeadTorizoGeometryDefinitions.InitialCopy(row), "Dead Torizo native MVN descriptor");
+            for (int offset = 0; offset < length; offset++)
+                expected[destination + offset] = rom.ReadByte(0xb7a800 + source + offset);
+        }
+        int[] nativeColumns = [0xa9e280,0xa9e29f,0xa9e2be,0xa9e2d8,0xa9e2f2,
+            0xa9e30c,0xa9e326,0xa9e340,0xa9e35a,0xa9e379];
+        int[] minimumY = [Word(0xa9e276),Word(0xa9e295),Word(0xa9e2b4),0,0,0,0,0,0,Word(0xa9e36f)];
+        for (int column = 0; column < 10; column++)
+        {
+            AssertEqual((Word(nativeColumns[column]) - 0x2000) / 2,
+                DeadTorizoGeometryDefinitions.ColumnWordOffset(column), "Dead Torizo native column word displacement");
+            AssertEqual(minimumY[column], DeadTorizoGeometryDefinitions.ColumnMinimumY(column),
+                "Dead Torizo native clipping boundary");
+        }
+        byte[] planar = Enumerable.Range(0, DeadTorizoArtworkDefinitions.ByteCount)
+            .Select(index => rom.ReadByte(DeadTorizoArtworkDefinitions.SourceAddress + index)).ToArray();
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns,
+            out int width, out int height);
+        using var png = new MemoryStream();
+        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        png.Position = 0;
+        var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+            new Dictionary<ushort,RoomCharacterAtlas> { [RoomEnemySystem.DeadTorizoDefinition] = RoomCharacterAtlas.Load(png, planar.Length) },
+            new Dictionary<ushort,EnemyPaletteSheet>
+            {
+                [RoomEnemySystem.DeadTorizoDefinition] = EnemyPaletteSheet.Load(new MemoryStream(
+                    EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument
+                    {
+                        Version = 1,
+                        Colors = Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0, Green=0, Blue=0 }).ToArray(),
+                    }))),
+            },
+            dmaSources: new Dictionary<ushort,int> { [RoomEnemySystem.DeadTorizoDefinition] = DeadTorizoArtworkDefinitions.SourceAddress });
+        var enemies = new RoomEnemySystem { TileArtwork = artwork };
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, rom);
+        for (int index = 0; index < expected.Length; index++) rom.WriteByte(0x7e2000 + index, 0);
+        typeof(RoomEnemySystem).GetMethod("InitializeDeadTorizoGraphics", flags)!
+            .CreateDelegate<Action>(enemies)();
+        Compare(expected, "Actual Dead Torizo installed-art crop");
+
+        var state = new DeadTorizoEnemyState(enemies.Slots[0],0,0,0,0,0xe226,0,96,95,94,0x134);
+        var moveRow = typeof(RoomEnemySystem).GetMethod("CopyOrMoveDeadTorizoPixelRow", flags)!
+            .CreateDelegate<Action<DeadTorizoEnemyState,ushort,bool>>(enemies);
+        foreach (bool move in new[] { false, true })
+        for (ushort y = 0; y < 96; y++)
+        {
+            for (int index = 0; index < expected.Length; index++)
+            {
+                expected[index] = (byte)(index * 73 ^ index >> 3);
+                rom.WriteByte(0x7e2000 + index, expected[index]);
+            }
+            int source = Word(0xa9e226 + y / 8 * 2) + (y & 7) * 2;
+            int destination = source + ((y & 7) >= 6 ? 0x134 : 0) + 2;
+            for (int column = 0; column < 10; column++)
+            {
+                if (y < minimumY[column]) continue;
+                int nativeOffset = Word(nativeColumns[column]) - 0x2000;
+                foreach (int plane in new[] { 0, 16 })
+                {
+                    for (int byteIndex = 0; byteIndex < 2; byteIndex++)
+                    {
+                        int src = source + nativeOffset + plane + byteIndex;
+                        if (y < 94) expected[destination + nativeOffset + plane + byteIndex] = expected[src];
+                        if (move) expected[src] = 0;
+                    }
+                }
+            }
+            moveRow(state, y, move);
+            Compare(expected, "Actual Dead Torizo column row copy/move");
+        }
+        Console.WriteLine("Dead Torizo geometry: 12 native MVNs, 10 column operands/clip limits, actual installed-art staging and 192 actual row copy/move operations pass; silhouette choices remain pending.");
+
+        void Compare(byte[] bytes, string context)
+        {
+            for (int index = 0; index < bytes.Length; index++)
+                AssertEqual(bytes[index], rom.ReadByte(0x7e2000 + index), context);
+        }
+    }
     private static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

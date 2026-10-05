@@ -1607,7 +1607,9 @@
       "line": 13,
       "name": "PauseEquipmentLabelPresentation.blank",
       "kind": "installed stock table",
-      "note": "Original/default payload behind PauseEquipmentLabelPresentation.blank. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind PauseEquipmentLabelPresentation.blank. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "8ce347f4e3cc47980692a7ba39944e2789fe37f0"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs",

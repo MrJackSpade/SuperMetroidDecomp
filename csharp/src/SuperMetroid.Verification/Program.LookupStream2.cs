@@ -7,6 +7,59 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2EquipmentBlank(SuperMetroidAddressSpace rom)
+    {
+        byte[] nativeJson = PauseEquipmentLabelExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<PauseEquipmentLabelDocument>(
+            nativeJson, MapPresentationFormat.JsonOptions)!;
+        for (int cell = 0; cell < PauseEquipmentLabelDefinitions.EquipmentWords; cell++)
+        {
+            int address = 0x820000 | (PauseEquipmentLabelDefinitions.BlankSource + cell * 2);
+            AssertEqual((byte)0, rom.ReadByte(address), "Native blank low byte");
+            AssertEqual((byte)0, rom.ReadByte(address + 1), "Native blank high byte");
+        }
+        for (int edited = -1; edited < PauseEquipmentLabelDefinitions.EquipmentWords; edited++)
+        {
+            PauseBackdropCell[] blank = document.Blank.ToArray();
+            if (edited >= 0)
+                blank[edited] = PauseTileGrid.FromWord((ushort)(0x8000 | edited + 1), "Blank edit");
+            var selected = document with { Blank = blank };
+            using var output = new MemoryStream();
+            PauseEquipmentLabelPresentation.Write(output, selected);
+            byte[] json = output.ToArray();
+            var presentation = PauseEquipmentLabelPresentation.Load(new MemoryStream(json));
+            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(json)),
+                presentation.ContentIdentity, "Blank edits retain serialized content identity");
+            var edits = (Dictionary<int, ushort>)typeof(PauseEquipmentLabelPresentation)
+                .GetField("blankEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(presentation)!;
+            AssertEqual(edited < 0 ? 0 : 1, edits.Count, "Only explicit blank edits are stored");
+            foreach (bool hyper in new[] { false, true })
+            {
+                byte[] actual = Enumerable.Repeat((byte)0x55, 32 * 32 * 2).ToArray();
+                byte[] expected = actual.ToArray();
+                byte[] blankBytes = PauseTileGrid.Compile(blank, "Reference blank");
+                foreach (var identity in PauseEquipmentLabelDefinitions.Labels())
+                {
+                    PauseEquipmentLabel label = selected.Labels[identity.Key];
+                    int destination = (label.Row * 32 + label.Column) * 2;
+                    int length = PauseEquipmentLabelDefinitions.WordCount(identity.Category) * 2;
+                    blankBytes.AsSpan(0, length).CopyTo(expected.AsSpan(destination, length));
+                }
+                if (hyper)
+                {
+                    PauseEquipmentLabel label = selected.Labels[PauseEquipmentLabelDefinitions.HyperKey];
+                    byte[] words = PauseTileGrid.Compile(label.Cells, "Reference Hyper label");
+                    words.AsSpan(0, PauseEquipmentLabelDefinitions.BeamWords * 2)
+                        .CopyTo(expected.AsSpan((label.Row * 32 + label.Column) * 2));
+                }
+                presentation.ApplyInventory(actual, 0, 0, 0, 0, hyper);
+                AssertTrue(expected.AsSpan().SequenceEqual(actual),
+                    "Actual uncollected inventory/Hyper blank writes preserve every edited cell and untouched byte");
+            }
+        }
+        Console.WriteLine("Pause equipment blank: nine native empty cells, stock/no stored payload, nine independent edits, serialized hashes and20 actual inventory/Hyper tilemap writes pass.");
+    }
+
     private static void VerifyLookupStream2DeadTorizoGeometry(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

@@ -23,7 +23,7 @@ internal static class PauseClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/PauseTileGrid.cs", "B1F7A92EBD1EB0C4C3A97504F17D52156DA2B3970C2AB91A52BAA6DE61143496")],
             "Private construction requires each of the four 136-cell wireframes and compiles independent bytes. ApplyTo guards kind and full-page destination length. Equipment selection and visible art are unchanged and not certified."),
         new("SuperMetroid.Core.Assets.PauseEquipmentLabelPresentation", "pause-label-complete-category-item-domain", ["ApplyInventory", "ApplyLabel", "OwnsLiveCell"],
-            [new("csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs", "E8A9B128F75BCF48880806780D84B370D2B80E4C90C17304F60FBAAB97400406"),
+            [new("csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs", "C366D8E9095B8E8043E46A741DD228F093F9D52EEA8792B3AA1AA27A7A30F1C5"),
              new("csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelDefinitions.cs", "FB0A9FBCF625EE898442D894E0AB9C7E2E3AEB08DAEF8F5EEFEB8E0EEA894C95"),
              new("csharp/src/SuperMetroid.Core/Assets/PauseSelectorDefinitions.cs", "B349A95CBC583DE582CE2848298C484045CB10AE88939C4ADD651B3BCC9F80EF"),
              new("csharp/src/SuperMetroid.Core/Frontend/PauseMenuDefinitions.cs", "965C7A5234E0AD1256900579421573E9DEE3AB921C1EF90D561AD984786E2188"),

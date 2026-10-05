@@ -295,7 +295,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs
 
 - [ ] **PauseEquipmentLabelPresentation.labels** ([L12](../csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs#L12)) - installed stock table. Original/default payload behind PauseEquipmentLabelPresentation.labels. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **PauseEquipmentLabelPresentation.blank** ([L13](../csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs#L13)) - installed stock table. Original/default payload behind PauseEquipmentLabelPresentation.blank. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **PauseEquipmentLabelPresentation.blank** ([L13](../csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs#L13)) - installed stock table. Original/default payload behind PauseEquipmentLabelPresentation.blank. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs
 
@@ -1006,3 +1006,9 @@ Root build passed (1445 warnings, zero errors). `--golden-torizo-eye-beam-instru
 Composed the69 controls and21 visual addresses atAA:C9E2-CACD from fall, sit, seated-upload, stand and color-handoff operations. Native timed poses occupy4 bytes, word instructions/operands2, and DMA records9 including their separately owned7-byte descriptors. Sitting movement indexes traverse4/2/0; standing traverses0..10 in word steps. Sitting holds3/4/5 increment once per phase, upload holds32/16/8 halve. No mechanics or presentation-address roster is rebuilt/cached.
 
 Independent hold scales and transitions1/3/48/32/4/32/12/8/4/16, upload repeat2 and color iterations16 remain REQUIRED; Words is unchecked. PresentationWords resolves. Build1437 existing warnings/zero errors; new guarded --lookup-stream2-golden-awakening-layout calls the existing bounded native confirmation unchanged: all69 unique control words and byte ownership,8 DMA operations,21 exact compiled visual selectors,7 selected physical frames and9 hitbox lists pass. This batch confirms the changed layout contract without gameplay discovery. Stream checkpoint86resolved:83converted,two mixed definitions,one justified coordinate-code window;140required.
+
+### Pause equipment blank cells
+
+Converted the complete nine-cell blank placeholder at82:C01A-C02B into destination clearing. Both ordinary uncollected labels and the beam slots discarded during Hyper mode now clear their actual width. Only nonzero explicitly edited cells are stored; serialization/validation and source-byte content hashes are unchanged. Independent label glyphs and placements remain required under the separate labels entry.
+
+Focused `--lookup-stream2-equipment-blank` confirms all nine native zero words, zero stored stock cells, each of nine independent custom-cell edits, exact content hashes, and20 actual ordinary/Hyper inventory tilemap writes including all untouched surrounding bytes. Build1437existing warnings/zero errors; focused run passed. Stream2 now87resolved (84converted, two mixed conversion/justified-retention definitions, one justified-retained definition)/139required. No new exception.

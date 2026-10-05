@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Assets;
 public sealed class PauseEquipmentLabelPresentation
 {
     private readonly Dictionary<string, CompiledLabel> labels;
-    private readonly byte[] blank;
+    private readonly Dictionary<int, ushort> blankEdits;
 
-    private PauseEquipmentLabelPresentation(Dictionary<string, CompiledLabel> labels, byte[] blank,
+    private PauseEquipmentLabelPresentation(Dictionary<string, CompiledLabel> labels, Dictionary<int, ushort> blankEdits,
         int disabledPalette, string contentIdentity)
     {
         this.labels = labels;
-        this.blank = blank;
+        this.blankEdits = blankEdits;
         DisabledPalette = disabledPalette;
         ContentIdentity = contentIdentity;
     }
@@ -49,9 +49,8 @@ public sealed class PauseEquipmentLabelPresentation
             for (int item = 0; item < PauseEquipmentLabelDefinitions.ItemCount(1); item++)
             {
                 CompiledLabel destination = labels[PauseEquipmentLabelDefinitions.Key(1, item)];
-                blank.AsSpan(0, PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort))
-                    .CopyTo(tilemap.Slice(destination.DestinationByte,
-                        PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
+                WriteBlank(tilemap.Slice(destination.DestinationByte,
+                    PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
             }
             CompiledLabel hyper = labels[PauseEquipmentLabelDefinitions.HyperKey];
             hyper.Bytes.AsSpan(0, PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort))
@@ -70,7 +69,7 @@ public sealed class PauseEquipmentLabelPresentation
             CompiledLabel label = labels[key];
             Span<byte> destination = tilemap.Slice(label.DestinationByte, label.WordCount * sizeof(ushort));
             if ((collected & mask) == 0)
-                blank.AsSpan(0, destination.Length).CopyTo(destination);
+                WriteBlank(destination);
             else
             {
                 label.Bytes.CopyTo(destination);
@@ -159,7 +158,14 @@ public sealed class PauseEquipmentLabelPresentation
                 PauseTileGrid.Compile(label.Cells, key)));
         }
 
-        return new(compiled, PauseTileGrid.Compile(document.Blank, "Equipment.Blank"), document.DisabledPalette,
+        byte[] blankBytes = PauseTileGrid.Compile(document.Blank, "Equipment.Blank");
+        var blankEdits = new Dictionary<int, ushort>();
+        for (int cell = 0; cell < PauseEquipmentLabelDefinitions.EquipmentWords; cell++)
+        {
+            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(blankBytes.AsSpan(cell * sizeof(ushort)));
+            if (word != 0) blankEdits.Add(cell, word);
+        }
+        return new(compiled, blankEdits, document.DisabledPalette,
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
@@ -168,6 +174,19 @@ public sealed class PauseEquipmentLabelPresentation
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
+    }
+
+    /// <summary>
+    /// $82:C01A-C02B supplies nine empty BG cells. Uncollected labels and Hyper's
+    /// discarded beam slots clear their selected width; only explicit asset edits
+    /// need per-cell data. The source JSON remains the content-identity contract.
+    /// </summary>
+    private void WriteBlank(Span<byte> destination)
+    {
+        destination.Clear();
+        foreach ((int cell, ushort word) in blankEdits)
+            if (cell < destination.Length / sizeof(ushort))
+                BinaryPrimitives.WriteUInt16LittleEndian(destination[(cell * sizeof(ushort))..], word);
     }
 
     private static void ValidateTilemap(Span<byte> tilemap)

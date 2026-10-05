@@ -34,6 +34,7 @@ static void VerifySamusRenderingSlice()
     AssertEqual(0x3800, cgram.Colors[192], "Samus power-suit palette color zero at CGRAM 192");
     AssertEqual(0x000d, cgram.Colors[207], "Samus power-suit palette color fifteen at CGRAM 207");
 
+    BindSyntheticSamusRendering(bus, samus);
     samus.PrimeGraphics(bus);
     AssertEqual(0x92d0b0, samus.TileTransfers.TopDefinitionAddress, "pose 1 frame 0 top tile definition");
     AssertEqual(0x92d1c8, samus.TileTransfers.BottomDefinitionAddress, "pose 1 frame 0 bottom tile definition");
@@ -120,6 +121,7 @@ static void VerifySamusRenderingSlice()
     samus.InitializeAnimation(bus);
 
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
 
@@ -153,6 +155,7 @@ static void VerifySamusRenderingSlice()
     AssertEqual(21, samus.Kinematics.YRadius, "running pose refreshes collision radius");
 
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
     AssertEqual(0x00f9, samus.TopSpritemapIndex, "running pose top spritemap index");
@@ -194,6 +197,7 @@ static void VerifySamusRenderingSlice()
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "forward setup clears base X speed");
     AssertEqual(0, samus.Kinematics.YSpeed, "forward setup clears Y speed");
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
     AssertEqual(0x0002, samus.TopSpritemapIndex, "power-suit forward top spritemap index");
@@ -212,6 +216,7 @@ static void VerifySamusRenderingSlice()
     samus.ApplyForwardFacingPoseSetup(bus);
     AssertEqual(SamusPoseIds.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
     AssertEqual(0x00c2, samus.TopSpritemapIndex, "suited forward top spritemap index");
@@ -225,6 +230,7 @@ static void VerifySamusRenderingSlice()
     samus.KnockbackTimer = 0;
     samus.TileTransfers.ClearTransferFlags();
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 1);
     oam.FinalizeFrame();
     AssertEqual(0, oam.LastFinalizedSpriteCount,
@@ -235,6 +241,7 @@ static void VerifySamusRenderingSlice()
         "hidden suited-forward frame preserves its bank-$92 bottom-set FF sentinel");
 
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 2);
     oam.FinalizeFrame();
     AssertEqual(2, oam.LastFinalizedSpriteCount,
@@ -244,6 +251,7 @@ static void VerifySamusRenderingSlice()
     // on an odd frame so neither can pass accidentally through the even-NMI condition.
     samus.KnockbackTimer = 1;
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 1);
     oam.FinalizeFrame();
     AssertEqual(2, oam.LastFinalizedSpriteCount,
@@ -253,6 +261,7 @@ static void VerifySamusRenderingSlice()
     AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(0x0400),
         "test fixture installs nonzero native shine timer");
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0, nmiFrameCounter: 1);
     oam.FinalizeFrame();
     AssertEqual(2, oam.LastFinalizedSpriteCount,
@@ -315,6 +324,7 @@ static void VerifySamusRenderingSlice()
         samus.Pose = pose;
         samus.AnimationFrame = frame;
         oam.BeginFrame();
+        BindSyntheticSamusRendering(bus, samus);
         samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: samus.YPosition);
         oam.FinalizeFrame();
         AssertEqual(expectedSprites, oam.LastFinalizedSpriteCount, name);
@@ -341,12 +351,14 @@ static void VerifySamusRenderingSlice()
     samus.YPosition = 0x0086;
     samus.AnimationFrame = 0;
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: 0);
     oam.FinalizeFrame();
     AssertEqual(0x0082, samus.SpritemapYPosition,
         "morph transition frame zero reads signed minus-four table byte");
     samus.AnimationFrame = 1;
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: 0);
     oam.FinalizeFrame();
     AssertEqual(0x0084, samus.SpritemapYPosition,
@@ -361,6 +373,7 @@ static void VerifySamusRenderingSlice()
     samus.Pose = 0x39;
     samus.AnimationFrame = 0;
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: 0);
     oam.FinalizeFrame();
     AssertEqual(0x0086, samus.SpritemapYPosition,
@@ -376,6 +389,7 @@ static void VerifySamusRenderingSlice()
     samus.AnimationFrame = 2;
     samus.YPosition = 0x0086;
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
     AssertEqual(0x0085, samus.SpritemapYPosition,
@@ -401,6 +415,7 @@ static void VerifySamusRenderingSlice()
     samus.Pose = 0xa4;
     samus.AnimationFrame = 0;
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
     AssertEqual(0xfa83, samus.SpritemapYPosition,
@@ -410,6 +425,7 @@ static void VerifySamusRenderingSlice()
 
     samus.AnimationFrame = 1;
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
     AssertEqual(0x0080, samus.SpritemapYPosition,
@@ -430,6 +446,7 @@ static void VerifySamusRenderingSlice()
         CenterX: 0x0480,
         CenterY: 0x0080);
     oam.BeginFrame();
+    BindSyntheticSamusRendering(bus, samus);
     samus.Draw(
         bus,
         oam,

@@ -9,6 +9,17 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+    private static TitleSequenceState CreateTitlePresentationFixture(ISnesAddressSpace bus,
+        TitleGradientPresentation? titleGradientPresentation = null,
+        TitlePalettePresentation? titlePalettePresentation = null,
+        TitleGraphicsPresentation? titleGraphicsPresentation = null)
+    {
+        var maps = RetailPresentationFixture();
+        return new TitleSequenceState(bus,
+            titleGradientPresentation: titleGradientPresentation ?? maps.TitleGradient,
+            titlePalettePresentation: titlePalettePresentation ?? maps.TitlePalette,
+            titleGraphicsPresentation: titleGraphicsPresentation ?? maps.TitleGraphics);
+    }
     private static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         VerifyTitleGradientObjectEligibility();
@@ -70,12 +81,12 @@ internal static partial class Program
 
         // The installed title uses compiled card timing and sprite selectors alongside
         // editable bank-$8C OAM compositions. The original source addresses are all
-        // blocked while the complete natural scene is compared with the ROM-backed path.
+        // blocked while the complete natural scene is compared with independently installed stock.
         var guardedBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
         TitleGradientPresentation gradient = TitleGradientPresentation.Load(
             new MemoryStream(TitleGradientExtractor.Extract(bus), writable: false));
-        var stock = new TitleSequenceState(bus, titleGradientPresentation: gradient);
-        var installed = new TitleSequenceState(guardedBus,
+        var stock = CreateTitlePresentationFixture(bus, titleGradientPresentation: gradient);
+        var installed = CreateTitlePresentationFixture(guardedBus,
             titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
         for (int frame = 0; frame < 140; frame++)
         {
@@ -112,6 +123,25 @@ internal static partial class Program
             "title extraction covers all cartridge-selected OBJ frames");
         ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             TitleSequenceRomData.TextSequences.Year.InstructionAddress + 6);
+        // Independent native OBJ records retain the cartridge reference now that both
+        // scene owners require installed graphics rather than a ROM-backed draw path.
+        foreach (TitleSpriteFrame frame in spriteDocument.Sprites)
+        {
+            var nativeOam = new OamBuffer(); var installedOam = new OamBuffer();
+            int address = TitleSequenceRomData.Sprites.Bank << 16 | frame.Pointer;
+            ushort Word(int at) => (ushort)(bus.ReadByte(at) | bus.ReadByte(at + 1) << 8);
+            int count = Word(address);
+            for (int part = 0; part < count; part++)
+            {
+                int record = address + 2 + part * 5;
+                nativeOam.AddOnScreenSpritePart(new SnesSpritemapXWord(Word(record)),
+                    bus.ReadByte(record + 2), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
+                    128, 112);
+            }
+            presentation.DrawSprite(checked((ushort)frame.Pointer), installedOam, 128, 112, 0);
+            AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
+                nativeOam.HighTable.SequenceEqual(installedOam.HighTable), "Title composition matches independent native OBJ records");
+        }
         TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Pointer == yearPointer);
         SpriteVisualPart originalPart = year.Parts[0];
         year.Parts[0] = originalPart with { OffsetX = originalPart.OffsetX + 8 };
@@ -121,9 +151,9 @@ internal static partial class Program
             new MemoryStream(editedMap),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
-        var originalTitle = new TitleSequenceState(bus,
+        var originalTitle = CreateTitlePresentationFixture(bus,
             titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
-        var editedTitle = new TitleSequenceState(bus,
+        var editedTitle = CreateTitlePresentationFixture(bus,
             titleGradientPresentation: gradient, titleGraphicsPresentation: editedPresentation);
         bool editVisible = false;
         bool pixelChanged = false;
@@ -144,7 +174,7 @@ internal static partial class Program
             throw new InvalidDataException("Editing the Year composition did not alter production OAM.");
         if (!pixelChanged)
             throw new InvalidDataException("Editing the Year composition did not alter visible title pixels.");
-        var reboundTitle = new TitleSequenceState(bus,
+        var reboundTitle = CreateTitlePresentationFixture(bus,
             titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
         for (int frame = 0; frame < 64; frame++) reboundTitle.Step(0);
         byte[] beforeRebind = reboundTitle.CaptureRenderSnapshot().Memory.Oam.ToArray();
@@ -209,15 +239,15 @@ internal static partial class Program
             TitleSequenceRomData.Assets.PaletteAddress,
             SnesCgram.ByteCount).ToHashSet();
         var guardedBus = new TitlePresentationReadBus(bus, paletteAddresses, forbidReads: true);
-        var title = new TitleSequenceState(guardedBus, titlePalettePresentation: presentation);
+        var title = CreateTitlePresentationFixture(guardedBus, titlePalettePresentation: presentation);
         if (!title.PaletteColors.SequenceEqual(presentation.Colors) ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
             throw new InvalidDataException(
                 "Production title initialization did not use the installed palette exclusively.");
         }
-        var nativeSkip = new TitleSequenceState(bus);
-        var installedSkip = new TitleSequenceState(bus, titlePalettePresentation: presentation);
+        var nativeSkip = CreateTitlePresentationFixture(bus);
+        var installedSkip = CreateTitlePresentationFixture(bus, titlePalettePresentation: presentation);
         nativeSkip.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
         installedSkip.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
         for (int frame = 0; frame < 18; frame++)
@@ -442,7 +472,7 @@ internal static partial class Program
         TitlePalettePresentation palette,
         TitleGraphicsPresentation graphics)
     {
-        var title = new TitleSequenceState(bus, titleGradientPresentation: presentation,
+        var title = CreateTitlePresentationFixture(bus, titleGradientPresentation: presentation,
             titlePalettePresentation: palette, titleGraphicsPresentation: graphics);
         title.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
         for (int frame = 0; frame < 16; frame++)

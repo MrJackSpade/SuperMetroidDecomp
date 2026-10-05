@@ -3692,7 +3692,9 @@ internal static partial class Program
             ]);
 
         var paletteFx = new RoomPaletteFxSystem();
-        paletteFx.SpawnConstructedProgramForVerification(instructionList);
+        paletteFx.SpawnConstructedProgramForVerification(instructionList,
+            [(byte)instruction, (byte)(instruction >> 8), operand, 1, 0,
+             (byte)(PaletteFxInstructionCodes.Wait & 0xff), (byte)(PaletteFxInstructionCodes.Wait >> 8)]);
         return (paletteFx, bus);
     }
 

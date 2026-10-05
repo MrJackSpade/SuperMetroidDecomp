@@ -26,6 +26,8 @@ public sealed class RoomPaletteFxSystem
     private readonly List<PaletteFxMusicRequest> musicRequests = [];
     private ushort samusInHeatPaletteIndex;
     private ushort previousSamusInHeatPaletteIndex;
+    [NonSerialized] private byte[]? verificationInstructions;
+    [NonSerialized] private ushort verificationInstructionStart;
 
     /// <summary>Number of bank-$8D objects currently occupying native slots.</summary>
     public int ActiveCount => slots.Count(slot => slot.Id != 0);
@@ -56,7 +58,7 @@ public sealed class RoomPaletteFxSystem
     /// Installs a constructed instruction program for focused interpreter verification
     /// without overwriting a retail palette-FX definition or instruction list.
     /// </summary>
-    internal void SpawnConstructedProgramForVerification(ushort instructionPointer)
+    internal void SpawnConstructedProgramForVerification(ushort instructionPointer, ReadOnlySpan<byte> instructions)
     {
         PaletteFxSlot slot = slots[^1];
         if (slot.Id != 0)
@@ -65,6 +67,10 @@ public sealed class RoomPaletteFxSystem
                 "The constructed palette-FX verification slot is already occupied.");
         }
 
+        if (instructions.Length is < 1 or > 256 || instructionPointer + instructions.Length > 0x10000)
+            throw new ArgumentOutOfRangeException(nameof(instructions));
+        verificationInstructionStart = instructionPointer;
+        verificationInstructions = instructions.ToArray();
         slot.Id = ushort.MaxValue;
         slot.PreInstruction = PaletteFxPreInstructionCodes.Null;
         slot.InstructionPointer = instructionPointer;
@@ -481,7 +487,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} exceeded 256 leading commands at $8D:{cursor:X4}.");
     }
 
-    private static void WritePaletteRecord(
+    private void WritePaletteRecord(
         ISnesAddressSpace bus,
         SnesCgram cgram,
         IPaletteFxColorSource colors,
@@ -548,8 +554,9 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} did not terminate its color record.");
     }
 
-    private static ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer)
+    private ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer)
     {
+        if (TryReadVerificationWord(pointer, out ushort supplied)) return supplied;
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
                 pointer,
                 out ushort compiled))
@@ -562,8 +569,9 @@ public sealed class RoomPaletteFxSystem
     }
 
     /// <summary>Reads a mixed color/wait record through its explicitly supplied presentation.</summary>
-    private static ushort ReadPaletteRecordWord(ushort pointer, IPaletteFxColorSource colors)
+    private ushort ReadPaletteRecordWord(ushort pointer, IPaletteFxColorSource colors)
     {
+        if (TryReadVerificationWord(pointer, out ushort supplied)) return supplied;
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(pointer, out ushort compiled))
             return compiled;
         if (colors.TryReadColor(pointer, out ushort color))
@@ -573,8 +581,9 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX word $8D:{pointer:X4} has no compiled mechanics or installed color definition.");
     }
 
-    private static byte ReadBank8dByte(ISnesAddressSpace bus, ushort pointer)
+    private byte ReadBank8dByte(ISnesAddressSpace bus, ushort pointer)
     {
+        if (TryReadVerificationByte(pointer, out byte supplied)) return supplied;
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
                 pointer,
                 out byte compiled))
@@ -586,6 +595,29 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX byte $8D:{pointer:X4} has no compiled mechanics definition.");
     }
 
+    private bool TryReadVerificationByte(ushort pointer, out byte value)
+    {
+        int offset = pointer - verificationInstructionStart;
+        if (verificationInstructions is { } bytes && (uint)offset < bytes.Length)
+        {
+            value = bytes[offset];
+            return true;
+        }
+        value = 0;
+        return false;
+    }
+
+    private bool TryReadVerificationWord(ushort pointer, out ushort value)
+    {
+        if (TryReadVerificationByte(pointer, out byte low) &&
+            TryReadVerificationByte(unchecked((ushort)(pointer + 1)), out byte high))
+        {
+            value = (ushort)(low | high << 8);
+            return true;
+        }
+        value = 0;
+        return false;
+    }
     private sealed class PaletteFxSlot
     {
         public ushort Id { get; set; }

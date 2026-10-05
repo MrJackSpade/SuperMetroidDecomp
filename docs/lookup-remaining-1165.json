@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 852,
+  "remainingTableDefinitionCount": 849,
   "fileCount": 523,
   "entries": [
     {
@@ -59,7 +59,9 @@
       "line": 12,
       "name": "CeresDestructionActorLayout.placements",
       "kind": "installed stock table",
-      "note": "Original/default payload behind CeresDestructionActorLayout.placements. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind CeresDestructionActorLayout.placements. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "ff4f55119"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresDestructionArtworkCatalog.cs",
@@ -129,7 +131,9 @@
       "line": 12,
       "name": "CeresFlightActorLayout.placements",
       "kind": "installed stock table",
-      "note": "Original/default payload behind CeresFlightActorLayout.placements. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind CeresFlightActorLayout.placements. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "ff4f55119"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresFlightArtworkCatalog.cs",
@@ -164,7 +168,9 @@
       "line": 13,
       "name": "CeresRevealActorLayout.placements",
       "kind": "installed stock table",
-      "note": "Original/default payload behind CeresRevealActorLayout.placements. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind CeresRevealActorLayout.placements. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "ff4f55119"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
@@ -20863,6 +20869,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 275,
+  "convertedSinceSnapshot": 278,
   "justifiedRetainedSinceSnapshot": 1
 }

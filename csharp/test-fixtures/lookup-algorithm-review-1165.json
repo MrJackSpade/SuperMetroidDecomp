@@ -10706,4 +10706,11 @@
   "implementationCommit": "fe55db9ab",
   "state": "converted",
   "confirmation": "Verification build1437 warnings/zero errors; integrated --lookup-stream-4 passes44 native control words,26 visual locations, both-byte classification, exact domains and rejected indices. Static source index refreshed; no reviewed source hash dependency found."
+},"ceresActorLayoutsIntegration":{
+  "state": "converted",
+  "algorithm": "Stock actor placements resolve through named initializers and calculated star grid; edited coordinate replacements remain supplied.",
+  "scope": "Ceres flight, destruction and reveal installed stock actor layouts, three definitions.",
+  "remaining": "278 converted, one justified retained,849 pending. No new exception.",
+  "confirmation": "Verification build1437 warnings/zero errors; focused --lookup-stream5-actor-layouts passes14 native actors/28 coordinates, all28 independent coordinate edits, canonical content identity, no stock row storage and index bounds. Source index refreshed; no source contract hash dependency found.",
+  "implementationCommit": "ff4f55119"
 }}

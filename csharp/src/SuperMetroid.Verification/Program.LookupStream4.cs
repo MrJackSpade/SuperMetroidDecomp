@@ -37,6 +37,42 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, nativeFrames.Count })
             AssertThrows<IndexOutOfRangeException>(() => _ = RidleyCollisionDefinitions.FramePointers[invalid], "Calculated frame view rejects out-of-range indices");
     }
+    private static void VerifyLookupStream4BeamColorRelations(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] source = BeamPaletteExtractor.Extract(rom);
+        var stock = BeamPaletteCatalog.Load(new MemoryStream(source));
+        Verify(stock, -1, -1);
+        foreach ((int selection, int color) in new[] { (0, 0), (2, 1), (3, 3), (1, 9), (8, 2), (4, 15), (8, 5), (8, 6), (4, 6) })
+        {
+            var document = System.Text.Json.Nodes.JsonNode.Parse(source)!;
+            var selected = document["palettes"]![BeamPaletteDefinitions.Key(selection)]![color]!;
+            selected["red"] = selected["red"]!.GetValue<int>() ^ 1;
+            var edited = BeamPaletteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+            Verify(edited, selection, color);
+            Verify(stock, -1, -1);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new SnesCgram(), invalid), "Calculated beam colors preserve selection bounds");
+
+        void Verify(BeamPaletteCatalog catalog, int editedSelection, int editedColor)
+        {
+            for (int selection = 0; selection < 12; selection++)
+            {
+                var actual = new SnesCgram();
+                for (int index = 0; index < SnesCgram.ColorCount; index++) actual.SetColor(index, (ushort)(index * 31));
+                catalog.LoadTo(actual, selection);
+                int pointer = 0x900000 | Word(0x90c3c9 + selection * 2);
+                for (int index = 0; index < SnesCgram.ColorCount; index++)
+                {
+                    int color = index - SamusProjectileRomData.Palettes.BeamDestinationIndex;
+                    ushort expected = color is >= 0 and < 16 ? Word(pointer + color * 2) : (ushort)(index * 31);
+                    if (selection == editedSelection && color == editedColor) expected ^= 1;
+                    AssertEqual(expected, actual.Colors[index], "Derived beam color relationships preserve native rows, isolated edits and neighboring CGRAM");
+                }
+            }
+        }
+    }
     private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -251,6 +287,7 @@ internal static partial class Program
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
         VerifyLookupStream4RidleyFrameDomain(rom);
+        VerifyLookupStream4BeamColorRelations(rom);
         VerifyLookupStream4RidleyMovementPolicy(rom);
         VerifyLookupStream4TailAngles(rom);
         VerifyLookupStream4TailTerrain(rom);

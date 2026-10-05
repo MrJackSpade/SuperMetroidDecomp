@@ -6,7 +6,7 @@ internal static class BossColorClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.BeamPaletteCatalog", "beam-palettes-v1-twelve-selections", ["LoadTo"],
-            [new("csharp/src/SuperMetroid.Core/Assets/BeamPaletteCatalog.cs", "908EC1DB16B7D1B862ACFA0C0FC09449D58B2D4505E50DBF4B37F3BEB2AB3938"),
+            [new("csharp/src/SuperMetroid.Core/Assets/BeamPaletteCatalog.cs", "37DE1F3097D9299ACC0C00205B3BF1815411B53425FB58393D43EF1726780C79"),
              new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "2390C3A34C6DDA0D97FBFA05608C93A2EE1B7F08F35455F2F31A4C2E7C033C7F")],
             "The private-constructor loader requires all twelve named beam selections with sixteen colors each; LoadTo bounds-checks that complete array."),
         new("SuperMetroid.Core.Assets.CeresRidleyColorCatalog", "ceres-ridley-v3-complete-palette-rows",

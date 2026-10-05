@@ -995,3 +995,13 @@ One narrowly retained definition:74 wholly converted, one retained,150 unchecked
 - Managed ReadY explicitly bounds the observation to min(feetDistanceIndex>>1,8): inputs0..5 select the three calculated geometry words; inputs6..FFFF can only observe these six words, with the last clamped. RoomEnemySystem.GetNorfairRidleyClawY is the sole production reader. This preserves an existing managed API boundary; it claims neither a native clamp nor full native memory/CPU emulation.
 - Ordinary X and Y geometry remain calculated from facing and foot elevation. No other adjacent code, coordinates, artwork or payload receives an exemption.
 - Confirmation: documentation/disposition only; unchanged six values and consumer behavior passed the immediately preceding lookup-stream-4 run. The existing scoped verifier compares all65536 ReadY inputs to the native bounded nine-word window and confirms actual ordinary carry/collision behavior. No new executable test or source change was needed.
+
+## Beam palette partial integration: aliases and highlight relationships
+
+Integrated worker commits54ec3420b,6ed815fd4 and912ab27e1. Removed the obsolete nonuniform-artwork retention rationale. BeamPaletteCatalog.palettes remains unchecked; no new exception or completed definition is claimed. Stream checkpoint remains74 converted,one retained,150 unchecked.
+
+Twelve expanded runtime rows (192 colors) now retain43 independent stock inputs and derive family aliases, common Power colors0/1, non-Ice black slots9..14, Wave/Plasma highlight midpoints and Spazer highlight channels(G,G,R) from Plasma. The latter formulas match pinned90:C42B/C42D/C42F,C44B/C44D/C44F,C46B/C46D/C46F. Installation preserves independently supplied deviations, including unchanged dependent colors when a basis input is edited; runtime calculates relationships per access.
+
+Required inputs: Power0..8 and15; Ice2..15; Wave and Plasma2..5,7,8,15; Spazer2..4,8,15. These43 values remain unresolved. Palette content receives no exemption.
+
+Root Verification build1444 existing warnings/zero errors; --lookup-stream-4 confirms every native output across12 selections, targeted independent/common/alias/black/endpoint/midpoint/cross-family edits, unchanged neighboring CGRAM and stock immutability, and invalid selectors. Refreshed BeamPaletteCatalog source closure hash; ResourceAudit build zero warnings/errors.

@@ -37,7 +37,7 @@ public sealed class IntroCaretSpritePresentation
         {
             throw new InvalidDataException("Invalid opening caret composition JSON.", error);
         }
-        ReadOnlySpan<IntroCaretFrameDefinition> definitions = IntroCaretSpriteDefinitions.Frames;
+        var definitions = IntroCaretSpriteDefinitions.Frames;
         bool previousVersion = document.Version == IntroCaretSpriteFormat.PreviousVersion;
         if (document.Frames is null ||
             (previousVersion
@@ -46,7 +46,7 @@ public sealed class IntroCaretSpritePresentation
                         !document.Frames.TryGetValue(name, out SpriteVisualPart[]? parts) ||
                         parts is null || parts.Length > IntroCaretSpriteDefinitions.MaximumParts)
                 : document.Version != IntroCaretSpriteFormat.Version ||
-                    document.Frames.Count != definitions.Length))
+                    document.Frames.Count != definitions.Count))
             throw new InvalidDataException("Opening caret requires its one visible sprite frame.");
 
         var frames = new Dictionary<ushort, SpriteComposition>();

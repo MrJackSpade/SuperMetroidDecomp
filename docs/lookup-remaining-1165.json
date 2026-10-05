@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 562,
+  "remainingTableDefinitionCount": 561,
   "fileCount": 523,
   "entries": [
     {
@@ -1096,7 +1096,7 @@
       "name": "IntroCaretSpriteDefinitions.frameDefinitions",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+    ,"state":"converted","implementationCommit":"e944e8857"},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs",
       "line": 76,
@@ -21460,6 +21460,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 550,
+  "convertedSinceSnapshot": 551,
   "justifiedRetainedSinceSnapshot": 16
 }

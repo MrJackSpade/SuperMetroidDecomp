@@ -16,12 +16,21 @@ internal static class IntroCaretSpriteDefinitions
     internal static readonly string[] PreviousFrameNames =
         ["caret-still", "caret-blink-1", "caret-blink-2", "caret-blink-3"];
 
-    private static readonly IntroCaretFrameDefinition[] frameDefinitions =
-    [
-        new(Still, "caret-visible", 1),
-    ];
+    /// <summary>$8C:8D68: the one-part visible caret; blink control selects visibility separately.</summary>
+    internal static IntroCaretFrameDefinition Visible => new(Still, "caret-visible", 1);
 
-    internal static ReadOnlySpan<IntroCaretFrameDefinition> Frames => frameDefinitions;
+    internal static IReadOnlyList<IntroCaretFrameDefinition> Frames { get; } = new VisibleFrameList();
+
+    private sealed class VisibleFrameList : IReadOnlyList<IntroCaretFrameDefinition>
+    {
+        public int Count => 1;
+        public IntroCaretFrameDefinition this[int index] => index == 0 ? Visible : throw new IndexOutOfRangeException();
+        public IEnumerator<IntroCaretFrameDefinition> GetEnumerator()
+        {
+            yield return Visible;
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }
 
 internal readonly record struct IntroCaretFrameDefinition(ushort Pointer, string Name, int StockPartCount);

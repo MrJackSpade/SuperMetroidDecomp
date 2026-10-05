@@ -317,7 +317,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/IntroCaretSpriteDefinitions.cs
 
-- [ ] **IntroCaretSpriteDefinitions.frameDefinitions** ([L20](../csharp/src/SuperMetroid.Core/Assets/IntroCaretSpriteDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **IntroCaretSpriteDefinitions.frameDefinitions** ([L20](../csharp/src/SuperMetroid.Core/Assets/IntroCaretSpriteDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs
 
@@ -1120,3 +1120,7 @@ Root confirmation: Verification build1445 warnings/zero errors; focused Spark ch
 Replaced472 named cached registrations with semantic identity dispatch;66 native record-stride sequences calculate268 addresses. Root independently read all202 preceding native record headers and confirmed2+5*partCount strides. Terminal record counts do not determine their own address and need not equal preceding counts. Removed cached aggregate array while preserving enumeration, ordinal, range, duplicate exclusion and sorted additional targets. All sprite geometry, tile selection and pixels remain required under their existing entries.
 
 Root Verification build1445warnings/0errors; --lookup-enemy-frame-registration confirms472 exact ordered identities, indexed/range behavior, native additional targets and uniqueness, plus64 historical OAM schemas and54 binding schemas with independent art/remap preservation. ResourceAudit build0/0. Worker09b807962; aggregate550converted/16retained-mixed/562pending. Worker's broader legacy aggregate independently reported unrelated projectile schema11 fixture failure; that unrelated fixture was not run or changed for root's focused confirmation.
+
+### Integrated caret registration
+
+The one visible caret is now a semantic registration property with calculated enumeration, rather than a stored registration row. Loader count binding uses the calculated collection. Root --lookup-intro-caret-registration confirms the native16-bit part count at8C:8D68, exact identity, enumeration and invalid indices. Verification build1445warnings/0errors; ResourceAudit0/0. Worker e944e8857. Artwork and timing remain separately required; inventory551converted/16retained-mixed/561pending.

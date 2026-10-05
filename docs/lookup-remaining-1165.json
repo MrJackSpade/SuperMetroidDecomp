@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 562,
+  "remainingTableDefinitionCount": 561,
   "fileCount": 523,
   "entries": [
     {
@@ -243,7 +243,9 @@
       "line": 9,
       "name": "ChargeFlarePlacementCatalog.offsets",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ChargeFlarePlacementCatalog.offsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ChargeFlarePlacementCatalog.offsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "c5da84b64e414642dff3239b8b4ff7e50ad37a87"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteDefinitions.cs",
@@ -21460,6 +21462,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 549,
+  "convertedSinceSnapshot": 550,
   "justifiedRetainedSinceSnapshot": 17
 }

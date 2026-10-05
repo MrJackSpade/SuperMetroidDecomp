@@ -5,6 +5,103 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1FlarePlacement(ISnesAddressSpace rom)
+    {
+        short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        byte[] json = ChargeFlarePlacementExtractor.Extract(rom);
+        var stock = ChargeFlarePlacementCatalog.Load(new MemoryStream(json));
+        var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var field = typeof(ChargeFlarePlacementCatalog).GetField("offsets", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        AssertEqual(0, ((System.Collections.IDictionary)field.GetValue(stock)!).Count, "Beam flare stock has zero stored fallback origins");
+        for (int mode = 0; mode < 2; mode++)
+        for (int direction = 0; direction < 16; direction++)
+        {
+            var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x90c1a8 : 0x90c1dc) + 2 * direction),
+                Y = Word((mode == 0 ? 0x90c1c2 : 0x90c1f0) + 2 * direction) };
+            AssertEqual(expected, ChargeFlarePlacementDefinitions.BeamOffset(mode != 0, direction), "Named flare default matches direct native coordinates and aliases");
+            AssertEqual(expected, stock.Resolve(mode != 0, direction), "Installed flare default matches native");
+            for (int axis = 0; axis < 2; axis++)
+            {
+                var document = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(json, options)!;
+                string key = ChargeFlarePlacementDefinitions.Key(mode != 0, direction);
+                var before = document.Offsets[key];
+                document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
+                var edited = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementCatalog.Write(document)));
+                AssertEqual(1, ((System.Collections.IDictionary)field.GetValue(edited)!).Count, "One independent origin edit stores exactly one override");
+                for (int selectedMode = 0; selectedMode < 2; selectedMode++)
+                for (int selectedDirection = 0; selectedDirection < 16; selectedDirection++)
+                    AssertEqual(document.Offsets[ChargeFlarePlacementDefinitions.Key(selectedMode != 0, selectedDirection)],
+                        edited.Resolve(selectedMode != 0, selectedDirection), "Editing a source origin does not edit an independently supplied adjacent alias");
+            }
+        }
+        var grappleDocument = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options)!;
+        var grapple = ChargeFlarePlacementCatalog.LoadGrapple(new MemoryStream(ChargeFlarePlacementCatalog.Write(grappleDocument)));
+        AssertEqual(0, ((System.Collections.IDictionary)field.GetValue(grapple)!).Count, "Grapple stock has zero stored fallback origins");
+        for (int mode = 0; mode < 2; mode++)
+        for (int direction = 0; direction < 16; direction++)
+        {
+            var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x9bc14a : 0x9bc19a) + direction * 2),
+                Y = Word((mode == 0 ? 0x9bc15e : 0x9bc1ae) + direction * 2) };
+            AssertEqual(expected, ChargeFlarePlacementDefinitions.GrappleOffset(mode != 0, direction), "Grapple direct defaults preserve all native words including packed adjacent bytes");
+            AssertEqual(expected, grapple.Resolve(mode != 0, direction), "Installed Grapple defaults match native");
+            for (int axis = 0; axis < 2; axis++)
+            {
+                var document = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options)!;
+                string key = ChargeFlarePlacementDefinitions.Key(mode != 0, direction);
+                var before = document.Offsets[key];
+                document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
+                var edited = ChargeFlarePlacementCatalog.LoadGrapple(new MemoryStream(ChargeFlarePlacementCatalog.Write(document)));
+                AssertEqual(1, ((System.Collections.IDictionary)field.GetValue(edited)!).Count, "Grapple independent edit stores exactly one override");
+                for (int selectedMode = 0; selectedMode < 2; selectedMode++)
+                for (int selectedDirection = 0; selectedDirection < 16; selectedDirection++)
+                    AssertEqual(document.Offsets[ChargeFlarePlacementDefinitions.Key(selectedMode != 0, selectedDirection)], edited.Resolve(selectedMode != 0, selectedDirection),
+                        "Grapple edits preserve every other independent origin and alias");
+            }
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, invalid), "Flare placement catalog bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(true, invalid), "Grapple catalog bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementDefinitions.GrappleOffset(false, invalid), "Grapple calculated bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementDefinitions.BeamOffset(true, invalid), "Flare calculated bounds");
+        }
+        var compositions = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
+        var body = CreateSamusIdentityFixture();
+        var system = new SamusProjectileSystem();
+        var draw = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponent", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, ushort, ushort, int, SamusMode7Transform?, ChargeFlarePlacementCatalog?, ChargeFlareSpriteCatalog?>>(system);
+        var shiftedDocument = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(json, options)!;
+        foreach (string key in shiftedDocument.Offsets.Keys.ToArray())
+            shiftedDocument.Offsets[key] = shiftedDocument.Offsets[key] with { X = (short)(shiftedDocument.Offsets[key].X + 7) };
+        var shifted = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementCatalog.Write(shiftedDocument)));
+        foreach (byte pose in new byte[] { 1, 2, 9, 10 })
+        {
+            var samus = new SamusState { Pose = pose, XPosition = 100, YPosition = 100 };
+            samus.TileTransfers.BindArtwork(body);
+            int direction = rom.ReadByte(0x91b629 + pose * 8 + 3);
+            bool running = pose is 9 or 10;
+            short x = Word((running ? 0x90c1dc : 0x90c1a8) + direction * 2);
+            short y = Word((running ? 0x90c1f0 : 0x90c1c2) + direction * 2);
+            var expected = new OamBuffer(); var actual = new OamBuffer(); var edited = new OamBuffer();
+            DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, (ushort)(100 + x),
+                unchecked((ushort)(100 + y - unchecked((byte)body.GraphicsYOffset(pose)))));
+            draw(new LookupFlareForbiddenBus(), actual, samus, 0, 0, 0, null, stock, compositions);
+            draw(new LookupFlareForbiddenBus(), edited, samus, 0, 0, 0, null, shifted, compositions);
+            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable), "Actual flare OAM matches independently positioned native sprite");
+            AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Native flare OAM admission");
+            AssertTrue(actual.NextByteOffset > 0, "Focused flare placement fixture emits its native sprite");
+            for (int index = 0; index < actual.NextByteOffset / 4; index++)
+            {
+                AssertEqual((actual.GetEntry(index).X + 7) & 511, edited.GetEntry(index).X, "Actual flare uses independently edited placement");
+                AssertEqual(actual.GetEntry(index).Y, edited.GetEntry(index).Y, "X edit preserves actual flare Y");
+            }
+        }
+        Console.WriteLine("Beam/Grapple flare origins:128 direct native words, zero stock overrides,128 independent edits, bounded aliases and four actual OAM fixtures pass.");
+    }
+    private sealed class LookupFlareForbiddenBus : ISnesAddressSpace
+    {
+        void ISnesAddressSpace.WriteByte(int address, byte value) => throw new InvalidOperationException($"Unexpected flare write {address:X6}");
+    }
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
         for (int pose = 0; pose <= byte.MaxValue; pose++)

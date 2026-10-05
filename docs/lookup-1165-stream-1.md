@@ -143,7 +143,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementCatalog.cs
 
-- [ ] **ChargeFlarePlacementCatalog.offsets** ([L9](../csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementCatalog.cs#L9)) - installed stock table. Original/default payload behind ChargeFlarePlacementCatalog.offsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **ChargeFlarePlacementCatalog.offsets** ([L9](../csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementCatalog.cs#L9)) - installed stock table. Original/default payload behind ChargeFlarePlacementCatalog.offsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/ChargeFlareSpriteDefinitions.cs
 
@@ -911,3 +911,10 @@ Verification-only correction; totals remain176 wholly converted, six mixed,44 un
 - The same focused method retains the complete source membership/index domain, independent edits for every direction, canonical content identities, twelve native DMA mappings and isolated PNG edit checks. Pose pointers, drawing/placement bytes and tile pixels remain required independently.
 - Confirmation: incremental Verification build25 warnings/zero errors; --lookup-stream-1-cannon-basis passed. No gameplay exploration was performed. This strengthens the migration proof without changing production behavior or source hashes.
 - Integration note: earlier cannon production changes participate in both ResourceAudit/SamusArtworkClosedContractDefinitions.cs and ResourceAudit/VramDmaSourceContracts.cs; coordinator already refreshed those dependencies. This verifier-only batch requires neither hash to change.
+
+
+## Integrated beam and Grapple flare placement
+
+ChargeFlarePlacementCatalog.offsets is complete (8a9a850a5 and c5da84b64). Named direction/turn cases replace stock beam origins; Grapple shares ordinary origins and resolves all low-nibble overreads through the exact adjacent physical-origin or calculated swing-selector owner. Explicit LoadGrapple import preserves resource identity and independently editable coordinates; both stock catalogs store zero overrides. No retention exception is used.
+
+Root confirmation: Verification build1445 warnings/zero errors;128 direct native words,128 independent axis edits,bounds and four actual beam OAM fixtures with reads unavailable pass. ResourceAudit builds with zero warnings/errors; reviewed source dependencies include bounded physical-origin owners. Inventory550 converted/17 retained-mixed/561 pending. Separate sprite and tile artwork remains required.

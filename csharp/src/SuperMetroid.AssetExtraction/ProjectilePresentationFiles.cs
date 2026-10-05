@@ -99,7 +99,7 @@ public static class ProjectilePresentationFiles
         ProjectileFile stockGrappleSprites = Stock(GrappleSpriteDefinitions.FileName, manifest.GrappleSpritesSha256);
         _ = stockGrappleSprites.Compile(GrappleSpriteCatalog.Load);
         ProjectileFile stockGrappleFlare = Stock(GrappleFlarePlacementDefinitions.FileName, manifest.GrappleFlareSha256);
-        _ = stockGrappleFlare.Compile(ChargeFlarePlacementCatalog.Load);
+        _ = stockGrappleFlare.Compile(ChargeFlarePlacementCatalog.LoadGrapple);
         ProjectileFile stockGrappleSwing = Stock(GrappleSwingFrameDefinitions.FileName, manifest.GrappleSwingSha256);
         _ = stockGrappleSwing.Compile(GrappleSwingFrameCatalog.Load);
         // Finish stock validation before opening any optional replacement.
@@ -126,7 +126,7 @@ public static class ProjectilePresentationFiles
             selectedFlarePlacement.Compile(ChargeFlarePlacementCatalog.Load),
             selectedFlareCompositions.Compile(ChargeFlareSpriteCatalog.Load),
             selectedGrappleTiles.Compile(stream => GrappleTileAtlas.Load(stream, selectedGrappleSprites.Compile(GrappleSpriteCatalog.Load),
-                selectedGrappleFlare.Compile(ChargeFlarePlacementCatalog.Load), selectedGrappleSwing.Compile(GrappleSwingFrameCatalog.Load))),
+                selectedGrappleFlare.Compile(ChargeFlarePlacementCatalog.LoadGrapple), selectedGrappleSwing.Compile(GrappleSwingFrameCatalog.Load))),
             selectedFrameBindings.Compile(ProjectileFrameBindingCatalog.Load));
     }
 

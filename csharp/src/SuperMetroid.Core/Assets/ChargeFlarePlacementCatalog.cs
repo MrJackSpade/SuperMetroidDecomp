@@ -6,8 +6,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable visual muzzle offsets; never used for projectile physics or Grapple connection.</summary>
 public sealed class ChargeFlarePlacementCatalog
 {
-    private readonly ChargeFlareOffset[] offsets;
-    private ChargeFlarePlacementCatalog(ChargeFlareOffset[] offsets) => this.offsets = offsets;
+    // Source kind comes from the importing file contract, never from supplied pixel/offset values.
+    private readonly bool grapple;
+    private readonly Dictionary<int, ChargeFlareOffset> offsets = new();
+    private ChargeFlarePlacementCatalog(ChargeFlareOffset[] supplied, bool grapple)
+    {
+        this.grapple = grapple;
+        for (int index = 0; index < supplied.Length; index++)
+            if (supplied[index] != CalculatedOffset(index >= ChargeFlarePlacementDefinitions.DirectionCount,
+                index % ChargeFlarePlacementDefinitions.DirectionCount)) offsets.Add(index, supplied[index]);
+    }
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -17,9 +25,17 @@ public sealed class ChargeFlarePlacementCatalog
     public ChargeFlareOffset Resolve(bool running, int direction)
     {
         if ((uint)direction >= ChargeFlarePlacementDefinitions.DirectionCount) throw new ArgumentOutOfRangeException(nameof(direction));
-        return offsets[(running ? ChargeFlarePlacementDefinitions.DirectionCount : 0) + direction];
+        return offsets.TryGetValue((running ? ChargeFlarePlacementDefinitions.DirectionCount : 0) + direction, out var supplied)
+            ? supplied : CalculatedOffset(running, direction);
     }
-    public static ChargeFlarePlacementCatalog Load(Stream json)
+    private ChargeFlareOffset CalculatedOffset(bool running, int direction) => grapple
+        ? ChargeFlarePlacementDefinitions.GrappleOffset(running, direction)
+        : ChargeFlarePlacementDefinitions.BeamOffset(running, direction);
+
+    public static ChargeFlarePlacementCatalog Load(Stream json) => Load(json, false);
+    /// <summary>Imports the Grapple placement resource with its distinct adjacent-row owners.</summary>
+    public static ChargeFlarePlacementCatalog LoadGrapple(Stream json) => Load(json, true);
+    private static ChargeFlarePlacementCatalog Load(Stream json, bool grapple)
     {
         ChargeFlarePlacementDocument document;
         try
@@ -42,7 +58,7 @@ public sealed class ChargeFlarePlacementCatalog
                 throw new InvalidDataException($"Missing charge-flare placement {key}.");
             offsets[mode * count + direction] = value;
         }
-        return new(offsets);
+        return new(offsets, grapple);
     }
     public static byte[] Write(ChargeFlarePlacementDocument document)
     {

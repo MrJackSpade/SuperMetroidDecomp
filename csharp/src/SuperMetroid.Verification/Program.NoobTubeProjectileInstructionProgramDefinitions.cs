@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -88,9 +89,8 @@ internal static partial class Program
         AssertTrue(!shot.IsActive,
             "n00b-tube shot reaction reaches shared compiled deletion");
 
-        AssertEqual(NoobTubeProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all n00b-tube spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "n00b-tube sprite operands require no runtime cartridge reads");
         AssertEqual(90,
             NoobTubeProjectileInstructionProgramDefinitions.PresentationWordCount,
             "n00b-tube catalog retains all ninety presentation operands");
@@ -100,8 +100,10 @@ internal static partial class Program
         {
             ushort address = NoobTubeProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads n00b-tube presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86,address,out ushort selector),
+                $"n00b-tube presentation $86:{address:X4} is compiled");
+            AssertEqual(ReadVerificationWord(rom,0x860000 | address),selector,
+                $"n00b-tube presentation $86:{address:X4} preserves its native operand");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared n00b-tube mechanics bytes");
@@ -122,7 +124,7 @@ internal static partial class Program
         Console.WriteLine(
             "N00b-tube projectile instruction mechanics: 207 compiled words, all seventeen " +
             "real burst producers, complete crack/shard/bubble lifecycles, shared deletion, " +
-            "and ninety live spritemap reads pass.");
+            "and ninety native compiled sprite selectors pass.");
 
         RoomEnemySystem NewSystem()
         {

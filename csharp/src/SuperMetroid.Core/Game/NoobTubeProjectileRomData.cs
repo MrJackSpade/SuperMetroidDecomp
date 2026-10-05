@@ -27,7 +27,7 @@ public static class NoobTubeProjectileRomData
     public static ReadOnlySpan<short> ShardYVelocities => ShardYVelocityWords;
 
     /// <summary>Bank-$86 animation-list pointers selected by shard parameter.</summary>
-    public static ReadOnlySpan<ushort> ShardInstructionLists =>
+    public static NoobTubeShardProgramSequence ShardInstructionLists =>
         NoobTubeProjectileInstructionProgramDefinitions.ShardInstructionLists;
 
     /// <summary>Absolute block-origin X offsets for the six released-air bubbles.</summary>

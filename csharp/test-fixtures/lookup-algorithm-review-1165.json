@@ -11213,4 +11213,17 @@
     "state":  "converted",
     "algorithm":  "Named normal/boss/left-edge/right-edge target geometry; original XOR reversals,domain gate and speed untouched. Mode4 name states coordinate meaning only.",
     "remaining":  "468 converted,11 justified retained/mixed,649 pending."
+},"ridleyClawCodeWindowIndependentReview":{
+    "scope":  "RidleyClawOffsets.ExistingOutOfRangeWindow six instruction words only",
+    "reason":  "Unrelated machine encodings cannot derive from physical claw geometry without reencoding native instructions. No unbounded emulation or exemption for ordinary geometry.",
+    "consumer":  "ReadY clamps min(feetDistanceIndex\u003e\u003e1,8), normal indices0..2 calculate; single Ridley claw Y consumer. This is existing managed bound, not claimed native clamp.",
+    "native":  "Direct ROM A6B9E1-B9EC: AF28787EF01F8512100449FF; words28AF,7E78,1FF0,1285,0410,FF49. Pinned LDA.l/BEQ/STA/BPL/EOR encodings match.",
+    "state":  "approved-pending-integration"
+},"motherBrainGlassPaintIndependentReview":{
+    "scope":  "Only glass-face paint anchor7F8B atA9951A",
+    "visualEvidence":  "Independently viewed glass-shard-tilt/back-tilt composites and exact index04 masks showing bright cyan triangular face.",
+    "reason":  "Chosen face tint is painted content, not a geometry/AI-derived quantity. Other shades calculate by interpolation.",
+    "native":  "Direct ROM8B7F and palette listing match. 86CDF0 sets0640,83D9 splits tile/palette offsets;8D9750/976C select corrected tile162/165.",
+    "state":  "approved-pending-integration",
+    "limits":  "Shared dark0802/final-room and recovery inputs remain required; whole glass entry remains pending. Preserve independent supplied edits."
 }}

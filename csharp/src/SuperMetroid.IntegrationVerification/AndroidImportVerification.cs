@@ -67,8 +67,11 @@ internal static class AndroidImportVerification
 
         bool rejectedRomRead = false;
         try { _ = memory.ReadCartridgeByte(0x808000); }
-        catch (InvalidOperationException error) when (
-            error.Message.Contains("not populated", StringComparison.Ordinal))
+        // Import extensions reject a runtime-only memory owner at the capability
+        // boundary, before any cartridge address can be read.
+        catch (ArgumentException error) when (
+            error.ParamName == "bus" &&
+            error.Message.Contains("requires a cartridge import source", StringComparison.Ordinal))
         {
             rejectedRomRead = true;
         }

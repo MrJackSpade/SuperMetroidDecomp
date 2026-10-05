@@ -105,7 +105,7 @@ internal static partial class Program
             guard.BlockFrame(CrocomireBodyVisualDefinitions.Bank, pointer);
             foreach (bool newFrame in new[] { false, true })
             {
-                (OamBuffer nativeOam, byte[] nativeVram) = Draw(null, rom, pointer,
+                (OamBuffer nativeOam, byte[] nativeVram) = DrawNative(pointer,
                     newFrame);
                 (OamBuffer installedOam, byte[] installedVram) = Draw(stock, guard,
                     pointer, newFrame);
@@ -205,7 +205,42 @@ internal static partial class Program
         ushort ReadWord(int address) => unchecked((ushort)(rom.ReadByte(address) |
             rom.ReadByte((address & 0xff0000) | unchecked((ushort)(address + 1))) << 8));
 
-        static (OamBuffer Oam, byte[] Vram) Draw(EnemyTileArtworkCatalog? art,
+        (OamBuffer Oam, byte[] Vram) DrawNative(ushort pointer, bool newFrame)
+        {
+            OamBuffer oam = DrawReferenceExtendedFrame(rom, 0xa4, pointer, 0x0080, 0x0080);
+            var vram = new byte[0x10000];
+            if (!newFrame)
+                return (oam, vram);
+            // Native $A0:96CA copies each $FFFE stream into the $7E:2000
+            // tilemap, later transferred to VRAM word $4800. Read the source
+            // independently of the installed BG2 catalog and production writer.
+            int components = rom.ReadByte(0xa40000 | pointer);
+            for (int component = 0; component < components; component++)
+            {
+                ushort stream = ReadWord(0xa40000 | (pointer + 6 + component * 8));
+                if (ReadWord(0xa40000 | stream) != 0xfffe)
+                    continue;
+                int cursor = stream + 2;
+                bool terminated = false;
+                for (int command = 0; command < 256; command++)
+                {
+                    ushort destination = ReadWord(0xa40000 | cursor);
+                    if (destination == 0xffff)
+                    {
+                        terminated = true;
+                        break;
+                    }
+                    ushort words = ReadWord(0xa40000 | (cursor + 2));
+                    int byteOffset = 0x9000 + destination - 0x2000;
+                    for (int index = 0; index < words * 2; index++)
+                        vram[byteOffset + index] = rom.ReadByte(0xa40000 | (cursor + 4 + index));
+                    cursor += 4 + words * 2;
+                }
+                AssertTrue(terminated, "native Crocomire BG2 stream terminates");
+            }
+            return (oam, vram);
+        }
+        static (OamBuffer Oam, byte[] Vram) Draw(EnemyTileArtworkCatalog art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

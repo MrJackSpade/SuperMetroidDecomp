@@ -11003,4 +11003,14 @@
   "remaining": "417converted,4justifiedretained,707pending. No new exception.",
   "scope": "Ten corpse definitions: Zoomer/Ripper/Skree configurations and uniform sleep programs, Sidehopper staging/copy/column clipping tables",
   "algorithm": "Species and native record/work-area/routine strides derive8configuration rows; uniform6byte programs;16tile atlas width and5tile staged rows derive copy spans/planar offsets with complementary top-row clipping."
+},"metroidSamusPolicyIntegration":{
+  "algorithm": "Metroid chasing/draining layouts derive20/5records and callbacks,OAM roots use record widths. Samus cases use named movement/room/pose domains; foot contact uses five-phase stride; crash echoes oppose selected axis by half-turn.",
+  "confirmation": "Integrated Verification1442warnings/zeroerrors; focused stream1 exit0, confirming31Metroidcontrols/25visuals/4bodymaps,actual chase/drain loops and sounds,28splash/10footcontact/duplicated room policies/HUD28handlers/12angles,256pose domain and actual particles/admission/crash behavior. Scoped stale shinespark fixture uses its existing synthetic palette assets; no production fallback.",
+  "state": "converted",
+  "scope": "Eight Metroid layout/visual and Samus atmospheric/HUD/crash-angle definitions",
+  "implementationCommits": [
+    "dbcbb1f89",
+    "d34d2cd22"
+  ],
+  "remaining": "425converted,4retained,699pending. Separately inventoried Metroid FrameDurations and HUD posture observations stay pending. No new exception."
 }}

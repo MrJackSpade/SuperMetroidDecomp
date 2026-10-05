@@ -3036,6 +3036,7 @@
     ,{"stream": 2, "path": "csharp/src/SuperMetroid.Verification/Program.KagoBugProjectileInstructionProgramDefinitions.cs", "purpose": "Confirm installed native selectors and preserve actual projectile behavior assertions"},
     {"stream": 1, "path": "csharp/src/SuperMetroid.Verification/Program.DragonFireballInstructionProgramDefinitions.cs", "purpose": "Confirm installed native operands and preserve actual fireball loop assertions"}
     ,{"stream": 2, "path": "csharp/src/SuperMetroid.Verification/Program.ChozoTourianDustInstructionProgramDefinitions.cs", "purpose": "Confirm native installed selectors and preserve real dust producer and lifetime assertions"}
+    ,{"stream": 1, "path": "csharp/src/SuperMetroid.Core/Game/PowampMotionDefinitions.cs", "purpose": "Calculate Powamp wiggle, balloon offsets and directional acceleration from native domains"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

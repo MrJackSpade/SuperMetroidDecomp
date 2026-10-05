@@ -34,7 +34,7 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/GrappleSpriteDefinitions.cs", "5A90CFAC1D310891751CE0EDE9855B69D35A412964E5935697A9CBE88095856D")],
             "Private construction compiles the endpoint and all four timed segment appearances. Segment guards the four indices; colors, rope geometry, sound and connection physics are not certified."),
         new("SuperMetroid.Core.Assets.GrappleSwingFrameCatalog", "grapple-complete-byte-angle-display-map", ["Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs", "95E3E23127D82855ADB4C4C4AAEB582D67087BCB31373582ED48ADC7619C41AC")],
+            [new("csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs", "48F98641513B038D3B4A73EBD5D6F46F17DE8F22B74DA5D91B7B883CFD758FDE")],
             "Private construction requires all 256 angle entries with display frame values zero through 31, compiled independently. Every byte angle selects a loaded entry. Body artwork installation and wall/swing/jump physics are not certified."),
         new("SuperMetroid.Core.Assets.ProjectileSpriteCatalog", "projectile-production-complete-compositions", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteCatalog.cs", "913EEEF871A5E8396356377900A90DAFD951290CAFB6E2D9F5E137A82CF78AAD"),

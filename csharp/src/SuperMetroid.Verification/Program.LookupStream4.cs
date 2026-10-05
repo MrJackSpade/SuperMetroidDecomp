@@ -9,6 +9,72 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4HudAnchors(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] json = GameplayHudPresentationExtractor.Extract(rom);
+        var document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        GameplayHudPresentation stock = GameplayHudPresentation.Load(new MemoryStream(json));
+        int Stored(GameplayHudPresentation value, string name) =>
+            ((Dictionary<int, int>)typeof(GameplayHudPresentation).GetField(name,
+                BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(value)!).Count;
+        AssertEqual(0, Stored(stock, "energyTankAnchors"), "HUD stock tank positions are calculated");
+        AssertEqual(0, Stored(stock, "autoAnchors"), "HUD stock AUTO positions are calculated");
+        for (int tank = 0; tank < 14; tank++)
+        {
+            int native = Word(0x809cce + tank * 2);
+            AssertEqual((ushort)native, GameplayHudDefinitions.EnergyTankByteOffset(tank), "native HUD tank offset");
+            AssertEqual(native / 2, document.EnergyTanks.Anchors[tank].Y * 32 + document.EnergyTanks.Anchors[tank].X,
+                "extracted native HUD tank anchor");
+        }
+        for (int item = 0; item < 5; item++)
+            AssertEqual(Word(0x809d6e + item * 2), GameplayHudDefinitions.ItemByteOffset(item), "native HUD item offset");
+        for (int cell = 0; cell < 6; cell++)
+        {
+            int native = (Word(0x809b65 + cell * 7) - 0xc608) / 2;
+            AssertEqual(native, GameplayHudDefinitions.AutoReserveCellIndex(cell), "native AUTO store destination");
+        }
+        ushort[] tiles = new ushort[96];
+        stock.ApplyEnergy(tiles, 100, 1400);
+        for (int tank = 0; tank < 14; tank++)
+            AssertEqual(tank == 0 ? stock.FilledEnergyTank : stock.EmptyEnergyTank,
+                tiles[Word(0x809cce + tank * 2) / 2], "native tank draw destination");
+        stock.ApplyAutoReserve(tiles, containsEnergy: true);
+        for (int cell = 0; cell < 6; cell++)
+            AssertEqual(Word(0x80998b + cell * 2), tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)], "native AUTO draw destination");
+        stock.ClearAutoReserve(tiles);
+        for (int cell = 0; cell < 6; cell++)
+            AssertEqual(stock.Blank, tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)], "native AUTO clear destination");
+
+        (document.EnergyTanks.Anchors[0], document.EnergyTanks.Anchors[1]) =
+            (document.EnergyTanks.Anchors[1], document.EnergyTanks.Anchors[0]);
+        (document.AutoReserve.Anchors[0], document.AutoReserve.Anchors[1]) =
+            (document.AutoReserve.Anchors[1], document.AutoReserve.Anchors[0]);
+        using var editedJson = new MemoryStream();
+        GameplayHudPresentation.Write(editedJson, document);
+        editedJson.Position = 0;
+        GameplayHudPresentation edited = GameplayHudPresentation.Load(editedJson);
+        AssertEqual(2, Stored(edited, "energyTankAnchors"), "only edited tank positions are stored");
+        AssertEqual(2, Stored(edited, "autoAnchors"), "only edited AUTO positions are stored");
+        edited.ApplyEnergy(tiles, 100, 1400);
+        AssertEqual(edited.FilledEnergyTank, tiles[0x44 / 2], "edited first tank moves to second native anchor");
+        AssertEqual(edited.EmptyEnergyTank, tiles[0x42 / 2], "edited second tank moves to first native anchor");
+        edited.ApplyAutoReserve(tiles, containsEnergy: false);
+        AssertEqual(Word(0x809997), tiles[9], "edited AUTO first cell follows override");
+        AssertEqual(Word(0x809999), tiles[8], "edited AUTO second cell follows override");
+        for (int cell = 2; cell < 6; cell++)
+            AssertEqual(Word(0x809997 + cell * 2), tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)], "unedited AUTO anchors unchanged");
+        document.AutoReserve.Anchors[0] = document.AutoReserve.Anchors[1];
+        AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(new MemoryStream(), document),
+            "sparse HUD anchor compilation preserves overlap rejection");
+        foreach (int invalid in new[] { -1, 14, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.EnergyTankByteOffset(invalid), "tank exact domain");
+        foreach (int invalid in new[] { -1, 5, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.ItemByteOffset(invalid), "item exact domain");
+        foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.AutoReserveCellIndex(invalid), "AUTO exact domain");
+    }
     private static void VerifyLookupStream4HudDigits(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

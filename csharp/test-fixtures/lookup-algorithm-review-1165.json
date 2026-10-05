@@ -11553,4 +11553,11 @@
     "state":  "two-converted",
     "algorithm":  "Calculate cyclic digit glyph ordinal and shared OBJ-independent tile palette/priority settings; store only exact independent health/ammo edits.",
     "remaining":  "No glyph-pixel exemption. HUD anchors separate. 515 converted, 15 justified retained/mixed, 598 pending."
+},"hudAnchorsIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Native 14/5/6 positions, actual drawing/clearing, zero stock anchors, four serialized edits, unchanged neighbors, overlap and bounds pass. Source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "GameplayHudDefinitions.EnergyTankByteOffsets; GameplayHudDefinitions.ItemByteOffsets; GameplayHudPresentation.autoAnchors; GameplayHudPresentation.energyTankAnchors",
+    "workerCommit":  "4fbd943c0e62d478abf6831fc05f9081a25f146e",
+    "state":  "four-converted",
+    "algorithm":  "Two seven-tank rows, item widths plus gaps and two-column/three-row AUTO layout calculate default positions; retain only independent edits.",
+    "remaining":  "No artwork/icon/AUTO payload exemption. 519 converted, 15 justified retained/mixed, 594 pending."
 }}

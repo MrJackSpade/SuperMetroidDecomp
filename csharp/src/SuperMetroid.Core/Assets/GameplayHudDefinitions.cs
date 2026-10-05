@@ -42,19 +42,24 @@ public static class GameplayHudDefinitions
 
     public static readonly string[] IconNames = ["Missile", "SuperMissile", "PowerBomb", "Grapple", "XRay"];
 
-    /// <summary>Native byte offsets from WRAM <c>$7E:C608</c> for fourteen energy tanks.</summary>
-    public static ReadOnlySpan<ushort> EnergyTankByteOffsets =>
-    [
-        0x42, 0x44, 0x46, 0x48, 0x4a, 0x4c, 0x4e,
-        0x02, 0x04, 0x06, 0x08, 0x0a, 0x0c, 0x0e,
-    ];
+    public const int EnergyTankCount = 14;
+    public const int ItemCount = 5;
+    public const int AutoReserveCellCount = 6;
 
-    /// <summary>Native byte offsets for Missile, Super, Power Bomb, Grapple and X-Ray icons.</summary>
-    public static ReadOnlySpan<ushort> ItemByteOffsets => [0x14, 0x1c, 0x22, 0x28, 0x2e];
+    /// <summary><c>HandleHUDTilemap_PausedAndRunning.etankIconOffsets</c> at $80:9CCE: two seven-cell rows, bottom first.</summary>
+    public static ushort EnergyTankByteOffset(int tank) => (uint)tank < EnergyTankCount
+        ? (ushort)(2 * (1 + tank % 7 + (tank < 7 ? Width : 0)))
+        : throw new IndexOutOfRangeException();
 
-    /// <summary>Native mutable-row indexes for the six vertically repeated AUTO cells.</summary>
-    public static ReadOnlySpan<int> AutoReserveCellIndices => [8, 9, 40, 41, 72, 73];
+    /// <summary><c>ToggleHUDItemHighlight.HUDItemOffsets</c> at $80:9D6E: three-cell missiles, then two-cell icons, each with a blank gap.</summary>
+    public static ushort ItemByteOffset(int item) => (uint)item < ItemCount
+        ? (ushort)(2 * (10 + item * 3 + (item > 0 ? 1 : 0)))
+        : throw new IndexOutOfRangeException();
 
+    /// <summary>Native AUTO stores at $80:9B64..9B87 occupy columns eight/nine across all three mutable HUD rows.</summary>
+    public static int AutoReserveCellIndex(int cell) => (uint)cell < AutoReserveCellCount
+        ? 8 + cell % 2 + cell / 2 * Width
+        : throw new IndexOutOfRangeException();
     /// <summary>Both HUD digit rows at $80:9DBF/$9DD3 use palette three, priority, and glyphs 1..9 followed by zero.</summary>
     internal static ushort DigitWord(int digit) => (uint)digit < 10
         ? (ushort)(0x2c00 | (digit + 9) % 10)

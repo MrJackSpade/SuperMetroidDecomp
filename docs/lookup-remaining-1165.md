@@ -1,7 +1,7 @@
 
 ## Integrated stream progress
 
-The original snapshot below contains 1128 definitions. As of the first integrated batches, 515 are converted, 15 are justified retained, and 598 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
+The original snapshot below contains 1128 definitions. As of the first integrated batches, 519 are converted, 15 are justified retained, and 594 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
 # Remaining lookup-table definitions - issue 1165
 
 Remaining: **1128 canonical table definitions in 523 source files**.
@@ -989,8 +989,8 @@ Remaining table definitions: **2**.
 
 Remaining table definitions: **2**.
 
-- [ ] **GameplayHudDefinitions.EnergyTankByteOffsets** - stored definition ([L47](../csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs#L47)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GameplayHudDefinitions.ItemByteOffsets** - stored definition ([L53](../csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs#L53)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayHudDefinitions.EnergyTankByteOffsets** - stored definition ([L47](../csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs#L47)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayHudDefinitions.ItemByteOffsets** - stored definition ([L53](../csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs#L53)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs
 
@@ -1002,8 +1002,8 @@ Remaining table definitions: **9**.
 - [x] **GameplayHudPresentation.ammoDigits** - installed stock table ([L13](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L13)). Original/default payload behind GameplayHudPresentation.ammoDigits. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **GameplayHudPresentation.autoFull** - installed stock table ([L14](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L14)). Original/default payload behind GameplayHudPresentation.autoFull. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **GameplayHudPresentation.autoEmpty** - installed stock table ([L15](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L15)). Original/default payload behind GameplayHudPresentation.autoEmpty. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **GameplayHudPresentation.autoAnchors** - installed stock table ([L16](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L16)). Original/default payload behind GameplayHudPresentation.autoAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **GameplayHudPresentation.energyTankAnchors** - installed stock table ([L17](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L17)). Original/default payload behind GameplayHudPresentation.energyTankAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayHudPresentation.autoAnchors** - installed stock table ([L16](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L16)). Original/default payload behind GameplayHudPresentation.autoAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayHudPresentation.energyTankAnchors** - installed stock table ([L17](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L17)). Original/default payload behind GameplayHudPresentation.energyTankAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **GameplayHudPresentation.icons** - installed stock table ([L18](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L18)). Original/default payload behind GameplayHudPresentation.icons. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs

@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 598,
+  "remainingTableDefinitionCount": 594,
   "fileCount": 523,
   "entries": [
     {
@@ -861,14 +861,18 @@
       "line": 47,
       "name": "GameplayHudDefinitions.EnergyTankByteOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "4fbd943c0e62d478abf6831fc05f9081a25f146e"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs",
       "line": 53,
       "name": "GameplayHudDefinitions.ItemByteOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "4fbd943c0e62d478abf6831fc05f9081a25f146e"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
@@ -921,14 +925,18 @@
       "line": 16,
       "name": "GameplayHudPresentation.autoAnchors",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameplayHudPresentation.autoAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameplayHudPresentation.autoAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "4fbd943c0e62d478abf6831fc05f9081a25f146e"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
       "line": 17,
       "name": "GameplayHudPresentation.energyTankAnchors",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameplayHudPresentation.energyTankAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameplayHudPresentation.energyTankAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "4fbd943c0e62d478abf6831fc05f9081a25f146e"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",

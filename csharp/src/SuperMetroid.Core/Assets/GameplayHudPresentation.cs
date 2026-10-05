@@ -13,8 +13,8 @@ public sealed class GameplayHudPresentation
     private readonly Dictionary<int, ushort> ammoDigits;
     private readonly ushort[] autoFull;
     private readonly ushort[] autoEmpty;
-    private readonly MapLabelPoint[] autoAnchors;
-    private readonly MapLabelPoint[] energyTankAnchors;
+    private readonly Dictionary<int, int> autoAnchors;
+    private readonly Dictionary<int, int> energyTankAnchors;
     private readonly Dictionary<string, CompiledIcon> icons;
 
     private GameplayHudPresentation(GameplayHudPresentationDocument document, byte[] source)
@@ -31,7 +31,8 @@ public sealed class GameplayHudPresentation
         Blank = CompileCell(document.Blank, "HUD blank");
         FilledEnergyTank = CompileCell(document.EnergyTanks.Filled, "filled energy tank");
         EmptyEnergyTank = CompileCell(document.EnergyTanks.Empty, "empty energy tank");
-        energyTankAnchors = CompileAnchors(document.EnergyTanks.Anchors, 14, "energy tank");
+        energyTankAnchors = CompileAnchors(document.EnergyTanks.Anchors, GameplayHudDefinitions.EnergyTankCount, "energy tank",
+            tank => GameplayHudDefinitions.EnergyTankByteOffset(tank) / sizeof(ushort));
         healthDigits = CompileDigitOverrides(document.Digits.Health, "health digits");
         ammoDigits = CompileDigitOverrides(document.Digits.Ammo, "ammo digits");
         HealthAnchor = ValidateAnchor(document.Digits.HealthAnchor, 2, 1, "health digits");
@@ -41,7 +42,8 @@ public sealed class GameplayHudPresentation
         MinimapAnchor = ValidateAnchor(document.MinimapAnchor, 5, 3, "minimap");
         autoFull = CompileCells(document.AutoReserve.ContainsEnergy, 6, "filled AUTO indicator");
         autoEmpty = CompileCells(document.AutoReserve.Empty, 6, "empty AUTO indicator");
-        autoAnchors = CompileAnchors(document.AutoReserve.Anchors, 6, "AUTO indicator");
+        autoAnchors = CompileAnchors(document.AutoReserve.Anchors, GameplayHudDefinitions.AutoReserveCellCount, "AUTO indicator",
+            GameplayHudDefinitions.AutoReserveCellIndex);
         SelectedPalette = ValidatePalette(document.SelectedPalette, nameof(document.SelectedPalette));
         DeselectedPalette = ValidatePalette(document.DeselectedPalette, nameof(document.DeselectedPalette));
 
@@ -100,9 +102,9 @@ public sealed class GameplayHudPresentation
     {
         ValidateTilemap(tiles);
         int fullTanks = health / 100;
-        int tankCount = Math.Min(maxHealth / 100, energyTankAnchors.Length);
+        int tankCount = Math.Min(maxHealth / 100, GameplayHudDefinitions.EnergyTankCount);
         for (int tank = 0; tank < tankCount; tank++)
-            tiles[Index(energyTankAnchors[tank])] = tank < fullTanks ? FilledEnergyTank : EmptyEnergyTank;
+            tiles[EnergyTankCell(tank)] = tank < fullTanks ? FilledEnergyTank : EmptyEnergyTank;
         DrawDigits(tiles, healthDigits, health % 100, HealthAnchor, 2);
     }
 
@@ -123,15 +125,15 @@ public sealed class GameplayHudPresentation
     {
         ValidateTilemap(tiles);
         ushort[] source = containsEnergy ? autoFull : autoEmpty;
-        for (int index = 0; index < autoAnchors.Length; index++)
-            tiles[Index(autoAnchors[index])] = source[index];
+        for (int index = 0; index < GameplayHudDefinitions.AutoReserveCellCount; index++)
+            tiles[AutoReserveCell(index)] = source[index];
     }
 
     public void ClearAutoReserve(Span<ushort> tiles)
     {
         ValidateTilemap(tiles);
-        foreach (MapLabelPoint anchor in autoAnchors)
-            tiles[Index(anchor)] = Blank;
+        for (int cell = 0; cell < GameplayHudDefinitions.AutoReserveCellCount; cell++)
+            tiles[AutoReserveCell(cell)] = Blank;
     }
 
     public void ToggleItemHighlight(Span<ushort> tiles, ushort selectedItem, int palette)
@@ -214,8 +216,8 @@ public sealed class GameplayHudPresentation
         foreach ((string name, CompiledIcon icon) in icons)
         for (int y = 0; y < icon.Height; y++)
         for (int x = 0; x < icon.Width; x++) Own(Index(icon.Anchor.X + x, icon.Anchor.Y + y), name);
-        foreach (MapLabelPoint anchor in energyTankAnchors) Own(Index(anchor), "energy tank");
-        foreach (MapLabelPoint anchor in autoAnchors) Own(Index(anchor), "AUTO indicator");
+        for (int tank = 0; tank < GameplayHudDefinitions.EnergyTankCount; tank++) Own(EnergyTankCell(tank), "energy tank");
+        for (int cell = 0; cell < GameplayHudDefinitions.AutoReserveCellCount; cell++) Own(AutoReserveCell(cell), "AUTO indicator");
         for (int x = 0; x < 2; x++) Own(Index(HealthAnchor.X + x, HealthAnchor.Y), "health digits");
         for (int x = 0; x < 3; x++) Own(Index(MissileAmmoAnchor.X + x, MissileAmmoAnchor.Y), "missile digits");
         for (int x = 0; x < 2; x++) Own(Index(SuperMissileAmmoAnchor.X + x, SuperMissileAmmoAnchor.Y), "Super Missile digits");
@@ -252,13 +254,25 @@ public sealed class GameplayHudPresentation
             (cell.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw;
     }
 
-    private static MapLabelPoint[] CompileAnchors(MapLabelPoint[]? anchors, int count, string name)
+    private int EnergyTankCell(int tank) => energyTankAnchors.TryGetValue(tank, out int cell)
+        ? cell : GameplayHudDefinitions.EnergyTankByteOffset(tank) / sizeof(ushort);
+
+    private int AutoReserveCell(int index) => autoAnchors.TryGetValue(index, out int cell)
+        ? cell : GameplayHudDefinitions.AutoReserveCellIndex(index);
+
+    private static Dictionary<int, int> CompileAnchors(MapLabelPoint[]? anchors, int count,
+        string name, Func<int, int> defaultCell)
     {
         if (anchors is null || anchors.Length != count)
             throw new InvalidDataException($"Gameplay HUD {name} requires exactly {count} anchors.");
-        return anchors.Select((anchor, index) => ValidateAnchor(anchor, 1, 1, $"{name} {index}")).ToArray();
+        var overrides = new Dictionary<int, int>();
+        for (int index = 0; index < count; index++)
+        {
+            int cell = Index(ValidateAnchor(anchors[index], 1, 1, $"{name} {index}"));
+            if (cell != defaultCell(index)) overrides.Add(index, cell);
+        }
+        return overrides;
     }
-
     private static MapLabelPoint ValidateAnchor(MapLabelPoint? anchor, int width, int height, string name)
     {
         if (anchor is null || anchor.X < 0 || anchor.Y < 0 ||

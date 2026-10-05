@@ -11,14 +11,15 @@ internal static partial class Program
 {
     private static void VerifyIntroProjectileArtwork(ISnesAddressSpace bus, ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite)
     {
-        var intro = new IntroCinematicState(bus);
+        var intro = CreateRetailIntroFixture(bus);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!.Invoke(intro, null);
         typeof(IntroCinematicState).GetMethod("SetupMotherBrainFlashback", flags)!.Invoke(intro, null);
         var projectiles = (SamusProjectileSystem)typeof(IntroCinematicState).GetField("flashbackProjectiles", flags)!.GetValue(intro)!;
-        var game = new SuperMetroidGame(bus);
+        var game = CreateRetailGameFixture(bus);
         var introField = typeof(SuperMetroidGame).GetField("intro", flags)!;
         introField.SetValue(game, intro);
+        typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.IntroCinematic);
         byte[] Draw(IntroCinematicState scene) => ((OamBuffer)typeof(IntroCinematicState)
             .GetMethod("PrepareMotherBrainOam", flags)!.Invoke(scene, null)!).LowTable.ToArray();
         foreach (ushort family in new ushort[] { 0x10, 0x700 })
@@ -27,10 +28,10 @@ internal static partial class Program
             var shot = projectiles.Slots[0];
             shot.Type = family; shot.InstructionPointer = 1; shot.SpritemapPointer = sprite;
             shot.XPosition = 100; shot.YPosition = 100;
-            game.BindProjectileCompositions(null);
+            game.BindProjectileCompositions(projectileFixtureArt.Value.Catalog);
             byte[] native = Draw(intro);
             game.BindProjectileCompositions(stock);
-            AssertTrue(native.SequenceEqual(Draw(intro)), "Intro stock projectile binding preserves native OAM");
+            AssertTrue(native.SequenceEqual(Draw(intro)), "Intro installed projectile binding matches cartridge-extracted stock OAM");
             game.BindProjectileCompositions(edited);
             AssertTrue(!native.SequenceEqual(Draw(intro)), "Intro projectile/explosion passes consume edited composition");
         }
@@ -62,12 +63,24 @@ internal static partial class Program
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(with);
         var restoredIntro = (IntroCinematicState)introField.GetValue(restored)!;
         AssertTrue(restoredIntro.TrailArtwork is null && restoredIntro.ProjectileCompositions is null, "Restored intro requires host content rebind");
+        BindRestoredIntroDrawFixture(restoredIntro);
         restored.BindTrailArtwork(editedTrails); restored.BindProjectileCompositions(edited);
         game.BindTrailArtwork(editedTrails); game.BindProjectileCompositions(edited);
         AssertTrue(Draw(intro).SequenceEqual(Draw(restoredIntro)), "Restored cinematic draws current artwork at saved animation position");
         Console.WriteLine("Intro projectile artwork: live/explosion/trail stock parity, visible edits, native timing and nonserialized state rebind pass.");
     }
 
+    private static void BindRestoredIntroDrawFixture(IntroCinematicState intro)
+    {
+        // This fixture isolates projectile/trail rebinding. Supply the other draw
+        // dependencies without invoking the separate cinematic-sheet reupload path,
+        // which deliberately replaces VRAM and is covered by the cinematic art fixture.
+        typeof(IntroCinematicState).GetField("characterArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .SetValue(intro, runtimeFixtureInstallation.Value.LoadIntroCinematicArt());
+        intro.BindSamusBodyArtwork(runtimeFixtureInstallation.Value.LoadSamusBodyArt());
+        intro.ProjectileCompositions = projectileFixtureArt.Value.Catalog;
+        intro.ProjectileFrameBindings = projectileFixtureArt.Value.FrameBindings;
+    }
     private static void VerifyIntroTrailPng(ISnesAddressSpace bus, IntroCinematicState intro,
         SuperMetroidGame game, byte[] json, Func<IntroCinematicState, byte[]> draw)
     {
@@ -92,6 +105,7 @@ internal static partial class Program
         saved.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(saved);
         var restoredIntro = (IntroCinematicState)typeof(SuperMetroidGame).GetField("intro", flags)!.GetValue(restored)!;
+        BindRestoredIntroDrawFixture(restoredIntro);
         foreach (var pair in new[] { (game, intro), (restored, restoredIntro) })
         {
             pair.Item1.BindTrailArtwork(edited);
@@ -109,6 +123,6 @@ internal static partial class Program
             pair.Item1.BindTrailArtwork(stock);
             draw(pair.Item2);
         }
-        game.BindTrailArtwork(null);
+        game.BindTrailArtwork(projectileFixtureArt.Value.Trails);
     }
 }

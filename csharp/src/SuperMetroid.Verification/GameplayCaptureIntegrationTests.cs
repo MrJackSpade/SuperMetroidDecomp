@@ -12,7 +12,7 @@ internal static partial class Program
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.RunNmi(0, true);

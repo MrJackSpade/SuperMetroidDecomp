@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyXraySetupBuffers()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         // Change only the installed art for air reveals; the runtime still executes
         // the cartridge's compiled collision lookup and X-ray setup stages.
         var visualEntries = new List<(RoomCollisionType Type, byte Bts,

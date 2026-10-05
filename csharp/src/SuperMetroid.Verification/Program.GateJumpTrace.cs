@@ -17,7 +17,7 @@ internal static partial class Program
             var expected = File.ReadLines($"csharp/test-fixtures/movement-release/gate-jump-403-{suffix}.csv").Skip(1).ToArray();
             AssertEqual(140, expected.Length, "Complete native gate jump trace");
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = CreateRetailRuntimeFixture(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();

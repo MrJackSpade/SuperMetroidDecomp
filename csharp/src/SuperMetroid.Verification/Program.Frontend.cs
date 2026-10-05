@@ -450,7 +450,7 @@ static void VerifySavedGameLoadAppearance()
     SuperMetroidSaveSlot slot = saveRam.ReadSlot(0)
         ?? throw new InvalidOperationException("Synthetic Crateria save did not validate.");
 
-    var runtime = new SuperMetroidRuntime(bus);
+    var runtime = CreateRetailRuntimeFixture(bus);
     runtime.InitializeHud(new HudSnapshot(
         slot.Health,
         slot.MaxHealth,

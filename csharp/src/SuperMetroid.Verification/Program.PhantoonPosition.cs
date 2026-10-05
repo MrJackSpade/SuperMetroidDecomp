@@ -26,7 +26,7 @@ internal static partial class Program
         AssertEqual((ushort)122, capBody.YPosition, "Native capped swoop Y displacement");
         foreach (ushort timer in new ushort[] { 2, 1, 0 })
         {
-            var boundary = new SuperMetroidRuntime(bus);
+            var boundary = CreateRetailRuntimeFixture(bus);
             boundary.InitializeHud(HudSnapshot.CeresDebug);
             boundary.InitializeStartingCeresRoom();
             boundary.InitializeCeresStartSamus();
@@ -38,7 +38,7 @@ internal static partial class Program
             AssertEqual((ushort)(timer == 2 ? PhantoonAiFunction.MoveInFigureEightThenOpenEye : PhantoonAiFunction.NoOperation),
                 state.Body.VariableF, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
         }
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

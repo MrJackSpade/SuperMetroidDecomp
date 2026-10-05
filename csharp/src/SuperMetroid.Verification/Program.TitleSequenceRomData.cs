@@ -18,7 +18,7 @@ internal static partial class Program
         var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
         TitleGradientPresentation gradient = TitleGradientPresentation.Load(
             new MemoryStream(TitleGradientExtractor.Extract(bus), writable: false));
-        var state = new TitleSequenceState(bus, titleGradientPresentation: gradient);
+        var state = CreateTitleFixture(bus, titleGradientPresentation: gradient);
         TitleSequencePhase[] naturalOrder =
         [
             TitleSequencePhase.YearText,
@@ -50,7 +50,9 @@ internal static partial class Program
                         $"title {previous} frame geometry");
                 }
             },
-            maximumFrames: 1_500,
+            // The fixture now uses complete compiled title cards, not one-frame
+            // replacement cards. Match the natural-sequence snapshot's bound.
+            maximumFrames: 2_500,
             "complete natural title sequence");
         AssertSequenceEqual(naturalOrder, observed, "natural title phase order");
         AssertEqual(TitleSequenceRomData.Scenes.IdentityScale, state.Mode7MatrixScale,
@@ -68,7 +70,7 @@ internal static partial class Program
             maximumFrames: 40,
             "title file-select handoff");
 
-        var skipped = new TitleSequenceState(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom),
+        var skipped = CreateTitleFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom),
             titleGradientPresentation: gradient);
         skipped.Step((ushort)SnesButton.A);
         AssertEqual(TitleSequencePhase.SkipFadeOut, skipped.Phase,
@@ -170,14 +172,21 @@ internal static partial class Program
         TitleTextSequenceDefinition definition,
         ushort sceneCommand)
     {
-        WriteRomWord(rom, definition.InstructionAddress, 1);
-        WriteRomWord(
-            rom,
-            definition.InstructionAddress + sizeof(ushort),
-            TitleSequenceRomData.Sprites.Blank);
-        WriteRomWord(
-            rom,
-            definition.InstructionAddress + TitleSequenceRomData.TextSequences.TimedEntryByteCount,
-            sceneCommand);
+        // Timing/selector identities are compiled now. Keep synthetic blank
+        // artwork, but provide the complete selector inventory to the extractor.
+        int pointer = definition.InstructionAddress;
+        while (true)
+        {
+            ushort durationOrCommand = TitleSequenceInstructionDefinitions.ReadWord(pointer);
+            WriteRomWord(rom, pointer, durationOrCommand);
+            if ((durationOrCommand & TitleSequenceRomData.TextSequences.CommandBit) != 0)
+            {
+                AssertEqual(sceneCommand, durationOrCommand, "constructed title scene command");
+                break;
+            }
+            WriteRomWord(rom, pointer + sizeof(ushort),
+                TitleSequenceInstructionDefinitions.ReadWord(pointer + sizeof(ushort)));
+            pointer += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
+        }
     }
 }

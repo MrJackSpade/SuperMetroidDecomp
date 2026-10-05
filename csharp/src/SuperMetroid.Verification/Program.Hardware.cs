@@ -499,7 +499,7 @@ static void VerifyFrameRuntime()
 
     var bus = new TestAddressSpace();
     bus.WriteBytes(0x7e1234, [0xca, 0xfe]);
-    var runtime = new SuperMetroidRuntime(bus);
+    var runtime = CreateRetailRuntimeFixture(bus);
     runtime.VramWrites.Enqueue(2, 0x7e1234, 0x0020);
     runtime.EscapeTimer.RequestCeresStart();
 
@@ -616,8 +616,10 @@ static void VerifySuperMetroidAddressSpace()
     noCartridge.WriteByte(0x7e1234, 0x98);
     AssertEqual(0x98, ((ISnesMutableMemory)noCartridge).ReadWorkRamByte(0x7e1234),
         "typed WRAM read works without a cartridge allocation");
-    AssertThrows<InvalidOperationException>(
-        () => ((IImportCartridgeSource)noCartridge).ReadCartridgeByte(0x808000),
+    AssertTrue(noCartridge is not IImportCartridgeSource,
+        "runtime memory does not implement the import-only cartridge capability");
+    AssertThrows<ArgumentException>(
+        () => noCartridge.ReadCartridgeByte(0x808000),
         "missing cartridge cannot be masked by the import-only reader");
 
     AssertThrows<InvalidOperationException>(() => bus.WriteByte(0x808000, 0), "ROM writes rejected");

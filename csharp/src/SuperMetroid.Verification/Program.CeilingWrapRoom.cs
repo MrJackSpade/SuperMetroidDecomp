@@ -12,7 +12,7 @@ internal static partial class Program
         int expectedFrames = beams == 11 ? (dash ? 349 : 412) : 900;
         AssertEqual(expectedFrames, native.Length, "Native Speedway setup trace length");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -41,7 +41,7 @@ internal static partial class Program
     private static void VerifyFrogSpeedwayPoolCollision()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

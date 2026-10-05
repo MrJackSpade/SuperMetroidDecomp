@@ -101,7 +101,7 @@ static void VerifyHudStateAndBg3Rendering()
     // State-$05's direct BG3-page DMA is part of HUD initialization even though only its
     // first four rows contain the visible HUD. The remaining rows must name blank
     // character $6F; zero names the orange `1` glyph and becomes visible above water/acid.
-    var runtime = new SuperMetroidRuntime(bus);
+    var runtime = CreateRetailRuntimeFixture(bus);
     runtime.InitializeHud(HudSnapshot.CeresDebug);
     runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
     AssertEqual(RoomFxRomData.Layer3.PaddingTilemapWord,

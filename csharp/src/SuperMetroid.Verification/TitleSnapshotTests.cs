@@ -19,8 +19,8 @@ internal static partial class Program
             var sourceBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
             TitleGradientPresentation gradient = TitleGradientPresentation.Load(
                 new MemoryStream(TitleGradientExtractor.Extract(sourceBus), writable: false));
-            var scene = new TitleSequenceState(sourceBus, titleGradientPresentation: gradient);
-            var control = new TitleSequenceState(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom),
+            var scene = CreateTitleFixture(sourceBus, titleGradientPresentation: gradient);
+            var control = CreateTitleFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom),
                 titleGradientPresentation: gradient);
             var phases = new HashSet<TitleSequencePhase>();
             int comparisons = 0;

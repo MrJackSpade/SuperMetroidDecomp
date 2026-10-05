@@ -10,7 +10,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool remapped in new[] { false, true })
         {
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = CreateRetailRuntimeFixture(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
@@ -42,7 +42,12 @@ internal static partial class Program
             // ten-slot update gate. Its long instruction delay avoids consuming data.
             var pendingBomb = runtime.BombProjectiles.Slots[0];
             pendingBomb.Type = (ushort)SamusProjectileFamily.Bomb;
-            pendingBomb.InstructionPointer = 0x9000;
+            ushort bombData = SamusProjectileSelectionDefinitions.ReadWord(
+                SamusProjectileRomData.NonBeam.DataPointers +
+                ((ushort)SamusProjectileFamily.Bomb >> 8) * sizeof(ushort));
+            pendingBomb.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
+                (SamusProjectileRomData.Banks.Projectile | bombData) + sizeof(ushort));
+            pendingBomb.SpritemapPointer = runtime.ProjectileFrameBindings!.Resolve(pendingBomb.InstructionPointer);
             pendingBomb.InstructionTimer = 100;
             pendingBomb.BombTimer = 60;
             runtime.StepFrame((ushort)(runtime.ControllerBindings.Dash | runtime.ControllerBindings.Shoot));

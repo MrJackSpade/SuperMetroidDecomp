@@ -44,10 +44,11 @@ internal static partial class Program
             if (operation == 0 && mask == 0)
             {
                 // A single-layer v20 packet is the identical prefix without v21's
-                // nine window bytes, TMW, and v26's mosaic byte. It must decode
+                // nine window bytes, TMW, v26's mosaic byte and the later
+                // per-line main-screen presence flag (empty in this fixture). It must decode
                 // with windowing and mosaic disabled.
                 byte[] modern = RenderFrameSnapshotCodec.Serialize(packet);
-                byte[] old = modern.AsSpan(0, modern.Length - 11).ToArray();
+                byte[] old = modern.AsSpan(0, modern.Length - 12).ToArray();
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
                     old.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.ObjPriorityFixedColorVersion);
                 var legacy = RenderFrameSnapshotCodec.Deserialize(old);

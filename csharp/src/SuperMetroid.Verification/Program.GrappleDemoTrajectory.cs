@@ -13,7 +13,7 @@ internal static partial class Program
         var scene = SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 4)!;
         AssertEqual(AttractDemoRomData.InputObjects.GrappleBeam, scene.InputObject,
             "retail basic grapple demo identity");
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeAttractDemo(scene);
         var samus = runtime.Samus!;
         var level = runtime.LevelData!;

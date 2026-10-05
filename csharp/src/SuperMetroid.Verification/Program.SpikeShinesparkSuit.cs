@@ -140,7 +140,7 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         bool underwater)
     {
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();

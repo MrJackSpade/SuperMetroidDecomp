@@ -75,7 +75,7 @@ internal static partial class Program
         VerifyCeresHazeNativeRamp(rom);
         VerifyCeresHazePhaseControl(rom);
 
-        var runtime = new SuperMetroidRuntime(rom);
+        var runtime = CreateRetailRuntimeFixture(rom);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

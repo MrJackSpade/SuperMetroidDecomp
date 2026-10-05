@@ -510,7 +510,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/MorphBallEyeInstructionProgramDefinitions.cs
 
 - [ ] **MorphBallEyeInstructionProgramDefinitions.Words** ([L41](../csharp/src/SuperMetroid.Core/Game/MorphBallEyeInstructionProgramDefinitions.cs#L41)) - factory-built stock table. Stored MorphBallEyeInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **MorphBallEyeInstructionProgramDefinitions.PresentationWords** ([L43](../csharp/src/SuperMetroid.Core/Game/MorphBallEyeInstructionProgramDefinitions.cs#L43)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **MorphBallEyeInstructionProgramDefinitions.PresentationWords** ([L43](../csharp/src/SuperMetroid.Core/Game/MorphBallEyeInstructionProgramDefinitions.cs#L43)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MorphBallEye.cs
 
@@ -913,3 +913,8 @@ Calculated58 control positions/commands and31 visual addresses from named loops,
 Existing actual producer/lifetime/program/callback/deletion/bounds/allocation confirmation remains; the obsolete31 live visual reads assertion now checks zero reads and all31 exact native installed selectors. Integrated checkpoint:72 converted,one mixed,one retained,151 required.
 
 Root integration Verification build1444 existing warnings/zero errors; --phantoon-projectile-instruction-mechanics passed58 native controls,both actual producers,every flame program,callbacks,deletion,31 exact native selectors with zero live reads,bounds and allocation checks.
+
+### Morph Ball eye structural integration
+Calculated36 visual operand addresses and46 control positions from tracking,paired closing/opening and mount record widths. PresentationWords is complete. Words remains required: eyelid cadence8/48/5,active cadence10 and activation delay32 are independent inputs without approved exceptions. Closing/opening reversal and reused closed-state hold are calculated. Integrated checkpoint73 converted,one mixed,one retained,150 required.
+
+Root Verification build: 1444 existing warnings, zero errors. --morph-ball-eye-instruction-program-definitions passed 46 native controls, eleven actual programs, six initializer roles, 36 native selectors, zero presentation reads, bounds, save/load and allocation assertions. Native A8:8FAC-904E confirms the record layout and independent timing inputs.

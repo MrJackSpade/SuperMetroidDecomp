@@ -3,7 +3,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Immutable beam sheets resolved at NMI; pending state stores identities, never PNG bytes.</summary>
-public sealed class BeamTileCatalog : IVramAssetProvider
+public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTransferSource
 {
     private readonly BeamTileAtlas[] sheets;
     public BeamPaletteCatalog? Palettes { get; }
@@ -40,6 +40,19 @@ public sealed class BeamTileCatalog : IVramAssetProvider
         int selection = (int)asset - (int)VramAssetId.BeamPowerTiles;
         if ((uint)selection >= sheets.Length) throw new InvalidDataException($"Beam catalog cannot resolve {asset}.");
         return sheets[selection].Transfer;
+    }
+
+    /// <summary>Resolves restored native beam uploads through installed artwork, without ROM DMA.</summary>
+    public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
+    {
+        int selection = BeamTileAtlasDefinitions.LegacySelectionFor(sourceAddress);
+        if (selection >= 0 && byteCount == BeamTileAtlasDefinitions.ByteCount)
+        {
+            data = Resolve(AssetFor(selection));
+            return true;
+        }
+        data = default;
+        return false;
     }
 
     public static VramAssetId AssetFor(int selection)

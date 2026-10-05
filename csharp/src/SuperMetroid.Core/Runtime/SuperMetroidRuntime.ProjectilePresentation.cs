@@ -14,6 +14,8 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
             return true;
         if (MapPresentation?.EscapeTimerTiles.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
+        if (beamArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
+            return true;
         if (grappleArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         if (MapPresentation is not null &&

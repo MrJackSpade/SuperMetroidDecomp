@@ -163,7 +163,9 @@ public sealed class GameOverPresentation
         {
             if (!document.Sprites.TryGetValue(name, out SpriteVisualPart[]? parts) || parts is null)
                 throw new InvalidDataException($"Game-over presentation is missing sprite {name}.");
-            sprites.Add(name, MenuSpriteCompiler.Compile(parts, $"game-over {name}"));
+            var compiled = MenuSpriteCompiler.Compile(parts, $"game-over {name}");
+            compiled = GameOverSpriteParts.CalculateIfMatching(name, compiled);
+            sprites.Add(name, MenuCursorParts.CalculateIfMatching(name, compiled));
         }
 
         var palettes = new Dictionary<string, ushort[]>(StringComparer.Ordinal);

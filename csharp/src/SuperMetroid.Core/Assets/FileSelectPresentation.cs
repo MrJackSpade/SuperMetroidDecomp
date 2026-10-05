@@ -234,8 +234,8 @@ public sealed class FileSelectPresentation
             CompileCell(cell, $"file-select slot letter {index}")).ToArray();
         var sprites = new Dictionary<string, SpriteComposition>(StringComparer.Ordinal);
         foreach (string name in FileSelectPresentationDefinitions.SpriteNames)
-            sprites.Add(name, MenuSpriteCompiler.Compile(document.Sprites[name],
-                $"file-select {name}"));
+            sprites.Add(name, MenuCursorParts.CalculateIfMatching(name, MenuSpriteCompiler.Compile(document.Sprites[name],
+                $"file-select {name}")));
 
         foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
             ValidateSlot(slot);

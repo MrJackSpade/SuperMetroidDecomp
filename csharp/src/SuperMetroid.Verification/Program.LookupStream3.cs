@@ -6,6 +6,82 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3MenuSpriteGeometry(ISnesAddressSpace rom)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        static Dictionary<string, SpriteComposition> Sprites(object presentation) =>
+            (Dictionary<string, SpriteComposition>)presentation.GetType().GetField("sprites", flags)!.GetValue(presentation)!;
+        static void Confirm(SpriteComposition actual, SpriteVisualPart[] expectedParts)
+        {
+            var expected = MenuSpriteCompiler.Compile(expectedParts, "native or independently edited menu composition");
+            AssertEqual(expected.PartCount, actual.PartCount, "menu composition exact part count");
+            for (int part = 0; part < expected.PartCount; part++)
+                AssertEqual(expected.Part(part), actual.Part(part), "menu composition exact ordered geometry, tiles, attributes and palette inheritance");
+        }
+        static bool Calculated(SpriteComposition composition) =>
+            typeof(SpriteComposition).GetField("parts", flags)!.GetValue(composition) is not CompiledSpritePart[];
+
+        byte[] imported = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(rom);
+        GameOverPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        GameOverPresentation Load(GameOverPresentationDocument document) => GameOverPresentation.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        var original = Read();
+        var stock = Sprites(Load(original));
+        foreach (string name in GameOverPresentationDefinitions.SpriteNames)
+        {
+            AssertTrue(Calculated(stock[name]), "stock game-over geometry retains no full part array " + name);
+            Confirm(stock[name], original.Sprites[name]);
+            for (int part = 0; part < original.Sprites[name].Length; part++)
+            for (int field = 0; field < 9; field++)
+            {
+                var document = Read();
+                var source = document.Sprites[name][part];
+                document.Sprites[name][part] = field switch
+                {
+                    0 => source with { OffsetX = source.OffsetX + 1 },
+                    1 => source with { OffsetY = source.OffsetY + 1 },
+                    2 => source with { TileColumn = source.TileColumn ^ 1 },
+                    3 => source with { TileRow = source.TileRow ^ 1 },
+                    4 => source with { Size = source.Size == 8 ? 16 : 8 },
+                    5 => source with { Priority = source.Priority ^ 1 },
+                    6 => source with { Palette = 0 },
+                    7 => source with { FlipX = !source.FlipX },
+                    _ => source with { FlipY = !source.FlipY },
+                };
+                var changed = document.Sprites[name][part];
+                if (changed.TileColumn > MapSpriteFormat.TileColumns - changed.Size / 8 ||
+                    changed.TileRow > MapSpriteFormat.TileRows - changed.Size / 8)
+                    AssertThrows<InvalidDataException>(() => Load(document), "menu edited size still rejects out-of-sheet footprint");
+                else
+                    Confirm(Sprites(Load(document))[name], document.Sprites[name]);
+            }
+            var reordered = Read();
+            Array.Reverse(reordered.Sprites[name]);
+            Confirm(Sprites(Load(reordered))[name], reordered.Sprites[name]);
+            var expanded = Read();
+            expanded.Sprites[name] = [.. expanded.Sprites[name], expanded.Sprites[name][0] with { OffsetX = 17 }];
+            Confirm(Sprites(Load(expanded))[name], expanded.Sprites[name]);
+        }
+        ConfirmCursorCaller(SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom), source => FileSelectPresentation.Load(source));
+        ConfirmCursorCaller(SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsPresentation.Load(source));
+
+        void ConfirmCursorCaller(byte[] json, Func<Stream, object> load)
+        {
+            var presentation = Sprites(load(new MemoryStream(json)));
+            for (int frame = 0; frame < 4; frame++)
+            {
+                string name = GameOverPresentationDefinitions.CursorFrameName(frame);
+                var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+                var parts = System.Text.Json.JsonSerializer.Deserialize<SpriteVisualPart[]>(node["sprites"]![name]!.ToJsonString(), MapPresentationFormat.JsonOptions)!;
+                AssertTrue(Calculated(presentation[name]), "shared menu cursor caller uses calculated geometry");
+                Confirm(presentation[name], parts);
+                parts[0] = parts[0] with { OffsetX = parts[0].OffsetX + 1, TileColumn = parts[0].TileColumn ^ 1 };
+                node["sprites"]![name] = System.Text.Json.JsonSerializer.SerializeToNode(parts, MapPresentationFormat.JsonOptions);
+                var edited = Sprites(load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString()))));
+                Confirm(edited[name], parts);
+            }
+        }
+    }
     private static void VerifyStream3EnemyFrameRegistration(ISnesAddressSpace rom)
     {
         // Ordered bank:pointer:name snapshot of the 472 source registrations at commit 723df7b36.

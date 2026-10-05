@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-menu-sprite-geometry"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Menu geometry oracle revision");
+    VerifyStream3MenuSpriteGeometry(rom);
+    Console.WriteLine("Menu geometry: native compositions, calculated stock storage, independent part edits, reordering and three loader bindings pass.");
+    return 0;
+}
 if (args is ["--lookup-stream2-equipment-base-geometry"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

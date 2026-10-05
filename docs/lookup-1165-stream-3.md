@@ -1124,3 +1124,9 @@ Root Verification build1445warnings/0errors; --lookup-enemy-frame-registration c
 ### Integrated caret registration
 
 The one visible caret is now a semantic registration property with calculated enumeration, rather than a stored registration row. Loader count binding uses the calculated collection. Root --lookup-intro-caret-registration confirms the native16-bit part count at8C:8D68, exact identity, enumeration and invalid indices. Verification build1445warnings/0errors; ResourceAudit0/0. Worker e944e8857. Artwork and timing remain separately required; inventory551converted/16retained-mixed/561pending.
+
+### Integrated menu composition geometry (partial)
+
+The centered two-tile missile cursor is calculated across GameOver,FileSelect andGameOptions. GameOver Baby frames use centered16x16 geometry; the four8x8 specimen-container caps reflect around that center. Supplied tile identities and cursor ordering remain required, as do pixels; all three sprites entries stay unchecked. Native82:CBCB-CBFA/CFE0-D00A are the identified composition records.
+
+Root --lookup-menu-sprite-geometry passes all15native-imported parts/eight calculated GameOver compositions,135field edits including existing size rejection,reordering/expanded compositions,and all4cursor frames and edits through both other loaders. Verification1445warnings/0errors;ResourceAudit0/0. Both new geometry dependencies are pinned in the three provider contracts. Worker9961db125. Master551converted/16retained-mixed/561pending unchanged.

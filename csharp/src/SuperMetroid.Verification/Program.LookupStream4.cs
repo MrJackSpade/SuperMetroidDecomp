@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -32,6 +33,20 @@ internal static partial class Program
         VerifyLookupStream4Programs(rom);
         VerifyLookupStream4ProgramConsumers(rom);
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (byte theme = 0; theme < RoomTilesetDefinitions.Count; theme++)
+        {
+            ushort pointer = Word(0x8fe7a7 + 2 * theme);
+            int source = 0x8f0000 | pointer;
+            TilesetDefinition actual = RoomTilesetDefinitions.Get(theme);
+            AssertEqual(pointer, actual.Pointer, "tileset native contiguous definition identity");
+            AssertEqual(Long(source), actual.BlockDefinitionsAddress, "tileset native theme block resource");
+            AssertEqual(Long(source + 3), actual.CharacterAddress, "tileset native theme character resource");
+            AssertEqual(Long(source + 6), actual.PaletteAddress, "tileset native theme palette resource");
+        }
+        foreach (byte invalid in new byte[] { 0x1d, 0x7f, 0xff })
+            AssertThrows<InvalidDataException>(() => RoomTilesetDefinitions.Get(invalid), "tileset exact graphics-theme domain");
+        int Long(int address) => Word(address) | rom.ReadByte(address + 2) << 16;
+
         for (int pattern = 0; pattern < 4; pattern++)
         for (int stage = 0; stage < 6; stage++)
         {
@@ -142,6 +157,20 @@ internal static partial class Program
     private static void VerifyLookupStream4Programs(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (byte theme = 0; theme < RoomTilesetDefinitions.Count; theme++)
+        {
+            ushort pointer = Word(0x8fe7a7 + 2 * theme);
+            int source = 0x8f0000 | pointer;
+            TilesetDefinition actual = RoomTilesetDefinitions.Get(theme);
+            AssertEqual(pointer, actual.Pointer, "tileset native contiguous definition identity");
+            AssertEqual(Long(source), actual.BlockDefinitionsAddress, "tileset native theme block resource");
+            AssertEqual(Long(source + 3), actual.CharacterAddress, "tileset native theme character resource");
+            AssertEqual(Long(source + 6), actual.PaletteAddress, "tileset native theme palette resource");
+        }
+        foreach (byte invalid in new byte[] { 0x1d, 0x7f, 0xff })
+            AssertThrows<InvalidDataException>(() => RoomTilesetDefinitions.Get(invalid), "tileset exact graphics-theme domain");
+        int Long(int address) => Word(address) | rom.ReadByte(address + 2) << 16;
+
         for (ushort phase = 0; phase < 4; phase++)
         {
             AssertEqual(Word(0xa3894e + 2 * phase), SkreeMetareeAnimationDefinitions.MetareeInstructionList((SkreeMetareeAnimationPhase)phase), "stream4 native Metaree phase program");
@@ -259,6 +288,20 @@ internal static partial class Program
     private static void VerifyLookupStream4StatueColors(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (byte theme = 0; theme < RoomTilesetDefinitions.Count; theme++)
+        {
+            ushort pointer = Word(0x8fe7a7 + 2 * theme);
+            int source = 0x8f0000 | pointer;
+            TilesetDefinition actual = RoomTilesetDefinitions.Get(theme);
+            AssertEqual(pointer, actual.Pointer, "tileset native contiguous definition identity");
+            AssertEqual(Long(source), actual.BlockDefinitionsAddress, "tileset native theme block resource");
+            AssertEqual(Long(source + 3), actual.CharacterAddress, "tileset native theme character resource");
+            AssertEqual(Long(source + 6), actual.PaletteAddress, "tileset native theme palette resource");
+        }
+        foreach (byte invalid in new byte[] { 0x1d, 0x7f, 0xff })
+            AssertThrows<InvalidDataException>(() => RoomTilesetDefinitions.Get(invalid), "tileset exact graphics-theme domain");
+        int Long(int address) => Word(address) | rom.ReadByte(address + 2) << 16;
+
         var native = new Dictionary<ushort, ushort>();
         for (int frame = 0; frame < 8; frame++)
         for (int color = 0; color < 8; color++)
@@ -308,6 +351,20 @@ internal static partial class Program
     private static void VerifyLookupStream4Burial(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (byte theme = 0; theme < RoomTilesetDefinitions.Count; theme++)
+        {
+            ushort pointer = Word(0x8fe7a7 + 2 * theme);
+            int source = 0x8f0000 | pointer;
+            TilesetDefinition actual = RoomTilesetDefinitions.Get(theme);
+            AssertEqual(pointer, actual.Pointer, "tileset native contiguous definition identity");
+            AssertEqual(Long(source), actual.BlockDefinitionsAddress, "tileset native theme block resource");
+            AssertEqual(Long(source + 3), actual.CharacterAddress, "tileset native theme character resource");
+            AssertEqual(Long(source + 6), actual.PaletteAddress, "tileset native theme palette resource");
+        }
+        foreach (byte invalid in new byte[] { 0x1d, 0x7f, 0xff })
+            AssertThrows<InvalidDataException>(() => RoomTilesetDefinitions.Get(invalid), "tileset exact graphics-theme domain");
+        int Long(int address) => Word(address) | rom.ReadByte(address + 2) << 16;
+
         for (int entry = 0; entry < 6; entry++)
         {
             var actual = DraygonBurialEvirDefinitions.ForEntry(entry);
@@ -323,6 +380,20 @@ internal static partial class Program
     private static void VerifyLookupStream4SporeAndFly(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (byte theme = 0; theme < RoomTilesetDefinitions.Count; theme++)
+        {
+            ushort pointer = Word(0x8fe7a7 + 2 * theme);
+            int source = 0x8f0000 | pointer;
+            TilesetDefinition actual = RoomTilesetDefinitions.Get(theme);
+            AssertEqual(pointer, actual.Pointer, "tileset native contiguous definition identity");
+            AssertEqual(Long(source), actual.BlockDefinitionsAddress, "tileset native theme block resource");
+            AssertEqual(Long(source + 3), actual.CharacterAddress, "tileset native theme character resource");
+            AssertEqual(Long(source + 6), actual.PaletteAddress, "tileset native theme palette resource");
+        }
+        foreach (byte invalid in new byte[] { 0x1d, 0x7f, 0xff })
+            AssertThrows<InvalidDataException>(() => RoomTilesetDefinitions.Get(invalid), "tileset exact graphics-theme domain");
+        int Long(int address) => Word(address) | rom.ReadByte(address + 2) << 16;
+
         for (ushort index = 0; index < 4; index++)
         {
             AssertEqual(Word(0x86dcb9 + 2 * index), SporeSpawnProjectileDefinitions.StalkYOffset(index), "stream4 original stalk segment spacing");
@@ -430,6 +501,20 @@ internal static partial class Program
     private static void VerifyLookupStream4GeometryLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (byte theme = 0; theme < RoomTilesetDefinitions.Count; theme++)
+        {
+            ushort pointer = Word(0x8fe7a7 + 2 * theme);
+            int source = 0x8f0000 | pointer;
+            TilesetDefinition actual = RoomTilesetDefinitions.Get(theme);
+            AssertEqual(pointer, actual.Pointer, "tileset native contiguous definition identity");
+            AssertEqual(Long(source), actual.BlockDefinitionsAddress, "tileset native theme block resource");
+            AssertEqual(Long(source + 3), actual.CharacterAddress, "tileset native theme character resource");
+            AssertEqual(Long(source + 6), actual.PaletteAddress, "tileset native theme palette resource");
+        }
+        foreach (byte invalid in new byte[] { 0x1d, 0x7f, 0xff })
+            AssertThrows<InvalidDataException>(() => RoomTilesetDefinitions.Get(invalid), "tileset exact graphics-theme domain");
+        int Long(int address) => Word(address) | rom.ReadByte(address + 2) << 16;
+
         for (int index = 0; index < 20; index++)
             AssertEqual(unchecked((short)Word(0x86b65b + index * 2)), EyeDoorEnemyProjectileRomData.ProjectileOriginWord(index), "eye-door native origin words including overlapping-pair selectors");
         for (int index = 0; index < 4; index++)
@@ -459,6 +544,20 @@ internal static partial class Program
     private static void VerifyLookupStream4KzanCeresPrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (byte theme = 0; theme < RoomTilesetDefinitions.Count; theme++)
+        {
+            ushort pointer = Word(0x8fe7a7 + 2 * theme);
+            int source = 0x8f0000 | pointer;
+            TilesetDefinition actual = RoomTilesetDefinitions.Get(theme);
+            AssertEqual(pointer, actual.Pointer, "tileset native contiguous definition identity");
+            AssertEqual(Long(source), actual.BlockDefinitionsAddress, "tileset native theme block resource");
+            AssertEqual(Long(source + 3), actual.CharacterAddress, "tileset native theme character resource");
+            AssertEqual(Long(source + 6), actual.PaletteAddress, "tileset native theme palette resource");
+        }
+        foreach (byte invalid in new byte[] { 0x1d, 0x7f, 0xff })
+            AssertThrows<InvalidDataException>(() => RoomTilesetDefinitions.Get(invalid), "tileset exact graphics-theme domain");
+        int Long(int address) => Word(address) | rom.ReadByte(address + 2) << 16;
+
         int mechanical = 0, visual = 0;
         foreach (var program in new[] { (0x9552, 0x9574), (0x9574, 0x958c), (0x95a0, 0x95ba), (0x95d3, 0x95ed), (0x9606, 0x9620) })
         {

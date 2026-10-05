@@ -11055,4 +11055,11 @@
   "completed": "Three eye mount definitions and two beam color cycles",
   "remaining": "440converted,4original justified retained,684pending.",
   "workerCommit": "1eef53263350a9a9b2295e27dd29ad98d8e0ddec"
+},"roomTilesetDispatchIntegration":{
+  "workerCommit": "39b1a0d01161be551cc2839cd6896a9677644eca",
+  "algorithm": "Named29 graphics-theme cases select block/character/palette resources; definition address E6A2+9*selector. Artwork contents remain separate required entries.",
+  "confirmation": "Integrated Verification1444warnings/zeroerrors; stream4 focused checks pass116native pointer/resource fields and exact selector rejection. ResourceAudit build0warnings/errors; LF-normalized source hash refreshed in RoomArtworkClosedContractDefinitions.",
+  "state": "converted",
+  "completed": "RoomTilesetDefinitions.Entries",
+  "remaining": "441converted,4original justified retained,683pending."
 }}

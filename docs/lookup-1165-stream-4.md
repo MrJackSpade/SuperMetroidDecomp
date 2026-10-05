@@ -556,7 +556,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs
 
-- [ ] **RoomTilesetDefinitions.Entries** ([L14](../csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomTilesetDefinitions.Entries** ([L14](../csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs
 
@@ -902,3 +902,12 @@ The separately inventoried AddBabyCrawl two-duration literal was removed with it
 ## Coordinator timing re-audit
 
 MamaTurtleInstructionProgramDefinitions.Words and LowerNorfairRioInstructionProgramDefinitions.Words are reopened. Native value agreement confirmed behavior but did not justify independent timing choices. The integrated stream now has57 complete and168 unchecked; uniform AddBabyCrawl and presentation-address conversions remain complete. Source corrections isolate the exact pending timing inputs; integrated Verification1442warnings/zeroerrors and focused stream4 checks pass. No retention exception is granted.
+
+## Batch 46: named room graphics-theme resource selection
+
+One definition converted; 58 integrated complete and 167 unchecked. Installed block, character and palette payloads remain independently required.
+
+- Removed the29-entry definition array. Named graphics themes select named block, character and palette resources through cases; shared Crateria/Wrecked Ship/Norfair/Ceres/station resources and independent palette variants are explicit. The definition identity calculates from the first nine-byte record plus9 times the native selector.
+- Each theme and source member documents its native symbol/address. These are mutually exclusive resource identities, not combinable flags. This converts semantic artwork-resource dispatch under the user's case-statement allowance; it makes no claim that artwork contents derive from a theme name.
+- Evidence: pinned bank8F Tileset_Table_0_UpperCrateria through Tileset_Table_1C_Draygon at E6A2..E7A6 and selector table E7A7..E7DF. Each native record contains three24-bit resource identities.
+- Confirmation: Verification build passed (1433 warnings, zero errors); --lookup-stream-4 passed. Focused checks compare all116 native pointer/resource fields across29 themes, including shared-source and independent-palette choices, and preserve invalid1D/7F/FF rejection. No room execution or room sweep was used.

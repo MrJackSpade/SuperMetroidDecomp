@@ -5114,6 +5114,11 @@ if (args is ["--projectile-frame-bindings"])
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--boss-reset-on-load"])
+{
+    VerifyBossResetOnLoad();
+    return 0;
+}
 if (args is ["--pause-equipment-interaction-fixture"])
 {
     VerifyPauseMenuEquipmentInteraction();
@@ -6198,6 +6203,7 @@ VerifyGameSaveJsonPersistence();
 VerifyFileSelectFreshSaveTilemap();
 VerifyFileSelectMapWindow();
 VerifySavedGameLoadAppearance();
+VerifyBossResetOnLoad();
 VerifyIntroCinematicRomData();
 VerifyIntroCinematicArtwork(Path.GetFullPath("Super Metroid.smc"));
 VerifyIntroGameplayFlashbackVerticalScroll();

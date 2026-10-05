@@ -514,6 +514,12 @@ internal static class DebuggerStateFieldMigrations
                 and not "<RoomTreadmills>k__BackingField" &&
                 (count == 106 || field.Name != "<CeresHaze>k__BackingField")).ToArray();
         }
+        if (type == typeof(SuperMetroidGameOptions) && count is 9 or 11 or 13 && current.Length == 14)
+        {
+            Console.Error.WriteLine("WARNING: Older debugger options predate boss-reset-on-load; leaving it disabled.");
+            return SelectSerializedFields(type, current.Where(field => field.Name !=
+                "<ResetBossesOnLoad>k__BackingField").ToArray(), count);
+        }
         if (type == typeof(SuperMetroidGameOptions) && count is 9 or 11 && current.Length == 13)
         {
             Console.Error.WriteLine("WARNING: Older debugger options predate full-inventory and Tourian tester settings; leaving both disabled.");

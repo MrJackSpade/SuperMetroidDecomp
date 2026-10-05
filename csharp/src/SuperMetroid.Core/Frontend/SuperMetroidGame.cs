@@ -1442,7 +1442,7 @@ public sealed partial class SuperMetroidGame
     private void StartSavedCeresDestruction(SuperMetroidSaveSlot slot)
     {
         CreateGameplayRuntime();
-        runtime!.RestoreSavedPlayerState(slot);
+        runtime!.RestoreSavedPlayerState(slot, gameOptions.ResetBossesOnLoad);
         // Unlike an ongoing escape, a file-select resume has a fresh gameplay
         // owner. Construct its ordinary HUD now so the cinematic's later room
         // handoff retains initialized HUD state and standard graphics transfers.
@@ -1541,7 +1541,7 @@ public sealed partial class SuperMetroidGame
             {
                 // Room selection and actors must see the restored mirror, not a
                 // fresh runtime followed by an after-the-fact progression overwrite.
-                runtime.RestoreSavedPlayerState(slot);
+                runtime.RestoreSavedPlayerState(slot, gameOptions.ResetBossesOnLoad);
                 runtime.InitializeStartingCeresRoom();
                 runtime.InitializeCeresStartSamus();
                 slot.ApplyTo(runtime.Samus ?? throw new InvalidOperationException(
@@ -1553,7 +1553,7 @@ public sealed partial class SuperMetroidGame
                 return true;
             }
 
-            runtime.InitializeSavedGame(slot);
+            runtime.InitializeSavedGame(slot, gameOptions.ResetBossesOnLoad);
             // File selection loaded the saved options before the options menu ran.
             // InitializeSavedGame also serves direct diagnostic loads, so it restores
             // those fields itself. At this frontend boundary, the player's live edits

@@ -80,7 +80,7 @@ public sealed partial class SuperMetroidRuntime
     /// replaying guessed timing. Room selection, coordinates, inventory, progression bits,
     /// enemies, PLMs, graphics, beam upload, and camera all remain cartridge driven.
     /// </remarks>
-    public InitialViewportResult InitializeSavedGame(SuperMetroidSaveSlot slot)
+    public InitialViewportResult InitializeSavedGame(SuperMetroidSaveSlot slot, bool resetBossesOnLoad = false)
     {
         ArgumentNullException.ThrowIfNull(slot);
         if (slot.Area > byte.MaxValue || slot.SaveStation > byte.MaxValue)
@@ -111,7 +111,7 @@ public sealed partial class SuperMetroidRuntime
         // boss/event/item bytes synchronously, while room-state selection and beam graphics
         // depend on those same words. In particular, loading a post-Morph-Ball save must not
         // accidentally construct the untouched new-game version of Blue Brinstar.
-        RestoreSavedPlayerState(slot);
+        RestoreSavedPlayerState(slot, resetBossesOnLoad);
         Samus!.XPosition = station.SamusX;
         Samus.YPosition = station.SamusY;
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
@@ -165,7 +165,7 @@ public sealed partial class SuperMetroidRuntime
     /// cinematic. A Ceres-destruction checkpoint has no playable Ceres room to load;
     /// its inventory must nevertheless survive into the Zebes landing sequence.
     /// </summary>
-    internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot)
+    internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot, bool resetBossesOnLoad = false)
     {
         ArgumentNullException.ThrowIfNull(slot);
         Samus = new SamusState
@@ -175,6 +175,7 @@ public sealed partial class SuperMetroidRuntime
         };
         BindSamusPalettePresentation();
         slot.ApplyTo(Samus, System);
+        if (resetBossesOnLoad) ResetSavedEncounters();
         ApplyTesterInventory();
         // $91:E00D clears both persisted HUD selection words after mirror restore.
         // Otherwise the arm-cannon cover can leak into the front-facing load pose.

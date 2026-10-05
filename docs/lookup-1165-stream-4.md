@@ -857,3 +857,12 @@ Partial payload conversion inside the still-open `RoomPaletteFxPresentation.colo
 - Matching stock words are removed on load; independent supplied edits retain precedence. Audit enumeration reconstructs all104 identities exactly once even when the color is calculated. No other room palette payload is marked complete.
 - Evidence: pinned bank8D definition `$F765`, surface-lightning records `$EB43..EC3D`, colors `$EB45..EC4D`. This resolves the concrete color dependency identified by Stream3 batch26 (`1bf84157a`).
 - Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Focused checks compare all104 native words, require zero stored stock words, verify exact color address ownership across the program and exactly-once identity enumeration, and confirm four independent JSON edits with all neighboring samples unchanged.
+
+## Batch 17: dark-lightning channel fade
+
+Partial payload conversion inside the still-open `RoomPaletteFxPresentation.colors` entry; totals remain51 complete and174 unchecked. No retention exception.
+
+- Dark-lightning subtracts five RGB5 units per phase independently from each channel, clamped at zero. Its phases ascend0..4, descend3..0, hold another neutral0, then descend4..1.
+- Seven first-row inputs remain required unresolved payload. The other91 stock words are calculated. Only samples matching the supplied inputs are removed; editing an input preserves each independently supplied neighboring sample through explicit overrides. Audit identities remain complete and unique.
+- Evidence: pinned bank8D `UNUSED_InstList_PaletteFXObject_DarkLightning_1/2/3`, definition `$F769`, colors `$EC78..ED78`. The native neutral row and five-unit clamped channel progression confirm the derivation; starting-color irregularity is not treated as an exemption.
+- Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Focused checks compare all98 native colors, prove only seven stock inputs remain stored, cover the exact calculated-pointer domain and unique identity enumeration, and preserve all98 supplied values under four independent input/sample JSON edits.

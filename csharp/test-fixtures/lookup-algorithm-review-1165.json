@@ -11344,4 +11344,11 @@
     "state":  "converted",
     "algorithm":  "Alternating large/split geometry,regular horizontal spacing,symmetric vertical positions and equal six-byte health pose/sleep records.",
     "remaining":  "495 converted,13 justified retained/mixed,620 pending."
+},"zebetitePulseIntegration":{
+    "scope":  "ZebetiteColorCatalog.frames stays unchecked",
+    "confirmation":  "Root Verification1444 warnings/zero errors;16 native colors,48 RGB edits,actual CGRAM,canonical identity and bounds pass. Source contract refreshed;ResourceAudit0 warnings/errors.",
+    "workerCommit":  "5b0184150cd1414eb5503019e0c8647068c38473",
+    "state":  "partial-required",
+    "algorithm":  "Mirrored four-step RGB5 interpolation calculates eight rows; supplied independent differences use sparse edits.",
+    "remaining":  "Endpoint choices(31,2,0),(23,1,0),(31,0,0) required.495 converted,13 justified retained/mixed,620 pending unchanged."
 }}

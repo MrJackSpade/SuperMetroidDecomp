@@ -683,7 +683,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/ZebetiteColorCatalog.cs
 
-- [ ] **ZebetiteColorCatalog.frames** ([L16](../csharp/src/SuperMetroid.Core/Assets/ZebetiteColorCatalog.cs#L16)) - installed stock table. Original/default payload behind ZebetiteColorCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [ ] **ZebetiteColorCatalog.frames** - PARTIAL: all eight rows now calculate mirrored four-step componentwise linear interpolation with integer truncation, confirmed against all16 native colors at A6:FD87-FDA6. Stock stores zero frame residuals; independent custom colors use sparse edits. The independent endpoint choices RGB(31,2,0), (23,1,0), shared peak(31,0,0) remain REQUIRED pending functional/art evidence. --lookup-stream5-zebetite-pulse confirms16 native colors,48 independent RGB edits, actual CGRAM, unchanged canonical identity, and frame bounds. Root build1444 existing warnings/zero errors; ResourceAudit0 warnings/errors after source closure refresh. Integrated counts unchanged:71 converted,one mixed,153 required.
 
 ### csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs
 

@@ -10,12 +10,36 @@ public sealed class ZebetiteColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("ZebetiteColorCatalog-v1", content =>
         {
-            content.AppendWordFrames("frames", frames);
+            content.Append("frames", ZebetiteColorFormat.FrameCount);
+            Span<ushort> row = stackalloc ushort[ZebetiteColorFormat.ColorsPerFrame];
+            for (int frame = 0; frame < ZebetiteColorFormat.FrameCount; frame++)
+            {
+                for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);
+                content.AppendWords("row", row);
+            }
         });
 
-    private readonly ushort[][] frames;
+    private readonly Dictionary<int, ushort> edits;
 
-    private ZebetiteColorCatalog(ushort[][] frames) => this.frames = frames;
+    private ZebetiteColorCatalog(Dictionary<int, ushort> edits) => this.edits = edits;
+
+    /// <summary>
+    /// $A6:FD87-FDA6: the eight-frame pulse advances four linear RGB5 steps then
+    /// reverses. Each component truncates toward zero independently. The chosen
+    /// endpoint colors (31,2,0), (23,1,0) and shared peak (31,0,0) remain an
+    /// unresolved independent color-design payload under issue1165.
+    /// </summary>
+    private static ushort NativeColor(int frame, int color)
+    {
+        int phase = Math.Min(frame, ZebetiteColorFormat.FrameCount - frame);
+        int red = color == 0 ? 31 : 23 + phase * 2;
+        int green = (4 - phase) / (color == 0 ? 2 : 4);
+        return (ushort)(red | green << 5);
+    }
+
+    private ushort Resolve(int frame, int color) =>
+        edits.TryGetValue(frame * ZebetiteColorFormat.ColorsPerFrame + color, out ushort edited)
+            ? edited : NativeColor(frame, color);
 
     private static readonly JsonSerializerOptions Options = new()
     {
@@ -42,30 +66,31 @@ public sealed class ZebetiteColorCatalog
             document.Frames.Length != ZebetiteColorFormat.FrameCount)
             throw new InvalidDataException("Zebetite colors require all eight frames at the supported version.");
 
-        var compiled = new ushort[document.Frames.Length][];
-        for (int frame = 0; frame < compiled.Length; frame++)
+        var edits = new Dictionary<int, ushort>();
+        for (int frame = 0; frame < document.Frames.Length; frame++)
         {
             PaletteRgb5[]? colors = document.Frames[frame];
             if (colors is null || colors.Length != ZebetiteColorFormat.ColorsPerFrame)
                 throw new InvalidDataException($"Zebetite frame {frame} requires two RGB5 colors.");
-            compiled[frame] = new ushort[colors.Length];
             for (int color = 0; color < colors.Length; color++)
             {
                 PaletteRgb5? rgb = colors[color];
                 if (rgb is null || (uint)rgb.Red > 31 || (uint)rgb.Green > 31 || (uint)rgb.Blue > 31)
                     throw new InvalidDataException($"Zebetite frame {frame}, color {color} requires RGB5 channels.");
-                compiled[frame][color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                ushort selected = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                if (selected != NativeColor(frame, color))
+                    edits.Add(frame * ZebetiteColorFormat.ColorsPerFrame + color, selected);
             }
         }
-        return new(compiled);
+        return new(edits);
     }
 
     public void Apply(SnesCgram cgram, int frame, int destinationColor)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        if ((uint)frame >= frames.Length) throw new ArgumentOutOfRangeException(nameof(frame));
+        if ((uint)frame >= ZebetiteColorFormat.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         for (int color = 0; color < ZebetiteColorFormat.ColorsPerFrame; color++)
-            cgram.SetColor(destinationColor + color, frames[frame][color]);
+            cgram.SetColor(destinationColor + color, Resolve(frame, color));
     }
 
     public static byte[] Write(ZebetiteColorDocument document)

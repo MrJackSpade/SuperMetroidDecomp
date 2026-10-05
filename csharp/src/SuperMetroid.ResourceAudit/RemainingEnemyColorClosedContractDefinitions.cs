@@ -26,7 +26,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Game/KraidPaletteRomData.cs", "2B20227015C8C601187D4F81BD60476B03547CE6295E2556F1B71FA48E825813")],
             "Private construction requires all five sources with their exact sixteen- or one-hundred-forty-four-color lengths and compiles independent words. Resolve guards source membership and selected array bounds. Known short sources cannot borrow health/secondary capacity. Fade arithmetic and battle phases are not executed."),
         new("SuperMetroid.Core.Assets.ZebetiteColorCatalog", "zebetite-complete-pulse-colors", ["Apply"],
-            [new("csharp/src/SuperMetroid.Core/Assets/ZebetiteColorCatalog.cs", "3A4EE38D8359F81AFC08FD54538E40031B1239994E1C922945BD7820A1A42025")],
+            [new("csharp/src/SuperMetroid.Core/Assets/ZebetiteColorCatalog.cs", "230D8BE71806AEF114919BC340EEA7BE4FA4498F7124CB6CC3273CA50E759439")],
             "The sole private-constructor loader requires eight two-color pulse frames and compiles independent arrays. Apply guards the frame and uses a fixed loaded row; destinationColor is CGRAM placement. Pulse timing and enemy mechanics are unchanged."),
         new("SuperMetroid.Core.Assets.ShitroidColorCatalog", "shitroid-complete-live-color-images", ["NormalColor", "TargetColor"],
             [new("csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs", "12F7860798BE02F0057DE1DCBACC84F9E02F4BCC833E0646C6BCB6855057406F"),

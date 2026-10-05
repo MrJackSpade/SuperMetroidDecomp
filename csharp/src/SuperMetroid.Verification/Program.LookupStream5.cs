@@ -6,6 +6,56 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5ZebetitePulse(SuperMetroidAddressSpace rom)
+    {
+        byte[] json = SuperMetroid.AssetExtraction.ZebetiteColorExtractor.Extract(rom);
+        var native = System.Text.Json.JsonSerializer.Deserialize<ZebetiteColorDocument>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        ZebetiteColorCatalog stock = Check(native);
+        var residuals = (Dictionary<int, ushort>)typeof(ZebetiteColorCatalog)
+            .GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, residuals.Count, "Native Zebetite pulse requires no stored frame residuals");
+        for (int frame = 0; frame < native.Frames.Length; frame++)
+        for (int color = 0; color < native.Frames[frame].Length; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            var rows = native.Frames.Select(row => (PaletteRgb5[])row.Clone()).ToArray();
+            PaletteRgb5 before = rows[frame][color];
+            rows[frame][color] = channel switch
+            {
+                0 => before with { Red = before.Red ^ 1 },
+                1 => before with { Green = before.Green ^ 1 },
+                _ => before with { Blue = before.Blue ^ 1 },
+            };
+            Check(native with { Frames = rows });
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new SnesCgram(), -1, 0),
+            "Zebetite pulse lower frame bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new SnesCgram(), 8, 0),
+            "Zebetite pulse upper frame bound");
+        Console.WriteLine("Zebetite pulse:16 native colors,48 independent RGB edits, actual CGRAM, canonical identity and frame bounds pass; endpoint color choices remain pending.");
+
+        static ZebetiteColorCatalog Check(ZebetiteColorDocument expected)
+        {
+            var actual = ZebetiteColorCatalog.Load(new MemoryStream(ZebetiteColorCatalog.Write(expected), writable: false));
+            var cgram = new SnesCgram();
+            ushort[][] packed = expected.Frames.Select(row => row.Select(rgb =>
+                (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10)).ToArray()).ToArray();
+            for (int frame = 0; frame < packed.Length; frame++)
+            {
+                actual.Apply(cgram, frame, ZebetiteDefinitions.PaletteDestinationColor);
+                for (int color = 0; color < packed[frame].Length; color++)
+                    AssertEqual(packed[frame][color],
+                        cgram.Colors[ZebetiteDefinitions.PaletteDestinationColor + color],
+                        "Zebetite pulse exact selected CGRAM color");
+            }
+            string identity = SelectedPresentationHash.Create("ZebetiteColorCatalog-v1",
+                content => content.AppendWordFrames("frames", packed));
+            AssertEqual(identity, actual.ContentIdentity, "Zebetite pulse canonical identity");
+            return actual;
+        }
+    }
+
     private static void VerifyLookupStream5YappingMawOffsets(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

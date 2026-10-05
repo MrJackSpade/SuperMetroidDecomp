@@ -165,6 +165,11 @@ if (args is ["--lookup-stream-4"])
     Console.WriteLine("Stream 4 lookup conversions: focused original-source and domain checks pass.");
     return 0;
 }
+if (args is ["--lookup-stream5-map-highlight"])
+{
+    VerifyLookupStream5MapHighlight(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--lookup-stream5-sidehopper-geometry"])
 {
     VerifyLookupStream5SidehopperGeometry(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

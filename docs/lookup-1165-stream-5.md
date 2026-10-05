@@ -457,7 +457,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/MapPaletteCycle.cs
 
-- [ ] **MapPaletteCycle.durations** ([L9](../csharp/src/SuperMetroid.Core/Assets/MapPaletteCycle.cs#L9)) - installed stock table. Original/default payload behind MapPaletteCycle.durations. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **MapPaletteCycle.durations** ([L9](../csharp/src/SuperMetroid.Core/Assets/MapPaletteCycle.cs#L9)) - installed stock table. Original/default payload behind MapPaletteCycle.durations. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **MapPaletteCycle.colors** ([L10](../csharp/src/SuperMetroid.Core/Assets/MapPaletteCycle.cs#L10)) - installed stock table. Original/default payload behind MapPaletteCycle.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/MapScreenPresentation.cs
@@ -829,3 +829,11 @@ Removed the cached43-word mechanics array and its literal-building factory. The 
 Verification build passed (1432 warnings, zero errors). Existing --ceres-baby-instruction-mechanics passed all43 native control words, twenty compiled spritemap selectors, thirteen palette selectors and the complete actual production animation loop. Its existing save/load and branch assertions remain intact.
 
 Fifty stream5 definitions resolved:49 converted/removed and1 mixed narrowly justified retention.175 remain required. No new retention exception is claimed.
+
+### Batch 18: map-highlight origin timing and mirrored palette phases
+
+Removed the stock duration array: the native loop-origin record holds15 ticks and each transition holds3. Independent duration edits remain exact sparse deviations. Native$82:C10C records explicitly traverse phases0..7..1; the sixteen-color rows at$82:A987 match that traversal. The catalog calculates the reverse six rows from eight retained phase rows, with exact independent resource edits. It never rebuilds or caches the full stock cycle. Custom cycles of other lengths preserve all supplied rows.
+
+Verification build passed (1432 warnings, zero errors). New --lookup-stream5-map-highlight passes224 native colors through actual CGRAM writes, all14 native timing and phase records, each of224 independently edited colors and14 independently edited durations without propagation, custom frame counts1/15/255, bounds and zero stock deviation entries. The stock catalog retains exactly eight color rows.
+
+Fifty-one stream5 definitions resolved:50 converted/removed and1 mixed narrowly justified retention.174 remain required. MapPaletteCycle.colors stays unchecked: the eight independent sixteen-color phases still require derivation or a specific permitted justification. The mirrored traversal alone does not settle the color payload.

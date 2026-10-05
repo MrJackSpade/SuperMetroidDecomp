@@ -6,6 +6,64 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5MapHighlight(SuperMetroidAddressSpace rom)
+    {
+        var frames = Enumerable.Range(0, 14).Select(frame => new MapPaletteCycleFrame
+        {
+            DurationTicks = rom.ReadByte(MapAnimationRomData.PaletteTiming + frame * 3),
+            Colors = Enumerable.Range(0, 16).Select(color =>
+            {
+                ushort word = ReadVerificationWord(rom, MapAnimationRomData.PaletteColors + (frame * 16 + color) * 2);
+                return new PaletteRgb5 { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
+            }).ToArray(),
+        }).ToArray();
+        var original = new MapPaletteCycleDocument { Version = 1, Frames = frames };
+        MapPaletteCycle stock = Check(original);
+        AssertEqual(0, ((Dictionary<int, byte>)typeof(MapPaletteCycle).GetField("durationEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count, "No stock duration lookup retained");
+        AssertEqual(0, ((Dictionary<int, ushort>)typeof(MapPaletteCycle).GetField("reverseColorEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count, "No stock reverse-frame lookup retained");
+        AssertEqual(8, ((ushort[][])typeof(MapPaletteCycle).GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Length, "Only independent color phases remain");
+        for (int frame = 0; frame < 14; frame++)
+        {
+            AssertEqual((byte)Math.Min(frame, 14 - frame), rom.ReadByte(MapAnimationRomData.PaletteTiming + frame * 3 + 1), "Native highlight phase traversal");
+            var durationEdit = (MapPaletteCycleFrame[])frames.Clone();
+            durationEdit[frame] = frames[frame] with { DurationTicks = 254 };
+            Check(original with { Frames = durationEdit });
+            for (int color = 0; color < 16; color++)
+            {
+                var changed = (MapPaletteCycleFrame[])frames.Clone();
+                var changedColors = (PaletteRgb5[])frames[frame].Colors.Clone();
+                changedColors[color] = changedColors[color] with { Red = changedColors[color].Red ^ 1 };
+                changed[frame] = frames[frame] with { Colors = changedColors };
+                Check(original with { Frames = changed });
+            }
+        }
+        foreach (int count in new[] { 1, 15, 255 })
+            Check(original with { Frames = Enumerable.Range(0, count).Select(i => frames[i % 14]).ToArray() });
+        AssertThrows<IndexOutOfRangeException>(() => stock.Duration(-1), "Highlight lower frame bound");
+        AssertThrows<IndexOutOfRangeException>(() => stock.Apply(new SnesCgram(), 14, 0), "Highlight upper frame bound");
+        Console.WriteLine("Map highlight: 224 native colors,14 timing/phase records, all independent color/hold edits and custom frame counts pass actual CGRAM application; eight color seed rows remain pending.");
+
+        static MapPaletteCycle Check(MapPaletteCycleDocument document)
+        {
+            byte[] json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
+            var cycle = MapPaletteCycle.Load(new MemoryStream(json, writable: false));
+            AssertEqual(document.Frames.Length, cycle.FrameCount, "Custom highlight frame count");
+            var cgram = new SnesCgram();
+            for (int frame = 0; frame < cycle.FrameCount; frame++)
+            {
+                AssertEqual((byte)document.Frames[frame].DurationTicks, cycle.Duration(frame), "Independent highlight hold");
+                cycle.Apply(cgram, frame, MapAnimationRomData.PaletteDestination);
+                for (int color = 0; color < 16; color++)
+                {
+                    var rgb = document.Frames[frame].Colors[color];
+                    AssertEqual((ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10),
+                        cgram.Colors[MapAnimationRomData.PaletteDestination + color], "Independent highlight CGRAM color");
+                }
+            }
+            return cycle;
+        }
+    }
+
     private static void VerifyLookupStream5SidehopperGeometry(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

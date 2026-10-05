@@ -6,15 +6,53 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable authored highlight colors and durations; contains no palette addresses or audio commands.</summary>
 public sealed class MapPaletteCycle
 {
-    private readonly byte[] durations;
+    private readonly Dictionary<int, byte> durationEdits = [];
     private readonly ushort[][] colors;
-    private MapPaletteCycle(byte[] durations, ushort[][] colors) { this.durations = durations; this.colors = colors; }
-    public int FrameCount => durations.Length;
-    public byte Duration(int frame) => durations[frame];
+    private readonly Dictionary<int, ushort> reverseColorEdits = [];
+
+    /// <summary>
+    /// Native $82:C10C pauses fifteen ticks at the loop origin and advances other
+    /// highlight phases every three ticks. Independently edited frame holds remain exact.
+    /// </summary>
+    private static byte NativeDuration(int frame) => frame == 0 ? (byte)15 : (byte)3;
+
+    private MapPaletteCycle(byte[] durations, ushort[][] suppliedColors)
+    {
+        FrameCount = durations.Length;
+        for (int frame = 0; frame < FrameCount; frame++)
+            if (durations[frame] != NativeDuration(frame)) durationEdits.Add(frame, durations[frame]);
+        // The fourteen native frames traverse eight phases forward then backward.
+        // Retain the independent phase artwork; only the reverse traversal is calculated.
+        int phaseCount = FrameCount == 14 ? 8 : FrameCount;
+        colors = suppliedColors[..phaseCount];
+        for (int frame = phaseCount; frame < FrameCount; frame++)
+        for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)
+            if (suppliedColors[frame][color] != colors[Phase(frame)][color])
+                reverseColorEdits.Add(frame * MapPaletteCycleFormat.ColorCount + color, suppliedColors[frame][color]);
+    }
+
+    public int FrameCount { get; }
+
+    private int Phase(int frame) => FrameCount == 14 ? Math.Min(frame, 14 - frame) : frame;
+
+    private void CheckFrame(int frame)
+    {
+        if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
+    }
+
+    public byte Duration(int frame)
+    {
+        CheckFrame(frame);
+        return durationEdits.TryGetValue(frame, out byte duration) ? duration : NativeDuration(frame);
+    }
+
     public void Apply(SnesCgram destination, int frame, int firstColor)
     {
+        CheckFrame(frame);
         for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)
-            destination.SetColor(firstColor + color, colors[frame][color]);
+            destination.SetColor(firstColor + color,
+                reverseColorEdits.TryGetValue(frame * MapPaletteCycleFormat.ColorCount + color, out ushort edited)
+                    ? edited : colors[Phase(frame)][color]);
     }
 
     public static MapPaletteCycle Load(Stream json)

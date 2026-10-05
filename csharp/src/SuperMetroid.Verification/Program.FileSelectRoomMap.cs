@@ -30,7 +30,7 @@ internal static partial class Program
             for (int x = 0; x < 64; x++)
                 if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, x, y);
             if (downloaded) system.SetAreaMapAcquired(area);
-            var graphics = new FileSelectRoomMapGraphics(bus, system, area);
+            var graphics = new FileSelectRoomMapGraphics(bus, system, area, mapPresentation: RetailPresentationFixture());
             byte[] pause = AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank);
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
@@ -67,6 +67,9 @@ internal static partial class Program
             AssertEqual(256 * 224, pixels.Length, "room map visible viewport");
             AssertTrue(pixels.All(pixel => pixel.A == 255), "room map has opaque backdrop");
             var retailIcons = new FileSelectMapIcons(system, area);
+            retailIcons.BindStations(RetailPresentationFixture().Stations);
+            retailIcons.BindLandmarks(RetailPresentationFixture().Landmarks);
+            retailIcons.BindSprites(RetailPresentationFixture().Sprites);
             var retailOam = new OamBuffer();
             retailOam.BeginFrame();
             retailIcons.DrawBeforeMarker(retailOam, 0, 0);
@@ -364,6 +367,7 @@ internal static partial class Program
         foreach (ushort confirm in new ushort[] { 0x1000, 0x0080 })
         {
             var navigation = new FileSelectMapNavigation(bus, 4, confirm);
+            navigation.BindLabels(RetailPresentationFixture().Labels);
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase,
                 "options confirmation carried into map must not immediately confirm the area");
@@ -387,6 +391,7 @@ internal static partial class Program
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "load request remains pending until frontend handles it");
         }
         var cancel = new FileSelectMapNavigation(bus, 4);
+        cancel.BindLabels(RetailPresentationFixture().Labels);
         cancel.Step(0x9180);
         AssertEqual(FileSelectMapNavigationPhase.Area, cancel.Phase,
             "native non-debug direction branch suppresses simultaneous cancel and confirm");
@@ -394,6 +399,7 @@ internal static partial class Program
         cancel.Step(0x9080);
         AssertEqual(FileSelectMapNavigationPhase.OptionsRequested, cancel.Phase, "B takes precedence over confirm on area map");
         var back = new FileSelectMapNavigation(bus, 4);
+        back.BindLabels(RetailPresentationFixture().Labels);
         back.Step(0x1000);
         for (int frame = 0; frame < 54; frame++) back.Step(0);
         back.Step(0x8000);

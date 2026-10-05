@@ -46,6 +46,7 @@ VerifySamusMorphBallMovement();
 VerifyBombChargeRejection();
 VerifyGroundedBombSpread();
 return 0; }
+if (args is ["--file-map-fixtures"]) { VerifyFileSelectMapWindow(); return 0; }
 if (args is ["--map-icons-fixture"]) { VerifyFileSelectMapIcons(); return 0; }
 if (args is ["--map-animation-fixture"]) { VerifyFileSelectMapAnimations(); return 0; }
 if (args is ["--saved-map-fixture"]) { VerifySavedGameMapFrontend(); return 0; }

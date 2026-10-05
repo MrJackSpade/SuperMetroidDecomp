@@ -6,6 +6,15 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    private static WorldMapLabelLayout CreateWindowLabelFixture(int x, int y)
+    {
+        var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Game.AreaId)area).ToString(),
+            _ => new MapLabelPoint(x, y));
+        using var stream = new MemoryStream();
+        WorldMapLabelLayout.Write(stream, new() { Version = 1, Areas = points });
+        stream.Position = 0;
+        return WorldMapLabelLayout.Load(stream);
+    }
     private static void VerifyFileSelectMapWindow()
     {
         VerifyFileSelectAreaMapGraphics();
@@ -18,7 +27,10 @@ internal static partial class Program
         // report pixel one instead of pixel two. No rendering endpoint can hide it.
         WriteTestWord(fake, FileSelectMapRomData.WindowVelocities, 0xc000);
         WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 8, 0xc000);
-        var fractional = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0));
+        var fractional = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(1, 1));
+        // This arithmetic fixture starts below the authored label domain to exercise the lower clamp.
+        var edges = (uint[])typeof(FileSelectMapWindow).GetField("edges", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(fractional)!;
+        Array.Clear(edges);
         AssertTrue(!fractional.Step(), "map window timer zero is not complete");
         AssertEqual(1, fractional.Left, "map window lower clamp on first frame");
         AssertTrue(fractional.Step(), "map window completes at signed timer underflow");
@@ -39,7 +51,7 @@ internal static partial class Program
         int[] labelY = [50, 127, 181, 80, 159, 139];
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
-            var window = new FileSelectMapWindow(bus, area);
+            var window = new FileSelectMapWindow(bus, area, RetailPresentationFixture().Labels);
             AssertEqual(labelX[area], window.Left, "map window starts at native area label X");
             AssertEqual(labelY[area], window.Top, "map window starts at native area label Y");
             AssertEqual(window.Left, window.Right, "map window starts with zero width");
@@ -68,7 +80,7 @@ internal static partial class Program
         WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 6, 1);
         WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 10, 0xffff);
         WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 14, 1);
-        var window = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0));
+        var window = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(40, 30));
         Rgba32 areaColor = new(255, 0, 0), frameColor = new(0, 0, 255);
         Rgba32[] area = Enumerable.Repeat(areaColor, 256 * 224).ToArray();
         Rgba32[] frame = Enumerable.Repeat(frameColor, 256 * 224).ToArray();
@@ -86,7 +98,7 @@ internal static partial class Program
             "completed expansion disables window and displays entire empty room frame");
 
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var returning = FileSelectMapWindow.CreateReturn(bus, 4);
+        var returning = FileSelectMapWindow.CreateReturn(bus, 4, RetailPresentationFixture().Labels);
         AssertEqual(8, returning.Left, "native return rectangle left inset");
         AssertEqual(248, returning.Right, "native return rectangle right inset");
         AssertEqual(8, returning.Top, "native return rectangle top inset");
@@ -102,7 +114,7 @@ internal static partial class Program
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, returning).All(pixel => pixel == areaColor),
             "completed return disables room frame and restores entire area scene");
         var graphics = new FileSelectRoomMapGraphics(bus, new SuperMetroid.Core.Game.Bank80SystemState(),
-            SuperMetroid.Core.Game.AreaId.Maridia);
+            SuperMetroid.Core.Game.AreaId.Maridia, mapPresentation: RetailPresentationFixture());
         Rgba32[] frameOnly = graphics.RenderFrameOnly();
         graphics.Vram.LoadBytes(0xa000, new byte[] { 0x34, 0x12 });
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
@@ -119,7 +131,9 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int[] indices = [86, 107, 102, 81, 97, 118];
         int[] activeColors = [0x01db, 0x0bb1, 0x0013, 0x7fe0, 0x6400, 0x6417];
-        var graphics = new FileSelectAreaMapGraphics(bus, 0);
+        var maps = RetailPresentationFixture();
+        var graphics = new FileSelectAreaMapGraphics(bus, 0, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites);
+        graphics.BindLabels(maps.Labels);
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             graphics.SelectArea(area);

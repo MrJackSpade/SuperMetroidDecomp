@@ -103,7 +103,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.Definitions** ([L27](../csharp/src/SuperMetroid.Core/Game/BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.Definitions** ([L27](../csharp/src/SuperMetroid.Core/Game/BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/BrinstarPipeBugInstructionProgramDefinitions.cs
 
@@ -704,3 +704,11 @@ Two more definitions converted;123 complete and103 unchecked. No retained except
 - The shared projectile delete program returns its sole mechanics word directly, with the same rejected enumeration indices. Existing direct reader and byte ownership logic are unchanged.
 - Evidence: pinned enemy-bank common `$804D/$804F` empty OAM/one-component records in bankA0,A2..AA,B2..B3, and bank86 `InstList_EnemyProjectile_Delete` `$84FC`.
 - Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-1` passed. New focused check covers all256 bank values, exact twelve-bank enumeration order, original OAM/extended-frame component counts, neighboring-pointer rejection, native delete word and invalid enumeration indices.
+## Batch 14: blue-spore room-owner program definitions
+
+One more definition converted;124 complete and102 unchecked. No retained exception.
+
+- Removed the two stored six-field setup records and read-only array wrapper. Named standard/Spore Spawn program objects store only their owner; definition identity, setup entry, first record, terminal loop and death-callback policy are derived from that owner and the14x10-byte layout.
+- The ordered IReadOnlyList view preserves Count/index/enumeration contracts without storing rows. Direct mechanics resolution selects the two semantic programs explicitly. Program setup, waits and loop control remain unchanged.
+- Evidence: pinned bank8D blue-spore standard `$ED99..EE2C`, Spore Spawn `$EE2D..EEC4`, and definition records `$F775/$F779`. Only Spore Spawn installs the area-mini-boss-death pre-instruction.
+- Confirmation: Verification build passed (1432 warnings, zero errors); `--lookup-stream-1` passed. Existing focused blue-spore verifier is wired unchanged: all66 original control words, color exclusion, both140-frame cycles and conditional boss-death deletion run with mechanics source reads forbidden. Presentation payloads remain their separate obligation.

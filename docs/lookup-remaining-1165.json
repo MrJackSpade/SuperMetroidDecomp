@@ -4360,7 +4360,9 @@
       "line": 18,
       "name": "HopperAnimationDefinitions.Variants",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c8533127a90cbbb748f17d811a06d44a4d49713b"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/HopperInstructionProgramDefinitions.cs",
@@ -4374,7 +4376,9 @@
       "line": 121,
       "name": "HopperInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c8533127a90cbbb748f17d811a06d44a4d49713b"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/HudReserveLayout.cs",

@@ -6,6 +6,28 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3HopperOperandPositions(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var operands = new SortedSet<ushort>();
+        for (int selector = 0; selector < 16; selector++)
+        {
+            int cursor = 0xa30000 | Word(0xa3aac2 + selector * 2);
+            cursor += 2; // Each native program first changes off-screen processing.
+            if (Word(cursor) == EnemyInstructionCodePointers.Instruction_Sidehopper_QueueSoundInY_Lib2_Max3)
+                cursor += 4;
+            while (Word(cursor) < 0x8000)
+            {
+                operands.Add((ushort)(cursor + 2));
+                cursor += 4;
+            }
+        }
+        AssertEqual(40, operands.Count, "hopper native timed-pose operand count");
+        int index = 0;
+        foreach (ushort operand in operands)
+            AssertEqual(operand, HopperInstructionProgramDefinitions.PresentationWordAddress(index++),
+                "hopper calculated selector position matches native program structure");
+    }
     private static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;

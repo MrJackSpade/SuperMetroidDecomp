@@ -4743,6 +4743,7 @@ if (args is ["--hopper-instruction-program-definitions"])
 {
     VerifyHopperAnimationDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    VerifyStream3HopperOperandPositions(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--hzoomer-instruction-program-definitions"])

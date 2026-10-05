@@ -18,6 +18,7 @@ internal static partial class Program
         VerifyKraidRockPresentationMapping();
 
         var guard = new KraidRockProjectileInstructionReadGuard(rom);
+        var selectedPresentationWords = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         ushort selectedRandom = 0;
@@ -131,18 +132,20 @@ internal static partial class Program
 
         AssertEqual(
             KraidRockProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Kraid-rock projectile spritemap operands remain cartridge reads");
+            selectedPresentationWords.Count,
+            "all live Kraid-rock projectile frames select installed operands");
         for (int index = 0;
              index < KraidRockProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = KraidRockProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Kraid-rock presentation $86:{address:X4}");
+            AssertTrue(selectedPresentationWords.Contains(address),
+                $"production execution selects Kraid-rock presentation $86:{address:X4}");
         }
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Kraid-rock frames never read presentation operands from ROM");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Kraid-rock and shared-delete mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -174,8 +177,8 @@ internal static partial class Program
         Console.WriteLine(
             "Kraid-rock projectile instruction mechanics: twelve compiled words, all " +
             "four real Kraid rock producers, the shared Kago pose, both sleeps, the " +
-            "complete five-frame shot explosion, and seven live spritemap reads pass " +
-            "with mechanics bytes forbidden.");
+            "complete five-frame shot explosion, and seven installed frame selectors pass " +
+            "without instruction ROM reads.");
 
         RoomEnemyProjectileSlot Find(RoomEnemyProjectileKind kind) =>
             enemies.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
@@ -190,6 +193,15 @@ internal static partial class Program
         {
             projectile.InstructionTimer = 1;
             process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            if (projectile.IsActive && projectile.InstructionTimer != 0)
+            {
+                ushort operand = (ushort)(projectile.InstructionPointer - 2);
+                AssertEqual(operand, projectile.PresentationOperandAddress,
+                    "Kraid rock selects the just-executed native frame operand");
+                AssertEqual(ReadKraidRockProjectileInstructionWord(rom, (ushort)(operand - 2)),
+                    projectile.InstructionTimer, "Kraid rock frame retains the native duration");
+                selectedPresentationWords.Add(projectile.PresentationOperandAddress);
+            }
         }
     }
 

@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -104,17 +105,19 @@ internal static partial class Program
         AssertEqual(1, shotSystem.PhantoonFlameDropRequests.Count,
             "Phantoon shot callback publishes exactly one drop request");
 
-        AssertEqual(PhantoonProjectileInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(0,
             guard.ObservedPresentationWords.Count,
-            "all live Phantoon spritemap operands remain cartridge reads");
+            "all Phantoon flame spritemap selectors are compiled");
         for (int index = 0;
              index < PhantoonProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = PhantoonProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads Phantoon presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selected),
+                "Every Phantoon flame operand has a compiled selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selected,
+                "Exact native Phantoon flame visual operand");
         }
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -135,8 +138,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Phantoon projectile instruction mechanics: fifty-eight compiled words, " +
-            "both real producers, every flame program, callbacks, and thirty-one live " +
-            "spritemap reads pass.");
+            "both real producers, every flame program, callbacks, and thirty-one exact native " +
+            "compiled selectors pass with zero live reads.");
 
         RoomEnemySystem NewSystem()
         {

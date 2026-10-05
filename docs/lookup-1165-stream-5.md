@@ -572,7 +572,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/PhantoonProjectileInstructionProgramDefinitions.cs
 
 - [ ] **PhantoonProjectileInstructionProgramDefinitions.Words** ([L45](../csharp/src/SuperMetroid.Core/Game/PhantoonProjectileInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **PhantoonProjectileInstructionProgramDefinitions.PresentationWords** ([L107](../csharp/src/SuperMetroid.Core/Game/PhantoonProjectileInstructionProgramDefinitions.cs#L107)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PhantoonProjectileInstructionProgramDefinitions.PresentationWords** ([L107](../csharp/src/SuperMetroid.Core/Game/PhantoonProjectileInstructionProgramDefinitions.cs#L107)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PhantoonSoundDefinitions.cs
 
@@ -905,3 +905,11 @@ Retain only the eight bytes06,06,08,08,06,08,06,08 at$A7:CDA5. Native$A7:DE5C-DE
 Root integration Verification build passed (1444 existing warnings, zero errors). New --lookup-stream5-phantoon-markers checks the supported ROM SHA25612B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72, all eight native bytes and eight actual bus-free shot reactions. Exact eye markers, selected mouth patterns, one RNG call per shot and16-tick window shortening pass. This does not authorize removing exposed state or retaining any other table.
 
 Integrated checkpoint:71 converted,one mixed,one retained,152 required. No other table receives an exemption.
+
+### Phantoon flame structural integration
+
+Calculated58 control positions/commands and31 visual addresses from named loops,sleep,rest,death,impact,counted fall and drop-tail layouts. PresentationWords is complete. Words remains required: five-tick flame cadence,eight-tick rain impact and four falling repetitions are explicitly named independent inputs without a retention exception.
+
+Existing actual producer/lifetime/program/callback/deletion/bounds/allocation confirmation remains; the obsolete31 live visual reads assertion now checks zero reads and all31 exact native installed selectors. Integrated checkpoint:72 converted,one mixed,one retained,151 required.
+
+Root integration Verification build1444 existing warnings/zero errors; --phantoon-projectile-instruction-mechanics passed58 native controls,both actual producers,every flame program,callbacks,deletion,31 exact native selectors with zero live reads,bounds and allocation checks.

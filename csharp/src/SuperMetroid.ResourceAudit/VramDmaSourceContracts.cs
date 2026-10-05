@@ -8,11 +8,12 @@ internal static class VramDmaSourceContracts
     // A changed contract is an explicit gap until its new behavior is reviewed.
     internal static readonly ReviewedSource[] Additional =
     [
+        new("csharp/src/SuperMetroid.Core/Game/SamusSpecialSequenceRomData.cs", "20130DE3C3D324EC2CF06D755008385FCEB682BD30685BD0B06A1C438515CBFC"),
         new("csharp/src/SuperMetroid.AssetExtraction/GrappleTileExtractor.cs", "541CE10437FF99168ED3E238F68ECFA3B4785231652D983961D41D2CAFEC832C"),
         new("csharp/src/SuperMetroid.AssetExtraction/BeamTileExtractor.cs", "87FDC775F27A4AC57BEEA21B9B421B5900E63EFDEA9BF14A974F04C68586E16E"),
         new("csharp/src/SuperMetroid.AssetExtraction/ProjectileTrailAtlasExtractor.cs", "8978EC4D120A2E1765877B005068B0EF0FCD76CED7DF864A5C9E6F5D1CC8165E"),
         new("csharp/src/SuperMetroid.AssetExtraction/EscapeTimerTileAtlasExtractor.cs", "594CCD4179BE66C84637E008177224F0EAC17793E16FA47BF758501500EE9DFE"),
-        new("csharp/src/SuperMetroid.AssetExtraction/SamusDeathTileArtworkFiles.cs", "EDE5CFA7E6D85C47C5BA60DB21C92AA2E68BDDE3CF9875339BB7104AA6FB8ABA"),
+        new("csharp/src/SuperMetroid.AssetExtraction/SamusDeathTileArtworkFiles.cs", "97B122DC07ABA8E804F2136BEECD6CF61CBECCD21DC7B9F6AD8A5F139A284132"),
         new("csharp/src/SuperMetroid.AssetExtraction/SamusArmCannonArtworkFiles.cs", "A611907E904F0091970844C30AD0E052A51F18294E87B9981CAF415BE343A099"),
         new("csharp/src/SuperMetroid.Core/Assets/HudTileAtlas.cs", "CF458EE39ACC8CB91CCC5C98D909A3E62DD5A09BD8F6FBEEF51BEE8C9664489A"),
         new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs", "A27811EFCBD8940CD241D7C3498E5DDD8EC39B3906CC523E93BFC4248DA58F9E"),
@@ -24,7 +25,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs", "1C1E490CCACF0ECC2DD5DCEC9D20531D405509461DDC875DAB7316D39A6D5133"),
         new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "2390C3A34C6DDA0D97FBFA05608C93A2EE1B7F08F35455F2F31A4C2E7C033C7F"),
         new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "5FC3060A58A9FB345A62521ED7A0DD505D7672A4EBBC8C8A0AFDED67A6268210"),
-        new("csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs", "59020E84573C1A0470BD5B40E681B91570931F8E3DD1382B7C2934DED1694476"),
+        new("csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs", "DB2353AEFABDD5D94FE882436C3AC5AA287121FEEE8A152C31155B6612CB9028"),
         new("csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileAtlas.cs", "7C527DA3902174D55EE9CB3FB305D49D8962E1F7A5B57453DD1956AA4113AA99"),
         new("csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileArtworkDefinitions.cs", "7847D7359C95EF6D00D5CB78E9D40F817AE9FF04D51FA3A5C919D78ECEA58E76"),
         new("csharp/src/SuperMetroid.Core/Assets/TourianStatueAnimatedTileArtworkDefinitions.cs", "697D7E7EBCF798075CF6FA5A891DCD9DF805092EE349CF8847705EDFFC790B03"),

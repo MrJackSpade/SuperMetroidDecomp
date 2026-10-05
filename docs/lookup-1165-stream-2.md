@@ -825,3 +825,12 @@ Removed hull/entrance mechanics and visual-address arrays. Opening preserves its
 Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). `--gunship-instruction-mechanics` passed28 native mechanics words, five actual hull/pad program paths, both initializer identities and22 native selectors. `--gunship-dust-instruction-mechanics` passed76 native mechanics words, all six actual producers/frame loops/deletions and46 native selectors. Both initially reached obsolete visual-read counts (expected22/46, actual0); assigned verifiers now assert zero reads and every exact native compiled operand while retaining all existing behavior checks. Corrected the hull check's old console wording after the successful execution; assertions are unchanged.
 
 Forty-seven stream2 named definitions complete;179 remain required. Separate pixels and independent palette/trajectory residuals remain pending.
+### Batch 17: projectile trail selector semantic dispatch, partial
+
+Removed the78 authored left/right selector words. Selection now dispatches on named Wave/Ice/Spazer/Plasma combinations, charge state, missile/super-missile and Spazer SBA variants. Invalid simultaneous Spazer/Plasma combinations retain empty trails. The original39-word table overlap remains exact for the complete low-six-bit selector domain.
+
+The remaining25 words are physical observations of code bytes at$90:B657-$B688, after the right table. Pinned source identifies those bytes as Spawn projectile trail itself, including opcodes, native addresses and relative branches. The final$A96B combines RTL at$B687 with the LDA-immediate opcode at$B688; its operand lies outside the window. This residual is pending coordinator review for a narrow nonsense exception; it is not declared resolved here. No native assembler/code-layout model has been introduced.
+
+Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). New `--lookup-stream2-trail-selectors` runs only the existing selector proof's relevant assertions: all103 reachable native words, every64 actual spawn selection, original timers/origin and bounds, with the full selector ROM window forbidden. It does not run the unrelated coordinate catalog checks. The original broader verifier remains unchanged.
+
+Counts remain47 complete and179 required; `ProjectileTrailDefinitions.ReachableSelectors` remains unchecked until its residual disposition is accepted.

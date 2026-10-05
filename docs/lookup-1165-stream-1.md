@@ -902,3 +902,12 @@ All three entries (TileSourcePointers, attributes, tileSources) are complete; po
 ### Root correction: Owtch cadence remains required
 
 Reopened `OwtchInstructionProgramDefinitions.Words`: the prior451507846 conversion calculates instruction structure but still returns the independently chosen eight-tick hold at three pose positions. That value has no accepted functional derivation or impossible/nonsense disposition. PresentationWords stays complete; naming/repeating the eight-tick cadence does not complete Words. No gameplay behavior changed by this status correction. Overall inventory is531 converted,15 justified retained/mixed,582 pending.
+
+## Batch 36: arm-cannon calculated-default proof
+
+Verification-only correction; totals remain176 wholly converted, six mixed,44 unchecked. No new production conversion or payload exemption is claimed.
+
+- Previous confirmation compared loaded stock and edited outputs with native values but did not explicitly prove that sparse override storage was empty. Added direct comparisons of all ten calculated OBJ attributes and forty direction/frame defaults against original90:C791 and90:C7A5-selected operands, independently of catalog loading. Both stock exception dictionaries must contain zero entries.
+- The same focused method retains the complete source membership/index domain, independent edits for every direction, canonical content identities, twelve native DMA mappings and isolated PNG edit checks. Pose pointers, drawing/placement bytes and tile pixels remain required independently.
+- Confirmation: incremental Verification build25 warnings/zero errors; --lookup-stream-1-cannon-basis passed. No gameplay exploration was performed. This strengthens the migration proof without changing production behavior or source hashes.
+- Integration note: earlier cannon production changes participate in both ResourceAudit/SamusArtworkClosedContractDefinitions.cs and ResourceAudit/VramDmaSourceContracts.cs; coordinator already refreshed those dependencies. This verifier-only batch requires neither hash to change.

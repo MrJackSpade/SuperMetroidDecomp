@@ -713,6 +713,23 @@ internal static partial class Program
         byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
         byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
         var stock = SamusArmCannonArtworkCatalog.Load(new MemoryStream(json), new MemoryStream(png));
+        foreach (string fieldName in new[] { "attributes", "tileSources" })
+        {
+            var field = typeof(SamusArmCannonArtworkCatalog).GetField(fieldName,
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+            var overrides = (Dictionary<int, ushort>)field.GetValue(stock)!;
+            AssertEqual(0, overrides.Count, "Stock cannon selectors require no stored fallback overrides");
+        }
+        for (int direction = 0; direction < 10; direction++)
+        {
+            var aim = (SamusProjectileDirection)direction;
+            AssertEqual(Word(0x90c791 + direction * 2), SamusArmCannonArtworkFormat.StockSpriteAttributes(aim),
+                "Direct calculated cannon OBJ defaults match original native words");
+            int list = 0x900000 | Word(0x90c7a5 + direction * 2);
+            for (int frame = 0; frame < 4; frame++)
+                AssertEqual(Word(list + frame * 2), SamusArmCannonArtworkFormat.StockTileSource(aim, frame),
+                    "Direct calculated cannon source defaults match original native operands");
+        }
         byte[] nativePlanar = expected.SelectMany(pointer => Enumerable.Range(0, 32).Select(offset => rom.ReadByte((0x9a0000 | pointer) + offset))).ToArray();
         AssertEqual(ReferenceIdentity(json, nativePlanar), stock.ContentIdentity, "Calculated cannon selectors preserve canonical native content identity");
         VerifySelectors(stock, -1, 0);

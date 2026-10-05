@@ -500,6 +500,21 @@ internal static partial class Program
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         byte[] source = BeamPaletteExtractor.Extract(rom);
         var stock = BeamPaletteCatalog.Load(new MemoryStream(source));
+        var stored = (Dictionary<int, ushort>)typeof(BeamPaletteCatalog).GetField("palettes", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(43, stored.Count, "Beam stock stores exactly the43 independently required colors, with no derived fallback samples");
+        for (int selection = 0; selection < 12; selection++)
+        for (int color = 0; color < 16; color++)
+        {
+            bool basis = selection switch
+            {
+                0 => color <= 8 || color == 15,
+                (int)SamusBeamFlags.Ice => color >= 2,
+                (int)SamusBeamFlags.Wave or (int)SamusBeamFlags.Plasma => color is >= 2 and <= 5 or 7 or 8 or 15,
+                (int)SamusBeamFlags.Spazer => color is >= 2 and <= 4 or 8 or 15,
+                _ => false,
+            };
+            AssertEqual(basis, stored.ContainsKey(selection * 16 + color), "Beam stored membership is exactly the documented Power/Ice/Wave/Plasma/Spazer basis");
+        }
         Verify(stock, -1, -1);
         foreach ((int selection, int color) in new[] { (0, 0), (2, 1), (3, 3), (1, 9), (8, 2), (4, 15), (8, 5), (8, 6), (4, 6) })
         {

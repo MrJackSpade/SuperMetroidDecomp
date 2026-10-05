@@ -10,7 +10,7 @@ internal static partial class Program
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);
         var atlas = ProjectileTrailAtlas.Load(new MemoryStream(png));
         VerifyTrailAtlasBinding(bus, png);
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.RunNmi(0, true);
@@ -57,7 +57,7 @@ internal static partial class Program
         stream.Position = 0;
         var atlas = ProjectileTrailAtlas.Load(stream);
         var catalog = ProjectileTrailCatalog.Load(new MemoryStream(ProjectileTrailExtractor.Extract(bus)), atlas);
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         byte[] before = runtime.Vram.Bytes.ToArray();
@@ -77,6 +77,7 @@ internal static partial class Program
         saved.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
         AssertTrue(restored.TrailArtwork is null, "State does not embed selected trail PNGs");
+        runtimeFixtureBindings.Value(restored);
         restored.TrailArtwork = catalog;
         restored.RunNmi(0, true);
         Check(restored);

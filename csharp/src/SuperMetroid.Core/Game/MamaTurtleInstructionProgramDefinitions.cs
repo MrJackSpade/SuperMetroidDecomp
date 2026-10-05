@@ -40,212 +40,115 @@ internal static class MamaTurtleInstructionProgramDefinitions
     /// <summary><c>BabyTurtleConstants_travelDistance</c> at $A2:8D50.</summary>
     internal const ushort AdjacentMovementDefinitions = 0x8d50;
 
-    private static readonly MamaTurtleInstructionMechanicsWord[] Words =
-        BuildMechanicsWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
+    internal static int MechanicsWordCount => 117;
+    internal static int PresentationWordCount => 75;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static MamaTurtleInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    /// <summary>Returns fixed tatori control data or rejects non-mechanics pointers.</summary>
-    internal static ushort ReadMechanicsWord(ushort address)
+    internal static MamaTurtleInstructionMechanicsWord MechanicsWord(int index)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            MamaTurtleInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Tatori instruction mechanics pointer $A2:{address:X4} is not compiled.");
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        for (int address = BabyCrawlingLeft; address < AdjacentMovementDefinitions; address += 2)
+            if (TryControl((ushort)address, out ushort value) && index-- == 0)
+                return new((ushort)address, value);
+        throw new InvalidDataException("Turtle control layout is incomplete.");
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    internal static ushort PresentationWordAddress(int index)
     {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        // Every sub-$8000 control is a draw duration; its next word owns the artwork selector.
+        for (int address = BabyCrawlingLeft; address < AdjacentMovementDefinitions; address += 2)
+            if (TryControl((ushort)address, out ushort value) && value < 0x8000 && index-- == 0)
+                return (ushort)(address + 2);
+        throw new InvalidDataException("Turtle presentation layout is incomplete.");
+    }
 
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+    internal static ushort ReadMechanicsWord(ushort address) => TryControl(address, out ushort value)
+        ? value : throw new InvalidDataException($"Tatori instruction mechanics pointer $A2:{address:X4} is not compiled.");
+
+    internal static bool IsCompiledMechanicsByte(int address) =>
+        (address & 0xff0000) == 0xa20000 && TryControl((ushort)(address & 0xfffe), out _);
+
+    private static bool TryControl(ushort address, out ushort value) =>
+        TryCrawl(address, BabyCrawlingLeft, out value) || TryCrawl(address, BabyCrawlingRight, out value) ||
+        TrySpin(address, BabySpinning, baby: true, out value) || TrySpin(address, MamaSpinning, baby: false, out value) ||
+        TryShell(address, MamaEnterShellLeft, ShellProgram.MamaEnterLeft, out value) ||
+        TryShell(address, MamaEnterShellRight, ShellProgram.MamaEnterRight, out value) ||
+        TryShell(address, BabyHidingLeft, ShellProgram.BabyHide, out value) ||
+        TryShell(address, BabyHidingRight, ShellProgram.BabyHide, out value) ||
+        TryShell(address, MamaLeaveShellLeft, ShellProgram.MamaLeave, out value) ||
+        TryShell(address, MamaLeaveShellRight, ShellProgram.MamaLeave, out value) ||
+        TryShell(address, BabyLeaveShellLeft, ShellProgram.BabyLeave, out value) ||
+        TryShell(address, BabyLeaveShellRight, ShellProgram.BabyLeave, out value) ||
+        TrySleep(address, out value);
+
+    private static bool TryCrawl(ushort address, ushort start, out ushort value)
+    {
+        value = 0;
+        int offset = address - start;
+        if ((uint)offset > 80) return false;
+        if (offset == 80) { value = MamaTurtleInstructionCodes.LoopOrTurnAroundIfMovedTooFar; return true; }
+        int field = offset % 10;
+        if (field == 0) value = MamaTurtleInstructionCodes.Crawl;
+        else if (field is 2 or 6) value = 10;
+        else return false;
+        return true;
+    }
+
+    private static bool TrySpin(ushort address, ushort start, bool baby, out ushort value)
+    {
+        value = 0;
+        int offset = address - start;
+        if (offset == 0) value = 1;
+        else if (offset == 4) value = MamaTurtleInstructionCodes.PlaySpinningSound;
+        else if (offset == 6) value = 4;
+        else if (offset is 10 or 14 or 18) value = 5;
+        else if (baby && offset == 22) value = MamaTurtleInstructionCodes.SetSpinningStoppable;
+        else if (offset == (baby ? 24 : 22)) value = CommonEnemyInstructionCodes.Goto;
+        else if (offset == (baby ? 26 : 24)) value = start;
+        else return false;
+        return true;
+    }
+
+    private enum ShellProgram { MamaEnterLeft, MamaEnterRight, BabyHide, MamaLeave, BabyLeave }
+
+    private static bool TryShell(ushort address, ushort start, ShellProgram program, out ushort value)
+    {
+        value = 0;
+        int frames = program == ShellProgram.MamaLeave ? 4 : program == ShellProgram.BabyLeave ? 2 : 3;
+        int offset = address - start;
+        if ((uint)offset < 4 * frames && offset % 4 == 0)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
+            int frame = offset / 4;
+            value = program switch
             {
-                return true;
-            }
+                ShellProgram.MamaEnterLeft => frame == 0 ? (ushort)32 : (ushort)5,
+                ShellProgram.MamaEnterRight => frame == 0 ? (ushort)1 : (ushort)5,
+                ShellProgram.BabyHide => frame == 2 ? (ushort)64 : (ushort)5,
+                ShellProgram.MamaLeave => frame == 0 ? (ushort)16 : frame == 3 ? (ushort)96 : (ushort)5,
+                _ => frame == 0 ? (ushort)5 : (ushort)47,
+            };
         }
-        return false;
+        else if (offset == 4 * frames)
+            value = program switch
+            {
+                ShellProgram.MamaEnterLeft => MamaTurtleInstructionCodes.RiseToHoverRightwards,
+                ShellProgram.MamaEnterRight => MamaTurtleInstructionCodes.RiseToHoverLeftwards,
+                ShellProgram.BabyHide => MamaTurtleInstructionCodes.LeaveShell,
+                ShellProgram.MamaLeave => MamaTurtleInstructionCodes.EnterShell,
+                _ => MamaTurtleInstructionCodes.LeftShell,
+            };
+        else if (offset == 4 * frames + 2) value = program == ShellProgram.BabyLeave ? (ushort)47 : (ushort)0x7fff;
+        else if (offset == 4 * frames + 6) value = CommonEnemyInstructionCodes.Sleep;
+        else return false;
+        return true;
     }
 
-    private static MamaTurtleInstructionMechanicsWord[] BuildMechanicsWords()
+    private static bool TrySleep(ushort address, out ushort value)
     {
-        var words = new List<MamaTurtleInstructionMechanicsWord>(capacity: 117);
-        AddBabyCrawl(words, BabyCrawlingLeft);
-
-        AddFrame(words, BabySpinning, 1);
-        AddCallback(words, unchecked((ushort)(BabySpinning + 4)),
-            MamaTurtleInstructionCodes.PlaySpinningSound);
-        AddFrames(words, unchecked((ushort)(BabySpinning + 6)), [4, 5, 5, 5]);
-        AddCallback(words, unchecked((ushort)(BabySpinning + 22)),
-            MamaTurtleInstructionCodes.SetSpinningStoppable);
-        AddGoto(words, unchecked((ushort)(BabySpinning + 24)), BabySpinning);
-
-        AddFrame(words, MamaSpinning, 1);
-        AddCallback(words, unchecked((ushort)(MamaSpinning + 4)),
-            MamaTurtleInstructionCodes.PlaySpinningSound);
-        AddFrames(words, unchecked((ushort)(MamaSpinning + 6)), [4, 5, 5, 5]);
-        AddGoto(words, unchecked((ushort)(MamaSpinning + 22)), MamaSpinning);
-
-        AddFrames(words, MamaEnterShellLeft, [32, 5, 5]);
-        AddCallback(words, unchecked((ushort)(MamaEnterShellLeft + 12)),
-            MamaTurtleInstructionCodes.RiseToHoverRightwards);
-        AddFrame(words, unchecked((ushort)(MamaEnterShellLeft + 14)), 0x7fff);
-        AddSleep(words, unchecked((ushort)(MamaEnterShellLeft + 18)));
-
-        AddFrames(words, BabyHidingLeft, [5, 5, 64]);
-        AddCallback(words, unchecked((ushort)(BabyHidingLeft + 12)),
-            MamaTurtleInstructionCodes.LeaveShell);
-        AddFrame(words, unchecked((ushort)(BabyHidingLeft + 14)), 0x7fff);
-        AddSleep(words, unchecked((ushort)(BabyHidingLeft + 18)));
-
-        AddFrame(words, MamaAsleep, 0x7fff);
-        AddSleep(words, unchecked((ushort)(MamaAsleep + 4)));
-
-        AddFrames(words, MamaLeaveShellLeft, [16, 5, 5, 96]);
-        AddCallback(words, unchecked((ushort)(MamaLeaveShellLeft + 16)),
-            MamaTurtleInstructionCodes.EnterShell);
-        AddFrame(words, unchecked((ushort)(MamaLeaveShellLeft + 18)), 0x7fff);
-        AddSleep(words, unchecked((ushort)(MamaLeaveShellLeft + 22)));
-
-        AddFrames(words, BabyLeaveShellLeft, [5, 47]);
-        AddCallback(words, unchecked((ushort)(BabyLeaveShellLeft + 8)),
-            MamaTurtleInstructionCodes.LeftShell);
-        AddFrame(words, unchecked((ushort)(BabyLeaveShellLeft + 10)), 47);
-        AddSleep(words, unchecked((ushort)(BabyLeaveShellLeft + 14)));
-
-        AddBabyCrawl(words, BabyCrawlingRight);
-
-        AddFrames(words, MamaEnterShellRight, [1, 5, 5]);
-        AddCallback(words, unchecked((ushort)(MamaEnterShellRight + 12)),
-            MamaTurtleInstructionCodes.RiseToHoverLeftwards);
-        AddFrame(words, unchecked((ushort)(MamaEnterShellRight + 14)), 0x7fff);
-        AddSleep(words, unchecked((ushort)(MamaEnterShellRight + 18)));
-
-        AddFrames(words, BabyHidingRight, [5, 5, 64]);
-        AddCallback(words, unchecked((ushort)(BabyHidingRight + 12)),
-            MamaTurtleInstructionCodes.LeaveShell);
-        AddFrame(words, unchecked((ushort)(BabyHidingRight + 14)), 0x7fff);
-        AddSleep(words, unchecked((ushort)(BabyHidingRight + 18)));
-
-        AddFrames(words, MamaLeaveShellRight, [16, 5, 5, 96]);
-        AddCallback(words, unchecked((ushort)(MamaLeaveShellRight + 16)),
-            MamaTurtleInstructionCodes.EnterShell);
-        AddFrame(words, unchecked((ushort)(MamaLeaveShellRight + 18)), 0x7fff);
-        AddSleep(words, unchecked((ushort)(MamaLeaveShellRight + 22)));
-
-        AddFrames(words, BabyLeaveShellRight, [5, 47]);
-        AddCallback(words, unchecked((ushort)(BabyLeaveShellRight + 8)),
-            MamaTurtleInstructionCodes.LeftShell);
-        AddFrame(words, unchecked((ushort)(BabyLeaveShellRight + 10)), 47);
-        AddSleep(words, unchecked((ushort)(BabyLeaveShellRight + 14)));
-        return words.ToArray();
-    }
-
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new List<ushort>(capacity: 75);
-        AddBabyCrawlPresentation(words, BabyCrawlingLeft);
-        AddPresentation(words, BabySpinning, 1);
-        AddPresentation(words, unchecked((ushort)(BabySpinning + 6)), 4);
-        AddPresentation(words, MamaSpinning, 1);
-        AddPresentation(words, unchecked((ushort)(MamaSpinning + 6)), 4);
-        AddPresentation(words, MamaEnterShellLeft, 3);
-        AddPresentation(words, unchecked((ushort)(MamaEnterShellLeft + 14)), 1);
-        AddPresentation(words, BabyHidingLeft, 3);
-        AddPresentation(words, unchecked((ushort)(BabyHidingLeft + 14)), 1);
-        AddPresentation(words, MamaAsleep, 1);
-        AddPresentation(words, MamaLeaveShellLeft, 4);
-        AddPresentation(words, unchecked((ushort)(MamaLeaveShellLeft + 18)), 1);
-        AddPresentation(words, BabyLeaveShellLeft, 2);
-        AddPresentation(words, unchecked((ushort)(BabyLeaveShellLeft + 10)), 1);
-        AddBabyCrawlPresentation(words, BabyCrawlingRight);
-        AddPresentation(words, MamaEnterShellRight, 3);
-        AddPresentation(words, unchecked((ushort)(MamaEnterShellRight + 14)), 1);
-        AddPresentation(words, BabyHidingRight, 3);
-        AddPresentation(words, unchecked((ushort)(BabyHidingRight + 14)), 1);
-        AddPresentation(words, MamaLeaveShellRight, 4);
-        AddPresentation(words, unchecked((ushort)(MamaLeaveShellRight + 18)), 1);
-        AddPresentation(words, BabyLeaveShellRight, 2);
-        AddPresentation(words, unchecked((ushort)(BabyLeaveShellRight + 10)), 1);
-        return words.ToArray();
-    }
-
-    private static void AddBabyCrawl(
-        List<MamaTurtleInstructionMechanicsWord> words,
-        ushort entry)
-    {
-        for (int step = 0; step < 8; step++)
-        {
-            ushort callback = unchecked((ushort)(entry + step * 10));
-            AddCallback(words, callback, MamaTurtleInstructionCodes.Crawl);
-            AddFrames(words, unchecked((ushort)(callback + 2)), [10, 10]);
-        }
-        AddCallback(words, unchecked((ushort)(entry + 80)),
-            MamaTurtleInstructionCodes.LoopOrTurnAroundIfMovedTooFar);
-    }
-
-    private static void AddBabyCrawlPresentation(List<ushort> words, ushort entry)
-    {
-        for (int step = 0; step < 8; step++)
-            AddPresentation(words, unchecked((ushort)(entry + step * 10 + 2)), 2);
-    }
-
-    private static void AddFrames(
-        List<MamaTurtleInstructionMechanicsWord> words,
-        ushort firstDuration,
-        ReadOnlySpan<ushort> durations)
-    {
-        for (int frame = 0; frame < durations.Length; frame++)
-            AddFrame(words, unchecked((ushort)(firstDuration + frame * 4)), durations[frame]);
-    }
-
-    private static void AddFrame(
-        List<MamaTurtleInstructionMechanicsWord> words,
-        ushort address,
-        ushort duration) => words.Add(new(address, duration));
-
-    private static void AddCallback(
-        List<MamaTurtleInstructionMechanicsWord> words,
-        ushort address,
-        ushort callback) => words.Add(new(address, callback));
-
-    private static void AddGoto(
-        List<MamaTurtleInstructionMechanicsWord> words,
-        ushort address,
-        ushort target)
-    {
-        words.Add(new(address, CommonEnemyInstructionCodes.Goto));
-        words.Add(new(unchecked((ushort)(address + 2)), target));
-    }
-
-    private static void AddSleep(
-        List<MamaTurtleInstructionMechanicsWord> words,
-        ushort address) => words.Add(new(address, CommonEnemyInstructionCodes.Sleep));
-
-    private static void AddPresentation(List<ushort> words, ushort firstDuration, int count)
-    {
-        for (int frame = 0; frame < count; frame++)
-            words.Add(unchecked((ushort)(firstDuration + frame * 4 + 2)));
+        value = 0;
+        if (address == MamaAsleep) value = 0x7fff;
+        else if (address == MamaAsleep + 4) value = CommonEnemyInstructionCodes.Sleep;
+        else return false;
+        return true;
     }
 }

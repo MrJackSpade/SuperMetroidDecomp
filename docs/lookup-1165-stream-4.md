@@ -314,8 +314,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs
 
-- [ ] **MamaTurtleInstructionProgramDefinitions.Words** ([L43](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L43)) - factory-built stock table. Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **MamaTurtleInstructionProgramDefinitions.PresentationWords** ([L45](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L45)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **MamaTurtleInstructionProgramDefinitions.Words** ([L43](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L43)) - factory-built stock table. Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **MamaTurtleInstructionProgramDefinitions.PresentationWords** ([L45](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L45)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [ ] **MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202** ([L202](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L202)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/MamaTurtleShellContourDefinitions.cs
@@ -866,3 +866,12 @@ Partial payload conversion inside the still-open `RoomPaletteFxPresentation.colo
 - Seven first-row inputs remain required unresolved payload. The other91 stock words are calculated. Only samples matching the supplied inputs are removed; editing an input preserves each independently supplied neighboring sample through explicit overrides. Audit identities remain complete and unique.
 - Evidence: pinned bank8D `UNUSED_InstList_PaletteFXObject_DarkLightning_1/2/3`, definition `$F769`, colors `$EC78..ED78`. The native neutral row and five-unit clamped channel progression confirm the derivation; starting-color irregularity is not treated as an exemption.
 - Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Focused checks compare all98 native colors, prove only seven stock inputs remain stored, cover the exact calculated-pointer domain and unique identity enumeration, and preserve all98 supplied values under four independent input/sample JSON edits.
+
+## Batch 18: Mama/Baby Turtle instruction layouts
+
+Two more definitions converted;53 complete and172 unchecked. No retained exception.
+
+- Removed both factory-built arrays and all list-building helpers. Eight crawl steps calculate their ten-byte callback/draw layout; spinning programs preserve the baby's extra stoppable callback; named shell programs calculate entry, hide and exit cadence, directional rise callbacks and terminal sleeps.
+- Direct control resolution uses these semantic program rules. Native-order enumeration scans the bounded program region without caching; every sub-$8000 control is a draw duration whose following word owns presentation, yielding all75 operand addresses without storing a second mapping.
+- Evidence: pinned bankA2 thirteen `InstList_MamaTurtle/BabyTurtle` programs from `$8B80` through `$8D4E`, excluding adjacent code gaps and movement definitions starting `$8D50`.
+- Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Existing unchanged focused turtle verifier confirms117 original control words in strict order, both-byte ownership,75 unique presentation addresses and their mechanics exclusion, adjacent movement rejection and allocation-free direct resolution. This verifier is a definition-boundary check; its legacy console wording about executing all programs is broader than its actual assertions, so no such execution claim is made here.

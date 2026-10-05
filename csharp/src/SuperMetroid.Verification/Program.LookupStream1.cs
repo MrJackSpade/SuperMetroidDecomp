@@ -7,6 +7,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        VerifyLookupStream1OwtchStoke(rom);
         VerifyLookupStream1VisualCatalogs(rom);
         VerifyLookupStream1NuclearWaffle(rom);
         VerifyLookupStream1DeathDefinitions(rom);
@@ -515,5 +516,44 @@ internal static partial class Program
             AssertEqual("dragon_" + names[index], dragon[index].Name, "Dragon stable editable identity");
             AssertEqual((ushort)(index is 1 or 2 or 4 or 5 ? 1 : 8), Word(0xa20000 | dragon[index].Pointer), "native Dragon record size");
         }
+    }
+    private static void VerifyLookupStream1OwtchStoke(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var controls = new HashSet<int>();
+        var visuals = new HashSet<int>();
+        for (int side = 0; side < 2; side++)
+        {
+            foreach (int offset in new[] { 0, 2, 6, 10, 14, 16 }) controls.Add(0xa3ab + side * 18 + offset);
+            foreach (int offset in new[] { 4, 8, 12 }) visuals.Add(0xa3ab + side * 18 + offset);
+        }
+        int controlIndex = 0, visualIndex = 0;
+        for (int pointer = 0xa3aa; pointer <= 0xa3d0; pointer++)
+        {
+            AssertEqual(controls.Contains(pointer) || controls.Contains(pointer - 1),
+                OwtchInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | pointer), "Owtch exact byte guard domain");
+            if (controls.Contains(pointer))
+            {
+                var actual = OwtchInstructionProgramDefinitions.MechanicsWord(controlIndex++);
+                AssertEqual((ushort)pointer, actual.Address, "Owtch native control order");
+                AssertEqual(Word(0xa20000 | pointer), actual.Value, "Owtch native controls");
+            }
+            else AssertThrows<InvalidDataException>(() => OwtchInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Owtch noncontrol rejection");
+            if (visuals.Contains(pointer))
+                AssertEqual((ushort)pointer, OwtchInstructionProgramDefinitions.PresentationWordAddress(visualIndex++), "Owtch native visual order");
+            else AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.OwtchDefinition, (ushort)pointer), "Owtch nonvisual rejection");
+        }
+        var stokeVisuals = new HashSet<int>();
+        for (int side = 0; side < 2; side++)
+            foreach (int offset in new[] { 4, 8, 12, 16, 24, 32 }) stokeVisuals.Add(0x8932 + side * 38 + offset);
+        for (int pointer = 0x8931; pointer <= 0x897f; pointer++)
+            if (stokeVisuals.Contains(pointer))
+                AssertEqual(Word(0xa20000 | pointer), OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, (ushort)pointer), "Stoke native visual selection");
+            else AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, (ushort)pointer), "Stoke nonvisual rejection");
+        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitions.MechanicsWord(invalid), "Owtch control bounds");
+        foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitions.PresentationWordAddress(invalid), "Owtch visual bounds");
+        AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(0, 0xa3af), "unknown visual owner rejected");
     }
 }

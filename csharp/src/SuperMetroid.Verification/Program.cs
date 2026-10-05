@@ -111,6 +111,8 @@ if (args is ["--lookup-stream-1"])
     VerifySamusDeathSequence();
     VerifyNuclearWaffleProjectileInstructionProgramDefinitions();
     VerifyNuclearWaffleDefinitions(rom);
+    VerifyOwtchInstructionProgramDefinitions();
+    VerifyStokeInstructionProgramDefinitions();
     VerifyLookupStream1(rom);
     VerifyBrinstarPipeBugInstructionProgramDefinitions();
     VerifyMetroidBehaviorDefinitions(rom);

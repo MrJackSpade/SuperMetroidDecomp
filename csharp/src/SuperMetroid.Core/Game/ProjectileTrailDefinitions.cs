@@ -14,7 +14,19 @@ public static class ProjectileTrailDefinitions
     /// <summary>$90:B5A1, InstList_BeamTrail_SuperMissile, also used by ordinary missiles.</summary>
     public const ushort Missile = 0xb5a1;
 
-    /// <summary>$90:B657-$B688 instruction encodings observed beyond the right selector table; independent disposition remains required.</summary>
+    /// <summary>
+    /// $90:B657-$B688: the25 words observed when the right trail selector's low-six-bit
+    /// index reaches past its39 entries into Spawn projectile trail's machine code.
+    /// </summary>
+    /// <remarks>
+    /// Narrow nonsense exception under #1165: these are native instruction encodings,
+    /// addresses and relative branches, from PHB through the first byte of the next LDA.
+    /// Managed trail behavior has no corresponding machine-code layout from which to
+    /// calculate them; adding an assembler would merely reconstruct this same byte data.
+    /// The supported NTSC J/U1.0 ROM and native$90:B609 base/low-six-bit consumer confirm
+    /// every bounded observation. The preceding78 genuine selector entries calculate
+    /// separately from beam/effect semantics and are not covered by this exception.
+    /// </remarks>
     private static ReadOnlySpan<ushort> AdjacentCodeWords =>
     [
         0xbd8b, 0x0c18, 0x0089, 0xd00f, 0x2905, 0x003f, 0x0d80, 0x29eb,

@@ -360,7 +360,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ProjectileTrailDefinitions.cs
 
-- [ ] **ProjectileTrailDefinitions.ReachableSelectors** ([L24](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ProjectileTrailDefinitions.ReachableSelectors** ([L24](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ProjectileTrailProgramDefinitions.cs
 
@@ -874,3 +874,10 @@ Removed four mechanics membership tables and the42-entry visual record-address t
 Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors); ResourceAudit build passed without warnings/errors. New `--lookup-stream2-trail-programs` passed all67 native mechanics words,42 independently walked visual addresses, rejected gaps/odd addresses/wrong banks, every frame of all four paired production sequences with frozen frames and sibling-directed Y movement, view bounds and the existing typed mutable-memory alias. The initial copied legacy reference path incorrectly ran production without installed artwork and attempted the retired raw sprite-word fallback at$90:B4CD; it failed as expected. The reference now decodes native ROM instructions independently while the actual side runs the compiled walker with a catalog and forbidden cartridge bus. No production workaround or broader artwork sweep was added.
 
 Sixty-two stream2 named definitions complete;164 remain required. Rotating to stream5 by coordinator instruction; all unresolved palette/trajectory/artwork/code-byte entries remain explicitly required.
+### Accepted mixed disposition: adjacent native trail code observations
+
+Independent coordinator review accepted a narrow nonsense exception for exactly25 words at$90:B657-$B688. The native right selector base$B609 and low-six-bit index admit these observations beyond its39 actual entries. Pinned source identifies PHB, native operands and branches through RTL followed by the first LDA opcode byte; the final word combines two instructions. All25 values were confirmed against the supported ROM SHA25612B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72. Managed behavior has no equivalent native instruction encoding/relocation layout; implementing an assembler or re-encoding those instructions would only reconstruct the same observed bytes.
+
+The exception covers only these physical code-byte observations. The first78 left/right selector mappings remain calculated semantic beam/effect dispatch. The existing `--lookup-stream2-trail-selectors` proof already passed all103 native words and every64 actual spawn selection with source reads forbidden; this follow-up changes documentation/disposition only and does not rerun unrelated checks. Neither the separate coordinate catalog's code window nor any palette residual receives an exception here.
+
+Stream2 now has63 resolved definitions:62 converted/removed and1 mixed conversion with narrowly justified retention.163 remain required. This is explicitly not full conversion of the selector definition.

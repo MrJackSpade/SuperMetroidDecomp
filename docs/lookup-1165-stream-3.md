@@ -419,11 +419,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkDefinitions.cs
 
-- [ ] **MotherBrainSpecialSpriteArtworkDefinitions.All** ([L58](../csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkDefinitions.cs#L58)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainSpecialSpriteArtworkDefinitions.All** ([L58](../csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkDefinitions.cs#L58)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs
 
-- [ ] **MotherBrainVisualDefinitions.NativePointers** ([L18](../csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainVisualDefinitions.NativePointers** ([L18](../csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs
 
@@ -918,6 +918,13 @@ Artifacts in that tool's `output` directory include `head-a586.png`, its `-index
 - Production build passed (1192 warnings, zero errors); final verifier rebuild passed (25 warnings, zero errors). `--lookup-stream-3` passed all 120 native words, 360 independent channel edits, absent stock row storage and explicit six-body/zero-rear anchor assertions.
 - Final per-entry disposition: `body` is mixed calculation plus justified retention of six named paint anchors; `backLegs` is converted. Converted entries now total 73, with two separately justified retained entries (these six paint anchors and the earlier decorative death-scatter anchors).
 - Coordinator must refresh the health-presentation source hash in `RemainingEnemyColorClosedContractDefinitions.cs`.
+### Confirmed batch 36: Mother Brain visual roots and special-sheet selection
+
+- Replaced the eighteen stored OAM roots with record-stride calculations across named head, mouth, damaged-head, high-tile-head and tube runs. Native records occupy two header bytes plus five bytes per character; the neck and component-count boundaries remain explicit. Frame enumeration calculates each published bank/pointer/name without caching a replacement array.
+- Replaced the four stored special-sheet registrations with semantic cases selecting legs, Baby, attack restoration or exploded door. Named definition records remain the source identities; collection order, all fields, source-range lookup and original index exception remain unchanged. Independent pixel payloads are not exempted by this metadata conversion.
+- Verification build passed (1432 warnings, zero errors); `--lookup-stream-3` passed all eighteen original roots/names/banks, eighteen native character counts, enumeration and bounds, plus all four complete sheet records, source boundaries and collection exceptions. Existing sheet-transfer checks also passed.
+- Two entries completed, bringing converted entries to 75 plus the two narrowly justified retained entries.
+- Coordinator must refresh `MotherBrainSheetsClosedContractDefinitions.cs` source hash for `MotherBrainSpecialSpriteArtworkDefinitions.cs`. No external source-hash dependency found for `MotherBrainVisualDefinitions.cs`.
 ### Remaining scope
 
 All unchecked entries remain required. The three Choot motion payloads still require conversion or concrete impossible/nonsense evidence; their rejected retention rationale has been removed. Mother Brain fade endpoints remain required after the calculation conversion above. Choot quadratic/cubic phase fits do not establish a complete generator or a retention exception; its motion payloads remain required.

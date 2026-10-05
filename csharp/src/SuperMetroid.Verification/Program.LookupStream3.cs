@@ -7,6 +7,44 @@ internal static partial class Program
 {
     private static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
+        ushort[] motherBrainRoots =
+        [
+            0xa586, 0xa5bf, 0xa5f8, 0xa62c, 0xa660, 0xa694, 0xa69b, 0xa6d9, 0xa717,
+            0xa750, 0xa789, 0xad3e, 0xad6d, 0xada1, 0xadd5, 0xae09, 0xae33, 0xae5d,
+        ];
+        int[] nativeCharacterCounts = [11, 11, 10, 10, 10, 1, 12, 12, 11, 11, 11, 9, 10, 10, 10, 8, 8, 26];
+        AssertTrue(MotherBrainVisualDefinitions.Frames().Select(frame => frame.Pointer).SequenceEqual(motherBrainRoots),
+            "stream 3 all original Mother Brain root identities and enumeration");
+        for (int index = 0; index < motherBrainRoots.Length; index++)
+        {
+            var actual = MotherBrainVisualDefinitions.Frame(index);
+            AssertEqual((byte)0xa9, actual.Bank, "stream 3 Mother Brain visual bank");
+            AssertEqual($"mother_brain_a9_{motherBrainRoots[index]:x4}", actual.Name, "stream 3 Mother Brain visual identity name");
+            int address = 0xa90000 | actual.Pointer;
+            AssertEqual(nativeCharacterCounts[index], rom.ReadByte(address) | rom.ReadByte(address + 1) << 8,
+                "stream 3 native OAM record widths used for root strides");
+        }
+        foreach (int invalid in new[] { -1, 18, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainVisualDefinitions.Frame(invalid), "stream 3 visual root bounds");
+        MotherBrainSpecialSpriteSheetDefinition[] expectedSheets =
+        [
+            new("mother-brain-leg-tiles.png", 0xb79000, 8, 0x7400),
+            new("mother-brain-baby-tiles.png", 0xb18800, 4, 0x7c00),
+            new("mother-brain-attack-tiles.png", 0xb7a000, 4, 0x7c00),
+            new("mother-brain-exploded-door-tiles.png", 0xabf400, 2, 0x7000),
+        ];
+        AssertTrue(expectedSheets.SequenceEqual(MotherBrainSpecialSpriteArtworkDefinitions.All),
+            "stream 3 named special sheet order and every field");
+        foreach (var sheet in expectedSheets)
+            foreach (int source in new[] { sheet.SourceAddress, sheet.SourceAddress + sheet.ByteCount - 1 })
+            {
+                AssertTrue(MotherBrainSpecialSpriteArtworkDefinitions.TryForSource((uint)source, out var found),
+                    "stream 3 special sheet boundary lookup");
+                AssertEqual(sheet, found, "stream 3 special sheet source owner");
+            }
+        foreach (int invalid in new[] { -1, 4, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = MotherBrainSpecialSpriteArtworkDefinitions.All[invalid],
+                "stream 3 special sheet original index exception");
         // Confirm the identified copy-list conversion against native STA operands.
         int[][] nativeDoorCopies =
         [

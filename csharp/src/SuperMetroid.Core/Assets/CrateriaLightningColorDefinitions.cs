@@ -76,4 +76,5 @@ internal static class CrateriaLightningColorDefinitions
         int blue = Math.Max(0, ((first >> 10) & 31) - 5 * phase);
         color = (ushort)(red | green << 5 | blue << 10);
         return true;
-    }}
+    }
+}

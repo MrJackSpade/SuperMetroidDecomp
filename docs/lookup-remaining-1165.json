@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 759,
+  "remainingTableDefinitionCount": 754,
   "fileCount": 523,
   "entries": [
     {
@@ -3368,7 +3368,9 @@
       "line": 15,
       "name": "DraygonCollisionDefinitions.EmptyOamFrames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "04ea84406"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DraygonInstructionProgramDefinitions.cs",
@@ -3646,14 +3648,18 @@
       "line": 27,
       "name": "EyeDoorProjectileInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "3debae639"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs",
       "line": 53,
       "name": "EyeDoorProjectileInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "3debae639"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EyeDoorSweatInstructionProgramDefinitions.cs",
@@ -4461,14 +4467,18 @@
       "line": 43,
       "name": "MamaTurtleInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "3481b7188"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs",
       "line": 45,
       "name": "MamaTurtleInstructionProgramDefinitions.PresentationWords",
       "kind": "factory-built stock table",
-      "note": "Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "3481b7188"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs",
@@ -21052,6 +21062,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 365,
+  "convertedSinceSnapshot": 370,
   "justifiedRetainedSinceSnapshot": 4
 }

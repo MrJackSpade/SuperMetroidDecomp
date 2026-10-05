@@ -10914,4 +10914,17 @@
   "state": "converted",
   "scope": "Twelve definitions: gate/lava mechanics and operand locations,three steam frame mappings,Ceres door controls,four corpse geometry tables.",
   "algorithm": "Semantic program phases and uniform pose strides; ten-byte steam frames/fourteen-byte rectangle records; shared relocated door controls; tile-width rotation offsets,two sand strips and clipped live-WRAM DMA row geometry."
+},"lightningTurtleEyeIntegration":{
+  "confirmation": "Verification1441 warnings/zero errors; integrated stream4 passes48 native empty frames/130components/actual shot-touch walkers,104surface/98dark palette values/independent edits/domains/identities,117turtle controls/75addresses/byte ownership/bounds/allocation,19eye controls/11 actual installed operands/aim-flight-impact-shot/delete. Corrected turtle console to avoid claiming actual program execution absent from its definition fixture. Static index refreshed; no source-hash dependency found.",
+  "implementationCommits": [
+    "04ea84406",
+    "859422d2a",
+    "acbe37826",
+    "3481b7188",
+    "3debae639"
+  ],
+  "scope": "Five complete definitions: Draygon empty OAM membership,two turtle programs and two eye-door programs. Surface/dark lightning colors partially calculated.",
+  "algorithm": "Extended-frame component strides and triangular sizes; semantic crawl/spin/shell cases; eye-door aim/impact duration ramps and control cases. Lightning phase/shade arithmetic and clamped per-channel fading remove195 samples.",
+  "remaining": "370 converted,four justified retained,754 pending. Surface lightning base/brightness parameters and seven dark inputs remain required,along with unchecked collision/artwork payloads; no new exception.",
+  "state": "partial"
 }}

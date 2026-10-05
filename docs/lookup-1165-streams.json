@@ -3071,6 +3071,11 @@
     ,{"purpose":"Confirm native installed selectors and zero live reads preserving actual producer and lifetime checks","stream":3,"path":"csharp/src/SuperMetroid.Verification/Program.EnemyDeathInstructionProgramDefinitions.cs"}
     ,{"stream":5,"path":"csharp/src/SuperMetroid.Verification/Program.PhantoonProjectileInstructionProgramDefinitions.cs","purpose":"Confirm native installed selectors and zero live reads preserving actual flame producer and lifetimes"}
     ,{"stream":4,"path":"csharp/src/SuperMetroid.Core/Assets/ZebesExplosionWhiteoutColorDefinitions.cs","purpose":"Calculate exact grayscale carry cadence preserving independent installed overrides"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Game/SamusDeathSequenceState.cs","stream":1,"purpose":"Narrow calculated death-transfer/initial-frame view binding adaptation preserving native behavior"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs","stream":1,"purpose":"Narrow calculated death-transfer/initial-frame view binding adaptation preserving native behavior"}
+    ,{"path":"csharp/src/SuperMetroid.Verification/Program.SamusSpecialSequenceRomData.cs","stream":1,"purpose":"Narrow calculated death-transfer/initial-frame view binding adaptation preserving native behavior"}
+    ,{"path":"csharp/src/SuperMetroid.AssetExtraction/SamusDeathTileArtworkFiles.cs","stream":1,"purpose":"Narrow calculated death-transfer/initial-frame view binding adaptation preserving native behavior"}
+    ,{"stream":1,"path":"csharp/src/SuperMetroid.Verification/Program.SamusSpecialStates.cs","purpose":"Only VerifySamusDeathSequence: install required palette catalog from existing synthetic fixture, preserve timing/palette/transfer assertions"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

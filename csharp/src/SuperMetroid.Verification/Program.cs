@@ -3912,6 +3912,12 @@ if (args is ["--sbug-instruction-mechanics"])
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--absolute-tangent-runtime"])
+{
+    VerifyCompiledAbsoluteTangent(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--enemy-callback-definitions"])
 {
     var callbackRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(

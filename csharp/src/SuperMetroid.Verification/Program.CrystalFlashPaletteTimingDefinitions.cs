@@ -50,11 +50,12 @@ internal static partial class Program
 
         var guard = new CrystalFlashPaletteTimingReadGuard(rom);
         var cgram = new SnesCgram();
+        var colors = RetailPresentationFixture().CrystalFlashColors;
         int callCount = CrystalFlashPaletteTimingDefinitions.RecordCount *
             CrystalFlashPaletteTimingDefinitions.AuthoredDuration;
         for (int call = 0; call < callCount; call++)
         {
-            AssertTrue(samus.CrystalFlash.UpdatePalette(guard, cgram, samus),
+            AssertTrue(samus.CrystalFlash.UpdatePalette(guard, cgram, samus, colors: colors),
                 $"Crystal Flash timing call {call} retains palette ownership");
 
             ushort expectedTimer = unchecked((ushort)(

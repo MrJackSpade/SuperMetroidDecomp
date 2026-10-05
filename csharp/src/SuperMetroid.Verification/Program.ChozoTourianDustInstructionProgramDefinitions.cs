@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -113,9 +114,16 @@ internal static partial class Program
         AssertTrue(!dust.IsActive,
             "Tourian dust deletes on the tick after its 256th display frame");
 
-        AssertEqual(ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Chozo/Tourian dust spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Chozo/Tourian dust selectors require no runtime cartridge reads");
+        for (int index = 0; index < ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = ChozoTourianDustInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                $"Chozo/Tourian dust selector $86:{address:X4} is compiled");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                $"Chozo/Tourian dust selector $86:{address:X4} preserves its native operand");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Chozo/Tourian dust mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -135,7 +143,7 @@ internal static partial class Program
         Console.WriteLine(
             "Chozo/Tourian dust instruction mechanics: thirty-one compiled words, the " +
             "real footstep and Tourian producers, the authored alternate, and fourteen " +
-            "live spritemap reads pass with mechanics bytes forbidden.");
+            "compiled native selectors pass with zero runtime ROM reads.");
 
         void Run(RoomEnemyProjectileSlot projectile, int frames)
         {

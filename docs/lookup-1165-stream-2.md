@@ -148,8 +148,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ChozoTourianDustInstructionProgramDefinitions.cs
 
-- [ ] **ChozoTourianDustInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/ChozoTourianDustInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ChozoTourianDustInstructionProgramDefinitions.PresentationWords** ([L63](../csharp/src/SuperMetroid.Core/Game/ChozoTourianDustInstructionProgramDefinitions.cs#L63)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChozoTourianDustInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/ChozoTourianDustInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChozoTourianDustInstructionProgramDefinitions.PresentationWords** ([L63](../csharp/src/SuperMetroid.Core/Game/ChozoTourianDustInstructionProgramDefinitions.cs#L63)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CrawlerAnimationDefinitions.cs
 
@@ -848,3 +848,10 @@ Removed both body mechanics/visual-address tables: two four-pose loops share a t
 Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). `--kago-instruction-mechanics` passed12 native mechanics words, actual slow/post-hit loops and bug-spawning handoff,8 compiled native selectors and zero reads. `--kago-bug-projectile-instruction-mechanics` passed23 native mechanics words, the actual producer, landed/falling/jump paths, complete shot/drop/deletion sequence,11 compiled native selectors and zero reads. Its first run reached the obsolete visual-read assertion (expected11, actual0); the assigned verifier now asserts zero reads and all11 exact native selectors while retaining every behavioral assertion.
 
 Fifty-three stream2 named definitions complete;173 remain required. Palette residuals and adjacent trail code observations remain unresolved pending their specific review.
+### Batch 20: Chozo/Tourian dust program structure
+
+Removed the mechanics and visual-address arrays. Footsteps and spike explosions share random placement, fixed-duration frame runs and deletion. Tourian dust calculates its initial64-cycle counter, reset/randomize controls, four two-tick poses, decrement/branch and deletion. Native packed X/Y radius bytes remain explicit placement arguments rather than per-record tables. No replacement program table is built.
+
+Verification build passed (1437 full-build warnings,25 incremental warnings, zero errors). `--chozo-tourian-dust-instruction-mechanics` passed all31 native mechanics words, actual footstep and Tourian producers, alternate explosion initialization, positions, counted-loop/deletion behavior,14 exact native compiled visual selectors and zero runtime ROM reads. Initial execution passed the behavioral assertions and reached the obsolete expected14 visual reads versus actual0; the assigned verifier now confirms zero reads and all native operands, retaining every behavior check.
+
+Fifty-five stream2 definitions complete;171 remain required. Unresolved independent payloads and code-byte observations remain pending.

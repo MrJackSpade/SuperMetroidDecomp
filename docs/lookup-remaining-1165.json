@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 792,
+  "remainingTableDefinitionCount": 789,
   "fileCount": 523,
   "entries": [
     {
@@ -2236,21 +2236,27 @@
       "line": 250,
       "name": "DoorTransitionState.BuildSourceFadeTarget / alwaysPreserved",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "33d3b64b1"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs",
       "line": 261,
       "name": "DoorTransitionState.BuildSourceFadeTarget / commonCreColors",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "33d3b64b1"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs",
       "line": 266,
       "name": "DoorTransitionState.BuildSourceFadeTarget / timerColors",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "33d3b64b1"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsRomData.cs",
@@ -20985,6 +20991,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 333,
+  "convertedSinceSnapshot": 336,
   "justifiedRetainedSinceSnapshot": 3
 }

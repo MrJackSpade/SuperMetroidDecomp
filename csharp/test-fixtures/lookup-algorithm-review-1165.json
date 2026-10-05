@@ -10853,4 +10853,11 @@
   "algorithm": "Directional strides,uniform timed poses,semantic activation/sleep/regeneration controls; removed unreferenced reserve catalog. Bridge coordinates calculate from16-pixel floor grid.",
   "retention": "Only eleven chosen collapse columns remain; native A4:9136-9153 advances sequentially,86:9286 producer fixesY187/Xvelocity0 and independently randomizesYvelocity. No actor/physics/random function chooses collapse order; replacing it invents choreography.",
   "state": "mixed"
+},"doorPaletteOperationsIntegration":{
+  "state": "converted",
+  "algorithm": "Named HUD,common-CRE and escape-timer copy operations in a dedicated native catalog; original caller conditional nesting preserved.",
+  "confirmation": "Verification1438 warnings/zero errors; integrated stream3 check compares17 copied slots and every untouched black slot against native82:E1F1-E264 STA operands. Caller source review confirms CRE/timer conditional ordering unchanged. No reviewed-source hash dependency; static index refreshed.",
+  "scope": "Three local door-fade palette-index lists.",
+  "implementationCommit": "33d3b64b1",
+  "remaining": "336 converted,three justified retained,789 pending. No new exception."
 }}

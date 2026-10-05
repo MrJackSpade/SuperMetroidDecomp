@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -108,18 +109,15 @@ internal static partial class Program
             }
         }
 
-        AssertEqual(
-            SparkInstructionProgramDefinitions.PresentationWordCount,
-            programGuard.ObservedPresentationWords.Count,
-            "all live Spark spritemap words remain cartridge reads");
-        for (int index = 0;
-             index < SparkInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        AssertEqual(0, programGuard.ObservedPresentationWords.Count,
+            "Spark presentation execution uses installed selectors without live cartridge reads");
+        for (int index = 0; index < SparkInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address =
-                SparkInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(programGuard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Spark presentation word $A8:{address:X4}");
+            ushort address = SparkInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(SparkVisualDefinitions.Bank, address, out ushort selector),
+                $"Spark installed visual operand $A8:{address:X4}");
+            AssertEqual(ReadSparkProgramWord(rom, address), selector,
+                $"Spark exact native visual identity $A8:{address:X4}");
         }
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids every compiled Spark mechanics byte");
@@ -142,7 +140,7 @@ internal static partial class Program
         Console.WriteLine(
             "Spark movement definitions: three authored pairs, both selector-three " +
             "overreads, 33 compiled instruction words, and four production programs " +
-            "pass with mechanics reads forbidden; 26 spritemap words remain live.");
+            "pass with mechanics and presentation reads forbidden; 26 native visual identities match.");
     }
 
     private static int ProbeSparkInstructionMechanicsAllocation()

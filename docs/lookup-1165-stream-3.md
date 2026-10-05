@@ -625,7 +625,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/SparkInstructionProgramDefinitions.cs
 
 - [ ] **SparkInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/SparkInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SparkInstructionProgramDefinitions.PresentationWords** ([L43](../csharp/src/SuperMetroid.Core/Game/SparkInstructionProgramDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SparkInstructionProgramDefinitions.PresentationWords** ([L43](../csharp/src/SuperMetroid.Core/Game/SparkInstructionProgramDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SparkMovementDefinitions.cs
 
@@ -1036,3 +1036,9 @@ Coordinator integration: the focused native packing and binding proof passed on 
 PresentationWords is complete: four-byte pose records and named callback/branch boundaries calculate all 30 visual addresses and 35 control positions. The twelve post-cry remorse durations use 2 + abs(frame - 4), matching the native contraction/expansion pulse at A9:F95E-F98A. Words remains unchecked: finish-drain hold 128, latched holds 8/8/5/2, normal cadence 16 and pre-branch remorse cadence 10 remain independent required inputs. Root review explicitly includes the latter two holds, which the worker's residual list omitted. No retention exception is granted.
 
 Root Verification build passed with 1445 warnings and zero errors. --shitroid-instruction-mechanics confirms all 35 native words, 30 exact compiled selectors, actual initializer, finish-drain fallthrough, normal/latched loops, both RNG branches and native cry, source-read guards, bounds and allocation checks. The fixture binds the required installed color catalog and expects zero live sprite-selector reads. Overall checkpoint: 506 converted, 15 justified retained/mixed, 607 pending.
+
+## Integrated Spark instruction layout
+
+PresentationWords is complete: timed-record strides, tangible/intangible callbacks, loop back-edges and the terminal sleep calculate 33 control positions and 26 visual addresses from native A8:E5A7-E61B. Words remains unchecked. All ten activation holds 1/2/1/2/1/2/1/1/2/2, loop cadence 3 and deactivation cadence 1 remain required independent choices. Root review explicitly preserves the latter two obligations as well; no retention exception is granted.
+
+Root Verification build passed with 1445 warnings and zero errors. --spark-instruction-mechanics confirms all 33 native words, 26 exact compiled selectors, four actual programs, tangibility callbacks and terminal sleep, initializer selections, source-read guards, boundaries and allocations. Overall checkpoint: 507 converted, 15 justified retained/mixed, 606 pending.

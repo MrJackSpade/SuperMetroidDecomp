@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 607,
+  "remainingTableDefinitionCount": 606,
   "fileCount": 523,
   "entries": [
     {
@@ -8044,7 +8044,9 @@
       "line": 43,
       "name": "SparkInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "7f2d3fd9e3b4b92dd023e81c9011a0f86c74b722"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SparkMovementDefinitions.cs",

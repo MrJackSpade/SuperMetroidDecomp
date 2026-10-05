@@ -1,7 +1,7 @@
 
 ## Integrated stream progress
 
-The original snapshot below contains 1128 definitions. As of the first integrated batches, 555 are converted, 17 are justified retained, and 556 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
+The original snapshot below contains 1128 definitions. As of the first integrated batches, 555 are converted, 18 are justified retained, and 555 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
 # Remaining lookup-table definitions - issue 1165
 
 Remaining: **1128 canonical table definitions in 523 source files**.
@@ -1126,7 +1126,7 @@ Remaining table definitions: **1**.
 
 Remaining table definitions: **1**.
 
-- [ ] **IntroNarrationPresentation.pages** - installed stock table ([L12](../csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs#L12)). Original/default payload behind IntroNarrationPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **IntroNarrationPresentation.pages** - installed stock table ([L12](../csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs#L12)). Original/default payload behind IntroNarrationPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/KagoVisualDefinitions.cs
 

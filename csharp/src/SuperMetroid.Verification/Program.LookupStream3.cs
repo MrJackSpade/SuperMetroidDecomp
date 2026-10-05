@@ -6,6 +6,62 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3NarrationLayout(ISnesAddressSpace rom, byte[] json, IntroNarrationPresentation stock)
+    {
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        int nativeCharacters = 0;
+        foreach (var source in IntroNarrationDefinitions.Pages)
+        {
+            object selected = stock.GetLines(source.Id);
+            AssertTrue(selected.GetType().GetField("supplied", fields)!.GetValue(selected) is null,
+                "native narration calculates line boundaries and rows");
+            string text = (string)selected.GetType().GetField("text", fields)!.GetValue(selected)!;
+            AssertEqual(source.Id == IntroNarrationPageId.Page1 ? 1 : 0, text.Count(character => character == '\n'),
+                "narration retains only the one independently chosen hard break");
+            var expected = new List<IntroNarrationCharacter>();
+            int cursor = 0x8c0000 | (source.InstructionPointer + 8);
+            while ((Read(cursor) & 0x8000) == 0)
+            {
+                ushort position = Read(cursor + 2);
+                ushort glyph = Read(0x8c0000 | (Read(cursor + 4) + 4));
+                expected.Add(new(position & 255, position >> 8, glyph, glyph == IntroNarrationDefinitions.BlankCharacterWord));
+                cursor += 6;
+            }
+            AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "calculated narration matches every native glyph/column/row record");
+            nativeCharacters += expected.Count;
+            AssertThrows<IndexOutOfRangeException>(() => _ = stock.GetLines(source.Id)[-1], "narration line lower bound");
+            AssertThrows<IndexOutOfRangeException>(() => _ = stock.GetLines(source.Id)[stock.GetLines(source.Id).Count], "narration line upper bound");
+        }
+        AssertEqual(770, nativeCharacters, "six native narration pages contain770 characters");
+        var document = System.Text.Json.JsonSerializer.Deserialize<IntroNarrationDocument>(json, MapPresentationFormat.JsonOptions)!;
+        void ConfirmEdit()
+        {
+            using var stream = new MemoryStream();
+            IntroNarrationPresentation.Write(stream, document);
+            stream.Position = 0;
+            var edited = IntroNarrationPresentation.Load(stream);
+            foreach (IntroNarrationPageId page in Enum.GetValues<IntroNarrationPageId>())
+                AssertTrue(edited.GetLines(page).SequenceEqual(document.Pages[page.ToString()].Lines),
+                    "narration preserves independently supplied text, spacing and row choices");
+        }
+        foreach (IntroNarrationPage page in document.Pages.Values)
+        for (int line = 0; line < page.Lines.Length; line++)
+        {
+            IntroNarrationLine original = page.Lines[line];
+            page.Lines[line] = original with { Text = (original.Text[0] == 'A' ? "Z" : "A") + original.Text[1..] };
+            ConfirmEdit();
+            page.Lines[line] = original;
+        }
+        IntroNarrationPage sixth = document.Pages["Page6"];
+        document.Pages["Page6"] = sixth with { Lines = sixth.Lines.Select(line => line with { Row = line.Row + 4 }).ToArray() };
+        ConfirmEdit();
+        document.Pages["Page6"] = sixth with { Lines = [sixth.Lines[0] with { Text = " " + sixth.Lines[0].Text + " " }, sixth.Lines[1]] };
+        ConfirmEdit();
+        document.Pages["Page6"] = sixth with { Lines = [sixth.Lines[0], sixth.Lines[1] with { Row = 10 }] };
+        ConfirmEdit();
+        document.Pages["Page6"] = sixth;
+    }
     private static void VerifyStream3MochtroidVisuals(ISnesAddressSpace rom)
     {
         EnemySpritemapDefinition[] frames = MochtroidVisualDefinitions.Frames().ToArray();

@@ -26,6 +26,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-narration-layout"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    var json = IntroNarrationExtractor.Extract(rom);
+    VerifyStream3NarrationLayout(rom, json, IntroNarrationPresentation.Load(new MemoryStream(json)));
+    Console.WriteLine("Narration layout: 770 native glyph/coordinate records, six calculated pages, one retained hard break and 34 independent edits pass.");
+    return 0;
+}
 if (args is ["--lookup-stream-1-dachora-programs"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

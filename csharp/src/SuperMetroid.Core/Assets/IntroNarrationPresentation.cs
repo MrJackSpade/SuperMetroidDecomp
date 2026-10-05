@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Text;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -9,29 +11,39 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class IntroNarrationPresentation
 {
-    private readonly Dictionary<IntroNarrationPageId, IntroNarrationLine[]> pages;
+    private readonly NarrationPage page1, page2, page3, page4, page5, page6;
 
     private IntroNarrationPresentation(
-        Dictionary<IntroNarrationPageId, IntroNarrationLine[]> pages,
+        Dictionary<IntroNarrationPageId, NarrationPage> pages,
         string contentIdentity)
     {
-        this.pages = pages;
+        page1 = pages[IntroNarrationPageId.Page1];
+        page2 = pages[IntroNarrationPageId.Page2];
+        page3 = pages[IntroNarrationPageId.Page3];
+        page4 = pages[IntroNarrationPageId.Page4];
+        page5 = pages[IntroNarrationPageId.Page5];
+        page6 = pages[IntroNarrationPageId.Page6];
         ContentIdentity = contentIdentity;
     }
 
     public string ContentIdentity { get; }
 
-    public ReadOnlySpan<IntroNarrationLine> GetLines(IntroNarrationPageId page) =>
-        pages.TryGetValue(page, out IntroNarrationLine[]? lines)
-            ? lines
-            : throw new ArgumentOutOfRangeException(nameof(page), page,
-                "The narration catalog does not contain this page.");
-
+    public IReadOnlyList<IntroNarrationLine> GetLines(IntroNarrationPageId page) => page switch
+    {
+        IntroNarrationPageId.Page1 => page1,
+        IntroNarrationPageId.Page2 => page2,
+        IntroNarrationPageId.Page3 => page3,
+        IntroNarrationPageId.Page4 => page4,
+        IntroNarrationPageId.Page5 => page5,
+        IntroNarrationPageId.Page6 => page6,
+        _ => throw new ArgumentOutOfRangeException(nameof(page), page,
+            "The narration catalog does not contain this page."),
+    };
     public IntroNarrationCharacter[] Compile(IntroNarrationPageId page)
     {
-        ReadOnlySpan<IntroNarrationLine> lines = GetLines(page);
+        IReadOnlyList<IntroNarrationLine> lines = GetLines(page);
         var result = new List<IntroNarrationCharacter>(
-            lines.ToArray().Sum(static line => line.Text.Length));
+            lines.Sum(static line => line.Text.Length));
         foreach (IntroNarrationLine line in lines)
         {
             for (int index = 0; index < line.Text.Length; index++)
@@ -78,7 +90,7 @@ public sealed class IntroNarrationPresentation
                 "Opening narration requires version 1 and the exact six-page name set.");
         }
 
-        var pages = new Dictionary<IntroNarrationPageId, IntroNarrationLine[]>();
+        var pages = new Dictionary<IntroNarrationPageId, NarrationPage>();
         foreach (IntroNarrationPageId page in expected)
         {
             IntroNarrationPage value = document.Pages[page.ToString()]
@@ -107,10 +119,72 @@ public sealed class IntroNarrationPresentation
                 throw new InvalidDataException(
                     $"Opening-narration {page} lines must be in ascending row order.");
             }
-            pages.Add(page, value.Lines.ToArray());
+            pages.Add(page, new NarrationPage(value.Lines));
         }
 
         return new(pages, Convert.ToHexString(SHA256.HashData(source)));
+    }
+
+    /// <summary>Calculated word wrapping and two-row spacing. Stock story wording and its one deliberate hard break are reviewed narrative content; independent edits remain exact.</summary>
+    private sealed class NarrationPage : IReadOnlyList<IntroNarrationLine>
+    {
+        private readonly string? text;
+        private readonly IntroNarrationLine[]? supplied;
+
+        internal NarrationPage(IntroNarrationLine[] lines)
+        {
+            var candidate = new StringBuilder();
+            for (int index = 0; index < lines.Length; index++)
+            {
+                candidate.Append(lines[index].Text);
+                if (index + 1 == lines.Length) continue;
+                string next = lines[index + 1].Text;
+                int nextWord = next.IndexOf(' ');
+                if (nextWord < 0) nextWord = next.Length;
+                bool hardBreak = lines[index].Text.Length + 1 + nextWord <= IntroNarrationDefinitions.MaximumColumns;
+                candidate.Append(hardBreak ? '\n' : ' ');
+            }
+            string joined = candidate.ToString();
+            if (CalculateLines(joined).SequenceEqual(lines)) text = joined;
+            else supplied = lines.ToArray();
+        }
+
+        public int Count => supplied?.Length ?? CalculateLines(text!).Count();
+        public IntroNarrationLine this[int index]
+        {
+            get
+            {
+                if (index < 0) throw new IndexOutOfRangeException();
+                if (supplied is not null) return supplied[index];
+                foreach (IntroNarrationLine line in CalculateLines(text!))
+                    if (index-- == 0) return line;
+                throw new IndexOutOfRangeException();
+            }
+        }
+
+        private static IEnumerable<IntroNarrationLine> CalculateLines(string text)
+        {
+            int row = IntroNarrationDefinitions.FirstTextRow;
+            foreach (string paragraph in text.Split('\n'))
+            {
+                string remaining = paragraph;
+                while (remaining.Length > IntroNarrationDefinitions.MaximumColumns)
+                {
+                    int boundary = remaining.LastIndexOf(' ', IntroNarrationDefinitions.MaximumColumns);
+                    if (boundary < 1) boundary = IntroNarrationDefinitions.MaximumColumns;
+                    yield return new() { Row = row, Text = remaining[..boundary] };
+                    row += 2;
+                    remaining = remaining[(boundary + 1)..];
+                }
+                yield return new() { Row = row, Text = remaining };
+                row += 2;
+            }
+        }
+
+        public IEnumerator<IntroNarrationLine> GetEnumerator() => supplied is not null
+            ? ((IEnumerable<IntroNarrationLine>)supplied).GetEnumerator()
+            : CalculateLines(text!).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     public static void Write(Stream output, IntroNarrationDocument document)

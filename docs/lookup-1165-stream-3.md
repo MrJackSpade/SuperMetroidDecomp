@@ -347,7 +347,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs
 
-- [ ] **IntroNarrationPresentation.pages** ([L12](../csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs#L12)) - installed stock table. Original/default payload behind IntroNarrationPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **IntroNarrationPresentation.pages** ([L12](../csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs#L12)) - installed stock table. Original/default payload behind IntroNarrationPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs
 
@@ -1170,3 +1170,10 @@ Root approved only the six exact English opening-narration page strings and the 
 Root separately inspected Ripper-family moving loops A2:E19B/E1AF/E2E0/E2F4/E477/E48B: duration/map pairs and Goto only. Ordinary maps keep body101 and vary wing110/113/103; variant maps keep body105 while changing accessory parts. Headers A0:D3FF/D43F/D47F use fixed8x8/8x4 radii. E221/E353/E4DA movement, terrain reversal and frozen-map selection depend on velocities/physical state rather than animation holds. Only the exact8/7 visual cadence is approved as chosen animation content. Speed, collision, grapple, freeze, reset1 and artwork are excluded. Named cadence representation and confirmation of all six production loops remain required before integration.
 
 Both are narrow reviews, not blanket visual-data exemptions. Inventory remains555 converted/17 retained-mixed/556 pending until integration.
+
+
+## Integrated narration layout and narrowly retained prose
+
+IntroNarrationPresentation.pages is mixed complete (a665c6e51). Six semantic pages retain only the approved English story strings and the deliberate break before GALACTIC CIVILIZATION. Greedy 29-column wrapping and row4+2*line calculate all31 lines, with no cached stock line-record table. A formula cannot derive the selected story prose without encoding it as content; this exception does not extend to timings, glyph mapping, callbacks or artwork. Exact candidate comparison preserves all independently edited records.
+
+Root Verification build1445 warnings/zero errors; --lookup-narration-layout passes770 direct native glyph/column/row records, six calculated page views, exactly one retained hard break,31 text edits plus three spacing/row edits and bounds. ResourceAudit source contract now describes calculated views and independent fallback records. Inventory555 converted/18 retained-mixed/555 pending.

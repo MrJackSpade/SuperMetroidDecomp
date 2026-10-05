@@ -647,7 +647,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/TourianStatueProjectileInstructionProgramDefinitions.cs
 
 - [ ] **TourianStatueProjectileInstructionProgramDefinitions.Words** ([L35](../csharp/src/SuperMetroid.Core/Game/TourianStatueProjectileInstructionProgramDefinitions.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **TourianStatueProjectileInstructionProgramDefinitions.PresentationWords** ([L75](../csharp/src/SuperMetroid.Core/Game/TourianStatueProjectileInstructionProgramDefinitions.cs#L75)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TourianStatueProjectileInstructionProgramDefinitions.PresentationWords** ([L75](../csharp/src/SuperMetroid.Core/Game/TourianStatueProjectileInstructionProgramDefinitions.cs#L75)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TourianStatueUnlockDefinitions.cs
 
@@ -977,3 +977,9 @@ The existing fixture now installs its native spritemap before the first actual d
 The full stored CGRAM byte image is replaced with direct color access. Repeated lower/upper palette sections, backdrop/fill relationships and the eight-color RGB5 endpoint ramp calculate selected values. Independent edits remain exact even when they change shared source slots. Byte buffers are produced only for serialization/hash framing; runtime loads calculated colors directly to CGRAM.
 
 `CeresFlightPalette.nativeBytes` remains unchecked: 80 independent colors remain required, with no retention exception. Root build passed (1445 warnings, zero errors). `--lookup-stream5-ceres-flight-palette` confirms all256 native colors,768 independent RGB channel edits, zero stock correction entries, actual CGRAM output, exact byte serialization, extractor round-trip and unchanged full catalog identity. Bounds and short output-buffer rejection also pass. Counts unchanged:531 converted,15 justified retained/mixed,582 pending.
+
+### Root integration: Tourian statue projectile layouts
+
+Timed-pose widths, the packed one-byte sound operand, callback boundaries and repeated actor loops calculate57 control positions and28 presentation addresses. Tail offsets halve8/4/2; the initial magnitude remains required. Only PresentationWords is complete. Words remains pending for eye holds8/8/8/7/7/7/6/6/5/48, splash8, particle3, tail4, soul8, decoration128/statue1911, initial tail displacement8 and particle burst4. No retention exception is granted.
+
+The fixture now installs native eye colors before spawning actors and compares all28 exact native compiled selectors with zero live reads. Root build passed (1445 warnings, zero errors). `--tourian-statue-projectile-instruction-mechanics` confirms all57 native words, eight real actor families, tail Y movement, selectors, guards/bounds and allocation checks. Its step helper forces instruction timers; this is not elapsed-time confirmation. Inventory:532 converted,15 justified retained/mixed,581 pending.

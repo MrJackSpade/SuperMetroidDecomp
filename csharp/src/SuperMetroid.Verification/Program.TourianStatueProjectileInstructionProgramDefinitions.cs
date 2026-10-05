@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -27,7 +28,14 @@ internal static partial class Program
         }
 
         var guard = new TourianStatueProjectileInstructionReadGuard(rom);
-        var enemies = new RoomEnemySystem();
+        using var paletteStream = new MemoryStream(
+            SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom), writable: false);
+        var enemies = new RoomEnemySystem
+        {
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+                new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
+                tourianStatueColors: TourianStatueColorCatalog.Load(paletteStream)),
+        };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
@@ -117,9 +125,16 @@ internal static partial class Program
         AssertEqual((ushort)0xb876, phantoon.InstructionPointer,
             "Phantoon statue loop remains stable");
 
-        AssertEqual(TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Tourian statue projectile spritemaps remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "all Tourian statue projectile visuals use installed selectors without ROM reads");
+        for (int index = 0; index < TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = TourianStatueProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "Tourian visual operand has an installed selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "Tourian installed visual selector matches exact native operand");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Tourian statue mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -137,8 +152,8 @@ internal static partial class Program
             "warmed Tourian statue mechanics lookups allocate no storage");
 
         Console.WriteLine(
-            "Tourian statue projectile instruction mechanics: fifty-eight compiled words, " +
-            "all eight real actor families, and twenty-eight live spritemap reads pass " +
+            "Tourian statue projectile instruction mechanics: fifty-seven compiled words, " +
+            "all eight real actor families, and twenty-eight native installed selectors with zero live reads pass " +
             "with mechanics bytes forbidden.");
 
         RoomEnemyProjectileSlot Single(RoomEnemyProjectileKind kind) =>

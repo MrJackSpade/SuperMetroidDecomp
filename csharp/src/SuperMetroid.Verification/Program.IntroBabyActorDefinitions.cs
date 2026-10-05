@@ -26,12 +26,17 @@ internal static partial class Program
         cartridgeInput.Enable();
         compiledInput.LoadObject(retail, IntroBabyDiscoveryInputDefinitions.HeaderStart,
             definitionWord: IntroBabyDiscoveryInputDefinitions.ReadWord);
-        cartridgeInput.LoadObject(retail, IntroBabyDiscoveryInputDefinitions.HeaderStart);
+        ushort NativeInputWord(ushort pointer) => (ushort)(
+            retail.ReadByte(DemoInputRomData.BankBase | pointer) |
+            retail.ReadByte(DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1))) << 8);
+        cartridgeInput.LoadObject(retail, IntroBabyDiscoveryInputDefinitions.HeaderStart,
+            definitionWord: NativeInputWord);
         for (int frame = 0; frame < 128; frame++)
         {
             compiledInput.Step(retail, preInstruction: static (_, _) => { },
                 instructionWord: IntroBabyDiscoveryInputDefinitions.ReadWord);
-            cartridgeInput.Step(retail, preInstruction: static (_, _) => { });
+            cartridgeInput.Step(retail, preInstruction: static (_, _) => { },
+                instructionWord: NativeInputWord);
             AssertEqual(cartridgeInput.InstructionPointer, compiledInput.InstructionPointer,
                 $"SR388 initial demo loop cursor at frame {frame}");
             AssertEqual(cartridgeInput.InstructionTimer, compiledInput.InstructionTimer,
@@ -74,10 +79,12 @@ internal static partial class Program
 
         var guarded = new IntroBabyActorDefinitionReadGuard(retail);
         byte[] nativeCollision = VerifyIntroDiscoveryCollision(retail);
-        var discovery = new IntroBabyDiscoveryState(guarded);
+        var discovery = new IntroBabyDiscoveryState(guarded,
+            existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Game.SamusState()));
         var referenceBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var reference = new IntroBabyDiscoveryState(referenceBus,
+            existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Game.SamusState()),
             demoWordReader: pointer => (ushort)(
                 referenceBus.ReadByte(DemoInputRomData.BankBase | pointer) |
                 referenceBus.ReadByte(DemoInputRomData.BankBase |

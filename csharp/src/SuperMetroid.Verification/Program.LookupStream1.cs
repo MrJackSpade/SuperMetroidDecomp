@@ -5,6 +5,58 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1CannonPoses(ISnesAddressSpace rom)
+    {
+        using var directory = new MapCatalogTestDirectory();
+        SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
+        byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
+        var document = System.Text.Json.JsonSerializer.Deserialize<SamusArmCannonArtworkDocument>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Length * 32);
+        SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
+            SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
+        var stock = Load(document);
+        var field = typeof(SamusArmCannonArtworkCatalog).GetField("posePointers",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        Dictionary<int, ushort> Stored(SamusArmCannonArtworkCatalog value) => (Dictionary<int, ushort>)field.GetValue(value)!;
+        ushort Native(int pose) => (ushort)(rom.ReadByte(0x90C7DF + pose * 2) | rom.ReadByte(0x90C7E0 + pose * 2) << 8);
+        string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create(nameof(SamusArmCannonArtworkCatalog), hash =>
+        {
+            hash.AppendWords("pose pointers", value.PosePointers.Select(pointer => (ushort)pointer).ToArray());
+            hash.Append("drawing data", value.DrawingData.Select(item => (byte)item).ToArray());
+            hash.AppendWords("attributes", value.SpriteAttributes.Select(item => (ushort)item).ToArray());
+            foreach (int[] direction in value.TileSources) hash.AppendWords("tile sources", direction.Select(item => (ushort)item).ToArray());
+            hash.Append("characters", tiles.Transfer.Span);
+        });
+        AssertEqual(253, SamusBodyArtworkCatalog.PoseCount, "cannon original 506-byte pointer extent");
+        AssertEqual(0, Stored(stock).Count, "cannon pose stock stores no copied pointer overrides");
+        AssertEqual(Identity(document), stock.ContentIdentity, "cannon canonical native identity unchanged");
+        for (int pose = 0; pose < 253; pose++)
+        {
+            AssertEqual(Native(pose), SamusArmCannonArtworkFormat.StockPoseDrawingData(pose), "cannon direct native pose dispatch");
+            AssertEqual(Native(pose), stock.PoseDrawingData(pose), "cannon installed native pose dispatch");
+            int[] pointers = document.PosePointers.ToArray();
+            // Preserve an arbitrary admitted byte address, including descriptor interiors.
+            int replacement = SamusArmCannonArtworkFormat.DrawingDataStart + pose;
+            if (replacement == pointers[pose]) replacement++;
+            pointers[pose] = replacement;
+            var editedDocument = document with { PosePointers = pointers };
+            var edited = Load(editedDocument);
+            AssertEqual(1, Stored(edited).Count, "cannon exactly one independent pointer override");
+            AssertEqual((ushort)replacement, Stored(edited)[pose], "cannon stores arbitrary admitted pointer identity");
+            for (int other = 0; other < 253; other++)
+                AssertEqual(other == pose ? (ushort)replacement : Native(other), edited.PoseDrawingData(other), "cannon isolated pointer edit");
+            AssertEqual(Identity(editedDocument), edited.ContentIdentity, "cannon edited pointer hash preserves canonical representation");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 253, 254, 255, 256, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.PoseDrawingData(invalid), "cannon installed pose domain preserved including FD-FF");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusArmCannonArtworkFormat.StockPoseDrawingData(invalid), "cannon calculated pose domain rejects aliases");
+        }
+        Console.WriteLine("Cannon poses:253 direct native defaults, zero stock overrides,253 independent arbitrary pointer edits/hashes and exact FD-FF rejection pass.");
+    }
+
     private static void VerifyLookupStream1AnimationAliases(CartridgeImportAddressSpace bus)
     {
         for (int pose = 0xFD; pose <= 0xFF; pose++)

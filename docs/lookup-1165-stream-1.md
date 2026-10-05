@@ -955,3 +955,9 @@ Root Verification build1445 warnings/zero errors; --lookup-stream-1-hud-posture 
 SamusAnimationDelayDefinitions.PosePointers is converted (8887f6556). All253 real poses select127 named native animation identities through semantic cases. FD-FF pointer aliases derive from the actual first six delay-stream bytes, preserving the existing low-bank mutable WRAM behavior. There is no cached pointer array or unrelated instruction-byte exception. DelayStreams remains required for every independent timing/command payload.
 
 Root Verification build1445 warnings/zero errors; --lookup-stream-1-animation-pointers confirms pinned ROM identity,256native pointers,every bounded definition byte,actual animation initialization,immutable-domain rejection and all three aliases under six successive WRAM mutations. Inventory557 converted/20 retained-mixed/551 pending.
+
+## Integrated cannon pose selection
+
+SamusArmCannonArtworkCatalog.posePointers is converted (1b62d9f1a). Named cases map253 real poses to57 native drawing descriptors. Only independent supplied pointer differences are stored; canonical content hashing and FD-FF rejection remain intact. Drawing coordinates and pixel artwork remain pending.
+
+Root Verification build1445 warnings/zero errors; --lookup-stream-1-cannon-poses passes253 native mappings, zero stock overrides,253 independent pointer edits and canonical hashes, unaffected poses and FD-FF bounds. ResourceAudit build zero warnings/errors. Inventory558 converted/20 retained-mixed/550 pending.

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Installed arm-cannon cover placement, OAM attributes, and indexed 8×8 tiles.</summary>
 public sealed class SamusArmCannonArtworkCatalog
 {
-    private readonly ushort[] posePointers;
+    private readonly Dictionary<int, ushort> posePointers = new();
     private readonly byte[] drawingData;
     private readonly Dictionary<int, ushort> attributes = new();
     private readonly Dictionary<int, ushort> tileSources = new();
@@ -17,7 +17,9 @@ public sealed class SamusArmCannonArtworkCatalog
     private SamusArmCannonArtworkCatalog(ushort[] posePointers, byte[] drawingData,
         ushort[] attributes, ushort[][] tileSources, RoomCharacterAtlas tiles)
     {
-        this.posePointers = posePointers;
+        for (int pose = 0; pose < posePointers.Length; pose++)
+            if (posePointers[pose] != SamusArmCannonArtworkFormat.StockPoseDrawingData(pose))
+                this.posePointers.Add(pose, posePointers[pose]);
         this.drawingData = drawingData;
         for (int direction = 0; direction < attributes.Length; direction++)
         {
@@ -33,7 +35,9 @@ public sealed class SamusArmCannonArtworkCatalog
     /// <summary>SHA-256 of selected cannon placement, OBJ attributes, tile selectors and characters.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusArmCannonArtworkCatalog), content =>
     {
-        content.AppendWords("pose pointers", this.posePointers);
+        Span<ushort> selectedPoses = stackalloc ushort[SamusBodyArtworkCatalog.PoseCount];
+        for (int pose = 0; pose < selectedPoses.Length; pose++) selectedPoses[pose] = PoseDrawingData(pose);
+        content.AppendWords("pose pointers", selectedPoses);
         content.Append("drawing data", this.drawingData);
         Span<ushort> selectedAttributes = stackalloc ushort[SamusRenderingRomData.ArmCannon.DirectionCount];
         for (int direction = 0; direction < selectedAttributes.Length; direction++) selectedAttributes[direction] = SpriteAttributes(direction);
@@ -128,9 +132,10 @@ public sealed class SamusArmCannonArtworkCatalog
 
     public ushort PoseDrawingData(int pose)
     {
-        if ((uint)pose >= posePointers.Length)
+        if ((uint)pose >= SamusBodyArtworkCatalog.PoseCount)
             throw new ArgumentOutOfRangeException(nameof(pose));
-        return posePointers[pose];
+        return posePointers.TryGetValue(pose, out ushort selected) ? selected
+            : SamusArmCannonArtworkFormat.StockPoseDrawingData(pose);
     }
 
     public byte ReadDrawingByte(ushort address)
@@ -213,6 +218,440 @@ public static class SamusArmCannonArtworkFormat
     public const ushort DrawingDataEndExclusive = 0xcc39;
     public const int DrawingDataByteCount = DrawingDataEndExclusive - DrawingDataStart;
     public const int FramesPerDirection = 4;
+    /// <summary>$90:C9DB, ArmCannonDrawingData_FacingForward: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingForward = 0xC9DB;
+
+    /// <summary>$90:C9DD, ArmCannonDrawingData_FacingRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRight = 0xC9DD;
+
+    /// <summary>$90:C9F1, ArmCannonDrawingData_FacingLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeft = 0xC9F1;
+
+    /// <summary>$90:CA05, ArmCannonDrawingData_FacingRight_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightAimingUp = 0xCA05;
+
+    /// <summary>$90:CA0D, ArmCannonDrawingData_FacingLeft_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftAimingUp = 0xCA0D;
+
+    /// <summary>$90:CA15, ArmCannonDrawingData_FacingRight_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightAimingUpRight = 0xCA15;
+
+    /// <summary>$90:CA19, ArmCannonDrawingData_FacingLeft_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftAimingUpLeft = 0xCA19;
+
+    /// <summary>$90:CA1D, ArmCannonDrawingData_FacingRight_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightAimingDownRight = 0xCA1D;
+
+    /// <summary>$90:CA21, ArmCannonDrawingData_FacingLeft_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftAimingDownLeft = 0xCA21;
+
+    /// <summary>$90:C9D9, ArmCannonDrawingData_Default: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingDefault = 0xC9D9;
+
+    /// <summary>$90:CA25, ArmCannonDrawingData_MovingRight_GunExtended: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingMovingRightGunExtended = 0xCA25;
+
+    /// <summary>$90:CA3B, ArmCannonDrawingData_MovingLeft_GunExtended: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingMovingLeftGunExtended = 0xCA3B;
+
+    /// <summary>$90:CA51, ArmCannonDrawingData_MovingRight_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingMovingRightAimingUpRight = 0xCA51;
+
+    /// <summary>$90:CA67, ArmCannonDrawingData_MovingLeft_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingMovingLeftAimingUpLeft = 0xCA67;
+
+    /// <summary>$90:CA7D, ArmCannonDrawingData_MovingRight_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingMovingRightAimingDownRight = 0xCA7D;
+
+    /// <summary>$90:CA93, ArmCannonDrawingData_MovingLeft_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingMovingLeftAimingDownLeft = 0xCA93;
+
+    /// <summary>$90:CAA9, ArmCannonDrawingData_FacingRight_NormalJump_NotMoving_GunExt: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightNormalJumpNotMovingGunExt = 0xCAA9;
+
+    /// <summary>$90:CAAF, ArmCannonDrawingData_FacingLeft_NormalJump_NotMoving_GunExt: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftNormalJumpNotMovingGunExt = 0xCAAF;
+
+    /// <summary>$90:CAB5, ArmCannonDrawingData_FacingRight_NormalJump_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightNormalJumpAimingUp = 0xCAB5;
+
+    /// <summary>$90:CABD, ArmCannonDrawingData_FacingLeft_NormalJump_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftNormalJumpAimingUp = 0xCABD;
+
+    /// <summary>$90:CAC5, ArmCannonDrawingData_FacingRight_NormalJump_AimingDown: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightNormalJumpAimingDown = 0xCAC5;
+
+    /// <summary>$90:CACB, ArmCannonDrawingData_FacingLeft_NormalJump_AimingDown: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftNormalJumpAimingDown = 0xCACB;
+
+    /// <summary>$90:CB5D, ArmCannonDrawingData_FacingRight_Crouching: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightCrouching = 0xCB5D;
+
+    /// <summary>$90:CB71, ArmCannonDrawingData_FacingLeft_Crouching: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftCrouching = 0xCB71;
+
+    /// <summary>$90:CB1D, ArmCannonDrawingData_FacingRight_Falling_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightFallingAimingUp = 0xCB1D;
+
+    /// <summary>$90:CB27, ArmCannonDrawingData_FacingLeft_Falling_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftFallingAimingUp = 0xCB27;
+
+    /// <summary>$90:CB31, ArmCannonDrawingData_FacingRight_Falling_AimingDown: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightFallingAimingDown = 0xCB31;
+
+    /// <summary>$90:CB37, ArmCannonDrawingData_FacingLeft_Falling_AimingDown: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftFallingAimingDown = 0xCB37;
+
+    /// <summary>$90:CBA5, ArmCannonDrawingData_FacingLeft_Moonwalk: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftMoonwalk = 0xCBA5;
+
+    /// <summary>$90:CBB3, ArmCannonDrawingData_FacingRight_Moonwalk: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightMoonwalk = 0xCBB3;
+
+    /// <summary>$90:CAD1, ArmCannonDrawingData_FacingRight_NormalJumpTransition: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightNormalJumpTransition = 0xCAD1;
+
+    /// <summary>$90:CAD9, ArmCannonDrawingData_FacingRight_NormalJump_MovingForward: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightNormalJumpMovingForward = 0xCAD9;
+
+    /// <summary>$90:CADF, ArmCannonDrawingData_FacingLeft_NormalJump_MovingForward: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftNormalJumpMovingForward = 0xCADF;
+
+    /// <summary>$90:CC15, ArmCannonDrawingData_FacingRight_Transition_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightTransitionAimingUp = 0xCC15;
+
+    /// <summary>$90:CC1B, ArmCannonDrawingData_FacingLeft_Transition_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftTransitionAimingUp = 0xCC1B;
+
+    /// <summary>$90:CAFD, ArmCannonDrawingData_FacingRight_Falling_GunExtended: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightFallingGunExtended = 0xCAFD;
+
+    /// <summary>$90:CB0D, ArmCannonDrawingData_FacingLeft_Falling_GunExtended: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftFallingGunExtended = 0xCB0D;
+
+    /// <summary>$90:CAE5, ArmCannonDrawingData_FacingRight_NormalJump_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightNormalJumpAimingUpRight = 0xCAE5;
+
+    /// <summary>$90:CAEB, ArmCannonDrawingData_FacingLeft_NormalJump_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftNormalJumpAimingUpLeft = 0xCAEB;
+
+    /// <summary>$90:CAF1, ArmCannonDrawingData_FacingRight_NormalJump_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightNormalJumpAimingDownRight = 0xCAF1;
+
+    /// <summary>$90:CAF7, ArmCannonDrawingData_FacingLeft_NormalJump_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftNormalJumpAimingDownLeft = 0xCAF7;
+
+    /// <summary>$90:CB3D, ArmCannonDrawingData_FacingRight_Falling_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightFallingAimingUpRight = 0xCB3D;
+
+    /// <summary>$90:CB45, ArmCannonDrawingData_FacingLeft_Falling_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftFallingAimingUpLeft = 0xCB45;
+
+    /// <summary>$90:CB4D, ArmCannonDrawingData_FacingRight_Falling_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightFallingAimingDownRight = 0xCB4D;
+
+    /// <summary>$90:CB55, ArmCannonDrawingData_FacingLeft_Falling_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftFallingAimingDownLeft = 0xCB55;
+
+    /// <summary>$90:CB85, ArmCannonDrawingData_FacingRight_Crouching_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightCrouchingAimingUpRight = 0xCB85;
+
+    /// <summary>$90:CB89, ArmCannonDrawingData_FacingLeft_Crouching_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftCrouchingAimingUpLeft = 0xCB89;
+
+    /// <summary>$90:CB8D, ArmCannonDrawingData_FacingRight_Crouching_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightCrouchingAimingDownRight = 0xCB8D;
+
+    /// <summary>$90:CB91, ArmCannonDrawingData_FacingLeft_Crouching_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftCrouchingAimingDownLeft = 0xCB91;
+
+    /// <summary>$90:CBC1, ArmCannonDrawingData_FacingLeft_Moonwalk_AimingUpLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftMoonwalkAimingUpLeft = 0xCBC1;
+
+    /// <summary>$90:CBCF, ArmCannonDrawingData_FacingRight_Moonwalk_AimingUpRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightMoonwalkAimingUpRight = 0xCBCF;
+
+    /// <summary>$90:CBDD, ArmCannonDrawingData_FacingLeft_Moonwalk_AimingDownLeft: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftMoonwalkAimingDownLeft = 0xCBDD;
+
+    /// <summary>$90:CBEB, ArmCannonDrawingData_FacingRight_Moonwalk_AimingDownRight: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightMoonwalkAimingDownRight = 0xCBEB;
+
+    /// <summary>$90:CB95, ArmCannonDrawingData_FacingRight_Crouching_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightCrouchingAimingUp = 0xCB95;
+
+    /// <summary>$90:CB9D, ArmCannonDrawingData_FacingLeft_Crouching_AimingUp: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingLeftCrouchingAimingUp = 0xCB9D;
+
+    /// <summary>$90:CBF9, ArmCannonDrawingData_FacingRight_LandingFromNormalJump: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightLandingFromNormalJump = 0xCBF9;
+
+    /// <summary>$90:CC05, ArmCannonDrawingData_FacingRight_LandingFromSpinJump: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
+    private const ushort DrawingFacingRightLandingFromSpinJump = 0xCC05;
+
+    /// <summary>$90:C7DF-$C9D8, ArmCannonDrawingData: named descriptor selection for the existing 253-pose installed domain.</summary>
+    internal static ushort StockPoseDrawingData(int pose)
+    {
+        if ((uint)pose >= SamusBodyArtworkCatalog.PoseCount) throw new ArgumentOutOfRangeException(nameof(pose));
+        return (SamusPoseId)pose switch
+        {
+            SamusPoseId.ForwardFacingPowerSuitPose or
+            SamusPoseId.ForwardFacingSuitedPose => DrawingFacingForward,
+            SamusPoseId.FacingRightNormalPose or
+            SamusPoseId.UnusedPose47 or
+            SamusPoseId.RanIntoWallRightPose or
+            SamusPoseId.GrappleStandingRightPose or
+            SamusPoseId.FiringLandingRightPose or
+            SamusPoseId.DraygonGrabbedFiringRightPose => DrawingFacingRight,
+            SamusPoseId.FacingLeftNormalPose or
+            SamusPoseId.UnusedPose48 or
+            SamusPoseId.RanIntoWallLeftPose or
+            SamusPoseId.GrappleStandingLeftPose or
+            SamusPoseId.DraygonGrabbedFiringLeftPose or
+            SamusPoseId.FiringLandingLeftPose => DrawingFacingLeft,
+            SamusPoseId.StandingAimUpRightPose => DrawingFacingRightAimingUp,
+            SamusPoseId.StandingAimUpLeftPose => DrawingFacingLeftAimingUp,
+            SamusPoseId.StandingAimDiagonalUpRightPose or
+            SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or
+            SamusPoseId.RanIntoWallAimUpRightPose or
+            SamusPoseId.LandingAimDiagonalUpRightPose or
+            SamusPoseId.DraygonGrabbedAimUpRightPose or
+            SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose or
+            SamusPoseId.StandingTransitionAimDiagonalUpRightPose => DrawingFacingRightAimingUpRight,
+            SamusPoseId.StandingAimDiagonalUpLeftPose or
+            SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
+            SamusPoseId.DraygonGrabbedAimUpLeftPose or
+            SamusPoseId.RanIntoWallAimUpLeftPose or
+            SamusPoseId.LandingAimDiagonalUpLeftPose or
+            SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose or
+            SamusPoseId.StandingTransitionAimDiagonalUpLeftPose => DrawingFacingLeftAimingUpLeft,
+            SamusPoseId.StandingAimDiagonalDownRightPose or
+            SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or
+            SamusPoseId.GrappleStandingDownRightPose or
+            SamusPoseId.RanIntoWallAimDownRightPose or
+            SamusPoseId.LandingAimDiagonalDownRightPose or
+            SamusPoseId.DraygonGrabbedAimDownRightPose or
+            SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose or
+            SamusPoseId.StandingTransitionAimDiagonalDownRightPose => DrawingFacingRightAimingDownRight,
+            SamusPoseId.StandingAimDiagonalDownLeftPose or
+            SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose or
+            SamusPoseId.GrappleStandingDownLeftPose or
+            SamusPoseId.DraygonGrabbedAimDownLeftPose or
+            SamusPoseId.RanIntoWallAimDownLeftPose or
+            SamusPoseId.LandingAimDiagonalDownLeftPose or
+            SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose or
+            SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => DrawingFacingLeftAimingDownLeft,
+            SamusPoseId.MovingRightNormalPose or
+            SamusPoseId.MovingLeftNormalPose or
+            SamusPoseId.RunningAimUpRightPose or
+            SamusPoseId.RunningAimUpLeftPose or
+            SamusPoseId.SpinJumpRightPose or
+            SamusPoseId.SpinJumpLeftPose or
+            SamusPoseId.SpaceJumpRightPose or
+            SamusPoseId.SpaceJumpLeftPose or
+            SamusPoseId.MorphBallGroundRightPose or
+            SamusPoseId.MorphBallMovingRightPose or
+            SamusPoseId.MorphBallMovingLeftPose or
+            SamusPoseId.UnusedPose20 or
+            SamusPoseId.UnusedPose21 or
+            SamusPoseId.UnusedPose22 or
+            SamusPoseId.UnusedPose23 or
+            SamusPoseId.UnusedPose24 or
+            SamusPoseId.TurningRightToLeftPose or
+            SamusPoseId.TurningLeftToRightPose or
+            SamusPoseId.FallingRightPose or
+            SamusPoseId.FallingLeftPose or
+            SamusPoseId.TurningRightToLeftJumpPose or
+            SamusPoseId.TurningLeftToRightJumpPose or
+            SamusPoseId.MorphBallFallingRightPose or
+            SamusPoseId.MorphBallFallingLeftPose or
+            SamusPoseId.UnusedKnockbackRightPose or
+            SamusPoseId.UnusedKnockbackLeftPose or
+            SamusPoseId.CrouchingTransitionRightPose or
+            SamusPoseId.CrouchingTransitionLeftPose or
+            SamusPoseId.MorphingTransitionRightPose or
+            SamusPoseId.MorphingTransitionLeftPose or
+            SamusPoseId.UnusedPose39 or
+            SamusPoseId.UnusedPose3A or
+            SamusPoseId.StandingTransitionRightPose or
+            SamusPoseId.StandingTransitionLeftPose or
+            SamusPoseId.UnmorphingTransitionRightPose or
+            SamusPoseId.UnmorphingTransitionLeftPose or
+            SamusPoseId.UnusedPose3F or
+            SamusPoseId.UnusedPose40 or
+            SamusPoseId.MorphBallGroundLeftPose or
+            SamusPoseId.UnusedPose42 or
+            SamusPoseId.TurningRightToLeftCrouchingPose or
+            SamusPoseId.TurningLeftToRightCrouchingPose or
+            SamusPoseId.UnusedPose45 or
+            SamusPoseId.UnusedPose46 or
+            SamusPoseId.NeutralJumpTransitionLeftPose or
+            SamusPoseId.NeutralJumpRightPose or
+            SamusPoseId.NeutralJumpLeftPose or
+            SamusPoseId.DamageBoostLeftPose or
+            SamusPoseId.DamageBoostRightPose or
+            SamusPoseId.KnockbackRightPose or
+            SamusPoseId.KnockbackLeftPose or
+            SamusPoseId.UnusedPose5B or
+            SamusPoseId.UnusedPose5C or
+            SamusPoseId.UnusedPose5D or
+            SamusPoseId.UnusedPose5E or
+            SamusPoseId.UnusedPose5F or
+            SamusPoseId.UnusedPose60 or
+            SamusPoseId.UnusedPose61 or
+            SamusPoseId.UnusedPose62 or
+            SamusPoseId.UnusedPose63 or
+            SamusPoseId.UnusedPose64 or
+            SamusPoseId.UnusedPose65 or
+            SamusPoseId.UnusedPose66 or
+            SamusPoseId.SpringBallGroundRightPose or
+            SamusPoseId.SpringBallGroundLeftPose or
+            SamusPoseId.SpringBallMovingRightPose or
+            SamusPoseId.SpringBallMovingLeftPose or
+            SamusPoseId.SpringBallFallingRightPose or
+            SamusPoseId.SpringBallFallingLeftPose or
+            SamusPoseId.SpringBallJumpRightPose or
+            SamusPoseId.SpringBallJumpLeftPose or
+            SamusPoseId.ScrewAttackRightPose or
+            SamusPoseId.ScrewAttackLeftPose or
+            SamusPoseId.WallJumpRightPose or
+            SamusPoseId.WallJumpLeftPose or
+            SamusPoseId.TurningRightToLeftFallingPose or
+            SamusPoseId.TurningLeftToRightFallingPose or
+            SamusPoseId.TurningRightToLeftAimUpPose or
+            SamusPoseId.TurningLeftToRightAimUpPose or
+            SamusPoseId.TurningRightToLeftAimDiagonalDownPose or
+            SamusPoseId.TurningLeftToRightAimDiagonalDownPose or
+            SamusPoseId.TurningRightToLeftJumpAimUpPose or
+            SamusPoseId.TurningLeftToRightJumpAimUpPose or
+            SamusPoseId.TurningRightToLeftJumpAimDownPose or
+            SamusPoseId.TurningLeftToRightJumpAimDownPose or
+            SamusPoseId.TurningRightToLeftFallingAimUpPose or
+            SamusPoseId.TurningLeftToRightFallingAimUpPose or
+            SamusPoseId.TurningRightToLeftFallingAimDownPose or
+            SamusPoseId.TurningLeftToRightFallingAimDownPose or
+            SamusPoseId.TurningRightToLeftCrouchingAimUpPose or
+            SamusPoseId.TurningLeftToRightCrouchingAimUpPose or
+            SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose or
+            SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose or
+            SamusPoseId.TurningRightToLeftAimDiagonalUpPose or
+            SamusPoseId.TurningLeftToRightAimDiagonalUpPose or
+            SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose or
+            SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose or
+            SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose or
+            SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose or
+            SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose or
+            SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose or
+            SamusPoseId.NormalLandingLeftPose or
+            SamusPoseId.SpinLandingLeftPose or
+            SamusPoseId.GrappleSwingRightPose or
+            SamusPoseId.GrappleSwingLeftPose or
+            SamusPoseId.GrappleWallContactLeftPose or
+            SamusPoseId.GrappleWallContactRightPose or
+            SamusPoseId.DraygonGrabbedNeutralLeftPose or
+            SamusPoseId.DraygonGrabbedMovingLeftPose or
+            SamusPoseId.MoonwalkTurnJumpLeftPose or
+            SamusPoseId.MoonwalkTurnJumpRightPose or
+            SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
+            SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
+            SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
+            SamusPoseId.MoonwalkTurnJumpAimDownRightPose or
+            SamusPoseId.UnusedPoseC5 or
+            SamusPoseId.UnusedPoseC6 or
+            SamusPoseId.ShinesparkWindupRightPose or
+            SamusPoseId.ShinesparkWindupLeftPose or
+            SamusPoseId.ShinesparkHorizontalRightPose or
+            SamusPoseId.ShinesparkHorizontalLeftPose or
+            SamusPoseId.ShinesparkVerticalRightPose or
+            SamusPoseId.ShinesparkVerticalLeftPose or
+            SamusPoseId.ShinesparkDiagonalRightPose or
+            SamusPoseId.ShinesparkDiagonalLeftPose or
+            SamusPoseId.CrystalFlashRightPose or
+            SamusPoseId.CrystalFlashLeftPose or
+            SamusPoseId.XrayingStandingRightPose or
+            SamusPoseId.XrayingStandingLeftPose or
+            SamusPoseId.DeathSequenceRightPose or
+            SamusPoseId.DeathSequenceLeftPose or
+            SamusPoseId.XrayingCrouchingRightPose or
+            SamusPoseId.XrayingCrouchingLeftPose or
+            SamusPoseId.UnusedPoseDb or
+            SamusPoseId.UnusedPoseDc or
+            SamusPoseId.UnusedPoseDd or
+            SamusPoseId.UnusedPoseDe or
+            SamusPoseId.UnusedPoseDf or
+            SamusPoseId.DrainedCrouchingRightPose or
+            SamusPoseId.DrainedCrouchingLeftPose or
+            SamusPoseId.DrainedStandingRightPose or
+            SamusPoseId.DrainedStandingLeftPose or
+            SamusPoseId.DraygonGrabbedNeutralRightPose or
+            SamusPoseId.DraygonGrabbedMovingRightPose => DrawingDefault,
+            SamusPoseId.MovingRightGunExtendedPose => DrawingMovingRightGunExtended,
+            SamusPoseId.MovingLeftGunExtendedPose => DrawingMovingLeftGunExtended,
+            SamusPoseId.RunningAimDiagonalUpRightPose => DrawingMovingRightAimingUpRight,
+            SamusPoseId.RunningAimDiagonalUpLeftPose => DrawingMovingLeftAimingUpLeft,
+            SamusPoseId.RunningAimDiagonalDownRightPose => DrawingMovingRightAimingDownRight,
+            SamusPoseId.RunningAimDiagonalDownLeftPose => DrawingMovingLeftAimingDownLeft,
+            SamusPoseId.NormalJumpGunExtendedRightPose or
+            SamusPoseId.UnusedPoseAC => DrawingFacingRightNormalJumpNotMovingGunExt,
+            SamusPoseId.NormalJumpGunExtendedLeftPose or
+            SamusPoseId.UnusedPoseAD => DrawingFacingLeftNormalJumpNotMovingGunExt,
+            SamusPoseId.NormalJumpAimUpRightPose => DrawingFacingRightNormalJumpAimingUp,
+            SamusPoseId.NormalJumpAimUpLeftPose => DrawingFacingLeftNormalJumpAimingUp,
+            SamusPoseId.NormalJumpAimDownRightPose or
+            SamusPoseId.UnusedPoseAE => DrawingFacingRightNormalJumpAimingDown,
+            SamusPoseId.NormalJumpAimDownLeftPose or
+            SamusPoseId.UnusedPoseAF => DrawingFacingLeftNormalJumpAimingDown,
+            SamusPoseId.CrouchingRightPose or
+            SamusPoseId.GrappleCrouchingRightPose => DrawingFacingRightCrouching,
+            SamusPoseId.CrouchingLeftPose or
+            SamusPoseId.GrappleCrouchingLeftPose => DrawingFacingLeftCrouching,
+            SamusPoseId.FallingAimUpRightPose => DrawingFacingRightFallingAimingUp,
+            SamusPoseId.FallingAimUpLeftPose => DrawingFacingLeftFallingAimingUp,
+            SamusPoseId.FallingAimDownRightPose => DrawingFacingRightFallingAimingDown,
+            SamusPoseId.FallingAimDownLeftPose => DrawingFacingLeftFallingAimingDown,
+            SamusPoseId.MoonwalkFacingLeftPose => DrawingFacingLeftMoonwalk,
+            SamusPoseId.MoonwalkFacingRightPose => DrawingFacingRightMoonwalk,
+            SamusPoseId.NeutralJumpTransitionRightPose => DrawingFacingRightNormalJumpTransition,
+            SamusPoseId.NormalJumpForwardRightPose => DrawingFacingRightNormalJumpMovingForward,
+            SamusPoseId.NormalJumpForwardLeftPose => DrawingFacingLeftNormalJumpMovingForward,
+            SamusPoseId.NormalJumpTransitionAimUpRightPose or
+            SamusPoseId.LandingAimUpRightPose or
+            SamusPoseId.CrouchingTransitionAimUpRightPose or
+            SamusPoseId.StandingTransitionAimUpRightPose => DrawingFacingRightTransitionAimingUp,
+            SamusPoseId.NormalJumpTransitionAimUpLeftPose or
+            SamusPoseId.LandingAimUpLeftPose or
+            SamusPoseId.CrouchingTransitionAimUpLeftPose or
+            SamusPoseId.StandingTransitionAimUpLeftPose => DrawingFacingLeftTransitionAimingUp,
+            SamusPoseId.FallingGunExtendedRightPose => DrawingFacingRightFallingGunExtended,
+            SamusPoseId.FallingGunExtendedLeftPose => DrawingFacingLeftFallingGunExtended,
+            SamusPoseId.NormalJumpAimDiagonalUpRightPose => DrawingFacingRightNormalJumpAimingUpRight,
+            SamusPoseId.NormalJumpAimDiagonalUpLeftPose => DrawingFacingLeftNormalJumpAimingUpLeft,
+            SamusPoseId.NormalJumpAimDiagonalDownRightPose or
+            SamusPoseId.UnusedPoseB0 => DrawingFacingRightNormalJumpAimingDownRight,
+            SamusPoseId.NormalJumpAimDiagonalDownLeftPose or
+            SamusPoseId.UnusedPoseB1 => DrawingFacingLeftNormalJumpAimingDownLeft,
+            SamusPoseId.FallingAimDiagonalUpRightPose => DrawingFacingRightFallingAimingUpRight,
+            SamusPoseId.FallingAimDiagonalUpLeftPose => DrawingFacingLeftFallingAimingUpLeft,
+            SamusPoseId.FallingAimDiagonalDownRightPose => DrawingFacingRightFallingAimingDownRight,
+            SamusPoseId.FallingAimDiagonalDownLeftPose => DrawingFacingLeftFallingAimingDownLeft,
+            SamusPoseId.CrouchingAimDiagonalUpRightPose => DrawingFacingRightCrouchingAimingUpRight,
+            SamusPoseId.CrouchingAimDiagonalUpLeftPose => DrawingFacingLeftCrouchingAimingUpLeft,
+            SamusPoseId.CrouchingAimDiagonalDownRightPose or
+            SamusPoseId.GrappleCrouchingDownRightPose => DrawingFacingRightCrouchingAimingDownRight,
+            SamusPoseId.CrouchingAimDiagonalDownLeftPose or
+            SamusPoseId.GrappleCrouchingDownLeftPose => DrawingFacingLeftCrouchingAimingDownLeft,
+            SamusPoseId.MoonwalkAimUpLeftPose => DrawingFacingLeftMoonwalkAimingUpLeft,
+            SamusPoseId.MoonwalkAimUpRightPose => DrawingFacingRightMoonwalkAimingUpRight,
+            SamusPoseId.MoonwalkAimDownLeftPose => DrawingFacingLeftMoonwalkAimingDownLeft,
+            SamusPoseId.MoonwalkAimDownRightPose => DrawingFacingRightMoonwalkAimingDownRight,
+            SamusPoseId.CrouchingAimUpRightPose => DrawingFacingRightCrouchingAimingUp,
+            SamusPoseId.CrouchingAimUpLeftPose => DrawingFacingLeftCrouchingAimingUp,
+            SamusPoseId.NormalLandingRightPose => DrawingFacingRightLandingFromNormalJump,
+            SamusPoseId.SpinLandingRightPose => DrawingFacingRightLandingFromSpinJump,
+            _ => throw new ArgumentOutOfRangeException(nameof(pose)),
+        };
+    }
+
     private enum TileOrientation
     {
         /// <summary>$90:C7B9 selects vertical frames from $9A:9A00.</summary>

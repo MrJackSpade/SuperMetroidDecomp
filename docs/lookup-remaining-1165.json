@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 551,
+  "remainingTableDefinitionCount": 550,
   "fileCount": 523,
   "entries": [
     {
@@ -1868,7 +1868,9 @@
       "line": 11,
       "name": "SamusArmCannonArtworkCatalog.posePointers",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SamusArmCannonArtworkCatalog.posePointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SamusArmCannonArtworkCatalog.posePointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "1b62d9f1aebac2f70f360168c8c7229c196f2616"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
@@ -21482,6 +21484,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 557,
+  "convertedSinceSnapshot": 558,
   "justifiedRetainedSinceSnapshot": 20
 }

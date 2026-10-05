@@ -206,6 +206,7 @@ if (args is ["--lookup-stream-4"])
     VerifyMamaTurtleInstructionProgramDefinitions();
     VerifyEyeDoorProjectileInstructionProgramDefinitions();
     VerifyCompiledDraygonBg2Collision(rom);
+    VerifyRidleyCollisionDefinitions();
     VerifyLookupStream4(rom);
     VerifyPowerBombFixedColors();
     VerifyRidleyAttackChoices(rom);

@@ -14,22 +14,18 @@ internal static partial class Program
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
         MethodInfo ceresWalker = typeof(RoomEnemySystem).GetMethod(
-            "ExtendedSpritemapOverlapsRectangle", flags)!;
-        var native = new RoomEnemySystem();
+            "ExtendedSpritemapOverlapsRectangle", BindingFlags.Static | BindingFlags.NonPublic)!;
         var compiled = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(native, rom);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(compiled, denied);
-        RoomEnemySlot nativeSlot = native.Slots[0];
         RoomEnemySlot compiledSlot = compiled.Slots[0];
-        nativeSlot.Definition = compiledSlot.Definition =
+        compiledSlot.Definition =
             default(RoomEnemyDefinition) with { Bank = RidleyCollisionDefinitions.Bank };
-        // The unrelated native definition takes the independent generic cartridge
-        // walker. The installed definition selects the new compiled Ridley branch.
-        nativeSlot.EnemyDefinitionPointer = 0xffff;
+        // The independent reference below reads original native records directly.
+        // The actual owner uses only the installed Ridley collision view.
         compiledSlot.EnemyDefinitionPointer = RoomEnemySystem.NorfairRidleyDefinition;
         AssertEqual(11, RidleyCollisionDefinitions.FramePointers.Length,
             "all Ceres/Norfair Ridley body frames have fixed collision");
-        AssertEqual(17, RidleyCollisionDefinitions.HitboxPointers.Length,
+        AssertEqual(17, RidleyCollisionDefinitions.HitboxPointers.Count(),
             "all distinct Ridley body hitbox lists are compiled");
 
         var seenLists = new HashSet<ushort>();
@@ -42,7 +38,7 @@ internal static partial class Program
                     selected => selected.Bank == RidleyCollisionDefinitions.Bank &&
                         selected.Pointer == frame),
                 $"Ridley collision frame $A6:{frame:X4} is selected artwork identity");
-            ReadOnlySpan<RidleyCollisionComponent> components =
+            var components =
                 RidleyCollisionDefinitions.ComponentsAt(frame);
             AssertEqual((int)rom.ReadByte(0xa60000 | frame), components.Length,
                 $"Ridley frame $A6:{frame:X4} native component count");
@@ -61,15 +57,15 @@ internal static partial class Program
                 componentsChecked++;
             }
 
-            nativeSlot.SpritemapPointer = compiledSlot.SpritemapPointer = frame;
+            compiledSlot.SpritemapPointer = frame;
             foreach ((ushort originX, ushort originY) in
                      new (ushort, ushort)[]
                      {
                          (0x0100, 0x0100), (0x0004, 0x0006), (0xfffc, 0xfffa),
                      })
             {
-                nativeSlot.XPosition = compiledSlot.XPosition = originX;
-                nativeSlot.YPosition = compiledSlot.YPosition = originY;
+                compiledSlot.XPosition = originX;
+                compiledSlot.YPosition = originY;
                 foreach (RidleyCollisionComponent component in components)
                 foreach (RidleyCollisionHitbox hitbox in
                          RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
@@ -100,17 +96,15 @@ internal static partial class Program
                     {
                         ushort radiusX = unchecked((ushort)((xi + yi) & 1));
                         ushort radiusY = unchecked((ushort)((xi + yi * 2) & 1));
-                        object?[] nativeArguments =
-                        [nativeSlot, xs[xi], ys[yi], radiusX, radiusY,
-                            shot != 0, (ushort)0];
                         object?[] compiledArguments =
                         [compiledSlot, xs[xi], ys[yi], radiusX, radiusY,
                             shot != 0, (ushort)0];
-                        bool nativeHit = (bool)walker.Invoke(native, nativeArguments)!;
+                        bool nativeHit = NativeCallback(frame, originX, originY, xs[xi], ys[yi],
+                            radiusX, radiusY, shot != 0, out ushort nativeCallback);
                         bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
                         AssertEqual(nativeHit, compiledHit,
                             $"Ridley $A6:{frame:X4} overlap {xi},{yi}, shot={shot}");
-                        AssertEqual((ushort)nativeArguments[^1]!,
+                        AssertEqual(nativeCallback,
                             (ushort)compiledArguments[^1]!,
                             $"Ridley $A6:{frame:X4} callback {xi},{yi}, shot={shot}");
                         if (shot == 1)
@@ -123,7 +117,7 @@ internal static partial class Program
                             object?[] ceresArguments =
                                 [compiledSlot, xs[xi], ys[yi], radiusX, radiusY];
                             bool actualCeres = (bool)ceresWalker.Invoke(
-                                compiled, ceresArguments)!;
+                                null, ceresArguments)!;
                             AssertEqual(expectedCeres, actualCeres,
                                 $"Ceres private Ridley projectile overlap $A6:{frame:X4}");
                         }
@@ -132,7 +126,7 @@ internal static partial class Program
                 }
             }
         }
-        AssertEqual(RidleyCollisionDefinitions.HitboxPointers.Length, seenLists.Count,
+        AssertEqual(RidleyCollisionDefinitions.HitboxPointers.Count(), seenLists.Count,
             "every compiled Ridley hitbox list belongs to a selected body frame");
         foreach (ushort list in RidleyCollisionDefinitions.HitboxPointers)
         {
@@ -174,6 +168,43 @@ internal static partial class Program
         ushort ReadWord(int address) => (ushort)(
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
 
+        // A0:9ADF..9B78 touch and 9C43..9D20 shot comparisons consume the original
+        // component/list records in order; only this reference reads cartridge data.
+        bool NativeCallback(ushort frame, ushort originX, ushort originY,
+            ushort x, ushort y, ushort radiusX, ushort radiusY, bool shot, out ushort callback)
+        {
+            callback = 0;
+            ushort targetLeft = unchecked((ushort)(x - radiusX));
+            ushort targetRight = unchecked((ushort)(x + radiusX));
+            ushort targetTop = unchecked((ushort)(y - radiusY));
+            ushort targetBottom = unchecked((ushort)(y + radiusY));
+            int count = rom.ReadByte(0xa60000 | frame);
+            for (int component = 0; component < count; component++)
+            {
+                int record = 0xa60000 | unchecked((ushort)(frame + 2 + component * 8));
+                ushort componentX = unchecked((ushort)(originX + ReadWord(record)));
+                ushort componentY = unchecked((ushort)(originY + ReadWord(record + 2)));
+                ushort list = ReadWord(record + 6);
+                int boxCount = ReadWord(0xa60000 | list);
+                for (int index = 0; index < boxCount; index++)
+                {
+                    int box = 0xa60000 | unchecked((ushort)(list + 2 + index * 12));
+                    ushort left = unchecked((ushort)(componentX + ReadWord(box)));
+                    ushort top = unchecked((ushort)(componentY + ReadWord(box + 2)));
+                    ushort right = unchecked((ushort)(componentX + ReadWord(box + 4)));
+                    ushort bottom = unchecked((ushort)(componentY + ReadWord(box + 6)));
+                    bool overlaps = shot
+                        ? unchecked((short)(targetRight - left)) >= 0 && unchecked((short)(targetLeft - right)) < 0
+                            && unchecked((short)(targetBottom - top)) >= 0 && unchecked((short)(targetTop - bottom)) < 0
+                        : unchecked((short)(left - targetRight)) < 0 && unchecked((short)(right - targetLeft)) >= 0
+                            && unchecked((short)(top - targetBottom)) < 0 && unchecked((short)(bottom - targetTop)) >= 0;
+                    if (!overlaps) continue;
+                    callback = ReadWord(box + (shot ? 10 : 8));
+                    return true;
+                }
+            }
+            return false;
+        }
         bool NativeCeresOverlap(ushort frame, ushort originX, ushort originY,
             ushort x, ushort y, ushort radiusX, ushort radiusY)
         {

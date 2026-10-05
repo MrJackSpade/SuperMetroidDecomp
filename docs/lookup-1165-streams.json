@@ -3168,7 +3168,7 @@
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.SparkMovementDefinitions.cs","stream":3,"purpose":"After reproduced stale read expectation, compare exact native visuals and require zero reads; preserve producer/tangibility/sleep/allocation checks"}
     ,{"path":"csharp/src/SuperMetroid.Core/Game/HorizontalCameraTargetDefinitions.cs","stream":2,"purpose":"Named camera target modes and geometry; preserve all contexts/XOR/bounds; no invented historical purpose for unused index4"}
     ,{"path":"csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.OrdinaryCombat.cs","stream":4,"purpose":"Only inferred binding/foreach adaptation for calculated Ridley collision components"}
-    ,{"path":"csharp/src/SuperMetroid.Verification/Program.RidleyCollisionDefinitions.cs","stream":4,"purpose":"Only calculated-component binding initially; reproduce removed-walker failure before broader oracle changes"}
+    ,{"path":"csharp/src/SuperMetroid.Verification/Program.RidleyCollisionDefinitions.cs","stream":4,"purpose":"Calculated-component binding; after reproduced missing generic walker, approved independent original-ROM touch/shot oracle and static Ceres reflection repair. Preserve assertions."}
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainGlassPaintDefinitions.cs","stream":3,"purpose":"Only reviewed7F8B glass-face anchor; shared final-room/recovery dependencies remain required"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."

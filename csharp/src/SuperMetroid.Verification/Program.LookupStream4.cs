@@ -8,6 +8,35 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4RidleyFrameDomain(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var nativeFrames = new List<ushort>();
+        var nativeLists = new SortedSet<ushort>();
+        for (int frame = 0xe983; frame <= 0xead7;)
+        {
+            nativeFrames.Add((ushort)frame);
+            int components = Word(0xa60000 | frame);
+            for (int component = 0; component < components; component++)
+                nativeLists.Add(Word(0xa60000 | (frame + 8 + component * 8)));
+            frame += 2 + components * 8;
+        }
+        AssertEqual(nativeFrames.Count, RidleyCollisionDefinitions.FramePointers.Length, "Frame identity count follows native record extents");
+        int ordinal = 0;
+        foreach (ushort frame in RidleyCollisionDefinitions.FramePointers)
+        {
+            AssertEqual(nativeFrames[ordinal], frame, "Frame identity enumeration preserves native record order");
+            AssertEqual(frame, RidleyCollisionDefinitions.FramePointers[ordinal++], "Frame identity indexing preserves order");
+            var components = RidleyCollisionDefinitions.ComponentsAt(frame);
+            foreach (int invalid in new[] { -1, components.Length })
+                AssertThrows<IndexOutOfRangeException>(() => _ = components[invalid], "Calculated component view rejects out-of-range indices");
+        }
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+            AssertEqual(nativeFrames.Contains((ushort)pointer), RidleyCollisionDefinitions.HasFrame((ushort)pointer), "Calculated frame membership preserves complete native identity domain");
+        AssertTrue(nativeLists.SequenceEqual(RidleyCollisionDefinitions.HitboxPointers), "List identity enumeration derives the exact sorted native operand domain");
+        foreach (int invalid in new[] { -1, nativeFrames.Count })
+            AssertThrows<IndexOutOfRangeException>(() => _ = RidleyCollisionDefinitions.FramePointers[invalid], "Calculated frame view rejects out-of-range indices");
+    }
     private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -221,6 +250,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        VerifyLookupStream4RidleyFrameDomain(rom);
         VerifyLookupStream4RidleyMovementPolicy(rom);
         VerifyLookupStream4TailAngles(rom);
         VerifyLookupStream4TailTerrain(rom);

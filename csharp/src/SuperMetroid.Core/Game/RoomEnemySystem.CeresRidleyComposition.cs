@@ -741,7 +741,7 @@ public sealed partial class RoomEnemySystem
         int subjectRight = unchecked((ushort)(subjectX + subjectXRadius));
         int subjectTop = unchecked((ushort)(subjectY - subjectYRadius));
         int subjectBottom = unchecked((ushort)(subjectY + subjectYRadius));
-        ReadOnlySpan<RidleyCollisionComponent> components =
+        var components =
             RidleyCollisionDefinitions.ComponentsAt(slot.SpritemapPointer);
         foreach (RidleyCollisionComponent component in components)
         {

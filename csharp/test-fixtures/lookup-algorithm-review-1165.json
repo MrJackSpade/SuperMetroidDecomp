@@ -11275,4 +11275,11 @@
     "state":  "converted",
     "algorithm":  "Named ordinary/morphed/immune movement cases expose grab eligibility and release duration. Static audit proves lower six native bits unconsumed.",
     "remaining":  "481 converted,11 justified retained/mixed,636 pending."
+},"ridleyCollisionCompositionIntegration":{
+    "confirmation":  "Root build1444 warnings/zero errors; --lookup-stream-4 passed 11 frames,41 components,17 lists,24 rectangles,11232 actual touch/shot boundary comparisons, Ceres overlap and65536 pointer memberships. Reference reads independent original ROM records; actual consumers prohibit ROM reads.",
+    "completed":  "RidleyCollisionDefinitions.FrameKeys,ListKeys,RightBase",
+    "workerCommit":  "2366b5428c5b7c564b4667f1fb3bd0f1cd522c23",
+    "state":  "partial-three-converted",
+    "algorithm":  "Record extents derive frame domain; remaining payload keys derive list identity view; reflection and matching-list displacement derive right-facing composition. Named mouth/leg states calculate component variants.",
+    "remaining":  "484 converted,11 justified retained/mixed,633 pending. LeftBase,Frames,Lists remain required: four origin pairs,forward Y=-6,and rectangle bounds. No retention exception."
 }}

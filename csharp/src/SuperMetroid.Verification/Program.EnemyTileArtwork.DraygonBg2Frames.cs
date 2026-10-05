@@ -134,7 +134,7 @@ internal static partial class Program
         foreach (EnemyBg2FrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
             int root = (DraygonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
-            ReadOnlySpan<DraygonCollisionComponent> components =
+            var components =
                 DraygonCollisionDefinitions.ComponentsAt(frame.Pointer);
             AssertEqual((int)rom.ReadByte(root), components.Length,
                 $"Draygon {frame.Name} compiled collision component count");

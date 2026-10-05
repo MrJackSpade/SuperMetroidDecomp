@@ -145,6 +145,7 @@ if (args is ["--lookup-stream-4"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 4 oracle revision");
     VerifyMamaTurtleInstructionProgramDefinitions();
     VerifyEyeDoorProjectileInstructionProgramDefinitions();
+    VerifyCompiledDraygonBg2Collision(rom);
     VerifyLookupStream4(rom);
     VerifyPowerBombFixedColors();
     VerifyRidleyAttackChoices(rom);

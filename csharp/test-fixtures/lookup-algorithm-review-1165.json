@@ -11483,4 +11483,11 @@
     "state":  "partial-one-converted",
     "algorithm":  "Three shared explosion phase layouts derive 53 control positions and 15 visual addresses, accounting for the packed sound byte.",
     "remaining":  "Words required: small/large/smoke holds, random spread masks and biases, repeat counts 3/2. No exception. 504 converted, 15 justified retained/mixed, 609 pending."
+},"crawlerSpeedRampsIntegration":{
+    "scope":  "CrawlerSpeedDefinitions.Speeds remains unchecked",
+    "confirmation":  "Root Verification build 1445 warnings, zero errors. Both 32-word native copies, 384 actual crawler/Yard velocity resets and invalid parameter boundary pass.",
+    "workerCommit":  "3bd7be9eb81573e5def6bc8ebc320c19b6b50914",
+    "state":  "partial-required",
+    "algorithm":  "Calculate quarter-pixel ramps shared by native copies A3:E5F0 and A3:CCA2.",
+    "remaining":  "Gap parameters 14/16, skipped-step totals 1/4, penultimate eight-pixel magnitude and terminal zero remain required. No exception. Counts unchanged: 504 converted, 15 justified retained/mixed, 609 pending."
 }}

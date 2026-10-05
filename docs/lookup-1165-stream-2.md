@@ -982,3 +982,9 @@ Root Verification build: 1445 warnings, zero errors. --norfair-rio-instruction-p
 Calculated 53 control positions and 15 visual addresses from the low-health, large-death and smoke phase structures, including the packed sound byte. Native 86:A3CB-A455 confirms record widths, counted back-edges and deletion. Only PresentationWords is complete. Words remains required: small holds 2/2/3/3/2, large holds 4/6/5/5/5/6, smoke hold 8, random spread masks/biases and repeat counts 3/2 have no exception.
 
 Root confirmation: Verification build passed with 1445 warnings and zero errors. --torizo-explosion-instruction-mechanics confirms 53 native words, the actual low-health producer's three cycles, both probabilistic death paths, exact jitter/lifetimes, 15 native compiled selectors, source-read guards, bounds and allocations. Integrated stream checkpoint: 80 converted, two mixed, 144 required. Overall: 504 converted, 15 justified retained/mixed, 609 pending.
+
+## Integrated crawler speed ramps
+
+CrawlerSpeedDefinitions now calculates quarter-pixel ramps in place of 32 stored magnitudes. Both pinned native copies A3:E5F0 and A3:CCA2 agree. Speeds remains unchecked: gaps at parameters 14/16, skipped-step totals 1/4, the penultimate eight-pixel magnitude and terminal zero remain unresolved independent choices. No exception is claimed.
+
+Root confirmation: Verification build passed with 1445 warnings and zero errors. --lookup-stream2-crawler-ramps confirms both 32-word native copies, 384 actual crawler/Yard velocity resets and parameter-bound rejection. Stream counts remain 80 converted, two mixed, 144 required; overall counts remain 504 converted, 15 justified retained/mixed, 609 pending.

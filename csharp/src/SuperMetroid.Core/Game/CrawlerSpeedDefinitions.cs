@@ -12,16 +12,26 @@ public static class CrawlerSpeedDefinitions
     /// <summary>Number of authored speed records; trailing zero is an intentional stationary entry.</summary>
     public const int Count = 32;
 
-    private static ReadOnlySpan<ushort> Speeds =>
-    [
-        0x40, 0x80, 0xc0, 0x100, 0x140, 0x180, 0x1c0, 0x200,
-        0x240, 0x280, 0x2c0, 0x300, 0x340, 0x380, 0x400, 0x440,
-        0x540, 0x580, 0x5c0, 0x600, 0x640, 0x680, 0x6c0, 0x700,
-        0x740, 0x780, 0x7c0, 0x800, 0x840, 0x880, 0x800, 0,
-    ];
+    /// <summary>$A3:E60C: first parameter whose quarter-pixel ramp skips one step; independent gap choice remains required under issue1165.</summary>
+    private const int FirstGapParameter = 14;
+    /// <summary>$A3:E610: first parameter whose ramp has skipped four total quarter-pixel steps; independent gap choice remains required.</summary>
+    private const int SecondGapParameter = 16;
+    /// <summary>$A3:E62C: penultimate speed is eight pixels rather than the continuing ramp; this independent choice remains required.</summary>
+    private const ushort PenultimateMagnitude = 0x0800;
 
-    /// <summary>Returns an authored magnitude, retaining the native gaps and repeated entries.</summary>
-    public static ushort ForParameter(ushort parameter) => parameter < Count
-        ? Speeds[parameter]
-        : throw new InvalidDataException($"Crawler speed parameter ${parameter:X4} exceeds the 32 authored records.");
+    /// <summary>
+    /// Both native copies consist of quarter-pixel ramps separated by two gaps,
+    /// followed by a repeated eight-pixel speed and a stationary entry. Calculate
+    /// each ramp; the irregular gap choices and penultimate magnitude remain
+    /// unresolved payloads rather than an exemption for the original table.
+    /// </summary>
+    public static ushort ForParameter(ushort parameter)
+    {
+        if (parameter >= Count)
+            throw new InvalidDataException($"Crawler speed parameter ${parameter:X4} exceeds the 32 authored records.");
+        if (parameter == Count - 1) return 0;
+        if (parameter == Count - 2) return PenultimateMagnitude;
+        int skippedSteps = parameter < FirstGapParameter ? 0 : parameter < SecondGapParameter ? 1 : 4;
+        return (ushort)((parameter + 1 + skippedSteps) * 64);
+    }
 }

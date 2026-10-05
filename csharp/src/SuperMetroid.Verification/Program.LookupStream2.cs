@@ -7,6 +7,44 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static;
+        var reset = typeof(RoomEnemySystem).GetMethod("ResetCrawlerVelocitiesFromProperties", flags)!
+            .CreateDelegate<Action<RoomEnemySlot>>();
+        var setYard = typeof(RoomEnemySystem).GetMethod("SetYardCrawlingVelocities", flags)!
+            .CreateDelegate<Action<RoomEnemySlot, YardEnemyState, ushort>>();
+        var slot = new RoomEnemySystem().Slots[0];
+        var yard = new YardEnemyState(slot);
+        for (ushort parameter = 0; parameter < 32; parameter++)
+        {
+            ushort expected = Word(0xa3e5f0 + parameter * 2);
+            AssertEqual(expected, Word(0xa3cca2 + parameter * 2), "Native Yard/crawler magnitude agreement");
+            AssertEqual(expected, CrawlerSpeedDefinitions.ForParameter(parameter), "Native calculated speed ramp");
+            slot.Parameter1 = parameter;
+            for (ushort property = 0; property < 4; property++)
+            {
+                slot.Properties = (ushort)(0xa000 | property);
+                reset(slot);
+                AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, slot.VariableA,
+                    "Actual crawler reset X magnitude");
+                AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, slot.VariableB,
+                    "Actual crawler reset Y magnitude");
+            }
+            for (ushort direction = 0; direction < 8; direction++)
+            {
+                setYard(slot, yard, direction);
+                int nativeDirection = 0xa3cd82 + direction * 8;
+                AssertEqual(unchecked((ushort)((expected ^ Word(nativeDirection)) + Word(nativeDirection + 2))),
+                    yard.CrawlingXVelocity, "Actual Yard reset X magnitude");
+                AssertEqual(unchecked((ushort)((expected ^ Word(nativeDirection + 4)) + Word(nativeDirection + 6))),
+                    yard.CrawlingYVelocity, "Actual Yard reset Y magnitude");
+            }
+        }
+        AssertThrows<InvalidDataException>(() => CrawlerSpeedDefinitions.ForParameter(32), "Crawler parameter upper bound");
+        Console.WriteLine("Crawler speed ramps: both 32 native words and 384 actual crawler/Yard velocity resets pass; irregular gaps/terminal choices remain pending.");
+    }
     private static void VerifyLookupStream2LavaJumperLayout(SuperMetroidAddressSpace rom)
     {
         VerifyNorfairLavaJumperInstructionProgramDefinitions(rom);

@@ -10760,7 +10760,7 @@
   "justification": "These are instruction encodings, operand bytes and branch distances observed as data, not a functional trail mapping. Managed code has no corresponding65816 layout. Deriving them from C# behavior is nonsense; assembling or re-encoding the original routine merely reconstructs the same native byte payload. Retain exactly this bounded window; no general exemption for adjacent data or other tables.",
   "evidence": "Pinned bank90 Spawn_ProjectileTrail B657-B698 masks beam selector with003F, doubles it and reads right baseB609. Indices39..63 therefore read50 physical instruction bytes beyond the39-word table. Source begins PHB/LDA projectile type and ends RTL atB687 plus LDA opcode atB688; its immediate operand is outside window.",
   "confirmation": "Independent static native/caller inspection and direct50-byte comparison against supported ROM, with SHA256 verified. No gameplay search or new behavior test needed for this source-only review.",
-  "state": "reviewed-retention-awaiting-integration"
+  "state": "justified-retained"
 },"lightningProgramControlIntegration":{
   "confirmation": "Verification1438 warnings/zero errors; integrated --lookup-stream-3 passes52 escape native words and both98-frame loops;78 surface/dark native words,four timer bytes,both503/743-frame cycles and vertical restart; bounds and excluded color operands preserved. Source index refreshed; no reviewed-source hash dependency found.",
   "remaining": "296 converted,one justified retained,831 pending. Independent color payloads remain required; invalid blanket retention prose removed.",
@@ -10808,4 +10808,16 @@
   "confirmation": "Verification1438 warnings/zero errors. Kago12 native words/eight selectors/slow and hit loops/bug handoff; bug23 native words/11 selectors/real producer,landed/falling/jump loops,shot/drop deletion; dust31 native words/14 selectors/actual footstep and Tourian producers,alternate,counted lifetime and deletion. Runtime reads forbidden. No reviewed-source hash dependency; source index refreshed.",
   "scope": "Kago body and bug control/presentation arrays, and Chozo/Tourian dust control/presentation arrays: six definitions.",
   "remaining": "311 converted,one justified retained,816 pending. No new exception."
+},"ghostAndTrailProgramsIntegration":{
+  "retention": "Only25 physical native-code words observed beyond right selector table; first78 genuine selectors remain calculated. Reviewed evidence recorded in projectileTrailAdjacentCodeReview and stream report.",
+  "algorithm": "Uniform three-pose ghost loop and trail record strides, inline falls, tail holds and terminators calculate without stock arrays.",
+  "state": "mixed",
+  "confirmation": "Verification1438 warnings/zero errors; ResourceAudit zero warnings/errors. Ghost5 native words/three selectors/real initializer and full loop; trails67 words/42 native record addresses/four complete paired lifetimes,freeze/siblingY/mutable alias; selector103 native words/64 actual spawns. Runtime reads forbidden. Both reviewed trail source hashes and static index refreshed.",
+  "scope": "Ghost two program arrays, trail four mechanics membership arrays and visual-address table converted; selector mixed disposition reconciled.",
+  "implementationCommits": [
+    "a8a1c7702",
+    "e236c92b8",
+    "46810c0b6"
+  ],
+  "remaining": "318 converted,two justified retained,808 pending. Ghost palette remains pending."
 }}

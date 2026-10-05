@@ -679,7 +679,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/YappingMawInstructionProgramDefinitions.cs
 
 - [ ] **YappingMawInstructionProgramDefinitions.Words** ([L47](../csharp/src/SuperMetroid.Core/Game/YappingMawInstructionProgramDefinitions.cs#L47)) - factory-built stock table. Stored YappingMawInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **YappingMawInstructionProgramDefinitions.PresentationWords** ([L49](../csharp/src/SuperMetroid.Core/Game/YappingMawInstructionProgramDefinitions.cs#L49)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **YappingMawInstructionProgramDefinitions.PresentationWords** ([L49](../csharp/src/SuperMetroid.Core/Game/YappingMawInstructionProgramDefinitions.cs#L49)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Assets/ZebetiteColorCatalog.cs
 
@@ -955,3 +955,8 @@ Root Verification build: 1445 warnings, zero errors. --kihunter-acid-spit-instru
 ### Ceres door setup palette sharing integration
 Native A6:F4FE-F509 and F51E-F529 share six setup colors (palette slots 9..14). Escape now reads those from normal colors with sparse overrides preserving independent supplied edits. Nine unique escape colors and all independent normal choices remain required. Escape stays unchecked; no exception and no completion-count change.
 Root Verification build: 1445 warnings, zero errors. --lookup-stream5-ceres-door-ramp passed 78 native setup/animation colors, 90 setup RGB edits, 48 animation edits, actual CGRAM, zero stock shared-slot overrides and canonical identities. ResourceAudit build: zero warnings/errors; source hash refreshed.
+
+### Yapping Maw structural integration
+Calculated 96 control positions and 52 visual addresses from eight 22-byte directional attacks and mirrored cooldown groups. Named directional callbacks preserve diagonal-to-vertical carry behavior. Native A8:9F6F-A096 confirms record widths and ordering. Holds 5/3/80/4 remain explicit unresolved inputs; Words stays unchecked without an exception. Integrated checkpoint: 75 converted, two mixed, one retained, 147 required.
+
+Root Verification build: 1445 warnings, zero errors. --yapping-maw-instruction-program-definitions passed all 96 native controls, fourteen actual attack/cooldown entries, seven carry/sound callbacks, 52 compiled selectors, source-read guards, bounds and allocation assertions.

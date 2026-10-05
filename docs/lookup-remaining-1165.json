@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 615,
+  "remainingTableDefinitionCount": 614,
   "fileCount": 523,
   "entries": [
     {
@@ -8609,7 +8609,9 @@
       "line": 49,
       "name": "YappingMawInstructionProgramDefinitions.PresentationWords",
       "kind": "factory-built stock table",
-      "note": "Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "fd0285a3f7fb24c03ce950543109363c98fe0665"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/YardDirectionDefinitions.cs",
@@ -21351,6 +21353,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 498,
+  "convertedSinceSnapshot": 499,
   "justifiedRetainedSinceSnapshot": 15
 }

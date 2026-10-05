@@ -11420,4 +11420,11 @@
     "state":  "partial-required",
     "algorithm":  "Six native setup palette slots 9..14 share normal colors. Only nine independent escape colors and sparse custom overrides remain stored; edits to either palette preserve the other supplied state.",
     "remaining":  "Independent normal/escape colors, animation seeds and phase residuals remain required. No exception. Counts unchanged: 498 converted, 15 justified retained/mixed, 615 pending."
+},"yappingMawStructureIntegration":{
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. All 96 native controls, fourteen actual entries, seven carry/sound callbacks, 52 compiled selectors, source-read guards, bounds and allocations pass.",
+    "completed":  "YappingMawInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "fd0285a3f7fb24c03ce950543109363c98fe0665",
+    "state":  "partial-one-converted",
+    "algorithm":  "Eight equal-width directional attacks and mirrored cooldown groups calculate 96 control positions and 52 visual addresses; named callbacks preserve carry roles.",
+    "remaining":  "Words required: holds 5/3/80/4 have no exception. 499 converted, 15 justified retained/mixed, 614 pending."
 }}

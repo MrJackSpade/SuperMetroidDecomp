@@ -8,6 +8,42 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort morphedFrames = Word(0xa6bc99), ordinaryFrames = Word(0xa6bc9e);
+        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        {
+            byte flags = raw < 28 ? rom.ReadByte(0xa6bd04 + raw) : (byte)0;
+            var movement = (SamusMovementType)raw;
+            AssertEqual((flags & 0x80) != 0, RidleySamusInteractionDefinitions.CanGrab(movement), "Named movement policy preserves complete byte-domain grabbability");
+            AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames,
+                RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement), "Named movement policy preserves complete byte-domain release duration");
+        }
+        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem();
+        typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, new FrontendCartridgeReadGuard(rom));
+        var canGrab = typeof(RoomEnemySystem).GetMethod("SamusMovementUsesRidleyGrab", instance)!
+            .CreateDelegate<Func<SamusState?, bool>>(enemies);
+        var release = typeof(RoomEnemySystem).GetMethod("ReleaseNorfairRidleyGrab", instance)!
+            .CreateDelegate<Action<RidleyEnemyState, SamusState?>>(enemies);
+        for (int pose = 0; pose <= 0xfc; pose++)
+        {
+            var samus = new SamusState { Pose = (byte)pose };
+            byte flags = rom.ReadByte(0xa6bd04 + rom.ReadByte(0x91b62a + pose * 8));
+            AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
+            var state = new RidleyEnemyState { GrabState = 1, TailWhipRequest = 0, TailFunctionIndex = 4, IntangibilityTimer = 99 };
+            release(state, samus);
+            AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer, "Actual release preserves native movement-dependent intangibility");
+            AssertEqual((ushort)0, state.GrabState, "Actual release clears grab");
+            AssertEqual((ushort)1, state.TailWhipRequest, "Actual release requests tail whip");
+            AssertEqual((ushort)1, state.TailFunctionIndex, "Actual release resets tail controller");
+        }
+        AssertTrue(!canGrab(null), "Missing Samus remains ungrabbable");
+        var absentState = new RidleyEnemyState();
+        release(absentState, null);
+        AssertEqual(ordinaryFrames, absentState.IntangibilityTimer, "Missing Samus retains standing release fallback");
+    }
     private static void VerifyLookupStream4TailAngles(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -185,6 +221,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
+        VerifyLookupStream4RidleyMovementPolicy(rom);
         VerifyLookupStream4TailAngles(rom);
         VerifyLookupStream4TailTerrain(rom);
         VerifyLookupStream4MessageDispatch(rom);

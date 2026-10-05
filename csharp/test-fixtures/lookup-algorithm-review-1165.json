@@ -11268,4 +11268,11 @@
     "state":  "converted",
     "algorithm":  "Ten-phase downstroke/upstroke selects six named elevations; opposite-facing records derive from equal-layout block displacement.",
     "remaining":  "480 converted,11 justified retained/mixed,637 pending. Independent wing cadence and artwork remain required."
+},"ridleyMovementPolicyIntegration":{
+    "confirmation":  "Root build1444 warnings/zero errors; --lookup-stream-4 passed all256 selectors,253 actual pose grab/release consumers with ROM reads forbidden, release state writes and null fallbacks.",
+    "completed":  "RoomEnemySystem.RidleySamusMovementFlags",
+    "workerCommit":  "07dac4cf957b0d499c3d7c383ac122e85482fc56",
+    "state":  "converted",
+    "algorithm":  "Named ordinary/morphed/immune movement cases expose grab eligibility and release duration. Static audit proves lower six native bits unconsumed.",
+    "remaining":  "481 converted,11 justified retained/mixed,636 pending."
 }}

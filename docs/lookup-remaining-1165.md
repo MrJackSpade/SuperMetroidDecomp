@@ -1,7 +1,7 @@
 
 ## Integrated stream progress
 
-The original snapshot below contains 1128 definitions. As of the first integrated batches, 480 are converted, 11 are justified retained, and 637 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
+The original snapshot below contains 1128 definitions. As of the first integrated batches, 481 are converted, 11 are justified retained, and 636 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
 # Remaining lookup-table definitions - issue 1165
 
 Remaining: **1128 canonical table definitions in 523 source files**.
@@ -3379,7 +3379,7 @@ Remaining table definitions: **2**.
 
 Remaining table definitions: **3**.
 
-- [ ] **RoomEnemySystem.RidleySamusMovementFlags** - stored definition ([L15](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L15)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.RidleySamusMovementFlags** - stored definition ([L15](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L15)). Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **RoomEnemySystem.RidleyTailTouchesTerrain / segmentIndexes** - method-local definition ([L672](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L672)). Five indexed joint selections 6 through 2; calculate the reverse traversal directly.
 - [x] **RoomEnemySystem.RidleyTailTouchesTerrain / yOffsets** - method-local definition ([L673](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L673)). Tip probe offset 16 followed by four joint offsets 18; express the tip/joint distinction directly.
 

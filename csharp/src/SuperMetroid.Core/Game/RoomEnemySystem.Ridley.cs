@@ -11,14 +11,6 @@ public sealed partial class RoomEnemySystem
 {
     public const ushort NorfairRidleyDefinition = 0xe17f;
 
-    private static readonly byte[] RidleySamusMovementFlags =
-    [
-        0x80, 0x80, 0x80, 0x00, 0xff, 0x80, 0x80, 0xff,
-        0xff, 0xff, 0x80, 0x00, 0x00, 0x80, 0x80, 0x80,
-        0x80, 0xff, 0xff, 0xff, 0x80, 0x80, 0x00, 0x80,
-        0x80, 0x00, 0x00, 0x80,
-    ];
-
     private static bool IsRidleyDefinition(ushort definitionPointer) =>
         definitionPointer is CeresRidleyDefinition or NorfairRidleyDefinition;
 
@@ -744,9 +736,7 @@ public sealed partial class RoomEnemySystem
         state.TailWhipRequest = 1;
         state.TailFunctionIndex = 1;
         SamusMovementType movement = samus?.ReadMovementType(_bus!) ?? SamusMovementType.Standing;
-        bool shortRelease = (byte)movement < RidleySamusMovementFlags.Length &&
-            (RidleySamusMovementFlags[(byte)movement] & 0x40) != 0;
-        state.IntangibilityTimer = shortRelease ? (ushort)6 : (ushort)10;
+        state.IntangibilityTimer = RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement);
     }
 
     private static void UpdateNorfairRidleyGrabbedSamus(
@@ -831,8 +821,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             return false;
         SamusMovementType movement = samus.ReadMovementType(_bus!);
-        return (byte)movement < RidleySamusMovementFlags.Length &&
-            (RidleySamusMovementFlags[(byte)movement] & 0x80) != 0;
+        return RidleySamusInteractionDefinitions.CanGrab(movement);
     }
 
     private static void MoveNorfairRidleyToward(

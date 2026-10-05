@@ -5,6 +5,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        VerifyLookupStream1Sciser(rom);
         VerifyLookupStream1PowampMotion(rom);
         VerifyLookupStream1HibashiDragonFireball(rom);
         VerifyLookupStream1CommonFrames(rom);
@@ -345,5 +346,53 @@ internal static partial class Program
             foreach (int invalid in new[] { bank | (first - 1), bank | end, (bank ^ 0x10000) | first })
                 AssertTrue(!owns(invalid), "Hibashi/Dragon external byte domain");
         }
+    }
+    private static void VerifyLookupStream1Sciser(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var frames = SuperMetroid.Core.Assets.SciserVisualDefinitions.Frames();
+        AssertEqual(12, frames.Length, "Sciser visual catalog size");
+        string[] names = ["right", "left", "down", "up"];
+        for (int surface = 0; surface < 4; surface++)
+        for (int frame = 0; frame < 3; frame++)
+        {
+            var actual = frames[surface * 3 + frame];
+            ushort pointer = Word(0xa39681 + surface * 24 + frame * 4);
+            AssertEqual(pointer, actual.Pointer, "native Sciser visual identity");
+            AssertEqual((byte)0xa3, actual.Bank, "Sciser bank");
+            AssertEqual($"sciser_upside_{names[surface]}_{frame}", actual.Name, "Sciser stable editable name");
+            AssertEqual((ushort)4, Word(0xa30000 | pointer), "native Sciser four-object record size");
+        }
+        var controls = new HashSet<ushort>();
+        var visuals = new HashSet<ushort>();
+        for (int surface = 0; surface < 4; surface++)
+        {
+            int start = 0x967b + surface * 24;
+            foreach (int offset in new[] { 0, 2, 4, 8, 12, 16, 20, 22 }) controls.Add((ushort)(start + offset));
+            for (int frame = 0; frame < 4; frame++) visuals.Add((ushort)(start + 6 + frame * 4));
+        }
+        int controlIndex = 0, visualIndex = 0;
+        for (int pointer = 0x967a; pointer <= 0x96dc; pointer++)
+        {
+            AssertEqual(visuals.Contains((ushort)pointer), SciserInstructionProgramDefinitions.IsPresentationWord((ushort)pointer),
+                "Sciser exact presentation domain");
+            AssertEqual(controls.Contains((ushort)pointer) || controls.Contains((ushort)(pointer - 1)),
+                SciserInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | pointer), "Sciser exact byte guard domain");
+            if (controls.Contains((ushort)pointer))
+            {
+                var actual = SciserInstructionProgramDefinitions.MechanicsWord(controlIndex++);
+                AssertEqual((ushort)pointer, actual.Address, "Sciser native control order");
+                AssertEqual(Word(0xa30000 | pointer), actual.Value, "Sciser native control value");
+            }
+            else AssertThrows<InvalidDataException>(() => SciserInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer),
+                "Sciser rejects every noncontrol address");
+            if (visuals.Contains((ushort)pointer))
+                AssertEqual((ushort)pointer, SciserInstructionProgramDefinitions.PresentationWordAddress(visualIndex++),
+                    "Sciser native visual order");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitions.MechanicsWord(invalid), "Sciser control index domain");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitions.PresentationWordAddress(invalid), "Sciser visual index domain");
     }
 }

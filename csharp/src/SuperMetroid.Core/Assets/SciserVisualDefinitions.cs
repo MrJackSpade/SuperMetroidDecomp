@@ -12,22 +12,23 @@ internal static class SciserVisualDefinitions
     /// <summary>Native Sciser spritemap bank $A3.</summary>
     internal const byte Bank = 0xa3;
 
-    internal static EnemySpritemapDefinition[] Frames() =>
-    [
-        new(Bank, 0x9745, "sciser_upside_right_0"),
-        new(Bank, 0x975b, "sciser_upside_right_1"),
-        new(Bank, 0x9771, "sciser_upside_right_2"),
-        new(Bank, 0x97c9, "sciser_upside_left_0"),
-        new(Bank, 0x97df, "sciser_upside_left_1"),
-        new(Bank, 0x97f5, "sciser_upside_left_2"),
-        new(Bank, 0x9787, "sciser_upside_down_0"),
-        new(Bank, 0x979d, "sciser_upside_down_1"),
-        new(Bank, 0x97b3, "sciser_upside_down_2"),
-        new(Bank, 0x9703, "sciser_upside_up_0"),
-        new(Bank, 0x9719, "sciser_upside_up_1"),
-        new(Bank, 0x972f, "sciser_upside_up_2"),
-    ];
-
+    /// <summary>$A3:9703 / Spritemap_Sciser_UpsideUp_0 begins twelve four-object records, each 22 bytes.</summary>
+    private const ushort FirstFrame = 0x9703;
+    internal static EnemySpritemapDefinition[] Frames()
+    {
+        var result = new EnemySpritemapDefinition[12];
+        for (int surface = 0; surface < 4; surface++)
+        {
+            (int group, string name) = surface switch
+            {
+                0 => (1, "right"), 1 => (3, "left"), 2 => (2, "down"), _ => (0, "up"),
+            };
+            for (int frame = 0; frame < 3; frame++)
+                result[surface * 3 + frame] = new(Bank, (ushort)(FirstFrame + (group * 3 + frame) * 22),
+                    $"sciser_upside_{name}_{frame}");
+        }
+        return result;
+    }
     /// <summary>Only the sixteen visual operands in Sciser's four native loops.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {

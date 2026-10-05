@@ -25,6 +25,7 @@ internal static partial class Program
                 $"escape Dachora mechanics word $B3:{definition.Address:X4}");
         }
 
+        var executedOperands = new HashSet<ushort>();
         var guard = new EscapeDachoraInstructionReadGuard(rom);
         RoomEnemySystem enemies = CreateEscapeDachoraProgramSystem(guard, flags);
         RoomEnemySlot dachora = enemies.Slots[0];
@@ -33,21 +34,21 @@ internal static partial class Program
         ushort initialX = dachora.XPosition;
         dachora.CurrentInstruction =
             EscapeDachoraInstructionProgramDefinitions.RunningAroundLowTide;
-        RunForcedEscapeDachoraInstructions(process, enemies, dachora, 70);
+        RunForcedEscapeDachoraInstructions(rom, executedOperands, process, enemies, dachora, 70);
         AssertTrue(dachora.XPosition != initialX,
             "escape Dachora low-tide pacing runs movement callbacks");
 
         initialX = dachora.XPosition;
         dachora.CurrentInstruction =
             EscapeDachoraInstructionProgramDefinitions.RunningAroundHighTide;
-        RunForcedEscapeDachoraInstructions(process, enemies, dachora, 70);
+        RunForcedEscapeDachoraInstructions(rom, executedOperands, process, enemies, dachora, 70);
         AssertTrue(dachora.XPosition != initialX,
             "escape Dachora high-tide pacing runs movement callbacks");
 
         initialX = dachora.XPosition;
         dachora.CurrentInstruction =
             EscapeDachoraInstructionProgramDefinitions.RunningForEscape;
-        RunForcedEscapeDachoraInstructions(process, enemies, dachora, 30);
+        RunForcedEscapeDachoraInstructions(rom, executedOperands, process, enemies, dachora, 30);
         AssertTrue(unchecked((short)(dachora.XPosition - initialX)) > 0,
             "escape Dachora departure moves right through its accelerating callbacks");
         AssertTrue(dachora.CurrentInstruction is
@@ -57,20 +58,22 @@ internal static partial class Program
             "escape Dachora departure reaches its maximum-speed loop");
 
         AssertEqual(EscapeDachoraInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live escape-Dachora spritemap words remain cartridge reads");
+            executedOperands.Count,
+            "all executed visual selectors match the cartridge");
         for (int index = 0;
              index < EscapeDachoraInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 EscapeDachoraInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads escape-Dachora presentation word $B3:{address:X4}");
+            AssertTrue(executedOperands.Contains(address),
+                $"production covers escape-Dachora presentation word $B3:{address:X4}");
             AssertThrows<InvalidDataException>(
                 () => EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"escape-Dachora spritemap $B3:{address:X4} is rejected as mechanics");
         }
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "compiled visual selectors require no runtime cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled escape-Dachora mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -87,8 +90,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Escape Dachora instruction mechanics: 119 compiled words, low/high-tide " +
-            "pacing, accelerating departure and 43 spritemap reads pass with mechanics " +
-            "bytes forbidden.");
+            "pacing, accelerating departure and 43 executed selectors match cartridge data with runtime " +
+            "ROM reads forbidden.");
     }
 
     private static RoomEnemySystem CreateEscapeDachoraProgramSystem(
@@ -110,6 +113,8 @@ internal static partial class Program
     }
 
     private static void RunForcedEscapeDachoraInstructions(
+        ISnesAddressSpace rom,
+        HashSet<ushort> executedOperands,
         MethodInfo process,
         RoomEnemySystem enemies,
         RoomEnemySlot dachora,
@@ -121,6 +126,7 @@ internal static partial class Program
         {
             dachora.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
+            VerifyExecutedEnemySelector(rom, dachora, executedOperands);
         }
     }
 

@@ -26,6 +26,7 @@ internal static partial class Program
                 $"Ceres steam instruction mechanics word $A6:{definition.Address:X4}");
         }
 
+        var executedOperands = new HashSet<ushort>();
         var guard = new CeresSteamInstructionProgramReadGuard(rom);
         (CeresSteamVariant Variant, ushort Program, ushort Active)[] programs =
         [
@@ -74,18 +75,20 @@ internal static partial class Program
         }
 
         AssertEqual(CeresSteamInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "uninstalled Ceres steam fixture retains mutable visual operands");
+            executedOperands.Count,
+            "all executed visual selectors match the cartridge");
         for (int index = 0;
              index < CeresSteamInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 CeresSteamInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"uninstalled Ceres steam fixture reads presentation $A6:{address:X4}");
+            AssertTrue(executedOperands.Contains(address),
+                $"Ceres steam execution covers presentation $A6:{address:X4}");
         }
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "compiled visual selectors require no runtime cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Ceres steam mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -104,8 +107,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Ceres steam instruction mechanics: sixty-eight compiled words, four shared " +
-            "directional cycles, and thirty-six synthetic mutable visual reads pass with " +
-            "mechanics bytes forbidden.");
+            "directional cycles, and thirty-six executed selectors match cartridge data with " +
+            "runtime ROM reads forbidden.");
 
         RoomEnemySystem CreateSystem(CeresSteamVariant variant, out RoomEnemySlot slot)
         {
@@ -125,14 +128,17 @@ internal static partial class Program
             return enemies;
         }
 
-        static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
+        void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
             for (int frame = 0; frame < frames; frame++)
+            {
                 process.Invoke(enemies, arguments);
+                VerifyExecutedEnemySelector(rom, slot, executedOperands);
+            }
         }
     }
 

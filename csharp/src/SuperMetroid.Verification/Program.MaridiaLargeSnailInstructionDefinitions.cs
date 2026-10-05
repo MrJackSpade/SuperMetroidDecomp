@@ -12,6 +12,7 @@ internal static partial class Program
             "InstallMaridiaLargeSnailInstructionList",
             BindingFlags.Static | BindingFlags.NonPublic)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", instance)!;
+        var executedOperands = new HashSet<ushort>();
         var guarded = new MaridiaLargeSnailInstructionReadGuard(rom);
 
         for (ushort animationIndex = 0; animationIndex < 8; animationIndex++)
@@ -94,7 +95,7 @@ internal static partial class Program
             AssertEqual(MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftIdle,
                 snail.CurrentInstruction,
                 $"real Maridia Large Snail initializer before {program.Name}");
-            ExecuteMaridiaLargeSnailProgram(
+            ExecuteMaridiaLargeSnailProgram(rom, executedOperands,
                 enemies, process, snail, program.Program, program.Calls);
             AssertEqual(program.Terminal, snail.CurrentInstruction,
                 $"Maridia Large Snail {program.Name} terminal instruction");
@@ -121,7 +122,7 @@ internal static partial class Program
             snail.EnemyDefinitionPointer = RoomEnemySystem.MaridiaLargeSnailDefinition;
             snail.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             initialize(snail);
-            ExecuteMaridiaLargeSnailProgram(
+            ExecuteMaridiaLargeSnailProgram(rom, executedOperands,
                 enemies,
                 process,
                 snail,
@@ -129,7 +130,7 @@ internal static partial class Program
                 2);
             AssertTrue(enemies.MaridiaLargeSnailStates[0]!.AttackAllowsRotation,
                 "Maridia Large Snail forward roll enables its attack window");
-            ExecuteMaridiaLargeSnailProgram(
+            ExecuteMaridiaLargeSnailProgram(rom, executedOperands,
                 enemies,
                 process,
                 snail,
@@ -143,8 +144,13 @@ internal static partial class Program
             () => MaridiaLargeSnailInstructionDefinitions.InstructionPointer(8),
             "Maridia Large Snail selector past table");
         AssertEqual(MaridiaLargeSnailInstructionProgramDefinitions.PresentationWordCount,
-            guarded.ObservedPresentationWords.Count,
-            "uninstalled Oum fixture retains mutable visual operands");
+            executedOperands.Count,
+            "all executed visual selectors match the cartridge");
+        for (int operandIndex = 0; operandIndex < MaridiaLargeSnailInstructionProgramDefinitions.PresentationWordCount; operandIndex++)
+            AssertTrue(executedOperands.Contains(MaridiaLargeSnailInstructionProgramDefinitions.PresentationWordAddress(operandIndex)),
+                "execution covers each authored presentation operand");
+        AssertEqual(0, guarded.ObservedPresentationWords.Count,
+            "compiled visual selectors require no runtime cartridge reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production execution avoids compiled Maridia Large Snail mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -166,10 +172,12 @@ internal static partial class Program
         Console.WriteLine(
             "Maridia Large Snail instruction mechanics: all eight native selectors, " +
             "eighty-four compiled mechanics words, all eight programs and callback side " +
-            "effects, and sixty synthetic mutable visual reads pass with mechanics bytes forbidden.");
+            "effects, and sixty executed selectors match cartridge data with runtime reads forbidden.");
     }
 
     private static void ExecuteMaridiaLargeSnailProgram(
+        ISnesAddressSpace rom,
+        HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
         MethodInfo process,
         RoomEnemySlot snail,
@@ -183,6 +191,7 @@ internal static partial class Program
         {
             snail.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
+            VerifyExecutedEnemySelector(rom, snail, executedOperands);
         }
     }
 

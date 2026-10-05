@@ -28,92 +28,104 @@ internal static class EscapeEtecoonInstructionProgramDefinitions
     /// <summary><c>Instruction_EtecoonEscape_XPositionPlusY</c>, adjacent code at $B3:E610.</summary>
     internal const ushort FirstAdjacentCodeRoutine = 0xe610;
 
-    private static readonly EscapeEtecoonInstructionMechanicsWord[] Words =
-    [
-        new(RunningLeftLowTide,
-            EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_GotoY_IfAcidPositionLessThanCE),
-        new(0xe558, RunningLeftHighTide),
-        new(0xe55a, 0x0005), new(0xe55e, 0x0005),
-        new(0xe562, 0x0005), new(0xe566, 0x0005),
-        new(0xe56a, CommonEnemyInstructionCodes.Goto), new(0xe56c, 0xe55a),
-        new(RunningLeftHighTide, 0x0003), new(0xe572, 0x0003),
-        new(0xe576, 0x0003), new(0xe57a, 0x0003),
-        new(0xe57e, CommonEnemyInstructionCodes.Goto),
-        new(0xe580, RunningLeftHighTide),
+    internal static int MechanicsWordCount => 63;
+    internal static int PresentationWordCount => 30;
 
-        new(RunningRightLowTide,
-            EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_GotoY_IfAcidPositionLessThanCE),
-        new(0xe584, RunningRightHighTide),
-        new(0xe586, 0x0006), new(0xe58a, 0x0006),
-        new(0xe58e, 0x0006), new(0xe592, 0x0006),
-        new(0xe596, CommonEnemyInstructionCodes.Goto), new(0xe598, 0xe586),
-        new(RunningRightHighTide, 0x0003), new(0xe59e, 0x0003),
-        new(0xe5a2, 0x0003), new(0xe5a6, 0x0003),
-        new(0xe5aa, CommonEnemyInstructionCodes.Goto),
-        new(0xe5ac, RunningRightHighTide),
+    internal static EscapeEtecoonInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 28)
+        {
+            bool right = index >= 14;
+            int local = index % 14;
+            ushort low = right ? RunningRightLowTide : RunningLeftLowTide;
+            ushort high = right ? RunningRightHighTide : RunningLeftHighTide;
+            if (local == 0)
+                return new(low, EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_GotoY_IfAcidPositionLessThanCE);
+            if (local == 1)
+                return new((ushort)(low + 2), high);
+            return local < 8
+                ? FourPoseLoop((ushort)(low + 4), local - 2, right ? (ushort)6 : (ushort)5)
+                : FourPoseLoop(high, local - 8, 3);
+        }
+        if (index < 36)
+        {
+            int local = index - 28;
+            if (local == 0)
+                return new(RunningForEscape, EscapeAnimalInstructionCodes.Instruction_CommonB3_Enemy0FB2_InY);
+            if (local == 1)
+                return new((ushort)(RunningForEscape + 2), (ushort)EscapeEtecoonPreInstruction.EscapeRight);
+            return FourPoseLoop((ushort)(RunningForEscape + 4), local - 2, 3);
+        }
+        if (index < 42)
+        {
+            int local = index - 36;
+            return FourPoseLoop(Stationary, local, (ushort)((local & 1) == 0 ? 64 : 8));
+        }
+        int gratitude = index - 42;
+        if (gratitude < 3)
+            return new((ushort)(ExpressGratitudeThenEscape + 2 * gratitude), gratitude switch
+            {
+                0 => EscapeAnimalInstructionCodes.Instruction_CommonB3_SetEnemy0FB2ToRTS,
+                1 => CommonEnemyInstructionCodes.SetTimer,
+                _ => 8,
+            });
+        if (gratitude < 15)
+        {
+            int record = (gratitude - 3) / 3;
+            int field = (gratitude - 3) % 3;
+            return new((ushort)(ExpressGratitudeThenEscape + 6 + 8 * record + (field == 0 ? 0 : 2 + 2 * field)),
+                field switch
+                {
+                    0 => 8,
+                    1 => EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_XPositionPlusY,
+                    _ => unchecked((ushort)-3),
+                });
+        }
+        int finish = gratitude - 15;
+        int offset = finish < 3 ? 38 + 2 * finish : finish == 3 ? 46 : 42 + 2 * finish;
+        ushort value = finish switch
+        {
+            0 => CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate,
+            1 => (ushort)(ExpressGratitudeThenEscape + 6),
+            2 => 64,
+            3 => 8,
+            4 => CommonEnemyInstructionCodes.Goto,
+            _ => RunningForEscape,
+        };
+        return new((ushort)(ExpressGratitudeThenEscape + offset), value);
+    }
 
-        new(RunningForEscape,
-            EscapeAnimalInstructionCodes.Instruction_CommonB3_Enemy0FB2_InY),
-        new(0xe5b0, (ushort)EscapeEtecoonPreInstruction.EscapeRight),
-        new(0xe5b2, 0x0003), new(0xe5b6, 0x0003),
-        new(0xe5ba, 0x0003), new(0xe5be, 0x0003),
-        new(0xe5c2, CommonEnemyInstructionCodes.Goto), new(0xe5c4, 0xe5b2),
+    private static EscapeEtecoonInstructionMechanicsWord FourPoseLoop(ushort start, int word, ushort duration) =>
+        new((ushort)(start + (word < 5 ? 4 * word : 18)),
+            word < 4 ? duration : word == 4 ? CommonEnemyInstructionCodes.Goto : start);
 
-        new(Stationary, 0x0040), new(0xe5ca, 0x0008),
-        new(0xe5ce, 0x0040), new(0xe5d2, 0x0008),
-        new(0xe5d6, CommonEnemyInstructionCodes.Goto), new(0xe5d8, Stationary),
-
-        new(ExpressGratitudeThenEscape,
-            EscapeAnimalInstructionCodes.Instruction_CommonB3_SetEnemy0FB2ToRTS),
-        new(0xe5dc, CommonEnemyInstructionCodes.SetTimer), new(0xe5de, 0x0008),
-        new(0xe5e0, 0x0008),
-        new(0xe5e4, EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_XPositionPlusY),
-        new(0xe5e6, 0xfffd), new(0xe5e8, 0x0008),
-        new(0xe5ec, EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_XPositionPlusY),
-        new(0xe5ee, 0xfffd), new(0xe5f0, 0x0008),
-        new(0xe5f4, EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_XPositionPlusY),
-        new(0xe5f6, 0xfffd), new(0xe5f8, 0x0008),
-        new(0xe5fc, EscapeAnimalInstructionCodes.Instruction_EtecoonEscape_XPositionPlusY),
-        new(0xe5fe, 0xfffd),
-        new(0xe600, CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
-        new(0xe602, 0xe5e0), new(0xe604, 0x0040), new(0xe608, 0x0008),
-        new(0xe60c, CommonEnemyInstructionCodes.Goto),
-        new(0xe60e, RunningForEscape),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe55c, 0xe560, 0xe564, 0xe568,
-        0xe570, 0xe574, 0xe578, 0xe57c,
-        0xe588, 0xe58c, 0xe590, 0xe594,
-        0xe59c, 0xe5a0, 0xe5a4, 0xe5a8,
-        0xe5b4, 0xe5b8, 0xe5bc, 0xe5c0,
-        0xe5c8, 0xe5cc, 0xe5d0, 0xe5d4,
-        0xe5e2, 0xe5ea, 0xe5f2, 0xe5fa, 0xe606, 0xe60a,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static EscapeEtecoonInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 16)
+        {
+            ushort low = index < 8 ? RunningLeftLowTide : RunningRightLowTide;
+            int local = index % 8;
+            return (ushort)(low + (local < 4 ? 6 + 4 * local : 26 + 4 * (local - 4)));
+        }
+        if (index < 20)
+            return (ushort)(RunningForEscape + 6 + 4 * (index - 16));
+        if (index < 24)
+            return (ushort)(Stationary + 2 + 4 * (index - 20));
+        return (ushort)(ExpressGratitudeThenEscape + (index < 28 ? 8 + 8 * (index - 24) : 44 + 4 * (index - 28)));
+    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            int middle = low + ((high - low) >> 1);
-            EscapeEtecoonInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            EscapeEtecoonInstructionMechanicsWord word = MechanicsWord(index);
+            if (word.Address == address)
+                return word.Value;
         }
-
         throw new InvalidDataException(
             $"Escape Etecoon instruction mechanics pointer $B3:{address:X4} is not compiled.");
     }
@@ -123,14 +135,11 @@ internal static class EscapeEtecoonInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xb30000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
+            ushort wordAddress = MechanicsWord(index).Address;
+            if (bankAddress == wordAddress || bankAddress == wordAddress + 1)
                 return true;
-            }
         }
         return false;
     }

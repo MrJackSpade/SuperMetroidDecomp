@@ -109,6 +109,7 @@ internal static partial class Program
         RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem(guard, flags);
         RoomEnemySlot etecoon = enemies.Slots[0];
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+        var selectedPresentation = new HashSet<ushort>();
         ushort[] programs =
         [
             EscapeEtecoonInstructionProgramDefinitions.RunningLeftLowTide,
@@ -121,7 +122,7 @@ internal static partial class Program
         foreach (ushort program in programs)
         {
             etecoon.CurrentInstruction = program;
-            RunForcedEscapeEtecoonInstructions(process, enemies, etecoon, 7);
+            RunForcedEscapeEtecoonInstructions(process, enemies, etecoon, 7, rom, selectedPresentation);
         }
 
         EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
@@ -129,23 +130,25 @@ internal static partial class Program
         ushort xBeforeGratitude = etecoon.XPosition;
         etecoon.CurrentInstruction =
             EscapeEtecoonInstructionProgramDefinitions.ExpressGratitudeThenEscape;
-        RunForcedEscapeEtecoonInstructions(process, enemies, etecoon, 40);
+        RunForcedEscapeEtecoonInstructions(process, enemies, etecoon, 40, rom, selectedPresentation);
         AssertTrue(unchecked((short)(etecoon.XPosition - xBeforeGratitude)) < 0,
             "escape Etecoon gratitude program applies its repeated left displacement");
         AssertEqual(EscapeEtecoonPreInstruction.EscapeRight, state.PreInstruction,
             "escape Etecoon gratitude program hands off to rightward escape");
 
         AssertEqual(EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live escape-Etecoon spritemap words remain cartridge reads");
+            selectedPresentation.Count,
+            "all escape-Etecoon native presentation operands execute");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "escape-Etecoon uses compiled presentation without ROM reads");
         for (int index = 0;
              index < EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 EscapeEtecoonInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads escape-Etecoon presentation word $B3:{address:X4}");
+            AssertTrue(selectedPresentation.Contains(address),
+                $"production selects escape-Etecoon presentation operand $B3:{address:X4}");
             AssertThrows<InvalidDataException>(
                 () => EscapeEtecoonInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"escape-Etecoon spritemap $B3:{address:X4} is rejected as mechanics");
@@ -166,7 +169,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Escape Etecoon instruction mechanics: 63 compiled words, all seven live " +
-            "programs and 30 spritemap reads pass with mechanics bytes forbidden.");
+            "programs and 30 installed native selectors pass with source reads forbidden.");
     }
 
     private static RoomEnemySystem CreateEscapeEtecoonProgramSystem(
@@ -190,7 +193,9 @@ internal static partial class Program
         MethodInfo process,
         RoomEnemySystem enemies,
         RoomEnemySlot etecoon,
-        int steps)
+        int steps,
+        SuperMetroidAddressSpace rom,
+        HashSet<ushort> selectedPresentation)
     {
         object?[] arguments =
             [etecoon, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
@@ -198,6 +203,10 @@ internal static partial class Program
         {
             etecoon.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
+            ushort operand = unchecked((ushort)(etecoon.CurrentInstruction - 2));
+            AssertEqual(ReadEscapeEtecoonInstructionWord(rom, 0xb30000 | operand),
+                etecoon.SpritemapPointer, "escape-Etecoon actual installed native visual selector");
+            selectedPresentation.Add(operand);
         }
     }
 

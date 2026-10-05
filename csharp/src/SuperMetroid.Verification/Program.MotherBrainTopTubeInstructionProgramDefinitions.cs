@@ -26,6 +26,9 @@ internal static partial class Program
                 $"Mother Brain ceiling-tube mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new MotherBrainTopTubeInstructionReadGuard(rom);
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
             "SpawnMotherBrainTopTube", flags)!;
@@ -75,9 +78,10 @@ internal static partial class Program
         AssertTrue(!shot.IsActive,
             "Mother Brain ceiling-tube shot reaction reaches shared compiled deletion");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Projectile presentation performs zero live cartridge reads");
         AssertEqual(MotherBrainTopTubeInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Mother Brain ceiling-tube spritemap operands remain cartridge reads");
+            executedOperands.Count, "Every native visual operand executes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared ceiling-tube mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -96,8 +100,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Mother Brain ceiling-tube instruction mechanics: eight compiled words, all " +
-            "four real producers, terminal sleeps, shared deletion, and four live " +
-            "spritemap reads pass.");
+            "four real producers, terminal sleeps, shared deletion, and four native " +
+            "sprite compositions pass with zero live operand reads.");
 
         RoomEnemySystem NewSystem()
         {
@@ -110,6 +114,7 @@ internal static partial class Program
         {
             projectile.InstructionTimer = 1;
             process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
     }
 

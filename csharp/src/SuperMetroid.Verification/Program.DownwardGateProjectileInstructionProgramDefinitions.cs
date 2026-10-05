@@ -28,6 +28,9 @@ internal static partial class Program
                 $"downward-gate projectile mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new DownwardGateProjectileInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -104,17 +107,18 @@ internal static partial class Program
         AssertTrue(!shot.IsActive,
             "downward-gate shot reaction reaches shared compiled deletion");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Projectile presentation performs zero live cartridge reads");
         AssertEqual(DownwardGateProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all downward-gate spritemap operands remain cartridge reads");
+            executedOperands.Count, "Every native visual operand executes");
         for (int index = 0;
              index < DownwardGateProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = DownwardGateProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads downward-gate presentation $86:{address:X4}");
+            AssertTrue(executedOperands.Contains(address),
+                $"production executes downward-gate presentation $86:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared downward-gate mechanics bytes");
@@ -135,7 +139,7 @@ internal static partial class Program
         Console.WriteLine(
             "Downward-gate projectile instruction mechanics: twenty-eight compiled words, " +
             "both real producers, four-stage close/open lifecycles, shared deletion, and " +
-            "nine live spritemap reads pass.");
+            "nine executed native sprite compositions pass with zero live operand reads.");
 
         RoomEnemySystem NewSystem()
         {
@@ -160,6 +164,7 @@ internal static partial class Program
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
             process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
 
         void RunMovementFrames(

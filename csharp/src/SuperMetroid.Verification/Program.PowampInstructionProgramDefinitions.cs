@@ -26,6 +26,7 @@ internal static partial class Program
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = new PowampInstructionReadGuard(rom);
+        var executedOperands = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -52,13 +53,13 @@ internal static partial class Program
 
         object?[] bodyArguments =
             [body, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
-        ExecutePowampInstructionCalls(enemies, process, bodyArguments, body, 4);
+        ExecutePowampInstructionCalls(rom, executedOperands, enemies, process, bodyArguments, body, 4);
         AssertEqual(unchecked((ushort)(PowampInstructionProgramDefinitions.BodySlow + 4)),
             body.CurrentInstruction,
             "Powamp slow body loop completes its native goto and first repeated frame");
 
         body.CurrentInstruction = PowampInstructionProgramDefinitions.BodyFast;
-        ExecutePowampInstructionCalls(enemies, process, bodyArguments, body, 4);
+        ExecutePowampInstructionCalls(rom, executedOperands, enemies, process, bodyArguments, body, 4);
         AssertEqual(unchecked((ushort)(PowampInstructionProgramDefinitions.BodyFast + 4)),
             body.CurrentInstruction,
             "Powamp fast body loop completes its native goto and first repeated frame");
@@ -66,20 +67,24 @@ internal static partial class Program
         object?[] balloonArguments =
             [balloon, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
         balloon.CurrentInstruction = PowampInstructionProgramDefinitions.BalloonInflate0;
-        ExecutePowampInstructionCalls(enemies, process, balloonArguments, balloon, 4);
+        ExecutePowampInstructionCalls(rom, executedOperands, enemies, process, balloonArguments, balloon, 4);
         AssertEqual(unchecked((ushort)(PowampInstructionProgramDefinitions.BalloonInflate2 + 4)),
             balloon.CurrentInstruction,
             "Powamp inflate program reaches terminal sleep");
 
         balloon.CurrentInstruction = PowampInstructionProgramDefinitions.BalloonStartSinking;
-        ExecutePowampInstructionCalls(enemies, process, balloonArguments, balloon, 4);
+        ExecutePowampInstructionCalls(rom, executedOperands, enemies, process, balloonArguments, balloon, 4);
         AssertEqual(unchecked((ushort)(PowampInstructionProgramDefinitions.BalloonDeflated + 4)),
             balloon.CurrentInstruction,
             "Powamp deflate program falls through to shared deflated sleep");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Enemy presentation performs zero live cartridge reads");
         AssertEqual(PowampInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Powamp spritemap operands remain cartridge reads");
+            executedOperands.Count, "Every native visual operand executes");
+        for (int index = 0; index < PowampInstructionProgramDefinitions.PresentationWordCount; index++)
+            AssertTrue(executedOperands.Contains(PowampInstructionProgramDefinitions.PresentationWordAddress(index)),
+                "every Powamp visual operand executes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Powamp mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -100,11 +105,12 @@ internal static partial class Program
 
         Console.WriteLine(
             "Powamp instruction mechanics: 18 compiled words, both body loops, the " +
-            "inflate/deflate fallthrough programs, and 12 live spritemap reads pass " +
+            "inflate/deflate fallthrough programs, and 12 native sprite selections pass " +
             "with mechanics bytes forbidden.");
     }
 
     private static void ExecutePowampInstructionCalls(
+        ISnesAddressSpace rom, HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
         MethodInfo process,
         object?[] arguments,
@@ -115,6 +121,7 @@ internal static partial class Program
         {
             slot.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
+            VerifyExecutedEnemySelector(rom, slot, executedOperands);
         }
     }
 

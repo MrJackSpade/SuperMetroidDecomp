@@ -16,7 +16,7 @@ internal static partial class Program
         AssertEqual(58, PhantoonInstructionProgramDefinitions.MechanicsWordCount,
             "Phantoon compiled mechanics word count");
         AssertEqual(27, PhantoonInstructionProgramDefinitions.PresentationWordCount,
-            "Phantoon live presentation word count");
+            "Phantoon presentation word count");
         for (int index = 0;
              index < PhantoonInstructionProgramDefinitions.MechanicsWordCount;
              index++)
@@ -29,6 +29,7 @@ internal static partial class Program
         }
 
         var guard = new PhantoonInstructionReadGuard(rom);
+        var executedOperands = new HashSet<ushort>();
         RoomEnemySystem enemies = CreatePhantoonInstructionSystem(guard);
         RoomEnemySlot body = enemies.Slots[0];
         RoomEnemySlot eye = enemies.Slots[1];
@@ -45,13 +46,13 @@ internal static partial class Program
                      PhantoonInstructionProgramDefinitions.EyeHitboxBody,
                  })
         {
-            RunPhantoonInstructionProgram(process, enemies, body, entry, calls: 2);
+            RunPhantoonInstructionProgram(rom, executedOperands, process, enemies, body, entry, calls: 2);
             AssertEqual(unchecked((ushort)(entry + 4)), body.CurrentInstruction,
                 $"Phantoon body program $A7:{entry:X4} reaches terminal sleep");
         }
 
         RunPhantoonInstructionProgram(
-            process,
+            rom, executedOperands, process,
             enemies,
             eye,
             PhantoonInstructionProgramDefinitions.EyeOpen,
@@ -65,13 +66,13 @@ internal static partial class Program
             "Phantoon open-eye callback queues its materialization sound");
 
         RunPhantoonInstructionProgram(
-            process,
+            rom, executedOperands, process,
             enemies,
             eye,
             PhantoonInstructionProgramDefinitions.EyeClosed,
             calls: 2);
         RunPhantoonInstructionProgram(
-            process,
+            rom, executedOperands, process,
             enemies,
             eye,
             PhantoonInstructionProgramDefinitions.EyeCloseAndPickNewPattern,
@@ -80,7 +81,7 @@ internal static partial class Program
             eye.CurrentInstruction,
             "Phantoon close-and-pick program branches into the closed-eye frame");
         RunPhantoonInstructionProgram(
-            process,
+            rom, executedOperands, process,
             enemies,
             eye,
             PhantoonInstructionProgramDefinitions.EyeClose,
@@ -89,7 +90,7 @@ internal static partial class Program
             eye.CurrentInstruction,
             "Phantoon close program branches into the closed-eye frame");
         RunPhantoonInstructionProgram(
-            process,
+            rom, executedOperands, process,
             enemies,
             eye,
             PhantoonInstructionProgramDefinitions.EyeballCentered,
@@ -107,13 +108,13 @@ internal static partial class Program
                      PhantoonInstructionProgramDefinitions.EyeLookingUpLeft,
                  })
         {
-            RunPhantoonInstructionProgram(process, enemies, eye, entry, calls: 2);
+            RunPhantoonInstructionProgram(rom, executedOperands, process, enemies, eye, entry, calls: 2);
             AssertEqual(unchecked((ushort)(entry + 4)), eye.CurrentInstruction,
                 $"Phantoon eye-direction program $A7:{entry:X4} reaches terminal sleep");
         }
 
         RunPhantoonInstructionProgram(
-            process,
+            rom, executedOperands, process,
             enemies,
             tentacles,
             PhantoonInstructionProgramDefinitions.InitialTentacles,
@@ -125,7 +126,7 @@ internal static partial class Program
 
         int flamesBefore = enemies.EnemyProjectiles.Count(projectile => projectile.IsActive);
         RunPhantoonInstructionProgram(
-            process,
+            rom, executedOperands, process,
             enemies,
             mouth,
             PhantoonInstructionProgramDefinitions.MouthFollowUp,
@@ -138,14 +139,16 @@ internal static partial class Program
             enemies.EnemyProjectiles.Count(projectile => projectile.IsActive),
             "Phantoon mouth callback spawns one casual flame");
         RunPhantoonInstructionProgram(
-            process,
+            rom, executedOperands, process,
             enemies,
             mouth,
             PhantoonInstructionProgramDefinitions.InitialMouth,
             calls: 2);
 
-        AssertEqual(27, guard.ObservedPresentationWords.Count,
-            "all reachable Phantoon extended-spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Enemy presentation performs zero live cartridge reads");
+        AssertEqual(PhantoonInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "Every native visual operand executes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Phantoon production execution avoids compiled mechanics bytes");
         for (int index = 0;
@@ -154,8 +157,8 @@ internal static partial class Program
         {
             ushort address =
                 PhantoonInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Phantoon presentation $A7:{address:X4}");
+            AssertTrue(executedOperands.Contains(address),
+                $"production execution selects Phantoon presentation $A7:{address:X4}");
             AssertThrows<InvalidDataException>(
                 () => PhantoonInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Phantoon presentation $A7:{address:X4} is rejected as mechanics");
@@ -174,7 +177,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Phantoon instruction mechanics: 58 compiled words, all 19 reachable " +
-            "programs, four callbacks, and 27 live presentation reads pass.");
+            "programs, four callbacks, and 27 native sprite selections pass with zero live reads.");
     }
 
     private static RoomEnemySystem CreatePhantoonInstructionSystem(ISnesAddressSpace bus)
@@ -208,6 +211,7 @@ internal static partial class Program
     }
 
     private static void RunPhantoonInstructionProgram(
+        ISnesAddressSpace rom, HashSet<ushort> executedOperands,
         MethodInfo process,
         RoomEnemySystem enemies,
         RoomEnemySlot slot,
@@ -218,9 +222,18 @@ internal static partial class Program
         for (int call = 0; call < calls; call++)
         {
             slot.InstructionTimer = 1;
+            ushort previousSprite = slot.SpritemapPointer;
             process.Invoke(
                 enemies,
                 [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+            ushort record = unchecked((ushort)(slot.CurrentInstruction - 4));
+            ushort nativeWord = (ushort)(rom.ReadByte(0xa70000 | record) |
+                rom.ReadByte(0xa70000 | unchecked((ushort)(record + 1))) << 8);
+            if ((nativeWord & 0x8000) == 0)
+                VerifyExecutedEnemySelector(rom, slot, executedOperands);
+            else
+                AssertEqual(previousSprite, slot.SpritemapPointer,
+                    "Phantoon callback-to-sleep retains the previously selected sprite");
         }
     }
 

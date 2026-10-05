@@ -11,23 +11,6 @@ public static class SamusSpecialSequenceRomData
     /// <summary>Fatal-damage graphics transfers and state boundaries.</summary>
     public static class Death
     {
-        private static readonly SamusDeathTileSegment[] DeathTileSegments =
-        [
-            new(0x9b8400, 0x6200),
-            new(0x9b8800, 0x6400),
-            new(0x9b8c00, 0x6600),
-            new(0x9b9000, 0x6800),
-            new(0x9b8000, 0x6000),
-        ];
-
-        private static readonly byte[] MovementTypeInitialFrames =
-        [
-            5, 5, 5, 5, 1, 5, 5, 0,
-            1, 0, 5, 5, 5, 5, 5, 5,
-            5, 1, 1, 1, 5, 5, 5, 5,
-            5, 5, 5, 5,
-        ];
-
         /// <summary>Sixteen calls display the ordinary death pose before flashing.</summary>
         public const ushort PreFlashFrameCount = 16;
         /// <summary>Sixty calls alternate palettes before the suit explodes.</summary>
@@ -39,14 +22,61 @@ public static class SamusSpecialSequenceRomData
         /// <summary>Left-facing base index in Samus's death-explosion spritemap table.</summary>
         public const ushort LeftExplosionSpritemap = 0x0825;
 
-        /// <summary>The five bank-$9B tile sources paired with their encoded VRAM targets.</summary>
-        public static ReadOnlySpan<SamusDeathTileSegment> TileSegments => DeathTileSegments;
+        /// <summary>$9B:B7BF/B7C9: cyclic $400-byte source pages and matching $200-word VRAM destinations.</summary>
+        public static TileSegmentSequence TileSegments => default;
+        /// <summary>$9B:B420: ball, unused glitch-ball and ordinary movement select their death pose phase.</summary>
+        public static InitialFrameSequence InitialFramesByMovementType => default;
 
-        /// <summary>Initial visible death frame indexed by the 28 retail movement types.</summary>
-        public static ReadOnlySpan<byte> InitialFramesByMovementType =>
-            MovementTypeInitialFrames;
+        public readonly struct TileSegmentSequence : IReadOnlyList<SamusDeathTileSegment>
+        {
+            public int Count => 5;
+            public int Length => Count;
+            public SamusDeathTileSegment this[int index]
+            {
+                get
+                {
+                    if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                    int segment = (index + 1) % Count;
+                    return new(TileSourceBase + segment * TileSegmentByteCount,
+                        (ushort)(TileDestinationBase + segment * (TileSegmentByteCount / 2)));
+                }
+            }
+            public IEnumerator<SamusDeathTileSegment> GetEnumerator()
+            {
+                for (int index = 0; index < Count; index++) yield return this[index];
+            }
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+        public readonly struct InitialFrameSequence : IReadOnlyList<byte>
+        {
+            public int Count => (int)SamusMovementType.Special + 1;
+            public int Length => Count;
+            public byte this[int index]
+            {
+                get
+                {
+                    if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                    return (SamusMovementType)index switch
+                    {
+                        SamusMovementType.MorphBallGround or SamusMovementType.MorphBallFalling or
+                        SamusMovementType.SpringBallGround or SamusMovementType.SpringBallInAir or
+                        SamusMovementType.SpringBallFalling => 1,
+                        SamusMovementType.UnusedGlitchBall or SamusMovementType.UnusedGlitchBallAlternate => 0,
+                        _ => 5,
+                    };
+                }
+            }
+            public IEnumerator<byte> GetEnumerator()
+            {
+                for (int index = 0; index < Count; index++) yield return this[index];
+            }
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+        /// <summary>$9B:8000: first of five consecutive death-artwork pages, queued last by $9B:B7BF.</summary>
+        private const int TileSourceBase = 0x9b8000;
+        /// <summary>$9B:B7C9 final word $6000: base VRAM word destination of those five pages.</summary>
+        private const ushort TileDestinationBase = 0x6000;
     }
-
     /// <summary>Varia/Gravity pickup HDMA curve and native 8.8 geometry.</summary>
     public static class SuitPickup
     {

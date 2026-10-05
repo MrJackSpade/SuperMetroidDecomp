@@ -82,7 +82,7 @@ public sealed class SamusDeathSequenceState
             throw new InvalidOperationException("Samus death sequence is already owned by bank $9B.");
 
         SamusMovementType sourceMovementType = samus.ReadMovementType(bus);
-        ReadOnlySpan<byte> initialFrames =
+        var initialFrames =
             SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
         if ((byte)sourceMovementType >= initialFrames.Length)
         {
@@ -357,7 +357,7 @@ public sealed class SamusDeathSequenceState
 
     private void QueueSegment(VramWriteQueue vramWrites, byte segmentIndex)
     {
-        ReadOnlySpan<SamusDeathTileSegment> segments =
+        var segments =
             SamusSpecialSequenceRomData.Death.TileSegments;
         if (segmentIndex >= segments.Length)
             throw new ArgumentOutOfRangeException(nameof(segmentIndex));

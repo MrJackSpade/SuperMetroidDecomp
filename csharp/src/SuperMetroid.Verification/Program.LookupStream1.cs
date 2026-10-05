@@ -5,6 +5,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        VerifyLookupStream1DeathDefinitions(rom);
         VerifyLookupStream1Sciser(rom);
         VerifyLookupStream1PowampMotion(rom);
         VerifyLookupStream1HibashiDragonFireball(rom);
@@ -394,5 +395,31 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitions.MechanicsWord(invalid), "Sciser control index domain");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitions.PresentationWordAddress(invalid), "Sciser visual index domain");
+    }
+    private static void VerifyLookupStream1DeathDefinitions(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var initialFrames = SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
+        AssertEqual(28, initialFrames.Length, "death retail movement domain");
+        for (int movement = 0; movement < initialFrames.Length; movement++)
+            AssertEqual(rom.ReadByte(0x9bb420 + movement), initialFrames[movement], "native movement death phase");
+        var segments = SamusSpecialSequenceRomData.Death.TileSegments;
+        AssertEqual(5, segments.Length, "five death graphics transfers");
+        for (int index = 0; index < segments.Length; index++)
+        {
+            AssertEqual(0x9b0000 | Word(0x9bb7bf + index * 2), segments[index].SourceAddress, "native death transfer source");
+            AssertEqual(Word(0x9bb7c9 + index * 2), segments[index].EncodedVramDestination, "native death transfer destination");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = initialFrames[invalid], "death movement exact domain");
+        foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = segments[invalid], "death transfer exact domain");
+        int frameIndex = 0, segmentIndex = 0;
+        foreach (byte frame in initialFrames)
+            AssertEqual(initialFrames[frameIndex++], frame, "death frame enumeration preserves ordering");
+        foreach (var segment in segments)
+            AssertEqual(segments[segmentIndex++], segment, "death transfer enumeration preserves ordering");
+        AssertEqual(initialFrames.Length, frameIndex, "death frame enumerable count");
+        AssertEqual(segments.Length, segmentIndex, "death transfer enumerable count");
     }
 }

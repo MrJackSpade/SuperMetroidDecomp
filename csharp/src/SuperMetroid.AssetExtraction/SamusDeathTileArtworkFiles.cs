@@ -26,7 +26,7 @@ public static class SamusDeathTileArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
         var planar = new byte[SamusDeathTileAtlasFormat.TotalByteCount];
-        ReadOnlySpan<SamusDeathTileSegment> segments = SamusSpecialSequenceRomData.Death.TileSegments;
+        var segments = SamusSpecialSequenceRomData.Death.TileSegments;
         if (segments.Length != SamusDeathTileAtlasFormat.SegmentCount)
             throw new InvalidDataException("Samus death atlas does not cover every native tile transfer.");
         for (int segment = 0; segment < segments.Length; segment++)

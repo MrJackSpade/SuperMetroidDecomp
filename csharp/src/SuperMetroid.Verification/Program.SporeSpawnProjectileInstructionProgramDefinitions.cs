@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -26,6 +27,9 @@ internal static partial class Program
                 $"Spore Spawn projectile mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new SporeSpawnProjectileInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -81,9 +85,20 @@ internal static partial class Program
         AssertEqual((ushort)0, spore.Damage,
             "shot spore property callback clears damage before deletion");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "SporeSpawnProjectile execution performs no live spritemap operand reads");
         AssertEqual(SporeSpawnProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Spore Spawn projectile spritemaps remain cartridge reads");
+            executedOperands.Count, "SporeSpawnProjectile executes every native visual operand");
+        for (int index = 0; index < SporeSpawnProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = SporeSpawnProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"SporeSpawnProjectile executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "SporeSpawnProjectile has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "SporeSpawnProjectile compiled selector matches the cartridge");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Spore Spawn projectile mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -103,7 +118,7 @@ internal static partial class Program
         Console.WriteLine(
             "Spore Spawn projectile instruction mechanics: twenty-eight compiled words, " +
             "all three real producers, complete release/loop/shot paths, and seventeen " +
-            "live spritemap reads pass with mechanics bytes forbidden.");
+            "installed sprite frames match native OAM with zero live operand reads.");
 
         RoomEnemyProjectileSlot Single(RoomEnemyProjectileKind kind) =>
             enemies.EnemyProjectiles.First(projectile => projectile.Kind == kind);
@@ -114,6 +129,7 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
+                VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }
     }

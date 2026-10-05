@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -26,6 +27,9 @@ internal static partial class Program
                 $"Shaktool attack-circle mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new ShaktoolProjectileInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -86,9 +90,20 @@ internal static partial class Program
         AssertEqual((ushort)0xbd98, back.InstructionPointer,
             "back circle branch displays the held pose in the same tick");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "ShaktoolProjectile execution performs no live spritemap operand reads");
         AssertEqual(ShaktoolProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Shaktool attack-circle spritemap operands remain cartridge reads");
+            executedOperands.Count, "ShaktoolProjectile executes every native visual operand");
+        for (int index = 0; index < ShaktoolProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = ShaktoolProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"ShaktoolProjectile executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "ShaktoolProjectile has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "ShaktoolProjectile compiled selector matches the cartridge");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Shaktool attack-circle mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -107,7 +122,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Shaktool projectile instruction mechanics: eighteen compiled words, all " +
-            "three real linked-circle producers and eight live spritemap reads pass with " +
+            "three real linked-circle producers and eight installed sprite frames match native OAM with " +
             "mechanics bytes forbidden.");
 
         void Run(RoomEnemyProjectileSlot projectile, int frames)
@@ -116,6 +131,7 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }
     }

@@ -298,7 +298,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         public BodyColors(ushort[] colors)
         {
             Length = colors.Length;
-            bool normal = Length == MotherBrainRainbowPaletteRomData.ColorCount;
+            bool normal = Length is MotherBrainFakeDeathPaletteRomData.ColorCount or MotherBrainDrainedPaletteRomData.RevivalColors or MotherBrainRainbowPaletteRomData.ColorCount;
             for (int color = 0; normal && color < Length; color++)
                 normal = colors[color] == MotherBrainHealthPalettePresentation.StockBaseColor(false, color);
             if (normal) return;
@@ -327,7 +327,7 @@ public sealed class MotherBrainRainbowPalettePresentation
 
         internal DrainedBodyColors(ushort[] colors)
         {
-            if (colors.Length is not (13 or 15)) { supplied = colors; return; }
+            if (colors.Length is not (3 or 13 or 15)) { supplied = colors; return; }
             var light = MotherBrainDrainedPaintDefinitions.HighlightRgb8;
             var dark = MotherBrainDrainedPaintDefinitions.DarkestTissueRgb8;
             tissueLight = new(light.Red, light.Green, light.Blue);
@@ -336,6 +336,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             bool stock = true;
             for (int color = 0; stock && color < colors.Length; color++) stock = colors[color] == Calculate(color);
             if (stock) return;
+            if (colors.Length == MotherBrainFakeDeathPaletteRomData.ColorCount) { supplied = colors; return; }
             outline = colors[3];
             if (!TryChannel(0, out int lr, out int dr) ||
                 !TryChannel(5, out int lg, out int dg) ||

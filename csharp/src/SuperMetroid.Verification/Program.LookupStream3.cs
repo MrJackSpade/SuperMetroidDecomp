@@ -881,6 +881,14 @@ internal static partial class Program
             Set(original);
         }
         CheckRainbow(stock);
+        object fakeFade = typeof(MotherBrainRainbowPalettePresentation).GetField("fakeDeathToGrey", privateFields)!.GetValue(stock)!;
+        foreach (string endpointName in new[] { "first", "last" })
+        {
+            object endpoint = fakeFade.GetType().GetField(endpointName, privateFields)!.GetValue(fakeFade)!;
+            object body = endpoint.GetType().GetProperty("Body")!.GetValue(endpoint)!;
+            AssertTrue(body.GetType().GetField("supplied", privateFields)!.GetValue(body) is null,
+                "stream 3 fake-death endpoints reuse approved normal/drained cortex paint without stored rows");
+        }
         object drainFade = typeof(MotherBrainRainbowPalettePresentation).GetField("toGrey", privateFields)!.GetValue(stock)!;
         object drainEnd = drainFade.GetType().GetField("last", privateFields)!.GetValue(drainFade)!;
         object drainBody = drainEnd.GetType().GetProperty("Body")!.GetValue(drainEnd)!;

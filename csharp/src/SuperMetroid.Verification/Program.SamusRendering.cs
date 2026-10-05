@@ -474,21 +474,20 @@ static void VerifySamusArmCannon()
     var bus = new TestAddressSpace();
     SeedPoseOneSamusData(bus);
 
-    // Pose $01 points to a compact normal record: selector two, draw mode two (after the
-    // body), then signed X/Y pairs. Animation frame zero therefore uses (+7,-3).
-    WriteTestWord(bus, 0x90c7e1, 0xd000);
-    bus.WriteBytes(0x90d000, [0x02, 0x02, 0x07, 0xfd, 0x09, 0xfb]);
-
-    // Selector two's real attribute word names small OBJ tile $1F, palette four, priority
-    // two. Its four-word tile list reserves entry zero and supplies frames one through
-    // three in bank $9A; each draw uploads exactly one 32-byte 4bpp tile.
-    WriteTestWord(bus, 0x90c795, 0x281f);
-    WriteTestWord(bus, 0x90c7a9, 0xd100);
-    WriteTestWord(bus, 0x90d100, 0x0000);
-    WriteTestWord(bus, 0x90d102, 0x8120);
-    WriteTestWord(bus, 0x90d104, 0x8140);
-    WriteTestWord(bus, 0x90d106, 0x8160);
-
+    // Keep the fixture's custom selector, after-body order and signed offsets,
+    // expressed through installed drawing data rather than a patched ROM record.
+    string directory = runtimeFixtureInstallation.Value.SamusBodyDirectory;
+    var document = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(
+        Path.Combine(directory, SamusArmCannonArtworkFormat.JsonFileName)))!;
+    document["posePointers"]![1] = SamusArmCannonArtworkFormat.DrawingDataStart;
+    int[] drawing = [2, 2, 7, 0xfd, 9, 0xfb];
+    for (int index = 0; index < drawing.Length; index++)
+        document["drawingData"]![index] = drawing[index];
+    document["spriteAttributes"]![2] = 0x281f;
+    document["tileSources"]![2] = new System.Text.Json.Nodes.JsonArray(0, 0x9a00, 0x9c00, 0x9e00);
+    using var placement = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString()));
+    using var tiles = File.OpenRead(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
+    var artwork = SamusArmCannonArtworkCatalog.Load(placement, tiles);
     var samus = new SamusState
     {
         Pose = SamusPoseIds.FacingRightNormalPose,
@@ -497,6 +496,9 @@ static void VerifySamusArmCannon()
         YPosition = 0x0086,
         SelectedHudItem = 0,
     };
+
+    samus.TileTransfers.BindArtwork(runtimeFixtureInstallation.Value.LoadSamusBodyArt());
+    samus.ArmCannon.Artwork = artwork;
 
     // The HUD producer requires two identical samples. Merely changing selection sets the
     // native toggle word to one; only the following stable frame is allowed to transition.
@@ -544,7 +546,7 @@ static void VerifySamusArmCannon()
         "open cover emits one OBJ and queues its tile upload");
     AssertEqual(2, draw.DirectionSelector, "pose record selects direction two");
     AssertEqual(0x281f, draw.Attributes, "direction two uses retail OAM attributes");
-    AssertEqual(0x8160, draw.TileSource, "frame three indexes third cover tile");
+    AssertEqual(0x9e00, draw.TileSource, "frame three indexes third cover tile");
     AssertEqual(135, draw.ScreenX, "cover X includes signed pose offset and camera");
     AssertEqual(125, draw.ScreenY,
         "cover Y includes signed offset, graphics origin, and camera");
@@ -556,7 +558,7 @@ static void VerifySamusArmCannon()
     AssertEqual(4, cover.Palette, "cover OAM palette");
     AssertEqual(2, cover.Priority, "cover OAM priority");
     AssertTrue(!cover.IsLarge, "arm-cannon cover is a small OBJ");
-    AssertEqual(new VramWriteEntry(0x20, 0x9a8160, 0x61f0), vramWrites.Entries[0],
+    AssertEqual(new VramWriteEntry(0x20, 0x9a9e00, 0x61f0), vramWrites.Entries[0],
         "cover queues native bank-$9A tile DMA to VRAM $61F0");
 
     // Odd invincibility frames return before both OAM and DMA. An off-screen coordinate,

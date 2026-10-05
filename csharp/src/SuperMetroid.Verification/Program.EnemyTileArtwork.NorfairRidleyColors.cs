@@ -36,15 +36,14 @@ internal static partial class Program
         forbidden.Add(terminatorAddress);
         forbidden.Add(terminatorAddress + 1);
         var guard = new NorfairRidleyColorReadGuard(bus, forbidden);
-        (RoomEnemySystem native, SnesCgram nativeCgram, RoomEnemySlot nativeSlot,
-            RidleyEnemyState nativeState) = Create(bus, null);
+        (SnesCgram nativeCgram, RidleyEnemyState nativeState) = CreateReference();
         (RoomEnemySystem installed, SnesCgram installedCgram, RoomEnemySlot installedSlot,
             RidleyEnemyState installedState) = Create(guard, stock);
         AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
             "Norfair Ridley initial palette matches all native CGRAM entries");
         for (int call = 0; call <= NorfairRidleyPaletteRomData.RevealRowCount * 3; call++)
         {
-            Tick(native, nativeSlot, nativeState);
+            TickReference(nativeCgram, nativeState);
             Tick(installed, installedSlot, installedState);
             AssertEqual(nativeState.FadePaletteOffset, installedState.FadePaletteOffset,
                 $"Norfair Ridley reveal call {call} row/terminator position");
@@ -77,13 +76,12 @@ internal static partial class Program
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         (RoomEnemySystem editedEnemy, SnesCgram editedCgram, RoomEnemySlot editedSlot,
             RidleyEnemyState editedState) = Create(guard, edited);
-        (RoomEnemySystem control, SnesCgram controlCgram, RoomEnemySlot controlSlot,
-            RidleyEnemyState controlState) = Create(bus, null);
+        (SnesCgram controlCgram, RidleyEnemyState controlState) = CreateReference();
         CheckEditedCgram("Norfair Ridley edited initial colors", revealRowVisible: false);
         for (int call = 0; call <= 7 * 3; call++)
         {
             Tick(editedEnemy, editedSlot, editedState);
-            Tick(control, controlSlot, controlState);
+            TickReference(controlCgram, controlState);
             AssertEqual(controlState.FadePaletteOffset, editedState.FadePaletteOffset,
                 $"Norfair Ridley edited reveal call {call} preserves row selection");
             AssertEqual(controlState.FunctionTimer, editedState.FunctionTimer,
@@ -93,11 +91,11 @@ internal static partial class Program
             "Norfair Ridley edited reveal row seven is selected");
         CheckEditedCgram("Norfair Ridley edited reveal row seven", revealRowVisible: true);
         Tick(editedEnemy, editedSlot, editedState);
-        Tick(control, controlSlot, controlState);
+        TickReference(controlCgram, controlState);
         Tick(editedEnemy, editedSlot, editedState);
-        Tick(control, controlSlot, controlState);
+        TickReference(controlCgram, controlState);
         Tick(editedEnemy, editedSlot, editedState);
-        Tick(control, controlSlot, controlState);
+        TickReference(controlCgram, controlState);
         AssertEqual((ushort)9, editedState.FadePaletteOffset,
             "Norfair Ridley reveal advances after three calls");
         CheckEditedCgram("Norfair Ridley next row replaces edit", revealRowVisible: false);
@@ -148,8 +146,46 @@ internal static partial class Program
             }
         }
 
+        // Independent native initialization and reveal ($A6:A478/A4D6), using raw
+        // palette words and the terminated cartridge pointer table rather than the catalog.
+        (SnesCgram, RidleyEnemyState) CreateReference()
+        {
+            var cgram = new SnesCgram();
+            for (int color = 0; color < SnesCgram.ColorCount; color++)
+                cgram.SetColor(color, (ushort)(color * 31));
+            for (int color = 0; color < 32; color++)
+                cgram.SetColor(160 + color, ReadReferenceWord(0xa6e1cf + color * 2));
+            for (int color = 0; color < 15; color++)
+            {
+                cgram.SetColor(113 + color, 0);
+                cgram.SetColor(241 + color, 0);
+            }
+            return (cgram, new RidleyEnemyState { Function = RidleyAiFunction.WaitBeforeLiftoff });
+        }
+
+        void TickReference(SnesCgram cgram, RidleyEnemyState state)
+        {
+            state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
+            if ((state.FunctionTimer & 0x8000) == 0)
+                return;
+            state.FunctionTimer = 2;
+            ushort pointer = ReadReferenceWord(0xa6a4eb + state.FadePaletteOffset * 2);
+            state.FadePaletteOffset++;
+            if (pointer != 0)
+            {
+                for (int color = 0; color < 14; color++)
+                    cgram.SetColor(113 + color, ReadReferenceWord(0xa60000 + pointer + color * 2));
+                return;
+            }
+            state.FadePaletteOffset = 0;
+            state.Function = RidleyAiFunction.ClearVelocity;
+        }
+
+        ushort ReadReferenceWord(int address) =>
+            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+
         static (RoomEnemySystem, SnesCgram, RoomEnemySlot, RidleyEnemyState) Create(
-            ISnesAddressSpace source, EnemyTileArtworkCatalog? artwork)
+            ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemy = new RoomEnemySystem { TileArtwork = artwork };

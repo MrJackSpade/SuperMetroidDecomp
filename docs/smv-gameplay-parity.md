@@ -60,7 +60,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Samus movement and collision | Positions/fractions, camera, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state and momentum/boost pass | Control-handler ownership, remaining movement flags and secondary motion state |
 | Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication and charge palette/audio words pass | Remaining combat/input ownership and filtered-input state |
 | Enemies and Ridley | Active enemy collision/properties/timers; complete Ridley tail records, shared tail/body controller, wing/grab/damage/health/facing state pass | Remaining actor AI variables and phase-dependent aliases |
-| Ordinary/enemy projectiles | Ordinary active-slot motion/program/art and callback identity; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Projectile trail presentation; bombs need live mappings only if a different movie activates them |
+| Ordinary/enemy projectiles | Ordinary active-slot motion/program/art and callback identity; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Final render composition/pixels; bombs need live mappings only if a different movie activates them |
 | Persistent world and room effects | Complete boss/event/item/door bitsets; gameplay foreground/BTS; movie grey-door execution, condition and hit state; acid surface/tide phase pass | Loading-boundary mutations, remaining persistence allocations, environmental state, and PLM draw/presentation state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
 
@@ -618,3 +618,17 @@ No production change is justified by that representation difference.
 Release build and all 10,717 independent movie updates pass
 (`eproj-metadata-final-build.log`, `eproj-metadata-final-replay.log`). The remaining
 control, presentation, loading and other documented coverage gaps remain open.
+
+
+### Projectile trail animation and placement
+
+Both sides of all eighteen trail slots now compare their instruction timers at
+every MainGameplay boundary. Live sides additionally compare instruction cursors,
+world X/Y and tile-number/attribute words. The original snapshot initializes those
+owners once; every subsequent value is produced by the port from recorded inputs.
+Left/right streams are checked independently, preserving their separate lifetimes.
+
+Release build and all 10,717 updates pass (`trail-state-build.log`,
+`trail-state-replay.log`) with no production change. This establishes trail state,
+placement and selected tiles, not final frame pixel equivalence; renderer composition
+and the other documented presentation/control/loading gaps remain open.

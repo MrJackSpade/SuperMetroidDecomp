@@ -802,6 +802,20 @@ internal static partial class Program
         samus.BombJumpDirection = W(RidleyMovieMemory.BombJumpDirection);
 
 
+        foreach (var trail in runtime.Projectiles.TrailSlots)
+        {
+            typeof(SamusProjectileTrailSide).GetProperty("InstructionTimer")!.SetValue(trail.Left, W(RidleyMovieMemory.TrailLeftInstructionTimer + trail.NativeByteIndex));
+            typeof(SamusProjectileTrailSide).GetProperty("InstructionTimer")!.SetValue(trail.Right, W(RidleyMovieMemory.TrailRightInstructionTimer + trail.NativeByteIndex));
+            typeof(SamusProjectileTrailSide).GetProperty("InstructionPointer")!.SetValue(trail.Left, W(RidleyMovieMemory.TrailLeftInstructionPointer + trail.NativeByteIndex));
+            typeof(SamusProjectileTrailSide).GetProperty("InstructionPointer")!.SetValue(trail.Right, W(RidleyMovieMemory.TrailRightInstructionPointer + trail.NativeByteIndex));
+            typeof(SamusProjectileTrailSide).GetProperty("TileNumberAttributes")!.SetValue(trail.Left, W(RidleyMovieMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex));
+            typeof(SamusProjectileTrailSide).GetProperty("TileNumberAttributes")!.SetValue(trail.Right, W(RidleyMovieMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex));
+            typeof(SamusProjectileTrailSide).GetProperty("XPosition")!.SetValue(trail.Left, W(RidleyMovieMemory.TrailLeftXPosition + trail.NativeByteIndex));
+            typeof(SamusProjectileTrailSide).GetProperty("XPosition")!.SetValue(trail.Right, W(RidleyMovieMemory.TrailRightXPosition + trail.NativeByteIndex));
+            typeof(SamusProjectileTrailSide).GetProperty("YPosition")!.SetValue(trail.Left, W(RidleyMovieMemory.TrailLeftYPosition + trail.NativeByteIndex));
+            typeof(SamusProjectileTrailSide).GetProperty("YPosition")!.SetValue(trail.Right, W(RidleyMovieMemory.TrailRightYPosition + trail.NativeByteIndex));
+        }
+
         // The snapshot was recorded after the entering door PLM deleted itself.
         // Restore the empty physical pool rather than executing fresh room-entry actors.
         var initialPlms = (Array)typeof(RoomPlmSystem).GetField("_slots", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.Plms)!;
@@ -1159,6 +1173,25 @@ internal static partial class Program
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
+                foreach (var trail in runtime.Projectiles.TrailSlots)
+                {
+                    Check($"Trail {trail.SlotIndex} Left timer", trail.Left.InstructionTimer, RidleyMovieMemory.TrailLeftInstructionTimer + trail.NativeByteIndex);
+                    if (trail.Left.InstructionTimer != 0)
+                    {
+                        Check($"Trail {trail.SlotIndex} Left InstructionPointer", trail.Left.InstructionPointer, RidleyMovieMemory.TrailLeftInstructionPointer + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Left TileNumberAttributes", trail.Left.TileNumberAttributes, RidleyMovieMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Left XPosition", trail.Left.XPosition, RidleyMovieMemory.TrailLeftXPosition + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Left YPosition", trail.Left.YPosition, RidleyMovieMemory.TrailLeftYPosition + trail.NativeByteIndex);
+                    }
+                    Check($"Trail {trail.SlotIndex} Right timer", trail.Right.InstructionTimer, RidleyMovieMemory.TrailRightInstructionTimer + trail.NativeByteIndex);
+                    if (trail.Right.InstructionTimer != 0)
+                    {
+                        Check($"Trail {trail.SlotIndex} Right InstructionPointer", trail.Right.InstructionPointer, RidleyMovieMemory.TrailRightInstructionPointer + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Right TileNumberAttributes", trail.Right.TileNumberAttributes, RidleyMovieMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Right XPosition", trail.Right.XPosition, RidleyMovieMemory.TrailRightXPosition + trail.NativeByteIndex);
+                        Check($"Trail {trail.SlotIndex} Right YPosition", trail.Right.YPosition, RidleyMovieMemory.TrailRightYPosition + trail.NativeByteIndex);
+                    }
+                }
                 Check("Projectile cooldown", runtime.BombProjectiles.CooldownTimer, RidleyMovieMemory.ProjectileCooldown);
                 Check("Beam charge", runtime.Projectiles.FlareCounter, RidleyMovieMemory.BeamCharge);
                 Check("ProjectileCounter", runtime.Projectiles.ProjectileCounter, RidleyMovieMemory.ProjectileCount);

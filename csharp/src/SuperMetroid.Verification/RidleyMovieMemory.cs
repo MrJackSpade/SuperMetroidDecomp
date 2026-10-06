@@ -1,6 +1,27 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$D658: projectile trail left InstructionTimer, eighteen word-strided slots.</summary>
+    public const int TrailLeftInstructionTimer = 0xd658;
+    /// <summary>$D67C: projectile trail right InstructionTimer, eighteen word-strided slots.</summary>
+    public const int TrailRightInstructionTimer = 0xd67c;
+    /// <summary>$D6A0: projectile trail left InstructionPointer, eighteen word-strided slots.</summary>
+    public const int TrailLeftInstructionPointer = 0xd6a0;
+    /// <summary>$D6C4: projectile trail right InstructionPointer, eighteen word-strided slots.</summary>
+    public const int TrailRightInstructionPointer = 0xd6c4;
+    /// <summary>$D6E8: projectile trail left TileNumberAttributes, eighteen word-strided slots.</summary>
+    public const int TrailLeftTileNumberAttributes = 0xd6e8;
+    /// <summary>$D70C: projectile trail right TileNumberAttributes, eighteen word-strided slots.</summary>
+    public const int TrailRightTileNumberAttributes = 0xd70c;
+    /// <summary>$D730: projectile trail left XPosition, eighteen word-strided slots.</summary>
+    public const int TrailLeftXPosition = 0xd730;
+    /// <summary>$D754: projectile trail right XPosition, eighteen word-strided slots.</summary>
+    public const int TrailRightXPosition = 0xd754;
+    /// <summary>$D778: projectile trail left YPosition, eighteen word-strided slots.</summary>
+    public const int TrailLeftYPosition = 0xd778;
+    /// <summary>$D79C: projectile trail right YPosition, eighteen word-strided slots.</summary>
+    public const int TrailRightYPosition = 0xd79c;
+
     /// <summary>$F380: enemy-projectile shot collision option, zero/destructible, one/dud, two/skip.</summary>
     public const int EnemyProjectileCollisionOption = 0xf380;
     /// <summary>$F3C8: enemy-projectile source enemy header used to resolve drop chances.</summary>

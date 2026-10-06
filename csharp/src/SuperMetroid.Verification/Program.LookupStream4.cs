@@ -681,6 +681,8 @@ internal static partial class Program
             AssertEqual(Native(0x8BDDAD + index * 4), EndingCreditsRomData.Motion.PlanetSlowDelta(index), "native slow shake signed fixed-point value");
         AssertEqual(32768, EndingCreditsRomData.Motion.PlanetFastDelta(9), "native DD26 fast sample9 is positive half-pixel");
         AssertEqual(-32768, EndingCreditsRomData.Motion.PlanetFastDelta(11), "native DD2E fast sample11 is negative half-pixel");
+        AssertEqual(2 << 16, Enumerable.Range(0, 16).Sum(EndingCreditsRomData.Motion.PlanetFastDelta), "fast cycle shares exact two-pixel translation");
+        AssertEqual(2 << 16, Enumerable.Range(0, 8).Sum(EndingCreditsRomData.Motion.PlanetSlowDelta), "slow cycle shares exact two-pixel translation");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (bool fast in new[] { true, false })
         {
@@ -695,20 +697,39 @@ internal static partial class Program
                 fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow);
             var step = type.GetMethod(fast ? "StepPlanetEscapeFast" : "StepPlanetEscapeSlow", flags)!.CreateDelegate<Action>(state);
             uint expected = 100u << 16 | 0xC000;
+            int expectedAngle = 0, expectedZoom = 0xC00;
             for (int frame = 0; frame <= count; frame++)
             {
                 expected = unchecked(expected + (uint)Native(address + (frame % count) * 4));
+                if (fast || expectedAngle != 0xe0) expectedAngle = (expectedAngle - (fast ? 4 : 1)) & 0xff;
+                expectedZoom -= fast ? 8 : 2;
                 step();
+                AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), (SnesAngle)type.GetField("mode7Angle", flags)!.GetValue(state)!, "rotation context advances independently of selected signs");
+                AssertEqual((ushort)expectedZoom, Get("mode7Zoom"), "zoom context advances independently of selected signs");
                 AssertEqual((ushort)(expected >> 16), Get("mode7X"), "production shake whole position follows native indexed values");
                 AssertEqual((ushort)expected, Get("mode7XSubposition"), "production shake fraction preserves carry/borrow");
                 AssertEqual((ushort)((frame + 1) % count), Get("planetMotionIndex"), "production shake advances after selection and wraps native mask");
+            }
+            Set("mode7Zoom", fast ? EndingCreditsRomData.Motion.PlanetFastEndScale : EndingCreditsRomData.Motion.PlanetSlowEndScale);
+            Set("planetMotionIndex", (ushort)(count - 1));
+            Set("mode7X", (ushort)0); Set("mode7XSubposition", (ushort)0x4000);
+            step();
+            uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
+            AssertEqual((ushort)(finalPosition >> 16), Get("mode7X"), "terminal negative sample wraps whole position before handoff");
+            AssertEqual((ushort)finalPosition, Get("mode7XSubposition"), "terminal fraction is preserved before handoff");
+            AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Phase, "native zoom boundary chooses next phase after selected motion");
+            AssertEqual((ushort)0, Get("planetMotionIndex"), "handoff preserves wrapped/reset index");
+            if (!fast)
+            {
+                AssertEqual((short)0, (short)type.GetField("planetVelocityWhole", flags)!.GetValue(state)!, "slow handoff initializes independent acceleration whole");
+                AssertEqual((ushort)0x8000, Get("planetVelocityFraction"), "slow handoff initializes independent acceleration fraction");
             }
         }
         foreach (int index in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => EndingCreditsRomData.Motion.PlanetFastDelta(index), "fast shake bounds");
         foreach (int index in new[] { -1, 8, int.MinValue, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => EndingCreditsRomData.Motion.PlanetSlowDelta(index), "slow shake bounds");
-        Console.WriteLine("Ending shake:24 native signed values, corrected samples9/11, both production cycles/index wraps and fixed-point carries pass.");
+        Console.WriteLine("Ending shake:24 native signed values, common two-pixel cycle displacement, both production cycles/index wraps, independent rotation/zoom, both phase handoffs and fixed-point carries pass.");
     }
     private static void VerifyLookupStream4SporeHealthyAlias(ISnesAddressSpace rom)
     {

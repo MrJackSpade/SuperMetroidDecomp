@@ -12422,4 +12422,15 @@
   ],
   "confirmation": "Root Verification build1457warnings/0errors; dedicated focused flag confirms exact native headers or control-flow contracts, installed identity/order and bounds as applicable. No gameplay search.",
   "workerCommit": "5cc51d8787dc65c1c41c219c32288bbe67b9dc73"
+},"endingPlanetTranslationPatternsComplete":{
+  "workerCommit": "53b3c464ddc004e34926f7c3bd3e952e83d13743",
+  "completed": [
+    "EndingCreditsRomData.Motion.PlanetFastPattern",
+    "EndingCreditsRomData.Motion.PlanetSlowPattern"
+  ],
+  "confirmation": "Root Verification1457warnings/0errors;24native signed deltas,both+2cycle sums,28actual production calls,carry/borrow/wrap,independent rotation/zoom and both phase handoffs confirmed.",
+  "disposition": [
+    "Sixteen signed deltas calculate from shared+2pixel cycle displacement and10positive/6negative imbalance, deriving halfpixel amplitude. Retain exact selected cinematic directional runs4+/2-/4+/2-/2+/2- and terminalnegative policy; source sequential index alone chooses signs, independently of angle/zoom/position. Inventing a substitute changes reversal timing/path shape. No other movement/timing exemption.",
+    "Eight signed deltas calculate from shared+2pixel cycle displacement and5positive/3negative imbalance, deriving onepixel amplitude. Retain exact selected cinematic directional runs3+/2-/2+/1- and terminalnegative policy; source sequential index alone chooses signs, independently of angle/zoom/position. Inventing a substitute changes reversal timing/path shape. No other movement/timing exemption."
+  ]
 }}

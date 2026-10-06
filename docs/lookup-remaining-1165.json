@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 427,
+  "remainingTableDefinitionCount": 425,
   "fileCount": 523,
   "entries": [
     {
@@ -2596,19 +2596,25 @@
       "implementationCommit": "33d3b64b1"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsRomData.cs",
-      "line": 195,
-      "name": "EndingCreditsRomData.Motion.PlanetFastPattern",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsRomData.cs",
+  "line": 195,
+  "name": "EndingCreditsRomData.Motion.PlanetFastPattern",
+  "kind": "stored definition",
+  "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+  "state": "justified-retained",
+  "implementationCommit": "53b3c464ddc004e34926f7c3bd3e952e83d13743",
+  "disposition": "Sixteen signed deltas calculate from shared+2pixel cycle displacement and10positive/6negative imbalance, deriving halfpixel amplitude. Retain exact selected cinematic directional runs4+/2-/4+/2-/2+/2- and terminalnegative policy; source sequential index alone chooses signs, independently of angle/zoom/position. Inventing a substitute changes reversal timing/path shape. No other movement/timing exemption."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsRomData.cs",
-      "line": 202,
-      "name": "EndingCreditsRomData.Motion.PlanetSlowPattern",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsRomData.cs",
+  "line": 202,
+  "name": "EndingCreditsRomData.Motion.PlanetSlowPattern",
+  "kind": "stored definition",
+  "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+  "state": "justified-retained",
+  "implementationCommit": "53b3c464ddc004e34926f7c3bd3e952e83d13743",
+  "disposition": "Eight signed deltas calculate from shared+2pixel cycle displacement and5positive/3negative imbalance, deriving onepixel amplitude. Retain exact selected cinematic directional runs3+/2-/2+/1- and terminalnegative policy; source sequential index alone chooses signs, independently of angle/zoom/position. Inventing a substitute changes reversal timing/path shape. No other movement/timing exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/IntroCinematicRomData.cs",
       "line": 92,
@@ -21793,5 +21799,5 @@
     }
   ],
   "convertedSinceSnapshot": 605,
-  "justifiedRetainedSinceSnapshot": 96
+  "justifiedRetainedSinceSnapshot": 98
 }

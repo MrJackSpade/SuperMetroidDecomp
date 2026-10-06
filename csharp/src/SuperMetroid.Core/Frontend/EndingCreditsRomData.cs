@@ -195,24 +195,31 @@ public static class EndingCreditsRomData
         public const int PlanetFastPatternLength = 16;
         /// <summary>$8B:DD74 masks EndingShipShakeIndex with07, defining the eight-step slow domain.</summary>
         public const int PlanetSlowPatternLength = 8;
-        /// <summary>$8B:DD02..DD41: selected half-pixel fast shake amplitude, still-required visual input.</summary>
-        private const int PlanetFastShakeAmplitude = 0x0000_8000;
-        /// <summary>$8B:DDAD..DDCC: selected one-pixel slow shake amplitude, still-required visual input.</summary>
-        private const int PlanetSlowShakeAmplitude = 0x0001_0000;
-        /// <summary>$8B:DD02..DD11/DD1A..DD29: chosen four-step positive fast runs; still-required schedule input.</summary>
+        /// <summary>$8B:DD02-DD41 and DDAD-DDCC each sum to this selected two-pixel cycle displacement; its exact cinematic translation choice is retained.</summary>
+        private const int PlanetCycleDisplacement16Point16 = 2 << 16;
+        /// <summary>$8B:DD02..DD11/DD1A..DD29: selected four-step positive fast runs in the reviewed cinematic translation composition.</summary>
         private const int FastPositiveRun = 4;
-        /// <summary>$8B:DD12..DD19/DD2A..DD31/DD3A..DD41: chosen two-step negative fast runs; still-required schedule input.</summary>
+        /// <summary>$8B:DD12..DD19/DD2A..DD31/DD3A..DD41: selected two-step negative fast runs and terminal-negative policy in the cinematic translation composition.</summary>
         private const int FastNegativeRun = 2;
-        /// <summary>$8B:DDAD..DDB8: chosen first three positive slow steps; still-required schedule input.</summary>
+        /// <summary>$8B:DDAD..DDB8: selected first three positive slow steps in the cinematic translation composition.</summary>
         private const int SlowFirstPositiveRun = 3;
-        /// <summary>$8B:DDB9..DDC0: chosen following two negative slow steps; still-required schedule input.</summary>
+        /// <summary>$8B:DDB9..DDC0: selected following two negative slow steps in the cinematic translation composition.</summary>
         private const int SlowFirstNegativeRun = 2;
-        /// <summary>$8B:DDC1..DDC8: chosen following two positive slow steps; still-required schedule input.</summary>
+        /// <summary>$8B:DDC1..DDC8: selected following two positive slow steps before the terminal negative step.</summary>
         private const int SlowSecondPositiveRun = 2;
 
+        private const int FastRunPeriod = FastPositiveRun + FastNegativeRun;
+        private const int FastCompleteRunCount = PlanetFastPatternLength / FastRunPeriod;
+        private const int FastFinalPositiveRun = PlanetFastPatternLength % FastRunPeriod - FastNegativeRun;
+        private const int FastPositiveSteps = FastCompleteRunCount * FastPositiveRun + FastFinalPositiveRun;
+        private const int SlowPositiveSteps = SlowFirstPositiveRun + SlowSecondPositiveRun;
+        private const int PlanetFastShakeAmplitude = PlanetCycleDisplacement16Point16 / (2 * FastPositiveSteps - PlanetFastPatternLength);
+        private const int PlanetSlowShakeAmplitude = PlanetCycleDisplacement16Point16 / (2 * SlowPositiveSteps - PlanetSlowPatternLength);
         /// <summary>$8B:DD02..DD41: repeated positive/negative shake runs and the shorter final positive run.</summary>
-        /// <remarks>Only repeated samples and fixed-point sign assembly are calculated. The
-        /// selected amplitudes and directional schedule remain required under1165.</remarks>
+        /// <remarks>Repeated samples, fixed-point sign assembly and amplitudes from the common cycle displacement calculate. The
+        /// exact directional schedules and shared displacement are selected cinematic path content:
+        /// the sequential consumer has no geometry/state rule choosing reversal phases. Generating
+        /// a different schedule changes that composition. Rotation, zoom and other paths are separate.</remarks>
         public static int PlanetFastDelta(int index)
         {
             if ((uint)index >= PlanetFastPatternLength) throw new IndexOutOfRangeException();

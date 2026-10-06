@@ -12540,4 +12540,13 @@
   ],
   "workerCommit": "954a69f278ed0eb863f3d16a04824abab91197d1",
   "confirmation": "Worker build25warnings/0errors;3072native bytes, six actual installed uploads/full VRAM, cursor12/sentinel/bounds, zero runtime reads, PNG edit/reload/hash/rejection passed. Stale fixture ROM-fallback oracle corrected to direct native table copies. Coordinator mechanically integrates without review/retest."
+},"draygonSpritePaintComplete":{
+  "workerCommit": "8c0f59cacb31c059ec33e968b89da29abf0d18d9",
+  "completed": [
+    "DraygonColorCatalog.sprite"
+  ],
+  "confirmation": "Worker build1445warnings/0errors;16native aliases/48RGB edits/hash/98full copies/six actual hurt calls/readguard/bounds passed. Coordinator mechanically integrates without review/retest.",
+  "disposition": [
+    "All16stock sprite colors derive by canonical completed Draygon material alias. No new retained inputs. Independent supplied RGB edits, copies and real hurt producer behavior preserved."
+  ]
 }}

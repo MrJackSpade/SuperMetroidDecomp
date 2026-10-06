@@ -2286,6 +2286,67 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => KzanInstructionProgramDefinitions.MechanicsWord(invalid), "Kzan control index bounds");
     }
+    private static void VerifyLookupStream4DraygonSprite(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        byte[] json = DraygonColorExtractor.Extract(rom);
+        var stock = DraygonColorCatalog.Load(new MemoryStream(json));
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var material = (DraygonMaterialPaintDefinitions)typeof(DraygonColorCatalog).GetField("sprite",flags)!.GetValue(stock)!;
+        AssertEqual(0,((Dictionary<int,ushort>)typeof(DraygonMaterialPaintDefinitions).GetField("edits",flags)!.GetValue(material)!).Count,"Shared native sprite material has zero overrides");
+        for(int edit=-1;edit<48;edit++)
+        {
+            var document=JsonSerializer.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions)!;
+            if(edit>=0)
+            {
+                var rgb=document.Sprite[edit/3]; document.Sprite[edit/3]=(edit%3) switch
+                {0=>rgb with{Red=rgb.Red^1},1=>rgb with{Green=rgb.Green^1},_=>rgb with{Blue=rgb.Blue^1}};
+            }
+            var selected=DraygonColorCatalog.Load(new MemoryStream(DraygonColorCatalog.Write(document)));
+            string hash=SelectedPresentationHash.Create("DraygonColorCatalog-v1",content=>
+            {
+                content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
+                content.AppendWords("sprite",document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash",document.WhiteFlash.Select(Pack).ToArray());
+                content.AppendWordFrames("healthBands",document.HealthBands.Select(row=>row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(hash,selected.ContentIdentity,"Independent sprite channel content hash");
+            for(int color=0;color<16;color++)
+            {
+                AssertEqual(Word(0xa5a1f7+color*2),stock.ResolveSprite(color),"Native sprite source");
+                AssertEqual(Pack(document.Sprite[color]),selected.ResolveSprite(color),"Independent sprite replacement");
+                AssertEqual(Word(0xa5a277+color*2),selected.ResolveBackground(color),"Shared owner does not couple background instance");
+                AssertEqual(Word(0xa5a217+color*2),selected.ResolveIntro(color),"Shared owner does not couple intro instance");
+            }
+            foreach(bool white in new[]{false,true})
+            {
+                var cgram=new SnesCgram(); for(int color=0;color<256;color++)cgram.SetColor(color,0x1234);
+                selected.ApplyHurt(cgram,white,10);
+                for(int color=0;color<256;color++)
+                {
+                    ushort expected=0x1234;
+                    if(color is >=80 and <96) expected=white?Pack(document.WhiteFlash[color-80]):color is >=89 and <93?Pack(document.HealthBands[5][color-89]):Pack(document.Background[color-80]);
+                    if(color>=240)expected=Pack((white?document.WhiteFlash:document.Sprite)[color-240]);
+                    AssertEqual(expected,cgram.Colors[color],"Full sprite/white and independent BG health restore");
+                }
+            }
+            if(edit is -1 or 0 or 47)
+            {
+                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort,RoomCharacterAtlas>(),new Dictionary<ushort,EnemyPaletteSheet>(),draygonColors:selected);
+                var enemies=new RoomEnemySystem{TileArtwork=artwork}; var cgram=new SnesCgram();
+                typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,cgram); typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
+                var body=enemies.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteTableByteIndex=10};
+                var hurt=typeof(RoomEnemySystem).GetMethod("ApplyDraygonHurt",flags)!.CreateDelegate<Action<RoomEnemySlot,DraygonEnemyState,SamusState?>>(enemies);
+                foreach(ushort timer in new ushort[]{2,0})
+                {
+                    body.FlashTimer=timer; hurt(body,state,null);
+                    for(int color=0;color<16;color++)AssertEqual(Pack((timer==2?document.WhiteFlash:document.Sprite)[color]),cgram.Colors[240+color],"Actual sprite hurt phase and independent edited clear/color targets");
+                }
+            }
+        }
+        foreach(int invalid in new[]{-1,16,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveSprite(invalid),"Original sprite domain");
+        Console.WriteLine("Draygon sprite:16native aliases/zero overrides,48RGB edits/hash,98full normal-white copies,six actual hurt producer calls/readguard/independent background+intro/bounds pass.");
+    }
     private static void VerifyLookupStream4DraygonBackground(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

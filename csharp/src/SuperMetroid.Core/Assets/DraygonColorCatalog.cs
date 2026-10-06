@@ -18,7 +18,9 @@ public sealed class DraygonColorCatalog
             Span<ushort> backgroundWords = stackalloc ushort[DraygonColorRomData.BackgroundCount];
             for (int color = 0; color < backgroundWords.Length; color++) backgroundWords[color] = background.Color(color);
             content.AppendWords("background", backgroundWords);
-            content.AppendWords("sprite", sprite);
+            Span<ushort> spriteWords = stackalloc ushort[DraygonColorRomData.SpriteCount];
+            for (int color = 0; color < spriteWords.Length; color++) spriteWords[color] = sprite.Color(color);
+            content.AppendWords("sprite", spriteWords);
             Span<ushort> flash = stackalloc ushort[DraygonColorRomData.WhiteFlashCount];
             for (int color = 0; color < flash.Length; color++) flash[color] = ResolveWhiteFlash(color);
             content.AppendWords("whiteFlash", flash);
@@ -33,7 +35,7 @@ public sealed class DraygonColorCatalog
 
     private readonly ushort[] intro;
     private readonly DraygonMaterialPaintDefinitions background;
-    private readonly ushort[] sprite;
+    private readonly DraygonMaterialPaintDefinitions sprite;
     private readonly Dictionary<int, ushort> whiteFlash = new();
     private readonly DraygonHealthPaintDefinitions healthBands;
 
@@ -42,7 +44,7 @@ public sealed class DraygonColorCatalog
     {
         this.intro = intro;
         this.background = new(background);
-        this.sprite = sprite;
+        this.sprite = new(sprite);
         for (int color = 0; color < whiteFlash.Length; color++)
             if (whiteFlash[color] != StockWhiteFlash(color)) this.whiteFlash.Add(color, whiteFlash[color]);
         this.healthBands = new(healthBands);
@@ -57,7 +59,7 @@ public sealed class DraygonColorCatalog
 
     public ushort ResolveIntro(int color) => Get(intro, color);
     public ushort ResolveBackground(int color) => background.Color(color);
-    public ushort ResolveSprite(int color) => Get(sprite, color);
+    public ushort ResolveSprite(int color) => sprite.Color(color);
     public ushort ResolveWhiteFlash(int color)
     {
         if ((uint)color >= DraygonColorRomData.WhiteFlashCount)
@@ -90,7 +92,7 @@ public sealed class DraygonColorCatalog
         if (whiteFrame)
             ApplyCalculated(cgram, DraygonColorRomData.WhiteFlashCount, DraygonColorRomData.SpriteDestination, ResolveWhiteFlash);
         else
-            Apply(cgram, sprite, DraygonColorRomData.SpriteDestination);
+            ApplyCalculated(cgram, DraygonColorRomData.SpriteCount, DraygonColorRomData.SpriteDestination, ResolveSprite);
     }
 
     public void ApplyHealthBand(SnesCgram cgram, ushort tableByteIndex)

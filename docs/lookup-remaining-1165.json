@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 410,
+  "remainingTableDefinitionCount": 409,
   "fileCount": 523,
   "entries": [
     {
@@ -602,12 +602,15 @@
   "disposition": "All16stock outputs calculate from16 exact material/metadata inputs with shared channel gaps and clipped ramps; gold reuses completed health owner. Native34BG2 frames and sprite source distinguish visible eye13/14 from copied-only green15/clear0. Authored material choices have no functional derivation; independent supplied edits preserved."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs",
-      "line": 26,
-      "name": "DraygonColorCatalog.sprite",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind DraygonColorCatalog.sprite. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs",
+  "line": 26,
+  "name": "DraygonColorCatalog.sprite",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind DraygonColorCatalog.sprite. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "converted",
+  "implementationCommit": "8c0f59cacb31c059ec33e968b89da29abf0d18d9",
+  "disposition": "All16stock sprite colors derive by canonical completed Draygon material alias. No new retained inputs. Independent supplied RGB edits, copies and real hurt producer behavior preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs",
       "line": 27,
@@ -21843,6 +21846,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 606,
+  "convertedSinceSnapshot": 607,
   "justifiedRetainedSinceSnapshot": 112
 }

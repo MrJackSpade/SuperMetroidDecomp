@@ -246,6 +246,9 @@ public sealed partial class SuperMetroidGame
     /// upload, which the lag-free port does not spend as an update. Only that proven wait
     /// is accepted; replays of any other hardware stall must establish their own contract.
     /// </summary>
+    /// <summary>Accepted NMIs taken while a door transition's music upload blocks the main loop.</summary>
+    public IDoorMusicUploadNmiSource DoorMusicUploadNmis { get; set; } = LagFreeDoorMusicUploadNmis.Instance;
+
     internal void AcceptDoorMusicWaitControllerRead(ushort controllerInput)
     {
         if (GameState != SuperMetroidGameState.LoadingNextRoomB || runtime is null)
@@ -275,6 +278,10 @@ public sealed partial class SuperMetroidGame
              startingDoorPhase is not (DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading));
         IReadOnlyList<CartridgeAudioCommand> doorMusicCommands = doorMusicDispatch
             ? audio.AdvanceMusicDispatch() : Array.Empty<CartridgeAudioCommand>();
+        // SendAPUData stalls this dispatch while door IRQs keep NMIs accepted; nothing between
+        // this update's own NMI and the upload reads the counters.
+        if (doorMusicCommands.Any(command => command.Kind == CartridgeAudioCommandKind.Upload))
+            runtime!.AcceptHardwareWaitNmis(DoorMusicUploadNmis.AcceptedNmisDuringUpload(audio.MusicDataIndex));
         var gameplayAudio = new GameplayAudioFramePublication(audio);
         FrameNumber++;
         AdvanceMenuNmiFrameCounters();

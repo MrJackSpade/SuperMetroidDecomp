@@ -36,9 +36,15 @@ internal static partial class Program
         Console.WriteLine($"Native first input boundary: SMV frame {updates[0].SourceFrame}, " +
             $"state {Word(memory, MovieDesyncMemory.GameState):X2}, RNG {Word(memory, MovieDesyncMemory.Random):X4}.");
         var recentInputs = new Queue<string>();
+        var uploadNmis = new EvidencedDoorMusicUploadNmis();
+        game.DoorMusicUploadNmis = uploadNmis;
+        int excludedBefore = 0;
         for (int update = 1; update <= updates.Count; update++)
         {
             ConvertedMovieUpdate step = updates[update - 1];
+            // Upload-wait NMIs that follow this update's input are accepted inside its dispatch.
+            uploadNmis.Expect(update, step.ExcludedNmiAfter - excludedBefore);
+            excludedBefore = step.ExcludedNmiAfter;
             if (update >= traceFromUpdate && game.RuntimeForVerification is { } tracedRuntime)
                 tracedRuntime.System.RandomCallObserver = () => Console.WriteLine(
                     "  rng call: " + string.Join(" <- ", new System.Diagnostics.StackTrace(2)
@@ -48,6 +54,7 @@ internal static partial class Program
             if (step.HardwareWaitLatch is { } latched)
                 game.AcceptDoorMusicWaitControllerRead(latched);
             var output = game.Step(step.Input);
+            uploadNmis.AssertSettled();
             audio.RenderFrame(output.AudioCommands);
             game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
             memory = checkpoints.ReadAfter(update);
@@ -56,7 +63,7 @@ internal static partial class Program
                 TraceMovieSamus(game, memory, update, step);
             recentInputs.Enqueue($"{update}@{step.SourceFrame}:{step.Input:X4}/{step.Kind}");
             if (recentInputs.Count > 12) recentInputs.Dequeue();
-            List<string> mismatches = CompareMovieDesyncState(game, memory, step.ExcludedNmiAfter);
+            List<string> mismatches = CompareMovieDesyncState(game, memory);
             if (mismatches.Count != 0)
             {
                 Console.Error.WriteLine("Recent converted inputs: " + string.Join(", ", recentInputs));
@@ -113,7 +120,7 @@ internal static partial class Program
     /// Compares the gameplay-outcome fields that reveal desynchronization. Door loading
     /// is atomic in the port, so room-owned state is compared only once gameplay resumes.
     /// </summary>
-    private static List<string> CompareMovieDesyncState(SuperMetroidGame game, byte[] memory, int excludedNmis)
+    private static List<string> CompareMovieDesyncState(SuperMetroidGame game, byte[] memory)
     {
         var mismatches = new List<string>();
         void Check(string name, ushort actual, int address)
@@ -158,9 +165,7 @@ internal static partial class Program
         Check("Room", runtime.ActiveRoom!.Pointer, MovieDesyncMemory.Room);
         Check("Camera X", runtime.Camera!.XPosition, MovieDesyncMemory.CameraX);
         Check("Camera Y", runtime.Camera.YPosition, MovieDesyncMemory.CameraY);
-        ushort normalizedNmi = unchecked((ushort)(Word(memory, MovieDesyncMemory.NmiCounter) - excludedNmis));
-        if (runtime.NmiFrameCounter != normalizedNmi)
-            mismatches.Add($"Accepted gameplay NMI: native={normalizedNmi:X4} port={runtime.NmiFrameCounter:X4}");
+        Check("Accepted NMI", runtime.NmiFrameCounter, MovieDesyncMemory.NmiCounter);
         if (runtime.Enemies.Ridley is { } ridley)
             for (int index = 0; index < ridley.TailSegments.Length; index++)
             {

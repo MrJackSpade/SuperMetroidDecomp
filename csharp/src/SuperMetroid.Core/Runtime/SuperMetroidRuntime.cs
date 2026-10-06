@@ -4244,20 +4244,34 @@ public sealed partial class SuperMetroidRuntime
         return Snapshot(escapeTimerExpired, infiniteAmmoGuard);
     }
 
+    /// <summary>
+    /// Performs the accepted-NMI controller read at $80:95E1 for a recorded native NMI that
+    /// hardware delivered while the CPU was stalled outside gameplay. The wait's frame
+    /// counters are advanced separately by <see cref="AcceptHardwareWaitNmis"/>.
+    /// </summary>
+    internal void LatchHardwareWaitControllerRead(ushort controller1Input) =>
+        Controller1.Latch(ControllerBindings.Normalize(controller1Input));
+
+    /// <summary>
+    /// Counts NMIs the cartridge accepts while its main loop is stalled in a hardware wait
+    /// ($80:95E7-$95F4): each clears the lag counter and advances <c>$05B5/$05B6</c>.
+    /// </summary>
+    internal void AcceptHardwareWaitNmis(int count)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
+        if (count == 0)
+            return;
+        NmiLagCounter = 0;
+        NmiFrameCounter8 = unchecked((byte)(NmiFrameCounter8 + count));
+        NmiFrameCounter = unchecked((ushort)(NmiFrameCounter + count));
+    }
+
     /// <summary>Runs the NMI handler portion currently translated from <c>$80:9583</c>.</summary>
     /// <param name="controller1Input">Host-provided raw SNES controller word.</param>
     /// <param name="mainLoopRequestedNmi">
     /// Equivalent of WRAM's NMI request flag. False models a lag NMI: it skips transfers,
     /// input, and accepted-frame counters but still advances the all-NMI counter.
     /// </param>
-    /// <summary>
-    /// Performs only the accepted-NMI controller read at $80:95E1, for a recorded native
-    /// NMI that hardware delivered while the CPU was stalled outside gameplay. Every other
-    /// NMI effect belongs to the eliminated hardware wait and is deliberately absent.
-    /// </summary>
-    internal void LatchHardwareWaitControllerRead(ushort controller1Input) =>
-        Controller1.Latch(ControllerBindings.Normalize(controller1Input));
-
     public void RunNmi(ushort controller1Input, bool mainLoopRequestedNmi)
     {
         if (mainLoopRequestedNmi)

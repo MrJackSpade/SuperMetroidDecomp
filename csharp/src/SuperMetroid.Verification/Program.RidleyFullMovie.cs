@@ -971,6 +971,20 @@ internal static partial class Program
                 Check(owner + " spritemap", actor.SpritemapPointer, address + 22);
                 Check(owner + " instruction", actor.CurrentInstruction, address + 26);
                 Check(owner + " instruction timer", actor.InstructionTimer, address + 28);
+                Check(owner + " XRadius", actor.XRadius, address + 10);
+                Check(owner + " YRadius", actor.YRadius, address + 12);
+                Check(owner + " Properties", actor.Properties, address + 14);
+                Check(owner + " ExtraProperties", actor.ExtraProperties, address + 16);
+                Check(owner + " AiHandlerBits", actor.AiHandlerBits, address + 18);
+                Check(owner + " Timer", actor.Timer, address + 24);
+                Check(owner + " PaletteIndex", actor.PaletteIndex, address + 30);
+                Check(owner + " VramTilesIndex", actor.VramTilesIndex, address + 32);
+                Check(owner + " Layer", actor.Layer, address + 34);
+                Check(owner + " FlashTimer", actor.FlashTimer, address + 36);
+                Check(owner + " FrozenTimer", actor.FrozenTimer, address + 38);
+                Check(owner + " InvincibilityTimer", actor.InvincibilityTimer, address + 40);
+                Check(owner + " ShakeTimer", actor.ShakeTimer, address + 42);
+                Check(owner + " FrameCounter", actor.FrameCounter, address + 44);
             }
             if (!deferLoadingOwners && runtime.Enemies.Ridley is { } ridleyState &&
                 W(RidleyMovieMemory.EnemyBase) == RoomEnemySystem.NorfairRidleyDefinition)

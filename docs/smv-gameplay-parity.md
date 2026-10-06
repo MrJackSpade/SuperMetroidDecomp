@@ -59,7 +59,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Source identity, immutable movie, input edges, lag classification, terminal boundary | Converter v3 and complete replay pass | Retain these checks with each coverage expansion |
 | Samus position/fractions, camera position/fractions, pose/history, animation, primary speeds | Compared every retained interval | Control handlers, remaining movement flags and secondary motion state |
 | Health, reserves, equipment, collected inventory, ammunition and capacities | Complete replay passes these fields, fractional health, hurt/invincibility/knockback timers and directions, HUD selection/cancellation and X acceleration mode (`tide-owner-replay.log`) | Remaining combat/input ownership |
-| Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Full actor properties, timers, AI variables and seven-segment tail state |
+| Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Remaining actor AI variables and seven-segment tail state |
 | Ordinary/enemy projectiles | Ordinary active-slot subpixels, velocities, directions, instruction cursors/timers, spritemaps, trail/auxiliary words also pass the full replay | Ordinary pre-instruction identity, enemy-projectile family variables/properties, bombs and explosion owners |
 | Persistent world state and room effects | Selected room plus acid damage surface/tide phase checked during gameplay | Boss/event/door/item bits, PLM changes, remaining environmental gameplay state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
@@ -393,3 +393,13 @@ projectile defect is inferred solely from an unused retained word.
 The release build and input-only replay pass all10,717 updates with the expanded
 checks (`enemy-projectile-final-build.log`, `enemy-projectile-final-replay.log`).
 The remaining coverage audit above is still active.
+
+### Enemy collision properties and timers
+
+The complete input-only replay now also checks active enemy X/Y radii, properties,
+extra properties, AI-handler bits, general timer, palette/VRAM indices, draw layer,
+flash/freeze/invincibility/shake timers and frame counters. These fields were
+already imported once at the initial boundary. All10,717 updates pass without a
+production change (`enemy-properties-build.log`, `enemy-properties-replay.log`).
+Remaining actor-specific AI/tail state and the other audit categories above still
+require coverage before full functional parity can be claimed.

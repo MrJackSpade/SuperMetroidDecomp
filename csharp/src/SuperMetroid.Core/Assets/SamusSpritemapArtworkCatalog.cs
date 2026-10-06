@@ -19,8 +19,8 @@ public sealed class SamusSpritemapArtworkCatalog
     /// <summary>Native <c>$92:945D</c> lower-half base-index table.</summary>
     public const int BottomBaseAddress = 0x92945D;
 
-    private readonly ushort[] topBases;
-    private readonly ushort[] bottomBases;
+    private readonly Dictionary<int, ushort> topBases;
+    private readonly Dictionary<int, ushort> bottomBases;
     private readonly ushort[] pointers;
     private readonly Dictionary<ushort, SamusSpritemapDefinition> definitions;
 
@@ -35,8 +35,12 @@ public sealed class SamusSpritemapArtworkCatalog
             bottomBases.Length != SamusBodyArtworkCatalog.PoseCount ||
             pointers.Length != PointerCount)
             throw new InvalidDataException("Samus spritemap selector tables have an invalid length.");
-        this.topBases = (ushort[])topBases.Clone();
-        this.bottomBases = (ushort[])bottomBases.Clone();
+        this.topBases = Enumerable.Range(0, topBases.Length)
+            .Where(pose => topBases[pose] != SamusSpritemapPoseDefinitions.TopBase((byte)pose))
+            .ToDictionary(pose => pose, pose => topBases[pose]);
+        this.bottomBases = Enumerable.Range(0, bottomBases.Length)
+            .Where(pose => bottomBases[pose] != SamusSpritemapPoseDefinitions.BottomBase((byte)pose))
+            .ToDictionary(pose => pose, pose => bottomBases[pose]);
         this.pointers = (ushort[])pointers.Clone();
         this.definitions = new Dictionary<ushort, SamusSpritemapDefinition>();
         foreach (SamusSpritemapDefinition definition in definitions)
@@ -51,7 +55,7 @@ public sealed class SamusSpritemapArtworkCatalog
         foreach (ushort pointer in this.pointers)
             if (pointer != 0 && !this.definitions.ContainsKey(pointer))
                 throw new InvalidDataException($"Samus spritemap ${pointer:X4} is absent from installed art.");
-        foreach (ushort index in this.topBases.Concat(this.bottomBases))
+        foreach (ushort index in topBases.Concat(bottomBases))
             if (index >= PointerCount)
                 throw new InvalidDataException($"Samus spritemap base index {index} is outside the table.");
     }
@@ -59,8 +63,8 @@ public sealed class SamusSpritemapArtworkCatalog
     /// <summary>SHA-256 of selected pose bases, frame pointers and ordered OBJ composition parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusSpritemapArtworkCatalog), content =>
     {
-        content.AppendWords("top bases", this.topBases);
-        content.AppendWords("bottom bases", this.bottomBases);
+        content.AppendWords("top bases", TopBases);
+        content.AppendWords("bottom bases", BottomBases);
         content.AppendWords("pointers", this.pointers);
         foreach ((ushort pointer, SamusSpritemapDefinition definition) in this.definitions.OrderBy(pair => pair.Key))
         {
@@ -75,12 +79,20 @@ public sealed class SamusSpritemapArtworkCatalog
         }
     });
 
-    public ReadOnlySpan<ushort> TopBases => topBases;
-    public ReadOnlySpan<ushort> BottomBases => bottomBases;
+    public ReadOnlySpan<ushort> TopBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => TopBase((byte)pose)).ToArray();
+    public ReadOnlySpan<ushort> BottomBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => BottomBase((byte)pose)).ToArray();
     public ReadOnlySpan<ushort> Pointers => pointers;
     public IReadOnlyCollection<SamusSpritemapDefinition> Definitions => definitions.Values;
-    public ushort TopBase(byte pose) => topBases[pose];
-    public ushort BottomBase(byte pose) => bottomBases[pose];
+    public ushort TopBase(byte pose)
+    {
+        if (pose >= SamusBodyArtworkCatalog.PoseCount) throw new IndexOutOfRangeException();
+        return topBases.TryGetValue(pose, out ushort value) ? value : SamusSpritemapPoseDefinitions.TopBase(pose);
+    }
+    public ushort BottomBase(byte pose)
+    {
+        if (pose >= SamusBodyArtworkCatalog.PoseCount) throw new IndexOutOfRangeException();
+        return bottomBases.TryGetValue(pose, out ushort value) ? value : SamusSpritemapPoseDefinitions.BottomBase(pose);
+    }
 
     /// <summary>Returns false only for a native zero pointer, which requires a bus read.</summary>
     public bool TryGet(ushort index, out SamusSpritemapDefinition? definition)

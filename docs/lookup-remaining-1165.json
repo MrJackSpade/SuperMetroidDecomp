@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 520,
+  "remainingTableDefinitionCount": 518,
   "fileCount": 523,
   "entries": [
     {
@@ -2025,14 +2025,18 @@
       "line": 22,
       "name": "SamusSpritemapArtworkCatalog.topBases",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SamusSpritemapArtworkCatalog.topBases. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SamusSpritemapArtworkCatalog.topBases. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "ca882de7bb8da59fd61d0ac24de908c166b4a437"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs",
       "line": 23,
       "name": "SamusSpritemapArtworkCatalog.bottomBases",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SamusSpritemapArtworkCatalog.bottomBases. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SamusSpritemapArtworkCatalog.bottomBases. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "ca882de7bb8da59fd61d0ac24de908c166b4a437"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs",
@@ -21538,6 +21542,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 587,
+  "convertedSinceSnapshot": 589,
   "justifiedRetainedSinceSnapshot": 21
 }

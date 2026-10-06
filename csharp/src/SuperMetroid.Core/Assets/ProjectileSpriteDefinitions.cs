@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -120,9 +121,48 @@ public static class ProjectileSpriteDefinitions
     private const ushort PowerBombProgram = 0x9f87, FastPowerBombProgram = 0x9fa3;
     /// <summary>$93:9FBF and9FE3: normal/fast Bomb cycles each traverse the same four poses.</summary>
     private const ushort BombProgram = 0x9fbf, FastBombProgram = 0x9fe3;
+    /// <summary>$93:8F17/8F1F: invisible upward charged-Wave lead-in followed by four sixteen-frame travel-axis loops.</summary>
+    private const ushort ChargedWaveLeadIn = 0x8f17, ChargedWaveProgram = 0x8f1f;
+    /// <summary>$93:9153/915B: corresponding charged IceWave lead-in and four travel-axis loops.</summary>
+    private const ushort ChargedIceWaveLeadIn = 0x9153, ChargedIceWaveProgram = 0x915b;
+
+    private static bool TryChargedWaveCycle(ushort pointer, ushort programStart, ushort compositionStart, out ushort sprite)
+    {
+        const int cycleBytes = 16 * 8 + 4;
+        int offset = pointer - programStart;
+        sprite = default;
+        if (offset < 0 || offset >= 4 * cycleBytes) return false;
+        int recordOffset = offset % cycleBytes;
+        if (recordOffset >= 16 * 8 || recordOffset % 8 != 0) return false;
+        int phase = recordOffset / 8;
+        WaveTravelAxis axis = (WaveTravelAxis)(offset / cycleBytes);
+        // The last axial pair reverses glyph order in native data. Its independent
+        // selection remains supplied and REQUIRED rather than folded into this traversal.
+        if (phase >= 14 && axis is WaveTravelAxis.Vertical or WaveTravelAxis.Horizontal) return false;
+        int halfPhase = phase / 2;
+        int stage = Math.Min(halfPhase, 8 - halfPhase);
+        int shapeGroup = axis switch
+        {
+            WaveTravelAxis.Vertical => 3,
+            WaveTravelAxis.RisingDiagonal => 2,
+            WaveTravelAxis.Horizontal => 0,
+            WaveTravelAxis.FallingDiagonal => 1,
+            _ => throw new InvalidOperationException("Unknown charged Wave travel axis."),
+        };
+        int pose = stage == 0 ? phase % 2 : 2 + shapeGroup * 8 + (stage - 1) * 2 + phase % 2;
+        sprite = ChargedWavePointer(compositionStart, pose);
+        return true;
+    }
     internal static bool TryCalculatedFrameSprite(ushort instructionPointer, out ushort sprite)
     {
         if (TryPowerDirectionSprite(instructionPointer, out sprite)) return true;
+        if (instructionPointer is ChargedWaveLeadIn or ChargedIceWaveLeadIn)
+        {
+            sprite = NothingStart;
+            return true;
+        }
+        if (TryChargedWaveCycle(instructionPointer, ChargedWaveProgram, ChargedWaveStart, out sprite) ||
+            TryChargedWaveCycle(instructionPointer, ChargedIceWaveProgram, ChargedIceWaveStart, out sprite)) return true;
         if (TryTimedPhase(instructionPointer, PowerBombProgram, 3, out int bombPhase) ||
             TryTimedPhase(instructionPointer, FastPowerBombProgram, 3, out bombPhase))
         {
@@ -418,8 +458,14 @@ public static class ProjectileSpriteDefinitions
         int offset = preceding * sizeof(ushort) + 5 * (diagonal ? 2 : 1) * preceding * (preceding + 1) / 2;
         return (ushort)(PlasmaStartupStart + groupOffset + offset);
     }
-    /// <summary>$93:A252: Power-beam poses select OBJ tile $30..32 with palette6/priority2; these independent artwork choices remain required.</summary>
-    private const int PowerTile = 0x30, PowerPalette = 6, PowerPriority = 2;
+    /// <summary>$93:A252: Power-beam poses select OBJ tile $30..32 with priority2; those artwork choices remain required, while palette selects the installed CGRAM row.</summary>
+    private const int PowerTile = 0x30, PowerPriority = 2;
+    /// <summary>$90:ACDE-ACE8 loads the active beam colors at CGRAM224. OBJ attributes select a sixteen-color row in CGRAM's upper half, so its palette field derives from that destination.</summary>
+    private const int PowerPalette = (SamusProjectileRomData.Palettes.BeamDestinationIndex - SnesCgram.ColorCount / 2) /
+        GameplayBasePaletteFormat.SpriteColorCount;
+    /// <summary>$82:E13E-E148 restores9A:81A0 at SpriteP5/CGRAM208. Fixed projectile artwork selects that installed sixteen-color row; its color payload remains required.</summary>
+    private const int FixedProjectilePalette = (GameplayBasePaletteFormat.EnemyProjectileInitialColor - SnesCgram.ColorCount / 2) /
+        GameplayBasePaletteFormat.SpriteColorCount;
     internal static bool TrySingleBeamPhase(ushort pointer, out int phase) =>
         TryPhase(pointer, PowerStart, 1, 8, out phase) || TryPhase(pointer, IceStart, 1, 4, out phase);
     private static bool TryPhase(ushort pointer, ushort start, int parts, int count, out int phase)
@@ -435,6 +481,47 @@ public static class ProjectileSpriteDefinitions
             return phase != 0; // EC3E's independently selected ordering remains required.
         ice = true;
         return TryPhase(pointer, ChargedIceStart, 4, 4, out phase);
+    }
+    /// <summary>$93:ADD5/ADF2/AE0F/AE2C: axial SuperMissile poses, separated by one two-part axial and one three-part diagonal record.</summary>
+    internal static bool TryAxialSuperMissilePose(ushort pointer, out int pose)
+    {
+        int offset = pointer - SuperMissileStart;
+        int stride = RecordBytes(2) + RecordBytes(3);
+        pose = offset / stride;
+        return offset >= 0 && offset < 4 * stride && offset % stride == 0;
+    }
+    /// <summary>$93:ADDC/ADF9: independently selected horizontal/vertical SuperMissile glyph roots and priority. These artwork inputs remain required under frames; palette selects the installed fixed-projectile CGRAM row.</summary>
+    private const int SuperMissileHorizontalGlyph = 0x65, SuperMissileVerticalGlyph = 0x69,
+        SuperMissilePriority = 2;
+    /// <summary>Four axial native poses use a centered two-cell strip, reflected with travel direction; independent glyph/style/pixel content remains required.</summary>
+    internal readonly struct AxialSuperMissileParts(int pose) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => 2;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= 2) throw new IndexOutOfRangeException();
+                bool vertical = (pose & 1) != 0;
+                bool reflected = pose >= 2;
+                int x = vertical ? -8 / 2 : -index * 8;
+                int y = vertical ? (index - 1) * 8 : -8 / 2;
+                if (reflected)
+                {
+                    if (vertical) y = -8 - y;
+                    else x = -8 - x;
+                }
+                int tile = vertical ? SuperMissileVerticalGlyph + index : SuperMissileHorizontalGlyph - index;
+                var flips = reflected ? (vertical ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.Horizontal) : 0;
+                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                    SnesObjAttributeWord.Create(tile, FixedProjectilePalette, SuperMissilePriority, flips), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$93:A24D..A27E: eight centered one-tile Power poses (also the first four Ice poses at $93:EDF6) traverse a triangular three-glyph cycle and rotate its horizontal/vertical reflection phases.</summary>
     internal readonly struct SingleBeamParts(int phase) : IReadOnlyList<CompiledSpritePart>
@@ -555,6 +642,89 @@ public static class ProjectileSpriteDefinitions
                     (row == 0 ? SnesTileFlipFlags.Vertical : 0);
                 return new(SnesSpritemapXWord.Create(-column * 8, false), unchecked((byte)(centerY - row * 8)),
                     SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    /// <summary>Native93:AD6D/AD8A/ADA7/ADC4 andADE1/ADFE/AE1B/AE38: diagonal records follow each two-part axial record.</summary>
+    internal static bool TryDiagonalMissilePose(ushort pointer, out int pose, out bool super)
+    {
+        super = false;
+        if (TryDiagonalMissilePose(pointer, MissileStart, out pose)) return true;
+        super = true;
+        return TryDiagonalMissilePose(pointer, SuperMissileStart, out pose);
+    }
+    private static bool TryDiagonalMissilePose(ushort pointer, ushort start, out int pose)
+    {
+        int offset = pointer - start - RecordBytes(2);
+        int stride = RecordBytes(2) + RecordBytes(3);
+        pose = offset / stride;
+        return offset >= 0 && offset < 4 * stride && offset % stride == 0;
+    }
+    /// <summary>Native AD6F andADE3 L-footprint origins. These four independently selected pivot coordinates remain REQUIRED artwork inputs.</summary>
+    private const int MissileDiagonalX = -8, MissileDiagonalY = -11,
+        SuperMissileDiagonalX = -6, SuperMissileDiagonalY = -10;
+    /// <summary>Native AD72/ADF0 glyph roots and AD6F/ADE3 first corner in bottom-right,bottom-left,top-left order; both the chosen three-corner footprint and these artwork/order seeds remain REQUIRED.</summary>
+    private const int MissileDiagonalGlyph = 0x56, SuperMissileDiagonalGlyph = 0x66,
+        MissileFirstCorner = 2, SuperMissileFirstCorner = 0;
+    internal readonly struct DiagonalMissileParts(int pose, bool super) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => 3;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= 3) throw new IndexOutOfRangeException();
+                int corner = (index + (super ? SuperMissileFirstCorner : MissileFirstCorner)) % 3;
+                int x = (super ? SuperMissileDiagonalX : MissileDiagonalX) + (corner == 0 ? 8 : 0);
+                int y = (super ? SuperMissileDiagonalY : MissileDiagonalY) + (corner == 2 ? 0 : 8);
+                bool flipX = pose is 1 or 2;
+                bool flipY = pose >= 2;
+                if (flipX) x = -8 - x;
+                if (flipY) y = -8 - y;
+                int tile = (super ? SuperMissileDiagonalGlyph : MissileDiagonalGlyph) + 2 - corner;
+                var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
+                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                    SnesObjAttributeWord.Create(tile, FixedProjectilePalette, SuperMissilePriority, flips), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    /// <summary>$93:AD45-AD60: four centered single-cell Bomb poses use consecutive glyphs from4C. Glyph origin/priority remain REQUIRED artwork inputs; palette selects the installed fixed-projectile row.</summary>
+    private const int BombGlyphStart = 0x4c, BombPalette = FixedProjectilePalette, EffectPriority = 3;
+    /// <summary>$93:ABC1-AC18: four mirrored quadrant beam-explosion stages use consecutive glyphs60-63 and the installed beam-color row. Glyph selection/priority/pixels remain REQUIRED.</summary>
+    private const int BeamExplosionQuadGlyphStart = 0x60, BeamExplosionPalette = PowerPalette;
+    internal static bool TrySimpleEffectPose(ushort pointer, out int phase, out bool quad)
+    {
+        quad = false;
+        if (TryPhase(pointer, BombStart, 1, 4, out phase)) return true;
+        quad = true;
+        return TryPhase(pointer, BeamExplosionPointer(2), 4, 4, out phase);
+    }
+    internal readonly struct SimpleEffectParts(int phase, bool quad) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => quad ? 4 : 1;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                int column = index / 2, row = index % 2;
+                int x = quad ? -column * 8 : -8 / 2;
+                int y = quad ? -row * 8 : -8 / 2;
+                int tile = (quad ? BeamExplosionQuadGlyphStart : BombGlyphStart) + phase;
+                var flips = quad ? (column == 0 ? SnesTileFlipFlags.Horizontal : 0) |
+                    (row == 0 ? SnesTileFlipFlags.Vertical : 0) : 0;
+                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                    SnesObjAttributeWord.Create(tile, quad ? BeamExplosionPalette : BombPalette, EffectPriority, flips), false);
             }
         }
         public IEnumerator<CompiledSpritePart> GetEnumerator()

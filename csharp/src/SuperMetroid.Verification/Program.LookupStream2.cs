@@ -56,6 +56,21 @@ internal static partial class Program
             if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.VerticalChargedWaveParts)
                 calculatedLobes++;
         AssertEqual(20, calculatedLobes, "Both charged-Wave families share centered/vertical lobe geometry without cached parts");
+        int calculatedMissiles = 0;
+        foreach (SpriteComposition composition in frames.Values)
+            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.AxialSuperMissileParts)
+                calculatedMissiles++;
+        AssertEqual(4, calculatedMissiles, "Four SuperMissile axial poses share centered strip geometry without cached parts");
+        int calculatedDiagonalMissiles = 0;
+        foreach (SpriteComposition composition in frames.Values)
+            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.DiagonalMissileParts)
+                calculatedDiagonalMissiles++;
+        AssertEqual(8, calculatedDiagonalMissiles, "Eight diagonal missile poses share reflected footprint geometry without cached part arrays");
+        int calculatedSimpleEffects = 0;
+        foreach (SpriteComposition composition in frames.Values)
+            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.SimpleEffectParts)
+                calculatedSimpleEffects++;
+        AssertEqual(8, calculatedSimpleEffects, "Four centered Bomb poses and four mirrored beam explosions calculate without cached parts");
         var firstCharged = (SpriteComposition)frames[(ushort)0xec3e]!;
         AssertTrue(typeof(SpriteComposition).GetField("parts", fields)!.GetValue(firstCharged) is CompiledSpritePart[], "Distinct initial charged-Power ordering stays explicitly supplied/pending");
         foreach (ushort pointer in expected)
@@ -68,6 +83,19 @@ internal static partial class Program
         }
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var document = System.Text.Json.JsonSerializer.Deserialize<ProjectileSpriteDocument>(json, options)!;
+        const ushort superMissilePointer = 0xadd5;
+        string superMissileName = ProjectileSpriteDefinitions.Name(superMissilePointer);
+        var originalMissilePart = document.Frames[superMissileName][1];
+        document.Frames[superMissileName][1] = originalMissilePart with { OffsetX = originalMissilePart.OffsetX + 1 };
+        var editedMissile = ProjectileSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
+        var originalMissileOam = new OamBuffer();
+        var editedMissileOam = new OamBuffer();
+        selected.Draw(superMissilePointer, originalMissileOam, 255, 255);
+        editedMissile.Draw(superMissilePointer, editedMissileOam, 255, 255);
+        byte[] expectedMissileOam = originalMissileOam.LowTable.ToArray();
+        expectedMissileOam[4]++;
+        AssertTrue(expectedMissileOam.SequenceEqual(editedMissileOam.LowTable) && originalMissileOam.HighTable.SequenceEqual(editedMissileOam.HighTable), "Independent SuperMissile tail edit changes only its emitted X byte");
+        document.Frames[superMissileName][1] = originalMissilePart;
         ushort editedPointer = ProjectileSpriteDefinitions.NativePointers[1];
         string editedName = ProjectileSpriteDefinitions.Name(editedPointer);
         var before = document.Frames[editedName][0];
@@ -117,7 +145,7 @@ internal static partial class Program
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
-        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and 84 stock Power/Ice/Wave compositions calculate; independent frame selection/composition/art inputs remain pending.");
+        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and 104 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
     }
     private static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
     {
@@ -1826,7 +1854,7 @@ internal static partial class Program
         var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(json));
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var remaining = (System.Collections.IDictionary)typeof(ProjectileFrameBindingCatalog).GetField("sprites", fields)!.GetValue(stock)!;
-        AssertEqual(645, remaining.Count, "One hundred sixty beam/effect bindings calculate; other645 selections remain required");
+        AssertEqual(523, remaining.Count, "Two hundred eighty-two beam/effect bindings calculate; other523 selections remain required");
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), stock.Resolve(pointer), "Every installed selector retains its exact native target");
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
@@ -1854,13 +1882,25 @@ internal static partial class Program
             document.Frames[key] = original;
         }
         int checkedWaveIce = 0;
+        int pendingChargedPairs = 0;
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
         {
             if (!(pointer >= 0x873b && pointer < 0x8973) &&
                 !(pointer >= 0x8e77 && pointer < 0x8f17) &&
                 !(pointer >= 0x912f && pointer < 0x914f) &&
                 !(pointer >= 0xa007 && pointer < 0xa113) &&
-                !(pointer >= 0x9ebb && pointer < 0xa007)) continue;
+                !(pointer >= 0x9ebb && pointer < 0xa007) &&
+                !(pointer >= 0x8f17 && pointer < 0x912f) &&
+                !(pointer >= 0x9153 && pointer < 0x936b)) continue;
+            if ((pointer >= 0x8f8f && pointer <= 0x8f97) ||
+                (pointer >= 0x9097 && pointer <= 0x909f) ||
+                (pointer >= 0x91cb && pointer <= 0x91d3) ||
+                (pointer >= 0x92d3 && pointer <= 0x92db))
+            {
+                AssertTrue(remaining.Contains(pointer), "Eight reversed axial glyph selections remain supplied/pending");
+                pendingChargedPairs++;
+                continue;
+            }
             AssertTrue(!remaining.Contains(pointer), "Calculated Wave/Ice selector is absent from stored residuals");
             var shot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
             var system = new SamusProjectileSystem { FrameBindings = stock };
@@ -1883,7 +1923,8 @@ internal static partial class Program
             document.Frames[key] = original;
             checkedWaveIce++;
         }
-        AssertEqual(152, checkedWaveIce, "Wave/Ice/charged Power,32 effect records and31 missile/link/bomb records");
+        AssertEqual(274, checkedWaveIce, "Other calculated beam/effect records including122 charged Wave rows");
+        AssertEqual(8, pendingChargedPairs, "All four reversed axial end-pairs stay explicit");
         var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         int checkedBombs = 0;
@@ -1899,6 +1940,6 @@ internal static partial class Program
         AssertEqual(14, checkedBombs, "Both normal/fast PowerBomb and Bomb visual cycles");
         AssertThrows<InvalidDataException>(() => stock.Resolve(0x87c3), "Wave self-jump is not accepted as a timed record");
         AssertThrows<InvalidDataException>(() => stock.Resolve(0x86dc), "Program interior is not accepted as a timed record");
-        Console.WriteLine("Stream2 Power bindings: 160calculated beam/effect selectors,805native operands,645explicit residuals and160actual handler/edit paths pass.");
+        Console.WriteLine("Stream2 Power bindings: 282calculated beam/effect selectors,805native operands,523explicit residuals and282actual handler/edit paths pass.");
     }
 }

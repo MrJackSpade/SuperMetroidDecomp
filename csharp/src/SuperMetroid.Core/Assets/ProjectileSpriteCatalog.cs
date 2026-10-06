@@ -72,6 +72,12 @@ public sealed class ProjectileSpriteCatalog
                 composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.WaveParts(phase));
             else if (ProjectileSpriteDefinitions.TryVerticalChargedWavePhase(id, out phase))
                 composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.VerticalChargedWaveParts(phase));
+            else if (ProjectileSpriteDefinitions.TryAxialSuperMissilePose(id, out phase))
+                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.AxialSuperMissileParts(phase));
+            else if (ProjectileSpriteDefinitions.TryDiagonalMissilePose(id, out phase, out bool super))
+                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.DiagonalMissileParts(phase, super));
+            else if (ProjectileSpriteDefinitions.TrySimpleEffectPose(id, out phase, out bool quad))
+                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SimpleEffectParts(phase, quad));
             frames.Add(id, composition);
         }
         return new(frames);

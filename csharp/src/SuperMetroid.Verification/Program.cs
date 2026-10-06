@@ -5133,6 +5133,7 @@ if (args is ["--speed-palette-overrun"]){
 }
 if (args is ["--pause-map-position"]){
     VerifyPauseMapPosition();
+    VerifyPauseHudLocation();
     return 0;
 }
 if (args is ["--pause-map-area-labels"])

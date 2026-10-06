@@ -42,7 +42,7 @@ internal static class MapDoorExplorationAudit
             ushort input = entered ? (ushort)0 :
                 (ushort)(SnesButton.Right | (frame % 12 == 0 ? SnesButton.X : 0));
             if (transition.IsActive)
-                transition.Step(runtime, audio, input);
+                transition.Step(runtime, audio, input, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             else
             {
                 runtime.StepFrame(input);

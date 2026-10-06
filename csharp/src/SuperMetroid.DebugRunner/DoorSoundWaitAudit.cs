@@ -34,7 +34,7 @@ internal static class DoorSoundWaitAudit
         {
             // Deliberately leave the request unread to keep the wait stage active.
             // No assertion of ordinary SPC drain duration is made here.
-            transition.Step(runtime, audio, 0);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             Console.WriteLine($"WAIT frame={frame} phase={transition.Phase} frozen={enemy.FrozenTimer}");
             if (runtime.Samus.Kinematics.XFixed != playerX || runtime.Samus.Kinematics.YFixed != playerY ||
                 runtime.Samus.AnimationFrameTimer != animationTimer || !runtime.LastSamusBodyDrawn)

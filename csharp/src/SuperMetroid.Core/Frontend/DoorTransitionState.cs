@@ -59,11 +59,13 @@ public sealed class DoorTransitionState
         SuperMetroidRuntime runtime,
         CartridgeAudioState audio,
         ushort controllerInput,
+        IDoorLoaderProgressSource loaderProgress,
         Func<ushort>? queueEchoSound = null,
         Action? publishSoundWaitAudio = null)
     {
         ArgumentNullException.ThrowIfNull(runtime);
         ArgumentNullException.ThrowIfNull(audio);
+        ArgumentNullException.ThrowIfNull(loaderProgress);
         if (!IsActive)
             throw new InvalidOperationException("Door transition has not begun.");
 
@@ -174,8 +176,9 @@ public sealed class DoorTransitionState
                     door ?? throw new InvalidOperationException("Door header was not captured."),
                     sourceSamusXFixed,
                     sourceSamusYFixed,
+                    loaderProgress,
                     completedLoadingIrqSteps: 1);
-                runtime.StepDoorOpeningScroll();
+                runtime.StepDoorOpeningScroll(loaderProgress);
                 if (runtime.IconCancelEnabled && runtime.Samus is { } samus)
                 {
                     // ResetProjectileData checks `$09EA` after clearing all projectile
@@ -195,7 +198,7 @@ public sealed class DoorTransitionState
                 // empty build prevents the faded source enemies from becoming black ghosts
                 // over the incrementally moving destination doorway.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                if (runtime.StepDoorOpeningScroll())
+                if (runtime.StepDoorOpeningScroll(loaderProgress))
                 {
                     // The cartridge calls PLM_Handler at $82:E53C on the final IRQ
                     // scrolling update, before the NMI that precedes destination fade-in.

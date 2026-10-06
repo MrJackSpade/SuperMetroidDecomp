@@ -30,16 +30,16 @@ internal static partial class Program
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);
         for (int frame = 0; transition.Phase != DoorTransitionPhase.HandleTransition && frame < 600; frame++)
-            transition.Step(runtime, audio, 0);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
         AssertEqual(DoorTransitionPhase.HandleTransition, transition.Phase, "Space Jump exit reaches finalization");
         var writer = typeof(RoomPlmSystem).GetField("_disableDraygonCannon", BindingFlags.NonPublic | BindingFlags.Instance)!;
         writer.SetValue(runtime.Plms, (Action<ushort>)(_ => throw new IOException("injected cannon failure")));
         bool failed = false;
-        try { transition.Step(runtime, audio, 0); }
+        try { transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance); }
         catch (IOException error) when (error.Message == "injected cannon failure") { failed = true; }
         AssertTrue(failed, "destination actor frame reproduces the failure after scroll finalization");
         writer.SetValue(runtime.Plms, (Action<ushort>)runtime.Enemies.DisableDraygonCannon);
-        for (int frame = 0; transition.IsActive && frame < 120; frame++) transition.Step(runtime, audio, 0);
+        for (int frame = 0; transition.IsActive && frame < 120; frame++) transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
         AssertEqual(DoorTransitionPhase.Complete, transition.Phase, "retry finishes destination fade without finalizing scroll twice");
         Console.WriteLine("Space Jump to defeated Draygon: injected post-scroll failure recovers through destination OAM and fade.");
     }

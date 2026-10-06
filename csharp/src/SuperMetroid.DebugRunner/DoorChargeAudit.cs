@@ -44,7 +44,7 @@ internal static class DoorChargeAudit
         {
             var phase = transition.Phase;
             ushort before = runtime.Projectiles.FlareCounter;
-            transition.Step(runtime, audio, (ushort)SnesButton.X);
+            transition.Step(runtime, audio, (ushort)SnesButton.X, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             if (runtime.Projectiles.FlareCounter < before)
                 throw new InvalidDataException($"Held charge lost during {phase}: {before} -> {runtime.Projectiles.FlareCounter}.");
             if (phase is DoorTransitionPhase.HandleTransition or DoorTransitionPhase.FadeInDestinationPalette &&

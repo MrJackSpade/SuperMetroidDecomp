@@ -1117,7 +1117,7 @@ internal static class KraidAudit
         bool verifiedSourceFade = false;
         for (int frame = 0; transition.IsActive && frame < 320; frame++)
         {
-            transition.Step(runtime, audio, controllerInput: 0);
+            transition.Step(runtime, audio, controllerInput: 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             if (!verifiedSourceFade && transition.Phase == DoorTransitionPhase.LoadDoorHeader)
             {
                 VerifyKraidExitHudFade(

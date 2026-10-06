@@ -162,7 +162,7 @@ internal static partial class Program
             DoorTransitionPhase phaseBeforeStep = transition.Phase;
             if (transition.Phase == DoorTransitionPhase.AlignSourceCamera)
                 alignmentCalls++;
-            transition.Step(runtime, audio, heldLeftRight);
+            transition.Step(runtime, audio, heldLeftRight, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             if (phaseBeforeStep == DoorTransitionPhase.BuildDestinationOam &&
                 transition.Phase == DoorTransitionPhase.FadeInDestinationPalette)
             {

@@ -144,7 +144,7 @@ internal static partial class EarlyControllerRouteAudit
         for (int frame = 0; transition.IsActive && frame < 400; frame++)
         {
             DoorTransitionPhase phaseBefore = transition.Phase;
-            transition.Step(runtime, audio, controllerInput: 0);
+            transition.Step(runtime, audio, controllerInput: 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             if (phaseBefore == DoorTransitionPhase.LoadMoreThingsAndOpenDoor)
             {
                 ushort destinationY = unchecked((ushort)(pendingDoor.DestinationScreenY << 8));

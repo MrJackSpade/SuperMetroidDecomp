@@ -62,7 +62,7 @@ internal static class ElevatorTopEdgeAudit
         {
             var phase = transition.Phase;
             ushort beforeCameraY = runtime.Camera!.YPosition;
-            transition.Step(runtime, audio, 0);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             if (phase == DoorTransitionPhase.HandleTransition)
             {
                 Console.WriteLine($"Destination handoff: Samus={samus.YPosition:X4}, camera={runtime.Camera.YPosition:X4}, " +

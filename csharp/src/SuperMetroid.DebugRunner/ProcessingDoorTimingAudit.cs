@@ -138,7 +138,7 @@ internal static class ProcessingDoorTimingAudit
         DoorTransitionState transition = CreateSoundWaitTransition();
         for (int frame = 1; frame <= MeasurementFrameLimit; frame++)
         {
-            transition.Step(runtime, audio, controllerInput: 0);
+            transition.Step(runtime, audio, controllerInput: 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             acknowledgements.Advance(bus, audio);
             if (transition.Phase == DoorTransitionPhase.FadeOutSourcePalette)
                 return frame;
@@ -388,7 +388,7 @@ internal static class ProcessingDoorTimingAudit
         while (transition.Phase == DoorTransitionPhase.WaitForSoundQueues &&
                waitFrames < MeasurementFrameLimit)
         {
-            transition.Step(runtime, audio, controllerInput: 0);
+            transition.Step(runtime, audio, controllerInput: 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             acknowledgements.Advance(bus, audio);
             waitFrames++;
         }

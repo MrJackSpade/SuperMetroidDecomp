@@ -55,7 +55,7 @@ internal static partial class Program
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);
         for (int frame = 0; transition.IsActive && frame < 400; frame++)
-            transition.Step(runtime, audio, 0);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
         AssertTrue(!transition.IsActive, "Pillar Room transition completes");
         AssertEqual(destination, runtime.ActiveRoom!.Pointer, "Pillar Room entered through retail door");
         AssertEqual(2, runtime.Enemies.NuclearWaffleStates.Count(state => state is not null),

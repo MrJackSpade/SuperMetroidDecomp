@@ -61,7 +61,7 @@ internal static partial class EarlyControllerRouteAudit
             transition.IsActive && dispatcherFrame < 320;
             dispatcherFrame++)
         {
-            transition.Step(runtime, audio, controllerInput: 0);
+            transition.Step(runtime, audio, controllerInput: 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             if (transition.Phase != DoorTransitionPhase.WaitForDoorOpeningScroll)
                 continue;
 
@@ -261,7 +261,7 @@ internal static partial class EarlyControllerRouteAudit
             if (before == DoorTransitionPhase.LoadMoreThingsAndOpenDoor)
                 beforeOpening = SnapshotBg1Tilemap(runtime.Vram);
 
-            transition.Step(runtime, audio, controllerInput: 0);
+            transition.Step(runtime, audio, controllerInput: 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
 
             if (before == DoorTransitionPhase.LoadMoreThingsAndOpenDoor)
             {

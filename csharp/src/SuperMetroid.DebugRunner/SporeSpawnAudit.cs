@@ -513,7 +513,7 @@ internal static class SporeSpawnAudit
         transition.Begin(runtime);
         var audio = new CartridgeAudioState();
         for (int frame = 0; frame < 400 && transition.IsActive; frame++)
-            transition.Step(runtime, audio, 0);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
         if (transition.IsActive) throw new InvalidDataException("Spore Spawn entry fade did not finish.");
         foreach (var row in SporeSpawnAuditDefinitions.DeathPaletteRows)
         {

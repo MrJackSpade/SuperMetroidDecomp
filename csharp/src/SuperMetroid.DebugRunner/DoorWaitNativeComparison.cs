@@ -40,7 +40,7 @@ internal static class DoorWaitNativeComparison
                 // Native dispatches the wait/draw owner before that frame's APU rings.
                 // Do not move this test after AdvanceFrame: the one-frame boundary is
                 // precisely the property that an isolated queue comparison cannot prove.
-                transition.Step(runtime, audio, 0);
+                transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
                 byte ack = frame > lag ? history[frame - lag - 1] : (byte)0;
                 var commands = audio.AdvanceFrame(bus, new(0, library == 0 ? ack : (byte)0,
                     library == 1 ? ack : (byte)0, library == 2 ? ack : (byte)0));

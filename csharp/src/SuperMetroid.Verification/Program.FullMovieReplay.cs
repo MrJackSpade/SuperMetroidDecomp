@@ -38,6 +38,8 @@ internal static partial class Program
         var recentInputs = new Queue<string>();
         var uploadNmis = new EvidencedDoorMusicUploadNmis();
         game.DoorMusicUploadNmis = uploadNmis;
+        var loaderProgress = new EvidencedDoorLoaderProgress();
+        game.DoorLoaderProgress = loaderProgress;
         int excludedBefore = 0;
         for (int update = 1; update <= updates.Count; update++)
         {
@@ -45,6 +47,7 @@ internal static partial class Program
             // Upload-wait NMIs that follow this update's input are accepted inside its dispatch.
             uploadNmis.Expect(update, step.ExcludedNmiAfter - excludedBefore);
             excludedBefore = step.ExcludedNmiAfter;
+            loaderProgress.Expect(step.DoorLoaderCompletedEnemySlots);
             if (update >= traceFromUpdate && game.RuntimeForVerification is { } tracedRuntime)
                 tracedRuntime.System.RandomCallObserver = () => Console.WriteLine(
                     "  rng call: " + string.Join(" <- ", new System.Diagnostics.StackTrace(2)

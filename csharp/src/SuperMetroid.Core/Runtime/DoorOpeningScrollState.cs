@@ -233,6 +233,16 @@ internal sealed class DoorOpeningScrollState
     }
 
     /// <summary>
+    /// Applies the door loader's <c>PlaceSamusOnElevator</c> ($A3:9612): whole X, and Y
+    /// with a zero fraction. Later IRQ calls move Samus on from this position.
+    /// </summary>
+    public void PlaceSamusOnElevator(ushort xPosition, ushort yPosition)
+    {
+        SamusXFixed = ((uint)xPosition << 16) | (SamusXFixed & 0xffff);
+        SamusYFixed = (uint)yPosition << 16;
+    }
+
+    /// <summary>
     /// Applies <c>Irq_FollowDoorTransition</c>'s layer-one destination snap after the
     /// directional routine has produced its final background-stream request.
     /// </summary>
@@ -253,3 +263,6 @@ internal sealed class DoorOpeningScrollState
     private static uint ReplaceWholePosition(ushort whole, uint fixedPosition) =>
         ((uint)whole << 16) | (fixedPosition & 0xffff);
 }
+
+/// <summary>A door loader's deferred write of Samus's whole position.</summary>
+internal readonly record struct LoaderSamusPlacement(int EnemySlot, ushort XPosition, ushort YPosition);

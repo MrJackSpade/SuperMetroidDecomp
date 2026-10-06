@@ -108,7 +108,7 @@ internal static class BlueBrinstarDoorAudit
         transition.Begin(runtime);
         var audio = new CartridgeAudioState();
         for (int frame = 0; transition.IsActive && frame < 320; frame++)
-            transition.Step(runtime, audio, controllerInput: 0);
+            transition.Step(runtime, audio, controllerInput: 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
         if (transition.IsActive)
             throw new InvalidDataException("Transition into room $01/$1D did not complete.");
         if (runtime.ActiveRoom?.Identity != RoomIdentities.BlueBrinstarDoubleMissile)

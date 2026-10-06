@@ -50,6 +50,13 @@ internal static class DebuggerStateFieldMigrations
                 field.Name is not "soundCommandReads" and not "previousSoundCommandReads").ToArray(), count);
         }
         if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
+            current.Any(field => field.Name == "_pendingLoaderSamusPlacement"))
+        {
+            // Older builds applied the loader's elevator placement only when the door finished.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "_pendingLoaderSamusPlacement").ToArray(), count);
+        }
+        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
             current.Any(field => field.Name == "<RoomMainScratch>k__BackingField"))
         {
             // The shared RoomMainASMVar1 replaced the debris and escape timers, which the
@@ -64,6 +71,21 @@ internal static class DebuggerStateFieldMigrations
             return current.Where(field => field.Name is not "testerInventoryRecipient"
                 and not "<GrantAllEquipmentEnabled>k__BackingField"
                 and not "<UnlockTourianEnabled>k__BackingField").ToArray();
+        }
+        if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
+            current.Any(field => field.Name == "<DoorLoaderProgress>k__BackingField"))
+        {
+            // Door-loader progress is host policy; older captures restore the lag-free policy.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<DoorLoaderProgress>k__BackingField").ToArray(), count);
+        }
+        if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
+            current.Any(field => field.Name == "waitingForDownwardsElevator"))
+        {
+            // Older builds left state $09 within its first dispatch, so no capture can be
+            // inside the downward-elevator delay.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name is not "waitingForDownwardsElevator" and not "downwardsElevatorDelayTimer").ToArray(), count);
         }
         if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
             current.Any(field => field.Name == "<DoorMusicUploadNmis>k__BackingField"))
@@ -688,7 +710,10 @@ internal static class DebuggerStateFieldMigrations
             SeedLegacyRoomMainScratch(legacyRuntime);
         if (instance is SuperMetroid.Core.Frontend.SuperMetroidGame game &&
             serializedCount < GetCurrentInstanceFieldCount(typeof(SuperMetroid.Core.Frontend.SuperMetroidGame)))
-            game.DoorMusicUploadNmis = SuperMetroid.Core.Frontend.LagFreeDoorMusicUploadNmis.Instance;
+        {
+            game.DoorMusicUploadNmis ??= SuperMetroid.Core.Frontend.LagFreeDoorMusicUploadNmis.Instance;
+            game.DoorLoaderProgress ??= SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance;
+        }
         if (instance is SuperMetroidGameOptions && serializedCount < 15)
             typeof(SuperMetroidGameOptions).GetField("<DoorTransitionAutosave>k__BackingField",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(instance, true);

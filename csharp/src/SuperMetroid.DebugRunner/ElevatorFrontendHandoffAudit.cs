@@ -63,7 +63,7 @@ internal static class ElevatorFrontendHandoffAudit
         for (int frame = 0; transition.IsActive && frame < 600; frame++)
         {
             var phase = transition.Phase;
-            transition.Step(runtime, audio, (ushort)(SnesButton.A | SnesButton.Left));
+            transition.Step(runtime, audio, (ushort)(SnesButton.A | SnesButton.Left), SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             if (runtime.ActiveRoom!.Pointer != RoomHeaderPointers.GreenBrinstarMainShaft)
                 continue;
             platform = runtime.Enemies.Slots.Single(slot =>

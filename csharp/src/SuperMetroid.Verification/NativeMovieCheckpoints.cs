@@ -6,7 +6,7 @@ using System.Text.Json;
 /// <summary>One converted gameplay update from <c>tools/convert-smv-updates.py</c>.</summary>
 internal readonly record struct ConvertedMovieUpdate(
     int Update, int SourceFrame, ushort Input, string Kind, string TimingClass,
-    int ExpectedRecord, int ExcludedNmiAfter, ushort? HardwareWaitLatch);
+    int ExpectedRecord, int ExcludedNmiAfter, ushort? HardwareWaitLatch, int? DoorLoaderCompletedEnemySlots);
 
 /// <summary>
 /// Read-only view of a converted SMV replay manifest plus its forward-only native
@@ -62,7 +62,10 @@ internal sealed class NativeMovieCheckpoints : IDisposable
             update.GetProperty("expectedRecord").GetInt32(),
             update.GetProperty("excludedNmiAfter").GetInt32(),
             update.GetProperty("hardwareWaitLatch").ValueKind == JsonValueKind.Null
-                ? null : (ushort)update.GetProperty("hardwareWaitLatch").GetInt32())).ToArray();
+                ? null : (ushort)update.GetProperty("hardwareWaitLatch").GetInt32(),
+            update.GetProperty("timingEvidence").GetProperty("doorLoaderCompletedEnemySlots") is
+                { ValueKind: not JsonValueKind.Null } completedSlots
+                ? completedSlots.GetInt32() : null)).ToArray();
         if (updates.Length != root.GetProperty("updateCount").GetInt32())
             throw new InvalidDataException("Converted update count disagrees with its update list.");
         return new NativeMovieCheckpoints(directory, root.Clone(), updates);

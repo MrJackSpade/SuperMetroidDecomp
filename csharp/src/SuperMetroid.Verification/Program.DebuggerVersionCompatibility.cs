@@ -213,8 +213,14 @@ internal static partial class Program
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)])!;
         AssertTrue(runtimeFields.All(field => field.Name is not "_ceresFallingDebrisTimer" and not "_escapeDiagonalFrames"),
             "retired room-main timers are not current runtime fields");
+        // Every published runtime layout predates the deferred door-loader Samus placement.
+        FieldInfo[] currentRuntimeFields = runtimeFields;
+        runtimeFields = runtimeFields.Where(field => field.Name != "_pendingLoaderSamusPlacement").ToArray();
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime),
-                runtimeFields, runtimeFields.Length - 1)
+                currentRuntimeFields, runtimeFields.Length).SequenceEqual(runtimeFields),
+            "pre-loader-placement runtime preserves every other saved field in order");
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime),
+                currentRuntimeFields, runtimeFields.Length - 1)
                 .SequenceEqual(runtimeFields.Where(field => field.Name != "<RoomMainScratch>k__BackingField")),
             "pre-shared-scratch runtime preserves every other saved field in order");
         AssertTrue(DebuggerRetiredFieldDefinitions.TryGetMigration(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime),
@@ -224,10 +230,21 @@ internal static partial class Program
             DebuggerRetiredFieldDefinitions.TryGetMigration(typeof(SuperMetroid.Core.Runtime.MaridiaElevatubeRoomMainState),
                 "<PositionSubposition>k__BackingField", out _),
             "every retired private RoomMainASMVar1 copy is drained");
+        // Every published frontend layout predates the elevator door delay and the door-loader
+        // progress policy.
+        string[] postPublicationFields = ["waitingForDownwardsElevator", "downwardsElevatorDelayTimer",
+            "<DoorLoaderProgress>k__BackingField"];
+        FieldInfo[] allGameFields = gameFields;
+        gameFields = gameFields.Where(field => !postPublicationFields.Contains(field.Name)).ToArray();
+        AssertEqual(allGameFields.Length - postPublicationFields.Length, gameFields.Length,
+            "post-publication frontend fields are all current");
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(gameType, allGameFields, gameFields.Length)
+                .SequenceEqual(gameFields),
+            "pre-elevator-delay frontend preserves every prior saved field in order");
         const string uploadNmiField = "<DoorMusicUploadNmis>k__BackingField";
         FieldInfo[] preUploadNmiFields = gameFields.Where(field => field.Name != uploadNmiField).ToArray();
         AssertEqual(gameFields.Length - 1, preUploadNmiFields.Length, "upload NMI source is one current frontend field");
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(gameType, gameFields, preUploadNmiFields.Length)
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(gameType, allGameFields, preUploadNmiFields.Length)
                 .SequenceEqual(preUploadNmiFields),
             "pre-upload-NMI frontend preserves every prior saved field in order");
         string[] loadingDispatchFields = ["menuNmiFrameCounter", "menuNmiFrameCounter8", "gameLoadingCompletion", uploadNmiField];
@@ -236,10 +253,10 @@ internal static partial class Program
         FieldInfo[] preLoadingDispatchFields = gameFields.Where(field =>
             !loadingDispatchFields.Contains(field.Name)).ToArray();
         AssertEqual(49, preLoadingDispatchFields.Length, "preserved pre-loading-dispatch frontend field count");
-        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(gameType, gameFields, 49)
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(gameType, allGameFields, 49)
                 .SequenceEqual(preLoadingDispatchFields),
             "pre-loading-dispatch frontend preserves every prior saved field in order");
-        FieldInfo[] currentGameFields = gameFields;
+        FieldInfo[] currentGameFields = allGameFields;
         gameFields = preLoadingDispatchFields;
         FieldInfo[] preSpacetimeGameFields = gameFields.Where(field =>
             field.Name != "spacetimeIntroRestartSlot").ToArray();

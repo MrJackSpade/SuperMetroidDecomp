@@ -18,6 +18,34 @@ def classify_timing(kind, upload_active, scroll_before, scroll_after):
     return "other-continuation"
 
 
+DOOR_LOADER_FUNCTION = 0xE4A9  # DoorTransitionFunction_LoadSpritesBGPLMsAudio_RunDoorRoomASM
+
+
+def door_loader_enemy_progress(boundary_loading, boundary_enemy_ids):
+    """Per boundary: enemy slots whose Initialise_Enemies init AI has completed in $82:E4A9.
+
+    The loader's CPU work spans several NMIs. Load_Enemies clears every slot before
+    Initialise_Enemies writes each slot's ID ahead of its init AI, so slot k is known
+    complete once slot k+1 has an ID. None outside the loader or before the clear."""
+    progress = []
+    cleared = False
+    for (state, function, _), ids in zip(boundary_loading, boundary_enemy_ids):
+        if state != 0x0B or function != DOOR_LOADER_FUNCTION:
+            cleared = False
+            progress.append(None)
+            continue
+        if not any(ids):
+            cleared = True
+        if not cleared:
+            progress.append(None)
+            continue
+        written = next((slot for slot, value in enumerate(ids) if value == 0), len(ids))
+        if any(ids[written:]):
+            raise ValueError("Initialise_Enemies left a gap in the enemy slots")
+        progress.append(max(written - 1, 0))
+    return progress
+
+
 def boot_prelude_length(updates):
     """Count accepted NMIs before the first main-loop dispatch of a power-on movie.
 
@@ -168,8 +196,11 @@ def run():
     # can continue while the CPU uploads data; neither accepted NMI nor an active
     # APU upload alone proves a gameplay update or a disposable video refresh.
     apu_uploading, door_scroll_counter = 0x0617, 0x0925
+    # Enemy.ID of each of the 32 enemy slots ($0F78 + $40 * slot).
+    enemy_id, enemy_slot_size, enemy_slots = 0x0F78, 0x40, 32
     boundary_timing = []
     boundary_loading = []
+    boundary_enemy_ids = []
     with gzip.open(boundaries_path, "rb") as source:
         for index in range(len(updates) + 1):
             record = source.read(131080)
@@ -184,10 +215,14 @@ def run():
                 struct.unpack_from("<H", record, 8 + 0x0998)[0],  # GameState
                 struct.unpack_from("<H", record, 8 + 0x099c)[0],  # DoorTransitionFunction
                 bool(struct.unpack_from("<H", record, 8 + 0x0931)[0] & 0x8000)))
+            boundary_enemy_ids.append(tuple(
+                struct.unpack_from("<H", record, 8 + enemy_id + enemy_slot_size * slot)[0]
+                for slot in range(enemy_slots)))
             if frame != expected_frame or pc != (read_enter if index < len(updates) else 0):
                 raise ValueError(f"Checkpoint {index} disagrees with its input boundary")
         if source.read(1):
             raise ValueError("Unexpected trailing native checkpoints")
+    loader_progress = door_loader_enemy_progress(boundary_loading, boundary_enemy_ids)
     for index, update in enumerate(updates):
         upload, scroll = boundary_timing[index]
         next_upload, next_scroll = boundary_timing[index + 1]
@@ -199,6 +234,7 @@ def run():
             "nativeGameState": boundary_loading[index][0],
             "nativeDoorFunction": boundary_loading[index][1],
             "doorScrollFinished": boundary_loading[index][2],
+            "doorLoaderCompletedEnemySlots": loader_progress[index + 1],
         }
         update["timingClass"] = classify_timing(update["kind"], upload != 0, scroll, next_scroll)
     timing_counts = {name: sum(u["timingClass"] == name for u in updates) for name in (

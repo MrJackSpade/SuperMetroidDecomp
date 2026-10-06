@@ -53,7 +53,7 @@ internal static class MoatMovieTransitionProbe
         var audio = new CartridgeAudioState();
         int transitionFrames = 0;
         while (transition.IsActive && transitionFrames++ < 512)
-            transition.Step(runtime, audio, inputs[DoorCollisionFrame]);
+            transition.Step(runtime, audio, inputs[DoorCollisionFrame], SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
         if (transition.IsActive)
             throw new InvalidDataException("The supplied Moat door transition did not complete.");
 

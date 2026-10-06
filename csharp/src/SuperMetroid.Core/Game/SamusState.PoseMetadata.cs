@@ -194,6 +194,26 @@ public sealed partial class SamusState
     }
 
     /// <summary>
+    /// Samus command 7, <c>SetupSamusForElevator</c> ($90:F1C8): MakeSamusFaceForward, then
+    /// the riding-elevator handlers. Used on boarding ($A3:9548) and on a downward
+    /// arrival's door finish ($82:E721).
+    /// </summary>
+    public void SetupForElevator(ISnesAddressSpace bus)
+    {
+        ApplyForwardFacingPoseSetup(bus);
+        // Command seven replaces both physical movement/input pointers. An uncrashed
+        // spark keeps its boost counter as the out-of-bounds elevator Blue Suit, while an
+        // admitted Flash keeps only its independent palette timer. Neither movement owner
+        // may resume after elevator travel; the command restores ordinary pose input.
+        Shinespark.RelinquishMovementHandler();
+        ShinesparkPoseInputLocked = false;
+        CrystalFlash.RelinquishMovementHandler();
+        CrystalFlashPoseInputLocked = false;
+        InputLocked = true;
+        PrimeGraphics(bus);
+    }
+
+    /// <summary>
     /// Applies the movement/animation subset of <c>MakeSamusFaceForward</c> at
     /// `$91:E3F6-$91:E4A5`.
     /// </summary>

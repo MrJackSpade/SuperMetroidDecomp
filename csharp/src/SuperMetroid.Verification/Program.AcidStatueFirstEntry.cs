@@ -72,7 +72,7 @@ internal static partial class Program
         for (int frame = 0; transition.IsActive && frame < 500; frame++)
         {
             DoorTransitionPhase phase = transition.Phase;
-            transition.Step(runtime, audio, 0);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             ushort activeRoom = runtime.ActiveRoom!.Pointer;
             RoomLayer3FxRenderSnapshot? displayed = runtime.DisplayedRoomLayer3Fx;
             trace.WriteLine($"{frame},{phase},{activeRoom:X4},{runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid)},{runtime.RoomLayer3Fx.Type},{runtime.RoomLayer3Fx.CurrentYPosition:X4},{displayed?.Type},{displayed?.CurrentYPosition:X4}");

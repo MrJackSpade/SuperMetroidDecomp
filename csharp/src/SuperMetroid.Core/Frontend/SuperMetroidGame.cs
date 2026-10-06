@@ -255,6 +255,9 @@ public sealed partial class SuperMetroidGame
     /// <summary>Accepted NMIs taken while a door transition's music upload blocks the main loop.</summary>
     public IDoorMusicUploadNmiSource DoorMusicUploadNmis { get; set; } = LagFreeDoorMusicUploadNmis.Instance;
 
+    /// <summary>How far the cartridge's door loader has progressed; see <see cref="IDoorLoaderProgressSource"/>.</summary>
+    public IDoorLoaderProgressSource DoorLoaderProgress { get; set; } = LagFreeDoorLoaderProgress.Instance;
+
     internal void AcceptDoorMusicWaitControllerRead(ushort controllerInput)
     {
         if (GameState != SuperMetroidGameState.LoadingNextRoomB || runtime is null)
@@ -989,9 +992,11 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.HitDoorBlock:
             case SuperMetroidGameState.LoadingNextRoomA:
-                // A non-elevator type-$9 door enters `$82:E17D`, which immediately advances
-                // through state $0A into the state-$0B transition coroutine. Before that
-                // transition, $84:8250 calls Samus code $1D and queues library-two $71 so
+                if (GameState == SuperMetroidGameState.HitDoorBlock &&
+                    !StepHitDoorBlockFunction(controllerInput))
+                    break;
+                // State $0A ($82:E1B7) follows in the same dispatch and publishes state $0B.
+                // It calls $84:8250, which runs Samus code $1D and queues library-two $71 so
                 // movement/charge loops terminate rather than leaking into the next room.
                 SamusState doorSamus = runtime!.Samus
                     ?? throw new InvalidOperationException("Door transition requires live Samus state.");
@@ -1020,7 +1025,7 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.LoadingNextRoomB:
-                doorTransition.Step(runtime!, audio, controllerInput,
+                doorTransition.Step(runtime!, audio, controllerInput, DoorLoaderProgress,
                     queueEchoSound: () => gameplayAudio.QueueEcho(runtime!),
                     publishSoundWaitAudio: () => CollectDoorSoundWaitAudioRequests(runtime!));
                 PublishGameplay(runtime!);

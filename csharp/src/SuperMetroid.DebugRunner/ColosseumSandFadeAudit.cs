@@ -51,7 +51,7 @@ internal static class ColosseumSandFadeAudit
                 expectedFade = new CartridgePaletteTransition(target, 12);
                 for (int color = 0; color < 256; color++) expectedCgram.SetColor(color, runtime.Cgram.Colors[color]);
             }
-            transition.Step(runtime, audio, 0);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             if (phase == DoorTransitionPhase.FadeInDestinationPalette) expectedFade!.Step(expectedCgram);
             if (expectedFade is not null)
             {

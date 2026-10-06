@@ -91,7 +91,7 @@ internal static class DoorExitMomentumAudit
             {
                 uint previousX = samus.Kinematics.XFixed;
                 var before = transition.Phase;
-                transition.Step(runtime, audio, 0);
+                transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
                 Trace(before.ToString(), previousX);
             }
             if (transition.IsActive) throw new InvalidDataException("Door coroutine did not finish within 300 calls.");

@@ -66,7 +66,7 @@ internal static class VramDmaDomains
                 return Native(SamusSpecialSequenceRomData.Death.TileSegments.ToArray().Select(segment =>
                     (segment.SourceAddress, (int)SamusSpecialSequenceRomData.Death.TileSegmentByteCount)));
             case "beam":
-                return Typed(Enumerable.Range(0, BeamTileAtlasDefinitions.SelectionCount).Select(selection =>
+                return Typed(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount).Select(BeamTileAtlasDefinitions.SelectionAt).Select(selection =>
                     (BeamTileCatalog.AssetFor(selection), BeamTileAtlasDefinitions.ByteCount)));
             case "statues":
                 return Native(TourianStatueAnimatedTileMechanicsDefinitions.All.SelectMany(definition =>

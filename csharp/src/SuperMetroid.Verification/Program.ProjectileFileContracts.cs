@@ -31,7 +31,7 @@ internal static partial class Program
             string[] names = Directory.GetFiles(stock).Select(Path.GetFileName)
                 .Where(name => name != ProjectilePresentationFiles.ManifestFileName)
                 .Select(name => name!).Order(StringComparer.Ordinal).ToArray();
-            var expectedBeams = BeamTileCatalog.Load(Enumerable.Range(0, BeamTileAtlasDefinitions.SelectionCount)
+            var expectedBeams = BeamTileCatalog.Load(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount).Select(BeamTileAtlasDefinitions.SelectionAt)
                 .ToDictionary(BeamTileAtlasDefinitions.FileName, index => File.ReadAllBytes(
                     Path.Combine(stock, BeamTileAtlasDefinitions.FileName(index)))));
             var compiledBeams = ProjectilePresentationFiles.Load(stock, null).BeamTiles;
@@ -39,7 +39,7 @@ internal static partial class Program
                 AssertTrue(compiledBeams.Resolve(BeamTileCatalog.AssetFor(selection)).Span.SequenceEqual(
                     expectedBeams.Resolve(BeamTileCatalog.AssetFor(selection)).Span),
                     "file-context beam assembly retains every transfer byte and selection");
-            var sheets = Enumerable.Range(0, BeamTileAtlasDefinitions.SelectionCount).Select(index =>
+            var sheets = Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount).Select(BeamTileAtlasDefinitions.SelectionAt).Select(index =>
             {
                 using var png = File.OpenRead(Path.Combine(stock, BeamTileAtlasDefinitions.FileName(index)));
                 return BeamTileAtlas.Load(png);

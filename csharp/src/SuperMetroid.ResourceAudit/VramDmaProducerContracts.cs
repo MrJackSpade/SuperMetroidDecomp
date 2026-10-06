@@ -23,7 +23,7 @@ internal static class VramDmaProducerContracts
             ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "44F9986C48E392A4DD5B0D1C2356A80DF41B94649AA1370532D47D355B8EC5C0") => "arm",
             ("SuperMetroid.Core.Game.SamusDeathSequenceState.QueueSegment", "E7F50B67C5D86A9D0242F99335B319A965C8589022818DD7C9798E641CFCE6E0") => "death",
             ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "4DCF557953A345538F57F81AB57E82DA12109426667B095E3CB3417121969D7C") => "grapple-native",
-            ("SuperMetroid.Core.Game.SamusProjectileSystem.QueueBeamTilesAndLoadPalette", "44395416D8BC86CA9A616F6F13F218F9E604706012EA4300740448FC8BF08661") => "beam",
+            ("SuperMetroid.Core.Game.SamusProjectileSystem.QueueBeamTilesAndLoadPalette", "592EAB2855D0CCF4EEE2C3AF8264F1C6D92D40225CBFCAD8B78A6C35405554CD") => "beam",
             ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "58C422A0EA358CBE71A98743138A8B881A5C2A5E6B4209804421A4EFFDB469D3") => "sky",
             ("SuperMetroid.Core.Game.TourianStatueSequence.StepTiles", "139EA43A460DE03401FBC47FEA36679BD22DE5A9E8A71AACC2ECA7F3D881F748") => "statues",
             ("SuperMetroid.Core.Game.WreckedShipTreadmillAnimatedTilesState.Step", "5C3CA2467811334271B351B1D30B75FF09ACCB7EE075D257DADF6C4432B9F918") => "treadmill",

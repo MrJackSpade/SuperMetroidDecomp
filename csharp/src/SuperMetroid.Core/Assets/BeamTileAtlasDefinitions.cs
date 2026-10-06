@@ -10,6 +10,10 @@ public static class BeamTileAtlasDefinitions
     public const ushort DestinationWord = 0x6300;
     /// <summary>$90:C3B1 contains twelve legal beam-combination pointers before palette data.</summary>
     public const int SelectionCount = 12;
+    /// <summary>Twelve ordinary sheets plus the bounded Chainsaw adjacent-table upload.</summary>
+    public const int ArtworkCount = SelectionCount + 1;
+    public static int SelectionAt(int index) => index == SelectionCount ? Game.ChainsawBeamGraphicsDefinitions.Selection :
+        (uint)index < SelectionCount ? index : throw new ArgumentOutOfRangeException(nameof(index));
     /// <summary>$9A:F200, Tiles_PowerBeam; native power-beam character source.</summary>
     public const int PowerSource = 0x9af200;
     /// <summary>$9A:F400, Tiles_IceBeam; native ice-beam character source.</summary>
@@ -25,13 +29,14 @@ public static class BeamTileAtlasDefinitions
     /// Native shared sheets do not encode the independently editable combination identity.</summary>
     public static int LegacySelectionFor(int sourceAddress) => sourceAddress switch
     {
+        Game.ChainsawBeamGraphicsDefinitions.TileSource => Game.ChainsawBeamGraphicsDefinitions.Selection,
         PowerSource => 0, WaveSource => 1, IceSource => 2,
         SpazerSource => 4, PlasmaSource => 8, _ => -1,
     };
 
     public static string FileName(int selection)
     {
-        if ((uint)selection >= SelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
+        if ((uint)selection >= SelectionCount && selection != Game.ChainsawBeamGraphicsDefinitions.Selection) throw new ArgumentOutOfRangeException(nameof(selection));
         return $"beam-{selection:X2}-tiles.png";
     }
 }

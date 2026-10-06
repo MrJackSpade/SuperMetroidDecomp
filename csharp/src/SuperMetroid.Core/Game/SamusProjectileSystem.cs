@@ -137,11 +137,17 @@ public sealed partial class SamusProjectileSystem
         int beamType = equippedBeams & 0x0fff;
         LoadBeamTiles(bus, vram, equippedBeams, artwork);
 
-        (artwork?.Palettes ?? throw new InvalidOperationException(
-            "Beam palette requires installed artwork."))
-            .LoadTo(cgram, beamType);
+        LoadSelectedBeamPalette(bus, cgram, beamType, artwork?.Palettes);
     }
 
+    private static void LoadSelectedBeamPalette(ISnesAddressSpace bus, SnesCgram cgram,
+        int selection, Assets.BeamPaletteCatalog? palettes)
+    {
+        if (selection == ChainsawBeamGraphicsDefinitions.Selection)
+            ChainsawBeamGraphicsDefinitions.LoadPalette(bus, cgram);
+        else
+            (palettes ?? throw new InvalidOperationException("Beam palette requires installed artwork.")).LoadTo(cgram, selection);
+    }
     /// <summary>Replays the tile-only half of $90:AC8D after external OBJ artwork is rebound.</summary>
     public static void LoadBeamTiles(ISnesAddressSpace bus, SnesVram vram,
         ushort equippedBeams, Assets.BeamTileCatalog? artwork = null)
@@ -180,8 +186,7 @@ public sealed partial class SamusProjectileSystem
             Assets.BeamTileAtlasDefinitions.ByteCount, Assets.BeamTileAtlasDefinitions.DestinationWord);
 
         palettes ??= artwork?.Palettes;
-        (palettes ?? throw new InvalidOperationException("Beam palette requires installed artwork."))
-            .LoadTo(cgram, beamType);
+        LoadSelectedBeamPalette(bus, cgram, beamType, palettes);
     }
 
     /// <summary>

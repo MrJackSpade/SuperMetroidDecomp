@@ -54,10 +54,31 @@ The original Ridley movie was played through all 10,890 video frames in Snes9x
 state and terminal record. Its source movie SHA-256 is
 `7E12861DC56C5ABED12C2BFA2B00D24BFA418F49F2CE4C027D930CE9A3663F66`.
 
-The initial full-replay diagnostic imports state once and has exposed missing
-HDMA/RNG processing at door entry. It is still a diagnostic under development,
-not a completed converter or proof of full-movie parity. Native door-fade samples
-show the accepted NMI counter staying unchanged across extra video refreshes.
-The next capture work must identify actual update/input-consumption boundaries
-before converting that interval. The old frames 375–744 Ridley-only comparison,
-which supplies recorded Samus state and RNG, remains an isolated regression.
+The reusable converter is `tools/convert-smv-updates.py`. Its native capture adapter
+and build instructions are in `tools/smv-native-capture/`. The instrumented complete
+movie produces 10,758 accepted input/update steps: 10,655 outer main-loop updates
+and 103 NMI continuations. It excludes 132 hardware-lag refreshes, retains all
+observed input edges, and verifies every private checkpoint through the original
+movie's terminal state. Original SMV and ROM hashes remain unchanged.
+
+The full-replay diagnostic imports state once and compares Samus position,
+subpixels, movement speeds, animation, health, accepted NMI, RNG, dispatcher state,
+room identity, and active enemies' identities, positions, health and visual cursors.
+That comparison is still under development; conversion success is not port parity.
+Door-entry and source-fade HDMA/RNG/actor omissions were reproduced. The next
+unresolved boundary is door-header loading (update 173, source frame 198).
+Additional gameplay properties still need coverage before any full-match claim.
+The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
+and RNG, remains an isolated regression.
+
+Run the converted diagnostic from the hotfix worktree root:
+
+```text
+python tools/convert-smv-updates.py MOVIE TRACE_DIRECTORY --rom ROM --output TRACE_DIRECTORY/updates.json
+dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --ridley-full-movie TRACE_DIRECTORY
+```
+
+The current verifier deliberately requires the original supplied Ridley movie's
+identity. The converter accepts supported one-controller SMVs with the matching
+instrumented J/U trace; additional verifier starting-state importers are separate
+work, not something the converter silently fabricates.

@@ -64,3 +64,17 @@ build must save after full playback rather than at a pre-frame boundary.
   only in ignored/temp storage and must retain the canonical ROM's hash.
 - For this project, use the pinned Japan/USA ROM and cross-check addresses against
   the pinned disassembly before naming fields.
+
+## Full-movie parity without hardware lag
+
+Follow `AGENTS.md` and `docs/smv-gameplay-parity.md`: the standing goal is functional
+gameplay parity with hardware lag removed. A video refresh is not necessarily a
+completed gameplay update. For full recordings, use the instrumented accepted-input
+capture in `tools/smv-native-capture/` and `tools/convert-smv-updates.py`. Preserve
+actual input edges and authored NMI continuations; do not remove frames based on
+identical buttons or images, and do not inject native gameplay state during replay.
+
+Movie header version alone does not select the emulator. The supplied SMV v5
+Ridley recording embeds snapshot version 11 and requires the Snes9x 1.60 adapter;
+the older supplied 1.51 executable rejects it. Inspect the embedded snapshot format
+before choosing a capture build. Retain the original recording unchanged.

@@ -9,16 +9,16 @@ namespace SuperMetroid.Core.Assets;
 public sealed class CeresRidleyColorCatalog
 {
     private readonly ushort[] start;
-    private readonly ushort[][] eyeFade;
-    private readonly ushort[][] bodyFade;
+    private readonly CeresRidleyFadeColorDefinitions eyeFade;
+    private readonly CeresRidleyFadeColorDefinitions bodyFade;
     private readonly ushort[][] health;
     private readonly CeresRidleyAlarmColorDefinitions alarm;
     private readonly ushort[] retreatBg;
     private readonly ushort[] retreatShared;
     private readonly ushort[][] baby;
 
-    private CeresRidleyColorCatalog(ushort[] start, ushort[][] eyeFade,
-        ushort[][] bodyFade, ushort[][] health, CeresRidleyAlarmColorDefinitions alarm,
+    private CeresRidleyColorCatalog(ushort[] start, CeresRidleyFadeColorDefinitions eyeFade,
+        CeresRidleyFadeColorDefinitions bodyFade, ushort[][] health, CeresRidleyAlarmColorDefinitions alarm,
         ushort[] retreatBg, ushort[] retreatShared,
         ushort[][] baby)
     {
@@ -40,8 +40,8 @@ public sealed class CeresRidleyColorCatalog
     };
 
     public ushort ResolveStart(int color) => Get(start, color);
-    public ushort ResolveEyeFade(int row, int color) => Get(eyeFade, row, color);
-    public ushort ResolveBodyFade(int row, int color) => Get(bodyFade, row, color);
+    public ushort ResolveEyeFade(int row, int color) => eyeFade.Resolve(row, color);
+    public ushort ResolveBodyFade(int row, int color) => bodyFade.Resolve(row, color);
     public ushort ResolveHealth(int row, int color) => Get(health, row, color);
     public ushort ResolveAlarm(int row, int color) => alarm.Resolve(row, color);
     public ushort ResolveRetreatBg(int color) => Get(retreatBg, color);
@@ -51,16 +51,23 @@ public sealed class CeresRidleyColorCatalog
     public void ApplyStart(SnesCgram cgram) =>
         Apply(cgram, start, CeresRidleyPaletteRomData.StartCgramIndex);
 
-    public void ApplyEyeFade(SnesCgram cgram, int row) =>
-        Apply(cgram, Get(eyeFade, row), CeresRidleyPaletteRomData.EyeFadeCgramIndex);
+    public void ApplyEyeFade(SnesCgram cgram, int row)
+    {
+        eyeFade.ValidateRow(row);
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < CeresRidleyPaletteRomData.EyeFadeColorCount; color++)
+            cgram.SetColor(CeresRidleyPaletteRomData.EyeFadeCgramIndex + color, eyeFade.Resolve(row, color));
+    }
 
     public void ApplyBodyFade(SnesCgram cgram, int row)
     {
-        ushort[] colors = Get(bodyFade, row);
-        Apply(cgram, colors, CeresRidleyPaletteRomData.BodyFadeBgCgramIndex);
-        Apply(cgram, colors, CeresRidleyPaletteRomData.BodyFadeObjCgramIndex);
+        bodyFade.ValidateRow(row);
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < CeresRidleyPaletteRomData.BodyFadeColorCount; color++)
+            cgram.SetColor(CeresRidleyPaletteRomData.BodyFadeBgCgramIndex + color, bodyFade.Resolve(row, color));
+        for (int color = 0; color < CeresRidleyPaletteRomData.BodyFadeColorCount; color++)
+            cgram.SetColor(CeresRidleyPaletteRomData.BodyFadeObjCgramIndex + color, bodyFade.Resolve(row, color));
     }
-
     public void ApplyHealth(SnesCgram cgram, int row) =>
         Apply(cgram, Get(health, row), CeresRidleyPaletteRomData.HealthCgramIndex);
 
@@ -104,10 +111,10 @@ public sealed class CeresRidleyColorCatalog
               stockForLegacyOverride is not null))
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
         return new(Compile(document.Start, CeresRidleyPaletteRomData.StartColorCount, "start"),
-            CompileRows(document.EyeFade, CeresRidleyPaletteRomData.EyeFadeRowCount,
-                CeresRidleyPaletteRomData.EyeFadeColorCount, "eye fade"),
-            CompileRows(document.BodyFade, CeresRidleyPaletteRomData.BodyFadeRowCount,
-                CeresRidleyPaletteRomData.BodyFadeColorCount, "body fade"),
+            new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Eyes, CompileRows(document.EyeFade, CeresRidleyPaletteRomData.EyeFadeRowCount,
+                CeresRidleyPaletteRomData.EyeFadeColorCount, "eye fade")),
+            new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Body, CompileRows(document.BodyFade, CeresRidleyPaletteRomData.BodyFadeRowCount,
+                CeresRidleyPaletteRomData.BodyFadeColorCount, "body fade")),
             CompileRows(document.Health, CeresRidleyPaletteRomData.HealthRowCount,
                 CeresRidleyPaletteRomData.HealthColorCount, "health"),
             document.Version < CeresRidleyColorFormat.Version

@@ -1216,3 +1216,10 @@ Root Verification1447warnings/zero errors; --lookup-stream-4-maridia-palette pas
 Root Verification1448warnings/zero errors; --lookup-stream-4-ceres-alarm passes48native colors,direct reflection,exact27stored keys with no stock return overrides,all48independent edits,784actual CGRAM row writes,adjacent colors,both legacy versions and bounds. ResourceAudit0warnings/0errors; closure includes the new helper and updated bounds/installed-data description.
 
 Alarm colors,other fades and all independent palette choices remain required. No new retention or aggregate closure; inventory558converted/21retained-mixed/549pending unchanged.
+## Integrated exact Ceres fade subset
+
+fb2d6faa8 calculates189of224eye/body fade words by flooring each RGB5 endpoint channel times the native phase over15intervals. Required basis is14endpoint words plus21deviations, stored separately from independent edited fallbacks. Stock override count is zero; this is not a claim that the full fades are solved.
+
+Required eye deviations: A6:E2B0/E2EE/E2FC/E300. Required body deviations: A6:E33A/E362/E36C/E36E/E3A8/E3BC/E3C4/E404/E410/E436/E438/E440/E444/E446/E448/E44E/E450. Endpoints are E2AA-E2AE and E454-E468. A formula mismatch is not a nonsense justification; all these inputs remain unresolved. No aggregate closure or new retention;558converted/21retained-mixed/549pending unchanged.
+
+Root Verification1450warnings/zero errors; --lookup-stream-4-ceres-fades passes224native words,exact7eye/28body basis memberships,zero stock overrides,all224independent edits,3616actual row applications including both body destinations,immutability and bounds. ResourceAudit0warnings/0errors; closure includes the new fade helper and describes calculated versus required inputs.

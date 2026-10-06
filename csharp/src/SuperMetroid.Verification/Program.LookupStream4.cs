@@ -9,6 +9,72 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4CeresFades(ISnesAddressSpace rom)
+    {
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        foreach (bool eyes in new[] { true, false })
+        {
+            int count = eyes ? 3 : 11, start = eyes ? 0xA6E2AA : 0xA6E30A;
+            ushort Native(int row, int color)
+            {
+                int address = start + (row * count + color) * 2;
+                return (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            }
+            bool Required(int row, int color) => eyes
+                ? row == 0 || (row, color) is (1, 0) or (11, 1) or (13, 2) or (14, 1)
+                : row == 15 || (row, color) is (2, 2) or (4, 0) or (4, 5) or (4, 6) or (7, 2)
+                    or (8, 1) or (8, 5) or (11, 4) or (11, 10) or (13, 7) or (13, 8)
+                    or (14, 1) or (14, 3) or (14, 4) or (14, 5) or (14, 8) or (14, 9);
+            var definition = (CeresRidleyFadeColorDefinitions)typeof(CeresRidleyColorCatalog)
+                .GetField(eyes ? "eyeFade" : "bodyFade", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+            Dictionary<int, ushort> Stored(string name) => (Dictionary<int, ushort>)typeof(CeresRidleyFadeColorDefinitions)
+                .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
+            AssertEqual(eyes ? 7 : 28, Stored("basis").Count, "exact fade endpoints and unresolved deviations");
+            AssertEqual(0, Stored("overrides").Count, "stock fade never hides residual samples as edit overrides");
+            for (int row = 0; row < 16; row++)
+            for (int color = 0; color < count; color++)
+            {
+                AssertEqual(Required(row, color), definition.RequiresNativeBasis(row, color), "exact native required-site domain");
+                AssertEqual(Required(row, color), Stored("basis").ContainsKey(row * count + color), "exact stored basis membership");
+                AssertEqual(Native(row, color), definition.Resolve(row, color), "direct stock fade calculation matches native word");
+            }
+            for (int edit = -1; edit < 16 * count; edit++)
+            {
+                var selected = stock;
+                if (edit >= 0)
+                {
+                    var rows = (eyes ? document.EyeFade : document.BodyFade).Select(row => row.ToArray()).ToArray();
+                    rows[edit / count][edit % count] = rows[edit / count][edit % count] with { Red = rows[edit / count][edit % count].Red ^ 1 };
+                    var changed = eyes ? document with { EyeFade = rows } : document with { BodyFade = rows };
+                    selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(changed)));
+                }
+                for (int row = 0; row < 16; row++)
+                {
+                    var cgram = new SnesCgram();
+                    if (eyes) selected.ApplyEyeFade(cgram, row); else selected.ApplyBodyFade(cgram, row);
+                    for (int color = 0; color < count; color++)
+                    {
+                        ushort expected = (ushort)(Native(row, color) ^ (row * count + color == edit ? 1 : 0));
+                        AssertEqual(expected, eyes ? selected.ResolveEyeFade(row, color) : selected.ResolveBodyFade(row, color), "independent fade edit preserves every other supplied sample");
+                        AssertEqual(expected, cgram.Colors[(eyes ? 252 : 145) + color], "actual fade CGRAM destination");
+                        if (!eyes) AssertEqual(expected, cgram.Colors[241 + color], "body fade duplicates its BG colors into OBJ palette");
+                        AssertEqual(Native(row, color), eyes ? stock.ResolveEyeFade(row, color) : stock.ResolveBodyFade(row, color), "stock fade remains immutable");
+                    }
+                    AssertEqual((ushort)0, cgram.Colors[eyes ? 251 : 144], "preceding fade CGRAM unchanged");
+                    AssertEqual((ushort)0, cgram.Colors[eyes ? 255 : 156], "following fade CGRAM unchanged");
+                }
+            }
+            foreach (int row in new[] { -1, 16, int.MinValue, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => definition.Resolve(row, 0), "fade row bounds");
+            foreach (int color in new[] { -1, count, int.MinValue, int.MaxValue })
+                AssertThrows<ArgumentOutOfRangeException>(() => definition.Resolve(0, color), "fade color bounds");
+        }
+        AssertThrows<ArgumentNullException>(() => stock.ApplyEyeFade(null!, 0), "eye null CGRAM");
+        AssertThrows<ArgumentNullException>(() => stock.ApplyBodyFade(null!, 0), "body null CGRAM");
+        Console.WriteLine("Ceres fades:224 native words,189 exact calculated samples,14 required endpoints and21 required deviations, zero stock overrides, all224 edits and3616 actual row applications pass.");
+    }
     private static void VerifyLookupStream4CeresAlarm(ISnesAddressSpace rom)
     {
         ushort Native(int row, int color)

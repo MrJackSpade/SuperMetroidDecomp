@@ -1,6 +1,33 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$0AFE: Samus SamusXRadius native movement state.</summary>
+    public const int SamusXRadius = 0x0afe;
+    /// <summary>$0B00: Samus SamusYRadius native movement state.</summary>
+    public const int SamusYRadius = 0x0b00;
+    /// <summary>$0B34: Samus Gravity native movement state.</summary>
+    public const int Gravity = 0x0b34;
+    /// <summary>$0B32: Samus GravityFraction native movement state.</summary>
+    public const int GravityFraction = 0x0b32;
+    /// <summary>$0B58: Samus ExtraXDisplacement native movement state.</summary>
+    public const int ExtraXDisplacement = 0x0b58;
+    /// <summary>$0B56: Samus ExtraXDisplacementFraction native movement state.</summary>
+    public const int ExtraXDisplacementFraction = 0x0b56;
+    /// <summary>$0B5C: Samus ExtraYDisplacement native movement state.</summary>
+    public const int ExtraYDisplacement = 0x0b5c;
+    /// <summary>$0B5A: Samus ExtraYDisplacementFraction native movement state.</summary>
+    public const int ExtraYDisplacementFraction = 0x0b5a;
+    /// <summary>$0A46: Samus SlopeCollisionEnable native movement state.</summary>
+    public const int SlopeCollisionEnable = 0x0a46;
+    /// <summary>$0A66: Samus SpeedDivisor native movement state.</summary>
+    public const int SpeedDivisor = 0x0a66;
+    /// <summary>$0A6E: Samus ContactDamageIndex native movement state.</summary>
+    public const int ContactDamageIndex = 0x0a6e;
+    /// <summary>$0B20: Samus MorphBallBounceState native movement state.</summary>
+    public const int MorphBallBounceState = 0x0b20;
+    /// <summary>$0A56: Samus BombJumpDirection native movement state.</summary>
+    public const int BombJumpDirection = 0x0a56;
+
     /// <summary>$84:84E6: RTS installed as the default PLM pre-instruction.</summary>
     public const ushort PlmDefaultPreInstruction = 0x84e6;
     /// <summary>$84:BE4B: grey-door condition pre-instruction dispatch table.</summary>

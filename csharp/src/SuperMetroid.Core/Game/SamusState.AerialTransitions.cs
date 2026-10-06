@@ -87,7 +87,8 @@ public sealed partial class SamusState
             return false;
 
         Pose = targetPose;
-        RefreshCollisionRadii(bus);
+        // F404/F543 keep the source collision radius for the rest of this update.
+        // Alpha's SetRadius publishes the new pose radius on the next update.
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
 
         // Aim may cancel the spin into a pose that consumes stored shine. Run that
@@ -224,7 +225,7 @@ public sealed partial class SamusState
         // A crouch substitution never reaches the aerial-turn momentum initializer.
         FoldExtraRunSpeedIntoBaseAndStartTurn();
         Pose = selectedTurnPose;
-        RefreshCollisionRadii(bus);
+        // The changed-pose handler preserves the source radius until next alpha.
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
         InitializeAnimation(bus, initialFrame: 0);
         return true;

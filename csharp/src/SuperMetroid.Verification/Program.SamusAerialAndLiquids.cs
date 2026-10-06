@@ -575,8 +575,11 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Fire body expansion fits empty room");
     AssertEqual(SamusPoseIds.NormalJumpGunExtendedRightPose, spinFire.Pose,
         "spin Fire selects gun-extended normal jump");
+    AssertEqual(12, spinFire.Kinematics.YRadius,
+        "spin Fire retains source radius for the transition update");
+    spinFire.RefreshCollisionRadii(bus);
     AssertEqual(19, spinFire.Kinematics.YRadius,
-        "spin Fire expands to normal-jump radius");
+        "next alpha publishes normal-jump radius");
     AssertEqual(3, spinFire.Kinematics.YSpeed,
         "spin Fire preserves whole vertical speed");
     AssertEqual(0x4567, spinFire.Kinematics.YSubspeed,
@@ -653,8 +656,11 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Down body contraction fits empty room");
     AssertEqual(SamusPoseIds.NormalJumpAimDownLeftPose, spinAimDown.Pose,
         "spin Down selects compact left normal jump");
+    AssertEqual(12, spinAimDown.Kinematics.YRadius,
+        "spin Down retains source radius for the transition update");
+    spinAimDown.RefreshCollisionRadii(bus);
     AssertEqual(10, spinAimDown.Kinematics.YRadius,
-        "spin Down contracts to straight-down radius");
+        "next alpha publishes straight-down radius");
     AssertEqual(128, spinAimDown.YPosition,
         "spin Down contraction does not move the body center");
     AssertEqual(2, spinAimDown.Kinematics.YSpeed,

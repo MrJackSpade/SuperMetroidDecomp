@@ -489,3 +489,31 @@ list overwrites the link before installing the condition callback. Live links
 in subsequent locked/flashing phases already compare through the semantic map.
 This does not establish coverage of unrelated PLM families or their retained
 variables. Draw/presentation state and partial-loading boundaries remain open.
+
+### Samus movement owners and aerial collision-radius timing
+
+Every retained boundary now also compares Samus's collision radii, whole/fractional
+gravity, whole/fractional external X/Y displacement, slope-collision enable, speed
+divisor, contact-damage selector, ball-bounce state, bomb-jump direction, running
+momentum and speed-boost counter. New owners are imported once from the initial
+snapshot; later native checkpoints remain comparison-only.
+
+These checks reproduced premature radius updates at three boundaries:
+- Update 2676/source 2777: Screw Attack to gun-extended jump, native 12 vs port 19.
+- Update 9235/source 9356: down-aim falling to aerial turn, native 10 vs port 19.
+- Update 9241/source 9362: turn completion to down-aim falling, native 19 vs port 10.
+
+$91:F404/F433, the normal-jump initializer and aerial-turn initializers preserve
+the source radius through these transitions; $90:EC22 publishes the new radius
+on the next alpha pass. Removed the early radius refresh from spin exits and
+aerial-turn entry, and made aerial-turn animation completion retain its radius.
+Other callers of the shared pose helper retain their existing behavior pending
+their own source/coverage audit. The focused spin fixture previously asserted the
+premature enlargement; it now checks the retained radius and next-alpha update.
+
+Release build, --space-screw-fixture, --samus-aerial-turns-walljump, and all 10,717
+updates of the full movie pass (`movement-radius-confirm-build.log`,
+`movement-radius-screw.log`, `movement-radius-turns.log`,
+`movement-radius-confirm-replay.log`). This verifies the actual radius property,
+not just unchanged trajectory. Player validation and the remaining full-parity
+coverage audit remain open.

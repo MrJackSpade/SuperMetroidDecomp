@@ -777,6 +777,20 @@ internal static partial class Program
         samus.Kinematics.YSpeed = W(RidleyMovieMemory.VerticalSpeed);
         samus.Kinematics.YSubspeed = W(RidleyMovieMemory.VerticalFraction);
         samus.Kinematics.YDirection = W(RidleyMovieMemory.VerticalDirection);
+        samus.Kinematics.XRadius = W(RidleyMovieMemory.SamusXRadius);
+        samus.Kinematics.YRadius = W(RidleyMovieMemory.SamusYRadius);
+        samus.Kinematics.YAcceleration = W(RidleyMovieMemory.Gravity);
+        samus.Kinematics.YSubacceleration = W(RidleyMovieMemory.GravityFraction);
+        samus.Kinematics.ExtraXDisplacement = W(RidleyMovieMemory.ExtraXDisplacement);
+        samus.Kinematics.ExtraXSubdisplacement = W(RidleyMovieMemory.ExtraXDisplacementFraction);
+        samus.Kinematics.ExtraYDisplacement = W(RidleyMovieMemory.ExtraYDisplacement);
+        samus.Kinematics.ExtraYSubdisplacement = W(RidleyMovieMemory.ExtraYDisplacementFraction);
+        samus.Kinematics.HorizontalSlopeCollisionEnable = W(RidleyMovieMemory.SlopeCollisionEnable);
+        samus.HorizontalSpeed.SpeedDivisor = W(RidleyMovieMemory.SpeedDivisor);
+        samus.HorizontalSpeed.ContactDamageIndex = W(RidleyMovieMemory.ContactDamageIndex);
+        samus.MorphBallBounceState = W(RidleyMovieMemory.MorphBallBounceState);
+        samus.BombJumpDirection = W(RidleyMovieMemory.BombJumpDirection);
+
 
         // The snapshot was recorded after the entering door PLM deleted itself.
         // Restore the empty physical pool rather than executing fresh room-entry actors.
@@ -922,6 +936,22 @@ internal static partial class Program
             Check("Samus vertical speed", samus.Kinematics.YSpeed, RidleyMovieMemory.VerticalSpeed);
             Check("Samus vertical fraction", samus.Kinematics.YSubspeed, RidleyMovieMemory.VerticalFraction);
             Check("Samus vertical direction", samus.Kinematics.YDirection, RidleyMovieMemory.VerticalDirection);
+            Check("Samus SamusXRadius", samus.Kinematics.XRadius, RidleyMovieMemory.SamusXRadius);
+            Check("Samus SamusYRadius", samus.Kinematics.YRadius, RidleyMovieMemory.SamusYRadius);
+            Check("Samus Gravity", samus.Kinematics.YAcceleration, RidleyMovieMemory.Gravity);
+            Check("Samus GravityFraction", samus.Kinematics.YSubacceleration, RidleyMovieMemory.GravityFraction);
+            Check("Samus ExtraXDisplacement", samus.Kinematics.ExtraXDisplacement, RidleyMovieMemory.ExtraXDisplacement);
+            Check("Samus ExtraXDisplacementFraction", samus.Kinematics.ExtraXSubdisplacement, RidleyMovieMemory.ExtraXDisplacementFraction);
+            Check("Samus ExtraYDisplacement", samus.Kinematics.ExtraYDisplacement, RidleyMovieMemory.ExtraYDisplacement);
+            Check("Samus ExtraYDisplacementFraction", samus.Kinematics.ExtraYSubdisplacement, RidleyMovieMemory.ExtraYDisplacementFraction);
+            Check("Samus SlopeCollisionEnable", samus.Kinematics.HorizontalSlopeCollisionEnable, RidleyMovieMemory.SlopeCollisionEnable);
+            Check("Samus SpeedDivisor", samus.HorizontalSpeed.SpeedDivisor, RidleyMovieMemory.SpeedDivisor);
+            Check("Samus ContactDamageIndex", samus.HorizontalSpeed.ContactDamageIndex, RidleyMovieMemory.ContactDamageIndex);
+            Check("Samus MorphBallBounceState", samus.MorphBallBounceState, RidleyMovieMemory.MorphBallBounceState);
+            Check("Samus BombJumpDirection", samus.BombJumpDirection, RidleyMovieMemory.BombJumpDirection);
+            Check("Samus running momentum", samus.HorizontalSpeed.HasRunningMomentum ? (ushort)1 : (ushort)0, RidleyMovieMemory.Momentum);
+            Check("Samus speed boost counter", samus.HorizontalSpeed.SpeedBoostCounter, RidleyMovieMemory.BoostCounter);
+
             Check("Samus health", samus.Health, RidleyMovieMemory.Health);
             Check("Samus general Samus damage immunity countdown", samus.InvincibilityTimer, RidleyMovieMemory.InvincibilityTimer);
             Check("Samus Samus knockback countdown", samus.KnockbackTimer, RidleyMovieMemory.KnockbackTimer);

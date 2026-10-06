@@ -1081,7 +1081,8 @@ public sealed partial class SamusState
             // the turn finish before base speed reached zero. Do not clear that speed.
             if (ReadMovementType(bus, installedPose) is SamusMovementType.NormalJumping or SamusMovementType.Falling)
                 InitializeOrdinaryAerialAcceleration();
-            ApplySimpleGroundedPoseChange(bus, sourcePose, installedPose, "Animation command");
+            ApplySimpleGroundedPoseChange(bus, sourcePose, installedPose, "Animation command",
+                refreshRadius: !IsAerialTurnPose(sourcePose));
         }
         if (sourcePose is SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose or
             SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose)
@@ -1107,7 +1108,8 @@ public sealed partial class SamusState
         ISnesAddressSpace bus,
         byte expectedPose,
         byte targetPose,
-        string transitionName)
+        string transitionName,
+        bool refreshRadius = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if (Pose != expectedPose)
@@ -1117,7 +1119,10 @@ public sealed partial class SamusState
         }
 
         Pose = targetPose;
-        RefreshCollisionRadii(bus);
+        // Aerial turn completion runs F433 without SetRadius; its source body
+        // remains active until next alpha, including compact down-aim targets.
+        if (refreshRadius)
+            RefreshCollisionRadii(bus);
         // $91:FB64-$FB67 retains the frame/timer when the ordinary pose is
         // unchanged. A prospective run rejected by the wall probe can resolve
         // back to the current wall-stop pose on every held-input frame.

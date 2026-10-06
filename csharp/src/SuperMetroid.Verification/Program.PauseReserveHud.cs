@@ -23,7 +23,7 @@ internal static partial class Program
         var pause = CreateRetailPauseFixture(bus, samus, runtime.System, AreaId.Crateria, 0, 0,
             gameplayVram: runtime.Vram);
         pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-        for (int i = 0; i < 32; i++) pause.Step(0, 0);
+        CompletePausePageTransition(pause);
         pause.Step(0, (ushort)SnesButton.Up);
         var game = new SuperMetroidGame(bus);
         // Construct just the paused dispatcher boundary. Input, HUD updates, queued

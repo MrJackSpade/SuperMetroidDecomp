@@ -1260,12 +1260,15 @@ static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley eye fade enables composite animation");
     AssertEqual(0, state.TailFunctionIndex,
         "Ceres Ridley resting tail has not started its liftoff motion");
-    AssertTrue(
+    // Native evidence (100% movie, source frame 3645): once the eye fade enables
+    // composite animation, all seven inactive segments share the tail-root position
+    // and stay there through the body fade until liftoff.
+    AssertEqual(1,
         state.TailSegments
             .Select(segment => (segment.XPosition, segment.YPosition))
             .Distinct()
-            .Count() > 1,
-        "Ceres Ridley resting tail is articulated before liftoff");
+            .Count(),
+        "Ceres Ridley resting tail segments share the tail root before liftoff");
 
     for (int frame = 0; frame < 32; frame++)
         enemies.StepFrame(cameraX: 0, cameraY: 0, timeIsFrozen: false);

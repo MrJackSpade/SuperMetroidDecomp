@@ -92,7 +92,7 @@ internal static partial class Program
         static PauseMenuState Create(ISnesAddressSpace source, SamusState state, AreaMapPresentationCatalog content)
         {
             var pause = new PauseMenuState(source, state, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: content);
-            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R); for (int i = 0; i < 32; i++) pause.Step(0, 0);
+            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R); CompletePausePageTransition(pause);
             return pause;
         }
     }

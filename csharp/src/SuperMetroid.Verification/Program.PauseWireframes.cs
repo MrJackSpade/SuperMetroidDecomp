@@ -116,7 +116,7 @@ internal static partial class Program
         Console.WriteLine("Pause wireframes: four exact patches/untouched surroundings, 576 guarded native transition frames, isolated visual edits, actual equipment toggles, current-content restore and strict failures pass.");
 
         static void EnterEquipment(PauseMenuState pause)
-        { pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R); for (int i = 0; i < 32; i++) pause.Step(0, 0); AssertEqual(1, pause.ScreenMode, "wireframe fixture enters equipment"); }
+        { pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R); CompletePausePageTransition(pause); AssertEqual(1, pause.ScreenMode, "wireframe fixture enters equipment"); }
         static void AssertPage(PauseMenuState pause, AreaMapPresentationCatalog catalog, PauseWireframeKind kind)
         {
             byte[] actual = pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();

@@ -141,6 +141,9 @@ internal sealed partial class PauseMenuState
     /// <summary>Zero for the map and one for the equipment page, matching WRAM $0753.</summary>
     public int ScreenMode { get; private set; }
 
+    /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
+    internal bool PageTransitionActive => transition != PauseMenuTransition.None;
+
     /// <summary>Low byte of the native category/item selector word.</summary>
     public int SelectedCategory => selectedCategory;
 

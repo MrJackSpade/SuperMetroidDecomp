@@ -128,7 +128,7 @@ internal static partial class Program
             else if (category == 1) samus.CollectedBeams = samus.EquippedBeams = PauseEquipmentRules.Mask(category, item);
             else samus.CollectedItems = samus.EquippedItems = PauseEquipmentRules.Mask(category, item);
             var pause = new PauseMenuState(addressSpace, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, mapPresentation: content);
-            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R); for (int i = 0; i < 32; i++) pause.Step(0, 0);
+            pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R); CompletePausePageTransition(pause);
             if (category == 0 && item == 1) pause.Step(0, (ushort)SnesButton.Down);
             return pause;
         }

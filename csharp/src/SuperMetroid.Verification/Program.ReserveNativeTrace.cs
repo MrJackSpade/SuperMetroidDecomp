@@ -32,7 +32,7 @@ internal static partial class Program
             if (group.Key.Manual)
             {
                 pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
-                for (int i = 0; i < 32; i++) pause.Step(0, 0);
+                CompletePausePageTransition(pause);
                 pause.Step(0, (ushort)SnesButton.Up);
                 pause.Step(0, (ushort)SnesButton.Down);
             }

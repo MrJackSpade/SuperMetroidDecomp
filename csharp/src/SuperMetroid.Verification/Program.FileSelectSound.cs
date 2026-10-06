@@ -10,18 +10,23 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
-        var menu = new FileSelectMenuState(bus, audio);
+        var menu = new FileSelectMenuState(bus, audio, RetailPresentationFixture());
         var renderer = new CartridgeAudioRenderer(ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio")));
         int writes = 0, nonzero = 0;
+        bool accepted = false;
         for (int frame = 0; frame < 180; frame++)
         {
-            menu.Step(frame == 30 ? (ushort)SnesButton.A : (ushort)0);
+            // Accept on the first update the native main menu reads input.
+            bool accept = !accepted && menu.Phase == FileSelectPhase.Main;
+            menu.Step(accept ? (ushort)SnesButton.A : (ushort)0);
             var commands = audio.AdvanceFrame(bus, renderer.ReadAcknowledgements());
             writes += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.Port == 1 && command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value);
             var pcm = renderer.RenderFrame(commands);
-            if (frame < 30) AssertTrue(pcm.All(value => value == 0), "isolated selection must be silent before accept");
+            if (!accepted && !accept) AssertTrue(pcm.All(value => value == 0), "isolated selection must be silent before accept");
             else nonzero += pcm.Count(value => value != 0);
+            accepted |= accept;
         }
+        AssertTrue(accepted, "isolated file select reaches its main menu");
         AssertEqual(1, writes, "one file selection sends exactly one cartridge swoosh request");
         AssertTrue(nonzero > 0, "file selection generates audible PCM");
         Console.WriteLine($"File selection: {writes} sound writes, {nonzero} nonzero PCM samples.");
@@ -35,8 +40,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         if (existingSave)
             new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, new SuperMetroidSaveSnapshot());
-        var game = new SuperMetroidGame(bus);
-        game.BindMapPresentation(RetailPresentationFixture());
+        var game = CreateRetailGameFixture(bus);
         var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
         var actual = new CartridgeAudioRenderer(assets);
         var withoutSwoosh = new CartridgeAudioRenderer(assets);

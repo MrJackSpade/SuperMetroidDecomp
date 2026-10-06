@@ -871,41 +871,72 @@ public sealed partial class RoomEnemySystem
 
         state.HorizontalVelocity = AccelerateNorfairRidleyAxis(
             state.HorizontalVelocity,
-            unchecked((short)(slot.XPosition - targetX)),
+            slot.XPosition, targetX,
             divisor,
             reversalBoost);
         state.VerticalVelocity = AccelerateNorfairRidleyAxis(
             state.VerticalVelocity,
-            unchecked((short)(slot.YPosition - targetY)),
+            slot.YPosition, targetY,
             divisor,
             reversalBoost);
     }
 
     private static ushort AccelerateNorfairRidleyAxis(
         ushort velocityWord,
-        short distance,
+        ushort position,
+        ushort target,
         ushort divisor,
         ushort reversalBoost)
     {
-        if (distance == 0)
-            return velocityWord;
+        short distance = unchecked((short)(position - target));
+        if (distance == 0) return velocityWord;
+        ushort step = (ushort)Math.Max(1, Math.Abs((int)distance) / divisor);
+        bool carry = position >= target;
+        ushort velocity = velocityWord;
 
-        int step = Math.Max(1, Math.Abs((int)distance) / divisor);
-        int velocity = unchecked((short)velocityWord);
+        // $A6:D559..D5A5 and D5CF..D61B retain carry/borrow across the chained
+        // ADC/SBC instructions. Crossing zero can add one more acceleration unit;
+        // combining these operations into integer arithmetic changes the trajectory.
         if (distance > 0)
         {
-            if (velocity >= 0)
-                velocity -= reversalBoost + 8 + step;
-            velocity -= step;
+            if ((short)velocity >= 0)
+            {
+                carry = true;
+                Subtract(reversalBoost);
+                carry = true;
+                Subtract(RidleyInertiaDefinitions.ReversalAcceleration);
+                Subtract(step);
+            }
+            Subtract(step);
+            if (unchecked((short)(velocity - RidleyInertiaDefinitions.MinimumVelocity)) < 0) velocity = RidleyInertiaDefinitions.MinimumVelocity;
         }
         else
         {
-            if (velocity < 0)
-                velocity += reversalBoost + 8 + step;
-            velocity += step;
+            if ((short)velocity < 0)
+            {
+                carry = false;
+                Add(reversalBoost);
+                carry = false;
+                Add(RidleyInertiaDefinitions.ReversalAcceleration);
+                Add(step);
+            }
+            Add(step);
+            if (unchecked((short)(velocity - RidleyInertiaDefinitions.MaximumVelocity)) >= 0) velocity = RidleyInertiaDefinitions.MaximumVelocity;
         }
+        return velocity;
 
-        return unchecked((ushort)Math.Clamp(velocity, -1280, 1280));
+        void Add(ushort operand)
+        {
+            int result = velocity + operand + (carry ? 1 : 0);
+            velocity = unchecked((ushort)result);
+            carry = result > ushort.MaxValue;
+        }
+        void Subtract(ushort operand)
+        {
+            int result = velocity - operand - (carry ? 0 : 1);
+            velocity = unchecked((ushort)result);
+            carry = result >= 0;
+        }
     }
 
     private void UpdateNorfairRidleyHealthPalette(RoomEnemySlot slot, RidleyEnemyState state)

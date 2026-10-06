@@ -64,6 +64,14 @@ if (args is ["--samus-liquid-physics"]) { VerifySamusLiquidPhysics(); return 0; 
 if (args is ["--shallow-water-jump"]) { VerifyShallowWaterJump(); return 0; }
 if (args is ["--export-shallow-water-jump"]) { VerifyShallowWaterJump(exportOnly: true); return 0; }
 if (args is ["--yapping-maw-grapple-release"]) { VerifyYappingMawGrappleRelease(); return 0; }
+if (args is ["--ridley-acceleration-carry"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyCompiledRidleyInertia(rom);
+    VerifyRidleyDeathAcceleration(rom);
+    return 0;
+}
+if (args is ["--ridley-player-opening"]) { VerifyRidleyPlayerOpening(); return 0; }
 if (args is ["--door-autosave"]) { VerifyDoorTransitionAutosave(); return 0; }
 if (args is ["--door-music-timing"]) { VerifyDoorMusicTiming(); return 0; }
 if (args is ["--collectible-message-timing"]) { VerifyCollectibleMessageTiming(); return 0; }

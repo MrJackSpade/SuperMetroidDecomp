@@ -49,7 +49,9 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerGlyphDefinitions.cs", "4942E6802A8F4B086F7C8D3F4A0FD3530E1C07B5C2F467D97CF76FE6855A1366")],
             "Private construction requires Label, all ten decimal digit compositions and four anchors. Draw validates packed BCD before deriving only those loaded digit names. External Core access to mutable AnchorNames revokes this proof. Countdown logic, placement and actual glyph appearance are not certified."),
         new("SuperMetroid.Core.Assets.CeresEscapeOverlayTilemapCatalog", "ceres-overlay-complete-owned-membership-query", ["TryResolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "31CB45E0AEBA78CC1A60B7442EEBB1FEC865CE5138AC2EB24977C02C2BB75337")],
+            [new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "5F76BC5D3BACA269E5BC4AAD2F21848CDF4D9E8380D3DB4199A8D1795E79C052"),
+             new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs", "22089C1DDF1302D2F523E73799DBA8E522CD1E932B9AA5E19B81C85A47837AE3"),
+             new("csharp/src/SuperMetroid.Core/Game/CeresRidleyPaletteRomData.cs", "20CB1E292CC94F8BB30D9F237F148789E3E165F58BD116D5259990370C9E17CE")],
             "Private construction requires all five named warning pages with their exact separate lengths and compiles independent bytes. TryResolve checks source and length; unsupported requests validly return false and do not demand new art. This proves owned-set membership only, not DMA caller source selection or warning timing."),
     ];
 }

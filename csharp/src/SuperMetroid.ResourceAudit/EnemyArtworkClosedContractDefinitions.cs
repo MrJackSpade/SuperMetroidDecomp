@@ -18,9 +18,11 @@ internal static class EnemyArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/EnemyPaletteSheet.cs", "D7F17ECE934A304497228C6F5B2BDD6DA7C5668F8D7FC76CD525387BEC4C5C4C"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileArtwork.cs", "EEDA9FFC087B4CFDB12BF640D8AEE275DCD02E18309A69B6ADB67693B96EEADE"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileRomData.cs", "DF8836E127366B910D5649CE661AFA7F33554113B28D4A126745013489B664CA"),
-             new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "31CB45E0AEBA78CC1A60B7442EEBB1FEC865CE5138AC2EB24977C02C2BB75337"),
+             new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "5F76BC5D3BACA269E5BC4AAD2F21848CDF4D9E8380D3DB4199A8D1795E79C052"),
              new("csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs", "99CD362BA2DEA1F590B56029809F41259DA65AAB98F7ACABA9DDD467FDC9A2D2"),
-             new("csharp/src/SuperMetroid.Core/Assets/TorizoInstructionTileRomData.cs", "10F23555CAF58BB4A559874B08847132683CB1EB1487B3BF51C6B381F93286F1")],
+             new("csharp/src/SuperMetroid.Core/Assets/TorizoInstructionTileRomData.cs", "10F23555CAF58BB4A559874B08847132683CB1EB1487B3BF51C6B381F93286F1"),
+             new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs", "22089C1DDF1302D2F523E73799DBA8E522CD1E932B9AA5E19B81C85A47837AE3"),
+             new("csharp/src/SuperMetroid.Core/Game/CeresRidleyPaletteRomData.cs", "20CB1E292CC94F8BB30D9F237F148789E3E165F58BD116D5259990370C9E17CE")],
             "The installed factory requires all 122 compiled graphics-set identities with nonnull palettes and exact native tile lengths; pinned IDs reject substitutions. Native DMA aliases are derived or validated, and complete Ceres and Torizo transfer providers are required. Dictionaries are copied. LoadTo/LoadPaletteTo cover valid definition IDs; TryResolve covers native sheet sources, bounded Ceres/Torizo slices and exact warning tilemaps, returning false for unowned sources. Invalid known identities/lengths remain findings. External Core use of the internal partial fixture factory or new metadata declarations revokes this rule. Other optional boss attachments, caller selection, destinations, timing and rendered pixels are not certified."),
     ];
 }

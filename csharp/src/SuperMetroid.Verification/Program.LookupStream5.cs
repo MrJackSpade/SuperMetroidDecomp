@@ -6,6 +6,66 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5CeresOverlayWords(SuperMetroidAddressSpace rom)
+    {
+        byte[] json = SuperMetroid.AssetExtraction.CeresEscapeOverlayTilemapFiles.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<CeresEscapeOverlayTilemapDocument>(json, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+        CeresEscapeOverlayTilemapCatalog stock = Check(document);
+        var edits = (System.Collections.IDictionary)typeof(CeresEscapeOverlayTilemapCatalog).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, edits.Count, "All native Ceres glyph words calculate without overrides");
+        int words = 0;
+        foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
+        {
+            for (int index = 0; index < page.WordCount; index++)
+            {
+                ushort native = ReadVerificationWord(rom, page.SourceAddress + index * 2);
+                AssertEqual(native, CeresEscapeOverlayTilemapDefinitions.StockWord(page, index), "Native calculated subtitle glyph/style");
+                document.Pages[page.Name][index] = (ushort)(native ^ ushort.MaxValue);
+                _ = Check(document);
+                document.Pages[page.Name][index] = native;
+                words++;
+            }
+            AssertTrue(!stock.TryResolve(page.SourceAddress, page.WordCount * 2 - 1, out _), "Changed transfer extent rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresEscapeOverlayTilemapDefinitions.StockWord(page, -1), "Glyph lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => CeresEscapeOverlayTilemapDefinitions.StockWord(page, page.WordCount), "Glyph upper bound");
+        }
+        AssertTrue(!stock.TryResolve(0, 2, out _), "Unknown subtitle source rejected");
+        AssertEqual(55, words, "Native subtitle word count");
+        Console.WriteLine("Ceres overlay glyphs: 55 native words, zero stock overrides, 55 independent full-word edits, exact original hash and transfer domains pass.");
+
+        CeresEscapeOverlayTilemapCatalog Check(CeresEscapeOverlayTilemapDocument source)
+        {
+            var result = CeresEscapeOverlayTilemapCatalog.Load(new MemoryStream(CeresEscapeOverlayTilemapCatalog.Write(source)));
+            var system = new RoomEnemySystem
+            {
+                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+                    new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
+                    ceresEscapeOverlayTilemaps: result),
+            };
+            var queue = new VramWriteQueue();
+            typeof(RoomEnemySystem).GetMethod("QueueCeresEmergencyText", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .Invoke(system, [queue]);
+            AssertEqual(1, queue.Entries.Count, "Actual emergency producer queues one installed page");
+            VramWriteEntry entry = queue.Entries[0];
+            AssertEqual(ReadVerificationWord(rom, 0xa6c15d), entry.SizeInBytes, "Native emergency byte extent");
+            AssertEqual(ReadVerificationWord(rom, 0xa6c162), entry.EncodedVramDestination, "Native emergency BG destination");
+            AssertEqual(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, entry.SourceAddress, "Actual emergency source identity");
+            AssertTrue(result.TryResolve(entry.SourceAddress, entry.SizeInBytes, out var queued), "Actual emergency transfer resolves installed words");
+            for (int index = 0; index < source.Pages["emergency"].Length; index++)
+                AssertEqual(source.Pages["emergency"][index], System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(queued.Span[(index * 2)..]), "Actual queued emergency preserves independent edits");
+            var transfers = new Dictionary<int, byte[]>();
+            foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
+            {
+                byte[] expected = new byte[page.WordCount * 2];
+                for (int index = 0; index < page.WordCount; index++)
+                    System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(index * 2), source.Pages[page.Name][index]);
+                AssertTrue(result.TryResolve(page.SourceAddress, expected.Length, out var actual) && actual.Span.SequenceEqual(expected), "Independent glyph word and neighboring data preservation");
+                transfers.Add(page.SourceAddress, expected);
+            }
+            AssertEqual(SelectedPresentationHash.FromTransfers("enemy-ceres-escape-overlay-v1", transfers, bytes => bytes), result.ContentIdentity, "Original overlay hash framing");
+            return result;
+        }
+    }
     private static void VerifyLookupStream5CrocomireSharedPaint(SuperMetroidAddressSpace rom)
     {
         int[] sources = [CrocomirePaletteRomData.FightBodySource, CrocomirePaletteRomData.InitialWallSource,

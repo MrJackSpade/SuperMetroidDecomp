@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using System.Buffers.Binary;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -16,27 +17,62 @@ internal static class CeresEscapeOverlayTilemapDefinitions
 
     /// <summary>English EMERGENCY title tilemap at $A6:C164.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition Emergency =
-        new("emergency", 0xa6c164, 9);
+        new("emergency", 0xa6c164, EmergencyText.Length);
 
     /// <summary>English EMERGENCY tilemap's BG1 destination $50CB.</summary>
     internal const ushort EmergencyDestination = 0x50cb;
 
     /// <summary>First Japanese self-destruct subtitle row at $A6:C3F4.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseFirst =
-        new("japanese_0", 0xa6c3f4, 12);
+        new("japanese_0", 0xa6c3f4, JapaneseFirstLine.Length);
 
     /// <summary>Second Japanese self-destruct subtitle row at $A6:C40C.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseSecond =
-        new("japanese_1", 0xa6c40c, 12);
+        new("japanese_1", JapaneseFirst.SourceAddress + JapaneseFirst.WordCount * sizeof(ushort), JapaneseFirstLine.Length);
 
     /// <summary>Third Japanese self-destruct subtitle row at $A6:C424.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseThird =
-        new("japanese_2", 0xa6c424, 11);
+        new("japanese_2", JapaneseSecond.SourceAddress + JapaneseSecond.WordCount * sizeof(ushort), JapaneseSecondLine.Length);
 
     /// <summary>Fourth Japanese self-destruct subtitle row at $A6:C43A.</summary>
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseFourth =
-        new("japanese_3", 0xa6c43a, 11);
+        new("japanese_3", JapaneseThird.SourceAddress + JapaneseThird.WordCount * sizeof(ushort), JapaneseSecondLine.Length);
 
+    // Authored warning wording and font ordering are categorical typography content.
+    // The selected two-half packing, foreground priority and Japanese palette role
+    // preserve that composition; glyph pixels and RGB paint remain separate obligations.
+    private const string EmergencyText = "EMERGENCY";
+    private const string JapaneseFirstLine = "自爆装置が、作動しました";
+    private const string JapaneseSecondLine = "ただちに脱出して下さい";
+    private const string JapaneseGlyphs = "自爆装置が、作動まただちに脱出して下さい";
+    /// <summary>$A6:C164 selects the Latin atlas beginning with A at BG tile $182.</summary>
+    private const int LatinFirstTile = CeresEscapeVramTransferDefinitions.WarningBackgroundDestination / (8 * 8 * 4 / 16);
+    /// <summary>$B7:DA00 source loaded at VRAM word $1820; Japanese upper/lower halves start at BG tiles $1A0/$1B0.</summary>
+    private const int JapaneseUpperTile = (JapaneseTrailingUpperTile + MainGlyphCount - 1) / MainGlyphCount * MainGlyphCount,
+        JapaneseLowerTile = JapaneseUpperTile + MainGlyphCount;
+    /// <summary>$A6:C432..C438 selects the final four upper halves packed before the first sixteen at BG $19C..19F.</summary>
+    private const int JapaneseTrailingUpperTile = LatinFirstTile + ('Z' - 'A' + 1);
+    private const int MainGlyphCount = 16;
+    /// <summary>$A6:C164 and C3F4 use priority plus BG palettes six and seven respectively.</summary>
+    private const int Priority = 1 << 13;
+    private const int EnglishStyle = Priority | (CeresRidleyPaletteRomData.AlarmCgramIndex / 16) << 10,
+        JapaneseStyle = Priority | 7 << 10;
+
+    internal static ushort StockWord(CeresEscapeOverlayTilemapDefinition page, int index)
+    {
+        if ((uint)index >= page.WordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (page == Emergency) return (ushort)(EnglishStyle | LatinFirstTile + EmergencyText[index] - 'A');
+        bool secondLine = page == JapaneseThird || page == JapaneseFourth;
+        bool lowerHalf = page == JapaneseSecond || page == JapaneseFourth;
+        if (page != JapaneseFirst && page != JapaneseSecond && page != JapaneseThird && page != JapaneseFourth)
+            throw new ArgumentOutOfRangeException(nameof(page));
+        char character = (secondLine ? JapaneseSecondLine : JapaneseFirstLine)[index];
+        int glyph = JapaneseGlyphs.IndexOf(character, StringComparison.Ordinal);
+        if (glyph < 0) throw new InvalidOperationException("Ceres subtitle character has no native glyph.");
+        int tile = lowerHalf ? JapaneseLowerTile + glyph : glyph < MainGlyphCount
+            ? JapaneseUpperTile + glyph : JapaneseTrailingUpperTile + glyph - MainGlyphCount;
+        return (ushort)(JapaneseStyle | tile);
+    }
     internal static PageSequence All => default;
 
     internal readonly struct PageSequence : IReadOnlyList<CeresEscapeOverlayTilemapDefinition>
@@ -89,14 +125,31 @@ internal sealed record CeresEscapeOverlayTilemapDocument
 public sealed class CeresEscapeOverlayTilemapCatalog
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromTransfers(
-        "enemy-ceres-escape-overlay-v1", pages, bytes => bytes);
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-ceres-escape-overlay-v1", content =>
+    {
+        content.Append("shared", ReadOnlySpan<byte>.Empty);
+        foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
+        {
+            content.Append("source", page.SourceAddress);
+            content.Append("transfer", Transfer(page));
+        }
+    });
 
-    private readonly Dictionary<int, byte[]> pages;
+    private readonly Dictionary<int, ushort> edits;
+    private CeresEscapeOverlayTilemapCatalog(Dictionary<int, ushort> edits) => this.edits = edits;
 
-    private CeresEscapeOverlayTilemapCatalog(Dictionary<int, byte[]> pages) =>
-        this.pages = pages;
-
+    private byte[] Transfer(CeresEscapeOverlayTilemapDefinition page)
+    {
+        // Ephemeral contiguous DMA/hash output, not a retained lookup definition.
+        var bytes = new byte[page.WordCount * sizeof(ushort)];
+        for (int index = 0; index < page.WordCount; index++)
+        {
+            ushort word = edits.TryGetValue(page.SourceAddress + index * 2, out ushort edit)
+                ? edit : CeresEscapeOverlayTilemapDefinitions.StockWord(page, index);
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * 2), word);
+        }
+        return bytes;
+    }
     internal static CeresEscapeOverlayTilemapCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -114,17 +167,17 @@ public sealed class CeresEscapeOverlayTilemapCatalog
     internal bool TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
-        if (pages.TryGetValue(sourceAddress, out byte[]? page) &&
-            page.Length == byteCount)
-        {
-            data = page;
-            return true;
-        }
+        foreach (var page in CeresEscapeOverlayTilemapDefinitions.All)
+            if (page.SourceAddress == sourceAddress && page.WordCount * 2 == byteCount)
+            {
+                data = Transfer(page);
+                return true;
+            }
         data = default;
         return false;
     }
 
-    private static Dictionary<int, byte[]> Compile(
+    private static Dictionary<int, ushort> Compile(
         CeresEscapeOverlayTilemapDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
@@ -133,7 +186,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
             document.Pages.Count != CeresEscapeOverlayTilemapDefinitions.All.Length)
             throw new InvalidDataException(
                 "Ceres escape overlay requires version 1 and five named tilemaps.");
-        var compiled = new Dictionary<int, byte[]>();
+        var compiled = new Dictionary<int, ushort>();
         foreach (CeresEscapeOverlayTilemapDefinition definition in
                  CeresEscapeOverlayTilemapDefinitions.All)
         {
@@ -141,11 +194,9 @@ public sealed class CeresEscapeOverlayTilemapCatalog
                 words is null || words.Length != definition.WordCount)
                 throw new InvalidDataException(
                     $"Ceres escape tilemap {definition.Name} requires {definition.WordCount} words.");
-            byte[] bytes = new byte[words.Length * sizeof(ushort)];
             for (int index = 0; index < words.Length; index++)
-                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * 2),
-                    words[index]);
-            compiled.Add(definition.SourceAddress, bytes);
+                if (words[index] != CeresEscapeOverlayTilemapDefinitions.StockWord(definition, index))
+                    compiled.Add(definition.SourceAddress + index * 2, words[index]);
         }
         if (document.Pages.Keys.Any(name =>
                 !CeresEscapeOverlayTilemapDefinitions.All.ToArray()

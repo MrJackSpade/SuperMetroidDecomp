@@ -41,7 +41,7 @@ internal static class CeresEscapeVramTransferDefinitions
     /// <summary>$7820: first warning object character word.</summary>
     private const ushort WarningObjectDestination = 0x7820;
     /// <summary>$1820: first warning background character word.</summary>
-    private const ushort WarningBackgroundDestination = 0x1820;
+    internal const ushort WarningBackgroundDestination = 0x1820;
     /// <summary>$0D00: first door background character word.</summary>
     private const ushort DoorDestination = 0x0d00;
 

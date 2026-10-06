@@ -12074,4 +12074,13 @@
   ],
   "confirmation": "Root build1452 warnings/0 errors;6144 native pixels,4419 calculated outputs,1725 residual source pixels/10footprints,96 tile edits,all-pixel inversion,import bounds and actual full uploads passed. Source inspection found no direct ResourceAudit owner hash; MapScreen closure references unchanged format constants only.",
   "workerCommit": "addcb77b0"
+},"ceresWarningOverlayWhole":{
+  "disposition": [
+    "All55 words calculate from exact EMERGENCY/Japanese warnings and shared font DMA/alarm geometry. Retain only selected wording,twenty-glyph order,two-half packed-tail arrangement,priority and Japanese palette7 typography roles. Language/font arrangement cannot derive from numeric transfer state. Glyph pixels,RGB,cadence and other containers remain separate."
+  ],
+  "confirmation": "Root build1452 warnings/0 errors;ResourceAudit0/0. All55 native words,55 independent edits,zero stock overrides,hashes/bounds,56 actual Emergency queue/resolver calls,19 transfer records/three terminators and installed Japanese queue passed.",
+  "workerCommit": "5d88358ec",
+  "completed": [
+    "CeresEscapeOverlayTilemapCatalog.pages"
+  ]
 }}

@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 468,
+  "remainingTableDefinitionCount": 467,
   "fileCount": 523,
   "entries": [
     {
@@ -121,12 +121,15 @@
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.","state":"converted","implementationCommit":"d1cef8ec3e36ddb241f5218b6d0fe934c3501354"},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs",
-      "line": 78,
-      "name": "CeresEscapeOverlayTilemapCatalog.pages",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CeresEscapeOverlayTilemapCatalog.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs",
+  "line": 78,
+  "name": "CeresEscapeOverlayTilemapCatalog.pages",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CeresEscapeOverlayTilemapCatalog.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "5d88358ec",
+  "disposition": "All55 words calculate from exact EMERGENCY/Japanese warnings and shared font DMA/alarm geometry. Retain only selected wording,twenty-glyph order,two-half packed-tail arrangement,priority and Japanese palette7 typography roles. Language/font arrangement cannot derive from numeric transfer state. Glyph pixels,RGB,cadence and other containers remain separate."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileArtwork.cs",
       "line": 21,
@@ -21670,5 +21673,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 60
+  "justifiedRetainedSinceSnapshot": 61
 }

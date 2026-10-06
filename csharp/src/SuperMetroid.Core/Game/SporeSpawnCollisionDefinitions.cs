@@ -69,76 +69,43 @@ internal static class SporeSpawnCollisionDefinitions
             public bool MoveNext() => ++index < sequence.Length;
         }
     }
-    private static readonly Dictionary<ushort, SporeSpawnCollisionHitbox[]> Lists =
-        new()
-        {
-            [ClosedHead] =
-            [
-                new(-41, -30, 41, 30, NoOp, Dud),
-                new(-16, -45, 15, -30, NoOp, Dud),
-            ],
-            [OpenHead] =
-            [
-                new(-41, -30, 41, 30, Touch, Dud),
-                new(-16, -45, 15, -30, Touch, Dud),
-            ],
-            [ExtendedHead] =
-            [
-                new(-44, -35, 43, 33, Touch, Dud),
-                new(-16, -49, 15, -35, Touch, Dud),
-            ],
-            [MovingHead0] =
-            [
-                new(-45, -38, 44, -9, Touch, Dud),
-                new(-45, 8, 44, 35, Touch, Dud),
-                new(-15, -24, 14, 23, Touch, Shot),
-                new(-16, -54, 16, -22, Touch, Dud),
-            ],
-            [MovingHead1] =
-            [
-                new(-43, -44, 42, -13, Touch, Dud),
-                new(-44, 12, 42, 42, Touch, Dud),
-                new(-15, -24, 14, 23, Touch, Shot),
-                new(-16, -58, 16, -42, Touch, Dud),
-            ],
-            [MovingHead2] =
-            [
-                new(-45, -47, 44, -17, Touch, Dud),
-                new(-44, 16, 43, 46, Touch, Dud),
-                new(-15, -24, 14, 23, Touch, Shot),
-                new(-16, -62, 16, -45, Touch, Dud),
-            ],
-            [MovingHead3] =
-            [
-                new(-44, -50, 45, -21, Touch, Dud),
-                new(-43, 20, 43, 50, Touch, Dud),
-                new(-15, -24, 14, 23, Touch, Shot),
-                new(-16, -64, 16, -48, Touch, Dud),
-            ],
-            [TrailingShotPoint] =
-                [new(-15, -24, 14, 23, Touch, Shot)],
-            [MirroredTrailingShotPoint] =
-                [new(-15, -24, 14, 23, Touch, Shot)],
-            [TrailingDudPoint] =
-                [new(-15, -24, 14, 23, Touch, Dud)],
-            [MovingHead4] =
-            [
-                new(-44, -53, 44, -23, Touch, Dud),
-                new(-44, 22, 43, 52, Touch, Dud),
-                new(-15, -24, 14, 23, Touch, Shot),
-                new(-16, -68, 16, -48, Touch, Dud),
-            ],
-            [MovingHead5] =
-            [
-                new(-44, -55, 43, -25, Touch, Dud),
-                new(-45, 24, 43, 55, Touch, Dud),
-                new(-15, -25, 14, 24, Touch, Shot),
-                new(-16, -69, 16, -48, Touch, Dud),
-            ],
-        };
+    // The inner vulnerable point every moving head and trailing point carries.
+    private static SporeSpawnCollisionHitbox InnerPoint(ushort shot) => new(-15, -24, 14, 23, Touch, shot);
+
+    /// <summary>Head rectangles shared by the closed and open lists, which differ only in touch AI.</summary>
+    private static SporeSpawnCollisionHitbox[] Head(ushort touch) =>
+        [new(-41, -30, 41, 30, touch, Dud), new(-16, -45, 15, -30, touch, Dud)];
+
+    private static readonly SporeSpawnCollisionHitbox[] ClosedHeadList = Head(NoOp);
+    private static readonly SporeSpawnCollisionHitbox[] OpenHeadList = Head(Touch);
+    private static readonly SporeSpawnCollisionHitbox[] ExtendedHeadList =
+        [new(-44, -35, 43, 33, Touch, Dud), new(-16, -49, 15, -35, Touch, Dud)];
+    // Moving heads: upper and lower shell bands fitted to each drawing, the inner point, and the crown.
+    private static readonly SporeSpawnCollisionHitbox[] MovingHead0List =
+        [new(-45, -38, 44, -9, Touch, Dud), new(-45, 8, 44, 35, Touch, Dud), InnerPoint(Shot), new(-16, -54, 16, -22, Touch, Dud)];
+    private static readonly SporeSpawnCollisionHitbox[] MovingHead1List =
+        [new(-43, -44, 42, -13, Touch, Dud), new(-44, 12, 42, 42, Touch, Dud), InnerPoint(Shot), new(-16, -58, 16, -42, Touch, Dud)];
+    private static readonly SporeSpawnCollisionHitbox[] MovingHead2List =
+        [new(-45, -47, 44, -17, Touch, Dud), new(-44, 16, 43, 46, Touch, Dud), InnerPoint(Shot), new(-16, -62, 16, -45, Touch, Dud)];
+    private static readonly SporeSpawnCollisionHitbox[] MovingHead3List =
+        [new(-44, -50, 45, -21, Touch, Dud), new(-43, 20, 43, 50, Touch, Dud), InnerPoint(Shot), new(-16, -64, 16, -48, Touch, Dud)];
+    private static readonly SporeSpawnCollisionHitbox[] MovingHead4List =
+        [new(-44, -53, 44, -23, Touch, Dud), new(-44, 22, 43, 52, Touch, Dud), InnerPoint(Shot), new(-16, -68, 16, -48, Touch, Dud)];
+    // The sixth head's inner point is a pixel taller at both ends, as authored.
+    private static readonly SporeSpawnCollisionHitbox[] MovingHead5List =
+        [new(-44, -55, 43, -25, Touch, Dud), new(-45, 24, 43, 55, Touch, Dud), new(-15, -25, 14, 24, Touch, Shot), new(-16, -69, 16, -48, Touch, Dud)];
+    private static readonly SporeSpawnCollisionHitbox[] ShotPointList = [InnerPoint(Shot)];
+    private static readonly SporeSpawnCollisionHitbox[] DudPointList = [InnerPoint(Dud)];
+
+    /// <summary>The twelve native hitbox list identities.</summary>
+    private static readonly ushort[] ListPointers =
+    [
+        ClosedHead, OpenHead, ExtendedHead, MovingHead0, MovingHead1, MovingHead2, MovingHead3,
+        TrailingShotPoint, MirroredTrailingShotPoint, TrailingDudPoint, MovingHead4, MovingHead5,
+    ];
 
     internal static int FrameCount => 12;
-    internal static int ListCount => Lists.Count;
+    internal static int ListCount => ListPointers.Length;
 
     private static bool IsOpeningFrame(ushort pointer) =>
         pointer >= FirstOpeningFrame && pointer <= FirstOpeningFrame + 6 * 18 &&
@@ -183,8 +150,20 @@ internal static class SporeSpawnCollisionDefinitions
     };
     internal static ReadOnlySpan<SporeSpawnCollisionHitbox> HitboxesAt(
         ushort pointer) =>
-        Lists.TryGetValue(pointer, out SporeSpawnCollisionHitbox[]? hitboxes)
-            ? hitboxes
-            : throw new InvalidDataException(
-                $"Spore Spawn hitbox list $A5:{pointer:X4} is not compiled.");
+        pointer switch
+        {
+            ClosedHead => ClosedHeadList,
+            OpenHead => OpenHeadList,
+            ExtendedHead => ExtendedHeadList,
+            MovingHead0 => MovingHead0List,
+            MovingHead1 => MovingHead1List,
+            MovingHead2 => MovingHead2List,
+            MovingHead3 => MovingHead3List,
+            TrailingShotPoint or MirroredTrailingShotPoint => ShotPointList,
+            TrailingDudPoint => DudPointList,
+            MovingHead4 => MovingHead4List,
+            MovingHead5 => MovingHead5List,
+            _ => throw new InvalidDataException(
+                $"Spore Spawn hitbox list $A5:{pointer:X4} is not compiled."),
+        };
 }

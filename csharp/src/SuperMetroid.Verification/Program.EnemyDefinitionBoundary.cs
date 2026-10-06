@@ -86,7 +86,7 @@ internal static partial class Program
         AssertEqual(106, TorizoCollisionDefinitions.FrameCount, "complete Torizo physical frame count");
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
         {
-            ReadOnlySpan<GoldenTorizoCollisionComponent> components = TorizoCollisionDefinitions.ComponentsAt(frame);
+            TorizoCollisionComponents components = TorizoCollisionDefinitions.ComponentsAt(frame);
             AssertEqual(NativeWord(source, 0xaa0000 | frame), components.Length, "Torizo component count");
             for (int i = 0; i < components.Length; i++)
             {

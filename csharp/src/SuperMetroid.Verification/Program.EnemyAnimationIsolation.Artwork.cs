@@ -28,8 +28,8 @@ internal static partial class Program
                 new EnemyExtendedVisualComponent { OffsetX = 12, OffsetY = -8, Parts = EditedAnimationParts(index % 16) },
                 new EnemyExtendedVisualComponent { OffsetX = -16, OffsetY = 6, Parts = EditedAnimationParts((index + 1) % 16) },
             ];
-        var orb = torizo.Where(frame => GoldenTorizoRightOrbCollisionDefinitions.HasFrame(frame.Pointer)).ToArray();
-        AssertEqual(GoldenTorizoRightOrbCollisionDefinitions.FrameCount, orb.Length, "all right-orb display frames are authored");
+        var orb = torizo.Where(frame => GoldenTorizoRightOrbFrames().Contains(frame.Pointer)).ToArray();
+        AssertEqual(GoldenTorizoRightOrbFrames().Length, orb.Length, "all right-orb display frames are authored");
         for (int index = 0; index < orb.Length; index++)
             extended.DisplayFrames![orb[index].Name] = orb[(index + 1) % orb.Length].Name;
 
@@ -81,7 +81,7 @@ internal static partial class Program
         {
             var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray()
                 .Where(value => value.Bank == TorizoInstructionProgramDefinitions.Bank).ToArray();
-            var orb = definitions.Where(value => GoldenTorizoRightOrbCollisionDefinitions.HasFrame(value.Pointer)).ToArray();
+            var orb = definitions.Where(value => GoldenTorizoRightOrbFrames().Contains(value.Pointer)).ToArray();
             int orbIndex = Array.FindIndex(orb, value => value.Pointer == actor.SpritemapPointer);
             ushort selected = orbIndex >= 0 ? orb[(orbIndex + 1) % orb.Length].Pointer : actor.SpritemapPointer;
             int selectedIndex = Array.FindIndex(definitions, value => value.Pointer == selected);

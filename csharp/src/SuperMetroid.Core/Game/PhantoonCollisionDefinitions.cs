@@ -27,9 +27,9 @@ internal static class PhantoonCollisionDefinitions
     /// <summary>$A7:DD9B, Phantoon's active shot callback.</summary>
     internal const ushort ShotAi = 0xdd9b;
 
-    // REQUIRED: chosen half widths, tentacle near/far extent and all Y bounds.
-    // Native pixel-centered reflection supplies opposite X edges; it does not
-    // explain the selected silhouette extents or vertical positions.
+    // Authored silhouette inputs, retained for #1165: half widths, tentacle near/far extents and
+    // the vertical bounds are fitted to the drawing. Pixel-centered reflection supplies every
+    // opposite X edge, so only these extents are stored.
     private const short BodyHalfWidth = 33;
     private const short EyeHalfWidth = 9;
     private const short CenterTentacleHalfWidth = 12;

@@ -53,7 +53,7 @@ internal static partial class Program
         }
         AssertEqual(2, GoldenTorizoLeftTurnInstructionProgramDefinitions.PresentationWordCount,
             "Golden Torizo left-turn visual occurrence count");
-        AssertTrue(GoldenTorizoRightwardCollisionDefinitions.HasFrame(
+        AssertTrue(TorizoCollisionDefinitions.HasFrame(
                 GoldenTorizoLeftTurnInstructionProgramDefinitions.FacingScreenFrame),
             "left-turn selectors reuse the right-turn physical frame owner");
         Console.WriteLine(

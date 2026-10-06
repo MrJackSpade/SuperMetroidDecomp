@@ -71,11 +71,12 @@ internal static class RidleyCollisionDefinitions
     private const ushort ForwardHitbox = 0xeb91;
     /// <summary>$A6:EBAB..EC3E right-facing lists repeat the left-facing identities at $CA-byte displacement.</summary>
     private const int RightHitboxDisplacement = 0xebab - LeftHead;
-    /// <summary>$A6:EADB is the independent forward-frame Y offset; this input remains required conversion work.</summary>
+    /// <summary>$A6:EADB, the forward frame's single component Y offset, authored for its drawing.</summary>
     private const short ForwardYOffset = -6;
 
     private readonly record struct ComponentOffset(short X, short Y);
-    // These four independent left-facing origin pairs remain required geometry inputs.
+    // The four left-facing component origins (legs, hand, torso, head) are authored placements
+    // for the drawing; right-facing frames negate X.
     private static readonly ComponentOffset[] LeftBase =
         [new(15, 22), new(-8, 7), new(16, 0), new(-3, -24)];
 
@@ -134,29 +135,39 @@ internal static class RidleyCollisionDefinitions
         return new((short)(right ? -origin.X : origin.X), origin.Y,
             (ushort)(hitbox + (right ? RightHitboxDisplacement : 0)));
     }
-    private static readonly Dictionary<ushort, RidleyCollisionHitbox[]> Lists = new()
-    {
-        [0xeae1] = [new(-12, -26, 11, 13, Touch, Shot), new(-24, 3, -13, 21, Touch, Shot)],
-        [0xeafb] = [new(-41, -19, -21, -9, Touch, Shot), new(-20, -29, 11, 5, Touch, Shot)],
-        [0xeb15] = [new(-37, -40, -14, -31, Touch, Shot), new(-25, -31, 9, 6, Touch, Shot)],
-        [0xeb2f] = [new(-15, -10, 7, 2, Touch, Shot)],
-        [0xeb3d] = [new(-17, -9, 6, 15, Touch, Shot)],
-        [0xeb4b] = [new(-14, -1, 10, 23, Touch, Shot)],
-        [0xeb59] = [new(-15, -2, -1, 8, Touch, Shot)],
-        [0xeb67] = [new(-16, -20, 12, 21, Touch, Shot)],
-        [0xeb91] = [new(-16, -32, 16, 34, Touch, Shot), new(-8, -45, 8, -33, Touch, Shot)],
-        [0xebab] = [new(-12, -25, 11, 13, Touch, Shot), new(12, 5, 24, 20, Touch, Shot)],
-        [0xebc5] = [new(-13, -29, 20, 5, Touch, Shot), new(21, -18, 39, -8, Touch, Shot)],
-        [0xebdf] = [new(-10, -31, 25, 8, Touch, Shot), new(13, -42, 35, -32, Touch, Shot)],
-        [0xebf9] = [new(-10, -10, 17, 2, Touch, Shot)],
-        [0xec07] = [new(-9, -8, 17, 15, Touch, Shot)],
-        [0xec15] = [new(-11, -8, 14, 23, Touch, Shot)],
-        [0xec23] = [new(1, -2, 14, 9, Touch, Shot)],
-        [0xec31] = [new(-13, -22, 14, 21, Touch, Shot)],
-    };
 
+    /// <summary>
+    /// Two contiguous list runs: the eight left-facing lists from $A6:EAE1 (three mouth states,
+    /// three leg states, hand and torso), then from $A6:EB91 the forward list followed by the
+    /// eight right-facing lists in the same order. Rectangles are fitted per facing to the
+    /// drawings, not mirrored.
+    /// </summary>
+    private static readonly CollisionRecordRuns<RidleyCollisionHitbox> Lists = CollisionRecordRuns<RidleyCollisionHitbox>.HitboxLists(
+        new(LeftHead,
+        [
+            [new(-12, -26, 11, 13, Touch, Shot), new(-24, 3, -13, 21, Touch, Shot)],
+            [new(-41, -19, -21, -9, Touch, Shot), new(-20, -29, 11, 5, Touch, Shot)],
+            [new(-37, -40, -14, -31, Touch, Shot), new(-25, -31, 9, 6, Touch, Shot)],
+            [new(-15, -10, 7, 2, Touch, Shot)],
+            [new(-17, -9, 6, 15, Touch, Shot)],
+            [new(-14, -1, 10, 23, Touch, Shot)],
+            [new(-15, -2, -1, 8, Touch, Shot)],
+            [new(-16, -20, 12, 21, Touch, Shot)],
+        ]),
+        new(ForwardHitbox,
+        [
+            [new(-16, -32, 16, 34, Touch, Shot), new(-8, -45, 8, -33, Touch, Shot)],
+            [new(-12, -25, 11, 13, Touch, Shot), new(12, 5, 24, 20, Touch, Shot)],
+            [new(-13, -29, 20, 5, Touch, Shot), new(21, -18, 39, -8, Touch, Shot)],
+            [new(-10, -31, 25, 8, Touch, Shot), new(13, -42, 35, -32, Touch, Shot)],
+            [new(-10, -10, 17, 2, Touch, Shot)],
+            [new(-9, -8, 17, 15, Touch, Shot)],
+            [new(-11, -8, 14, 23, Touch, Shot)],
+            [new(1, -2, 14, 9, Touch, Shot)],
+            [new(-13, -22, 14, 21, Touch, Shot)],
+        ]));
     internal static FramePointerSequence FramePointers => new(11);
-    internal static IEnumerable<ushort> HitboxPointers => Lists.Keys.Order();
+    internal static IEnumerable<ushort> HitboxPointers => Lists.Pointers;
     internal static bool HasFrame(ushort frame) => frame >= (ushort)BodyFrame.Left
         && frame <= (ushort)BodyFrame.Forward && (frame - (ushort)BodyFrame.Left) % SideFrameBytes == 0;
 
@@ -164,7 +175,7 @@ internal static class RidleyCollisionDefinitions
         ? new(frame)
         : throw new InvalidDataException($"Ridley frame $A6:{frame:X4} has no compiled collision.");
     internal static ReadOnlySpan<RidleyCollisionHitbox> HitboxesAt(ushort list) =>
-        Lists.TryGetValue(list, out RidleyCollisionHitbox[]? hitboxes)
+        Lists.TryGet(list, out RidleyCollisionHitbox[] hitboxes)
             ? hitboxes
             : throw new InvalidDataException($"Ridley hitbox list $A6:{list:X4} is not compiled.");
 }

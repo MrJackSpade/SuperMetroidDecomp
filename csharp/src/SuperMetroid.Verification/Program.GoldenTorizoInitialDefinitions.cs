@@ -98,7 +98,7 @@ internal static partial class Program
 
     private static void VerifyGoldenTorizoAwakeningDefinitions(ISnesAddressSpace rom)
     {
-        const byte bank = GoldenTorizoAwakeningCollisionDefinitions.Bank;
+        const byte bank = TorizoCollisionDefinitions.Bank;
         var mechanicsAddresses = new HashSet<ushort>();
         int transfers = 0;
         for (int index = 0;
@@ -148,22 +148,19 @@ internal static partial class Program
         }
         AssertEqual(7, selectedFrames.Count,
             "Golden Torizo awakening selects all seven seated/standing frames");
-        AssertEqual(7, GoldenTorizoAwakeningCollisionDefinitions.FrameCount,
-            "Golden Torizo awakening physical-frame count");
         var hitboxLists = new HashSet<ushort>();
-        for (int index = 0; index < GoldenTorizoAwakeningCollisionDefinitions.FrameCount; index++)
+        foreach (ushort frame in selectedFrames.Order())
         {
-            ushort frame = GoldenTorizoAwakeningCollisionDefinitions.FramePointer(index);
             AssertTrue(selectedFrames.Contains(frame),
                 $"Golden Torizo physical frame $AA:{frame:X4} is selected by the script");
-            AssertTrue(GoldenTorizoAwakeningCollisionDefinitions.TryGetComponents(
+            AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                     frame, out var components),
                 $"Golden Torizo physical frame $AA:{frame:X4} is compiled");
             AssertEqual((ushort)components.Length, ReadWord(frame),
                 $"Golden Torizo frame $AA:{frame:X4} component count");
             for (int componentIndex = 0; componentIndex < components.Length; componentIndex++)
             {
-                GoldenTorizoCollisionComponent component = components.Span[componentIndex];
+                GoldenTorizoCollisionComponent component = components[componentIndex];
                 ushort address = unchecked((ushort)(frame + 2 + componentIndex * 8));
                 AssertEqual(unchecked((ushort)component.X), ReadWord(address),
                     $"Golden Torizo frame $AA:{frame:X4} component X {componentIndex}");
@@ -179,7 +176,7 @@ internal static partial class Program
         foreach (ushort pointer in hitboxLists)
         {
             ReadOnlySpan<GoldenTorizoCollisionHitbox> hitboxes =
-                GoldenTorizoAwakeningCollisionDefinitions.HitboxesAt(pointer);
+                TorizoCollisionDefinitions.HitboxesAt(pointer);
             AssertEqual((ushort)hitboxes.Length, ReadWord(pointer),
                 $"Golden Torizo hitbox list $AA:{pointer:X4} count");
             for (int index = 0; index < hitboxes.Length; index++)

@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyTorizoFallingLeftDefinitions(ISnesAddressSpace rom)
     {
-        const byte bank = TorizoFallingLeftCollisionDefinitions.Bank;
+        const byte bank = TorizoCollisionDefinitions.Bank;
         var addresses = new HashSet<ushort>();
         for (int index = 0;
              index < TorizoFallingLeftInstructionProgramDefinitions.MechanicsWordCount;
@@ -41,18 +41,18 @@ internal static partial class Program
             ReadWord(operand), "Torizo falling-left visual operand");
         AssertTrue(CompiledEnemyVisualSelectors.TryGet(bank, operand,
                 out ushort selectedFrame) &&
-                   selectedFrame == TorizoFallingLeftCollisionDefinitions.Frame &&
+                   selectedFrame == TorizoFallingLeftInstructionProgramDefinitions.FallingFrame &&
                    !addresses.Contains(operand),
             "Torizo falling-left visual operand is separate from mechanics");
 
-        AssertTrue(TorizoFallingLeftCollisionDefinitions.TryGetComponents(
-                selectedFrame, out ReadOnlyMemory<GoldenTorizoCollisionComponent> components),
+        AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
+                selectedFrame, out TorizoCollisionComponents components),
             "Torizo falling-left physical frame is compiled");
         AssertEqual((ushort)components.Length, ReadWord(selectedFrame),
             "Torizo falling-left physical component count");
         foreach (int index in Enumerable.Range(0, components.Length))
         {
-            GoldenTorizoCollisionComponent component = components.Span[index];
+            GoldenTorizoCollisionComponent component = components[index];
             ushort address = unchecked((ushort)(selectedFrame + 2 + index * 8));
             AssertEqual(unchecked((ushort)component.X), ReadWord(address),
                 $"Torizo falling-left component {index} X");
@@ -63,7 +63,7 @@ internal static partial class Program
                 ReadWord(unchecked((ushort)(address + 6))),
                 $"Torizo falling-left component {index} hitbox list");
             ReadOnlySpan<GoldenTorizoCollisionHitbox> hitboxes =
-                TorizoFallingLeftCollisionDefinitions.HitboxesAt(component.HitboxList);
+                TorizoCollisionDefinitions.HitboxesAt(component.HitboxList);
             AssertEqual((ushort)hitboxes.Length, ReadWord(component.HitboxList),
                 $"Torizo falling-left hitbox list $AA:{component.HitboxList:X4} count");
             for (int hitboxIndex = 0; hitboxIndex < hitboxes.Length; hitboxIndex++)

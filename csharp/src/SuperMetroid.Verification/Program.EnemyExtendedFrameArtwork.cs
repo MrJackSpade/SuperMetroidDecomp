@@ -876,9 +876,9 @@ internal static partial class Program
         EnemyTileArtworkCatalog upgradedVersionTwenty = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         OamBuffer stockFallingLeft = DrawExtendedForBank(stock, guard,
-            0xaa, TorizoFallingLeftCollisionDefinitions.Frame, 0x0040, 0x0080);
+            0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, 0x0040, 0x0080);
         OamBuffer inheritedFallingLeft = DrawExtendedForBank(upgradedVersionTwenty,
-            guard, 0xaa, TorizoFallingLeftCollisionDefinitions.Frame, 0x0040, 0x0080);
+            guard, 0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, 0x0040, 0x0080);
         AssertTrue(stockFallingLeft.LowTable.SequenceEqual(inheritedFallingLeft.LowTable) &&
                    stockFallingLeft.HighTable.SequenceEqual(inheritedFallingLeft.HighTable),
             "version-twenty override inherits the Torizo falling-left frame");
@@ -903,15 +903,15 @@ internal static partial class Program
         EnemyTileArtworkCatalog editedFallingLeft = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         OamBuffer movedFallingLeft = DrawExtendedForBank(editedFallingLeft,
-            guard, 0xaa, TorizoFallingLeftCollisionDefinitions.Frame, 0x0040, 0x0080);
+            guard, 0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame, 0x0040, 0x0080);
         AssertEqual(unchecked((byte)(stockFallingLeft.LowTable[0] + 1)),
             movedFallingLeft.LowTable[0],
             "editable Torizo falling-left component changes live OAM");
-        AssertTrue(TorizoFallingLeftCollisionDefinitions.TryGetComponents(
-                TorizoFallingLeftCollisionDefinitions.Frame,
+        AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
+                TorizoFallingLeftInstructionProgramDefinitions.FallingFrame,
                 out var unchangedFallingLeftCollision) &&
-                   unchangedFallingLeftCollision.Span[0].X == -16 &&
-                   unchangedFallingLeftCollision.Span[0].HitboxList == 0x87c7,
+                   unchangedFallingLeftCollision[0].X == -16 &&
+                   unchangedFallingLeftCollision[0].HitboxList == 0x87c7,
             "Torizo falling-left cosmetic edit cannot move its physical component");
 
         var versionTwentyOne = new EnemyExtendedFrameDocument
@@ -936,7 +936,7 @@ internal static partial class Program
                    stockLeftFootOrb.HighTable.SequenceEqual(inheritedLeftFootOrb.HighTable),
             "version-twenty-one override inherits Golden Torizo left-foot orb art");
         AssertTrue(DrawExtendedForBank(upgradedVersionTwentyOne, guard,
-                0xaa, TorizoFallingLeftCollisionDefinitions.Frame,
+                0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame,
                 0x0040, 0x0080).LowTable.SequenceEqual(movedFallingLeft.LowTable),
             "version-twenty-one migration retains the edited falling-left frame");
 
@@ -962,7 +962,7 @@ internal static partial class Program
                    stockLeftJumpBack.HighTable.SequenceEqual(inheritedLeftJumpBack.HighTable),
             "version-twenty-two override inherits left-facing jump-back art");
         AssertTrue(DrawExtendedForBank(upgradedVersionTwentyTwo, guard,
-                0xaa, TorizoFallingLeftCollisionDefinitions.Frame,
+                0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame,
                 0x0040, 0x0080).LowTable.SequenceEqual(movedFallingLeft.LowTable),
             "version-twenty-two migration retains the edited falling-left frame");
 
@@ -988,7 +988,7 @@ internal static partial class Program
                    stockLeftOrb.HighTable.SequenceEqual(inheritedLeftOrb.HighTable),
             "version-twenty-three override inherits left-orb art");
         AssertTrue(DrawExtendedForBank(upgradedVersionTwentyThree, guard,
-                0xaa, TorizoFallingLeftCollisionDefinitions.Frame,
+                0xaa, TorizoFallingLeftInstructionProgramDefinitions.FallingFrame,
                 0x0040, 0x0080).LowTable.SequenceEqual(movedFallingLeft.LowTable),
             "version-twenty-three migration retains the edited falling-left frame");
 
@@ -1013,10 +1013,10 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockLeftFootOrb.LowTable[0] + 1)),
             movedLeftFootOrb.LowTable[0],
             "editable Golden Torizo left-foot orb component changes live OAM");
-        AssertTrue(GoldenTorizoLeftFootOrbCollisionDefinitions.TryGetComponents(
+        AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xac06, out var unchangedLeftFootOrbCollision) &&
-                   unchangedLeftFootOrbCollision.Span[0].X == 9 &&
-                   unchangedLeftFootOrbCollision.Span[0].HitboxList == 0x87c7,
+                   unchangedLeftFootOrbCollision[0].X == 9 &&
+                   unchangedLeftFootOrbCollision[0].HitboxList == 0x87c7,
             "Golden Torizo left-foot orb cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument rightSonicOverride =
@@ -1040,10 +1040,10 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockRightSonicTorizo.LowTable[0] + 1)),
             movedRightSonic.LowTable[0],
             "editable Golden Torizo right-sonic component changes live OAM");
-        AssertTrue(GoldenTorizoRightSonicCollisionDefinitions.TryGetComponents(
+        AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xabec, out var unchangedRightSonicCollision) &&
-                   unchangedRightSonicCollision.Span[0].X == 15 &&
-                   unchangedRightSonicCollision.Span[0].HitboxList == 0x87c7,
+                   unchangedRightSonicCollision[0].X == 15 &&
+                   unchangedRightSonicCollision[0].HitboxList == 0x87c7,
             "Golden Torizo right-sonic cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument rightOrbOverride =
@@ -1067,10 +1067,10 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockRightOrbTorizo.LowTable[0] + 1)),
             movedRightOrb.LowTable[0],
             "editable Golden Torizo right-orb component changes live OAM");
-        AssertTrue(GoldenTorizoRightOrbCollisionDefinitions.TryGetComponents(
+        AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xac88, out var unchangedRightOrbCollision) &&
-                   unchangedRightOrbCollision.Span[0].X == 15 &&
-                   unchangedRightOrbCollision.Span[0].HitboxList == 0x87c7,
+                   unchangedRightOrbCollision[0].X == 15 &&
+                   unchangedRightOrbCollision[0].HitboxList == 0x87c7,
             "Golden Torizo right-orb cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument jumpBackOverride =
@@ -1094,10 +1094,10 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockJumpBackTorizo.LowTable[0] + 1)),
             movedJumpBack.LowTable[0],
             "editable Torizo jump-back component changes live OAM");
-        AssertTrue(TorizoJumpBackCollisionDefinitions.TryGetComponents(
+        AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xb048, out var unchangedJumpBackCollision) &&
-                   unchangedJumpBackCollision.Span[0].X == 15 &&
-                   unchangedJumpBackCollision.Span[0].HitboxList == 0x87c7,
+                   unchangedJumpBackCollision[0].X == 15 &&
+                   unchangedJumpBackCollision[0].HitboxList == 0x87c7,
             "Torizo jump-back cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument goldenRightwardOverride =
@@ -1121,10 +1121,10 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockRightwardGoldenTorizo.LowTable[0] + 1)),
             movedGoldenRightward.LowTable[0],
             "editable Golden Torizo turning-right component changes live OAM");
-        AssertTrue(GoldenTorizoRightwardCollisionDefinitions.TryGetComponents(
+        AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xa4f0, out var unchangedRightwardCollision) &&
-                   unchangedRightwardCollision.Span[0].X == 0 &&
-                   unchangedRightwardCollision.Span[0].HitboxList == 0x87c7,
+                   unchangedRightwardCollision[0].X == 0 &&
+                   unchangedRightwardCollision[0].HitboxList == 0x87c7,
             "Golden Torizo rightward cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument goldenWalkingOverride =
@@ -1148,10 +1148,10 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockWalkingGoldenTorizo.LowTable[0] + 1)),
             movedGoldenWalking.LowTable[0],
             "editable Golden Torizo walking component changes live OAM");
-        AssertTrue(GoldenTorizoWalkingCollisionDefinitions.TryGetComponents(
+        AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xa4fa, out var unchangedWalkingCollision) &&
-                   unchangedWalkingCollision.Span[0].X == -15 &&
-                   unchangedWalkingCollision.Span[0].HitboxList == 0x87c7,
+                   unchangedWalkingCollision[0].X == -15 &&
+                   unchangedWalkingCollision[0].HitboxList == 0x87c7,
             "Golden Torizo walking cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument goldenAwakeningOverride =
@@ -1175,10 +1175,10 @@ internal static partial class Program
         AssertEqual(unchecked((byte)(stockAwakeGoldenTorizo.LowTable[0] + 1)),
             movedGoldenAwakening.LowTable[0],
             "editable Golden Torizo awakening component changes live OAM");
-        AssertTrue(GoldenTorizoAwakeningCollisionDefinitions.TryGetComponents(
+        AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xaa5e, out var unchangedGoldenCollision) &&
-                   unchangedGoldenCollision.Span[0].X == -5 &&
-                   unchangedGoldenCollision.Span[0].HitboxList == 0x886a,
+                   unchangedGoldenCollision[0].X == -5 &&
+                   unchangedGoldenCollision[0].HitboxList == 0x886a,
             "Golden Torizo cosmetic edit cannot move the engine-owned physical component");
 
         EnemyExtendedFrameDocument kraidArmOverride =

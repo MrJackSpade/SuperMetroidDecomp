@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyTorizoJumpBackDefinitions(ISnesAddressSpace rom)
     {
-        const byte bank = TorizoJumpBackCollisionDefinitions.Bank;
+        const byte bank = TorizoCollisionDefinitions.Bank;
         var mechanicsAddresses = new HashSet<ushort>();
         for (int index = 0;
              index < TorizoJumpBackInstructionProgramDefinitions.MechanicsWordCount;
@@ -54,23 +54,20 @@ internal static partial class Program
             "Torizo paired jump-back visual occurrence count");
         AssertEqual(3, selectedFrames.Count,
             "Torizo paired jump-back selects three distinct frames");
-        AssertEqual(selectedFrames.Count, TorizoJumpBackCollisionDefinitions.FrameCount,
-            "Torizo paired jump-back compiled physical-frame count");
 
         var hitboxLists = new HashSet<ushort>();
-        for (int index = 0; index < TorizoJumpBackCollisionDefinitions.FrameCount; index++)
+        foreach (ushort frame in selectedFrames.Order())
         {
-            ushort frame = TorizoJumpBackCollisionDefinitions.FramePointer(index);
             AssertTrue(selectedFrames.Contains(frame),
                 $"Torizo jump-back frame $AA:{frame:X4} is selected by its program");
-            AssertTrue(TorizoJumpBackCollisionDefinitions.TryGetComponents(
-                    frame, out ReadOnlyMemory<GoldenTorizoCollisionComponent> components),
+            AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
+                    frame, out TorizoCollisionComponents components),
                 $"Torizo jump-back frame $AA:{frame:X4} is compiled");
             AssertEqual((ushort)components.Length, ReadWord(frame),
                 $"Torizo jump-back frame $AA:{frame:X4} component count");
             for (int componentIndex = 0; componentIndex < components.Length; componentIndex++)
             {
-                GoldenTorizoCollisionComponent component = components.Span[componentIndex];
+                GoldenTorizoCollisionComponent component = components[componentIndex];
                 ushort address = unchecked((ushort)(frame + 2 + componentIndex * 8));
                 AssertEqual(unchecked((ushort)component.X), ReadWord(address),
                     $"Torizo jump-back frame $AA:{frame:X4} component X {componentIndex}");
@@ -88,7 +85,7 @@ internal static partial class Program
         foreach (ushort pointer in hitboxLists)
         {
             ReadOnlySpan<GoldenTorizoCollisionHitbox> hitboxes =
-                TorizoJumpBackCollisionDefinitions.HitboxesAt(pointer);
+                TorizoCollisionDefinitions.HitboxesAt(pointer);
             AssertEqual((ushort)hitboxes.Length, ReadWord(pointer),
                 $"Torizo jump-back hitbox list $AA:{pointer:X4} count");
             for (int index = 0; index < hitboxes.Length; index++)
@@ -129,7 +126,7 @@ internal static partial class Program
 
     private static void VerifyTorizoJumpBackLeftDefinitions(ISnesAddressSpace rom)
     {
-        const byte bank = TorizoJumpBackCollisionDefinitions.Bank;
+        const byte bank = TorizoCollisionDefinitions.Bank;
         var mechanicsAddresses = new HashSet<ushort>();
         for (int index = 0;
              index < TorizoJumpBackLeftInstructionProgramDefinitions.MechanicsWordCount;
@@ -177,22 +174,19 @@ internal static partial class Program
             "left-facing Torizo paired jump-back visual occurrence count");
         AssertEqual(3, frames.Count,
             "left-facing Torizo paired jump-back selects three distinct frames");
-        AssertEqual(frames.Count, TorizoJumpBackLeftCollisionDefinitions.FrameCount,
-            "left-facing Torizo jump-back compiled physical-frame count");
         var hitboxLists = new HashSet<ushort>();
-        for (int index = 0; index < TorizoJumpBackLeftCollisionDefinitions.FrameCount; index++)
+        foreach (ushort frame in frames.Order())
         {
-            ushort frame = TorizoJumpBackLeftCollisionDefinitions.FramePointer(index);
             AssertTrue(frames.Contains(frame),
                 $"left-facing Torizo jump-back frame $AA:{frame:X4} is selected");
-            AssertTrue(TorizoJumpBackLeftCollisionDefinitions.TryGetComponents(
-                    frame, out ReadOnlyMemory<GoldenTorizoCollisionComponent> components),
+            AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
+                    frame, out TorizoCollisionComponents components),
                 $"left-facing Torizo jump-back frame $AA:{frame:X4} is compiled");
             AssertEqual((ushort)components.Length, ReadWord(frame),
                 $"left-facing Torizo jump-back frame $AA:{frame:X4} component count");
             for (int componentIndex = 0; componentIndex < components.Length; componentIndex++)
             {
-                GoldenTorizoCollisionComponent component = components.Span[componentIndex];
+                GoldenTorizoCollisionComponent component = components[componentIndex];
                 ushort address = unchecked((ushort)(frame + 2 + componentIndex * 8));
                 AssertEqual(unchecked((ushort)component.X), ReadWord(address),
                     $"left-facing Torizo jump-back frame $AA:{frame:X4} X {componentIndex}");
@@ -210,7 +204,7 @@ internal static partial class Program
         foreach (ushort pointer in hitboxLists)
         {
             ReadOnlySpan<GoldenTorizoCollisionHitbox> hitboxes =
-                TorizoJumpBackLeftCollisionDefinitions.HitboxesAt(pointer);
+                TorizoCollisionDefinitions.HitboxesAt(pointer);
             AssertEqual((ushort)hitboxes.Length, ReadWord(pointer),
                 $"left-facing Torizo jump-back hitbox list $AA:{pointer:X4} count");
             for (int index = 0; index < hitboxes.Length; index++)

@@ -60,7 +60,7 @@ internal static partial class Program
             {
                 Actor.ExtraProperties = (ushort)EnemyExtraProperties.UsesExtendedSpritemap;
                 Actor.CurrentInstruction = GoldenTorizoRightOrbInstructionProgramDefinitions.Start;
-                Actor.SpritemapPointer = GoldenTorizoRightOrbCollisionDefinitions.FramePointer(0);
+                Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
                 Bind("_torizoState", new TorizoEnemyState(Actor, isGolden: true)
                 {
                     Function = Code("GoldenTorizoFunctionPreInstruction"),

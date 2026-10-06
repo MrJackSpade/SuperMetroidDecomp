@@ -668,7 +668,7 @@ internal static partial class Program
                 forcedGoldenLeftTurnStart ==
                     GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge &&
                 awakenedGoldenTorizo.SpritemapPointer ==
-                    TorizoFallingLeftCollisionDefinitions.Frame)
+                    TorizoFallingLeftInstructionProgramDefinitions.FallingFrame)
                 forcedGoldenFallingLeftObserved = true;
             if (awakenedGoldenTorizo is not null &&
                 awakenedGoldenTorizo.CurrentInstruction >=
@@ -677,7 +677,7 @@ internal static partial class Program
                     GoldenTorizoLeftFootOrbInstructionProgramDefinitions.End)
                 goldenLeftFootOrbProgramObserved = true;
             if (awakenedGoldenTorizo is not null &&
-                GoldenTorizoLeftFootOrbCollisionDefinitions.HasFrame(
+                TorizoCollisionDefinitions.HasFrame(
                     awakenedGoldenTorizo.SpritemapPointer))
                 goldenLeftFootOrbVisualObserved = true;
             if (!actual.Pixels.AsSpan().SequenceEqual(expected.Pixels))

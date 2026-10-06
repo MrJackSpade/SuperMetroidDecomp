@@ -67,7 +67,7 @@ internal static partial class Program
             AssertEnemyAnimationMechanics(stock, edited, frame);
         }
         AssertTrue(shotFrames.SequenceEqual(new[] { 24, 30, 36, 42, 48, 54 }), "six boss projectile/audio callbacks retain exact compiled attack frames");
-        AssertEqual(GoldenTorizoRightOrbCollisionDefinitions.FrameCount, nativeFrames.Count, "attack exercises all six native collision frames");
+        AssertEqual(GoldenTorizoRightOrbFrames().Length, nativeFrames.Count, "attack exercises all six native collision frames");
         AssertTrue(heights.Count > 1, "boss comparison exercises actual terrain movement");
         AssertTrue(hitSamples > 0 && missSamples > 0, "hit-window comparison exercises both physical hits and misses");
         AssertEqual(attackFrames, differentDraws, "boss replacement is visible on every attack frame");

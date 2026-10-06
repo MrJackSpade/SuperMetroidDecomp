@@ -737,7 +737,8 @@ public sealed partial class SamusState
         ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        bool leavingScrewAttack = IsScrewAttackPose(Pose);
+        byte sourcePose = Pose;
+        bool leavingScrewAttack = IsScrewAttackPose(sourcePose);
         byte targetPose = SelectAerialLandingPose(bus, wasSpinning, controllerInput);
 
         ushort oldRadius = Kinematics.YRadius;
@@ -750,7 +751,7 @@ public sealed partial class SamusState
         }
 
         ApplyAerialLandingCollisionCommand(leavingScrewAttack);
-        InitializeAnimation(bus, initialFrame: 0);
+        InitializeAnimation(bus, initialFrame: StandingPoseInitialFrame(bus, sourcePose, targetPose));
     }
 
     /// <summary>
@@ -788,7 +789,7 @@ public sealed partial class SamusState
             // Correct the center now, but retain the movement frame's live radius
             // until alpha, including when landing on a frozen enemy.
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
-            InitializeAnimation(bus, initialFrame: 0);
+            InitializeAnimation(bus, initialFrame: StandingPoseInitialFrame(bus, sourcePose, targetPose));
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
@@ -807,6 +808,15 @@ public sealed partial class SamusState
             // Palette restoration belongs to F433, before the command carry gate.
             HorizontalSpeed.RequestNormalSuitPaletteRestore();
         return collision == LargerPoseCollisionOutcome.Allowed;
+    }
+
+    private static ushort StandingPoseInitialFrame(ISnesAddressSpace bus, byte sourcePose, byte targetPose)
+    {
+        // $91:F4DC keeps the gun raised when both the old and new standing
+        // initializer's poses aim straight up, including landing and its completion.
+        return ReadMovementType(bus, targetPose) == SamusMovementType.Standing &&
+            ReadShotDirection(bus, sourcePose) is 0 or 9 &&
+            ReadShotDirection(bus, targetPose) is 0 or 9 ? (ushort)1 : (ushort)0;
     }
 
     /// <summary>Chooses <c>$91:E95D</c>'s prospective landing pose.</summary>
@@ -1108,7 +1118,7 @@ public sealed partial class SamusState
         // unchanged. A prospective run rejected by the wall probe can resolve
         // back to the current wall-stop pose on every held-input frame.
         if (expectedPose != targetPose)
-            InitializeAnimation(bus, initialFrame: 0);
+            InitializeAnimation(bus, initialFrame: StandingPoseInitialFrame(bus, expectedPose, targetPose));
     }
 
 }

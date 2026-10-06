@@ -198,9 +198,15 @@ The one-time movie importer now preserves the recorded Moonwalk option ($09E4).
 Its omission caused a false turn-versus-moonwalk mismatch at source3317. No
 production behavior changed for that importer correction.
 
-Expanded checked state now matches through update 3499 of 10,717. The next
-mismatch is update3500/source3604: native Samus animation frame1/timer2 versus
-port frame0/timer5. This boundary remains under investigation.
+Standing pose initialization now follows $91:F4DC's frame-one skip when both
+source and target aim straight up. Landing entry and animation-command completion
+previously restarted frame zero. The focused fixture failed before the change;
+both facing directions now match frame1/timer2 on landing and frame1/timer16 on
+completion. The input-only replay passes both recorded transition boundaries.
+
+Expanded checked state now matches through update 3745 of 10,717. The next
+mismatch is update3746/source3850: Ridley's grab/release AI and Samus movement
+diverge (native AI $BBC4 versus port $BB8F). This remains under investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

@@ -12,6 +12,31 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyAimUpLandingAnimation()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var level = CreateRoom(16, 32, new ushort[16 * 32], new byte[16 * 32]);
+        foreach (byte pose in new[] { SamusPoseIds.FallingAimUpRightPose, SamusPoseIds.FallingAimUpLeftPose })
+        {
+            var samus = new SamusState { Pose = pose, XPosition = 128, YPosition = 200 };
+            samus.RefreshCollisionRadii(bus);
+            AssertTrue(samus.TryApplyAerialLanding(bus, level, false, 0, 0), "aim-up landing fits");
+            AssertEqual((ushort)1, samus.AnimationFrame, "native standing initializer skips raised-gun frame");
+            AssertEqual((ushort)2, samus.AnimationFrameTimer, "native source3604 landing delay");
+            samus.Pose = pose;
+            samus.RefreshCollisionRadii(bus);
+            samus.ApplyAerialLanding(bus, false);
+            AssertEqual((ushort)1, samus.AnimationFrame, "roomless landing shares native frame skip");
+            byte standing = pose == SamusPoseIds.FallingAimUpRightPose
+                ? SamusPoseIds.StandingAimUpRightPose : SamusPoseIds.StandingAimUpLeftPose;
+            typeof(SamusState).GetProperty("PendingTransitionalPose")!.SetValue(samus, standing);
+            AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "landing completes through animation command");
+            AssertEqual((ushort)1, samus.AnimationFrame, "native landing completion retains raised-gun frame");
+            AssertEqual((ushort)16, samus.AnimationFrameTimer, "native source3606 standing delay");
+        }
+        Console.WriteLine("Aim-up landing: both facing directions preserve raised-gun animation frame and native delay.");
+    }
+
     private static void VerifyRidleyFireballSquareSlope()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -12184,4 +12184,13 @@
   ],
   "workerCommit": "a514179b1eae1283f0622743cde8eca05a26ee40",
   "confirmation": "Root viewed six native beacon ink masks and read A6:F850-F86F. Integrated build1453warnings/zeroerrors; focused48native colors, zero stock overrides,144independentRGB edits,208actual row selections including64tickcycle, untouched neighbors/hash/bounds pass. Existing normal/escape integration confirmed; source closure refreshed."
+},"grappleAtlasWholeEntry":{
+  "completed": [
+    "GrappleTileAtlas.tiles"
+  ],
+  "disposition": [
+    "Calculate four endpoint primitives using shared tile-relative dimensions, binary planar encoding and four vertical transposes. Retain exactly eight drawn branching/spur stroke masks, pen15 and selected shape/order/alignment/inner-spark policies. These specify visual electric strokes independent of separately modeled beam collision; synthesizing new noise/curves would invent different content. Timing,angle sectors,collision and other Grapple inputs excluded."
+  ],
+  "workerCommit": "9e022402c63d6df28c652125fae7490f74038083",
+  "confirmation": "Root viewed endpoint/stroke atlas and exact eight masks, inspected transfer/draw/collision ownership and shared dimension rules. Focused512native bytes,64plane edits,eightcoverage edits,seven transfer bindings and64stock coverage bytes; source hashes refreshed. No gameplay/timing discovery."
 }}

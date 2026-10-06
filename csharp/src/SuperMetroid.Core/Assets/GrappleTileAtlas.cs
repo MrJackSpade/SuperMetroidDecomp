@@ -5,6 +5,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Indexed Grapple artwork resolved at NMI, without embedding PNG data in pending state.</summary>
 public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTransferSource
 {
+    /// <summary>$9A:8220-829F/8A20-8A9F: eight reviewed drawn electric-stroke masks (64 binary rows)
+    /// or independently supplied multicolor pixels. Their spur layout is visual content, not beam collision geometry.</summary>
     private readonly byte[] independentTiles;
     private readonly bool singleInk;
     private readonly byte[]? firstPoint;

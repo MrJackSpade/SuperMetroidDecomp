@@ -539,7 +539,7 @@ if (args is ["--lookup-stream3-grapple-tile-patterns"])
             new(VramAssetId.GrappleVerticalSegmentTiles, 0x9a9220, 384, 128),
         ];
         VerifyStream3GrappleTilePatterns(rom, expectedTransfers);
-    Console.WriteLine("Grapple tiles:512native bytes,64plane edits,8coverage edits,seven transfer bindings and64required coverage bytes pass;shape inputs remain pending.");
+    Console.WriteLine("Grapple tiles:512 native bytes,64 plane edits,8 coverage edits and seven transfer bindings pass; only reviewed stroke masks and visual shape choices remain.");
     return 0;
 }
 if (args is ["--lookup-stream-4-ending-shake"])

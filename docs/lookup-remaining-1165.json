@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 455,
+  "remainingTableDefinitionCount": 454,
   "fileCount": 523,
   "entries": [
     {
@@ -1083,12 +1083,15 @@
       "implementationCommit": "420adfcda"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs",
-      "line": 8,
-      "name": "GrappleTileAtlas.tiles",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind GrappleTileAtlas.tiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs",
+  "line": 8,
+  "name": "GrappleTileAtlas.tiles",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind GrappleTileAtlas.tiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "9e022402c63d6df28c652125fae7490f74038083",
+  "disposition": "Calculate four endpoint primitives using shared tile-relative dimensions, binary planar encoding and four vertical transposes. Retain exactly eight drawn branching/spur stroke masks, pen15 and selected shape/order/alignment/inner-spark policies. These specify visual electric strokes independent of separately modeled beam collision; synthesizing new noise/curves would invent different content. Timing,angle sectors,collision and other Grapple inputs excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs",
       "line": 20,
@@ -21709,5 +21712,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 73
+  "justifiedRetainedSinceSnapshot": 74
 }

@@ -1,35 +1,32 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Exact primitive/transpose rules in the identified native Grapple characters; unmatched supplied pixels remain independent.</summary>
+/// <summary>Reviewed Grapple stroke artwork and calculated spark/transpose rules; independent supplied pixels are preserved. Collision, timing and angle-sector policies are excluded.</summary>
 internal static class GrappleBeamTilePatterns
 {
-    /// <summary>$9A:8200/8400/8600/8800 chosen endpoint center X=4; its alignment remains required.</summary>
-    private const int UnresolvedCenterX = 4;
-    /// <summary>$9A:8200/8400/8600/8800 chosen endpoint center Y=3; its alignment remains required.</summary>
-    private const int UnresolvedCenterY = 3;
-    /// <summary>$9A:8200 chosen filled-diamond radius2 remains required.</summary>
-    private const int UnresolvedFilledRadius = 2;
-    /// <summary>$9A:8400 chosen hollow-center diamond radius3 remains required.</summary>
-    private const int UnresolvedHollowRadius = 3;
-    /// <summary>$9A:8600 chosen square-outline radius2 remains required.</summary>
-    private const int UnresolvedSquareRadius = 2;
-    /// <summary>$9A:8600 chosen cardinal tip distance3 remains required.</summary>
-    private const int UnresolvedTipDistance = 3;
-    /// <summary>$9A:8800 chosen outer-diamond radius4 remains required.</summary>
-    private const int UnresolvedOuterRadius = 4;
-    /// <summary>$9A:8800 chosen clipping half-width/height3 remains required.</summary>
-    private const int UnresolvedClipRadius = 3;
-    /// <summary>$9A:8800 chosen center-spark radius1 remains required.</summary>
-    private const int UnresolvedInnerRadius = 1;
-    /// <summary>$9A:8200-929F selected Grapple pixels use palette index15; this pen choice remains required independently of binary coverage.</summary>
-    private const byte UnresolvedPen = 15;
-    /// <summary>$9A:8200/$9B:BFBD first endpoint frame selects the filled diamond; ordering remains required.</summary>
+    /// <summary>Native SNES4bpp character side length; endpoint art occupies one8x8 tile.</summary>
+    private const int TileSide = 8, HalfSide = TileSide / 2;
+    /// <summary>$9A:8200/8400/8600/8800: chosen lattice center is half-side X, one pixel above half-side Y.</summary>
+    private const int CenterX = HalfSide, CenterY = HalfSide - 1;
+    /// <summary>$9A:8200/8600: filled diamond and square outline share half the half-side as their small shape scale.</summary>
+    private const int SmallRadius = HalfSide / 2;
+    /// <summary>$9A:8400/8600: hollow diamond and square's cardinal tips share the one-pixel-inset half-side.</summary>
+    private const int MiddleRadius = HalfSide - 1;
+    /// <summary>$9A:8800: outer diamond reaches the full half-side distance.</summary>
+    private const int OuterRadius = HalfSide;
+    /// <summary>$9A:8800: symmetric clipping reaches the nearest8x8 character edge.</summary>
+    private static int ClipRadius => Math.Min(Math.Min(CenterX, TileSide - 1 - CenterX),
+        Math.Min(CenterY, TileSide - 1 - CenterY));
+    /// <summary>$9A:8800: selected one-pixel Manhattan center spark, independent of collision.</summary>
+    private const int InnerRadius = 1;
+    /// <summary>$9A:8200-929F: reviewed electric-stroke coverage uses palette ink15; its color changes remain palette-owned.</summary>
+    private const byte Pen = 15;
+    /// <summary>$9A:8200/$9B:BFBD first endpoint frame selects the filled diamond; reviewed visual ordering.</summary>
     private const int FilledDiamondFrame = 0;
-    /// <summary>$9A:8400 second endpoint frame selects the hollow-center diamond; ordering remains required.</summary>
+    /// <summary>$9A:8400 second endpoint frame selects the hollow-center diamond; reviewed visual ordering.</summary>
     private const int HollowDiamondFrame = 1;
-    /// <summary>$9A:8600 third endpoint frame selects the tipped square outline; ordering remains required.</summary>
+    /// <summary>$9A:8600 third endpoint frame selects the tipped square outline; reviewed visual ordering.</summary>
     private const int TippedSquareFrame = 2;
-    /// <summary>$9A:8800 fourth endpoint frame selects the clipped diamond/inner spark; ordering remains required.</summary>
+    /// <summary>$9A:8800 fourth endpoint frame selects the clipped diamond/inner spark; reviewed visual ordering.</summary>
     private const int ClippedDiamondFrame = 3;
     /// <summary>$9A:8200/8400/8600/8800 endpoint frames centered at pixel(4,3): filled diamond, hollow-center diamond, tipped square outline, clipped diamond outline with inner spark.</summary>
     internal static byte[] Point(int frame)
@@ -39,16 +36,16 @@ internal static class GrappleBeamTilePatterns
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
-            int dx = Math.Abs(x - UnresolvedCenterX), dy = Math.Abs(y - UnresolvedCenterY);
+            int dx = Math.Abs(x - CenterX), dy = Math.Abs(y - CenterY);
             int diamondDistance = dx + dy, squareDistance = Math.Max(dx, dy);
             bool filled = frame switch
             {
-                FilledDiamondFrame => diamondDistance <= UnresolvedFilledRadius,
-                HollowDiamondFrame => diamondDistance <= UnresolvedHollowRadius && diamondDistance != 0,
-                TippedSquareFrame => squareDistance == UnresolvedSquareRadius || (diamondDistance == UnresolvedTipDistance && (dx == 0 || dy == 0)),
-                _ => diamondDistance <= UnresolvedInnerRadius || (diamondDistance == UnresolvedOuterRadius && squareDistance <= UnresolvedClipRadius),
+                FilledDiamondFrame => diamondDistance <= SmallRadius,
+                HollowDiamondFrame => diamondDistance <= MiddleRadius && diamondDistance != 0,
+                TippedSquareFrame => squareDistance == SmallRadius || (diamondDistance == MiddleRadius && (dx == 0 || dy == 0)),
+                _ => diamondDistance <= InnerRadius || (diamondDistance == OuterRadius && squareDistance <= ClipRadius),
             };
-            if (filled) pixels[y * 8 + x] = UnresolvedPen;
+            if (filled) pixels[y * 8 + x] = Pen;
         }
         return SnesPlanarTileEncoder.Encode(pixels, 8, 8, 4);
     }
@@ -90,7 +87,7 @@ internal static class GrappleBeamTilePatterns
         for (int tile = 0; tile < coverage.Length / 8; tile++)
         for (int y = 0; y < 8; y++)
         for (int plane = 0; plane < 4; plane++)
-            planar[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] = (UnresolvedPen & 1 << plane) != 0 ? coverage[tile * 8 + y] : (byte)0;
+            planar[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] = (Pen & 1 << plane) != 0 ? coverage[tile * 8 + y] : (byte)0;
         return planar;
     }
 }

@@ -863,6 +863,20 @@ internal static partial class Program
                 ushort expected = W(address);
                 if (actual != expected) mismatches.Add($"{name}: native={expected:X4} port={actual:X4}");
             }
+            void CheckBytes(string name, int count, Func<int, byte> read, int address)
+            {
+                for (int index = 0; index < count; index++)
+                {
+                    byte actual = read(index);
+                    byte expected = memory[address + index];
+                    if (actual != expected)
+                        mismatches.Add($"{name}[{index}]: native={expected:X2} port={actual:X2}");
+                }
+            }
+            CheckBytes("Boss bits", Bank80SystemState.AreaCount, runtime.System.GetBossBitsRaw, RidleyMovieMemory.BossBits);
+            CheckBytes("Event bits", Bank80SystemState.EventByteCount, runtime.System.GetEventByteRaw, RidleyMovieMemory.Events);
+            CheckBytes("Collected item bits", Bank80SystemState.ItemBitByteCount, runtime.System.GetCollectedItemByteRaw, RidleyMovieMemory.CollectedItemBits);
+            CheckBytes("Opened door bits", Bank80SystemState.DoorBitByteCount, runtime.System.GetOpenedDoorByteRaw, RidleyMovieMemory.OpenedDoors);
             // Only the reference's proven hardware-upload NMI count is normalized;
             // gameplay state is never copied back into the production runtime.
             int excludedNmis = frame == 0 ? 0 : updates[frame - 1].GetProperty("excludedNmiAfter").GetInt32();

@@ -61,7 +61,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Health, reserves, equipment, collected inventory, ammunition and capacities | Complete replay passes these fields, fractional health, hurt/invincibility/knockback timers and directions, HUD selection/cancellation and X acceleration mode (`tide-owner-replay.log`) | Remaining combat/input ownership |
 | Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Remaining actor AI variables and phase-dependent aliases |
 | Ordinary/enemy projectiles | Ordinary active-slot subpixels, velocities, directions, instruction cursors/timers, spritemaps, trail/auxiliary words also pass the full replay | Ordinary pre-instruction identity, enemy-projectile family variables/properties, bombs and explosion owners |
-| Persistent world state and room effects | Selected room plus acid damage surface/tide phase checked during gameplay | Boss/event/door/item bits, PLM changes, remaining environmental gameplay state |
+| Persistent world state and room effects | Selected room plus acid damage surface/tide phase checked during gameplay | PLM/room-block changes, remaining persistence allocations and environmental gameplay state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
 
 The history below records earlier divergence boundaries, not current completion.
@@ -432,3 +432,12 @@ The release build, focused grab-entry/release confirmation, and independent full
 movie pass (`ridley-controller-final-build.log`, `ridley-controller-grab.log`,
 `ridley-controller-final-replay.log`). All10,717 updates agree with the expanded
 fields. Phase-dependent aliases and the remaining audit categories stay open.
+
+### Persistent boss, event, item and door state
+
+Every byte of the native boss, event, collected-item and opened-door bitsets now
+compares at every retained boundary, including the terminal record. The existing
+one-time initial import remains unchanged. All10,717 updates pass, including the
+Ridley-defeated bit transition, without a production fix (`world-bits-build.log`,
+`world-bits-replay.log`). Other persistence allocations and room/PLM mutations
+remain explicit open coverage items.

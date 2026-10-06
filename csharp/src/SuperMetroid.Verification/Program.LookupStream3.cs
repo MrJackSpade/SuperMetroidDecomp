@@ -2555,4 +2555,44 @@ internal static partial class Program
         }
         VerifyEnemyLegacyOverrides();
     }
+    private static void VerifyStream3HandBeamLayout()
+    {
+        ushort[] stages = [0xc796, 0xc7b7, 0xc7d8];
+        int[] frameOffsets = [0, 9, 13, 17, 21, 25, 29];
+        var mechanics = new HashSet<int>();
+        var presentation = new HashSet<int>();
+        int visual = 0;
+        for (int stage = 0; stage < stages.Length; stage++)
+        {
+            AssertEqual((ushort)(stages[stage] + 4), MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(stage),
+                "hand-beam native external-call instruction");
+            foreach (int offset in frameOffsets)
+            {
+                mechanics.Add(stages[stage] + offset);
+                mechanics.Add(stages[stage] + offset + 1);
+                presentation.Add(stages[stage] + offset + 2);
+                presentation.Add(stages[stage] + offset + 3);
+                AssertEqual((ushort)(stages[stage] + offset + 2), MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress(visual++),
+                    "hand-beam native visual operand order");
+            }
+            for (int offset = 4; offset < 9; offset++) mechanics.Add(stages[stage] + offset);
+        }
+        mechanics.Add(0xc7f9);
+        mechanics.Add(0xc7fa);
+        for (int address = 0xc795; address <= 0xc7fb; address++)
+        {
+            AssertEqual(mechanics.Contains(address), MotherBrainHandBeamInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address),
+                "hand-beam exact mechanics/callback byte ownership");
+            AssertEqual(presentation.Contains(address), MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(0x860000 | address),
+                "hand-beam exact visual byte ownership");
+        }
+        AssertTrue(!MotherBrainHandBeamInstructionProgramDefinitions.IsCompiledMechanicsByte(0x85c796), "hand-beam mechanics rejects other bank");
+        AssertTrue(!MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(0x85c798), "hand-beam artwork rejects other bank");
+        foreach (int index in new[] { -1, 21, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress(index), "hand-beam visual index domain");
+        foreach (int index in new[] { -1, 25, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.NativeWord(index), "hand-beam mechanics index domain");
+        foreach (int index in new[] { -1, 3, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(index), "hand-beam callback index domain");
+    }
 }

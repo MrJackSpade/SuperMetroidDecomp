@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 537,
+  "remainingTableDefinitionCount": 534,
   "fileCount": 523,
   "entries": [
     {
@@ -4976,7 +4976,9 @@
       "line": 25,
       "name": "MotherBrainHandBeamInstructionProgramDefinitions.StageStarts",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "d4ac1e58c43ae09e03b16d51a486896d3284ade8"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs",
@@ -4997,14 +4999,18 @@
       "line": 29,
       "name": "MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstructions",
       "kind": "factory-built stock table",
-      "note": "Stored ushort[] initialized by BuildExternalCallInstructions(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored ushort[] initialized by BuildExternalCallInstructions(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "d4ac1e58c43ae09e03b16d51a486896d3284ade8"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs",
       "line": 30,
       "name": "MotherBrainHandBeamInstructionProgramDefinitions.PresentationWords",
       "kind": "factory-built stock table",
-      "note": "Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "d4ac1e58c43ae09e03b16d51a486896d3284ade8"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs",
@@ -21504,6 +21510,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 570,
+  "convertedSinceSnapshot": 573,
   "justifiedRetainedSinceSnapshot": 21
 }

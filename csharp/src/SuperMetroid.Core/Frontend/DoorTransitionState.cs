@@ -79,8 +79,19 @@ public sealed class DoorTransitionState
 
             case DoorTransitionPhase.FadeOutSourcePalette:
                 runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                // A palette step returns to MainGameLoop. Hardware stalls while it
+                // executes are not additional dispatches, but this step is one.
+                runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: true);
                 if (paletteTransition!.Step(runtime.Cgram))
+                {
+                    runtime.Oam.BeginFrame();
+                    runtime.Oam.FinalizeFrame();
                     Phase = DoorTransitionPhase.LoadDoorHeader;
+                }
+                else
+                {
+                    runtime.DrawDoorTransitionActors();
+                }
                 break;
 
             case DoorTransitionPhase.LoadDoorHeader:

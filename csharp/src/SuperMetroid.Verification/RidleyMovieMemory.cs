@@ -111,4 +111,14 @@ internal static class RidleyMovieMemory
     public const ushort SourceRoom = 0xb37a;
     /// <summary>$8F:B32E: Ridley's room, entered in the supplied movie.</summary>
     public const ushort RidleyRoom = 0xb32e;
+    /// <summary>$80:9459: ReadControllerInput, accepted-NMI input checkpoint.</summary>
+    public const int ReadControllerInput = 0x809459;
+    /// <summary>$B3:8A25: strong pipe-bug visual cursor in native update 157.</summary>
+    public const ushort PipeBugBeforeFadeInstruction = 0x8a25;
+    /// <summary>$B3:8A29: strong pipe-bug visual cursor after native update 158.</summary>
+    public const ushort PipeBugAfterFadeInstruction = 0x8a29;
+    /// <summary>$B3:8A89: strong pipe-bug spritemap before the first source fade step.</summary>
+    public const ushort PipeBugBeforeFadeSpritemap = 0x8a89;
+    /// <summary>$B3:8A90: strong pipe-bug spritemap after the first source fade step.</summary>
+    public const ushort PipeBugAfterFadeSpritemap = 0x8a90;
 }

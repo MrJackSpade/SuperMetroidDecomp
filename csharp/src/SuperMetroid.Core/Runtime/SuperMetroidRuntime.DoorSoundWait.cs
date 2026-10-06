@@ -11,8 +11,13 @@ public sealed partial class SuperMetroidRuntime
         RunNmi(controllerInput, mainLoopRequestedNmi: true);
         // Both state-$09 entry and each $E29E sound-drain dispatch return to
         // MainGameLoop. Its HDMA/RNG prologue still runs while Samus is locked.
-        RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
-        System.NextRandom();
+        AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: true);
+        DrawDoorTransitionActors();
+    }
+
+    /// <summary>Native enemy/instruction and draw pass shared by source-door waits and fading.</summary>
+    internal void DrawDoorTransitionActors()
+    {
         Oam.BeginFrame();
         LastSamusBodyDrawn = false;
         LastShinesparkCrashDrawingHandlerActive = false;
@@ -30,5 +35,12 @@ public sealed partial class SuperMetroidRuntime
             LastSamusBodyDrawn = Samus.Draw(_addressSpace, Oam,
                 Camera.XPosition, Camera.YPosition, mode7Transform: ActiveSamusMode7Transform);
         Oam.FinalizeFrame();
+    }
+    /// <summary>Shared HDMA/RNG prologue of a completed outer door-state dispatch.</summary>
+    internal void AdvanceDoorMainLoopRandom(bool hdmaObjectsEnabled)
+    {
+        if (hdmaObjectsEnabled)
+            RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
+        System.NextRandom();
     }
 }

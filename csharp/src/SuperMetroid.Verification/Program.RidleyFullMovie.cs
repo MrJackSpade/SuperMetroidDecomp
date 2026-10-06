@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
@@ -53,24 +54,46 @@ internal static partial class Program
         game.Step(0);
         AssertEqual((ushort)0x27bc, runtime.System.RandomNumber, "native sound-wait HDMA swap then RNG");
         AssertEqual((ushort)0xa4e1, runtime.NmiFrameCounter, "sound wait accepts exactly one NMI");
-        Console.WriteLine("Ridley movie door entry: native frames 155–157 RNG/NMI sequence and stationary Samus agree.");
+        AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
+        var actor = runtime.Enemies.Slots[6];
+        AssertEqual(PipeBugDefinitions.StrongBrinstarEnemyDefinition, actor.EnemyDefinitionPointer, "native source-room pipe bug");
+        actor.CurrentInstruction = RidleyMovieMemory.PipeBugBeforeFadeInstruction;
+        actor.InstructionTimer = 1;
+        actor.SpritemapPointer = RidleyMovieMemory.PipeBugBeforeFadeSpritemap;
+        game.Step(0);
+        AssertEqual((ushort)0xadd4, runtime.System.RandomNumber, "first source fade advances native HDMA/RNG");
+        AssertEqual((ushort)0xa4e2, runtime.NmiFrameCounter, "fade accepts exactly one NMI per update");
+        AssertEqual(RidleyMovieMemory.PipeBugAfterFadeInstruction, actor.CurrentInstruction, "fade advances the native enemy instruction");
+        AssertEqual(RidleyMovieMemory.PipeBugAfterFadeSpritemap, actor.SpritemapPointer, "fade changes to the native enemy sprite");
+        AssertEqual((ushort)2, actor.InstructionTimer, "fade installs the native visual duration");
+        Console.WriteLine("Ridley movie door entry and source fade: native updates 155–158 RNG/NMI, stationary Samus, and enemy animation agree.");
     }
 
     private static void VerifyRidleyFullMovie(string directory)
     {
         byte[] movie = File.ReadAllBytes("csharp/test-fixtures/issue-1266-ridley/Ridley fight showcase.smv");
         AssertTrue(Convert.ToHexString(SHA256.HashData(movie)) == "7E12861DC56C5ABED12C2BFA2B00D24BFA418F49F2CE4C027D930CE9A3663F66", "original Ridley movie hash");
-        int length = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(16));
-        int inputOffset = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(28));
-        AssertTrue(length == 10890, "full movie length");
-        using var file = File.OpenRead(Path.Combine(directory, "all-frames.wram.gz"));
+        using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "updates.json")));
+        var root = manifest.RootElement;
+        AssertEqual("super-metroid-gameplay-updates-v1", root.GetProperty("format").GetString()!, "converted replay format");
+        AssertEqual(Convert.ToHexString(SHA256.HashData(movie)), root.GetProperty("movieSha256").GetString()!, "converted movie identity");
+        AssertEqual(10890, root.GetProperty("sourceFrameCount").GetInt32(), "complete original movie coverage");
+        var updates = root.GetProperty("updates").EnumerateArray().ToArray();
+        int length = root.GetProperty("updateCount").GetInt32();
+        AssertEqual(length, updates.Length, "converted update count");
+        using var file = File.OpenRead(Path.Combine(directory, "update-boundaries.wram.gz"));
+        AssertEqual(Convert.ToHexString(SHA256.HashData(file)), root.GetProperty("checkpointsSha256").GetString()!, "native checkpoint identity");
+        file.Position = 0;
         using var trace = new GZipStream(file, CompressionMode.Decompress);
-        var record = new byte[131076];
-        byte[] ReadFrame(int frame)
+        var record = new byte[131080];
+        byte[] ReadFrame(int update)
         {
             trace.ReadExactly(record);
-            AssertTrue(BinaryPrimitives.ReadInt32LittleEndian(record) == frame, "contiguous native movie trace");
-            return record.AsSpan(4).ToArray();
+            int expectedFrame = update < length ? updates[update].GetProperty("sourceFrame").GetInt32() : 10890;
+            AssertEqual(expectedFrame, BinaryPrimitives.ReadInt32LittleEndian(record), "native input-boundary frame");
+            AssertEqual(update < length ? RidleyMovieMemory.ReadControllerInput : 0,
+                BinaryPrimitives.ReadInt32LittleEndian(record.AsSpan(4)), "native accepted-input boundary or terminal");
+            return record.AsSpan(8).ToArray();
         }
         byte[] memory = ReadFrame(0);
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
@@ -179,6 +202,7 @@ internal static partial class Program
                 ushort expected = W(address);
                 if (actual != expected) mismatches.Add($"{name}: native={expected:X4} port={actual:X4}");
             }
+            Check("Accepted NMI", runtime.NmiFrameCounter, RidleyMovieMemory.NmiCounter);
             Check("Game state", (ushort)game.GameState, RidleyMovieMemory.GameState);
             Check("Room", runtime.ActiveRoom!.Pointer, RidleyMovieMemory.Room);
             Check("Samus X", samus.XPosition, RidleyMovieMemory.X);
@@ -197,6 +221,21 @@ internal static partial class Program
             Check("Samus vertical direction", samus.Kinematics.YDirection, RidleyMovieMemory.VerticalDirection);
             Check("Samus health", samus.Health, RidleyMovieMemory.Health);
             Check("RNG", runtime.System.RandomNumber, RidleyMovieMemory.Random);
+            foreach (var actor in runtime.Enemies.Slots)
+            {
+                int address = RidleyMovieMemory.EnemyBase + actor.NativeIndex;
+                string owner = $"Enemy {actor.SlotIndex}";
+                Check(owner + " identity", actor.EnemyDefinitionPointer, address);
+                if (actor.EnemyDefinitionPointer == 0 || W(address) == 0) continue;
+                Check(owner + " X", actor.XPosition, address + 2);
+                Check(owner + " X fraction", actor.XSubposition, address + 4);
+                Check(owner + " Y", actor.YPosition, address + 6);
+                Check(owner + " Y fraction", actor.YSubposition, address + 8);
+                Check(owner + " health", actor.Health, address + 20);
+                Check(owner + " spritemap", actor.SpritemapPointer, address + 22);
+                Check(owner + " instruction", actor.CurrentInstruction, address + 26);
+                Check(owner + " instruction timer", actor.InstructionTimer, address + 28);
+            }
             if (mismatches.Count != 0)
             {
                 Console.Error.WriteLine($"Room width={level.WidthInBlocks}, Samus radius={samus.Kinematics.XRadius}/{samus.Kinematics.YRadius}, speed={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4}+{samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4}");
@@ -206,18 +245,18 @@ internal static partial class Program
                     ushort actualBlock = level.ForegroundEntries.Span[block];
                     if (expectedBlock != actualBlock) Console.Error.WriteLine($"Block {block} ({block % level.WidthInBlocks},{block / level.WidthInBlocks}): native={expectedBlock:X4} port={actualBlock:X4}");
                 }
-                throw new InvalidDataException($"Full movie first divergence at frame {frame}: " + string.Join("; ", mismatches));
+                throw new InvalidDataException($"Full movie first divergence at update {frame} (SMV source frame {(frame == 0 ? 0 : updates[frame - 1].GetProperty("sourceFrame").GetInt32())}): " + string.Join("; ", mismatches));
             }
-            // This libretro capture returns after the sample identified by its movie counter.
-            // Sample zero belongs to the restored snapshot; the first executed input is one.
+            // Only the converted controller event enters production; reference memory is
+            // read-only. Authored NMI continuations remain, hardware stalls are excluded.
             if (frame < length)
                 {
-                var output = game.Step(BinaryPrimitives.ReadUInt16LittleEndian(movie.AsSpan(inputOffset + (frame + 1) * 2)));
+                var output = game.Step((ushort)updates[frame].GetProperty("input").GetInt32());
                 audio.RenderFrame(output.AudioCommands);
                 game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
             }
         }
         AssertTrue(trace.ReadByte() == -1, "trace ends after movie terminal frame");
-        Console.WriteLine("Full movie input replay: all 10890 frames match the currently instrumented fields.");
+        Console.WriteLine($"Full movie input replay: {length} updates across all 10890 source frames match the currently instrumented fields.");
     }
 }

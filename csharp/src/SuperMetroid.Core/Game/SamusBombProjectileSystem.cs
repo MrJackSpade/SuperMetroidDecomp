@@ -134,14 +134,16 @@ public sealed class SamusBombProjectileSystem
         // therefore reaches zero in time for a new Shoot edge during this same frame.
         // The forward-facing branch at $90:DCE3/$90:DCE8 skips this call as well
         // as the HUD producer, but must still run the existing projectile slots below.
-        if (!SamusState.IsForwardFacingPose(samus.Pose))
+        // Command-zero alpha calls HandleProjectile directly, skipping the HUD
+        // dispatcher that owns cooldown and new bomb placement.
+        if (!samus.StationaryScriptControlLocked && !SamusState.IsForwardFacingPose(samus.Pose))
             StepCooldown();
 
         int? placedSlot = null;
         bool bombSpreadStarted = false;
         bool beamChargeConsumed = false;
         var soundRequests = new List<SamusSoundRequest>();
-        if (SamusState.IsStableBallPose(samus.Pose))
+        if (!samus.StationaryScriptControlLocked && SamusState.IsStableBallPose(samus.Pose))
         {
             BombSpreadAdmission spread = HandleBombSpreadInput(bus, samus, controllerInput);
             bombSpreadStarted = spread == BombSpreadAdmission.Spawned;

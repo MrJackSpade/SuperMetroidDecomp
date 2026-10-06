@@ -211,9 +211,14 @@ movement; beta observes actor control changes made during the same update. The
 source3850 focused grab fixture failed before the fix and now matches AI, timer,
 velocities and lock/release. Input-only replay passes the recorded grab update.
 
-Expanded checked state now matches through update 3746 of 10,717. The next
-mismatch is update3747/source3851: locked Samus's projectile cooldown remains10
-natively but decrements to9 in the port. This remains under investigation.
+Locked alpha now bypasses the HUD dispatcher's shared cooldown and bomb-placement
+producers while preserving existing projectile updates, matching $90:E713.
+The focused grab fixture confirms cooldown10 stays10 while locked and resumes to9
+after release. The input-only replay passes the formerly mismatched locked interval.
+
+Expanded checked state now matches through update 3810 of 10,717. The next
+mismatch is update3811/source3915: Ridley's X/Y subpositions diverge on the
+carry-release update. This remains under investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

@@ -33,9 +33,15 @@ internal static partial class Program
         AssertEqual((ushort)0xb6, state.HorizontalVelocity, "native same-update grab X acceleration");
         AssertEqual((ushort)0xfbfc, state.VerticalVelocity, "native same-update grab Y acceleration");
         AssertTrue(samus.StationaryScriptControlLocked, "native grab installs command-zero alpha/beta pair");
+        var bombs = CreateBombFixture();
+        typeof(SamusBombProjectileSystem).GetMethod("SetSharedCooldown", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(bombs, [(ushort)10]);
+        bombs.StepFrame(bus, runtime.LevelData!, samus, 0, 0, advancePowerBombHdma: false);
+        AssertEqual((ushort)10, bombs.CooldownTimer, "native locked alpha preserves cooldown");
         var release = typeof(RoomEnemySystem).GetMethod("ReleaseNorfairRidleyGrab", BindingFlags.Instance | BindingFlags.NonPublic)!;
         release.Invoke(runtime.Enemies, [state, samus]);
         AssertTrue(!samus.InputLocked && !samus.StationaryScriptControlLocked, "native release restores ordinary control");
+        bombs.StepFrame(bus, runtime.LevelData!, samus, 0, 0, advancePowerBombHdma: false);
+        AssertEqual((ushort)9, bombs.CooldownTimer, "native unlocked alpha resumes cooldown");
         Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
     }
 

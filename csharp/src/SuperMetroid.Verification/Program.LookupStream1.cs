@@ -3107,4 +3107,91 @@ internal static partial class Program
         }
         Console.WriteLine($"Projectile programs:1816 native words,805 records,105 complete programs,{actualTicks} exact ticks per owner,{loops} loop returns/{deletions} terminal deletions, zero runtime reads; original domain preserved.");
     }
+    private static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
+    {
+        using var directory = new MapCatalogTestDirectory();
+        SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
+        SamusBodyArtworkCatalog body = SamusBodyArtworkFiles.Load(directory.Root, null);
+        byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
+        var document = System.Text.Json.JsonSerializer.Deserialize<SamusArmCannonArtworkDocument>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Length * 32);
+        SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
+            SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
+        var field = typeof(SamusArmCannonArtworkCatalog).GetField("drawingData",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        Dictionary<int, byte> Stored(SamusArmCannonArtworkCatalog value) => (Dictionary<int, byte>)field.GetValue(value)!;
+        var stock = body.ArmCannon;
+        AssertEqual(0, Stored(stock).Count, "Installed cannon has zero stock coordinate fallbacks: " +
+            string.Join(", ", Stored(stock).Select(pair => $"{pair.Key + 0xc9d9:X4}={pair.Value:X2}")));
+        AssertEqual(Load(document).ContentIdentity, stock.ContentIdentity, "Body binding preserves canonical cannon identity");
+        int basis = 0;
+        for (int index = 0; index < document.DrawingData.Length; index++)
+        {
+            ushort address = (ushort)(0xc9d9 + index);
+            byte expected = rom.ReadByte(0x900000 | address);
+            if (!SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out _) &&
+                !SamusArmCannonArtworkFormat.TryStockCoordinateSource(address, out _) &&
+                !SamusArmCannonArtworkFormat.TryStockReflectedXSource(address, out _))
+            {
+                AssertTrue(SamusArmCannonPlacementDefinitions.TryCoordinate(body, address, out byte direct), "Every independent coordinate has a direct body/default source");
+                AssertEqual(expected, direct, $"Direct native cannon attachment {address:X4}");
+                basis++;
+            }
+            AssertEqual(expected, stock.ReadDrawingByte(address), "Every installed native cannon byte");
+            int[] drawing = document.DrawingData.ToArray(); drawing[index] ^= 0xff;
+            var edited = Load(document with { DrawingData = drawing }).WithBodyGeometry(body);
+            for (int other = 0; other < drawing.Length; other++)
+                AssertEqual((byte)drawing[other], edited.ReadDrawingByte((ushort)(0xc9d9 + other)), "Independent cover-byte edit preserves all supplied outputs");
+            AssertEqual(Load(document with { DrawingData = drawing }).ContentIdentity, edited.ContentIdentity, "Bound edited cover retains exact canonical hash");
+        }
+        AssertEqual(135, basis, "All formerly independent coordinate basis bytes now have reviewed defaults");
+        SamusBodyArtworkCatalog WithMaps(SamusSpritemapArtworkCatalog maps) => new(
+            body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(),
+            body.GraphicsYOffsets.ToArray(), body.Frames.ToArray(),
+            Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => body.TopSet(index).ToArray()).ToArray(),
+            Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => body.BottomSet(index).ToArray()).ToArray(),
+            maps, body.Atmosphere, body.DeathPalettes, body.DeathTiles, stock,
+            body.LandingYOffsets.ToArray(), body.PostureYOffsets.ToArray(), body.DrainedYOffsets.ToArray());
+        var empty = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
+            body.Spritemaps.Pointers.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer, [])).ToArray());
+        var zero = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
+            new ushort[SamusSpritemapArtworkCatalog.PointerCount], []);
+        var shifted = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
+            body.Spritemaps.Pointers.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer,
+                map.Parts.Select(part => part with { X = (ushort)((part.X & ~511) | ((part.X + 1) & 511)), Y = unchecked((byte)(part.Y + 1)) }).ToArray())).ToArray());
+        foreach (var maps in new[] { empty, zero, shifted })
+        {
+            var editedBody = WithMaps(maps);
+            for (int index = 0; index < document.DrawingData.Length; index++)
+                AssertEqual((byte)document.DrawingData[index], editedBody.ArmCannon.ReadDrawingByte((ushort)(0xc9d9 + index)), "Independent body geometry cannot rewrite supplied cover placement");
+            AssertEqual(stock.ContentIdentity, editedBody.ArmCannon.ContentIdentity, "Body-only edits preserve complete cover identity");
+            AssertTrue(Stored(editedBody.ArmCannon).Count > 0, "Different source art retains explicit independent cover offsets");
+        }
+        int draws = 0;
+        foreach (byte pose in new byte[] { 1, 3, 5, 7, 11, 12, 15, 16, 17, 18, 0x15, 0x16, 0x17, 0x18, 0x2b, 0x2c, 0x2d, 0x2e, 0x49, 0x4a, 0x4b, 0x71, 0x72, 0x75, 0x76, 0xa4, 0xa6 })
+        {
+            int count = pose == 0xa4 ? 2 : pose == 0xa6 ? 3 : pose is 3 or 0x15 or 0x16 or 0x17 or 0x18 or 0x2b or 0x2c or 0x2d or 0x2e ? 2 : 1;
+            for (ushort frame = 0; frame < count; frame++)
+            {
+                var samus = new SamusState { Pose = pose, AnimationFrame = frame, XPosition = 128, YPosition = 128, SelectedHudItem = 1 };
+                samus.TileTransfers.BindArtwork(body);
+                var cannon = new SamusArmCannonState { Artwork = stock };
+                cannon.Update(rom, samus); cannon.Update(rom, samus);
+                int pointer = rom.ReadByte(0x90c7df + pose * 2) | rom.ReadByte(0x90c7e0 + pose * 2) << 8;
+                int offset = (rom.ReadByte(0x900000 | pointer) & 128) != 0 ? 4 : 2;
+                int x = unchecked((sbyte)rom.ReadByte(0x900000 | (pointer + offset + frame * 2)));
+                int y = unchecked((sbyte)rom.ReadByte(0x900000 | (pointer + offset + frame * 2 + 1)));
+                int graphics = unchecked((sbyte)rom.ReadByte(0x91b629 + pose * 8 + 4));
+                var result = cannon.Draw(rom, new OamBuffer(), new VramWriteQueue(), samus, 0, 0, 0);
+                AssertTrue(result.SpriteWritten && result.TileUploadQueued, "Actual cover draw and DMA publication");
+                AssertEqual((short)(128 + x), result.ScreenX, "Actual native cover X");
+                AssertEqual((short)(128 + y - graphics), result.ScreenY, "Actual native cover Y including pose origin");
+                draws++;
+            }
+        }
+        Console.WriteLine($"Cannon placement:135 direct body/tail defaults,608 native bytes/independent edits,zero stock fallbacks,canonical hashes,independent empty/zero/shifted body art and{draws} actual OAM draws pass.");
+    }
+
 }

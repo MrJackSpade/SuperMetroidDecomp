@@ -13,10 +13,13 @@ public sealed class SamusArmCannonArtworkCatalog
     private readonly Dictionary<int, ushort> attributes = new();
     private readonly Dictionary<int, ushort> tileSources = new();
     private readonly RoomCharacterAtlas tiles;
+    private readonly SamusBodyArtworkCatalog? bodyGeometry;
 
     private SamusArmCannonArtworkCatalog(ushort[] posePointers, byte[] drawingData,
-        ushort[] attributes, ushort[][] tileSources, RoomCharacterAtlas tiles)
+        ushort[] attributes, ushort[][] tileSources, RoomCharacterAtlas tiles,
+        SamusBodyArtworkCatalog? bodyGeometry = null)
     {
+        this.bodyGeometry = bodyGeometry;
         for (int pose = 0; pose < posePointers.Length; pose++)
             if (posePointers[pose] != SamusArmCannonArtworkFormat.StockPoseDrawingData(pose))
                 this.posePointers.Add(pose, posePointers[pose]);
@@ -34,6 +37,8 @@ public sealed class SamusArmCannonArtworkCatalog
                 calculated = SamusArmCannonArtworkFormat.ReflectCoverX(drawingData[source - SamusArmCannonArtworkFormat.DrawingDataStart]);
                 derived = true;
             }
+            if (!derived && bodyGeometry is not null)
+                derived = SamusArmCannonPlacementDefinitions.TryCoordinate(bodyGeometry, address, out calculated);
             if (!derived || drawingData[index] != calculated) this.drawingData.Add(index, drawingData[index]);
         }
         for (int direction = 0; direction < attributes.Length; direction++)
@@ -46,6 +51,15 @@ public sealed class SamusArmCannonArtworkCatalog
         }
         this.tiles = tiles;
     }
+
+    internal SamusArmCannonArtworkCatalog WithBodyGeometry(SamusBodyArtworkCatalog body) => new(
+        Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(PoseDrawingData).ToArray(),
+        Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
+            .Select(index => ReadDrawingByte((ushort)(SamusArmCannonArtworkFormat.DrawingDataStart + index))).ToArray(),
+        Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount).Select(SpriteAttributes).ToArray(),
+        Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount).Select(direction =>
+            Enumerable.Range(0, SamusArmCannonArtworkFormat.FramesPerDirection).Select(frame => TileSource(direction, frame)).ToArray()).ToArray(),
+        tiles, body);
 
     /// <summary>SHA-256 of selected cannon placement, OBJ attributes, tile selectors and characters.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusArmCannonArtworkCatalog), content =>
@@ -167,6 +181,8 @@ public sealed class SamusArmCannonArtworkCatalog
         if (SamusArmCannonArtworkFormat.TryStockCoordinateSource(address, out ushort source)) return ReadDrawingByte(source);
         if (SamusArmCannonArtworkFormat.TryStockReflectedXSource(address, out source))
             return SamusArmCannonArtworkFormat.ReflectCoverX(ReadDrawingByte(source));
+        if (bodyGeometry is not null && SamusArmCannonPlacementDefinitions.TryCoordinate(bodyGeometry, address, out byte coordinate))
+            return coordinate;
         throw new InvalidDataException("Arm-cannon coordinate basis is incomplete.");
     }
 
@@ -686,7 +702,7 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>$90:CC21, CostOfSBAsInPowerBombs: the final24 installed drawing-window bytes alias this independent mechanics owner.</summary>
     private const int AdjacentCostStart = SamusComboRomData.Costs & 0xffff;
 
-    /// <summary>Calculates named descriptor controls and adjacent cost aliases; false identifies a still-required coordinate byte.</summary>
+    /// <summary>Calculates named descriptor controls and adjacent cost aliases; coordinate geometry is resolved separately from body artwork.</summary>
     internal static bool TryStockDrawingByte(ushort address, out byte value)
     {
         if (address >= AdjacentCostStart && address < DrawingDataEndExclusive)
@@ -869,7 +885,7 @@ public static class SamusArmCannonArtworkFormat
     }
 
     /// <summary>Repeated cover origins and fixed-X/repeated-Y running and moonwalking profiles.</summary>
-    /// <remarks>Later stationary pairs, fixed X positions and repeated vertical cycles alias earlier coordinates. Dependencies strictly decrease in address; every independent first-cycle coordinate remains required artwork.</remarks>
+    /// <remarks>Later stationary pairs, fixed X positions and repeated vertical cycles alias earlier coordinates. Dependencies strictly decrease in address; first-cycle defaults resolve through installed body geometry and the reviewed overlay joins.</remarks>
     internal static bool TryStockCoordinateSource(ushort address, out ushort source)
     {
         int firstPair = address switch
@@ -930,7 +946,7 @@ public static class SamusArmCannonArtworkFormat
             return true;
         }
         // These vertical cycles repeat once per half of the native animation.
-        // The first cycle's chosen positions remain independent supplied inputs.
+        // First-cycle positions resolve separately, preserving independent supplied edits.
         int cycleBytes = address switch
         {
             >= (DrawingMovingRightAimingUpRight + 13) and < DrawingMovingLeftAimingUpLeft => 10,
@@ -1003,9 +1019,9 @@ public static class SamusArmCannonArtworkFormat
     internal static byte ReflectCoverX(byte coordinate) => unchecked((byte)(-unchecked((sbyte)coordinate) - CoverWidthPixels));
 
     /// <summary>Opposite-facing cover origins reflect the eight-pixel footprint around Samus's origin.</summary>
-    /// <remarks>Only exact named facing pairs are included. Unmatched Y coordinates remain independent;
-    /// downward-vertical jump/fall X positions also remain independent because their native
-    /// origins are asymmetric. Each source precedes its reflected result in the native window.</remarks>
+    /// <remarks>Only exact named facing pairs are included. Other coordinates resolve through
+    /// the body attachment calculation, including asymmetric downward joins. Each source
+    /// precedes its reflected result in the native window.</remarks>
     internal static bool TryStockReflectedXSource(ushort address, out ushort source)
     {
         int selected = address switch

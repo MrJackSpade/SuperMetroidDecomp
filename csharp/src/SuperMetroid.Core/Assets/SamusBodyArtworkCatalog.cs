@@ -113,7 +113,7 @@ public sealed partial class SamusBodyArtworkCatalog
         Atmosphere = atmosphere;
         DeathPalettes = deathPalettes;
         DeathTiles = deathTiles;
-        ArmCannon = armCannon;
+        ArmCannon = armCannon.WithBodyGeometry(this);
         this.top = CloneAndValidate(topPointers, top);
         this.bottom = CloneAndValidate(bottomPointers, bottom);
         SamusBodyDefinitionLayout.ValidateCompleteGroups(topPointers, bottomPointers, this.top, this.bottom);

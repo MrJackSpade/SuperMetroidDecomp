@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 443,
+  "remainingTableDefinitionCount": 442,
   "fileCount": 523,
   "entries": [
     {
@@ -1974,12 +1974,15 @@
       "implementationCommit": "1b62d9f1aebac2f70f360168c8c7229c196f2616"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
-      "line": 12,
-      "name": "SamusArmCannonArtworkCatalog.drawingData",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind SamusArmCannonArtworkCatalog.drawingData. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
+  "line": 12,
+  "name": "SamusArmCannonArtworkCatalog.drawingData",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind SamusArmCannonArtworkCatalog.drawingData. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "cc77ecd4273baa10043e4a5308da08274578a24a",
+  "disposition": "Calculate installed608byte descriptor window through body-OAM attachment geometry,semantic controls,existing mechanics aliases,reflections and repetition. Retain only precisely reviewed overlay joins/source-phase choices and4opaque unused tail components expanded by repetition; native animation cannot select tails but bounded descriptor API observes them. Independent cover/body edits preserved, no pixel/physics/timing exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
       "line": 13,
@@ -21745,5 +21748,5 @@
     }
   ],
   "convertedSinceSnapshot": 601,
-  "justifiedRetainedSinceSnapshot": 84
+  "justifiedRetainedSinceSnapshot": 85
 }

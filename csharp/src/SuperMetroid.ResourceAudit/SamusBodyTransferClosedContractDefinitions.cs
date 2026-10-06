@@ -7,7 +7,7 @@ internal static class SamusBodyTransferClosedContractDefinitions
     [
         new("SuperMetroid.Core.Assets.SamusBodyArtworkCatalog", "samus-complete-physical-transfer-records",
             ["Frame", "DefinitionAddress", "DefinitionAt"],
-            [new("csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs", "4F95E9A184649E34C964835FADB0238A24CDF670C75B944711619A776B2CDDA3"),
+            [new("csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs", "A12568CC5D0C48D28A24B4B225BF622A35FD0D4D132589E4FC371BB43C171EC2"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusBodyFrameDefinitions.cs", "A4351C192178EE82E2CD2ABE00E4AE6DC4DFA74A31DCE647E139B85DED510593"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusBodyPlacementDefinitions.cs", "F05C6645CBC1D4419166D361C1865BDB6E611CBC7816ADDE00ABFD28D01C7098"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusBodyPoseDefinitions.cs", "C5FC4C4CCFD7ACFAA8833A33DF0F302CC1A6D5FC367433B05569D64B09C9942B"),
@@ -17,6 +17,7 @@ internal static class SamusBodyTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/SamusBodyDefinitionLayout.cs", "800428CC9CEA5E27F304564F96E085A2BF4A0426B9C7CD233090EA4046295E2D"),
              new("csharp/src/SuperMetroid.Core/Game/SamusRenderingRomData.cs", "92B942C3417DA086E5CDCF45B2594A28B339E96AF222EFBC5035DCB6DBEBB8DE"),
              new("csharp/src/SuperMetroid.Core/Game/SamusTileTransferState.cs", "0270E426620D8301AA82027E2000EECD3048B3F0E3E004DA8D07FC4729613331"),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonPlacementDefinitions.cs", "DFD26B6C54E96889B010186D0B65795BBFB9BD68621C2EF4FC379690D6AC9894"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs", "F72F36369363F143F95D6138A5A1CD7F1D7D56170B476123F5FC506D9888DBF7"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapPoseDefinitions.cs", "F4FCCF227D6D58676E8565799A8F66F74424BFD01E6FA245C0635B76C810CE0C"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesTileWords.cs", "06A4FA2F98E9104B4CBA39021A8270A158EEB35F6E86124C362640590E6B2F03"),

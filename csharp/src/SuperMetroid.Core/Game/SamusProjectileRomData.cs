@@ -11,6 +11,9 @@ public static class SamusProjectileRomData
     /// <summary>$91:F8F3-$F903: tag on the prior Moonwalk muzzle direction, consumed by turning HUD dispatch.</summary>
     public const ushort MoonwalkPoseHandoffTag = 0x0100;
 
+    /// <summary>$91:F5E3: normal-jump initializer tags the new pose's shot direction for the next HUD producer.</summary>
+    public const ushort NormalJumpPoseHandoffTag = 0x8000;
+
     /// <summary>Native banks used to expand same-bank projectile pointers.</summary>
     public static class Banks
     {

@@ -740,6 +740,16 @@ internal static partial class Program
         SamusState samus = runtime.Samus ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load Samus.");
         samus.InputLocked = false;
+        runtime.Projectiles.GetType().GetProperty("ProjectileCounter")!.SetValue(runtime.Projectiles, W(RidleyMovieMemory.ProjectileCount));
+        runtime.Projectiles.GetType().GetProperty("PreviousBeamChargeCounter")!.SetValue(runtime.Projectiles, W(RidleyMovieMemory.PreviousCharge));
+        runtime.Projectiles.GetType().GetProperty("ProjectileInvincibilityTimer")!.SetValue(runtime.Projectiles, W(RidleyMovieMemory.ProjectileInteractionImmunity));
+        runtime.Projectiles.GetType().GetProperty("ChargedShotGlowTimer")!.SetValue(runtime.Projectiles, W(RidleyMovieMemory.ChargedShotGlow));
+        runtime.Projectiles.GetType().GetProperty("SamusChargePaletteIndex")!.SetValue(runtime.Projectiles, W(RidleyMovieMemory.ChargePaletteIndex));
+        runtime.BombProjectiles.GetType().GetProperty("BombCounter")!.SetValue(runtime.BombProjectiles, W(RidleyMovieMemory.BombCount));
+        samus.GetType().GetProperty("BombSpreadChargeTimeoutCounter")!.SetValue(samus, W(RidleyMovieMemory.BombSpreadChargeTimeout));
+        samus.GetType().GetProperty("PoseTransitionShotDirection")!.SetValue(samus, W(RidleyMovieMemory.PoseShotDirection));
+        samus.GetType().GetProperty("HyperBeam")!.SetValue(samus, W(RidleyMovieMemory.HyperBeam));
+        samus.GetType().GetProperty("ResumeChargingBeamSoundFlag")!.SetValue(samus, W(RidleyMovieMemory.ResumeChargeSound));
         samus.EquippedItems = W(RidleyMovieMemory.Items);
         samus.EquippedBeams = W(RidleyMovieMemory.Beams);
         samus.Health = W(RidleyMovieMemory.Health);
@@ -1151,6 +1161,17 @@ internal static partial class Program
             {
                 Check("Projectile cooldown", runtime.BombProjectiles.CooldownTimer, RidleyMovieMemory.ProjectileCooldown);
                 Check("Beam charge", runtime.Projectiles.FlareCounter, RidleyMovieMemory.BeamCharge);
+                Check("ProjectileCounter", runtime.Projectiles.ProjectileCounter, RidleyMovieMemory.ProjectileCount);
+                Check("PreviousBeamChargeCounter", runtime.Projectiles.PreviousBeamChargeCounter, RidleyMovieMemory.PreviousCharge);
+                Check("ProjectileInvincibilityTimer", runtime.Projectiles.ProjectileInvincibilityTimer, RidleyMovieMemory.ProjectileInteractionImmunity);
+                Check("ChargedShotGlowTimer", runtime.Projectiles.ChargedShotGlowTimer, RidleyMovieMemory.ChargedShotGlow);
+                Check("SamusChargePaletteIndex", runtime.Projectiles.SamusChargePaletteIndex, RidleyMovieMemory.ChargePaletteIndex);
+                Check("BombCounter", runtime.BombProjectiles.BombCounter, RidleyMovieMemory.BombCount);
+                Check("BombSpreadChargeTimeoutCounter", samus.BombSpreadChargeTimeoutCounter, RidleyMovieMemory.BombSpreadChargeTimeout);
+                Check("PoseTransitionShotDirection", samus.PoseTransitionShotDirection, RidleyMovieMemory.PoseShotDirection);
+                Check("HyperBeam", samus.HyperBeam, RidleyMovieMemory.HyperBeam);
+                Check("ResumeChargingBeamSoundFlag", samus.ResumeChargingBeamSoundFlag, RidleyMovieMemory.ResumeChargeSound);
+
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             foreach (var projectile in runtime.Projectiles.Slots.Take(5))

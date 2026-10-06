@@ -1,6 +1,27 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$0CCE: native ProjectileCounter firing owner.</summary>
+    public const int ProjectileCount = 0x0cce;
+    /// <summary>$0DC2: native PreviousBeamChargeCounter firing owner.</summary>
+    public const int PreviousCharge = 0x0dc2;
+    /// <summary>$18AC: native ProjectileInvincibilityTimer firing owner.</summary>
+    public const int ProjectileInteractionImmunity = 0x18ac;
+    /// <summary>$0B18: native ChargedShotGlowTimer firing owner.</summary>
+    public const int ChargedShotGlow = 0x0b18;
+    /// <summary>$0B62: native SamusChargePaletteIndex firing owner.</summary>
+    public const int ChargePaletteIndex = 0x0b62;
+    /// <summary>$0CD2: native BombCounter firing owner.</summary>
+    public const int BombCount = 0x0cd2;
+    /// <summary>$0CD4: native BombSpreadChargeTimeoutCounter firing owner.</summary>
+    public const int BombSpreadChargeTimeout = 0x0cd4;
+    /// <summary>$0B5E: native PoseTransitionShotDirection firing owner.</summary>
+    public const int PoseShotDirection = 0x0b5e;
+    /// <summary>$0A76: native HyperBeam firing owner.</summary>
+    public const int HyperBeam = 0x0a76;
+    /// <summary>$0DC0: native ResumeChargingBeamSoundFlag firing owner.</summary>
+    public const int ResumeChargeSound = 0x0dc0;
+
     /// <summary>$0AFE: Samus SamusXRadius native movement state.</summary>
     public const int SamusXRadius = 0x0afe;
     /// <summary>$0B00: Samus SamusYRadius native movement state.</summary>

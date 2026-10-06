@@ -86,7 +86,7 @@ public sealed partial class SamusProjectileSystem
     public ushort SamusChargePaletteIndex { get; private set; }
 
     /// <summary>
-    /// WRAM <c>$0BD0</c>; humanoid shots temporarily suppress Samus/projectile
+    /// WRAM <c>$18AC</c>; humanoid shots temporarily suppress Samus/projectile
     /// interaction, including bomb jumps. Decremented by the shared gameplay tail.
     /// </summary>
     public ushort ProjectileInvincibilityTimer { get; private set; }

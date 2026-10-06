@@ -517,3 +517,26 @@ updates of the full movie pass (`movement-radius-confirm-build.log`,
 `movement-radius-confirm-replay.log`). This verifies the actual radius property,
 not just unchanged trajectory. Player validation and the remaining full-parity
 coverage audit remain open.
+
+### Firing-state ownership and normal-jump shot publication
+
+MainGameplay boundaries now compare projectile/bomb counts, previous charge,
+projectile-interaction immunity, charged-shot glow, charge-palette index,
+bomb-spread charge timeout, pose-transition shot direction, Hyper Beam state and
+the resume-charge sound latch. These owners receive only their one-time initial
+snapshot values. The projectile-immunity XML address was corrected to $18AC.
+
+The comparison reproduced update 8484/source 8598: a neutral-jump to firing-pose
+transition left native shot direction $8007 while the port held zero. The early
+$90:EB20 clear was correct. The late normal-jump initializer ($91:F5CF-F5E6)
+publishes the current pose's direction on a fresh Shoot edge, including aim/firing
+changes within an existing jump. The port had that write only on selected jump
+entry/spin-exit routes. The shared accepted-pose boundary now publishes it for
+changed normal-jump poses before committing history. The tag has a domain-named
+catalog member; the native initializer remains the behavioral authority.
+
+All 10,717 updates pass with the expanded checks (`firing-publication-build.log`,
+`firing-publication-replay.log`). The final catalog-only cleanup builds and passes
+--space-screw-fixture (`firing-final-build.log`, `firing-final-focused.log`). No
+new native state is injected after initial import. Player confirmation and the
+remaining coverage audit are still pending.

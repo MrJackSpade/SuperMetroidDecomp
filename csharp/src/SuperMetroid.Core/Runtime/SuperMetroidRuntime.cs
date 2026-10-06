@@ -3835,6 +3835,12 @@ public sealed partial class SuperMetroidRuntime
                     Samus.ReadMovementType(_addressSpace) == SamusMovementType.Falling)
                     Samus.ApplyFallingInputFallback(_addressSpace);
 
+                // F433's normal-jump initializer publishes the fresh Shoot direction
+                // for every accepted route, including aim changes within a jump. The
+                // earlier projectile epilogue cleared the previous update's handoff.
+                if (Samus.Pose != Samus.PoseHistory.PreviousPose)
+                    Samus.PublishNormalJumpPoseShotDirection(_addressSpace, Controller1.NewlyPressed);
+
                 // $91:EB88 shifts history after consuming any transition slot,
                 // including a self-transition. A frame with no selected transition
                 // does not shift it. Keep this after final collision/pose selection.

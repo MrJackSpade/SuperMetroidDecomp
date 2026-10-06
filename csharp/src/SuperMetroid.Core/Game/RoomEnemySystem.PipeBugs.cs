@@ -377,7 +377,8 @@ public sealed partial class RoomEnemySystem
     {
         slot.XPosition = unchecked((ushort)(slot.XPosition +
             ((state.VariableA & 0x8000) != 0 ? -2 : 2)));
-        if (!EnemyWithNormalSpritesIsOffScreen(slot, cameraX, cameraY))
+        // $B3:8949 tests only the horizontal screen extent.
+        if (!EnemyIsHorizontallyOffScreen(slot, cameraX))
             return;
 
         slot.XPosition = state.SpawnX;

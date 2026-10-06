@@ -4005,6 +4005,18 @@ public sealed partial class RoomEnemySystem
         !IsNegative16(slot.YPosition + 8 - cameraY) &&
         !IsNegative16(cameraY + 248 - slot.YPosition);
 
+    /// <summary>
+    /// <c>CheckIfEnemyIsHorizontallyOffScreen</c> ($A0:C18E): a negative X, a right edge
+    /// left of the camera, or a position at least $100 right of the camera is off-screen.
+    /// </summary>
+    private static bool EnemyIsHorizontallyOffScreen(RoomEnemySlot slot, ushort cameraX)
+    {
+        if (IsNegative16(slot.XPosition))
+            return true;
+        ushort fromCamera = unchecked((ushort)(slot.XPosition + slot.XRadius - cameraX));
+        return IsNegative16(fromCamera) || !IsNegative16(fromCamera - 0x100 - slot.XRadius);
+    }
+
     private static bool EnemyWithNormalSpritesIsOffScreen(
         RoomEnemySlot slot,
         ushort cameraX,

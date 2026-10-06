@@ -100,6 +100,13 @@ public sealed partial class RoomPlmSystem
         {
             if (!slot.Active || slot.BlockIndex != blockIndex || slot.Item is null)
                 continue;
+            // The pickup message retains both the visible block and its physical owner.
+            // On message return, movement can touch that block before PLM_Handler runs
+            // the pending empty draw/delete. Native $EEAB matches the block index without
+            // filtering the instruction phase; acknowledge this owner without collecting
+            // again or disturbing its message-return continuation.
+            if (slot.Item.Phase is CollectiblePhase.AwaitingMessage or CollectiblePhase.ResumeAfterMessage)
+                return true;
             if (slot.Item.Phase is not (
                     CollectiblePhase.Visible or CollectiblePhase.ShotBlockVisible))
                 return false;

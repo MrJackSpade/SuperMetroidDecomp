@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--morph-ball-pickup-collision"])
+{
+    VerifyMorphBallPickupCollision();
+    return 0;
+}
 if (args is ["--save-load-rng-fixture"]) { return SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), retailGameFixtureBindings.Value); }
 if (args is ["--frontend-fixtures"]) { VerifyIntroPoseHistory(); VerifyFrontendRenderCapture(); VerifyGameplayCaptureIntegration(); VerifyAttractCapture(); return 0; }
 if (args is ["--menu-fixtures"]) { VerifyFileMenuRenderSnapshots(); VerifyFileMapSnapshots(); VerifyControllerBindingsAndOptionsSubmenus(); VerifyMessageSnapshots(); VerifyGameplayMessageDefinitions(); return 0; }

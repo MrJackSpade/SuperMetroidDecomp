@@ -64,16 +64,31 @@ public static class GameplayHudDefinitions
     internal static ushort DigitWord(int digit) => (uint)digit < 10
         ? (ushort)(0x2c00 | (digit + 9) % 10)
         : throw new IndexOutOfRangeException();
+    /// <summary>$9A:B530: HUD glyph $33 is the left arrow tip used above and below AUTO.</summary>
+    private const int AutoArrowTipGlyph = 0x33;
     /// <summary>
-    /// $80:998B/9997 AUTO cells: the bottom row vertically reflects the top row
-    /// (bit15); the empty indicator toggles palette bit12. Four full-state glyph/style
-    /// inputs remain independent required payload; this derives the other eight cells.
+    /// $9A:B660-B68F: consecutive HUD glyphs $46..48 contain the arrow shaft,
+    /// AU and TO. The selected two-glyph spelling and surrounding reflected arrow
+    /// composition are categorical typography; generating different identities or
+    /// wording would change the depicted label. Glyph pixels remain separately owned.
     /// </summary>
-    internal static ushort AutoReserveWord(ReadOnlySpan<ushort> basis, int cell, bool containsEnergy)
+    private const int AutoArrowShaftGlyph = 0x46;
+    /// <summary>
+    /// $80:998B-99A1 selects palette7 when reserve energy is present and palette3
+    /// when empty, always at BG priority. $80:9B4E-9B87 chooses only that state and
+    /// copies all six cells; the chosen style cannot be inferred from energy magnitude.
+    /// RGB contents and reserve mechanics are not exempted by this typography choice.
+    /// </summary>
+    private const int AutoFullPalette = 7, AutoEmptyPalette = 3;
+
+    internal static ushort AutoReserveWord(int cell, bool containsEnergy)
     {
         if ((uint)cell >= AutoReserveCellCount) throw new IndexOutOfRangeException();
-        return (ushort)(basis[cell < 4 ? cell : cell - 4]
-            ^ (cell >= 4 ? 0x8000 : 0) ^ (containsEnergy ? 0 : 0x1000));
+        int row = cell / 2, column = cell % 2;
+        int glyph = row == 1 ? AutoArrowShaftGlyph + 1 + column
+            : column == 0 ? AutoArrowTipGlyph : AutoArrowShaftGlyph;
+        int palette = containsEnergy ? AutoFullPalette : AutoEmptyPalette;
+        return (ushort)(glyph | palette << 10 | 1 << 13 | (row == 2 ? 1 << 15 : 0));
     }
     public static string IconName(int itemIndex) => (uint)itemIndex < IconNames.Length
         ? IconNames[itemIndex]

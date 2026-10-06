@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 402,
+  "remainingTableDefinitionCount": 400,
   "fileCount": 523,
   "entries": [
     {
@@ -1023,19 +1023,25 @@
       "implementationCommit": "785a24b227478605ff81b5a5fce692dbc6ef79b8"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
-      "line": 14,
-      "name": "GameplayHudPresentation.autoFull",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind GameplayHudPresentation.autoFull. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
+  "line": 14,
+  "name": "GameplayHudPresentation.autoFull",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind GameplayHudPresentation.autoFull. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "5c903be8412445518c9ffe55173e850eaa5df162",
+  "disposition": "All12full/empty words calculate through AU/TO atlas adjacency, reflections and packing. Retain only exact AUTO wording, arrow-tip33/shaft46 identities, text-between-reflected-arrows composition, palettes7/3 and priority. Native image and80:9B4E-9B87 consumer establish selected typography rather than functional data; arbitrary different glyphs/composition would change authored text. Independent edits preserved; pixels/RGB/other HUD entries not exempted."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
-      "line": 15,
-      "name": "GameplayHudPresentation.autoEmpty",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind GameplayHudPresentation.autoEmpty. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
+  "line": 15,
+  "name": "GameplayHudPresentation.autoEmpty",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind GameplayHudPresentation.autoEmpty. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "5c903be8412445518c9ffe55173e850eaa5df162",
+  "disposition": "All12full/empty words calculate through AU/TO atlas adjacency, reflections and packing. Retain only exact AUTO wording, arrow-tip33/shaft46 identities, text-between-reflected-arrows composition, palettes7/3 and priority. Native image and80:9B4E-9B87 consumer establish selected typography rather than functional data; arbitrary different glyphs/composition would change authored text. Independent edits preserved; pixels/RGB/other HUD entries not exempted."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
       "line": 16,
@@ -21868,5 +21874,5 @@
     }
   ],
   "convertedSinceSnapshot": 609,
-  "justifiedRetainedSinceSnapshot": 117
+  "justifiedRetainedSinceSnapshot": 119
 }

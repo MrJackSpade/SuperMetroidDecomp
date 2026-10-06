@@ -11,7 +11,6 @@ public sealed class GameplayHudPresentation
     private readonly byte[] topRowTransfer;
     private readonly Dictionary<int, ushort> healthDigits;
     private readonly Dictionary<int, ushort> ammoDigits;
-    private readonly ushort[] autoReserveBasis;
     private readonly Dictionary<int, ushort> autoReserveOverrides;
     private readonly Dictionary<int, int> autoAnchors;
     private readonly Dictionary<int, int> energyTankAnchors;
@@ -40,7 +39,7 @@ public sealed class GameplayHudPresentation
         SuperMissileAmmoAnchor = ValidateAnchor(document.Digits.SuperMissileAnchor, 2, 1, "Super Missile digits");
         PowerBombAmmoAnchor = ValidateAnchor(document.Digits.PowerBombAnchor, 2, 1, "Power Bomb digits");
         MinimapAnchor = ValidateAnchor(document.MinimapAnchor, 5, 3, "minimap");
-        (autoReserveBasis, autoReserveOverrides) = CompileAutoReserve(document.AutoReserve);
+        autoReserveOverrides = CompileAutoReserve(document.AutoReserve);
         autoAnchors = CompileAnchors(document.AutoReserve.Anchors, GameplayHudDefinitions.AutoReserveCellCount, "AUTO indicator",
             GameplayHudDefinitions.AutoReserveCellIndex);
         SelectedPalette = ValidatePalette(document.SelectedPalette, nameof(document.SelectedPalette));
@@ -125,7 +124,7 @@ public sealed class GameplayHudPresentation
         ValidateTilemap(tiles);
         for (int index = 0; index < GameplayHudDefinitions.AutoReserveCellCount; index++)
             tiles[AutoReserveCell(index)] = autoReserveOverrides.TryGetValue(index + (containsEnergy ? 0 : 6), out ushort edited)
-                ? edited : GameplayHudDefinitions.AutoReserveWord(autoReserveBasis, index, containsEnergy);
+                ? edited : GameplayHudDefinitions.AutoReserveWord(index, containsEnergy);
     }
 
     public void ClearAutoReserve(Span<ushort> tiles)
@@ -225,20 +224,19 @@ public sealed class GameplayHudPresentation
         for (int x = 0; x < 5; x++) Own(MinimapCellIndex(x, y), "minimap");
     }
 
-    private static (ushort[] Basis, Dictionary<int, ushort> Overrides) CompileAutoReserve(GameplayHudAutoReserveDocument document)
+    private static Dictionary<int, ushort> CompileAutoReserve(GameplayHudAutoReserveDocument document)
     {
         ushort[] full = CompileCells(document.ContainsEnergy, 6, "filled AUTO indicator");
         ushort[] empty = CompileCells(document.Empty, 6, "empty AUTO indicator");
-        ushort[] basis = full[..4];
         var overrides = new Dictionary<int, ushort>();
         for (int state = 0; state < 2; state++)
         for (int cell = 0; cell < 6; cell++)
         {
             ushort supplied = (state == 0 ? full : empty)[cell];
-            if (supplied != GameplayHudDefinitions.AutoReserveWord(basis, cell, state == 0))
+            if (supplied != GameplayHudDefinitions.AutoReserveWord(cell, state == 0))
                 overrides.Add(state * 6 + cell, supplied);
         }
-        return (basis, overrides);
+        return overrides;
     }
     private static Dictionary<int, ushort> CompileDigitOverrides(GameplayHudCell[]? cells, string name)
     {

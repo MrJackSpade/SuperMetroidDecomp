@@ -26,6 +26,19 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream-4-hud-auto"])
+{
+    var rom=CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),"AUTO source revision");
+    VerifyLookupStream4HudAutoComplete(rom);
+    return 0;
+}
+if (args is ["--lookup-stream-4-hud-auto-source"])
+{
+    var rom=CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    ExportLookupStream4HudAutoSource(rom);
+    return 0;
+}
 if (args is ["--lookup-stream-4-draygon-layout"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

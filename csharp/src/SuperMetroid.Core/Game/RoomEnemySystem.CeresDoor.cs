@@ -21,22 +21,6 @@ public sealed partial class RoomEnemySystem
     private const ushort CeresDoorExplosionAnimation = 0x000c;
     private const ushort CeresDoorEscapedStatus = 0x8000;
 
-    /// <summary>
-    /// Retains the four authored signed X/Y explosion offsets at <c>$A6:F840-F84F</c>.
-    /// All eight words match the pinned NTSC J/U v1.0 ROM. <c>$A6:F7FE-F820</c>
-    /// decrements a zero-initialized index, wraps it to three when negative, then
-    /// multiplies it by four bytes to read one pair. Thus the bounded sequence is
-    /// 3, 2, 1, 0, repeated: (2, 12), (-2, 22), (0, 4), (-4, -8).
-    /// The independent coordinates encode chosen explosion positions rather than
-    /// samples of a recoverable arithmetic progression, so retain the four pairs.
-    /// </summary>
-    private static readonly (short X, short Y)[] CeresDoorRumbleOffsets =
-    [
-        (-4, -8),
-        (0, 4),
-        (-2, 22),
-        (2, 12),
-    ];
 
     /// <summary>
     /// Most recent library-two sound queued by Ceres-door destruction during this enemy frame.
@@ -193,9 +177,9 @@ public sealed partial class RoomEnemySystem
         slot.VariableE = CeresDoorRumbleInterval;
         slot.VariableF = unchecked((ushort)(slot.VariableF - 1));
         if ((short)slot.VariableF < 0)
-            slot.VariableF = unchecked((ushort)(CeresDoorRumbleOffsets.Length - 1));
+            slot.VariableF = unchecked((ushort)(CeresDoorRumbleGeometryDefinitions.Count - 1));
 
-        (short xOffset, short yOffset) = CeresDoorRumbleOffsets[slot.VariableF];
+        (short xOffset, short yOffset) = CeresDoorRumbleGeometryDefinitions.Offset(slot.VariableF);
         ushort explosionX = unchecked((ushort)(slot.XPosition + xOffset));
         ushort explosionY = unchecked((ushort)(slot.YPosition + yOffset));
 

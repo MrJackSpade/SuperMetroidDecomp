@@ -6,6 +6,55 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5CeresRumble(SuperMetroidAddressSpace rom)
+    {
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Rumble native revision");
+        for (int index = 0; index < 4; index++)
+            AssertEqual((unchecked((short)ReadVerificationWord(rom, 0xa6f840 + 4 * index)),
+                unchecked((short)ReadVerificationWord(rom, 0xa6f842 + 4 * index))),
+                CeresDoorRumbleGeometryDefinitions.Offset(index), "All eight native anchor words");
+        AssertThrows<IndexOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(-1), "Rumble lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(4), "Rumble upper bound");
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        foreach (var origin in new[] { (X: (ushort)232, Y: (ushort)631), (X: (ushort)1, Y: (ushort)65530) })
+        {
+            var system = new RoomEnemySystem();
+            var slot = system.Slots[0];
+            slot.XPosition = origin.X; slot.YPosition = origin.Y;
+            slot.VariableD = 48; slot.VariableE = 0; slot.VariableF = 0;
+            system.CeresStatus = 2;
+            int randomCalls = 0;
+            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(system,
+                (Func<ushort>)(() => (ushort)(++randomCalls % 2 == 0 ? 0x4000 : 0)));
+            var tick = typeof(RoomEnemySystem).GetMethod("RunCeresDoorRumbleAndExplosions", flags)!
+                .CreateDelegate<Action<RoomEnemySlot>>(system);
+            for (int call = 1; call <= 49; call++)
+            {
+                tick(slot);
+                int emitted = Math.Min(10, (call + 4) / 5);
+                AssertEqual(emitted, randomCalls, "One RNG call per selected anchor, none between emissions");
+                var particles = system.EnemyProjectiles.Where(p => p.IsActive).ToArray();
+                AssertEqual(emitted, particles.Length, "Exact independent effect allocation count");
+                for (int ordinal = 0; ordinal < emitted; ordinal++)
+                {
+                    int index = 3 - ordinal % 4;
+                    ushort x = unchecked((ushort)(origin.X + (short)ReadVerificationWord(rom, 0xa6f840 + index * 4)));
+                    ushort y = unchecked((ushort)(origin.Y + (short)ReadVerificationWord(rom, 0xa6f842 + index * 4)));
+                    ushort program = MiscDustProjectileDefinitions.InstructionList((ushort)(ordinal % 2 == 0 ? 12 : 3));
+                    // Native pool allocation descends; identify each emission through its unique current ordinal below.
+                    var particle = particles[emitted - ordinal - 1];
+                    AssertEqual(x, particle.XPosition, "Actual produced native X including 16-bit wrap");
+                    AssertEqual(y, particle.YPosition, "Actual produced native Y including 16-bit wrap");
+                    AssertEqual(program, particle.InstructionPointer, "RNG changes animation only");
+                }
+                AssertEqual(call == 49, slot.Properties.HasAny(EnemyProperties.Invisible), "Hide only at destruction expiry");
+            }
+            AssertEqual((ushort)0x8000, system.CeresStatus, "Actual rotation handoff after last anchor");
+            AssertEqual((ushort)0x25, system.LastCeresDoorSoundEffectLibrary2!.Value, "Emission sound preserved");
+        }
+        Console.WriteLine("Ceres rumble: eight native words, bounds, 98 actual calls, 20 emitted native positions/order/animations, wrap and expiry pass.");
+    }
     private static void VerifyLookupStream5PhantoonRainWait(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

@@ -1,6 +1,13 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$F380: enemy-projectile shot collision option, zero/destructible, one/dud, two/skip.</summary>
+    public const int EnemyProjectileCollisionOption = 0xf380;
+    /// <summary>$F3C8: enemy-projectile source enemy header used to resolve drop chances.</summary>
+    public const int EnemyProjectileEnemyHeader = 0xf3c8;
+    /// <summary>$F410: enemy-projectile killed-enemy index and respawn flag.</summary>
+    public const int EnemyProjectileKilledEnemy = 0xf410;
+
     /// <summary>$0C68: ordinary/bomb projectile pre-instruction words.</summary>
     public const int ProjectilePreInstruction = 0x0c68;
     /// <summary>$90:B169: ProjPreInstr_Empty, retained by active impact animations.</summary>

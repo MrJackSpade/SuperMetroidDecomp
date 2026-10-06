@@ -1299,6 +1299,19 @@ internal static partial class Program
                 if (projectile.Kind != RoomEnemyProjectileKind.CeresRidleyFireball)
                     Check(owner + " variable F", variableF, RidleyMovieMemory.EnemyProjectileVariableF + index);
                 Check(owner + " variable G", projectile.CollidedProjectileType, RidleyMovieMemory.EnemyProjectileVariableG + index);
+                Check(owner + " collision option", projectile.CollisionOption, RidleyMovieMemory.EnemyProjectileCollisionOption + index);
+                if (projectile.Kind is RoomEnemyProjectileKind.EnemyDeathExplosion or RoomEnemyProjectileKind.EnemyDeathPickup)
+                {
+                    AssertTrue(projectile.ItemDropChancesPointerOverride == 0,
+                        "Movie drop uses a direct chance-table override; map its native source before comparing");
+                    // Death explosions consume their per-slot header on their later
+                    // drop instruction. Direct F337 pickups consume it immediately via
+                    // caller X ($86:EF3E/F118), not allocated-slot Y, and never read it
+                    // again. Their retained per-slot word is not a live source identity.
+                    if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion)
+                        Check(owner + " source enemy header", projectile.EnemyHeaderPointer, RidleyMovieMemory.EnemyProjectileEnemyHeader + index);
+                    Check(owner + " killed enemy index", projectile.KilledEnemyNativeIndex, RidleyMovieMemory.EnemyProjectileKilledEnemy + index);
+                }
                 ushort nativeDamage = (ushort)(W(RidleyMovieMemory.EnemyProjectileProperties + index) & 0x0fff);
                 if (projectile.Damage != nativeDamage) mismatches.Add(owner + $" damage: native={nativeDamage} port={projectile.Damage}");
             }

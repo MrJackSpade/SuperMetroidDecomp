@@ -60,7 +60,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Samus movement and collision | Positions/fractions, camera, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state and momentum/boost pass | Control-handler ownership, remaining movement flags and secondary motion state |
 | Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication and charge palette/audio words pass | Remaining combat/input ownership and filtered-input state |
 | Enemies and Ridley | Active enemy collision/properties/timers; complete Ridley tail records, shared tail/body controller, wing/grab/damage/health/facing state pass | Remaining actor AI variables and phase-dependent aliases |
-| Ordinary/enemy projectiles | Ordinary active-slot motion/program/art and callback identity; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Remaining enemy-projectile parallel metadata; bombs need live mappings only if a different movie activates them |
+| Ordinary/enemy projectiles | Ordinary active-slot motion/program/art and callback identity; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Projectile trail presentation; bombs need live mappings only if a different movie activates them |
 | Persistent world and room effects | Complete boss/event/item/door bitsets; gameplay foreground/BTS; movie grey-door execution, condition and hit state; acid surface/tide phase pass | Loading-boundary mutations, remaining persistence allocations, environmental state, and PLM draw/presentation state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
 
@@ -595,3 +595,26 @@ The release build and all 10,717 independent input-only updates pass
 (`projectile-callback-build.log`, `projectile-callback-replay.log`). No production
 change was required. Remaining parallel metadata and presentation/control-state
 gaps in the ledger are still open.
+
+
+### Enemy-projectile collision/drop metadata
+
+All active enemy-projectile collision-option words ($F380) now compare. Death
+explosions additionally compare their source enemy header ($F3C8), consumed by
+the later drop-selection instruction. Death explosions and pickups both compare
+the killed-enemy/respawn word ($F410). Direct chance-table overrides fail explicitly
+until mapped if a different movie encounters them.
+
+At update 10453/source 10625, direct Ridley pickups exposed an important native
+representation distinction: $86:EF3E writes the supplied source header through
+caller X, while pickup allocation uses Y. $86:F118 reads that same caller-X word
+during immediate drop selection. The pickup's allocated-slot header retains old
+values (zero or E1BF in this recording), and its remaining program never consumes
+that header. The port stores the source on the pickup for immediate selection.
+This unused per-slot retained word is excluded explicitly; live death-explosion
+headers, selected pickup types/lifetimes, respawn state and RNG remain checked.
+No production change is justified by that representation difference.
+
+Release build and all 10,717 independent movie updates pass
+(`eproj-metadata-final-build.log`, `eproj-metadata-final-replay.log`). The remaining
+control, presentation, loading and other documented coverage gaps remain open.

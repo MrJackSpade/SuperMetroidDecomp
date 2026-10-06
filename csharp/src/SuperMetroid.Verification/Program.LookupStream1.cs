@@ -913,12 +913,17 @@ internal static partial class Program
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         Dictionary<int, ushort> Overrides(SamusHurtColorCatalog catalog, string name) =>
             (Dictionary<int, ushort>)typeof(SamusHurtColorCatalog).GetField(name, flags)!.GetValue(catalog)!;
-        byte[] Levels(SamusHurtColorCatalog catalog) => (byte[])typeof(SamusHurtColorCatalog).GetField("introLevels", flags)!.GetValue(catalog)!;
+        Dictionary<int, byte> Levels(SamusHurtColorCatalog catalog) => (Dictionary<int, byte>)typeof(SamusHurtColorCatalog).GetField("introLevels", flags)!.GetValue(catalog)!;
         var stock = Create(native);
         AssertEqual(0, Overrides(stock, "introOverrides").Count + Overrides(stock, "hurtOverrides").Count, "Zero stock channel/blend fallbacks");
-        AssertTrue(Levels(stock).SequenceEqual(native.Skip(17).Select(word => (byte)(word & 31))), "Exact fifteen required source levels");
+        AssertEqual(0, Levels(stock).Count, "Zero stock shade samples survive");
+        AssertTrue(typeof(SamusHurtColorCatalog).GetField("hurtZero", flags)!.GetValue(stock) is null &&
+            typeof(SamusHurtColorCatalog).GetField("introZero", flags)!.GetValue(stock) is null, "No stock transparent-word fallback");
+        AssertEqual(native[0], SamusHurtColorDefinitions.HurtTransparentWord, "Native transparent black");
+        AssertEqual(native[16], SamusHurtColorDefinitions.IntroTransparentWord, "Native reviewed transparent identity");
         for (int index = 1; index < 16; index++)
         {
+            AssertEqual((byte)(native[index + 16] & 31), SamusHurtColorDefinitions.DefaultIntroLevel(index), "Direct calculated shade level equals native");
             AssertEqual(native[index + 16], SamusHurtColorDefinitions.IntroFromLevel((byte)(native[index + 16] & 31)), "Direct native intro channel relation");
             AssertEqual(native[index], SamusHurtColorDefinitions.HurtFromIntro(native[index + 16]), "Direct native hurt white blend");
         }
@@ -929,7 +934,12 @@ internal static partial class Program
             var edited = Create(supplied);
             for (int index = 0; index < 32; index++)
                 AssertEqual(supplied[index], edited.Resolve(index < 16 ? SamusHurtColorVariant.Hurt : SamusHurtColorVariant.Intro, index % 16), "Every supplied RGB channel remains independent across palettes");
-            AssertTrue(Levels(edited).SequenceEqual(supplied.Skip(17).Select(word => (byte)(word & 31))), "Exact edited required red-level basis");
+            for (int index = 1; index < 16; index++)
+            {
+                bool stored = (supplied[index + 16] & 31) != (native[index + 16] & 31);
+                AssertEqual(stored, Levels(edited).ContainsKey(index), "Exact independent shade difference membership");
+                if (stored) AssertEqual((byte)(supplied[index + 16] & 31), Levels(edited)[index], "Exact supplied shade override");
+            }
             for (int index = 1; index < 16; index++)
             {
                 int red = supplied[index + 16] & 31;
@@ -945,7 +955,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((SamusHurtColorVariant)2, 0), "Variant rejection preserved");
         foreach (int index in new[] { -1, 16 })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(SamusHurtColorVariant.Intro, index), "Color bounds preserved");
-        Console.WriteLine("Hurt/intro:32 native colors,30 direct relations,15 required source levels,zero stock overrides,96 independent RGB edits and exact exception membership pass.");
+        Console.WriteLine("Hurt/intro:32 native colors,30 direct relations,zero stock shade samples,zero stock overrides,96 independent RGB edits and exact exception membership pass.");
     }
     private static void VerifyLookupStream1NonBeamProgramLayout(ISnesAddressSpace rom)
     {

@@ -12005,4 +12005,15 @@
     "Mixed complete:32normal organ pulse colors derive reviewed initial paints,reflected four-level phase and channel clipping. Retain only selected dimming step5,saturated-red headroom5,red floor5 and organ-only symmetric intensity composition after native masks/consumer review. No cadence,SFX,low-health or other target exemption;zero stock pulse rows,independent target/frame edits preserved.",
     "Mixed complete:15visible target colors share reviewed Baby initial calculation,with independent edits. Retain only exact copied slot0=3800 atA9F8E6 as transparent compatibility payload:EF9F-EFA8 copies it but OBJ ink0 skips color lookup; inventing a paint function for it would re-encode unrelated payload. No visible-background or other target exemption;installed suit palettes remain independent."
   ]
+},"samusHurtIntroComplete":{
+  "disposition": [
+    "Mixed complete: all32palette words derive categorical pen-role aliases,three-interval outline4-to-white shade scale with selected half-rounding,shared blue floor/drop2 and2:5white blend. Only exact shade-role/tint/contrast composition and previously reviewed transparent3800 remain;black0 calculates. Native artwork/consumer reviewed; no timing,sound,physics or pixel exemption. Zero stock shade samples/color overrides,independent RGB edits preserved.",
+    "Mixed complete: all32palette words derive categorical pen-role aliases,three-interval outline4-to-white shade scale with selected half-rounding,shared blue floor/drop2 and2:5white blend. Only exact shade-role/tint/contrast composition and previously reviewed transparent3800 remain;black0 calculates. Native artwork/consumer reviewed; no timing,sound,physics or pixel exemption. Zero stock shade samples/color overrides,independent RGB edits preserved."
+  ],
+  "completed": [
+    "SamusHurtColorCatalog.hurt",
+    "SamusHurtColorCatalog.intro"
+  ],
+  "workerCommit": "7e11ab928",
+  "confirmation": "Root Verification1452existing warnings/0errors;Audit0/0;32native colors/15calculated levels/30relations,zero stock shade samples/overrides,96independent RGB edits and guarded ordinary/cinematic cycles pass."
 }}

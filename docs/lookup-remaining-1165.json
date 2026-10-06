@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 478,
+  "remainingTableDefinitionCount": 476,
   "fileCount": 523,
   "entries": [
     {
@@ -2072,19 +2072,25 @@
       "note": "Original/default payload behind SamusDeathTileAtlas.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/SamusHurtColorCatalog.cs",
-      "line": 17,
-      "name": "SamusHurtColorCatalog.hurt",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind SamusHurtColorCatalog.hurt. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/SamusHurtColorCatalog.cs",
+  "line": 17,
+  "name": "SamusHurtColorCatalog.hurt",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind SamusHurtColorCatalog.hurt. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "7e11ab928",
+  "disposition": "Mixed complete: all32palette words derive categorical pen-role aliases,three-interval outline4-to-white shade scale with selected half-rounding,shared blue floor/drop2 and2:5white blend. Only exact shade-role/tint/contrast composition and previously reviewed transparent3800 remain;black0 calculates. Native artwork/consumer reviewed; no timing,sound,physics or pixel exemption. Zero stock shade samples/color overrides,independent RGB edits preserved."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/SamusHurtColorCatalog.cs",
-      "line": 18,
-      "name": "SamusHurtColorCatalog.intro",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind SamusHurtColorCatalog.intro. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/SamusHurtColorCatalog.cs",
+  "line": 18,
+  "name": "SamusHurtColorCatalog.intro",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind SamusHurtColorCatalog.intro. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "7e11ab928",
+  "disposition": "Mixed complete: all32palette words derive categorical pen-role aliases,three-interval outline4-to-white shade scale with selected half-rounding,shared blue floor/drop2 and2:5white blend. Only exact shade-role/tint/contrast composition and previously reviewed transparent3800 remain;black0 calculates. Native artwork/consumer reviewed; no timing,sound,physics or pixel exemption. Zero stock shade samples/color overrides,independent RGB edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs",
       "line": 22,
@@ -21640,5 +21646,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 50
+  "justifiedRetainedSinceSnapshot": 52
 }

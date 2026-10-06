@@ -545,23 +545,52 @@ internal static partial class Program
         var definition = (CeresRidleyAlarmColorDefinitions)typeof(CeresRidleyColorCatalog)
             .GetField("alarm", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         var inputs = (Dictionary<int, ushort>)typeof(CeresRidleyAlarmColorDefinitions)
-            .GetField("inputs", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
-        AssertEqual(27, inputs.Count, "alarm stores exactly its required forward basis with zero stock reflected overrides");
+            .GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
+        AssertEqual(0, inputs.Count, "all stock alarm words calculate with zero overrides");
         for (int row = 0; row < 16; row++)
         for (int color = 0; color < 3; color++)
         {
             AssertEqual(Native(row, color), Native(CeresRidleyAlarmColorDefinitions.SourceRow(row), color), "direct reflected/native relationship");
-            AssertEqual(row <= 8, inputs.ContainsKey(row * 3 + color), "exact required source membership");
+
             AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "installed native alarm color");
         }
-        for (int edit = -1; edit < 48; edit++)
+        for (int edit = -1; edit < 144; edit++)
         {
             var selected = stock;
             if (edit >= 0)
             {
                 var rows = document.Alarm!.Select(row => row.ToArray()).ToArray();
-                rows[edit / 3][edit % 3] = rows[edit / 3][edit % 3] with { Red = rows[edit / 3][edit % 3].Red ^ 1 };
+                int word = edit / 3, channel = edit % 3;
+                var original = rows[word / 3][word % 3];
+                rows[word / 3][word % 3] = channel switch { 0 => original with { Red = original.Red ^ 1 }, 1 => original with { Green = original.Green ^ 1 }, _ => original with { Blue = original.Blue ^ 1 } };
                 selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Alarm = rows })));
+            }
+            if (edit is -1 or 0 or 143)
+            {
+                const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                var enemies = new RoomEnemySystem { CeresRidleyColors = selected };
+                var cgram = new SnesCgram();
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+                var update = typeof(RoomEnemySystem).GetMethod("UpdateCeresSelfDestructPalette", flags)!
+                    .CreateDelegate<Action<RidleyEnemyState, ushort>>(enemies);
+                var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
+                for (ushort nmi = 0; nmi < 64; nmi++)
+                {
+                    update(state, nmi);
+                    int row = nmi / 4;
+                    AssertEqual((ushort)row, state.CeresEscapePaletteFrame, "actual alarm advances only every fourth NMI and wraps");
+                    for (int color = 0; color < 256; color++)
+                    {
+                        ushort expected = 0x1234;
+                        if (color is >= 97 and <= 99)
+                        {
+                            int word = row * 3 + color - 97;
+                            expected = (ushort)(Native(row, color - 97) ^ (edit >= 0 && word == edit / 3 ? 1 << (edit % 3 * 5) : 0));
+                        }
+                        AssertEqual(expected, cgram.Colors[color], "actual gated producer preserves exact row and other CGRAM colors");
+                    }
+                }
             }
             for (int row = 0; row < 16; row++)
             {
@@ -570,7 +599,7 @@ internal static partial class Program
                 selected.ApplyAlarm(cgram, row);
                 for (int color = 0; color < 3; color++)
                 {
-                    ushort expected = (ushort)(Native(row, color) ^ (row * 3 + color == edit ? 1 : 0));
+                    ushort expected = (ushort)(Native(row, color) ^ (edit >= 0 && row * 3 + color == edit / 3 ? 1 << (edit % 3 * 5) : 0));
                     AssertEqual(expected, selected.ResolveAlarm(row, color), "independent alarm source/derived edit");
                     AssertEqual(expected, cgram.Colors[97 + color], "actual alarm CGRAM write");
                     AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "stock alarm remains immutable");
@@ -592,7 +621,7 @@ internal static partial class Program
         foreach (int color in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(0, color), "alarm color bounds");
         AssertThrows<ArgumentNullException>(() => stock.ApplyAlarm(null!, 0), "alarm null CGRAM");
-        Console.WriteLine("Ceres alarm:48 native colors, exact27-word required basis, all48 independent edits,784 actual row writes, legacy fallback and bounds pass.");
+        Console.WriteLine("Ceres alarm:48 native colors, zero stock overrides, all144 independent RGB edits,2320 actual row writes, 192 gated producer calls, legacy fallback and bounds pass.");
     }
     private static void VerifyLookupStream4MaridiaPaletteDefinitions(CartridgeImportAddressSpace rom)
     {

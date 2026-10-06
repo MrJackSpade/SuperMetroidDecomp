@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 438,
+  "remainingTableDefinitionCount": 437,
   "fileCount": 523,
   "entries": [
     {
@@ -235,12 +235,15 @@
   "disposition": "Calculate42colors from existing body/eye paints tinted toward membrane183F at(2+row)/20. Retain only tint progression and precise recessed-armor green first-band / middle-plate blue second-band prior-shade holds as selected material composition. Magnitudes derive from source/prior shade; no new paint values,threshold,pixel or timing exemption."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
-      "line": 15,
-      "name": "CeresRidleyColorCatalog.alarm",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CeresRidleyColorCatalog.alarm. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
+  "line": 15,
+  "name": "CeresRidleyColorCatalog.alarm",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CeresRidleyColorCatalog.alarm. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "c6fc1be7637c4d4205707d1cc52ee032bf87ca4e",
+  "disposition": "Calculate48colors directly from reflected phase and exact affine channel trajectories. Retain five initial paint channels22/23/14/12/5 and named gold-to-muted-red progression as selected text-color composition; copied middle shade separately observable, not claimed visible. No stock samples/exceptions or cadence/pixel exemption."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
   "line": 16,
@@ -21760,5 +21763,5 @@
     }
   ],
   "convertedSinceSnapshot": 602,
-  "justifiedRetainedSinceSnapshot": 88
+  "justifiedRetainedSinceSnapshot": 89
 }

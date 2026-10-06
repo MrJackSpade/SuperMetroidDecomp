@@ -95,12 +95,23 @@ internal static partial class Program
         AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
         AssertEqual(0x010dc800u, samus.Kinematics.XFixed, "destination load carries both loading IRQ steps without restarting the scroll");
         int scrollCalls = 0;
-        while (!runtime.StepDoorOpeningScroll() && ++scrollCalls < 64) { }
-        AssertEqual(60, scrollCalls, "left trajectory completes on its 61st remaining IRQ call");
+        while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForDoorOpeningScroll && scrollCalls < 64)
+        {
+            game.Step(0);
+            scrollCalls++;
+        }
+        AssertEqual(61, scrollCalls, "left trajectory completes on its 61st remaining IRQ call");
+        AssertEqual(DoorTransitionPhase.FinishDoorLoading, game.DoorTransitionPhaseForVerification, "post-scroll NMI remains inside the loading coroutine");
         AssertEqual(0x00de2000u, samus.Kinematics.XFixed, "native source frame 276 scrolling endpoint");
-        runtime.FinishDoorOpeningScroll();
+        game.Step(0);
+        AssertEqual(DoorTransitionPhase.HandleAnimatedTiles, game.DoorTransitionPhaseForVerification, "loading alignment precedes music wait");
+        AssertEqual((ushort)0x5a88, runtime.System.RandomNumber, "loading continuation does not advance outer RNG");
         AssertEqual(0x00d82000u, samus.Kinematics.XFixed, "native final doorway alignment preserves original subposition");
         AssertEqual(yFixed, samus.Kinematics.YFixed, "left door endpoint preserves perpendicular coordinate");
+        game.Step(0);
+        AssertEqual((ushort)0xc5b9, runtime.System.RandomNumber, "native animated-tile outer dispatch RNG");
+        game.Step(0);
+        AssertEqual((ushort)0xa1ea, runtime.System.RandomNumber, "native music-wait outer dispatch RNG");
         Console.WriteLine("Ridley door entry/fade/loading: native RNG/NMI, setup displacement, complete IRQ trajectory and final alignment agree.");
     }
 
@@ -228,6 +239,17 @@ internal static partial class Program
         typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
         typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, (SuperMetroidGameState)W(RidleyMovieMemory.GameState));
         var audio = new CartridgeAudioRenderer(runtimeFixtureInstallation.Value.LoadAudio());
+        ushort[]? pendingLoadedOwners = null;
+        int loadingIntervals = 0;
+        ushort[] CaptureLoadedOwners()
+        {
+            var words = new List<ushort> { runtime.System.RandomNumber };
+            foreach (var actor in runtime.Enemies.Slots)
+                words.AddRange([actor.EnemyDefinitionPointer, actor.XPosition, actor.XSubposition,
+                    actor.YPosition, actor.YSubposition, actor.Health, actor.SpritemapPointer,
+                    actor.CurrentInstruction, actor.InstructionTimer]);
+            return words.ToArray();
+        }
         for (int frame = 0; frame <= length; frame++)
         {
             if (frame != 0) memory = ReadFrame(frame);
@@ -249,6 +271,8 @@ internal static partial class Program
                 ? (runtime.PendingDoorTransition ?? throw new InvalidDataException("Missing selected destination door")).DestinationRoomPointer
                 : runtime.ActiveRoom!.Pointer;
             Check("Selected room", selectedRoom, RidleyMovieMemory.Room);
+            Check("Camera X", runtime.Camera!.XPosition, RidleyMovieMemory.CameraX);
+            Check("Camera Y", runtime.Camera.YPosition, RidleyMovieMemory.CameraY);
             Check("Samus X", samus.XPosition, RidleyMovieMemory.X);
             Check("Samus X fraction", samus.Kinematics.XSubposition, RidleyMovieMemory.XFraction);
             Check("Samus Y", samus.YPosition, RidleyMovieMemory.Y);
@@ -264,9 +288,33 @@ internal static partial class Program
             Check("Samus vertical fraction", samus.Kinematics.YSubspeed, RidleyMovieMemory.VerticalFraction);
             Check("Samus vertical direction", samus.Kinematics.YDirection, RidleyMovieMemory.VerticalDirection);
             Check("Samus health", samus.Health, RidleyMovieMemory.Health);
-            Check("RNG", runtime.System.RandomNumber, RidleyMovieMemory.Random);
+            // The native CPU can still be decompressing source-room tiles while
+            // IRQ scrolling advances; the port loads the destination atomically.
+            // Align these owners at completed loading, not elapsed upload time.
+            // Movement/input remain compared on EVERY IRQ interval. A stable owner
+            // snapshot also proves the port does not run destination actors early.
+            bool nativeLoading = game.GameState == SuperMetroidGameState.LoadingNextRoomB &&
+                W(RidleyMovieMemory.DoorFunction) is RidleyMovieMemory.PlaceSamusLoadTiles or RidleyMovieMemory.LoadMoreThings;
+            bool portWaitingForScroll = game.DoorTransitionPhaseForVerification is
+                DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading;
+            bool deferLoadingOwners = nativeLoading && portWaitingForScroll;
+            if (deferLoadingOwners)
+            {
+                ushort[] owners = CaptureLoadedOwners();
+                if (pendingLoadedOwners is not null && !owners.AsSpan().SequenceEqual(pendingLoadedOwners))
+                    throw new InvalidDataException("Destination RNG/enemy owners advanced while native hardware loading was still pending.");
+                pendingLoadedOwners ??= owners;
+                loadingIntervals++;
+            }
+            else
+            {
+                if (pendingLoadedOwners is not null)
+                    AssertEqual(RidleyMovieMemory.HandleAnimTiles, W(RidleyMovieMemory.DoorFunction), "deferred destination owners reach native completed-loading boundary");
+                Check("RNG", runtime.System.RandomNumber, RidleyMovieMemory.Random);
+            }
             foreach (var actor in runtime.Enemies.Slots)
             {
+                if (deferLoadingOwners) continue;
                 int address = RidleyMovieMemory.EnemyBase + actor.NativeIndex;
                 string owner = $"Enemy {actor.SlotIndex}";
                 Check(owner + " identity", actor.EnemyDefinitionPointer, address);
@@ -291,6 +339,11 @@ internal static partial class Program
                 }
                 throw new InvalidDataException($"Full movie first divergence at update {frame} (SMV source frame {(frame == 0 ? 0 : updates[frame - 1].GetProperty("sourceFrame").GetInt32())}): " + string.Join("; ", mismatches));
             }
+            if (!deferLoadingOwners && pendingLoadedOwners is not null)
+            {
+                Console.WriteLine($"Completed-loading RNG/enemy owners match after {loadingIntervals} IRQ intervals; movement/input checked throughout.");
+                pendingLoadedOwners = null;
+            }
             // Only the converted controller event enters production; reference memory is
             // read-only. An accepted input read during APU transfer is not another
             // gameplay update. Until its latch/counter effects are normalized, stop
@@ -304,6 +357,7 @@ internal static partial class Program
                 game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
             }
         }
+        AssertTrue(pendingLoadedOwners is null, "no deferred loading comparison remains at movie end");
         AssertTrue(trace.ReadByte() == -1, "trace ends after movie terminal frame");
         Console.WriteLine($"Full movie input replay: {length} updates across all 10890 source frames match the currently instrumented fields.");
     }

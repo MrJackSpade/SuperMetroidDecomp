@@ -1,6 +1,14 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$099C: bank-$82 door-transition dispatcher, used to align completed loading owners.</summary>
+    public const int DoorFunction = 0x099c;
+    /// <summary>$82:E3C0: PlaceSamusLoadTiles; decompression overlaps IRQ movement.</summary>
+    public const ushort PlaceSamusLoadTiles = 0xe3c0;
+    /// <summary>$82:E4A9: LoadMoreThings; initializes destination owners and waits for scrolling.</summary>
+    public const ushort LoadMoreThings = 0xe4a9;
+    /// <summary>$82:E659: HandleAnimTiles; destination loading and its coroutine have completed.</summary>
+    public const ushort HandleAnimTiles = 0xe659;
     /// <summary>$079B: room_ptr.</summary>
     public const int Room = 0x079b;
     /// <summary>$0911: layer1_x_pos.</summary>

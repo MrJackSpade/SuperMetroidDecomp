@@ -83,7 +83,7 @@ room identity, and active enemies' identities, positions, health and visual curs
 That comparison is still under development; conversion success is not port parity.
 Door-entry and source-fade HDMA/RNG/actor omissions were reproduced and fixed,
 along with missing RNG advancement through the outer loading dispatches. The
-current checked gameplay properties match through update 178. Setup now applies
+current checked gameplay properties match through update 243 with the loading-owner alignment described below. Setup now applies
 Samus's first displacement before destination rebasing; the atomic loader retains
 the pre-setup source coordinates so it does not count that movement twice. A
 focused failing-then-passing regression confirms native `$0013.5800` at setup,
@@ -98,15 +98,29 @@ case matches `$010E.9000` and camera `$00F8` at update 178, all remaining scroll
 steps, and the final alignment. Four-direction initial positions and trajectories,
 native camera alignment, music timing, and autosave continuation checks pass.
 
-The next raw checkpoint mismatch is update 179 (source frame 214): the port has
-already loaded destination actors and entered the next outer loading dispatch
-(RNG `$5A88`); the cartridge is still decompressing tiles with its source actor
-pool and RNG `$784B`. Samus's position and the accepted NMI agree. Comparing
-partially initialized loader ownership at equal video-input boundaries would
-require reintroducing hardware delay. The replay still needs an explicit loading
-comparison boundary: retain every IRQ movement check, and compare the initialized
-owners/RNG when both loaders have completed, before destination gameplay runs.
-No such mismatch is silently ignored in the current verifier.
+The verifier now aligns destination RNG/enemy owners at native completed loading
+(`$82:E659`). During the 62 intervening IRQ intervals, it compares Samus/camera,
+input/NMI, movement, animation and health on every interval, and checks that the
+port's already-loaded RNG/enemy owners remain unchanged. At completion it compares
+them against native state before destination gameplay. This check passes. It does
+not compare a half-written cartridge enemy pool against a completed host load,
+add decompression delay, or inject any reference state. A pending deferred check
+at the movie's end is an error.
+
+The native post-scroll continuation at `$82:E544` now performs horizontal alignment
+before the music wait. It accepts one NMI without another main-loop RNG call;
+the following animated-tile and music-wait dispatches advance RNG normally. The
+focused fixture confirms native positions and RNG through those boundaries.
+
+The next divergence is update 244 (source frame 279): the port has already entered
+destination animation and accepts extra NMIs. Source inspection identifies two
+remaining problems: the frontend advances music delays on every IRQ-only wait,
+although native `$88:84BD` calls the music handler from the outer main-loop
+prologue; and its final transition dispatch falls through into a full gameplay
+frame instead of returning before destination fade processing. The existing
+`--door-music-timing` check passes its old expectation of uploading during scroll,
+but this expectation conflicts with the new native trace and must be corrected.
+Hardware-upload normalization remains unfinished as described above.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

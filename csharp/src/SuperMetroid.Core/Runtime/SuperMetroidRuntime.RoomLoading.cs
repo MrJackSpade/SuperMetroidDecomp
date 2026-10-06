@@ -536,6 +536,22 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Applies <c>$82:E544</c>'s horizontal eight-pixel alignment after the
+    /// post-scroll NMI, before the music wait and the later narrow-door nudges.
+    /// </summary>
+    internal void AlignSamusAfterDoorLoading()
+    {
+        DoorOpeningScrollState state = _doorOpeningScroll
+            ?? throw new InvalidOperationException("No door-opening scroll is active.");
+        if (state.RemainingFrames != 0 || Samus is null)
+            throw new InvalidOperationException("Door loading has not finished scrolling.");
+        if (state.Direction == 0)
+            Samus.XPosition |= 7;
+        else if (state.Direction == 1)
+            Samus.XPosition &= 0xfff8;
+    }
+
+    /// <summary>
     /// Applies <c>$82:E6A2</c>'s doorway alignment after music has drained, then releases
     /// the temporary IRQ-owned trajectory. This is deliberately later than the scroll.
     /// </summary>

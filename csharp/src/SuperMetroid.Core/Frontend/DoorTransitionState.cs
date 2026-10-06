@@ -194,19 +194,29 @@ public sealed class DoorTransitionState
                     // Setup lists can alter visible room state here; deferring them to the
                     // first ordinary gameplay frame exposes their pre-PLM state.
                     runtime.RunDoorTransitionPlmHandler();
-                    Phase = DoorTransitionPhase.HandleAnimatedTiles;
+                    Phase = DoorTransitionPhase.FinishDoorLoading;
                 }
+                break;
+
+            case DoorTransitionPhase.FinishDoorLoading:
+                // $82:E540 yields once after PLM processing. This resumes the
+                // same outer dispatch, so it aligns X without another RNG call.
+                runtime.RunBlankGameplayFrame(controllerInput);
+                runtime.AlignSamusAfterDoorLoading();
+                Phase = DoorTransitionPhase.HandleAnimatedTiles;
                 break;
 
             case DoorTransitionPhase.HandleAnimatedTiles:
                 // LoadCartridgeRoom already initialized the destination animtile owner.
                 // Native gives it one explicit call before polling the global music queue.
                 runtime.RunBlankGameplayFrame(controllerInput);
+                runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: true);
                 Phase = DoorTransitionPhase.WaitForMusicQueue;
                 break;
 
             case DoorTransitionPhase.WaitForMusicQueue:
                 runtime.RunBlankGameplayFrame(controllerInput);
+                runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: true);
                 if (!audio.HasQueuedMusic)
                 {
                     Phase = DoorTransitionPhase.HandleTransition;
@@ -328,4 +338,5 @@ public enum DoorTransitionPhase
     Complete,
     // Append to preserve numeric identities already stored in debugger states.
     BuildDestinationOam,
+    FinishDoorLoading,
 }

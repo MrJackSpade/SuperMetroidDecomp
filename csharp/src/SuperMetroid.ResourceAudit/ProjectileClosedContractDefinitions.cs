@@ -6,8 +6,9 @@ internal static class ProjectileClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.BeamTileCatalog", "beam-complete-sheet-selection", ["Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs", "1C1E490CCACF0ECC2DD5DCEC9D20531D405509461DDC875DAB7316D39A6D5133"),
-             new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "2390C3A34C6DDA0D97FBFA05608C93A2EE1B7F08F35455F2F31A4C2E7C033C7F"),
+            [new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs", "9B35F18FC97E62025B31678D018B5AC542FFEC0672421C67347B7799A966E5AD"),
+             new("csharp/src/SuperMetroid.Core/Game/SamusEquipmentFlags.cs", "698EB15B595FC4192181AC1CB301F85602A2F3DAA002076CA90A37CB85A8E232"),
+             new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "E7B2479F4DFEDD4007100857428E0D7D857D803E9BA254F17943548E8A0CE7F1"),
              new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "D60B0DED6A14D23F5962FD93DA6AF5B48D83524D344A3ABB31548334EA2492E4")],
             "Both constructor paths require all twelve beam sheets; the precompiled path rejects nulls and clones its input array. Resolve guards the contiguous beam-only asset range. Optional palette providers, transfer timing and selected beam physics are not certified."),
         new("SuperMetroid.Core.Assets.ChargeFlarePlacementCatalog", "flare-complete-standing-running-offsets", ["Resolve"],

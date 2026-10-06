@@ -42,7 +42,7 @@ internal static partial class Program
             var sheets = Enumerable.Range(0, BeamTileAtlasDefinitions.SelectionCount).Select(index =>
             {
                 using var png = File.OpenRead(Path.Combine(stock, BeamTileAtlasDefinitions.FileName(index)));
-                return BeamTileAtlas.Load(png);
+                return BeamTileAtlas.Load(png, index);
             }).ToArray();
             var ownedBeams = BeamTileCatalog.FromAtlases(sheets, compiledBeams.Palettes!, compiledBeams.HyperBeamFxColors!);
             sheets[0] = null!;

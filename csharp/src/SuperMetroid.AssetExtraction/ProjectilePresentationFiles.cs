@@ -79,7 +79,7 @@ public static class ProjectilePresentationFiles
             if (!manifest.BeamHashes.TryGetValue(name, out string? expected))
                 throw new InvalidDataException($"Projectile manifest {manifestPath} is missing beam {name}.");
             ProjectileFile file = Stock(name, expected);
-            _ = file.Compile(BeamTileAtlas.Load);
+            _ = file.Compile(stream => BeamTileAtlas.Load(stream, i));
             stockBeams.Add(name, file);
         }
         ProjectileFile stockPalettes = Stock(BeamPaletteDefinitions.FileName, manifest.PaletteSha256);
@@ -120,7 +120,7 @@ public static class ProjectilePresentationFiles
         return new(selected.Compile(ProjectileSpriteCatalog.Load),
             Identity(stock, stockBeams, stockPalettes, stockHyperBeamFxColors, stockTrails, stockTrailTiles, stockFlarePlacement, stockFlareCompositions, stockGrappleTiles, stockGrappleSprites, stockGrappleFlare, stockGrappleSwing, stockFrameBindings), Identity(selected, selectedBeams, selectedPalettes, selectedHyperBeamFxColors, selectedTrails, selectedTrailTiles, selectedFlarePlacement, selectedFlareCompositions, selectedGrappleTiles, selectedGrappleSprites, selectedGrappleFlare, selectedGrappleSwing, selectedFrameBindings),
             BeamTileCatalog.FromAtlases(Enumerable.Range(0, BeamTileAtlasDefinitions.SelectionCount)
-                .Select(index => selectedBeams[BeamTileAtlasDefinitions.FileName(index)].Compile(BeamTileAtlas.Load)).ToArray(),
+                .Select(index => selectedBeams[BeamTileAtlasDefinitions.FileName(index)].Compile(stream => BeamTileAtlas.Load(stream, index))).ToArray(),
                 selectedPalettes.Compile(BeamPaletteCatalog.Load), selectedHyperBeamFxColors.Compile(HyperBeamFxColorCatalog.Load)),
             selectedTrails.Compile(stream => ProjectileTrailCatalog.Load(stream, selectedTrailTiles.Compile(ProjectileTrailAtlas.Load))),
             selectedFlarePlacement.Compile(ChargeFlarePlacementCatalog.Load),

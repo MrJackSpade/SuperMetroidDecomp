@@ -2807,6 +2807,11 @@
     }
   ],
   "additionalOwnership": [
+{"path":"csharp/src/SuperMetroid.Verification/Program.ProjectileFileContracts.cs","purpose":"Selection-aware calculated beam atlas loading/sharing or existing caller adaptation only","stream":4},
+{"path":"csharp/src/SuperMetroid.Verification/Program.BeamTileArtwork.cs","purpose":"Selection-aware calculated beam atlas loading/sharing or existing caller adaptation only","stream":4},
+{"path":"csharp/src/SuperMetroid.AssetExtraction/ProjectilePresentationFiles.cs","purpose":"Selection-aware calculated beam atlas loading/sharing or existing caller adaptation only","stream":4},
+{"path":"csharp/src/SuperMetroid.AssetExtraction/BeamTileExtractor.cs","purpose":"Selection-aware calculated beam atlas loading/sharing or existing caller adaptation only","stream":4},
+{"path":"csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs","purpose":"Selection-aware calculated beam atlas loading/sharing or existing caller adaptation only","stream":4},
 {"path":"csharp/src/SuperMetroid.Verification/Program.YardVisuals.cs","purpose":"Scoped immutable ordinary-OAM view, Baby reflection or returned-view binding adaptation; preserve other contracts","stream":3},
 {"path":"csharp/src/SuperMetroid.Verification/Program.WorkRobotVisuals.cs","purpose":"Scoped immutable ordinary-OAM view, Baby reflection or returned-view binding adaptation; preserve other contracts","stream":3},
 {"path":"csharp/src/SuperMetroid.Verification/Program.MochtroidVisuals.cs","purpose":"Scoped immutable ordinary-OAM view, Baby reflection or returned-view binding adaptation; preserve other contracts","stream":3},

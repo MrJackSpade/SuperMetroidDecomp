@@ -11851,4 +11851,11 @@
     "workerCommit":  "54f192edf69dbf9491337a7440b5af5f843157c1",
     "state":  "mixed-complete",
     "algorithm":  "Nearest RGB5 interpolation from reviewed drained/normal endpoint body,rear and trailing dependencies; frame2ink11 computes preceding shade."
+},"metroidPulseCadenceComplete":{
+    "confirmation":  "Root1452warnings/0errors;25native records,320actual scheduler exposure ticks without forced resets,two callback boundaries and exact sound/RNG ownership pass.",
+    "justification":  "Only selected beat16/split6 retain drawn internal-pulse and synchronized-cry choreography; no contact/drain quantity generates exposure split. Native strip/records and separate touch/drain/callback consumers reviewed.",
+    "completed":  "MetroidInstructionProgramDefinitions.FrameDurations",
+    "workerCommit":  "463fe3bee9f75fcdf7008d188fa50e6933771bbf",
+    "state":  "mixed-complete",
+    "algorithm":  "Named pulse stages; three rests share beat16 and peak10 derives beat minus brightening6."
 }}

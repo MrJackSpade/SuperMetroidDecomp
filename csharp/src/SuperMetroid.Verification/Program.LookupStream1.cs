@@ -5,6 +5,47 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1MetroidPulse(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+        foreach (bool chasing in new[] { true, false })
+        {
+            ushort root = chasing ? (ushort)0xe9cf : (ushort)0xea25;
+            int records = chasing ? 20 : 5, randomCalls = 0, calls = 0;
+            var guard = new MetroidInstructionReadGuard(rom);
+            var (enemies, slot) = NewMetroidInstructionSystem(guard, flags, root, () => { randomCalls++; return 5; });
+            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            for (int record = 0; record < records; record++)
+            {
+                ushort address = (ushort)(root + record * 4);
+                ushort duration = Word(0xa30000 | address), visual = Word(0xa30000 | (address + 2));
+                AssertEqual(duration, MetroidInstructionProgramDefinitions.ReadMechanicsWord(address), "Native Metroid pulse duration");
+                process.Invoke(enemies, arguments); calls++;
+                AssertEqual(duration, slot.InstructionTimer, "Actual Metroid duration reload");
+                AssertEqual(visual, slot.SpritemapPointer, "Actual native inside-pose identity");
+                AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Metroid selected record ordering");
+                for (int held = 1; held < duration; held++)
+                {
+                    process.Invoke(enemies, arguments); calls++;
+                    AssertEqual((ushort)(duration - held), slot.InstructionTimer, "Every actual Metroid exposure tick");
+                    AssertEqual(visual, slot.SpritemapPointer, "Held Metroid inside pose stays selected");
+                }
+                AssertEqual(0, randomCalls, "No Metroid RNG call before complete pulse loop");
+                AssertTrue(enemies.LastMetroidSoundEffectLibrary2 is null, "No Metroid callback before loop boundary");
+            }
+            AssertEqual(chasing ? 256 : 64, calls, "Exact native pulse-loop length");
+            process.Invoke(enemies, arguments);
+            AssertEqual(chasing ? 1 : 0, randomCalls, "Exact Metroid callback RNG ownership");
+            ushort expectedSound = chasing ? Word(0xa3ead6 + 5 * 2) : Word(0xa3eaa8);
+            AssertEqual((ushort?)expectedSound, enemies.LastMetroidSoundEffectLibrary2, "Native loop callback sound");
+            AssertEqual((ushort)(root + 4), slot.CurrentInstruction, "Callback loops to first timed record");
+            AssertEqual(Word(0xa30000 | root), slot.InstructionTimer, "Loop reload preserves first native hold");
+            AssertEqual(0, guard.ForbiddenReadAttempts, "Metroid pulse mechanics use no cartridge reads");
+        }
+        Console.WriteLine("Metroid pulse:25 native records,320 actual exposure ticks,two callback boundaries and exact sound/RNG ownership pass.");
+    }
     private static void VerifyLookupStream1AtmosphericCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

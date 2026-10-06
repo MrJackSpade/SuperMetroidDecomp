@@ -241,7 +241,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs
 
-- [ ] **MetroidInstructionProgramDefinitions.FrameDurations** ([L25](../csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MetroidInstructionProgramDefinitions.FrameDurations** ([L25](../csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **MetroidInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs#L26)) - factory-built stock table. Stored MetroidInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [x] **MetroidInstructionProgramDefinitions.PresentationWords** ([L27](../csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs#L27)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
@@ -1088,3 +1088,17 @@ SamusAtmosphericAnimationDefinitions.FrameTimers is MIXED COMPLETE. Totals190 wh
 - Final confirmation: build1,434 warnings/zero errors; focused atmospheric command passes all37 native holds, seven domains,74 actual expiry/delayed-start cases and rejection contracts. No ResourceAudit source-hash references to SamusAtmosphericAnimationDefinitions.cs were found. Local Program.cs wiring is one focused command for coordinator merge.
 
 Root1452warnings/zero errors;focused37native holds/seven domains/74actual expiry-delayed-start cases passed. Master598converted/28retained-mixed/502pending.
+
+## Batch 86: complete ordinary-Metroid pulse exposure
+
+MetroidInstructionProgramDefinitions.FrameDurations is MIXED COMPLETE. Totals190 wholly converted / twelve mixed /24 unchecked.
+
+- Replace the five-element duration lookup with named contracted-rest,expanded-rest,brightening,peak,return-to-expanded stages. Three rest stages each take one beat; brightening and peak share another beat. Retain only selected beat16 and brightening split6; calculate peak10=16-6. No duplicate magnitude or per-index correction table remains.
+- Native A3:E9CF..EA1B repeats the pulse four times while chasing, EA25..EA35 once while draining. Spritemaps F10D,F137,F157,F181,F137 show internal contraction/red-to-white pulsing; source-only csharp/test-temp/metroid-insides-native-five.png uses exact AE:9000 tiles andA3:E9AF palette. Diagnostic labels were regenerated clearly from ROM as16,16,6,10,16.
+- Root independently viewed the strip and original records/callback/drain consumers, approving only beat16/split6 as selected drawn-pulse and synchronized-cry choreography. No physical/contact/drain quantity determines that selected exposure split. Native A0:DD7F radii remain10/10; outer shell/electricity are separate objects initializedA3:EA6F/EA93. No damage,artwork or other sound-choice exemption.
+- Managed RoomEnemySystem.Metroid.ResolveMetroidTouch/DrainSamusWithMetroid326..384 drains via independent touch/state/suit-dependent fixed-point accumulation. RoomEnemySystem.cs3006..3018 preserves the loop sound: draining sound50 after64ticks; chasing RNG advances once for its cry after four cycles256ticks. All these exact timing consequences remain.
+- Focused --lookup-stream-1-metroid-pulse compares25 independent native duration/visual records and runs320 actual scheduler exposure ticks without resetting timers between records. It asserts every decrement, held sprite, pointer order, no premature sound/RNG, both callback boundaries and first-record reloads; compiled mechanics read guard stays zero.
+- Verification build1,434 warnings/zero errors and focused command pass. Final changes after build are XML disposition wording only; executable tokens unchanged. Local Program.cs adds one focused command; coordinator merges wiring.
+- No ResourceAudit source-hash references to MetroidInstructionProgramDefinitions.cs were found.
+
+Root integrated confirmation:1452warnings/zero errors;25native records,320actual exposure ticks,two callback boundaries and exact sound/RNG ownership pass. Master598converted/30retained-mixed/500pending.

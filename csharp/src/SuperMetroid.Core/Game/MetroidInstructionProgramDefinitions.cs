@@ -22,7 +22,31 @@ internal static class MetroidInstructionProgramDefinitions
     /// <summary><c>BombedOffVelocities</c>, adjacent non-instruction data at $A3:EA3F.</summary>
     internal const ushort AdjacentBombedOffVelocities = 0xea3f;
 
-    private static readonly ushort[] FrameDurations = [16, 16, 6, 10, 16];
+    /// <summary>$A3:E9CF..E9DF/EA25..EA35: one pulse comprises four16-tick beats; exact chosen beat is retained as reviewed drawn-pulse/synchronized-cry choreography.</summary>
+    private const ushort PulseBeatTicks = 16;
+    /// <summary>$A3:E9D7/EA2D: six ticks brighten the pulse; the peak uses the remainder of that beat. Exact chosen split is retained under the same bounded pulse-exposure disposition; damage and other sounds/artwork are excluded.</summary>
+    private const ushort PulseBrighteningTicks = 6;
+    private enum PulseStage
+    {
+        /// <summary>$A3:E9CF/EA25 selects Insides_0 atF10D.</summary>
+        ContractedRest,
+        /// <summary>$A3:E9D3/EA29 selects Insides_1 atF137.</summary>
+        ExpandedRest,
+        /// <summary>$A3:E9D7/EA2D selects Insides_2 atF157.</summary>
+        Brightening,
+        /// <summary>$A3:E9DB/EA31 selects Insides_3 atF181.</summary>
+        Peak,
+        /// <summary>$A3:E9DF/EA35 returns to Insides_1 atF137.</summary>
+        ReturnToExpanded,
+    }
+
+    private static ushort FrameDuration(int stage) => (PulseStage)stage switch
+    {
+        PulseStage.Brightening => PulseBrighteningTicks,
+        PulseStage.Peak => PulseBeatTicks - PulseBrighteningTicks,
+        PulseStage.ContractedRest or PulseStage.ExpandedRest or PulseStage.ReturnToExpanded => PulseBeatTicks,
+        _ => throw new ArgumentOutOfRangeException(nameof(stage)),
+    };
     internal static int MechanicsWordCount => 31;
     internal static int PresentationWordCount => 25;
     internal static MetroidInstructionMechanicsWord MechanicsWord(int index)
@@ -53,7 +77,7 @@ internal static class MetroidInstructionProgramDefinitions
         int start = chasing ? ChasingSamus : DrainingSamus;
         int offset = address - start;
         int frames = chasing ? 20 : 5;
-        if ((uint)offset < frames * 4 && offset % 4 == 0) return FrameDurations[offset / 4 % 5];
+        if ((uint)offset < frames * 4 && offset % 4 == 0) return FrameDuration(offset / 4 % 5);
         if (offset == frames * 4) return chasing ? EnemyInstructionCodePointers.Instruction_Metroid_PlayRandomMetroidSFX :
             EnemyInstructionCodePointers.Instruction_Metroid_PlayDrainingSamusSFX;
         if (offset == frames * 4 + 2) return CommonEnemyInstructionCodes.Goto;

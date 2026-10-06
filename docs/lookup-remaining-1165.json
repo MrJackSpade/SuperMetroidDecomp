@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 501,
+  "remainingTableDefinitionCount": 500,
   "fileCount": 523,
   "entries": [
     {
@@ -4786,12 +4786,15 @@
       "implementationCommit": "9756a59c0"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs",
-      "line": 25,
-      "name": "MetroidInstructionProgramDefinitions.FrameDurations",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs",
+    "line":  25,
+    "name":  "MetroidInstructionProgramDefinitions.FrameDurations",
+    "kind":  "stored definition",
+    "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+    "state":  "justified-retained",
+    "implementationCommit":  "463fe3bee9f75fcdf7008d188fa50e6933771bbf",
+    "disposition":  "Mixed complete: named pulse stages share16-tick beat; peak10 derives beat minus brightening6. Retain only exact beat16/split6 as chosen internal-pulse/synchronized-cry choreography. Fixed contact and separate drain ownership reviewed; every actual exposure and sound/RNG boundary preserved. Other art/sound/damage excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MetroidInstructionProgramDefinitions.cs",
       "line": 26,
@@ -21570,5 +21573,5 @@
     }
   ],
   "convertedSinceSnapshot": 598,
-  "justifiedRetainedSinceSnapshot": 29
+  "justifiedRetainedSinceSnapshot": 30
 }

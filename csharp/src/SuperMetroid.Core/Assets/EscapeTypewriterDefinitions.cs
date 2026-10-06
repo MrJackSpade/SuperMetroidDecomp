@@ -7,6 +7,7 @@ public static class EscapeTypewriterDefinitions
     public const string FileName = "escape-typewriter.json";
     public const int CeresSourceAddress = 0xa6c450;
     public const int ZebesSourceAddress = 0xa6c49c;
+    /// <summary>$A6:C450/$C49C runtime delay reset; unchanged and outside the installed programs table payload. No timing exemption is claimed.</summary>
     public const ushort CharacterDelayFrames = 2;
     public const int MaximumLineLength = 32;
 
@@ -21,15 +22,15 @@ public static class EscapeTypewriterDefinitions
     /// <summary>$A6:C4B6, TypewriterText_ZebesEscapeTimer: chosen English warning wording, retained as lexical content.</summary>
     private const string ZebesEscapeWarning = "ESCAPE IMMEDIATELY!";
 
-    /// <summary>$A6:C456/$C4A2 destination operands: chosen five-cell left margin; still required.</summary>
+    /// <summary>$A6:C456/$C4A2 destination operands: reviewed five-cell warning-block margin; a chosen text-composition input, not derived from game state.</summary>
     internal const int FirstColumn = 5;
-    /// <summary>$A6:C456/$C4A2 destination operands: chosen first tile row eight; still required.</summary>
+    /// <summary>$A6:C456/$C4A2 destination operands: reviewed first tile row eight; a chosen text-composition input.</summary>
     internal const int FirstRow = 8;
-    /// <summary>$A6:C470/$C486/$C4B4 destination operands: chosen two-row line spacing; still required.</summary>
+    /// <summary>$A6:C470/$C486/$C4B4 destination operands: reviewed two-row leading; preserves the selected one-blank-row warning typography.</summary>
     internal const int LineRowStep = 2;
-    /// <summary>$A6:C454..C49A: chosen three-line Ceres message grouping; still required.</summary>
+    /// <summary>$A6:C454..C49A: reviewed three-line grouping of the approved Ceres wording; selected line breaks are lexical composition.</summary>
     private const int CeresLineCount = 3;
-    /// <summary>$A6:C4A0..C4C9: chosen two-line Zebes message grouping; still required.</summary>
+    /// <summary>$A6:C4A0..C4C9: reviewed two-line grouping of the approved Zebes wording; selected line breaks are lexical composition.</summary>
     private const int ZebesLineCount = 2;
     /// <summary>$A6:C456, TypewriterText_CeresEscapeTimer: BG1 tilemap VRAM identity.</summary>
     private const int CeresTilemapBase = 0x5000;

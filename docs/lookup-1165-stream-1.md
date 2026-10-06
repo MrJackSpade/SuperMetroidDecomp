@@ -196,7 +196,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterPresentation.cs
 
-- [ ] **EscapeTypewriterPresentation.programs** ([L9](../csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterPresentation.cs#L9)) - installed stock table. Original/default payload behind EscapeTypewriterPresentation.programs. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **EscapeTypewriterPresentation.programs** ([L9](../csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterPresentation.cs#L9)) - installed stock table. Original/default payload behind EscapeTypewriterPresentation.programs. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs
 
@@ -975,7 +975,7 @@ Root Verification build1445 warnings/zero errors; --lookup-stream-1-atmospheric-
 
 Partial conversion c962486be: named Ceres/Zebes selection replaces the program dictionary; calculated line views preserve independent text/destination differences and added/removed lines. Retention covers only the five exact English warning strings at A6:C458,C472,C488,C4A4,C4B6. Their wording is narrative content; generating different text from arithmetic would not preserve it. Glyph identities and geometry are separate.
 
-First column5,row8,row step2,three/two-line grouping and character delay2 remain required; the aggregate stays unchecked. Root Verification build1445 warnings/zero errors; --lookup-stream-1-escape-text passes five native lines, zero stock overrides, independent edits/counts/bounds and271 actual production calls compared to native command parsing for timing,destinations,clicks,glyphs and VRAM with cartridge reads denied. ResourceAudit0/0. Inventory unchanged558 converted/20 retained-mixed/550 pending.
+The exact layout/grouping review is completed in Batch84 below. Character delay2 is separate runtime behavior outside the original programs table schema; it is not a retention exemption or a pending field of this entry. Root Verification build1445 warnings/zero errors; --lookup-stream-1-escape-text passes five native lines, zero stock overrides, independent edits/counts/bounds and271 actual production calls compared to native command parsing for timing,destinations,clicks,glyphs and VRAM with cartridge reads denied. ResourceAudit0/0. Inventory unchanged558 converted/20 retained-mixed/550 pending.
 ## Integrated narrow Owtch visual cadence disposition
 
 OwtchInstructionProgramDefinitions.Words is mixed complete (dbe23c0e0): structure and selectors calculate; only CyclicVisualHold8 remains as chosen visual playback content. Root inspected the three native rendered poses, A2:A3AD/A3BF loops, A579 shot gate, A0:D03F header and managed movement/collision consumers. The same spiked shell has shifted lower pink/purple pixels, with opposite direction playback orders. Each map is one16x16 part at(-8,-8). Direction callbacks precede the cycles; the cycles contain only timed visuals and Goto.
@@ -1060,3 +1060,17 @@ EscapeTimer.CentisecondDecrements is CONVERTED, with no retained sample/phase ex
 - Final confirmation: build1,434 warnings/zero errors; focused cadence command passes all stated native/Process/mask/expiration assertions. No remaining cadence payload or phase obligation; coordinator records the new catalog grant.
 
 Root integration:1452warnings/zero errors; full focused cadence/native/Process/expiry confirmation passed. Master597converted/24retained-mixed/507pending.
+
+## Batch 84: complete escape-warning text composition
+
+EscapeTypewriterPresentation.programs is MIXED COMPLETE. Totals190 wholly converted / ten mixed /26 unchecked.
+
+- Original scope proven from pre-conversion c962486be^: the programs dictionary stores Program(Id,SourceAddress,Lines), with each line(Destination,Text). There is no delay field. Corrected the prior report's mistaken CharacterDelayFrames2 completion obligation; the separate runtime delay is unchanged and receives no exemption. Real completion still gates Ceres self-destruct handoff and Mother Brain's start-timer phase, so timing is not described as irrelevant.
+- Existing calculation selects Ceres/Zebes semantically, derives native source/BG identities, computes destination=tilemap+(firstRow+line*leading)*32+column and exposes an immutable calculated sequence. Stock has zero stored line overrides; independent text/destination/line-count edits remain intact.
+- Root independently reviewed original schema, semantic resolver and native A6:C454..C4C9. Prior approved exact lexical content is extended only to its exact five-line grouping/breaks and shared warning-block column5,row8,two-row leading. Native destinations5105/5145/5185 and4905/4945 establish those choices. A different alignment or leading changes the composed warning; no game-state/content quantity selects this specific typography. This is a narrow nonsense disposition for chosen text composition, not a generic UI/art exception.
+- Ceres groups SELF DESTRUCT SEQUENCE / ACTIVATED EVACUATE / COLONY IMMEDIATELY; Zebes groups TIME BOMB SET! / ESCAPE IMMEDIATELY!. Glyph pixels and other artwork remain separate. Runtime CharacterDelayFrames2 remains unchanged outside this inventory entry.
+- Helper XML now records reviewed layout/grouping choices and correct delay scope. The existing focused native-ROM control/character interpreter compares all271 actual installed Step calls, exact completion/destination/delay/countdown/glyph count/click and every VRAM byte; actual side denies cartridge reads. It also checks five extracted native lines, zero stock overrides, independent edits, added/shortened documents and bounds.
+- Source hash dependency: EscapeTypewriterDefinitions.cs in TextAndMapClosedContractDefinitions.cs (coordinator refresh). No production executable behavior changes in this disposition checkpoint.
+- Final confirmation: Verification build1,434 warnings/zero errors; --lookup-stream-1-escape-text passes all five native lines, zero stock overrides, independent content/line-count edits and271 actual native-oracle calls.
+
+Root five-line/zero-override/edit/271-call confirmation passed. This checkpoint changes only XML documentation and accounting, with unchanged executable code. Master597converted/26retained-mixed/505pending.

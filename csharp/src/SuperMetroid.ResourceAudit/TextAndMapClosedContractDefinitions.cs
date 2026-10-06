@@ -7,7 +7,7 @@ internal static class TextAndMapClosedContractDefinitions
     [
         new("SuperMetroid.Core.Assets.EscapeTypewriterPresentation", "escape-text-complete-program-membership", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterPresentation.cs", "9B7FD2D1E324E9CAA51030FD66CC86476DFD38D9FECEBA5A01FCE3EDC7EAB697"),
-             new("csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterDefinitions.cs", "97DDAE9DB2CFA2B045C318BE6BCFC45724E56AA863BC0210076151122E966913")],
+             new("csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterDefinitions.cs", "6564E563DEB2E69A513997C189665966E3CA82C07641F4F763D5362DE5F3E40E")],
             "The sole private-constructor loader requires both non-None escape programs before publication. Get selects that complete membership set. Lines are read-only calculated views with independently supplied line differences. This proves program identity coverage only, not glyph rendering or typewriter behavior."),
         new("SuperMetroid.Core.Assets.IntroNarrationPresentation", "narration-complete-compiled-pages", ["GetLines", "Compile"],
             [new("csharp/src/SuperMetroid.Core/Assets/IntroNarrationPresentation.cs", "509DE2F8FA095E97CB4A7618ED6CB98E5D4B8DC9DC7EDD4DF872FDF069C8A126"),

@@ -12256,4 +12256,22 @@
     "Calculate24patch cells from3named open/half-open/closed atlas anchors, deadpan adjacency,3x2dimensions and16-column atlas. Retain only those selected portrait identities, pose mapping and palette3/plain display style. Timing and pixel content receive no exemption."
   ],
   "workerCommit": "f826538623367cb03c451b1642677069f3d740b7"
+},"ceresBabyPaletteWholeEntry":{
+  "confirmation": "Root build1456warnings/0errors;60native colors,zero stock residuals,180output/9body-source RGB edits,768actual copies,36native pose selections,legacy ownership and startup independence pass. Startup32native/141edits/144copies also pass. Exact material masks and phase policies reviewed.",
+  "workerCommit": "fbf7d78fdcd9ad15d062a43c190fcf6d2c82c887",
+  "disposition": [
+    "Calculate60colors from shared body membrane and Baby fang paints,eight local material channels,midpoints and pose brightness. Retain exact glass/dome/seam paint choices,clipped3-step brightening,one-phase fang-red lag and cyan G/B ceiling maximum-minus-one as reviewed selected color composition. Zero stock residual words; pixels/timing excluded."
+  ],
+  "completed": [
+    "CeresRidleyColorCatalog.baby"
+  ]
+},"ceresRetreatSharedWholeEntry":{
+  "completed": [
+    "CeresRidleyColorCatalog.retreatShared"
+  ],
+  "confirmation": "Root build1456warnings/0errors;8native/source identities,zero stock dictionary values,48independent RGB edits,51actual dual-domain copies with all256CGRAM values,bounds/null pass. Separate retreat BG unchanged.",
+  "workerCommit": "27bb74b7c8f659f1a1cd06976bec13cb7c44a647",
+  "disposition": [
+    "Remove8word duplicate; resolve through existing startup door material slots1..8 with sparse independently supplied differences. Both BG33..40 and OBJ241..248 copies preserved. No new retained values or exemption."
+  ]
 }}

@@ -14,21 +14,26 @@ public sealed class CeresRidleyColorCatalog
     private readonly ushort[][] health;
     private readonly CeresRidleyAlarmColorDefinitions alarm;
     private readonly ushort[] retreatBg;
-    private readonly ushort[] retreatShared;
-    private readonly ushort[][] baby;
+    /// <summary>Only supplied differences from the first eight door paints: native $A6:AA01-AA10 repeats $A6:E171-E180.</summary>
+    private readonly Dictionary<int, ushort> retreatShared = [];
+    private readonly CeresBabyPaintDefinitions baby;
 
     private CeresRidleyColorCatalog(ushort[] start, CeresRidleyFadeColorDefinitions eyeFade,
         CeresRidleyFadeColorDefinitions bodyFade, ushort[][] health, CeresRidleyAlarmColorDefinitions alarm,
         ushort[] retreatBg, ushort[] retreatShared,
-        ushort[][] baby)
+        CeresBabyPaintDefinitions baby)
     {
-        this.start = new(start, baby[0]);
+        this.start = new(start, baby);
         this.eyeFade = eyeFade;
         this.bodyFade = bodyFade;
         this.health = health;
         this.alarm = alarm;
         this.retreatBg = retreatBg;
-        this.retreatShared = retreatShared;
+        // The retreat copies the normal door/container paints into both drawing domains.
+        // Keep only independent supplied differences from the existing startup owner.
+        for (int color = 0; color < retreatShared.Length; color++)
+            if (retreatShared[color] != this.start.Resolve(color + 1))
+                this.retreatShared.Add(color, retreatShared[color]);
         this.baby = baby;
     }
 
@@ -45,8 +50,13 @@ public sealed class CeresRidleyColorCatalog
     public ushort ResolveHealth(int row, int color) => Get(health, row, color);
     public ushort ResolveAlarm(int row, int color) => alarm.Resolve(row, color);
     public ushort ResolveRetreatBg(int color) => Get(retreatBg, color);
-    public ushort ResolveRetreatShared(int color) => Get(retreatShared, color);
-    public ushort ResolveBaby(int row, int color) => Get(baby, row, color);
+    public ushort ResolveRetreatShared(int color)
+    {
+        if ((uint)color >= CeresRidleyPaletteRomData.RetreatSharedColorCount)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return retreatShared.TryGetValue(color, out ushort edited) ? edited : start.Resolve(color + 1);
+    }
+    public ushort ResolveBaby(int row, int color) => baby.Resolve(row, color);
 
     public void ApplyStart(SnesCgram cgram)
     {
@@ -86,12 +96,21 @@ public sealed class CeresRidleyColorCatalog
     public void ApplyRetreat(SnesCgram cgram)
     {
         Apply(cgram, retreatBg, CeresRidleyPaletteRomData.RetreatBgCgramIndex);
-        Apply(cgram, retreatShared, CeresRidleyPaletteRomData.RetreatSharedBgCgramIndex);
-        Apply(cgram, retreatShared, CeresRidleyPaletteRomData.RetreatSharedObjCgramIndex);
+        for (int color = 0; color < CeresRidleyPaletteRomData.RetreatSharedColorCount; color++)
+        {
+            ushort selected = ResolveRetreatShared(color);
+            cgram.SetColor(CeresRidleyPaletteRomData.RetreatSharedBgCgramIndex + color, selected);
+            cgram.SetColor(CeresRidleyPaletteRomData.RetreatSharedObjCgramIndex + color, selected);
+        }
     }
 
-    public void ApplyBaby(SnesCgram cgram, int row) =>
-        Apply(cgram, Get(baby, row), CeresRidleyPaletteRomData.BabyCgramIndex);
+    public void ApplyBaby(SnesCgram cgram, int row)
+    {
+        _ = baby.Resolve(row, 0);
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < CeresRidleyPaletteRomData.BabyColorCount; color++)
+            cgram.SetColor(CeresRidleyPaletteRomData.BabyCgramIndex + color, baby.Resolve(row, color));
+    }
 
     public static CeresRidleyColorCatalog Load(Stream json,
         CeresRidleyColorCatalog? stockForLegacyOverride = null)
@@ -114,11 +133,12 @@ public sealed class CeresRidleyColorCatalog
                 CeresRidleyColorFormat.PreAlarmVersion &&
               stockForLegacyOverride is not null))
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
+        var compiledBody = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Body, CompileRows(document.BodyFade, CeresRidleyPaletteRomData.BodyFadeRowCount,
+                CeresRidleyPaletteRomData.BodyFadeColorCount, "body fade"));
         return new(Compile(document.Start, CeresRidleyPaletteRomData.StartColorCount, "start"),
             new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Eyes, CompileRows(document.EyeFade, CeresRidleyPaletteRomData.EyeFadeRowCount,
                 CeresRidleyPaletteRomData.EyeFadeColorCount, "eye fade")),
-            new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Body, CompileRows(document.BodyFade, CeresRidleyPaletteRomData.BodyFadeRowCount,
-                CeresRidleyPaletteRomData.BodyFadeColorCount, "body fade")),
+            compiledBody,
             CompileRows(document.Health, CeresRidleyPaletteRomData.HealthRowCount,
                 CeresRidleyPaletteRomData.HealthColorCount, "health"),
             document.Version < CeresRidleyColorFormat.Version
@@ -130,8 +150,8 @@ public sealed class CeresRidleyColorCatalog
                 "retreat shared"),
             document.Version == CeresRidleyColorFormat.PreBabyVersion
                 ? stockForLegacyOverride!.baby
-                : CompileRows(document.Baby, CeresRidleyPaletteRomData.BabyRowCount,
-                    CeresRidleyPaletteRomData.BabyColorCount, "Baby"));
+                : new CeresBabyPaintDefinitions(CompileRows(document.Baby, CeresRidleyPaletteRomData.BabyRowCount,
+                    CeresRidleyPaletteRomData.BabyColorCount, "Baby"), compiledBody));
     }
 
     public static byte[] Write(CeresRidleyColorDocument document)

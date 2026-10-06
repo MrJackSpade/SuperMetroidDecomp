@@ -522,12 +522,21 @@ if (args is ["--lookup-stream3-file-select-borders"])
     Console.WriteLine("File-select borders:114native parts,456independent edits,reversed orders and expanded compositions pass;bounds,appearance and order remain required.");
     return 0;
 }
-if (args is ["--lookup-stream-4-ceres-start"])
+if (args is ["--lookup-stream-4-ceres-retreat-shared"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres retreat oracle revision");
+    VerifyLookupStream4CeresRetreatShared(rom);
+    return 0;
+}
+if (args is ["--lookup-stream-4-ceres-start"] or ["--lookup-stream-4-ceres-baby"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres start oracle revision");
     VerifyLookupStream4CeresStart(rom);
+    VerifyLookupStream4CeresBaby(rom);
     return 0;
 }
 if (args is ["--lookup-stream-4-ceres-fades"])

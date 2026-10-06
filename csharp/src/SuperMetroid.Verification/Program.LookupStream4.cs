@@ -2593,6 +2593,137 @@ internal static partial class Program
         foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveStart(color), "Start domain");
         AssertThrows<ArgumentNullException>(() => stock.ApplyStart(null!), "Start null CGRAM");
-        Console.WriteLine("Ceres start:32 native words,16 door/15 Baby aliases,zero native overrides,141 independent RGB edits,144 full start and Baby copies,bounds/null pass; Baby paint remains required.");
+        Console.WriteLine("Ceres start:32 native words,16 door/15 Baby aliases,zero native overrides,141 independent RGB edits,144 full start and Baby copies,bounds/null pass; Baby paint uses its separate reviewed owner.");
+    }
+    private static void VerifyLookupStream4CeresBaby(ISnesAddressSpace rom)
+    {
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        ushort Native(int row, int color)
+        {
+            int a = 0xa6e1f1 + (row * 15 + color) * 2;
+            return (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
+        }
+        var definition = (CeresBabyPaintDefinitions)typeof(CeresRidleyColorCatalog).GetField("baby", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var overrides = (Dictionary<int, ushort>)typeof(CeresBabyPaintDefinitions).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
+        AssertEqual(0, overrides.Count, "No unexplained native Baby residuals");
+        for (int color = 0; color < 3; color++)
+        {
+            int address = 0xa6e464 + color * 2;
+            AssertEqual((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8), Native(0, color + 4), "Exact native membrane/organ source identities");
+        }
+        foreach (var source in new[] { (Address: 0xa994e6, Color: 9), (Address: 0xa994ea, Color: 11) })
+            AssertEqual((ushort)(rom.ReadByte(source.Address) | rom.ReadByte(source.Address + 1) << 8), Native(0, source.Color), "Exact native shared fang source identities");
+        byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = CeresRidleyColorFormat.PreBabyVersion, Baby = null }, MapPresentationFormat.JsonOptions);
+        var legacy = CeresRidleyColorCatalog.Load(new MemoryStream(legacyJson), stock);
+        for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
+            AssertEqual(Native(row, color), legacy.ResolveBaby(row, color), "Legacy document preserves the independently installed Baby owner");
+        for (int row = 0; row < 4; row++) for (int color = 0; color < 15; color++)
+            AssertEqual(Native(row, color), stock.ResolveBaby(row, color), "All60 native Baby colors calculate");
+        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 63; edit++)
+        {
+            var rows = document.Baby!.Select(row => row.ToArray()).ToArray();
+            var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
+            if (edit >= 0)
+            {
+                PaletteRgb5 original = edit < 60 ? rows[edit / 15][edit % 15] : body[15][8 + edit - 60];
+                PaletteRgb5 replacement = channel switch
+                {
+                    0 => original with { Red = original.Red ^ 1 },
+                    1 => original with { Green = original.Green ^ 1 },
+                    _ => original with { Blue = original.Blue ^ 1 },
+                };
+                if (edit < 60) rows[edit / 15][edit % 15] = replacement; else body[15][8 + edit - 60] = replacement;
+            }
+            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Baby = rows, BodyFade = body })));
+            for (int row = 0; row < 4; row++)
+            {
+                var cgram = new SnesCgram();
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                selected.ApplyBaby(cgram, row);
+                for (int color = 0; color < 256; color++)
+                {
+                    ushort expected = color is >= 177 and < 192
+                        ? (ushort)(Native(row, color - 177) ^ (edit == row * 15 + color - 177 ? 1 << (channel * 5) : 0))
+                        : (ushort)0x1234;
+                    AssertEqual(expected, cgram.Colors[color], "Baby actual copy preserves independent source/row edits and neighbors");
+                }
+                for (int color = 0; color < 32; color++)
+                    AssertEqual(stock.ResolveStart(color), selected.ResolveStart(color), "Body/Baby changes cannot alter supplied startup palette");
+            }
+        }
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        foreach (int variation in new[] { -1, 0, 1 })
+        {
+            var bodyRows = document.BodyFade.Select(row => row.ToArray()).ToArray();
+            var babyRows = document.Baby!.Select(row => row.ToArray()).ToArray();
+            if (variation == 0) babyRows[2][0] = babyRows[2][0] with { Red = babyRows[2][0].Red ^ 1 };
+            if (variation == 1) bodyRows[15][9] = bodyRows[15][9] with { Green = bodyRows[15][9].Green ^ 1 };
+            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Baby = babyRows, BodyFade = bodyRows })));
+            var cgram = new SnesCgram();
+            var enemies = new RoomEnemySystem { CeresRidleyColors = selected };
+            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+            var advance = typeof(RoomEnemySystem).GetMethod("AdvanceCeresBabyDrawInstruction", flags)!
+                .CreateDelegate<Func<RidleyEnemyState, ushort>>(enemies);
+            for (int phase = 0; phase < 12; phase++)
+            {
+                int cursor = 0xbf5d + phase * 8;
+                ushort Word(int address) => (ushort)(rom.ReadByte(0xa60000 | address) | rom.ReadByte(0xa60000 | address + 1) << 8);
+                int row = (Word(cursor + 2) - 0xe1f1) / 30;
+                var state = new RidleyEnemyState { BabyInstruction = (ushort)cursor, BabyInstructionTimer = 1, BabyVerticalVelocity = 1 };
+                AssertEqual(Word(cursor + 6), advance(state), "Actual palette instruction selects matching native pose");
+                AssertEqual((ushort)(cursor + 4), state.BabyInstruction, "Palette instruction preserves native frame cursor");
+                AssertEqual((ushort)2, state.BabyInstructionTimer, "Paint calculation preserves frame timer");
+                for (int color = 0; color < 15; color++)
+                    AssertEqual((ushort)(Native(row, color) ^ (variation == 0 && row == 2 && color == 0 ? 1 : 0)), cgram.Colors[177 + color], "Actual pose-selected palette preserves independent edits");
+            }
+        }
+        foreach (int row in new[] { -1, 4, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBaby(row, 0), "Baby row domain");
+        foreach (int color in new[] { -1, 15, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBaby(0, color), "Baby color domain");
+        AssertThrows<ArgumentNullException>(() => stock.ApplyBaby(null!, 0), "Baby null CGRAM");
+        Console.WriteLine("Ceres Baby:60 native colors,zero native overrides,180 independent output RGB edits/9 body-source edits,768 actual15-color copies,36 native interpreter shape selections and startup independence pass.");
+    }
+    private static void VerifyLookupStream4CeresRetreatShared(ISnesAddressSpace rom)
+    {
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        ushort Native(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var stored = (Dictionary<int, ushort>)typeof(CeresRidleyColorCatalog).GetField("retreatShared", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, stored.Count, "No native retreat shared paints retained");
+        for (int color = 0; color < 8; color++)
+        {
+            AssertEqual(Native(0xa6aa01 + color * 2), stock.ResolveRetreatShared(color), "Native shared retreat colors");
+            AssertEqual(Native(0xa6e171 + color * 2), stock.ResolveRetreatShared(color), "Native startup material identity");
+        }
+        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 16; edit++)
+        {
+            var starts = document.Start.ToArray();
+            var shared = document.RetreatShared.ToArray();
+            if (edit >= 0)
+            {
+                var old = edit < 8 ? shared[edit] : starts[edit - 7];
+                var replacement = channel switch { 0 => old with { Red = old.Red ^ 1 }, 1 => old with { Green = old.Green ^ 1 }, _ => old with { Blue = old.Blue ^ 1 } };
+                if (edit < 8) shared[edit] = replacement; else starts[edit - 7] = replacement;
+            }
+            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Start = starts, RetreatShared = shared })));
+            var cgram = new SnesCgram();
+            for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+            selected.ApplyRetreat(cgram);
+            for (int color = 0; color < 256; color++)
+            {
+                int sharedColor = color is >= 33 and < 41 ? color - 33 : color is >= 241 and < 249 ? color - 241 : -1;
+                ushort expected = sharedColor >= 0 ? (ushort)(Native(0xa6aa01 + sharedColor * 2) ^ (edit == sharedColor ? 1 << (channel * 5) : 0))
+                    : color is >= 81 and < 96 ? Native(0xa6a9e3 + (color - 81) * 2) : (ushort)0x1234;
+                AssertEqual(expected, cgram.Colors[color], "Exact retreat BG/OBJ copies and independent source edits");
+            }
+        }
+        foreach (int color in new[] { -1, 8, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatShared(color), "Retreat shared domain");
+        AssertThrows<ArgumentNullException>(() => stock.ApplyRetreat(null!), "Retreat null CGRAM");
+        Console.WriteLine("Ceres shared retreat:8 native identities,zero stock values,48 independent RGB edits,51 exact dual-domain copies/bounds/null pass.");
     }
 }

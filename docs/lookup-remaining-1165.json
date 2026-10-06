@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 447,
+  "remainingTableDefinitionCount": 445,
   "fileCount": 523,
   "entries": [
     {
@@ -246,19 +246,25 @@
       "note": "Original/default payload behind CeresRidleyColorCatalog.retreatBg. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
-      "line": 17,
-      "name": "CeresRidleyColorCatalog.retreatShared",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CeresRidleyColorCatalog.retreatShared. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
+  "line": 17,
+  "name": "CeresRidleyColorCatalog.retreatShared",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CeresRidleyColorCatalog.retreatShared. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "converted",
+  "implementationCommit": "27bb74b7c8f659f1a1cd06976bec13cb7c44a647",
+  "disposition": "Remove8word duplicate; resolve through existing startup door material slots1..8 with sparse independently supplied differences. Both BG33..40 and OBJ241..248 copies preserved. No new retained values or exemption."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
-      "line": 18,
-      "name": "CeresRidleyColorCatalog.baby",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CeresRidleyColorCatalog.baby. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
+  "line": 18,
+  "name": "CeresRidleyColorCatalog.baby",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CeresRidleyColorCatalog.baby. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "fbf7d78fdcd9ad15d062a43c190fcf6d2c82c887",
+  "disposition": "Calculate60colors from shared body membrane and Baby fang paints,eight local material channels,midpoints and pose brightness. Retain exact glass/dome/seam paint choices,clipped3-step brightening,one-phase fang-red lag and cyan G/B ceiling maximum-minus-one as reviewed selected color composition. Zero stock residual words; pixels/timing excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyMode7ColorCatalog.cs",
       "line": 11,
@@ -21732,6 +21738,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 81
+  "convertedSinceSnapshot": 601,
+  "justifiedRetainedSinceSnapshot": 82
 }

@@ -5,6 +5,74 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1PowampCadence(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+        var align = typeof(RoomEnemySystem).GetMethod("AlignPowampBalloonY", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
+        foreach (ushort root in new ushort[] { 0xc163, 0xc173, 0xc183, 0xc191 })
+        {
+            bool isBody = root < 0xc183;
+            var guard = new PowampInstructionReadGuard(rom);
+            var enemies = new RoomEnemySystem();
+            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            var initialize = typeof(RoomEnemySystem).GetMethod("InitializePowamp", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies);
+            var balloon = enemies.Slots[0];
+            balloon.EnemyDefinitionPointer = RoomEnemySystem.PowampDefinition;
+            balloon.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+            balloon.Parameter1 = 1;
+            initialize(balloon);
+            var body = enemies.Slots[1];
+            body.EnemyDefinitionPointer = RoomEnemySystem.PowampDefinition;
+            body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+            initialize(body);
+            body.YPosition = 100;
+            var slot = isBody ? body : balloon;
+            slot.CurrentInstruction = root;
+            slot.InstructionTimer = 1;
+            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            int calls = 0;
+            for (int pose = 0; pose < 3; pose++)
+            {
+                ushort address = (ushort)(root + pose * 4), duration = Word(0xa80000 | address);
+                ushort sprite = Word(0xa80000 | (address + 2));
+                AssertEqual(duration, PowampInstructionProgramDefinitions.ReadMechanicsWord(address), "Native Powamp duration");
+                for (int held = 0; held < duration; held++)
+                {
+                    process.Invoke(enemies, arguments); calls++;
+                    AssertEqual((ushort)(duration - held), slot.InstructionTimer, "Every uninterrupted Powamp hold tick");
+                    AssertEqual(sprite, slot.SpritemapPointer, "Native Powamp held visual");
+                    AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Powamp held cursor");
+                    if (!isBody)
+                    {
+                        align.Invoke(null, [body, balloon]);
+                        int nativeOffset = unchecked((short)Word(0xa80000 | ((root == 0xc183 ? 0xc277 : 0xc27d) + pose * 2)));
+                        AssertEqual((ushort)(100 + nativeOffset), balloon.YPosition, "Native pose-driven balloon collision center");
+                    }
+                }
+            }
+            AssertEqual(root == 0xc163 ? 15 : root == 0xc173 ? 27 : 167, calls, "Native Powamp sequence duration");
+            process.Invoke(enemies, arguments);
+            if (isBody)
+            {
+                AssertEqual((ushort)(root + 4), slot.CurrentInstruction, "Actual Powamp Goto repeats first pose");
+                AssertEqual(Word(0xa80000 | root), slot.InstructionTimer, "Powamp loop first hold reload");
+            }
+            else
+            {
+                AssertEqual((ushort)(root + 12), slot.CurrentInstruction, "Powamp Sleep parks at existing terminal cursor");
+                AssertEqual((ushort)0, slot.InstructionTimer, "Powamp Sleep follows full terminal hold");
+                ushort terminalY = balloon.YPosition;
+                align.Invoke(null, [body, balloon]);
+                AssertEqual(terminalY, balloon.YPosition, "Sleep preserves terminal balloon collision center");
+                process.Invoke(enemies, arguments);
+                AssertEqual(ushort.MaxValue, slot.InstructionTimer, "Sleeping Powamp retains native timer underflow");
+            }
+            AssertEqual(0, guard.ForbiddenReadAttempts, "Powamp timing uses no cartridge mechanics reads");
+        }
+        Console.WriteLine("Powamp cadence:12 native holds,376 uninterrupted exposure ticks,both Goto/Sleep boundaries and native balloon centers pass.");
+    }
     private static void VerifyLookupStream1MetroidPulse(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

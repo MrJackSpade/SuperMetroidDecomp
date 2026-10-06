@@ -37,16 +37,19 @@ internal static class PowampInstructionProgramDefinitions
     /// <summary>The first non-program word after Powamp's instruction streams, at $A8:C19F.</summary>
     internal const ushort FirstAdjacentConstant = 0xc19f;
 
-    /// <summary>$A8:C163/C167/C16B: fast body hold5 remains a required chosen timing input under1165.</summary>
+    /// <summary>$A8:C163/C167/C16B: selected five-tick cheek exposure in the fast loop; retained drawn-performance choice.</summary>
     private const ushort FastBodyHold = 5;
-    /// <summary>$A8:C173/C177/C17B: slow body hold9 remains a required chosen timing input under1165.</summary>
+    /// <summary>$A8:C173/C177/C17B: selected nine-tick cheek exposure in the slow loop; retained drawn-performance choice.</summary>
     private const ushort SlowBodyHold = 9;
-    /// <summary>$A8:C183/C191: transition start hold1 remains a required chosen timing input under1165.</summary>
+    /// <summary>$A8:C183/C191: selected one-tick initial inflation/deflation exposure; retains pose-driven collision-center timing.</summary>
     private const ushort TransitionStartHold = 1;
-    /// <summary>$A8:C187/C195: intermediate inflation/deflation hold6 remains required under1165.</summary>
+    /// <summary>$A8:C187/C195: selected six-tick intermediate inflation/deflation exposure; retains pose-driven collision-center timing.</summary>
     private const ushort TransitionMiddleHold = 6;
-    /// <summary>$A8:C18B/C199: terminal held balloon pose160 remains a required chosen timing input under1165.</summary>
+    /// <summary>$A8:C18B/C199: selected160-tick terminal exposure before Sleep; retains exact interpreter timer bookkeeping.</summary>
     private const ushort BalloonHeldDuration = 160;
+    // These five reviewed choices compose the scripted cheek/balloon performance.
+    // The balloon cursor also controls physical Y alignment; these are not visual-only.
+    // Independent AI transition timers, velocity, geometry and artwork are not exempt.
     /// <summary>Both body loops and both balloon transitions have three duration/visual pairs.</summary>
     private const int FramesPerProgram = 3;
     /// <summary>$A8:C163..C182: each body loop has three frame controls, Goto and its loop target.</summary>

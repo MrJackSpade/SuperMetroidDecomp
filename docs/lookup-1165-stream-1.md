@@ -1102,3 +1102,16 @@ MetroidInstructionProgramDefinitions.FrameDurations is MIXED COMPLETE. Totals190
 - No ResourceAudit source-hash references to MetroidInstructionProgramDefinitions.cs were found.
 
 Root integrated confirmation:1452warnings/zero errors;25native records,320actual exposure ticks,two callback boundaries and exact sound/RNG ownership pass. Master598converted/30retained-mixed/500pending.
+
+## Batch 87: complete Powamp scripted exposure
+
+PowampInstructionProgramDefinitions.Words is MIXED COMPLETE. Totals190 wholly converted / thirteen mixed /23 unchecked.
+
+- Existing semantic program construction calculates all18 mechanics words: two three-pose body loops with Goto and two three-pose balloon transitions ending Sleep. Exact five remaining inputs are fast cheek5 atA8:C163/C167/C16B, slow cheek9 atC173/C177/C17B, initial balloon1 atC183/C191, intermediate6 atC187/C195 and terminal160 atC18B/C199.
+- Root viewed source-only csharp/test-temp/powamp-native-six-poses.png and reviewed native records plus actual alignment consumer. Strip uses exactA8:C675/C67C/C683 cheek poses andC68A/C691/C698 small/medium/large balloon, nativeB1:CC00 tiles/A8:C143 palette. Approved narrow nonsense retention covers only these selected scripted cheek/inflation/deflation exposures and terminal interpreter-delay content: geometry/state does not specify the selected performance tempo. This is not a visual-only exemption or failed-fit argument.
+- RoomEnemySystem.Powamp.AlignPowampBalloonY uses the current timed pose to choose exact nativeA8:C277/C27D Y offsets. Therefore the intermediate exposure changes balloon collision-center timing; death-stage reversal also reads the cursor. These consequences remain exact. Independent AI transition10, rise velocity, motion, geometry and artwork receive no exemption.
+- Terminal160 leaves the current cursor already at Sleep; nativeA8:812F..8139 and managed ProcessInstructions leave it there when Sleep executes. The sprite/alignment stay terminal before/after, while exact timer0 thenFFFF bookkeeping remains. No arbitrary removal of this observable native state.
+- Focused --lookup-stream-1-powamp-cadence compares all12 native duration/visual records, runs376 actual exposure ticks without forcing timer reloads, confirms15/27-tick body loops and167-tick transitions, both actual Goto/Sleep boundaries, every balloon Y position against independent native offset words, terminal alignment and timer underflow. Compiled mechanics read guard remains zero.
+- Verification build25 warnings/zero errors (incremental); focused command passes. Subsequent production edits are XML/comments only, executable tokens unchanged. Local Program.cs adds only the focused command. No wider gameplay checks or AI changes.
+
+Root1452 warnings/0 errors;12 native holds,376 uninterrupted scheduler ticks,Goto/Sleep boundaries and native balloon alignment pass. Master598 converted/33 retained-mixed/497 pending.

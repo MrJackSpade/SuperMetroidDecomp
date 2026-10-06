@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 498,
+  "remainingTableDefinitionCount": 497,
   "fileCount": 523,
   "entries": [
     {
@@ -5776,12 +5776,15 @@
       "implementationCommit": "34bee5c2e1d266802a09110a9b486dafe23d591b"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs",
-      "line": 41,
-      "name": "PowampInstructionProgramDefinitions.Words",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs",
+    "line":  41,
+    "name":  "PowampInstructionProgramDefinitions.Words",
+    "kind":  "stored definition",
+    "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+    "state":  "justified-retained",
+    "implementationCommit":  "8fea03d31d9db83bab0558f5084ca35b66a3f2c9",
+    "disposition":  "Mixed complete:18 mechanics words calculate semantic body/balloon loop and Sleep programs. Retain only selected cheek holds5/9,inflation-deflation1/6 and terminal160 as exact choreography/interpreter-delay content. Native artwork and alignment consumer reviewed; balloon collision-center timing and terminal bookkeeping preserved. AI/movement/artwork outside entry excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs",
       "line": 53,
@@ -21579,5 +21582,5 @@
     }
   ],
   "convertedSinceSnapshot": 598,
-  "justifiedRetainedSinceSnapshot": 32
+  "justifiedRetainedSinceSnapshot": 33
 }

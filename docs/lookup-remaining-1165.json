@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 425,
+  "remainingTableDefinitionCount": 424,
   "fileCount": 523,
   "entries": [
     {
@@ -2471,12 +2471,15 @@
   "disposition": "Calculate blanks, shared glyphs, circles/caps/diagonals/crosses, font shadows, rails, ramps and stars. Retain precisely208 independently drawn cells,300glyph masks/360contour choices and675 partitioned nonfont inputs:265letter strokes,233ink identities,176mechanical shading pixels,one C9 painted discontinuity. Selected portrait/terrain/glyph content and explicitly named shape/pen/state policies cannot be regenerated from transport or tile identity without reembedding the chosen design. RGB,tilemaps,timing and other artwork excluded."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/YardVisualDefinitions.cs",
-      "line": 17,
-      "name": "YardVisualDefinitions.Groups",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/YardVisualDefinitions.cs",
+  "line": 17,
+  "name": "YardVisualDefinitions.Groups",
+  "kind": "stored definition",
+  "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+  "state": "converted",
+  "implementationCommit": "8b49a563892d9a7df989ab8b9279489f6bd55bc4",
+  "disposition": "Stored38entry/name mappings replaced by named instruction-boundary cases for crawling,turning,hiding and airborne roles. Exact112operand grouping and104unique frame identities/order preserved; no retained exception or art/timing/movement claim."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ZebetiteColorCatalog.cs",
       "line": 16,
@@ -21798,6 +21801,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 605,
+  "convertedSinceSnapshot": 606,
   "justifiedRetainedSinceSnapshot": 98
 }

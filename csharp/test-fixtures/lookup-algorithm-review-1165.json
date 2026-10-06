@@ -12433,4 +12433,13 @@
     "Sixteen signed deltas calculate from shared+2pixel cycle displacement and10positive/6negative imbalance, deriving halfpixel amplitude. Retain exact selected cinematic directional runs4+/2-/4+/2-/2+/2- and terminalnegative policy; source sequential index alone chooses signs, independently of angle/zoom/position. Inventing a substitute changes reversal timing/path shape. No other movement/timing exemption.",
     "Eight signed deltas calculate from shared+2pixel cycle displacement and5positive/3negative imbalance, deriving onepixel amplitude. Retain exact selected cinematic directional runs3+/2-/2+/1- and terminalnegative policy; source sequential index alone chooses signs, independently of angle/zoom/position. Inventing a substitute changes reversal timing/path shape. No other movement/timing exemption."
   ]
+},"yardSemanticGroupsComplete":{
+  "disposition": [
+    "Stored38entry/name mappings replaced by named instruction-boundary cases for crawling,turning,hiding and airborne roles. Exact112operand grouping and104unique frame identities/order preserved; no retained exception or art/timing/movement claim."
+  ],
+  "workerCommit": "8b49a563892d9a7df989ab8b9279489f6bd55bc4",
+  "completed": [
+    "YardVisualDefinitions.Groups"
+  ],
+  "confirmation": "Root full build1457warnings/0errors then focused proof rebuild25/0;104complete native bank/pointer/name/order identities match the pre-change registry hash across38semantic group roles."
 }}

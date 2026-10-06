@@ -668,7 +668,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/YardVisualDefinitions.cs
 
-- [ ] **YardVisualDefinitions.Groups** ([L17](../csharp/src/SuperMetroid.Core/Assets/YardVisualDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **YardVisualDefinitions.Groups** ([L17](../csharp/src/SuperMetroid.Core/Assets/YardVisualDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/YardDirectionDefinitions.cs
 
@@ -1374,3 +1374,5 @@ Root integration: Root Verification1452existing warnings/0errors;Audit0/0;544wir
 `YardVisualDefinitions.Groups` now dispatches directly by the existing named bank-A3 instruction entry boundaries. Its38 stored entry/name records represented crawling, outside/inside turns, hiding/hidden and airborne program roles. Descending named cases preserve the exact containing-program mapping without a replacement group table; frame ordinal resets on the actual semantic group change. The existing112 compiled presentation operands still produce104 distinct ordered sprite identities. This is the semantic case conversion authorized by the ticket; no artwork, program timing or movement data inherits a retention decision.
 
 Confirmation: full Verification build1457warnings/0errors, focused proof rebuild25/0. The pre-change group mapping combined with all112 pinned ROM pointer words produces the104-record bank/pointer/name/order SHA2562E09CB87CB8C4106F823834D08281C250FB4294981A52F4FE9F83BD983732954. Dedicated --lookup-stream2-yard-groups confirms the new production Frames() output matches that complete identity. No gameplay or unrelated test search. No ResourceAudit hash closure references this source.
+
+Root integration: Root full build1457warnings/0errors then focused proof rebuild25/0;104complete native bank/pointer/name/order identities match the pre-change registry hash across38semantic group roles. Master 606 converted/98 retained-mixed/424 pending.

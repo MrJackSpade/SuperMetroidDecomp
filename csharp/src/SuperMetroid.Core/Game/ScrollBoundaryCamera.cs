@@ -87,6 +87,17 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
+    /// Keeps the layer-one fraction words ($090F/$0913) of the camera this one replaces.
+    /// Room and game loads write only the integer positions (e.g. <c>$80:C470</c>), so the
+    /// previous room's fractions remain in RAM.
+    /// </summary>
+    public void RetainSubpositions(ScrollBoundaryCamera previous)
+    {
+        XSubposition = previous.XSubposition;
+        YSubposition = previous.YSubposition;
+    }
+
+    /// <summary>
     /// Publishes the raw modular layer-one words owned by the door-opening IRQ.
     /// </summary>
     /// <remarks>

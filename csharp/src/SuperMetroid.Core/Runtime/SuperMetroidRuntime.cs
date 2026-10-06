@@ -584,6 +584,7 @@ public sealed partial class SuperMetroidRuntime
             RoomStateDefinitions.Get(LandingSiteEntry.RoomStatePointer).ScrollPointer,
             LandingSiteEntry.RoomWidthInScreens,
             LandingSiteEntry.RoomHeightInScreens);
+        ScrollBoundaryCamera? previousCamera = Camera;
         Camera = new ScrollBoundaryCamera(scrolls);
 
         // Applying the selected door's screen bytes here keeps its command-E sky tilemap
@@ -591,6 +592,8 @@ public sealed partial class SuperMetroidRuntime
         // $88FE's top-of-room page after host-moving to screen row four produces a repeating
         // purple strip instead of the lower cloudy Landing Site sky.
         Camera.SetPosition(LandingSiteEntry.CameraX, LandingSiteEntry.CameraY);
+        if (previousCamera is not null)
+            Camera.RetainSubpositions(previousCamera);
 
         // Every Landing Site state header stores layer2Scrolls($81, 1). Both axes are odd,
         // so ordinary scrolling does not stream BG2; the scrolling-sky room ASM owns it.
@@ -1656,8 +1659,16 @@ public sealed partial class SuperMetroidRuntime
         // Host-disabled Samus movement has no alpha phase to wait for. Otherwise
         // defer actors until projectile production/update, immediately before beta.
         bool enemyMainAlreadyRan = Samus is null || Camera is null || !GroundedSamusMovementEnabled;
+        // Native EnemyMain follows SamusCurrentStateHandler. An actor that restores the
+        // normal handler pair there (gunship $A2:A987) affects this frame's beta only:
+        // the locked alpha has already run, so it still sees the lock below.
+        bool enemyMainReleasedAlphaLock = false;
         if (enemyMainAlreadyRan)
+        {
+            bool lockedBeforeEnemyMain = Samus?.InputLocked == true;
             RunEnemyMainPhase();
+            enemyMainReleasedAlphaLock = lockedBeforeEnemyMain && Samus?.InputLocked == false;
+        }
         if (Samus is not null && Camera is not null)
         {
             // X-ray's HDMA object is not part of the Samus handler. Advance its explicit
@@ -1679,6 +1690,9 @@ public sealed partial class SuperMetroidRuntime
             // Preserve movement on either side of the frame boundary. A new camera uses
             // the fallback sampled before enemy-owned motion and the bank-$90 handler.
             SamusCameraPoint previousCameraPoint = Camera.PreviousSamusPoint ?? samusCameraPointAtFrameStart!.Value;
+
+            // Whether this frame's alpha handler is the locked one installed at its start.
+            bool AlphaInputLocked() => Samus.InputLocked || enemyMainReleasedAlphaLock;
 
             // Retain the dispatch pose because command $F8 can replace Samus.Pose during
             // animation later in this same frame. Native alpha/beta/transition phases all
@@ -1726,7 +1740,7 @@ public sealed partial class SuperMetroidRuntime
             }
 
             bool bombJumpLocksPoseInput = Samus.BombJumpPoseInputLocked;
-            bool actorLocksPoseInput = Samus.InputLocked || bombJumpLocksPoseInput ||
+            bool actorLocksPoseInput = AlphaInputLocked() || bombJumpLocksPoseInput ||
                 ((Samus.ShinesparkPoseInputLocked || Samus.CrystalFlashPoseInputLocked) && !Samus.AutoJumpInputPending) ||
                 (SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0);
             // The native type-$0F input dispatcher is an RTS ($91:8146). Transition
@@ -1916,7 +1930,7 @@ public sealed partial class SuperMetroidRuntime
                 // any pose transition that would otherwise reinitialize acceleration.
                 SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
 
-                if (!TimeIsFrozen && !Samus.InputLocked && ActiveRoom is { } insideRoom)
+                if (!TimeIsFrozen && !AlphaInputLocked() && ActiveRoom is { } insideRoom)
                     SamusInsideBlockReactions.PrepareFrame(_addressSpace, LevelData, Samus, insideRoom.AreaIndex,
                         System.HasAnyBossBits(insideRoom.AreaIndex, BossBits.AreaBoss), Plms);
 
@@ -1932,7 +1946,7 @@ public sealed partial class SuperMetroidRuntime
                     // Consequently a Select edge can choose missiles and an X edge can
                     // fire one during this same alpha pass. Input-locked message/elevator
                     // handlers do not execute the normal selection owner.
-                    if (!Samus.InputLocked && !SamusState.IsForwardFacingPose(Samus.Pose) && Samus.HandleHudSelection(
+                    if (!AlphaInputLocked() && !SamusState.IsForwardFacingPose(Samus.Pose) && Samus.HandleHudSelection(
                             Controller1.Current,
                             Controller1.NewlyPressed))
                     {
@@ -1947,7 +1961,7 @@ public sealed partial class SuperMetroidRuntime
 
                     // The selected scope uses held Run, not Fire. Setup installs its
                     // own pose handlers, superseding alpha's ordinary pending pose.
-                    if (!Samus.InputLocked && !SamusState.IsForwardFacingPose(Samus.Pose) &&
+                    if (!AlphaInputLocked() && !SamusState.IsForwardFacingPose(Samus.Pose) &&
                         Samus.SelectedHudItem == SamusXrayRomData.SelectedHudItem &&
                         Samus.Grapple.Phase == GrapplePhase.Inactive &&
                         (Controller1.Current & (ushort)SnesButton.B) != 0 &&
@@ -1998,7 +2012,7 @@ public sealed partial class SuperMetroidRuntime
                         BombProjectiles,
                         // Locked alpha advances existing shots without dispatching the
                         // HUD weapon producer (including station command six).
-                        projectileProducerEnabled: !Samus.InputLocked && !DebugGrappleItemSelected,
+                        projectileProducerEnabled: !AlphaInputLocked() && !DebugGrappleItemSelected,
                         roomPlms: Plms,
                         controllerPreviousNewInput: Samus.PreviousDrawNewInput,
                         producerSoundSuppressed: BombProjectiles.SoundSuppressedBeforeProjectileHandling);

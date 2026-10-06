@@ -190,6 +190,8 @@ internal static partial class Program
         Check("Room", runtime.ActiveRoom!.Pointer, MovieDesyncMemory.Room);
         Check("Camera X", runtime.Camera!.XPosition, MovieDesyncMemory.CameraX);
         Check("Camera Y", runtime.Camera.YPosition, MovieDesyncMemory.CameraY);
+        Check("Camera X fraction", runtime.Camera.XSubposition, MovieDesyncMemory.CameraXSubposition);
+        Check("Camera Y fraction", runtime.Camera.YSubposition, MovieDesyncMemory.CameraYSubposition);
         Check("Accepted NMI", runtime.NmiFrameCounter, MovieDesyncMemory.NmiCounter);
         if (runtime.Enemies.Ridley is { } ridley)
             for (int index = 0; index < ridley.TailSegments.Length; index++)

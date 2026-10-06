@@ -6168,6 +6168,7 @@ if (args is ["--room-callback-definitions"])
 if (args is ["--room-definition-integration"])
 {
     VerifyCompiledRoomDefinitionIntegration();
+    VerifyPostCeresLandingHandOff();
     return 0;
 }
 if (args is ["--gameplay-message-titles", var messageTitleRom])

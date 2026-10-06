@@ -284,7 +284,9 @@ public sealed partial class SuperMetroidRuntime
         if (alignment.Completed)
             return true;
 
-        Camera.SetPosition(alignment.CameraX, alignment.CameraY);
+        // $82:E327-$E340 INC/DEC the whole layer-one word only; fractions, the ideal
+        // camera position and Samus's previous position are untouched.
+        Camera.SetDoorTransitionPosition(alignment.CameraX, alignment.CameraY);
 
         // CalculateLayer2PosAndScrollsWhenScrolling updates the PPU mirrors on every
         // convergence step. The gameplay scroll owner performs the same parallax math;
@@ -834,7 +836,11 @@ public sealed partial class SuperMetroidRuntime
                 previousCamera?.XSubposition ?? 0, previousCamera?.YSubposition ?? 0);
         }
         else
+        {
             Camera.SetPosition(cameraX, cameraY);
+            if (previousCamera is not null)
+                Camera.RetainSubpositions(previousCamera);
+        }
         BackgroundScroll.Layer2ScrollX = room.State.Layer2ScrollX;
         BackgroundScroll.Layer2ScrollY = room.State.Layer2ScrollY;
         if (viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)

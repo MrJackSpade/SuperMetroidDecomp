@@ -19,6 +19,9 @@ internal static class MovieDesyncMemory
     /// <summary>$0911/$0915: layer-1 camera X/Y.</summary>
     public const int CameraX = 0x0911, CameraY = 0x0915;
 
+    /// <summary>Layer-1 X/Y subpixel words ($090F/$0913), which carry across room and game loads.</summary>
+    public const int CameraXSubposition = 0x090f, CameraYSubposition = 0x0913;
+
     /// <summary>$0AF6/$0AF8/$0AFA/$0AFC: Samus X, X subposition, Y, Y subposition.</summary>
     public const int SamusX = 0x0af6, SamusXFraction = 0x0af8, SamusY = 0x0afa, SamusYFraction = 0x0afc;
     /// <summary>$0A1C: Samus pose.</summary>

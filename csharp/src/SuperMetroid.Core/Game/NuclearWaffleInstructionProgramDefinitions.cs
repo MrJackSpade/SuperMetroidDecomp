@@ -15,62 +15,32 @@ internal static class NuclearWaffleInstructionProgramDefinitions
     /// <summary><c>$A6:9490</c>, the twelve-frame body animation loop.</summary>
     internal const ushort BodyLoop = 0x9490;
 
-    private static readonly NuclearWaffleInstructionMechanicsWord[] Words =
-    [
-        new(0x9490, 0x0003), new(0x9494, 0x0003), new(0x9498, 0x0003),
-        new(0x949c, 0x0003), new(0x94a0, 0x0003), new(0x94a4, 0x0003),
-        new(0x94a8, 0x0003), new(0x94ac, 0x0003), new(0x94b0, 0x0003),
-        new(0x94b4, 0x0003), new(0x94b8, 0x0003), new(0x94bc, 0x0003),
-        new(0x94c0, 0x80ed), new(0x94c2, 0x9490),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0x9492, 0x9496, 0x949a, 0x949e, 0x94a2, 0x94a6,
-        0x94aa, 0x94ae, 0x94b2, 0x94b6, 0x94ba, 0x94be,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static NuclearWaffleInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    /// <summary>Returns one fixed control word or rejects pointers outside the body loop.</summary>
+    private const int FrameCount = 12;
+    internal static int MechanicsWordCount => FrameCount + 2;
+    internal static int PresentationWordCount => FrameCount;
+    internal static NuclearWaffleInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort address = (ushort)(BodyLoop + (index < FrameCount ? index * 4 : FrameCount * 4 + (index - FrameCount) * 2));
+        return new(address, ReadMechanicsWord(address));
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(BodyLoop + index * 4 + 2);
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            NuclearWaffleInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Nuclear Waffle instruction mechanics pointer $A6:{address:X4} is not compiled.");
+        int offset = address - BodyLoop;
+        if ((uint)offset < FrameCount * 4 && offset % 4 == 0) return 3;
+        if (offset == FrameCount * 4) return CommonEnemyInstructionCodes.Goto;
+        if (offset == FrameCount * 4 + 2) return BodyLoop;
+        throw new InvalidDataException($"Nuclear Waffle instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
-
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa60000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa60000) return false;
+        int offset = (ushort)address - BodyLoop;
+        return (uint)offset < FrameCount * 4 + 4 && (offset >= FrameCount * 4 || offset % 4 < 2);
     }
 }

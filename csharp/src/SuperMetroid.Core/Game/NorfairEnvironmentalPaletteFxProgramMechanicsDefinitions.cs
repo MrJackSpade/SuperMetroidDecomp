@@ -35,23 +35,54 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
     /// <summary>The shared complete-cycle duration.</summary>
     public const int CycleFrames = 116;
 
-    private static readonly NorfairEnvironmentalPaletteFxProgramDefinition[] Definitions =
-    [
-        new(NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase,
-            0xf785, 0xf08e, 0xf092, 0xf1c2, 0x006a, publishesHeatPhase: true),
-        new(NorfairEnvironmentalPaletteOwner.ForegroundPalette4,
-            0xf789, 0xf1d1, 0xf1d5, 0xf2d5, 0x0082, publishesHeatPhase: false),
-        new(NorfairEnvironmentalPaletteOwner.ForegroundPalette5,
-            0xf78d, 0xf2d9, 0xf2dd, 0xf3dd, 0x00a2, publishesHeatPhase: false),
-        new(NorfairEnvironmentalPaletteOwner.ForegroundPalette6,
-            0xf791, 0xf3e1, 0xf3e5, 0xf4e5, 0x00c2, publishesHeatPhase: false),
-    ];
-    private static readonly IReadOnlyList<NorfairEnvironmentalPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+    /// <summary>$8D:F785: first of four adjacent native environmental definitions, each init/list pair occupying four bytes.</summary>
+    private const ushort FirstDefinition = 0xf785;
+    /// <summary>$8D:F08E: foreground palette-three loop also publishes the current heat phase.</summary>
+    private const ushort HeatPhaseProgram = 0xf08e;
+    /// <summary>$8D:F1D1: foreground palette-four loop; palette-five/six programs follow with the same record geometry.</summary>
+    private const ushort FirstRegularProgram = 0xf1d1;
+    /// <summary>Each program begins with a color-index command/operand and ends with a goto command/operand.</summary>
+    private const int SetupBytes = 4, GotoBytes = 4;
+    /// <summary>Regular phases contain duration, five colors, one skip command and one wait command.</summary>
+    private const int RegularFrameBytes = 2 + ColorsPerFrame * 2 + 2 + 2;
+    /// <summary>Heat publication adds an instruction word and its byte-sized phase operand before each regular record.</summary>
+    private const int HeatPublicationBytes = 3;
+    /// <summary>$8D:F08E's $006A color index starts at palette three/color five.</summary>
+    private const int HeatPalette = 3, HeatFirstColor = 5;
+    /// <summary>$8D:F1D1/F2D9/F3E1 select color one in foreground palettes four/five/six.</summary>
+    private const int RegularFirstPalette = 4, RegularFirstColor = 1;
 
+    private static readonly ProgramDefinitions Definitions = new();
+    private sealed class ProgramDefinitions : IReadOnlyList<NorfairEnvironmentalPaletteFxProgramDefinition>
+    {
+        public int Count => 4;
+        public NorfairEnvironmentalPaletteFxProgramDefinition this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+                var owner = (NorfairEnvironmentalPaletteOwner)index;
+                bool heat = owner == NorfairEnvironmentalPaletteOwner.ForegroundAndHeatPhase;
+                int regular = index - (int)NorfairEnvironmentalPaletteOwner.ForegroundPalette4;
+                int start = heat ? HeatPhaseProgram : FirstRegularProgram + regular *
+                    (SetupBytes + FrameCount * RegularFrameBytes + GotoBytes);
+                int first = start + SetupBytes;
+                int palette = heat ? HeatPalette : RegularFirstPalette + regular;
+                int color = heat ? HeatFirstColor : RegularFirstColor;
+                return new(owner, (ushort)(FirstDefinition + index * 4), (ushort)start, (ushort)first,
+                    (ushort)(first + FrameCount * (RegularFrameBytes + (heat ? HeatPublicationBytes : 0))),
+                    (ushort)((palette * 16 + color) * sizeof(ushort)), heat);
+            }
+        }
+        public IEnumerator<NorfairEnvironmentalPaletteFxProgramDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>The four real environmental programs in definition order.</summary>
     public static IReadOnlyList<NorfairEnvironmentalPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+        Definitions;
 
     /// <summary>Resolves one compiled word-sized mechanic across all four programs.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)

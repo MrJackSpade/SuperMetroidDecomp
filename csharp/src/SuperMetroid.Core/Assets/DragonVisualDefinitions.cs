@@ -12,22 +12,23 @@ internal static class DragonVisualDefinitions
     /// <summary>Native Dragon spritemap bank $A2.</summary>
     internal const byte Bank = 0xa2;
 
-    internal static EnemySpritemapDefinition[] Frames() =>
-    [
-        new(Bank, 0xe80c, "dragon_body_idle_left"),
-        new(Bank, 0xe8b4, "dragon_wing_left_0"),
-        new(Bank, 0xe8bb, "dragon_wing_left_1"),
-        new(Bank, 0xe8c2, "dragon_body_idle_right"),
-        new(Bank, 0xe96a, "dragon_wing_right_0"),
-        new(Bank, 0xe971, "dragon_wing_right_1"),
-        new(Bank, 0xe836, "dragon_body_attack_left_0"),
-        new(Bank, 0xe860, "dragon_body_attack_left_1"),
-        new(Bank, 0xe88a, "dragon_body_attack_left_2"),
-        new(Bank, 0xe8ec, "dragon_body_attack_right_0"),
-        new(Bank, 0xe916, "dragon_body_attack_right_1"),
-        new(Bank, 0xe940, "dragon_body_attack_right_2"),
-    ];
-
+    /// <summary>$A2:E80C / Spritemap_Dragon_0: four eight-object body maps precede two one-object wing maps.</summary>
+    private const ushort FirstBody = 0xe80c;
+    internal static EnemySpritemapDefinition[] Frames()
+    {
+        var result = new EnemySpritemapDefinition[12];
+        for (int side = 0; side < 2; side++)
+        {
+            string facing = side == 0 ? "left" : "right";
+            int body = FirstBody + side * (4 * 42 + 2 * 7);
+            result[side * 3] = new(Bank, (ushort)body, $"dragon_body_idle_{facing}");
+            for (int frame = 0; frame < 2; frame++)
+                result[side * 3 + 1 + frame] = new(Bank, (ushort)(body + 4 * 42 + frame * 7), $"dragon_wing_{facing}_{frame}");
+            for (int frame = 0; frame < 3; frame++)
+                result[6 + side * 3 + frame] = new(Bank, (ushort)(body + (frame + 1) * 42), $"dragon_body_attack_{facing}_{frame}");
+        }
+        return result;
+    }
     /// <summary>Resolves one of Dragon's sixteen compiled presentation operands.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {

@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -92,6 +93,10 @@ internal static partial class Program
                 ZebetiteInstructionProgramDefinitions.PresentationWordAddress(index);
             AssertTrue(executedOperands.Contains(address),
                 $"production execution selects Zebetite presentation word $A6:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa6, address, out ushort selected),
+                $"compiled Zebetite selector $A6:{address:X4}");
+            AssertEqual(ReadZebetiteInstructionWord(rom, address), selected,
+                $"exact native Zebetite selector $A6:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Zebetite mechanics byte");

@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -119,6 +120,10 @@ internal static partial class Program
                 .PresentationWordAddress(index);
             AssertTrue(executedOperands.Contains(address),
                 $"production executes downward-gate presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                $"compiled visual selector exists at $86:{address:X4}");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                $"compiled visual selector matches native operand $86:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared downward-gate mechanics bytes");

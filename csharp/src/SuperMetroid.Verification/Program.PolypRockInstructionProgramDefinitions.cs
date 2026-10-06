@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -53,10 +54,14 @@ internal static partial class Program
         AssertEqual(PolypRockInstructionProgramDefinitions.PresentationWord,
             rock.PresentationOperandAddress,
             "Polyp rock selects its installed presentation binding without cartridge reads");
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidOperationException("Polyp rock fixture requires installed projectile artwork.");
+        VerifyExecutedProjectileFrame(rom, rock, spriteArtwork, new HashSet<ushort>());
         AssertEqual(PolypRockInstructionProgramDefinitions.Sleep,
             rock.InstructionPointer,
             "Polyp rock reaches its terminal sleep after the authored frame");
         RunForcedTick(rock);
+
         AssertEqual(PolypRockInstructionProgramDefinitions.Sleep,
             rock.InstructionPointer,
             "Polyp rock remains at its authored terminal sleep");
@@ -65,9 +70,16 @@ internal static partial class Program
 
         rock.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         RunForcedTick(rock);
+
         AssertTrue(!rock.IsActive,
             "Polyp-rock shot reaction reaches the compiled shared delete program");
 
+        AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86,
+                PolypRockInstructionProgramDefinitions.PresentationWord, out ushort selector),
+            "Polyp-rock selector is compiled");
+        AssertEqual(ReadPolypRockInstructionWord(rom,
+                PolypRockInstructionProgramDefinitions.PresentationWord), selector,
+            "compiled Polyp-rock selector equals the native operand");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Polyp-rock and shared-delete mechanics byte");
         AssertThrows<InvalidDataException>(

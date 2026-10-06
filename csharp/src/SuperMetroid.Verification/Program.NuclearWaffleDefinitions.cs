@@ -102,10 +102,15 @@ internal static partial class Program
 
         // Twelve three-frame entries total 36 frames; the margin proves the terminal goto
         // restarts the production stream rather than merely reaching its target.
+        var installed = new HashSet<ushort>();
         for (int frame = 0; frame < 40; frame++)
         {
             process.Invoke(programSystem, arguments);
             VerifyExecutedEnemySelector(rom, programSlot, executedOperands);
+            ushort operand = unchecked((ushort)(programSlot.CurrentInstruction - 2));
+            AssertEqual(ReadNuclearWaffleWord(rom, 0xa60000 | operand), programSlot.SpritemapPointer,
+                "actual installed Nuclear Waffle native visual selector");
+            installed.Add(operand);
         }
 
         AssertEqual(

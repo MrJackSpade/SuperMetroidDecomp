@@ -13,7 +13,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     private readonly PaletteFade fakeDeathToGrey;
     private readonly PaletteFrame normal;
     private readonly ushort beamInitial;
-    private readonly ushort[] beamCycle;
+    private readonly BeamColors beamCycle;
 
     private MotherBrainRainbowPalettePresentation(PaletteFrame[] rainbow, PaletteFrame[] toGrey,
         PaletteFrame[] fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
@@ -25,9 +25,61 @@ public sealed class MotherBrainRainbowPalettePresentation
         this.fakeDeathToGrey = fakeDeathToGrey;
         this.normal = normal;
         this.beamInitial = beamInitial;
-        this.beamCycle = beamCycle;
+        this.beamCycle = new BeamColors(beamCycle);
     }
 
+    /// <summary>
+    /// $88:E833-E8C7, Set_RainbowBeam_ColorMathSubscreenBackdropColor.table:
+    /// five linear hue legs sampled every other word. The native blue-to-magenta leg
+    /// delays red by one step and adds a one-step green tint in its upper half.
+    /// Falling green/blue changes its rounding bias after local step eight.
+    /// These phase boundaries preserve the source's asymmetric wheel exactly.
+    /// </summary>
+    private sealed class BeamColors
+    {
+        private readonly ushort[]? supplied;
+        public int Length { get; }
+        public BeamColors(ushort[] colors)
+        {
+            Length = colors.Length;
+            for (int index = 0; index < Length; index++)
+                if (colors[index] != Calculate(index))
+                { supplied = colors; return; }
+        }
+        public ushort this[int index] => supplied is null ? Calculate(index) : supplied[index];
+
+        private static ushort Calculate(int index)
+        {
+            int step = index * MotherBrainBeamRomData.ColorStride / sizeof(ushort);
+            int red, green, blue;
+            if (step <= 15)
+            {
+                red = 31; green = Rising(step); blue = 0;
+            }
+            else if (step <= 30)
+            {
+                red = Rising(30 - step); green = 31; blue = 0;
+            }
+            else if (step <= 45)
+            {
+                red = 0; green = Falling(step - 30); blue = Rising(step - 30);
+            }
+            else if (step < 60)
+            {
+                int phase = step - 45;
+                red = 2 * phase - (phase >= 7 ? 1 : 0);
+                green = phase >= 8 ? 1 : 0;
+                blue = 31;
+            }
+            else
+            {
+                red = 31; green = 0; blue = Falling(step - 60);
+            }
+            return (ushort)(red | green << 5 | blue << 10);
+        }
+        private static int Rising(int step) => (31 * step + 7) / 15;
+        private static int Falling(int step) => 31 - 2 * step - (step >= 9 ? 1 : 0);
+    }
     /// <summary>Fixed-color backdrop used on the beam's first active HDMA frame.</summary>
     public ushort BeamInitialColor => beamInitial;
 
@@ -205,12 +257,17 @@ public sealed class MotherBrainRainbowPalettePresentation
     private sealed class PaletteFrame
     {
         private readonly ushort[]? backLegs;
+        private readonly bool stockRear;
 
         public PaletteFrame(ushort[] body, ushort[] legs, ushort? trailingColor)
         {
-            Body = body;
+            Body = new BodyColors(body);
             LegCount = legs.Length;
             TrailingColor = trailingColor;
+            bool matchesRear = legs.Length == MotherBrainRainbowPaletteRomData.ColorCount;
+            for (int color = 0; matchesRear && color < legs.Length; color++)
+                matchesRear = legs[color] == MotherBrainHealthPalettePresentation.StockBaseColor(true, color);
+            if (matchesRear) { stockRear = true; return; }
             // Rainbow legs use half-intensity body colors, rounding RGB5 upward.
             // Select this relationship only when every supplied color agrees.
             if (body.Length != legs.Length)
@@ -220,16 +277,120 @@ public sealed class MotherBrainRainbowPalettePresentation
                 { backLegs = legs; return; }
         }
 
-        public ushort[] Body { get; }
+        public BodyColors Body { get; }
         public int LegCount { get; }
         public ushort? TrailingColor { get; }
-        public ushort Leg(int color) => backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
+        public ushort Leg(int color) => stockRear
+            ? MotherBrainHealthPalettePresentation.StockBaseColor(true, color)
+            : backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
 
         private static ushort HalfIntensity(ushort color) => (ushort)(
             ((color & 31) + 1) / 2 | (((color >> 5 & 31) + 1) / 2) << 5
             | (((color >> 10 & 31) + 1) / 2) << 10);
     }
 
+    /// <summary>Recognizes normal and drained body paint without repeated palette rows.</summary>
+    private sealed class BodyColors
+    {
+        private readonly ushort[]? supplied;
+        private readonly DrainedBodyColors? drained;
+        public int Length { get; }
+        public BodyColors(ushort[] colors)
+        {
+            Length = colors.Length;
+            bool normal = Length is MotherBrainFakeDeathPaletteRomData.ColorCount or MotherBrainDrainedPaletteRomData.RevivalColors or MotherBrainRainbowPaletteRomData.ColorCount;
+            for (int color = 0; normal && color < Length; color++)
+                normal = colors[color] == MotherBrainHealthPalettePresentation.StockBaseColor(false, color);
+            if (normal) return;
+            drained = new DrainedBodyColors(colors);
+            if (!drained.Calculated) { drained = null; supplied = colors; }
+        }
+        public ushort this[int color] => supplied is not null ? supplied[color]
+            : drained is not null ? drained[color]
+            : MotherBrainHealthPalettePresentation.StockBaseColor(false, color);
+    }
+
+    /// <summary>
+    /// $AD:F0BF/F1EB and EEB8 share drained body paint. Cortex shades interpolate
+    /// in RGB5 over three intervals; tissue shades interpolate before RGB5 quantization
+    /// over four intervals. Plates reuse normal health paint; white/black are neutral.
+    /// Stock uses the three narrowly approved drained paint anchors; independent edits
+    /// retain their own calculated endpoints or exact supplied colors.
+    /// </summary>
+    internal sealed class DrainedBodyColors
+    {
+        private readonly Rgb8 tissueLight;
+        private readonly Rgb8 tissueDark;
+        private readonly ushort outline;
+        private readonly ushort[]? supplied;
+        internal bool Calculated => supplied is null;
+
+        internal DrainedBodyColors(ushort[] colors)
+        {
+            if (colors.Length is not (3 or 13 or 15)) { supplied = colors; return; }
+            var light = MotherBrainDrainedPaintDefinitions.HighlightRgb8;
+            var dark = MotherBrainDrainedPaintDefinitions.DarkestTissueRgb8;
+            tissueLight = new(light.Red, light.Green, light.Blue);
+            tissueDark = new(dark.Red, dark.Green, dark.Blue);
+            outline = MotherBrainDrainedPaintDefinitions.Outline;
+            bool stock = true;
+            for (int color = 0; stock && color < colors.Length; color++) stock = colors[color] == Calculate(color);
+            if (stock) return;
+            if (colors.Length == MotherBrainFakeDeathPaletteRomData.ColorCount) { supplied = colors; return; }
+            outline = colors[3];
+            if (!TryChannel(0, out int lr, out int dr) ||
+                !TryChannel(5, out int lg, out int dg) ||
+                !TryChannel(10, out int lb, out int db))
+            { supplied = colors; return; }
+            tissueLight = new(lr, lg, lb);
+            tissueDark = new(dr, dg, db);
+            for (int color = 0; color < colors.Length; color++)
+                if (Calculate(color) != colors[color]) { supplied = colors; return; }
+
+            bool TryChannel(int shift, out int first, out int last)
+            {
+                int low = (colors[8] >> shift & 31) * 8;
+                int high = (colors[12] >> shift & 31) * 8;
+                for (int start = low; start < low + 8; start++)
+                    for (int end = high; end < high + 8; end++)
+                    {
+                        bool matches = true;
+                        for (int step = 0; step <= 4; step++)
+                            if ((start * (4 - step) + end * step) / 32 != (colors[8 + step] >> shift & 31))
+                            { matches = false; break; }
+                        if (matches) { first = start; last = end; return true; }
+                    }
+                first = last = 0;
+                return false;
+            }
+        }
+        internal ushort this[int color] => supplied is null ? Calculate(color) : supplied[color];
+
+        private ushort Calculate(int color)
+        {
+            if (color is >= 4 and <= 7)
+                return MotherBrainHealthPalettePresentation.StockBaseColor(false, color);
+            if (color == 13) return (31 << 10) | (31 << 5) | 31;
+            if (color == 14) return 0;
+            int result = 0;
+            for (int component = 0; component < 3; component++)
+            {
+                int channel = color < 4
+                    ? ((tissueLight.Component(component) / 8) * (3 - color)
+                        + (outline >> (component * 5) & 31) * color + 1) / 3
+                    : (tissueLight.Component(component) * (12 - color)
+                        + tissueDark.Component(component) * (color - 8)) / 32;
+                result |= channel << (component * 5);
+            }
+            return (ushort)result;
+        }
+
+        private readonly record struct Rgb8(int Red, int Green, int Blue)
+        {
+            internal int Component(int index) => index switch
+            { 0 => Red, 1 => Green, 2 => Blue, _ => throw new IndexOutOfRangeException() };
+        }
+    }
     private interface IPaletteFade
     {
         int Length { get; }

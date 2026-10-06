@@ -122,13 +122,26 @@ internal static partial class Program
 
         Console.WriteLine(
             "Shaktool projectile instruction mechanics: eighteen compiled words, all " +
-            "three real linked-circle producers and eight installed sprite frames match native OAM with " +
-            "mechanics bytes forbidden.");
+            "three real linked-circle producers and eight native installed operands pass with " +
+            "mechanics and presentation reads forbidden.");
+
+        ushort NativeWord(ushort address) => (ushort)(rom.ReadByte(0x860000 | address) |
+            rom.ReadByte(0x860000 | (ushort)(address + 1)) << 8);
 
         void Run(RoomEnemyProjectileSlot projectile, int frames)
         {
             for (int frame = 0; frame < frames; frame++)
             {
+                ushort cursor = projectile.InstructionPointer;
+                while (NativeWord(cursor) >= 0x8000)
+                {
+                    ushort opcode = NativeWord(cursor);
+                    if (opcode == EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY)
+                        cursor = NativeWord((ushort)(cursor + 2));
+                    else if (opcode == EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY)
+                        cursor += 4;
+                    else throw new InvalidOperationException($"Unexpected native Shaktool control {opcode:X4}");
+                }
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);

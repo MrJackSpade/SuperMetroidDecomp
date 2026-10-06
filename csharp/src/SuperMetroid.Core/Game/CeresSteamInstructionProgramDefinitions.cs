@@ -85,61 +85,6 @@ internal static class CeresSteamInstructionProgramDefinitions
     /// </summary>
     internal const ushort RightActive = 0xf0fd;
 
-    private static readonly CeresSteamInstructionMechanicsWord[] Words =
-    [
-        new(0xf04d, CeresEnemyCodePointers.HideCeresSteam),
-        new(0xf04f, 1),
-        new(0xf053, CeresEnemyCodePointers.StepCeresSteamActivationTimer),
-        new(0xf055, Up),
-        new(0xf057, UpActive),
-        new(0xf059, CeresEnemyCodePointers.HideCeresSteam),
-        new(0xf05b, 0x0040),
-        new(0xf05f, EnemyInstructionCodePointers.Instruction_CeresSteam_SetToTangibleAndVisible),
-        new(0xf061, 3), new(0xf065, 3), new(0xf069, 3), new(0xf06d, 3),
-        new(0xf071, 3), new(0xf075, 3), new(0xf079, 3),
-        new(0xf07d, CommonEnemyInstructionCodes.Goto),
-        new(0xf07f, UpHiddenHold),
-
-        new(0xf081, CeresEnemyCodePointers.HideCeresSteam),
-        new(0xf083, 1),
-        new(0xf087, CeresEnemyCodePointers.StepCeresSteamActivationTimer),
-        new(0xf089, Left),
-        new(0xf08b, LeftActive),
-        new(0xf08d, CeresEnemyCodePointers.HideCeresSteam),
-        new(0xf08f, 0x0040),
-        new(0xf093, EnemyInstructionCodePointers.Instruction_CeresSteam_SetToTangibleAndVisible),
-        new(0xf095, 3), new(0xf099, 3), new(0xf09d, 3), new(0xf0a1, 3),
-        new(0xf0a5, 3), new(0xf0a9, 3), new(0xf0ad, 3),
-        new(0xf0b1, CommonEnemyInstructionCodes.Goto),
-        new(0xf0b3, LeftHiddenHold),
-
-        new(0xf0b5, CeresEnemyCodePointers.HideCeresSteam),
-        new(0xf0b7, 1),
-        new(0xf0bb, CeresEnemyCodePointers.StepCeresSteamActivationTimer),
-        new(0xf0bd, Down),
-        new(0xf0bf, DownActive),
-        new(0xf0c1, CeresEnemyCodePointers.HideCeresSteam),
-        new(0xf0c3, 0x0040),
-        new(0xf0c7, EnemyInstructionCodePointers.Instruction_CeresSteam_SetToTangibleAndVisible),
-        new(0xf0c9, 3), new(0xf0cd, 3), new(0xf0d1, 3), new(0xf0d5, 3),
-        new(0xf0d9, 3), new(0xf0dd, 3), new(0xf0e1, 3),
-        new(0xf0e5, CommonEnemyInstructionCodes.Goto),
-        new(0xf0e7, DownHiddenHold),
-
-        new(0xf0e9, CeresEnemyCodePointers.HideCeresSteam),
-        new(0xf0eb, 1),
-        new(0xf0ef, CeresEnemyCodePointers.StepCeresSteamActivationTimer),
-        new(0xf0f1, Right),
-        new(0xf0f3, RightActive),
-        new(0xf0f5, CeresEnemyCodePointers.HideCeresSteam),
-        new(0xf0f7, 0x0040),
-        new(0xf0fb, EnemyInstructionCodePointers.Instruction_CeresSteam_SetToTangibleAndVisible),
-        new(0xf0fd, 3), new(0xf101, 3), new(0xf105, 3), new(0xf109, 3),
-        new(0xf10d, 3), new(0xf111, 3), new(0xf115, 3),
-        new(0xf119, CommonEnemyInstructionCodes.Goto),
-        new(0xf11b, RightHiddenHold),
-    ];
-
     /// <summary>
     /// Addresses of live extended-spritemap operands, separate from compiled
     /// mechanics. For the upward program, the operands at $F051 and $F05D
@@ -160,27 +105,53 @@ internal static class CeresSteamInstructionProgramDefinitions
     /// <c>$F214 + $0A * frame</c> for frames 0..6. All nine pinned-ROM words
     /// match, completing the four directional presentation sequences.
     /// </summary>
-    private static readonly ushort[] PresentationWords =
-    [
-        0xf051, 0xf05d, 0xf063, 0xf067, 0xf06b, 0xf06f, 0xf073, 0xf077, 0xf07b,
-        0xf085, 0xf091, 0xf097, 0xf09b, 0xf09f, 0xf0a3, 0xf0a7, 0xf0ab, 0xf0af,
-        0xf0b9, 0xf0c5, 0xf0cb, 0xf0cf, 0xf0d3, 0xf0d7, 0xf0db, 0xf0df, 0xf0e3,
-        0xf0ed, 0xf0f9, 0xf0ff, 0xf103, 0xf107, 0xf10b, 0xf10f, 0xf113, 0xf117,
-    ];
+    internal static int MechanicsWordCount => 68;
+    internal static int PresentationWordCount => 36;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static CeresSteamInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>
+    /// Each52-byte directional program waits invisibly for activation, holds hidden
+    /// for64 ticks, displays seven three-tick frames and returns to the hidden hold.
+    /// Its seventeen mechanics words interleave nine presentation operands.
+    /// </summary>
+    internal static CeresSteamInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        ushort start = (ushort)(Up + 52 * (index / 17));
+        int word = index % 17;
+        if (word is >= 8 and < 15)
+            return new((ushort)(start + 20 + 4 * (word - 8)), 3);
+        return word switch
+        {
+            0 => new(start, CeresEnemyCodePointers.HideCeresSteam),
+            1 => new((ushort)(start + 2), 1),
+            2 => new((ushort)(start + 6), CeresEnemyCodePointers.StepCeresSteamActivationTimer),
+            3 => new((ushort)(start + 8), start),
+            4 => new((ushort)(start + 10), (ushort)(start + 20)),
+            5 => new((ushort)(start + 12), CeresEnemyCodePointers.HideCeresSteam),
+            6 => new((ushort)(start + 14), 64),
+            7 => new((ushort)(start + 18), EnemyInstructionCodePointers.Instruction_CeresSteam_SetToTangibleAndVisible),
+            15 => new((ushort)(start + 48), CommonEnemyInstructionCodes.Goto),
+            _ => new((ushort)(start + 50), (ushort)(start + 12)),
+        };
+    }
 
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        int start = Up + 52 * (index / 9);
+        int frame = index % 9;
+        return (ushort)(start + (frame < 2 ? 4 + 12 * frame : 22 + 4 * (frame - 2)));
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            CeresSteamInstructionMechanicsWord candidate = Words[middle];
+            CeresSteamInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -199,9 +170,9 @@ internal static class CeresSteamInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

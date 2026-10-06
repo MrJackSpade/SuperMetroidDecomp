@@ -25,54 +25,65 @@ internal static class SkulteraInstructionProgramDefinitions
     /// <summary><c>$A3:9072</c>, the eight-frame turn from right to left.</summary>
     internal const ushort TurningLeft = 0x9072;
 
-    private static readonly SkulteraInstructionMechanicsWord[] Words =
-    [
-        new(0x902a, 0x90a0),
-        new(0x902c, 0x000e), new(0x9030, 0x000e), new(0x9034, 0x000e),
-        new(0x9038, 0x80ed), new(0x903a, 0x902c),
+    /// <summary>
+    /// $A3:903C/9040/9044/9048: first half of the turn's mirrored holds.
+    /// Mirroring removes duplicate samples, but does not derive these four timings.
+    /// They remain required issue-1165 work; no endpoint correction or ordinal formula is a disposition.
+    /// </summary>
+    private static readonly ushort[] TurnHalfDurations = [13, 10, 8, 6];
+    /// <summary>$A3:902C/9062: independent swimming cadence remains required under #1165.</summary>
+    private const ushort SwimmingDuration = 14;
+    internal static int MechanicsWordCount => 32;
+    internal static int PresentationWordCount => 22;
 
-        new(0x903c, 0x000d), new(0x9040, 0x000a),
-        new(0x9044, 0x0008), new(0x9048, 0x0006),
-        new(0x904c, 0x0006), new(0x9050, 0x0008),
-        new(0x9054, 0x000a), new(0x9058, 0x000d),
-        new(0x905c, 0x90aa), new(0x905e, 0x812f),
+    internal static SkulteraInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        bool startsLeft = index < 16;
+        int local = index % 16;
+        ushort swim = startsLeft ? SwimmingLeft : SwimmingRight;
+        ushort turn = startsLeft ? TurningRight : TurningLeft;
+        if (local == 0)
+            return new(swim, startsLeft ? EnemyInstructionCodePointers.Instruction_Skultera_SetLayerTo2
+                : EnemyInstructionCodePointers.Instruction_Skultera_SetLayerTo6);
+        if (local < 4) return new((ushort)(swim + 2 + 4 * (local - 1)), SwimmingDuration);
+        if (local < 6)
+            return new((ushort)(swim + 14 + 2 * (local - 4)), local == 4 ? CommonEnemyInstructionCodes.Goto : (ushort)(swim + 2));
+        int frame = local - 6;
+        if (frame < 8)
+        {
+            int distanceFromEnd = Math.Min(frame, 7 - frame);
+            ushort duration = TurnHalfDurations[distanceFromEnd];
+            return new((ushort)(turn + 4 * frame), duration);
+        }
+        return new((ushort)(turn + 32 + 2 * (frame - 8)), frame == 8
+            ? EnemyInstructionCodePointers.Instruction_Skultera_SetTurnFinishedFlag : CommonEnemyInstructionCodes.Sleep);
+    }
 
-        new(0x9060, 0x9096),
-        new(0x9062, 0x000e), new(0x9066, 0x000e), new(0x906a, 0x000e),
-        new(0x906e, 0x80ed), new(0x9070, 0x9062),
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        bool startsLeft = index < 11;
+        int local = index % 11;
+        return local < 3 ? (ushort)((startsLeft ? SwimmingLeft : SwimmingRight) + 4 + 4 * local)
+            : (ushort)((startsLeft ? TurningRight : TurningLeft) + 2 + 4 * (local - 3));
+    }
 
-        new(0x9072, 0x000d), new(0x9076, 0x000a),
-        new(0x907a, 0x0008), new(0x907e, 0x0006),
-        new(0x9082, 0x0006), new(0x9086, 0x0008),
-        new(0x908a, 0x000a), new(0x908e, 0x000d),
-        new(0x9092, 0x90aa), new(0x9094, 0x812f),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0x902e, 0x9032, 0x9036,
-        0x903e, 0x9042, 0x9046, 0x904a, 0x904e, 0x9052, 0x9056, 0x905a,
-        0x9064, 0x9068, 0x906c,
-        0x9074, 0x9078, 0x907c, 0x9080, 0x9084, 0x9088, 0x908c, 0x9090,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static SkulteraInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
-
+    internal static bool IsPresentationWord(ushort address)
+    {
+        for (int index = 0; index < PresentationWordCount; index++)
+            if (PresentationWordAddress(index) == address) return true;
+        return false;
+    }
     /// <summary>Returns fixed Skultera control or rejects pointers outside all four programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            SkulteraInstructionMechanicsWord candidate = Words[middle];
+            SkulteraInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -90,9 +101,9 @@ internal static class SkulteraInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa30000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

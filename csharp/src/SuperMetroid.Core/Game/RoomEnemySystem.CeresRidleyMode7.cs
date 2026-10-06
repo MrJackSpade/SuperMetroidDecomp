@@ -97,14 +97,7 @@ public sealed partial class RoomEnemySystem
         if ((nmiFrameCounter & 3) == 0)
         {
             state.Mode7BabyFrame = unchecked((ushort)((state.Mode7BabyFrame + 1) & 3));
-            ushort[] babyTransferPointers =
-            [
-                CeresMode7TransferDefinitions.BabyFrame0,
-                CeresMode7TransferDefinitions.BabyFrame1,
-                CeresMode7TransferDefinitions.BabyFrame2,
-                CeresMode7TransferDefinitions.BabyFrame1,
-            ];
-            ApplyMode7TransferList(babyTransferPointers[state.Mode7BabyFrame]);
+            ApplyMode7TransferList(CeresMode7TransferDefinitions.BabyFrameForPhase(state.Mode7BabyFrame));
         }
 
         // $A6:AD27 alternates the six sparse wing rows on every eighth NMI.

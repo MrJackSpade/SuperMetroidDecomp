@@ -21,116 +21,150 @@ internal static class ChozoStatueInstructionProgramDefinitions
     /// <summary><c>InstList_Chozo_WreckedShip_Activated_0</c> at $AA:E461.</summary>
     internal const ushort WreckedShipActivated = 0xe461;
 
-    private static readonly ChozoStatueInstructionMechanicsWord[] Words =
-    [
-        new(0xe39d, 0x806b), new(0xe39f, 0xe445), new(0xe3a1, 0x0001),
-        new(0xe3a5, 0x812f), new(0xe3a7, 0x8074), new(0xe3a9, 0xe5d8),
-        new(0xe3ab, 0x0020), new(0xe3ad, 0x0020), new(0xe3b1, 0xe5d8),
-        new(0xe3b3, 0x0022), new(0xe3b5, 0x0008), new(0xe3b9, 0xe5d8),
-        new(0xe3bb, 0x0024), new(0xe3bd, 0x0030), new(0xe3c1, 0xe57f),
-        new(0xe3c3, 0xe5d8), new(0xe3c5, 0x0026), new(0xe3c7, 0x0040),
-        new(0xe3cb, 0x0006), new(0xe3cf, 0x0008), new(0xe3d3, 0x000a),
-        new(0xe3d7, 0x000c), new(0xe3db, 0x0060), new(0xe3df, 0xe429),
-        new(0xe3e1, 0x8123), new(0xe3e3, 0x0005), new(0xe3e5, 0x000b),
-        new(0xe3e9, 0x0008), new(0xe3ed, 0x0006), new(0xe3f1, 0x0008),
-        new(0xe3f5, 0x0006), new(0xe3f9, 0x0008), new(0xe3fd, 0x8110),
-        new(0xe3ff, 0xe3e5), new(0xe401, 0x8074), new(0xe403, 0xe5d8),
-        new(0xe405, 0x0026), new(0xe407, 0x0080), new(0xe40b, 0xe5d8),
-        new(0xe40d, 0x0024), new(0xe40f, 0x0050), new(0xe413, 0xe5d8),
-        new(0xe415, 0x0022), new(0xe417, 0x0008), new(0xe41b, 0xe5d8),
-        new(0xe41d, 0x0020), new(0xe41f, 0x0020), new(0xe423, 0xe43d),
-        new(0xe425, 0xe436), new(0xe427, 0x812f), new(0xe457, 0x806b),
-        new(0xe459, 0xe7ae), new(0xe45b, 0x0001), new(0xe45f, 0x812f),
-        new(0xe461, 0x8074), new(0xe463, 0xe5d8), new(0xe465, 0x0000),
-        new(0xe467, 0x0020), new(0xe46b, 0xe5d8), new(0xe46d, 0x0002),
-        new(0xe46f, 0x0008), new(0xe473, 0xe5d8), new(0xe475, 0x0004),
-        new(0xe477, 0x0050), new(0xe47b, 0xe57f), new(0xe47d, 0xe5d8),
-        new(0xe47f, 0x0006), new(0xe481, 0x0080), new(0xe485, 0x0006),
-        new(0xe489, 0x0008), new(0xe48d, 0x000a), new(0xe491, 0x000c),
-        new(0xe495, 0x0080), new(0xe499, 0x8123), new(0xe49b, 0x0004),
-        new(0xe49d, 0x000b), new(0xe4a1, 0x0008), new(0xe4a5, 0x0006),
-        new(0xe4a9, 0x0008), new(0xe4ad, 0x0006), new(0xe4b1, 0x0008),
-        new(0xe4b5, 0x8110), new(0xe4b7, 0xe49d), new(0xe4b9, 0x806b),
-        new(0xe4bb, 0xe7da), new(0xe4bd, 0x8123), new(0xe4bf, 0x0010),
-        new(0xe4c1, 0xe5d8), new(0xe4c3, 0x0016), new(0xe4c5, 0xe58f),
-        new(0xe4c7, 0xfff8), new(0xe4c9, 0x0008), new(0xe4cd, 0xe587),
-        new(0xe4cf, 0xe5d8), new(0xe4d1, 0x0008), new(0xe4d3, 0xe58f),
-        new(0xe4d5, 0xffec), new(0xe4d7, 0x000b), new(0xe4db, 0xe5d8),
-        new(0xe4dd, 0x000a), new(0xe4df, 0xe58f), new(0xe4e1, 0xfff0),
-        new(0xe4e3, 0x0008), new(0xe4e7, 0xe5d8), new(0xe4e9, 0x000c),
-        new(0xe4eb, 0xe58f), new(0xe4ed, 0x0000), new(0xe4ef, 0x0006),
-        new(0xe4f3, 0xe5d8), new(0xe4f5, 0x000e), new(0xe4f7, 0xe58f),
-        new(0xe4f9, 0xfff8), new(0xe4fb, 0x0008), new(0xe4ff, 0xe587),
-        new(0xe501, 0xe5d8), new(0xe503, 0x0010), new(0xe505, 0xe58f),
-        new(0xe507, 0xffec), new(0xe509, 0x000b), new(0xe50d, 0xe5d8),
-        new(0xe50f, 0x0012), new(0xe511, 0xe58f), new(0xe513, 0xfff0),
-        new(0xe515, 0x0008), new(0xe519, 0xe5d8), new(0xe51b, 0x0014),
-        new(0xe51d, 0xe58f), new(0xe51f, 0x0000), new(0xe521, 0x0006),
-        new(0xe525, 0x8110), new(0xe527, 0xe4c1), new(0xe529, 0xe5d8),
-        new(0xe52b, 0x0016), new(0xe52d, 0xe58f), new(0xe52f, 0xfff8),
-        new(0xe531, 0x0008), new(0xe535, 0xe5d8), new(0xe537, 0x0008),
-        new(0xe539, 0xe58f), new(0xe53b, 0xffec), new(0xe53d, 0x000b),
-        new(0xe541, 0xe5d8), new(0xe543, 0x000a), new(0xe545, 0xe58f),
-        new(0xe547, 0xfff0), new(0xe549, 0x0008), new(0xe54d, 0xe5d8),
-        new(0xe54f, 0x000c), new(0xe551, 0xe58f), new(0xe553, 0x0000),
-        new(0xe555, 0x0006), new(0xe559, 0x8074), new(0xe55b, 0xe5d8),
-        new(0xe55d, 0x0006), new(0xe55f, 0x0080), new(0xe563, 0xe5d8),
-        new(0xe565, 0x0004), new(0xe567, 0x0050), new(0xe56b, 0xe5d8),
-        new(0xe56d, 0x0002), new(0xe56f, 0x0008), new(0xe573, 0xe5d8),
-        new(0xe575, 0x0000), new(0xe577, 0x0020), new(0xe57b, 0xe6f0),
-        new(0xe57d, 0x812f),
-    ];
+    /// <summary>$AA:E445: Lower Norfair activation pre-instruction.</summary>
+    private const ushort LowerNorfairActivation = 0xe445;
+    /// <summary>$AA:E7AE: Wrecked Ship activation pre-instruction.</summary>
+    private const ushort WreckedShipActivation = 0xe7ae;
+    /// <summary>$AA:E7DA: Wrecked Ship carrying/walking pre-instruction.</summary>
+    private const ushort WreckedShipWalking = 0xe7da;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe3a3, 0xe3af, 0xe3b7, 0xe3bf, 0xe3c9, 0xe3cd, 0xe3d1, 0xe3d5,
-        0xe3d9, 0xe3dd, 0xe3e7, 0xe3eb, 0xe3ef, 0xe3f3, 0xe3f7, 0xe3fb,
-        0xe409, 0xe411, 0xe419, 0xe421, 0xe45d, 0xe469, 0xe471, 0xe479,
-        0xe483, 0xe487, 0xe48b, 0xe48f, 0xe493, 0xe497, 0xe49f, 0xe4a3,
-        0xe4a7, 0xe4ab, 0xe4af, 0xe4b3, 0xe4cb, 0xe4d9, 0xe4e5, 0xe4f1,
-        0xe4fd, 0xe50b, 0xe517, 0xe523, 0xe533, 0xe53f, 0xe54b, 0xe557,
-        0xe561, 0xe569, 0xe571, 0xe579,
-    ];
+    // Independent pose holds and footstep offsets remain unresolved under issue1165.
+    // The layout conversion does not exempt these payloads or the per-scene holds.
+    private static readonly ushort[] AcquisitionHolds = [32, 8, 80];
+    private static readonly ushort[] StrideHolds = [8, 11, 8, 6];
+    private static readonly short[] FootstepOffsets = [-8, -20, -16, 0];
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ChozoStatueInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static int MechanicsWordCount => 166;
+    internal static int PresentationWordCount => 52;
+
+    internal static ChozoStatueInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        return BuildLayout(index, false).Selected;
+    }
+
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        return BuildLayout(index, true).Selected.Address;
+    }
+
+    /// <summary>
+    /// $AA:E39D-E428/E457-E57E: shared acquisition, rise, breathing and release
+    /// sequences, with the Wrecked Ship's two-stride carrying loop and final half
+    /// stride. Commands occupy one word plus their declared operand; each pose
+    /// occupies a duration and separate visual word. No instruction table is built.
+    /// </summary>
+    private static Layout BuildLayout(int index, bool presentation)
+    {
+        var layout = new Layout(index, presentation);
+        BuildScene(ref layout, false);
+        BuildScene(ref layout, true);
+        return layout;
+    }
+
+    private static void BuildScene(ref Layout layout, bool wreckedShip)
+    {
+        layout.Address = wreckedShip ? WreckedShipInitial : LowerNorfairInitial;
+        layout.Command(ChozoStatueInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY,
+            wreckedShip ? WreckedShipActivation : LowerNorfairActivation);
+        layout.Pose(1);
+        layout.Word(CommonEnemyInstructionCodes.Sleep);
+        layout.Word(ChozoStatueInstructionCodes.Instruction_CommonAA3_SetEnemy0FB2ToRTS);
+        int movementBase = wreckedShip ? 0 : 32;
+        for (int pose = 0; pose < 3; pose++)
+        {
+            layout.Command(ChozoStatueInstructionCodes.Instruction_Chozo_Movement_IndexInY, (ushort)(movementBase + pose * 2));
+            layout.Pose(!wreckedShip && pose == 2 ? (ushort)48 : AcquisitionHolds[pose]);
+        }
+        layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_PlayChozoGrabsSamusSFX);
+        layout.Command(ChozoStatueInstructionCodes.Instruction_Chozo_Movement_IndexInY, (ushort)(movementBase + 6));
+        layout.Pose(wreckedShip ? (ushort)128 : (ushort)64);
+        for (int pose = 0; pose < 4; pose++) layout.Pose((ushort)(6 + pose * 2));
+        layout.Pose(wreckedShip ? (ushort)128 : (ushort)96);
+        if (!wreckedShip) layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_StartLoweringAcid);
+        layout.Command(CommonEnemyInstructionCodes.SetTimer, wreckedShip ? (ushort)4 : (ushort)5);
+        ushort breathing = layout.Address;
+        for (int pose = 0; pose < 6; pose++)
+            layout.Pose(pose == 0 ? StrideHolds[1] : pose % 2 == 0 ? StrideHolds[3] : StrideHolds[0]);
+        layout.Command(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, breathing);
+        if (wreckedShip)
+        {
+            layout.Command(ChozoStatueInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, WreckedShipWalking);
+            layout.Command(CommonEnemyInstructionCodes.SetTimer, 16);
+            ushort walking = layout.Address;
+            for (int pose = 0; pose < 8; pose++) BuildStridePose(ref layout, pose, true);
+            layout.Command(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, walking);
+            for (int pose = 0; pose < 4; pose++) BuildStridePose(ref layout, pose, false);
+        }
+        layout.Word(ChozoStatueInstructionCodes.Instruction_CommonAA3_SetEnemy0FB2ToRTS);
+        for (int pose = 0; pose < 4; pose++)
+        {
+            layout.Command(ChozoStatueInstructionCodes.Instruction_Chozo_Movement_IndexInY, (ushort)(movementBase + (3 - pose) * 2));
+            layout.Pose(pose == 0 ? (ushort)128 : AcquisitionHolds[3 - pose]);
+        }
+        if (wreckedShip) layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_ReleaseSamus_BlockSlopeAccess);
+        else
+        {
+            layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_UnlockSamus);
+            layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_SetLoweredAcidPosition);
+        }
+        layout.Word(CommonEnemyInstructionCodes.Sleep);
+    }
+
+    private static void BuildStridePose(ref Layout layout, int pose, bool footsteps)
+    {
+        layout.Command(ChozoStatueInstructionCodes.Instruction_Chozo_Movement_IndexInY, (ushort)(pose == 0 ? 22 : 6 + pose * 2));
+        layout.Command(ChozoStatueInstructionCodes.Instruction_Chozo_SpawnChozoSpikeClearingFootstepProjectile,
+            unchecked((ushort)FootstepOffsets[pose % 4]));
+        layout.Pose(StrideHolds[pose % 4]);
+        if (footsteps && pose % 4 == 0) layout.Word(ChozoStatueInstructionCodes.Instruction_Chozo_PlayChozoFootstepsSFX);
+    }
+
+    private struct Layout(int target, bool presentation)
+    {
+        private int remaining = target;
+        internal ushort Address;
+        internal ChozoStatueInstructionMechanicsWord Selected;
+
+        internal void Word(ushort value)
+        {
+            if (!presentation && remaining-- == 0) Selected = new(Address, value);
+            Address += 2;
+        }
+        internal void Command(ushort instruction, ushort operand) { Word(instruction); Word(operand); }
+        internal void Pose(ushort duration)
+        {
+            Word(duration);
+            if (presentation && remaining-- == 0) Selected = new(Address, 0);
+            Address += 2;
+        }
+    }
 
     /// <summary>Returns fixed Chozo-statue control or rejects pointers outside its lists.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            ChozoStatueInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            var candidate = MechanicsWord(middle);
+            if (candidate.Address == address) return candidate.Value;
+            if (candidate.Address < address) low = middle + 1;
+            else high = middle - 1;
         }
-
-        throw new InvalidDataException(
-            $"Chozo statue instruction mechanics pointer $AA:{address:X4} is not compiled.");
+        throw new InvalidDataException($"Chozo statue instruction mechanics pointer $AA:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xaa0000)
-            return false;
+        if ((address & 0xff0000) != 0xaa0000) return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
+            ushort wordAddress = MechanicsWord(index).Address;
+            if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1))) return true;
         }
         return false;
     }

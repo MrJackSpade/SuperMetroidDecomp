@@ -33,7 +33,7 @@ internal static class EnemyCompositionResourceChecks
         {
             Require(stock.TryGetDisplay(bank, pointer, out var parts),
                 $"{family} sprite {bank:X2}:{pointer:X4} must load through the production display binding");
-            Require(parts.Span.Length == 1 && parts.Span[0].X.SignedOffset == (pointer & 0x7f),
+            Require(parts.Length == 1 && parts[0].X.SignedOffset == (pointer & 0x7f),
                 $"{family} sprite {pointer:X4} must retain its selected composition");
         }
         Require(pointers.Count == familyFrameCount,
@@ -54,10 +54,10 @@ internal static class EnemyCompositionResourceChecks
         };
         EnemySpritemapCatalog merged = Load(legacy, stock);
         Require(merged.TryGetDisplay(edited.Bank, edited.Pointer, out var oldParts) &&
-            oldParts.Span[0].X.SignedOffset == -1, "previous-schema edits must survive inheritance");
+            oldParts[0].X.SignedOffset == -1, "previous-schema edits must survive inheritance");
         foreach (ushort pointer in pointers)
             Require(merged.TryGetDisplay(bank, pointer, out var parts) &&
-                parts.Span[0].X.SignedOffset == (pointer & 0x7f), "legacy overrides must inherit every new stock frame");
+                parts[0].X.SignedOffset == (pointer & 0x7f), "legacy overrides must inherit every new stock frame");
         bool rejected = false;
         try { _ = Load(legacy); }
         catch (InvalidDataException) { rejected = true; }

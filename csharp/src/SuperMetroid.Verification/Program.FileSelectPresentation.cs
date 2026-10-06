@@ -20,7 +20,7 @@ internal static partial class Program
             "installed file-select JSON is the deterministic cartridge extraction");
         _ = FileSelectPresentation.Load(new MemoryStream(extracted));
 
-        var saveRam = new SuperMetroidSaveRam(bus);
+        var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
         {
             Health = 45,

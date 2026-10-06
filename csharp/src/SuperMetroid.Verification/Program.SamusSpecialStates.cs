@@ -729,6 +729,15 @@ static void VerifySamusDeathSequence()
         0x6b5a, 0x6f7b, 0x739c, 0x77bd, 0x7bde, 0x7fff,
     ];
     WriteTestWords(bus, 0x9bb835, shades);
+    // Install the existing synthetic colors through the production artwork boundary.
+    // This fixture exercises Power suit; the other suit families use the same supplied colors.
+    ushort[] FixturePalette(int pointer) => Enumerable.Range(0, 16)
+        .Select(color => (ushort)(bus.ReadByte(pointer + color * 2) | bus.ReadByte(pointer + color * 2 + 1) << 8)).ToArray();
+    ushort[][] suitColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bc000 + palette * 0x20)).ToArray();
+    ushort[][] suitlessColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bd400 + palette * 0x20)).ToArray();
+    ushort[] paletteIndices = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
+        .Select(index => (ushort)bus.ReadByte(SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress + index * 2 + 1)).ToArray();
+    var artwork = new SamusDeathPaletteArtworkCatalog([suitColors, suitColors, suitColors], suitlessColors, shades, paletteIndices);
 
     ushort ReadFixtureWord(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
     ushort[] ReadFixturePalette(int pointerAddress)
@@ -779,7 +788,7 @@ static void VerifySamusDeathSequence()
     var writes = new VramWriteQueue();
     SamusDeathSequenceStepResult step = default;
     for (int call = 1; call <= 16; call++)
-        step = samus.DeathSequence.Step(guardedBus, samus, cgram, writes, deathPalettes);
+        step = samus.DeathSequence.Step(guardedBus, samus, cgram, writes, artwork);
     AssertEqual(SamusDeathSequencePhase.Flashing, samus.DeathSequence.Phase,
         "sixteen preflash calls enter flashing");
     AssertEqual(5, samus.AnimationFrame, "unmorphed death frame loops at five");
@@ -789,7 +798,7 @@ static void VerifySamusDeathSequence()
     // queues segment four at `$6000`, resets the explosion state, immediately decrements
     // 21 to 20, and draws right-facing spritemap `$81C`.
     for (int call = 1; call <= 60; call++)
-        step = samus.DeathSequence.Step(guardedBus, samus, cgram, writes, deathPalettes);
+        step = samus.DeathSequence.Step(guardedBus, samus, cgram, writes, artwork);
     AssertEqual(SamusDeathSequencePhase.SuitExplosion, samus.DeathSequence.Phase,
         "60 flashing calls enter suit explosion");
     AssertEqual(5, writes.Entries.Count, "death queues exactly five tile segments");
@@ -825,7 +834,7 @@ static void VerifySamusDeathSequence()
     int explosionCalls = 0;
     while (samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete)
     {
-        step = samus.DeathSequence.Step(guardedBus, samus, cgram, writes, deathPalettes);
+        step = samus.DeathSequence.Step(guardedBus, samus, cgram, writes, artwork);
         explosionCalls++;
         AssertTrue(explosionCalls <= 135, "death explosion terminates on native timer sum");
     }

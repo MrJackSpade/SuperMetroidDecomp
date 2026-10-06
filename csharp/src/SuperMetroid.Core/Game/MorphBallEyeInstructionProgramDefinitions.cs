@@ -38,29 +38,76 @@ internal static class MorphBallEyeInstructionProgramDefinitions
 
     internal const int ActiveFrameCount = 16;
 
-    private static readonly MorphBallEyeInstructionMechanicsWord[] Words =
-        BuildMechanicsWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
+    // Still unresolved authored eyelid cadence: closing uses these holds forward,
+    // opening reverses them after its activation delay. No exception is claimed.
+    private static readonly ushort[] EyelidDurations = [8, 48, 5];
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static MorphBallEyeInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static int MechanicsWordCount => 46;
+    internal static int PresentationWordCount => 36;
+
+    internal static MorphBallEyeInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 18)
+            return index < ActiveFrameCount ? new((ushort)(Active + index * 4), 10)
+                : new((ushort)(Active + 64 + (index - 16) * 2),
+                    index == 16 ? CommonEnemyInstructionCodes.Goto : Active);
+        if (index < 28)
+        {
+            int local = (index - 18) % 5;
+            ushort start = (ushort)(FacingRightDeactivating + (index - 18) / 5 * 18);
+            return new((ushort)(start + local * 4),
+                local == 4 ? CommonEnemyInstructionCodes.Sleep : EyelidDurations[local == 3 ? 1 : local]);
+        }
+        if (index < 38)
+        {
+            int local = (index - 28) % 5;
+            ushort start = (ushort)(FacingRightActivating + (index - 28) / 5 * 18);
+            return new((ushort)(start + local * 4), local switch
+            {
+                0 => 32,
+                4 => CommonEnemyInstructionCodes.Sleep,
+                _ => EyelidDurations[3 - local],
+            });
+        }
+        int mountWord = index - 38;
+        return new((ushort)(MountFacingRight + mountWord / 2 * 6 + (mountWord % 2) * 4),
+            (mountWord & 1) == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
+    }
+
+    /// <summary>
+    /// Native $A8:8FAC-904F contains sixteen tracking frames, two four-frame closing
+    /// sequences, two four-frame opening sequences and four one-frame mount programs.
+    /// Sleep/goto control widths determine the gaps between their visual operands.
+    /// </summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 16) return (ushort)(Active + index * 4 + 2);
+        if (index < 24)
+            return (ushort)(FacingRightDeactivating + (index - 16) / 4 * 18 + (index % 4) * 4 + 2);
+        if (index < 32)
+            return (ushort)(FacingRightActivating + (index - 24) / 4 * 18 + (index % 4) * 4 + 2);
+        return (ushort)(MountFacingRight + (index - 32) * 6 + 2);
+    }
 
     /// <summary>True only for an eye-body or mount visual operand.</summary>
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
+    internal static bool IsPresentationWord(ushort address)
+    {
+        for (int index = 0; index < PresentationWordCount; index++)
+            if (PresentationWordAddress(index) == address) return true;
+        return false;
+    }
 
     /// <summary>Returns fixed eye control or rejects pointers outside its eleven lists.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            MorphBallEyeInstructionMechanicsWord candidate = Words[middle];
+            MorphBallEyeInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -78,9 +125,9 @@ internal static class MorphBallEyeInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa80000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {
@@ -90,88 +137,4 @@ internal static class MorphBallEyeInstructionProgramDefinitions
         return false;
     }
 
-    private static MorphBallEyeInstructionMechanicsWord[] BuildMechanicsWords()
-    {
-        var words = new List<MorphBallEyeInstructionMechanicsWord>(capacity: 41);
-        AddFrames(words, Active, ActiveFrameCount, duration: 10);
-        ushort activeGoto = unchecked((ushort)(Active + ActiveFrameCount * 4));
-        words.Add(new(activeGoto, CommonEnemyInstructionCodes.Goto));
-        words.Add(new(unchecked((ushort)(activeGoto + 2)), Active));
-
-        AddFrames(words, FacingRightDeactivating, [8, 48, 5]);
-        AddSleepProgram(words, FacingRightClosed, duration: 48);
-        AddFrames(words, FacingLeftDeactivating, [8, 48, 5]);
-        AddSleepProgram(words, FacingLeftClosed, duration: 48);
-        AddSleepProgram(words, FacingRightActivating, [32, 5, 48, 8]);
-        AddSleepProgram(words, FacingLeftActivating, [32, 5, 48, 8]);
-        AddSleepProgram(words, MountFacingRight, duration: 1);
-        AddSleepProgram(words, MountFacingDown, duration: 1);
-        AddSleepProgram(words, MountFacingLeft, duration: 1);
-        AddSleepProgram(words, MountFacingUp, duration: 1);
-        return words.ToArray();
-    }
-
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new List<ushort>(capacity: 36);
-        AddPresentationWords(words, Active, ActiveFrameCount);
-        AddPresentationWords(words, FacingRightDeactivating, 3);
-        AddPresentationWords(words, FacingRightClosed, 1);
-        AddPresentationWords(words, FacingLeftDeactivating, 3);
-        AddPresentationWords(words, FacingLeftClosed, 1);
-        AddPresentationWords(words, FacingRightActivating, 4);
-        AddPresentationWords(words, FacingLeftActivating, 4);
-        AddPresentationWords(words, MountFacingRight, 1);
-        AddPresentationWords(words, MountFacingDown, 1);
-        AddPresentationWords(words, MountFacingLeft, 1);
-        AddPresentationWords(words, MountFacingUp, 1);
-        return words.ToArray();
-    }
-
-    private static void AddFrames(
-        List<MorphBallEyeInstructionMechanicsWord> words,
-        ushort entry,
-        int frameCount,
-        ushort duration)
-    {
-        for (int frame = 0; frame < frameCount; frame++)
-            words.Add(new(unchecked((ushort)(entry + frame * 4)), duration));
-    }
-
-    private static void AddFrames(
-        List<MorphBallEyeInstructionMechanicsWord> words,
-        ushort entry,
-        ReadOnlySpan<ushort> durations)
-    {
-        for (int frame = 0; frame < durations.Length; frame++)
-            words.Add(new(unchecked((ushort)(entry + frame * 4)), durations[frame]));
-    }
-
-    private static void AddSleepProgram(
-        List<MorphBallEyeInstructionMechanicsWord> words,
-        ushort entry,
-        ushort duration)
-    {
-        words.Add(new(entry, duration));
-        words.Add(new(unchecked((ushort)(entry + 4)), CommonEnemyInstructionCodes.Sleep));
-    }
-
-    private static void AddSleepProgram(
-        List<MorphBallEyeInstructionMechanicsWord> words,
-        ushort entry,
-        ReadOnlySpan<ushort> durations)
-    {
-        AddFrames(words, entry, durations);
-        words.Add(new(unchecked((ushort)(entry + durations.Length * 4)),
-            CommonEnemyInstructionCodes.Sleep));
-    }
-
-    private static void AddPresentationWords(
-        List<ushort> words,
-        ushort entry,
-        int frameCount)
-    {
-        for (int frame = 0; frame < frameCount; frame++)
-            words.Add(unchecked((ushort)(entry + frame * 4 + 2)));
-    }
 }

@@ -29,7 +29,7 @@ internal static class LoadAppearanceArtifactAudit
             MaxSuperMissiles = 1,
             SelectedHudItem = 2,
         };
-        var saveRam = new SuperMetroidSaveRam(bus);
+        var saveRam = new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus));
         saveRam.SaveSlot(
             0,
             SuperMetroidSaveSnapshot.Capture(
@@ -90,7 +90,7 @@ internal static class LoadAppearanceArtifactAudit
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var saveRam = new SuperMetroidSaveRam(bus);
+        var saveRam = new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus));
         int selectedSlot = saveRam.ReadSelectedSlot();
         SuperMetroidSaveSlot sourceSlot = saveRam.ReadSlot(selectedSlot)
             ?? throw new InvalidDataException(

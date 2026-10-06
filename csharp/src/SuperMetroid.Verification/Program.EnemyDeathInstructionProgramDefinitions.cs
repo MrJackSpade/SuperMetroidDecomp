@@ -122,6 +122,7 @@ internal static partial class Program
             AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
                 "EnemyDeath compiled selector matches the cartridge");
         }
+        AssertEqual(0, guard.ObservedPresentationWords.Count, "generic enemy-death presentation needs no live cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids all compiled generic enemy-death mechanics bytes");
         AssertThrows<InvalidDataException>(

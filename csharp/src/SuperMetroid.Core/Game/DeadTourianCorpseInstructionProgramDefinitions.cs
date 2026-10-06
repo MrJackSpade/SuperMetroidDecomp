@@ -6,7 +6,7 @@ internal readonly record struct DeadTourianCorpseInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for the dead Zoomer, Ripper, and Skree corpse
-/// programs. Their eight spritemap operands remain live cartridge data.
+/// programs. Their eight spritemap operands select separately installed presentation data.
 /// </summary>
 internal static class DeadTourianCorpseInstructionProgramDefinitions
 {
@@ -37,37 +37,24 @@ internal static class DeadTourianCorpseInstructionProgramDefinitions
     /// <summary>The first dead-monster spritemap after the programs, at $A9:ED25.</summary>
     internal const ushort FirstAdjacentPresentationData = 0xed25;
 
-    private static readonly ushort[] Programs =
-    [Zoomer0, Zoomer2, Zoomer4, Ripper0, Ripper2, Skree0, Skree2, Skree4];
-
-    private static readonly DeadTourianCorpseInstructionMechanicsWord[] Words =
-    [
-        new(Zoomer0, 1), new(0xecf9, CommonEnemyInstructionCodes.Sleep),
-        new(Zoomer2, 1), new(0xecff, CommonEnemyInstructionCodes.Sleep),
-        new(Zoomer4, 1), new(0xed05, CommonEnemyInstructionCodes.Sleep),
-        new(Ripper0, 1), new(0xed0b, CommonEnemyInstructionCodes.Sleep),
-        new(Ripper2, 1), new(0xed11, CommonEnemyInstructionCodes.Sleep),
-        new(Skree0, 1), new(0xed17, CommonEnemyInstructionCodes.Sleep),
-        new(Skree2, 1), new(0xed1d, CommonEnemyInstructionCodes.Sleep),
-        new(Skree4, 1), new(0xed23, CommonEnemyInstructionCodes.Sleep),
-    ];
-
-    internal static int ProgramCount => Programs.Length;
-    internal static int MechanicsWordCount => Words.Length;
-    internal static ushort Program(int index) => Programs[index];
-    internal static DeadTourianCorpseInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) =>
-        unchecked((ushort)(Programs[index] + 2));
-    internal static ushort SleepWordAddress(int index) =>
-        unchecked((ushort)(Programs[index] + 4));
-
+    internal static int ProgramCount => 8;
+    internal static int MechanicsWordCount => 16;
+    internal static ushort Program(int index) => (uint)index < ProgramCount
+        ? (ushort)(Zoomer0+6*index) : throw new IndexOutOfRangeException();
+    internal static DeadTourianCorpseInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        ushort start = Program(index/2);
+        return (index&1) == 0 ? new(start,1) : new((ushort)(start+4),CommonEnemyInstructionCodes.Sleep);
+    }
+    internal static ushort PresentationWordAddress(int index) => (ushort)(Program(index)+2);
+    internal static ushort SleepWordAddress(int index) => (ushort)(Program(index)+4);
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            if (MechanicsWord(index).Address == address)
+                return MechanicsWord(index).Value;
         }
 
         throw new InvalidDataException(
@@ -80,9 +67,9 @@ internal static class DeadTourianCorpseInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

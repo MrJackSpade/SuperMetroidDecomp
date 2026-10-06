@@ -56,7 +56,7 @@ internal static partial class Program
                     ?? stockDocument.Frames[frame.Name];
                 AssertTrue(merged.TryGet(frame.Bank, frame.Pointer, out var nativeParts),
                     prefix + frame.Name + " retains its native identity");
-                AssertTrue(nativeParts.Span.SequenceEqual(EnemySpritemapCatalog.CompileParts(expectedNative, frame.Name)),
+                AssertTrue(nativeParts.SequenceEqual(EnemySpritemapCatalog.CompileParts(expectedNative, frame.Name)),
                     prefix + frame.Name + " preserves authored art or inherits new stock art");
 
                 string selectedName = document.DisplayFrames?.GetValueOrDefault(frame.Name)
@@ -65,12 +65,12 @@ internal static partial class Program
                     ?? stockDocument.Frames[selectedName];
                 AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var displayed),
                     prefix + frame.Name + " resolves its presentation binding");
-                AssertTrue(displayed.Span.SequenceEqual(EnemySpritemapCatalog.CompileParts(expectedDisplay, selectedName)),
+                AssertTrue(displayed.SequenceEqual(EnemySpritemapCatalog.CompileParts(expectedDisplay, selectedName)),
                     prefix + frame.Name + " preserves the exact selected display frame");
             }
             AssertTrue(merged.TryGetDisplay(native.Bank, native.Pointer, out var remapped),
                 prefix + "the explicit remap is available");
-            AssertEqual(hasBindings ? 23 : 19, remapped.Span[0].X.SignedOffset,
+            AssertEqual(hasBindings ? 23 : 19, remapped[0].X.SignedOffset,
                 prefix + "authored bindings take precedence; older schemas inherit stock bindings");
             AssertEqual(stockIdentity, stock.ContentIdentity, prefix + "loading an override does not mutate stock");
 

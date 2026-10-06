@@ -9,13 +9,13 @@ internal static partial class Program
     {
         // Isolated arrays only; no player save file is read or changed.
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var ram = new SuperMetroidSaveRam(bus);
+        var ram = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         var samus = new SamusState { ReserveMissiles = 27 };
         var system = new Bank80SystemState { LoadedItemCount = 65535 };
         ram.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, 0, 0, japaneseText: true));
         ram.SetGameCompleted(true);
         ram.SelectSlot(0);
-        string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(bus));
+        string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(bus, RetailPresentationFixture()));
         AssertTrue(!json.Contains("preservedUntranslatedSram", StringComparison.Ordinal) &&
             json.Contains("\"gameCompleted\": true", StringComparison.Ordinal) &&
             json.Contains("\"reserveMissiles\": 27", StringComparison.Ordinal) &&
@@ -23,15 +23,15 @@ internal static partial class Program
             json.Contains("\"japaneseText\": true", StringComparison.Ordinal), "schema two contains named missing state and no SRAM blob");
         var target = SuperMetroidAddressSpace.CreateWithoutCartridge();
         target.SaveRam.Fill(0xa5);
-        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), target);
+        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), target, RetailPresentationFixture());
         AssertTrue(target.SaveRam.SequenceEqual(bus.SaveRam), "named schema rebuilds canonical SRAM and clears stale target bytes");
-        var loaded = new SuperMetroidSaveRam(target).ReadSlot(0)!;
+        var loaded = new SuperMetroidSaveRam(target, RetailPresentationFixture()).ReadSlot(0)!;
         var restoredSamus = new SamusState();
         var restoredSystem = new Bank80SystemState();
         loaded.ApplyTo(restoredSamus, restoredSystem);
         AssertEqual(27, restoredSamus.ReserveMissiles, "reserve missiles reach the live Samus owner");
         AssertEqual(65535, restoredSystem.LoadedItemCount, "item load count reaches live progression owner");
-        AssertTrue(loaded.JapaneseText && new SuperMetroidSaveRam(target).HasCompletedGame, "language and completion survive save load");
+        AssertTrue(loaded.JapaneseText && new SuperMetroidSaveRam(target, RetailPresentationFixture()).HasCompletedGame, "language and completion survive save load");
         restoredSystem.WritePersistentMirror(target);
         var mirror = new Bank80SystemState(); mirror.LoadPersistentMirror(target);
         AssertEqual(65535, mirror.LoadedItemCount, "native mirror retains translated item count");
@@ -55,12 +55,12 @@ internal static partial class Program
         string oldJson = legacy.ToJsonString();
         var upgraded = GameSaveJsonCodec.Deserialize(oldJson);
         AssertEqual(2, upgraded.SchemaVersion, "schema-one import becomes schema two");
-        GameSaveJsonCodec.Apply(upgraded, target);
-        var imported = new SuperMetroidSaveRam(target).ReadSlot(0)!;
+        GameSaveJsonCodec.Apply(upgraded, target, RetailPresentationFixture());
+        var imported = new SuperMetroidSaveRam(target, RetailPresentationFixture()).ReadSlot(0)!;
         AssertEqual(42, imported.Health, "legacy named health overrides stale raw image");
         AssertEqual(27, imported.ReserveMissiles, "legacy importer decodes reserve missile word");
         AssertEqual(65535, imported.LoadedItemCount, "legacy importer decodes item load word");
-        AssertTrue(imported.JapaneseText && new SuperMetroidSaveRam(target).HasCompletedGame, "legacy importer decodes language and completion");
+        AssertTrue(imported.JapaneseText && new SuperMetroidSaveRam(target, RetailPresentationFixture()).HasCompletedGame, "legacy importer decodes language and completion");
         AssertEqual(0, target.SaveRam[0x1a00], "confirmed unused bytes are not perpetuated");
         AssertTrue(!GameSaveJsonCodec.Serialize(upgraded).Contains("preservedUntranslatedSram", StringComparison.Ordinal), "legacy import never re-emits its blob");
         var bad = JsonNode.Parse(oldJson)!.AsObject();
@@ -80,10 +80,10 @@ internal static partial class Program
         {
             string path = Path.Combine(fixtureDirectory, "fixture.save.json");
             File.WriteAllText(path, oldJson);
-            GameSaveFileStore.LoadOrMigrate(target, path, Path.Combine(fixtureDirectory, "absent.srm"));
+            GameSaveFileStore.LoadOrMigrate(target, path, Path.Combine(fixtureDirectory, "absent.srm"), RetailPresentationFixture());
             AssertEqual(oldJson, File.ReadAllText(path + ".bak"), "automatic upgrade backs up the exact original schema-one JSON");
             AssertTrue(!File.ReadAllText(path).Contains("preservedUntranslatedSram", StringComparison.Ordinal), "automatic upgrade replaces old format with named schema");
-            AssertEqual(42, new SuperMetroidSaveRam(target).ReadSlot(0)!.Health, "automatic upgrade applies named values");
+            AssertEqual(42, new SuperMetroidSaveRam(target, RetailPresentationFixture()).ReadSlot(0)!.Health, "automatic upgrade applies named values");
         }
         finally { Directory.Delete(fixtureDirectory, recursive: true); }
         Console.WriteLine("Schema two: named missing state, runtime restoration, legacy JSON conversion, precedence, padding removal, strict failures and backed-up upgrade pass.");
@@ -92,6 +92,7 @@ internal static partial class Program
     {
         // Confirm the translated completion bit is consumed and produced by the frontend.
         var frontend = new SuperMetroidGame(bus);
+        frontend.BindMapPresentation(RetailPresentationFixture());
         ram.SelectSlot(2);
         ram.SetGameCompleted(false);
         AssertEqual(3, frontend.AvailableDemoSetCount(), "incomplete save exposes three demo sets");

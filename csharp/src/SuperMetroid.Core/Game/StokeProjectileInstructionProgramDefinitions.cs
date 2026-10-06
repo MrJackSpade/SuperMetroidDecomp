@@ -7,7 +7,7 @@ internal readonly record struct StokeProjectileInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the two-frame Stoke projectile animation loop.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap operands identify compiled presentation.
 /// </summary>
 internal static class StokeProjectileInstructionProgramDefinitions
 {
@@ -19,30 +19,28 @@ internal static class StokeProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort LoopCommand = 0xdb14;
 
-    private static readonly StokeProjectileInstructionMechanicsWord[] Words =
-    [
-        new(Initial, 0x0010),
-        new(0xdb10, 0x0010),
-        new(LoopCommand, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xdb16, Initial),
-    ];
-
-    private static readonly ushort[] PresentationWords = [0xdb0e, 0xdb12];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static StokeProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    // The shared 16-tick pose cadence remains an independent required input under #1165.
+    internal static int MechanicsWordCount => 4;
+    internal static int PresentationWordCount => 2;
+    internal static StokeProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        return new((ushort)(Initial + (index < 3 ? 4 * index : 10)),
+            index < 2 ? (ushort)16 : index == 2 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : Initial);
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(Initial + 2 + 4 * index);
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            StokeProjectileInstructionMechanicsWord candidate = Words[middle];
+            StokeProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -61,9 +59,9 @@ internal static class StokeProjectileInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

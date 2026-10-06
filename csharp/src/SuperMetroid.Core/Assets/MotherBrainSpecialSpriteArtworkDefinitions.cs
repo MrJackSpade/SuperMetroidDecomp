@@ -63,7 +63,7 @@ public static class MotherBrainSpecialSpriteArtworkDefinitions
 
     /// <summary>All four separate editable source sheets.</summary>
     public static IReadOnlyList<MotherBrainSpecialSpriteSheetDefinition> All { get; } =
-        Array.AsReadOnly([Legs, BabyMetroid, Attack, ExplodedDoor]);
+        new SheetList();
 
     /// <summary>Looks up the sheet containing one native source address.</summary>
     public static bool TryForSource(uint sourceAddress,
@@ -77,5 +77,22 @@ public static class MotherBrainSpecialSpriteArtworkDefinitions
         }
         definition = default;
         return false;
+    }
+    private sealed class SheetList : IReadOnlyList<MotherBrainSpecialSpriteSheetDefinition>
+    {
+        public int Count => 4;
+        public MotherBrainSpecialSpriteSheetDefinition this[int index] => index switch
+        {
+            0 => Legs,
+            1 => BabyMetroid,
+            2 => Attack,
+            3 => ExplodedDoor,
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+        public IEnumerator<MotherBrainSpecialSpriteSheetDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -24,13 +24,10 @@ internal static partial class DraygonCollisionDefinitions
     /// <summary>$A5:ABAB, Draygon's second four-rectangle body hitbox list.</summary>
     internal const ushort SecondBodyList = 0xabab;
 
-    private static readonly DraygonCollisionComponent[] FirstBody =
-        [new(0, 0, FirstBodyList)];
-    private static readonly DraygonCollisionComponent[] Empty =
-        [new(0, 0, EmptyList)];
-    private static readonly DraygonCollisionComponent[] SecondBody =
-        [new(0, 0, SecondBodyList)];
-
+    /// <summary>$A5:A31B, ExtendedSpritemap_Draygon_A: first left-facing BG2 body frame.</summary>
+    private const ushort FirstLeftBodyFrame = 0xa31b;
+    /// <summary>$A5:A643, ExtendedSpritemap_Draygon_3A: first right-facing BG2 body frame.</summary>
+    private const ushort FirstRightBodyFrame = 0xa643;
     private static readonly DraygonCollisionHitbox[] FirstBodyHitboxes =
     [
         new(-17, -16, 18, 30, EnemyAiCodePointers.BankA0.NoOp,
@@ -55,19 +52,39 @@ internal static partial class DraygonCollisionDefinitions
             EnemyAiCodePointers.BankA0.DudShot),
     ];
 
-    internal static ReadOnlySpan<DraygonCollisionComponent> ComponentsAt(
-        ushort pointer)
+    internal readonly record struct ComponentSequence(bool HasComponent, ushort HitboxPointer)
+        : IEnumerable<DraygonCollisionComponent>
     {
-        if (DraygonBg2FrameDefinitions.IsFrame(pointer))
-            return pointer switch
+        internal int Length => HasComponent ? 1 : 0;
+        internal DraygonCollisionComponent this[int index] => HasComponent && index == 0
+            ? new(0, 0, HitboxPointer) : throw new IndexOutOfRangeException();
+        public IEnumerator<DraygonCollisionComponent> GetEnumerator()
         {
-            >= 0xa31b and <= 0xa361 or 0xa3bb => FirstBody,
-            >= 0xa643 and <= 0xa689 or 0xa6e3 => SecondBody,
-            _ => Empty,
-        };
-        return OamComponentsAt(pointer);
+            if (HasComponent) yield return new(0, 0, HitboxPointer);
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>
+    /// $A5:A31B..A3BB / A643..A6E3: each BG2 frame has one zero-offset component.
+    /// The first eight and final frame of each facing use its body hitboxes;
+    /// intervening frames use the empty list. Ordinary OAM frames have no collision components.
+    /// </summary>
+    internal static ComponentSequence ComponentsAt(ushort pointer)
+    {
+        if (!DraygonBg2FrameDefinitions.IsFrame(pointer))
+        {
+            _ = OamComponentsAt(pointer);
+            return new(false, 0);
+        }
+
+
+        bool right = pointer >= FirstRightBodyFrame;
+        int phase = (pointer - (right ? FirstRightBodyFrame : FirstLeftBodyFrame)) / 10;
+        ushort hitboxes = phase < 8 || phase == 16
+            ? right ? SecondBodyList : FirstBodyList : EmptyList;
+        return new(true, hitboxes);
+    }
     internal static ReadOnlySpan<DraygonCollisionHitbox> HitboxesAt(
         ushort pointer) => pointer switch
     {

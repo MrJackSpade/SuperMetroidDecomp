@@ -450,20 +450,11 @@ public sealed partial class RoomEnemySystem
             RequirePipeBugState(member).Function = PipeBugEnemyFunction.NorfairRise;
         }
 
-        ushort[] staggerTargets = [104, 96, 88, 112, 120];
-        PipeBugEnemyFunction[] staggerFunctions =
-        [
-            PipeBugEnemyFunction.NorfairLeaderStagger,
-            PipeBugEnemyFunction.NorfairUpperNearStagger,
-            PipeBugEnemyFunction.NorfairUpperFarStagger,
-            PipeBugEnemyFunction.NorfairLowerNearStagger,
-            PipeBugEnemyFunction.NorfairLowerFarStagger,
-        ];
         for (int index = 0; index < formation.Length; index++)
         {
             PipeBugEnemyState memberState = RequirePipeBugState(formation[index]);
-            memberState.StaggerTarget = staggerTargets[index];
-            memberState.NorfairPostRiseFunction = staggerFunctions[index];
+            memberState.StaggerTarget = PipeBugDefinitions.NorfairStaggerTarget(index);
+            memberState.NorfairPostRiseFunction = PipeBugDefinitions.NorfairPostRiseFunction(index);
         }
     }
 

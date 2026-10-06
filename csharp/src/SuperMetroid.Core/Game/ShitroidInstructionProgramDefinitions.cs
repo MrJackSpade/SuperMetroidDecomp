@@ -32,58 +32,61 @@ internal static class ShitroidInstructionProgramDefinitions
     /// <summary>The first callback implementation after the programs, at $A9:F990.</summary>
     internal const ushort FirstAdjacentCallbackCode = 0xf990;
 
-    private static readonly ShitroidInstructionMechanicsWord[] Words =
-    [
-        new(FinishDraining, 0x0080), new(0xf90a, 0x0010),
+    /// <summary>$A9:F906 holds pose2 for128 ticks before returning through pose1 to the normal loop.
+    /// This independently supplied dwell remains unresolved for #1165; its name is not a retention justification.</summary>
+    private const ushort UnresolvedFinishDrainHold = 128;
+    /// <summary>$A9:F924/F928/F92C/F930 latched pose0/1/2/1 durations remain required inputs.
+    /// The native uses the same poses as the normal loop; no geometry or callback rule yet derives this cadence.</summary>
+    private static readonly ushort[] UnresolvedLatchedDurations = [8, 8, 5, 2];
+    /// <summary>$A9:F90A-F91A: normal pose cadence, including the finish-drain return pose. This independent hold remains required under #1165.</summary>
+    private const ushort NormalFrameDuration = 16;
+    /// <summary>$A9:F93A-F956: two normal-shaped pulses at the remorse idle cadence before its RNG branch. This independent hold remains required under #1165.</summary>
+    private const ushort RemorseFrameDuration = 10;
+    /// <summary>$A9:F95E: pose0 starts the speed-up/slow-down pulse after the remorse SFX callback.</summary>
+    private const ushort RemorseSoundPulse = RemorseRandomBranchOpcode + 4;
 
-        new(Normal, 0x0010), new(0xf912, 0x0010),
-        new(0xf916, 0x0010), new(0xf91a, 0x0010),
-        new(0xf91e, EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoNormal),
+    internal static int MechanicsWordCount => 35;
+    internal static int PresentationWordCount => 30;
+    internal static ShitroidInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 2) return new((ushort)(FinishDraining + index * 4), index == 0 ? UnresolvedFinishDrainHold : NormalFrameDuration);
+        index -= 2;
+        if (index < 5) return index < 4 ? new((ushort)(Normal + index * 4), NormalFrameDuration)
+            : new((ushort)(Normal + 16), EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoNormal);
+        index -= 5;
+        if (index < 5) return index < 4 ? new((ushort)(LatchedOn + index * 4), UnresolvedLatchedDurations[index])
+            : new((ushort)(LatchedOn + 16), EnemyInstructionCodePointers.Instruction_GotoLatchedOn);
+        index -= 5;
+        if (index < 8) return new((ushort)(Remorse + index * 4), RemorseFrameDuration);
+        if (index == 8) return new(RemorseRandomBranchOpcode, EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoY_OrPlayRemorseSFX);
+        if (index == 9) return new((ushort)(RemorseRandomBranchOpcode + 2), Remorse);
+        index -= 10;
+        return index < 12 ? new((ushort)(RemorseSoundPulse + index * 4), RemorsePulseDuration(index))
+            : new(RemorseLoopOpcode, EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoRemorse);
+    }
 
-        new(LatchedOn, 0x0008), new(0xf928, 0x0008),
-        new(0xf92c, 0x0005), new(0xf930, 0x0002),
-        new(0xf934, EnemyInstructionCodePointers.Instruction_GotoLatchedOn),
+    /// <summary>$A9:F95E-F98A remorse sound pulse shortens6..2 then lengthens3..9 ticks,
+    /// turning at the next pose0 after one four-pose contraction cycle.</summary>
+    private static ushort RemorsePulseDuration(int frame) => (ushort)(2 + Math.Abs(frame - 4));
 
-        new(Remorse, 0x000a), new(0xf93e, 0x000a),
-        new(0xf942, 0x000a), new(0xf946, 0x000a),
-        new(0xf94a, 0x000a), new(0xf94e, 0x000a),
-        new(0xf952, 0x000a), new(0xf956, 0x000a),
-        new(RemorseRandomBranchOpcode,
-            EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoY_OrPlayRemorseSFX),
-        new(0xf95c, Remorse),
-        new(0xf95e, 0x0006), new(0xf962, 0x0005),
-        new(0xf966, 0x0004), new(0xf96a, 0x0003),
-        new(0xf96e, 0x0002), new(0xf972, 0x0003),
-        new(0xf976, 0x0004), new(0xf97a, 0x0005),
-        new(0xf97e, 0x0006), new(0xf982, 0x0007),
-        new(0xf986, 0x0008), new(0xf98a, 0x0009),
-        new(RemorseLoopOpcode,
-            EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoRemorse),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xf908, 0xf90c,
-        0xf910, 0xf914, 0xf918, 0xf91c,
-        0xf926, 0xf92a, 0xf92e, 0xf932,
-        0xf93c, 0xf940, 0xf944, 0xf948,
-        0xf94c, 0xf950, 0xf954, 0xf958,
-        0xf960, 0xf964, 0xf968, 0xf96c,
-        0xf970, 0xf974, 0xf978, 0xf97c,
-        0xf980, 0xf984, 0xf988, 0xf98c,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ShitroidInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 2) return (ushort)(FinishDraining + index * 4 + 2);
+        index -= 2;
+        if (index < 4) return (ushort)(Normal + index * 4 + 2);
+        index -= 4;
+        if (index < 4) return (ushort)(LatchedOn + index * 4 + 2);
+        index -= 4;
+        return index < 8 ? (ushort)(Remorse + index * 4 + 2) : (ushort)(RemorseSoundPulse + (index - 8) * 4 + 2);
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            if (MechanicsWord(index).Address == address)
+                return MechanicsWord(index).Value;
         }
 
         throw new InvalidDataException(
@@ -96,9 +99,9 @@ internal static class ShitroidInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

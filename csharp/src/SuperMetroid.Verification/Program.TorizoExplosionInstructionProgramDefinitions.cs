@@ -145,7 +145,7 @@ internal static partial class Program
         Console.WriteLine(
             "Torizo explosion instruction mechanics: fifty-three compiled words, the " +
             "real low-health producer's three cycles, and both probabilistic death paths " +
-            "pass with exact jitter, lifetimes, and mechanics bytes forbidden.");
+            "pass with exact jitter, lifetimes, fifteen native selectors and zero source reads.");
 
         void VerifyDeathPath(
             ushort branchSample,

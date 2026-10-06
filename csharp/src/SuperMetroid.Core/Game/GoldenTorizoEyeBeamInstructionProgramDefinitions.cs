@@ -22,62 +22,82 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEyeBeam_Normal</c> at $86:B410.</summary>
     internal const ushort Normal = 0xb410;
 
-    private static readonly GoldenTorizoEyeBeamInstructionMechanicsWord[] Words =
-    [
-        new(WallImpact, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xb3cf, 4),
-        new(0xb3d3, 4),
-        new(0xb3d7, 4),
-        new(0xb3db, 4),
-        new(0xb3df, 4),
-        new(0xb3e3, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    /// <summary>Independent native wall/landing/flight holds and initial explosion hold remain required.</summary>
+    private const ushort WallHold = 4, LandingHold = 8, FlightHold = 1, ExplosionInitialHold = 4;
+    /// <summary>$86:B3FC clears projectile property bit13, enabling Samus damage.</summary>
+    private const ushort EnableSamusDamageMask = unchecked((ushort)~(1 << 13));
+    internal static int MechanicsWordCount => 28;
+    internal static int PresentationWordCount => 17;
+    internal static GoldenTorizoEyeBeamInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        return Select(index, visual: false);
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return Select(index, visual: true).Address;
+    }
 
-        new(FloorImpact, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(FloorImpactLoop, 8),
-        new(0xb3eb, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoYIfEyeBeamExplosionsDisabled),
-        new(0xb3ed, FloorImpactLoop),
-        new(0xb3ef, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib3_Max6),
-        new(0xb3f2, 4),
-        new(0xb3f6, 5),
-        new(0xb3fa, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY),
-        new(0xb3fc, 0xdfff),
-        new(0xb3fe, 6),
-        new(0xb402, 7),
-        new(0xb406, 8),
-        new(0xb40a, 9),
-        new(0xb40e, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    /// <summary>
+    /// $86:B3CD-B427: wall impact has five four-byte poses, floor impact waits for
+    /// explosion admission then slows its six poses by one tick per phase, and
+    /// flight loops five poses. Floor sound uses a one-byte operand between words.
+    /// </summary>
+    private static GoldenTorizoEyeBeamInstructionMechanicsWord Select(int index, bool visual)
+    {
+        var layout = new Layout(index, visual);
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction);
+        for (int pose = 0; pose < 5; pose++) layout.Pose(WallHold);
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction);
+        layout.Pose(LandingHold);
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoYIfEyeBeamExplosionsDisabled);
+        layout.Word(FloorImpactLoop);
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib3_Max6);
+        layout.SkipByte();
+        for (int phase = 0; phase < 6; phase++)
+        {
+            if (phase == 2)
+            {
+                layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY);
+                layout.Word(EnableSamusDamageMask);
+            }
+            layout.Pose((ushort)(ExplosionInitialHold + phase));
+        }
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        for (int pose = 0; pose < 5; pose++) layout.Pose(FlightHold);
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY);
+        layout.Word(Normal);
+        return layout.Result;
+    }
 
-        new(Normal, 1),
-        new(0xb414, 1),
-        new(0xb418, 1),
-        new(0xb41c, 1),
-        new(0xb420, 1),
-        new(0xb424, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb426, Normal),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xb3d1, 0xb3d5, 0xb3d9, 0xb3dd, 0xb3e1,
-        0xb3e9,
-        0xb3f4, 0xb3f8, 0xb400, 0xb404, 0xb408, 0xb40c,
-        0xb412, 0xb416, 0xb41a, 0xb41e, 0xb422,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static GoldenTorizoEyeBeamInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    private ref struct Layout(int requested, bool visual)
+    {
+        private ushort cursor = WallImpact;
+        private int mechanics, presentation;
+        internal GoldenTorizoEyeBeamInstructionMechanicsWord Result { get; private set; }
+        internal void SkipByte() => cursor++;
+        internal void Word(ushort value)
+        {
+            if (!visual && mechanics == requested) Result = new(cursor, value);
+            mechanics++; cursor += sizeof(ushort);
+        }
+        internal void Pose(ushort duration)
+        {
+            Word(duration);
+            if (visual && presentation == requested) Result = new(cursor, 0);
+            presentation++; cursor += sizeof(ushort);
+        }
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            GoldenTorizoEyeBeamInstructionMechanicsWord candidate = Words[middle];
+            GoldenTorizoEyeBeamInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -91,8 +111,9 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitions
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);
-        foreach (GoldenTorizoEyeBeamInstructionMechanicsWord word in Words)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
+            var word = MechanicsWord(index);
             if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
                 return true;
         }

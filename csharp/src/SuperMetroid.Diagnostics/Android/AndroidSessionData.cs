@@ -76,12 +76,12 @@ internal sealed class AndroidSessionData : IDisposable
         if (!File.Exists(ini)) File.WriteAllText(ini, SuperMetroidGameOptionsIni.DefaultFileContents);
         Options = SuperMetroidGameOptionsIni.Parse(File.ReadAllText(ini), ini);
         Bus = installation.OpenRuntimeAddressSpace();
-        GameSaveFileStore.LoadOrMigrate(Bus, savePath, Path.Combine(root, "SuperMetroid.srm"));
-        AndroidFileImport.ActivatePendingSave(root, Bus, savePath);
+        maps = installation.LoadMaps();
+        GameSaveFileStore.LoadOrMigrate(Bus, savePath, Path.Combine(root, "SuperMetroid.srm"), maps);
+        AndroidFileImport.ActivatePendingSave(root, Bus, savePath, maps);
         Game = new SuperMetroidGame(Bus, Options);
         // A caller-provided cartridge has already passed through the importer;
         // the running session binds only the installed presentation catalog.
-        maps = installation.LoadMaps();
         Game.BindMapPresentation(maps);
         gameplayBasePalettes = installation.LoadGameplayBasePalettes();
         Game.BindGameplayBasePalettes(gameplayBasePalettes);
@@ -246,7 +246,7 @@ internal sealed class AndroidSessionData : IDisposable
     public long Generation { get; private set; } = 1;
 
     public void Record(ushort input) => recorder.RecordFrame(input);
-    public void PersistSave() => GameSaveFileStore.WriteAtomic(Bus, savePath);
+    public void PersistSave() => GameSaveFileStore.WriteAtomic(Bus, savePath, maps);
     public void FlushRecording() => recorder.FlushAfterFrameFailure();
 
     public string ImportState(string path, int slot) =>

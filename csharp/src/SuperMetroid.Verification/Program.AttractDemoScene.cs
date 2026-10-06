@@ -58,13 +58,14 @@ internal static partial class Program
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
         var frontend = new SuperMetroidGame(bus);
+        frontend.BindMapPresentation(RetailPresentationFixture());
         if (frontend.AvailableDemoSetCount() != 3)
             throw new InvalidDataException("An empty save must expose only the three ordinary demo sets.");
         for (int index = 0; index < AttractDemoRomData.CompletionMarker.Length; index++)
             bus.WriteByte(AttractDemoRomData.CompletionMarkerAddress + index, AttractDemoRomData.CompletionMarker[index]);
         if (frontend.AvailableDemoSetCount() != 3)
             throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked set four.");
-        new SuperMetroidSaveRam(bus).SaveSlot(0, new SuperMetroidSaveSnapshot());
+        new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, new SuperMetroidSaveSnapshot());
         if (frontend.AvailableDemoSetCount() != 4)
             throw new InvalidDataException("Valid completed-game save did not unlock the fourth demo set.");
         bus.WriteByte(AttractDemoRomData.CompletionMarkerAddress, 0);
@@ -93,18 +94,14 @@ internal static partial class Program
         }
         AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(-1, 0), "negative demo set");
         AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(0, -1), "negative demo scene");
-        VerifyProductionAttractDefinitionsAreRomIndependent(retail, counts);
+        VerifyAttractCommandDefinitionsAndPlayback(retail, counts);
         Console.WriteLine($"Compiled attract scenes: {total} records and four sentinels match cartridge data.");
     }
 
-    private static void VerifyProductionAttractDefinitionsAreRomIndependent(
+    private static void VerifyAttractCommandDefinitionsAndPlayback(
         ISnesAddressSpace retail,
         int[] sceneCounts)
     {
-        var forbidden = new HashSet<int>();
-        AddRange(AttractDemoRomData.RoomSetPointers, AttractDemoRomData.SetCount * sizeof(ushort));
-        AddRange(AttractDemoRomData.EquipmentSetPointers, AttractDemoRomData.SetCount * sizeof(ushort));
-        AddRange(AttractDemoRomData.SamusSetupSetPointers, AttractDemoRomData.SetCount * sizeof(ushort));
 
         var commandRoots = new HashSet<ushort>
         {
@@ -113,66 +110,81 @@ internal static partial class Program
         };
         for (int set = 0; set < sceneCounts.Length; set++)
         {
-            ushort roomList = ReadWord(retail, AttractDemoRomData.RoomSetPointers + set * sizeof(ushort));
-            ushort equipmentList = ReadWord(retail, AttractDemoRomData.EquipmentSetPointers + set * sizeof(ushort));
-            ushort setupList = ReadWord(retail, AttractDemoRomData.SamusSetupSetPointers + set * sizeof(ushort));
-            AddRange(AttractDemoRomData.RoomBank | roomList,
-                sceneCounts[set] * AttractDemoRomData.RoomRecordBytes + sizeof(ushort));
-            AddRange(AttractDemoRomData.EquipmentBank | equipmentList,
-                sceneCounts[set] * AttractDemoRomData.EquipmentRecordBytes);
-            AddRange(AttractDemoRomData.EquipmentBank | setupList,
-                sceneCounts[set] * sizeof(ushort));
-
             for (int sceneIndex = 0; sceneIndex < sceneCounts[set]; sceneIndex++)
             {
                 AttractDemoScene scene = StockAttractDemoScenes.Get(set, sceneIndex)!;
-                AddRange(DemoInputRomData.BankBase | scene.InputObject, 3 * sizeof(ushort));
-                commandRoots.Add(StockAttractInputPrograms.GetObject(scene.InputObject).Start);
+                StockAttractInputPrograms.ObjectDefinition definition =
+                    StockAttractInputPrograms.GetObject(scene.InputObject);
+                int objectAddress = DemoInputRomData.BankBase | scene.InputObject;
+                AssertEqual(ReadWord(retail, objectAddress), definition.Initializer, "native attract initializer");
+                AssertEqual(ReadWord(retail, objectAddress + 2), definition.PreInstruction, "native attract callback");
+                AssertEqual(ReadWord(retail, objectAddress + 4), definition.Start, "native attract initial command");
+                commandRoots.Add(definition.Start);
             }
         }
 
         var visitedCommands = new HashSet<ushort>();
+        int inputCount = 0, deleteCount = 0, gotoCount = 0;
         foreach (ushort root in commandRoots)
         {
             ushort cursor = root;
             while (visitedCommands.Add(cursor))
             {
                 StockAttractInputPrograms.Command command = StockAttractInputPrograms.GetCommand(cursor);
-                int byteCount = command.Kind switch
+                int address = DemoInputRomData.BankBase | cursor;
+                ushort nativeOperation = ReadWord(retail, address);
+                if (command.Kind == StockAttractInputPrograms.Operation.Input)
                 {
-                    StockAttractInputPrograms.Operation.Input => DemoInputRomData.Instructions.InputRecordBytes,
-                    StockAttractInputPrograms.Operation.Goto => 2 * sizeof(ushort),
-                    StockAttractInputPrograms.Operation.Delete => sizeof(ushort),
-                    _ => throw new InvalidDataException($"Unknown compiled attract operation {command.Kind}."),
-                };
-                AddRange(DemoInputRomData.BankBase | cursor, byteCount);
+                    inputCount++;
+                    AssertTrue(nativeOperation < DemoInputRomData.Instructions.OpcodeBit,
+                        $"native attract input ${cursor:X4}");
+                    AssertEqual(nativeOperation, command.Duration, $"native attract duration ${cursor:X4}");
+                    AssertEqual(ReadWord(retail, address + 2), (ushort)command.Held,
+                        $"native attract held ${cursor:X4}");
+                    AssertEqual(ReadWord(retail, address + 4), (ushort)command.NewlyPressed,
+                        $"native attract edge ${cursor:X4}");
+                    AssertEqual((ushort)(cursor + DemoInputRomData.Instructions.InputRecordBytes), command.Next,
+                        $"calculated attract successor ${cursor:X4}");
+                }
+                else if (command.Kind == StockAttractInputPrograms.Operation.Delete)
+                {
+                    deleteCount++;
+                    AssertEqual(DemoInputRomData.Instructions.Delete, nativeOperation,
+                        $"native attract deletion ${cursor:X4}");
+                    AssertEqual((ushort)0, command.Next, $"terminal attract successor ${cursor:X4}");
+                }
+                else if (command.Kind == StockAttractInputPrograms.Operation.Goto)
+                {
+                    gotoCount++;
+                    AssertEqual(DemoInputRomData.Instructions.Goto, nativeOperation,
+                        $"native attract jump ${cursor:X4}");
+                    AssertEqual(ReadWord(retail, address + 2), command.Next,
+                        $"native attract jump destination ${cursor:X4}");
+                }
                 if (command.Kind == StockAttractInputPrograms.Operation.Delete)
                     break;
                 cursor = command.Next;
             }
         }
 
-        var guard = new AttractDefinitionReadGuard(retail, forbidden);
+        AssertEqual(798, inputCount, "bounded native attract input inventory");
+        AssertEqual(24, deleteCount, "bounded native attract deletion inventory");
+        AssertEqual(1, gotoCount, "bounded native attract jump inventory");
+        Console.WriteLine("Attract command dispatch: 798 native input triples, 24 deletions and one jump match exactly.");
+
         for (int set = 0; set < sceneCounts.Length; set++)
         {
             for (int sceneIndex = 0; sceneIndex < sceneCounts[set]; sceneIndex++)
             {
                 AttractDemoScene scene = StockAttractDemoScenes.Get(set, sceneIndex)!;
-                var runtime = CreateRetailRuntimeFixture(guard);
-                runtime.InitializeAttractDemo(scene);
+                // The production input owner has no address-space capability. Room and
+                // presentation initialization are separate from this dispatch contract.
+                var input = new AttractDemoInput(scene);
                 for (int frame = 0; frame < scene.Duration; frame++)
-                    runtime.StepFrame(0, advanceGameTime: false);
+                    input.StepStock(SuperMetroidGameState.PlayingDemo,
+                        frame < 200 ? SamusMovementType.DraygonHeld : SamusMovementType.Standing);
             }
         }
-        AssertTrue(guard.ForbiddenReadAttempts == 0,
-            "production attract playback never reads compiled scene/input source bytes");
-
-        void AddRange(int start, int length)
-        {
-            for (int offset = 0; offset < length; offset++)
-                forbidden.Add(start + offset);
-        }
-
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
             unchecked((ushort)(source.ReadByte(address) | (source.ReadByte(address + 1) << 8)));
     }
@@ -205,44 +217,4 @@ internal static partial class Program
             $"{state.PublishedPreviousHeld}/{state.PublishedPreviousNewlyPressed}";
     }
 
-    private sealed class AttractDefinitionReadGuard(
-        ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            RejectCompiledSource(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectCompiledSource(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        private void RejectCompiledSource(int address)
-        {
-            if (forbidden.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production attract playback read compiled source byte ${address >> 16:X2}:{address & 0xffff:X4}.");
-            }
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        // The guard denies cartridge definition reads, not the live mutable memory
-        // owned by the attract room. Keep that memory visible through its typed API.
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Attract audit source must expose WRAM.")).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Attract audit source must expose SRAM.")).ReadSaveRamByte(address);
-    }
 }

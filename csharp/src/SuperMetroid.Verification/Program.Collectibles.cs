@@ -416,7 +416,7 @@ internal static partial class Program
             CollectedBeams = (ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Ice),
             EquippedBeams = (ushort)SamusBeamFlags.Ice,
         };
-        var saveRam = new SuperMetroidSaveRam(bus);
+        var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         saveRam.SaveSlot(
             0,
             SuperMetroidSaveSnapshot.Capture(sourceSamus, sourceSystem, 2, 7));

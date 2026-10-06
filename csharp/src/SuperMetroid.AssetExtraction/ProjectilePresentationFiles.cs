@@ -79,7 +79,7 @@ public static class ProjectilePresentationFiles
             if (!manifest.BeamHashes.TryGetValue(name, out string? expected))
                 throw new InvalidDataException($"Projectile manifest {manifestPath} is missing beam {name}.");
             ProjectileFile file = Stock(name, expected);
-            _ = file.Compile(BeamTileAtlas.Load);
+            _ = file.Compile(stream => BeamTileAtlas.Load(stream, BeamTileAtlasDefinitions.SelectionAt(i)));
             stockBeams.Add(name, file);
         }
         ProjectileFile stockPalettes = Stock(BeamPaletteDefinitions.FileName, manifest.PaletteSha256);
@@ -99,7 +99,7 @@ public static class ProjectilePresentationFiles
         ProjectileFile stockGrappleSprites = Stock(GrappleSpriteDefinitions.FileName, manifest.GrappleSpritesSha256);
         _ = stockGrappleSprites.Compile(GrappleSpriteCatalog.Load);
         ProjectileFile stockGrappleFlare = Stock(GrappleFlarePlacementDefinitions.FileName, manifest.GrappleFlareSha256);
-        _ = stockGrappleFlare.Compile(ChargeFlarePlacementCatalog.Load);
+        _ = stockGrappleFlare.Compile(ChargeFlarePlacementCatalog.LoadGrapple);
         ProjectileFile stockGrappleSwing = Stock(GrappleSwingFrameDefinitions.FileName, manifest.GrappleSwingSha256);
         _ = stockGrappleSwing.Compile(GrappleSwingFrameCatalog.Load);
         // Finish stock validation before opening any optional replacement.
@@ -120,13 +120,13 @@ public static class ProjectilePresentationFiles
         return new(selected.Compile(ProjectileSpriteCatalog.Load),
             Identity(stock, stockBeams, stockPalettes, stockHyperBeamFxColors, stockTrails, stockTrailTiles, stockFlarePlacement, stockFlareCompositions, stockGrappleTiles, stockGrappleSprites, stockGrappleFlare, stockGrappleSwing, stockFrameBindings), Identity(selected, selectedBeams, selectedPalettes, selectedHyperBeamFxColors, selectedTrails, selectedTrailTiles, selectedFlarePlacement, selectedFlareCompositions, selectedGrappleTiles, selectedGrappleSprites, selectedGrappleFlare, selectedGrappleSwing, selectedFrameBindings),
             BeamTileCatalog.FromAtlases(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount)
-                .Select(index => selectedBeams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(index))].Compile(BeamTileAtlas.Load)).ToArray(),
+                .Select(index => selectedBeams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(index))].Compile(stream => BeamTileAtlas.Load(stream, BeamTileAtlasDefinitions.SelectionAt(index)))).ToArray(),
                 selectedPalettes.Compile(BeamPaletteCatalog.Load), selectedHyperBeamFxColors.Compile(HyperBeamFxColorCatalog.Load)),
             selectedTrails.Compile(stream => ProjectileTrailCatalog.Load(stream, selectedTrailTiles.Compile(ProjectileTrailAtlas.Load))),
             selectedFlarePlacement.Compile(ChargeFlarePlacementCatalog.Load),
             selectedFlareCompositions.Compile(ChargeFlareSpriteCatalog.Load),
             selectedGrappleTiles.Compile(stream => GrappleTileAtlas.Load(stream, selectedGrappleSprites.Compile(GrappleSpriteCatalog.Load),
-                selectedGrappleFlare.Compile(ChargeFlarePlacementCatalog.Load), selectedGrappleSwing.Compile(GrappleSwingFrameCatalog.Load))),
+                selectedGrappleFlare.Compile(ChargeFlarePlacementCatalog.LoadGrapple), selectedGrappleSwing.Compile(GrappleSwingFrameCatalog.Load))),
             selectedFrameBindings.Compile(ProjectileFrameBindingCatalog.Load));
     }
 

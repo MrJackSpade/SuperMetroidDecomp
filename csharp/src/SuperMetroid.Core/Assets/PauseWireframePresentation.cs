@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.Text.Json;
 
 namespace SuperMetroid.Core.Assets;
@@ -5,18 +6,20 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable wireframe artwork. It cannot change which equipment selects a visual.</summary>
 public sealed class PauseWireframePresentation
 {
-    private readonly byte[][] frames;
-    private PauseWireframePresentation(byte[][] frames) => this.frames = frames;
+    private readonly Wireframe[] frames;
+    private PauseWireframePresentation(Wireframe[] frames) => this.frames = frames;
 
     public void ApplyTo(Span<byte> equipmentPage, PauseWireframeKind kind)
     {
         if ((uint)kind >= PauseWireframeDefinitions.Count) throw new ArgumentOutOfRangeException(nameof(kind));
         if (equipmentPage.Length != PauseWireframeDefinitions.DestinationSize)
             throw new ArgumentException("Wireframe requires the complete equipment tilemap.", nameof(equipmentPage));
-        byte[] source = frames[(int)kind];
+        Wireframe source = frames[(int)kind];
         for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
-            source.AsSpan(row * PauseWireframeDefinitions.Columns * 2, PauseWireframeDefinitions.Columns * 2)
-                .CopyTo(equipmentPage.Slice(PauseWireframeDefinitions.DestinationByte + row * PauseWireframeDefinitions.DestinationStride));
+        for (int column = 0; column < PauseWireframeDefinitions.Columns; column++)
+            BinaryPrimitives.WriteUInt16LittleEndian(equipmentPage.Slice(
+                PauseWireframeDefinitions.DestinationByte + row * PauseWireframeDefinitions.DestinationStride + column * sizeof(ushort)),
+                source.Word(row * PauseWireframeDefinitions.Columns + column));
     }
 
     public static PauseWireframePresentation Load(Stream json)
@@ -27,14 +30,66 @@ public sealed class PauseWireframePresentation
         catch (JsonException error) { throw new InvalidDataException("Invalid pause wireframe JSON.", error); }
         if (document.Version != PauseWireframeDefinitions.Version || document.Frames is null || document.Frames.Count != PauseWireframeDefinitions.Count)
             throw new InvalidDataException("Pause wireframes require version 1 and all four named frames.");
-        var frames = new byte[PauseWireframeDefinitions.Count][];
+        var frames = new Wireframe[PauseWireframeDefinitions.Count];
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
             if (!document.Frames.TryGetValue(kind.ToString(), out var cells) || cells is null || cells.Length != PauseWireframeDefinitions.Cells)
                 throw new InvalidDataException($"Pause wireframe {kind} requires 136 cells in eight-column row order.");
-            frames[(int)kind] = PauseTileGrid.Compile(cells, kind.ToString());
+            frames[(int)kind] = new Wireframe(kind, PauseTileGrid.Compile(cells, kind.ToString()));
         }
         return new(frames);
+    }
+
+    /// <summary>
+    /// The four native 8x17 figures contain reflected armor/limb pairs. Independent
+    /// left-side tile choices and asymmetric right-side content remain REQUIRED
+    /// under PauseWireframePresentation.frames; this is only a symmetry derivation.
+    /// </summary>
+    private sealed class Wireframe
+    {
+        private readonly PauseWireframeKind kind;
+        private readonly Dictionary<int, ushort> leftCells = [];
+        private readonly Dictionary<int, ushort> rightDifferences = [];
+        private const int HalfColumns = PauseWireframeDefinitions.Columns / 2;
+
+        internal Wireframe(PauseWireframeKind kind, ReadOnlySpan<byte> words)
+        {
+            this.kind = kind;
+            for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
+            for (int column = 0; column < HalfColumns; column++)
+            {
+                int cell = row * PauseWireframeDefinitions.Columns + column;
+                ushort value = BinaryPrimitives.ReadUInt16LittleEndian(words[(cell * sizeof(ushort))..]);
+                if (value != StockLeftWord(cell)) leftCells.Add(cell, value);
+            }
+            for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
+            for (int column = HalfColumns; column < PauseWireframeDefinitions.Columns; column++)
+            {
+                int cell = row * PauseWireframeDefinitions.Columns + column;
+                ushort value = BinaryPrimitives.ReadUInt16LittleEndian(words[(cell * sizeof(ushort))..]);
+                if (value != DefaultRightWord(cell)) rightDifferences.Add(cell, value);
+            }
+        }
+
+        internal ushort Word(int cell) => cell % PauseWireframeDefinitions.Columns < HalfColumns
+            ? LeftWord(cell) : rightDifferences.TryGetValue(cell, out ushort value) ? value : DefaultRightWord(cell);
+
+        private ushort LeftWord(int cell) => leftCells.TryGetValue(cell, out ushort value) ? value : StockLeftWord(cell);
+
+        private ushort StockLeftWord(int cell) => PauseWireframeDefinitions.TryStockTile(kind, cell, out int tile)
+            ? (ushort)(PauseWireframeDefinitions.CommonPieceAttributes | tile) : (ushort)0;
+
+        private ushort DefaultRightWord(int cell)
+        {
+            if (PauseWireframeDefinitions.TryStockTile(kind, cell, out int tile))
+                return (ushort)(PauseWireframeDefinitions.CommonPieceAttributes | tile);
+            int source = cell / PauseWireframeDefinitions.Columns * PauseWireframeDefinitions.Columns
+                + PauseWireframeDefinitions.Columns - 1 - cell % PauseWireframeDefinitions.Columns;
+            ushort left = LeftWord(source);
+            // A completely empty map cell stays empty; a selected glyph reflects
+            // horizontally without changing its palette, priority or vertical flip.
+            return left == 0 ? (ushort)0 : (ushort)(left ^ MapPresentationFormat.FlipXBit);
+        }
     }
 
     public static void Write(Stream output, PauseWireframeDocument document)

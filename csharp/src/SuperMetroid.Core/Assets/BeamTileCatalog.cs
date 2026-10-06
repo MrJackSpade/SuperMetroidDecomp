@@ -10,7 +10,24 @@ public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTrans
     public HyperBeamFxColorCatalog? HyperBeamFxColors { get; }
     private BeamTileCatalog(BeamTileAtlas[] sheets, BeamPaletteCatalog? palettes,
         HyperBeamFxColorCatalog? hyperBeamFxColors)
-    { this.sheets = sheets; Palettes = palettes; HyperBeamFxColors = hyperBeamFxColors; }
+    {
+        // Establish the five primary sheets before their combination aliases. Immutable
+        // references share only matching pixels; separately supplied edits remain isolated.
+        for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
+        {
+            if (BeamTileAtlasDefinitions.CanonicalSelection(selection) != selection) continue;
+            int source = BeamTileAtlasDefinitions.SharedTileSourceSelection(selection);
+            if (source >= 0) sheets[selection] = sheets[selection].SharePixelsFrom(sheets[source], wholeSheet: false);
+        }
+        for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
+        {
+            int source = BeamTileAtlasDefinitions.CanonicalSelection(selection);
+            if (source != selection) sheets[selection] = sheets[selection].SharePixelsFrom(sheets[source], wholeSheet: true);
+        }
+        this.sheets = sheets;
+        Palettes = palettes;
+        HyperBeamFxColors = hyperBeamFxColors;
+    }
 
     /// <summary>Builds a catalog from file-context-validated atlases without decoding PNGs twice.</summary>
     internal static BeamTileCatalog FromAtlases(BeamTileAtlas[] sheets, BeamPaletteCatalog palettes,
@@ -30,7 +47,7 @@ public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTrans
             string name = BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(i));
             if (!files.TryGetValue(name, out var png) || png is null)
                 throw new InvalidDataException($"Missing beam artwork {name}.");
-            sheets[i] = BeamTileAtlas.Load(new MemoryStream(png, writable: false));
+            sheets[i] = BeamTileAtlas.Load(new MemoryStream(png, writable: false), BeamTileAtlasDefinitions.SelectionAt(i));
         }
         return new(sheets, palettes, hyperBeamFxColors);
     }

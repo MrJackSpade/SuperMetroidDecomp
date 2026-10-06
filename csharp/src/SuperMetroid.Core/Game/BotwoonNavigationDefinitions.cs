@@ -22,6 +22,18 @@ internal readonly record struct BotwoonPathDescriptorDefinition(
 /// <summary>One signed X/Y movement sample from Botwoon's authored path corpus.</summary>
 internal readonly record struct BotwoonMovementSample(sbyte X, sbyte Y);
 
+/// <summary>The four room holes selected by native eight-byte offsets.</summary>
+internal enum BotwoonHoleLocation : ushort
+{
+    /// <summary><c>BotwoonHoleHitboxes</c> left hole at $B3:949B; center (64,112).</summary>
+    Left = 0,
+    /// <summary><c>BotwoonHoleHitboxes</c> bottom hole at $B3:94A3; center (128,176).</summary>
+    Bottom = 8,
+    /// <summary><c>BotwoonHoleHitboxes</c> top hole at $B3:94AB; center (160,96).</summary>
+    Top = 16,
+    /// <summary><c>BotwoonHoleHitboxes</c> right hole at $B3:94B3; center (224,144).</summary>
+    Right = 24,
+}
 /// <summary>Compiled fixed geometry and path metadata for Botwoon's room navigation.</summary>
 internal static class BotwoonNavigationDefinitions
 {
@@ -31,30 +43,17 @@ internal static class BotwoonNavigationDefinitions
     /// <summary>Exclusive end of the movement corpus at native address <c>$B3:E150</c>.</summary>
     internal const ushort MovementDataEndExclusive = 0xe150;
 
-    /// <summary>
-    /// The four eight-byte hole rectangles at <c>$B3:949B-$94BA</c>. Native callers retain
-    /// their byte offsets so debugger-visible Botwoon state continues to match the cartridge.
-    /// </summary>
-    private static readonly BotwoonHoleDefinition[] Holes =
-    [
-        new(0x003c, 0x006c),
-        new(0x007c, 0x00ac),
-        new(0x009c, 0x005c),
-        new(0x00dc, 0x008c),
-    ];
-
-    /// <summary>Returns a hole selected by its native eight-byte table offset.</summary>
-    internal static BotwoonHoleDefinition HoleForByteOffset(ushort byteOffset)
-    {
-        if ((byteOffset & 7) != 0 || byteOffset > 24)
+    /// <summary>Returns the named room hole selected by its native eight-byte offset.</summary>
+    internal static BotwoonHoleDefinition HoleForByteOffset(ushort byteOffset) =>
+        (BotwoonHoleLocation)byteOffset switch
         {
-            throw new InvalidDataException(
-                $"Botwoon hole-table byte offset ${byteOffset:X4} is invalid.");
-        }
-
-        return Holes[byteOffset >> 3];
-    }
-
+            BotwoonHoleLocation.Left => new(64 - 4, 112 - 4),
+            BotwoonHoleLocation.Bottom => new(128 - 4, 176 - 4),
+            BotwoonHoleLocation.Top => new(160 - 4, 96 - 4),
+            BotwoonHoleLocation.Right => new(224 - 4, 144 - 4),
+            _ => throw new InvalidDataException(
+                $"Botwoon hole-table byte offset ${byteOffset:X4} is invalid."),
+        };
     /// <summary>
     /// Computes the 32 descriptors of <c>BotwoonMovementTable</c> at $B3:E150-$E24F
     /// from the native eight-byte choice offset. The fourth word is alignment padding.

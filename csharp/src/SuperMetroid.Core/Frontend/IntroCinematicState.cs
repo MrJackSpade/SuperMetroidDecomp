@@ -1495,19 +1495,19 @@ public sealed partial class IntroCinematicState
             1);
     }
 
-    private void ClearPaletteSpans(ReadOnlySpan<IntroPaletteSpan> spans)
+    private void ClearPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
     {
         foreach (IntroPaletteSpan span in spans)
             paletteFader!.Clear(span.ByteOffset, span.ByteCount);
     }
 
-    private void FadeInPaletteSpans(ReadOnlySpan<IntroPaletteSpan> spans)
+    private void FadeInPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
     {
         foreach (IntroPaletteSpan span in spans)
             paletteFader!.FadeIn(span.ByteOffset, span.ByteCount);
     }
 
-    private void FadeOutPaletteSpans(ReadOnlySpan<IntroPaletteSpan> spans)
+    private void FadeOutPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
     {
         foreach (IntroPaletteSpan span in spans)
             paletteFader!.FadeOut(span.ByteOffset, span.ByteCount);

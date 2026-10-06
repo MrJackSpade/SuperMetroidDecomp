@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Assets;
 public sealed class PauseEquipmentLabelPresentation
 {
     private readonly Dictionary<string, CompiledLabel> labels;
-    private readonly byte[] blank;
+    private readonly Dictionary<int, ushort> blankEdits;
 
-    private PauseEquipmentLabelPresentation(Dictionary<string, CompiledLabel> labels, byte[] blank,
+    private PauseEquipmentLabelPresentation(Dictionary<string, CompiledLabel> labels, Dictionary<int, ushort> blankEdits,
         int disabledPalette, string contentIdentity)
     {
         this.labels = labels;
-        this.blank = blank;
+        this.blankEdits = blankEdits;
         DisabledPalette = disabledPalette;
         ContentIdentity = contentIdentity;
     }
@@ -49,13 +49,11 @@ public sealed class PauseEquipmentLabelPresentation
             for (int item = 0; item < PauseEquipmentLabelDefinitions.ItemCount(1); item++)
             {
                 CompiledLabel destination = labels[PauseEquipmentLabelDefinitions.Key(1, item)];
-                blank.AsSpan(0, PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort))
-                    .CopyTo(tilemap.Slice(destination.DestinationByte,
-                        PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
+                WriteBlank(tilemap.Slice(destination.DestinationByte,
+                    PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
             }
             CompiledLabel hyper = labels[PauseEquipmentLabelDefinitions.HyperKey];
-            hyper.Bytes.AsSpan(0, PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort))
-                .CopyTo(tilemap.Slice(hyper.DestinationByte,
+            hyper.CopyTo(tilemap.Slice(hyper.DestinationByte,
                     PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
         }
         for (int category = 1; category <= 3; category++)
@@ -70,10 +68,10 @@ public sealed class PauseEquipmentLabelPresentation
             CompiledLabel label = labels[key];
             Span<byte> destination = tilemap.Slice(label.DestinationByte, label.WordCount * sizeof(ushort));
             if ((collected & mask) == 0)
-                blank.AsSpan(0, destination.Length).CopyTo(destination);
+                WriteBlank(destination);
             else
             {
-                label.Bytes.CopyTo(destination);
+                label.CopyTo(destination);
                 if ((equipped & mask) == 0) Recolor(destination, DisabledPalette);
             }
         }
@@ -91,14 +89,13 @@ public sealed class PauseEquipmentLabelPresentation
         if (wordCount < 0 || wordCount > PauseEquipmentLabelDefinitions.EquipmentWords)
             throw new ArgumentOutOfRangeException(nameof(wordCount));
         Span<byte> destination = tilemap.Slice(label.DestinationByte, wordCount * sizeof(ushort));
-        int ordinaryBytes = Math.Min(destination.Length, label.Bytes.Length);
-        label.Bytes.AsSpan(0, ordinaryBytes).CopyTo(destination);
+        int ordinaryBytes = Math.Min(destination.Length, label.WordCount * sizeof(ushort));
+        label.CopyTo(destination[..ordinaryBytes]);
         if (ordinaryBytes < destination.Length)
         {
             if (key != PauseEquipmentLabelDefinitions.PlasmaKey)
                 throw new InvalidDataException($"Pause label {key} cannot supply a {wordCount}-word native overrun.");
-            labels[PauseEquipmentLabelDefinitions.VariaKey].Bytes.AsSpan(0, destination.Length - ordinaryBytes)
-                .CopyTo(destination[ordinaryBytes..]);
+            labels[PauseEquipmentLabelDefinitions.VariaKey].CopyTo(destination[ordinaryBytes..]);
         }
         if (disabled) Recolor(destination, DisabledPalette);
     }
@@ -155,11 +152,18 @@ public sealed class PauseEquipmentLabelPresentation
                     if (!occupied.Add(cell)) throw new InvalidDataException($"Pause equipment label {key} overlaps another label.");
                 }
             }
-            compiled.Add(key, new(destinationCell * sizeof(ushort), words,
+            compiled.Add(key, CompiledLabel.Load(key, destinationCell * sizeof(ushort),
                 PauseTileGrid.Compile(label.Cells, key)));
         }
 
-        return new(compiled, PauseTileGrid.Compile(document.Blank, "Equipment.Blank"), document.DisabledPalette,
+        byte[] blankBytes = PauseTileGrid.Compile(document.Blank, "Equipment.Blank");
+        var blankEdits = new Dictionary<int, ushort>();
+        for (int cell = 0; cell < PauseEquipmentLabelDefinitions.EquipmentWords; cell++)
+        {
+            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(blankBytes.AsSpan(cell * sizeof(ushort)));
+            if (word != 0) blankEdits.Add(cell, word);
+        }
+        return new(compiled, blankEdits, document.DisabledPalette,
             Convert.ToHexString(SHA256.HashData(source)));
     }
 
@@ -168,6 +172,19 @@ public sealed class PauseEquipmentLabelPresentation
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
+    }
+
+    /// <summary>
+    /// $82:C01A-C02B supplies nine empty BG cells. Uncollected labels and Hyper's
+    /// discarded beam slots clear their selected width; only explicit asset edits
+    /// need per-cell data. The source JSON remains the content-identity contract.
+    /// </summary>
+    private void WriteBlank(Span<byte> destination)
+    {
+        destination.Clear();
+        foreach ((int cell, ushort word) in blankEdits)
+            if (cell < destination.Length / sizeof(ushort))
+                BinaryPrimitives.WriteUInt16LittleEndian(destination[(cell * sizeof(ushort))..], word);
     }
 
     private static void ValidateTilemap(Span<byte> tilemap)
@@ -186,7 +203,32 @@ public sealed class PauseEquipmentLabelPresentation
         }
     }
 
-    private sealed record CompiledLabel(int DestinationByte, int WordCount, byte[] Bytes);
+    private sealed class CompiledLabel(string key, int? destinationEdit, Dictionary<int, ushort> edits)
+    {
+        internal int DestinationByte => destinationEdit ?? PauseEquipmentLabelDefinitions.StockDestinationByte(key);
+        internal int WordCount => PauseEquipmentLabelDefinitions.StockWordCount(key);
+
+        internal static CompiledLabel Load(string key, int destination, ReadOnlySpan<byte> bytes)
+        {
+            var edits = new Dictionary<int, ushort>();
+            for (int cell = 0; cell < bytes.Length / sizeof(ushort); cell++)
+            {
+                ushort value = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(cell * sizeof(ushort))..]);
+                if (value != PauseEquipmentLabelDefinitions.StockWord(key, cell)) edits.Add(cell, value);
+            }
+            int? changedDestination = destination == PauseEquipmentLabelDefinitions.StockDestinationByte(key)
+                ? null : destination;
+            return new(key, changedDestination, edits);
+        }
+
+        internal void CopyTo(Span<byte> destination)
+        {
+            for (int cell = 0; cell < destination.Length / sizeof(ushort); cell++)
+                BinaryPrimitives.WriteUInt16LittleEndian(destination[(cell * sizeof(ushort))..],
+                    edits.TryGetValue(cell, out ushort selected) ? selected
+                        : PauseEquipmentLabelDefinitions.StockWord(key, cell));
+        }
+    }
 }
 
 public sealed record PauseEquipmentLabelDocument

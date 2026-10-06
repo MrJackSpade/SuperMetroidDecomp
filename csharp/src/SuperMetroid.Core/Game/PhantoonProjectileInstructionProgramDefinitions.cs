@@ -7,7 +7,7 @@ internal readonly record struct PhantoonProjectileInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Phantoon's starting and destroyable flame instruction lists.
-/// Interleaved spritemap operands remain live cartridge presentation data.
+/// Interleaved spritemap selectors address separately installed artwork.
 /// </summary>
 internal static class PhantoonProjectileInstructionProgramDefinitions
 {
@@ -41,85 +41,81 @@ internal static class PhantoonProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_PhantoonDestroyableFlames</c> at $86:97FA.</summary>
     internal const ushort DestroyableShot = 0x97fa;
 
-    private static readonly PhantoonProjectileInstructionMechanicsWord[] Words =
-    [
-        new(DestroyableIdle, 0x0005),
-        new(0x9760, 0x0005),
-        new(0x9764, 0x0005),
-        new(0x9768, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x976a, DestroyableIdle),
-        new(CasualHitGround, 0x0001),
-        new(0x9770, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(CasualBouncing, 0x0005),
-        new(0x9776, 0x0005),
-        new(0x977a, 0x0005),
-        new(0x977e, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x9780, CasualBouncing),
-        new(CasualResting, 0x0005),
-        new(0x9786, 0x0005),
-        new(0x978a, 0x0005),
-        new(0x978e, 0x0005),
-        new(0x9792, 0x0005),
-        new(0x9796, 0x0005),
-        new(Dying, 0x0005),
-        new(0x979e, 0x0005),
-        new(0x97a2, 0x0005),
-        new(0x97a6, 0x0005),
-        new(0x97aa, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-        new(RainImpact, 0x0008),
-        new(0x97b0, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x97b2, Dying),
-        new(CasualFalling, EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
-        new(0x97b6, 0x0004),
-        new(0x97b8, 0x0001),
-        new(0x97bc, 0x0001),
-        new(0x97c0, EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
-        new(0x97c2, 0x97b8),
-        new(0x97c4, EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
-        new(0x97c6, 0x0004),
-        new(0x97c8, 0x0001),
-        new(0x97cc, 0x0001),
-        new(0x97d0, EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
-        new(0x97d2, 0x97c8),
-        new(0x97d4, EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
-        new(0x97d6, 0x0004),
-        new(0x97d8, 0x0001),
-        new(0x97dc, 0x0001),
-        new(0x97e0, EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
-        new(0x97e2, 0x97d8),
-        new(0x97e4, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x97e6, CasualFalling),
-        new(StartingFlame, 0x0005),
-        new(0x97ec, 0x0005),
-        new(0x97f0, 0x0005),
-        new(0x97f4, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x97f6, StartingFlame),
-        new(Delete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-        new(DestroyableShot, 0x0005),
-        new(0x97fe, 0x0005),
-        new(0x9802, 0x0005),
-        new(0x9806, 0x0005),
-        new(0x980a, EnemyProjectileCodePointers.Instruction_SpawnPhantoonDrop),
-        new(0x980c, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
+    /// <summary>Unresolved five-tick flame pose cadence in86:975C..9806; required under #1165.</summary>
+    private const ushort FlamePoseFrames = 5;
+    /// <summary>Unresolved impact dwell at86:97AC; required under #1165.</summary>
+    private const ushort RainImpactFrames = 8;
+    /// <summary>Unresolved falling-phase repetition at86:97B6/97C6/97D6; required under #1165.</summary>
+    private const ushort FallingRepeatCount = 4;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0x975e, 0x9762, 0x9766, 0x976e,
-        0x9774, 0x9778, 0x977c,
-        0x9784, 0x9788, 0x978c, 0x9790, 0x9794, 0x9798,
-        0x979c, 0x97a0, 0x97a4, 0x97a8,
-        0x97ae,
-        0x97ba, 0x97be, 0x97ca, 0x97ce, 0x97da, 0x97de,
-        0x97ea, 0x97ee, 0x97f2,
-        0x97fc, 0x9800, 0x9804, 0x9808,
-    ];
+    internal static int MechanicsWordCount => 58;
+    internal static int PresentationWordCount => 31;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static PhantoonProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>Shared three-pose loops, counted falling cycles and impact/deletion tails.</summary>
+    internal static PhantoonProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 5) return LoopWord(DestroyableIdle, index);
+        if (index < 7)
+            return new((ushort)(CasualHitGround + (index - 5) * 4),
+                index == 5 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
+        if (index < 12) return LoopWord(CasualBouncing, index - 7);
+        if (index < 18) return Frame(CasualResting, index - 12, FlamePoseFrames);
+        if (index < 23)
+            return index < 22 ? Frame(Dying, index - 18, FlamePoseFrames)
+                : new((ushort)(Dying + 16), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        if (index < 26)
+            return index == 23 ? Frame(RainImpact, 0, RainImpactFrames)
+                : new((ushort)(RainImpact + 4 + (index - 24) * 2),
+                    index == 24 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : Dying);
+        if (index < 44)
+        {
+            int phase = (index - 26) / 6;
+            int word = (index - 26) % 6;
+            ushort start = (ushort)(CasualFalling + phase * 16);
+            int offset = word < 2 ? word * 2 : word < 4 ? 4 + (word - 2) * 4 : 12 + (word - 4) * 2;
+            return new((ushort)(start + offset), word switch
+            {
+                0 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY,
+                1 => FallingRepeatCount,
+                2 or 3 => 1,
+                4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero,
+                _ => (ushort)(start + 4),
+            });
+        }
+        if (index < 46)
+            return new((ushort)(CasualFalling + 48 + (index - 44) * 2),
+                index == 44 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : CasualFalling);
+        if (index < 51) return LoopWord(StartingFlame, index - 46);
+        if (index == 51) return new(Delete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        if (index < 56) return Frame(DestroyableShot, index - 52, FlamePoseFrames);
+        return new((ushort)(DestroyableShot + 16 + (index - 56) * 2),
+            index == 56 ? EnemyProjectileCodePointers.Instruction_SpawnPhantoonDrop
+                : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+    }
+
+    private static PhantoonProjectileInstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
+        new((ushort)(start + frame * 4), duration);
+
+    private static PhantoonProjectileInstructionMechanicsWord LoopWord(ushort start, int word) =>
+        word < 3 ? Frame(start, word, FlamePoseFrames)
+            : new((ushort)(start + 12 + (word - 3) * 2),
+                word == 3 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : start);
+
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 3) return (ushort)(DestroyableIdle + index * 4 + 2);
+        if (index == 3) return CasualHitGround + 2;
+        if (index < 7) return (ushort)(CasualBouncing + (index - 4) * 4 + 2);
+        if (index < 13) return (ushort)(CasualResting + (index - 7) * 4 + 2);
+        if (index < 17) return (ushort)(Dying + (index - 13) * 4 + 2);
+        if (index == 17) return RainImpact + 2;
+        if (index < 24)
+            return (ushort)(CasualFalling + (index - 18) / 2 * 16 + (index % 2) * 4 + 6);
+        if (index < 27) return (ushort)(StartingFlame + (index - 24) * 4 + 2);
+        return (ushort)(DestroyableShot + (index - 27) * 4 + 2);
+    }
 
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.PhantoonDestroyableFlame or
@@ -128,11 +124,11 @@ internal static class PhantoonProjectileInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            PhantoonProjectileInstructionMechanicsWord candidate = Words[middle];
+            PhantoonProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -151,9 +147,9 @@ internal static class PhantoonProjectileInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

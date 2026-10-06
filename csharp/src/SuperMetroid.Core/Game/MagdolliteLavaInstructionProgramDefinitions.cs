@@ -21,38 +21,43 @@ internal static class MagdolliteLavaInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_MagdolliteFlame</c> at $86:DFE4.</summary>
     internal const ushort Shot = 0xdfe4;
 
-    private static readonly MagdolliteLavaInstructionMechanicsWord[] Words =
-    [
-        new(Left, 0x0001),
-        new(0xdfdc, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(Right, 0x0001),
-        new(0xdfe2, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(Shot,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_MagdolliteFlame_SpawnDrops),
-        new(0xdfe6, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xdfe8, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-    ];
+    internal static int MechanicsWordCount => 7;
+    internal static int PresentationWordCount => 2;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xdfda,
-        0xdfe0,
-    ];
+    /// <summary>Each facing displays a one-tick pose then sleeps; being shot spawns drops and deletes.</summary>
+    internal static MagdolliteLavaInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 4)
+        {
+            bool sleep = (index & 1) != 0;
+            return new((ushort)(Left + 6 * (index / 2) + (sleep ? 4 : 0)),
+                sleep ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep : (ushort)1);
+        }
+        ushort command = index switch
+        {
+            4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_MagdolliteFlame_SpawnDrops,
+            5 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+            _ => CommonEnemyProjectileInstructionProgramDefinitions.Delete,
+        };
+        return new((ushort)(Shot + 2 * (index - 4)), command);
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static MagdolliteLavaInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        return (ushort)(Left + 6 * index + 2);
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            MagdolliteLavaInstructionMechanicsWord candidate = Words[middle];
+            MagdolliteLavaInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -72,9 +77,9 @@ internal static class MagdolliteLavaInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

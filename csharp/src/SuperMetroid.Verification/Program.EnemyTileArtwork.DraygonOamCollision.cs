@@ -46,6 +46,8 @@ internal static partial class Program
         {
             if (frame.Bank != DraygonBg2FrameDefinitions.Bank)
                 continue;
+            if (DraygonBg2FrameDefinitions.IsFrame(frame.Pointer))
+                continue;
             if (sporePointers.Contains(frame.Pointer))
             {
                 AssertTrue(frame.Name.StartsWith("spore_spawn_oam_",

@@ -18,7 +18,9 @@ public sealed partial class RoomEnemySystem
         RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(
             _bus!,
             RidleyExplosionDefinitions.EnemyDefinition);
-        foreach (ushort parameter in RidleyExplosionDefinitions.SpawnOrder)
+        RidleyExplosionDefinitions.SpawnInNativeOrder(SpawnPart);
+
+        void SpawnPart(ushort parameter)
         {
             int slotIndex = Array.FindIndex(
                 _slots,

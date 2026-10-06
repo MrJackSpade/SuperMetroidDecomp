@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -159,6 +160,10 @@ internal static partial class Program
                 PhantoonInstructionProgramDefinitions.PresentationWordAddress(index);
             AssertTrue(executedOperands.Contains(address),
                 $"production execution selects Phantoon presentation $A7:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa7, address, out ushort selected),
+                "Every Phantoon visual operand has an installed selector");
+            AssertEqual(ReadPhantoonInstructionWord(rom, address), selected,
+                "Exact native Phantoon visual operand");
             AssertThrows<InvalidDataException>(
                 () => PhantoonInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Phantoon presentation $A7:{address:X4} is rejected as mechanics");

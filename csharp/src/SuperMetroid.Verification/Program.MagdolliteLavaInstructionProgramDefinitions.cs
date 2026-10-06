@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -103,6 +104,7 @@ internal static partial class Program
             MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount,
             observedOperands.Count,
             "both live Magdollite-lava spritemap operands are selected from installed artwork");
+        AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled visual operands require no cartridge reads");
         for (int index = 0;
              index < MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -111,6 +113,10 @@ internal static partial class Program
                 MagdolliteLavaInstructionProgramDefinitions.PresentationWordAddress(index);
             AssertTrue(observedOperands.Contains(address),
                 $"production execution selects Magdollite-lava presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                $"compiled visual selector exists at $86:{address:X4}");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                $"compiled visual selector matches native operand $86:{address:X4}");
         }
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,

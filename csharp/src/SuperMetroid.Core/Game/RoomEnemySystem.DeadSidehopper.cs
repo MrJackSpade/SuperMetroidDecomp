@@ -15,39 +15,6 @@ public sealed partial class RoomEnemySystem
     private const ushort DeadMonsterSolidProperty = 0x8000;
     private const ushort DeadMonsterInteractionRejectedProperty = 0x0400;
 
-    private static readonly DeadSidehopperGraphicsCopy[][] DeadSidehopperInitialGraphicsCopies =
-    [
-        [
-            new(0x0040, 0x0040, 0x0060),
-            new(0x0200, 0x00a0, 0x00a0),
-            new(0x0400, 0x0140, 0x00a0),
-            new(0x0600, 0x01e0, 0x00a0),
-            new(0x0800, 0x0280, 0x00a0),
-        ],
-        [
-            new(0x0120, 0x0320, 0x0040),
-            new(0x0320, 0x03c0, 0x00a0),
-            new(0x0520, 0x0460, 0x00a0),
-            new(0x0720, 0x0500, 0x00a0),
-            new(0x0920, 0x05a0, 0x00a0),
-        ],
-    ];
-
-    // Each entry names the first planes-0/1 word of one eight-pixel-wide tile column.
-    // Planes 2/3 live eight words later. Variant zero's upper two columns do not begin
-    // until row eight; variant two has the inverse three-column lower silhouette.
-    private static ReadOnlySpan<ushort> DeadSidehopperColumnWordOffsets0 =>
-        [0, 16, 32, 48, 64];
-
-    private static ReadOnlySpan<ushort> DeadSidehopperColumnMinimumY0 =>
-        [8, 8, 0, 0, 0];
-
-    private static ReadOnlySpan<ushort> DeadSidehopperColumnWordOffsets2 =>
-        [400, 416, 432, 448, 464];
-
-    private static ReadOnlySpan<ushort> DeadSidehopperColumnMinimumY2 =>
-        [0, 0, 8, 8, 8];
-
     private readonly DeadSidehopperEnemyState?[] _deadSidehopperStates =
         new DeadSidehopperEnemyState?[MaximumEnemyCount];
     private readonly List<VramWriteEntry> _deadSidehopperFrameVramTransfers = [];
@@ -490,10 +457,9 @@ public sealed partial class RoomEnemySystem
         if (installedTiles.IsEmpty)
             throw new InvalidDataException("Dead sidehopper requires installed corpse artwork.");
 
-        int variantIndex = graphicsVariant == 0 ? 0 : 1;
-        foreach (DeadSidehopperGraphicsCopy copy in
-                 DeadSidehopperInitialGraphicsCopies[variantIndex])
+        for (int row = 0; row < 5; row++)
         {
+            var copy = DeadMonsterRottingDefinitions.SidehopperInitialCopy(graphicsVariant, row);
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
             {
                 int sourceOffset = copy.SourceOffset + byteIndex;
@@ -515,19 +481,14 @@ public sealed partial class RoomEnemySystem
             ? unchecked((ushort)(state.WrapOffset + sourceOffset))
             : sourceOffset;
 
-        ReadOnlySpan<ushort> columnOffsets = state.GraphicsVariant == 0
-            ? DeadSidehopperColumnWordOffsets0
-            : DeadSidehopperColumnWordOffsets2;
-        ReadOnlySpan<ushort> minimumY = state.GraphicsVariant == 0
-            ? DeadSidehopperColumnMinimumY0
-            : DeadSidehopperColumnMinimumY2;
-        for (int columnIndex = 0; columnIndex < columnOffsets.Length; columnIndex++)
+        for (int columnIndex = 0; columnIndex < 5; columnIndex++)
         {
-            if (yOffset < minimumY[columnIndex])
+            if (yOffset < DeadMonsterRottingDefinitions.SidehopperColumnMinimumY(state.GraphicsVariant, columnIndex))
                 continue;
 
-            int sourceWord = sourceOffset / 2 + columnOffsets[columnIndex];
-            int destinationWord = destinationOffset / 2 + columnOffsets[columnIndex] + 1;
+            int columnOffset = DeadMonsterRottingDefinitions.SidehopperColumnWordOffset(state.GraphicsVariant, columnIndex);
+            int sourceWord = sourceOffset / 2 + columnOffset;
+            int destinationWord = destinationOffset / 2 + columnOffset + 1;
             if (yOffset < 38)
             {
                 WriteDeadMonsterWorkWord(destinationWord, ReadDeadMonsterWorkWord(sourceWord));
@@ -600,10 +561,7 @@ public sealed partial class RoomEnemySystem
     private void WriteDeadMonsterWorkWord(int wordOffset, ushort value) =>
         WriteWord(_bus!, DeadMonsterWorkBufferAddress + wordOffset * 2, value);
 
-    private readonly record struct DeadSidehopperGraphicsCopy(
-        int SourceOffset,
-        int DestinationOffset,
-        int Length);
+
 }
 
 /// <summary>Native bank-$A9 dead-sidehopper function pointers.</summary>

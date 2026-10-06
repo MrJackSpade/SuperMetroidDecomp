@@ -30,7 +30,7 @@ internal static partial class Program
                 EnemySpritemapFiles.ExtractParts(imported, frame.Bank, frame.Pointer), frame.Name);
             AssertTrue(compositions.TryGetDisplay(frame.Bank, frame.Pointer, out var installed),
                 $"#1154 installed gunship composition {frame.Name} is resolvable");
-            AssertTrue(native.AsSpan().SequenceEqual(installed.Span),
+            AssertTrue(native.SequenceEqual(installed),
                 $"#1154 {frame.Name} retains native offsets, sizes, tiles, priority and flips");
         }
 
@@ -52,13 +52,13 @@ internal static partial class Program
         var merged = EnemySpritemapCatalog.Load(legacyJson, compositions);
         AssertTrue(merged.TryGetDisplay(oldFrames[0].Bank, oldFrames[0].Pointer, out var edited),
             "#1154 schema-60 edited frame remains resolvable");
-        AssertTrue(edited.Span.SequenceEqual(EnemySpritemapCatalog.CompileParts(legacy.Frames[editedName], editedName)),
+        AssertTrue(edited.SequenceEqual(EnemySpritemapCatalog.CompileParts(legacy.Frames[editedName], editedName)),
             "#1154 schema-60 override edit survives the upgrade");
         foreach (EnemySpritemapDefinition frame in shipFrames)
         {
             AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var inherited) &&
                 compositions.TryGetDisplay(frame.Bank, frame.Pointer, out var expected) &&
-                inherited.Span.SequenceEqual(expected.Span),
+                inherited.SequenceEqual(expected),
                 $"#1154 legacy override inherits new {frame.Name} from stock");
         }
         VerifyGunshipLandingCompositions(installationRoot, stock);

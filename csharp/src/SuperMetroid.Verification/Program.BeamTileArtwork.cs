@@ -18,7 +18,7 @@ internal static partial class Program
         for (ushort selection = 0; selection < 12; selection++)
         {
             byte[] png = files[BeamTileAtlasDefinitions.FileName(selection)];
-            var atlas = BeamTileAtlas.Load(new MemoryStream(png));
+            var atlas = BeamTileAtlas.Load(new MemoryStream(png), selection);
             var native = new SnesVram(); var extracted = new SnesVram();
             LoadNativeBeamFixture(bus, native, new SnesCgram(), null, selection);
             atlas.LoadTo(extracted);
@@ -28,7 +28,7 @@ internal static partial class Program
             using var editedPng = new MemoryStream();
             IndexedPng.Write(editedPng, image.Width, image.Height, image.Pixels, image.Palette);
             editedPng.Position = 0;
-            var edited = BeamTileAtlas.Load(editedPng);
+            var edited = BeamTileAtlas.Load(editedPng, selection);
             edited.LoadTo(extracted);
             int firstByte = BeamTileAtlasDefinitions.DestinationWord * 2;
             AssertEqual((byte)(native.Bytes[firstByte] ^ 0x80), extracted.Bytes[firstByte], "Edited pixel changes the correct tile plane bit");
@@ -66,14 +66,14 @@ internal static partial class Program
         using var wrongSize = new MemoryStream();
         IndexedPng.Write(wrongSize, 8, 8, new byte[64], new[] { new Rgba32(0, 0, 0, 255) });
         wrongSize.Position = 0;
-        AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(wrongSize), "Wrong beam atlas dimensions rejected");
+        AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(wrongSize, 0), "Wrong beam atlas dimensions rejected");
         using var invalidIndex = new MemoryStream();
         var colors = Enumerable.Range(0, 17).Select(i => new Rgba32((byte)i, 0, 0, 255)).ToArray();
         var pixels = new byte[512]; pixels[0] = 16;
         IndexedPng.Write(invalidIndex, 64, 8, pixels, colors);
         invalidIndex.Position = 0;
-        AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(invalidIndex), "Beam index exceeds four bit hardware palette");
-        AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(new MemoryStream(new byte[8])), "Malformed beam PNG rejected");
+        AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(invalidIndex, 0), "Beam index exceeds four bit hardware palette");
+        AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(new MemoryStream(new byte[8]), 0), "Malformed beam PNG rejected");
         Console.WriteLine("Beam PNG artwork: twelve production VRAM uploads, exact edited-pixel isolation and malformed resource rejection pass.");
     }
 

@@ -30,7 +30,7 @@ internal static partial class Program
         var merged = EnemySpritemapCatalog.Load(new MemoryStream(legacyBytes), stock);
         AssertTrue(merged.TryGetDisplay(previous[0].Bank, previous[0].Pointer, out var editedParts),
             "schema-67 override retains its existing frame");
-        AssertEqual(-11, editedParts.Span[0].X.SignedOffset, "schema-67 edit survives new stock");
+        AssertEqual(-11, editedParts[0].X.SignedOffset, "schema-67 edit survives new stock");
         AssertThrows<InvalidDataException>(() => EnemySpritemapCatalog.Load(new MemoryStream(legacyBytes)),
             "old stock requests reimport instead of omitting the new compositions");
 

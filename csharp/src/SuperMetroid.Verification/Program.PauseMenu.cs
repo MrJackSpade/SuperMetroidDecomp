@@ -285,7 +285,7 @@ internal static partial class Program
             revealSystem,
             area: 0,
             saveStation: 0);
-        var revealSaveRam = new SuperMetroidSaveRam(bus);
+        var revealSaveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         revealSaveRam.SaveSlot(0, revealSnapshot);
         SuperMetroidSaveSlot restoredRevealSlot = revealSaveRam.ReadSlot(0) ??
             throw new InvalidOperationException("Map-reveal SRAM fixture did not round trip.");

@@ -144,7 +144,7 @@ internal static partial class Program
         AssertEqual((ushort)0x100e, samus.EquippedBeams,
             "SpaceTime corruption does not rewrite live equipment");
 
-        var saveRam = new SuperMetroidSaveRam(bus);
+        var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         saveRam.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(
             samus,
             system,
@@ -242,7 +242,7 @@ internal static partial class Program
         {
             var restartBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
                 Path.GetFullPath("Super Metroid.smc"));
-            var restartSaves = new SuperMetroidSaveRam(restartBus);
+            var restartSaves = new SuperMetroidSaveRam(restartBus, RetailPresentationFixture());
             restartSaves.SaveSlot(0, CreateResetSnapshot());
             restartSaves.SelectSlot(0);
             var game = CreateRetailGameFixture(

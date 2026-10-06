@@ -8,7 +8,7 @@ internal static class FlashSaveReloadProbe
     public static void Run(ISnesAddressSpace bus, SuperMetroidRuntime runtime, string[] native)
     {
         var samus = runtime.Samus ?? throw new InvalidDataException("Missing generated actor.");
-        var saves = new SuperMetroidSaveRam(bus);
+        var saves = new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus));
         // Use only the disposable ROM bus's in-memory SRAM. No player file is touched.
         // Station zero is a real load destination, not a debugger-state restoration.
         saves.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, runtime.System, area: 0, saveStation: 0));

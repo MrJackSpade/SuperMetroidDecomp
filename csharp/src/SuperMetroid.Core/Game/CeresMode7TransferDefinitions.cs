@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 
 /// <summary>One $A6 Mode 7 low-byte tilemap DMA descriptor and its authored source bytes.</summary>
 public readonly record struct CeresMode7Transfer(
-    int SourceAddress, ushort DestinationWord, ReadOnlyMemory<byte> TileNumbers);
+    int SourceAddress, ushort DestinationWord, CeresMode7TransferDefinitions.TileSequence TileNumbers);
 
 /// <summary>
 /// The seven fixed transfer lists selected by the Ceres door/elevator and Ridley
@@ -28,66 +28,148 @@ public static class CeresMode7TransferDefinitions
     /// <summary>$A6:AD80, Ridley wing tilemap frame one.</summary>
     public const ushort WingFrame1 = 0xad80;
 
-    private static readonly CeresMode7Transfer[] PlatformLight =
-    [
-        new(0xa6f918, 0x060e, new byte[] { 0x68, 0x69, 0x69, 0x78 }),
-    ];
-    private static readonly CeresMode7Transfer[] PlatformDark =
-    [
-        new(0xa6f91c, 0x060e, new byte[] { 0x8d, 0x8e, 0x8e, 0x79 }),
-    ];
-    private static readonly CeresMode7Transfer[] Baby0 =
-    [
-        new(0xa6ad1b, 0x0504, new byte[] { 0x59, 0x5a }),
-        new(0xa6ad1d, 0x0584, new byte[] { 0x69, 0x6a }),
-    ];
-    private static readonly CeresMode7Transfer[] Baby1 =
-    [
-        new(0xa6ad1f, 0x0504, new byte[] { 0x8a, 0x8b }),
-        new(0xa6ad21, 0x0584, new byte[] { 0x8c, 0x8d }),
-    ];
-    private static readonly CeresMode7Transfer[] Baby2 =
-    [
-        new(0xa6ad23, 0x0504, new byte[] { 0x8e, 0x8f }),
-        new(0xa6ad25, 0x0584, new byte[] { 0x9d, 0x9e }),
-    ];
-    private static readonly CeresMode7Transfer[] Wing0 =
-    [
-        new(0xa6adb7, 0x000b, new byte[] { 0x00, 0x01, 0x02, 0x03 }),
-        new(0xa6adbf, 0x0080, new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xff, 0xff, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }),
-        new(0xa6addb, 0x0100, new byte[] { 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0xa8 }),
-        new(0xa6adf7, 0x0181, new byte[] { 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c }),
-        new(0xa6ae0f, 0x0201, new byte[] { 0xff, 0xff, 0x1d, 0x1e, 0x1f, 0x30, 0x31, 0x32, 0x33, 0x34, 0xff, 0xff, 0xff, 0xff, 0xff }),
-        new(0xa6ae2d, 0x0280, new byte[] { 0xff, 0xff, 0xff, 0xff, 0x2e, 0x2f, 0x40, 0x41, 0x42, 0x43, 0x44, 0xff, 0xff, 0xff, 0xff, 0xff }),
-    ];
-    private static readonly CeresMode7Transfer[] Wing1 =
-    [
-        new(0xa6adbb, 0x000b, new byte[] { 0xff, 0xff, 0xff, 0xff }),
-        new(0xa6adcd, 0x0080, new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }),
-        new(0xa6ade9, 0x0100, new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x20, 0x17, 0xaa, 0xff, 0xff, 0xff, 0xff, 0xff }),
-        new(0xa6ae03, 0x0181, new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0x26, 0x27, 0x28, 0xff, 0xff, 0xff, 0xff }),
-        new(0xa6ae1e, 0x0201, new byte[] { 0x91, 0x92, 0x93, 0x94, 0x95, 0x30, 0x31, 0x32, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x98, 0x9c }),
-        new(0xa6ae3d, 0x0280, new byte[] { 0x90, 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0x40, 0x41, 0x42, 0xa4, 0xa5, 0xa6, 0xa7, 0x7d, 0x83, 0x2d }),
-    ];
-
-    /// <summary>Resolves a native list pointer without reading cartridge memory.</summary>
-    public static ReadOnlySpan<CeresMode7Transfer> Get(ushort pointer) => pointer switch
+    /// <summary>
+    /// $A6:ACDA-$ACE1 selects the three consecutive capsule transfer records
+    /// in reflected phase order0,1,2,1. Each record has two nine-byte transfers
+    /// and a one-byte terminator; phase must already be bounded to0..3.
+    /// </summary>
+    internal static ushort BabyFrameForPhase(int phase)
     {
-        ElevatorLight => PlatformLight,
-        ElevatorDark => PlatformDark,
-        BabyFrame0 => Baby0,
-        BabyFrame1 => Baby1,
-        BabyFrame2 => Baby2,
-        WingFrame0 => Wing0,
-        WingFrame1 => Wing1,
-        _ => throw new InvalidDataException($"Unknown Ceres Mode 7 transfer list $A6:{pointer:X4}."),
-    };
+        if ((uint)phase >= 4) throw new IndexOutOfRangeException();
+        int reflectedPhase = Math.Min(phase, 4 - phase);
+        return checked((ushort)(BabyFrame0 + reflectedPhase * (BabyFrame1 - BabyFrame0)));
+    }
 
-    /// <summary>Replays the native $2118 low-byte writes in list order.</summary>
+    /// <summary>Mode7 maps have128 tiles per row. Transfer destinations name low bytes of VRAM words.</summary>
+    private const int MapColumns = 128;
+    /// <summary>$A6:F918: paired four-byte platform frames following both ten-byte DMA lists.</summary>
+    private const int PlatformPayload = 0xa6f918;
+    /// <summary>$A6:AD1B: three baby frames, each two rows of two atlas tiles.</summary>
+    private const int BabyPayload = 0xa6ad1b;
+    /// <summary>$A6:ADB7: wing rows store frame0 then frame1, with identical extent per row.</summary>
+    private const int WingPayload = 0xa6adb7;
+    /// <summary>$A6:F904/F90E: chosen platform map position(14,12) remains REQUIRED layout input.</summary>
+    private const int PlatformColumn = 14, PlatformRow = 12;
+    /// <summary>$A6:ACE2/ACF5/AD08: chosen baby map position(4,10) remains REQUIRED layout input.</summary>
+    private const int BabyColumn = 4, BabyRow = 10;
+    private readonly record struct WingRegion(int Column, int Width);
+    /// <summary>$A6:AD49/AD80: six chosen wing row extents remain REQUIRED under Wing0/Wing1. Only row stepping and packed paired-frame addresses derive from them.</summary>
+    private static readonly WingRegion[] RequiredWingRegions =
+    [ new(11,4), new(0,14), new(0,14), new(1,12), new(1,15), new(0,16) ];
+
+    /// <summary>Resolves a native list pointer without reading cartridge memory or constructing a transfer table.</summary>
+    public static TransferSequence Get(ushort pointer) => pointer switch
+    {
+        ElevatorLight or ElevatorDark => new(pointer, 1),
+        BabyFrame0 or BabyFrame1 or BabyFrame2 => new(pointer, 2),
+        WingFrame0 or WingFrame1 => new(pointer, RequiredWingRegions.Length),
+        _ => throw new InvalidDataException($"Unknown Ceres Mode7 transfer list $A6:{pointer:X4}."),
+    };
+    public readonly struct TransferSequence(ushort pointer, int count) : IReadOnlyList<CeresMode7Transfer>
+    {
+        public int Count => count;
+        public int Length => Count;
+        public CeresMode7Transfer this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if (pointer is ElevatorLight or ElevatorDark)
+                    return new(PlatformPayload + (pointer == ElevatorDark ? 4 : 0),
+                        (ushort)(PlatformRow * MapColumns + PlatformColumn), new(pointer, index, 4));
+                if (pointer is BabyFrame0 or BabyFrame1 or BabyFrame2)
+                {
+                    int frame = (pointer - BabyFrame0) / (2 * 9 + 1);
+                    return new(BabyPayload + frame * 4 + index * 2,
+                        (ushort)((BabyRow + index) * MapColumns + BabyColumn), new(pointer, index, 2));
+                }
+                WingRegion region = RequiredWingRegions[index];
+                int offset = 0;
+                for (int row = 0; row < index; row++) offset += 2 * RequiredWingRegions[row].Width;
+                if (pointer == WingFrame1) offset += region.Width;
+                return new(WingPayload + offset, (ushort)(index * MapColumns + region.Column),
+                    new(pointer, index, region.Width));
+            }
+        }
+        public IEnumerator<CeresMode7Transfer> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    public readonly struct TileSequence(ushort pointer, int row, int count) : IReadOnlyList<byte>
+    {
+        public int Count => count;
+        public int Length => Count;
+        public byte this[int index] => (uint)index < Count ? TileAt(pointer, row, index) : throw new IndexOutOfRangeException();
+        public IEnumerator<byte> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    /// <summary>$A6:F918-F91F,AD1B-AD26: independent platform boundary/middle glyphs and six baby row origins remain REQUIRED; duplicate middle and adjacent right tiles calculate.</summary>
+    private static byte TileAt(ushort pointer, int row, int column)
+    {
+        if (pointer is ElevatorLight or ElevatorDark)
+        {
+            bool dark = pointer == ElevatorDark;
+            return (byte)(column == 0 ? (dark ? 0x8d : 0x68) : column == 3 ? (dark ? 0x79 : 0x78) : (dark ? 0x8e : 0x69));
+        }
+        if (pointer is BabyFrame0 or BabyFrame1 or BabyFrame2)
+        {
+            int origin = (pointer, row) switch
+            {
+                (BabyFrame0, 0) => 0x59, (BabyFrame0, 1) => 0x69,
+                (BabyFrame1, 0) => 0x8a, (BabyFrame1, 1) => 0x8c,
+                (BabyFrame2, 0) => 0x8e, (BabyFrame2, 1) => 0x9d,
+                _ => throw new InvalidOperationException("Unknown baby tilemap row."),
+            };
+            return (byte)(origin + column);
+        }
+        return WingTile(pointer == WingFrame1, row, column);
+    }
+    /// <summary>$A6:ADB7-AE4C: contiguous atlas runs and shared cells derive. Every selected run origin/extent and isolated glyph below remains REQUIRED artwork placement; no artwork exemption is claimed.</summary>
+    private static byte WingTile(bool secondFrame, int row, int column)
+    {
+        const byte transparent = 0xff;
+        if (!secondFrame)
+        {
+            return row switch
+            {
+                0 => (byte)column,
+                1 => column is 6 or 7 ? transparent : (byte)(column < 6 ? 4 + column : 0x0a + column - 8),
+                2 => (byte)(column == 13 ? 0xa8 : 0x10 + column),
+                3 => (byte)(0x21 + column),
+                4 => column is >= 2 and <= 4 ? (byte)(0x1d + column - 2)
+                    : column is >= 5 and <= 9 ? (byte)(0x30 + column - 5) : transparent,
+                5 => column is 4 or 5 ? (byte)(0x2e + column - 4)
+                    : column is >= 6 and <= 10 ? (byte)(0x40 + column - 6) : transparent,
+                _ => throw new InvalidOperationException("Unknown wing row."),
+            };
+        }
+        if (row < 2) return transparent;
+        if (row == 2) return column switch { 6 => 0x20, 7 => WingTile(false,row,column), 8 => 0xaa, _ => transparent };
+        if (row == 3) return column is >= 5 and <= 7 ? WingTile(false,row,column) : transparent;
+        if (row == 4)
+            return column < 5 ? (byte)(0x91 + column)
+                : column < 8 ? WingTile(false,row,column)
+                : column < 13 ? (byte)(0x96 + column - 8)
+                : column == 13 ? (byte)0x98 : (byte)0x9c;
+        if (row == 5)
+            return column == 0 ? (byte)0x90
+                : column < 6 ? (byte)(0x9f + column - 1)
+                : column < 9 ? WingTile(false,row,column)
+                : column < 13 ? (byte)(0xa4 + column - 9)
+                : column == 13 ? (byte)0x7d : column == 14 ? (byte)0x83 : (byte)0x2d;
+        throw new InvalidOperationException("Unknown wing row.");
+    }
+    /// <summary>Replays direct calculated tiles as native $2118 low-byte writes, preserving high bytes and list order.</summary>
     public static void ApplyTo(SnesVram vram, ushort pointer)
     {
         ArgumentNullException.ThrowIfNull(vram);
         foreach (CeresMode7Transfer transfer in Get(pointer))
-            vram.LoadMode7MapBytes(transfer.TileNumbers.Span, transfer.DestinationWord);
+            for (int index = 0; index < transfer.TileNumbers.Count; index++)
+                vram.FillMode7MapBytes(transfer.TileNumbers[index], 1, (ushort)(transfer.DestinationWord + index));
     }
 }

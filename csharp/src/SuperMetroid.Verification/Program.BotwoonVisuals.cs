@@ -30,13 +30,13 @@ internal static partial class Program
             selected.Add(installedPointer);
             AssertTrue(stock.Spritemaps!.TryGetDisplay(
                     BotwoonVisualDefinitions.Bank, installedPointer,
-                    out ReadOnlyMemory<EnemySpritemapPart> installedParts),
+                    out EnemySpritemapParts installedParts),
                 $"Botwoon head frame $B3:{installedPointer:X4} is editable");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, BotwoonVisualDefinitions.Bank,
                 native, 128, 128, 0, 0);
-            installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
+            installedOam.AddEnemySpritemap(installedParts, 128, 128, 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,

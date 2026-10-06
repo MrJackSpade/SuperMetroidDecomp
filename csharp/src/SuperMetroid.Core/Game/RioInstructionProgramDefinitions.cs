@@ -28,51 +28,56 @@ internal static class RioInstructionProgramDefinitions
     /// <summary>The first mechanics constant after Rio's programs, at $A2:BBBB.</summary>
     internal const ushort FirstAdjacentMechanicsData = 0xbbbb;
 
-    private static readonly RioInstructionMechanicsWord[] Words =
-    [
-        new(Idle, 4), new(0xbb4f, 4),
+    /// <summary>$A2:BB4B-BB79: two initial and ten post-swoop idle poses, each four ticks.</summary>
+    private const int IdleFrameCount = 12;
+    /// <summary>$A2:BB7F-BB8F and BBA3-BBB3: five poses before each animation-finished callback.</summary>
+    private const int TransitionFrameCount = 5;
+    /// <summary>$A2:BB97-BB9B: two alternating poses while the swoop continues.</summary>
+    private const int SwoopLoopFrameCount = 2;
+    /// <summary>$A2:BB4B-BB79 idle instruction cadence. This independent hold remains required under #1165.</summary>
+    private const ushort IdleFrameDuration = 4;
+    /// <summary>$A2:BB7F-BBB3 swoop and recovery instruction cadence. This independent hold remains required under #1165.</summary>
+    private const ushort SwoopFrameDuration = 3;
 
-        new(PostSwoopIdle, 4), new(0xbb57, 4),
-        new(0xbb5b, 4), new(0xbb5f, 4),
-        new(0xbb63, 4), new(0xbb67, 4),
-        new(0xbb6b, 4), new(0xbb6f, 4),
-        new(0xbb73, 4), new(0xbb77, 4),
-        new(0xbb7b, CommonEnemyInstructionCodes.Goto), new(0xbb7d, Idle),
+    internal static int MechanicsWordCount => PresentationWordCount + 8;
+    internal static int PresentationWordCount => IdleFrameCount + 2 * TransitionFrameCount + SwoopLoopFrameCount;
+    internal static RioInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < IdleFrameCount + 2)
+            return BlockWord(Idle, IdleFrameCount, index, IdleFrameDuration, CommonEnemyInstructionCodes.Goto, Idle);
+        index -= IdleFrameCount + 2;
+        if (index < TransitionFrameCount + 2)
+            return BlockWord(SwoopingPart1, TransitionFrameCount, index, SwoopFrameDuration,
+                RioInstructionCodes.SetAnimationFinished, CommonEnemyInstructionCodes.Sleep);
+        index -= TransitionFrameCount + 2;
+        if (index < SwoopLoopFrameCount + 2)
+            return BlockWord(SwoopingPart2, SwoopLoopFrameCount, index, SwoopFrameDuration,
+                CommonEnemyInstructionCodes.Goto, SwoopingPart2);
+        return BlockWord(SwoopCooldown, TransitionFrameCount, index - SwoopLoopFrameCount - 2, SwoopFrameDuration,
+            RioInstructionCodes.SetAnimationFinished, CommonEnemyInstructionCodes.Sleep);
+    }
 
-        new(SwoopingPart1, 3), new(0xbb83, 3),
-        new(0xbb87, 3), new(0xbb8b, 3), new(0xbb8f, 3),
-        new(0xbb93, RioInstructionCodes.SetAnimationFinished),
-        new(0xbb95, CommonEnemyInstructionCodes.Sleep),
+    private static RioInstructionMechanicsWord BlockWord(ushort start, int frames, int index,
+        ushort duration, ushort firstTail, ushort lastTail) => index < frames
+            ? new((ushort)(start + index * 4), duration)
+            : new((ushort)(start + frames * 4 + (index - frames) * 2), index == frames ? firstTail : lastTail);
 
-        new(SwoopingPart2, 3), new(0xbb9b, 3),
-        new(0xbb9f, CommonEnemyInstructionCodes.Goto), new(0xbba1, SwoopingPart2),
-
-        new(SwoopCooldown, 3), new(0xbba7, 3),
-        new(0xbbab, 3), new(0xbbaf, 3), new(0xbbb3, 3),
-        new(0xbbb7, RioInstructionCodes.SetAnimationFinished),
-        new(0xbbb9, CommonEnemyInstructionCodes.Sleep),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xbb4d, 0xbb51,
-        0xbb55, 0xbb59, 0xbb5d, 0xbb61, 0xbb65,
-        0xbb69, 0xbb6d, 0xbb71, 0xbb75, 0xbb79,
-        0xbb81, 0xbb85, 0xbb89, 0xbb8d, 0xbb91,
-        0xbb99, 0xbb9d,
-        0xbba5, 0xbba9, 0xbbad, 0xbbb1, 0xbbb5,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static RioInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < IdleFrameCount) return (ushort)(Idle + index * 4 + 2);
+        index -= IdleFrameCount;
+        if (index < TransitionFrameCount) return (ushort)(SwoopingPart1 + index * 4 + 2);
+        index -= TransitionFrameCount;
+        return index < SwoopLoopFrameCount ? (ushort)(SwoopingPart2 + index * 4 + 2)
+            : (ushort)(SwoopCooldown + (index - SwoopLoopFrameCount) * 4 + 2);
+    }
     internal static bool IsPresentationWord(ushort address)
     {
-        for (int index = 0; index < PresentationWords.Length; index++)
+        for (int index = 0; index < PresentationWordCount; index++)
         {
-            if (PresentationWords[index] == address)
+            if (PresentationWordAddress(index) == address)
                 return true;
         }
 
@@ -81,10 +86,10 @@ internal static class RioInstructionProgramDefinitions
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            if (Words[index].Address == address)
-                return Words[index].Value;
+            if (MechanicsWord(index).Address == address)
+                return MechanicsWord(index).Value;
         }
 
         throw new InvalidDataException(
@@ -97,9 +102,9 @@ internal static class RioInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

@@ -135,7 +135,7 @@ internal static partial class Program
 
     private static void VerifyScreenMenuRebinding(ISnesAddressSpace bus, ISnesAddressSpace guard, AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
     {
-        var saves = new SuperMetroidSaveRam(bus);
+        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         var data = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
         data.MapStationBytes[(int)AreaId.Maridia] = 1;
         data.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;

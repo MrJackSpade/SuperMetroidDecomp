@@ -20,20 +20,12 @@ internal static class CeresSteamCollisionDefinitions
     private const ushort Touch = EnemyAiCodePointers.BankA6.CeresSteamTouch;
     private const ushort Shot = EnemyAiCodePointers.BankA0.NoOp;
 
-    // The four first-frame addresses and their consecutive ten-byte records
-    // come from ExtendedSpritemap_CeresSteam_* in the pinned bank-$A6 source.
-    private static readonly ushort[] DirectionBases = [0xf142, 0xf188, 0xf1ce, 0xf214];
-    private static readonly ushort[][] DirectionLists =
-    [
-        [0xf25c, 0xf26a, 0xf278, 0xf286, 0xf294, 0xf25a, 0xf25a],
-        [0xf2a2, 0xf2b0, 0xf2be, 0xf2cc, 0xf2da, 0xf25a, 0xf25a],
-        [0xf2e8, 0xf2f6, 0xf304, 0xf312, 0xf320, 0xf25a, 0xf25a],
-        [0xf32e, 0xf33c, 0xf34a, 0xf358, 0xf366, 0xf25a, 0xf25a],
-    ];
-
-    private static readonly ushort[] FrameKeys = BuildFrameKeys();
-    private static readonly Dictionary<ushort, CeresSteamCollisionComponent[]> Frames =
-        BuildFrames();
+    /// <summary>First ten-byte extended frame, ExtendedSpritemap_CeresSteam_Up_0 at $A6:F142.</summary>
+    private const ushort FirstFrame = 0xf142;
+    /// <summary>Shared empty hitbox list at $A6:F25A, selected by both hidden frames.</summary>
+    private const ushort EmptyHitboxes = 0xf25a;
+    /// <summary>First fourteen-byte damaging rectangle, Hitbox_CeresSteam_Up_0 at $A6:F25C.</summary>
+    private const ushort FirstHitboxes = 0xf25c;
     private static readonly Dictionary<ushort, CeresSteamCollisionHitbox[]> Lists = new()
     {
         [0xf25a] = [],
@@ -59,39 +51,51 @@ internal static class CeresSteamCollisionDefinitions
         [0xf366] = [new(25, -11, 40, 3, Touch, Shot)],
     };
 
-    internal static ReadOnlySpan<ushort> FramePointers => FrameKeys;
+    internal static FrameSequence FramePointers { get; } = new();
     internal static IEnumerable<ushort> HitboxPointers => Lists.Keys;
-    internal static bool HasFrame(ushort frame) => Frames.ContainsKey(frame);
+    internal static bool HasFrame(ushort frame) =>
+        frame >= FirstFrame && frame < FirstFrame + 280 && (frame - FirstFrame) % 10 == 0;
 
-    internal static ReadOnlySpan<CeresSteamCollisionComponent> ComponentsAt(ushort frame) =>
-        Frames.TryGetValue(frame, out CeresSteamCollisionComponent[]? components)
-            ? components
-            : throw new InvalidDataException(
-                $"Ceres steam frame $A6:{frame:X4} has no compiled collision.");
+    internal static ComponentSequence ComponentsAt(ushort frame)
+    {
+        if (!HasFrame(frame))
+            throw new InvalidDataException($"Ceres steam frame $A6:{frame:X4} has no compiled collision.");
+        int index = (frame - FirstFrame) / 10;
+        int direction = index / 7;
+        int pose = index % 7;
+        return new(pose >= 5 ? EmptyHitboxes : (ushort)(FirstHitboxes + 14 * (5 * direction + pose)));
+    }
 
+    internal sealed class FrameSequence : IReadOnlyList<ushort>
+    {
+        public int Count => 28;
+        public int Length => Count;
+        public ushort this[int index] => (uint)index < Count
+            ? (ushort)(FirstFrame + 10 * index) : throw new IndexOutOfRangeException();
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++)
+                yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    internal readonly struct ComponentSequence(ushort hitboxPointer) : IReadOnlyList<CeresSteamCollisionComponent>
+    {
+        public int Count => 1;
+        public int Length => Count;
+        public CeresSteamCollisionComponent this[int index] => index == 0
+            ? new(0, 0, hitboxPointer) : throw new IndexOutOfRangeException();
+        public IEnumerator<CeresSteamCollisionComponent> GetEnumerator()
+        {
+            yield return this[0];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     internal static ReadOnlySpan<CeresSteamCollisionHitbox> HitboxesAt(ushort list) =>
         Lists.TryGetValue(list, out CeresSteamCollisionHitbox[]? hitboxes)
             ? hitboxes
             : throw new InvalidDataException(
                 $"Ceres steam hitbox list $A6:{list:X4} is not compiled.");
 
-    private static ushort[] BuildFrameKeys()
-    {
-        var keys = new ushort[28];
-        for (int direction = 0; direction < DirectionBases.Length; direction++)
-        for (int frame = 0; frame < DirectionLists[direction].Length; frame++)
-            keys[direction * 7 + frame] =
-                unchecked((ushort)(DirectionBases[direction] + frame * 10));
-        return keys;
-    }
-
-    private static Dictionary<ushort, CeresSteamCollisionComponent[]> BuildFrames()
-    {
-        var frames = new Dictionary<ushort, CeresSteamCollisionComponent[]>();
-        for (int direction = 0; direction < DirectionBases.Length; direction++)
-        for (int frame = 0; frame < DirectionLists[direction].Length; frame++)
-            frames.Add(FrameKeys[direction * 7 + frame],
-                [new CeresSteamCollisionComponent(0, 0, DirectionLists[direction][frame])]);
-        return frames;
-    }
 }

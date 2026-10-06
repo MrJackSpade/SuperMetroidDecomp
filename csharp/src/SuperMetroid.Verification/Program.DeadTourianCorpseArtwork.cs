@@ -118,13 +118,13 @@ internal static partial class Program
                 $"dead Tourian corpse program {index} keeps its native identity");
             AssertTrue(stock.Spritemaps!.TryGetDisplay(
                     DeadTourianCorpseVisualDefinitions.Bank, installedPointer,
-                    out ReadOnlyMemory<EnemySpritemapPart> installedParts),
+                    out EnemySpritemapParts installedParts),
                 $"dead Tourian corpse program {index} has installed OAM");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, DeadTourianCorpseVisualDefinitions.Bank,
                 nativePointer, 128, 128, 0, 0);
-            installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
+            installedOam.AddEnemySpritemap(installedParts, 128, 128, 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
@@ -152,13 +152,13 @@ internal static partial class Program
             sidehopperPointers.Add(installedPointer);
             AssertTrue(stock.Spritemaps!.TryGetDisplay(
                     DeadTourianCorpseVisualDefinitions.Bank, installedPointer,
-                    out ReadOnlyMemory<EnemySpritemapPart> installedParts),
+                    out EnemySpritemapParts installedParts),
                 $"dead Sidehopper selector {index} has installed OAM");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, DeadTourianCorpseVisualDefinitions.Bank,
                 nativePointer, 128, 128, 0, 0);
-            installedOam.AddEnemySpritemap(installedParts.Span, 128, 128, 0, 0);
+            installedOam.AddEnemySpritemap(installedParts, 128, 128, 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,

@@ -162,7 +162,7 @@ public static class PauseAudioSmokeTest
             EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         };
-        new SuperMetroidSaveRam(bus).SaveSlot(
+        new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(
             0,
             SuperMetroidSaveSnapshot.Capture(samus, system, area: 0, saveStation: 0));
     }

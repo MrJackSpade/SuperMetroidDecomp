@@ -23,8 +23,9 @@ public sealed class CrystalFlashColorCatalog
         for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
             calculated &= body[frame][color] == CalculateBody(frame, color);
         this.body = calculated ? null : body;
-        // The rotating ramp accounts for 35 stock words. The final leading white
-        // sample remains an unresolved residual; arbitrary supplied edits are also exact.
+        // The rotating ramp accounts for 35 stock words. The remaining native white
+        // is an independent painted color choice; retain only that supplied sample.
+        // Arbitrary supplied edits remain exact.
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
             if (bubble[frame][color] != CalculateBubble(frame, color))
@@ -73,7 +74,11 @@ public sealed class CrystalFlashColorCatalog
     /// <summary>
     /// $9B:96D4 + 32*frame rotates six pink-to-white levels one color per frame.
     /// Red stays31; green/blue descend from31 to25 with nearest-integer interpolation
-    /// across five intervals. Original frame5/color0 differs and remains supplied data.
+    /// across five intervals. Frame5/color0 at $9B:9774 is independently painted white
+    /// ($7FFF), rather than the ramp's $7BDF. The uniform five-tick traversal at
+    /// $91:DBA0-DBBD and six-word copy at $91:DC88-DCAE supply no phase-specific
+    /// operation generating that choice. Only that sample remains supplied stock data;
+    /// a formula exception would merely reencode its frame/color identity and value.
     /// </summary>
     private static ushort CalculateBubble(int frame, int color)
     {

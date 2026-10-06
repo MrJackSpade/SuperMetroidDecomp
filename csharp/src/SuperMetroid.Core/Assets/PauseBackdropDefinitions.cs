@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
@@ -24,4 +25,82 @@ public static class PauseBackdropDefinitions
     public const int LabelBank = 0x820000;
     /// <summary>$82:93C3 writes the label at BG2 word $38AA, 170 words into its page.</summary>
     public const int LabelCell = 170, LabelWords = 12;
+    /// <summary>$82:966F-9716 area letters use the contiguous uppercase font beginning at $30.</summary>
+    private const int LetterA = 0x30;
+    /// <summary>$B6:E000 and label padding use blank glyph one, palette two and BG priority.</summary>
+    private const ushort BlankWord = 0x2801;
+    /// <summary>$B6:E140/E142/E152/E180: frame corner $BF, bar $BE, title end $BD and side $CF.</summary>
+    private const int Corner = 0xbf, Bar = 0xbe, TitleEnd = 0xbd, Side = 0xcf;
+    /// <summary>$B6:E182: repeated inset background uses glyph $12, palette two without priority.</summary>
+    private const ushort InsetWord = 0x0812;
+    /// <summary>$B6:E642/E64A/E658/E660/E66C: L, MAP, EXIT, START and SAMUS control artwork origins.</summary>
+    private const int ShoulderButton = 0x56, MapButton = 0x99, ExitButton = 0xb8, StartButton = 0x95, SamusButton = 0x79;
+    /// <summary>$B6:E654/E66A: repeated vertical control separator character $7F.</summary>
+    private const int ControlSeparator = 0x7f;
+    /// <summary>$B6:E678: R-label upper glyph pair starts at $5C; its independent lower fragment remains pending.</summary>
+    private const int RightButtonText = 0x5c;
+    /// <summary>Control artwork is packed in sixteen-character atlas rows.</summary>
+    private const int ControlAtlasStride = 16;
+
+    /// <summary>Native area-name semantics; Ceres is displayed as COLONY.</summary>
+    private static string AreaName(AreaId area) => area switch
+    {
+        AreaId.Crateria => "CRATERIA", AreaId.Brinstar => "BRINSTAR",
+        AreaId.Norfair => "NORFAIR", AreaId.WreckedShip => "WRECKED SHIP",
+        AreaId.Maridia => "MARIDIA", AreaId.Tourian => "TOURIAN", AreaId.Ceres => "COLONY",
+        _ => throw new ArgumentOutOfRangeException(nameof(area)),
+    };
+
+    /// <summary>Centered text and shared rectangular backdrop geometry, with independent selected differences kept by the presentation.</summary>
+    /// <remarks>Chosen frame/control placement, glyph origins and style inputs remain required under the original backdrop entries.</remarks>
+    internal static ushort StockAreaWord(AreaId area, int cell)
+    {
+        string name = AreaName(area);
+        if ((uint)cell >= Cells) throw new IndexOutOfRangeException();
+        int letter = cell - LabelCell - (LabelWords - name.Length) / 2;
+        if ((uint)(cell - LabelCell) < LabelWords)
+            return (uint)letter < name.Length && name[letter] != ' '
+                ? (ushort)(0x3800 | LetterA + name[letter] - 'A') : BlankWord;
+        return StockFrameWord(cell);
+    }
+
+    /// <summary>$B6:E400-E7FF is the lower sixteen rows of the same backdrop template.</summary>
+    internal static ushort StockButtonWord(int cell)
+    {
+        if ((uint)cell >= ButtonCells) throw new IndexOutOfRangeException();
+        return StockFrameWord(cell + (Rows - ButtonRows) * Columns);
+    }
+
+    private static ushort StockFrameWord(int cell)
+    {
+        int row = cell / Columns, column = cell % Columns;
+        if (row is >= 6 and <= 23)
+            return column is 0 or 31 ? Styled(Side, flipX: column == 0) : InsetWord;
+        if (row == 24)
+            return Styled(column is 0 or 31 ? Corner : Bar, flipX: column == 0, flipY: true);
+        if (row == 5)
+        {
+            if (column is 0 or 31) return Styled(Corner, flipX: column == 0);
+            if (column is 9 or 22) return Styled(TitleEnd, flipX: column == 9);
+            return column is >= 10 and <= 21 ? BlankWord : Styled(Bar);
+        }
+        if (row is 25 or 26)
+        {
+            int lower = (row - 25) * ControlAtlasStride;
+            if (column is >= 1 and <= 4) return Styled(ShoulderButton + column - 1 + lower);
+            if (column is >= 5 and <= 9) return Styled(MapButton + column - 5 + lower);
+            if (column is 10 or 21) return Styled(ControlSeparator, flipX: column == 10);
+            if (column is >= 12 and <= 15) return Styled(ExitButton + column - 12 + lower);
+            if (column is >= 16 and <= 19)
+                return column == 19 && row == 25 ? Styled(StartButton, flipX: true)
+                    : Styled(StartButton + column - 16 + lower);
+            if (column is >= 22 and <= 26) return Styled(SamusButton + column - 22 + lower);
+            if (column is 27 or 30) return Styled(ShoulderButton + column - 27 + lower);
+            if (column is 28 or 29) return Styled(RightButtonText + column - 28 + lower);
+        }
+        return BlankWord;
+    }
+
+    private static ushort Styled(int glyph, bool flipX = false, bool flipY = false) =>
+        (ushort)(0x2800 | glyph | (flipX ? 0x4000 : 0) | (flipY ? 0x8000 : 0));
 }

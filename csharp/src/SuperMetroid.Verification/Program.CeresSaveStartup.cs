@@ -23,7 +23,7 @@ internal static partial class Program
             "#1153 repaired copy changes only slot zero's saved startup mode");
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(File.ReadAllText(repairedPath)), bus);
+        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(File.ReadAllText(repairedPath)), bus, RetailPresentationFixture());
         var maps = installation.LoadMaps();
         var game = new SuperMetroidGame(bus);
         PrepareRomFreeBindings(installation, enemyArtwork)(game, true);
@@ -90,7 +90,7 @@ internal static partial class Program
             GameTimeFrames = 44,
         };
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        new SuperMetroidSaveRam(bus).SaveSlot(0, departure);
+        new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, departure);
         var game = new SuperMetroidGame(bus);
         Action<SuperMetroidGame, bool> bind = PrepareRomFreeBindings(installation, enemyArtwork);
         bind(game, true);
@@ -141,7 +141,7 @@ internal static partial class Program
         fresh.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
         SetState(fresh, SuperMetroidGameState.SetUpNewGame);
         fresh.Step(0);
-        var arrivalSlot = new SuperMetroidSaveRam(freshBus).ReadSlot(0)!;
+        var arrivalSlot = new SuperMetroidSaveRam(freshBus, RetailPresentationFixture()).ReadSlot(0)!;
         AssertEqual(SaveLoadingGameStates.CeresElevatorArrival, arrivalSlot.LoadingGameState,
             "#1153 initial automatic save records native mode $1F");
         AssertEqual((byte)0, arrivalSlot.BossBytes[(int)AreaId.Ceres],
@@ -178,7 +178,7 @@ internal static partial class Program
         // must be captured alongside $22, not erased to manufacture a fresh station.
         loaded.System.SetBossBits(AreaId.Ceres, BossBits.AreaBoss);
         AutomaticCheckpointSaver.SaveCeresDeparture(reloadBus, loaded, 0);
-        var escapeSlot = new SuperMetroidSaveRam(reloadBus).ReadSlot(0)!;
+        var escapeSlot = new SuperMetroidSaveRam(reloadBus, RetailPresentationFixture()).ReadSlot(0)!;
         AssertEqual(SaveLoadingGameStates.CeresDestruction, escapeSlot.LoadingGameState,
             "#1153 escape-blackout saver records native mode $22");
         AssertEqual((byte)BossBits.AreaBoss, escapeSlot.BossBytes[(int)AreaId.Ceres],
@@ -190,7 +190,7 @@ internal static partial class Program
             .SetValue(loaded.Enemies, GunshipFrameEvent.LandingCompleted);
         AssertTrue(AutomaticCheckpointSaver.TrySaveGunshipLanding(reloadBus, loaded, 0),
             "#1153 landing checkpoint uses the production event saver");
-        var landingSlot = new SuperMetroidSaveRam(reloadBus).ReadSlot(0)!;
+        var landingSlot = new SuperMetroidSaveRam(reloadBus, RetailPresentationFixture()).ReadSlot(0)!;
         AssertEqual(SaveLoadingGameStates.MainGame, landingSlot.LoadingGameState,
             "#1153 Zebes landing saver records native mode $05");
         AssertEqual((ushort)AreaId.Crateria, landingSlot.Area,
@@ -198,7 +198,7 @@ internal static partial class Program
 
         // Do not infer a cinematic mode from area/boss flags in malformed old saves.
         // Preserve the persisted word and follow its dispatcher branch literally.
-        new SuperMetroidSaveRam(bus).SaveSlot(0, departure with
+        new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, departure with
         {
             LoadingGameState = SaveLoadingGameStates.MainGame,
         });
@@ -214,7 +214,7 @@ internal static partial class Program
         AssertEqual(SuperMetroidGameState.FileSelectMap, unmodified.GameState,
             "#1153 mode $05 is not reinterpreted using an inferred compatibility rule");
         AssertEqual(SaveLoadingGameStates.MainGame,
-            new SuperMetroidSaveRam(bus).ReadSlot(0)!.LoadingGameState,
+            new SuperMetroidSaveRam(bus, RetailPresentationFixture()).ReadSlot(0)!.LoadingGameState,
             "#1153 malformed legacy slot is not silently rewritten");
         Console.WriteLine("#1153: native $1F/$22/$05 checkpoint writes; normal $1F/$22 reload routing, first Landing Site fade with initialized HUD, inactive initial station and preserved progress/SRAM; no inferred legacy recovery pass.");
     }

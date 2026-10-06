@@ -22,80 +22,52 @@ internal static class SciserInstructionProgramDefinitions
     /// <summary>The final elevator return opcode immediately before Sciser's palette.</summary>
     internal const ushort AdjacentPreviousCode = 0x95eb;
 
-    private static readonly SciserInstructionMechanicsWord[] Words =
-    [
-        new(UpsideRight, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0x967d, (ushort)CrawlerEnemyFunction.CrawlingVertically),
-        new(0x967f, 8), new(0x9683, 8), new(0x9687, 8), new(0x968b, 8),
-        new(0x968f, CommonEnemyInstructionCodes.Goto), new(0x9691, 0x967f),
-
-        new(UpsideLeft, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0x9695, (ushort)CrawlerEnemyFunction.CrawlingVertically),
-        new(0x9697, 8), new(0x969b, 8), new(0x969f, 8), new(0x96a3, 8),
-        new(0x96a7, CommonEnemyInstructionCodes.Goto), new(0x96a9, 0x9697),
-
-        new(UpsideDown, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0x96ad, (ushort)CrawlerEnemyFunction.CrawlingHorizontally),
-        new(0x96af, 8), new(0x96b3, 8), new(0x96b7, 8), new(0x96bb, 8),
-        new(0x96bf, CommonEnemyInstructionCodes.Goto), new(0x96c1, 0x96af),
-
-        new(UpsideUp, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0x96c5, (ushort)CrawlerEnemyFunction.CrawlingHorizontally),
-        new(0x96c7, 8), new(0x96cb, 8), new(0x96cf, 8), new(0x96d3, 8),
-        new(0x96d7, CommonEnemyInstructionCodes.Goto), new(0x96d9, 0x96c7),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0x9681, 0x9685, 0x9689, 0x968d,
-        0x9699, 0x969d, 0x96a1, 0x96a5,
-        0x96b1, 0x96b5, 0x96b9, 0x96bd,
-        0x96c9, 0x96cd, 0x96d1, 0x96d5,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static SciserInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    private const int SurfaceCount = 4;
+    private const int ProgramBytes = 24;
+    internal static int MechanicsWordCount => SurfaceCount * 8;
+    internal static int PresentationWordCount => SurfaceCount * 4;
+    internal static SciserInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int word = index % 8;
+        int offset = word < 2 ? word * 2 : word < 6 ? 4 + (word - 2) * 4 : 20 + (word - 6) * 2;
+        ushort address = (ushort)(UpsideRight + index / 8 * ProgramBytes + offset);
+        return new(address, ReadMechanicsWord(address));
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(UpsideRight + index / 4 * ProgramBytes + 6 + index % 4 * 4);
+    }
     /// <summary>True only for a spritemap operand in one of the four native loops.</summary>
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
-
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int offset = address - UpsideRight;
+        int within = offset % ProgramBytes;
+        return (uint)offset < SurfaceCount * ProgramBytes && within is >= 6 and <= 18 && within % 4 == 2;
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        int offset = address - UpsideRight;
+        if ((uint)offset < SurfaceCount * ProgramBytes)
         {
-            int middle = low + ((high - low) >> 1);
-            SciserInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Sciser instruction mechanics pointer $A3:{address:X4} is not compiled.");
-    }
-
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
+            int surface = offset / ProgramBytes;
+            switch (offset % ProgramBytes)
             {
-                return true;
+                case 0: return EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY;
+                case 2: return (ushort)(surface < 2 ? CrawlerEnemyFunction.CrawlingVertically : CrawlerEnemyFunction.CrawlingHorizontally);
+                case 4: case 8: case 12: case 16: return 8;
+                case 20: return CommonEnemyInstructionCodes.Goto;
+                case 22: return (ushort)(UpsideRight + surface * ProgramBytes + 4);
             }
         }
-        return false;
+        throw new InvalidDataException($"Sciser instruction mechanics pointer $A3:{address:X4} is not compiled.");
+    }
+    internal static bool IsCompiledMechanicsByte(int address)
+    {
+        if ((address & 0xff0000) != 0xa30000) return false;
+        int offset = (ushort)address - UpsideRight;
+        return (uint)offset < SurfaceCount * ProgramBytes &&
+            ((offset % ProgramBytes & ~1) is 0 or 2 or 4 or 8 or 12 or 16 or 20 or 22);
     }
 }

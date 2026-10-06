@@ -12,7 +12,7 @@ internal static class RoomSpriteObjectVisualDefinitions
     /// Instruction timing and object ownership remain compiled mechanics.
     /// </summary>
     internal static EnemySpritemapDefinition[] AdditionalFrames(
-        ReadOnlySpan<EnemySpritemapDefinition> namedFrames)
+        IEnumerable<EnemySpritemapDefinition> namedFrames)
     {
         var known = new HashSet<ushort>();
         foreach (EnemySpritemapDefinition frame in namedFrames)

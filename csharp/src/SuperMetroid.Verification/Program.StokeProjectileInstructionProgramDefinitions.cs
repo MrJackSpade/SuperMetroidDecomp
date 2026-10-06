@@ -30,6 +30,7 @@ internal static partial class Program
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = new StokeProjectileInstructionReadGuard(rom);
+        var selectedPresentation = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -119,6 +120,13 @@ internal static partial class Program
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
+                if (projectile.IsActive)
+                {
+                    ushort expected = (ushort)(StokeProjectileInstructionProgramDefinitions.Initial + 2 + 4 * (tick % 2));
+                    AssertEqual(expected, projectile.PresentationOperandAddress,
+                        "Stoke projectile actual installed operand matches native loop step");
+                    selectedPresentation.Add(projectile.PresentationOperandAddress);
+                }
             }
         }
     }

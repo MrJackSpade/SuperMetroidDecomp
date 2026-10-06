@@ -6,7 +6,7 @@ internal readonly record struct TourianStatueProjectileInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the Tourian entrance-statue actors at $86:B79F-$B878. The
-/// twenty-eight interleaved spritemap operands remain live cartridge presentation data.
+/// twenty-eight interleaved spritemap operands select installed presentation data.
 /// </summary>
 internal static class TourianStatueProjectileInstructionProgramDefinitions
 {
@@ -31,60 +31,100 @@ internal static class TourianStatueProjectileInstructionProgramDefinitions
     /// <summary>Looping Phantoon-statue program at $86:B872.</summary>
     internal const ushort Phantoon = 0xb872;
 
-    private static readonly TourianStatueProjectileInstructionMechanicsWord[] Words =
-    [
-        new(Delete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-        new(Splash, 8), new(0xb7a5, 8), new(0xb7a9, 8), new(0xb7ad, 8),
-        new(0xb7b1, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-        new(EyeGlow, 8), new(0xb7b7, 8), new(0xb7bb, 8),
-        new(0xb7bf, 7), new(0xb7c3, 7), new(0xb7c7, 7),
-        new(0xb7cb, 6), new(0xb7cf, 6), new(0xb7d3, 5), new(0xb7d7, 0x30),
-        new(0xb7db, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
-        new(0xb7de, TourianStatueRomData.Earthquake),
-        new(0xb7e0, TourianStatueRomData.SpawnParticle),
-        new(0xb7e2, TourianStatueRomData.SpawnParticle),
-        new(0xb7e4, TourianStatueRomData.SpawnParticle),
-        new(0xb7e6, TourianStatueRomData.SpawnParticle),
-        new(0xb7e8, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-        new(Particle, 3), new(0xb806, 3), new(0xb80a, TourianStatueRomData.SpawnTail),
-        new(0xb80c, 3), new(0xb810, 3),
-        new(0xb814, EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
-        new(0xb816, Particle),
-        new(Tail, 4), new(0xb827, TourianStatueRomData.AddY), new(0xb829, 8),
-        new(0xb82b, 4), new(0xb82f, TourianStatueRomData.AddY), new(0xb831, 4),
-        new(0xb833, 4), new(0xb837, TourianStatueRomData.AddY), new(0xb839, 2),
-        new(0xb83b, 4), new(0xb83f, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-        new(Soul, 8), new(0xb852, 8),
-        new(0xb856, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb858, Soul),
-        new(BaseDecoration, 0x80),
-        new(0xb85e, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0xb860, EnemyProjectileCodePointers.PreInst_EnemyProj_TourianStatueBaseDecoration_AllowProcess),
-        new(BaseDecorationLoop, 0x0777),
-        new(0xb866, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb868, BaseDecorationLoop),
-        new(Ridley, 0x0777),
-        new(0xb86e, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb870, Ridley),
-        new(Phantoon, 0x0777),
-        new(0xb876, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb878, Phantoon),
-    ];
+    /// <summary>$86:B7B3-B7D9: independent eye-pose holds remain required payload.</summary>
+    private static readonly ushort[] EyeHolds = [8, 8, 8, 7, 7, 7, 6, 6, 5, 48];
+    /// <summary>Independent splash/particle/tail/soul and statue hold choices remain required.</summary>
+    private const ushort SplashHold = 8, ParticleHold = 3, TailHold = 4, SoulHold = 8,
+        DecorationInitialHold = 128, StatueHold = 0x0777;
+    /// <summary>$86:B7E0-B7E6: independently selected four-particle burst remains required.</summary>
+    private const int ParticleBurstCount = 4;
+    internal static int MechanicsWordCount => 57;
+    internal static int PresentationWordCount => 28;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xb7a3, 0xb7a7, 0xb7ab, 0xb7af,
-        0xb7b5, 0xb7b9, 0xb7bd, 0xb7c1, 0xb7c5, 0xb7c9, 0xb7cd, 0xb7d1, 0xb7d5, 0xb7d9,
-        0xb804, 0xb808, 0xb80e, 0xb812,
-        0xb825, 0xb82d, 0xb835, 0xb83d,
-        0xb850, 0xb854, 0xb85c, 0xb864, 0xb86c, 0xb874,
-    ];
+    internal static TourianStatueProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        return Select(index, visual: false);
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return Select(index, visual: true).Address;
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static TourianStatueProjectileInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>
+    /// $86:B79F-B878: compose timed poses and native control operands; embedded native
+    /// functions separate the eye, particle, tail and soul lists. Tail displacement
+    /// halves from eight to two pixels after its first three four-tick poses.
+    /// </summary>
+    private static TourianStatueProjectileInstructionMechanicsWord Select(int index, bool visual)
+    {
+        var layout = new Layout(index, visual, Delete);
+        layout.Delete();
+        for (int pose = 0; pose < 4; pose++) layout.Pose(SplashHold);
+        layout.Delete();
+        foreach (ushort hold in EyeHolds) layout.Pose(hold);
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6);
+        layout.SkipByte(); // Sound ID is a byte, outside the mechanics-word API.
+        layout.Word(TourianStatueRomData.Earthquake);
+        for (int particle = 0; particle < ParticleBurstCount; particle++) layout.Word(TourianStatueRomData.SpawnParticle);
+        layout.Delete();
+        layout.Start(Particle);
+        for (int pair = 0; pair < 2; pair++)
+        {
+            layout.Pose(ParticleHold); layout.Pose(ParticleHold);
+            if (pair == 0) layout.Word(TourianStatueRomData.SpawnTail);
+        }
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero);
+        layout.Word(Particle);
+        layout.Start(Tail);
+        for (int phase = 0; phase < 4; phase++)
+        {
+            layout.Pose(TailHold);
+            if (phase < 3)
+            {
+                layout.Word(TourianStatueRomData.AddY);
+                layout.Word((ushort)(8 >> phase));
+            }
+        }
+        layout.Delete();
+        layout.Start(Soul);
+        layout.Pose(SoulHold); layout.Pose(SoulHold); layout.Goto(Soul);
+        layout.Pose(DecorationInitialHold);
+        layout.Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY);
+        layout.Word(EnemyProjectileCodePointers.PreInst_EnemyProj_TourianStatueBaseDecoration_AllowProcess);
+        for (int actor = 0; actor < 3; actor++)
+        {
+            ushort loop = layout.Cursor;
+            layout.Pose(StatueHold); layout.Goto(loop);
+        }
+        return layout.Result;
+    }
 
+    private ref struct Layout(int requested, bool visual, ushort start)
+    {
+        internal ushort Cursor { get; private set; } = start;
+        private int mechanics, presentation;
+        internal TourianStatueProjectileInstructionMechanicsWord Result { get; private set; }
+        internal void Start(ushort address) => Cursor = address;
+        internal void SkipByte() => Cursor++;
+        internal void Word(ushort value)
+        {
+            if (!visual && mechanics == requested) Result = new(Cursor, value);
+            mechanics++; Cursor += sizeof(ushort);
+        }
+        internal void Pose(ushort duration)
+        {
+            Word(duration);
+            if (visual && presentation == requested) Result = new(Cursor, 0);
+            presentation++; Cursor += sizeof(ushort);
+        }
+        internal void Delete() => Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+        internal void Goto(ushort target)
+        {
+            Word(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY); Word(target);
+        }
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.TourianStatueSplash or
         RoomEnemyProjectileKind.TourianStatueEyeGlow or
@@ -98,11 +138,11 @@ internal static class TourianStatueProjectileInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            TourianStatueProjectileInstructionMechanicsWord candidate = Words[middle];
+            TourianStatueProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -115,8 +155,9 @@ internal static class TourianStatueProjectileInstructionProgramDefinitions
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);
-        foreach (TourianStatueProjectileInstructionMechanicsWord word in Words)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
+            var word = MechanicsWord(index);
             if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
                 return true;
         }

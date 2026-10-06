@@ -7,7 +7,7 @@ internal readonly record struct NoobTubeProjectileInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the tube crack, its ten glass shards, and six released-air bubbles.
-/// Their interleaved spritemap operands remain live cartridge presentation data.
+/// Their interleaved spritemap operands select separately installed presentation data.
 /// </summary>
 internal static class NoobTubeProjectileInstructionProgramDefinitions
 {
@@ -17,19 +17,112 @@ internal static class NoobTubeProjectileInstructionProgramDefinitions
     /// <summary>Released-air-bubble animation at $86:D652.</summary>
     internal const ushort ReleasedAirBubble = 0xd652;
 
-    private static readonly ushort[] ShardPrograms =
-        [0xd47d, 0xd4a1, 0xd4c5, 0xd4e9, 0xd50d, 0xd531, 0xd555, 0xd579, 0xd59d, 0xd5bd];
+    /// <summary>$86:D47D begins ten shard programs; the ninth omits both reflected operands.</summary>
+    internal const ushort FirstShard = 0xd47d;
+    /// <summary>$86:D3F3 begins ten crack flicker poses after the pre-instruction handoff.</summary>
+    private const ushort CrackFlicker = Crack + 28;
+    /// <summary>$86:D41F begins the falling crack poses.</summary>
+    private const ushort CrackFalling = Crack + 72;
+    /// <summary>$86:D46F begins the two-pose counted tail.</summary>
+    private const ushort CrackTail = Crack + 152;
+    /// <summary>Five irregular final flicker holds at $86:D407-D417 remain unresolved under #1165.</summary>
+    private static ReadOnlySpan<ushort> CrackFlickerTailDurations => [2,3,6,9,8];
 
-    private static readonly NoobTubeProjectileInstructionMechanicsWord[] Words = BuildWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
+    internal static NoobTubeShardProgramSequence ShardInstructionLists => default;
+    internal static int MechanicsWordCount => 207;
+    internal static int PresentationWordCount => 90;
+    internal static NoobTubeProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 46) return CrackWord(index);
+        if (index < 186) return ShardWord((index-46)/14,(index-46)%14);
+        int bubble = index-186;
+        if (bubble < 2) return new((ushort)(ReleasedAirBubble+2*bubble),bubble == 0
+            ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY
+            : EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFlying);
+        if (bubble < 6) return new((ushort)(ReleasedAirBubble+4+4*(bubble-2)),2);
+        if (bubble < 9) return new((ushort)(ReleasedAirBubble+20+2*(bubble-6)),bubble switch
+        {
+            6 => EnemyProjectileCodePointers.Instruction_NoobTubeBubbleAssignFallingAngle,
+            7 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY,
+            _ => EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFalling,
+        });
+        if (bubble < 20) return new((ushort)(ReleasedAirBubble+26+4*(bubble-9)),bubble < 15 ? (ushort)2 : (ushort)4);
+        return new((ushort)(ReleasedAirBubble+70),EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
+    }
 
-    internal static ReadOnlySpan<ushort> ShardInstructionLists => ShardPrograms;
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static NoobTubeProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 6) return (ushort)(Crack+2+4*index);
+        if (index < 16) return (ushort)(CrackFlicker+2+4*(index-6));
+        if (index < 35) return (ushort)(CrackFalling+2+4*(index-16));
+        if (index < 37) return (ushort)(CrackTail+2+4*(index-35));
+        if (index < 75)
+        {
+            int visual = index-37;
+            int shard = visual < 32 ? visual/4 : visual < 34 ? 8 : 9;
+            int local = visual < 32 ? visual%4 : visual < 34 ? visual-32 : visual-34;
+            int offset = shard == 8 ? 6+18*local : 6+20*(local/2)+2*(local%2);
+            return (ushort)(ShardInstructionLists[shard]+offset);
+        }
+        if (index < 79) return (ushort)(ReleasedAirBubble+6+4*(index-75));
+        return (ushort)(ReleasedAirBubble+28+4*(index-79));
+    }
 
+    private static NoobTubeProjectileInstructionMechanicsWord CrackWord(int index)
+    {
+        if (index < 6) return new((ushort)(Crack+4*index),(ushort)Math.Max(6,12-2*index));
+        if (index < 8) return new((ushort)(Crack+24+2*(index-6)),index == 6
+            ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY
+            : EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFlickering);
+        if (index < 18) return new((ushort)(CrackFlicker+4*(index-8)),index < 13 ? (ushort)1 : CrackFlickerTailDurations[index-13]);
+        if (index < 20) return new((ushort)(Crack+68+2*(index-18)),index == 18
+            ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY
+            : EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFalling);
+        if (index < 39) return new((ushort)(CrackFalling+4*(index-20)),index == 38 ? (ushort)16 : (ushort)7);
+        if (index < 41) return new((ushort)(CrackTail-4+2*(index-39)),index == 39
+            ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY : (ushort)6);
+        if (index < 43) return new((ushort)(CrackTail+4*(index-41)),16);
+        return new((ushort)(CrackTail+8+2*(index-43)),index switch
+        {
+            43 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero,
+            44 => CrackTail,
+            _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+        });
+    }
+
+    private static NoobTubeProjectileInstructionMechanicsWord ShardWord(int shard,int index)
+    {
+        ushort start = ShardInstructionLists[shard];
+        bool compact = shard == 8;
+        int skipped = compact ? 2 : 4;
+        int firstBranch = 6+skipped;
+        int assign = firstBranch+4;
+        int secondTimer = assign+6;
+        int secondFlicker = secondTimer+4;
+        int secondBranch = secondFlicker+2+skipped;
+        ushort flicker = compact ? EnemyProjectileCodePointers.Instruction_NoobTubeShardFlicker
+            : EnemyProjectileCodePointers.Instruction_NoobTubeShardReflectFlicker;
+        (int offset,ushort value) = index switch
+        {
+            0 => (0,EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
+            1 => (2,(ushort)32),
+            2 => (4,flicker),
+            3 => (firstBranch,EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
+            4 => (firstBranch+2,(ushort)(start+4)),
+            5 => (assign,EnemyProjectileCodePointers.Instruction_NoobTubeShardAssignFallingAngle),
+            6 => (assign+2,EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
+            7 => (assign+4,EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFalling),
+            8 => (secondTimer,EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
+            9 => (secondTimer+2,(ushort)272),
+            10 => (secondFlicker,flicker),
+            11 => (secondBranch,EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
+            12 => (secondBranch+2,(ushort)(start+secondFlicker)),
+            _ => (secondBranch+4,EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+        };
+        return new((ushort)(start+offset),value);
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.NoobTubeCrack or
         RoomEnemyProjectileKind.NoobTubeShard or
@@ -38,11 +131,11 @@ internal static class NoobTubeProjectileInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            NoobTubeProjectileInstructionMechanicsWord candidate = Words[middle];
+            NoobTubeProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -61,9 +154,9 @@ internal static class NoobTubeProjectileInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {
@@ -74,119 +167,19 @@ internal static class NoobTubeProjectileInstructionProgramDefinitions
         return false;
     }
 
-    private static NoobTubeProjectileInstructionMechanicsWord[] BuildWords()
+}
+
+/// <summary>Ten native shard entry points: nine36-byte programs and one32-byte unreflected ninth program.</summary>
+public readonly struct NoobTubeShardProgramSequence : IReadOnlyList<ushort>
+{
+    public int Count => 10;
+    public int Length => Count;
+    public ushort this[int index] => (uint)index < Count
+        ? (ushort)(NoobTubeProjectileInstructionProgramDefinitions.FirstShard+36*index-(index>8?4:0))
+        : throw new IndexOutOfRangeException();
+    public IEnumerator<ushort> GetEnumerator()
     {
-        var words = new List<NoobTubeProjectileInstructionMechanicsWord>(207);
-        ushort[] crackOpeningDurations = [12, 10, 8, 6, 6, 6];
-        AddTimedFrames(words, Crack, crackOpeningDurations);
-        Add(words, 0xd3ef, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY);
-        Add(words, 0xd3f1, EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFlickering);
-        AddTimedFrames(words, 0xd3f3, [1, 1, 1, 1, 1, 2, 3, 6, 9, 8]);
-        Add(words, 0xd41b, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY);
-        Add(words, 0xd41d, EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFalling);
-        AddTimedFrames(words, 0xd41f,
-            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 16]);
-        Add(words, 0xd46b, EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY);
-        Add(words, 0xd46d, 6);
-        AddTimedFrames(words, 0xd46f, [16, 16]);
-        Add(words, 0xd477,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero);
-        Add(words, 0xd479, 0xd46f);
-        Add(words, 0xd47b, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
-
-        foreach (ushort program in ShardPrograms)
-            AddShardProgram(words, program, program == 0xd59d);
-
-        Add(words, ReleasedAirBubble,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY);
-        Add(words, 0xd654, EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFlying);
-        AddTimedFrames(words, 0xd656, [2, 2, 2, 2]);
-        Add(words, 0xd666, EnemyProjectileCodePointers.Instruction_NoobTubeBubbleAssignFallingAngle);
-        Add(words, 0xd668,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY);
-        Add(words, 0xd66a, EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFalling);
-        AddTimedFrames(words, 0xd66c, [2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4]);
-        Add(words, 0xd698, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
-        return words.ToArray();
+        for(int index=0;index<Count;index++) yield return this[index];
     }
-
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new List<ushort>(90);
-        AddPresentationFrames(words, Crack, 6);
-        AddPresentationFrames(words, 0xd3f3, 10);
-        AddPresentationFrames(words, 0xd41f, 19);
-        AddPresentationFrames(words, 0xd46f, 2);
-        foreach (ushort program in ShardPrograms)
-        {
-            bool compact = program == 0xd59d;
-            words.Add(unchecked((ushort)(program + 6)));
-            if (!compact)
-                words.Add(unchecked((ushort)(program + 8)));
-            words.Add(unchecked((ushort)(program + (compact ? 0x18 : 0x1a))));
-            if (!compact)
-                words.Add(unchecked((ushort)(program + 0x1c)));
-        }
-        AddPresentationFrames(words, 0xd656, 4);
-        AddPresentationFrames(words, 0xd66c, 11);
-        words.Sort();
-        return words.ToArray();
-    }
-
-    private static void AddShardProgram(
-        List<NoobTubeProjectileInstructionMechanicsWord> words,
-        ushort program,
-        bool compact)
-    {
-        ushort flicker = compact
-            ? EnemyProjectileCodePointers.Instruction_NoobTubeShardFlicker
-            : EnemyProjectileCodePointers.Instruction_NoobTubeShardReflectFlicker;
-        int firstBranch = compact ? 0x08 : 0x0a;
-        int assign = compact ? 0x0c : 0x0e;
-        int secondTimer = compact ? 0x12 : 0x14;
-        int secondFlicker = compact ? 0x16 : 0x18;
-        int secondBranch = compact ? 0x1a : 0x1e;
-        int delete = compact ? 0x1e : 0x22;
-
-        Add(words, program, EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY);
-        Add(words, program + 2, 0x0020);
-        Add(words, program + 4, flicker);
-        Add(words, program + firstBranch,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero);
-        Add(words, program + firstBranch + 2, unchecked((ushort)(program + 4)));
-        Add(words, program + assign,
-            EnemyProjectileCodePointers.Instruction_NoobTubeShardAssignFallingAngle);
-        Add(words, program + assign + 2,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY);
-        Add(words, program + assign + 4,
-            EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFalling);
-        Add(words, program + secondTimer,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY);
-        Add(words, program + secondTimer + 2, 0x0110);
-        Add(words, program + secondFlicker, flicker);
-        Add(words, program + secondBranch,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero);
-        Add(words, program + secondBranch + 2, unchecked((ushort)(program + secondFlicker)));
-        Add(words, program + delete, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete);
-    }
-
-    private static void AddTimedFrames(
-        List<NoobTubeProjectileInstructionMechanicsWord> words,
-        ushort start,
-        ReadOnlySpan<ushort> durations)
-    {
-        for (int index = 0; index < durations.Length; index++)
-            Add(words, start + index * 4, durations[index]);
-    }
-
-    private static void AddPresentationFrames(List<ushort> words, ushort start, int count)
-    {
-        for (int index = 0; index < count; index++)
-            words.Add(unchecked((ushort)(start + index * 4 + 2)));
-    }
-
-    private static void Add(
-        List<NoobTubeProjectileInstructionMechanicsWord> words,
-        int address,
-        ushort value) => words.Add(new(unchecked((ushort)address), value));
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 }

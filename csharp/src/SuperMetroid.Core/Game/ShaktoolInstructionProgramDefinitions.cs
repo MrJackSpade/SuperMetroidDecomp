@@ -8,7 +8,7 @@ internal readonly record struct ShaktoolInstructionMechanicsWord(
 /// <summary>
 /// Compiled engine-control words for every Shaktool instruction program reachable from
 /// its initialization, orientation, collision-recovery, and dormant-attack selectors.
-/// Interleaved spritemap operands remain cartridge presentation data.
+/// Interleaved spritemap operands select installed presentation frames.
 /// </summary>
 internal static class ShaktoolInstructionProgramDefinitions
 {
@@ -58,142 +58,165 @@ internal static class ShaktoolInstructionProgramDefinitions
     /// <summary><c>RTS_AADAE4</c>, the first adjacent code routine at $AA:DAE4.</summary>
     internal const ushort FirstAdjacentCodeRoutine = 0xdae4;
 
-    private static readonly ShaktoolInstructionMechanicsWord[] Words =
-    [
-        new(SawHandAttackPrimaryPiece, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xd9ec, 0x0240), new(0xd9ee, CommonEnemyInstructionCodes.Goto),
-        new(0xd9f0, SawHandPrimaryPiece),
-        new(SawHandAttackFinalPiece, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xd9f4, 0x0240),
-        new(0xd9f6, ShaktoolInstructionCodes.Instruction_Shaktool_ResetShaktoolFunctions),
-        new(0xd9f8, CommonEnemyInstructionCodes.Goto), new(0xd9fa, SawHandFinalPiece),
-        new(SawHandHeadBobPrimaryPiece, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xd9fe, 0x0014), new(0xda00, CommonEnemyInstructionCodes.Goto),
-        new(0xda02, SawHandPrimaryPiece),
-        new(SawHandHeadBobFinalPiece, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xda06, 0x0014),
-        new(0xda08, ShaktoolInstructionCodes.Instruction_Shaktool_ResetShaktoolFunctions),
-        new(0xda0a, CommonEnemyInstructionCodes.Goto), new(0xda0c, SawHandFinalPiece),
+    private const int PresentationOperand = -1;
+    /// <summary>$AA:D9EC/D9F4: total dormant attack duration shared by the saw pieces; pending magnitude.</summary>
+    private const ushort UnresolvedAttackTicks = 576;
+    /// <summary>$AA:DA36/DA4A/DA7C/DA84: shared attack displacement interval; pending magnitude.</summary>
+    private const ushort UnresolvedAttackDisplacementTicks = 128;
+    /// <summary>$AA:DA2E/DA42/DA7A: successive head, back-arm and front-arm activation starts differ by64 ticks; pending stagger.</summary>
+    private const ushort UnresolvedAttackStaggerTicks = 64;
+    /// <summary>$AA:D9FE/DA06/DA5A: complete symmetric collision bob lasts20 ticks; pending magnitude.</summary>
+    private const ushort UnresolvedBobTicks = 20;
+    /// <summary>$AA:DA64/DA70: each inward body layer starts/ends four ticks nearer the bob center; pending stagger.</summary>
+    private const ushort UnresolvedBobStaggerTicks = 4;
+    /// <summary>$AA:DA0E/12/16: primary saw's three-pose cadence, pending.</summary>
+    private const ushort UnresolvedPrimarySawTicks = 10;
+    /// <summary>$AA:DA1E/22/26: final saw's three-pose cadence after collision, pending.</summary>
+    private const ushort UnresolvedFinalSawTicks = 3;
+    /// <summary>$AA:DA72: stationary arm's repeated-pose hold, pending.</summary>
+    private const ushort UnresolvedArmHoldTicks = 119;
+    /// <summary>$AA:DAA4: first head-facing hold; each next eighth-turn increases it by one. Base remains pending.</summary>
+    private const ushort UnresolvedFirstFacingTicks = 0x0774;
+    /// <summary>$AA:DA8E/DAA2: final one-tick waits before head-program fallthrough; independent scheduling choice remains pending.</summary>
+    private const ushort UnresolvedHeadFallthroughTicks = 1;
 
-        new(SawHandPrimaryPiece, 0x000a), new(0xda12, 0x000a),
-        new(0xda16, 0x000a), new(0xda1a, CommonEnemyInstructionCodes.Goto),
-        new(0xda1c, SawHandPrimaryPiece),
-        new(SawHandFinalPiece, 0x0003), new(0xda22, 0x0003),
-        new(0xda26, 0x0003), new(0xda2a, CommonEnemyInstructionCodes.Goto),
-        new(0xda2c, SawHandFinalPiece),
-
-        new(ArmPieceAttackBack, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xda30, 0x00c0),
-        new(0xda32, ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931),
-        new(0xda34, CommonEnemyInstructionCodes.WaitFrames), new(0xda36, 0x0080),
-        new(0xda38, ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F),
-        new(0xda3a, CommonEnemyInstructionCodes.WaitFrames), new(0xda3c, 0x0100),
-        new(0xda3e, CommonEnemyInstructionCodes.Goto), new(0xda40, ArmPieceNormal),
-        new(ArmPieceAttackFront, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xda44, 0x0100),
-        new(0xda46, ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931),
-        new(0xda48, CommonEnemyInstructionCodes.WaitFrames), new(0xda4a, 0x0080),
-        new(0xda4c, ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F),
-        new(0xda4e, CommonEnemyInstructionCodes.WaitFrames), new(0xda50, 0x00c0),
-        new(0xda52, CommonEnemyInstructionCodes.Goto), new(0xda54, ArmPieceNormal),
-
-        new(ArmPieceHeadBobBack, ShaktoolInstructionCodes.Instruction_Shaktool_Lower1Pixel),
-        new(0xda58, CommonEnemyInstructionCodes.WaitFrames), new(0xda5a, 0x0014),
-        new(0xda5c, ShaktoolInstructionCodes.Instruction_Shaktool_Raise1Pixel),
-        new(0xda5e, CommonEnemyInstructionCodes.Goto), new(0xda60, ArmPieceNormal),
-        new(ArmPieceHeadBobFront, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xda64, 0x0004),
-        new(0xda66, ShaktoolInstructionCodes.Instruction_Shaktool_Lower1Pixel),
-        new(0xda68, CommonEnemyInstructionCodes.WaitFrames), new(0xda6a, 0x000c),
-        new(0xda6c, ShaktoolInstructionCodes.Instruction_Shaktool_Raise1Pixel),
-        new(0xda6e, CommonEnemyInstructionCodes.WaitFrames), new(0xda70, 0x0004),
-        new(ArmPieceNormal, 0x0077), new(0xda76, CommonEnemyInstructionCodes.Goto),
-        new(0xda78, ArmPieceNormal),
-
-        new(HeadAttack, CommonEnemyInstructionCodes.WaitFrames), new(0xda7c, 0x0080),
-        new(0xda7e, ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931),
-        new(0xda80, ShaktoolInstructionCodes.RTL_AAD99F),
-        new(0xda82, CommonEnemyInstructionCodes.WaitFrames), new(0xda84, 0x0080),
-        new(0xda86, ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F),
-        new(0xda88, CommonEnemyInstructionCodes.WaitFrames), new(0xda8a, 0x0140),
-        new(0xda8c, CommonEnemyInstructionCodes.WaitFrames), new(0xda8e, 0x0001),
-        new(HeadHeadBob, CommonEnemyInstructionCodes.WaitFrames), new(0xda92, 0x0008),
-        new(0xda94, ShaktoolInstructionCodes.Instruction_Shaktool_Lower1Pixel),
-        new(0xda96, CommonEnemyInstructionCodes.WaitFrames), new(0xda98, 0x0004),
-        new(0xda9a, ShaktoolInstructionCodes.Instruction_Shaktool_Raise1Pixel),
-        new(0xda9c, CommonEnemyInstructionCodes.WaitFrames), new(0xda9e, 0x0008),
-        new(0xdaa0, CommonEnemyInstructionCodes.WaitFrames), new(0xdaa2, 0x0001),
-
-        new(HeadAimingLeft, 0x0774), new(0xdaa8, CommonEnemyInstructionCodes.Goto),
-        new(0xdaaa, HeadAimingLeft),
-        new(HeadAimingUpLeft, 0x0775), new(0xdab0, CommonEnemyInstructionCodes.Goto),
-        new(0xdab2, HeadAimingUpLeft),
-        new(HeadAimingUp, 0x0776), new(0xdab8, CommonEnemyInstructionCodes.Goto),
-        new(0xdaba, HeadAimingUp),
-        new(HeadAimingUpRight, 0x0777), new(0xdac0, CommonEnemyInstructionCodes.Goto),
-        new(0xdac2, HeadAimingUpRight),
-        new(HeadAimingRight, 0x0778), new(0xdac8, CommonEnemyInstructionCodes.Goto),
-        new(0xdaca, HeadAimingRight),
-        new(HeadAimingDownRight, 0x0779), new(0xdad0, CommonEnemyInstructionCodes.Goto),
-        new(0xdad2, HeadAimingDownRight),
-        new(HeadAimingDown, 0x077a), new(0xdad8, CommonEnemyInstructionCodes.Goto),
-        new(0xdada, HeadAimingDown),
-        new(HeadAimingDownLeft, 0x077b), new(0xdae0, CommonEnemyInstructionCodes.Goto),
-        new(0xdae2, HeadAimingDownLeft),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xda10, 0xda14, 0xda18,
-        0xda20, 0xda24, 0xda28,
-        0xda74,
-        0xdaa6, 0xdaae, 0xdab6, 0xdabe, 0xdac6, 0xdace, 0xdad6, 0xdade,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ShaktoolInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    /// <summary>Whether the address selects one of the fifteen native OAM frames.</summary>
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
-
+    internal static int MechanicsWordCount => 110;
+    internal static int PresentationWordCount => 15;
+    internal static ShaktoolInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        for (int address = SawHandAttackPrimaryPiece; address < FirstAdjacentCodeRoutine; address += 2)
+        {
+            int value = ProgramWord((ushort)address);
+            if (value != PresentationOperand && index-- == 0) return new((ushort)address, (ushort)value);
+        }
+        throw new InvalidOperationException("Shaktool mechanics-word index is inconsistent.");
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 6) return (ushort)((index < 3 ? SawHandPrimaryPiece : SawHandFinalPiece) + (index % 3) * 4 + 2);
+        if (index == 6) return ArmPieceNormal + 2;
+        return (ushort)(HeadAimingLeft + (index - 7) * 8 + 2);
+    }
+    internal static bool IsPresentationWord(ushort address)
+    {
+        if (address >= SawHandPrimaryPiece && address < ArmPieceAttackBack)
+        {
+            int offset = (address - SawHandPrimaryPiece) % 16;
+            return offset < 12 && (offset & 3) == 2;
+        }
+        return address == ArmPieceNormal + 2 || address >= HeadAimingLeft && address < FirstAdjacentCodeRoutine &&
+            ((address - HeadAimingLeft) & 7) == 2;
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            ShaktoolInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Shaktool instruction mechanics pointer $AA:{address:X4} is not compiled.");
+        if (address < SawHandAttackPrimaryPiece || address >= FirstAdjacentCodeRoutine || (address & 1) != 0 || IsPresentationWord(address))
+            throw new InvalidDataException($"Shaktool instruction mechanics pointer $AA:{address:X4} is not compiled.");
+        return (ushort)ProgramWord(address);
     }
-
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xaa0000)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        if ((address & 0xff0000) != 0xaa0000) return false;
+        ushort bankAddress = (ushort)(address & 0xfffe);
+        return bankAddress >= SawHandAttackPrimaryPiece && bankAddress < FirstAdjacentCodeRoutine && !IsPresentationWord(bankAddress);
+    }
+    private static int ProgramWord(ushort address)
+    {
+        if (address < SawHandPrimaryPiece)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
+            bool attack = address < SawHandHeadBobPrimaryPiece;
+            bool final = attack ? address >= SawHandAttackFinalPiece : address >= SawHandHeadBobFinalPiece;
+            ushort start = attack ? final ? SawHandAttackFinalPiece : SawHandAttackPrimaryPiece
+                : final ? SawHandHeadBobFinalPiece : SawHandHeadBobPrimaryPiece;
+            var writer = new WordSelector(address, start);
+            writer.Wait(attack ? UnresolvedAttackTicks : UnresolvedBobTicks);
+            if (final) writer.Command(ShaktoolInstructionCodes.Instruction_Shaktool_ResetShaktoolFunctions);
+            writer.Goto(final ? SawHandFinalPiece : SawHandPrimaryPiece);
+            return writer.Value;
         }
-        return false;
+        if (address < ArmPieceAttackBack)
+        {
+            bool final = address >= SawHandFinalPiece;
+            ushort start = final ? SawHandFinalPiece : SawHandPrimaryPiece;
+            var writer = new WordSelector(address, start);
+            for (int pose = 0; pose < 3; pose++) writer.Timed(final ? UnresolvedFinalSawTicks : UnresolvedPrimarySawTicks);
+            writer.Goto(start);
+            return writer.Value;
+        }
+        if (address < ArmPieceHeadBobBack)
+        {
+            bool front = address >= ArmPieceAttackFront;
+            var writer = new WordSelector(address, front ? ArmPieceAttackFront : ArmPieceAttackBack);
+            ushort lead = (ushort)(UnresolvedAttackDisplacementTicks + UnresolvedAttackStaggerTicks * (front ? 2 : 1));
+            writer.Wait(lead);
+            writer.Command(ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931);
+            writer.Wait(UnresolvedAttackDisplacementTicks);
+            writer.Command(ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F);
+            writer.Wait((ushort)(UnresolvedAttackTicks - lead - UnresolvedAttackDisplacementTicks));
+            writer.Goto(ArmPieceNormal);
+            return writer.Value;
+        }
+        if (address < ArmPieceNormal)
+        {
+            bool front = address >= ArmPieceHeadBobFront;
+            var writer = new WordSelector(address, front ? ArmPieceHeadBobFront : ArmPieceHeadBobBack);
+            Bob(ref writer, front ? 1 : 0);
+            if (!front) writer.Goto(ArmPieceNormal);
+            return writer.Value;
+        }
+        if (address < HeadAttack)
+        {
+            var writer = new WordSelector(address, ArmPieceNormal);
+            writer.Timed(UnresolvedArmHoldTicks);
+            writer.Goto(ArmPieceNormal);
+            return writer.Value;
+        }
+        if (address < HeadHeadBob)
+        {
+            var writer = new WordSelector(address, HeadAttack);
+            writer.Wait(UnresolvedAttackDisplacementTicks);
+            writer.Command(ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931);
+            writer.Command(ShaktoolInstructionCodes.RTL_AAD99F);
+            writer.Wait(UnresolvedAttackDisplacementTicks);
+            writer.Command(ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F);
+            writer.Wait(UnresolvedAttackTicks - 2 * UnresolvedAttackDisplacementTicks);
+            writer.Wait(UnresolvedHeadFallthroughTicks);
+            return writer.Value;
+        }
+        if (address < HeadAimingLeft)
+        {
+            var writer = new WordSelector(address, HeadHeadBob);
+            Bob(ref writer, 2);
+            writer.Wait(UnresolvedHeadFallthroughTicks);
+            return writer.Value;
+        }
+        int direction = (address - HeadAimingLeft) / 8;
+        ushort facing = (ushort)(HeadAimingLeft + direction * 8);
+        var aiming = new WordSelector(address, facing);
+        aiming.Timed((ushort)(UnresolvedFirstFacingTicks + direction));
+        aiming.Goto(facing);
+        return aiming.Value;
+    }
+    private static void Bob(ref WordSelector writer, int inwardLayer)
+    {
+        ushort lead = (ushort)(inwardLayer * UnresolvedBobStaggerTicks);
+        if (lead != 0) writer.Wait(lead);
+        writer.Command(ShaktoolInstructionCodes.Instruction_Shaktool_Lower1Pixel);
+        writer.Wait((ushort)(UnresolvedBobTicks - 2 * lead));
+        writer.Command(ShaktoolInstructionCodes.Instruction_Shaktool_Raise1Pixel);
+        if (lead != 0) writer.Wait(lead);
+    }
+    private struct WordSelector(ushort address, ushort start)
+    {
+        private int remaining = (address - start) / 2;
+        private int selected = int.MinValue;
+        public readonly int Value => selected == int.MinValue
+            ? throw new InvalidOperationException("Shaktool semantic program shape is incomplete.") : selected;
+        public void Command(ushort command) => Emit(command);
+        public void Timed(ushort duration) { Emit(duration); Emit(PresentationOperand); }
+        public void Wait(ushort duration) { Emit(CommonEnemyInstructionCodes.WaitFrames); Emit(duration); }
+        public void Goto(ushort target) { Emit(CommonEnemyInstructionCodes.Goto); Emit(target); }
+        private void Emit(int value) { if (remaining-- == 0) selected = value; }
     }
 }

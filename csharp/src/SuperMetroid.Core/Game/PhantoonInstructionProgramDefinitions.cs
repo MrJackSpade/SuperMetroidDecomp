@@ -53,68 +53,110 @@ internal static class PhantoonInstructionProgramDefinitions
     /// <summary>First casual-flame timer word following the instruction block at $A7:CCFD.</summary>
     internal const ushort AdjacentCasualFlameTimers = 0xccfd;
 
-    private static readonly PhantoonInstructionMechanicsWord[] Words =
-    [
-        new(0xcc41, 1), new(0xcc45, CommonEnemyInstructionCodes.Sleep),
-        new(0xcc47, 1), new(0xcc4b, CommonEnemyInstructionCodes.Sleep),
-        new(0xcc4d, 1), new(0xcc51, CommonEnemyInstructionCodes.Sleep),
-        new(0xcc53, 10), new(0xcc57, 10), new(0xcc5b, 1),
-        new(0xcc5f, EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY),
-        new(0xcc61, PhantoonInstructionCodes.PlayPhantoonMaterializationSFX),
-        new(0xcc63, EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY),
-        new(0xcc65, PhantoonInstructionCodes.SetupEyeOpenPhantoonState),
-        new(0xcc67, CommonEnemyInstructionCodes.Sleep),
-        new(0xcc7b, 1), new(0xcc7f, CommonEnemyInstructionCodes.Sleep),
-        new(0xcc81, 1), new(0xcc85, 10),
-        new(0xcc89, EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY),
-        new(0xcc8b, PhantoonInstructionCodes.PickNewPhantoonPattern),
-        new(0xcc8d, CommonEnemyInstructionCodes.Goto), new(0xcc8f, EyeClosed),
-        new(0xcc91, 1), new(0xcc95, 10),
-        new(0xcc99, CommonEnemyInstructionCodes.Goto), new(0xcc9b, EyeClosed),
-        new(0xcc9d, 1),
-        new(0xcca1, EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY),
-        new(0xcca3, PhantoonInstructionCodes.PlayPhantoonMaterializationSFX),
-        new(0xcca5, CommonEnemyInstructionCodes.Sleep),
-        new(0xcca7, 1), new(0xccab, CommonEnemyInstructionCodes.Sleep),
-        new(0xccad, 1), new(0xccb1, CommonEnemyInstructionCodes.Sleep),
-        new(0xccb3, 1), new(0xccb7, CommonEnemyInstructionCodes.Sleep),
-        new(0xccb9, 1), new(0xccbd, CommonEnemyInstructionCodes.Sleep),
-        new(0xccbf, 1), new(0xccc3, CommonEnemyInstructionCodes.Sleep),
-        new(0xccc5, 1), new(0xccc9, CommonEnemyInstructionCodes.Sleep),
-        new(0xcccb, 1), new(0xcccf, CommonEnemyInstructionCodes.Sleep),
-        new(0xccd1, 1), new(0xccd5, CommonEnemyInstructionCodes.Sleep),
-        new(0xccd7, 8), new(0xccdb, 8), new(0xccdf, 8), new(0xcce3, 8),
-        new(0xcce7, CommonEnemyInstructionCodes.Goto), new(0xcce9, InitialTentacles),
-        new(0xcceb, 5), new(0xccef, 5),
-        new(0xccf3, EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY),
-        new(0xccf5, PhantoonInstructionCodes.SpawnCasualFlame),
-        new(0xccf7, 1), new(0xccfb, CommonEnemyInstructionCodes.Sleep),
-    ];
+    /// <summary>Unresolved eye-transition dwell at A7:CC53/CC57/CC85/CC95; remains required under #1165.</summary>
+    private const ushort EyeTransitionFrames = 10;
+    /// <summary>Unresolved four-pose tentacle cadence at A7:CCD7..CCE3; remains required under #1165.</summary>
+    private const ushort TentaclePoseFrames = 8;
+    /// <summary>Unresolved mouth preparation dwell at A7:CCEB/CCEF; remains required under #1165.</summary>
+    private const ushort MouthPreparationFrames = 5;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xcc43, 0xcc49, 0xcc4f,
-        0xcc55, 0xcc59, 0xcc5d,
-        0xcc7d, 0xcc83, 0xcc87, 0xcc93, 0xcc97, 0xcc9f,
-        0xcca9, 0xccaf, 0xccb5, 0xccbb, 0xccc1, 0xccc7, 0xcccd, 0xccd3,
-        0xccd9, 0xccdd, 0xcce1, 0xcce5,
-        0xcced, 0xccf1, 0xccf9,
-    ];
+    internal static int MechanicsWordCount => 58;
+    internal static int PresentationWordCount => 27;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static PhantoonInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    /// <summary>Calculates control positions from named sleep, transition, callback and loop layouts.</summary>
+    internal static PhantoonInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 6) return SleepWord((ushort)(InvulnerableBody + index / 2 * 6), index % 2);
+        if (index < 14)
+        {
+            int word = index - 6;
+            if (word < 3) return Frame(EyeOpen, word, word < 2 ? EyeTransitionFrames : (ushort)1);
+            return new((ushort)(EyeOpen + 12 + (word - 3) * 2), word switch
+            {
+                3 or 5 => EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY,
+                4 => PhantoonInstructionCodes.PlayPhantoonMaterializationSFX,
+                6 => PhantoonInstructionCodes.SetupEyeOpenPhantoonState,
+                _ => CommonEnemyInstructionCodes.Sleep,
+            });
+        }
+        if (index < 16) return SleepWord(EyeClosed, index - 14);
+        if (index < 22) return CloseWord(EyeCloseAndPickNewPattern, index - 16, true);
+        if (index < 26) return CloseWord(EyeClose, index - 22, false);
+        if (index < 30)
+        {
+            int word = index - 26;
+            return word == 0 ? Frame(EyeballCentered, 0, 1)
+                : new((ushort)(EyeballCentered + 4 + (word - 1) * 2), word switch
+                {
+                    1 => EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY,
+                    2 => PhantoonInstructionCodes.PlayPhantoonMaterializationSFX,
+                    _ => CommonEnemyInstructionCodes.Sleep,
+                });
+        }
+        if (index < 46) return SleepWord((ushort)(EyeLookingUp + (index - 30) / 2 * 6), index % 2);
+        if (index < 52)
+        {
+            int word = index - 46;
+            return word < 4 ? Frame(InitialTentacles, word, TentaclePoseFrames)
+                : new((ushort)(InitialTentacles + 16 + (word - 4) * 2),
+                    word == 4 ? CommonEnemyInstructionCodes.Goto : InitialTentacles);
+        }
+        if (index < 56)
+        {
+            int word = index - 52;
+            return word < 2 ? Frame(MouthFollowUp, word, MouthPreparationFrames)
+                : new((ushort)(MouthFollowUp + 8 + (word - 2) * 2),
+                    word == 2 ? EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY
+                        : PhantoonInstructionCodes.SpawnCasualFlame);
+        }
+        return SleepWord(InitialMouth, index - 56);
+    }
+
+    private static PhantoonInstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
+        new((ushort)(start + frame * 4), duration);
+
+    private static PhantoonInstructionMechanicsWord SleepWord(ushort start, int word) =>
+        new((ushort)(start + word * 4), word == 0 ? (ushort)1 : CommonEnemyInstructionCodes.Sleep);
+
+    private static PhantoonInstructionMechanicsWord CloseWord(ushort start, int word, bool pickPattern)
+    {
+        if (word < 2) return Frame(start, word, word == 0 ? (ushort)1 : EyeTransitionFrames);
+        int command = word - 2;
+        ushort value;
+        if (pickPattern && command < 2)
+            value = command == 0 ? EnemyInstructionCodePointers.Instruction_CommonA7_CallFunctionInY
+                : PhantoonInstructionCodes.PickNewPhantoonPattern;
+        else
+            value = command == (pickPattern ? 2 : 0) ? CommonEnemyInstructionCodes.Goto : EyeClosed;
+        return new((ushort)(start + 8 + command * 2), value);
+    }
+
+    /// <summary>Only four-byte pose records contribute visual operands; control commands leave gaps.</summary>
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 3) return (ushort)(InvulnerableBody + index * 6 + 2);
+        if (index < 6) return (ushort)(EyeOpen + (index - 3) * 4 + 2);
+        if (index == 6) return EyeClosed + 2;
+        if (index < 9) return (ushort)(EyeCloseAndPickNewPattern + (index - 7) * 4 + 2);
+        if (index < 11) return (ushort)(EyeClose + (index - 9) * 4 + 2);
+        if (index == 11) return EyeballCentered + 2;
+        if (index < 20) return (ushort)(EyeLookingUp + (index - 12) * 6 + 2);
+        if (index < 24) return (ushort)(InitialTentacles + (index - 20) * 4 + 2);
+        if (index < 26) return (ushort)(MouthFollowUp + (index - 24) * 4 + 2);
+        return InitialMouth + 2;
+    }
 
     /// <summary>Returns fixed Phantoon control data or rejects non-mechanics pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            PhantoonInstructionMechanicsWord candidate = Words[middle];
+            PhantoonInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (address == candidate.Address)
                 return candidate.Value;
             if (address < candidate.Address)
@@ -133,9 +175,9 @@ internal static class PhantoonInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

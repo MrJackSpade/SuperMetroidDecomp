@@ -1,11 +1,834 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        GameOptionsPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<GameOptionsPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        Dictionary<string, SpriteComposition> Load(GameOptionsPresentationDocument document)
+        {
+            var value = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            return (Dictionary<string, SpriteComposition>)typeof(GameOptionsPresentation).GetField("sprites", flags)!.GetValue(value)!;
+        }
+        void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
+        {
+            var expected = MenuSpriteCompiler.Compile(parts, "independent border oracle");
+            AssertEqual(expected.PartCount, actual.PartCount, "border ordered part count");
+            for (int index = 0; index < expected.PartCount; index++)
+                AssertEqual(expected.Part(index), actual.Part(index), "border exact coordinates, appearance and order");
+        }
+        foreach ((string name, int address, int count) in new[]
+        {
+            ("Heading.Primary", 0x82d24b, 34), ("Heading.Controller", 0x82d2f7, 58), ("Heading.Special", 0x82d41b, 52),
+        })
+        {
+            var original = Read();
+            var stock = Load(original)[name];
+            AssertTrue(typeof(SpriteComposition).GetField("parts", flags)!.GetValue(stock) is MenuBorderParts,
+                "native border stores perimeter inputs instead of full parts");
+            AssertEqual(count, stock.PartCount, "native perimeter count");
+            Confirm(stock, original.Sprites[name]);
+            ushort Word(int location) => (ushort)(rom.ReadByte(location) | rom.ReadByte(location + 1) << 8);
+            AssertEqual((ushort)count, Word(address), "native border header");
+            for (int index = 0; index < count; index++)
+            {
+                int entry = address + 2 + index * 5;
+                var part = stock.Part(index);
+                AssertEqual(Word(entry), part.X.Raw, "native border X/size");
+                AssertEqual(rom.ReadByte(entry + 2), part.Y, "native border Y");
+                AssertEqual((ushort)(Word(entry + 3) & ~0x0e00), part.Attributes.Raw, "native border inherited-palette attributes");
+                AssertTrue(part.InheritPalette, "border palette remains owner supplied");
+                foreach (int field in new[] { 0, 1, 2, 3 })
+                {
+                    var edited = Read();
+                    var source = edited.Sprites[name][index];
+                    edited.Sprites[name][index] = field switch
+                    {
+                        0 => source with { OffsetX = source.OffsetX + 1 },
+                        1 => source with { OffsetY = source.OffsetY + 1 },
+                        2 => source with { TileColumn = source.TileColumn ^ 1 },
+                        _ => source with { Palette = 2, FlipX = !source.FlipX },
+                    };
+                    Confirm(Load(edited)[name], edited.Sprites[name]);
+                }
+            }
+            var reversed = Read();
+            Array.Reverse(reversed.Sprites[name]);
+            Confirm(Load(reversed)[name], reversed.Sprites[name]);
+            var expanded = Read();
+            expanded.Sprites[name] = [.. expanded.Sprites[name], expanded.Sprites[name][0]];
+            Confirm(Load(expanded)[name], expanded.Sprites[name]);
+        }
+    }
+    private static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, byte[] imported)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        FileSelectPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        Dictionary<string, SpriteComposition> Load(FileSelectPresentationDocument document)
+        {
+            var value = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            return (Dictionary<string, SpriteComposition>)typeof(FileSelectPresentation).GetField("sprites", flags)!.GetValue(value)!;
+        }
+        void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
+        {
+            var expected = MenuSpriteCompiler.Compile(parts, "independent border oracle");
+            AssertEqual(expected.PartCount, actual.PartCount, "border ordered part count");
+            for (int index = 0; index < expected.PartCount; index++)
+                AssertEqual(expected.Part(index), actual.Part(index), "border exact coordinates, appearance and order");
+        }
+        foreach ((string name, int address, int count) in new[]
+        {
+            ("Border.Main", 0x82d00b, 32), ("Border.Copy", 0x82d0ad, 40), ("Border.Clear", 0x82d177, 42),
+        })
+        {
+            var original = Read();
+            var stock = Load(original)[name];
+            AssertTrue(typeof(SpriteComposition).GetField("parts", flags)!.GetValue(stock) is MenuBorderParts,
+                "native border stores perimeter inputs instead of full parts");
+            AssertEqual(count, stock.PartCount, "native perimeter count");
+            Confirm(stock, original.Sprites[name]);
+            ushort Word(int location) => (ushort)(rom.ReadByte(location) | rom.ReadByte(location + 1) << 8);
+            AssertEqual((ushort)count, Word(address), "native border header");
+            for (int index = 0; index < count; index++)
+            {
+                int entry = address + 2 + index * 5;
+                var part = stock.Part(index);
+                AssertEqual(Word(entry), part.X.Raw, "native border X/size");
+                AssertEqual(rom.ReadByte(entry + 2), part.Y, "native border Y");
+                AssertEqual((ushort)(Word(entry + 3) & ~0x0e00), part.Attributes.Raw, "native border inherited-palette attributes");
+                AssertTrue(part.InheritPalette, "border palette remains owner supplied");
+                foreach (int field in new[] { 0, 1, 2, 3 })
+                {
+                    var edited = Read();
+                    var source = edited.Sprites[name][index];
+                    edited.Sprites[name][index] = field switch
+                    {
+                        0 => source with { OffsetX = source.OffsetX + 1 },
+                        1 => source with { OffsetY = source.OffsetY + 1 },
+                        2 => source with { TileColumn = source.TileColumn ^ 1 },
+                        _ => source with { Palette = 2, FlipX = !source.FlipX },
+                    };
+                    Confirm(Load(edited)[name], edited.Sprites[name]);
+                }
+            }
+            var reversed = Read();
+            Array.Reverse(reversed.Sprites[name]);
+            Confirm(Load(reversed)[name], reversed.Sprites[name]);
+            var expanded = Read();
+            expanded.Sprites[name] = [.. expanded.Sprites[name], expanded.Sprites[name][0]];
+            Confirm(Load(expanded)[name], expanded.Sprites[name]);
+        }
+    }
+    private static void VerifyStream3GrappleTilePatterns(ISnesAddressSpace rom, GrappleTileTransfer[] transfers)
+    {
+        byte[] planar = transfers.SelectMany(transfer => Enumerable.Range(0, transfer.ByteCount)
+            .Select(index => rom.ReadByte(transfer.SourceAddress + index))).ToArray();
+        GrappleTileAtlas Load()
+        {
+            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 16, out int width, out int height);
+            using var png = new MemoryStream();
+            IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+            return GrappleTileAtlas.Load(new MemoryStream(png.ToArray()));
+        }
+        void Check(GrappleTileAtlas atlas)
+        {
+            foreach (var transfer in transfers)
+            {
+                AssertTrue(planar.AsSpan(transfer.AtlasOffset, transfer.ByteCount).SequenceEqual(atlas.Resolve(transfer.Asset).Span),
+                    "stream 3 exact Grapple calculated/upload bytes");
+                AssertTrue(atlas.TryResolve(transfer.SourceAddress, transfer.ByteCount, out var resolved),
+                    "stream 3 existing Grapple transfer identity binding");
+                AssertTrue(resolved.Span.SequenceEqual(atlas.Resolve(transfer.Asset).Span),
+                    "stream 3 rebound Grapple bytes preserve transfer boundaries");
+            }
+        }
+        var stock = Load();
+        Check(stock);
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        AssertEqual(64, ((byte[])typeof(GrappleTileAtlas).GetField("independentTiles", fields)!.GetValue(stock)!).Length,
+            "stream 3 Grapple retains only eight independent binary coverage patterns");
+        foreach (string field in new[] { "firstPoint", "secondPoint", "thirdPoint", "fourthPoint", "verticalSegments" })
+            AssertTrue(typeof(GrappleTileAtlas).GetField(field, fields)!.GetValue(stock) is null,
+                "stream 3 calculated Grapple pixels have no cached stock characters");
+        for (int tile = 0; tile < 16; tile++)
+        for (int plane = 0; plane < 4; plane++)
+        {
+            int index = tile * 32 + plane / 2 * 16 + plane % 2;
+            planar[index] ^= 128;
+            Check(Load());
+            planar[index] ^= 128;
+        }
+        for (int tile = 4; tile < 12; tile++)
+        {
+            for (int plane = 0; plane < 4; plane++) planar[tile * 32 + plane / 2 * 16 + plane % 2] ^= 128;
+            Check(Load());
+            for (int plane = 0; plane < 4; plane++) planar[tile * 32 + plane / 2 * 16 + plane % 2] ^= 128;
+        }
+        Check(stock);
+        AssertTrue(!stock.TryResolve(transfers[0].SourceAddress, 31, out _), "stream 3 Grapple rejects partial transfer");
+    }
+    private static void VerifyStream3NarrationLayout(ISnesAddressSpace rom, byte[] json, IntroNarrationPresentation stock)
+    {
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        int nativeCharacters = 0;
+        foreach (var source in IntroNarrationDefinitions.Pages)
+        {
+            object selected = stock.GetLines(source.Id);
+            AssertTrue(selected.GetType().GetField("supplied", fields)!.GetValue(selected) is null,
+                "native narration calculates line boundaries and rows");
+            string text = (string)selected.GetType().GetField("text", fields)!.GetValue(selected)!;
+            AssertEqual(source.Id == IntroNarrationPageId.Page1 ? 1 : 0, text.Count(character => character == '\n'),
+                "narration retains only the one independently chosen hard break");
+            var expected = new List<IntroNarrationCharacter>();
+            int cursor = 0x8c0000 | (source.InstructionPointer + 8);
+            while ((Read(cursor) & 0x8000) == 0)
+            {
+                ushort position = Read(cursor + 2);
+                ushort glyph = Read(0x8c0000 | (Read(cursor + 4) + 4));
+                expected.Add(new(position & 255, position >> 8, glyph, glyph == IntroNarrationDefinitions.BlankCharacterWord));
+                cursor += 6;
+            }
+            AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "calculated narration matches every native glyph/column/row record");
+            nativeCharacters += expected.Count;
+            AssertThrows<IndexOutOfRangeException>(() => _ = stock.GetLines(source.Id)[-1], "narration line lower bound");
+            AssertThrows<IndexOutOfRangeException>(() => _ = stock.GetLines(source.Id)[stock.GetLines(source.Id).Count], "narration line upper bound");
+        }
+        AssertEqual(770, nativeCharacters, "six native narration pages contain770 characters");
+        var document = System.Text.Json.JsonSerializer.Deserialize<IntroNarrationDocument>(json, MapPresentationFormat.JsonOptions)!;
+        void ConfirmEdit()
+        {
+            using var stream = new MemoryStream();
+            IntroNarrationPresentation.Write(stream, document);
+            stream.Position = 0;
+            var edited = IntroNarrationPresentation.Load(stream);
+            foreach (IntroNarrationPageId page in Enum.GetValues<IntroNarrationPageId>())
+                AssertTrue(edited.GetLines(page).SequenceEqual(document.Pages[page.ToString()].Lines),
+                    "narration preserves independently supplied text, spacing and row choices");
+        }
+        foreach (IntroNarrationPage page in document.Pages.Values)
+        for (int line = 0; line < page.Lines.Length; line++)
+        {
+            IntroNarrationLine original = page.Lines[line];
+            page.Lines[line] = original with { Text = (original.Text[0] == 'A' ? "Z" : "A") + original.Text[1..] };
+            ConfirmEdit();
+            page.Lines[line] = original;
+        }
+        IntroNarrationPage sixth = document.Pages["Page6"];
+        document.Pages["Page6"] = sixth with { Lines = sixth.Lines.Select(line => line with { Row = line.Row + 4 }).ToArray() };
+        ConfirmEdit();
+        document.Pages["Page6"] = sixth with { Lines = [sixth.Lines[0] with { Text = " " + sixth.Lines[0].Text + " " }, sixth.Lines[1]] };
+        ConfirmEdit();
+        document.Pages["Page6"] = sixth with { Lines = [sixth.Lines[0], sixth.Lines[1] with { Row = 10 }] };
+        ConfirmEdit();
+        document.Pages["Page6"] = sixth;
+    }
+    private static void VerifyStream3MochtroidVisuals(ISnesAddressSpace rom)
+    {
+        EnemySpritemapDefinition[] frames = MochtroidVisualDefinitions.Frames().ToArray();
+        AssertEqual(6, frames.Length, "Mochtroid calculated registration count");
+        for (int family = 0; family < 2; family++)
+        {
+            int start = family == 0 ? 0xa747 : 0xa75b;
+            int pointer = family == 0 ? 0xa9b0 : 0xaa06;
+            for (int pose = 0; pose < 3; pose++)
+            {
+                var frame = frames[family * 3 + pose];
+                AssertEqual((byte)0xa3, frame.Bank, "Mochtroid native frame bank");
+                AssertEqual((ushort)pointer, frame.Pointer, "Mochtroid native counted-record stride");
+                AssertEqual($"mochtroid_{(family == 0 ? "flight" : "attached")}_{pose}", frame.Name, "Mochtroid legacy frame name");
+                int count = rom.ReadByte(0xa30000 | pointer) | rom.ReadByte(0xa30000 | (pointer + 1)) << 8;
+                pointer += 2 + 5 * count;
+            }
+            for (int offset = -1; offset <= 16; offset++)
+            {
+                ushort operand = (ushort)(start + offset);
+                if (offset >= 0 && offset <= 12 && offset % 4 == 0)
+                {
+                    ushort expected = (ushort)(rom.ReadByte(0xa30000 | operand) | rom.ReadByte(0xa30000 | (operand + 1)) << 8);
+                    AssertEqual(expected, MochtroidVisualDefinitions.FrameAt(operand), "Mochtroid native ping-pong selector");
+                }
+                else
+                    AssertThrows<InvalidDataException>(() => MochtroidVisualDefinitions.FrameAt(operand), "Mochtroid rejects non-selector address");
+            }
+        }
+    }
+    private static void VerifyStream3MenuSpriteGeometry(ISnesAddressSpace rom)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        static Dictionary<string, SpriteComposition> Sprites(object presentation) =>
+            (Dictionary<string, SpriteComposition>)presentation.GetType().GetField("sprites", flags)!.GetValue(presentation)!;
+        static void Confirm(SpriteComposition actual, SpriteVisualPart[] expectedParts)
+        {
+            var expected = MenuSpriteCompiler.Compile(expectedParts, "native or independently edited menu composition");
+            AssertEqual(expected.PartCount, actual.PartCount, "menu composition exact part count");
+            for (int part = 0; part < expected.PartCount; part++)
+                AssertEqual(expected.Part(part), actual.Part(part), "menu composition exact ordered geometry, tiles, attributes and palette inheritance");
+        }
+        static bool Calculated(SpriteComposition composition) =>
+            typeof(SpriteComposition).GetField("parts", flags)!.GetValue(composition) is not CompiledSpritePart[];
+
+        byte[] imported = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(rom);
+        GameOverPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        GameOverPresentation Load(GameOverPresentationDocument document) => GameOverPresentation.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        var original = Read();
+        var stock = Sprites(Load(original));
+        foreach (string name in GameOverPresentationDefinitions.SpriteNames)
+        {
+            AssertTrue(Calculated(stock[name]), "stock game-over geometry retains no full part array " + name);
+            Confirm(stock[name], original.Sprites[name]);
+            for (int part = 0; part < original.Sprites[name].Length; part++)
+            for (int field = 0; field < 9; field++)
+            {
+                var document = Read();
+                var source = document.Sprites[name][part];
+                document.Sprites[name][part] = field switch
+                {
+                    0 => source with { OffsetX = source.OffsetX + 1 },
+                    1 => source with { OffsetY = source.OffsetY + 1 },
+                    2 => source with { TileColumn = source.TileColumn ^ 1 },
+                    3 => source with { TileRow = source.TileRow ^ 1 },
+                    4 => source with { Size = source.Size == 8 ? 16 : 8 },
+                    5 => source with { Priority = source.Priority ^ 1 },
+                    6 => source with { Palette = 0 },
+                    7 => source with { FlipX = !source.FlipX },
+                    _ => source with { FlipY = !source.FlipY },
+                };
+                var changed = document.Sprites[name][part];
+                if (changed.TileColumn > MapSpriteFormat.TileColumns - changed.Size / 8 ||
+                    changed.TileRow > MapSpriteFormat.TileRows - changed.Size / 8)
+                    AssertThrows<InvalidDataException>(() => Load(document), "menu edited size still rejects out-of-sheet footprint");
+                else
+                    Confirm(Sprites(Load(document))[name], document.Sprites[name]);
+            }
+            var reordered = Read();
+            Array.Reverse(reordered.Sprites[name]);
+            Confirm(Sprites(Load(reordered))[name], reordered.Sprites[name]);
+            var expanded = Read();
+            expanded.Sprites[name] = [.. expanded.Sprites[name], expanded.Sprites[name][0] with { OffsetX = 17 }];
+            Confirm(Sprites(Load(expanded))[name], expanded.Sprites[name]);
+        }
+        ConfirmCursorCaller(SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom), source => FileSelectPresentation.Load(source));
+        ConfirmCursorCaller(SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsPresentation.Load(source));
+
+        void ConfirmCursorCaller(byte[] json, Func<Stream, object> load)
+        {
+            var presentation = Sprites(load(new MemoryStream(json)));
+            for (int frame = 0; frame < 4; frame++)
+            {
+                string name = GameOverPresentationDefinitions.CursorFrameName(frame);
+                var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+                var parts = System.Text.Json.JsonSerializer.Deserialize<SpriteVisualPart[]>(node["sprites"]![name]!.ToJsonString(), MapPresentationFormat.JsonOptions)!;
+                AssertTrue(Calculated(presentation[name]), "shared menu cursor caller uses calculated geometry");
+                Confirm(presentation[name], parts);
+                parts[0] = parts[0] with { OffsetX = parts[0].OffsetX + 1, TileColumn = parts[0].TileColumn ^ 1 };
+                node["sprites"]![name] = System.Text.Json.JsonSerializer.SerializeToNode(parts, MapPresentationFormat.JsonOptions);
+                var edited = Sprites(load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString()))));
+                Confirm(edited[name], parts);
+            }
+        }
+    }
+    private static void VerifyStream3EnemyFrameRegistration(ISnesAddressSpace rom)
+    {
+        // Ordered bank:pointer:name snapshot of the 472 source registrations at commit 723df7b36.
+        const string originalNamedIdentity = "421A60158BA376F9A6AD58EA817315553AD268A44B411B87A4B25059EE5DFE92";
+        var named = EnemySpritemapDefinitions.Frames.Take(472).ToArray();
+        string identity = string.Join("|", named.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.Name}"));
+        AssertEqual(originalNamedIdentity, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(identity))), "enemy named registration exact ordered source identities");
+        var all = EnemySpritemapDefinitions.Frames.ToArray();
+        AssertEqual(all.Length, EnemySpritemapDefinitions.Frames.Length, "enemy calculated registry count");
+        AssertTrue(EnemySpritemapDefinitions.Frames[..472].SequenceEqual(named), "enemy legacy named prefix slice");
+        for (int index = 0; index < 472; index++)
+            AssertEqual(named[index], EnemySpritemapDefinitions.Frames[index], "enemy legacy registration ordinal identity");
+        var additionalPointers = new SortedSet<ushort>();
+        var namedSpritePointers = named.Where(frame => frame.Bank == 0xb4).Select(frame => frame.Pointer).ToHashSet();
+        for (int index = 0; index < RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            int address = 0xb40000 | RoomSpriteObjectInstructionProgramDefinitions.PresentationWordAddress(index);
+            ushort pointer = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            if (!namedSpritePointers.Contains(pointer)) additionalPointers.Add(pointer);
+        }
+        var expectedAdditional = additionalPointers.Select(pointer =>
+            new EnemySpritemapDefinition(0xb4, pointer, $"room_sprite_b4_{pointer:x4}")).ToArray();
+        AssertTrue(all.Skip(472).Take(expectedAdditional.Length).SequenceEqual(expectedAdditional),
+            "enemy additional room-sprite sort and duplicate exclusion preserve named prefix");
+        AssertEqual(all.Length, all.Select(frame => (frame.Bank, frame.Pointer)).Distinct().Count(), "enemy frame identities remain unique");
+        VerifyEnemyLegacyOverrides();
+    }
+    private static void VerifyStream3HopperOperandPositions(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var operands = new SortedSet<ushort>();
+        for (int selector = 0; selector < 16; selector++)
+        {
+            int cursor = 0xa30000 | Word(0xa3aac2 + selector * 2);
+            cursor += 2; // Each native program first changes off-screen processing.
+            if (Word(cursor) == EnemyInstructionCodePointers.Instruction_Sidehopper_QueueSoundInY_Lib2_Max3)
+                cursor += 4;
+            while (Word(cursor) < 0x8000)
+            {
+                operands.Add((ushort)(cursor + 2));
+                cursor += 4;
+            }
+        }
+        AssertEqual(40, operands.Count, "hopper native timed-pose operand count");
+        int index = 0;
+        foreach (ushort operand in operands)
+            AssertEqual(operand, HopperInstructionProgramDefinitions.PresentationWordAddress(index++),
+                "hopper calculated selector position matches native program structure");
+    }
+    private static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        FileSelectPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        foreach ((string name, string field, int address, int count) in new[]
+        {
+            (FileSelectPresentationDefinitions.EnergyPatch, "energyPatch", 0x81b496, 4),
+            (FileSelectPresentationDefinitions.TimeColonPatch, "timeColonPatch", 0x81b4a8, 1),
+            (FileSelectPresentationDefinitions.NoDataPatch, "noDataPatch", 0x81b4ac, 11),
+        })
+        {
+            FileSelectCompiledPatch Compiled(FileSelectPresentation value) => (FileSelectCompiledPatch)typeof(FileSelectPresentation).GetField(field, flags)!.GetValue(value)!;
+            AssertTrue(typeof(FileSelectCompiledPatch).GetField("suppliedCells", flags)!.GetValue(Compiled(stock)) is null,
+                "file-select stock patch retains no cells " + name);
+            for (int index = 0; index < count; index++)
+            {
+                ushort word = (ushort)(rom.ReadByte(address + index * 2) | rom.ReadByte(address + index * 2 + 1) << 8);
+                AssertEqual(new FileSelectCompiledPatchCell(index, 0, word), FileSelectPresentationDefinitions.PatchCell(name, index),
+                    "file-select calculated patch exact native cell");
+                foreach (int bit in new[] { 1, 32, 0x400, 0x2000, 0x4000, 0x8000 })
+                {
+                    var document = Read();
+                    var original = document.Patches[name].Cells[index];
+                    var cell = original.Cell;
+                    cell = bit switch
+                    {
+                        1 => cell with { TileColumn = cell.TileColumn ^ 1 },
+                        32 => cell with { TileRow = cell.TileRow ^ 1 },
+                        0x400 => cell with { Palette = cell.Palette ^ 1 },
+                        0x2000 => cell with { Priority = !cell.Priority },
+                        0x4000 => cell with { FlipX = !cell.FlipX },
+                        _ => cell with { FlipY = !cell.FlipY },
+                    };
+                    document.Patches[name].Cells[index] = original with { Cell = cell };
+                    Confirm(Load(document), document.Patches[name].Cells);
+                }
+                var moved = Read();
+                moved.Patches[name].Cells[index] = moved.Patches[name].Cells[index] with { X = count, Y = 1 };
+                Confirm(Load(moved), moved.Patches[name].Cells);
+            }
+            AssertEqual((byte)0xff, rom.ReadByte(address + count * 2), "file-select native patch terminator low");
+            AssertEqual((byte)0xff, rom.ReadByte(address + count * 2 + 1), "file-select native patch terminator high");
+            Confirm(stock, Read().Patches[name].Cells);
+            var reversed = Read();
+            Array.Reverse(reversed.Patches[name].Cells);
+            Confirm(Load(reversed), reversed.Patches[name].Cells);
+
+            void Confirm(FileSelectPresentation presentation, FileSelectPatchCellDocument[] cells)
+            {
+                var expected = new ushort[1024];
+                var actual = new ushort[1024];
+                var compiled = Compiled(presentation);
+                AssertEqual(cells.Length, compiled.Count, "file-select supplied patch count");
+                for (int index = 0; index < cells.Length; index++)
+                {
+                    var source = cells[index];
+                    var cell = source.Cell;
+                    ushort word = SnesBgTilemapWord.Create(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn,
+                        cell.Palette, cell.Priority, (cell.FlipX ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
+                        (cell.FlipY ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)).Raw;
+                    AssertEqual(new FileSelectCompiledPatchCell(source.X, source.Y, word), compiled.Cell(index),
+                        "file-select independent supplied order and coordinates");
+                    expected[(3 + source.Y) * 32 + 4 + source.X] = word;
+                }
+                presentation.ApplyPatch(actual, name, new MapLabelPoint(4, 3));
+                AssertTrue(actual.SequenceEqual(expected), "file-select exact stock or independently edited patch placement");
+            }
+        }
+    }
+    private static void VerifyStream3GameOverText(ISnesAddressSpace rom)
+    {
+        byte[] imported = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<GameOverPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        GameOverPresentation Load() => GameOverPresentation.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        var stock = Load();
+        AssertTrue(typeof(GameOverPresentation).GetField("tilemap", System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic)!.GetValue(stock) is null, "game-over stock text retains no tilemap row");
+        Confirm(stock);
+        foreach (GameOverTextStream stream in GameOverRomData.Text.All)
+        {
+            int cell = stream.DestinationByteOffset / sizeof(ushort);
+            document.Tilemap[cell] = document.Tilemap[cell] with { Palette = 1, FlipY = true };
+        }
+        document.Tilemap[0] = document.Tilemap[0] with { TileColumn = 1 };
+        Confirm(Load());
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOverPresentationDefinitions.TilemapWord(-1), "game-over text negative cell");
+        AssertThrows<ArgumentOutOfRangeException>(() => GameOverPresentationDefinitions.TilemapWord(1024), "game-over text final cell boundary");
+
+        void Confirm(GameOverPresentation presentation)
+        {
+            var vram = new SnesVram();
+            presentation.LoadTilemapTo(vram, 0x1000);
+            for (int cell = 0; cell < document.Tilemap.Length; cell++)
+            {
+                MapPresentationCell source = document.Tilemap[cell];
+                ushort expected = SnesBgTilemapWord.Create(source.TileRow * MapTileAtlasFormat.TileColumns + source.TileColumn,
+                    source.Palette, source.Priority, (source.FlipX ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
+                    (source.FlipY ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)).Raw;
+                AssertEqual(expected, vram.ReadWord(0x1000 + cell), "game-over native/edited text word and VRAM placement");
+            }
+        }
+    }
+    private static void VerifyStream3OptionsGeometry(ISnesAddressSpace rom)
+    {
+        ushort LookupWord(ISnesAddressSpace source, int address) => (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+        byte[] imported = SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(rom);
+        GameOptionsPresentationDocument ReadDocument() => System.Text.Json.JsonSerializer.Deserialize<GameOptionsPresentationDocument>(
+            imported, MapPresentationFormat.JsonOptions)!;
+        GameOptionsPresentation Load(GameOptionsPresentationDocument document) => GameOptionsPresentation.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        var stock = ReadDocument();
+        var loaded = Load(stock);
+        foreach (string field in new[] { "controllerLabelAnchors", "languageRegions", "specialToggles", "headingAnchors", "cursorAnchors" })
+            AssertTrue(typeof(GameOptionsPresentation).GetField(field, System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic)!.GetValue(loaded) is null, "stock options geometry calculates " + field);
+        for (int action = 0; action < 7; action++)
+        {
+            ushort offset = LookupWord(rom, 0x82f639 + action * 2);
+            AssertEqual(new MapLabelPoint(offset / 2 % 32, offset / 2 / 32),
+                GameOptionsPresentationDefinitions.ControllerAnchor(action), "native options label anchor");
+        }
+        foreach ((string page, int address, int count) in new[]
+        {
+            (GameOptionsPresentationDefinitions.PrimaryMenu, 0x82f307, 5),
+            (GameOptionsPresentationDefinitions.ControllerMenu, 0x82f31b, 9),
+            (GameOptionsPresentationDefinitions.SpecialMenu, 0x82f33f, 3),
+        })
+            for (int row = 0; row < count; row++)
+                AssertEqual(new MapLabelPoint(LookupWord(rom, address + row * 4), LookupWord(rom, address + row * 4 + 2)),
+                    loaded.CursorPosition(page, row), "native options cursor anchor");
+        var stockLabels = (Dictionary<string, ushort[]>)typeof(GameOptionsPresentation).GetField("controllerLabels",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(loaded)!;
+        AssertEqual(0, stockLabels.Count, "options stock button glyphs retain no tilemap rows");
+        for (int button = 0; button < 7; button++)
+        for (int cell = 0; cell < 6; cell++)
+            AssertEqual(LookupWord(rom, 0x82f659 + button * 12 + cell * 2),
+                GameOptionsPresentationDefinitions.ControllerLabelWord(GameOptionsPresentationDefinitions.ControllerLabelName(button), cell),
+                "native options glyph composition preserves each tile and flip");
+        Confirm(stock, loaded);
+        var edited = ReadDocument();
+        for (int action = 0; action < edited.ControllerLabelAnchors.Length; action++)
+        {
+            MapLabelPoint old = edited.ControllerLabelAnchors[action];
+            edited.ControllerLabelAnchors[action] = new(old.X + 1, old.Y);
+        }
+        foreach (MapPresentationCell[] label in edited.ControllerLabels.Values)
+            for (int cell = 0; cell < label.Length; cell++)
+                label[cell] = label[cell] with { FlipX = !label[cell].FlipX, Palette = 1 };
+        edited.LanguageRegions[0].Cells[0] = 0;
+        edited.SpecialToggles[GameOptionsPresentationDefinitions.IconCancelToggle].EnabledCells[0] = 0;
+        foreach (string page in edited.HeadingAnchors.Keys.ToArray())
+        {
+            MapLabelPoint old = edited.HeadingAnchors[page];
+            edited.HeadingAnchors[page] = new(old.X + 1, old.Y);
+            for (int row = 0; row < edited.CursorAnchors[page].Length; row++)
+            {
+                old = edited.CursorAnchors[page][row];
+                edited.CursorAnchors[page][row] = new(old.X + 1, old.Y);
+            }
+        }
+        Confirm(edited, Load(edited));
+
+        void Confirm(GameOptionsPresentationDocument document, GameOptionsPresentation presentation)
+        {
+            foreach (bool japanese in new[] { false, true })
+            {
+                byte[] actual = presentation.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage);
+                byte[] expected = (byte[])actual.Clone();
+                foreach (var region in document.LanguageRegions)
+                    Paint(expected, region.Cells, japanese == region.HighlightWhenJapanese ? document.SelectedPalette : document.UnselectedPalette);
+                presentation.ApplyLanguage(actual, japanese);
+                AssertTrue(actual.AsSpan().SequenceEqual(expected), "options language boxes preserve exact stock/edited cells");
+            }
+            foreach (var pair in document.SpecialToggles)
+            foreach (bool enabled in new[] { false, true })
+            {
+                byte[] actual = presentation.CreatePage(GameOptionsPresentationDefinitions.SpecialEnglishPage);
+                byte[] expected = (byte[])actual.Clone();
+                Paint(expected, pair.Value.EnabledCells, enabled ? document.SelectedPalette : document.UnselectedPalette);
+                Paint(expected, pair.Value.DisabledCells, enabled ? document.UnselectedPalette : document.SelectedPalette);
+                presentation.ApplySpecialToggle(actual, pair.Key, enabled);
+                AssertTrue(actual.AsSpan().SequenceEqual(expected), "options toggle boxes preserve exact stock/edited cells");
+            }
+            for (int action = 0; action < 7; action++)
+            for (int button = 0; button < 7; button++)
+            {
+                byte[] actual = presentation.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage);
+                byte[] expected = (byte[])actual.Clone();
+                MapLabelPoint point = document.ControllerLabelAnchors[action];
+                for (int cell = 0; cell < 6; cell++)
+                {
+                    MapPresentationCell source = document.ControllerLabels[GameOptionsPresentationDefinitions.ControllerLabelName(button)][cell];
+                    ushort word = SnesBgTilemapWord.Create(source.TileRow * MapTileAtlasFormat.TileColumns + source.TileColumn, source.Palette, source.Priority,
+                        (source.FlipX ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
+                        (source.FlipY ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)).Raw;
+                    System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(((point.Y + cell / 3) * 32 + point.X + cell % 3) * 2), word);
+                }
+                presentation.ApplyControllerLabel(actual, action, button);
+                AssertTrue(actual.AsSpan().SequenceEqual(expected), "options controller boxes preserve exact stock/edited placement");
+            }
+            foreach (var pair in document.CursorAnchors)
+                for (int row = 0; row < pair.Value.Length; row++)
+                    AssertEqual(pair.Value[row], presentation.CursorPosition(pair.Key, row), "options stock/edited cursor");
+            foreach (var pair in document.HeadingAnchors)
+            {
+                var actual = new OamBuffer();
+                var expected = new OamBuffer();
+                presentation.DrawHeading(actual, pair.Key, 3);
+                MenuSpriteCompiler.Compile(document.Sprites[GameOptionsPresentationDefinitions.HeadingFrameName(pair.Key)], "heading oracle")
+                    .DrawOnScreen(expected, checked((ushort)pair.Value.X), unchecked((ushort)(pair.Value.Y - 3)),
+                        SnesObjAttributeWord.Create(0, document.CursorPalette, 0).PaletteBits);
+                AssertTrue(actual.LowTable.SequenceEqual(expected.LowTable) && actual.HighTable.SequenceEqual(expected.HighTable),
+                    "options stock/edited heading origin and scroll");
+            }
+            AssertThrows<ArgumentOutOfRangeException>(() => presentation.ApplyControllerLabel(new byte[2048], -1, 0), "options invalid action");
+            AssertThrows<InvalidDataException>(() => presentation.CursorPosition("invalid", 0), "options invalid page");
+        }
+        static void Paint(byte[] page, int[] cells, int palette)
+        {
+            foreach (int cell in cells)
+            {
+                Span<byte> destination = page.AsSpan(cell * 2);
+                ushort old = System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(destination);
+                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(destination, (ushort)((old & ~0x1c00) | palette << 10));
+            }
+        }
+    }
     private static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
+        VerifyStream3GameOverText(rom);
+        VerifyStream3OptionsGeometry(rom);
+        ushort[] expectedDoorCallbacks =
+        [
+            DoorCodes.DoorCode_Scroll6_Green,
+            DoorCodes.DoorASM_Scroll_0_Blue,
+            DoorCodes.DoorASM_Scroll_13_Blue,
+            DoorCodes.DoorASM_Scroll_4_Red_8_Green,
+            DoorCodes.DoorASM_Scroll_8_9_A_B_Red,
+            DoorCodes.DoorASM_Scroll_2_3_4_5_B_C_D_11_Red,
+            DoorCodes.DoorASM_Scroll_1_4_Green,
+            DoorCodes.DoorASM_Scroll_2_Blue,
+            DoorCodes.DoorASM_Scroll_17_Blue,
+            DoorCodes.DoorASM_Scroll_4_Blue,
+            DoorCodes.DoorASM_Scroll_6_Green_duplicate,
+            DoorCodes.DoorASM_Scroll_3_Green,
+            DoorCodes.DoorASM_Scroll_18_1C_Green,
+            DoorCodes.DoorASM_Scroll_5_6_Blue,
+            DoorCodes.DoorASM_Scroll_1D_Blue,
+            DoorCodes.DoorASM_Scroll_2_3_Green,
+            DoorCodes.DoorASM_Scroll_0_Red_1_Green,
+            DoorCodes.DoorASM_Scroll_B_Green,
+            DoorCodes.DoorASM_Scroll_Scroll_1C_Red_1D_Blue,
+            DoorCodes.DoorASM_Scroll_4_Red,
+            DoorCodes.DoorASM_Scroll_20_24_25_Green,
+            DoorCodes.DoorASM_Scroll_2_Blue_duplicate,
+            DoorCodes.DoorASM_Scroll_0_Green,
+            DoorCodes.DoorASM_Scroll_6_7_Green,
+            DoorCodes.DoorASM_Scroll_1_Blue_2_Red,
+            DoorCodes.DoorASM_Scroll_1_Blue_3_Red,
+            DoorCodes.DoorASM_Scroll_0_Red_4_Blue,
+            DoorCodes.DoorASM_Scroll_2_3_Blue,
+            DoorCodes.DoorASM_Scroll_0_1_Green,
+            DoorCodes.DoorASM_Scroll_1_Green,
+            DoorCodes.DoorASM_Scroll_F_12_Green,
+            DoorCodes.DoorASM_Scroll_6_Green_duplicate_again,
+            DoorCodes.DoorASM_Scroll_0_Green_1_Blue,
+            DoorCodes.DoorASM_Scroll_2_Green,
+            DoorCodes.DoorASM_Scroll_3_4_Red_6_7_8_Blue,
+            DoorCodes.DoorASM_Scroll_1_2_3_Blue_4_Green_6_Red,
+            DoorCodes.DoorASM_Scroll_0_1_Blue,
+            DoorCodes.DoorASM_Scroll_0_Blue_1_Red,
+            DoorCodes.DoorASM_Scroll_A_Green,
+            DoorCodes.DoorASM_Scroll_0_2_Green,
+            DoorCodes.DoorASM_Scroll_6_7_Blue_8_Red,
+            DoorCodes.DoorASM_Scroll_2_Red_3_Blue,
+            DoorCodes.DoorASM_Scroll_7_Green,
+            DoorCodes.DoorASM_Scroll_1_Red_2_Blue,
+            DoorCodes.DoorASM_Scroll_0_Blue_3_Red,
+            DoorCodes.DoorASM_Scroll_1_Blue_4_Red,
+            DoorCodes.DoorASM_Scroll_0_Blue_1_2_3_Red,
+            DoorCodes.DoorASM_Scroll_0_Green_duplicate,
+            DoorCodes.DoorASM_Scroll_0_1_Blue_4_Red,
+            DoorCodes.DoorASM_Scroll_0_Blue_3_Red_duplicate,
+            DoorCodes.DoorASM_Scroll_0_Blue_duplicate,
+            DoorCodes.DoorASM_Scroll_0_Blue_1_Red_duplicate,
+            DoorCodes.DoorASM_Scroll_18_Blue,
+            DoorCodes.DoorASM_Scroll_2_Blue_3_Red,
+            DoorCodes.DoorASM_Scroll_E_Red,
+            DoorCodes.DoorASM_Scroll_1_Blue,
+            DoorCodes.DoorASM_Scroll_0_Green_duplicate_again,
+            DoorCodes.DoorASM_Scroll_3_Red_4_Blue,
+            DoorCodes.DoorASM_Scroll_29_Blue,
+            DoorCodes.DoorASM_Scroll_28_2E_Green,
+            DoorCodes.DoorASM_Scroll_6_7_8_9_A_B_Red,
+            DoorCodes.DoorASM_Scroll_A_Red_B_Blue,
+            DoorCodes.DoorASM_Scroll_0_Red_4_Blue_duplicate,
+            DoorCodes.DoorASM_Scroll_0_Red_1_Blue,
+            DoorCodes.DoorASM_Scroll_9_Red_A_Blue,
+            DoorCodes.DoorASM_Scroll_0_2_Red_1_Blue,
+            DoorCodes.DoorASM_Scroll_1_Blue_duplicate,
+            DoorCodes.DoorASM_Scroll_6_Blue,
+            DoorCodes.DoorASM_Scroll_4_Red_duplicate,
+            DoorCodes.DoorASM_Scroll_4_7_Red,
+            DoorCodes.DoorASM_Scroll_1_Blue_2_Red_duplicate,
+            DoorCodes.DoorASM_Scroll_0_2_Green_duplicate,
+            DoorCodes.DoorASM_Scroll_0_1_Green_duplicate,
+            DoorCodes.DoorASM_Scroll_18_Blue_19_Red,
+        ];
+        AssertTrue(expectedDoorCallbacks.SequenceEqual(SuperMetroid.Core.Rooms.DoorScrollPrograms.Pointers),
+            "stream 3 pure door callback original registration order");
+        var expectedCallbacks = expectedDoorCallbacks.ToHashSet();
+        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
+            AssertEqual(expectedCallbacks.Contains((ushort)pointer),
+                SuperMetroid.Core.Rooms.DoorScrollPrograms.Contains((ushort)pointer), "stream 3 exact callback ownership");
+        foreach (ushort pointer in expectedDoorCallbacks)
+        {
+            byte[] expected = Enumerable.Repeat((byte)0x7f, RoomScrollGrid.StorageByteCount).ToArray();
+            var actual = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), expected, 10, 5);
+            ExecuteStream3DoorScroll(rom, pointer, expected);
+            AssertTrue(SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(pointer, actual), "stream 3 callback recognized");
+            AssertTrue(actual.Storage.SequenceEqual(expected), "stream 3 native ordered door writes and all untouched cells");
+        }
+        var unchangedScroll = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), new byte[50], 10, 5);
+        AssertTrue(!SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(0, unchangedScroll), "stream 3 unknown callback no-op");
+        AssertThrows<ArgumentNullException>(() => SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(0, null!),
+            "stream 3 door callback null argument remains rejected before dispatch");
+        for (int pair = 0; pair < 16; pair++)
+        {
+            int address = 0xadde5f + 2 * pair;
+            int pointer = rom.ReadByte(address) | rom.ReadByte(address + 1) << 8;
+            var expected = pointer switch
+            {
+                0xe1a6 => MotherBrainBeamRomData.Direction.Down,
+                0xde7f => MotherBrainBeamRomData.Direction.Right,
+                0xdf6e => MotherBrainBeamRomData.Direction.Up,
+                0xde5e => MotherBrainBeamRomData.Direction.Retain,
+                0 => MotherBrainBeamRomData.Direction.Unsupported,
+                _ => throw new InvalidDataException("Unexpected native beam quadrant target."),
+            };
+            AssertEqual(expected, MotherBrainBeamRomData.DirectionForQuadrants(pair),
+                "stream 3 native beam quadrant dispatcher including null and retaining entries");
+        }
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBeamRomData.DirectionForQuadrants(invalid),
+                "stream 3 beam dispatcher preserves span index bounds");
+        VerifyMotherBrainFallingTubeInstructionDefinitions();
+        IntroCinematicRomData.Palette.Regions[] introRegions =
+        [IntroCinematicRomData.Palette.Gameplay, IntroCinematicRomData.Palette.GameplayClear,
+         IntroCinematicRomData.Palette.Narration, IntroCinematicRomData.Palette.Discovery];
+        IntroPaletteSpan[][] expectedIntroRegions =
+        [
+            [new(0, 20), new(96, 16), new(466, 6)],
+            [new(0, 16), new(96, 16), new(466, 6)],
+            [new(40, 3), new(224, 16), new(384, 32), new(480, 16)],
+            [new(64, 16), new(448, 9)],
+        ];
+        int[][] nativeIntroOperands =
+        [ [0x8bb258, 0x8bb261, 0x8bb26a], [0x8bb3c8, 0x8bb3d1, 0x8bb3da],
+          [0x8bb273, 0x8bb27c, 0x8bb285, 0x8bb28e], [0x8bb2f5, 0x8bb2fe] ];
+        for (int group = 0; group < introRegions.Length; group++)
+        {
+            AssertTrue(introRegions[group].SequenceEqual(expectedIntroRegions[group]),
+                "stream 3 intro scene region order, offsets and color counts");
+            for (int index = 0; index < nativeIntroOperands[group].Length; index++)
+            {
+                int address = nativeIntroOperands[group][index];
+                AssertEqual((byte)0xa2, rom.ReadByte(address), "stream 3 intro native LDX region");
+                AssertEqual((byte)0xa0, rom.ReadByte(address + 3), "stream 3 intro native LDY color count");
+                AssertEqual((int)introRegions[group][index].ByteOffset,
+                    rom.ReadByte(address + 1) | rom.ReadByte(address + 2) << 8, "stream 3 intro native offset");
+                AssertEqual((int)introRegions[group][index].ByteCount,
+                    rom.ReadByte(address + 4) | rom.ReadByte(address + 5) << 8, "stream 3 intro native count");
+            }
+            foreach (int invalid in new[] { -1, introRegions[group].Count, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => _ = introRegions[group][invalid], "stream 3 intro region bounds");
+        }
+        ushort[] motherBrainRoots =
+        [
+            0xa586, 0xa5bf, 0xa5f8, 0xa62c, 0xa660, 0xa694, 0xa69b, 0xa6d9, 0xa717,
+            0xa750, 0xa789, 0xad3e, 0xad6d, 0xada1, 0xadd5, 0xae09, 0xae33, 0xae5d,
+        ];
+        int[] nativeCharacterCounts = [11, 11, 10, 10, 10, 1, 12, 12, 11, 11, 11, 9, 10, 10, 10, 8, 8, 26];
+        AssertTrue(MotherBrainVisualDefinitions.Frames().Select(frame => frame.Pointer).SequenceEqual(motherBrainRoots),
+            "stream 3 all original Mother Brain root identities and enumeration");
+        for (int index = 0; index < motherBrainRoots.Length; index++)
+        {
+            var actual = MotherBrainVisualDefinitions.Frame(index);
+            AssertEqual((byte)0xa9, actual.Bank, "stream 3 Mother Brain visual bank");
+            AssertEqual($"mother_brain_a9_{motherBrainRoots[index]:x4}", actual.Name, "stream 3 Mother Brain visual identity name");
+            int address = 0xa90000 | actual.Pointer;
+            AssertEqual(nativeCharacterCounts[index], rom.ReadByte(address) | rom.ReadByte(address + 1) << 8,
+                "stream 3 native OAM record widths used for root strides");
+        }
+        foreach (int invalid in new[] { -1, 18, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainVisualDefinitions.Frame(invalid), "stream 3 visual root bounds");
+        MotherBrainSpecialSpriteSheetDefinition[] expectedSheets =
+        [
+            new("mother-brain-leg-tiles.png", 0xb79000, 8, 0x7400),
+            new("mother-brain-baby-tiles.png", 0xb18800, 4, 0x7c00),
+            new("mother-brain-attack-tiles.png", 0xb7a000, 4, 0x7c00),
+            new("mother-brain-exploded-door-tiles.png", 0xabf400, 2, 0x7000),
+        ];
+        AssertTrue(expectedSheets.SequenceEqual(MotherBrainSpecialSpriteArtworkDefinitions.All),
+            "stream 3 named special sheet order and every field");
+        foreach (var sheet in expectedSheets)
+            foreach (int source in new[] { sheet.SourceAddress, sheet.SourceAddress + sheet.ByteCount - 1 })
+            {
+                AssertTrue(MotherBrainSpecialSpriteArtworkDefinitions.TryForSource((uint)source, out var found),
+                    "stream 3 special sheet boundary lookup");
+                AssertEqual(sheet, found, "stream 3 special sheet source owner");
+            }
+        foreach (int invalid in new[] { -1, 4, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = MotherBrainSpecialSpriteArtworkDefinitions.All[invalid],
+                "stream 3 special sheet original index exception");
+        // Confirm the identified copy-list conversion against native STA operands.
+        int[][] nativeDoorCopies =
+        [
+            [0x82e1f4, 0x82e1fa, 0x82e200, 0x82e206, 0x82e20c, 0x82e212, 0x82e218, 0x82e21e],
+            [0x82e22f, 0x82e235, 0x82e23b, 0x82e241, 0x82e247],
+            [0x82e252, 0x82e258, 0x82e25e, 0x82e264],
+        ];
+        int targetPaletteBase = rom.ReadByte(0x82e1f5) + (rom.ReadByte(0x82e1f6) << 8) - 18;
+        ushort[] sourceColors = Enumerable.Range(1, 256).Select(value => (ushort)value).ToArray();
+        for (int group = 0; group < nativeDoorCopies.Length; group++)
+        {
+            ushort[] actual = new ushort[256];
+            ushort[] expected = new ushort[256];
+            foreach (int instruction in nativeDoorCopies[group])
+            {
+                AssertEqual((byte)0x8d, rom.ReadByte(instruction), "stream 3 native door color store opcode");
+                int destination = rom.ReadByte(instruction + 1) + (rom.ReadByte(instruction + 2) << 8);
+                int color = (destination - targetPaletteBase) / 2;
+                expected[color] = sourceColors[color];
+            }
+            switch (group)
+            {
+                case 0: DoorTransitionPaletteDefinitions.PreserveHud(sourceColors, actual); break;
+                case 1: DoorTransitionPaletteDefinitions.PreserveCommonCre(sourceColors, actual); break;
+                case 2: DoorTransitionPaletteDefinitions.PreserveEscapeTimer(sourceColors, actual); break;
+            }
+            AssertTrue(expected.SequenceEqual(actual), "stream 3 exact native door fade preserved and black slots");
+        }
         // Confirm the replaced selector for its complete ushort input domain.
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
@@ -99,6 +922,10 @@ internal static partial class Program
         VerifyStream3BabyFade(rom);
         VerifyStream3DrainFades(rom);
         VerifyStream3ShitroidPulse(rom);
+        VerifyStream3HealthTint(rom);
+        VerifyStream3RecoveryLights(rom);
+        VerifyStream3RoomFlash(rom);
+        VerifyMotherBrainRoomPaletteProgramDefinitions();
         VerifyStream3CorpseGeometry(rom);
         VerifyStream3EscapeGeometry(rom);
         VerifyStream3PainfulWalking(rom);
@@ -509,7 +1336,7 @@ internal static partial class Program
         ushort Read(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
-        PaletteRgb5[] Zeros(int count) => Enumerable.Range(0, count).Select(_ => Color(0)).ToArray();
+
         MotherBrainRainbowPaletteFrameDocument ReadFull(int bodySource, int legSource) => new()
         {
             Body = Enumerable.Range(0, 15).Select(color => Color(Read(bodySource + 2 * color))).ToArray(),
@@ -546,7 +1373,8 @@ internal static partial class Program
         {
             Version = 3, Rainbow = rainbow,
             ToGrey = drain, FromGrey = revival,
-            FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494), BeamInitial = Color(0), BeamCycle = Zeros(38),
+            FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494), BeamInitial = Color(0x3ce0),
+            BeamCycle = Enumerable.Range(0, 38).Select(index => Color(Read(0x88e833 + 4 * index))).ToArray(),
         };
         MotherBrainRainbowPalettePresentation Load(MotherBrainRainbowPaletteDocument value,
             MotherBrainRainbowPalettePresentation? stock = null) => MotherBrainRainbowPalettePresentation.Load(
@@ -573,6 +1401,29 @@ internal static partial class Program
             }
         }
         var stock = Load(document);
+        void CheckBeam(MotherBrainRainbowPalettePresentation palette)
+        {
+            for (int index = 0; index < 38; index++)
+                AssertEqual(Word(document.BeamCycle[index]), palette.BeamColorWord(index * 4),
+                    "stream 3 beam wheel matches every native sampled color");
+            AssertEqual(ushort.MaxValue, palette.BeamColorWord(152), "stream 3 beam signed loop terminator");
+            AssertEqual((ushort)0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
+        }
+        CheckBeam(stock);
+        const System.Reflection.BindingFlags beamFields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object beamColors = typeof(MotherBrainRainbowPalettePresentation).GetField("beamCycle", beamFields)!.GetValue(stock)!;
+        AssertTrue(beamColors.GetType().GetField("supplied", beamFields)!.GetValue(beamColors) is null,
+            "stream 3 beam wheel retains no stock lookup row");
+        for (int index = 0; index < 38; index++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            PaletteRgb5 original = document.BeamCycle[index];
+            document.BeamCycle[index] = Color((ushort)(Word(original) ^ 1 << (5 * channel)));
+            CheckBeam(Load(document));
+            document.BeamCycle[index] = original;
+        }
+        foreach (int invalid in new[] { -1, 1, 2, 3, 153, 156, int.MaxValue })
+            AssertThrows<InvalidDataException>(() => stock.BeamColorWord(invalid), "stream 3 beam cursor bounds and alignment");
         Check(stock);
         void CheckRainbow(MotherBrainRainbowPalettePresentation palette)
         {
@@ -640,6 +1491,26 @@ internal static partial class Program
             Set(original);
         }
         CheckRainbow(stock);
+        object fakeFade = typeof(MotherBrainRainbowPalettePresentation).GetField("fakeDeathToGrey", privateFields)!.GetValue(stock)!;
+        foreach (string endpointName in new[] { "first", "last" })
+        {
+            object endpoint = fakeFade.GetType().GetField(endpointName, privateFields)!.GetValue(fakeFade)!;
+            object body = endpoint.GetType().GetProperty("Body")!.GetValue(endpoint)!;
+            AssertTrue(body.GetType().GetField("supplied", privateFields)!.GetValue(body) is null,
+                "stream 3 fake-death endpoints reuse approved normal/drained cortex paint without stored rows");
+        }
+        object drainFade = typeof(MotherBrainRainbowPalettePresentation).GetField("toGrey", privateFields)!.GetValue(stock)!;
+        object drainEnd = drainFade.GetType().GetField("last", privateFields)!.GetValue(drainFade)!;
+        object drainBody = drainEnd.GetType().GetProperty("Body")!.GetValue(drainEnd)!;
+        var drainedPaint = (MotherBrainRainbowPalettePresentation.DrainedBodyColors)drainBody.GetType()
+            .GetField("drained", privateFields)!.GetValue(drainBody)!;
+        AssertTrue(drainedPaint.Calculated, "stream 3 drained final gray body palette has no stored row");
+        object normalFrame = typeof(MotherBrainRainbowPalettePresentation).GetField("normal", privateFields)!.GetValue(stock)!;
+        object normalBody = normalFrame.GetType().GetProperty("Body")!.GetValue(normalFrame)!;
+        AssertTrue(normalBody.GetType().GetField("supplied", privateFields)!.GetValue(normalBody) is null,
+            "stream 3 normal body calculates from shared health paint without a stored row");
+        AssertTrue(normalFrame.GetType().GetField("backLegs", privateFields)!.GetValue(normalFrame) is null,
+            "stream 3 normal rear palette calculates from shared health lighting without a stored row");
         var storedRainbow = (Array)typeof(MotherBrainRainbowPalettePresentation).GetField("rainbow",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
         foreach (object frame in storedRainbow)
@@ -827,8 +1698,17 @@ internal static partial class Program
         foreach (string name in new[] { "bodyFade", "legFade", "corpseFade" })
         {
             object fade = typeof(MotherBrainDeathColorCatalog).GetField(name, fields)!.GetValue(stock)!;
+            AssertTrue(fade.GetType().GetField("first", fields)!.GetValue(fade) is null,
+                "stream 3 death starts reuse calculated health state three without stored endpoint rows");
             AssertTrue(fade.GetType().GetField("supplied", fields)!.GetValue(fade) is null,
                 "stream 3 original death fade discards its stored frame table");
+            if (name == "corpseFade")
+            {
+                var endpoint = (MotherBrainRainbowPalettePresentation.DrainedBodyColors)fade.GetType()
+                    .GetField("last", fields)!.GetValue(fade)!;
+                AssertTrue(endpoint.Calculated, "stream 3 corpse final gray palette has no stored row");
+                AssertEqual(0, endpoint[14], "stream 3 corpse neutral black endpoint");
+            }
         }
         foreach (ushort[][] frames in new[] { body, leg, corpse })
         for (int frame = 0; frame < frames.Length; frame++)
@@ -1183,5 +2063,496 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(0, invalid),
                 "stream 3 Work Robot color bounds");
+    }
+    private static void VerifyStream3HealthTint(ISnesAddressSpace rom)
+    {
+        byte[] json = SuperMetroid.AssetExtraction.MotherBrainHealthPaletteExtractor.Extract(rom);
+        var stock = MotherBrainHealthPalettePresentation.Load(new MemoryStream(json));
+        var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        foreach (string name in new[] { "body", "backLegs" })
+        {
+            object palette = typeof(MotherBrainHealthPalettePresentation).GetField(name, flags)!.GetValue(stock)!;
+            AssertTrue(palette.GetType().GetField("supplied", flags)!.GetValue(palette) is null,
+                "stream 3 native health tint has no stored intermediate rows");
+            object basis = palette.GetType().GetField("basis", flags)!.GetValue(palette)!;
+            AssertTrue(basis.GetType().GetField("supplied", flags)!.GetValue(basis) is null,
+                "stream 3 native health shade ramps calculated from paint endpoints");
+            ushort[] anchors = basis.GetType().GetFields(flags).Where(field => field.FieldType == typeof(ushort))
+                .Select(field => (ushort)field.GetValue(basis)!).ToArray();
+            AssertEqual(6, anchors.Length, "stream 3 health base exposes only six possible paint anchors");
+            AssertTrue(name == "body" ? anchors.All(value => value != 0) : anchors.All(value => value == 0),
+                "stream 3 stock rear palette stores no independent paint colors");
+        }
+        for (int state = 0; state < 4; state++)
+        {
+            var actual = new SnesCgram();
+            stock.Apply(actual, state);
+            foreach (var (table, destination) in new[]
+            {
+                (MotherBrainHealthPaletteRomData.BrainTable, MotherBrainRainbowPaletteRomData.BodyColor),
+                (MotherBrainHealthPaletteRomData.BackLegTable, MotherBrainRainbowPaletteRomData.SecondaryColor),
+            })
+            {
+                int pointer = rom.ReadByte(table + state * 2) | rom.ReadByte(table + state * 2 + 1) << 8;
+                for (int color = 0; color < 15; color++)
+                {
+                    int address = 0xad0000 | pointer + color * 2;
+                    ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                    AssertEqual(expected, actual.Colors[destination + color], "stream 3 all native health tint words");
+                }
+            }
+            for (int color = 0; color < 15; color++)
+                AssertEqual(actual.Colors[MotherBrainRainbowPaletteRomData.BodyColor + color],
+                    actual.Colors[MotherBrainRainbowPaletteRomData.BrainColor + color], "stream 3 health tint body/brain copies");
+        }
+        foreach (string group in new[] { "body", "backLegs" })
+            for (int state = 0; state < 4; state++)
+                for (int color = 0; color < 15; color++)
+                    foreach (string component in new[] { "red", "green", "blue" })
+                    {
+                        var editedNode = node.DeepClone();
+                        var rgb = editedNode[group]![state]![color]!;
+                        rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                        var edited = MotherBrainHealthPalettePresentation.Load(new MemoryStream(
+                            System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
+                        for (int checkState = 0; checkState < 4; checkState++)
+                        {
+                            var actual = new SnesCgram();
+                            edited.Apply(actual, checkState);
+                            foreach (var (checkGroup, destination) in new[]
+                            {
+                                ("body", MotherBrainRainbowPaletteRomData.BodyColor),
+                                ("backLegs", MotherBrainRainbowPaletteRomData.SecondaryColor),
+                            })
+                                for (int checkColor = 0; checkColor < 15; checkColor++)
+                                {
+                                    var expectedRgb = editedNode[checkGroup]![checkState]![checkColor]!;
+                                    ushort expected = (ushort)(expectedRgb["red"]!.GetValue<int>() |
+                                        expectedRgb["green"]!.GetValue<int>() << 5 |
+                                        expectedRgb["blue"]!.GetValue<int>() << 10);
+                                    AssertEqual(expected, actual.Colors[destination + checkColor],
+                                        "stream 3 independent health palette edit and unaffected channels");
+                                }
+                        }
+                    }
+    }
+    private static void VerifyStream3RecoveryLights(ISnesAddressSpace rom)
+    {
+        byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
+        var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object fade = typeof(MotherBrainRoomColorPresentation).GetField("recoveryLights", flags)!.GetValue(stock)!;
+        AssertTrue(fade.GetType().GetField("supplied", flags)!.GetValue(fade) is null,
+            "stream 3 stock recovery light rows discarded");
+        AssertTrue(ReferenceEquals(fade.GetType().GetField("finalRoom", flags)!.GetValue(fade),
+            typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", flags)!.GetValue(stock)),
+            "stream 3 recovery endpoint reuses the final room palette");
+        AssertEqual(4, fade.GetType().GetFields(flags).Count(field => field.FieldType == typeof(ushort)),
+            "stream 3 recovery keeps only four additional paint endpoints");        for (int frame = 0; frame < 7; frame++)
+        {
+            var actual = new SnesCgram();
+            stock.ApplyRecoveryLights(actual, frame);
+            for (int color = 0; color < 28; color++)
+            {
+                int address = 0xadf3d3 - frame * 0x38 + color * 2;
+                ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                int destination = color < 14 ? MotherBrainRoomColorRomData.RecoveryLightsFirstColor + color :
+                    MotherBrainRoomColorRomData.RecoveryLightsSecondColor + color - 14;
+                AssertEqual(expected, actual.Colors[destination], "stream 3 all native recovery light words");
+            }
+        }
+        for (int frame = 0; frame < 7; frame++)
+            for (int color = 0; color < 28; color++)
+                foreach (string component in new[] { "red", "green", "blue" })
+                {
+                    var editedNode = node.DeepClone();
+                    var rgb = editedNode["recoveryLights"]![frame]![color]!;
+                    rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                    var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                        System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
+                    for (int checkFrame = 0; checkFrame < 7; checkFrame++)
+                    {
+                        var actual = new SnesCgram();
+                        edited.ApplyRecoveryLights(actual, checkFrame);
+                        for (int checkColor = 0; checkColor < 28; checkColor++)
+                        {
+                            var expectedRgb = editedNode["recoveryLights"]![checkFrame]![checkColor]!;
+                            ushort expected = (ushort)(expectedRgb["red"]!.GetValue<int>() |
+                                expectedRgb["green"]!.GetValue<int>() << 5 |
+                                expectedRgb["blue"]!.GetValue<int>() << 10);
+                            int destination = checkColor < 14 ? MotherBrainRoomColorRomData.RecoveryLightsFirstColor + checkColor :
+                                MotherBrainRoomColorRomData.RecoveryLightsSecondColor + checkColor - 14;
+                            AssertEqual(expected, actual.Colors[destination], "stream 3 independent recovery light edit");
+                        }
+                    }
+                }
+        for (int color = 0; color < 24; color++)
+            foreach (string component in new[] { "red", "green", "blue" })
+            {
+                var editedNode = node.DeepClone();
+                var rgb = editedNode["finalRoom"]![color]!;
+                rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                    System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
+                for (int frame = 0; frame < 7; frame++)
+                {
+                    var expected = new SnesCgram();
+                    var actual = new SnesCgram();
+                    stock.ApplyRecoveryLights(expected, frame);
+                    edited.ApplyRecoveryLights(actual, frame);
+                    AssertTrue(expected.Colors.SequenceEqual(actual.Colors),
+                        "stream 3 independent final-room edit cannot change recovery content");
+                    for (int phase = 0; phase < 2; phase++)
+                    {
+                        ushort pointer = (ushort)(0xd046 + (frame * 2 + phase) * 4);
+                        stock.ApplyFlash(expected, pointer);
+                        edited.ApplyFlash(actual, pointer);
+                        AssertTrue(expected.Colors.SequenceEqual(actual.Colors),
+                            "stream 3 independent final-room edit cannot change flash content");
+                    }
+                }
+            }
+        var legacy = node.DeepClone();
+        legacy["version"] = MotherBrainRoomColorFormat.PreRecoveryLightsVersion;
+        legacy.AsObject().Remove("recoveryLights");
+        var oldOverride = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+            System.Text.Encoding.UTF8.GetBytes(legacy.ToJsonString())), stock);
+        for (int frame = 0; frame < 7; frame++)
+        {
+            var expected = new SnesCgram();
+            var actual = new SnesCgram();
+            stock.ApplyRecoveryLights(expected, frame);
+            oldOverride.ApplyRecoveryLights(actual, frame);
+            AssertTrue(expected.Colors.SequenceEqual(actual.Colors), "stream 3 legacy room override reuses calculated stock recovery");
+        }
+    }
+    private static void VerifyStream3RoomFlash(ISnesAddressSpace rom)
+    {
+        byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
+        var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object flash = typeof(MotherBrainRoomColorPresentation).GetField("flash", flags)!.GetValue(stock)!;
+        AssertTrue(flash.GetType().GetField("supplied", flags)!.GetValue(flash) is null,
+            "stream 3 stock flash rows discarded");
+        AssertTrue(ReferenceEquals(flash.GetType().GetField("basis", flags)!.GetValue(flash),
+            typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", flags)!.GetValue(stock)),
+            "stream 3 stock flash reuses final room paint basis");
+        for (int offset = 0; offset <= ushort.MaxValue; offset++)
+        {
+            bool mechanics = offset >= 0xd046 && offset < 0xd07e && (offset - 0xd046) % 4 < 2 ||
+                offset is >= 0xd07e and < 0xd082;
+            bool presentation = offset >= 0xd046 && offset < 0xd07e && (offset - 0xd046) % 4 >= 2;
+            AssertEqual(mechanics, MotherBrainRoomPaletteProgramDefinitions.IsCompiledMechanicsByte(0xa90000 | offset),
+                "stream 3 room palette mechanics byte ownership");
+            AssertEqual(presentation, MotherBrainRoomPaletteProgramDefinitions.TryGetPresentationWord(0xa90000 | offset, out ushort word),
+                "stream 3 room palette operand byte ownership");
+            if (presentation) AssertEqual((ushort)(offset & 0xfffe), word, "stream 3 room palette canonical operand");
+        }
+        foreach (int invalid in new[] { -1, 14, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(invalid),
+                "stream 3 room palette operand index bounds");
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainRoomPaletteProgramDefinitions.MechanicsWord(invalid),
+                "stream 3 room palette mechanics index bounds");
+        for (int frame = 0; frame < 14; frame++)
+            for (int color = 0; color < 24; color++)
+                foreach (string component in new[] { "red", "green", "blue" })
+                {
+                    var editedNode = node.DeepClone();
+                    var rgb = editedNode["flash"]![frame]![color]!;
+                    rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                    var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                        System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
+                    for (int checkFrame = 0; checkFrame < 14; checkFrame++)
+                    {
+                        var actual = new SnesCgram();
+                        edited.ApplyFlash(actual, (ushort)(0xd046 + checkFrame * 4));
+                        for (int checkColor = 0; checkColor < 24; checkColor++)
+                        {
+                            var expectedRgb = editedNode["flash"]![checkFrame]![checkColor]!;
+                            ushort expected = (ushort)(expectedRgb["red"]!.GetValue<int>() |
+                                expectedRgb["green"]!.GetValue<int>() << 5 |
+                                expectedRgb["blue"]!.GetValue<int>() << 10);
+                            int destination = checkColor < 12 ? 0x34 + checkColor : 0x53 + checkColor - 12;
+                            AssertEqual(expected, actual.Colors[destination], "stream 3 independent room flash edit");
+                            if (checkColor >= 12)
+                                AssertEqual(expected, actual.Colors[0x73 + checkColor - 12], "stream 3 edited room flash mirror");
+                        }
+                    }
+                }
+    }
+    private static void ExecuteStream3DoorScroll(
+        ISnesAddressSpace bus,
+        ushort pointer,
+        Span<byte> scrolls)
+    {
+        int pc = 0x8f0000 | pointer;
+        bool accumulatorIsEightBit = false;
+        ushort accumulator = 0;
+
+        for (int instruction = 0; instruction < 32; instruction++)
+        {
+            byte opcode = bus.ReadByte(pc++);
+            switch (opcode)
+            {
+                case 0x08: // PHP
+                case 0x28: // PLP
+                    break;
+
+                case 0xe2: // SEP #$20
+                    byte sepMask = bus.ReadByte(pc++);
+                    if (sepMask != 0x20)
+                        throw UnsupportedStream3DoorScroll(pointer, opcode, pc - 2);
+                    accumulatorIsEightBit = true;
+                    break;
+
+                case 0xa9: // LDA immediate
+                    accumulator = bus.ReadByte(pc++);
+                    if (!accumulatorIsEightBit)
+                        accumulator |= unchecked((ushort)(bus.ReadByte(pc++) << 8));
+                    break;
+
+                case 0x8f: // STA long
+                    int destination = bus.ReadByte(pc) |
+                        (bus.ReadByte(pc + 1) << 8) |
+                        (bus.ReadByte(pc + 2) << 16);
+                    pc += 3;
+                    int storageIndex = destination - RoomScrollGrid.WorkRamAddress;
+                    if ((uint)storageIndex >= RoomScrollGrid.StorageByteCount)
+                        throw UnsupportedStream3DoorScroll(pointer, opcode, pc - 4);
+                    scrolls[storageIndex] = unchecked((byte)accumulator);
+                    if (!accumulatorIsEightBit)
+                    {
+                        if (storageIndex + 1 >= scrolls.Length)
+                            throw UnsupportedStream3DoorScroll(pointer, opcode, pc - 4);
+                        scrolls[storageIndex + 1] = unchecked((byte)(accumulator >> 8));
+                    }
+                    break;
+
+                case 0x60: // RTS
+                    return;
+
+                default:
+                    throw UnsupportedStream3DoorScroll(pointer, opcode, pc - 1);
+            }
+        }
+
+        throw new InvalidDataException(
+            $"Door callback $8F:{pointer:X4} did not return within 32 instructions.");
+    }
+
+    private static InvalidDataException UnsupportedStream3DoorScroll(
+        ushort pointer,
+        byte opcode,
+        int opcodeAddress) =>
+        new(
+            $"Door callback $8F:{pointer:X4} uses unsupported reference-audit opcode " +
+            $"${opcode:X2} at ${opcodeAddress >> 16:X2}:{opcodeAddress & 0xffff:X4}.");
+    private static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)
+    {
+        byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
+        var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        AssertTrue(typeof(MotherBrainRoomColorPresentation).GetField("phaseTwoRearLeg", flags)!.GetValue(stock) is null,
+            "stream 3 phase-two rear uses approved calculated health basis without stored rows");
+        var phaseTwo = new SnesCgram();
+        stock.ApplyPhaseTwoInitial(phaseTwo);
+        for (int color = 0; color < 15; color++)
+        {
+            int address = 0xa99494 + color * 2;
+            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(native, phaseTwo.Colors[0xb1 + color], "stream 3 native phase-two rear color and destination");
+            foreach (string component in new[] { "red", "green", "blue" })
+            {
+                var editedNode = node.DeepClone();
+                var rgb = editedNode["phaseTwoRearLeg"]![color]!;
+                rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                var edited = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                    System.Text.Encoding.UTF8.GetBytes(editedNode.ToJsonString())));
+                var actual = new SnesCgram();
+                edited.ApplyPhaseTwoInitial(actual);
+                for (int checkColor = 0; checkColor < 15; checkColor++)
+                {
+                    var expectedRgb = editedNode["phaseTwoRearLeg"]![checkColor]!;
+                    ushort expected = (ushort)(expectedRgb["red"]!.GetValue<int>() |
+                        expectedRgb["green"]!.GetValue<int>() << 5 | expectedRgb["blue"]!.GetValue<int>() << 10);
+                    AssertEqual(expected, actual.Colors[0xb1 + checkColor], "stream 3 independent phase-two rear edit");
+                    AssertEqual(phaseTwo.Colors[0xa1 + checkColor], actual.Colors[0xa1 + checkColor],
+                        "stream 3 rear edit preserves independently installed attack palette");
+                }
+            }
+        }
+    }
+    private static void VerifyStream3AuxiliaryPalettes(ISnesAddressSpace rom)
+    {
+        EnemyAuxiliaryPaletteDefinition[] definitions =
+        [
+            new(EnemyAuxiliaryPalette.FaceBlock, 0xa8e7cc, 8, 4, 4),
+            new(EnemyAuxiliaryPalette.DeadSidehopper, 0xa9ebcc, 7, 15, 16),
+            new(EnemyAuxiliaryPalette.GoldenTorizoBody, 0x848032, 8, 16, 16),
+            new(EnemyAuxiliaryPalette.GoldenTorizoBelly, 0x848132, 8, 16, 16),
+        ];
+        AssertTrue(definitions.SequenceEqual(EnemyAuxiliaryColorDefinitions.All), "stream 3 auxiliary definition fields/order");
+        foreach (int invalid in new[] { -1, 4, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = EnemyAuxiliaryColorDefinitions.All[invalid], "stream 3 auxiliary definition bounds");
+        var words = definitions.ToDictionary(definition => definition.Id, definition =>
+            Enumerable.Range(0, definition.FrameCount).Select(frame =>
+                Enumerable.Range(0, definition.ColorCount).Select(color =>
+                {
+                    int address = definition.SourceAddress + 2 * (frame * definition.NativeFrameStrideColors + color);
+                    return (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                }).ToArray()).ToArray());
+        EnemyAuxiliaryColorCatalog Load()
+        {
+            var document = new EnemyAuxiliaryColorDocument
+            {
+                Version = 1,
+                Palettes = words.ToDictionary(pair => pair.Key, pair => pair.Value.Select(row => row.Select(word =>
+                    new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 }).ToArray()).ToArray()),
+            };
+            return EnemyAuxiliaryColorCatalog.Load(new MemoryStream(EnemyAuxiliaryColorCatalog.Write(document), writable: false));
+        }
+        void Check(EnemyAuxiliaryColorCatalog catalog)
+        {
+            foreach (var pair in words)
+                for (int frame = 0; frame < pair.Value.Length; frame++)
+                    for (int color = 0; color < pair.Value[frame].Length; color++)
+                        AssertEqual(pair.Value[frame][color], catalog.Resolve(pair.Key, frame, color), "stream 3 exact auxiliary selected color");
+            string expectedIdentity = SelectedPresentationHash.Create("enemy-auxiliary-colors-v1", content =>
+            {
+                foreach (var pair in words.OrderBy(pair => pair.Key))
+                {
+                    content.Append("palette", (int)pair.Key);
+                    content.AppendWordFrames("frames", pair.Value);
+                }
+            });
+            AssertEqual(expectedIdentity, catalog.ContentIdentity, "stream 3 auxiliary selected-content identity unchanged");
+        }
+        var stock = Load();
+        Check(stock);
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        foreach (string name in new[] { "faceBlock", "deadSidehopper", "torizoBody", "torizoBelly" })
+        {
+            object palette = typeof(EnemyAuxiliaryColorCatalog).GetField(name, fields)!.GetValue(stock)!;
+            AssertTrue(palette.GetType().GetField("supplied", fields)!.GetValue(palette) is null,
+                "stream 3 calculated auxiliary cycles have no stored frame rows");
+        }
+        foreach (var palette in definitions.Select(definition => definition.Id))
+        for (int frame = 0; frame < words[palette].Length; frame++)
+        for (int color = 0; color < words[palette][frame].Length; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            ushort original = words[palette][frame][color];
+            words[palette][frame][color] ^= (ushort)(1 << (channel * 5));
+            Check(Load());
+            words[palette][frame][color] = original;
+        }
+        foreach (int invalid in new[] { -1, 8, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, invalid, 0), "stream 3 Torizo band bounds");
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, 0, invalid), "stream 3 Torizo color bounds");
+        foreach (int invalid in new[] { -1, 4, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((EnemyAuxiliaryPalette)invalid, 0, 0), "stream 3 auxiliary palette identities reject unknown values");
+    }
+    private static void VerifyStream3BabySpriteReflection(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var definitions = EnemySpritemapDefinitions.Frames.ToArray();
+        var document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.Version,
+            Frames = definitions.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal),
+            DisplayFrames = definitions.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
+        };
+        var selected = definitions.Where(frame => frame.Bank == 0xa9 && frame.Pointer is 0xf9a8 or 0xfa40 or 0xfad8).ToArray();
+        AssertEqual(3, selected.Length, "stream 3 identified native Baby compositions");
+        foreach (var frame in selected)
+        {
+            int source = (frame.Bank << 16) | frame.Pointer;
+            AssertEqual(30, Word(source), "stream 3 native Baby counted-record extent");
+            document.Frames[frame.Name] = Enumerable.Range(0, 30).Select(index =>
+            {
+                int entry = source + 2 + index * 5;
+                var x = new SnesSpritemapXWord(Word(entry));
+                var attributes = new SnesObjAttributeWord(Word(entry + 3));
+                return new SpriteVisualPart
+                {
+                    OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
+                    TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
+                    Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                    FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
+                };
+            }).ToArray();
+        }
+        EnemySpritemapCatalog Load() => EnemySpritemapCatalog.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        void Check(EnemySpritemapCatalog catalog)
+        {
+            foreach (var frame in selected)
+            {
+                AssertTrue(catalog.TryGet(frame.Bank, frame.Pointer, out var parts), "stream 3 Baby view remains installed");
+                AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name)),
+                    "stream 3 exact supplied Baby part order and every visual field");
+            }
+            string expected = SelectedPresentationHash.Create("enemy-oam-v1", content =>
+            {
+                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                {
+                    content.Append("frame", (frame.Bank << 16) | frame.Pointer);
+                    content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name));
+                }
+                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                {
+                    content.Append("native-binding", (frame.Bank << 16) | frame.Pointer);
+                    content.Append("selected-binding", (frame.Bank << 16) | frame.Pointer);
+                }
+            });
+            AssertEqual(expected, catalog.ContentIdentity, "stream 3 indexed OAM view retains canonical hash framing");
+        }
+        var stock = Load();
+        Check(stock);
+        foreach (var frame in selected)
+        {
+            AssertTrue(stock.TryGetDisplay(frame.Bank, frame.Pointer, out var parts), "stream 3 Baby display view");
+            AssertTrue(parts is BabyMetroidSpriteParts, "stream 3 stock Baby full part arrays are discarded");
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            AssertEqual(15, ((EnemySpritemapPart[])parts.GetType().GetField("halfParts", flags)!.GetValue(parts)!).Length,
+                "stream 3 Baby retains only one part per reflected pair");
+            var nativeOam = new OamBuffer();
+            var calculatedOam = new OamBuffer();
+            DrawImportedEnemySpritemap(rom, nativeOam, frame.Bank, frame.Pointer, 128, 128, 0, 0);
+            calculatedOam.AddEnemySpritemap(parts, 128, 128, 0, 0);
+            AssertTrue(nativeOam.LowTable.SequenceEqual(calculatedOam.LowTable) && nativeOam.HighTable.SequenceEqual(calculatedOam.HighTable),
+                "stream 3 calculated Baby view matches native OAM drawing");
+            SpriteVisualPart[] original = document.Frames[frame.Name];
+            for (int index = 0; index < original.Length; index++)
+            {
+                var saved = original[index];
+                original[index] = saved with { OffsetX = saved.OffsetX + 1 };
+                Check(Load());
+                original[index] = saved;
+            }
+            var part = original[0];
+            SpriteVisualPart[] edits =
+            [
+                part with { OffsetX = part.OffsetX + 1 }, part with { OffsetY = part.OffsetY ^ 1 },
+                part with { Size = part.Size == 8 ? 16 : 8 }, part with { TileColumn = (part.TileColumn + 1) % 16 },
+                part with { TileRow = (part.TileRow + 1) % 32 }, part with { Palette = (part.Palette!.Value + 1) % 8 },
+                part with { Priority = (part.Priority + 1) % 4 }, part with { FlipX = !part.FlipX }, part with { FlipY = !part.FlipY },
+            ];
+            foreach (var edited in edits) { original[0] = edited; Check(Load()); }
+            original[0] = part;
+            document.Frames[frame.Name] = original.Reverse().ToArray(); Check(Load());
+            document.Frames[frame.Name] = original.Append(part).ToArray(); Check(Load());
+            document.Frames[frame.Name] = []; Check(Load());
+            document.Frames[frame.Name] = original;
+            AssertThrows<IndexOutOfRangeException>(() => _ = parts[-1], "stream 3 calculated part lower bound");
+            AssertThrows<IndexOutOfRangeException>(() => _ = parts[30], "stream 3 calculated part upper bound");
+        }
+        VerifyEnemyLegacyOverrides();
     }
 }

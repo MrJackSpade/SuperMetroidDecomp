@@ -6,32 +6,73 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable, bounded post-credit labels with cinematic behavior kept in code.</summary>
 public sealed class EndingTextPresentation
 {
-    private readonly ushort[] resultPanel;
+    private readonly Dictionary<int, ushort> resultOverrides = new();
+    private readonly string resultText;
     private readonly ushort[] copyrightPanel;
-    private readonly ushort[] japaneseSubtitle;
+    private readonly Dictionary<int, ushort> subtitleOverrides = new();
     private readonly EndingTextCharacter[] percentage;
     private readonly EndingTextCharacter[] finalMessage;
 
     private EndingTextPresentation(
         ushort[] resultPanel,
         ushort[] copyrightPanel,
-        ushort[] japaneseSubtitle,
+        EndingTextCell[] japaneseSubtitle,
         EndingTextCharacter[] percentage,
         EndingTextCharacter[] finalMessage,
+        string resultText,
         string contentIdentity)
     {
-        this.resultPanel = resultPanel;
+        this.resultText = resultText;
+        for (int cell = 0; cell < resultPanel.Length; cell++)
+            if (resultPanel[cell] != EndingTextLayoutDefinitions.ResultWord(cell, resultText))
+                resultOverrides.Add(cell, resultPanel[cell]);
         this.copyrightPanel = copyrightPanel;
-        this.japaneseSubtitle = japaneseSubtitle;
+        for (int cell = 0; cell < japaneseSubtitle.Length; cell++)
+            if (japaneseSubtitle[cell].Raw != EndingTextLayoutDefinitions.SubtitleWord(cell))
+                subtitleOverrides.Add(cell, japaneseSubtitle[cell].Raw);
         this.percentage = percentage;
         this.finalMessage = finalMessage;
         ContentIdentity = contentIdentity;
     }
 
     public string ContentIdentity { get; }
-    public ushort[] BuildResultPanel() => resultPanel.ToArray();
+    public ushort[] BuildResultPanel()
+    {
+        var output = new ushort[EndingTextLayoutDefinitions.ResultCellCount];
+        for (int cell = 0; cell < output.Length; cell++)
+            output[cell] = resultOverrides.GetValueOrDefault(cell, EndingTextLayoutDefinitions.ResultWord(cell, resultText));
+        return output;
+    }
     public ushort[] BuildCopyrightPanel() => copyrightPanel.ToArray();
-    public ReadOnlySpan<ushort> JapaneseSubtitle => japaneseSubtitle;
+    public SubtitleSequence JapaneseSubtitle => new(this);
+
+    /// <summary>Calculated subtitle cells, with independent supplied edits taking precedence.</summary>
+    public readonly struct SubtitleSequence : IReadOnlyList<ushort>
+    {
+        private readonly EndingTextPresentation owner;
+        internal SubtitleSequence(EndingTextPresentation owner) => this.owner = owner;
+        public int Count => EndingTextLayoutDefinitions.SubtitleCellCount;
+        public int Length => Count;
+        public ushort this[int index]
+        {
+            get
+            {
+                ushort stock = EndingTextLayoutDefinitions.SubtitleWord(index);
+                return owner.subtitleOverrides.GetValueOrDefault(index, stock);
+            }
+        }
+        public void CopyTo(Span<ushort> destination)
+        {
+            if (destination.Length < Count)
+                throw new ArgumentException("Destination is too short.", nameof(destination));
+            for (int cell = 0; cell < Count; cell++) destination[cell] = this[cell];
+        }
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int cell = 0; cell < Count; cell++) yield return this[cell];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     public ReadOnlySpan<EndingTextCharacter> Compile(EndingTextSequence sequence) => sequence switch
     {
         EndingTextSequence.ItemPercentage => percentage,
@@ -84,8 +125,8 @@ public sealed class EndingTextPresentation
         EndingTextCharacter[] final = Compile(document.FinalMessage,
             EndingTextDefinitions.FinalMessage, "final message");
         return new(result, copyright,
-            document.JapaneseSubtitle.Select(static cell => cell.Raw).ToArray(),
-            percentage, final, Convert.ToHexString(SHA256.HashData(source)));
+            document.JapaneseSubtitle,
+            percentage, final, document.ResultPanel.Text, Convert.ToHexString(SHA256.HashData(source)));
     }
 
     public static void Write(Stream output, EndingTextDocument document)

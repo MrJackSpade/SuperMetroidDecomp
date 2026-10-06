@@ -148,7 +148,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Maridia, 16), "invalid station index not clamped");
         VerifyInstalledFileSelectMenu(bus, guard, catalog, catalog);
         AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(bus,
-            new CartridgeAudioState(), new SuperMetroidSaveRam(bus).ReadSlot(0)!, 0),
+            new CartridgeAudioState(), new SuperMetroidSaveRam(bus, RetailPresentationFixture()).ReadSlot(0)!, 0),
             "file-select map cannot construct a cartridge-backed fallback graph");
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
@@ -168,7 +168,7 @@ internal static partial class Program
 
         void VerifyStationMenu(AreaId area, int station)
         {
-            var saves = new SuperMetroidSaveRam(bus);
+            var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
             var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)area, SaveStation = (ushort)station, Health = 99, MaxHealth = 99 };
             snapshot.MapStationBytes[(int)area] = 1;
             snapshot.UsedSaveStationBytes[(int)area * 2 + station / 8] = (byte)(1 << (station % 8));

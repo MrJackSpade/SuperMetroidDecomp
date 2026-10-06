@@ -12,7 +12,9 @@ namespace SuperMetroid.Core.Assets;
 public sealed class FileSelectPresentation
 {
     private readonly Dictionary<string, ushort[]> pages;
-    private readonly Dictionary<string, FileSelectCompiledPatch> patches;
+    private readonly FileSelectCompiledPatch energyPatch;
+    private readonly FileSelectCompiledPatch noDataPatch;
+    private readonly FileSelectCompiledPatch timeColonPatch;
     private readonly ushort[]? digits;
     private readonly ushort[]? slotLetters;
     private readonly Dictionary<string, SpriteComposition> sprites;
@@ -28,7 +30,9 @@ public sealed class FileSelectPresentation
         string contentIdentity)
     {
         this.pages = pages;
-        this.patches = patches;
+        energyPatch = patches[FileSelectPresentationDefinitions.EnergyPatch];
+        noDataPatch = patches[FileSelectPresentationDefinitions.NoDataPatch];
+        timeColonPatch = patches[FileSelectPresentationDefinitions.TimeColonPatch];
         this.digits = PreserveEditedGlyphs(digits, FileSelectLayout.DigitTileBase);
         this.slotLetters = PreserveEditedGlyphs(slotLetters, FileSelectLayout.SamusLetterTileBase);
         this.sprites = sprites;
@@ -73,11 +77,19 @@ public sealed class FileSelectPresentation
 
     internal void ApplyPatch(Span<ushort> tilemap, string name, MapLabelPoint anchor)
     {
-        if (!patches.TryGetValue(name, out FileSelectCompiledPatch? patch))
-            throw new InvalidDataException($"Unknown file-select patch {name}.");
-        foreach (FileSelectCompiledPatchCell cell in patch.Cells)
+        FileSelectCompiledPatch patch = name switch
+        {
+            FileSelectPresentationDefinitions.EnergyPatch => energyPatch,
+            FileSelectPresentationDefinitions.NoDataPatch => noDataPatch,
+            FileSelectPresentationDefinitions.TimeColonPatch => timeColonPatch,
+            _ => throw new InvalidDataException($"Unknown file-select patch {name}."),
+        };
+        for (int index = 0; index < patch.Count; index++)
+        {
+            FileSelectCompiledPatchCell cell = patch.Cell(index);
             tilemap[(anchor.Y + cell.Y) * FileSelectPresentationDefinitions.Width +
                 anchor.X + cell.X] = cell.Word;
+        }
     }
 
     internal void WriteDigit(Span<ushort> tilemap, MapLabelPoint anchor, int offset, int digit)
@@ -213,7 +225,7 @@ public sealed class FileSelectPresentation
                 compiled[index] = new(cell.X, cell.Y,
                     CompileCell(cell.Cell, $"file-select patch {name} cell {index}"));
             }
-            patches.Add(name, new(compiled));
+            patches.Add(name, new(name, compiled));
         }
 
         ushort[] digits = document.Digits.Select((cell, index) =>
@@ -222,8 +234,8 @@ public sealed class FileSelectPresentation
             CompileCell(cell, $"file-select slot letter {index}")).ToArray();
         var sprites = new Dictionary<string, SpriteComposition>(StringComparer.Ordinal);
         foreach (string name in FileSelectPresentationDefinitions.SpriteNames)
-            sprites.Add(name, MenuSpriteCompiler.Compile(document.Sprites[name],
-                $"file-select {name}"));
+            sprites.Add(name, MenuBorderParts.CalculateIfMatching(name, MenuCursorParts.CalculateIfMatching(name, MenuSpriteCompiler.Compile(document.Sprites[name],
+                $"file-select {name}"))));
 
         foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
             ValidateSlot(slot);
@@ -256,10 +268,13 @@ public sealed class FileSelectPresentation
 
         static void ValidatePatch(MapLabelPoint anchor, FileSelectCompiledPatch patch)
         {
-            if (patch.Cells.Any(cell =>
-                    anchor.X + cell.X >= FileSelectPresentationDefinitions.Width ||
-                    anchor.Y + cell.Y >= FileSelectPresentationDefinitions.Height))
-                throw new InvalidDataException("File-select patch placement escapes its page.");
+            for (int index = 0; index < patch.Count; index++)
+            {
+                FileSelectCompiledPatchCell cell = patch.Cell(index);
+                if (anchor.X + cell.X >= FileSelectPresentationDefinitions.Width ||
+                    anchor.Y + cell.Y >= FileSelectPresentationDefinitions.Height)
+                    throw new InvalidDataException("File-select patch placement escapes its page.");
+            }
         }
     }
 
@@ -380,12 +395,74 @@ public sealed record FileSelectSlotFieldDocument
     public required MapLabelPoint TimeValueAnchor { get; init; }
 }
 
-internal sealed record FileSelectCompiledPatch(FileSelectCompiledPatchCell[] Cells);
+internal sealed class FileSelectCompiledPatch
+{
+    private readonly string name;
+    private readonly FileSelectCompiledPatchCell[]? suppliedCells;
+
+    internal FileSelectCompiledPatch(string name, FileSelectCompiledPatchCell[] cells)
+    {
+        this.name = name;
+        if (cells.Length != FileSelectPresentationDefinitions.PatchCellCount(name))
+        {
+            suppliedCells = cells;
+            return;
+        }
+        for (int index = 0; index < cells.Length; index++)
+            if (cells[index] != FileSelectPresentationDefinitions.PatchCell(name, index))
+            {
+                suppliedCells = cells;
+                return;
+            }
+    }
+
+    internal int Count => suppliedCells?.Length ?? FileSelectPresentationDefinitions.PatchCellCount(name);
+    internal FileSelectCompiledPatchCell Cell(int index) => suppliedCells is null
+        ? FileSelectPresentationDefinitions.PatchCell(name, index) : suppliedCells[index];
+}
 internal readonly record struct FileSelectCompiledPatchCell(int X, int Y, ushort Word);
 
 /// <summary>Schema names and fixed dimensions for <c>file-select.json</c>.</summary>
 public static class FileSelectPresentationDefinitions
 {
+    /// <summary>$81:B4AC-B4C0, the literal small-font empty-slot label including its padding.</summary>
+    private const string NoDataLabel = " NO DATA   ";
+    /// <summary>$81:B4B6: tile $6A is the small-font A; following alphabet glyphs are consecutive.</summary>
+    private const ushort SmallLetterA = 0x206a;
+    /// <summary>$81:B4B2 and B4BC-B4C0: the small-font paletted space.</summary>
+    private const ushort SmallSpace = 0x200f;
+    /// <summary>$81:B496-B49A: three consecutive tiles composing the ENERGY label.</summary>
+    private const ushort EnergyLabelFirst = 0x209d;
+    /// <summary>$81:B49C: the separately placed final glyph of the ENERGY patch.</summary>
+    private const ushort EnergyLabelFinal = 0x20cc;
+    /// <summary>$81:B4A8: the time-field colon glyph.</summary>
+    private const ushort TimeColonGlyph = 0x208c;
+
+    /// <summary>Native one-row patch extents at $81:B496, B4A8 and B4AC, excluding terminators.</summary>
+    internal static int PatchCellCount(string name) => name switch
+    {
+        EnergyPatch => 4,
+        TimeColonPatch => 1,
+        NoDataPatch => NoDataLabel.Length,
+        _ => throw new InvalidDataException($"Unknown file-select patch {name}."),
+    };
+
+    /// <summary>Calculates text glyph selection and left-to-right cell placement for one native patch.</summary>
+    internal static FileSelectCompiledPatchCell PatchCell(string name, int index)
+    {
+        if ((uint)index >= PatchCellCount(name)) throw new IndexOutOfRangeException();
+        ushort word = name switch
+        {
+            EnergyPatch => index < 3 ? (ushort)(EnergyLabelFirst + index) : EnergyLabelFinal,
+            TimeColonPatch => TimeColonGlyph,
+            NoDataPatch => index == 0 ? FileSelectLayout.BlankTile
+                : NoDataLabel[index] == ' ' ? SmallSpace
+                : (ushort)(SmallLetterA + NoDataLabel[index] - 'A'),
+            _ => throw new InvalidDataException($"Unknown file-select patch {name}."),
+        };
+        return new(index, 0, word);
+    }
+
     public const int Version = 1;
     public const string FileName = "file-select.json";
     public const int Width = 32;

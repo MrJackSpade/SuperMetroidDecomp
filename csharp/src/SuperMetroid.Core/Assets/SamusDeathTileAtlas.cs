@@ -30,7 +30,7 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
     /// <summary>Finds one native $400-byte transfer without changing its queued destination.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {
-        ReadOnlySpan<SamusDeathTileSegment> segments = SamusSpecialSequenceRomData.Death.TileSegments;
+        var segments = SamusSpecialSequenceRomData.Death.TileSegments;
         for (int index = 0; index < segments.Length; index++)
         {
             if (segments[index].SourceAddress != sourceAddress)

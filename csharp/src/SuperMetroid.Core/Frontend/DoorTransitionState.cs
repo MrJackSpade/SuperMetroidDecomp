@@ -255,11 +255,8 @@ public sealed class DoorTransitionState
         var target = new ushort[SnesCgram.ColorCount];
         ReadOnlySpan<ushort> current = runtime.Cgram.Colors;
 
-        // GameState_10 initially blacks every target entry, then restores the seven fixed
-        // HUD/door colors below. They stay legible while the room palette disappears.
-        int[] alwaysPreserved = [9, 10, 13, 14, 17, 18, 19, 29];
-        foreach (int color in alwaysPreserved)
-            target[color] = current[color];
+        // Keep HUD colors legible while the source room palette disappears.
+        DoorTransitionPaletteDefinitions.PreserveHud(current, target);
 
         CartridgeRoomHeader sourceRoom = runtime.ActiveRoom ??
             throw new InvalidOperationException(
@@ -268,15 +265,9 @@ public sealed class DoorTransitionState
         byte destinationCre = runtime.PendingDoorDestinationCreBitset;
         if (((sourceCre | destinationCre) & 1) == 0)
         {
-            int[] commonCreColors = [20, 21, 22, 23, 28];
-            foreach (int color in commonCreColors)
-                target[color] = current[color];
+            DoorTransitionPaletteDefinitions.PreserveCommonCre(current, target);
             if (runtime.EscapeTimer.IsActive)
-            {
-                int[] timerColors = [209, 210, 212, 221];
-                foreach (int color in timerColors)
-                    target[color] = current[color];
-            }
+                DoorTransitionPaletteDefinitions.PreserveEscapeTimer(current, target);
         }
         return target;
     }

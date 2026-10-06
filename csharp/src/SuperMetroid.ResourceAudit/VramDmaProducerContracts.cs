@@ -21,7 +21,7 @@ internal static class VramDmaProducerContracts
             ("SuperMetroid.Core.Game.RoomEnemySystem.QueueGunshipTakeoffTiles", "3DBBE2D7D64F7FE12212A3A7CA7CC0DB8DD83EF33BE5706D78264A1E5A3B17B0") => "gunship",
             ("SuperMetroid.Core.Game.RoomFxAnimatedTilesState.Step", "A39ED99F8074CF4BD992B88F053BD568B99846E03C50BEF08234409AB7C4C650") => "fx",
             ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "44F9986C48E392A4DD5B0D1C2356A80DF41B94649AA1370532D47D355B8EC5C0") => "arm",
-            ("SuperMetroid.Core.Game.SamusDeathSequenceState.QueueSegment", "E7F50B67C5D86A9D0242F99335B319A965C8589022818DD7C9798E641CFCE6E0") => "death",
+            ("SuperMetroid.Core.Game.SamusDeathSequenceState.QueueSegment", "1B573B430E4A6D20EBCEE1FCD5C86B011EF49F3F9DA2B5A92F31C8F722848337") => "death",
             ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "4DCF557953A345538F57F81AB57E82DA12109426667B095E3CB3417121969D7C") => "grapple-native",
             ("SuperMetroid.Core.Game.SamusProjectileSystem.QueueBeamTilesAndLoadPalette", "592EAB2855D0CCF4EEE2C3AF8264F1C6D92D40225CBFCAD8B78A6C35405554CD") => "beam",
             ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "58C422A0EA358CBE71A98743138A8B881A5C2A5E6B4209804421A4EFFDB469D3") => "sky",

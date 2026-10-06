@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameOverPresentation
 {
-    private readonly byte[] tilemap;
+    private readonly byte[]? tilemap;
     private readonly Dictionary<string, SpriteComposition> sprites;
     private readonly GameOverBabyColorCatalog babyPalettes;
 
@@ -24,7 +24,13 @@ public sealed class GameOverPresentation
         GameOverPresentationDocument document,
         string contentIdentity)
     {
-        this.tilemap = tilemap;
+        for (int cell = 0; cell < GameOverPresentationDefinitions.TilemapCellCount; cell++)
+            if (BinaryPrimitives.ReadUInt16LittleEndian(tilemap.AsSpan(cell * sizeof(ushort))) !=
+                GameOverPresentationDefinitions.TilemapWord(cell))
+            {
+                this.tilemap = tilemap;
+                break;
+            }
         this.sprites = sprites;
         this.babyPalettes = babyPalettes;
         BabyAnchor = document.BabyAnchor;
@@ -48,8 +54,19 @@ public sealed class GameOverPresentation
     public int CursorPaletteIndex { get; }
     public int CursorFrameDuration { get; }
 
-    public void LoadTilemapTo(SnesVram vram, int destinationWord) =>
-        vram.LoadBytes(destinationWord * sizeof(ushort), tilemap);
+    public void LoadTilemapTo(SnesVram vram, int destinationWord)
+    {
+        if (tilemap is not null)
+        {
+            vram.LoadBytes(destinationWord * sizeof(ushort), tilemap);
+            return;
+        }
+        Span<byte> transfer = stackalloc byte[GameOverPresentationDefinitions.TilemapByteCount];
+        for (int cell = 0; cell < GameOverPresentationDefinitions.TilemapCellCount; cell++)
+            BinaryPrimitives.WriteUInt16LittleEndian(transfer.Slice(cell * sizeof(ushort)),
+                GameOverPresentationDefinitions.TilemapWord(cell));
+        vram.LoadBytes(destinationWord * sizeof(ushort), transfer);
+    }
 
     public void DrawBaby(OamBuffer oam, GameOverBabyFrame frame) =>
         sprites[GameOverPresentationDefinitions.BabyFrameName(frame)].DrawOnScreen(
@@ -146,7 +163,9 @@ public sealed class GameOverPresentation
         {
             if (!document.Sprites.TryGetValue(name, out SpriteVisualPart[]? parts) || parts is null)
                 throw new InvalidDataException($"Game-over presentation is missing sprite {name}.");
-            sprites.Add(name, MenuSpriteCompiler.Compile(parts, $"game-over {name}"));
+            var compiled = MenuSpriteCompiler.Compile(parts, $"game-over {name}");
+            compiled = GameOverSpriteParts.CalculateIfMatching(name, compiled);
+            sprites.Add(name, MenuCursorParts.CalculateIfMatching(name, compiled));
         }
 
         var palettes = new Dictionary<string, ushort[]>(StringComparer.Ordinal);
@@ -233,6 +252,87 @@ public static class GameOverPresentationDefinitions
     public static ReadOnlySpan<string> SpriteNames => spriteNames;
     public static ReadOnlySpan<string> BabyPaletteNames => paletteNames;
 
+    /// <summary>$81:9304 Tilemap_GameOver_findTheMetroidLarva, the native one-row objective.</summary>
+    private const string ObjectiveText = "FIND THE METROID LARVA!";
+    /// <summary>$81:9334 Tilemap_GameOver_tryAgain includes a space before its question mark.</summary>
+    private const string PromptText = "TRY AGAIN ?";
+    /// <summary>$81:937C-939C small-font continuation below the YES answer.</summary>
+    private const string ReturnToGameText = " (RETURN TO GAME)";
+    /// <summary>$81:93CA-93E4 small-font continuation below the N O answer.</summary>
+    private const string ReturnToTitleText = " (GO TO TITLE)";
+    /// <summary>$81:9304-93E4 small uppercase menu atlas: A starts at $6A and letters are consecutive.</summary>
+    private const int SmallLetterA = 0x6a;
+    /// <summary>$81:9330, Tilemap_GameOver_findTheMetroidLarva punctuation.</summary>
+    private const int ExclamationTile = 0x84;
+    /// <summary>$81:9348, Tilemap_GameOver_tryAgain punctuation.</summary>
+    private const int QuestionTile = 0x85;
+    /// <summary>$81:937E/$939C, answer explanation opening/closing glyphs occupy adjacent atlas cells.</summary>
+    private const int OpeningParenthesisTile = 0x8a;
+
+    /// <summary>Blank page plus the five native game-over text elements; no stored tilemap rows.</summary>
+    internal static ushort TilemapWord(int cell)
+    {
+        if ((uint)cell >= TilemapCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
+        for (int index = 0; index < GameOverRomData.Text.Count; index++)
+        {
+            var element = (GameOverTextElement)index;
+            GameOverTextStream stream = GameOverRomData.Text.Get(element);
+            int origin = stream.DestinationByteOffset / sizeof(ushort);
+            int column = cell % GameOverRomData.TilemapWidth - origin % GameOverRomData.TilemapWidth;
+            int row = cell / GameOverRomData.TilemapWidth - origin / GameOverRomData.TilemapWidth;
+            if (column < 0 || row is < 0 or > 1) continue;
+            switch (element)
+            {
+                case GameOverTextElement.Title:
+                    if (column < stream.Description.Length) return LargeLetter(stream.Description[column], row);
+                    break;
+                case GameOverTextElement.Objective:
+                    if (row == 0 && column < ObjectiveText.Length) return SmallLetter(ObjectiveText[column]);
+                    break;
+                case GameOverTextElement.Prompt:
+                    if (row == 0 && column < PromptText.Length) return SmallLetter(PromptText[column]);
+                    break;
+                case GameOverTextElement.ReturnToGame:
+                case GameOverTextElement.ReturnToTitle:
+                    string answer = element == GameOverTextElement.ReturnToGame ? "YES" : "N O";
+                    if (column < answer.Length) return LargeLetter(answer[column], row);
+                    string explanation = element == GameOverTextElement.ReturnToGame ? ReturnToGameText : ReturnToTitleText;
+                    if (row == 1 && column - answer.Length < explanation.Length)
+                        return SmallLetter(explanation[column - answer.Length]);
+                    break;
+            }
+        }
+        return GameOverRomData.BlankTile.Raw;
+    }
+
+    private static ushort SmallLetter(char letter) => letter switch
+    {
+        >= 'A' and <= 'Z' => (ushort)(SmallLetterA + letter - 'A'),
+        ' ' => GameOverRomData.BlankTile.Raw,
+        '!' => ExclamationTile,
+        '?' => QuestionTile,
+        '(' => OpeningParenthesisTile,
+        ')' => OpeningParenthesisTile + 1,
+        _ => throw new ArgumentOutOfRangeException(nameof(letter)),
+    };
+
+    /// <summary>$81:92DC/92F0 and $934C/9376/$93A0/93C4 select large-font halves.
+    /// A/E/M/N/S use the atlas row stride; G/R/V/Y reuse distinct halves; O uses the round zero glyph.</summary>
+    private static ushort LargeLetter(char letter, int row) => letter switch
+    {
+        ' ' => GameOverRomData.BlankTile.Raw,
+        'A' => (ushort)(0x0a + 16 * row),
+        'E' => (ushort)(0x0e + 16 * row),
+        'M' => (ushort)(0x26 + 16 * row),
+        'N' => (ushort)(0x27 + 16 * row),
+        'S' => (ushort)(0x2b + 16 * row),
+        'O' => (ushort)(16 * row),
+        'G' => (ushort)(row == 0 ? 0x0c : 0x30),
+        'R' => (ushort)(row == 0 ? 0x0d : 0x3a),
+        'V' => (ushort)(row == 0 ? 0x2d : 0x3e),
+        'Y' => (ushort)(row == 0 ? 0x41 : 0x17),
+        _ => throw new ArgumentOutOfRangeException(nameof(letter)),
+    };
     public static string BabyFrameName(GameOverBabyFrame frame) => frame switch
     {
         GameOverBabyFrame.Closed => "Baby.Closed",

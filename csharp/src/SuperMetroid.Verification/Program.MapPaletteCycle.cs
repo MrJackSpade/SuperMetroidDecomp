@@ -84,7 +84,7 @@ internal static partial class Program
         for (int tick = 0; tick < 60; tick++) { pause.Step(0, 0); nativePause.Step(0, 0); }
         AssertTrue(pause.Render().AsSpan().SequenceEqual(nativePause.Render()), "rebind preserves timing and returns to exact stock animated pixels");
 
-        var saves = new SuperMetroidSaveRam(bus);
+        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         var saved = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
         saved.MapStationBytes[(int)AreaId.Maridia] = 1;
         saved.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;

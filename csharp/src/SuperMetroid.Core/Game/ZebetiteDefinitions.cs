@@ -12,52 +12,6 @@ internal static class ZebetiteDefinitions
     /// <summary>Native palette-cycle index mask applied to physical enemy slot zero.</summary>
     public const ushort PaletteCycleMask = 7;
 
-    /// <summary>
-    /// Four parallel generation rows at <c>$A6:FC03-$A6:FC32</c>: multipart flag,
-    /// collision half-height, initial list, X, primary Y, and linked-half Y.
-    /// </summary>
-    private static readonly ZebetiteGenerationDefinition[] Generations =
-    [
-        new(0x0000, 0x0018,
-            ZebetiteInstructionProgramDefinitions.BigHealthAtLeast800,
-            0x0338, 0x006f, 0x006f),
-        new(0x8000, 0x0008,
-            ZebetiteInstructionProgramDefinitions.SmallHealthAtLeast800,
-            0x0278, 0x0047, 0x0097),
-        new(0x0000, 0x0018,
-            ZebetiteInstructionProgramDefinitions.BigHealthAtLeast800,
-            0x01b8, 0x006f, 0x006f),
-        new(0x8000, 0x0008,
-            ZebetiteInstructionProgramDefinitions.SmallHealthAtLeast800,
-            0x00f8, 0x0047, 0x0097),
-    ];
-
-    /// <summary>
-    /// Big-barrier health-tier instruction lists at <c>$A6:FD4A-$A6:FD53</c>, ordered
-    /// from at least 800 HP through less than 200 HP.
-    /// </summary>
-    private static readonly ushort[] BigHealthInstructionLists =
-    [
-        ZebetiteInstructionProgramDefinitions.BigHealthAtLeast800,
-        ZebetiteInstructionProgramDefinitions.BigHealthBelow800,
-        ZebetiteInstructionProgramDefinitions.BigHealthBelow600,
-        ZebetiteInstructionProgramDefinitions.BigHealthBelow400,
-        ZebetiteInstructionProgramDefinitions.BigHealthBelow200,
-    ];
-
-    /// <summary>
-    /// Linked-pair health-tier instruction lists at <c>$A6:FD54-$A6:FD5D</c>, ordered
-    /// from at least 800 HP through less than 200 HP.
-    /// </summary>
-    private static readonly ushort[] LinkedHealthInstructionLists =
-    [
-        ZebetiteInstructionProgramDefinitions.SmallHealthAtLeast800,
-        ZebetiteInstructionProgramDefinitions.SmallHealthBelow800,
-        ZebetiteInstructionProgramDefinitions.SmallHealthBelow600,
-        ZebetiteInstructionProgramDefinitions.SmallHealthBelow400,
-        ZebetiteInstructionProgramDefinitions.SmallHealthBelow200,
-    ];
-
     /// <summary>Embedded primary spawn record at <c>$A6:FCE1-$A6:FCF0</c>.</summary>
     private static readonly RoomEnemyPopulationRecord PrimarySpawn =
         new(0xe27f, 0, 0, 0, 0x2000, 0, 0, 0);
@@ -66,16 +20,29 @@ internal static class ZebetiteDefinitions
     private static readonly RoomEnemyPopulationRecord LinkedSpawn =
         new(0xe27f, 0, 0, 0, 0x2000, 0, 2, 0);
 
-    /// <summary>Returns one of the four active cartridge generation rows.</summary>
+    /// <summary>
+    /// $A6:FC03-FC32: four alternating large/split barriers, spaced twelve tiles
+    /// leftward from X=824. Large barriers have half-height24 at Y=111; split
+    /// halves have half-height8 at equal forty-pixel offsets from that center.
+    /// </summary>
     internal static ZebetiteGenerationDefinition Generation(ushort generation)
     {
-        if (generation >= Generations.Length)
+        if (generation >= 4)
         {
             throw new InvalidDataException(
                 $"Zebetite generation {generation} exceeds its four active records.");
         }
 
-        return Generations[generation];
+        // Alternating single barriers and split pairs share a horizontal centerline.
+        bool linkedPair = (generation & 1) != 0;
+        int separation = linkedPair ? 40 : 0;
+        return new(
+            linkedPair ? (ushort)0x8000 : (ushort)0,
+            linkedPair ? (ushort)8 : (ushort)24,
+            HealthInstruction(linkedPair, 1000),
+            (ushort)(824 - generation * 192),
+            (ushort)(111 - separation),
+            (ushort)(111 + separation));
     }
 
     /// <summary>Returns the animation list selected by multipart form and current health.</summary>
@@ -85,7 +52,7 @@ internal static class ZebetiteDefinitions
             health < 400 ? 3 :
             health < 600 ? 2 :
             health < 800 ? 1 : 0;
-        return (linkedPair ? LinkedHealthInstructionLists : BigHealthInstructionLists)[tier];
+        return ZebetiteInstructionProgramDefinitions.ProgramAt((linkedPair ? 5 : 0) + tier).Entry;
     }
 
     /// <summary>Returns the exact embedded primary or linked-half enemy population record.</summary>

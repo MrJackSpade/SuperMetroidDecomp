@@ -10,16 +10,18 @@ public static class ProjectileSpriteExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] json = ExtractFrames(bus, ProjectileSpriteDefinitions.NativePointers);
+        byte[] json = ExtractFrames(bus, default, useProjectilePointers: true);
         _ = ProjectileSpriteCatalog.Load(new MemoryStream(json));
         return json;
     }
 
-    internal static byte[] ExtractFrames(ISnesAddressSpace bus, ReadOnlySpan<ushort> requiredPointers)
+    internal static byte[] ExtractFrames(ISnesAddressSpace bus, ReadOnlySpan<ushort> requiredPointers, bool useProjectilePointers = false)
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();
-        foreach (ushort id in requiredPointers)
+        int requiredCount = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers.Length : requiredPointers.Length;
+        for (int pointerIndex = 0; pointerIndex < requiredCount; pointerIndex++)
         {
+            ushort id = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers[pointerIndex] : requiredPointers[pointerIndex];
             int address = 0x930000 | id;
             int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             if (count > ProjectileSpriteDefinitions.MaximumParts) throw new InvalidDataException($"Projectile sprite {id:X4} exceeds OAM capacity.");

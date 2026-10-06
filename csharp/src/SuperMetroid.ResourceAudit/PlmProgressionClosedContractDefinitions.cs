@@ -8,7 +8,7 @@ internal static class PlmProgressionClosedContractDefinitions
         "B0121BABA88C41ABFFC02877AF97FC02C30C2F06AA4301A19B2BE00F992D835F");
     private static readonly ReviewedSource ElevatubeDefinition = new(
         "csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs",
-        "92BA785B1F5F5498FF4F6AA86E01AB14B574168B898E1F7E833DE29555000E30");
+        "BC718B3E5F2C342613E011FCFCE182CABBC54674A41F7F38A70BEBABDEC49A48");
 
     internal static readonly ClosedPresentationContract[] All =
     [
@@ -20,7 +20,7 @@ internal static class PlmProgressionClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmSpeedBoosterVisualCatalog", "plm-speed-booster-complete-reveal", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSpeedBoosterVisualCatalog.cs", "CC1CED1AA9404BD570E700E43D0426C8E17F3EC2D4482459E1487981E25DB8A7"),
-             new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmDrawDefinitions.cs", "DBFBA36207348FB4C7CC4516C1537F0131752AF0964120B0BC8D7AF5016A10D7"),
+             new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmDrawDefinitions.cs", "F78EF49D8B550E9D03254A76852BBF842416D4FE7E2284435BAAB2AA67D635B8"),
              new("csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmProgramDefinitions.cs", "4ABFB82191103F503067AC5469BB5DF8A36CAA68A8E594F881CCE61FB04DC32C")],
             "The constructor accepts exactly one known one-word reveal and stores its value independently of the input array. GetWord accepts only that pointer, run zero and word zero. The source owning the reveal pointer is guarded; speed-block mechanics are unchanged."),
         new("SuperMetroid.Core.Rooms.RoomPlmMaridiaElevatubeVisualCatalog", "plm-maridia-elevatube-complete-draw", ["GetWord"],

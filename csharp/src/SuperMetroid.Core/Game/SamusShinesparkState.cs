@@ -643,26 +643,8 @@ public sealed class SamusShinesparkState
         ushort projectileCounter,
         SamusProjectileSystem? projectiles)
     {
-        // `$90:D40D-$D481` reads the *crash* pose before publishing standing `$01/$02`.
-        // The six pose pairs `$C9-$CE` select two literal byte angles. Keeping this table
-        // adjacent to the consumer makes the subtraction by `$C9` visible instead of
-        // disguising it as a facing-direction approximation.
-        ReadOnlySpan<SnesAngle> departureAngles =
-        [
-            SnesAngle.Zero, SnesAngle.HalfTurn, // $C9: horizontal right
-            SnesAngle.Zero, SnesAngle.HalfTurn, // $CA: horizontal left
-            SnesAngle.QuarterTurn, SnesAngle.ThreeQuarterTurn, // $CB: vertical right
-            SnesAngle.QuarterTurn, SnesAngle.ThreeQuarterTurn, // $CC: vertical left
-            SnesAngle.FromTableIndex(0xe0), SnesAngle.FromTableIndex(0x60), // $CD: diagonal right
-            SnesAngle.FromTableIndex(0x20), SnesAngle.FromTableIndex(0xa0), // $CE: diagonal left
-        ];
-        int angleIndex = (samus.Pose - SamusPoseIds.ShinesparkHorizontalRightPose) * 2;
-        if ((uint)angleIndex >= (uint)departureAngles.Length)
-        {
-            throw new InvalidOperationException(
-                $"Shinespark crash finish requires pose $C9-$CE, not ${samus.Pose:X2}.");
-        }
-
+        // Resolve the crash axis before publishing the standing pose.
+        var departureAngles = SamusShinesparkProjectileRomData.DepartureAngles(samus.Pose);
         samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
 
         // Native reserves fixed projectile slots three and four. Its projectile counter
@@ -676,17 +658,17 @@ public sealed class SamusShinesparkState
             if (unchecked((short)(projectileCounter - 4)) < 0)
             {
                 _firstReleasedCrashEcho.Initialize(
-                    departureAngles[angleIndex],
+                    departureAngles.First,
                     samus.XPosition,
                     samus.YPosition);
-                projectiles?.InitializeShinesparkEcho(bus, 3, departureAngles[angleIndex]);
+                projectiles?.InitializeShinesparkEcho(bus, 3, departureAngles.First);
             }
 
             _secondReleasedCrashEcho.Initialize(
-                departureAngles[angleIndex + 1],
+                departureAngles.Second,
                 samus.XPosition,
                 samus.YPosition);
-            projectiles?.InitializeShinesparkEcho(bus, 4, departureAngles[angleIndex + 1]);
+            projectiles?.InitializeShinesparkEcho(bus, 4, departureAngles.Second);
         }
 
         ShineTimer = 1;

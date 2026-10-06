@@ -56,6 +56,11 @@ internal static partial class Program
         AssertEqual(unchecked((ushort)(PolypInstructionProgramDefinitions.Stationary + 4)),
             slot.CurrentInstruction,
             "Polyp program reaches terminal sleep");
+        AssertEqual(ReadPolypInstructionWord(rom, PolypInstructionProgramDefinitions.PresentationWord),
+            slot.SpritemapPointer, "Actual Polyp stationary sprite matches the native operand");
+        AssertEqual(slot.SpritemapPointer,
+            PolypInstructionProgramDefinitions.FrameAt(PolypInstructionProgramDefinitions.PresentationWord),
+            "Named Polyp selector installed by the actual program");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids both compiled Polyp mechanics words");
         AssertThrows<InvalidDataException>(

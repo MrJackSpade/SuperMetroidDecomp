@@ -15,6 +15,14 @@ internal static class MochtroidInstructionProgramDefinitions
     /// <summary>The shake-velocity table immediately after the programs, at $A3:A76D.</summary>
     internal const ushort FirstAdjacentMechanicsData = 0xa76d;
 
+    /// <summary>$A3:A745-A751: chosen fourteen-tick flight pulse tempo, repeated across
+    /// the four-pose visual loop. The loop has no callbacks; physical steering is A7AA-A88E.
+    /// This exact visual performance is a reviewed nonsense exception, not derived movement.</summary>
+    private const ushort FlightPulseTicks = 14;
+    /// <summary>$A3:A759-A765: chosen five-tick attached pulse tempo. A953-A9A7 owns
+    /// the separate eighty-contact damage counter and global-frame sound cadence; fixed10x12
+    /// collision radii do not follow these poses. Only this visual tempo is retained.</summary>
+    private const ushort AttachedPulseTicks = 5;
     internal static int MechanicsWordCount => 12;
     internal static int PresentationWordCount => 8;
 
@@ -44,7 +52,7 @@ internal static class MochtroidInstructionProgramDefinitions
             int program = offset / 20;
             int local = offset % 20;
             if (local < 16 && (local & 3) == 0)
-                return (ushort)(program == 0 ? 14 : 5);
+                return program == 0 ? FlightPulseTicks : AttachedPulseTicks;
             if (local == 16)
                 return CommonEnemyInstructionCodes.Goto;
             if (local == 18)

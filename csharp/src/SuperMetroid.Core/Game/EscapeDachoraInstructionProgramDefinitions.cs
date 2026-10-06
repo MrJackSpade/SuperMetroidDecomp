@@ -36,154 +36,111 @@ internal static class EscapeDachoraInstructionProgramDefinitions
     /// <summary><c>InstList_DachoraEscape_GotoY_IfAcidLessThanCE</c>, adjacent code at $B3:EAA8.</summary>
     internal const ushort FirstAdjacentCodeRoutine = 0xeaa8;
 
-    private static readonly EscapeDachoraInstructionMechanicsWord[] Words =
-    [
-        new(RunningAroundLowTide, CommonEnemyInstructionCodes.SetTimer),
-        new(0xe966, 0x0005),
-        new(RunningAroundLowTideLeft, 0x0003),
-        new(0xe96c, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6),
-        new(0xe96e, 0x0003),
-        new(0xe972, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6),
-        new(0xe974, 0x0003),
-        new(0xe978, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6),
-        new(0xe97a, 0x0003),
-        new(0xe97e, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6),
-        new(0xe980, 0x0003),
-        new(0xe984, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6),
-        new(0xe986, 0x0003),
-        new(0xe98a, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6),
-        new(0xe98c, EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfAcidLessThanCE),
-        new(0xe98e, RunningAroundHighTideLeftLoop),
-        new(0xe990, EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfCrittersEscaped),
-        new(0xe992, RunningForEscape),
-        new(0xe994, CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
-        new(0xe996, RunningAroundLowTideLeft),
-        new(0xe998, CommonEnemyInstructionCodes.SetTimer), new(0xe99a, 0x0005),
-        new(RunningAroundLowTideRight, 0x0003),
-        new(0xe9a0, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xe9a2, 0x0003),
-        new(0xe9a6, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xe9a8, 0x0003),
-        new(0xe9ac, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xe9ae, 0x0003),
-        new(0xe9b2, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xe9b4, 0x0003),
-        new(0xe9b8, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xe9ba, 0x0003),
-        new(0xe9be, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xe9c0, EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfAcidLessThanCE),
-        new(0xe9c2, RunningAroundHighTideRightLoop),
-        new(0xe9c4, EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfCrittersEscaped),
-        new(0xe9c6, RunningForEscapeAccelerating),
-        new(0xe9c8, CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
-        new(0xe9ca, RunningAroundLowTideRight),
-        new(0xe9cc, CommonEnemyInstructionCodes.Goto), new(0xe9ce, RunningAroundLowTide),
+    /// <summary>$B3:E968..E98B and corresponding directional runs have six duration/visual/move triples.</summary>
+    private const int RunFrames = 6;
+    /// <summary>$B3:E966/E99A/E9D2/EA02: chosen five-lap pacing count remains required under1165.</summary>
+    private const ushort PacingRepeats = 5;
+    /// <summary>$B3:E968..E9BE: chosen low-tide hold3 remains required under1165.</summary>
+    private const ushort LowTideHold = 3;
+    /// <summary>$B3:E9D4..EA26: chosen high-tide hold2 remains required under1165.</summary>
+    private const ushort HighTideHold = 2;
+    /// <summary>$B3:EA34: chosen turn/departure hold30 remains required under1165.</summary>
+    private const ushort DepartureTurnHold = 30;
+    /// <summary>$B3:EA38: chosen pre-acceleration hold90 remains required under1165.</summary>
+    private const ushort DeparturePauseHold = 90;
+    /// <summary>$B3:EA3E/EA44: chosen initial moving hold5 remains required under1165.</summary>
+    private const int AccelerationInitialHold = 5;
+    /// <summary>$B3:EA4A/EA5C/EA6E: chosen one-tick hold reduction remains required under1165.</summary>
+    private const int AccelerationHoldReduction = 1;
+    /// <summary>$B3:EA38..EA7E: chosen three-frame acceleration group remains required under1165.</summary>
+    private const int AccelerationFramesPerStep = 3;
+    /// <summary>$B3:EA80..EAA2: chosen minimum hold1 remains required under1165.</summary>
+    private const ushort MaximumSpeedHold = 1;
 
-        new(RunningAroundHighTide, CommonEnemyInstructionCodes.SetTimer),
-        new(0xe9d2, 0x0005),
-        new(RunningAroundHighTideLeft, 0x0002),
-        new(0xe9d8, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6),
-        new(0xe9da, 0x0002),
-        new(0xe9de, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6),
-        new(0xe9e0, 0x0002),
-        new(0xe9e4, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6),
-        new(0xe9e6, 0x0002),
-        new(0xe9ea, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6),
-        new(0xe9ec, 0x0002),
-        new(0xe9f0, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6),
-        new(0xe9f2, 0x0002),
-        new(0xe9f6, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6),
-        new(0xe9f8, EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfCrittersEscaped),
-        new(0xe9fa, RunningForEscape),
-        new(RunningAroundHighTideLeftLoop,
-            CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
-        new(0xe9fe, RunningAroundHighTideLeft),
-        new(0xea00, CommonEnemyInstructionCodes.SetTimer), new(0xea02, 0x0005),
-        new(RunningAroundHighTideRight, 0x0002),
-        new(0xea08, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea0a, 0x0002),
-        new(0xea0e, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea10, 0x0002),
-        new(0xea14, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea16, 0x0002),
-        new(0xea1a, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea1c, 0x0002),
-        new(0xea20, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea22, 0x0002),
-        new(0xea26, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea28, EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfCrittersEscaped),
-        new(0xea2a, RunningForEscapeAccelerating),
-        new(RunningAroundHighTideRightLoop,
-            CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
-        new(0xea2e, RunningAroundHighTideRight),
-        new(0xea30, CommonEnemyInstructionCodes.Goto), new(0xea32, RunningAroundHighTide),
+    private const int LowDirectionControls = RunFrames * 2 + 8;
+    private const int HighDirectionControls = RunFrames * 2 + 6;
+    private const int LowTideControls = 2 + 2 * LowDirectionControls;
+    private const int HighTideControls = 2 + 2 * HighDirectionControls;
+    private const int DepartureFrames = 3 * RunFrames;
+    internal static int MechanicsWordCount => LowTideControls + HighTideControls + 1 + 2 * DepartureFrames + 2;
+    internal static int PresentationWordCount => 4 * RunFrames + 1 + DepartureFrames;
 
-        new(RunningForEscape, 0x001e),
-        new(RunningForEscapeAccelerating, 0x005a),
-        new(0xea3c, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea3e, 0x0005),
-        new(0xea42, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea44, 0x0005),
-        new(0xea48, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea4a, 0x0004),
-        new(0xea4e, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea50, 0x0004),
-        new(0xea54, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea56, 0x0004),
-        new(0xea5a, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea5c, 0x0003),
-        new(0xea60, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea62, 0x0003),
-        new(0xea66, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea68, 0x0003),
-        new(0xea6c, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea6e, 0x0002),
-        new(0xea72, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea74, 0x0002),
-        new(0xea78, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea7a, 0x0002),
-        new(0xea7e, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(RunningForEscapeMaximumSpeed, 0x0001),
-        new(0xea84, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea86, 0x0001),
-        new(0xea8a, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea8c, 0x0001),
-        new(0xea90, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea92, 0x0001),
-        new(0xea96, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea98, 0x0001),
-        new(0xea9c, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xea9e, 0x0001),
-        new(0xeaa2, EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6),
-        new(0xeaa4, CommonEnemyInstructionCodes.Goto),
-        new(0xeaa6, RunningForEscapeMaximumSpeed),
-    ];
+    internal static EscapeDachoraInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < LowTideControls + HighTideControls)
+        {
+            bool high = index >= LowTideControls;
+            int within = high ? index - LowTideControls : index;
+            ushort root = high ? RunningAroundHighTide : RunningAroundLowTide;
+            if (within < 2) return new((ushort)(root + within * 2), within == 0 ? CommonEnemyInstructionCodes.SetTimer : PacingRepeats);
+            int directionControls = high ? HighDirectionControls : LowDirectionControls;
+            bool right = (within - 2) / directionControls != 0;
+            int local = (within - 2) % directionControls;
+            ushort start = high ? right ? RunningAroundHighTideRight : RunningAroundHighTideLeft
+                : right ? RunningAroundLowTideRight : RunningAroundLowTideLeft;
+            if (local < RunFrames * 2)
+                return new((ushort)(start + local / 2 * 6 + local % 2 * 4), local % 2 == 0
+                    ? high ? HighTideHold : LowTideHold
+                    : right ? EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6
+                        : EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6);
+            int branchWord = local - RunFrames * 2;
+            int address = start + RunFrames * 6 + branchWord * 2;
+            if (!high && branchWord < 2)
+                return new((ushort)address, branchWord == 0 ? EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfAcidLessThanCE
+                    : right ? RunningAroundHighTideRightLoop : RunningAroundHighTideLeftLoop);
+            int common = branchWord - (high ? 0 : 2);
+            ushort value = common switch
+            {
+                0 => EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfCrittersEscaped,
+                1 => right ? RunningForEscapeAccelerating : RunningForEscape,
+                2 => CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate,
+                3 => start,
+                4 => right ? CommonEnemyInstructionCodes.Goto : CommonEnemyInstructionCodes.SetTimer,
+                5 => right ? root : PacingRepeats,
+                _ => throw new InvalidOperationException("Dachora pacing control lies outside its native branch suffix."),
+            };
+            return new((ushort)address, value);
+        }
+        int departure = index - LowTideControls - HighTideControls;
+        if (departure == 0) return new(RunningForEscape, DepartureTurnHold);
+        if (departure <= 2 * DepartureFrames)
+        {
+            int frame = (departure - 1) / 2, slot = (departure - 1) % 2;
+            ushort hold = frame == 0 ? DeparturePauseHold : (ushort)Math.Max(MaximumSpeedHold,
+                AccelerationInitialHold - frame / AccelerationFramesPerStep * AccelerationHoldReduction);
+            return new((ushort)(RunningForEscapeAccelerating + frame * 6 + slot * 4), slot == 0 ? hold
+                : EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6);
+        }
+        int tail = departure - 1 - 2 * DepartureFrames;
+        return new((ushort)(RunningForEscapeAccelerating + DepartureFrames * 6 + tail * 2),
+            tail == 0 ? CommonEnemyInstructionCodes.Goto : RunningForEscapeMaximumSpeed);
+    }
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe96a, 0xe970, 0xe976, 0xe97c, 0xe982, 0xe988,
-        0xe99e, 0xe9a4, 0xe9aa, 0xe9b0, 0xe9b6, 0xe9bc,
-        0xe9d6, 0xe9dc, 0xe9e2, 0xe9e8, 0xe9ee, 0xe9f4,
-        0xea06, 0xea0c, 0xea12, 0xea18, 0xea1e, 0xea24,
-        0xea36, 0xea3a, 0xea40, 0xea46, 0xea4c, 0xea52, 0xea58,
-        0xea5e, 0xea64, 0xea6a, 0xea70, 0xea76, 0xea7c,
-        0xea82, 0xea88, 0xea8e, 0xea94, 0xea9a, 0xeaa0,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static EscapeDachoraInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 4 * RunFrames)
+        {
+            ushort start = (index / RunFrames) switch
+            {
+                0 => RunningAroundLowTideLeft, 1 => RunningAroundLowTideRight,
+                2 => RunningAroundHighTideLeft, _ => RunningAroundHighTideRight,
+            };
+            return (ushort)(start + index % RunFrames * 6 + sizeof(ushort));
+        }
+        return index == 4 * RunFrames ? (ushort)(RunningForEscape + sizeof(ushort))
+            : (ushort)(RunningForEscapeAccelerating + (index - 4 * RunFrames - 1) * 6 + sizeof(ushort));
+    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            EscapeDachoraInstructionMechanicsWord candidate = Words[middle];
+            EscapeDachoraInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -200,9 +157,9 @@ internal static class EscapeDachoraInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xb30000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

@@ -5,41 +5,30 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Required title artwork identities selected by compiled title-card behavior.</summary>
 public static class TitleSpriteDefinitions
 {
-    private static readonly ushort[] Pointers = CollectPointers();
-
     /// <summary>
-    /// The 31 bank-$8C spritemaps selected by the four bank-$8B title-card lists,
-    /// the logo and the Nintendo copyright. Blank timed entries are not artwork.
-    /// These identities come from compiled selectors, never from a cartridge reader
-    /// or a replacement's own manifest.
+    /// Enumerates the 31 distinct bank-$8C identities in native address order from the
+    /// calculated title-card layouts. Blank timed entries are not artwork.
     /// </summary>
-    public static ReadOnlySpan<ushort> NativePointers => Pointers;
-
-    private static ushort[] CollectPointers()
+    public static IEnumerable<ushort> NativePointers
     {
-        var pointers = new HashSet<ushort>
+        get
         {
-            TitleSequenceRomData.Sprites.SuperMetroidLogo,
-            TitleSequenceRomData.Sprites.NintendoCopyright,
-        };
-        foreach (TitleTextSequenceDefinition sequence in new[]
-        {
-            TitleSequenceRomData.TextSequences.Year,
-            TitleSequenceRomData.TextSequences.Nintendo,
-            TitleSequenceRomData.TextSequences.Presents,
-            TitleSequenceRomData.TextSequences.MetroidThree,
-        })
-        {
-            int entry = sequence.InstructionAddress;
-            while ((TitleSequenceInstructionDefinitions.ReadWord(entry) &
-                    TitleSequenceRomData.TextSequences.CommandBit) == 0)
-            {
-                ushort pointer = TitleSequenceInstructionDefinitions.ReadWord(entry + sizeof(ushort));
-                if (pointer != TitleSequenceRomData.Sprites.Blank)
-                    pointers.Add(pointer);
-                entry += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
-            }
+            yield return TitleSequenceRomData.Sprites.NintendoCopyright;
+            for (int frame = 3; frame < 9; frame++)
+                yield return Frame(TitleSequenceRomData.TextSequences.MetroidThree, frame);
+            yield return TitleSequenceRomData.Sprites.SuperMetroidLogo;
+            for (int frame = 1; frame <= 4; frame++)
+                yield return Frame(TitleSequenceRomData.TextSequences.Year, frame);
+            for (int frame = 0; frame < 8; frame++)
+                yield return Frame(TitleSequenceRomData.TextSequences.Nintendo, frame);
+            for (int frame = 0; frame < 8; frame++)
+                yield return Frame(TitleSequenceRomData.TextSequences.Presents, frame);
+            for (int frame = 0; frame < 3; frame++)
+                yield return Frame(TitleSequenceRomData.TextSequences.MetroidThree, frame);
         }
-        return pointers.Order().ToArray();
     }
+
+    private static ushort Frame(TitleTextSequenceDefinition sequence, int frame) =>
+        TitleSequenceInstructionDefinitions.ReadWord(sequence.InstructionAddress +
+            frame * TitleSequenceRomData.TextSequences.TimedEntryByteCount + sizeof(ushort));
 }

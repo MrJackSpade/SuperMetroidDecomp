@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -24,6 +25,14 @@ internal static partial class Program
                 $"Shitroid mechanics word $A9:{definition.Address:X4}");
         }
 
+        for (int index = 0; index < ShitroidInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = ShitroidInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(ShitroidVisualDefinitions.Bank, address, out ushort selector),
+                "Shitroid presentation operand has an installed visual identity");
+            AssertEqual(ReadShitroidInstructionWord(rom, address), selector,
+                $"Shitroid native visual operand $A9:{address:X4}");
+        }
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort randomNumber = 0;
         var guard = new ShitroidInstructionReadGuard(rom);

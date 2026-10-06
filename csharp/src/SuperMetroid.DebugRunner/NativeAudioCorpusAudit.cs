@@ -126,7 +126,7 @@ internal static class NativeAudioCorpusAudit
                 foreach (SnesButton accept in new[] { SnesButton.A, SnesButton.Start })
                 {
                     var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath ?? throw new ArgumentNullException(nameof(romPath)));
-                    if (saved) new SuperMetroidSaveRam(bus).SaveSlot(0, new SuperMetroidSaveSnapshot());
+                    if (saved) new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(0, new SuperMetroidSaveSnapshot());
                     var game = new SuperMetroidGame(bus);
                     int swooshes = 0;
                     Scenario($"file-select-saved={saved}-accept={accept}", 500, tick =>

@@ -45,23 +45,30 @@ internal static class SporeSpawnCollisionDefinitions
     private const ushort NoOp = EnemyAiCodePointers.BankA0.NoOp;
     private const ushort Dud = EnemyAiCodePointers.BankA0.DudShot;
 
-    private static readonly Dictionary<ushort, SporeSpawnCollisionComponent[]> Frames =
-        new()
-        {
-            [0xee65] = [new(0, 0, ClosedHead)],
-            [0xee6f] = [new(0, 0, OpenHead)],
-            [0xee79] = [new(0, 0, ExtendedHead), new(0, 0, TrailingShotPoint)],
-            [0xee8b] = [new(0, 0, MovingHead0), new(0, 0, MirroredTrailingShotPoint)],
-            [0xee9d] = [new(0, 0, MovingHead1), new(0, 0, TrailingDudPoint)],
-            [0xeeaf] = [new(0, 0, MovingHead2), new(0, 0, MirroredTrailingShotPoint)],
-            [0xeec1] = [new(0, 0, MovingHead3), new(0, 0, TrailingShotPoint)],
-            [0xeed3] = [new(0, 0, MovingHead4), new(0, 0, MirroredTrailingShotPoint)],
-            [0xeee5] = [new(0, 0, MovingHead5), new(0, 0, TrailingDudPoint)],
-            [0xef3d] = [new(0, 0, MovingHead5), new(0, 0, TrailingShotPoint)],
-            [0xef4f] = [new(0, 0, MovingHead5), new(0, 0, MirroredTrailingShotPoint)],
-            [0xef61] = [new(0, 0, MovingHead5), new(0, 0, TrailingDudPoint)],
-        };
+    /// <summary>$A5:EE65, ExtendedSpritemap_SporeSpawn_Dead: one inactive head component.</summary>
+    private const ushort DeadFrame = 0xee65;
+    /// <summary>$A5:EE6F, ExtendedSpritemap_SporeSpawn_Closed_Closing_Opening_0: one closed head.</summary>
+    private const ushort ClosedFrame = 0xee6f;
+    /// <summary>$A5:EE79, ExtendedSpritemap_SporeSpawn_Closed_Closing_Opening_1: first of seven opening roots.</summary>
+    private const ushort FirstOpeningFrame = 0xee79;
+    /// <summary>$A5:EF3D, ExtendedSpritemap_SporeSpawn_FullyOpen_0: first of three open oscillation roots.</summary>
+    private const ushort FirstFullyOpenFrame = 0xef3d;
 
+    /// <summary>Native zero-offset head followed by its inner vulnerable point when the head is open.</summary>
+    internal readonly record struct ComponentSequence(ushort Head, ushort InnerPoint)
+    {
+        internal int Length => InnerPoint == 0 ? 1 : 2;
+        internal SporeSpawnCollisionComponent this[int index] => (uint)index < Length
+            ? new(0, 0, index == 0 ? Head : InnerPoint)
+            : throw new IndexOutOfRangeException();
+        public Enumerator GetEnumerator() => new(this);
+        internal struct Enumerator(ComponentSequence sequence)
+        {
+            private int index = -1;
+            public readonly SporeSpawnCollisionComponent Current => sequence[index];
+            public bool MoveNext() => ++index < sequence.Length;
+        }
+    }
     private static readonly Dictionary<ushort, SporeSpawnCollisionHitbox[]> Lists =
         new()
         {
@@ -130,18 +137,50 @@ internal static class SporeSpawnCollisionDefinitions
             ],
         };
 
-    internal static int FrameCount => Frames.Count;
+    internal static int FrameCount => 12;
     internal static int ListCount => Lists.Count;
 
-    internal static bool IsFrame(ushort pointer) => Frames.ContainsKey(pointer);
+    private static bool IsOpeningFrame(ushort pointer) =>
+        pointer >= FirstOpeningFrame && pointer <= FirstOpeningFrame + 6 * 18 &&
+        (pointer - FirstOpeningFrame) % 18 == 0;
 
-    internal static ReadOnlySpan<SporeSpawnCollisionComponent> ComponentsAt(
-        ushort pointer) =>
-        Frames.TryGetValue(pointer, out SporeSpawnCollisionComponent[]? components)
-            ? components
-            : throw new InvalidDataException(
-                $"Spore Spawn frame $A5:{pointer:X4} has no compiled collision identity.");
+    private static bool IsFullyOpenFrame(ushort pointer) =>
+        pointer >= FirstFullyOpenFrame && pointer <= FirstFullyOpenFrame + 2 * 18 &&
+        (pointer - FirstFullyOpenFrame) % 18 == 0;
 
+    internal static bool IsFrame(ushort pointer) =>
+        pointer is DeadFrame or ClosedFrame || IsOpeningFrame(pointer) || IsFullyOpenFrame(pointer);
+
+    /// <summary>
+    /// $A5:EE65..EEE5 and EF3D..EF61: dead/closed roots contain one head;
+    /// opening roots advance the head geometry while the inner point oscillates B,C,D,C.
+    /// Fully-open roots hold the final head and select B,C,D. All component offsets are zero.
+    /// The intervening unused single-component roots are outside the installed frame domain.
+    /// </summary>
+    internal static ComponentSequence ComponentsAt(ushort pointer)
+    {
+        if (pointer == DeadFrame) return new(ClosedHead, 0);
+        if (pointer == ClosedFrame) return new(OpenHead, 0);
+        if (IsFullyOpenFrame(pointer))
+            return new(MovingHead5, InnerPointForPhase((pointer - FirstFullyOpenFrame) / 18));
+        if (IsOpeningFrame(pointer))
+        {
+            int opening = (pointer - FirstOpeningFrame) / 18;
+            ushort head = opening == 0 ? ExtendedHead
+                : opening < 5 ? (ushort)(MovingHead0 + (opening - 1) * 50)
+                : (ushort)(MovingHead4 + (opening - 5) * 50);
+            return new(head, InnerPointForPhase(opening % 4));
+        }
+        throw new InvalidDataException(
+            $"Spore Spawn frame $A5:{pointer:X4} has no compiled collision identity.");
+    }
+
+    private static ushort InnerPointForPhase(int phase) => phase switch
+    {
+        0 => TrailingShotPoint,
+        2 => TrailingDudPoint,
+        _ => MirroredTrailingShotPoint,
+    };
     internal static ReadOnlySpan<SporeSpawnCollisionHitbox> HitboxesAt(
         ushort pointer) =>
         Lists.TryGetValue(pointer, out SporeSpawnCollisionHitbox[]? hitboxes)

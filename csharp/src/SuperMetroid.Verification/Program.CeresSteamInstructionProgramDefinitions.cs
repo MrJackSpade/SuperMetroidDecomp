@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -89,6 +90,16 @@ internal static partial class Program
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "compiled visual selectors require no runtime cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Ceres Steam production uses compiled visual selectors without ROM reads");
+        for (int index = 0; index < CeresSteamInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = CeresSteamInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa6, address, out ushort selector),
+                "Ceres Steam visual operand has a compiled selector");
+            AssertEqual(ReadVerificationWord(rom, (0xa6 << 16) | address), selector,
+                "Ceres Steam compiled visual selector matches original operand");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Ceres steam mechanics bytes");
         AssertThrows<InvalidDataException>(

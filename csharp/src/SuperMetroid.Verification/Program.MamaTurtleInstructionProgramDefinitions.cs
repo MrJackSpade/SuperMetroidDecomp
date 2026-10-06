@@ -70,8 +70,8 @@ internal static partial class Program
             "warmed Mama Turtle mechanics lookups allocate no per-frame storage");
 
         Console.WriteLine(
-            "Mama Turtle instruction mechanics: 117 compiled words, all thirteen " +
-            "parent/child programs, nine callbacks, and 75 live spritemap reads pass.");
+            "Mama Turtle instruction definitions: 117 native control words, " +
+            "byte ownership, 75 presentation addresses, bounds and allocation checks pass.");
     }
 
     private static int ProbeMamaTurtleInstructionMechanicsAllocation()

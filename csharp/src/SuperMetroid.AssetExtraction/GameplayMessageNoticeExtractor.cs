@@ -37,7 +37,7 @@ public static class GameplayMessageNoticeExtractor
 
             var regions = new List<GameplayMessageTextRegion>();
             foreach (GameplayMessageTextRegionDefinition region in
-                GameplayMessageNoticeDefinitions.StockTextRegions(id))
+                GameplayMessageNoticeDefinitions.StockTextRegions(id, template))
             {
                 GameplayMessageTitleCell[] cells = template.AsSpan(
                     region.Row * GameplayMessageRomData.Layout.TilemapWidth + region.Column,

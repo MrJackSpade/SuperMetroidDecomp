@@ -25,7 +25,7 @@ public sealed class MotherBrainDeathColorCatalog
         ushort[][] corpseFade, ushort[] explodedDoor)
     {
         this.bodyFade = new(bodyFade, toBlack: true);
-        this.legFade = new(legFade, toBlack: true);
+        this.legFade = new(legFade, toBlack: true, backLeg: true);
         this.corpseFade = new(corpseFade, toBlack: false);
         this.explodedDoor = explodedDoor;
     }
@@ -98,20 +98,27 @@ public sealed class MotherBrainDeathColorCatalog
     /// $AD:EA0A body/leg channels fade to black as (initial*(15-frame)+1)/15.
     /// $AD:F119 corpse channels interpolate between endpoints, rounded to nearest
     /// over seven intervals. These rules match every original intermediate color.
-    /// Endpoint colors remain independently supplied; unmatched edited frames remain exact.
+    /// Starting colors calculate from health state three; the corpse final palette calculates shared
+    /// drained shade rules from the three narrowly approved drained-paint anchors.
+    /// Unmatched edited endpoints and frames remain exact and independent of the health document.
     /// </summary>
     private sealed class ColorFade
     {
-        private readonly ushort[] first;
-        private readonly ushort[]? last;
+        private readonly ushort[]? first;
+        private readonly bool backLeg;
+        private readonly MotherBrainRainbowPalettePresentation.DrainedBodyColors? last;
         private readonly ushort[][]? supplied;
         internal int FrameCount { get; }
-        internal int ColorCount => first.Length;
+        internal int ColorCount { get; }
 
-        internal ColorFade(ushort[][] frames, bool toBlack)
+        internal ColorFade(ushort[][] frames, bool toBlack, bool backLeg = false)
         {
-            first = frames[0];
-            last = toBlack ? null : frames[^1];
+            this.backLeg = backLeg;
+            ColorCount = frames[0].Length;
+            for (int color = 0; color < ColorCount; color++)
+                if (frames[0][color] != MotherBrainHealthPalettePresentation.StockDeathStartColor(backLeg, color))
+                { first = frames[0]; break; }
+            last = toBlack ? null : new MotherBrainRainbowPalettePresentation.DrainedBodyColors(frames[^1]);
             FrameCount = frames.Length;
             for (int frame = 0; frame < FrameCount; frame++)
             for (int color = 0; color < ColorCount; color++)
@@ -133,7 +140,7 @@ public sealed class MotherBrainDeathColorCatalog
             int result = 0;
             for (int shift = 0; shift < 15; shift += 5)
             {
-                int start = (first[color] >> shift) & 31;
+                int start = ((first is null ? MotherBrainHealthPalettePresentation.StockDeathStartColor(backLeg, color) : first[color]) >> shift) & 31;
                 int end = last is null ? 0 : (last[color] >> shift) & 31;
                 int bias = last is null ? 1 : steps / 2;
                 int channel = (start * (steps - frame) + end * frame + bias) / steps;

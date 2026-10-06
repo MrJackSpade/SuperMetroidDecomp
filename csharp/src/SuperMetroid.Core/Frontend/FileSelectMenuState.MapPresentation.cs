@@ -10,6 +10,7 @@ public sealed partial class FileSelectMenuState
         if (catalog is null)
             throw new InvalidOperationException("File-select requires installed map presentation assets.");
         mapPresentation = catalog;
+        saveRam.BindMapPresentation(catalog);
         ppu.BindWorldArtwork(bus, catalog.WorldArtwork);
         ppu.BindMapTiles(bus, catalog.Tiles);
         ppu.BindMapSprites(bus, catalog.Sprites);

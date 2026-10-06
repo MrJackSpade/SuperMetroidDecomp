@@ -7,7 +7,7 @@ internal readonly record struct WalkingSpacePirateInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for all walking Space Pirate body programs.
-/// Interleaved extended-spritemap pointers remain live cartridge presentation data.
+/// Interleaved extended-spritemap operands select installed presentation data.
 /// </summary>
 internal static class WalkingSpacePirateInstructionProgramDefinitions
 {
@@ -28,98 +28,122 @@ internal static class WalkingSpacePirateInstructionProgramDefinitions
     /// <summary><c>InstList_PirateWalking_LookingAround_FacingRight</c> at $B2:FC48.</summary>
     internal const ushort LookingFacingRight = 0xfc48;
 
-    private static readonly WalkingSpacePirateInstructionMechanicsWord[] Words =
-    [
-        new(0xfb4c, 0xfcb8), new(0xfb4e, 0x804b), new(0xfb50, 0x0010),
-        new(0xfb54, 0x80ed), new(0xfb56, 0xfb64),
-        new(0xfb58, 0xfcb8), new(0xfb5a, 0x804b), new(0xfb5c, 0x0010),
-        new(0xfb60, 0x80ed), new(0xfb62, 0xfbe6),
-        new(0xfb64, 0xfcb8), new(0xfb66, 0xfd44),
-        new(0xfb68, 0x000a), new(0xfb6c, 0x000a), new(0xfb70, 0x000a),
-        new(0xfb74, 0x000a), new(0xfb78, 0x000a), new(0xfb7c, 0x000a),
-        new(0xfb80, 0x000a), new(0xfb84, 0x000a), new(0xfb88, 0x80ed),
-        new(0xfb8a, 0xfb68),
-        new(0xfb8c, 0xfcb8), new(0xfb8e, 0xfe4a), new(0xfb90, 0x0018),
-        new(0xfb94, 0x0008), new(0xfb98, 0x0008), new(0xfb9c, 0x0008),
-        new(0xfba0, 0xfc68), new(0xfba2, 0x0008), new(0xfba4, 0x0008),
-        new(0xfba8, 0xfc68), new(0xfbaa, 0x0002), new(0xfbac, 0x0018),
-        new(0xfbb0, 0xfc68), new(0xfbb2, 0xfff8), new(0xfbb4, 0x0008),
-        new(0xfbb8, 0x0008), new(0xfbbc, 0x0008), new(0xfbc0, 0x0008),
-        new(0xfbc4, 0xfcc8),
-        new(0xfbc6, 0xfcb8), new(0xfbc8, 0xfe4a), new(0xfbca, 0x0020),
-        new(0xfbce, 0x000a), new(0xfbd2, 0x0020), new(0xfbd6, 0x000a),
-        new(0xfbda, 0x0020), new(0xfbde, 0x0008), new(0xfbe2, 0x80ed),
-        new(0xfbe4, 0xfbe6),
-        new(0xfbe6, 0xfcb8), new(0xfbe8, 0xfdce),
-        new(0xfbea, 0x000a), new(0xfbee, 0x000a), new(0xfbf2, 0x000a),
-        new(0xfbf6, 0x000a), new(0xfbfa, 0x000a), new(0xfbfe, 0x000a),
-        new(0xfc02, 0x000a), new(0xfc06, 0x000a), new(0xfc0a, 0x80ed),
-        new(0xfc0c, 0xfbea),
-        new(0xfc0e, 0xfcb8), new(0xfc10, 0xfe4a), new(0xfc12, 0x0018),
-        new(0xfc16, 0x0008), new(0xfc1a, 0x0008), new(0xfc1e, 0x0008),
-        new(0xfc22, 0xfc90), new(0xfc24, 0x0008), new(0xfc26, 0x0008),
-        new(0xfc2a, 0xfc90), new(0xfc2c, 0x0002), new(0xfc2e, 0x0018),
-        new(0xfc32, 0xfc90), new(0xfc34, 0xfff8), new(0xfc36, 0x0008),
-        new(0xfc3a, 0x0008), new(0xfc3e, 0x0008), new(0xfc42, 0x0008),
-        new(0xfc46, 0xfcc8),
-        new(0xfc48, 0xfcb8), new(0xfc4a, 0xfe4a), new(0xfc4c, 0x0020),
-        new(0xfc50, 0x000a), new(0xfc54, 0x0020), new(0xfc58, 0x000a),
-        new(0xfc5c, 0x0020), new(0xfc60, 0x0008), new(0xfc64, 0x80ed),
-        new(0xfc66, 0xfb64),
-    ];
+    internal static int MechanicsWordCount => 92;
+    internal static int PresentationWordCount => 50;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xfb52, 0xfb5e,
-        0xfb6a, 0xfb6e, 0xfb72, 0xfb76, 0xfb7a, 0xfb7e, 0xfb82, 0xfb86,
-        0xfb92, 0xfb96, 0xfb9a, 0xfb9e, 0xfba6, 0xfbae, 0xfbb6, 0xfbba,
-        0xfbbe, 0xfbc2,
-        0xfbcc, 0xfbd0, 0xfbd4, 0xfbd8, 0xfbdc, 0xfbe0,
-        0xfbec, 0xfbf0, 0xfbf4, 0xfbf8, 0xfbfc, 0xfc00, 0xfc04, 0xfc08,
-        0xfc14, 0xfc18, 0xfc1c, 0xfc20, 0xfc28, 0xfc30, 0xfc38, 0xfc3c,
-        0xfc40, 0xfc44,
-        0xfc4e, 0xfc52, 0xfc56, 0xfc5a, 0xfc5e, 0xfc62,
-    ];
+    /// <summary>Independent native pose holds remain pending; layout sharing does not derive these values.</summary>
+    private const ushort FlinchHold = 16, WalkHold = 10, AimHold = 24, FireHold = 8, LookHold = 32;
+    /// <summary>$B2:FBA2/FBAA/FBB2: independently chosen lower/middle/upper laser Y offsets remain pending.</summary>
+    private const short OuterShotOffset = 8, MiddleShotOffset = 2;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static WalkingSpacePirateInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static WalkingSpacePirateInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        return Select(index, visual: false);
+    }
+
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return Select(index, visual: true).Address;
+    }
+
+    /// <summary>
+    /// $B2:FB4C-FC67 contains two12-byte flinches followed by two facing halves.
+    /// Each half has a40-byte walk loop,58-byte three-shot attack and32-byte look/turn list.
+    /// A timed pose occupies four bytes; functions, callbacks and jump operands two each.
+    /// </summary>
+    private static WalkingSpacePirateInstructionMechanicsWord Select(int index, bool visual)
+    {
+        var layout = new Layout(index, visual, FlinchFacingLeft);
+        for (int facing = 0; facing < 2; facing++)
+        {
+            layout.InstallFunction(WalkingSpacePirateFunction.NoOperation);
+            layout.Pose(FlinchHold);
+            layout.Goto(facing == 0 ? WalkingLeft : WalkingRight);
+        }
+        for (int facing = 0; facing < 2; facing++)
+        {
+            bool right = facing != 0;
+            ushort walking = right ? WalkingRight : WalkingLeft;
+            layout.InstallFunction(right ? WalkingSpacePirateFunction.WalkingRight : WalkingSpacePirateFunction.WalkingLeft);
+            for (int pose = 0; pose < 8; pose++) layout.Pose(WalkHold);
+            layout.Goto((ushort)(walking + 4));
+
+            layout.InstallFunction(WalkingSpacePirateFunction.AnimationOwnedNoOperation);
+            layout.Pose(AimHold);
+            for (int pose = 0; pose < 3; pose++) layout.Pose(FireHold);
+            for (int shot = 0; shot < 3; shot++)
+            {
+                layout.Word(right ? EnemyInstructionCodePointers.Instruction_PirateWalking_FireLaserRightWithYOffsetInY
+                    : EnemyInstructionCodePointers.Instruction_PirateWalking_FireLaserLeftWithYOffsetInY);
+                layout.Word(unchecked((ushort)(shot == 0 ? OuterShotOffset : shot == 1 ? MiddleShotOffset : -OuterShotOffset)));
+                layout.Pose(shot == 1 ? AimHold : FireHold);
+            }
+            for (int pose = 0; pose < 3; pose++) layout.Pose(FireHold);
+            layout.Word(EnemyInstructionCodePointers.Instruction_PirateWalking_ChooseAMovement);
+
+            layout.InstallFunction(WalkingSpacePirateFunction.AnimationOwnedNoOperation);
+            for (int pose = 0; pose < 5; pose++) layout.Pose((pose & 1) == 0 ? LookHold : WalkHold);
+            layout.Pose(FireHold);
+            layout.Goto(right ? WalkingLeft : WalkingRight);
+        }
+        return layout.Result;
+    }
+
+    private ref struct Layout(int requested, bool visual, ushort start)
+    {
+        private ushort cursor = start;
+        private int mechanics, presentation;
+        internal WalkingSpacePirateInstructionMechanicsWord Result { get; private set; }
+
+        internal void Word(ushort value)
+        {
+            if (!visual && mechanics == requested) Result = new(cursor, value);
+            mechanics++;
+            cursor += 2;
+        }
+        internal void Pose(ushort duration)
+        {
+            Word(duration);
+            if (visual && presentation == requested) Result = new(cursor, 0);
+            presentation++;
+            cursor += 2;
+        }
+        internal void InstallFunction(WalkingSpacePirateFunction function)
+        {
+            Word(EnemyInstructionCodePointers.Instruction_PirateWalking_FunctionInY);
+            Word((ushort)function);
+        }
+        internal void Goto(ushort target)
+        {
+            Word(CommonEnemyInstructionCodes.Goto);
+            Word(target);
+        }
+    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
+        int low = 0, high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            WalkingSpacePirateInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            var word = MechanicsWord(middle);
+            if (word.Address == address) return word.Value;
+            if (word.Address < address) low = middle + 1;
+            else high = middle - 1;
         }
-
-        throw new InvalidDataException(
-            $"Walking Space Pirate instruction mechanics pointer $B2:{address:X4} is not compiled.");
+        throw new InvalidDataException($"Walking Space Pirate instruction mechanics pointer $B2:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xb20000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        if ((address & 0xff0000) != 0xb20000) return false;
+        ushort offset = unchecked((ushort)address);
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
+            ushort word = MechanicsWord(index).Address;
+            if (offset == word || offset == word + 1) return true;
         }
         return false;
     }

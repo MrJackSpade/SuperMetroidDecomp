@@ -46,7 +46,7 @@ internal static class ClosedPresentationContractDefinitions
             ["ApplyTemplate", "TryApplyIcon", "ApplyEnergy", "ApplyAmmo", "ApplyAutoReserve",
                 "ClearAutoReserve", "ToggleItemHighlight", "MinimapCellIndex"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
-                "D058D17F344E661769A687F91D58C7A2DD3134E643785428A262AA7152A486D2"),
+                "3EAF5149EF17F94080F0C6C96FFB4EF008A67ACF110CA9D4FB3BA8229AE76347"),
              new("csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs",
                 "ED88E0937A180EB6AE070D1659668C6E7E6E833EB9C615E105AB8AA4363198AC")],
             "The sole private constructor compiles every HUD field: two ten-digit arrays, " +
@@ -57,8 +57,9 @@ internal static class ClosedPresentationContractDefinitions
         new("SuperMetroid.Core.Assets.FileSelectPresentation", "file-select-v1-bounded-fields",
             ["LoadBackground", "Slot", "WriteDigit", "WriteSlotLetter", "CursorPosition",
                 "DrawCursor", "DrawHelmet", "DynamicAnchor", "ApplyPatch", "CopyPage", "DrawBorder"],
-            [new("csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs",
-                "E3710C537B60C8DC3D9818FC7774877E24B2A2E545EF4F088196F648BCC10104")],
+            [new("csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs", "5E511AF96B9E4663EBC7B8F394336CFD4A1ED29B4588859DD4734AE6017BB979"),
+             new("csharp/src/SuperMetroid.Core/Assets/MenuBorderParts.cs", "6B79556FD47098253A8A977E398C98A1908D01A7DD4E9E5916A38634A33E0080"),
+             new("csharp/src/SuperMetroid.Core/Assets/MenuCursorParts.cs", "098A65F1E9C940A4FEE39562968A7719BE5F405E46F84E6FA151FF89C6E2C66C")],
             "Load is the sole private-constructor path and requires exact page, patch, sprite, " +
             "border and dynamic-anchor sets plus complete digit/letter/slot/cursor arrays. " +
             "Reviewed array selectors reject invalid indices; generated cursor/helmet names are bounded. " +
@@ -67,11 +68,11 @@ internal static class ClosedPresentationContractDefinitions
         new("SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation", "mother-brain-room-v3-complete-rows",
             ["ApplyFlash", "ApplyFinal", "ApplyPhaseTwoInitial", "ApplyRoomEntry", "ApplyRecoveryLights"],
             [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
-                "67630C828581AB534E1F6EBF0E8145762623EEE80F26B534157EB72FEC780AE8"),
+                "530305da8f3ea987c4b667ead93a8cb891e7e9c82d92b7e02d11caf57e02bb19"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRoomColorRomData.cs",
                 "1C721E9C962B99671899993D8228020C90266EB796466758A0FD6BF6351E424D"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs",
-                "68E027B6CA7DCA4C6357729EE8C73276E303D9E94AD934481442F59D4026E1E9")],
+                "B7D59A301621835F4C4708765DBF3458C6BF08B429A459F65A978D07EDA92E7A")],
             "The validated loader installs all fourteen aligned flash rows, seven recovery-light " +
             "rows and the fixed final/phase-two/room-entry arrays before private construction. " +
             "Legacy omissions inherit only from validated stock. Flash alignment/range and recovery " +

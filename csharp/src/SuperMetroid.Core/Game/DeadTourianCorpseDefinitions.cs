@@ -1,58 +1,60 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Compiled initializer and corpse-rotting metadata for dead Tourian enemies.</summary>
+/// <summary>Calculated initializer and corpse-rotting metadata for dead Tourian enemies.</summary>
 internal static class DeadTourianCorpseDefinitions
 {
-    /// <summary>
-    /// Dead Zoomer selectors at <c>$A9:D86A-$A9:D875</c> and configurations at
-    /// <c>$A9:DD88-$A9:DDB7</c>.
-    /// </summary>
-    private static readonly DeadTourianCorpseDefinition[] Zoomer =
-    [
-        new(DeadTourianCorpseInstructionProgramDefinitions.Zoomer0, 0xdd88, 0x92c0, 0xe134, 0xe6b9, 0xe66a, 0x0010, 0xdf4f, 0xe24c, 0xdc08, 0x0054),
-        new(DeadTourianCorpseInstructionProgramDefinitions.Zoomer2, 0xdd98, 0x9300, 0xe146, 0xe745, 0xe6f6, 0x0010, 0xdf6c, 0xe24c, 0xdc08, 0x0054),
-        new(DeadTourianCorpseInstructionProgramDefinitions.Zoomer4, 0xdda8, 0x9340, 0xe158, 0xe7d1, 0xe782, 0x0010, 0xdf89, 0xe24c, 0xdc08, 0x0054),
-    ];
+    /// <summary>$A9:DD88 begins eight consecutive16-byte corpse configuration records.</summary>
+    private const ushort FirstConfiguration = 0xdd88;
+    /// <summary>$7E:92C0 begins the five64-byte Zoomer/Ripper rotting work areas.</summary>
+    private const ushort FirstWideRottingArea = 0x92c0;
+    /// <summary>$7E:9140 begins the three128-byte Skree rotting work areas.</summary>
+    private const ushort FirstSkreeRottingArea = 0x9140;
+    /// <summary>$A9:E134 begins five18-byte Zoomer/Ripper DMA lists.</summary>
+    private const ushort FirstWideTransfer = 0xe134;
+    /// <summary>$A9:E18E begins three34-byte Skree DMA lists.</summary>
+    private const ushort FirstSkreeTransfer = 0xe18e;
+    /// <summary>$A9:E66A begins five140-byte paired Zoomer/Ripper move/copy routines; copy begins79 bytes later.</summary>
+    private const ushort FirstWideMove = 0xe66a;
+    /// <summary>$A9:E926 begins three94-byte paired Skree move/copy routines; copy begins53 bytes later.</summary>
+    private const ushort FirstSkreeMove = 0xe926;
+    /// <summary>$A9:DF4F begins five29-byte Zoomer/Ripper graphics initialization routines.</summary>
+    private const ushort FirstWideGraphicsInitialization = 0xdf4f;
+    /// <summary>$A9:DFE0 begins three57-byte Skree graphics initialization routines.</summary>
+    private const ushort FirstSkreeGraphicsInitialization = 0xdfe0;
+    /// <summary>$A9:E24C/E252/E258 are the Zoomer/Ripper/Skree row-offset lists, six bytes apart because the preceding Zoomer/Ripper lists each contain three offsets.</summary>
+    private const ushort FirstRotation = 0xe24c;
+    /// <summary>$A9:DC08, CorpseRotEntryFinishedHook_Normal: shared completion callback.</summary>
+    private const ushort Finish = 0xdc08;
 
-    /// <summary>
-    /// Dead Ripper selectors at <c>$A9:D897-$A9:D89E</c> and configurations at
-    /// <c>$A9:DDB8-$A9:DDD7</c>.
-    /// </summary>
-    private static readonly DeadTourianCorpseDefinition[] Ripper =
-    [
-        new(DeadTourianCorpseInstructionProgramDefinitions.Ripper0, 0xddb8, 0x9380, 0xe16a, 0xe85d, 0xe80e, 0x0010, 0xdfa6, 0xe252, 0xdc08, 0x0054),
-        new(DeadTourianCorpseInstructionProgramDefinitions.Ripper2, 0xddc8, 0x93c0, 0xe17c, 0xe8e9, 0xe89a, 0x0010, 0xdfc3, 0xe252, 0xdc08, 0x0054),
-    ];
-
-    /// <summary>
-    /// Dead Skree selectors at <c>$A9:D8C0-$A9:D8CB</c> and configurations at
-    /// <c>$A9:DDD8-$A9:DE07</c>.
-    /// </summary>
-    private static readonly DeadTourianCorpseDefinition[] Skree =
-    [
-        new(DeadTourianCorpseInstructionProgramDefinitions.Skree0, 0xddd8, 0x9140, 0xe18e, 0xe95b, 0xe926, 0x0020, 0xdfe0, 0xe258, 0xdc08, 0x0034),
-        new(DeadTourianCorpseInstructionProgramDefinitions.Skree2, 0xdde8, 0x91c0, 0xe1b0, 0xe9b9, 0xe984, 0x0020, 0xe019, 0xe258, 0xdc08, 0x0034),
-        new(DeadTourianCorpseInstructionProgramDefinitions.Skree4, 0xddf8, 0x9240, 0xe1d2, 0xea17, 0xe9e2, 0x0020, 0xe052, 0xe258, 0xdc08, 0x0034),
-    ];
-
-    /// <summary>Returns one parameter-selected native initialization record.</summary>
-    internal static DeadTourianCorpseDefinition For(
-        DeadTourianCorpseSpecies species,
-        int variantIndex)
+    internal static DeadTourianCorpseDefinition For(DeadTourianCorpseSpecies species,int variantIndex)
     {
-        DeadTourianCorpseDefinition[] definitions = species switch
+        int first = species switch
         {
-            DeadTourianCorpseSpecies.Zoomer => Zoomer,
-            DeadTourianCorpseSpecies.Ripper => Ripper,
-            DeadTourianCorpseSpecies.Skree => Skree,
-            _ => throw new ArgumentOutOfRangeException(nameof(species), species, null),
+            DeadTourianCorpseSpecies.Zoomer => 0,
+            DeadTourianCorpseSpecies.Ripper => 3,
+            DeadTourianCorpseSpecies.Skree => 5,
+            _ => throw new ArgumentOutOfRangeException(nameof(species),species,null),
         };
-        if ((uint)variantIndex >= definitions.Length)
-            throw new ArgumentOutOfRangeException(nameof(variantIndex), variantIndex, null);
-        return definitions[variantIndex];
+        int count = species == DeadTourianCorpseSpecies.Ripper ? 2 : 3;
+        if ((uint)variantIndex >= count) throw new ArgumentOutOfRangeException(nameof(variantIndex),variantIndex,null);
+        int ordinal = first+variantIndex;
+        bool skree = species == DeadTourianCorpseSpecies.Skree;
+        int layout = skree ? variantIndex : ordinal;
+        ushort move = (ushort)((skree ? FirstSkreeMove : FirstWideMove)+(skree ? 94 : 140)*layout);
+        int rowTiles = skree ? 2 : 3;
+        int rotationIndex = species == DeadTourianCorpseSpecies.Zoomer ? 0 : species == DeadTourianCorpseSpecies.Ripper ? 1 : 2;
+        return new(
+            DeadTourianCorpseInstructionProgramDefinitions.Program(ordinal),
+            (ushort)(FirstConfiguration+16*ordinal),
+            (ushort)((skree ? FirstSkreeRottingArea : FirstWideRottingArea)+(skree ? 128 : 64)*layout),
+            (ushort)((skree ? FirstSkreeTransfer : FirstWideTransfer)+(skree ? 34 : 18)*layout),
+            (ushort)(move+(skree ? 53 : 79)),move,
+            skree ? (ushort)32 : (ushort)16,
+            (ushort)((skree ? FirstSkreeGraphicsInitialization : FirstWideGraphicsInitialization)+(skree ? 57 : 29)*layout),
+            (ushort)(FirstRotation+6*rotationIndex),Finish,
+            (ushort)(32*rowTiles-12));
     }
 }
-
 /// <summary>One immutable native dead-monster initialization record.</summary>
 internal readonly record struct DeadTourianCorpseDefinition(
     ushort InitialInstructionPointer,

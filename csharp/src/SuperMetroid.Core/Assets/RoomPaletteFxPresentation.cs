@@ -26,6 +26,10 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
     /// <inheritdoc />
     public bool TryReadColor(ushort pointer, out ushort color) =>
         gunshipInputs.TryGetValue(pointer, out color) ||
+        PlanetZebesTextColorDefinitions.TryCalculate(pointer, colors, out color) ||
+        MaridiaEnvironmentalColorDefinitions.TryReadColor(pointer, colors, out color) ||
+        CrateriaLightningColorDefinitions.TryCalculatedColor(pointer, out color) ||
+        CrateriaLightningColorDefinitions.TryCalculatedDarkColor(pointer, colors, out color) ||
         TourianStatueGreyColorDefinitions.TryCalculatedColor(pointer, colors, out color) ||
         LoadingPaletteColorDefinitions.TryReadColor(pointer, loadingInputs, out color) ||
         LogoGlarePaletteColorDefinitions.TryCalculatedColor(pointer, colors, out color) ||
@@ -43,11 +47,29 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         get
         {
             foreach (ushort pointer in colors.Keys)
-                if (!HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out _) &&
+                if (!MaridiaEnvironmentalColorDefinitions.TrySourcePointer(pointer, out _) &&
+                    !PlanetZebesTextColorDefinitions.TryCoordinates(pointer, out _, out _, out _) &&
+                    !CrateriaLightningColorDefinitions.TryCoordinates(pointer, out _, out _) &&
+                    !CrateriaLightningColorDefinitions.TryDarkCoordinates(pointer, out _, out _) &&
+                    !HeatPaletteColorDefinitions.TryCanonicalPointer(pointer, out _) &&
                     !LoadingPaletteColorDefinitions.TryCanonicalPointer(pointer, out _) &&
                     !LogoGlarePaletteColorDefinitions.TryCoordinates(pointer, out _, out _) &&
                     !EndingGunshipPaletteColorDefinitions.TryCoordinates(pointer, out _, out _) &&
                     !TourianStatueGreyColorDefinitions.TryCoordinates(pointer, out _, out _)) yield return pointer;
+            foreach (var program in MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+                for (int frame = 0; frame < program.FrameCount; frame++)
+                    for (int index = 0; index < program.ColorsPerFrame; index++)
+                        yield return program.ColorPointer(frame, index);
+            foreach (var program in PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)
+                for (int frame = 0; frame < PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
+                    for (int index = 0; index < PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
+                        yield return program.ColorPointer(frame, index);
+            for (int frame = 0; frame < CrateriaLightningColorDefinitions.DarkProgram.Frames.Count; frame++)
+                for (int index = 0; index < CrateriaLightningColorDefinitions.DarkProgram.ColorsPerFrame; index++)
+                    yield return CrateriaLightningColorDefinitions.DarkProgram.ColorPointer(frame, index);
+            for (int frame = 0; frame < CrateriaLightningColorDefinitions.SurfaceProgram.Frames.Count; frame++)
+                for (int index = 0; index < CrateriaLightningColorDefinitions.SurfaceProgram.ColorsPerFrame; index++)
+                    yield return CrateriaLightningColorDefinitions.SurfaceProgram.ColorPointer(frame, index);
             for (int frame = 0; frame < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
                 for (int index = 0; index < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
                     yield return TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
@@ -557,6 +579,39 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
             ushort pointer = TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorPointer(frame, index);
             if (TourianStatueGreyColorDefinitions.TryCalculatedColor(pointer, colors, out ushort calculated) &&
                 colors[pointer] == calculated) colors.Remove(pointer);
+        }
+        var surfaceLightning = CrateriaLightningColorDefinitions.SurfaceProgram;
+        for (int frame = 0; frame < surfaceLightning.Frames.Count; frame++)
+        for (int index = 0; index < surfaceLightning.ColorsPerFrame; index++)
+        {
+            ushort pointer = surfaceLightning.ColorPointer(frame, index);
+            if (CrateriaLightningColorDefinitions.TryCalculatedColor(pointer, out ushort calculated) &&
+                colors[pointer] == calculated) colors.Remove(pointer);
+        }
+        var darkLightning = CrateriaLightningColorDefinitions.DarkProgram;
+        for (int frame = 1; frame < darkLightning.Frames.Count; frame++)
+        for (int index = 0; index < darkLightning.ColorsPerFrame; index++)
+        {
+            ushort pointer = darkLightning.ColorPointer(frame, index);
+            if (CrateriaLightningColorDefinitions.TryCalculatedDarkColor(pointer, colors, out ushort calculated) &&
+                colors[pointer] == calculated) colors.Remove(pointer);
+        }
+        foreach (var program in PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)
+        for (int frame = 0; frame < PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
+        for (int index = 0; index < PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame; index++)
+        {
+            ushort pointer = program.ColorPointer(frame, index);
+            if (pointer != PlanetZebesTextColorDefinitions.EndpointPointer(index)
+                && PlanetZebesTextColorDefinitions.TryCalculate(pointer, colors, out ushort calculated)
+                && colors[pointer] == calculated) colors.Remove(pointer);
+        }
+        foreach (var program in MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+        for (int frame = 0; frame < program.FrameCount; frame++)
+        for (int index = 0; index < program.ColorsPerFrame; index++)
+        {
+            ushort pointer = program.ColorPointer(frame, index);
+            if (MaridiaEnvironmentalColorDefinitions.TrySourcePointer(pointer, out ushort source)
+                && source != pointer && colors[pointer] == colors[source]) colors.Remove(pointer);
         }
         return new RoomPaletteFxPresentation(colors);
     }

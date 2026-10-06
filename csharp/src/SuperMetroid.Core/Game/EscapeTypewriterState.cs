@@ -68,7 +68,7 @@ public sealed class EscapeTypewriterState
             ProgramStarted = true;
         }
 
-        while (ProgramLineIndex < program.Lines.Length)
+        while (ProgramLineIndex < program.Lines.Count)
         {
             EscapeTypewriterLine line = program.Lines[ProgramLineIndex];
             if (ProgramCharacterIndex >= line.Text.Length)

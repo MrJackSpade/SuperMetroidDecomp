@@ -176,7 +176,7 @@ internal static class CeresDestructionAudit
         // physical SRAM to cartridge load-station resolution—no seeded snapshot participates.
         if (!AutomaticCheckpointSaver.TrySaveGunshipLanding(bus, runtime, selectedSaveSlot: 0))
             throw new InvalidDataException("Natural gunship completion did not request its automatic save.");
-        SuperMetroidSaveSlot landingSave = new SuperMetroidSaveRam(bus).ReadSlot(0)
+        SuperMetroidSaveSlot landingSave = new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).ReadSlot(0)
             ?? throw new InvalidDataException("Gunship checkpoint failed SRAM checksum validation.");
         if (landingSave.Area != 0 || landingSave.SaveStation != 0 ||
             (landingSave.UsedSaveStationBytes[0] & 1) == 0 ||

@@ -45,7 +45,7 @@ internal static partial class Program
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
                 Active = true, StaggerAngle = ushort.MaxValue, MovementDirection = 0,
-                Angle = 0x3ff0, Distance = RidleyTailDefinitions.RestDistances[index],
+                Angle = 0x3ff0, Distance = RidleyTailDefinitions.RestDistance(index),
             }).ToArray(),
         };
         run(slot, state, null, 0, null);

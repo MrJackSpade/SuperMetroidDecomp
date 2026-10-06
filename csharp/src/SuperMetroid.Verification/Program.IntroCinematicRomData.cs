@@ -104,7 +104,7 @@ internal static partial class Program
     }
 
     private static void AssertIntroPaletteSpans(
-        ReadOnlySpan<IntroPaletteSpan> spans,
+        IntroCinematicRomData.Palette.Regions spans,
         string context)
     {
         AssertTrue(!spans.IsEmpty, $"intro {context} palette span list is nonempty");

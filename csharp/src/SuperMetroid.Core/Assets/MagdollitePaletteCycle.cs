@@ -14,12 +14,32 @@ public sealed class MagdollitePaletteCycle
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("MagdollitePaletteCycle-v1", content =>
         {
-            content.AppendWordFrames("frames", frames);
+            content.Append("frames", MagdollitePaletteRomData.FrameCount);
+            Span<ushort> row = stackalloc ushort[MagdollitePaletteRomData.AnimatedColorCount];
+            for (int frame = 0; frame < MagdollitePaletteRomData.FrameCount; frame++)
+            {
+                for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);
+                content.AppendWords("row", row);
+            }
         });
 
-    private readonly ushort[][] frames;
+    // The four independent glow colors remain required artwork under issue1165.
+    private readonly ushort[] colors;
+    private readonly Dictionary<int, ushort> edits = [];
 
-    private MagdollitePaletteCycle(ushort[][] frames) => this.frames = frames;
+    /// <summary>
+    /// Palette_Magdollite_Glow_0..3 at $A8:AC2E-AC34 rotates left one color per
+    /// phase in the four native OBJ rows. Preserve arbitrary edited later rows
+    /// as deviations from that rotation, without rebuilding the native table.
+    /// </summary>
+    private MagdollitePaletteCycle(ushort[][] frames)
+    {
+        colors = frames[0];
+        for (int frame = 1; frame < frames.Length; frame++)
+        for (int color = 0; color < colors.Length; color++)
+            if (frames[frame][color] != colors[(color + frame) % colors.Length])
+                edits.Add(frame * colors.Length + color, frames[frame][color]);
+    }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -30,11 +50,12 @@ public sealed class MagdollitePaletteCycle
 
     public ushort Resolve(int frame, int color)
     {
-        if ((uint)frame >= frames.Length)
+        if ((uint)frame >= MagdollitePaletteRomData.FrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
-        if ((uint)color >= frames[frame].Length)
+        if ((uint)color >= colors.Length)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return frames[frame][color];
+        return edits.TryGetValue(frame * colors.Length + color, out ushort edited)
+            ? edited : colors[(color + frame) % colors.Length];
     }
 
     public void ApplyFrame(SnesCgram cgram, int frame, int destination)

@@ -216,7 +216,7 @@ internal static class MapStationPauseGateAudit
             EquippedItems = SamusEquipmentFlags.MorphBall.ToNativeWord(),
             CollectedItems = SamusEquipmentFlags.MorphBall.ToNativeWord(),
         };
-        new SuperMetroidSaveRam(bus).SaveSlot(
+        new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(
             0,
             SuperMetroidSaveSnapshot.Capture(
                 samus,

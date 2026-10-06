@@ -10,12 +10,12 @@ internal static partial class Program
     /// </summary>
     static void VerifySamusSpecialSequenceRomData()
     {
-        ReadOnlySpan<byte> initialDeathFrames =
+        var initialDeathFrames =
             SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
         AssertEqual(28, initialDeathFrames.Length,
             "death initial-frame table covers every retail movement type");
 
-        ReadOnlySpan<SamusDeathTileSegment> deathSegments =
+        var deathSegments =
             SamusSpecialSequenceRomData.Death.TileSegments;
         AssertEqual(5, deathSegments.Length, "death sequence has five tile segments");
         AssertEqual(

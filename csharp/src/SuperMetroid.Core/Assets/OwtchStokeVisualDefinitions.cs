@@ -2,51 +2,40 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>One fixed bank-$A2 visual operand and its ordinary OAM frame.</summary>
-internal readonly record struct OwtchStokeVisualSelector(ushort Address, ushort Frame);
-
-/// <summary>
-/// Owtch and Stoke frame selection from their native instruction lists. The
-/// instruction callbacks, timing, and projectile behavior remain in game code.
-/// </summary>
+/// <summary>Native Owtch and Stoke visual identities calculated from directional program and OAM layouts.</summary>
 internal static class OwtchStokeVisualDefinitions
 {
-    private static readonly OwtchStokeVisualSelector[] Owtch =
-    [
-        new(0xa3af, 0xa589), new(0xa3b3, 0xa590), new(0xa3b7, 0xa597),
-        new(0xa3c1, 0xa597), new(0xa3c5, 0xa590), new(0xa3c9, 0xa589),
-    ];
-
-    private static readonly OwtchStokeVisualSelector[] Stoke =
-    [
-        new(0x8936, 0x8aca), new(0x893a, 0x8ad6),
-        new(0x893e, 0x8ae7), new(0x8942, 0x8af3),
-        new(0x894a, 0x8ae7), new(0x8952, 0x8aff),
-        new(0x895c, 0x8b15), new(0x8960, 0x8b21),
-        new(0x8964, 0x8b32), new(0x8968, 0x8b3e),
-        new(0x8970, 0x8b32), new(0x8978, 0x8b4a),
-    ];
-
+    /// <summary>$A2:A589 / Spritemap_Owtch_0 begins three one-object, seven-byte compositions.</summary>
+    private const ushort OwtchFirstFrame = 0xa589;
+    /// <summary>$A2:8ACA begins Stoke's left-facing maps: two, three, two, two, four OAM objects.</summary>
+    private const ushort StokeFirstFrame = 0x8aca;
     internal static ushort FrameAt(ushort enemyDefinition, ushort address)
     {
-        ReadOnlySpan<OwtchStokeVisualSelector> entries = enemyDefinition switch
+        if (enemyDefinition == RoomEnemySystem.OwtchDefinition)
         {
-            RoomEnemySystem.OwtchDefinition => Owtch,
-            RoomEnemySystem.StokeDefinition => Stoke,
-            _ => throw new InvalidDataException(
-                $"Enemy ${enemyDefinition:X4} has no compiled Owtch/Stoke visuals."),
-        };
-        int low = 0;
-        int high = entries.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            OwtchStokeVisualSelector candidate = entries[middle];
-            if (candidate.Address == address) return candidate.Frame;
-            if (candidate.Address < address) low = middle + 1;
-            else high = middle - 1;
+            int offset = address - OwtchInstructionProgramDefinitions.MovingLeft;
+            int within = offset % 18;
+            if ((uint)offset < 36 && within is >= 4 and <= 12 && within % 4 == 0)
+            {
+                int frame = (within - 4) / 4;
+                if (offset >= 18) frame = 2 - frame;
+                return (ushort)(OwtchFirstFrame + frame * 7);
+            }
         }
-        throw new InvalidDataException(
-            $"Owtch/Stoke ${enemyDefinition:X4} visual operand ${address:X4} is not compiled.");
+        else if (enemyDefinition == RoomEnemySystem.StokeDefinition)
+        {
+            int offset = address - StokeInstructionProgramDefinitions.MovingLeft;
+            if ((uint)offset < 76)
+            {
+                int frame = (offset % 38) switch
+                {
+                    4 => 0, 8 => 1, 12 or 24 => 2, 16 => 3, 32 => 4, _ => -1,
+                };
+                if (frame >= 0)
+                    return (ushort)(StokeFirstFrame + offset / 38 * 75 + frame * 12 + (frame >= 2 ? 5 : 0));
+            }
+        }
+        else throw new InvalidDataException($"Enemy ${enemyDefinition:X4} has no compiled Owtch/Stoke visuals.");
+        throw new InvalidDataException($"Owtch/Stoke ${enemyDefinition:X4} visual operand ${address:X4} is not compiled.");
     }
 }

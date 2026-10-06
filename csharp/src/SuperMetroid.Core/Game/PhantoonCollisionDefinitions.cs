@@ -27,49 +27,71 @@ internal static class PhantoonCollisionDefinitions
     /// <summary>$A7:DD9B, Phantoon's active shot callback.</summary>
     internal const ushort ShotAi = 0xdd9b;
 
-    private static readonly PhantoonCollisionComponent[] Point = [new(0, 0, PointList)];
-    private static readonly PhantoonCollisionComponent[] FullBody = [new(0, 0, FullBodyList)];
-    private static readonly PhantoonCollisionComponent[] EyeOnly = [new(0, 0, EyeOnlyList)];
-    private static readonly PhantoonCollisionComponent[] DoublePoint =
-        [new(0, 0, PointList), new(0, 0, PointList)];
-
-    private static readonly PhantoonCollisionHitbox[] PointHitboxes =
-        [new(0, 0, 0, 0, EnemyAiCodePointers.BankA0.NoOp,
-            EnemyAiCodePointers.BankA0.NoOp)];
-    private static readonly PhantoonCollisionHitbox[] FullBodyHitboxes =
+    // REQUIRED: independent full-body silhouette bounds. Sharing the eye rectangle
+    // and active callbacks does not resolve these five chosen collision shapes.
+    private static readonly (short Left, short Top, short Right, short Bottom)[] RequiredBodyBounds =
     [
-        new(-33, -40, 32, 56, TouchAi, ShotAi),
-        new(-9, 22, 8, 39, TouchAi, ShotAi),
-        new(-23, 52, -16, 71, TouchAi, ShotAi),
-        new(15, 53, 22, 70, TouchAi, ShotAi),
-        new(-12, 53, 11, 69, TouchAi, ShotAi),
+        (-33, -40, 32, 56),
+        (-9, 22, 8, 39),
+        (-23, 52, -16, 71),
+        (15, 53, 22, 70),
+        (-12, 53, 11, 69),
     ];
-    private static readonly PhantoonCollisionHitbox[] EyeOnlyHitboxes =
-        [new(-9, 22, 8, 39, TouchAi, ShotAi)];
 
-    internal static ReadOnlySpan<PhantoonCollisionComponent> ComponentsAt(ushort pointer)
+    internal static ComponentSequence ComponentsAt(ushort pointer)
     {
         if (!PhantoonBg2FrameDefinitions.IsFrame(pointer))
             throw new InvalidDataException($"Phantoon frame $A7:{pointer:X4} has no compiled hitbox identity.");
         return pointer switch
         {
-            PhantoonBg2FrameDefinitions.BodyFullHitbox => FullBody,
-            PhantoonBg2FrameDefinitions.BodyEyeHitboxOnly => EyeOnly,
+            PhantoonBg2FrameDefinitions.BodyFullHitbox => new(FullBodyList, 1),
+            PhantoonBg2FrameDefinitions.BodyEyeHitboxOnly => new(EyeOnlyList, 1),
             PhantoonBg2FrameDefinitions.Tentacles0 or
                 PhantoonBg2FrameDefinitions.Tentacles1 or
-                PhantoonBg2FrameDefinitions.Tentacles2 => DoublePoint,
-            _ => Point,
+                PhantoonBg2FrameDefinitions.Tentacles2 => new(PointList, 2),
+            _ => new(PointList, 1),
         };
     }
 
-    internal static ReadOnlySpan<PhantoonCollisionHitbox> HitboxesAt(ushort pointer) =>
-        pointer switch
-        {
-            PointList => PointHitboxes,
-            FullBodyList => FullBodyHitboxes,
-            EyeOnlyList => EyeOnlyHitboxes,
-            _ => throw new InvalidDataException(
-                $"Phantoon hitbox list $A7:{pointer:X4} is not compiled."),
-        };
+    internal static HitboxSequence HitboxesAt(ushort pointer) => pointer switch
+    {
+        PointList or FullBodyList or EyeOnlyList => new(pointer),
+        _ => throw new InvalidDataException($"Phantoon hitbox list $A7:{pointer:X4} is not compiled."),
+    };
 
+    /// <summary>Native frame components use their actor origin; tentacle frames have two inert components.</summary>
+    internal readonly struct ComponentSequence(ushort list, int count) : IReadOnlyList<PhantoonCollisionComponent>
+    {
+        public int Count => count;
+        public int Length => Count;
+        public PhantoonCollisionComponent this[int index] => (uint)index < Count
+            ? new(0, 0, list) : throw new IndexOutOfRangeException();
+        public IEnumerator<PhantoonCollisionComponent> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    /// <summary>$A7:E06C repeats the full body's eye rectangle at $A7:E03C; hidden lists use a no-op point.</summary>
+    internal readonly struct HitboxSequence(ushort list) : IReadOnlyList<PhantoonCollisionHitbox>
+    {
+        public int Count => list == FullBodyList ? RequiredBodyBounds.Length : 1;
+        public int Length => Count;
+        public PhantoonCollisionHitbox this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if (list == PointList) return new(0, 0, 0, 0, EnemyAiCodePointers.BankA0.NoOp, EnemyAiCodePointers.BankA0.NoOp);
+                var bounds = RequiredBodyBounds[list == EyeOnlyList ? 1 : index];
+                return new(bounds.Left, bounds.Top, bounds.Right, bounds.Bottom, TouchAi, ShotAi);
+            }
+        }
+        public IEnumerator<PhantoonCollisionHitbox> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }

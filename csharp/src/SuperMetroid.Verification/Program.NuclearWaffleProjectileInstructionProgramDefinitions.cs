@@ -50,6 +50,7 @@ internal static partial class Program
             .ToArray();
         AssertEqual(4, projectiles.Length,
             "real Nuclear Waffle initialization spawns four projectile body links");
+        var installed = new HashSet<ushort>();
         foreach (RoomEnemyProjectileSlot projectile in projectiles)
         {
             AssertEqual(NuclearWaffleProjectileInstructionProgramDefinitions.Initial,
@@ -114,6 +115,12 @@ internal static partial class Program
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
+                if (projectile.IsActive)
+                {
+                    AssertEqual((ushort)(NuclearWaffleProjectileInstructionProgramDefinitions.Initial + 2 + tick % 12 * 4),
+                        projectile.PresentationOperandAddress, "actual Nuclear Waffle body selects exact native timed operand");
+                    installed.Add(projectile.PresentationOperandAddress);
+                }
             }
         }
     }

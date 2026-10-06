@@ -6,41 +6,42 @@ internal readonly record struct MultiviolaInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for Multiviola's production animation loop. The
-/// interleaved spritemap operands remain live cartridge presentation data.
+/// interleaved spritemap operands select installed presentation frames.
 /// </summary>
 internal static class MultiviolaInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Multiviola</c> at $A2:B2DC.</summary>
     internal const ushort Flying = 0xb2dc;
 
-    private static readonly MultiviolaInstructionMechanicsWord[] Words =
-    [
-        new(0xb2dc, 10), new(0xb2e0, 10), new(0xb2e4, 10), new(0xb2e8, 10),
-        new(0xb2ec, 10), new(0xb2f0, 10), new(0xb2f4, 10), new(0xb2f8, 10),
-        new(0xb2fc, 10), new(0xb300, 10), new(0xb304, 10), new(0xb308, 10),
-        new(0xb30c, 10), new(0xb310, 10),
-        new(0xb314, CommonEnemyInstructionCodes.Goto), new(0xb316, Flying),
-    ];
+    /// <summary>$A2:B2DC-B310: fourteen timed poses (0..7 then 6..1), ten ticks each.</summary>
+    private const int TimedFrameCount = 14;
+    /// <summary>$A2:B2DC-B310 InstList_Multiviola uses one shared ten-tick frame cadence. This independent hold remains required under #1165.</summary>
+    private const ushort FrameDuration = 10;
+    /// <summary>$A2:B314 Instruction_Common_GotoY after the timed loop.</summary>
+    private const ushort LoopOpcode = Flying + TimedFrameCount * 4;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xb2de, 0xb2e2, 0xb2e6, 0xb2ea, 0xb2ee, 0xb2f2, 0xb2f6,
-        0xb2fa, 0xb2fe, 0xb302, 0xb306, 0xb30a, 0xb30e, 0xb312,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static MultiviolaInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static int MechanicsWordCount => TimedFrameCount + 2;
+    internal static int PresentationWordCount => TimedFrameCount;
+    internal static MultiviolaInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        return index < TimedFrameCount ? new((ushort)(Flying + index * 4), FrameDuration)
+            : new((ushort)(LoopOpcode + (index - TimedFrameCount) * 2),
+                index == TimedFrameCount ? CommonEnemyInstructionCodes.Goto : Flying);
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= TimedFrameCount) throw new IndexOutOfRangeException();
+        return (ushort)(Flying + index * 4 + 2);
+    }
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            MultiviolaInstructionMechanicsWord candidate = Words[middle];
+            MultiviolaInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -59,9 +60,9 @@ internal static class MultiviolaInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

@@ -38,4 +38,47 @@ public static class PauseReserveUiDefinitions
     public const int EnabledPalette = 6, DisabledPalette = 7;
     public const int VerticalStartCell = 0x102 / 2, VerticalCount = 8, RowStrideCells = 0x40 / 2;
     public const int HorizontalStartCell = 0x302 / 2, HorizontalCount = 2;
+    /// <summary>$82:BF06-BF0A selects MODE at interface tiles $119-11B with palette one and priority.</summary>
+    private const int ModeGlyph = 0x119, ModePrefixWords = 3;
+    /// <summary>$82:BF0C-BF12 and BF22-BF28 share MANUAL at tiles $146-149, palette seven and priority.</summary>
+    private const int ManualGlyph = 0x146;
+    /// <summary>$82:BF2A-BF30 selects AUTO at tiles $156-159, palette seven and priority.</summary>
+    private const int AutoGlyph = 0x156;
+    /// <summary>$82:BF14-BF20 selects RESERVE TANK at tiles $80-86, palette seven and priority.</summary>
+    private const int ReserveTankGlyph = 0x80;
+
+    internal static int StockLabelWords(string name) => name switch
+    {
+        "Mode" or "ReserveTank" => LabelWords,
+        "Manual" or "Auto" => ModeWords,
+        _ => throw new ArgumentOutOfRangeException(nameof(name)),
+    };
+
+    /// <summary>$82:C068/C06A places the seven-word labels on consecutive rows; replacement modes follow MODE.</summary>
+    internal static int StockLabelOffset(string name) => sizeof(ushort) * (name switch
+    {
+        "Mode" => ModeCell - ModePrefixWords,
+        "ReserveTank" => ModeCell - ModePrefixWords + TilemapColumns,
+        "Manual" or "Auto" => ModeCell,
+        _ => throw new ArgumentOutOfRangeException(nameof(name)),
+    });
+
+    /// <summary>Compose reserve text from named consecutive glyph runs. Independent glyph pixels remain artwork.</summary>
+    internal static ushort StockLabelWord(string name, int index)
+    {
+        if ((uint)index >= StockLabelWords(name)) throw new IndexOutOfRangeException();
+        if (name == "Mode")
+            return index < ModePrefixWords ? Word(ModeGlyph + index, 1)
+                : Word(ManualGlyph + index - ModePrefixWords, 7);
+        int first = name switch
+        {
+            "ReserveTank" => ReserveTankGlyph,
+            "Manual" => ManualGlyph,
+            "Auto" => AutoGlyph,
+            _ => throw new ArgumentOutOfRangeException(nameof(name)),
+        };
+        return Word(first + index, 7);
+    }
+
+    private static ushort Word(int glyph, int palette) => (ushort)(0x2000 | palette << 10 | glyph);
 }

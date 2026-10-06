@@ -20,40 +20,108 @@ internal static class RidleyCollisionDefinitions
     private const ushort Touch = EnemyAiCodePointers.BankA6.RidleyExtendedTouch;
     private const ushort Shot = EnemyAiCodePointers.BankA6.RidleyShot;
 
-    private static readonly ushort[] FrameKeys =
-    [
-        0xe983, 0xe9a5, 0xe9c7, 0xe9e9, 0xea0b, 0xea2d,
-        0xea4f, 0xea71, 0xea93, 0xeab5, 0xead7,
-    ];
-    private static readonly ushort[] ListKeys =
-    [
-        0xeae1, 0xeafb, 0xeb15, 0xeb2f, 0xeb3d, 0xeb4b,
-        0xeb59, 0xeb67, 0xeb91, 0xebab, 0xebc5, 0xebdf,
-        0xebf9, 0xec07, 0xec15, 0xec23, 0xec31,
-    ];
-
-    private static readonly RidleyCollisionComponent[] LeftBase =
-    [new(15, 22, 0xeb2f), new(-8, 7, 0xeb59),
-        new(16, 0, 0xeb67), new(-3, -24, 0xeae1)];
-    private static readonly RidleyCollisionComponent[] RightBase =
-    [new(-15, 22, 0xebf9), new(8, 7, 0xec23),
-        new(-16, 0, 0xec31), new(3, -24, 0xebab)];
-
-    private static readonly Dictionary<ushort, RidleyCollisionComponent[]> Frames = new()
+    private enum BodyFrame : ushort
     {
-        [0xe983] = LeftBase,
-        [0xe9a5] = RightBase,
-        [0xe9c7] = [LeftBase[0], LeftBase[1], LeftBase[2], new(-3, -24, 0xeafb)],
-        [0xe9e9] = [LeftBase[0], LeftBase[1], LeftBase[2], new(-3, -24, 0xeb15)],
-        [0xea0b] = [RightBase[0], RightBase[1], RightBase[2], new(3, -24, 0xebc5)],
-        [0xea2d] = [RightBase[0], RightBase[1], RightBase[2], new(3, -24, 0xebdf)],
-        [0xea4f] = [new(15, 22, 0xeb3d), LeftBase[1], LeftBase[2], LeftBase[3]],
-        [0xea71] = [new(15, 22, 0xeb4b), LeftBase[1], LeftBase[2], LeftBase[3]],
-        [0xea93] = [new(-15, 22, 0xec07), RightBase[1], RightBase[2], RightBase[3]],
-        [0xeab5] = [new(-15, 22, 0xec15), RightBase[1], RightBase[2], RightBase[3]],
-        [0xead7] = [new(0, -6, 0xeb91)],
-    };
+        /// <summary>$A6:E983, ExtendedSpritemap_Ridley_FacingLeft.</summary>
+        Left = 0xe983,
+        /// <summary>$A6:E9A5, ExtendedSpritemap_Ridley_FacingRight.</summary>
+        Right = 0xe9a5,
+        /// <summary>$A6:E9C7, ExtendedSpritemap_Ridley_FacingLeft_MouthHalfOpen.</summary>
+        LeftMouthHalfOpen = 0xe9c7,
+        /// <summary>$A6:E9E9, ExtendedSpritemap_Ridley_FacingLeft_MouthOpen.</summary>
+        LeftMouthOpen = 0xe9e9,
+        /// <summary>$A6:EA0B, ExtendedSpritemap_Ridley_FacingRight_MouthHalfOpen.</summary>
+        RightMouthHalfOpen = 0xea0b,
+        /// <summary>$A6:EA2D, ExtendedSpritemap_Ridley_FacingRight_MouthOpen.</summary>
+        RightMouthOpen = 0xea2d,
+        /// <summary>$A6:EA4F, ExtendedSpritemap_Ridley_FacingLeft_LegsHalfExtended.</summary>
+        LeftLegsHalfExtended = 0xea4f,
+        /// <summary>$A6:EA71, ExtendedSpritemap_Ridley_FacingLeft_LegsExtended.</summary>
+        LeftLegsExtended = 0xea71,
+        /// <summary>$A6:EA93, ExtendedSpritemap_Ridley_FacingRight_LegsHalfExtended.</summary>
+        RightLegsHalfExtended = 0xea93,
+        /// <summary>$A6:EAB5, ExtendedSpritemap_Ridley_FacingRight_LegsExtended.</summary>
+        RightLegsExtended = 0xeab5,
+        /// <summary>$A6:EAD7, ExtendedSpritemap_Ridley_FacingForward.</summary>
+        Forward = 0xead7,
+    }
+    /// <summary>$A6:E983..EAD6: each side-facing frame has a two-byte count and four eight-byte component records.</summary>
+    private const int SideFrameBytes = 2 + 4 * 8;
+    /// <summary>$A6:EB2F, Hitbox_Ridley_FacingLeft_LegsNotExtended; the two extended variants follow as one-rectangle lists.</summary>
+    private const ushort LeftLegs = 0xeb2f;
+    /// <summary>$A6:EB59, Hitbox_Ridley_FacingLeft_Hand.</summary>
+    private const ushort LeftHand = 0xeb59;
+    /// <summary>$A6:EB67, Hitbox_Ridley_FacingLeft_Torso.</summary>
+    private const ushort LeftBody = 0xeb67;
+    /// <summary>$A6:EAE1, Hitbox_Ridley_FacingLeft_MouthClosed; the two mouth variants follow as two-rectangle lists.</summary>
+    private const ushort LeftHead = 0xeae1;
+    /// <summary>$A6:EB91, Hitbox_Ridley_FacingForward.</summary>
+    private const ushort ForwardHitbox = 0xeb91;
+    /// <summary>$A6:EBAB..EC3E right-facing lists repeat the left-facing identities at $CA-byte displacement.</summary>
+    private const int RightHitboxDisplacement = 0xebab - LeftHead;
+    /// <summary>$A6:EADB is the independent forward-frame Y offset; this input remains required conversion work.</summary>
+    private const short ForwardYOffset = -6;
 
+    private readonly record struct ComponentOffset(short X, short Y);
+    // These four independent left-facing origin pairs remain required geometry inputs.
+    private static readonly ComponentOffset[] LeftBase =
+        [new(15, 22), new(-8, 7), new(16, 0), new(-3, -24)];
+
+    internal readonly record struct FramePointerSequence(int Length)
+    {
+        internal ushort this[int index] => (uint)index < Length
+            ? (ushort)((int)BodyFrame.Left + index * SideFrameBytes)
+            : throw new IndexOutOfRangeException();
+        public Enumerator GetEnumerator() => new(this);
+        internal struct Enumerator(FramePointerSequence sequence)
+        {
+            private int index = -1;
+            public readonly ushort Current => sequence[index];
+            public bool MoveNext() => ++index < sequence.Length;
+        }
+    }
+
+    internal readonly record struct ComponentSequence(ushort Frame)
+    {
+        internal int Length => Frame == (ushort)BodyFrame.Forward ? 1 : 4;
+        internal RidleyCollisionComponent this[int index] => (uint)index < Length
+            ? ComponentAt((BodyFrame)Frame, index)
+            : throw new IndexOutOfRangeException();
+        public Enumerator GetEnumerator() => new(this);
+        internal struct Enumerator(ComponentSequence sequence)
+        {
+            private int index = -1;
+            public readonly RidleyCollisionComponent Current => sequence[index];
+            public bool MoveNext() => ++index < sequence.Length;
+        }
+    }
+
+    private static RidleyCollisionComponent ComponentAt(BodyFrame frame, int component)
+    {
+        if (frame == BodyFrame.Forward) return new(0, ForwardYOffset, ForwardHitbox);
+        bool right = frame is BodyFrame.Right or BodyFrame.RightMouthHalfOpen or BodyFrame.RightMouthOpen
+            or BodyFrame.RightLegsHalfExtended or BodyFrame.RightLegsExtended;
+        ushort hitbox = component switch
+        {
+            0 => (ushort)(LeftLegs + (frame switch
+            {
+                BodyFrame.LeftLegsHalfExtended or BodyFrame.RightLegsHalfExtended => 1,
+                BodyFrame.LeftLegsExtended or BodyFrame.RightLegsExtended => 2,
+                _ => 0,
+            }) * (2 + 12)),
+            1 => LeftHand,
+            2 => LeftBody,
+            _ => (ushort)(LeftHead + (frame switch
+            {
+                BodyFrame.LeftMouthHalfOpen or BodyFrame.RightMouthHalfOpen => 1,
+                BodyFrame.LeftMouthOpen or BodyFrame.RightMouthOpen => 2,
+                _ => 0,
+            }) * (2 + 2 * 12)),
+        };
+        ComponentOffset origin = LeftBase[component];
+        return new((short)(right ? -origin.X : origin.X), origin.Y,
+            (ushort)(hitbox + (right ? RightHitboxDisplacement : 0)));
+    }
     private static readonly Dictionary<ushort, RidleyCollisionHitbox[]> Lists = new()
     {
         [0xeae1] = [new(-12, -26, 11, 13, Touch, Shot), new(-24, 3, -13, 21, Touch, Shot)],
@@ -75,15 +143,14 @@ internal static class RidleyCollisionDefinitions
         [0xec31] = [new(-13, -22, 14, 21, Touch, Shot)],
     };
 
-    internal static ReadOnlySpan<ushort> FramePointers => FrameKeys;
-    internal static ReadOnlySpan<ushort> HitboxPointers => ListKeys;
-    internal static bool HasFrame(ushort frame) => Frames.ContainsKey(frame);
+    internal static FramePointerSequence FramePointers => new(11);
+    internal static IEnumerable<ushort> HitboxPointers => Lists.Keys.Order();
+    internal static bool HasFrame(ushort frame) => frame >= (ushort)BodyFrame.Left
+        && frame <= (ushort)BodyFrame.Forward && (frame - (ushort)BodyFrame.Left) % SideFrameBytes == 0;
 
-    internal static ReadOnlySpan<RidleyCollisionComponent> ComponentsAt(ushort frame) =>
-        Frames.TryGetValue(frame, out RidleyCollisionComponent[]? components)
-            ? components
-            : throw new InvalidDataException($"Ridley frame $A6:{frame:X4} has no compiled collision.");
-
+    internal static ComponentSequence ComponentsAt(ushort frame) => HasFrame(frame)
+        ? new(frame)
+        : throw new InvalidDataException($"Ridley frame $A6:{frame:X4} has no compiled collision.");
     internal static ReadOnlySpan<RidleyCollisionHitbox> HitboxesAt(ushort list) =>
         Lists.TryGetValue(list, out RidleyCollisionHitbox[]? hitboxes)
             ? hitboxes

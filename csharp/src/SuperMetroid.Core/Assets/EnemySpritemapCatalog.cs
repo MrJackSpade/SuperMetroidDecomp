@@ -10,7 +10,7 @@ public sealed class EnemySpritemapCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-oam-v1", content =>
         {
-            foreach ((int frame, EnemySpritemapPart[] parts) in frames.OrderBy(pair => pair.Key))
+            foreach ((int frame, EnemySpritemapParts parts) in frames.OrderBy(pair => pair.Key))
             {
                 content.Append("frame", frame);
                 content.AppendEnemyParts(parts);
@@ -22,10 +22,10 @@ public sealed class EnemySpritemapCatalog
             }
         });
 
-    private readonly Dictionary<int, EnemySpritemapPart[]> frames;
+    private readonly Dictionary<int, EnemySpritemapParts> frames;
     private readonly Dictionary<int, int> displayFrames;
 
-    private EnemySpritemapCatalog(Dictionary<int, EnemySpritemapPart[]> frames,
+    private EnemySpritemapCatalog(Dictionary<int, EnemySpritemapParts> frames,
         Dictionary<int, int> displayFrames)
     {
         this.frames = frames;
@@ -33,14 +33,14 @@ public sealed class EnemySpritemapCatalog
     }
 
     /// <summary>Returns a known installed frame; callers must reject missing artwork.</summary>
-    public bool TryGet(byte bank, ushort pointer, out ReadOnlyMemory<EnemySpritemapPart> parts)
+    public bool TryGet(byte bank, ushort pointer, out EnemySpritemapParts parts)
     {
-        if (frames.TryGetValue((bank << 16) | pointer, out EnemySpritemapPart[]? found))
+        if (frames.TryGetValue((bank << 16) | pointer, out EnemySpritemapParts? found))
         {
             parts = found;
             return true;
         }
-        parts = default;
+        parts = EnemySpritemapParts.Empty;
         return false;
     }
 
@@ -49,16 +49,16 @@ public sealed class EnemySpritemapCatalog
     /// retained by enemy AI, hitbox selection, or instruction timing.
     /// </summary>
     public bool TryGetDisplay(byte bank, ushort nativePointer,
-        out ReadOnlyMemory<EnemySpritemapPart> parts)
+        out EnemySpritemapParts parts)
     {
         int identity = (bank << 16) | nativePointer;
         if (displayFrames.TryGetValue(identity, out int selected) &&
-            frames.TryGetValue(selected, out EnemySpritemapPart[]? found))
+            frames.TryGetValue(selected, out EnemySpritemapParts? found))
         {
             parts = found;
             return true;
         }
-        parts = default;
+        parts = EnemySpritemapParts.Empty;
         return false;
     }
 
@@ -249,7 +249,7 @@ public sealed class EnemySpritemapCatalog
             throw new InvalidDataException(
                 "Enemy compositions require the current version and every named frame.");
 
-        var frames = new Dictionary<int, EnemySpritemapPart[]>();
+        var frames = new Dictionary<int, EnemySpritemapParts>();
         var identities = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (EnemySpritemapDefinition frame in expected)
         {
@@ -257,7 +257,8 @@ public sealed class EnemySpritemapCatalog
                 visual is null || visual.Length > EnemySpritemapDefinitions.MaximumParts)
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} is missing or exceeds OAM capacity.");
-            EnemySpritemapPart[] parts = CompileParts(visual, frame.Name);
+            EnemySpritemapParts parts = BabyMetroidSpriteParts.Compile((frame.Bank << 16) | frame.Pointer,
+                CompileParts(visual, frame.Name));
             if (!frames.TryAdd((frame.Bank << 16) | frame.Pointer, parts))
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");
@@ -289,8 +290,8 @@ public sealed class EnemySpritemapCatalog
         }
         if (!legacyOverride)
             return new EnemySpritemapCatalog(frames, displayFrames);
-        var merged = new Dictionary<int, EnemySpritemapPart[]>(stockForLegacyOverride!.frames);
-        foreach ((int identity, EnemySpritemapPart[] parts) in frames)
+        var merged = new Dictionary<int, EnemySpritemapParts>(stockForLegacyOverride!.frames);
+        foreach ((int identity, EnemySpritemapParts parts) in frames)
             merged[identity] = parts;
         var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
         foreach ((int identity, int selected) in displayFrames)

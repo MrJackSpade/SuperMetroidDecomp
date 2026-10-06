@@ -11,14 +11,16 @@ internal static class FlyVisualDefinitions
     /// <summary>Native bank for the three fly-family enemy definitions.</summary>
     internal const byte Bank = 0xa2;
 
-    internal static EnemySpritemapDefinition[] Frames() =>
-    [
-        new(Bank, 0xb1e8, "fly_shared_0"),
-        new(Bank, 0xb1ef, "fly_shared_1"),
-        new(Bank, 0xb1f6, "fly_shared_2"),
-        new(Bank, 0xb1fd, "fly_shared_3"),
-    ];
+    /// <summary><c>Spritemap_Mellow_Mella_Menu_0</c> at $A2:B1E8; four one-object, seven-byte OAM frames.</summary>
+    private const ushort FirstFrame = 0xb1e8;
 
+    internal static EnemySpritemapDefinition[] Frames()
+    {
+        var frames = new EnemySpritemapDefinition[4];
+        for (int frame = 0; frame < frames.Length; frame++)
+            frames[frame] = new(Bank, (ushort)(FirstFrame + frame * 7), $"fly_shared_{frame}");
+        return frames;
+    }
     /// <summary>Accepts only a visual operand in the native shared flight loop.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {

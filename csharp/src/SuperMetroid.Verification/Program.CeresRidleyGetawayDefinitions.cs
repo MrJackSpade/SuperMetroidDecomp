@@ -39,7 +39,7 @@ internal static partial class Program
         int checkedTransfers = 0;
         foreach (ushort pointer in pointers)
         {
-            ReadOnlySpan<CeresMode7Transfer> compiled =
+            CeresMode7TransferDefinitions.TransferSequence compiled =
                 CeresMode7TransferDefinitions.Get(pointer);
             int cursor = 0xa60000 | pointer;
             var expectedVram = new byte[SnesVram.ByteCount];
@@ -66,7 +66,7 @@ internal static partial class Program
                 for (int index = 0; index < size; index++)
                 {
                     byte value = rom.ReadByte(source + index);
-                    AssertEqual(value, transfer.TileNumbers.Span[index],
+                    AssertEqual(value, transfer.TileNumbers[index],
                         "Ceres Mode 7 compiled tilemap source byte");
                     expectedVram[((destination + index) & 0x7fff) * 2] = value;
                 }

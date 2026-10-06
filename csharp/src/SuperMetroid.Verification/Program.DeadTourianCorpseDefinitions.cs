@@ -88,7 +88,7 @@ internal static partial class Program
         DeadTourianCorpseDefinition expected)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
+        var enemies = new RoomEnemySystem { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
             new DeadTourianCorpseDefinitionReadGuard(rom));

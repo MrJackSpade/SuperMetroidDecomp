@@ -6,7 +6,7 @@ internal readonly record struct ShaktoolProjectileInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the cartridge's three unused Shaktool attack-circle programs.
-/// Their eight spritemap operands remain live cartridge presentation data.
+/// Their eight spritemap operands select installed presentation frames.
 /// </summary>
 internal static class ShaktoolProjectileInstructionProgramDefinitions
 {
@@ -19,75 +19,86 @@ internal static class ShaktoolProjectileInstructionProgramDefinitions
     /// <summary>Back attack-circle program at $86:BD8C.</summary>
     internal const ushort Back = 0xbd8c;
 
-    private static readonly ShaktoolProjectileInstructionMechanicsWord[] Words =
-    [
-        new(Front, 0x0004),
-        new(0xbd6c, 0x0004),
-        new(0xbd70, 0x0077),
-        new(0xbd74, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xbd76, 0xbd70),
-        new(Middle, 0x0006),
-        new(0xbd7c, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0xbd7e,
-            EnemyProjectileCodePointers.PreInst_EnemyProjectile_ShaktoolsAttack_MiddleBack_Moving),
-        new(0xbd80, 0x0004),
-        new(0xbd84, 0x0077),
-        new(0xbd88, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xbd8a, 0xbd84),
-        new(Back, 0x000a),
-        new(0xbd90, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0xbd92,
-            EnemyProjectileCodePointers.PreInst_EnemyProjectile_ShaktoolsAttack_MiddleBack_Moving),
-        new(0xbd94, 0x0077),
-        new(0xbd98, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xbd9a, 0xbd94),
-    ];
+    /// <summary>$86:BD9C begins the adjacent initialization code.</summary>
+    private const ushort End = 0xbd9c;
+    /// <summary>$86:BD68/6C/80: common growth-pose cadence, pending independent timing.</summary>
+    private const ushort UnresolvedGrowthTicks = 4;
+    /// <summary>$86:BD78: middle circle delay before installing its movement callback, pending.</summary>
+    private const ushort UnresolvedMiddleLaunchTicks = 6;
+    /// <summary>$86:BD8C: back circle delay before installing its movement callback, pending.</summary>
+    private const ushort UnresolvedBackLaunchTicks = 10;
+    /// <summary>$86:BD70/84/94: repeated final-pose hold, pending independent timing.</summary>
+    private const ushort UnresolvedHeldPoseTicks = 119;
+    private const int PresentationOperand = -1;
 
-    private static readonly ushort[] PresentationWords =
-        [0xbd6a, 0xbd6e, 0xbd72, 0xbd7a, 0xbd82, 0xbd86, 0xbd8e, 0xbd96];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ShaktoolProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static int MechanicsWordCount => 18;
+    internal static int PresentationWordCount => 8;
+    internal static ShaktoolProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        for (int address = Front; address < End; address += 2)
+        {
+            int value = ProgramWord((ushort)address);
+            if (value != PresentationOperand && index-- == 0) return new((ushort)address, (ushort)value);
+        }
+        throw new InvalidOperationException("Shaktool projectile mechanics-word index is inconsistent.");
+    }
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 3) return (ushort)(Front + 2 + index * 4);
+        if (index < 6) return (ushort)(Middle + (index == 3 ? 2 : 10 + (index - 4) * 4));
+        return (ushort)(Back + 2 + (index - 6) * 8);
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind) =>
         kind is RoomEnemyProjectileKind.ShaktoolAttackFrontCircle or
             RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle or
             RoomEnemyProjectileKind.ShaktoolAttackBackCircle;
-
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        if (address >= Front && address < End && (address & 1) == 0)
         {
-            int middle = low + ((high - low) >> 1);
-            ShaktoolProjectileInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            int value = ProgramWord(address);
+            if (value != PresentationOperand) return (ushort)value;
         }
-
-        throw new InvalidDataException(
-            $"Shaktool attack-circle mechanics pointer $86:{address:X4} is not compiled.");
+        throw new InvalidDataException($"Shaktool attack-circle mechanics pointer $86:{address:X4} is not compiled.");
     }
-
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        foreach (ShaktoolProjectileInstructionMechanicsWord word in Words)
+        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
+        ushort word = (ushort)(address & 0xfffe);
+        return word >= Front && word < End && ProgramWord(word) != PresentationOperand;
+    }
+    private static int ProgramWord(ushort address)
+    {
+        ushort start = address < Middle ? Front : address < Back ? Middle : Back;
+        var writer = new WordSelector(address, start);
+        if (start == Front)
         {
-            if (bankAddress == word.Address ||
-                bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
+            writer.Timed(UnresolvedGrowthTicks);
+            writer.Timed(UnresolvedGrowthTicks);
         }
-        return false;
+        else
+        {
+            writer.Timed(start == Middle ? UnresolvedMiddleLaunchTicks : UnresolvedBackLaunchTicks);
+            writer.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY);
+            writer.Command(EnemyProjectileCodePointers.PreInst_EnemyProjectile_ShaktoolsAttack_MiddleBack_Moving);
+            if (start == Middle) writer.Timed(UnresolvedGrowthTicks);
+        }
+        ushort heldPose = (ushort)(start + (start == Middle ? 12 : 8));
+        writer.Timed(UnresolvedHeldPoseTicks);
+        writer.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY);
+        writer.Command(heldPose);
+        return writer.Value;
+    }
+    private struct WordSelector(ushort address, ushort start)
+    {
+        private int remaining = (address - start) / 2;
+        private int selected = int.MinValue;
+        public readonly int Value => selected == int.MinValue
+            ? throw new InvalidOperationException("Shaktool projectile program shape is incomplete.") : selected;
+        public void Command(ushort command) => Emit(command);
+        public void Timed(ushort duration) { Emit(duration); Emit(PresentationOperand); }
+        private void Emit(int value) { if (remaining-- == 0) selected = value; }
     }
 }

@@ -48,21 +48,18 @@ internal static class RidleyExplosionDefinitions
     /// Native allocation order encoded by <c>SpawnEnemy_RidleyExplosion</c> at
     /// <c>$A6:C932-$A6:C986</c>. Enemy-slot/OAM order makes this sequence observable.
     /// </summary>
-    public static ReadOnlySpan<ushort> SpawnOrder =>
-    [
-        RidleyExplosionParts.TailTip,
-        RidleyExplosionParts.Tail5,
-        RidleyExplosionParts.Tail4,
-        RidleyExplosionParts.Tail3,
-        RidleyExplosionParts.Tail2,
-        RidleyExplosionParts.Tail1,
-        RidleyExplosionParts.Tail0,
-        RidleyExplosionParts.Wings,
-        RidleyExplosionParts.Legs,
-        RidleyExplosionParts.Torso,
-        RidleyExplosionParts.OpenHeadAndNeck,
-        RidleyExplosionParts.Claw,
-    ];
+    internal static void SpawnInNativeOrder(Action<ushort> spawn)
+    {
+        Ensure.NotNull(spawn);
+        for (int parameter = RidleyExplosionParts.TailTip; parameter >= RidleyExplosionParts.Tail0;
+             parameter -= RidleyExplosionParts.Tail1 - RidleyExplosionParts.Tail0)
+            spawn((ushort)parameter);
+        spawn(RidleyExplosionParts.Wings);
+        spawn(RidleyExplosionParts.Legs);
+        spawn(RidleyExplosionParts.Torso);
+        spawn(RidleyExplosionParts.OpenHeadAndNeck);
+        spawn(RidleyExplosionParts.Claw);
+    }
 
     /// <summary>
     /// Ten signed body-relative positions consumed cyclically by
@@ -86,7 +83,8 @@ internal static class RidleyExplosionDefinitions
     /// <summary>
     /// $A6:C6CE lifetimes and $A6:C6E6 initializer pointers, selected by the even
     /// parameter at $0FB4. Tail segments expire eight frames apart and their
-    /// equal-sized initializers advance by 24 bytes.
+    /// equal-sized initializers advance by 24 bytes. Chosen lifetime bases72/40,
+    /// shared step8 and torso lifetime128 remain required issue-1165 inputs.
     /// </summary>
     public static RidleyExplosionPartDefinition GetPart(ushort parameter)
     {

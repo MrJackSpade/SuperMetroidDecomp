@@ -154,18 +154,18 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/BotwoonNavigationDefinitions.cs
 
-- [ ] **BotwoonNavigationDefinitions.Holes** ([L39](../csharp/src/SuperMetroid.Core/Game/BotwoonNavigationDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BotwoonNavigationDefinitions.Holes** ([L39](../csharp/src/SuperMetroid.Core/Game/BotwoonNavigationDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmDrawDefinitions.cs
 
-- [ ] **BotwoonWallPlmDrawDefinitions.All** ([L29](../csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmDrawDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BotwoonWallPlmDrawDefinitions.All** ([L29](../csharp/src/SuperMetroid.Core/Rooms/BotwoonWallPlmDrawDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs
 
 - [ ] **DraygonColorCatalog.intro** ([L24](../csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs#L24)) - installed stock table. Original/default payload behind DraygonColorCatalog.intro. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **DraygonColorCatalog.background** ([L25](../csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs#L25)) - installed stock table. Original/default payload behind DraygonColorCatalog.background. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **DraygonColorCatalog.sprite** ([L26](../csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs#L26)) - installed stock table. Original/default payload behind DraygonColorCatalog.sprite. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **DraygonColorCatalog.whiteFlash** ([L27](../csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs#L27)) - installed stock table. Original/default payload behind DraygonColorCatalog.whiteFlash. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **DraygonColorCatalog.whiteFlash** ([L27](../csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs#L27)) - installed stock table. Original/default payload behind DraygonColorCatalog.whiteFlash. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **DraygonColorCatalog.healthBands** ([L28](../csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs#L28)) - installed stock table. Original/default payload behind DraygonColorCatalog.healthBands. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Game/DraygonBurialEvirDefinitions.cs
@@ -178,15 +178,15 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs
 
-- [ ] **DraygonCollisionDefinitions.FirstBody** ([L28](../csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **DraygonCollisionDefinitions.Empty** ([L30](../csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **DraygonCollisionDefinitions.SecondBody** ([L32](../csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DraygonCollisionDefinitions.FirstBody** ([L28](../csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DraygonCollisionDefinitions.Empty** ([L30](../csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DraygonCollisionDefinitions.SecondBody** ([L32](../csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **DraygonCollisionDefinitions.FirstBodyHitboxes** ([L35](../csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **DraygonCollisionDefinitions.SecondBodyHitboxes** ([L47](../csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs#L47)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Oam.cs
 
-- [ ] **DraygonCollisionDefinitions.EmptyOamFrames** ([L15](../csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Oam.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DraygonCollisionDefinitions.EmptyOamFrames** ([L15](../csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Oam.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/DraygonInstructionProgramDefinitions.cs
 
@@ -215,7 +215,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs
 
 - [ ] **EndingTextPresentation.resultPanel** ([L9](../csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs#L9)) - installed stock table. Original/default payload behind EndingTextPresentation.resultPanel. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **EndingTextPresentation.japaneseSubtitle** ([L11](../csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs#L11)) - installed stock table. Original/default payload behind EndingTextPresentation.japaneseSubtitle. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **EndingTextPresentation.japaneseSubtitle** ([L11](../csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs#L11)) - installed stock table. Original/default payload behind EndingTextPresentation.japaneseSubtitle. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Frontend/EndingCreditsRomData.cs
 
@@ -234,8 +234,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs
 
-- [ ] **EyeDoorProjectileInstructionProgramDefinitions.Words** ([L27](../csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **EyeDoorProjectileInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EyeDoorProjectileInstructionProgramDefinitions.Words** ([L27](../csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EyeDoorProjectileInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/EyeDoorProjectileInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/EyeDoorSweatInstructionProgramDefinitions.cs
 
@@ -244,7 +244,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/FlyVisualDefinitions.cs
 
-- [ ] **FlyVisualDefinitions.Frames / literal at L15** ([L15](../csharp/src/SuperMetroid.Core/Assets/FlyVisualDefinitions.cs#L15)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **FlyVisualDefinitions.Frames / literal at L15** ([L15](../csharp/src/SuperMetroid.Core/Assets/FlyVisualDefinitions.cs#L15)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/FlyInstructionProgramDefinitions.cs
 
@@ -258,26 +258,26 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs
 
-- [ ] **GameplayHudDefinitions.EnergyTankByteOffsets** ([L47](../csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs#L47)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GameplayHudDefinitions.ItemByteOffsets** ([L53](../csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayHudDefinitions.EnergyTankByteOffsets** ([L47](../csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs#L47)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayHudDefinitions.ItemByteOffsets** ([L53](../csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs
 
 - [ ] **GameplayHudPresentation.template** ([L10](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L10)) - installed stock table. Original/default payload behind GameplayHudPresentation.template. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **GameplayHudPresentation.topRowTransfer** ([L11](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L11)) - installed stock table. Stock document.TopRow cells serialized as DMA bytes. This is distinct from document.Template; conversion must target the stock cells, not the byte-packing loop.
-- [ ] **GameplayHudPresentation.healthDigits** ([L12](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L12)) - installed stock table. Original/default payload behind GameplayHudPresentation.healthDigits. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **GameplayHudPresentation.ammoDigits** ([L13](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L13)) - installed stock table. Original/default payload behind GameplayHudPresentation.ammoDigits. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayHudPresentation.healthDigits** ([L12](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L12)) - installed stock table. Original/default payload behind GameplayHudPresentation.healthDigits. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayHudPresentation.ammoDigits** ([L13](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L13)) - installed stock table. Original/default payload behind GameplayHudPresentation.ammoDigits. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **GameplayHudPresentation.autoFull** ([L14](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L14)) - installed stock table. Original/default payload behind GameplayHudPresentation.autoFull. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **GameplayHudPresentation.autoEmpty** ([L15](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L15)) - installed stock table. Original/default payload behind GameplayHudPresentation.autoEmpty. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **GameplayHudPresentation.autoAnchors** ([L16](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L16)) - installed stock table. Original/default payload behind GameplayHudPresentation.autoAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **GameplayHudPresentation.energyTankAnchors** ([L17](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L17)) - installed stock table. Original/default payload behind GameplayHudPresentation.energyTankAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayHudPresentation.autoAnchors** ([L16](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L16)) - installed stock table. Original/default payload behind GameplayHudPresentation.autoAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayHudPresentation.energyTankAnchors** ([L17](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L17)) - installed stock table. Original/default payload behind GameplayHudPresentation.energyTankAnchors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **GameplayHudPresentation.icons** ([L18](../csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs#L18)) - installed stock table. Original/default payload behind GameplayHudPresentation.icons. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs
 
-- [ ] **GameplayMessageNoticeDefinitions.MapAndEnergyRegions** ([L23](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GameplayMessageNoticeDefinitions.MissileRegions** ([L29](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GameplayMessageNoticeDefinitions.SaveRegions** ([L35](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayMessageNoticeDefinitions.MapAndEnergyRegions** ([L23](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayMessageNoticeDefinitions.MissileRegions** ([L29](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayMessageNoticeDefinitions.SaveRegions** ([L35](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs
 
@@ -296,12 +296,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GameplayMessageDefinitions.cs
 
-- [ ] **GameplayMessageDefinitions.Definitions** ([L13](../csharp/src/SuperMetroid.Core/Game/GameplayMessageDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayMessageDefinitions.Definitions** ([L13](../csharp/src/SuperMetroid.Core/Game/GameplayMessageDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs
 
-- [ ] **GameplayMessageRomData.Buttons.OrderedGlyphs** ([L76](../csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs#L76)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GameplayMessageRomData.Buttons.SpecialGlyphByteOffsets** ([L92](../csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs#L92)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayMessageRomData.Buttons.OrderedGlyphs** ([L76](../csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs#L76)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GameplayMessageRomData.Buttons.SpecialGlyphByteOffsets** ([L92](../csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs#L92)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/KzanInstructionProgramDefinitions.cs
 
@@ -309,13 +309,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs
 
-- [x] **LowerNorfairRioInstructionProgramDefinitions.Words** ([L31](../csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs#L31)) - factory-built stock table. Stored LowerNorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [ ] **LowerNorfairRioInstructionProgramDefinitions.Words** ([L31](../csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs#L31)) - factory-built stock table. Stored LowerNorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [x] **LowerNorfairRioInstructionProgramDefinitions.PresentationWords** ([L33](../csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs#L33)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs
 
 - [ ] **MamaTurtleInstructionProgramDefinitions.Words** ([L43](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L43)) - factory-built stock table. Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **MamaTurtleInstructionProgramDefinitions.PresentationWords** ([L45](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L45)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **MamaTurtleInstructionProgramDefinitions.PresentationWords** ([L45](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L45)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [ ] **MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202** ([L202](../csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs#L202)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/MamaTurtleShellContourDefinitions.cs
@@ -339,7 +339,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailCollisionDefinitions.cs
 
-- [ ] **MaridiaLargeSnailCollisionDefinitions.ListPointers** ([L33](../csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailCollisionDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MaridiaLargeSnailCollisionDefinitions.ListPointers** ([L33](../csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailCollisionDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **MaridiaLargeSnailCollisionDefinitions.Lists** ([L42](../csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailCollisionDefinitions.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailInstructionDefinitions.cs
@@ -354,7 +354,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs
 
 - [ ] **MaridiaElevatubePlmDefinitions.Draw** ([L23](../csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MaridiaElevatubePlmDefinitions.AllDraws** ([L30](../csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MaridiaElevatubePlmDefinitions.AllDraws** ([L30](../csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PlanetZebesTextPaletteFxProgramMechanicsDefinitions.cs
 
@@ -387,8 +387,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/RidleySupplementalVisualDefinitions.cs
 
-- [ ] **RidleySupplementalVisualDefinitions.WingPointers** ([L18](../csharp/src/SuperMetroid.Core/Assets/RidleySupplementalVisualDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RidleySupplementalVisualDefinitions.TailTipPointers** ([L30](../csharp/src/SuperMetroid.Core/Assets/RidleySupplementalVisualDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RidleySupplementalVisualDefinitions.WingPointers** ([L18](../csharp/src/SuperMetroid.Core/Assets/RidleySupplementalVisualDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RidleySupplementalVisualDefinitions.TailTipPointers** ([L30](../csharp/src/SuperMetroid.Core/Assets/RidleySupplementalVisualDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CeresRidleyProjectileInstructionProgramDefinitions.cs
 
@@ -408,21 +408,21 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 - [x] **RidleyClawOffsets.X** ([L7](../csharp/src/SuperMetroid.Core/Game/RidleyClawOffsets.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **RidleyClawOffsets.Y** ([L10](../csharp/src/SuperMetroid.Core/Game/RidleyClawOffsets.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RidleyClawOffsets.ExistingOutOfRangeWindow** ([L19](../csharp/src/SuperMetroid.Core/Game/RidleyClawOffsets.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RidleyClawOffsets.ExistingOutOfRangeWindow** - **retained (nonsense): only six adjacent instruction words** ([L19](../csharp/src/SuperMetroid.Core/Game/RidleyClawOffsets.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs
 
-- [ ] **RidleyCollisionDefinitions.FrameKeys** ([L24](../csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RidleyCollisionDefinitions.ListKeys** ([L29](../csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RidleyCollisionDefinitions.FrameKeys** ([L24](../csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RidleyCollisionDefinitions.ListKeys** ([L29](../csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **RidleyCollisionDefinitions.LeftBase** ([L36](../csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RidleyCollisionDefinitions.RightBase** ([L39](../csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RidleyCollisionDefinitions.RightBase** ([L39](../csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **RidleyCollisionDefinitions.Frames** ([L43](../csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **RidleyCollisionDefinitions.Lists** ([L58](../csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs#L58)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs
 
-- [ ] **RidleyExplosionDefinitions.SpawnOrder** ([L46](../csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [x] **RidleyExplosionDefinitions.PartRecords** ([L66](../csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs#L66)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RidleyExplosionDefinitions.SpawnOrder** ([L46](../csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **RidleyExplosionDefinitions.PartRecords** ([L66](../csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs#L66)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **RidleyExplosionDefinitions.DeathExplosionPlacements** ([L87](../csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs#L87)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **RidleyExplosionDefinitions.TailTipInstructionLists** ([L105](../csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs#L105)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
@@ -451,23 +451,23 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs
 
 - [ ] **RoomEnemySystem.CreateInitialRidleyTailSegments / distances** ([L916](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs#L916)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **RoomEnemySystem.CreateInitialRidleyTailSegments / angles** ([L917](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs#L917)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemySystem.CreateInitialRidleyTailSegments / angles** ([L917](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs#L917)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs
 
 - [ ] **RoomEnemySystem.CeresRidleyWingAnimationDeltas** ([L10](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **RoomEnemySystem.UpdateRidleyTailDistances / maximumDistances** ([L323](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs#L323)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **RoomEnemySystem.UpdateRidleyTailDistances / neutralDistances** ([L324](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs#L324)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemySystem.UpdateRidleyTailDistances / neutralDistances** ([L324](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs#L324)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyMode7.cs
 
-- [ ] **RoomEnemySystem.TickCeresRidleyMode7Getaway / babyTransferPointers** ([L101](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyMode7.cs#L101)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemySystem.TickCeresRidleyMode7Getaway / babyTransferPointers** ([L101](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyMode7.cs#L101)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs
 
-- [ ] **RoomEnemySystem.RidleySamusMovementFlags** ([L15](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RoomEnemySystem.RidleyTailTouchesTerrain / segmentIndexes** ([L672](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L672)) - method-local definition. Five indexed joint selections 6 through 2; calculate the reverse traversal directly.
-- [ ] **RoomEnemySystem.RidleyTailTouchesTerrain / yOffsets** ([L673](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L673)) - method-local definition. Tip probe offset 16 followed by four joint offsets 18; express the tip/joint distinction directly.
+- [x] **RoomEnemySystem.RidleySamusMovementFlags** ([L15](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.RidleyTailTouchesTerrain / segmentIndexes** ([L672](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L672)) - method-local definition. Five indexed joint selections 6 through 2; calculate the reverse traversal directly.
+- [x] **RoomEnemySystem.RidleyTailTouchesTerrain / yOffsets** ([L673](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Ridley.cs#L673)) - method-local definition. Tip probe offset 16 followed by four joint offsets 18; express the tip/joint distinction directly.
 
 ### csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs
 
@@ -531,11 +531,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySpawnNameDefinitions.cs
 
-- [ ] **RoomEnemySpawnNameDefinitions.Records** ([L12](../csharp/src/SuperMetroid.Core/Game/RoomEnemySpawnNameDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySpawnNameDefinitions.Records** - mixed: calculated structure and family names; only precise lexical residual retained ([L12](../csharp/src/SuperMetroid.Core/Game/RoomEnemySpawnNameDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomSpriteObjectDefinitions.cs
 
-- [ ] **RoomSpriteObjectDefinitions.InstructionPointers** ([L12](../csharp/src/SuperMetroid.Core/Game/RoomSpriteObjectDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomSpriteObjectDefinitions.InstructionPointers** ([L12](../csharp/src/SuperMetroid.Core/Game/RoomSpriteObjectDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomSpriteObjectInstructionProgramDefinitions.cs
 
@@ -544,7 +544,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Rooms/RoomBackgroundTilemapSourceDefinitions.cs
 
-- [ ] **RoomBackgroundTilemapSources.Sources** ([L13](../csharp/src/SuperMetroid.Core/Rooms/RoomBackgroundTilemapSourceDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomBackgroundTilemapSources.Sources** ([L13](../csharp/src/SuperMetroid.Core/Rooms/RoomBackgroundTilemapSourceDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Rooms/RoomLevelStreamDefinitions.cs
 
@@ -556,7 +556,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs
 
-- [ ] **RoomTilesetDefinitions.Entries** ([L14](../csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomTilesetDefinitions.Entries** ([L14](../csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs#L14)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs
 
@@ -581,8 +581,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 - [ ] **SkreeMetareeInstructionProgramDefinitions.MetareeWords** ([L22](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeInstructionProgramDefinitions.cs#L22)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **SkreeMetareeInstructionProgramDefinitions.SkreeWords** ([L36](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeInstructionProgramDefinitions.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SkreeMetareeInstructionProgramDefinitions.MetareePresentationWords** ([L50](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeInstructionProgramDefinitions.cs#L50)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SkreeMetareeInstructionProgramDefinitions.SkreePresentationWords** ([L58](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeInstructionProgramDefinitions.cs#L58)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SkreeMetareeInstructionProgramDefinitions.MetareePresentationWords** ([L50](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeInstructionProgramDefinitions.cs#L50)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SkreeMetareeInstructionProgramDefinitions.SkreePresentationWords** ([L58](../csharp/src/SuperMetroid.Core/Game/SkreeMetareeInstructionProgramDefinitions.cs#L58)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SkreeMetareeParticleInstructionProgramDefinitions.cs
 
@@ -592,11 +592,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/SkulteraInstructionProgramDefinitions.cs
 
 - [ ] **SkulteraInstructionProgramDefinitions.Words** ([L29](../csharp/src/SuperMetroid.Core/Game/SkulteraInstructionProgramDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SkulteraInstructionProgramDefinitions.PresentationWords** ([L52](../csharp/src/SuperMetroid.Core/Game/SkulteraInstructionProgramDefinitions.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SkulteraInstructionProgramDefinitions.PresentationWords** ([L52](../csharp/src/SuperMetroid.Core/Game/SkulteraInstructionProgramDefinitions.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs
 
-- [ ] **SporeSpawnColorCatalog.spores** ([L23](../csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs#L23)) - installed stock table. Original/default payload behind SporeSpawnColorCatalog.spores. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **SporeSpawnColorCatalog.spores** ([L23](../csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs#L23)) - installed stock table. Original/default payload behind SporeSpawnColorCatalog.spores. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **SporeSpawnColorCatalog.health** ([L24](../csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs#L24)) - installed stock table. Original/default payload behind SporeSpawnColorCatalog.health. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **SporeSpawnColorCatalog.deathSprite** ([L25](../csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs#L25)) - installed stock table. Original/default payload behind SporeSpawnColorCatalog.deathSprite. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **SporeSpawnColorCatalog.deathLevel** ([L26](../csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs#L26)) - installed stock table. Original/default payload behind SporeSpawnColorCatalog.deathLevel. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
@@ -604,7 +604,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SporeSpawnCollisionDefinitions.cs
 
-- [ ] **SporeSpawnCollisionDefinitions.Frames** ([L50](../csharp/src/SuperMetroid.Core/Game/SporeSpawnCollisionDefinitions.cs#L50)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SporeSpawnCollisionDefinitions.Frames** ([L50](../csharp/src/SuperMetroid.Core/Game/SporeSpawnCollisionDefinitions.cs#L50)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **SporeSpawnCollisionDefinitions.Lists** ([L67](../csharp/src/SuperMetroid.Core/Game/SporeSpawnCollisionDefinitions.cs#L67)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SporeSpawnInstructionProgramDefinitions.cs
@@ -621,17 +621,17 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs
 
 - [ ] **SporeSpawnProjectileInstructionProgramDefinitions.Words** ([L25](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SporeSpawnProjectileInstructionProgramDefinitions.PresentationWords** ([L48](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs#L48)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SporeSpawnProjectileInstructionProgramDefinitions.PresentationWords** ([L48](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs#L48)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/StokeInstructionProgramDefinitions.cs
 
 - [ ] **StokeInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/StokeInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **StokeInstructionProgramDefinitions.PresentationWords** ([L41](../csharp/src/SuperMetroid.Core/Game/StokeInstructionProgramDefinitions.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **StokeInstructionProgramDefinitions.PresentationWords** ([L41](../csharp/src/SuperMetroid.Core/Game/StokeInstructionProgramDefinitions.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/StokeProjectileInstructionProgramDefinitions.cs
 
 - [ ] **StokeProjectileInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/StokeProjectileInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **StokeProjectileInstructionProgramDefinitions.PresentationWords** ([L30](../csharp/src/SuperMetroid.Core/Game/StokeProjectileInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **StokeProjectileInstructionProgramDefinitions.PresentationWords** ([L30](../csharp/src/SuperMetroid.Core/Game/StokeProjectileInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/TitleGradientPresentation.cs
 
@@ -652,7 +652,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/TitleSpriteDefinitions.cs
 
-- [ ] **TitleSpriteDefinitions.Pointers** ([L8](../csharp/src/SuperMetroid.Core/Assets/TitleSpriteDefinitions.cs#L8)) - factory-built stock table. Stored ushort[] initialized by CollectPointers(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **TitleSpriteDefinitions.Pointers** ([L8](../csharp/src/SuperMetroid.Core/Assets/TitleSpriteDefinitions.cs#L8)) - factory-built stock table. Stored ushort[] initialized by CollectPointers(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Frontend/TitleSequenceInstructionDefinitions.cs
 
@@ -660,7 +660,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs
 
-- [ ] **TitleSequenceRomData.Vram.BabySourcePages** ([L94](../csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs#L94)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TitleSequenceRomData.Vram.BabySourcePages** ([L94](../csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs#L94)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs
 
@@ -706,7 +706,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 Six definitions converted; no retained exception.
 
 - `RidleyPogoDefinitions`: all four tables removed. Horizontal pattern increments are $20; ordinary stages add $08. Two unused lead-in stages preserve their separate lower progression. Upward acceleration is a linear stage progression after the first entry; downward acceleration doubles through stage three then follows the higher linear range. Vertical launch magnitudes combine stage growth and pattern increments, preserving the larger initial pattern step and the stage-three faster-pattern adjustment. No generated table is cached.
-- `RidleyExplosionDefinitions.PartRecords`: all three record columns derive from the part selector. Tail lifetime advances eight frames and equal-sized initializer addresses advance 24 bytes. Body initializers advance 50 bytes; body lifetimes advance eight frames except the torso expires last. `TailTipInstructionLists` derives sixteen six-byte program addresses from orientation.
+- `RidleyExplosionDefinitions.PartRecords`: initializer addresses and part parameters derive from native record layout. Independent lifetime inputs72/8/40/128 remain required; this entry is not complete. `TailTipInstructionLists` derives sixteen six-byte addresses from orientation.
 - Original evidence: pinned bank A6 `SetRidleyPogoSpeeds` tables `$B94D..B9D4`, breakup lifetime/initializer tables `$C6CE..C6FD`, and tail-tip orientation pointers `$C7BA..C7D9`. The original disassembly explicitly identifies unused pogo lead-in stages, speed-pattern ordering and acceleration roles.
 - Confirmation: isolated Verification build passed (1431 warnings, zero errors). `--lookup-stream-4` passed direct original-ROM comparisons for all 24 pogo records (four fields), all twelve breakup records (parameter/lifetime/callback), all sixteen tip pointers, and rejected pattern/stage/parameter/orientation bounds. Revision SHA is checked by the command.
 - Changed files: two production catalogs, `Program.LookupStream4.cs`, local `Program.cs` command wiring, this report. Coordinator owns shared inventories and publication.
@@ -791,10 +791,10 @@ Three definitions converted; 43 complete and 182 unchecked. No retained exceptio
 - Confirmation: Verification build passed (1431 warnings, zero errors); `--lookup-stream-4` passed. The new focused check compares all44 control words with the original ROM and all26 interleaved operand addresses in order, checks both bytes, rejects unaligned reads, adjacent code, wrong banks and invalid enumeration indices. Existing stream checks also pass.
 ## Batch 10: Lower Norfair Rio animation programs
 
-Two definitions converted; 45 complete and 180 unchecked. No retained exception.
+PresentationWords converted; Words remains required for independent preparation, cooldown and flame holds. No retained exception.
 
 - Removed both startup-generated arrays and their list builders. Program ranges identify idle, preparation, descent, ascent, cooldown and flame behavior; frame strides calculate presentation operands. Direct control evaluation preserves flame visibility callbacks, animation-finished signals, sleep and loop targets. Indexed views enumerate the calculated program without storing rows.
-- Idle/descent/ascent use their constant frame durations. Preparation and cooldown calculate the capped linear timing ramp around spritemap pose7; cooldown ends with three one-tick closing poses. The three flame durations calculate a three-tick base plus successively halved extra dwell. These are exact arithmetic descriptions of the native values, not claims about the historical authoring tool.
+- Idle/descent/ascent share uniform holds. Preparation/cooldown endpoint exceptions and flame 6/4/3 timing remain unexplained input choices. Matching them with ordinal expressions does not establish a conversion; Words stays unchecked until those inputs have a valid disposition.
 - Evidence: pinned bankA2 `InstList_Holtz_Idle_0` through `InstList_Holtz_Flames`, `$C61A..C6BF`; both turnaround sequences select pose7 at their one-tick center.
 - Confirmation: Verification build passed (1431 warnings, zero errors), and `--lookup-stream-4` passed. The existing `VerifyLowerNorfairRioInstructionProgramDefinitions` is now wired into this focused command unchanged: all51 control words,32 presentation selectors, all seven actual interpreter programs, three callback effects, initializer selections and mechanics-read guards pass. No unrelated gameplay investigation.
 ## Batch 11: Draygon projectile programs
@@ -806,3 +806,439 @@ Two definitions converted; 47 complete and 178 unchecked. No retained exception.
 - Evidence: pinned bank86 `$8C38..8C67` and `$8CA4..8CF5`; original sprite names distinguish formation, charging and flight phases.
 - Confirmation: full build passed (1431 warnings, zero errors); final incremental verifier build passed (25 warnings, zero errors); `--lookup-stream-4` passed. Existing native38-word, actual goop/turret producer, touch/drop, loop/sleep/delete and fired-callback assertions remain. Updated the obsolete expectation of27 live ROM presentation reads: all27 exact native operand identities are now compared in order and observed through actual installed-frame selections, with zero cartridge presentation reads. This changes the expected transport, not the native selected frame identity.
 - Additional verifier ownership was granted before editing `Program.DraygonProjectileInstructionProgramDefinitions.cs`.
+## Batch 12: Draygon flash and health interpolation
+
+One full definition converted; 48 complete and 177 unchecked. The healthBands container stays unchecked because its endpoint colors remain required. No retained exception.
+
+- White flash calculates the transparent backdrop and white visible inks, storing only supplied colors that differ. No stock flash words remain stored.
+- Health bands calculate all24 intermediate RGB5 colors by nearest-seventh interpolation between the first/last four-color rows. Only8 endpoint words remain stored for stock data; those endpoint colors are explicitly unresolved. Independently edited middle colors override the calculation. Edited endpoints do not implicitly alter other supplied colors: any intermediate mismatch becomes its own override.
+- Content identity keeps the exact prior ordered palette/row encoding. CGRAM destinations, white-frame suppression of health application, native even-index rejection and loader validation remain intact.
+- Evidence: pinned bankA5 `DraygonHealthBasedPaletteTable` `$96AF..96EE`; `Palette_Draygon_WhiteFlash` `$A297..A2B6`.
+- Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. New focused checks cover all48 changed native colors, zero stored stock flash words/eight health endpoint words, unchanged content hashes, actual background/sprite/health CGRAM writes, independent JSON edits to backdrop/visible flash/middle health/endpoint health, and invalid bounds/native odd selectors.
+## Batch 13: Botwoon health interpolation
+
+Partial conversion; the container remains unchecked. Totals remain48 complete and177 unchecked. No retained exception.
+
+- Botwoon health colors calculate94 intermediate words through nearest-seventh RGB5 interpolation. Stock storage falls from128 words to32 endpoint words plus the two nonmatching transparent-slot words in bands1/2. Both endpoints and those two words remain explicit unresolved obligations; failing this interpolation does not exempt them.
+- Independently supplied middle, endpoint and transparent-slot edits remain exact; differing colors are stored as overrides. The content identity retains the original ordered eight-row encoding and bounds behavior.
+- Evidence: pinned bankB3 `BotwoonHealthBasedPalettes`, `$971B..981A`. All colored slots interpolate between first/last rows; slot0 has `$2003` at bands1/2 while its endpoints are zero.
+- Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Focused checks verify all128 native values, exactly34 stored stock words, unchanged content identities, independent JSON edits and index rejection.
+- Also normalized the preceding Draygon interpolation source annotation into member XML documentation; no behavior changed there.
+
+## Batch 14: Botwoon hole selection and wall-fill reconciliation
+
+Two definitions resolved;50 complete and175 unchecked. No retained exception.
+
+- The four hole rectangles dispatch by named native Left/Bottom/Top/Right identities. Each case specifies its center and derives the four-pixel inset; existing eight-pixel right/bottom and target calculations remain. Original eight-byte offsets and all invalid-offset rejections remain exact. These semantic names are explicit in pinned bankB3 `BotwoonHoleHitboxes`, `$949B..94BA`.
+- `BotwoonWallPlmDrawDefinitions.All` was already converted in this worktree baseline. Static call review confirms gameplay uses `LevelWordAt`'s bounded constant air fill; `All` materializes an export DTO only. Pinned bank84 `$930F..9324` is one vertical run of nine `$00FF` words plus zero terminator. This entry is reconciled as implemented, not exempted; no duplicate production rewrite.
+- Confirmation: build passed (1433 warnings on full build;25 on final incremental, zero errors), `--lookup-stream-4` passed. Native hole left/top/right/bottom and centers match; existing actual detection confirms exclusive right/bottom boundaries and rejects all invalid ushort offsets. Existing wall-stock mapping confirms native words, selected content identity and editable override independence.
+- Removed an accidentally added Draygon verifier invocation from the standalone Rio command; combined execution remains scoped to `--lookup-stream-4`.
+## Batch 15: Draygon empty OAM frame membership
+
+One definition converted;51 complete and174 unchecked. No retained exception.
+
+- Removed the48-address membership set. Each facing has six and four one-component frames (ten-byte stride), seven two-component frames (eighteen-byte stride), and seven frame starts determined by preceding component counts3..8. The final frame repeats eight components; only its start is part of the membership calculation. Every component still resolves to a zero-count native hitbox list.
+- Evidence: pinned bankA5 `ExtendedSpritemap_Draygon_4/1B/22/29` and mirrored `34/4B/59/60`; named XML anchors identify the native starts. Record layout is two-byte count plus eight bytes per component.
+- Confirmation: build passed (1433 warnings on full build;1218 on final incremental, zero errors); `--lookup-stream-4` passed. Existing native OAM fixture confirms all48 frames and130 original zero-hitbox components, actual shot/touch walkers with ROM reads forbidden, and exclusion of12 Spore Spawn frames.
+- The fixture initially treated newly catalogued BG2 roots as OAM, failing on `draygon_bg2_A31B`. With coordinator ownership granted, it now skips only proven `DraygonBg2FrameDefinitions.IsFrame` roots. Existing native component/list and actual callback assertions are preserved.
+
+### Rotation handoff after batch15
+
+Stream4 remains unfinished (174 entries). Partial palettes still require Tourian/Draygon/Botwoon endpoints, Botwoon transparent-slot words, Power Bomb explosion tail, and their unchecked containers. Other unresolved scope includes Draygon BG2 collision/programs, Botwoon movement corpus, Spore movement, remaining enemy programs, room/presentation content and artwork.
+
+Static beam-art review is pending, not an exemption: native first256-byte/eight-tile sheets at `$9A:F200/F400/F600/F800/FA00` selected by `$90:C3B1` have blank final3 tiles in Power/Ice, shared diagonal fragments in Power/Wave and Plasma/Spazer, plus nonuniform highlights. Any computable blank/repeated structure must be separated before a narrower impossible/nonsense disposition. No beam artwork changes were made.
+
+Worker rotates back to stream1; no stream4 edits should be copied into that isolated worktree.
+## Batch 16: surface-lightning color calculation
+
+Partial payload conversion inside the still-open `RoomPaletteFxPresentation.colors` entry; totals remain51 complete and174 unchecked. No retention exception.
+
+- All104 surface-lightning words derive from13 brightness phases and eight descending shades. Phase progression rises0..4, falls3..0, then falls4..1; phase4 is white, others calculate `$2D6C + $18C6 * phase - $0421 * color`.
+- Integration review leaves the chosen surface base and brightness-step parameters pending alongside the seven dark-lightning inputs. Replacing samples with a formula does not by itself justify those independent choices.
+- Matching stock words are removed on load; independent supplied edits retain precedence. Audit enumeration reconstructs all104 identities exactly once even when the color is calculated. No other room palette payload is marked complete.
+- Evidence: pinned bank8D definition `$F765`, surface-lightning records `$EB43..EC3D`, colors `$EB45..EC4D`. This resolves the concrete color dependency identified by Stream3 batch26 (`1bf84157a`).
+- Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Focused checks compare all104 native words, require zero stored stock words, verify exact color address ownership across the program and exactly-once identity enumeration, and confirm four independent JSON edits with all neighboring samples unchanged.
+
+## Batch 17: dark-lightning channel fade
+
+Partial payload conversion inside the still-open `RoomPaletteFxPresentation.colors` entry; totals remain51 complete and174 unchecked. No retention exception.
+
+- Dark-lightning subtracts five RGB5 units per phase independently from each channel, clamped at zero. Its phases ascend0..4, descend3..0, hold another neutral0, then descend4..1.
+- Seven first-row inputs remain required unresolved payload. The other91 stock words are calculated. Only samples matching the supplied inputs are removed; editing an input preserves each independently supplied neighboring sample through explicit overrides. Audit identities remain complete and unique.
+- Evidence: pinned bank8D `UNUSED_InstList_PaletteFXObject_DarkLightning_1/2/3`, definition `$F769`, colors `$EC78..ED78`. The native neutral row and five-unit clamped channel progression confirm the derivation; starting-color irregularity is not treated as an exemption.
+- Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Focused checks compare all98 native colors, prove only seven stock inputs remain stored, cover the exact calculated-pointer domain and unique identity enumeration, and preserve all98 supplied values under four independent input/sample JSON edits.
+
+## Batch 18: Mama/Baby Turtle instruction layouts
+
+PresentationWords converted; Words remains required for independent spin and shell-transition holds. No retained exception.
+
+- Removed both factory-built arrays and all list-building helpers. Eight crawl steps calculate their ten-byte callback/draw layout; spinning programs preserve the baby's extra stoppable callback; named shell programs calculate record layout, directional rise callbacks and terminal sleeps. Unequal spin and shell-transition timing is unresolved.
+- Direct control resolution uses these semantic program rules. Native-order enumeration scans the bounded program region without caching; every sub-$8000 control is a draw duration whose following word owns presentation, yielding all75 operand addresses without storing a second mapping.
+- Evidence: pinned bankA2 thirteen `InstList_MamaTurtle/BabyTurtle` programs from `$8B80` through `$8D4E`, excluding adjacent code gaps and movement definitions starting `$8D50`.
+- Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Existing unchanged focused turtle verifier confirms117 original control words in strict order, both-byte ownership,75 unique presentation addresses and their mechanics exclusion, adjacent movement rejection and allocation-free direct resolution. This verifier is a definition-boundary check; its legacy console wording about executing all programs is broader than its actual assertions, so no such execution claim is made here.
+
+## Batch 19: Eye Door projectile control layouts
+
+Two more definitions converted;55 complete and170 unchecked. No retained exception.
+
+- Initial4/3/2-tick setup and impact2/3/4-tick reverse cadence calculate draw records. Aiming/pre-instruction installation, the16-tick flight loop, four4-tick shot frames and deletion remain semantic control cases. All19 controls and11 presentation identities derive from these layouts.
+- Evidence: pinned bank86 `InstList_EnemyProjectile_EyeDoorProjectile_Normal_0/1`, `Explode`, and `Shot_EyeDoorProjectile`, `$B5D9..B614`. Catalog XML now uses these exact source symbols.
+- Confirmation: full Verification build1433 warnings/zero errors, final incremental25 warnings/zero errors; `--lookup-stream-4` passed. Existing native-word, aiming/flight, real opened-door impact handoff, shot/impact deletion, mechanics exclusion, adjacent program rejection and allocation checks pass.
+- Reproduced the obsolete verifier expectation of11 live presentation reads (actual0). Granted verifier now checks every actual installed operand against the exact native program step and all11 unique operands, plus zero presentation reads. An attempted raw spritemap assertion was corrected because this presentation path intentionally uses a placeholder pointer and identifies artwork by installed operand; production behavior was unchanged.
+
+## Batch 20: Draygon BG2 collision-component identities
+
+Three more definitions converted;58 complete and167 unchecked. No retained exception.
+
+- Removed first-body, empty-body and second-body singleton component arrays. A calculated view emits the sole zero-offset component for each valid BG2 frame. Facing selects the body list for phases0..7 and16; other phases select the empty hitbox list. Existing OAM identities enumerate no collision components and keep their rejection contract.
+- The view preserves length, indexing, foreach and explicit oracle ToArray use; only the BG2 verifier's explicit span binding needed adaptation. Runtime collision callback ordering is unchanged. Eight stored rectangles remain independently unresolved, with no exemption.
+- Evidence: pinned bankA5 `ExtendedSpritemap_Draygon_A` `$A31B` and `ExtendedSpritemap_Draygon_3A` `$A643`, seventeen ten-byte frame records per facing; native hitbox lists `$AA95/$AAC7/$ABAB`.
+- Confirmation: Verification build passed (1433 warnings, zero errors); `--lookup-stream-4` passed. Existing BG2 fixture retains all34 native component counts/offsets/list identities, all three hitbox lists and rectangle/callback comparisons, guarded actual shot callback dispatch and invalid-frame rejection. Existing48-frame OAM fixture still passes its empty-component and callback assertions.
+
+## Batch 18 checklist reconciliation
+
+The AddBabyCrawl factory was removed, but its independent ten-tick hold remains required. The entry is unchecked; structural conversion alone does not complete its values.
+
+## Coordinator timing re-audit
+
+MamaTurtleInstructionProgramDefinitions.Words and LowerNorfairRioInstructionProgramDefinitions.Words are reopened. Native value agreement confirmed behavior but did not justify independent timing choices. The integrated stream now has57 complete and168 unchecked; uniform AddBabyCrawl and presentation-address conversions remain complete. Source corrections isolate the exact pending timing inputs; integrated Verification1442warnings/zeroerrors and focused stream4 checks pass. No retention exception is granted.
+
+## Batch 46: named room graphics-theme resource selection
+
+One definition converted; 58 integrated complete and 167 unchecked. Installed block, character and palette payloads remain independently required.
+
+- Removed the29-entry definition array. Named graphics themes select named block, character and palette resources through cases; shared Crateria/Wrecked Ship/Norfair/Ceres/station resources and independent palette variants are explicit. The definition identity calculates from the first nine-byte record plus9 times the native selector.
+- Each theme and source member documents its native symbol/address. These are mutually exclusive resource identities, not combinable flags. This converts semantic artwork-resource dispatch under the user's case-statement allowance; it makes no claim that artwork contents derive from a theme name.
+- Evidence: pinned bank8F Tileset_Table_0_UpperCrateria through Tileset_Table_1C_Draygon at E6A2..E7A6 and selector table E7A7..E7DF. Each native record contains three24-bit resource identities.
+- Confirmation: Verification build passed (1433 warnings, zero errors); --lookup-stream-4 passed. Focused checks compare all116 native pointer/resource fields across29 themes, including shared-source and independent-palette choices, and preserve invalid1D/7F/FF rejection. No room execution or room sweep was used.
+
+## Batch 47: derive compressed background source identities from commands
+
+One definition converted; 59 integrated complete and 166 unchecked. LibraryBackgroundProgramDefinitions command payloads remain independently required in their owning stream; this conversion does not modify or dispose of them.
+
+- Removed the separate58-address lookup. Membership walks DecompressToWorkRam operands; the calculated immutable list enumerates successive distinct source addresses in ascending order without caching a second source table. Count and indexing derive from that same view, preserving IReadOnlyList behavior and index rejection.
+- Evidence: native bank8F library-background command lists selected by retail states contain the compressed source identities as command0004 operands. The independent import-time LibraryBackgroundSourceInventory scanner reads those original operands and yields exactly the previous58 distinct addresses. Other transfer command operands are excluded.
+- Confirmation: final Verification build passed (1193 warnings, zero errors); --lookup-stream-4 passed. Focused checks compare the complete native58-source set, count, ordered enumeration and every indexed value; all source memberships pass, adjacent interior bytes and absent identities reject, and negative/past-end/extreme indexes retain their exception type. Confirmation only walks source metadata, without room execution or gameplay discovery.
+
+## Batch 48: message and controller-button semantic dispatch
+
+Three definitions converted; 62 integrated complete and 163 unchecked. Message text, tile/pixel payloads and independently editable presentation fields remain required.
+
+- The 29 message records now select named setup/draw routines and named presentation identities by GameplayMessageId. Content-boundary records 1B and 1D remain explicit, with native pointer identities preserved so diagnostic content sizing remains exact. XML identifies every native payload symbol/address. This metadata currently has only diagnostic callers in this worktree; native-triple proof is not claimed as evidence of a production dependency.
+- Button glyph selection now executes ordered named controller-mask cases. The exact A/B/X/Y/Select/L/R priority survives malformed multibit bindings, and no-match still selects the native blank. Message-specific glyph patch positions now dispatch by named message ID; the full original 1..27 domain, including dummy boundary, and rejection outside it remain exact.
+- Granted GameplayMessageBoxState changes are limited to its two selector bindings. The actual patch operation still writes only the selected cell in the supplied tilemap; no installed message content or neighboring edit is replaced.
+- Evidence: pinned bank85 MessageDefinitionsPointers at869B..8748; DrawSpecialButton_SetupPPUForLargeMessageBox BIT tests at83D4..8407 and glyphs8426..8435; Special_Button_Tilemap_Offsets at8749..877E.
+- Confirmation: final Verification build 1218 warnings/zero errors; --lookup-stream-4 passed. New focused checks compare all87 native definition words and bounds, all65536 binding values against native BIT immediates/glyph words through both catalog and actual message resolver, all27 patch offsets and every other byte-ID rejection. Actual PatchConfiguredButton preserves all192 supplied cells except its one native destination for each accepted identity. No unrelated full message lifecycle fixture was run.
+- Integration dependency: ResourceAudit/MessageClosedContractDefinitions.cs line10 hashes GameplayMessageRomData.cs. Coordinator owns its refresh; no audit file was edited here.
+
+## Batch 50: derive notice text rectangles from imported glyph rows
+
+Three definitions converted: 65 integrated conversions, 160 unchecked. Notice text/template/border payloads remain independently required.
+
+- Removed the three arrays of fixed rectangle records. The stock-region view scans the already imported 32-cell rows for supported visible glyph runs. Single interword spaces remain inside a phrase; wider gaps and nontext cells split runs, leaving the independent YES/NO choices and excluding arrow graphics. Row, column and width derive from the supplied tilemap instead of duplicating its layout in another table.
+- Granted consumer file is csharp/src/SuperMetroid.AssetExtraction/GameplayMessageNoticeExtractor.cs. Its only change passes the already-read template to StockTextRegions. The document shape, text extraction, palette checks, selections and independent edit behavior are unchanged.
+- Evidence: pinned bank85 MessageTilemaps map/energy/missile completion content at917F/923F/92FF and save question at93BF. Original geometry is exactly (0,8,15),(2,10,10) for map/energy; (0,8,14),(2,10,10) for missiles; and (0,8,14),(1,8,8),(3,10,3),(3,19,2) for save. Both save owners share the latter source.
+- Confirmation: Verification build includes the AssetExtraction dependency; final build1193 warnings/zero errors. --lookup-stream-4 passed all14 original rectangles across five notices, complete native border/content output and actual installed initial tilemaps, both real YES-to-NO transitions, and a live MAP TEST edit with every cell outside its rectangle unchanged. Phase/window radius and exact stock restoration remain intact with cartridge reads forbidden during actual message use. No stale lifecycle verifier was reused as a native oracle.
+- Integration dependency: ResourceAudit/MessageClosedContractDefinitions.cs line29 hashes GameplayMessageNoticeDefinitions.cs. Coordinator owns its refresh; no audit file was changed here.
+
+## Batch 52: Ridley tail terrain traversal and physical probe offsets
+
+Two definitions converted: 67 wholly converted, 158 unchecked.
+
+- Replaced the five joint-index samples with direct reverse traversal from the tail tip through joint two. Replaced the five Y-offset samples with the physical distinction between the tip (16 pixels) and ordinary joints (18 pixels). The seven-segment/null-level gates, unchecked word addition, room bounds and first-hit return remain intact.
+- Evidence: pinned CheckForTailCollisionWithFloor at A6:B7E7..B84C explicitly probes segments 6,5,4,3,2 in that order. ADC immediates at B7F2/B806/B81A/B82E/B842 hold16/18/18/18/18. This is an unrolled sequence of collision operations, now represented directly as iteration and geometry rather than local lookup arrays.
+- Confirmation: Verification root integration build1444 warnings/zero errors; --lookup-stream-4 passed. New focused actual-method checks isolate each of the seven segments against two solid rows and five boundary/wrapping Y coordinates (70 cases), obtaining expected offsets from the original native ADC operands. Segments0/1 stay excluded; missing terrain and incomplete-tail gates remain false. Static review confirms descending first-hit order. No gameplay discovery was performed, and no source-hash dependency was found for this partial.
+
+## Batch 53: Ridley initial angular spacing and circular tip identities
+
+Two definitions converted: 69 wholly converted, 156 unchecked. Independent tail distances, wing cadence, OAM attributes and image payloads remain required.
+
+- Initial angles now calculate a quarter-turn base plus link index times the native ideal inter-segment separation. New granted Game/RidleyTailDefinitions.cs documents the native base and separation; both encounter initializers use the same named separation. The seven independent distance values remain untouched and unchecked.
+- Tail-tip identities now calculate the address of a consecutive seven-byte one-object OAM record. Native direction sector12 points left at the first record; reversing the sixteen-sector circular index preserves every direction and wrap. The frame exporter enumerates this same view instead of a replacement pointer array. Named XML constants identify the native base, record layout and direction orientation.
+- Evidence: InitializeTailParts at A6:D2D6 sets ideal separation16 at D2FD; original D38A..D397 angles are4000 through4060 by16. RidleyTailTipSpritemapPointers at DCBA..DCD8 selects sixteen records DCDA..DD49; each contains one two-byte count plus one five-byte OAM object. This derives identities only, not the independently supplied OAM or pixel content.
+- Confirmation: Root integration Verification build1444 warnings/zero errors; --lookup-stream-4 passed. Actual initialization matches all seven original angle words and preserves distance/direction/stagger fields; native separation immediate matches. Every sixteen-direction identity and original one-object record count matches, the complete sorted supplemental identity enumeration is unchanged, and invalid/extreme direction selectors retain InvalidDataException. Initial-angle bounds contain exactly seven links. No ResourceAudit source-hash reference was found for the changed existing files.
+
+## Batch 54: Ridley wing stroke and facing identity selection
+
+One definition converted: 70 wholly converted, 155 unchecked. The independent speed-to-wing-timer values and OAM/pixel payloads remain required.
+
+- Replaced twenty stored pointers with the ten-phase wing cycle: six descending elevations and the four interior elevations in reverse. Six named native pose identities express fully/mostly/slightly raised and lowered wings. The opposite-facing records preserve the same sizes and order, so their identities derive by the native block displacement. No completed animation-pointer array is cached.
+- Evidence: DrawRidleyWings pointer lists A6:DB02..DB28 describe the exact two mirrored cycles. Left-facing records DD4A/DD6A/DD85/DD96/DDA7/DDC2 have right-facing counterparts DDE2/DE02/DE1D/DE2E/DE3F/DE5A, each displaced98 hexadecimal bytes. XML ties every named pose to its native symbol and address.
+- Confirmation: Root integration Verification build1444 warnings/zero errors; --lookup-stream-4 passed all20 original wing identities, complete sorted supplemental frame enumeration, and negative/past-end/extreme selector rejection. Previous sixteen-direction tail identity and initialization checks remain passing. This confirms selected identities and export membership without claiming an independent artwork-payload conversion.
+
+## Batch 55: Ridley grab and release movement policy
+
+One definition converted: 71 wholly converted, 154 unchecked.
+
+- Replaced the28-byte movement flag table with named SamusMovementType cases classifying ordinary, morphed, or immune movements. New granted Game/RidleySamusInteractionDefinitions.cs exposes the actual consumed operations: CanGrab and ReleaseIntangibilityFrames. Unknown byte selectors preserve no-grab and ten-frame fallback.
+- Static source audit found exactly two references to the former array: SamusMovementUsesRidleyGrab masks80 and ReleaseNorfairRidleyGrab masks40. No field exposes the table or consumes its lower six bits, so reproducing unused FF low bits is unnecessary. Both consumers now call the named operations directly; null-Samus behavior and all release state writes remain intact.
+- Evidence: A6:BCF1..BD1F CheckIfSamusMorphedSpinJumpingDamageBoosting indexes the named movement handler. BIT uses the target byte as the high byte, translating bit7 to carry and preserving bit6 as overflow. ReleaseSamus at BC95..BCA0 chooses immediate6 at BC99 when overflow is set, otherwise10 at BC9E. Native data explicitly classifies Morph/Spring Ball and unused glitch-ball families together.
+- Confirmation: Root integration Verification build1444 warnings/zero errors; --lookup-stream-4 passed. All256 underlying byte selectors match the original28 native rows or the previous managed out-of-domain policy. Actual grab and release methods match native classification/duration for all253 real poses with cartridge reads forbidden; release clears GrabState and sets TailWhipRequest/TailFunctionIndex exactly. Null-Samus no-grab/standing-release fallbacks pass. No adjacent-table emulation or new raw flag API was introduced.
+
+## Batch 58: calculated Ridley collision composition and identity domains
+
+Three definitions converted: 74 wholly converted,151 unchecked. FrameKeys/ListKeys/RightBase are complete; LeftBase, Frames and Lists remain required. Exact remaining component basis is four left-facing origin pairs(15,22),(-8,7),(16,0),(-3,-24) and forward Y=-6. All independent rectangle bounds remain required.
+
+- Frame identities calculate from consecutive native record extents; hitbox-list identity enumeration derives sorted distinct keys from the independently required rectangle payload. Right-facing origins reflect left-facing X and preserve Y, while right-facing list identities use the native matching-block displacementCA. No duplicate right-origin array remains.
+- Replaced eleven expanded component arrays with a calculated view selecting named facing/mouth/leg states. Leg variants advance across one-rectangle lists; mouth variants advance across two-rectangle lists. Forward facing selects its centered single component. Its independent Y offset and four left-side geometry pairs are explicitly unresolved inputs, so Frames is not counted complete merely because its container disappeared.
+- Evidence: A6:E983..EAD6 has ten two-byte-header/four-component records of34 bytes; EAD7 is the one-component forward frame. ExtendedSpritemap_Ridley_* symbols name each facing, mouth and leg state. Left list groups begin EAE1 (head), EB2F (legs), EB59(hand), EB67(torso); their right counterparts are displacedCA bytes. Original component order remains legs/hand/torso/head, with forward alone.
+- Granted CeresRidleyComposition consumer change is only the inferred calculated-view binding. OrdinaryCombat already used inferred foreach and required no edit. Program.RidleyCollisionDefinitions binding changes retain all assertions.
+- Reproduced fixture prerequisite failures: first, its syntheticFFFF enemy invoked the removed generic ROM walker and threw at OrdinaryCombat.cs3109; after replacing that oracle under coordinator approval, the fixture's instance-only reflection lookup failed because the Ceres helper is now static. The corrected reference independently traverses original ROM components/rectangles/callbacks with pinned A0:9ADF..9B78 touch and9C43..9D20 shot edges; static reflection now reaches the same real Ceres helper. These are fixture repairs, not production collision fixes.
+- Confirmation: root integration Verification build1444 warnings/zero errors; --lookup-stream-4 passed all11 frames,41 native components,17 lists,24 original rectangles and11232 actual touch/shot boundary comparisons, plus existing actual Ceres overlap comparisons. No runtime cartridge reads occur. Additional exact identity checks derive expected roots/lists from original record lengths/operands, compare all65536 pointer memberships, preserve sorted/indexed enumeration and out-of-range rejection. No closure source-hash reference was found for the changed production files.
+
+## Batch 59: precise bounded claw instruction-word disposition
+
+One narrowly retained definition:74 wholly converted, one retained,150 unchecked. No real claw geometry is exempted.
+
+- Coordinator independently approved only ExistingOutOfRangeWindow's six native instruction words, after checking the ROM and pinned disassembly: A6:B9E1..B9EC bytes AF28787EF01F8512100449FF, little-endian words28AF/7E78/1FF0/1285/0410/FF49.
+- Exact native identities: B9E1 LDA.l $7E7828 occupies AF28787E; B9E5 BEQ +1F occupiesF01F; B9E7 STA $12 occupies8512; B9E9 BPL +04 occupies1004; B9EB EOR #FFFF begins49FF (the final high operand is outside this window). These unrelated opcode/address/branch bytes have no functional relationship to six physical claw positions. Generating them from the ported behavior would require re-encoding the same native machine instructions, which is nonsense for the geometry conversion.
+- Managed ReadY explicitly bounds the observation to min(feetDistanceIndex>>1,8): inputs0..5 select the three calculated geometry words; inputs6..FFFF can only observe these six words, with the last clamped. RoomEnemySystem.GetNorfairRidleyClawY is the sole production reader. This preserves an existing managed API boundary; it claims neither a native clamp nor full native memory/CPU emulation.
+- Ordinary X and Y geometry remain calculated from facing and foot elevation. No other adjacent code, coordinates, artwork or payload receives an exemption.
+- Confirmation: documentation/disposition only; unchanged six values and consumer behavior passed the immediately preceding lookup-stream-4 run. The existing scoped verifier compares all65536 ReadY inputs to the native bounded nine-word window and confirms actual ordinary carry/collision behavior. No new executable test or source change was needed.
+
+## Beam palette partial integration: aliases and highlight relationships
+
+Integrated worker commits54ec3420b,6ed815fd4 and912ab27e1. Removed the obsolete nonuniform-artwork retention rationale. BeamPaletteCatalog.palettes remains unchecked; no new exception or completed definition is claimed. Stream checkpoint remains74 converted,one retained,150 unchecked.
+
+Twelve expanded runtime rows (192 colors) now retain43 independent stock inputs and derive family aliases, common Power colors0/1, non-Ice black slots9..14, Wave/Plasma highlight midpoints and Spazer highlight channels(G,G,R) from Plasma. The latter formulas match pinned90:C42B/C42D/C42F,C44B/C44D/C44F,C46B/C46D/C46F. Installation preserves independently supplied deviations, including unchanged dependent colors when a basis input is edited; runtime calculates relationships per access.
+
+Required inputs: Power0..8 and15; Ice2..15; Wave and Plasma2..5,7,8,15; Spazer2..4,8,15. These43 values remain unresolved. Palette content receives no exemption.
+
+Root Verification build1444 existing warnings/zero errors; --lookup-stream-4 confirms every native output across12 selections, targeted independent/common/alias/black/endpoint/midpoint/cross-family edits, unchanged neighboring CGRAM and stock immutability, and invalid selectors. Refreshed BeamPaletteCatalog source closure hash; ResourceAudit build zero warnings/errors.
+
+
+## Batch 49: enemy-name family numbering and shared lexical stems
+
+Mixed disposition for RoomEnemySpawnNameDefinitions.Records: 74 wholly converted, one mixed, one retained,149 unchecked. The exact chosen-character residual below is approved; all record metadata and established lexical relationships are calculated.
+
+- Twenty-one of the ninety referenced names now compose their native labels per access. Twelve pirate labels combine BATTA, the wall/ninja/walking family digit, and the exclusive color suffix. Three Kihunters use HACHI plus the family digit. Ripper2/Shutter2/RobotNoPower append their numeric variant to the original stem; H/M Zoomer and S Sidehopper reuse their shared lexical stems. No calculated full-name lookup is cached.
+- Native identity enumeration now walks fourteen-byte record positions and emits only the exact referenced name domain, preserving original order and holes. Existing ten-character space padding, little-endian five-word encoding and numeric debug-spritemap ordinal remain calculated.
+- Exact remaining chosen lexical strings: ATOMIC, BOTOON, BOYON, DESSGEEGA, DORI, DRAGON, EBI, EYE, NAMI, FISH, GAI, GAMET, GEEGA, GERUDA, HAND, HIBASHI, HIRU, HOLTZ, HOTARY, KAGO, KAME, KAMER, KANI, KOMA, KZAN, LAVAMAN, MELLA, MEMU, MERO, METALEE, METMOD, METROID, MULTI, NDRA, NOMI, NOVA, OUM, OUMU, PIPE, POLYP, PUROMI, PUU, PUYO, REFLEC, RINKA, RIO, RIPPER, ROBO, RSTONE, SABOTEN, SBUG, SCLAYD, SDEATH, SHUTTER, SIDE, SKREE, SPA, SQUEEWPT, STOKE, TOGE, VIOLA, WAVER, YARD, ZEB, ZEBBO, ZEELA, ZOA, ZOOMER, FUNE; plus BATTA/HACHI, color suffixes Br/No/Na/Ma/Tu and prefix letters H/M/S. Only these exact chosen characters have the independently reviewed nonsense disposition: the native consumer copies literal text without interpreting it as behavior, and no managed AI/physics quantity can determine the selected spelling (for example BOTOON rather than Botwoon). No entire name-table or other text/artwork exemption is granted.
+- Evidence: bankB4 quoted EnemyName_* records, notably DDB3/DDCF pirate families and E205..E2AD colored variants, DEA1/E2C9/E2D7 Kihunters, and the named stem/alias identities documented in the catalog. Record_EnemySpawnData at A0:8923..893F copies five literal ASCII words,8941 reads the separate numeric index, and8948..8968 publishes the snapshot. It does not parse the chosen lexical spelling into AI or physics.
+- Confirmation: Root integration Verification build1444 warnings/zero errors; --lookup-stream-4 passed the existing independent native90-pointer ordered-domain proof, all540 original text/index words and absent/unaligned identity rejection. No exploratory gameplay or new unrelated fixture was added. No ResourceAudit source hash reference was found for this catalog.
+- Managed consumer confirmation: RoomEnemySystem.InitializeSlot publishes ReadSpawnNameWords(definition) into RoomEnemySpawnSnapshot.NameWords; the reader returns the compiled words (or fixture data) opaquely. RoomEnemyData defines only Word0..Word4 and Word6. Static production usage has no character parsing into AI or physics. Coordinator independently confirmed both native copy instructions and these managed consumers before approving the exact lexical boundary.
+
+## Integrated Spore Spawn collision components
+
+Frames is complete: dead/closed roots select a single zero-offset head; seven opening roots advance the head layout and oscillate the inner point through B/C/D/C; three fully-open roots hold the final head and cycle B/C/D. Native A5:EE65-EEE5 and EF3D-EF61 establish component count, order, zero offsets and list identities. The intervening unused roots remain rejected. Lists remains unchecked; this does not exempt its hitbox coordinates or callback payloads.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-spore-collision confirms all 12 roots and 12 referenced lists, 2376 actual touch/shot comparisons against an independent native-data walker, source-read denial and invalid root/component boundaries. The obsolete generic runtime cartridge oracle was replaced with a fixture-only native walker; production execution stays guarded. Overall checkpoint: 510 converted, 15 justified retained/mixed, 603 pending.
+
+## Integrated room sprite program dispatch
+
+InstructionPointers is complete as meaningful program dispatch. Native B4:BC65-BC77 consumes the object-kind argument, selects its program at BDA8-BE23, installs that program and loads its initial timer. The switch preserves all 62 mutually exclusive native program identities, with source symbols and addresses documented on catalog members, including unused native programs. This is the permitted giant-case conversion; it does not exempt any program timing, visual selectors or artwork payloads.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-sprite-dispatch confirms all 62 native entries and actual guarded spawns, exact initial instruction/timer/visual, retained kind/position/graphics arguments and invalid selectors. Overall checkpoint: 511 converted, 15 justified retained/mixed, 602 pending.
+
+## Integrated title-card layout (partial)
+
+TitleSequenceInstructionDefinitions calculates progressive text addresses from cumulative two-byte OAM headers and two five-byte objects per letter. Explicit structural groups preserve Metroid's split lists around the unused debug copyright map and its blank-space reveal. Named scene triggers and deletion follow each card. Native 8B:A03D-A0C8 and the corresponding bank-8C lists establish the layout.
+
+Program remains unchecked: initial hold 60, reveal cadence 8, final holds 45/120 and logo hold 32 remain required independent values. The worker's full-conversion claim is not accepted; no timing or artwork exemption is granted.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-title-card confirms all 140 native bytes, 139 aligned/unaligned word windows, outer bounds and trailing partial-word rejection. Refreshed the cinematic source-audit hash; ResourceAudit builds with zero warnings/errors. Counts unchanged: 511 converted, 15 justified retained/mixed, 602 pending.
+
+## Integrated title sprite identities and Baby pages
+
+TitleSpriteDefinitions.Pointers is complete: enumerate the 31 distinct addresses in native sorted order directly from calculated title-card layouts, including copyright and logo, without caching a pointer table. TitleSequenceRomData.Vram.BabySourcePages is complete: min(frame, 4-frame) calculates the four-phase 0/1/2/1 source-page cycle. Pinned 8B:A131-A140 and the referenced DMA descriptors establish the cycle, page size and destination. Artwork and title program timing remain independently required.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-title-identities confirms the independently decoded set and order of all 31 native selectors, all four source pages, native DMA sizes/destinations and invalid phase boundaries. Both cinematic source hashes refreshed; ResourceAudit builds with zero warnings/errors. Overall checkpoint: 513 converted, 15 justified retained/mixed, 600 pending.
+
+## Integrated HUD digit calculation
+
+healthDigits and ammoDigits are complete: both native rows at 80:9DBF/9DD3 use cyclic glyph ordinal (digit + 9) % 10 with palette-three and priority bits. Stock catalogs store no digit words; only independently edited words are retained, separately for health and ammunition. Glyph pixels remain independently required. This integration excludes the queued HUD-anchor conversion.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-hud-digits confirms all 20 native words, all ten numerals through actual two-place health and three-place ammunition drawing, zero stock entries, separate edited palettes surviving serialization with one override each, unchanged neighboring digits and invalid-digit rejection. Presentation source hash refreshed; ResourceAudit builds with zero warnings/errors. Overall checkpoint: 515 converted, 15 justified retained/mixed, 598 pending.
+
+## Integrated HUD anchor geometry
+
+EnergyTankByteOffsets, ItemByteOffsets, autoAnchors and energyTankAnchors are complete. Fourteen tanks occupy two seven-cell rows, bottom first; item offsets follow the three-cell missile icon then two-cell icons with blank gaps; AUTO occupies two columns over three rows. Native 80:9CCE-9CE9, 9D6E-9D77 and destination stores 9B64-9B87 establish those layouts. Installed catalogs retain only independent position edits. Artwork, icons and AUTO cell payloads remain separate required entries.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-hud-anchors confirms 14 tank/five item offsets, six native AUTO destinations, extracted tank positions, actual drawing/clearing, zero stock anchors, four serialized position overrides, unchanged neighbors, overlap rejection and bounds. Removed span APIs have no remaining source consumers. Presentation source hash refreshed; ResourceAudit builds with zero warnings/errors. Overall checkpoint: 519 converted, 15 justified retained/mixed, 594 pending.
+
+## Integrated AUTO cell reflection and palette (partial)
+
+GameplayHudPresentation.autoFull and autoEmpty remain unchecked. Native 80:998B-99A1 derives the bottom row by vertical reflection of the top row and empty-state cells by toggling palette bit 12. Eight cells now calculate from four independent full-state glyph/style words; those four words remain required without exception. Independently supplied edits retain exact values for both states and all neighbors.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-hud-auto-cells confirms all 12 native cells through actual drawing, four stored basis words with zero stock overrides, serialized independent palette/tile/flip/priority edits, all unchanged neighbors and invalid cell bounds. Presentation hash refreshed; ResourceAudit builds with zero warnings/errors. Counts unchanged: 519 converted, 15 justified retained/mixed, 594 pending.
+
+## Integrated fly identities and escape effect cases
+
+FlyVisualDefinitions.Frames / literal at L15 is complete: four consecutive seven-byte single-object OAM records at A2:B1E8-B203 calculate the frame identities and preserve editable names. Independent OAM artwork remains required.
+
+ZebesEscapeExplosionDefinitions.Definitions remains unchecked. Named effect cases preserve the 8F:C1D6/C1DE sprite/sound pairs and group repeated effects, but bucket weights/order and the two sound-bearing choices remain independent required inputs. The worker's claim that both entries were complete is not accepted. No retention exception is granted.
+
+Root Verification build passed with 1445 warnings and zero errors. --lookup-stream4-fly-escape confirms all four fly addresses against native instruction operands, bank/names/one-object counts, all 16 escape bytes and 128 actual random/inherited spawn handoffs with positions, sounds, source-read denial and invalid domains. Overall checkpoint: 520 converted, 15 justified retained/mixed, 593 pending.
+
+## Integrated Skultera mirrored layouts
+
+PresentationWords is complete: paired swimming/turning blocks calculate 32 control positions and 22 visual addresses using native record widths at A3:902A-9095. Layer callbacks, loop targets, turn-completion callback and sleep retain their named behaviors. Words remains unchecked: swimming hold 14 and four turn-half holds 13/10/8/6 remain required independent inputs. Mirroring removes repetition without excusing those inputs; the worker's corrected timing treatment is included, and root review also tracks swimming cadence. No exception is granted.
+
+Root Verification build passed with 1445 warnings and zero errors. --skultera-instruction-mechanics confirms all 32 native words, both swimming loops and turns, layer/completion callbacks, terminal sleeps, 22 compiled visual selectors, source-read guards, bounds and allocations. Overall checkpoint: 521 converted, 15 justified retained/mixed, 592 pending.
+
+## Integrated Spore Spawn projectile layout
+
+PresentationWords is complete: native 86:DC00-DC58 record widths and callback boundaries calculate 28 control positions and 17 visual addresses for ceiling emitter, release, airborne spore, stalk and shot/drop programs. Words remains unchecked. Release holds 1/6/16/6/1, shot holds 1/3/6/5/5/5/6, closed-emitter hold 1 and airborne/stalk holds 5 remain required independent inputs. Includes the worker's timing correction and root's explicit tracking of the fixed holds. No exception is granted.
+
+Root Verification build passed with 1445 warnings and zero errors. --spore-spawn-projectile-instruction-mechanics confirms all 28 native words, all three real producers, release/loop/shot instruction paths, spawn/drop/property callbacks, all 17 actual presentation operand selections, zero source reads, bounds and allocations. The path fixture advances timers explicitly; this confirms instruction selection and native duration words, not a separate elapsed-time simulation. Overall checkpoint: 522 converted, 15 justified retained/mixed, 591 pending.
+
+## Integrated Stoke and Skree/Metaree layouts
+
+Four presentation-address entries are complete: Stoke (12), Stoke projectile (2), Skree (11) and Metaree (11). Direction/species block structure, timed-record widths, named callbacks, loop targets and sleep tails calculate their positions. Native A2:8932-897D, 86:DB0C-DB17, A3:8910-894D and C65E-C69B establish the layouts.
+
+All four mechanics entries remain unchecked. Stoke walking holds 8/16/8/8 and attack holds 16, projectile cadence 16, and shared Skree/Metaree idle 10, preparation 16/8, dive 2 and stop 1 remain required independent inputs. The worker's walking-timing correction is included; root review also keeps the fixed cadences open. Four entries complete, not the worker's original eight. No exception is granted.
+
+Root Verification build passed with 1445 warnings and zero errors. Focused stoke-instruction-mechanics, stoke-projectile-instruction-mechanics and skree-metaree-instruction-mechanics checks pass: 26/4/40 native control words, all directional walks/attacks/spawns and projectile loops/deletion, all eight Skree/Metaree programs and callbacks, 36 compiled presentation selections, guards/bounds/allocations. Projectile path checks explicitly advance timers and do not claim separate elapsed-time simulation. Overall checkpoint: 526 converted, 15 justified retained/mixed, 587 pending.
+
+### Root correction: Baby Turtle crawl timing remains required
+
+Reopened `MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202`. Removing its factory and repeating a scalar did not resolve the chosen ten-tick duration: TryCrawl returns10 for fields2/6 in each ten-byte record. Native A2:8B82/8B86 through8BC8/8BCC and8C74/8C78 through8CBA/8CBE retain32 such samples. Structure/presentation conversions remain intact, but this timing entry has no accepted derivation or impossible/nonsense disposition. No gameplay code changed for this correction.
+
+### Root integration: Oum collision-list addresses
+
+List pointers now derive from the first native record and successive record extents: two-byte rectangle count plus twelve bytes per rectangle. No replacement list-pointer or rectangle-count array is introduced. Lists geometry/callback payload remains required. The pre-existing FrameKeys cache and builder are also removed: an immutable view calculates the ten-byte frame stride on access without changing current consumer bindings.
+
+Root build passed (1445 warnings, zero errors). `--lookup-stream-4-oum-layout` confirms all30 native frame operands, all66 selected rectangle coordinates/touch/shot callbacks, enumeration coverage, calculated frame-index boundaries and complete ushort address rejection. This confirms selection/data identity, not gameplay collision behavior. ListPointers is complete; no retention exception added. Inventory:534 converted,15 justified retained/mixed,579 pending.
+
+### Root integration: elevatube export enumeration and Ridley timing correction
+
+AllDraws now yields its single export definition without storing a wrapper lookup. Draw remains required for visual block180. The source closure hash is refreshed. Root final Verification rebuild passed25warnings/zero errors after correcting a verifier method-name typo; ResourceAudit passed0/0. `--lookup-stream-4-elevatube` passes native delay/draw/sound/delete, source guards, independent artwork edits, physical/sound isolation, stock repair and invalid input checks.
+
+Ridley PartRecords is reopened: equal-sized initializer addresses and part parameters derive correctly, but tail lifetime base72, shared step8, body base40 and torso128 are independent choices without an accepted disposition. Prior claims that all columns were complete are removed. This status correction changes no gameplay values. One completion and one reopening leave534 converted,15 justified retained/mixed,579 pending.
+
+### Root integration: procedural Ridley breakup spawning
+
+The native A6:C932-C986 sequence is executable spawning: tail tip inward, then Wings, Legs, Torso, OpenHeadAndNeck and Claw. Runtime allocation remains inside each ordered call, preserving partial failure, RNG assignment and the one-shot guard. No replacement spawn-order array is retained. PartRecords lifetime inputs72/8/40/128 remain required; their earlier reopening is unchanged.
+
+Root build passed (1445 warnings, zero errors). `--lookup-stream-4-breakup-order` passes the native twelve-call order, original32 fragment initializations and ten actual death-effect spawns, plus full/partial/empty pool cases, exact RNG-to-fragment assignment, native lifetimes and no repeated allocation/RNG after success or failure. Expected allocation failures are caught inside the fixture. SpawnOrder is complete with no retention exception. Inventory:535 converted,15 justified retained/mixed,578 pending.
+
+## Batch 63: Baby capsule reflected transfer phase
+
+One definition converted: 109 wholly converted, one mixed, one retained, 114 unchecked. Transfer artwork and other animation timing/content fields remain independent and are not completed by this change.
+
+- Removed the runtime four-pointer array. Granted CeresMode7TransferDefinitions.BabyFrameForPhase calculates the reflected ordinal min(phase, 4-phase) across the three consecutive, equally sized two-transfer records. The caller retains its exact NMI gate and advances/masks the phase before selecting the transfer.
+- Native evidence: A6:ACBC..ACD9 gates on NMI&3, increments then masks the stored phase, and selects pointers ACDA..ACE1. These are ACE2, ACF5, AD08, ACF5. Each record contains two nine-byte low-byte VRAM descriptors and its zero terminator. The calculation preserves the 0,1,2,1 reflected phase without a replacement pointer lookup.
+- Confirmation: Verification build 1433 warnings/zero errors; --lookup-stream-4-baby-phase passes all four native identity operands and invalid-domain rejection. A focused invocation of the actual getaway handler across one 16-NMI cycle confirms advance-before-select, unchanged phase on other NMIs, exact four Baby tilemap bytes from original transfer descriptors, and preservation of character high bytes. Palette assets are supplied explicitly and the runtime bus denies cartridge reads. No other timing or transfer payload is exempted.
+- No ResourceAudit source-hash reference was found for either changed production file. The only newly granted path is csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs; its existing transfer arrays/content are untouched.
+
+## Batch 66: one shared Ridley tail rest geometry
+
+One duplicate mapping converted: 110 wholly converted, one mixed, one retained, 113 unchecked. CreateInitialRidleyTailSegments/distances remains required for three chosen base/shaft/tip lengths, and maximumDistances remains required separately.
+
+- Initialization and shrink thresholds now consume RidleyTailDefinitions.RestDistance. It selects the physical base, five shaft links or tip and returns their shared rest separation. Removed both repeated seven-element local arrays; the three chosen lengths2/8/5 pixels are explicitly documented required inputs, not claimed as calculated or exempt.
+- Native evidence: A6:D37C..D389 installs seven8.8-pixel separations0200/0800/0800/0800/0800/0800/0500. The six shrink instructions load exactly the matching initialized separations at CF7F, CFB5, CFEB, D021, D057 and D08D. The base is excluded from updates. This establishes the neutral mapping as a functional alias of initial rest geometry; it does not explain or exempt the three chosen lengths.
+- Confirmation: Verification build 1433 warnings/zero errors; --lookup-stream-4-tail-rest passes all seven native initialized distances and six independently read shrink immediates, plus the existing initial angle/direction/stagger checks. Actual updater checks preserve below/equal/above threshold behavior, subtraction by native half-pixel decrement, unchanged base, and the existing ordering that clears a passed target then still extends/clamps on that frame. Invalid rest indices preserve IndexOutOfRangeException.
+- No ResourceAudit source-hash reference was found for the three changed production files. The separate maximum-distance array and all independent angular/movement parameters are unchanged.
+
+## Batch 67: calculated Japanese subtitle placement
+
+One layout definition converted: 111 wholly converted, one mixed, one retained, 112 unchecked. EndingFontAtlas.transfer remains required; this change does not exempt the chosen Japanese phrase or its character pixels.
+
+- New granted EndingTextLayoutDefinitions calculates a centered thirteen-glyph strip across two32-cell screen rows. The first five glyphs occupy trailing atlas columns5B..5F/6B..6F; the continuation starts after the copyright digit pair at80/90. Lower halves are one atlas row beneath the tops. Other screen cells use the existing blank identity.
+- EndingTextPresentation no longer stores the64 stock cell words. SubtitleSequence calculates indexing/enumeration and copies cells directly to the consumer's tilemap; only independent supplied differences remain in a sparse override dictionary. The sole existing frontend CopyTo call compiles unchanged. Source document hashing remains identical, and supplied raw words retain their previous unrestricted ushort behavior.
+- Native evidence:8C:DF5B..DFDA contains the caption identified by the source as アイテム発見パーセンテージ. Top words atDF6D..DF85 are5B..5F then80..87; bottom words are6B..6F then90..97. These identities follow the16-tile atlas width, the first partial row, and continuation after the copyright digit pair. The phrase occupies columns9..21, exactly floor((32-13)/2), with blank4F elsewhere. Selection of the phrase artwork remains distinct from calculating its placement and atlas traversal.
+- Confirmation: Verification build1433 warnings/zero errors; --lookup-stream-4-ending-subtitle passes all64 original words, indexed bounds, enumeration, copy length/untouched suffix and failure-before-write for short output. Targeted edits cover a blank, first glyph, atlas-wrap glyph and lower half while preserving all other cells and the original catalog. The actual installed ending state draws each version to its tilemap and VRAM with cartridge reads denied, then clears it and preserves completion/scroll handoff. No native-constructor replay or unrelated ending behavior was used.
+- Closure dependency: ResourceAudit/TextAndMapClosedContractDefinitions.cs references EndingTextPresentation.cs; refresh its source hash and include the new EndingTextLayoutDefinitions.cs calculation dependency centrally. No other ResourceAudit source-hash reference was found.
+## Batch 68: direct stock calculation proof and producer-panel decomposition
+
+Partial resultPanel conversion only; counts stay 111 wholly converted, one mixed, one retained, 112 unchecked. This batch also corrects batch67's subtitle atlas traversal before coordinator integration.
+
+- Reproduced an incomplete subtitle calculation: direct comparison at the continuation expected tile80 but got70. The independently supplied override mechanism had preserved visible output by storing sixteen native stock words, so the prior output-only confirmation did not establish a fully calculated layout. The corrected operation consumes five glyphs from the partial5B row, then continues after the copyright digits' two rows60/70 at80. Top/bottom halves retain their16-tile spacing. Source/report wording now describes that actual packed layout.
+- Both subtitle and result-panel checks now compare calculated defaults directly with original ROM cells and assert zero stock overrides. The corrected subtitle calculation passes all64 words without sampled fallback values. This is a conversion-proof correction, not a gameplay-output fix; stock output had remained exact.
+- resultPanel's288 cached words are replaced by calculated centered credit lines and sparse supplied edits. Glyph height determines line stacking, lower halves use the existing glyph compiler, and arbitrary non-heading template edits remain independent. The supplied PRODUCED BY field retains its fixed original eleven-cell region, padding and precedence over raw template cells.
+- Remaining resultPanel inputs are explicit: the supplied chosen heading text (stock PRODUCED BY), chosen labels DEER FORCE, OF and TEAM SHIKAMARU, one blank row between lines, and BG palette identities6/7 for the two large labels. No impossible/nonsense exemption is claimed yet for those lexical/style choices. Font artwork remains separately required.
+- Native evidence:8C:DC9B..DEDA places PRODUCED BY on row0, DEER FORCE on rows2/3, OF on row5 and TEAM SHIKAMARU on rows7/8. Small/large heights are1/2, all four lines are horizontally centered, and one blank row separates successive lines. Native8B:E19F..E1B1 copies all240hex bytes opaquely into the cinematic tilemap; managed EndingCreditsState.cs273 copies BuildResultPanel into its post-credit tilemap before upload.
+- Confirmation: final incremental Verification build1218 warnings/zero errors; --lookup-stream-4-ending-panel passes all288 directly calculated producer-panel words and64 directly calculated subtitle words, with zero stock overrides in both catalogs. Targeted blank/top/bottom/team edits, supplied short heading with conflicting template content, output snapshot mutation and complete source identity remain correct. Corrected subtitle tests also retain independent edits and actual installed draw/VRAM/clear/scroll behavior with cartridge reads denied.
+- Integrate this correction with479318ecb before publishing subtitle completion. TextAndMapClosedContractDefinitions still requires both EndingTextPresentation and the new EndingTextLayoutDefinitions dependency hashes; no other closure source references were found.
+
+## Batch 69: sparse-default proof audit and exact beam basis
+
+Verification-only follow-up; no additional completed entries or production changes. Counts remain 111 wholly converted, one mixed, one retained, 112 unchecked.
+
+- After the subtitle fallback masking was identified, statically reviewed the previous owned sparse-default confirmation methods. Lightning, Tourian grey, title gradient/ambient, Draygon, Botwoon, Power Bomb, HUD anchors/digits/AUTO and Zebes ambient/layer/foreground/whiteout already assert zero stock overrides or the exact independently required stored-basis size/membership. Their existing output comparisons therefore do not silently permit arbitrary extra fallback samples. No unrelated gameplay checks were added or run.
+- BeamPaletteCatalog's earlier proof compared selected output and independent edits but lacked its stated basis-storage assertion. Added exact count43 and membership for the documented Power/Ice/Wave/Plasma/Spazer basis: Power0..8/15; Ice2..15; Wave/Plasma2..5/7/8/15; Spazer2..4/8/15. Thus the other149 selected colors cannot remain as stored stock fallback samples.
+- The initial new membership oracle accidentally swapped raw Wave/Ice selector numbers; replaced those literals with the existing named SamusBeamFlags identities (Wave1, Ice2). The count43 assertion already passed before that fixture correction; no production values or formula changed.
+- Confirmation: final incremental Verification build25 warnings/zero errors; --lookup-stream-4-beam-basis passes exact stored basis plus all192 original selected colors, existing independent input/alias/midpoint/black-slot edits, immutable original catalog, selected CGRAM isolation and bounds. The43 chosen color inputs remain explicitly required; this is proof of the claimed partial conversion, not an artwork exemption.
+- Coordinator approved a brief rotation to the isolated Stream1 worktree for the analogous arm-cannon zero-stock-override assertion, preserving this Stream4 checkpoint.
+
+### Integrated producer-credit spacing and lexical review
+
+The nine-row panel distributes remaining rows after two small and two large glyph lines across three gaps. Direct confirmation matches all288 native cells with zero stock overrides. Exact PRODUCED BY / DEER FORCE / OF / TEAM SHIKAMARU wording is narrowly retained as chosen lexical identity: the native consumer copies the glyphs without interpreting them. Palette6/7 and font pixels remain required; resultPanel stays unchecked. Worker commits e1306d8de and4c62bd5fe; root build1445 warnings/zero errors and focused ending-panel confirmation passed. Inventory remains548 converted,16 justified retained/mixed,564 pending.
+
+### Integrated Spore Spawn fade calculations and shared coloring
+
+The sprite fade calculates96 intermediate RGB5 words between its critical-health alias and16 final colors. Background calculates96 words from13 original room-color sites and16 final colors. Level calculates72 words from12 room-color sites, retaining28 unresolved trajectory words and12 other final colors. All25 room sites remain required under RoomStaticPalette.nativeBytes, all64 health words remain required, and all72 stored death words remain required. These are partial conversions without exemptions. The16 spore colors alias healthy row0 with zero stock overrides, completing only SporeSpawnColorCatalog.spores.
+
+Root reviewed native A5:E8CA/E91C layer-copy consumers and confirmed all native values, exact dictionary membership, initial room colors, independent edits, bounds and canonical identities with --lookup-stream-4-spore-fade. Verification build1445 warnings/0errors; ResourceAudit0/0. Worker chain206efcee,48084c6d,d20ada86,c0d031b3,3586276c. Aggregate549 converted/16 retained-mixed/563 pending. Corrected stale JSON aggregate counters from authoritative per-entry states.
+
+## Integrated calculated beam tile artwork
+
+Partial chain a688b01dd,26f45f27d,4c6fcce67,df4bd76d9,a534adf4e,f424d0bee,033e34f77. Selection-aware atlases calculate transpose/quarter-turn/reflection, transparent regions, repeated ribbon/impact rows and exact shared tiles/families. Native transfer is eight tiles/256bytes per selection; the unused second half of each512-byte incbin is outside this upload. Runtime materializes DMA bytes from inputs and relationships without caching expanded stock. Independent supplied pixels remain independent across aliases and beam selections.
+
+Root independently viewed the native five-family tile sheet and checked90:C441/C451 palette and transfer consumers. Only five Plasma tile0 pen assignments are retained: row3 x0/1/3=4/2/15(edge base/highlight/shadow),row4 x0/1=5/3(center highlight/mid). Native plane bytesF806/07/16/17=11/55/BB/11 andF808/09/18/19=FF/55/AA/00 establish those values. They select painted pixel classes, not samples of a quantity determining pen numbers; arithmetic fitting would re-encode the painting. This exception excludes RGB colors,profile widths/periods/phases and every other pixel.
+
+Runtime retains1227 unresolved pixel sites,4912 derived/shared sites and5 narrowly justified pen roles. BeamTileAtlas remains unchecked. Root Verification build1446warnings/zero errors; --lookup-stream-4-beam-geometry passes all3072native transfer bytes,exact basis/seed membership,independent edits and300 actual queued NMI drains with cartridge reads denied and adjacent VRAM preserved. Source hash dependencies refreshed including native beam flags; ResourceAudit0/0. Inventory unchanged558 converted/21 retained-mixed/549 pending.
+## Integrated Spazer diagonal exterior
+
+0be87bd7c calculates104transparent exterior pixels from the diagonal band's geometry. Native band lead1,width3 and24interior ink pixels remain required inputs; this is a partial conversion, not an artwork exemption. Runtime beam basis is1123pixels plus the five previously reviewed categorical Plasma pen assignments;5016pixels are calculated/shared. Both aggregate artwork entries remain pending.
+
+Root Verification1446warnings/zero errors; focused beam geometry confirms3072native bytes,exact1123basis and transparent domain,independent edits,348actual queued NMI drains,readguard/bounds/adjacent VRAM. ResourceAudit0warnings/0errors. Inventory unchanged558converted/21retained-mixed/549pending.
+## Integrated ending shake calculation and native sign correction
+
+95e889c61 replaces fast/slow stored shake samples with named fixed-point amplitudes and repeated directional runs. Static inspection found the existing fast samples9/11 had reversed signs; pinned8B:DD26/DD2E and the supported ROM require+32768/-32768. Production uses the same index-before-increment,16/8-step masks and fractional carry/borrow. This first-pass source correction was mechanically identified; focused confirmation compares all24native signed values and17fast/9slow actual updates, including the corrected positions and wrap.
+
+Root Verification1446warnings/zero errors; --lookup-stream-4-ending-shake passes native revision,values,production positions,indexwrap,carry/borrow,readguard and bounds. Both table entries remain pending: two amplitudes and five directional-run inputs still require conversion or acceptable justification. No retention approved; inventory unchanged558converted/21retained-mixed/549pending. The visual correction awaits player confirmation.
+## Integrated Spazer projection from shared composition origins
+
+1055a3c88 plus shared dependency0f569e5c3 replaces independent diagonal lead1/width3 with45-degree pixel-center projection. Native D10E first H-flipped pair starts(-14,0) and spans16pixels; raw pixel(u,y) projects normal distance(2-u+y)/sqrt(2). Testing against half the same horizontal ribbon thickness2 produces the native diagonal exterior. Horizontal coverage uses its centered8px-cell originY=-4.
+
+Diagonal origins(-14,0) remain required under ProjectileSpriteCatalog.frames; horizontal thickness2 remains required under BeamTileAtlas. Neither is inferred from the resulting mask. Interior pens/other artwork remain pending. Independent sprite and PNG edits retain their separate semantics. No new retention or aggregate completion;1123required beam pixels and558converted/21retained-mixed/549pending remain unchanged.
+
+Root Verification1446warnings/zero errors; focused beam geometry passes direct native origin/flip/glyph-order assertions,3072native upload bytes,exact pixel domain/basis,independent edits and348actual NMI drains with readguard/bounds/adjacentVRAM. ResourceAudit0warnings/0errors; all three beam source closures include the shared coordinate dependency.
+## Integrated repeated Spazer and wide-ribbon textures
+
+3bb98b2db and f37e579b7 calculate22repeated/reflected Spazer samples and8opposite-edge wide-ribbon samples. Horizontal Spazer highlights reflect cyclically; diagonal texture mirrors its first six rows with a repeated tail. Wide-ribbon lower side rows derive from upper partners with the selected two-pixel shift. Runtime basis1093required pixels,5046calculated/shared pixels and five previously reviewed Plasma pen assignments.
+
+Highlight phase2,diagonal pulse extent6,ten Spazer seed pens,wide-ribbon opposite phase2,thickness,origin,colors and other art inputs remain required. No new exemption or aggregate completion. Historical worker Batch82 prose understated tile4's then-required basis: it was27samples after37derived pixels, and this batch reduces it to19. Prior storage assertions were correct; this corrects only that report wording.
+
+Root Verification1447warnings/zero errors; --lookup-stream-4-beam-geometry passes3072native bytes,exact1093basis membership,independent edits and456actual queued NMI drains/readguard/bounds/adjacentVRAM. ResourceAudit0warnings/0errors. Inventory unchanged558converted/21retained-mixed/549pending.
+## Integrated Maridia palette program layout
+
+532abaf1c replaces three cached definition records with sand-pit,sand-fall and waterfall semantic owner cases. Definition identities,setup entries,timed-record strides,color addresses,loop opcodes and following-program starts calculate from native record layout. All enumeration/order and runtime bindings remain supported.
+
+Selected sand/waterfall cadence10/2,rotation group sizes4/8,sand-pit band count2,palette slots2/3 and starting colors4/8/4 remain required inputs. Actual waterfall operand0068 means palette3/color4; a conflicting pinned-source comment is not used as the behavioral oracle. Color payloads remain separately pending. No exception or aggregate closure; inventory558converted/21retained-mixed/549pending unchanged.
+
+Root Verification1447warnings/zero errors; --lookup-stream-4-maridia-palette passes supported ROM revision,three native programs,44mechanics words,112color identities,all three complete production loops,index bounds and cartridge-read guards. No ResourceAudit source-hash reference exists for this source. Only1165 remains in-progress.
+## Integrated Ceres alarm return reflection
+
+93a5260f6 calculates the seven return rows of nativeA6:C1DF-C23E from rows7..1, replacing21duplicate words. Nine forward rows retain27required color inputs. Independently supplied source or return edits remain independent; legacy documents share the immutable validated alarm data.
+
+Root Verification1448warnings/zero errors; --lookup-stream-4-ceres-alarm passes48native colors,direct reflection,exact27stored keys with no stock return overrides,all48independent edits,784actual CGRAM row writes,adjacent colors,both legacy versions and bounds. ResourceAudit0warnings/0errors; closure includes the new helper and updated bounds/installed-data description.
+
+Alarm colors,other fades and all independent palette choices remain required. No new retention or aggregate closure; inventory558converted/21retained-mixed/549pending unchanged.
+## Integrated exact Ceres fade subset
+
+fb2d6faa8 calculates189of224eye/body fade words by flooring each RGB5 endpoint channel times the native phase over15intervals. Required basis is14endpoint words plus21deviations, stored separately from independent edited fallbacks. Stock override count is zero; this is not a claim that the full fades are solved.
+
+Required eye deviations: A6:E2B0/E2EE/E2FC/E300. Required body deviations: A6:E33A/E362/E36C/E36E/E3A8/E3BC/E3C4/E404/E410/E436/E438/E440/E444/E446/E448/E44E/E450. Endpoints are E2AA-E2AE and E454-E468. A formula mismatch is not a nonsense justification; all these inputs remain unresolved. No aggregate closure or new retention;558converted/21retained-mixed/549pending unchanged.
+
+Root Verification1450warnings/zero errors; --lookup-stream-4-ceres-fades passes224native words,exact7eye/28body basis memberships,zero stock overrides,all224independent edits,3616actual row applications including both body destinations,immutability and bounds. ResourceAudit0warnings/0errors; closure includes the new fade helper and describes calculated versus required inputs.
+## Integrated PLANET ZEBES text fades
+
+d51e16626 replaces stored program definitions with semantic owner cases and calculates 45 of 48 color words by nearest RGB5 interpolation over seven intervals, reversing phase for fade-out. Three bright endpoints at 8D:C95A/C95C/C95E remain required, together with cadence3, level count8, color count3, palette8 and first color1. Independent supplied edits retain precedence. No retention exception or aggregate completion is claimed; inventory561converted/21retained-mixed/546pending unchanged.
+
+Root Verification1450warnings/zero errors; --lookup-stream-4-planet-text passes38native mechanics words,48native colors,exact three stored endpoints,all48independent edits,both actual installed one-shot fades,enumeration and bounds. No ResourceAudit source-hash references exist for the changed sources.
+
+## Integrated Maridia color rotations
+
+2f26a6ab9 calculates96of112color words from16required first-row colors. Sand-pit bands rotate in groups of four, sand falls reuse the lower band, and waterfall colors rotate in groups of eight. Independent supplied color edits remain independent across source/rotated/shared sites. All16colors and the previously identified timing/layout inputs remain required; no exemption or aggregate closure. Inventory560converted/21retained-mixed/547pending unchanged.
+
+Root Verification1450warnings/zero errors; --lookup-stream-4-maridia-colors passes112native colors,exact16source keys with zero stock fallbacks,112independent edits,unique enumeration,bounds and three actual installed cycles with zero live color reads.
+
+## Integrated ending-font spaces and outline subset
+
+78c4badfa,e9d4c5138 and6f4db084a calculate semantic space tiles4F/7F plus eight-neighbor outlines clipped to the native small8x8 and large8x16 letter/digit cells. Combined4339outline/background/space sites derive from2026required footprint positions. Another3875required pixels include35explicit deviations; selected pens1/2 and outline width1 remain required. Shape,ink,width and mismatch inputs have no retention exception. EndingFontAtlas.transfer remains pending;562converted/21retained-mixed/545pending unchanged.
+
+Small deviations are K0A:(3,0)/(7,4),M0C:(4,1),Z19:(7,3). Large deviations are B21:(5,2),(6,3),(7,4),(7,7),(7,8),(7,13),(6,14);D23:(6,3),(7,5),(7,11),(6,13),(5,14);G26:(4,6),(4,10);J29:(0,13),(7,13),(1,14),(6,14);K2A:(5,2),(4,3),(5,8),(6,9),(7,10);Q40:(7,3);R41:(7,10),(7,11);S42:(7,13),(1,14),(6,14);V45:(6,11),(2,14). These predicates identify supplied required sites; they do not emit or exempt their values.
+
+Root viewed the native atlas. Final Verification incremental build25warnings/zero errors after correcting the selectively imported verifier namespace; preceding production compilation had1450warnings. --lookup-stream-4-ending-font-outline passes5120native bytes,direct pixels,exact2026footprints/3875pixel keys/all35deviations,6401independent native-bit edits,immutable stock,native-planar imports and bounds. No direct ResourceAudit source-hash dependency exists. Transfer API and supplied PNG edits remain supported.

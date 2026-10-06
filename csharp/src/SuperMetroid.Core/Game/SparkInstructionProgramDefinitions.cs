@@ -22,46 +22,63 @@ internal static class SparkInstructionProgramDefinitions
     /// <summary><c>$A8:E609</c>, stationary falling-spark emitter loop.</summary>
     internal const ushort Emitter = 0xe609;
 
-    private static readonly SparkInstructionMechanicsWord[] Words =
-    [
-        new(0xe5a7, 0xe62a),
-        new(0xe5a9, 0x0001), new(0xe5ad, 0x0002), new(0xe5b1, 0x0001),
-        new(0xe5b5, 0x0002), new(0xe5b9, 0x0001), new(0xe5bd, 0x0002),
-        new(0xe5c1, 0x0001), new(0xe5c5, 0x0001), new(0xe5c9, 0x0002),
-        new(0xe5cd, 0x0002),
-        new(0xe5d1, 0x0003), new(0xe5d5, 0x0003), new(0xe5d9, 0x0003),
-        new(0xe5dd, 0x0003), new(0xe5e1, 0x80ed), new(0xe5e3, 0xe5d1),
-        new(0xe5e5, 0x0001), new(0xe5e9, 0x0001), new(0xe5ed, 0x0001),
-        new(0xe5f1, 0x0001), new(0xe5f5, 0x0001), new(0xe5f9, 0x0001),
-        new(0xe5fd, 0x0001), new(0xe601, 0x0001),
-        new(0xe605, 0xe61d), new(0xe607, 0x812f),
-        new(0xe609, 0x0003), new(0xe60d, 0x0003), new(0xe611, 0x0003),
-        new(0xe615, 0x0003), new(0xe619, 0x80ed), new(0xe61b, 0xe609),
-    ];
+    /// <summary>$A8:E62A, Instruction_Spark_SetAsTangible clears IgnoreSamusCollision before activation.</summary>
+    private const ushort SetTangible = 0xe62a;
+    /// <summary>$A8:E61D, Instruction_Spark_SetAsIntangible sets IgnoreSamusCollision after deactivation.</summary>
+    private const ushort SetIntangible = 0xe61d;
+    /// <summary>$A8:E5A9/B1/B9/C1: four visible flashes, two each of flickering poses zero and one. Independently reviewed visual choreography: tangible before the sequence; lifetime uses a separate timer.</summary>
+    private const ushort ActivationFlashOnTicks = 1;
+    /// <summary>$A8:E5AD/B5/BD: empty spritemap between the first three flashes. Independently reviewed visual blank cadence; the nonzero empty-map pointer preserves the fixed collision box.</summary>
+    private const ushort ActivationFlashOffTicks = 2;
+    /// <summary>$A8:E5C5: shorter final blank before sustained activation. Independently reviewed final visual gap, without a gameplay callback.</summary>
+    private const ushort ActivationFinalGapTicks = 1;
+    /// <summary>$A8:E5C9/CD: successive poses two and three without an intervening blank. Independently reviewed sustained visual cadence before the continuous loop.</summary>
+    private const ushort ActivationSustainedTicks = 2;
+    /// <summary>$A8:E5D1-E5DD and E609-E615: reviewed three-tick continuous visual cadence. Both four-pose loops have no callbacks; separate function timers own lifetime and emission, and nonzero maps preserve fixed contact radii.</summary>
+    private const ushort ContinuousVisualCadence = 3;
+    /// <summary>$A8:E5E5-E601: every deactivation pose/blank interval advances after one tick; this choice and its later tangibility callback remain outside the activation exception.</summary>
+    private const ushort UnresolvedFlickerOutCadence = 1;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe5ab, 0xe5af, 0xe5b3, 0xe5b7, 0xe5bb, 0xe5bf, 0xe5c3, 0xe5c7,
-        0xe5cb, 0xe5cf,
-        0xe5d3, 0xe5d7, 0xe5db, 0xe5df,
-        0xe5e7, 0xe5eb, 0xe5ef, 0xe5f3, 0xe5f7, 0xe5fb, 0xe5ff, 0xe603,
-        0xe60b, 0xe60f, 0xe613, 0xe617,
-    ];
+    internal static int MechanicsWordCount => 33;
+    internal static int PresentationWordCount => 26;
+    internal static SparkInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index == 0) return new(FlickerOn, SetTangible);
+        if (index <= 10) return new((ushort)(FlickerOn + 2 + (index - 1) * 4), ActivationDuration(index - 1));
+        if (index < 17) return LoopWord(Active, index - 11);
+        if (index < 25) return new((ushort)(FlickerOut + (index - 17) * 4), UnresolvedFlickerOutCadence);
+        if (index < 27) return new((ushort)(FlickerOut + 32 + (index - 25) * 2),
+            index == 25 ? SetIntangible : CommonEnemyInstructionCodes.Sleep);
+        return LoopWord(Emitter, index - 27);
+    }
+    private static ushort ActivationDuration(int frame)
+    {
+        if (frame >= 8) return ActivationSustainedTicks;
+        if ((frame & 1) == 0) return ActivationFlashOnTicks;
+        return frame == 7 ? ActivationFinalGapTicks : ActivationFlashOffTicks;
+    }
+    private static SparkInstructionMechanicsWord LoopWord(ushort start, int index) => index < 4
+        ? new((ushort)(start + index * 4), ContinuousVisualCadence)
+        : new((ushort)(start + 16 + (index - 4) * 2), index == 4 ? CommonEnemyInstructionCodes.Goto : start);
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static SparkInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index < 10) return (ushort)(FlickerOn + 4 + index * 4);
+        if (index < 14) return (ushort)(Active + 2 + (index - 10) * 4);
+        if (index < 22) return (ushort)(FlickerOut + 2 + (index - 14) * 4);
+        return (ushort)(Emitter + 2 + (index - 22) * 4);
+    }
     /// <summary>Returns one fixed control word or rejects pointers outside the four programs.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            SparkInstructionMechanicsWord candidate = Words[middle];
+            SparkInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -79,9 +96,9 @@ internal static class SparkInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa80000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

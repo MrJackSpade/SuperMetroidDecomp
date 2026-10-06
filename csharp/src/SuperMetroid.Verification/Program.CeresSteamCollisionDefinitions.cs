@@ -64,9 +64,9 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(compiled, denied);
         var nativeSlot = new RoomEnemySlot(0);
         RoomEnemySlot compiledSlot = compiled.Slots[0];
-        nativeSlot.Definition = compiledSlot.Definition =
+        compiledSlot.Definition =
             default(RoomEnemyDefinition) with { Bank = CeresSteamCollisionDefinitions.Bank };
-        nativeSlot.EnemyDefinitionPointer = 0xffff;
+
         compiledSlot.EnemyDefinitionPointer = CeresSteamDefinitions.EnemyDefinition;
         AssertEqual(28, CeresSteamCollisionDefinitions.FramePointers.Length,
             "all Ceres steam extended frames have compiled collision");
@@ -77,7 +77,7 @@ internal static partial class Program
         int probes = 0;
         foreach (ushort frame in CeresSteamCollisionDefinitions.FramePointers)
         {
-            ReadOnlySpan<CeresSteamCollisionComponent> components =
+            CeresSteamCollisionDefinitions.ComponentSequence components =
                 CeresSteamCollisionDefinitions.ComponentsAt(frame);
             AssertEqual(1, components.Length,
                 $"Ceres steam $A6:{frame:X4} has one physical component");
@@ -92,15 +92,15 @@ internal static partial class Program
                 "Ceres steam native hitbox-list pointer");
             seenLists.Add(component.HitboxPointer);
 
-            nativeSlot.SpritemapPointer = compiledSlot.SpritemapPointer = frame;
+            compiledSlot.SpritemapPointer = frame;
             foreach ((ushort originX, ushort originY) in
                      new (ushort, ushort)[]
                      {
                          (0x0100, 0x0100), (0x0004, 0x0006), (0xfffc, 0xfffa),
                      })
             {
-                nativeSlot.XPosition = compiledSlot.XPosition = originX;
-                nativeSlot.YPosition = compiledSlot.YPosition = originY;
+                compiledSlot.XPosition = originX;
+                compiledSlot.YPosition = originY;
                 // Probe every rectangle boundary and the fully hidden frames.
                 // Shot and touch use different strict/inclusive comparisons.
                 ReadOnlySpan<CeresSteamCollisionHitbox> boxes =
@@ -115,15 +115,13 @@ internal static partial class Program
                 foreach (ushort y in ys)
                 for (int shot = 0; shot <= 1; shot++)
                 {
-                    object?[] nativeArguments =
-                        [nativeSlot, x, y, (ushort)0, (ushort)0, shot != 0, (ushort)0];
                     object?[] compiledArguments =
                         [compiledSlot, x, y, (ushort)0, (ushort)0, shot != 0, (ushort)0];
-                    bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
+                    bool nativeHit = NativeHit(frame, originX, originY, x, y, shot != 0, out ushort nativeCallback);
                     bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
                     AssertEqual(nativeHit, compiledHit,
                         $"Ceres steam $A6:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
-                    AssertEqual((ushort)nativeArguments[^1]!,
+                    AssertEqual(nativeCallback,
                         (ushort)compiledArguments[^1]!,
                         $"Ceres steam $A6:{frame:X4} callback {x:X4},{y:X4}, shot={shot}");
                     probes++;
@@ -164,6 +162,34 @@ internal static partial class Program
         ushort ReadWord(int address) => (ushort)(
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
 
+        // Decode the original cartridge independently: the production ROM fallback no longer exists.
+        bool NativeHit(ushort frame, ushort originX, ushort originY, ushort x, ushort y,
+            bool shot, out ushort callback)
+        {
+            callback = 0;
+            int component = 0xa60000 | frame + 2;
+            ushort componentX = unchecked((ushort)(originX + (short)ReadWord(component)));
+            ushort componentY = unchecked((ushort)(originY + (short)ReadWord(component + 2)));
+            int list = 0xa60000 | ReadWord(component + 6);
+            for (int index = 0; index < ReadWord(list); index++)
+            {
+                int record = list + 2 + 12 * index;
+                ushort left = unchecked((ushort)(componentX + (short)ReadWord(record)));
+                ushort top = unchecked((ushort)(componentY + (short)ReadWord(record + 2)));
+                ushort right = unchecked((ushort)(componentX + (short)ReadWord(record + 4)));
+                ushort bottom = unchecked((ushort)(componentY + (short)ReadWord(record + 6)));
+                bool hit = shot
+                    ? unchecked((short)(x - left)) >= 0 && unchecked((short)(x - right)) < 0 &&
+                      unchecked((short)(y - top)) >= 0 && unchecked((short)(y - bottom)) < 0
+                    : unchecked((short)(left - x)) < 0 && unchecked((short)(right - x)) >= 0 &&
+                      unchecked((short)(top - y)) < 0 && unchecked((short)(bottom - y)) >= 0;
+                if (!hit)
+                    continue;
+                callback = ReadWord(record + (shot ? 10 : 8));
+                return true;
+            }
+            return false;
+        }
         static ushort[] BoundaryPoints(ushort origin, short low, short high) =>
         [
             unchecked((ushort)(origin + low - 1)),

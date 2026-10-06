@@ -1,10 +1,633 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1NonBeamProgramLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var expected = new Dictionary<int, ushort>();
+        for (int cursor = 0x939ebb; cursor < 0x93a1a1;)
+        {
+            if (cursor == 0x93a117) { cursor += 2; continue; }
+            ushort command = Word(cursor);
+            expected.Add(cursor, command);
+            if ((command & 0x8000) == 0)
+            {
+                expected.Add(cursor + 6, Word(cursor + 6)); cursor += 8;
+            }
+            else if (command == 0x822f) cursor += 2;
+            else
+            {
+                AssertEqual((ushort)0x8239, command, "Native NonBeam terminal is Goto");
+                expected.Add(cursor + 2, Word(cursor + 2)); cursor += 4;
+            }
+        }
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
+        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
+        for (int address = 0x939eba; address <= 0x93a1a1; address++)
+        {
+            bool accepted = expected.TryGetValue(address, out ushort native);
+            AssertEqual(accepted, SamusProjectileInstructionDefinitions.TryNonBeamWord(address, out ushort calculated), "NonBeam exact native mechanics domain");
+            if (accepted)
+            {
+                AssertEqual(native, calculated, "NonBeam direct native duration, trail phase or control");
+                AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "NonBeam production reader");
+                AssertTrue(stored is null || !stored.ContainsKey(address), "No NonBeam stock fallback survives");
+            }
+            else if (address < 0x93a1a1)
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "NonBeam nonmechanics retain rejection");
+        }
+        AssertEqual(214, expected.Count, "Native nonbeam and special program mechanics count");
+        AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(0x93a1a1), "Following flare table remains outside mechanics");
+        AssertTrue(typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags) is null, "Original mechanics dictionary removed entirely; required scalar inputs remain explicit");
+        foreach (int address in new[] { 0x928743, 0x948743, -1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TryNonBeamWord(address, out _), "NonBeam bank and address bounds");
+        Console.WriteLine("NonBeam projectile programs:214 direct native mechanics words, exact domain and zero stored fallbacks pass; selected holds and phase counts remain required.");
+    }
+
+    private static void VerifyLookupStream1ChargedProgramLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var expected = new Dictionary<int, ushort>();
+        for (int cursor = 0x938e77; cursor < 0x939ebb;)
+        {
+            ushort command = Word(cursor);
+            expected.Add(cursor, command);
+            if ((command & 0x8000) == 0)
+            {
+                expected.Add(cursor + 6, Word(cursor + 6)); cursor += 8;
+            }
+            else
+            {
+                AssertEqual((ushort)0x8239, command, "Native Charged terminal is Goto");
+                expected.Add(cursor + 2, Word(cursor + 2)); cursor += 4;
+            }
+        }
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
+        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
+        for (int address = 0x938e76; address <= 0x939ebb; address++)
+        {
+            bool accepted = expected.TryGetValue(address, out ushort native);
+            AssertEqual(accepted, SamusProjectileInstructionDefinitions.TryChargedWord(address, out ushort calculated), "Charged exact native mechanics domain");
+            if (accepted)
+            {
+                AssertEqual(native, calculated, "Charged direct native duration, trail phase or control");
+                AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "Charged production reader");
+                AssertTrue(stored is null || !stored.ContainsKey(address), "No Charged stock fallback survives");
+            }
+            else if (address < 0x939ebb)
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Charged nonmechanics retain rejection");
+        }
+        AssertEqual(1078, expected.Count, "Native charged beam program mechanics count");
+        AssertEqual(Word(0x939ebb), SamusProjectileInstructionDefinitions.ReadWord(0x939ebb), "Following Missile required payload is unchanged");
+        foreach (int address in new[] { 0x928743, 0x948743, -1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TryChargedWord(address, out _), "Charged bank and address bounds");
+        Console.WriteLine("Charged projectile programs:1078 direct native mechanics words, exact domain and zero stored fallbacks pass; holds, phase counts and loop-entry choices remain required.");
+    }
+
+    private static void VerifyLookupStream1PlasmaProgramLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var expected = new Dictionary<int, ushort>();
+        for (int cursor = 0x938cf7; cursor < 0x938e77;)
+        {
+            ushort command = Word(cursor);
+            expected.Add(cursor, command);
+            if ((command & 0x8000) == 0)
+            {
+                expected.Add(cursor + 6, Word(cursor + 6)); cursor += 8;
+            }
+            else
+            {
+                AssertEqual((ushort)0x8239, command, "Native Plasma terminal is Goto");
+                expected.Add(cursor + 2, Word(cursor + 2)); cursor += 4;
+            }
+        }
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
+        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
+        for (int address = 0x938cf6; address <= 0x938e77; address++)
+        {
+            bool accepted = expected.TryGetValue(address, out ushort native);
+            AssertEqual(accepted, SamusProjectileInstructionDefinitions.TryPlasmaWord(address, out ushort calculated), "Plasma exact native mechanics domain");
+            if (accepted)
+            {
+                AssertEqual(native, calculated, "Plasma direct native duration, trail phase or control");
+                AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "Plasma production reader");
+                AssertTrue(stored is null || !stored.ContainsKey(address), "No Plasma stock fallback survives");
+            }
+            else if (address < 0x938e77)
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Plasma nonmechanics retain rejection");
+        }
+        AssertEqual(104, expected.Count, "Native four persistent and four cyclic Plasma programs mechanics count");
+        AssertEqual(Word(0x938e77), SamusProjectileInstructionDefinitions.ReadWord(0x938e77), "Following charged Power required payload is unchanged");
+        foreach (int address in new[] { 0x928743, 0x948743, -1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TryPlasmaWord(address, out _), "Plasma bank and address bounds");
+        Console.WriteLine("Plasma projectile programs:104 direct native mechanics words, exact domain and zero stored fallbacks pass; holds1/15/2 and cyclic phase count8 remain required.");
+    }
+
+    private static void VerifyLookupStream1SpazerProgramLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var expected = new Dictionary<int, ushort>();
+        for (int cursor = 0x938977; cursor < 0x938cf7;)
+        {
+            ushort command = Word(cursor);
+            expected.Add(cursor, command);
+            if ((command & 0x8000) == 0)
+            {
+                expected.Add(cursor + 6, Word(cursor + 6)); cursor += 8;
+            }
+            else
+            {
+                AssertEqual((ushort)0x8239, command, "Native Spazer terminal is Goto");
+                expected.Add(cursor + 2, Word(cursor + 2)); cursor += 4;
+            }
+        }
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
+        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
+        for (int address = 0x938976; address <= 0x938cf7; address++)
+        {
+            bool accepted = expected.TryGetValue(address, out ushort native);
+            AssertEqual(accepted, SamusProjectileInstructionDefinitions.TrySpazerWord(address, out ushort calculated), "Spazer exact native mechanics domain");
+            if (accepted)
+            {
+                AssertEqual(native, calculated, "Spazer direct native duration, trail phase or control");
+                AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "Spazer production reader");
+                AssertTrue(stored is null || !stored.ContainsKey(address), "No Spazer stock fallback survives");
+            }
+            else if (address < 0x938cf7)
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Spazer nonmechanics retain rejection");
+        }
+        AssertEqual(240, expected.Count, "Native eight growth programs and eight spread cycles mechanics count");
+        AssertEqual(Word(0x938cf7), SamusProjectileInstructionDefinitions.ReadWord(0x938cf7), "Following Plasma required payload is unchanged");
+        foreach (int address in new[] { 0x928743, 0x948743, -1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TrySpazerWord(address, out _), "Spazer bank and address bounds");
+        Console.WriteLine("Spazer projectile programs:240 direct native mechanics words, exact domain and zero stored fallbacks pass; hold2 and phase counts3/10 remain required.");
+    }
+
+    private static void VerifyLookupStream1WaveIceProgramLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var expected = new Dictionary<int, ushort>();
+        for (int cursor = 0x93873b; cursor < 0x938977;)
+        {
+            ushort command = Word(cursor);
+            expected.Add(cursor, command);
+            if ((command & 0x8000) == 0)
+            {
+                expected.Add(cursor + 6, Word(cursor + 6)); cursor += 8;
+            }
+            else
+            {
+                AssertEqual((ushort)0x8239, command, "Native Wave/Ice terminal is Goto");
+                expected.Add(cursor + 2, Word(cursor + 2)); cursor += 4;
+            }
+        }
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
+        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
+        for (int address = 0x93873a; address <= 0x938977; address++)
+        {
+            bool accepted = expected.TryGetValue(address, out ushort native);
+            AssertEqual(accepted, SamusProjectileInstructionDefinitions.TryWaveIceWord(address, out ushort calculated), "Wave/Ice exact native mechanics domain");
+            if (accepted)
+            {
+                AssertEqual(native, calculated, "Wave/Ice direct native duration, trail phase or control");
+                AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "Wave/Ice production reader");
+                AssertTrue(stored is null || !stored.ContainsKey(address), "No Wave/Ice stock fallback survives");
+            }
+            else if (address < 0x938977)
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Wave/Ice nonmechanics retain rejection");
+        }
+        AssertEqual(148, expected.Count, "Native Wave prelude, four cycles and Ice mechanics count");
+        AssertEqual(Word(0x938977), SamusProjectileInstructionDefinitions.ReadWord(0x938977), "Following Spazer required payload is unchanged");
+        foreach (int address in new[] { 0x928743, 0x948743, -1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TryWaveIceWord(address, out _), "Wave/Ice bank and address bounds");
+        Console.WriteLine("Wave/Ice projectile programs:148 direct native mechanics words, exact domain and zero stored fallbacks pass; holds4/1 and phase counts16/4 remain required.");
+    }
+
+    private static void VerifyLookupStream1PowerProgramLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
+        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
+        int admitted = 0;
+        for (int address = 0x9386da; address <= 0x93873b; address++)
+        {
+            int offset = address - 0x9386db;
+            bool expected = offset >= 0 && offset < 96 && offset % 12 is 0 or 6 or 8 or 10;
+            bool actual = SamusProjectileInstructionDefinitions.TryPowerWord(address, out ushort calculated);
+            AssertEqual(expected, actual, "Power mechanics domain excludes sprites, radii and odd bytes");
+            if (!expected) continue;
+            admitted++;
+            AssertEqual(Word(address), calculated, "Direct calculated Power mechanics matches native word");
+            AssertEqual(calculated, SamusProjectileInstructionDefinitions.ReadWord(address), "Production mechanics reader uses calculated Power layout");
+            AssertTrue(stored is null || !stored.ContainsKey(address), "No stock Power mechanics fallback survives");
+        }
+        AssertEqual(32, admitted, "Eight native Power programs have four mechanics words each");
+        for (int direction = 0; direction < 8; direction++)
+        {
+            int start = 0x9386db + direction * 12;
+            AssertEqual((ushort)start, SamusProjectileInstructionDefinitions.ReadWord(start + 10), "Power native Goto returns to its own compass phase");
+            foreach (int field in new[] { 1, 2, 3, 4, 5, 7, 9, 11 })
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(start + field), "Power non-mechanics addresses retain rejection");
+        }
+        AssertEqual(Word(0x93873b), SamusProjectileInstructionDefinitions.ReadWord(0x93873b), "Following Wave required payload remains intact");
+        foreach (int address in new[] { 0x9286db, 0x9486db, -1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TryPowerWord(address, out _), "Power calculated bank/domain bounds");
+        Console.WriteLine("Power projectile programs:32 direct native mechanics words, eight self-loop targets, exact domain and zero stored Power fallbacks pass; hold15 remains required.");
+    }
+
+    private static void VerifyLookupStream1CannonPoses(ISnesAddressSpace rom)
+    {
+        using var directory = new MapCatalogTestDirectory();
+        SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
+        byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
+        var document = System.Text.Json.JsonSerializer.Deserialize<SamusArmCannonArtworkDocument>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Length * 32);
+        SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
+            SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
+        var stock = Load(document);
+        var field = typeof(SamusArmCannonArtworkCatalog).GetField("posePointers",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        Dictionary<int, ushort> Stored(SamusArmCannonArtworkCatalog value) => (Dictionary<int, ushort>)field.GetValue(value)!;
+        ushort Native(int pose) => (ushort)(rom.ReadByte(0x90C7DF + pose * 2) | rom.ReadByte(0x90C7E0 + pose * 2) << 8);
+        string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create(nameof(SamusArmCannonArtworkCatalog), hash =>
+        {
+            hash.AppendWords("pose pointers", value.PosePointers.Select(pointer => (ushort)pointer).ToArray());
+            hash.Append("drawing data", value.DrawingData.Select(item => (byte)item).ToArray());
+            hash.AppendWords("attributes", value.SpriteAttributes.Select(item => (ushort)item).ToArray());
+            foreach (int[] direction in value.TileSources) hash.AppendWords("tile sources", direction.Select(item => (ushort)item).ToArray());
+            hash.Append("characters", tiles.Transfer.Span);
+        });
+        AssertEqual(253, SamusBodyArtworkCatalog.PoseCount, "cannon original 506-byte pointer extent");
+        AssertEqual(0, Stored(stock).Count, "cannon pose stock stores no copied pointer overrides");
+        AssertEqual(Identity(document), stock.ContentIdentity, "cannon canonical native identity unchanged");
+        for (int pose = 0; pose < 253; pose++)
+        {
+            AssertEqual(Native(pose), SamusArmCannonArtworkFormat.StockPoseDrawingData(pose), "cannon direct native pose dispatch");
+            AssertEqual(Native(pose), stock.PoseDrawingData(pose), "cannon installed native pose dispatch");
+            int[] pointers = document.PosePointers.ToArray();
+            // Preserve an arbitrary admitted byte address, including descriptor interiors.
+            int replacement = SamusArmCannonArtworkFormat.DrawingDataStart + pose;
+            if (replacement == pointers[pose]) replacement++;
+            pointers[pose] = replacement;
+            var editedDocument = document with { PosePointers = pointers };
+            var edited = Load(editedDocument);
+            AssertEqual(1, Stored(edited).Count, "cannon exactly one independent pointer override");
+            AssertEqual((ushort)replacement, Stored(edited)[pose], "cannon stores arbitrary admitted pointer identity");
+            for (int other = 0; other < 253; other++)
+                AssertEqual(other == pose ? (ushort)replacement : Native(other), edited.PoseDrawingData(other), "cannon isolated pointer edit");
+            AssertEqual(Identity(editedDocument), edited.ContentIdentity, "cannon edited pointer hash preserves canonical representation");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 253, 254, 255, 256, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.PoseDrawingData(invalid), "cannon installed pose domain preserved including FD-FF");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusArmCannonArtworkFormat.StockPoseDrawingData(invalid), "cannon calculated pose domain rejects aliases");
+        }
+        Console.WriteLine("Cannon poses:253 direct native defaults, zero stock overrides,253 independent arbitrary pointer edits/hashes and exact FD-FF rejection pass.");
+    }
+
+    private static void VerifyLookupStream1AnimationAliases(CartridgeImportAddressSpace bus)
+    {
+        for (int pose = 0xFD; pose <= 0xFF; pose++)
+        {
+            int source = SamusAnimationDelayDefinitions.DelayStreamsAddress + (pose - 0xFD) * 2;
+            ushort expectedPointer = (ushort)(bus.ReadByte(source) | bus.ReadByte(source + 1) << 8);
+            ushort pointer = SamusAnimationDelayDefinitions.PointerForPose((byte)pose);
+            AssertEqual(expectedPointer, pointer, $"animation alias ${pose:X2} reads its running-delay source");
+            for (int change = 0; change < 2; change++)
+            {
+                byte expected = (byte)(pose - 0xFD + change * 16);
+                bus.WriteByte(0x7E0000 | pointer, expected);
+                AssertEqual(expected, SamusAnimationDelayDefinitions.ReadAnimationByte(bus, pointer, 0),
+                    $"animation alias ${pose:X2} observes WRAM mutation {change}");
+            }
+        }
+        Console.WriteLine("Animation aliases: three original running-delay words and six live WRAM mutations match.");
+    }
+
+    private static void VerifyLookupStream1HudPosture(ISnesAddressSpace rom)
+    {
+        for (int pose = 0; pose < 256; pose++)
+        {
+            if (pose < 0xDB)
+                AssertEqual(rom.ReadByte(0x90DDAA + pose - 0x35), SamusHudDefinitions.PostureObservation((byte)pose),
+                    $"HUD exact bounded posture observation {pose:X2}");
+            else
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudDefinitions.PostureObservation((byte)pose),
+                    "HUD rejects prefiltered posture observation");
+            foreach (bool grapple in new[] { false, true })
+            {
+                bool expected = pose >= 0xF1 || (pose < 0xDB && (rom.ReadByte(0x90DDAA + pose - 0x35) == 0 || grapple));
+                AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons((byte)pose, grapple),
+                    $"HUD actual admission {pose:X2}, Grapple={grapple}");
+            }
+        }
+        Console.WriteLine("HUD posture: twelve real flags plus207 bounded instruction bytes, all512 admission branches and rejection domain match native.");
+    }
+
+    private static void VerifyLookupStream1EscapeDachoraPrograms(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(0xb30000 | address) | rom.ReadByte(0xb30000 | address + 1) << 8);
+        var controls = new List<ushort>(); var visuals = new List<ushort>();
+        for (int cursor = 0xe964; cursor < 0xeaa8;)
+        {
+            ushort value = Word(cursor); controls.Add((ushort)cursor); cursor += 2;
+            if ((value & 0x8000) == 0) { visuals.Add((ushort)cursor); cursor += 2; }
+            else if (value is CommonEnemyInstructionCodes.Goto or CommonEnemyInstructionCodes.SetTimer or CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate
+                or EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfAcidLessThanCE or EscapeAnimalInstructionCodes.InstList_DachoraEscape_GotoY_IfCrittersEscaped)
+            { controls.Add((ushort)cursor); cursor += 2; }
+            else AssertTrue(value is EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionMinus6
+                or EscapeAnimalInstructionCodes.Instruction_DachoraEscape_XPositionPlus6, "Dachora native operand-free movement callback");
+        }
+        AssertEqual(controls.Count, EscapeDachoraInstructionProgramDefinitions.MechanicsWordCount, "Dachora native control count");
+        AssertEqual(visuals.Count, EscapeDachoraInstructionProgramDefinitions.PresentationWordCount, "Dachora native visual count");
+        for (int index = 0; index < controls.Count; index++)
+        {
+            var actual = EscapeDachoraInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(controls[index], actual.Address, "Dachora ordered native control identity");
+            AssertEqual(Word(actual.Address), actual.Value, "Dachora native branch target/callback/required duration");
+            AssertEqual(actual.Value, EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(actual.Address), "Dachora calculated reader");
+        }
+        for (int index = 0; index < visuals.Count; index++)
+        {
+            AssertEqual(visuals[index], EscapeDachoraInstructionProgramDefinitions.PresentationWordAddress(index), "Dachora native visual operand location");
+            AssertThrows<InvalidDataException>(() => EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(visuals[index]), "Dachora visual operands are not controls");
+        }
+        for (int address = 0xe963; address <= 0xeaa9; address++)
+        {
+            AssertEqual(controls.Any(word => address == word || address == word + 1),
+                EscapeDachoraInstructionProgramDefinitions.IsCompiledMechanicsByte(0xb30000 | address), "Dachora exact control byte coverage");
+            AssertTrue(!EscapeDachoraInstructionProgramDefinitions.IsCompiledMechanicsByte(0xb20000 | address), "Dachora wrong bank rejects");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, controls.Count, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => EscapeDachoraInstructionProgramDefinitions.MechanicsWord(invalid), "Dachora control bounds");
+        foreach (int invalid in new[] { int.MinValue, -1, visuals.Count, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => EscapeDachoraInstructionProgramDefinitions.PresentationWordAddress(invalid), "Dachora visual bounds");
+        foreach (ushort invalid in new ushort[] { 0xe963, 0xe965, 0xeaa8, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() => EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord(invalid), "Dachora odd/adjacent control pointers reject");
+        Console.WriteLine("Escape Dachora:119 controls/43 visual operands match independent native traversal; exact branches/order/domains pass; selected holds and acceleration cadence remain required.");
+    }
+    private static void VerifyLookupStream1PowampPrograms(ISnesAddressSpace rom)
+    {
+        ushort Word(int pointer) => (ushort)(rom.ReadByte(0xa80000 | pointer) | rom.ReadByte(0xa80000 | pointer + 1) << 8);
+        var expectedMechanics = new List<ushort>(); var expectedVisual = new List<ushort>();
+        // Traverse original native words, using their instruction/frame encoding rather than the calculated program layout.
+        for (int cursor = 0xc163; cursor < 0xc19f;)
+        {
+            ushort value = Word(cursor);
+            expectedMechanics.Add((ushort)cursor);
+            cursor += 2;
+            if ((value & 0x8000) == 0) { expectedVisual.Add((ushort)cursor); cursor += 2; }
+            else if (value == CommonEnemyInstructionCodes.Goto) { expectedMechanics.Add((ushort)cursor); cursor += 2; }
+            else AssertEqual(CommonEnemyInstructionCodes.Sleep, value, "Powamp native terminal opcode");
+        }
+        AssertEqual(expectedMechanics.Count, PowampInstructionProgramDefinitions.MechanicsWordCount, "Powamp calculated control count");
+        AssertEqual(expectedVisual.Count, PowampInstructionProgramDefinitions.PresentationWordCount, "Powamp calculated visual operand count");
+        for (int index = 0; index < expectedMechanics.Count; index++)
+        {
+            var actual = PowampInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(expectedMechanics[index], actual.Address, "Powamp ordered native control identity");
+            AssertEqual(Word(actual.Address), actual.Value, "Powamp every native control and still-required hold value");
+            AssertEqual(actual.Value, PowampInstructionProgramDefinitions.ReadMechanicsWord(actual.Address), "Powamp control read resolves calculated record");
+        }
+        for (int index = 0; index < expectedVisual.Count; index++)
+        {
+            AssertEqual(expectedVisual[index], PowampInstructionProgramDefinitions.PresentationWordAddress(index), "Powamp calculated native visual operand location");
+            AssertThrows<InvalidDataException>(() => PowampInstructionProgramDefinitions.ReadMechanicsWord(expectedVisual[index]), "Powamp visual operands remain outside control domain");
+        }
+        for (int address = 0xc162; address <= 0xc1a0; address++)
+        {
+            bool expected = expectedMechanics.Any(word => address == word || address == word + 1);
+            AssertEqual(expected, PowampInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa80000 | address), "Powamp exact native control byte coverage");
+            AssertTrue(!PowampInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa70000 | address), "Powamp wrong bank rejects");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 18, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => PowampInstructionProgramDefinitions.MechanicsWord(invalid), "Powamp control index rejection");
+        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => PowampInstructionProgramDefinitions.PresentationWordAddress(invalid), "Powamp visual index rejection");
+        foreach (ushort invalid in new ushort[] { 0xc162, 0xc164, 0xc19f, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() => PowampInstructionProgramDefinitions.ReadMechanicsWord(invalid), "Powamp non-word/adjacent control pointer rejects");
+        Console.WriteLine("Powamp program layout:18 native controls,12 visual operands, exact order/domains/byte classification pass; five chosen timing inputs remain required.");
+    }
+    private static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] json = EscapeTimerPresentationExtractor.Extract(rom);
+        var stock = EscapeTimerPresentation.Load(new MemoryStream(json));
+        var document = System.Text.Json.JsonSerializer.Deserialize<EscapeTimerPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        int Count(EscapeTimerPresentation value, string name) => ((System.Collections.IDictionary)typeof(EscapeTimerPresentation).GetField(name, flags)!.GetValue(value)!).Count;
+        AssertEqual(0, Count(stock, "frames"), "Timer stock stores no calculated frame fallbacks");
+        AssertEqual(0, Count(stock, "anchors"), "Timer stock stores no calculated anchor fallbacks");
+        int parts = 0;
+        foreach (string name in document.Frames.Keys)
+        {
+            int address = name == "Label" ? 0x80a060 : 0x800000 | Word(0x809fd4 + int.Parse(name.AsSpan(6)) * 2);
+            var calculated = EscapeTimerPresentationDefinitions.DefaultParts(name);
+            AssertEqual((int)Word(address), calculated.Count, "Timer part count matches native sprite record");
+            for (int index = 0; index < calculated.Count; index++)
+            {
+                int native = address + 2 + index * 5;
+                var part = calculated[index];
+                AssertEqual(Word(native), part.X.Raw, "Timer calculated X/size native word");
+                AssertEqual(rom.ReadByte(native + 2), part.Y, "Timer calculated native Y");
+                AssertEqual((ushort)(Word(native + 3) & ~0x0e00), part.Attributes.Raw, "Timer calculated native tile/priority/flips with inherited palette removed");
+                AssertTrue(part.InheritPalette, "Timer part inherits independently supplied timer palette");
+                parts++;
+            }
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated[-1], "Timer part negative index rejects");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated[calculated.Count], "Timer part upper index rejects");
+        }
+        AssertEqual(25, parts, "All twenty-five native timer parts are calculated");
+        foreach ((string name, int address) in new[] { ("Label", 0x809f73), ("Minutes", 0x809f7c), ("Seconds", 0x809f85), ("Centiseconds", 0x809f8e) })
+            AssertEqual(new MapLabelPoint(unchecked((short)Word(address)), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(name), "Timer centered anchor matches native renderer immediate");
+        var timer = new EscapeTimer(); timer.Clear();
+        for (int digit = 0; digit < 10; digit++)
+        {
+            timer.SetTime((byte)(digit * 17), 0, (byte)(digit * 17));
+            var native = new OamBuffer(); var actual = new OamBuffer();
+            DrawImportedEscapeTimer(rom, timer, native);
+            stock.Draw(timer, actual);
+            EqualOam(native, actual, "Every calculated decimal glyph draws exact native OAM");
+        }
+        foreach (string name in document.Frames.Keys)
+        {
+            var edited = Read();
+            edited.Frames[name][0] = edited.Frames[name][0] with { OffsetX = edited.Frames[name][0].OffsetX + 3,
+                OffsetY = edited.Frames[name][0].OffsetY + 2, TileNumber = edited.Frames[name][0].TileNumber ^ 1,
+                Size = 16, Priority = 1, Palette = 2, FlipX = true, FlipY = true };
+            var compiled = Load(edited);
+            AssertEqual(1, Count(compiled, "frames"), "One timer frame edit stores exactly one independent frame");
+            AssertEqual(0, Count(compiled, "anchors"), "Frame edits do not store unchanged timer anchors");
+            int digit = name == "Label" ? 0 : int.Parse(name.AsSpan(6));
+            timer.SetTime((byte)(digit * 17), 0, (byte)(digit * 17));
+            var actual = new OamBuffer(); compiled.Draw(timer, actual);
+            EqualOam(DrawDocument(edited), actual, "Edited timer geometry, size, tile, priority, palette and flips remain exact");
+        }
+        foreach (string anchor in document.Anchors.Keys)
+        {
+            var edited = Read(); edited.Anchors[anchor] = edited.Anchors[anchor] with { X = edited.Anchors[anchor].X + 2, Y = 3 };
+            edited = edited with { DigitSpacing = 10, Palette = 1 };
+            var compiled = Load(edited);
+            AssertEqual(1, Count(compiled, "anchors"), "One timer anchor edit stores exactly one independent anchor");
+            AssertEqual(0, Count(compiled, "frames"), "Anchor, spacing and palette edits do not store native frames");
+            timer.SetTime(0x12, 0x34, 0x56);
+            var actual = new OamBuffer(); compiled.Draw(timer, actual);
+            EqualOam(DrawDocument(edited), actual, "Independent anchor, digit spacing and palette edits preserve selected document");
+        }
+        Console.WriteLine("Escape timer layout:25 native parts,4 native anchors, zero stock dictionaries,10 decimal OAM fixtures and independent frame/anchor/spacing/palette edits pass.");
+
+        EscapeTimerPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<EscapeTimerPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+        static EscapeTimerPresentation Load(EscapeTimerPresentationDocument value)
+        {
+            using var stream = new MemoryStream(); EscapeTimerPresentation.Write(stream, value); stream.Position = 0;
+            return EscapeTimerPresentation.Load(stream);
+        }
+        static void EqualOam(OamBuffer expected, OamBuffer actual, string message)
+        {
+            AssertEqual(expected.NextByteOffset, actual.NextByteOffset, message + " count");
+            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable), message);
+        }
+        OamBuffer DrawDocument(EscapeTimerPresentationDocument selected)
+        {
+            var result = new OamBuffer();
+            Draw("Label", selected.Anchors["Label"]);
+            Pair(timer.MinutesBcd, "Minutes"); Pair(timer.SecondsBcd, "Seconds"); Pair(timer.CentisecondsBcd, "Centiseconds");
+            return result;
+            void Pair(byte bcd, string anchor)
+            {
+                Draw($"Digit.{bcd >> 4}", selected.Anchors[anchor]);
+                Draw($"Digit.{bcd & 15}", selected.Anchors[anchor] with { X = selected.Anchors[anchor].X + selected.DigitSpacing });
+            }
+            void Draw(string frame, MapLabelPoint anchor)
+            {
+                foreach (var part in selected.Frames[frame])
+                    result.AddOnScreenSpritePart(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16), unchecked((byte)(sbyte)part.OffsetY),
+                        SnesObjAttributeWord.Create(part.TileNumber, part.Palette ?? selected.Palette, part.Priority,
+                            (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (part.FlipY ? SnesTileFlipFlags.Vertical : 0)),
+                        unchecked((ushort)(timer.XPixel + anchor.X)), unchecked((ushort)(timer.YPixel + anchor.Y)));
+            }
+        }
+    }
+    private static void VerifyLookupStream1FlarePlacement(ISnesAddressSpace rom)
+    {
+        short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        byte[] json = ChargeFlarePlacementExtractor.Extract(rom);
+        var stock = ChargeFlarePlacementCatalog.Load(new MemoryStream(json));
+        var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var field = typeof(ChargeFlarePlacementCatalog).GetField("offsets", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        AssertEqual(0, ((System.Collections.IDictionary)field.GetValue(stock)!).Count, "Beam flare stock has zero stored fallback origins");
+        for (int mode = 0; mode < 2; mode++)
+        for (int direction = 0; direction < 16; direction++)
+        {
+            var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x90c1a8 : 0x90c1dc) + 2 * direction),
+                Y = Word((mode == 0 ? 0x90c1c2 : 0x90c1f0) + 2 * direction) };
+            AssertEqual(expected, ChargeFlarePlacementDefinitions.BeamOffset(mode != 0, direction), "Named flare default matches direct native coordinates and aliases");
+            AssertEqual(expected, stock.Resolve(mode != 0, direction), "Installed flare default matches native");
+            for (int axis = 0; axis < 2; axis++)
+            {
+                var document = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(json, options)!;
+                string key = ChargeFlarePlacementDefinitions.Key(mode != 0, direction);
+                var before = document.Offsets[key];
+                document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
+                var edited = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementCatalog.Write(document)));
+                AssertEqual(1, ((System.Collections.IDictionary)field.GetValue(edited)!).Count, "One independent origin edit stores exactly one override");
+                for (int selectedMode = 0; selectedMode < 2; selectedMode++)
+                for (int selectedDirection = 0; selectedDirection < 16; selectedDirection++)
+                    AssertEqual(document.Offsets[ChargeFlarePlacementDefinitions.Key(selectedMode != 0, selectedDirection)],
+                        edited.Resolve(selectedMode != 0, selectedDirection), "Editing a source origin does not edit an independently supplied adjacent alias");
+            }
+        }
+        var grappleDocument = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options)!;
+        var grapple = ChargeFlarePlacementCatalog.LoadGrapple(new MemoryStream(ChargeFlarePlacementCatalog.Write(grappleDocument)));
+        AssertEqual(0, ((System.Collections.IDictionary)field.GetValue(grapple)!).Count, "Grapple stock has zero stored fallback origins");
+        for (int mode = 0; mode < 2; mode++)
+        for (int direction = 0; direction < 16; direction++)
+        {
+            var expected = new ChargeFlareOffset { X = Word((mode == 0 ? 0x9bc14a : 0x9bc19a) + direction * 2),
+                Y = Word((mode == 0 ? 0x9bc15e : 0x9bc1ae) + direction * 2) };
+            AssertEqual(expected, ChargeFlarePlacementDefinitions.GrappleOffset(mode != 0, direction), "Grapple direct defaults preserve all native words including packed adjacent bytes");
+            AssertEqual(expected, grapple.Resolve(mode != 0, direction), "Installed Grapple defaults match native");
+            for (int axis = 0; axis < 2; axis++)
+            {
+                var document = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(GrappleFlarePlacementExtractor.Extract(rom), options)!;
+                string key = ChargeFlarePlacementDefinitions.Key(mode != 0, direction);
+                var before = document.Offsets[key];
+                document.Offsets[key] = axis == 0 ? before with { X = (short)(before.X + 7) } : before with { Y = (short)(before.Y + 7) };
+                var edited = ChargeFlarePlacementCatalog.LoadGrapple(new MemoryStream(ChargeFlarePlacementCatalog.Write(document)));
+                AssertEqual(1, ((System.Collections.IDictionary)field.GetValue(edited)!).Count, "Grapple independent edit stores exactly one override");
+                for (int selectedMode = 0; selectedMode < 2; selectedMode++)
+                for (int selectedDirection = 0; selectedDirection < 16; selectedDirection++)
+                    AssertEqual(document.Offsets[ChargeFlarePlacementDefinitions.Key(selectedMode != 0, selectedDirection)], edited.Resolve(selectedMode != 0, selectedDirection),
+                        "Grapple edits preserve every other independent origin and alias");
+            }
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(false, invalid), "Flare placement catalog bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => grapple.Resolve(true, invalid), "Grapple catalog bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementDefinitions.GrappleOffset(false, invalid), "Grapple calculated bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => ChargeFlarePlacementDefinitions.BeamOffset(true, invalid), "Flare calculated bounds");
+        }
+        var compositions = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
+        var body = CreateSamusIdentityFixture();
+        var system = new SamusProjectileSystem();
+        var draw = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponent", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, ushort, ushort, int, SamusMode7Transform?, ChargeFlarePlacementCatalog?, ChargeFlareSpriteCatalog?>>(system);
+        var shiftedDocument = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(json, options)!;
+        foreach (string key in shiftedDocument.Offsets.Keys.ToArray())
+            shiftedDocument.Offsets[key] = shiftedDocument.Offsets[key] with { X = (short)(shiftedDocument.Offsets[key].X + 7) };
+        var shifted = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementCatalog.Write(shiftedDocument)));
+        foreach (byte pose in new byte[] { 1, 2, 9, 10 })
+        {
+            var samus = new SamusState { Pose = pose, XPosition = 100, YPosition = 100 };
+            samus.TileTransfers.BindArtwork(body);
+            int direction = rom.ReadByte(0x91b629 + pose * 8 + 3);
+            bool running = pose is 9 or 10;
+            short x = Word((running ? 0x90c1dc : 0x90c1a8) + direction * 2);
+            short y = Word((running ? 0x90c1f0 : 0x90c1c2) + direction * 2);
+            var expected = new OamBuffer(); var actual = new OamBuffer(); var edited = new OamBuffer();
+            DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, (ushort)(100 + x),
+                unchecked((ushort)(100 + y - unchecked((byte)body.GraphicsYOffset(pose)))));
+            draw(new LookupFlareForbiddenBus(), actual, samus, 0, 0, 0, null, stock, compositions);
+            draw(new LookupFlareForbiddenBus(), edited, samus, 0, 0, 0, null, shifted, compositions);
+            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable), "Actual flare OAM matches independently positioned native sprite");
+            AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Native flare OAM admission");
+            AssertTrue(actual.NextByteOffset > 0, "Focused flare placement fixture emits its native sprite");
+            for (int index = 0; index < actual.NextByteOffset / 4; index++)
+            {
+                AssertEqual((actual.GetEntry(index).X + 7) & 511, edited.GetEntry(index).X, "Actual flare uses independently edited placement");
+                AssertEqual(actual.GetEntry(index).Y, edited.GetEntry(index).Y, "X edit preserves actual flare Y");
+            }
+        }
+        Console.WriteLine("Beam/Grapple flare origins:128 direct native words, zero stock overrides,128 independent edits, bounded aliases and four actual OAM fixtures pass.");
+    }
+    private sealed class LookupFlareForbiddenBus : ISnesAddressSpace
+    {
+        void ISnesAddressSpace.WriteByte(int address, byte value) => throw new InvalidOperationException($"Unexpected flare write {address:X6}");
+    }
     private static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
+        for (int pose = 0; pose <= byte.MaxValue; pose++)
+        {
+            AssertEqual(rom.ReadByte(0x91b629 + pose * 8), SamusPoseDispatchDefinitions.ReadFacing((byte)pose), "Native named-pose facing case");
+            AssertEqual(rom.ReadByte(0x91b62a + pose * 8), SamusPoseDispatchDefinitions.ReadMovement((byte)pose), "Native named-pose raw movement case");
+            AssertEqual(rom.ReadByte(0x91b62b + pose * 8), SamusPoseDispatchDefinitions.ReadNoInputPose((byte)pose), "Native named-pose no-input case");
+        }
+        VerifyLookupStream1SamusPolicyDomains(rom);
+        VerifyLookupStream1MetroidLayout(rom);
+        VerifyLookupStream1PuyoAndQuota(rom);
+        VerifyLookupStream1OwtchStoke(rom);
+        VerifyLookupStream1VisualCatalogs(rom);
+        VerifyLookupStream1NuclearWaffle(rom);
+        VerifyLookupStream1DeathDefinitions(rom);
+        VerifyLookupStream1Sciser(rom);
         VerifyLookupStream1PowampMotion(rom);
         VerifyLookupStream1HibashiDragonFireball(rom);
         VerifyLookupStream1CommonFrames(rom);
@@ -346,4 +969,799 @@ internal static partial class Program
                 AssertTrue(!owns(invalid), "Hibashi/Dragon external byte domain");
         }
     }
+    private static void VerifyLookupStream1Sciser(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var frames = SuperMetroid.Core.Assets.SciserVisualDefinitions.Frames();
+        AssertEqual(12, frames.Length, "Sciser visual catalog size");
+        string[] names = ["right", "left", "down", "up"];
+        for (int surface = 0; surface < 4; surface++)
+        for (int frame = 0; frame < 3; frame++)
+        {
+            var actual = frames[surface * 3 + frame];
+            ushort pointer = Word(0xa39681 + surface * 24 + frame * 4);
+            AssertEqual(pointer, actual.Pointer, "native Sciser visual identity");
+            AssertEqual((byte)0xa3, actual.Bank, "Sciser bank");
+            AssertEqual($"sciser_upside_{names[surface]}_{frame}", actual.Name, "Sciser stable editable name");
+            AssertEqual((ushort)4, Word(0xa30000 | pointer), "native Sciser four-object record size");
+        }
+        var controls = new HashSet<ushort>();
+        var visuals = new HashSet<ushort>();
+        for (int surface = 0; surface < 4; surface++)
+        {
+            int start = 0x967b + surface * 24;
+            foreach (int offset in new[] { 0, 2, 4, 8, 12, 16, 20, 22 }) controls.Add((ushort)(start + offset));
+            for (int frame = 0; frame < 4; frame++) visuals.Add((ushort)(start + 6 + frame * 4));
+        }
+        int controlIndex = 0, visualIndex = 0;
+        for (int pointer = 0x967a; pointer <= 0x96dc; pointer++)
+        {
+            AssertEqual(visuals.Contains((ushort)pointer), SciserInstructionProgramDefinitions.IsPresentationWord((ushort)pointer),
+                "Sciser exact presentation domain");
+            AssertEqual(controls.Contains((ushort)pointer) || controls.Contains((ushort)(pointer - 1)),
+                SciserInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | pointer), "Sciser exact byte guard domain");
+            if (controls.Contains((ushort)pointer))
+            {
+                var actual = SciserInstructionProgramDefinitions.MechanicsWord(controlIndex++);
+                AssertEqual((ushort)pointer, actual.Address, "Sciser native control order");
+                AssertEqual(Word(0xa30000 | pointer), actual.Value, "Sciser native control value");
+            }
+            else AssertThrows<InvalidDataException>(() => SciserInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer),
+                "Sciser rejects every noncontrol address");
+            if (visuals.Contains((ushort)pointer))
+                AssertEqual((ushort)pointer, SciserInstructionProgramDefinitions.PresentationWordAddress(visualIndex++),
+                    "Sciser native visual order");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitions.MechanicsWord(invalid), "Sciser control index domain");
+        foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => SciserInstructionProgramDefinitions.PresentationWordAddress(invalid), "Sciser visual index domain");
+    }
+    private static void VerifyLookupStream1DeathDefinitions(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var initialFrames = SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
+        AssertEqual(28, initialFrames.Length, "death retail movement domain");
+        for (int movement = 0; movement < initialFrames.Length; movement++)
+            AssertEqual(rom.ReadByte(0x9bb420 + movement), initialFrames[movement], "native movement death phase");
+        var segments = SamusSpecialSequenceRomData.Death.TileSegments;
+        AssertEqual(5, segments.Length, "five death graphics transfers");
+        for (int index = 0; index < segments.Length; index++)
+        {
+            AssertEqual(0x9b0000 | Word(0x9bb7bf + index * 2), segments[index].SourceAddress, "native death transfer source");
+            AssertEqual(Word(0x9bb7c9 + index * 2), segments[index].EncodedVramDestination, "native death transfer destination");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = initialFrames[invalid], "death movement exact domain");
+        foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = segments[invalid], "death transfer exact domain");
+        int frameIndex = 0, segmentIndex = 0;
+        foreach (byte frame in initialFrames)
+            AssertEqual(initialFrames[frameIndex++], frame, "death frame enumeration preserves ordering");
+        foreach (var segment in segments)
+            AssertEqual(segments[segmentIndex++], segment, "death transfer enumeration preserves ordering");
+        AssertEqual(initialFrames.Length, frameIndex, "death frame enumerable count");
+        AssertEqual(segments.Length, segmentIndex, "death transfer enumerable count");
+    }
+    private static void VerifyLookupStream1NuclearWaffle(ISnesAddressSpace rom)
+    {
+        Confirm(0xa6, 0x9490, NuclearWaffleInstructionProgramDefinitions.ReadMechanicsWord,
+            NuclearWaffleInstructionProgramDefinitions.IsCompiledMechanicsByte,
+            index => { var word = NuclearWaffleInstructionProgramDefinitions.MechanicsWord(index); return (word.Address, word.Value); },
+            NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress);
+        Confirm(0x86, 0xbb5e, NuclearWaffleProjectileInstructionProgramDefinitions.ReadMechanicsWord,
+            NuclearWaffleProjectileInstructionProgramDefinitions.IsCompiledMechanicsByte,
+            index => { var word = NuclearWaffleProjectileInstructionProgramDefinitions.MechanicsWord(index); return (word.Address, word.Value); },
+            NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        void Confirm(int bank, int start, Func<ushort, ushort> read, Func<int, bool> guarded,
+            Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> visual)
+        {
+            var nativeControls = new HashSet<int>();
+            for (int frame = 0; frame < 12; frame++)
+            {
+                nativeControls.Add(start + frame * 4);
+                AssertEqual((ushort)(start + frame * 4 + 2), visual(frame), "Nuclear Waffle native visual positions");
+            }
+            nativeControls.Add(start + 48);
+            nativeControls.Add(start + 50);
+            int index = 0;
+            for (int pointer = start - 1; pointer <= start + 52; pointer++)
+            {
+                AssertEqual(nativeControls.Contains(pointer) || nativeControls.Contains(pointer - 1),
+                    guarded(bank << 16 | pointer), "Nuclear Waffle exact byte guard");
+                if (nativeControls.Contains(pointer))
+                {
+                    var actual = mechanics(index++);
+                    AssertEqual((ushort)pointer, actual.Address, "Nuclear Waffle control ordering");
+                    AssertEqual((ushort)(rom.ReadByte(bank << 16 | pointer) | rom.ReadByte(bank << 16 | (pointer + 1)) << 8),
+                        actual.Value, "Nuclear Waffle native controls");
+                }
+                else AssertThrows<InvalidDataException>(() => read((ushort)pointer), "Nuclear Waffle noncontrol rejection");
+            }
+            foreach (int invalid in new[] { int.MinValue, -1, 14, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => mechanics(invalid), "Nuclear Waffle control index bounds");
+            foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
+                AssertThrows<IndexOutOfRangeException>(() => visual(invalid), "Nuclear Waffle visual index bounds");
+        }
+    }
+    private static void VerifyLookupStream1VisualCatalogs(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var selectors = ChargeFlareSpriteDefinitions.Selectors;
+        var nativePointers = new List<ushort>();
+        byte[] json = ChargeFlareSpriteExtractor.Extract(rom);
+        var stock = ChargeFlareSpriteCatalog.Load(new MemoryStream(json));
+        for (ushort selector = 0; selector < 54; selector++)
+        {
+            ushort pointer = Word(0x93a1a1 + selector * 2);
+            AssertEqual(pointer, selectors[selector], "native charge flare phased selector");
+            if (!nativePointers.Contains(pointer)) nativePointers.Add(pointer);
+            var expected = new OamBuffer();
+            var actual = new OamBuffer();
+            DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, selector, 100, 100);
+            stock.Draw(selector, actual, 100, 100);
+            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+                "calculated flare selector draws exact native composition");
+            AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "calculated flare native OAM cursor");
+        }
+        AssertEqual(28, nativePointers.Count, "native unique flare identity count");
+        AssertTrue(nativePointers.SequenceEqual(ChargeFlareSpriteDefinitions.NativePointers), "native flare identity order preserved");
+        for (int index = 0; index < nativePointers.Count; index++)
+            AssertEqual((ushort)(index < 3 ? 1 : index == 3 ? 4 : 3), Word(0x930000 | nativePointers[index]), "native flare object record sizes");
+        foreach (int invalid in new[] { int.MinValue, -1, 54, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = selectors[invalid], "charge flare selector bounds");
+        foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = ChargeFlareSpriteDefinitions.NativePointers[invalid], "flare pointer bounds");
+        for (int digit = 0; digit < 10; digit++)
+        {
+            ushort pointer = EscapeTimerPresentationDefinitions.DigitSpritemapPointer(digit);
+            AssertEqual(Word(0x809fd4 + digit * 2), pointer, "native escape timer digit pointer");
+            AssertEqual((ushort)2, Word(0x800000 | pointer), "native two-object digit record");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTimerPresentationDefinitions.DigitSpritemapPointer(invalid), "escape digit bounds");
+        var dragon = DragonVisualDefinitions.Frames();
+        ushort[] operands = [0xe59d, 0xe5a3, 0xe5a7, 0xe5af, 0xe5b5, 0xe5b9, 0xe5c1, 0xe5c5, 0xe5c9, 0xe5d9, 0xe5dd, 0xe5e1];
+        string[] names = ["body_idle_left", "wing_left_0", "wing_left_1", "body_idle_right", "wing_right_0", "wing_right_1",
+            "body_attack_left_0", "body_attack_left_1", "body_attack_left_2", "body_attack_right_0", "body_attack_right_1", "body_attack_right_2"];
+        AssertEqual(12, dragon.Length, "Dragon visual identity count");
+        for (int index = 0; index < dragon.Length; index++)
+        {
+            AssertEqual(Word(0xa20000 | operands[index]), dragon[index].Pointer, "native Dragon visual pointer");
+            AssertEqual((byte)0xa2, dragon[index].Bank, "Dragon visual bank");
+            AssertEqual("dragon_" + names[index], dragon[index].Name, "Dragon stable editable identity");
+            AssertEqual((ushort)(index is 1 or 2 or 4 or 5 ? 1 : 8), Word(0xa20000 | dragon[index].Pointer), "native Dragon record size");
+        }
+    }
+    private static void VerifyLookupStream1OwtchStoke(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var controls = new HashSet<int>();
+        var visuals = new HashSet<int>();
+        for (int side = 0; side < 2; side++)
+        {
+            foreach (int offset in new[] { 0, 2, 6, 10, 14, 16 }) controls.Add(0xa3ab + side * 18 + offset);
+            foreach (int offset in new[] { 4, 8, 12 }) visuals.Add(0xa3ab + side * 18 + offset);
+        }
+        int controlIndex = 0, visualIndex = 0;
+        for (int pointer = 0xa3aa; pointer <= 0xa3d0; pointer++)
+        {
+            AssertEqual(controls.Contains(pointer) || controls.Contains(pointer - 1),
+                OwtchInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | pointer), "Owtch exact byte guard domain");
+            if (controls.Contains(pointer))
+            {
+                var actual = OwtchInstructionProgramDefinitions.MechanicsWord(controlIndex++);
+                AssertEqual((ushort)pointer, actual.Address, "Owtch native control order");
+                AssertEqual(Word(0xa20000 | pointer), actual.Value, "Owtch native controls");
+            }
+            else AssertThrows<InvalidDataException>(() => OwtchInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Owtch noncontrol rejection");
+            if (visuals.Contains(pointer))
+                AssertEqual((ushort)pointer, OwtchInstructionProgramDefinitions.PresentationWordAddress(visualIndex++), "Owtch native visual order");
+            else AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.OwtchDefinition, (ushort)pointer), "Owtch nonvisual rejection");
+        }
+        var stokeVisuals = new HashSet<int>();
+        for (int side = 0; side < 2; side++)
+            foreach (int offset in new[] { 4, 8, 12, 16, 24, 32 }) stokeVisuals.Add(0x8932 + side * 38 + offset);
+        for (int pointer = 0x8931; pointer <= 0x897f; pointer++)
+            if (stokeVisuals.Contains(pointer))
+                AssertEqual(Word(0xa20000 | pointer), OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, (ushort)pointer), "Stoke native visual selection");
+            else AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(RoomEnemySystem.StokeDefinition, (ushort)pointer), "Stoke nonvisual rejection");
+        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitions.MechanicsWord(invalid), "Owtch control bounds");
+        foreach (int invalid in new[] { int.MinValue, -1, 6, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => OwtchInstructionProgramDefinitions.PresentationWordAddress(invalid), "Owtch visual bounds");
+        AssertThrows<InvalidDataException>(() => OwtchStokeVisualDefinitions.FrameAt(0, 0xa3af), "unknown visual owner rejected");
+    }
+    private static void VerifyLookupStream1PuyoAndQuota(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (ushort argument = 0; argument <= 24; argument += 2)
+        {
+            ushort pointer = Word(0x84db28 + argument);
+            AssertEqual(pointer, SuperMetroid.Core.Rooms.MetroidsClearedPlmRomData.ResolvePreInstruction(argument), "native Metroid quota dispatcher identity");
+            var eventNumber = SuperMetroid.Core.Rooms.MetroidsClearedPlmRomData.ResolveEvent(argument);
+            if (argument < 18)
+            {
+                AssertTrue(eventNumber is null, "nine no-op quota identities have no event");
+                AssertEqual((byte)0x60, rom.ReadByte(0x840000 | pointer), "native distinct no-op RTS");
+            }
+            else AssertEqual(Word(0x840000 | (pointer + 9)), (ushort)eventNumber!.Value, "native quota observer event operand");
+        }
+        foreach (ushort invalid in new ushort[] { 1, 17, 25, 26, ushort.MaxValue })
+        {
+            AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.MetroidsClearedPlmRomData.ResolvePreInstruction(invalid), "quota pointer argument domain");
+            AssertThrows<InvalidDataException>(() => SuperMetroid.Core.Rooms.MetroidsClearedPlmRomData.ResolveEvent(invalid), "quota event argument domain");
+        }
+        var controls = new HashSet<int>();
+        var visuals = new HashSet<int>();
+        for (int loop = 0; loop < 3; loop++)
+        {
+            foreach (int offset in new[] { 0, 4, 8, 12, 16, 18 }) controls.Add(0x99ad + loop * 20 + offset);
+            foreach (int offset in new[] { 2, 6, 10, 14 }) visuals.Add(0x99ad + loop * 20 + offset);
+        }
+        for (int frame = 0; frame < 5; frame++)
+        {
+            controls.Add(0x99e9 + frame * 6);
+            controls.Add(0x99ed + frame * 6);
+            visuals.Add(0x99eb + frame * 6);
+        }
+        int controlIndex = 0, visualIndex = 0;
+        for (int pointer = 0x99ac; pointer <= 0x9a08; pointer++)
+        {
+            AssertEqual(controls.Contains(pointer) || controls.Contains(pointer - 1),
+                PuyoInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa20000 | pointer), "Puyo exact byte guard domain");
+            AssertEqual(visuals.Contains(pointer), PuyoInstructionProgramDefinitions.IsPresentationWord((ushort)pointer), "Puyo exact visual domain");
+            if (controls.Contains(pointer))
+            {
+                var actual = PuyoInstructionProgramDefinitions.MechanicsWord(controlIndex++);
+                AssertEqual((ushort)pointer, actual.Address, "Puyo native control order");
+                AssertEqual(Word(0xa20000 | pointer), actual.Value, "Puyo native control value");
+            }
+            else AssertThrows<InvalidDataException>(() => PuyoInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Puyo noncontrol rejection");
+            if (visuals.Contains(pointer)) AssertEqual((ushort)pointer, PuyoInstructionProgramDefinitions.PresentationWordAddress(visualIndex++), "Puyo native visual order");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 28, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitions.MechanicsWord(invalid), "Puyo control bounds");
+        foreach (int invalid in new[] { int.MinValue, -1, 17, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => PuyoInstructionProgramDefinitions.PresentationWordAddress(invalid), "Puyo visual bounds");
+    }
+    private static void VerifyLookupStream1MetroidLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var frames = MetroidVisualDefinitions.Frames();
+        AssertEqual(4, frames.Length, "Metroid body identities");
+        for (int frame = 0; frame < 4; frame++)
+        {
+            AssertEqual(Word(0xa3e9d1 + frame * 4), frames[frame].Pointer, "native Metroid body identity");
+            AssertEqual((byte)0xa3, frames[frame].Bank, "Metroid body bank");
+            AssertEqual($"metroid_body_{frame}", frames[frame].Name, "Metroid stable editable name");
+            AssertEqual((ushort)(frame == 1 ? 6 : 8), Word(0xa30000 | frames[frame].Pointer), "native Metroid OAM record size");
+        }
+        var controls = new HashSet<int>();
+        var visuals = new HashSet<int>();
+        foreach (var (start, count) in new[] { (0xe9cf, 20), (0xea25, 5) })
+        {
+            for (int frame = 0; frame < count; frame++)
+            {
+                controls.Add(start + frame * 4);
+                visuals.Add(start + frame * 4 + 2);
+            }
+            for (int control = 0; control < 3; control++) controls.Add(start + count * 4 + control * 2);
+        }
+        int controlIndex = 0, visualIndex = 0;
+        for (int pointer = 0xe9ce; pointer <= 0xea40; pointer++)
+        {
+            AssertEqual(controls.Contains(pointer) || controls.Contains(pointer - 1),
+                MetroidInstructionProgramDefinitions.IsCompiledMechanicsByte(0xa30000 | pointer), "Metroid exact byte guard");
+            AssertEqual(visuals.Contains(pointer), MetroidInstructionProgramDefinitions.IsPresentationWord((ushort)pointer), "Metroid exact visual domain");
+            if (controls.Contains(pointer))
+            {
+                var actual = MetroidInstructionProgramDefinitions.MechanicsWord(controlIndex++);
+                AssertEqual((ushort)pointer, actual.Address, "Metroid original control order");
+                AssertEqual(Word(0xa30000 | pointer), actual.Value, "Metroid original control value");
+            }
+            else AssertThrows<InvalidDataException>(() => MetroidInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer), "Metroid noncontrol rejection");
+            if (visuals.Contains(pointer)) AssertEqual((ushort)pointer, MetroidInstructionProgramDefinitions.PresentationWordAddress(visualIndex++), "Metroid original visual order");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 31, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitions.MechanicsWord(invalid), "Metroid control index bounds");
+        foreach (int invalid in new[] { int.MinValue, -1, 25, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MetroidInstructionProgramDefinitions.PresentationWordAddress(invalid), "Metroid visual index bounds");
+    }
+    private static void VerifyLookupStream1SamusPolicyDomains(ISnesAddressSpace rom)
+    {
+        for (int pose = 0; pose <= byte.MaxValue; pose++)
+        {
+            if (pose is >= 0xc9 and <= 0xce)
+            {
+                var angles = SamusShinesparkProjectileRomData.DepartureAngles((byte)pose);
+                AssertEqual(rom.ReadByte(0x90d4c6 + (pose - 0xc9) * 2), angles.First.TableIndex, "native crash first departure angle");
+                AssertEqual(rom.ReadByte(0x90d4c7 + (pose - 0xc9) * 2), angles.Second.TableIndex, "native crash opposite departure angle");
+            }
+            else AssertThrows<InvalidOperationException>(() => SamusShinesparkProjectileRomData.DepartureAngles((byte)pose), "crash departure exact pose domain");
+        }
+        foreach (byte invalid in new byte[] { 28, byte.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => SamusHudDefinitions.MovementHandler((SamusMovementType)invalid), "HUD movement exact domain");
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.WaterSplashFor((SamusMovementType)invalid), "splash exact movement domain");
+        }
+        foreach (ushort invalid in new ushort[] { 10, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.IsRunningFootContact(invalid), "foot-contact exact frame domain");
+        foreach (byte invalid in new byte[] { 16, byte.MaxValue })
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericEffectDefinitions.ForCrateriaRoom(invalid), "atmospheric room exact domain");
+        foreach (var (header, room) in new[] { (0x91f8, 0), (0x93fe, 5), (0x948c, 7), (0x94fd, 9), (0x9552, 10), (0x957d, 11), (0x95a8, 12), (0x95ff, 14) })
+            AssertEqual((byte)room, rom.ReadByte(0x8f0000 | header), "native atmospheric room header identity");
+    }
+    private static void VerifyLookupStream1ArmCannonTileSources(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var nativeSources = new SortedSet<ushort>();
+        for (int direction = 0; direction < 10; direction++)
+        {
+            int list = 0x900000 | Word(0x90c7a5 + direction * 2);
+            for (int frame = 1; frame < 4; frame++) nativeSources.Add(Word(list + frame * 2));
+        }
+        ushort[] expected = nativeSources.ToArray();
+        var sources = SamusArmCannonArtworkFormat.TileSourcePointers;
+        AssertEqual(expected.Length, sources.Length, "Calculated cannon source count matches distinct native list operands");
+        AssertTrue(expected.SequenceEqual(sources), "Calculated cannon source enumeration retains original ascending tile order");
+        for (int index = 0; index < expected.Length; index++)
+            AssertEqual(expected[index], sources[index], "Calculated cannon source indexing retains native identity");
+        for (int word = 0; word <= ushort.MaxValue; word++)
+        {
+            int nativeIndex = Array.IndexOf(expected, (ushort)word);
+            AssertEqual(nativeIndex, sources.IndexOf((ushort)word), "Calculated cannon reverse index preserves complete word domain");
+            AssertEqual(nativeIndex >= 0, sources.Contains((ushort)word), "Calculated cannon membership rejects interior addresses");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, expected.Length, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = sources[invalid], "Calculated cannon source index bounds preserve array contract");
+        using var directory = new MapCatalogTestDirectory();
+        SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
+        byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
+        var stock = SamusArmCannonArtworkCatalog.Load(new MemoryStream(json), new MemoryStream(png));
+        foreach (string fieldName in new[] { "attributes", "tileSources" })
+        {
+            var field = typeof(SamusArmCannonArtworkCatalog).GetField(fieldName,
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+            var overrides = (Dictionary<int, ushort>)field.GetValue(stock)!;
+            AssertEqual(0, overrides.Count, "Stock cannon selectors require no stored fallback overrides");
+        }
+        for (int direction = 0; direction < 10; direction++)
+        {
+            var aim = (SamusProjectileDirection)direction;
+            AssertEqual(Word(0x90c791 + direction * 2), SamusArmCannonArtworkFormat.StockSpriteAttributes(aim),
+                "Direct calculated cannon OBJ defaults match original native words");
+            int list = 0x900000 | Word(0x90c7a5 + direction * 2);
+            for (int frame = 0; frame < 4; frame++)
+                AssertEqual(Word(list + frame * 2), SamusArmCannonArtworkFormat.StockTileSource(aim, frame),
+                    "Direct calculated cannon source defaults match original native operands");
+        }
+        byte[] nativePlanar = expected.SelectMany(pointer => Enumerable.Range(0, 32).Select(offset => rom.ReadByte((0x9a0000 | pointer) + offset))).ToArray();
+        AssertEqual(ReferenceIdentity(json, nativePlanar), stock.ContentIdentity, "Calculated cannon selectors preserve canonical native content identity");
+        VerifySelectors(stock, -1, 0);
+        for (int direction = 0; direction < 10; direction++)
+        {
+            var document = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+            ushort replacement = expected[(sources.IndexOf(stock.TileSource(direction, 2)) + 1) % expected.Length];
+            document["tileSources"]![direction]![2] = replacement;
+            document["spriteAttributes"]![direction] = stock.SpriteAttributes(direction) ^ 0x4000;
+            byte[] changedJson = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString());
+            var changed = SamusArmCannonArtworkCatalog.Load(new MemoryStream(changedJson), new MemoryStream(png));
+            VerifySelectors(changed, direction, replacement);
+            AssertEqual(ReferenceIdentity(changedJson, nativePlanar), changed.ContentIdentity, "Independent cannon selector edits preserve canonical hash framing/order");
+            VerifySelectors(stock, -1, 0);
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => stock.SpriteAttributes(invalid), "Cannon OBJ selector bounds remain exact");
+            AssertThrows<IndexOutOfRangeException>(() => stock.TileSource(invalid, 0), "Cannon tile direction bounds remain exact");
+        }
+        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => stock.TileSource(0, invalid), "Cannon cover frame bounds remain exact");
+        Verify(stock, false);
+        var image = IndexedPng.Read(new MemoryStream(png), sources.Length * 8, 8);
+        byte[] pixels = (byte[])image.Pixels.Clone();
+        pixels[5 * 8] ^= 1;
+        using var editedPng = new MemoryStream();
+        IndexedPng.Write(editedPng, image.Width, image.Height, pixels, image.Palette);
+        editedPng.Position = 0;
+        var edited = SamusArmCannonArtworkCatalog.Load(new MemoryStream(json), editedPng);
+        Verify(edited, true);
+        Verify(stock, false);
+        AssertTrue(!stock.TryResolveTile(0x9b0000 | expected[0], 32, out _), "Cannon transfer retains native bank boundary");
+        AssertTrue(!stock.TryResolveTile(0x9a0000 | expected[0], 31, out _), "Cannon transfer retains native byte-count boundary");
+        AssertTrue(!stock.TryResolveTile((0x9a0000 | expected[0]) + 1, 32, out _), "Cannon transfer rejects interior source address");
+
+        void VerifySelectors(SamusArmCannonArtworkCatalog catalog, int editedDirection, ushort replacement)
+        {
+            for (int direction = 0; direction < 10; direction++)
+            {
+                ushort expectedAttributes = Word(0x90c791 + direction * 2);
+                if (direction == editedDirection) expectedAttributes ^= 0x4000;
+                AssertEqual(expectedAttributes, catalog.SpriteAttributes(direction), "Calculated OBJ reflections preserve native attributes and independent edits");
+                int list = 0x900000 | Word(0x90c7a5 + direction * 2);
+                for (int frame = 0; frame < 4; frame++)
+                {
+                    ushort expectedSource = direction == editedDirection && frame == 2 ? replacement : Word(list + frame * 2);
+                    AssertEqual(expectedSource, catalog.TileSource(direction, frame), "Calculated cannon orientation/frame preserves native selections and independent edits");
+                }
+            }
+        }
+
+        static string ReferenceIdentity(byte[] jsonBytes, byte[] planar)
+        {
+            using var document = System.Text.Json.JsonDocument.Parse(jsonBytes);
+            var root = document.RootElement;
+            return SelectedPresentationHash.Create(nameof(SamusArmCannonArtworkCatalog), content =>
+            {
+                content.AppendWords("pose pointers", root.GetProperty("posePointers").EnumerateArray().Select(value => (ushort)value.GetInt32()).ToArray());
+                content.Append("drawing data", root.GetProperty("drawingData").EnumerateArray().Select(value => (byte)value.GetInt32()).ToArray());
+                content.AppendWords("attributes", root.GetProperty("spriteAttributes").EnumerateArray().Select(value => (ushort)value.GetInt32()).ToArray());
+                foreach (var direction in root.GetProperty("tileSources").EnumerateArray())
+                    content.AppendWords("tile sources", direction.EnumerateArray().Select(value => (ushort)value.GetInt32()).ToArray());
+                content.Append("characters", planar);
+            });
+        }
+        void Verify(SamusArmCannonArtworkCatalog catalog, bool hasEdit)
+        {
+            for (int index = 0; index < expected.Length; index++)
+            {
+                int source = 0x9a0000 | expected[index];
+                AssertTrue(catalog.TryResolveTile(source, 32, out var tile), "Actual cannon transfer resolves every calculated identity");
+                for (int offset = 0; offset < 32; offset++)
+                {
+                    byte native = rom.ReadByte(source + offset);
+                    if (hasEdit && index == 5 && offset == 0) native ^= 0x80;
+                    AssertEqual(native, tile.Span[offset], "Calculated identity retains original tile bytes and isolated edited pixel");
+                }
+            }
+        }
+    }
+    private static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
+    {
+        using var directory = new MapCatalogTestDirectory();
+        SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
+        byte[] json = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.JsonFileName));
+        byte[] png = File.ReadAllBytes(Path.Combine(directory.Root, SamusArmCannonArtworkFormat.TileFileName));
+        var document = System.Text.Json.JsonSerializer.Deserialize<SamusArmCannonArtworkDocument>(json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var tiles = RoomCharacterAtlas.Load(new MemoryStream(png), SamusArmCannonArtworkFormat.TileSourcePointers.Length * 32);
+        SamusArmCannonArtworkCatalog Load(SamusArmCannonArtworkDocument value) => SamusArmCannonArtworkCatalog.FromPlacement(
+            SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
+        var stock = Load(document);
+        var field = typeof(SamusArmCannonArtworkCatalog).GetField("drawingData",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        Dictionary<int, byte> Stored(SamusArmCannonArtworkCatalog value) => (Dictionary<int, byte>)field.GetValue(value)!;
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var headers = new HashSet<int>();
+        var descriptors = new SortedSet<int>();
+        for (int pose = 0; pose < 253; pose++)
+        {
+            int pointer = Word(0x90C7DF + pose * 2);
+            descriptors.Add(pointer);
+            headers.Add(pointer); headers.Add(pointer + 1);
+            if ((rom.ReadByte(0x900000 | pointer) & 0x80) != 0)
+            { headers.Add(pointer + 2); headers.Add(pointer + 3); }
+        }
+        AssertEqual(130, headers.Count, "cannon original distinct direction/mode control-byte count");
+        for (int address = 0xCC21; address < 0xCC39; address++) headers.Add(address);
+        var aliases = new Dictionary<int, int>();
+        int[] boundaries = descriptors.Append(0xCC21).ToArray();
+        for (int descriptor = 0; descriptor < boundaries.Length - 1; descriptor++)
+        {
+            int pointer = boundaries[descriptor], next = boundaries[descriptor + 1];
+            if ((rom.ReadByte(0x900000 | pointer) & 0x80) != 0 || next - pointer <= 4) continue;
+            bool constantPair = true;
+            for (int address = pointer + 4; address < next; address++)
+                constantPair &= rom.ReadByte(0x900000 | address) == rom.ReadByte(0x900000 | (pointer + 2 + ((address - pointer) & 1)));
+            if (constantPair)
+                for (int address = pointer + 4; address < next; address++) aliases.Add(address, pointer + 2 + ((address - pointer) & 1));
+            else
+            {
+                bool fixedX = true;
+                for (int address = pointer + 4; address < next; address += 2)
+                    fixedX &= rom.ReadByte(0x900000 | address) == rom.ReadByte(0x900000 | (pointer + 2));
+                if (fixedX)
+                {
+                    for (int address = pointer + 4; address < next; address += 2) aliases.Add(address, pointer + 2);
+                    int frames = (next - pointer - 2) / 2;
+                    if (frames is 6 or 10)
+                    {
+                        bool repeatedHalf = true;
+                        for (int address = pointer + 3 + frames; address < next; address += 2)
+                            repeatedHalf &= rom.ReadByte(0x900000 | address) == rom.ReadByte(0x900000 | (address - frames));
+                        if (repeatedHalf)
+                            for (int address = pointer + 3 + frames; address < next; address += 2)
+                                aliases.Add(address, address - frames);
+                    }
+                }
+            }
+        }
+        foreach ((int earlierPose, int laterPose) in new (int, int)[]
+        {
+            (0x01,0x02), (0x07,0x08), (0x0F,0x10), (0x11,0x12),
+            (0x13,0x14), (0x17,0x18), (0x51,0x52), (0x69,0x6A),
+            (0x6B,0x6C), (0x67,0x68), (0x2D,0x2E), (0x6D,0x6E),
+            (0x6F,0x70), (0x27,0x28), (0x73,0x74), (0x49,0x4A),
+            (0x75,0x76), (0x77,0x78), (0x55,0x56),
+        })
+        {
+            int earlier = Word(0x90C7DF + earlierPose * 2), later = Word(0x90C7DF + laterPose * 2);
+            int end = boundaries[Array.IndexOf(boundaries, later) + 1] - later;
+            for (int offset = 3; offset < end; offset += 2)
+            {
+                AssertEqual(rom.ReadByte(0x900000 | (earlier + offset)), rom.ReadByte(0x900000 | (later + offset)),
+                    "native horizontally reflected poses share this vertical profile");
+                if (!aliases.ContainsKey(later + offset)) aliases.Add(later + offset, earlier + offset);
+            }
+        }
+        foreach ((int earlierPose, int laterPose) in new (int, int)[] { (0x03,0x04), (0x15,0x16), (0x85,0x86) })
+        {
+            int earlierY = Word(0x90C7DF + earlierPose * 2) + 7, laterY = Word(0x90C7DF + laterPose * 2) + 7;
+            AssertEqual(rom.ReadByte(0x900000 | earlierY), rom.ReadByte(0x900000 | laterY), "native fully upward secondary pose shares Y");
+            aliases.Add(laterY, earlierY);
+        }
+        var reflections = new Dictionary<int, int>();
+        // Native pose identities independently select the paired descriptors; no
+        // production reflection selector participates in this expected mapping.
+        foreach ((int earlierPose, int laterPose) in new (int, int)[]
+        {
+            (0x01,0x02), (0x03,0x04), (0x05,0x06), (0x07,0x08),
+            (0x0B,0x0C), (0x0F,0x10), (0x11,0x12), (0x13,0x14),
+            (0x15,0x16), (0x51,0x52), (0x69,0x6A), (0x6B,0x6C),
+            (0x67,0x68), (0x2B,0x2C), (0x6D,0x6E), (0x6F,0x70),
+            (0x27,0x28), (0x71,0x72), (0x73,0x74), (0x85,0x86),
+            (0x49,0x4A), (0x75,0x76), (0x77,0x78), (0x55,0x56),
+        })
+        {
+            int earlier = Word(0x90C7DF + earlierPose * 2), later = Word(0x90C7DF + laterPose * 2);
+            bool variableDirection = (rom.ReadByte(0x900000 | later) & 0x80) != 0;
+            int first = variableDirection ? 4 : 2;
+            int end = variableDirection ? boundaries[Array.IndexOf(boundaries, later) + 1] - later : first + 2;
+            for (int offset = first; offset < end; offset += 2)
+            {
+                int source = earlier + offset, target = later + offset;
+                byte expected = unchecked((byte)(-unchecked((sbyte)rom.ReadByte(0x900000 | source)) - 8));
+                AssertEqual(expected, rom.ReadByte(0x900000 | target), "native paired cover spans reflect around Samus origin");
+                reflections.Add(target, source);
+            }
+        }
+        AssertEqual(29, reflections.Count, "cannon native reflected origin count");
+        AssertEqual(290, aliases.Count, "cannon original repeated coordinate-byte domain");
+        const int start = 0xC9D9, count = 608, coordinateCount = 135;
+        AssertEqual(coordinateCount, Stored(stock).Count, "cannon stores exactly required coordinate basis");
+        for (int index = 0; index < count; index++)
+        {
+            ushort address = (ushort)(start + index);
+            byte expected = rom.ReadByte(0x900000 | address);
+            bool calculated = SamusArmCannonArtworkFormat.TryStockDrawingByte(address, out byte value);
+            AssertEqual(headers.Contains(address), calculated, "cannon only original controls/cost aliases are calculated");
+            if (calculated) AssertEqual(expected, value, "cannon direct original header/cost calculation");
+            bool alias = SamusArmCannonArtworkFormat.TryStockCoordinateSource(address, out ushort source);
+            AssertEqual(aliases.ContainsKey(address), alias, "cannon direct native constant-origin domain");
+            if (alias)
+            {
+                AssertEqual((ushort)aliases[address], source, "cannon direct original first-pair source");
+                AssertTrue(source < address, "cannon coordinate aliases strictly decrease");
+            }
+            bool reflection = SamusArmCannonArtworkFormat.TryStockReflectedXSource(address, out ushort reflectedSource);
+            AssertEqual(reflections.ContainsKey(address), reflection, "cannon native reflected-origin domain");
+            if (reflection)
+            {
+                AssertEqual((ushort)reflections[address], reflectedSource, "cannon original opposite-facing source");
+                AssertTrue(reflectedSource < address && !calculated && !alias, "cannon reflection is an acyclic independent source relation");
+                AssertEqual(expected, SamusArmCannonArtworkFormat.ReflectCoverX(rom.ReadByte(0x900000 | reflectedSource)), "cannon reflected native default");
+            }
+            AssertEqual(!calculated && !alias && !reflection, Stored(stock).ContainsKey(index), "cannon exact coordinate storage membership");
+            AssertEqual(expected, stock.ReadDrawingByte(address), "cannon complete installed byte window");
+            int[] drawing = document.DrawingData.ToArray(); drawing[index] ^= 0xFF;
+            var edited = Load(document with { DrawingData = drawing });
+            int expectedStored = 0;
+            for (int selected = 0; selected < count; selected++)
+            {
+                int selectedAddress = start + selected;
+                bool mandatory = !headers.Contains(selectedAddress) && !aliases.ContainsKey(selectedAddress) && !reflections.ContainsKey(selectedAddress);
+                int selectedDefault = aliases.TryGetValue(selectedAddress, out int nativeSource)
+                    ? drawing[nativeSource - start]
+                    : reflections.TryGetValue(selectedAddress, out int reflectedNativeSource)
+                        ? unchecked((byte)(-unchecked((sbyte)drawing[reflectedNativeSource - start]) - 8))
+                        : document.DrawingData[selected];
+                bool shouldStore = mandatory || drawing[selected] != selectedDefault;
+                if (shouldStore) expectedStored++;
+                AssertEqual(shouldStore, Stored(edited).ContainsKey(selected), "cannon exact supplied-basis exception membership");
+            }
+            AssertEqual(expectedStored, Stored(edited).Count, "cannon stores only basis and independently supplied differences");
+            for (int other = 0; other < count; other++)
+                AssertEqual((byte)(other == index ? drawing[index] : document.DrawingData[other]),
+                    edited.ReadDrawingByte((ushort)(start + other)), "cannon independent control/coordinate/cost edit");
+            AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "cannon every supplied byte changes selected identity");
+        }
+        foreach (ushort address in new ushort[] { 0, start - 1, start + count, ushort.MaxValue })
+            AssertThrows<InvalidDataException>(() => stock.ReadDrawingByte(address), "cannon drawing bounds remain exact");
+        Console.WriteLine("Cannon drawing:130 native controls,24 cost aliases,290 shared coordinates,29 reflected origins,135 exact basis bytes and608 independent edits pass.");
+    }
+
+    private static void VerifyLookupStream1AtmosphericAttributes(ISnesAddressSpace rom)
+    {
+        ushort[] Native(int address) => Enumerable.Range(0, 4).Select(frame =>
+            (ushort)(rom.ReadByte(address + frame * 2) | rom.ReadByte(address + frame * 2 + 1) << 8)).ToArray();
+        ushort[] one = Native(0x908C0F), shared = Native(0x908C17);
+        var stock = new SamusAtmosphericArtworkCatalog(one, shared);
+        int Stored(SamusAtmosphericArtworkCatalog catalog, string name) =>
+            ((System.Collections.IDictionary)typeof(SamusAtmosphericArtworkCatalog).GetField(name,
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(catalog)!).Count;
+        string Identity(ushort[] first, ushort[] second) => SelectedPresentationHash.Create(nameof(SamusAtmosphericArtworkCatalog), hash =>
+        { hash.AppendWords("type one", first); hash.AppendWords("shared type four", second); });
+        AssertEqual(Identity(one, shared), stock.ContentIdentity, "atmospheric canonical selected identity unchanged");
+        AssertEqual(0, Stored(stock, "typeOne"), "atmospheric footsteps contain no stock overrides");
+        AssertEqual(0, Stored(stock, "sharedTypeFour"), "atmospheric lava/dust contains no stock overrides");
+        for (int kind = 0; kind < 2; kind++)
+        for (int frame = 0; frame < 4; frame++)
+        {
+            ushort expected = (kind == 0 ? one : shared)[frame];
+            AssertEqual(expected, SamusAtmosphericArtworkDefinitions.Attributes(kind == 0, frame), "atmospheric direct native packed default");
+            var packed = new SnesObjAttributeWord(expected);
+            AssertEqual(SamusAtmosphericArtworkDefinitions.Palette, packed.PaletteIndex, "atmospheric required palette basis");
+            AssertEqual(SamusAtmosphericArtworkDefinitions.Priority, packed.Priority, "atmospheric required priority basis");
+            AssertEqual((kind == 0 ? SamusAtmosphericArtworkDefinitions.FootstepFirstTile : SamusAtmosphericArtworkDefinitions.LavaDustFirstTile) + frame,
+                packed.TileNumber, "atmospheric nine-bit tile progression");
+            ushort[] editOne = one.ToArray(), editShared = shared.ToArray();
+            ushort changedWord = (ushort)(expected ^ 0xFFFF);
+            (kind == 0 ? editOne : editShared)[frame] = changedWord;
+            var edited = new SamusAtmosphericArtworkCatalog(editOne, editShared);
+            AssertEqual(1, Stored(edited, kind == 0 ? "typeOne" : "sharedTypeFour"), "atmospheric one full-word supplied exception");
+            AssertEqual(0, Stored(edited, kind == 0 ? "sharedTypeFour" : "typeOne"), "atmospheric other list unchanged");
+            AssertEqual(Identity(editOne, editShared), edited.ContentIdentity, "atmospheric edited identity uses exact supplied words");
+            editOne[frame] = 0; editShared[frame] = 0;
+            foreach (byte type in new byte[] { 1, 4, 6, 7 })
+            for (byte other = 0; other < 4; other++)
+            {
+                AssertTrue(edited.TryResolve(type, other, out ushort value), "atmospheric admitted type/frame");
+                AssertEqual((type == 1) == (kind == 0) && other == frame ? changedWord : (type == 1 ? one : shared)[other], value,
+                    "atmospheric supplied full word and caller-input isolation");
+            }
+        }
+        AssertTrue(!stock.TryResolve(2, 0, out _), "atmospheric null pointer remains outside installed domain");
+        AssertTrue(!stock.TryResolve(1, 4, out _), "atmospheric next frame rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = stock.TypeOne[-1], "atmospheric negative view index");
+        Console.WriteLine("Atmospheric attributes: eight direct native defaults, exact OBJ field basis, zero stock overrides, eight full-word edits and canonical identities pass.");
+    }
+
+    private static void VerifyLookupStream1EscapeText(ISnesAddressSpace rom)
+    {
+        byte[] json = EscapeTypewriterExtractor.Extract(rom);
+        var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var document = System.Text.Json.JsonSerializer.Deserialize<EscapeTypewriterDocument>(json, options)!;
+        EscapeTypewriterPresentation Load(EscapeTypewriterDocument value)
+        {
+            using var output = new MemoryStream();
+            EscapeTypewriterPresentation.Write(output, value);
+            output.Position = 0;
+            return EscapeTypewriterPresentation.Load(output);
+        }
+        var stock = Load(document);
+        int Stored(EscapeTypewriterProgram program) => ((System.Collections.IDictionary)program.Lines.GetType()
+            .GetField("overrides", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .GetValue(program.Lines)!).Count;
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        int totalFrames = 0;
+        foreach (EscapeTypewriterProgramId id in new[] { EscapeTypewriterProgramId.Ceres, EscapeTypewriterProgramId.Zebes })
+        {
+            var program = stock.Get(id);
+            var original = document.Programs[id.ToString()].Lines;
+            AssertEqual(original.Length, EscapeTypewriterDefinitions.LineCount(id), "escape text required line grouping");
+            AssertEqual(0, Stored(program), "escape text stock contains no sampled line overrides");
+            for (int index = 0; index < original.Length; index++)
+            {
+                var expected = new EscapeTypewriterLine((ushort)original[index].Destination, original[index].Text);
+                AssertEqual(expected, EscapeTypewriterDefinitions.Line(id, index), "escape text direct original placement and wording");
+                AssertEqual(expected, program.Lines[index], "escape text installed line");
+                var editedLines = original.ToArray();
+                editedLines[index] = original[index] with { Text = "TEST!", Destination = original[index].Destination + 7 };
+                var programs = new Dictionary<string, EscapeTypewriterProgramDocument>(document.Programs)
+                { [id.ToString()] = new() { Lines = editedLines } };
+                var edited = Load(document with { Programs = programs });
+                AssertEqual(1, Stored(edited.Get(id)), "escape text single supplied line exception");
+                for (int other = 0; other < original.Length; other++)
+                    AssertEqual(other == index ? new EscapeTypewriterLine((ushort)editedLines[index].Destination, "TEST!")
+                        : program.Lines[other], edited.Get(id).Lines[other], "escape text independent line edit");
+            }
+            // Independently interpret original control words and characters; the production
+            // side receives only the installed calculated view and no cartridge reader.
+            ushort tileBase = id == EscapeTypewriterProgramId.Ceres ? (ushort)0x3582 : (ushort)0x2610;
+            var actual = new EscapeTypewriterState(program, tileBase);
+            var actualVram = new SnesVram(); var expectedVram = new SnesVram();
+            int cursor = EscapeTypewriterDefinitions.SourceAddress(id), glyphs = 0;
+            ushort destination = 0, delay = 0, timer = 0;
+            bool done = false;
+            for (int frame = 0; !done && frame < 1000; frame++)
+            {
+                bool click = false;
+                if (timer != 0) timer--;
+                else
+                {
+                    timer = delay;
+                    while (true)
+                    {
+                        ushort command = Word(cursor);
+                        if (command == 0) { done = true; break; }
+                        if (command == 1) { delay = Word(cursor + 2); cursor += 4; continue; }
+                        if (command == 13) { destination = Word(cursor + 2); cursor += 4; continue; }
+                        byte character = rom.ReadByte(cursor++);
+                        if (character != ' ')
+                        {
+                            int glyph = character == '!' ? '[' : character;
+                            expectedVram.ExecuteWordTransfer([(ushort)(tileBase + glyph - 'A')], destination, 1);
+                            click = ++glyphs % 2 == 0;
+                        }
+                        destination++;
+                        break;
+                    }
+                }
+                AssertEqual(done, actual.Step(new ForbiddenEscapeTextBus(), actualVram), "escape text native completion");
+                AssertEqual(destination, actual.Destination, "escape text native destination");
+                AssertEqual(delay, actual.Delay, "escape text native delay");
+                AssertEqual(timer, actual.DelayTimer, "escape text native countdown");
+                AssertEqual(glyphs, actual.GlyphsWritten, "escape text native glyph count");
+                AssertEqual(click, actual.ClickRequested, "escape text native click order");
+                AssertTrue(expectedVram.Bytes.SequenceEqual(actualVram.Bytes), "escape text native per-character VRAM");
+                totalFrames++;
+            }
+            AssertTrue(done, "escape text native program terminates");
+            var extraLines = original.Append(new EscapeTypewriterLineDocument { Destination = 0x6000, Text = "EXTRA!" }).ToArray();
+            var extraPrograms = new Dictionary<string, EscapeTypewriterProgramDocument>(document.Programs)
+            { [id.ToString()] = new() { Lines = extraLines } };
+            var extra = Load(document with { Programs = extraPrograms }).Get(id);
+            AssertEqual(original.Length + 1, extra.Lines.Count, "escape text accepts independently added line");
+            AssertEqual(new EscapeTypewriterLine(0x6000, "EXTRA!"), extra.Lines[^1], "escape text preserves added content");
+            AssertEqual(1, Stored(extra), "escape text stores only added line");
+            extraPrograms[id.ToString()] = new() { Lines = original.Take(1).ToArray() };
+            AssertEqual(1, Load(document with { Programs = extraPrograms }).Get(id).Lines.Count, "escape text preserves shortened document");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = program.Lines[-1], "escape text negative line");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = program.Lines[original.Length], "escape text next line");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Get(EscapeTypewriterProgramId.None), "escape text rejects absent program");
+        Console.WriteLine($"Escape text: five direct native lines, zero stock overrides, independent edits/line counts and {totalFrames} actual native-oracle frames pass.");
+    }
+
+    private static void VerifyLookupStream1VisorColors(ISnesAddressSpace rom)
+    {
+        var document = System.Text.Json.JsonSerializer.Deserialize<SamusVisorColorDocument>(
+            SamusVisorColorExtractor.Extract(rom), new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        SamusVisorColorCatalog Load(SamusVisorColorDocument value) =>
+            SamusVisorColorCatalog.Load(new MemoryStream(SamusVisorColorCatalog.Write(value)));
+        var stock = Load(document);
+        var field = typeof(SamusVisorColorCatalog).GetField("colors",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        Dictionary<int, ushort> Stored(SamusVisorColorCatalog value) => (Dictionary<int, ushort>)field.GetValue(value)!;
+        ushort Native(int index)
+        {
+            int address = SamusVisorColorFormat.SourceAddress + index * 2;
+            return (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        }
+        AssertEqual(0, Stored(stock).Count, "visor stock stores no sampled fallback colors");
+        AssertEqual(Native(0), SamusVisorColorDefinitions.WideningStart, "visor required widening basis");
+        AssertEqual(Native(3), SamusVisorColorDefinitions.FullBeamStart, "visor required full-beam basis");
+        for (int channel = 0; channel < 3; channel++)
+            AssertEqual(SamusVisorColorDefinitions.DarkeningStep,
+                ((Native(3) >> (channel * 5)) & 31) - ((Native(4) >> (channel * 5)) & 31), "visor required darkening basis");
+        for (int edited = 0; edited < SamusVisorColorFormat.ColorCount; edited++)
+        {
+            AssertEqual(Native(edited), SamusVisorColorDefinitions.Color(edited), $"visor direct native default {edited}");
+            var changedColors = document.Colors.ToArray();
+            ushort changedWord = (ushort)(Native(edited) ^ 0x7FFF);
+            changedColors[edited] = new PaletteRgb5 { Red = changedWord & 31, Green = (changedWord >> 5) & 31, Blue = changedWord >> 10 };
+            var changed = Load(document with { Colors = changedColors });
+            AssertEqual(1, Stored(changed).Count, "visor independent edit stores exactly one exception");
+            AssertEqual(changedWord, Stored(changed)[edited], "visor exception preserves supplied RGB5");
+            for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)
+                AssertEqual(index == edited ? changedWord : Native(index), changed.Resolve(index), "visor supplied edit is independent");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(-1), "visor rejects negative index");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(6), "visor rejects next index");
+        AssertTrue(!stock.TryResolveByteOffset(-2, out _), "visor rejects negative offset");
+        Console.WriteLine("Visor: six direct native defaults, exact two-color/step basis, zero stock overrides and six independent edits pass.");
+    }
+
 }

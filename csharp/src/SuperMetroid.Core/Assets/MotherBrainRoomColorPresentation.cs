@@ -7,28 +7,29 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Mother Brain fake-death room flash and phase-two initial colors.</summary>
 public sealed class MotherBrainRoomColorPresentation
 {
-    private readonly ushort[][] flash;
+    private readonly RoomFlash flash;
     private readonly ushort[] finalRoom;
     private readonly ushort[] phaseTwoAttack;
-    private readonly ushort[] phaseTwoRearLeg;
+    private readonly ushort[]? phaseTwoRearLeg;
     private readonly ushort[] initialGlassShard;
     private readonly ushort[] initialTubeProjectile;
-    private readonly ushort[][] recoveryLights;
+    private readonly RecoveryLightFade recoveryLights;
 
     /// <summary>Timed-entry identities installed by the validated flash rows; exposes no color payload.</summary>
-    internal IEnumerable<ushort> FlashEntryPointers => Enumerable.Range(0, flash.Length)
+    internal IEnumerable<ushort> FlashEntryPointers => Enumerable.Range(0, flash.FrameCount)
         .Select(index => checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart +
             index * MotherBrainRoomColorRomData.TimedEntryByteCount)));
 
     private MotherBrainRoomColorPresentation(ushort[][] flash, ushort[] finalRoom,
         ushort[] phaseTwoAttack, ushort[] phaseTwoRearLeg,
         ushort[] initialGlassShard, ushort[] initialTubeProjectile,
-        ushort[][] recoveryLights)
+        RecoveryLightFade recoveryLights)
     {
-        this.flash = flash;
+        this.flash = new RoomFlash(flash, finalRoom);
         this.finalRoom = finalRoom;
         this.phaseTwoAttack = phaseTwoAttack;
-        this.phaseTwoRearLeg = phaseTwoRearLeg;
+        this.phaseTwoRearLeg = phaseTwoRearLeg.Where((word, color) =>
+            word != MotherBrainHealthPalettePresentation.StockBaseColor(backLeg: true, color)).Any() ? phaseTwoRearLeg : null;
         this.initialGlassShard = initialGlassShard;
         this.initialTubeProjectile = initialTubeProjectile;
         this.recoveryLights = recoveryLights;
@@ -39,9 +40,17 @@ public sealed class MotherBrainRoomColorPresentation
     {
         int offset = timedEntryPointer - MotherBrainRoomPaletteProgramDefinitions.FlashStart;
         int stride = MotherBrainRoomColorRomData.TimedEntryByteCount;
-        if (offset < 0 || offset % stride != 0 || (uint)(offset / stride) >= flash.Length)
+        if (offset < 0 || offset % stride != 0 || (uint)(offset / stride) >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             throw new InvalidDataException($"Mother Brain room-flash entry $A9:{timedEntryPointer:X4} is not authored.");
-        ApplyRoom(cgram, flash[offset / stride]);
+        ArgumentNullException.ThrowIfNull(cgram);
+        int frame = offset / stride;
+        for (int color = 0; color < MotherBrainRoomColorRomData.SliceColors; color++)
+        {
+            cgram.SetColor(MotherBrainRoomColorRomData.FirstColor + color, flash.Color(frame, color));
+            ushort second = flash.Color(frame, MotherBrainRoomColorRomData.SliceColors + color);
+            cgram.SetColor(MotherBrainRoomColorRomData.SecondColor + color, second);
+            cgram.SetColor(MotherBrainRoomColorRomData.MirroredSecondColor + color, second);
+        }
     }
 
     /// <summary>Applies the final grey room colors when the flash program is stopped.</summary>
@@ -56,7 +65,7 @@ public sealed class MotherBrainRoomColorPresentation
             cgram.SetColor(MotherBrainRoomColorRomData.PhaseTwoAttackColor + index,
                 phaseTwoAttack[index]);
             cgram.SetColor(MotherBrainRoomColorRomData.PhaseTwoRearLegColor + index,
-                phaseTwoRearLeg[index]);
+                phaseTwoRearLeg?[index] ?? MotherBrainHealthPalettePresentation.StockBaseColor(backLeg: true, index));
         }
     }
 
@@ -89,16 +98,16 @@ public sealed class MotherBrainRoomColorPresentation
     public void ApplyRecoveryLights(SnesCgram cgram, int frame)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        if ((uint)frame >= recoveryLights.Length)
+        if ((uint)frame >= MotherBrainRoomColorRomData.RecoveryLightsFrames)
             throw new InvalidDataException($"Mother Brain room-light recovery frame {frame} is not authored.");
-        ushort[] colors = recoveryLights[frame];
+
         for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination;
              index++)
         {
             cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsFirstColor + index,
-                colors[index]);
+                recoveryLights.Color(frame, index));
             cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsSecondColor + index,
-                colors[MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination + index]);
+                recoveryLights.Color(frame, MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination + index));
         }
     }
 
@@ -130,8 +139,8 @@ public sealed class MotherBrainRoomColorPresentation
         for (int index = 0; index < flash.Length; index++)
             flash[index] = Compile(document.Flash[index], MotherBrainRoomColorRomData.SliceColors * 2,
                 $"flash row {index}");
-        return new(flash,
-            Compile(document.FinalRoom, MotherBrainRoomColorRomData.SliceColors * 2, "final room"),
+        ushort[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorRomData.SliceColors * 2, "final room");
+        return new(flash, finalRoom,
             Compile(document.PhaseTwoAttack, MotherBrainRoomColorRomData.PhaseTwoColors,
                 "phase-two attack"),
             Compile(document.PhaseTwoRearLeg, MotherBrainRoomColorRomData.PhaseTwoColors,
@@ -146,9 +155,92 @@ public sealed class MotherBrainRoomColorPresentation
                     "room-entry tube projectile"),
             document.Version < MotherBrainRoomColorFormat.Version
                 ? currentStock!.recoveryLights
-                : CompileRecoveryLights(document.RecoveryLights));
+                : new RecoveryLightFade(CompileRecoveryLights(document.RecoveryLights), finalRoom));
     }
 
+    /// <summary>Background highlight interpolation paired with darkening level colors.</summary>
+    private sealed class RoomFlash
+    {
+        private readonly ushort[] basis;
+        private readonly ushort highlight;
+        private readonly ushort[][]? supplied;
+
+        public int FrameCount { get; }
+
+        public RoomFlash(ushort[][] rows, ushort[] finalRoom)
+        {
+            FrameCount = rows.Length;
+            basis = finalRoom;
+            highlight = rows[3][0];
+            for (int frame = 0; frame < rows.Length; frame++)
+                for (int color = 0; color < basis.Length; color++)
+                    if (Calculate(frame, color) != rows[frame][color])
+                    { supplied = rows; return; }
+        }
+
+        public ushort Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+
+        private ushort Calculate(int frame, int color)
+        {
+            int strength = MotherBrainRoomPaletteProgramDefinitions.FlashStrength(frame);
+            int result = 0;
+            for (int shift = 0; shift < 15; shift += 5)
+            {
+                int channel = (basis[color] >> shift) & 31;
+                // The first level color joins the background highlight; the remaining
+                // level colors dim by one quarter per strength step, rounding nearest.
+                int value = color <= MotherBrainRoomColorRomData.SliceColors
+                    ? (channel * (3 - strength) + ((highlight >> shift) & 31) * strength + 1) / 3
+                    : (channel * (4 - strength) + 2) / 4;
+                result |= value << shift;
+            }
+            return (ushort)result;
+        }
+    }
+    /// <summary>Seven equal RGB5 intensity steps with shared room-palette endpoints.</summary>
+    private sealed class RecoveryLightFade
+    {
+        private readonly ushort[] finalRoom;
+        private readonly ushort backgroundLight;
+        private readonly ushort backgroundMiddle;
+        private readonly ushort backgroundDark;
+        private readonly ushort neutralHighlight;
+        private readonly ushort[][]? supplied;
+
+        public RecoveryLightFade(ushort[][] rows, ushort[] finalRoom)
+        {
+            this.finalRoom = finalRoom;
+            ushort[] full = rows[^1];
+            backgroundLight = full[0];
+            backgroundMiddle = full[1];
+            backgroundDark = full[2];
+            neutralHighlight = full[14];
+            for (int frame = 0; frame < rows.Length; frame++)
+                for (int color = 0; color < rows[frame].Length; color++)
+                    if (Calculate(frame, color) != rows[frame][color])
+                    { supplied = rows; return; }
+        }
+
+        public ushort Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+
+        private ushort Calculate(int frame, int color)
+        {
+            ushort endpoint = color switch
+            {
+                0 => backgroundLight,
+                1 => backgroundMiddle,
+                2 => backgroundDark,
+                >= 3 and <= 13 => finalRoom[color - 3],
+                14 or 15 => neutralHighlight,
+                _ => finalRoom[color - 4],
+            };
+            int result = 0;
+            for (int shift = 0; shift < 15; shift += 5)
+                result |= (((endpoint >> shift) & 31) * (frame + 1) /
+                    MotherBrainRoomColorRomData.RecoveryLightsFrames) << shift;
+            return (ushort)result;
+        }
+    }
     private static ushort[][] CompileRecoveryLights(PaletteRgb5[][]? frames)
     {
         if (frames is null || frames.Length != MotherBrainRoomColorRomData.RecoveryLightsFrames)

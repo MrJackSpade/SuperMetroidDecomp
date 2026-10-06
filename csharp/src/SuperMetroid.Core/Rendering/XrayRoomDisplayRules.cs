@@ -20,8 +20,12 @@ public static class XrayRoomDisplayRules
     public const ushort ExcludedRoomA66A = 0xA66A;
     /// <summary>$8F:CEFB, excluded from revelation; $88:81A4 additionally removes BG2 from TM.</summary>
     public const ushort ExcludedRoomWithHiddenBg2 = 0xCEFB;
-    /// <summary>Enemy-header boss identities rejected by the five equality checks in $91:D143.</summary>
-    public static ReadOnlySpan<ushort> ExcludedBossIds => [3, 6, 7, 8, 10];
+    /// <summary>
+    /// Native CheckIfXrayShouldShowAnyBlocks ($91:D158-D172): five equality
+    /// branches on the active enemy-header boss identity preserve the room background.
+    /// These are control-flow cases, not an indexed sequence or numerical progression.
+    /// </summary>
+    private static bool PreservesBossBackground(ushort bossId) => bossId is 3 or 6 or 7 or 8 or 10;
     /// <summary>$91:D2BC installs RGB5(3,3,3) as CGRAM entry zero after setup.</summary>
     public const ushort ActiveBackdrop = 0x0C63;
     /// <summary>$91:D223 installs $91:D27F before setup call one; its first execution is call two, leaving next-stage counter three.</summary>
@@ -42,7 +46,7 @@ public static class XrayRoomDisplayRules
     public static XrayRoomBlendMode Select(ushort roomPointer, RoomFxType fx, ushort bossId)
     {
         if (fx == RoomFxType.Fireflea) return XrayRoomBlendMode.Fireflea;
-        if (roomPointer is ExcludedRoomA66A or ExcludedRoomWithHiddenBg2 || ExcludedBossIds.Contains(bossId))
+        if (roomPointer is ExcludedRoomA66A or ExcludedRoomWithHiddenBg2 || PreservesBossBackground(bossId))
             return XrayRoomBlendMode.PreserveBackgrounds;
         return XrayRoomBlendMode.RevealBlocks;
     }

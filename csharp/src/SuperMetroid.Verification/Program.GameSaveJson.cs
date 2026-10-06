@@ -15,7 +15,7 @@ internal static partial class Program
         if (!File.Exists(romPath))
             throw new FileNotFoundException("JSON save verification requires the private retail ROM.", romPath);
         SuperMetroidAddressSpace source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var saveRam = new SuperMetroidSaveRam(source);
+        var saveRam = new SuperMetroidSaveRam(source, RetailPresentationFixture());
         var samus = new SamusState
         {
             Health = 94,
@@ -72,7 +72,7 @@ internal static partial class Program
         saveRam.SelectSlot(1);
         byte[] expectedSram = source.SaveRam.ToArray();
 
-        GameSaveJsonDocument document = GameSaveJsonCodec.Capture(source);
+        GameSaveJsonDocument document = GameSaveJsonCodec.Capture(source, RetailPresentationFixture());
         string json = GameSaveJsonCodec.Serialize(document);
         AssertTrue(json.Contains("\"checkpoint\"", StringComparison.Ordinal) &&
                    json.Contains("\"zebesAwake\"", StringComparison.OrdinalIgnoreCase) &&
@@ -82,10 +82,10 @@ internal static partial class Program
             "JSON save formatting and property order are deterministic");
 
         SuperMetroidAddressSpace restored = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), restored);
+        GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), restored, RetailPresentationFixture());
         AssertTrue(expectedSram.SequenceEqual(restored.SaveRam),
             "JSON save round trip rebuilds canonical SRAM from named state");
-        SuperMetroidSaveSlot restoredSlot = new SuperMetroidSaveRam(restored).ReadSlot(1) ??
+        SuperMetroidSaveSlot restoredSlot = new SuperMetroidSaveRam(restored, RetailPresentationFixture()).ReadSlot(1) ??
             throw new InvalidOperationException("JSON round trip lost slot 1.");
         AssertEqual((ushort)AreaId.Brinstar, restoredSlot.Area, "JSON checkpoint area");
         AssertEqual(4, restoredSlot.SaveStation, "JSON checkpoint station");
@@ -125,7 +125,7 @@ internal static partial class Program
             GameSaveLoadResult firstLoad = GameSaveFileStore.LoadOrMigrate(
                 migrated,
                 jsonPath,
-                legacyPath);
+                legacyPath, RetailPresentationFixture());
             AssertTrue(firstLoad.MigratedLegacySram && File.Exists(jsonPath),
                 "legacy SRAM migrates to JSON on first load");
             AssertTrue(expectedSram.SequenceEqual(File.ReadAllBytes(legacyPath)),
@@ -137,10 +137,10 @@ internal static partial class Program
             GameSaveLoadResult secondLoad = GameSaveFileStore.LoadOrMigrate(
                 jsonReload,
                 jsonPath,
-                legacyPath);
+                legacyPath, RetailPresentationFixture());
             AssertTrue(!secondLoad.MigratedLegacySram && expectedSram.SequenceEqual(jsonReload.SaveRam),
                 "subsequent load prefers JSON and restores identical state");
-            GameSaveFileStore.WriteAtomic(jsonReload, jsonPath);
+            GameSaveFileStore.WriteAtomic(jsonReload, jsonPath, RetailPresentationFixture());
             AssertTrue(File.Exists(jsonPath + ".bak"),
                 "atomic JSON replacement retains the previous complete save");
             AssertEqual(0, Directory.GetFiles(temporaryDirectory, "*.tmp").Length,
@@ -150,7 +150,7 @@ internal static partial class Program
             File.WriteAllBytes(legacyPath, new byte[17]);
             try
             {
-                _ = GameSaveFileStore.LoadOrMigrate(jsonReload, jsonPath, legacyPath);
+                _ = GameSaveFileStore.LoadOrMigrate(jsonReload, jsonPath, legacyPath, RetailPresentationFixture());
                 throw new InvalidOperationException("Wrong-sized legacy SRAM was accepted.");
             }
             catch (InvalidDataException exception)

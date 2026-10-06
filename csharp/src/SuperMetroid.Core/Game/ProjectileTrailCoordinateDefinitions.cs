@@ -219,87 +219,207 @@ internal static class ProjectileTrailCoordinateDefinitions
         0x80, 0x68, 0xaa, 0xbd,
     ];
     private readonly record struct Offset(sbyte LeftX, sbyte LeftY, sbyte RightX, sbyte RightY);
-    private static readonly FrozenDictionary<int, ushort> Pointers = CreatePointers();
+
     private static readonly FrozenDictionary<int, Offset> Frames = CreateFrames();
 
-    private static FrozenDictionary<int, ushort> CreatePointers()
+    /// <summary>
+    /// $9B:A4B3-A4F5: the beam-bit dispatch read by $9B:A418/A42A/A43C.
+    /// Ice with Spazer/Plasma selects its spread geometry; plain Wave selects its
+    /// oscillating geometry; other combinations share the default placement.
+    /// </summary>
+    private static int BeamFamily(SamusBeamFlags beams, bool charged) => beams switch
     {
-        var result = new Dictionary<int, ushort>();
-        void Add(int address, ReadOnlySpan<ushort> values)
-        { for (int i = 0; i < values.Length; i++) result.Add(address + i * 2, values[i]); }
-        Add(BeamTrailOffsets_uncharged, [unchecked((ushort)UnchargedBeamTrails_Default), unchecked((ushort)UnchargedBeamTrails_Wave_WaveIce), unchecked((ushort)UnchargedBeamTrails_Default), unchecked((ushort)UnchargedBeamTrails_Wave_WaveIce), unchecked((ushort)UnchargedBeamTrails_Default), unchecked((ushort)UnchargedBeamTrails_Default), unchecked((ushort)UnchargedBeamTrails_IceSpazer), unchecked((ushort)UnchargedBeamTrails_WaveIceSpazer), unchecked((ushort)UnchargedBeamTrails_Default), unchecked((ushort)UnchargedBeamTrails_Default), unchecked((ushort)UnchargedBeamTrails_IcePlasma), unchecked((ushort)UnchargedBeamTrails_WaveIcePlasma)]);
-        Add(BeamTrailOffsets_charged, [unchecked((ushort)ChargedBeamTrails_Default), unchecked((ushort)ChargedBeamTrails_Wave_WaveIce), unchecked((ushort)ChargedBeamTrails_Default), unchecked((ushort)ChargedBeamTrails_Wave_WaveIce), unchecked((ushort)ChargedBeamTrails_Default), unchecked((ushort)ChargedBeamTrails_Default), unchecked((ushort)ChargedBeamTrails_IceSpazer), unchecked((ushort)ChargedBeamTrails_WaveIceSpazer), unchecked((ushort)ChargedBeamTrails_Default), unchecked((ushort)ChargedBeamTrails_Default), unchecked((ushort)ChargedBeamTrails_IcePlasma), unchecked((ushort)ChargedBeamTrails_WaveIcePlasma)]);
-        Add(BeamTrailOffsets_spazerSBA, [0, 0, 0, 0, unchecked((ushort)UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B), unchecked((ushort)SpazerSBATrail_WaveSpazer), unchecked((ushort)UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B), 0, 0, 0]);
-        Add(UnchargedBeamTrails_Wave_WaveIce, [unchecked((ushort)UnchargedBeamTrails_Wave_WaveIce_0), unchecked((ushort)UnchargedBeamTrails_Wave_WaveIce_2), unchecked((ushort)UnchargedBeamTrails_Wave_WaveIce_1), unchecked((ushort)UnchargedBeamTrails_Wave_WaveIce_3), unchecked((ushort)UnchargedBeamTrails_Wave_WaveIce_0), unchecked((ushort)UnchargedBeamTrails_Wave_WaveIce_0), unchecked((ushort)UnchargedBeamTrails_Wave_WaveIce_2), unchecked((ushort)UnchargedBeamTrails_Wave_WaveIce_1), unchecked((ushort)UnchargedBeamTrails_Wave_WaveIce_3), unchecked((ushort)UnchargedBeamTrails_Wave_WaveIce_0)]);
-        Add(UnchargedBeamTrails_Default, [unchecked((ushort)UnchargedBeamTrails_Default_0), unchecked((ushort)UnchargedBeamTrails_Default_0), unchecked((ushort)UnchargedBeamTrails_Default_0), unchecked((ushort)UnchargedBeamTrails_Default_0), unchecked((ushort)UnchargedBeamTrails_Default_0), unchecked((ushort)UnchargedBeamTrails_Default_0), unchecked((ushort)UnchargedBeamTrails_Default_0), unchecked((ushort)UnchargedBeamTrails_Default_0), unchecked((ushort)UnchargedBeamTrails_Default_0), unchecked((ushort)UnchargedBeamTrails_Default_0)]);
-        Add(UnchargedBeamTrails_IceSpazer, [unchecked((ushort)UnchargedBeamTrails_IceSpazer_0), unchecked((ushort)UnchargedBeamTrails_IceSpazer_2), unchecked((ushort)UnchargedBeamTrails_IceSpazer_3), unchecked((ushort)UnchargedBeamTrails_IceSpazer_4), unchecked((ushort)UnchargedBeamTrails_IceSpazer_1), unchecked((ushort)UnchargedBeamTrails_IceSpazer_1), unchecked((ushort)UnchargedBeamTrails_IceSpazer_5), unchecked((ushort)UnchargedBeamTrails_IceSpazer_6), unchecked((ushort)UnchargedBeamTrails_IceSpazer_7), unchecked((ushort)UnchargedBeamTrails_IceSpazer_0)]);
-        Add(UnchargedBeamTrails_WaveIceSpazer, [unchecked((ushort)UnchargedBeamTrails_WaveIceSpazer_0), unchecked((ushort)UnchargedBeamTrails_WaveIceSpazer_1), unchecked((ushort)UnchargedBeamTrails_WaveIceSpazer_2), unchecked((ushort)UnchargedBeamTrails_WaveIceSpazer_3), unchecked((ushort)UnchargedBeamTrails_WaveIceSpazer_4), unchecked((ushort)UnchargedBeamTrails_WaveIceSpazer_4), unchecked((ushort)UnchargedBeamTrails_WaveIceSpazer_5), unchecked((ushort)UnchargedBeamTrails_WaveIceSpazer_6), unchecked((ushort)UnchargedBeamTrails_WaveIceSpazer_7), unchecked((ushort)UnchargedBeamTrails_WaveIceSpazer_0)]);
-        Add(UnchargedBeamTrails_IcePlasma, [unchecked((ushort)UnchargedBeamTrails_IcePlasma_0), unchecked((ushort)UnchargedBeamTrails_IcePlasma_1), unchecked((ushort)UnchargedBeamTrails_IcePlasma_2), unchecked((ushort)UnchargedBeamTrails_IcePlasma_3), unchecked((ushort)UnchargedBeamTrails_IcePlasma_4), unchecked((ushort)UnchargedBeamTrails_IcePlasma_4), unchecked((ushort)UnchargedBeamTrails_IcePlasma_5), unchecked((ushort)UnchargedBeamTrails_IcePlasma_6), unchecked((ushort)UnchargedBeamTrails_IcePlasma_7), unchecked((ushort)UnchargedBeamTrails_IcePlasma_0)]);
-        Add(UnchargedBeamTrails_WaveIcePlasma, [unchecked((ushort)UnchargedBeamTrails_WaveIcePlasma_0), unchecked((ushort)UnchargedBeamTrails_WaveIcePlasma_1), unchecked((ushort)UnchargedBeamTrails_WaveIcePlasma_2), unchecked((ushort)UnchargedBeamTrails_WaveIcePlasma_3), unchecked((ushort)UnchargedBeamTrails_WaveIcePlasma_4), unchecked((ushort)UnchargedBeamTrails_WaveIcePlasma_4), unchecked((ushort)UnchargedBeamTrails_WaveIcePlasma_5), unchecked((ushort)UnchargedBeamTrails_WaveIcePlasma_6), unchecked((ushort)UnchargedBeamTrails_WaveIcePlasma_7), unchecked((ushort)UnchargedBeamTrails_WaveIcePlasma_0)]);
-        Add(ChargedBeamTrails_Default, [unchecked((ushort)ChargedBeamTrails_Default_0), unchecked((ushort)ChargedBeamTrails_Default_0), unchecked((ushort)ChargedBeamTrails_Default_0), unchecked((ushort)ChargedBeamTrails_Default_0), unchecked((ushort)ChargedBeamTrails_Default_0), unchecked((ushort)ChargedBeamTrails_Default_0), unchecked((ushort)ChargedBeamTrails_Default_0), unchecked((ushort)ChargedBeamTrails_Default_0), unchecked((ushort)ChargedBeamTrails_Default_0), unchecked((ushort)ChargedBeamTrails_Default_0)]);
-        Add(ChargedBeamTrails_Wave_WaveIce, [unchecked((ushort)ChargedBeamTrails_Wave_WaveIce_0), unchecked((ushort)ChargedBeamTrails_Wave_WaveIce_2), unchecked((ushort)ChargedBeamTrails_Wave_WaveIce_1), unchecked((ushort)ChargedBeamTrails_Wave_WaveIce_3), unchecked((ushort)ChargedBeamTrails_Wave_WaveIce_0), unchecked((ushort)ChargedBeamTrails_Wave_WaveIce_0), unchecked((ushort)ChargedBeamTrails_Wave_WaveIce_2), unchecked((ushort)ChargedBeamTrails_Wave_WaveIce_1), unchecked((ushort)ChargedBeamTrails_Wave_WaveIce_3), unchecked((ushort)ChargedBeamTrails_Wave_WaveIce_0)]);
-        Add(ChargedBeamTrails_IceSpazer, [unchecked((ushort)ChargedBeamTrails_IceSpazer_0), unchecked((ushort)ChargedBeamTrails_IceSpazer_1), unchecked((ushort)ChargedBeamTrails_IceSpazer_2), unchecked((ushort)ChargedBeamTrails_IceSpazer_3), unchecked((ushort)ChargedBeamTrails_IceSpazer_4), unchecked((ushort)ChargedBeamTrails_IceSpazer_4), unchecked((ushort)ChargedBeamTrails_IceSpazer_5), unchecked((ushort)ChargedBeamTrails_IceSpazer_6), unchecked((ushort)ChargedBeamTrails_IceSpazer_7), unchecked((ushort)ChargedBeamTrails_IceSpazer_0)]);
-        Add(ChargedBeamTrails_WaveIceSpazer, [unchecked((ushort)ChargedBeamTrails_WaveIceSpazer_0), unchecked((ushort)ChargedBeamTrails_WaveIceSpazer_1), unchecked((ushort)ChargedBeamTrails_WaveIceSpazer_2), unchecked((ushort)ChargedBeamTrails_WaveIceSpazer_3), unchecked((ushort)ChargedBeamTrails_WaveIceSpazer_4), unchecked((ushort)ChargedBeamTrails_WaveIceSpazer_4), unchecked((ushort)ChargedBeamTrails_WaveIceSpazer_5), unchecked((ushort)ChargedBeamTrails_WaveIceSpazer_6), unchecked((ushort)ChargedBeamTrails_WaveIceSpazer_7), unchecked((ushort)ChargedBeamTrails_WaveIceSpazer_0)]);
-        Add(ChargedBeamTrails_IcePlasma, [unchecked((ushort)ChargedBeamTrails_IcePlasma_0), unchecked((ushort)ChargedBeamTrails_IcePlasma_1), unchecked((ushort)ChargedBeamTrails_IcePlasma_2), unchecked((ushort)ChargedBeamTrails_IcePlasma_3), unchecked((ushort)ChargedBeamTrails_IcePlasma_4), unchecked((ushort)ChargedBeamTrails_IcePlasma_4), unchecked((ushort)ChargedBeamTrails_IcePlasma_5), unchecked((ushort)ChargedBeamTrails_IcePlasma_6), unchecked((ushort)ChargedBeamTrails_IcePlasma_7), unchecked((ushort)ChargedBeamTrails_IcePlasma_0)]);
-        Add(ChargedBeamTrails_WaveIcePlasma, [unchecked((ushort)ChargedBeamTrails_WaveIcePlasma_0), unchecked((ushort)ChargedBeamTrails_WaveIcePlasma_1), unchecked((ushort)ChargedBeamTrails_WaveIcePlasma_2), unchecked((ushort)ChargedBeamTrails_WaveIcePlasma_3), unchecked((ushort)ChargedBeamTrails_WaveIcePlasma_4), unchecked((ushort)ChargedBeamTrails_WaveIcePlasma_4), unchecked((ushort)ChargedBeamTrails_WaveIcePlasma_5), unchecked((ushort)ChargedBeamTrails_WaveIcePlasma_6), unchecked((ushort)ChargedBeamTrails_WaveIcePlasma_7), unchecked((ushort)ChargedBeamTrails_WaveIcePlasma_0)]);
-        Add(SpazerSBATrail_WaveSpazer, [unchecked((ushort)SpazerSBATrail_WaveSpazer_0), unchecked((ushort)SpazerSBATrail_WaveSpazer_1), unchecked((ushort)SpazerSBATrail_WaveSpazer_2), unchecked((ushort)SpazerSBATrail_WaveSpazer_3), unchecked((ushort)SpazerSBATrail_WaveSpazer_0), unchecked((ushort)SpazerSBATrail_WaveSpazer_0), unchecked((ushort)SpazerSBATrail_WaveSpazer_1), unchecked((ushort)SpazerSBATrail_WaveSpazer_2), unchecked((ushort)SpazerSBATrail_WaveSpazer_3), unchecked((ushort)SpazerSBATrail_WaveSpazer_0)]);
-        Add(UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B, [unchecked((ushort)UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F), unchecked((ushort)UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F), unchecked((ushort)UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F), unchecked((ushort)UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F), unchecked((ushort)UNSUED_SpazerSBATrail_Spazer_IceSpazer_1_9BB39B), unchecked((ushort)UNSUED_SpazerSBATrail_Spazer_IceSpazer_1_9BB39B), unchecked((ushort)UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F), unchecked((ushort)UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F), unchecked((ushort)UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F), unchecked((ushort)UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F)]);
-        return result.ToFrozenDictionary();
+        SamusBeamFlags.Wave or (SamusBeamFlags.Wave | SamusBeamFlags.Ice) =>
+            charged ? ChargedBeamTrails_Wave_WaveIce : UnchargedBeamTrails_Wave_WaveIce,
+        SamusBeamFlags.Ice | SamusBeamFlags.Spazer =>
+            charged ? ChargedBeamTrails_IceSpazer : UnchargedBeamTrails_IceSpazer,
+        SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer =>
+            charged ? ChargedBeamTrails_WaveIceSpazer : UnchargedBeamTrails_WaveIceSpazer,
+        SamusBeamFlags.Ice | SamusBeamFlags.Plasma =>
+            charged ? ChargedBeamTrails_IcePlasma : UnchargedBeamTrails_IcePlasma,
+        SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Plasma =>
+            charged ? ChargedBeamTrails_WaveIcePlasma : UnchargedBeamTrails_WaveIcePlasma,
+        _ => charged ? ChargedBeamTrails_Default : UnchargedBeamTrails_Default,
+    };
+
+    /// <summary>
+    /// $9B:A4F7-A56E/A98F-AA06/B327-B33A/B37B-B38E: each family has ten
+    /// direction pointers. The four-byte X/Y pair records pack a fixed number
+    /// of animation frames per direction. Vertical facing duplicates share
+    /// one octant; Wave shares opposite axes and default beams share all axes.
+    /// </summary>
+    private static int DirectionSequence(int family, SamusProjectileDirection direction)
+    {
+        int octant = direction == SamusProjectileDirection.UpFacingLeft ? 0 :
+            (int)direction >= (int)SamusProjectileDirection.DownFacingLeft ? (int)direction - 1 : (int)direction;
+        int waveAxis = direction switch
+        {
+            SamusProjectileDirection.UpRight or SamusProjectileDirection.DownLeft => 2,
+            SamusProjectileDirection.Right or SamusProjectileDirection.Left => 1,
+            SamusProjectileDirection.DownRight or SamusProjectileDirection.UpLeft => 3,
+            _ => 0,
+        };
+        return family switch
+        {
+            UnchargedBeamTrails_Default => UnchargedBeamTrails_Default_0,
+            ChargedBeamTrails_Default => ChargedBeamTrails_Default_0,
+            UnchargedBeamTrails_Wave_WaveIce => UnchargedBeamTrails_Wave_WaveIce_0 + waveAxis * 16 * 4,
+            ChargedBeamTrails_Wave_WaveIce => ChargedBeamTrails_Wave_WaveIce_0 + waveAxis * 16 * 4,
+            UnchargedBeamTrails_IceSpazer => UnchargedBeamTrails_IceSpazer_0 + IceSpazerDirection(direction) * 3 * 4,
+            UnchargedBeamTrails_WaveIceSpazer => UnchargedBeamTrails_WaveIceSpazer_0 + octant * 10 * 4,
+            UnchargedBeamTrails_IcePlasma => UnchargedBeamTrails_IcePlasma_0 + octant * 2 * 4,
+            UnchargedBeamTrails_WaveIcePlasma => UnchargedBeamTrails_WaveIcePlasma_0 + octant * 9 * 4,
+            ChargedBeamTrails_IceSpazer => ChargedBeamTrails_IceSpazer_0 + octant * 10 * 4,
+            ChargedBeamTrails_WaveIceSpazer => ChargedBeamTrails_WaveIceSpazer_0 + octant * 24 * 4,
+            ChargedBeamTrails_IcePlasma => ChargedBeamTrails_IcePlasma_0 + octant * 8 * 4,
+            ChargedBeamTrails_WaveIcePlasma => ChargedBeamTrails_WaveIcePlasma_0 + octant * 22 * 4,
+            SpazerSBATrail_WaveSpazer => SpazerSBATrail_WaveSpazer_0 +
+                ((int)direction % 5 is > 0 and < 4 ? (int)direction % 5 : 0) * 4 * 4,
+            UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B => UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F +
+                (direction is SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft ? 3 * 4 : 0),
+            _ => throw new InvalidOperationException("Unknown projectile trail direction family."),
+        };
     }
 
+    // This family packs its two vertical sequences first, followed by each side's
+    // three nonvertical directions; the other spread families pack octants in order.
+    private static int IceSpazerDirection(SamusProjectileDirection direction) => direction switch
+    {
+        SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpFacingLeft => 0,
+        SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => 1,
+        _ => (int)direction < 4 ? (int)direction + 1 : (int)direction - 1,
+    };
+
+    private static bool TryPointer(int address, out ushort pointer)
+    {
+        pointer = 0;
+        if ((address & 1) == 0) return false;
+        if (address >= BeamTrailOffsets_uncharged && address < BeamTrailOffsets_spazerSBA)
+        {
+            bool charged = address >= BeamTrailOffsets_charged;
+            int start = charged ? BeamTrailOffsets_charged : BeamTrailOffsets_uncharged;
+            pointer = unchecked((ushort)BeamFamily((SamusBeamFlags)((address - start) / 2), charged));
+            return true;
+        }
+        if (address >= BeamTrailOffsets_spazerSBA && address < UnchargedBeamTrails_Wave_WaveIce)
+        {
+            var beams = (SamusBeamFlags)((address - BeamTrailOffsets_spazerSBA) / 2);
+            pointer = unchecked((ushort)(beams switch
+            {
+                SamusBeamFlags.Spazer or (SamusBeamFlags.Spazer | SamusBeamFlags.Ice) => UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B,
+                SamusBeamFlags.Spazer | SamusBeamFlags.Wave => SpazerSBATrail_WaveSpazer,
+                _ => 0,
+            }));
+            return true;
+        }
+        int block = address >= UnchargedBeamTrails_Wave_WaveIce && address < UnchargedBeamTrails_Default_0 ? UnchargedBeamTrails_Wave_WaveIce :
+            address >= ChargedBeamTrails_Default && address < ChargedBeamTrails_Default_0 ? ChargedBeamTrails_Default :
+            address >= SpazerSBATrail_WaveSpazer && address < SpazerSBATrail_WaveSpazer_0 ? SpazerSBATrail_WaveSpazer :
+            address >= UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B && address < UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F ? UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B : 0;
+        if (block == 0) return false;
+        int offset = address - block;
+        int family = block + offset / 20 * 20;
+        pointer = unchecked((ushort)DirectionSequence(family, (SamusProjectileDirection)(offset % 20 / 2)));
+        return true;
+    }
+    /// <summary>
+    /// $9B:A56F/AA07 default sequences hold the origin. The uncharged Wave
+    /// sequences at $A58F-A68E have a sixteen-frame signed oscillation, mirrored
+    /// about each peak. Cardinal ramps start at eight then advance four pixels;
+    /// diagonal ramps advance four pixels twice, then two pixels twice.
+    /// </summary>
+    private static bool TryCalculatedFrame(int address, out Offset value)
+    {
+        value = default;
+        if (SequenceFrame(address, UnchargedBeamTrails_Default_0, 8, out _) ||
+            SequenceFrame(address, ChargedBeamTrails_Default_0, 8, out _)) return true;
+        if (SequenceFrame(address, UnchargedBeamTrails_Wave_WaveIce_0, 4 * 16, out int wave))
+        {
+            int axis = wave / 16;
+            int phase = wave % 8;
+            int ramp = Math.Min(phase, 8 - phase);
+            int magnitude = ramp == 0 ? 0 : axis < 2 ? 4 * (ramp + 1) : 4 * Math.Min(ramp, 2) + 2 * Math.Max(0, ramp - 2);
+            int signed = wave % 16 < 8 ? magnitude : -magnitude;
+            value = axis switch
+            {
+                0 => Coordinates(signed, 0, 0, 0),
+                1 => Coordinates(0, -signed, 0, 0),
+                2 => Coordinates(-signed, -signed, 0, 0),
+                _ => Coordinates(signed, -signed, 0, 0),
+            };
+            return true;
+        }
+        if (SequenceFrame(address, ChargedBeamTrails_Wave_WaveIce_0, 2 * 16, out int chargedWave))
+        {
+            int phase = chargedWave % 16 / 2;
+            int ramp = Math.Min(phase, 8 - phase);
+            int spread = ramp == 0 ? 0 : Math.Min(4 * (ramp + 1), 16);
+            value = chargedWave < 16 ? Coordinates(-spread, 0, spread, 0) : Coordinates(0, -spread, 0, spread);
+            return true;
+        }
+        if (SequenceFrame(address, UnchargedBeamTrails_IceSpazer_0, 8 * 3, out int iceSpazer))
+        {
+            int direction = iceSpazer / 3;
+            int phase = iceSpazer % 3;
+            int spread = phase * 8;
+            if (direction is 0 or 1)
+            {
+                int behind = phase == 0 ? 0 : direction == 0 ? 8 : -8;
+                value = Coordinates(-spread, behind, spread, behind);
+                return true;
+            }
+            if (direction is 3 or 6)
+            {
+                int side = direction == 3 ? -1 : 1;
+                value = Coordinates(side * 8, side * spread, side * 8, -side * spread);
+                return true;
+            }
+        }
+        if (SequenceFrame(address, UnchargedBeamTrails_WaveIceSpazer_0, 8 * 10, out int waveSpazer) &&
+            waveSpazer / 10 % 2 == 0)
+        {
+            int direction = waveSpazer / 10;
+            int phase = waveSpazer % 10;
+            int spread = 4 * Math.Min(Math.Min(phase, 10 - phase), 4);
+            int behind = phase == 0 ? 0 : 8;
+            value = direction switch
+            {
+                0 => Coordinates(-spread, behind, spread, behind),
+                2 => Coordinates(-behind, -spread, -behind, spread),
+                4 => Coordinates(-spread, -behind, spread, -behind),
+                _ => Coordinates(behind, -spread, behind, spread),
+            };
+            return true;
+        }
+        if (SequenceFrame(address, UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F, 2 * 3, out int sba))
+        {
+            int phase = sba % 3;
+            int spread = phase * 8;
+            int behind = phase == 0 ? 0 : sba < 3 ? 8 : -8;
+            value = Coordinates(-spread, behind, spread, behind);
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>Each native placement frame packs signed left X/Y and right X/Y bytes.</summary>
+    private static bool SequenceFrame(int address, int first, int count, out int frame)
+    {
+        int offset = address - first;
+        frame = offset / 4;
+        return offset >= 0 && offset < count * 4 && offset % 4 == 0;
+    }
+
+    private static Offset Coordinates(int leftX, int leftY, int rightX, int rightY) =>
+        new((sbyte)leftX, (sbyte)leftY, (sbyte)rightX, (sbyte)rightY);
     private static FrozenDictionary<int, Offset> CreateFrames()
     {
         var result = new Dictionary<int, Offset>();
         void Add(int address, ReadOnlySpan<Offset> values)
         { for (int i = 0; i < values.Length; i++) result.Add(address + i * 4, values[i]); }
-        Add(UnchargedBeamTrails_Default_0,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, 0, 0, 0),
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, 0, 0, 0),
-        ]);
-        Add(UnchargedBeamTrails_Wave_WaveIce_0,
-        [
-            new(0, 0, 0, 0), new(8, 0, 0, 0), new(12, 0, 0, 0), new(16, 0, 0, 0),
-            new(20, 0, 0, 0), new(16, 0, 0, 0), new(12, 0, 0, 0), new(8, 0, 0, 0),
-            new(0, 0, 0, 0), new(-8, 0, 0, 0), new(-12, 0, 0, 0), new(-16, 0, 0, 0),
-            new(-20, 0, 0, 0), new(-16, 0, 0, 0), new(-12, 0, 0, 0), new(-8, 0, 0, 0),
-        ]);
-        Add(UnchargedBeamTrails_Wave_WaveIce_1,
-        [
-            new(0, 0, 0, 0), new(0, -8, 0, 0), new(0, -12, 0, 0), new(0, -16, 0, 0),
-            new(0, -20, 0, 0), new(0, -16, 0, 0), new(0, -12, 0, 0), new(0, -8, 0, 0),
-            new(0, 0, 0, 0), new(0, 8, 0, 0), new(0, 12, 0, 0), new(0, 16, 0, 0),
-            new(0, 20, 0, 0), new(0, 16, 0, 0), new(0, 12, 0, 0), new(0, 8, 0, 0),
-        ]);
-        Add(UnchargedBeamTrails_Wave_WaveIce_2,
-        [
-            new(0, 0, 0, 0), new(-4, -4, 0, 0), new(-8, -8, 0, 0), new(-10, -10, 0, 0),
-            new(-12, -12, 0, 0), new(-10, -10, 0, 0), new(-8, -8, 0, 0), new(-4, -4, 0, 0),
-            new(0, 0, 0, 0), new(4, 4, 0, 0), new(8, 8, 0, 0), new(10, 10, 0, 0),
-            new(12, 12, 0, 0), new(10, 10, 0, 0), new(8, 8, 0, 0), new(4, 4, 0, 0),
-        ]);
-        Add(UnchargedBeamTrails_Wave_WaveIce_3,
-        [
-            new(0, 0, 0, 0), new(4, -4, 0, 0), new(8, -8, 0, 0), new(10, -10, 0, 0),
-            new(12, -12, 0, 0), new(10, -10, 0, 0), new(8, -8, 0, 0), new(4, -4, 0, 0),
-            new(0, 0, 0, 0), new(-4, 4, 0, 0), new(-8, 8, 0, 0), new(-10, 10, 0, 0),
-            new(-12, 12, 0, 0), new(-10, 10, 0, 0), new(-8, 8, 0, 0), new(-4, 4, 0, 0),
-        ]);
-        Add(UnchargedBeamTrails_IceSpazer_0,
-        [
-            new(0, 0, 0, 0), new(-8, 8, 8, 8), new(-16, 8, 16, 8),
-        ]);
-        Add(UnchargedBeamTrails_IceSpazer_1,
-        [
-            new(0, 0, 0, 0), new(-8, -8, 8, -8), new(-16, -8, 16, -8),
-        ]);
         Add(UnchargedBeamTrails_IceSpazer_2,
         [
             new(-8, 8, -8, 8), new(-14, 2, -2, 14), new(-20, -4, 2, 20),
-        ]);
-        Add(UnchargedBeamTrails_IceSpazer_3,
-        [
-            new(-8, 0, -8, 0), new(-8, -8, -8, 8), new(-8, -16, -8, 16),
         ]);
         Add(UnchargedBeamTrails_IceSpazer_4,
         [
@@ -309,19 +429,9 @@ internal static class ProjectileTrailCoordinateDefinitions
         [
             new(8, -8, 8, -8), new(14, -2, 2, -14), new(20, 4, -2, -20),
         ]);
-        Add(UnchargedBeamTrails_IceSpazer_6,
-        [
-            new(8, 0, 8, 0), new(8, 8, 8, -8), new(8, 16, 8, -16),
-        ]);
         Add(UnchargedBeamTrails_IceSpazer_7,
         [
             new(8, 8, 8, 8), new(2, 16, 16, 2), new(-4, 20, 20, -4),
-        ]);
-        Add(UnchargedBeamTrails_WaveIceSpazer_0,
-        [
-            new(0, 0, 0, 0), new(-4, 8, 4, 8), new(-8, 8, 8, 8), new(-12, 8, 12, 8),
-            new(-16, 8, 16, 8), new(-16, 8, 16, 8), new(-16, 8, 16, 8), new(-12, 8, 12, 8),
-            new(-8, 8, 8, 8), new(-4, 8, 4, 8),
         ]);
         Add(UnchargedBeamTrails_WaveIceSpazer_1,
         [
@@ -329,35 +439,17 @@ internal static class ProjectileTrailCoordinateDefinitions
             new(-18, -2, 2, 18), new(-20, -4, 2, 20), new(-18, -2, 2, 18), new(-16, 0, 0, 16),
             new(-14, 2, -2, 14), new(-12, 6, -6, 12),
         ]);
-        Add(UnchargedBeamTrails_WaveIceSpazer_2,
-        [
-            new(0, 0, 0, 0), new(-8, -4, -8, 4), new(-8, -8, -8, 8), new(-8, -12, -8, 12),
-            new(-8, -16, -8, 16), new(-8, -16, -8, 16), new(-8, -16, -8, 16), new(-8, -12, -8, 12),
-            new(-8, -8, -8, 8), new(-8, -4, -8, 4),
-        ]);
         Add(UnchargedBeamTrails_WaveIceSpazer_3,
         [
             new(0, 0, 0, 0), new(-12, -6, -6, -12), new(-2, -16, -16, -2), new(-16, 0, 0, -16),
             new(-18, 2, 2, -18), new(4, -20, -20, 4), new(-18, 2, 2, -18), new(-16, 0, 0, -16),
             new(-2, -16, -16, -2), new(-12, -6, -6, -12),
         ]);
-        Add(UnchargedBeamTrails_WaveIceSpazer_4,
-        [
-            new(0, 0, 0, 0), new(-4, -8, 4, -8), new(-8, -8, 8, -8), new(-12, -8, 12, -8),
-            new(-16, -8, 16, -8), new(-16, -8, 16, -8), new(-16, -8, 16, -8), new(-12, -8, 12, -8),
-            new(-8, -8, 8, -8), new(-4, -8, 4, -8),
-        ]);
         Add(UnchargedBeamTrails_WaveIceSpazer_5,
         [
             new(0, 0, 0, 0), new(2, -14, 14, -2), new(0, -16, 16, 0), new(-2, -18, 18, 2),
             new(-2, -20, 20, 4), new(-2, -20, 20, 4), new(-2, -20, 20, 4), new(-2, -18, 18, 2),
             new(0, -16, 16, 0), new(2, -14, 14, -2),
-        ]);
-        Add(UnchargedBeamTrails_WaveIceSpazer_6,
-        [
-            new(0, 0, 0, 0), new(8, -4, 8, 4), new(8, -8, 8, 8), new(8, -12, 8, 12),
-            new(8, -16, 8, 16), new(8, -16, 8, 16), new(8, -16, 8, 16), new(8, -12, 8, 12),
-            new(8, -8, 8, 8), new(8, -4, 8, 4),
         ]);
         Add(UnchargedBeamTrails_WaveIceSpazer_7,
         [
@@ -444,25 +536,6 @@ internal static class ProjectileTrailCoordinateDefinitions
             new(0, 0, 0, 0), new(12, 12, 12, 12), new(18, 6, 6, 18), new(20, 2, 2, 20),
             new(24, 0, 0, 24), new(24, 0, 0, 24), new(24, 0, 0, 24), new(20, 2, 2, 20),
             new(18, 6, 6, 18),
-        ]);
-        Add(ChargedBeamTrails_Default_0,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, 0, 0, 0),
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, 0, 0, 0),
-        ]);
-        Add(ChargedBeamTrails_Wave_WaveIce_0,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-8, 0, 8, 0), new(-8, 0, 8, 0),
-            new(-12, 0, 12, 0), new(-12, 0, 12, 0), new(-16, 0, 16, 0), new(-16, 0, 16, 0),
-            new(-16, 0, 16, 0), new(-16, 0, 16, 0), new(-16, 0, 16, 0), new(-16, 0, 16, 0),
-            new(-12, 0, 12, 0), new(-12, 0, 12, 0), new(-8, 0, 8, 0), new(-8, 0, 8, 0),
-        ]);
-        Add(ChargedBeamTrails_Wave_WaveIce_1,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, -8, 0, 8), new(0, -8, 0, 8),
-            new(0, -12, 0, 12), new(0, -12, 0, 12), new(0, -16, 0, 16), new(0, -16, 0, 16),
-            new(0, -16, 0, 16), new(0, -16, 0, 16), new(0, -16, 0, 16), new(0, -16, 0, 16),
-            new(0, -12, 0, 12), new(0, -12, 0, 12), new(0, -8, 0, 8), new(0, -8, 0, 8),
         ]);
         Add(ChargedBeamTrails_Wave_WaveIce_2,
         [
@@ -726,14 +799,6 @@ internal static class ProjectileTrailCoordinateDefinitions
         [
             new(0, 0, 0, 0), new(10, -10, -10, 10), new(0, 0, 0, 0), new(-10, 10, 10, -10),
         ]);
-        Add(UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F,
-        [
-            new(0, 0, 0, 0), new(-8, 8, 8, 8), new(-16, 8, 16, 8),
-        ]);
-        Add(UNSUED_SpazerSBATrail_Spazer_IceSpazer_1_9BB39B,
-        [
-            new(0, 0, 0, 0), new(-8, -8, 8, -8), new(-16, -8, 16, -8),
-        ]);
         return result.ToFrozenDictionary();
     }
 
@@ -753,12 +818,12 @@ internal static class ProjectileTrailCoordinateDefinitions
 
         // Native pointer tables start on odd bytes. Every coordinate record has
         // the same four-byte alignment as the first default frame, even across
-        // intervening pointer tables. Dictionary membership excludes those gaps.
+        // intervening pointer tables. Family ranges exclude those gaps.
         int pointerAddress = address % 2 == 1 ? address : address - 1;
-        if (Pointers.TryGetValue(pointerAddress, out ushort pointer))
+        if (TryPointer(pointerAddress, out ushort pointer))
         { value = (byte)(pointer >> ((address - pointerAddress) * 8)); return true; }
         int coordinate = (address - UnchargedBeamTrails_Default_0) & 3;
-        if (Frames.TryGetValue(address - coordinate, out Offset frame))
+        if (TryCalculatedFrame(address - coordinate, out Offset frame) || Frames.TryGetValue(address - coordinate, out frame))
         {
             value = unchecked((byte)(coordinate switch { 0 => frame.LeftX, 1 => frame.LeftY, 2 => frame.RightX, _ => frame.RightY }));
             return true;

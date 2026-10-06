@@ -9,17 +9,21 @@ internal static class MenuClosedPresentationContractDefinitions
             ["CreatePage", "LoadBackground", "ApplyLanguage", "ApplyControllerLabel", "ApplySpecialToggle",
                 "CursorPosition", "DrawHeading", "DrawCursor"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs",
-                "B7B17351DF7ED1B519921F3B7E23C192F845A8161689554755B920EFEAD0BC75"),
+                "890A0F9D393A260F6CD016FE5465B9A565FB3BF855726B5CBB19C64977462687"),
+             new("csharp/src/SuperMetroid.Core/Assets/MenuCursorParts.cs", "098A65F1E9C940A4FEE39562968A7719BE5F405E46F84E6FA151FF89C6E2C66C"),
+             new("csharp/src/SuperMetroid.Core/Assets/MenuBorderParts.cs", "6B79556FD47098253A8A977E398C98A1908D01A7DD4E9E5916A38634A33E0080"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOptionsRomData.cs",
                 "6402E8F44472D8FE1481FC111C546ED638FE28A11EB297F6A048318879CE262A")],
             "The private-constructor loader requires all six pages, seven controller labels/anchors, " +
             "two special toggles, four language regions, three heading/cursor sets and four cursor frames. " +
-            "Controller/cursor indices are guarded and language/background operations use fixed loaded fields. " +
+            "Controller/cursor indices are guarded. Stock geometry calculates from the reviewed native rules; independently edited geometry retains validated supplied fields. " +
             "Named page/menu/toggle selections additionally require independently resolved finite installed keys."),
         new("SuperMetroid.Core.Assets.GameOverPresentation", "game-over-v1-complete-enum-domains",
             ["LoadTilemapTo", "DrawBaby", "DrawEgg", "DrawCursor", "ApplyBabyPalette"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameOverPresentation.cs",
-                "4875F1E29748B33C81352529184423EAB9DC704E2CDC10D6F4CCAA7CCFC2C7E5"),
+                "2FC5935194BD3185454457C6F1AA4AA6F4AD81227630BD7B3E01F08F4C6419CC"),
+             new("csharp/src/SuperMetroid.Core/Assets/MenuCursorParts.cs", "098A65F1E9C940A4FEE39562968A7719BE5F405E46F84E6FA151FF89C6E2C66C"),
+             new("csharp/src/SuperMetroid.Core/Assets/GameOverSpriteParts.cs", "0D3FE8F120BF89C0E01800C0E3A267FDDA2FE927F009648F324E2B88165CE07B"),
              new("csharp/src/SuperMetroid.Core/Assets/GameOverBabyColorCatalog.cs",
                 "EC18D16A0969A3B6E8FE2ED0907FBF84B4A791E95D8BD3EA2EA614E8DAA83141"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs",
@@ -34,9 +38,9 @@ internal static class MenuClosedPresentationContractDefinitions
         new("SuperMetroid.Core.Assets.PauseReserveUiPresentation", "pause-reserve-v1-complete-fields",
             ["ApplyLabel", "ApplyDigit", "ApplyArrowTilePalettes", "ApplyArrowColors"],
             [new("csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs",
-                "91B42EF6CBFC71449DE432F00259F0D0D2DB00DABB97E83286F49EBF3CC6F21C"),
+                "A25DB1206665061D7B2E4E947449079E2ABC1499B6A2CD34688A8F1EF53B6C78"),
              new("csharp/src/SuperMetroid.Core/Assets/PauseReserveUiDefinitions.cs",
-                "C8423F78288613A457AA84868185C2A08650322A63A74A78B5AD4B12DFA57A88")],
+                "B435BE1CAD4C5440A35090E6F8785EF44B0795FBAF16543A8FCBE81216149D55")],
             "The sole private-constructor loader requires Mode/ReserveTank/Manual/Auto labels, ten digit cells, " +
             "ten arrow cells and thirty-two complete color frames. Digit selectors are range-checked; " +
             "arrow animation masks to the complete 32-frame set and fixed colors/palettes are loaded. " +

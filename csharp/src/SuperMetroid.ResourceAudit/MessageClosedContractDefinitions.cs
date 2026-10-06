@@ -7,7 +7,7 @@ internal static class MessageClosedContractDefinitions
     [
         new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs", "5EABBA7475F00DDFAB0931844CFF0ABDA0C3BC8F737410D4B51465ED7CD4818E"),
         new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitleDefinitions.cs", "175BE431D6D7C958B3A3A5EADBD3B9B407059B31BA5349C3DCB1D5826F306BF7"),
-        new("csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs", "D990D99B40107407D384076BCA7EE178073879AA1FD46D8D533360352C11BC99"),
+        new("csharp/src/SuperMetroid.Core/Game/GameplayMessageRomData.cs", "1BA8298AB9D9F0E9324CD08B936A4939363F77C3CE7F447A6667EE81AA76E84C"),
         new("csharp/src/SuperMetroid.Core/Game/GameplayMessageIds.cs", "57B96B36E9562F316B3024A1CBE96663CD2823C89A7BF490FB078083563D71BD"),
     ];
 
@@ -26,7 +26,7 @@ internal static class MessageClosedContractDefinitions
             ["Contains", "Build", "ApplySelection"],
             [.. SharedGlyphSources,
              new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs", "903F8CCAAE5D0264CE35DE30DCEBB4C4D0A9BF33B335784BB93D0D14FC185E71"),
-             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs", "39B4E4F7AF5C6470DC3C9D4E6A7C5B2A74B8A5E453271631E088D0292493F81C")],
+             new("csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticeDefinitions.cs", "EDA3F1979E4A230DBAEAA4B333729C7B3D640C4A007940B8BA4282779C1CE44C")],
             "Load requires all five notice IDs, complete templates/borders and valid text regions; both save prompts require YES and NO rows. Contains is a membership query. Build covers the owned notice set; ApplySelection covers only the two save prompts, not station-completion notices."),
     ];
 }

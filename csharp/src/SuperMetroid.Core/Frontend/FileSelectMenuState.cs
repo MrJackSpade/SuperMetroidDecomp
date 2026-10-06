@@ -49,7 +49,7 @@ public sealed partial class FileSelectMenuState
         if (mapPresentation is not null)
             mapPresentation.FileSelect.LoadBackground(ppu.Vram);
 
-        saveRam = new SuperMetroidSaveRam(bus);
+        saveRam = new SuperMetroidSaveRam(bus, mapPresentation);
         for (int slot = 0; slot < saveSlots.Length; slot++)
             saveSlots[slot] = saveRam.ReadSlot(slot);
         SelectedItem = saveRam.ReadSelectedSlot();

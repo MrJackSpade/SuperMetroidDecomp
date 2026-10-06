@@ -7,7 +7,7 @@ internal readonly record struct PolypRockInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Polyp's single-frame lava-rock animation.
-/// Its spritemap operand is resolved by the compiled visual catalog.
+/// Its sprite operand selects installed presentation artwork.
 /// </summary>
 internal static class PolypRockInstructionProgramDefinitions
 {
@@ -19,26 +19,33 @@ internal static class PolypRockInstructionProgramDefinitions
     /// </summary>
     internal const ushort Sleep = 0xbbd9;
 
-    private static readonly PolypRockInstructionMechanicsWord[] Words =
-    [
-        new(Initial, 0x0001),
-        new(Sleep, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-    ];
-
     /// <summary>Spritemap operand at $86:BBD7.</summary>
     internal const ushort PresentationWord = 0xbbd7;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static PolypRockInstructionMechanicsWord MechanicsWord(int index) => Words[index];
+    /// <summary>EnemyProjSpritemaps_LavaquakeRocks at $8D:9340, selected by $86:BBD7.</summary>
+    internal const ushort Spritemap = 0x9340;
+
+    internal static ushort FrameAt(ushort operandAddress) => operandAddress == PresentationWord
+        ? Spritemap
+        : throw new InvalidDataException($"Unknown Polyp-rock visual operand $86:{operandAddress:X4}.");
+
+    internal static int MechanicsWordCount => 2;
+    /// <summary>$86:BBD5-BBD9 installs one static rock pose then sleeps.</summary>
+    internal static PolypRockInstructionMechanicsWord MechanicsWord(int index) => index switch
+    {
+        0 => new(Initial, 1),
+        1 => new(Sleep, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
+        _ => throw new IndexOutOfRangeException(),
+    };
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            PolypRockInstructionMechanicsWord candidate = Words[middle];
+            PolypRockInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -57,9 +64,9 @@ internal static class PolypRockInstructionProgramDefinitions
             return false;
 
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

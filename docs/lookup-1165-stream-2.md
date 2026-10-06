@@ -144,7 +144,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/ChozoStatueInstructionProgramDefinitions.cs
 
 - [ ] **ChozoStatueInstructionProgramDefinitions.Words** ([L25](../csharp/src/SuperMetroid.Core/Game/ChozoStatueInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ChozoStatueInstructionProgramDefinitions.PresentationWords** ([L85](../csharp/src/SuperMetroid.Core/Game/ChozoStatueInstructionProgramDefinitions.cs#L85)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChozoStatueInstructionProgramDefinitions.PresentationWords** ([L85](../csharp/src/SuperMetroid.Core/Game/ChozoStatueInstructionProgramDefinitions.cs#L85)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ChozoTourianDustInstructionProgramDefinitions.cs
 
@@ -163,7 +163,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs
 
 - [x] **CrystalFlashColorCatalog.body** ([L14](../csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs#L14)) - installed stock table. Original/default payload behind CrystalFlashColorCatalog.body. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **CrystalFlashColorCatalog.bubble** ([L15](../csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs#L15)) - installed stock table. Original/default payload behind CrystalFlashColorCatalog.bubble. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **CrystalFlashColorCatalog.bubble** - Mixed conversion/justified retention:35 rotating RGB5 ramp words calculate; only independently painted frame5/color0 white at9B:9774 remains supplied. Independent source/consumer review approved this one sample; see disposition below. Not fully converted.
 
 ### csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs
 
@@ -194,7 +194,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/KagoVisualDefinitions.cs
 
-- [ ] **KagoVisualDefinitions.Frames / literal at L15** ([L15](../csharp/src/SuperMetroid.Core/Assets/KagoVisualDefinitions.cs#L15)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **KagoVisualDefinitions.Frames / literal at L15** ([L15](../csharp/src/SuperMetroid.Core/Assets/KagoVisualDefinitions.cs#L15)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/KagoBugProjectileInstructionProgramDefinitions.cs
 
@@ -234,7 +234,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidGrowth.cs
 
-- [ ] **RoomEnemySystem.FinishKraidGrowth / lintTimers** ([L157](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidGrowth.cs#L157)) - method-local definition. Three fixed lint spawn delays indexed by part ordinal. Replace the stored delays with their native timing rule or semantic part cases.
+- [x] **RoomEnemySystem.FinishKraidGrowth / lintTimers** ([L157](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidGrowth.cs#L157)) - method-local definition. Three fixed lint spawn delays indexed by part ordinal. Replace the stored delays with their native timing rule or semantic part cases.
 
 ### csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs
 
@@ -248,7 +248,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs
 
 - [x] **NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Durations** ([L39](../csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Definitions** ([L42](../csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Definitions** ([L42](../csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairLavaJumpDefinitions.cs
 
@@ -257,7 +257,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs
 
 - [ ] **NorfairLavaJumperInstructionProgramDefinitions.Words** ([L33](../csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **NorfairLavaJumperInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **NorfairLavaJumperInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairPipeBugInstructionProgramDefinitions.cs
 
@@ -267,12 +267,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs
 
 - [ ] **NorfairRioInstructionProgramDefinitions.Words** ([L31](../csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs#L31)) - factory-built stock table. Stored NorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **NorfairRioInstructionProgramDefinitions.PresentationWords** ([L33](../csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs#L33)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **NorfairRioInstructionProgramDefinitions.PresentationWords** ([L33](../csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs#L33)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs
 
 - [ ] **OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Durations** ([L43](../csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Definitions** ([L46](../csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Definitions** ([L46](../csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs
 
@@ -294,12 +294,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs
 
-- [ ] **PauseEquipmentLabelPresentation.labels** ([L12](../csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs#L12)) - installed stock table. Original/default payload behind PauseEquipmentLabelPresentation.labels. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **PauseEquipmentLabelPresentation.blank** ([L13](../csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs#L13)) - installed stock table. Original/default payload behind PauseEquipmentLabelPresentation.blank. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **PauseEquipmentLabelPresentation.labels** ([L12](../csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs#L12)) - installed stock table. Original/default payload behind PauseEquipmentLabelPresentation.labels. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **PauseEquipmentLabelPresentation.blank** ([L13](../csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs#L13)) - installed stock table. Original/default payload behind PauseEquipmentLabelPresentation.blank. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs
 
-- [ ] **PauseReserveUiPresentation.labels** ([L10](../csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs#L10)) - installed stock table. Original/default payload behind PauseReserveUiPresentation.labels. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **PauseReserveUiPresentation.labels** ([L10](../csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs#L10)) - installed stock table. Original/default payload behind PauseReserveUiPresentation.labels. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [x] **PauseReserveUiPresentation.digits** ([L12](../csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs#L12)) - installed stock table. Original/default payload behind PauseReserveUiPresentation.digits. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [x] **PauseReserveUiPresentation.arrowOffsets** ([L13](../csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs#L13)) - installed stock table. Original/default payload behind PauseReserveUiPresentation.arrowOffsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **PauseReserveUiPresentation.arrowFrames** ([L16](../csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs#L16)) - installed stock table. Original/default payload behind PauseReserveUiPresentation.arrowFrames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
@@ -310,13 +310,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Pickups.cs
 
-- [ ] **RoomEnemySystem.EnemyDropAccumulatorOrder** ([L29](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Pickups.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.EnemyDropAccumulatorOrder** ([L29](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Pickups.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs
 
-- [ ] **PipeBugVisualDefinitions.Brinstar** ([L18](../csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **PipeBugVisualDefinitions.Norfair** ([L37](../csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **PipeBugVisualDefinitions.Yellow** ([L51](../csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs#L51)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PipeBugVisualDefinitions.Brinstar** ([L18](../csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PipeBugVisualDefinitions.Norfair** ([L37](../csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PipeBugVisualDefinitions.Yellow** ([L51](../csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs#L51)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PipeBugDefinitions.cs
 
@@ -325,8 +325,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs
 
-- [ ] **RoomEnemySystem.RunNorfairPipeBugSamusWait / staggerTargets** ([L453](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs#L453)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **RoomEnemySystem.RunNorfairPipeBugSamusWait / staggerFunctions** ([L455](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs#L455)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemySystem.RunNorfairPipeBugSamusWait / staggerTargets** ([L453](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs#L453)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemySystem.RunNorfairPipeBugSamusWait / staggerFunctions** ([L455](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.PipeBugs.cs#L455)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileFrameBindingCatalog.cs
 
@@ -338,7 +338,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteDefinitions.cs
 
-- [ ] **ProjectileSpriteDefinitions.NativePointers** ([L12](../csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ProjectileSpriteDefinitions.NativePointers** ([L12](../csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteDefinitions.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlas.cs
 
@@ -355,7 +355,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs
 
 - [ ] **ProjectileTrailCoordinateDefinitions.ReachableAdjacentCode** ([L215](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs#L215)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ProjectileTrailCoordinateDefinitions.Pointers** ([L222](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs#L222)) - factory-built stock table. Stored FrozenDictionary<int, ushort> initialized by CreatePointers(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **ProjectileTrailCoordinateDefinitions.Pointers** ([L222](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs#L222)) - factory-built stock table. Stored FrozenDictionary<int, ushort> initialized by CreatePointers(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [ ] **ProjectileTrailCoordinateDefinitions.Frames** ([L223](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs#L223)) - factory-built stock table. Stored FrozenDictionary<int, Offset> initialized by CreateFrames(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/ProjectileTrailDefinitions.cs
@@ -381,12 +381,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs
 
-- [ ] **ScrollBoundaryCamera.TrackMovedSamusHorizontally / facingRightOffsets** ([L172](../csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs#L172)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **ScrollBoundaryCamera.TrackMovedSamusHorizontally / facingLeftOffsets** ([L173](../csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs#L173)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **ScrollBoundaryCamera.TrackMovedSamusHorizontally / facingRightOffsets** ([L172](../csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs#L172)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **ScrollBoundaryCamera.TrackMovedSamusHorizontally / facingLeftOffsets** ([L173](../csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs#L173)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs
 
-- [ ] **TorizoInstructionVramArtworkDefinitions.Pages** ([L51](../csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs#L51)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoInstructionVramArtworkDefinitions.Pages** ([L51](../csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs#L51)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs
 
@@ -421,8 +421,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoAwakeningInstructionProgramDefinitions.Words** ([L22](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningInstructionProgramDefinitions.cs#L22)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoAwakeningInstructionProgramDefinitions.PresentationWords** ([L95](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningInstructionProgramDefinitions.cs#L95)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **GoldenTorizoAwakeningInstructionProgramDefinitions.Words** - PARTIAL: composed69 native controls, sequential movement indexes, increasing sitting holds and halving upload holds. Independent hold scales/transitions and loop counts remain REQUIRED.
+- [x] **GoldenTorizoAwakeningInstructionProgramDefinitions.PresentationWords** - CONVERTED: pose/function/branch/DMA record widths calculate all21 visual operand addresses; native selectors and selected physical frames confirmed.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoEggInstructionProgramDefinitions.cs
 
@@ -436,15 +436,15 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs
 
 - [ ] **GoldenTorizoEyeBeamInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoInitialInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoInitialInstructionProgramDefinitions.Words** ([L25](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoInitialInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoInitialInstructionProgramDefinitions.Words** - Semantic tile upload/stance/lock/wake/pose/sleep dispatch; calculate instruction positions including the seven-byte DMA payload and visual operand gap. No independent timing sequence remains in this one-pose-then-sleep entry.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoJumpLandingInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoJumpLandingInstructionProgramDefinitions.Words** ([L18](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoJumpLandingInstructionProgramDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoJumpLandingInstructionProgramDefinitions.Words** - Four facing/forward-foot cases choose named orb/sonic attack entries and return to the opposite moving leg; calculate each five-word control sequence and its addresses.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftFootOrbCollisionDefinitions.cs
 
@@ -540,9 +540,9 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs
 
-- [ ] **RoomEnemySystem.DeadTorizoInitialGraphicsCopies** ([L22](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs#L22)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RoomEnemySystem.DeadTorizoColumnWordOffsets** ([L40](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RoomEnemySystem.DeadTorizoColumnMinimumY** ([L43](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.DeadTorizoInitialGraphicsCopies** ([L22](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs#L22)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.DeadTorizoColumnWordOffsets** ([L40](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.DeadTorizoColumnMinimumY** ([L43](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs
 
@@ -562,7 +562,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs
 
 - [ ] **TorizoExplosionInstructionProgramDefinitions.Words** ([L28](../csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **TorizoExplosionInstructionProgramDefinitions.PresentationWords** ([L86](../csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs#L86)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoExplosionInstructionProgramDefinitions.PresentationWords** ([L86](../csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs#L86)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoExplosiveSwipeInstructionProgramDefinitions.cs
 
@@ -881,3 +881,247 @@ Independent coordinator review accepted a narrow nonsense exception for exactly2
 The exception covers only these physical code-byte observations. The first78 left/right selector mappings remain calculated semantic beam/effect dispatch. The existing `--lookup-stream2-trail-selectors` proof already passed all103 native words and every64 actual spawn selection with source reads forbidden; this follow-up changes documentation/disposition only and does not rerun unrelated checks. Neither the separate coordinate catalog's code window nor any palette residual receives an exception here.
 
 Stream2 now has63 resolved definitions:62 converted/removed and1 mixed conversion with narrowly justified retention.163 remain required. This is explicitly not full conversion of the selector definition.
+### Batch 23: trail beam-family and directional pointer dispatch
+
+Removed the174-word frozen pointer dictionary and its factory. Native$9B:A418/A42A/A43C dispatches the beam flags; meaningful cases now choose default, Wave, Ice-Spazer, Ice-Plasma or SBA geometry using the existing flag domain. Direction families use the existing ten-direction domain, merged vertical facings, shared opposite Wave axes and packed four-byte coordinate sequence widths. No calculated pointer table is rebuilt or cached. All870 coordinate records and the separate28 adjacent code bytes remain pending.
+
+Verification build passed1437 warnings/zero errors. Existing --projectile-trail-coordinates passed every174 native pointer word, all catalog bytes and odd/wrapped word reads, plus6600 actual beam/charged/SBA/missile spawns asserting all four native output positions with coordinate ROM reads forbidden. Existing196608 operand boundary assertions also passed, retaining live-memory and open-bus behavior. Sixty-four stream2 definitions resolved:63 converted/removed and1 mixed trail selector.162 remain required.
+
+### Batch 24: regular trail coordinate waveforms, partial payload
+
+Removed170 of870 stored four-coordinate records. Both default sequences calculate zero. Uncharged Wave derives its16-frame signed oscillation by reflection around the peak; cardinal ramps start at8 then step4, diagonal ramps step4 twice then2 twice. Charged cardinal Wave repeats each phase twice and caps its symmetric spread at16. Cardinal Ice-Spazer and unused SBA sequences use8-pixel linear spread; cardinal Wave-Ice-Spazer uses4-pixel spread capped at16 with mirrored return. Actual reads calculate these values directly; the pending dictionary contains only the700 remaining records.
+
+Verification build passed1437 warnings/zero errors. Reran --projectile-trail-coordinates: all native870 coordinate records,174 pointers, bounded observations,6600 actual spawns with all four positions and196608 operand-boundary assertions pass without coordinate ROM reads. Frames remains unchecked for its700 pending records; no residual or adjacent-code exemption is claimed. Counts remain64 resolved/162 required.
+
+## Golden Torizo initial/landing control batch
+
+Pinned AA:C9CB-C9E1 and CDAF-CDD6 establish these control-flow cases. Removed both stored Words lists without recreating arrays. `--lookup-stream2-golden-control` confirms allseven initial words with an independent native-width cursor, all20 landing words via the existing focused verifier, exact installed initial sprite selector, lookup values, both-byte ownership, and adjacent/index boundaries. Build1437 existing warnings/zero errors. No remaining animation-hold payload was exempted: these lists install a single static pose or dispatch attack/return operations. Integrated stream checkpoint:65 converted, one mixed trail selector,160 required. Other worker batches remain queued for review.
+
+## Crystal Flash bubble: independently reviewed narrow disposition
+
+Coordinator review accepted only frame5/color0 at9B:9774 as an independent painted color choice. Pinned9B:96D4-977E and supported ROM SHA25612B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72 confirm the final row bytesFF7F BF77 7F6F 5F6B 3F67 FF7F. Its leading white7FFF differs from calculated7BDF. Pinned91:DBA0-DBBD advances every five ticks uniformly;91:DC88-DCAE copies six words into sprite palette6 colorsA-F. There is no phase-specific operation from which to derive the extra white. Encoding its exact frame/color/value as a formula exception would merely restate this independent painted choice.
+
+The other35 words remain calculated rotating ramp values. The exception does not cover any other palette or permit a reconstructed stock table. Custom edits remain independent sparse supplied content. Existing --lookup-stream2-crystal-body confirmation already passed all136 native body/bubble colors, actual CGRAM writes, all independent edits and stock residual countone. This commit changes comments/disposition only; no executable behavior or confirmation scope changed.
+
+Integrated Stream2 checkpoint:65 converted and two mixed conversion/justified-retention definitions;159 required. Other queued worker conversions are not counted here.
+
+## Norfair Pipe Bug formation rank and role dispatch
+
+Removed both runtime local arrays in RunNorfairPipeBugSamusWait. Physical member order is center, upper-near, upper-far, lower-near, lower-far; release counters derive from center104 plus eight ticks per signed vertical rank. Named semantic role cases select the existing native post-rise functions. Dedicated PipeBugDefinitions documents native setup operandsB3:8C64-8CA4 and NTSC/PAL distinction; runtime simply applies the catalog operations. No table is regenerated or cached.
+
+Build1437 existing warnings/zero errors. New --lookup-stream2-pipe-bug-formation confirms allten native immediate operands, actual five-member setup facing both directions, exact stored release counters/functions, rising programs and preserved leader-only instruction/loop timer resets, plus invalid member bounds. No gameplay discovery. Integrated stream checkpoint: 67 converted, two mixed definitions, 157 required.
+
+## Enemy drop probability-column dispatch
+
+Replaced the six-entry return-kind array with named semantic column cases in coordinator-granted EnemyDropSelectionDefinitions. Native86:F25E-F263 maps small energy, big energy, missiles, no-drop, Super Missiles and Power Bombs in that probability-column order. Only the final selected identity changes representation; both minor/major accumulator loops, probabilities, resource eligibility, critical-health hysteresis and RNG behavior remain unchanged. Stream3 probability definitions were not edited.
+
+Build1437 existing warnings/zero errors. New --lookup-stream2-drop-selection confirms allsix native return bytes and six actual cumulative selections using the native first probability record; invokes only existing selection-rule assertions for zero RNG reroll,30..49health hysteresis and full-resource eligibility, plus invalid column bounds. No unrelated pickup collision or gameplay cases ran. Integrated stream checkpoint: 68 converted, two mixed definitions, 156 required.
+
+## Kraid lint initial policy dispatch
+
+Removed the three-entry local delay array in FinishKraidGrowth. Coordinator-approved KraidLintInitializationDefinitions names the top/middle/bottom slot identities and expresses their distinct initial launch delays as semantic cases. This is per-part policy, not a mathematically derived timing sequence: pinned A7:AE2F-AE47 separately selects offsets0080/00C0/0100 and sources A916/A918/A91A containing288/160/64. Native EnableKraidLints installs alignment and LintProduce continuation; B923-B93E aligns and decrements each independent countdown until that continuation begins.
+
+Build1437 existing warnings/zero errors. New --lookup-stream2-kraid-lint-initialization confirms allthree native timer values, actual FinishKraidGrowth slot/reset/continuation writes, and512 actual alignment/countdown steps including each exact transition tick, plus invalid slot bounds. No unrelated gameplay confirmation. Integrated stream checkpoint: 69 converted, two mixed definitions, 155 required.
+
+## Kago frame catalog geometry
+
+Frames() yields its three installed identities directly from the consecutive native four-part OAM record width: two-byte count plus four five-byte parts, beginning at A8:ABDA. Removed the factory literal array; no replacement stock array is generated or cached by this definition. Artwork contents remain independently accounted for.
+
+Production compilation passed; the first verifier build exposed an incorrect new reference to catalog All, corrected to its actual Frames API. Final verifier build25 existing warnings/zero errors. --lookup-stream2-kago-frame-geometry passes allthree independent native instruction selectors and four-part headers, exact names, enumeration count and membership in the installed catalog. Integrated stream checkpoint: 70 converted, two mixed definitions, 154 required.
+
+## Pipe Bug visual phase and OAM geometry
+
+Removed all88 stored visual address/frame pairs across Brinstar, Norfair and yellow variants. Eight-record rising cycles open/close five poses; six-record normal flight cycles skip intermediate pose2. Strong Brinstar and yellow variants use four-record three-pose opening/closing cycles. Timed records occupy four bytes, terminal goto four bytes, and each native sprite composition contains a two-byte count plus one five-byte OAM part. Facing/role groups determine the native frame identity, including strong Brinstar's shooting-before-rising OAM order opposite its program order. Named source constants retain exact native identities. No lookup is regenerated/cached, and independent program timings/artwork are untouched.
+
+Build1437 existing warnings/zero errors. New --lookup-stream2-pipe-bug-visual-geometry runs the existing Brinstar/Norfair/Yellow confirmations unchanged:120 native controls, all16 actual variant programs through complete loops, all88 native selectors and source-read guards. Additional scoped proof confirms all88 one-part native OAM headers and rejects adjacent mechanics/unaligned words. Integrated stream checkpoint: 73 converted, two mixed definitions, 151 required.
+
+## Horizontal camera target modes
+
+Coordinator-approved HorizontalCameraTargetDefinitions replaces both stored facing arrays with named normal/boss/left-edge/right-edge cases. Normal targets are32 pixels either side of the256-pixel viewport center; edge targets sit32 pixels from their respective edges. Boss mode retains its explicit64/80 facing policy. Native90:963F/9647 confirms all eight values; callers88:8347 restore normal, KraidA7:A9E4 and CrocomireA4:8ABA select boss, CrocomireA4:97F3 selects right-edge. No native assignment was found for index4; its name describes only its proven coordinate effect, not an invented historical purpose.
+
+The existing native XOR/reversal rules, accepted context domain, integer-movement gate, speed arithmetic and scroll-boundary consumers are unchanged. Build1437 existing warnings/zero errors. --lookup-stream2-horizontal-camera-targets confirms all eight native offsets and32 actual combinations of mode/facing/normal-knockback-moonwalk-acceleration reversal, exact target positions, unchanged movement speed and invalid-context rejection. Integrated stream checkpoint: 75 converted, two mixed definitions, 149 required.
+
+## Torizo named artwork-page dispatch
+
+Coordinator-approved semantic catalog dispatch replaces the eight stored page references with mutually exclusive named artwork roles. The calculated indexed view preserves the manifest/hash order: shared death, statue crumble, left/right attack, Golden awakening, Golden left/right attack, Chozo debris. Source/extent/filename definitions remain on their dedicated named catalog members; separate pixel payloads remain REQUIRED and receive no exception.
+
+Root integration build1444 existing warnings/zero errors. --lookup-stream2-torizo-page-dispatch checks all eight exact ordered definitions and enumeration/index agreement, decodes each native page into the actual installed atlas representation, confirms complete-page and last-byte resolution, rejects overruns/empty ranges and invalid indexes, and compares canonical content hash to the original ordered native bytes. Integrated stream checkpoint: 76 converted, two mixed definitions, 148 required.
+
+### Bomb Torizo movement reflection integration
+Posture X and walking motion now calculate opposite-facing signs from eight left-facing posture displacements and ten walking values. Native AA:C3EE-C41D/C440-C46F and C4BD-C4E4/C532-C559 confirm reflection and identical standing/sitting and normal/faceless sources. The eight base X values, eight Y values and ten walking values remain required. PostureX, PostureY and WalkVelocities stay unchecked; no choreography exception or completion-count change.
+
+Root Verification build: 1445 warnings, zero errors. --lookup-stream2-torizo-movement passed all 88 native words, 32 real posture applications, 20 real walking consumers and invalid offsets with all six source tables forbidden.
+
+### Reserve arrow pulse integration
+The two 32-frame pulses now calculate mirrored RGB5 interpolation from four endpoint colors: phase=min(frame,31-frame), channel=floor((start*(15-phase)+end*phase)/15). Sparse deviations preserve independently supplied edits without caching whole ramps. Native color6 blue phases 5/10 are 5/11 instead of 6/12, red phase 14 is 19 instead of 18; color11 blue phases 5/10/14 are 3/7/10 instead of 4/8/11. These six deviations repeat in the mirrored half. Endpoints and deviations remain required; arrowFrames stays unchecked without exemption or count change.
+
+Root Verification build: 1445 warnings, zero errors. --lookup-stream2-reserve-arrow-colors passed all 64 native colors, 192 independent channel edits including endpoints, solid/animated CGRAM writes, frame wrapping and exactly 12 stock residual cells. ResourceAudit build: zero warnings/errors; source hash refreshed.
+
+### Projectile trail appearance integration
+Calculated consecutive tile identities, common priority/no-flip fields and family palette selection for two ice sides, wave and missile. The 42 stock attribute words are no longer stored; independently supplied edits remain exact sparse overrides. Native 90:B4CB/B52D/B58F/B5A1 confirms the original attributes. Ice pose boundaries at records 4/8/16 remain unresolved inputs; attributes stays unchecked without exception or completion-count change.
+
+Root Verification build: 1445 warnings, zero errors. --lookup-stream2-trail-appearance passed 42 native attributes, 252 independent field edits, zero stock overrides, invalid frame rejection, 67 native mechanics words and all four actual paired-trail OAM/lifetime/freeze/movement cases with mutable alias checks. ResourceAudit build: zero warnings/errors; source hash refreshed.
+
+### Chozo statue structural integration
+Calculated 166 control positions and 52 visual addresses with shared acquire/rise/breathe/release sequences and Wrecked Ship carrying strides. Native AA:E39D-E428/E457-E57E establishes command widths, movement-index progression and loop labels. Independent acquisition/stride/per-scene holds, four footstep offsets and repeat counts 4/5/16 remain required; Words stays unchecked. Only PresentationWords is complete. Integrated checkpoint: 77 converted, two mixed, 147 required.
+
+Root Verification build: 1445 warnings, zero errors. --lookup-stream2-chozo-layout passed 166 native controls, 52 independently decoded visual addresses and installed selectors, exact native list endpoints, bounds and allocation assertions.
+
+### Norfair lava-jumper structural integration
+Calculated 23 control positions and 14 visual addresses from hidden pose/sleep, seven-pose jump/callback/sleep and follower startup/counting loop. Native A2:BE3C-BE85 confirms the instruction widths and targets. Independent jump holds 1/5/9/7/3/10/1 remain required; Words stays unchecked without exemption. Integrated checkpoint: 78 converted, two mixed, 146 required.
+
+Root Verification build: 1445 warnings, zero errors. --lookup-stream2-lava-jumper-layout passed 23 native controls, 14 independently decoded addresses/selectors, all three production programs, parent/follower initialization, rise/completion handshake, exact boundary, source-read guards and allocations.
+
+### Norfair Rio structural integration
+Calculated 65 control positions and 34 visual addresses from shared four-pose loops and six/eight-pose callback transitions. Native A2:C0F1-C1B6 establishes record widths and ordering. Idle holds 13/18, flight holds 6/5/8/6 and the per-pose follower-attachment callback sequence remain required. Named callback cases preserve the sequence but do not justify its independent offsets. Words stays unchecked without exemption. Integrated checkpoint: 79 converted, two mixed, 145 required.
+
+Root Verification build: 1445 warnings, zero errors. --norfair-rio-instruction-program-definitions passed 65 native words, seven actual parent/flame programs, eleven follower/completion callbacks, 34 exact compiled selectors, initializer selections, source-read guards, boundaries and allocations.
+
+## Integrated Torizo explosion layout
+
+Calculated 53 control positions and 15 visual addresses from the low-health, large-death and smoke phase structures, including the packed sound byte. Native 86:A3CB-A455 confirms record widths, counted back-edges and deletion. Only PresentationWords is complete. Words remains required: small holds 2/2/3/3/2, large holds 4/6/5/5/5/6, smoke hold 8, random spread masks/biases and repeat counts 3/2 have no exception.
+
+Root confirmation: Verification build passed with 1445 warnings and zero errors. --torizo-explosion-instruction-mechanics confirms 53 native words, the actual low-health producer's three cycles, both probabilistic death paths, exact jitter/lifetimes, 15 native compiled selectors, source-read guards, bounds and allocations. Integrated stream checkpoint: 80 converted, two mixed, 144 required. Overall: 504 converted, 15 justified retained/mixed, 609 pending.
+
+## Integrated crawler speed ramps
+
+CrawlerSpeedDefinitions now calculates quarter-pixel ramps in place of 32 stored magnitudes. Both pinned native copies A3:E5F0 and A3:CCA2 agree. Speeds remains unchecked: gaps at parameters 14/16, skipped-step totals 1/4, the penultimate eight-pixel magnitude and terminal zero remain unresolved independent choices. No exception is claimed.
+
+Root confirmation: Verification build passed with 1445 warnings and zero errors. --lookup-stream2-crawler-ramps confirms both 32-word native copies, 384 actual crawler/Yard velocity resets and parameter-bound rejection. Stream counts remain 80 converted, two mixed, 144 required; overall counts remain 504 converted, 15 justified retained/mixed, 609 pending.
+
+## Integrated Dead Torizo crop geometry
+
+ColumnWordOffsets is complete: each 32-byte 4bpp tile advances 16 words. InitialGraphicsCopies and ColumnMinimumY remain unchecked. Their address arithmetic and clip thresholds derive from one shared crop, but the top/middle/lower silhouette boundaries and source placement still need a disposition; no artwork exception is granted.
+
+Pinned A9:DE18-DEBF supplies twelve native MVN descriptors; E272/E38B supplies the ten column offsets and clipping limits. Root Verification build passed with 1445 warnings and zero errors. --lookup-stream2-dead-torizo-geometry confirms all descriptors and limits, actual installed-art staging, and 192 actual row copy/move operations against independent native operands, comparing all 4096 work-buffer bytes. Stream checkpoint: 81 converted, two mixed, 143 required. Overall: 505 converted, 15 justified retained/mixed, 608 pending.
+
+### Root integration: Golden Torizo eye-beam layouts
+
+Wall, floor and flight phases calculate pose/control positions, including the floor program's packed sound byte and damage-enable operation. Explosion waits form a unit-step progression. All17 presentation addresses are complete. Words remains required for wall4, landing8, flight1, explosion start4 and increment1, and the selected phase2 damage-enable placement. No retention exception is added.
+
+Root build passed (1445 warnings, zero errors). `--golden-torizo-eye-beam-instruction-mechanics` passes28 native controls, both real producers, collision-to-impact selection, exact wall/floor lifetimes, disabled floor loop, frame-specific damage transition,17 exact native installed selectors with zero live reads, boundaries and allocation checks. The fixture's obsolete live-read expectation was corrected without weakening behavior assertions. Inventory:533 converted,15 justified retained/mixed,580 pending.
+
+## Golden Torizo awakening layout (partial timing payload)
+
+Composed the69 controls and21 visual addresses atAA:C9E2-CACD from fall, sit, seated-upload, stand and color-handoff operations. Native timed poses occupy4 bytes, word instructions/operands2, and DMA records9 including their separately owned7-byte descriptors. Sitting movement indexes traverse4/2/0; standing traverses0..10 in word steps. Sitting holds3/4/5 increment once per phase, upload holds32/16/8 halve. No mechanics or presentation-address roster is rebuilt/cached.
+
+Independent hold scales and transitions1/3/48/32/4/32/12/8/4/16, upload repeat2 and color iterations16 remain REQUIRED; Words is unchecked. PresentationWords resolves. Build1437 existing warnings/zero errors; new guarded --lookup-stream2-golden-awakening-layout calls the existing bounded native confirmation unchanged: all69 unique control words and byte ownership,8 DMA operations,21 exact compiled visual selectors,7 selected physical frames and9 hitbox lists pass. This batch confirms the changed layout contract without gameplay discovery. Stream checkpoint86resolved:83converted,two mixed definitions,one justified coordinate-code window;140required.
+
+### Pause equipment blank cells
+
+Converted the complete nine-cell blank placeholder at82:C01A-C02B into destination clearing. Both ordinary uncollected labels and the beam slots discarded during Hyper mode now clear their actual width. Only nonzero explicitly edited cells are stored; serialization/validation and source-byte content hashes are unchanged. Independent label glyphs and placements remain required under the separate labels entry.
+
+Focused `--lookup-stream2-equipment-blank` confirms all nine native zero words, zero stored stock cells, each of nine independent custom-cell edits, exact content hashes, and20 actual ordinary/Hyper inventory tilemap writes including all untouched surrounding bytes. Build1437existing warnings/zero errors; focused run passed. Stream2 now87resolved (84converted, two mixed conversion/justified-retention definitions, one justified-retained definition)/139required. No new exception.
+
+### Pause equipment label composition and placement
+
+Granted PauseEquipmentLabelDefinitions now catalogs the exact packed text fragments observed in B6:8000-BFFF artwork and82:BF32-C018 label sources. Semantic label cases compose contiguous CHARG/E, ICE, WAVE, SPAZER, PLASMA, VARIA/sharedSUIT, GRAVITY/sharedSUIT, MORPHIN/G-B/AL/L, BOMBS, SPRING BALL, SCREW ATTACK, HI-JUMP BOOTS, SPACE JUMP, SPEED BOOSTER and HYPER/empty-endcap fragments. This is meaningful text/atlas selection, not phase-index value recitation. Palette2, markerFF and padded text backgroundD4 are common; native Hyper uses its distinct12F endcap. The independently designed pixels are still interface artwork, not calculated or exempted by these label references. Static `lookup1165-equipment-glyphs.png` diagnostic shows the exact named fragments for review.
+
+Stock destinations derive from category columns4/21, first rows16/9/19, successive item rows and the two-row suit/misc gap at82:C06C-C086. Runtime label objects calculate stock words/positions when used and store only explicit cell/placement edits; no stock byte arrays are rebuilt or cached. Unknown labels/cell indices throw. Native Plasma's nine-word copy continues into four Varia words exactly as before.
+
+`--lookup-stream2-equipment-labels` confirms all115native glyph words and15placements, each106ordinary and five consumed Hyper cell edits through actual patch/inventory writes, disabled recoloring, one independently moved Charge label, exact Plasma/Varia overlap, source hashes and bounds. The four unused Hyper trailing words are also compared with native stock. `--lookup-stream2-equipment-blank` still passes after the shared provider change. Production build1437existing warnings/zero errors; final verifier build25/zero. Stream2 now88resolved (85converted, two mixed conversion/justified-retention definitions, one justified-retained definition)/138required. No new exception.
+
+### Dead Torizo crop derived from immutable stock composition
+
+Following independent coordinator source/artwork review, the former LeftColumn/EndColumn silhouette formula and hardcoded source-origin delta are removed. Granted Assets/DeadTorizoStationaryCompositionDefinitions provides the immutable native25-part composition: three large head/shoulder parts, five rows of four body parts, a small rear ankle and a large rear foot. InitialCopy now derives source bounds, row tile union, packed destination width/origin and byte length directly from those parts. ColumnMinimumY takes the earliest covered row in each packed source column. No replacement crop table or generated cache exists; source/display geometry remains separate.
+
+The exact independently chosen composition inputs are NOT exempted or silently relocated outside the inventory. They remain REQUIRED under [Stream3 EnemySpritemapCatalog.frames](lookup-1165-stream-3.md), specifically frame `dead_torizo_stationary_a9_d6e2` at A9:D6E2-D760: head tile/origin109/(-8,-52)/three parts, body128/(-16,-36)/four-by-five parts, ankle197/(-24,20)/small, foot1A6/(-32,28)/large, and their native ordering. Stock display/frame ownership stays with Stream3; this Stream2 immutable subset is the functional source for physical corpse staging. No artwork-retention approval is claimed. The two duplicated crop/clip definitions can complete by deriving from that explicitly tracked composition source.
+
+Focused `--lookup-stream2-dead-torizo-geometry` passes all25native part tile/size/X/Y values, exact97tile coverage vs12MVNs, all10native column displacements/clip limits, actual installed-art staging,192actual row copy/move operations and input bounds. It binds an independently edited one-part display with different origin/tile/size, confirms actual edited OAM, and still obtains the exact native staging buffer. Build1437existing warnings/zero errors. Stream2 now90resolved (87converted, two mixed conversion/justified-retention definitions, one justified-retained definition)/136required; underlying OAM artwork remains required in its original Stream3 entry.
+
+### Reserve label composition and placement
+
+Granted PauseReserveUiDefinitions catalogs semantic text runs at82:BF06-BF30: MODE119-11B with palette1/priority, shared MANUAL146-149 with palette7/priority, RESERVE TANK080-086 and AUTO156-159 with palette7/priority. Mode composes its prefix with the shared Manual suffix; the two long-label anchors share a column and consecutive rows at82:C068/C06A, while manual/auto replace the suffix atModeCell. The provider calculates stock words and destinations directly and stores only independently edited cells/anchors. No unexplained fallback or cached stock label array remains. Independent glyph pixel design and arrow palette endpoints/channel deviations remain REQUIRED separately; no artistic exemption follows from text composition.
+
+`--lookup-stream2-reserve-labels` passes22native words/four destinations,22independent cell edits,56actual ordinary/attribute-preserving/moved label patches and invalid-name/short-destination/index bounds. This specifically preserves82:AB47's old attributes while replacing only the character during mode changes. Build1437existing warnings/zero errors. Stream2 now91resolved (88converted, two mixed conversion/justified-retention definitions, one justified-retained definition)/135required.
+
+### Pause ankle/toe strips and exact remaining inputs (partial)
+
+Added regular Varia ankle17B/18B, Hi-Jump collar179-origin rows, regular upper-foot19E/19F, regular toe1AD-1AF, and regular outer-foot1EE/1FE. Extended existing Power leg and Hi-Jump toe pieces through their remaining native cells, retaining their priority differences. There are266calculated glyph references,19left/17right residual words, and25named source-piece origins. All origins, chosen placements/extents, attribute choices and residual words remain REQUIRED under the same original frames entry; no exemption is asserted.
+
+Exact residual coordinates below are zero-based `(column,row)=native word` within each8x17frame. They are the complete stored stock residual set confirmed by the focused check, not a subset:
+
+- PowerSuit left: `(2,6)=2594, (1,9)=25C9, (3,13)=05D7, (2,14)=258F, (0,15)=258E`.
+- PowerSuitHiJump left: `(2,6)=2594, (1,9)=25C9, (1,13)=0579, (2,13)=258C, (3,13)=05D7, (1,14)=0589, (3,15)=059B`.
+- VariaSuit left: `(1,9)=25C9, (1,11)=05E9, (1,12)=05F9, (3,13)=05D7, (0,15)=258E`.
+- VariaSuitHiJump left: `(1,9)=25C9, (3,15)=059B`.
+- All four right sides: `(6,9)=0000, (7,15)=259D`, plus `(7,14)=F955` for PowerSuit and `E955` for the other three.
+- Additional VariaSuit right: `(4,11)=45EB, (6,11)=65E9, (4,12)=45FB, (6,12)=65F9, (7,16)=25FF`.
+
+Native82:B20C-B256 selects one complete frame solely from EquippedItems&0101, then copies17rows of8words. Managed PauseMenuState.WriteSamusWireframe uses PauseEquipmentRules.WireframeIndex followed by the same bounded patch operation. The display is static line artwork, including the asymmetric cannon and equipment connector strokes shown in `lookup1165-pause-wireframes.png`; there is no animation/angle/velocity phase controlling individual cells. This bounds the remaining artwork-role review but does not itself approve retention of every selected value.
+
+`--lookup-stream2-wireframe-mirrors` passes266native glyph calculations, all544complete native words, exact19left/17right residual membership/values, four actual stock patches,20independent edits and bounds. Build1437existing warnings/zero errors. Stream2 remains91resolved/135required.
+
+Root integration: combines25d70f98,66814a6a,17961551,159a07c0. Viewed the four source wireframes; root Verification build1445warnings/0errors and focused544word/266glyph/exact36residual/20edit checks pass; ResourceAudit0/0. All25piece origins, placements, attributes and36residuals remain required; no aggregate completion or retention. Master551converted/16retained-mixed/561pending unchanged.
+
+### Integrated equipment template geometry (partial)
+
+Panel borders, semantic label runs, SAMUS heading/ornaments, reserve arrow/gauge and shared Power Suit piece geometry now calculate the template instead of caching1024words. Root viewed the native template and reviewed the operations. All selected panel bounds, placements, styles, glyph origins, shared wireframe composition and23residual words remain REQUIRED under tilemap; no exemption or completion.
+
+Root --lookup-stream2-equipment-base-geometry passes all1024native words, exact23residual membership/values,8independent edits,18actual rebinds preserving live ownership/arrow palette, mutable output independence and bounds. Verification1445warnings/0errors; ResourceAudit0/0. Audit pins both new label/wireframe dependencies. Worker97c52ce1c22e4fbadc22caf83de042182c50d8f5. Aggregate551converted/16retained-mixed/561pending unchanged.
+
+### Pause backdrop frame, area lettering and control strips (partial)
+
+Granted PauseBackdropDefinitions now calculates the rectangular border on rows5-24, repeated inset/outer fills, centered uppercase area names from the contiguous A-Z atlas, and the L/MAP, EXIT/START, SAMUS/R control glyph strips. Native82:8EDA-8F1A copies B6:E000's1024word page and its lower512words atB6:E400 into the mutable button state;82:9428's area pointer selects the twelve-word name patch at page cell170. The existing semantic Ceres area displays COLONY. Calculation shares these native geometric/text operations without caching complete pages. Actual VRAM writes calculate one word at a time; CreateButtonTilemap returns the mutable state buffer. Independent edits to any area or button cell retain their original separate ownership.
+
+Both original areas/buttons entries remain REQUIRED. Selected frame/control placements, glyph origins, palette/priority styles and the following three distinct source differences remain explicit pending inputs: nativeB6:E150 at(column8,row5)=68BE reverses one header-bar tile;82:9681 gives Crateria's final A palette2 instead of the other letters'palette6, appearing at(column19,row5)=2830;B6:E6BA at(column29,row26)=2887 selects a separate lower R-button glyph rather than the regular packed-row continuation286D. The two common differences occur in all seven area images, the final-A difference only in Crateria, and the R glyph also occurs independently in the button template:15area residual cells and1button residual. No generation rationale or retention approval is asserted for these choices.
+
+The decoded native image is `C:\Users\SERVIC~1\AppData\Local\Temp\lookup1165-pause-backdrop.png`: a rectangular map frame with centered area text and named lower controls. It establishes the source-art roles, not permission to exempt chosen values. `--lookup-stream2-backdrop-geometry` calls VerifyLookupStream2BackdropGeometry inside guarded Main. It passes7680direct native words, exact15area/1button residual membership and values,53actual full-page VRAM loads with untouched surrounding memory,ten independent area/control edits and invalid destination/area bounds with no partial write. Initial build1438warnings/zero errors; removed the newly introduced argument-guard warning using existing Ensure helper, final production+verifier incremental1222warnings/zero errors. Focused confirmation passes again. Stream2 remains91resolved/135required.
+
+Root integrated5f90fd61fb9446c4d94eb0cf6a9cf99725be023c: viewed native backdrop, Verification1445warnings/0errors, focused7680native words/exact15area+1button residuals/53VRAM loads/10edits/bounds pass;ResourceAudit0/0. Aggregate551converted/16retained-mixed/561pending unchanged; both entries remain pending.
+
+### Integrated environmental owner catalogs
+
+Four Norfair heat/palette owners and two Old Tourian railings/panels owners use calculated definition/program/loop offsets and semantic CGRAM placements. Both Definitions entries complete; accent Durations and colors remain required. Root six native bindings,292mechanics words,16phase bytes,complete/repeating cycles,live colors,enumeration/bounds pass; Verification1445warnings/0errors. Worker67cbb0ed71ea4a75e452ab09799cb786123fcd9c.
+
+
+## Integrated projectile sprite identity geometry
+
+ProjectileSpriteDefinitions.NativePointers is converted (d30b18a514,6df4c64b0,5f7affb9f). All417 addresses calculate from named directional/variant groups, two-byte headers and five-byte OAM parts. Core/paired-lobe/spread geometry and triangular startup extents include unselected physical records; no literal residual address table or expanded cached pointer array remains. Span-based flare callers retain their separate required identities.
+
+Selected startup stages1/3/6/7 axial and2/4/8/10 diagonal remain independently required under ProjectileFrameBindingCatalog.sprites. Chosen part counts,ordered footprints and artwork remain required under ProjectileSpriteCatalog.frames. These dependencies are explicit in the master JSON; no selection or artwork exception is claimed.
+
+Root Verification build1445 warnings/zero errors; --lookup-stream2-projectile-identity-geometry passes the417 identity union from805 native selectors,48 selected/unselected physical startup headers through93:F5E2,417 extracted native-vs-installed OAM draws,independent edited composition/ownership,54 flare selectors and bounds. ResourceAudit source hashes refreshed. Inventory556 converted/19 retained-mixed/553 pending.
+
+
+## Integrated partial Power beam composition calculation
+
+54825296a calculates eight centered one-tile Power compositions at93:A24D-A27E using triangular three-glyph phases and native reflection phases. Stock matching uses immutable calculated SpriteComposition views; any supplied field difference preserves independently copied parts. The aggregate ProjectileSpriteCatalog.frames stays unchecked: glyph origin30,palette6,priority2,pixels and every other chosen OAM design remain required.
+
+Root Verification build1445 warnings/zero errors; focused projectile identity/composition check confirms exactly eight calculated views,417 native identities/OAM draws,48 startup records,independent Power edit/ownership,54 flare selectors and bounds. ResourceAudit builds0warnings/0errors; current shared SpriteComposition source is included in the projectile/flare closure. No new retained exception or count change:556 converted/19 retained-mixed/553 pending.
+
+## Integrated beam geometry and visual phase selection
+
+Partial chain67ad12808,a705f29d4,792ff33e2,8b47c7ae8,5ba2cbc61,df144411a,d5f56dd57,ff94b789b:84 Power/Ice/Wave compositions now use calculated indexed parts, including centered glyphs, reflected quads and signed lobes.160 beam,missile,bomb,effect frame selections derive compass order and sequential/oscillating phase traversal. Independently supplied composition and selector edits take precedence.
+
+Both aggregate entries remain pending. Required inputs include645 selectors,Wave axial distances8/13/15/16,diagonal ratio3/4,EC3E's part ordering,other chosen geometry,glyph/palette/priority/pixels and timing/radii in their own owners. The diagonal relation is exact arithmetic, not a claim of trigonometric provenance. Identity record geometry still depends on the separately tracked selected footprint sizes.
+
+Root Verification build1445 warnings/zero errors. --lookup-stream2-projectile-identity-geometry passes417 native identities/OAM draws,48 physical startup records,84 calculated views,independent quadrant/Wave edits and ownership,54 flare selectors,bounds. --lookup-stream2-power-direction-bindings passes805 native operands,exact645 residual membership,160 actual projectile handler/edit paths and14 actual bomb handler paths with timing/flow/radii preserved. ResourceAudit build0/0. Inventory unchanged558 converted/20 retained-mixed/550 pending.
+## Integrated missile/effect geometry and charged-Wave selection
+
+Partial chain abd61b470,753ce6da5,c44ec7ea2,4f45daf9c,98d427139 adds twenty calculated compositions: four axial Super Missiles, eight diagonal Missiles/Super Missiles, four Bombs and four beam-explosion quads. Total calculated compositions:104. Charged Wave/IceWave travel-axis and phase traversal adds122 selections, including two invisible lead-ins; total282 calculated selectors and523 required residuals. Eight reversed final axial choices remain explicitly pending at8F8F/8F97,9097/909F,91CB/91D3,92D3/92DB.
+
+Palette fields derive from actual CGRAM destinations208/224 and sixteen-color OBJ rows, cross-checked against82:E13E-E148 and90:ACDE-ACE8. Colors, glyphs, priorities, diagonal pivots, chosen corner/order policies and other geometry remain required; neither aggregate entry closes.
+
+Root Verification build1446warnings/zero errors. Focused projectile identity/composition check passes417native identities/OAM draws,48startup records,104calculated views,independent tail/quadrant/Wave edits,54flare selectors and bounds. Frame-selection check passes805native operands,282actual handler/edit paths,14bomb handler paths and exact523residual membership. ResourceAudit build0warnings/0errors. Inventory unchanged558converted/21retained-mixed/549pending.
+## Integrated Wave lobes and Spazer composition geometry
+
+574b83b08,bf2311055,afa0d08af,542d3c899,93cb310c0 add65calculated compositions:16horizontal charged-Wave lobes,8Spazer seed poses,16diagonal spreads,19axial spreads and6horizontal charged strips. Shared Spazer coordinates were already integrated from0f569e5c3. Total calculated views169; selectors remain282calculated/523required.
+
+Chosen lobe/corner/lane ordering,spacing4 and8/13/15/16,diagonal ratio3/4,origin(-14,0),strip length4,glyphs,priority,pixels and selected footprint lengths remain required. Initial-right D84E and final irregular diagonal spreads remain supplied and pending. Repeated lanes,adjacent cells and native reflections calculate without claiming these choices are resolved. Both aggregate entries remain pending; inventory558converted/21retained-mixed/549pending unchanged.
+
+Root Verification1447warnings/zero errors. Focused identity/composition check passes417native identities and actual OAM draws,805selector union,48physical startup records,exact169calculated views,independent edits/ownership,54flare selectors and bounds. ResourceAudit0warnings/0errors; projectile and flare closures include the shared coordinate catalog.
+## Integrated charged vertical Spazer and startup geometry
+
+c348d68aa and e228a7c5d calculate22additional compositions: four later charged vertical column layouts,twelve axial startup strips and six ordinary diagonal startup pair layouts. Total calculated views191. Cell adjacency,centering and reflected near-edge placement calculate; shortening a diagonal from two pairs to one preserves its center through a half-cell shift.
+
+Chosen edge-relative/traversal policies,distances,lengths,glyphs,priority,shared origin(-14,0),pixels and other independent inputs remain required. Initial charged vertical DA3A/DA50 and four charged diagonal startup layouts remain supplied/pending. No aggregate closure or new exemption; inventory unchanged558converted/21retained-mixed/549pending.
+
+Root Verification1447warnings/zero errors. Focused identity/composition check passes417native identities and actual OAM draws,805selector union,48physical startup records,exact191calculated views,independent edits/ownership,54flare selectors and bounds. ResourceAudit0warnings/0errors; affected projectile/flare source hashes refreshed.
+## Integrated complete projectile selector decomposition
+
+ab9368cb1,901abfe5b,e2fc8e520,ba20587f7,07f4e9e7,3385ef53e,dee04f273 and cd3b99a38 calculate the remaining523selector operands. All805stock operands now calculate with zero stored stock selector entries. This does not complete ProjectileFrameBindingCatalog.sprites: independent growth stages,axis/variant choices,near-center pose policy,capped DownLeft sweep and final axial parity reversal remain required. Semantic directions,record strides and outward/return phases supply the implemented mapping; independent supplied edits remain overrides.
+
+0c43a7eb7 and efa40ce90 add17composition views: eight Plasma startup cores,four charged diagonal Spazer startup/endcaps and five horizontal PlasmaWave Short strips. Total208calculated compositions. Selected glyphs,footprints,lengths,spacing,lobe order,priority,pixels and remaining irregular geometry remain required. Vertical Short asymmetric offsets were not assumed to reflect the horizontal layout.
+
+Root Verification1450warnings/zero errors; --lookup-stream2-power-direction-bindings passes805native operands,805actual handler/edit paths,preserved timing/control/radius and14bomb paths. --lookup-stream2-projectile-identity-geometry passes417native OAM draws,805selector union,48startup headers,208views,independent edits,54flare bindings and bounds. ResourceAudit0warnings/zero errors with all shared source dependencies refreshed. No new exception or aggregate closure;560converted/21retained-mixed/547pending unchanged.

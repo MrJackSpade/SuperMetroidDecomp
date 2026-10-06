@@ -28,172 +28,118 @@ internal static class NorfairRioInstructionProgramDefinitions
     /// <summary><c>GerutaConstants</c>, adjacent non-instruction data at $A2:C1B7.</summary>
     internal const ushort AdjacentMovementDefinitions = 0xc1b7;
 
-    private static readonly NorfairRioInstructionMechanicsWord[] Words =
-        BuildMechanicsWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
+    // Independent pose holds remain required under issue1165; shared program
+    // geometry and semantic callback dispatch do not exempt this timing payload.
+    private static readonly ushort[] IdleHolds = [13, 18];
+    private static readonly ushort[] FlightHolds = [6, 5, 8, 6];
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static NorfairRioInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static int MechanicsWordCount => 65;
+    internal static int PresentationWordCount => 34;
+
+    /// <summary>
+    /// $A2:C0F1-C1B6: three parent loops, two callback/pose transition sequences,
+    /// and two flame loops. Each timed pose occupies four bytes; interleaved
+    /// follower-offset callbacks make the transition poses six bytes wide.
+    /// </summary>
+    internal static NorfairRioInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 7) return LoopWord(index, Idle, NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8_duplicate, true);
+        if (index < 21) return TransitionWord(index - 7, StartDescending, false);
+        if (index < 28) return LoopWord(index - 21, Descending, NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC, false);
+        if (index < 46) return TransitionWord(index - 28, StartAscending, true);
+        if (index < 53) return LoopWord(index - 46, Ascending, NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_C_duplicate, false);
+        if (index < 59) return LoopWord(index - 53, FlamesAscending, 0, false);
+        return LoopWord(index - 59, FlamesDescending, 0, false);
+    }
+
+    private static NorfairRioInstructionMechanicsWord LoopWord(int index, ushort start, ushort setup, bool idle)
+    {
+        int frameStart = start;
+        if (setup != 0)
+        {
+            if (index == 0) return new(start, setup);
+            index--;
+            frameStart += 2;
+        }
+        if (index < 4) return new((ushort)(frameStart + index * 4), idle ? IdleHolds[index % 2] : FlightHolds[index]);
+        return new((ushort)(frameStart + 16 + (index - 4) * 2), index == 4 ? CommonEnemyInstructionCodes.Goto : start);
+    }
+
+    private static NorfairRioInstructionMechanicsWord TransitionWord(int index, ushort start, bool ascending)
+    {
+        int poses = ascending ? 8 : 6;
+        if (index < poses * 2)
+            return new((ushort)(start + index / 2 * 6 + index % 2 * 2),
+                index % 2 == 0 ? TransitionCallback(index / 2, ascending) : (ushort)1);
+        return new((ushort)(start + poses * 6 + (index - poses * 2) * 2),
+            index == poses * 2 ? NorfairRioInstructionCodes.Instruction_Geruta_SetFinishedSwoopStartAnimationFlag : CommonEnemyInstructionCodes.Sleep);
+    }
+
+    /// <summary>Preserves native per-pose attachment callbacks; their offset sequence remains required under #1165.</summary>
+    private static ushort TransitionCallback(int pose, bool ascending) => ascending ? pose switch
+    {
+        0 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative10,
+        1 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC_duplicate,
+        2 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative4,
+        3 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_0,
+        4 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_4,
+        5 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8,
+        6 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8_duplicate,
+        _ => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_C,
+    } : pose switch
+    {
+        0 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8,
+        1 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_4,
+        2 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_0,
+        3 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative4,
+        4 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC_duplicate,
+        _ => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative10,
+    };
+
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 4) return (ushort)(Idle + 4 + index * 4);
+        if (index < 10) return (ushort)(StartDescending + 4 + (index - 4) * 6);
+        if (index < 14) return (ushort)(Descending + 4 + (index - 10) * 4);
+        if (index < 22) return (ushort)(StartAscending + 4 + (index - 14) * 6);
+        if (index < 26) return (ushort)(Ascending + 4 + (index - 22) * 4);
+        if (index < 30) return (ushort)(FlamesAscending + 2 + (index - 26) * 4);
+        return (ushort)(FlamesDescending + 2 + (index - 30) * 4);
+    }
 
     internal static bool IsPresentationWord(ushort address)
     {
-        for (int index = 0; index < PresentationWords.Length; index++)
-        {
-            if (PresentationWords[index] == address)
-                return true;
-        }
-
+        for (int index = 0; index < PresentationWordCount; index++)
+            if (PresentationWordAddress(index) == address) return true;
         return false;
     }
 
-    /// <summary>Returns fixed Norfair Rio control or rejects non-mechanics pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            NorfairRioInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            var candidate = MechanicsWord(middle);
+            if (candidate.Address == address) return candidate.Value;
+            if (candidate.Address < address) low = middle + 1;
+            else high = middle - 1;
         }
-
-        throw new InvalidDataException(
-            $"Norfair Rio instruction mechanics pointer $A2:{address:X4} is not compiled.");
+        throw new InvalidDataException($"Norfair Rio instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa20000)
-            return false;
-
+        if ((address & 0xff0000) != 0xa20000) return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
+            ushort wordAddress = MechanicsWord(index).Address;
+            if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1))) return true;
         }
         return false;
-    }
-
-    private static NorfairRioInstructionMechanicsWord[] BuildMechanicsWords()
-    {
-        var words = new List<NorfairRioInstructionMechanicsWord>(capacity: 65);
-        AddCallback(words, Idle,
-            NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8_duplicate);
-        AddLoop(words, unchecked((ushort)(Idle + 2)), [13, 18, 13, 18], Idle);
-
-        AddCallbackFrameProgram(
-            words,
-            StartDescending,
-            [
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8,
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_4,
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_0,
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative4,
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC_duplicate,
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative10,
-            ],
-            NorfairRioInstructionCodes.Instruction_Geruta_SetFinishedSwoopStartAnimationFlag);
-
-        AddCallback(words, Descending,
-            NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC);
-        AddLoop(words, unchecked((ushort)(Descending + 2)), [6, 5, 8, 6], Descending);
-
-        AddCallbackFrameProgram(
-            words,
-            StartAscending,
-            [
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative10,
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negativeC_duplicate,
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative4,
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_0,
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_4,
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8,
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_8_duplicate,
-                NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_C,
-            ],
-            NorfairRioInstructionCodes.Instruction_Geruta_SetFinishedSwoopStartAnimationFlag);
-
-        AddCallback(words, Ascending,
-            NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_C_duplicate);
-        AddLoop(words, unchecked((ushort)(Ascending + 2)), [6, 5, 8, 6], Ascending);
-        AddLoop(words, FlamesAscending, [6, 5, 8, 6], FlamesAscending);
-        AddLoop(words, FlamesDescending, [6, 5, 8, 6], FlamesDescending);
-        return words.ToArray();
-    }
-
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new List<ushort>(capacity: 34);
-        AddPresentationWords(words, unchecked((ushort)(Idle + 2)), frameCount: 4, stride: 4);
-        AddPresentationWords(words, unchecked((ushort)(StartDescending + 2)),
-            frameCount: 6, stride: 6);
-        AddPresentationWords(words, unchecked((ushort)(Descending + 2)),
-            frameCount: 4, stride: 4);
-        AddPresentationWords(words, unchecked((ushort)(StartAscending + 2)),
-            frameCount: 8, stride: 6);
-        AddPresentationWords(words, unchecked((ushort)(Ascending + 2)),
-            frameCount: 4, stride: 4);
-        AddPresentationWords(words, FlamesAscending, frameCount: 4, stride: 4);
-        AddPresentationWords(words, FlamesDescending, frameCount: 4, stride: 4);
-        return words.ToArray();
-    }
-
-    private static void AddLoop(
-        List<NorfairRioInstructionMechanicsWord> words,
-        ushort frameEntry,
-        ReadOnlySpan<ushort> durations,
-        ushort target)
-    {
-        for (int frame = 0; frame < durations.Length; frame++)
-            words.Add(new(unchecked((ushort)(frameEntry + frame * 4)), durations[frame]));
-        ushort gotoAddress = unchecked((ushort)(frameEntry + durations.Length * 4));
-        words.Add(new(gotoAddress, CommonEnemyInstructionCodes.Goto));
-        words.Add(new(unchecked((ushort)(gotoAddress + 2)), target));
-    }
-
-    private static void AddCallbackFrameProgram(
-        List<NorfairRioInstructionMechanicsWord> words,
-        ushort entry,
-        ReadOnlySpan<ushort> callbacks,
-        ushort completionCallback)
-    {
-        for (int frame = 0; frame < callbacks.Length; frame++)
-        {
-            ushort callbackAddress = unchecked((ushort)(entry + frame * 6));
-            AddCallback(words, callbackAddress, callbacks[frame]);
-            words.Add(new(unchecked((ushort)(callbackAddress + 2)), (ushort)1));
-        }
-        ushort completionAddress = unchecked((ushort)(entry + callbacks.Length * 6));
-        AddCallback(words, completionAddress, completionCallback);
-        words.Add(new(unchecked((ushort)(completionAddress + 2)),
-            CommonEnemyInstructionCodes.Sleep));
-    }
-
-    private static void AddCallback(
-        List<NorfairRioInstructionMechanicsWord> words,
-        ushort address,
-        ushort callback) => words.Add(new(address, callback));
-
-    private static void AddPresentationWords(
-        List<ushort> words,
-        ushort frameEntry,
-        int frameCount,
-        int stride)
-    {
-        for (int frame = 0; frame < frameCount; frame++)
-            words.Add(unchecked((ushort)(frameEntry + frame * stride + 2)));
     }
 }

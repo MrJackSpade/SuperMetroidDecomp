@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -106,6 +107,10 @@ internal static partial class Program
                 .PresentationWordAddress(index);
             AssertTrue(executedOperands.Contains(address),
                 $"production executes n00b-tube presentation $86:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86,address,out ushort selector),
+                $"n00b-tube presentation $86:{address:X4} is compiled");
+            AssertEqual(ReadVerificationWord(rom,0x860000 | address),selector,
+                $"n00b-tube presentation $86:{address:X4} preserves its native operand");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared n00b-tube mechanics bytes");

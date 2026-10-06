@@ -17,9 +17,9 @@ internal static class EnemyVisualProgramSpecializations
     {
         [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "E681BB9CF421324D916B1AD8F50D4780A17678158323A05EBA36ABB7A9E3509D",
         [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "D2A9DC8911732A71F49E80E9D95AD47D1976AD324D20D9712A364BEC8E090DF1",
-        [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "315A995B59B5806888D50068184CBEABDE80B749B6F830B81650586C6F1F80DB",
+        [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "3005930C469DDE29CCC5E38213020BE64F744E4BF92B41CB512D2ADF5536A0D0",
         [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "F00EF6C4538BC256AC8C6FED813F52C2BC2334B36D640B3312333E5B54C76BB1",
-        [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "C9325C79B422FC75760E847A28083D4B07DA9EBE8EE2E7518FBD406CD2C473B2",
+        [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "C59312C3A87CBDE15DB6397E86783EC62CD34942656F12CCA056EF94B838A322",
     };
 
     private static readonly Dictionary<string, string> CustomLayouts = new()
@@ -27,11 +27,13 @@ internal static class EnemyVisualProgramSpecializations
         [nameof(MotherBrainBodyInstructionProgramDefinitions)] = "6C16408D4EDA53AF1FCD170C725CCE24D3D99C28C7F3F0A4AD81E93D52377A49",
         [nameof(MotherBrainHeadInstructionProgramDefinitions)] = "D6A0B754F4B7E98F0A8A31D3006D8AE1723992E7C3E8FA724B6C9E137813A31E",
         [nameof(MotherBrainHandBeamBodyInstructionDefinitions)] = "5CE8C4528445A5CB7EEF07E09B761B943B6B148DEF942937704C9EB9F7E4953D",
-        [nameof(MotherBrainFallingTubeInstructionDefinitions)] = "033CF1B6D8623C218FE238800A8CB556478372042B7B42D562CB4BE207419C96",
+        [nameof(MotherBrainFallingTubeInstructionDefinitions)] = "FCA4060649CFE4B7A5177FB4F311CBE357F56F44987AA88C33779E621A1362E8",
     };
 
     internal static void GuardCustomLayouts(string root)
     {
+        // Falling-tube layout delegates its five visual identities to this calculated catalog.
+        GuardSource(root, "csharp/src/SuperMetroid.Core/Assets/MotherBrainVisualDefinitions.cs", "8A566B9D6A4B899CD9790E9EA79394935234CB6013C6DFC92855D81223D89419");
         foreach ((string name, string expected) in CustomLayouts)
             GuardSource(root, "csharp/src/SuperMetroid.Core/Game/" + name + ".cs", expected);
     }

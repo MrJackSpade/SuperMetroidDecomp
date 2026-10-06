@@ -84,7 +84,7 @@ internal static class PauseMessageGateAudit
             EquippedItems = (ushort)SamusEquipmentFlags.MorphBall,
             CollectedItems = (ushort)SamusEquipmentFlags.MorphBall,
         };
-        new SuperMetroidSaveRam(bus).SaveSlot(
+        new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(
             0,
             SuperMetroidSaveSnapshot.Capture(samus, system, area: 0, saveStation: 0));
     }

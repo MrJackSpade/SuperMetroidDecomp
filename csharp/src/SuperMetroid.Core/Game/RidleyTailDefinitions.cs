@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Live entries of the $A6:CB21 tail dispatcher and its pogo geometry.</summary>
+/// <summary>Initial articulated-tail angular geometry from InitializeTailParts at $A6:D2D6.</summary>
 internal static class RidleyTailDefinitions
 {
     /// <summary>$A6:CB23 -> CBC0, neutral tail.</summary>
@@ -27,6 +27,29 @@ internal static class RidleyTailDefinitions
     internal static ushort MinimumClockwise(ushort facing) => facing == 2 ? (ushort)0x3fc0 : (ushort)0x3ff0;
     /// <summary>$A6:CC18, SetRidleyTailAngleExtrema_maxCounterClockwiseAngle for left/front/right facing.</summary>
     internal static ushort MaximumCounterClockwise(ushort facing) => facing == 2 ? (ushort)0x4010 : (ushort)0x4040;
-    /// <summary>$A6:D37C, InitializeTailParts_distances.</summary>
-    internal static ReadOnlySpan<ushort> RestDistances => [0x0200, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0500];
+
+    /// <summary>$A6:D38A begins InitializeTailParts.angles at $4000, one quarter of the 16-bit full turn.</summary>
+    private const int InitialBaseAngle = 0x10000 / 4;
+    /// <summary>$A6:D2FD loads $0010 into Ridley.idealInterSegmentTailAngle; the initial angles advance by that separation.</summary>
+    internal const ushort IdealInterSegmentAngle = 0x0010;
+    /// <summary>$A6:D37C initial base separation, in8.8 pixels. Its chosen two-pixel length remains required issue-1165 input.</summary>
+    private const ushort BaseRestDistance = 2 << 8;
+    /// <summary>$A6:D37E..D387 initial shaft separation and $CF7F/$CFB5/$CFEB/$D021/$D057 shrink thresholds. The chosen eight-pixel length remains required input.</summary>
+    private const ushort ShaftRestDistance = 8 << 8;
+    /// <summary>$A6:D388 initial tip separation and $D08D shrink threshold. The chosen five-pixel length remains required input.</summary>
+    private const ushort TipRestDistance = 5 << 8;
+
+    /// <summary>The tail returns to its initialized rest geometry: base, five shaft links, then tip.</summary>
+    internal static ushort RestDistance(int segmentIndex) => segmentIndex switch
+    {
+        0 => BaseRestDistance,
+        >= 1 and <= 5 => ShaftRestDistance,
+        6 => TipRestDistance,
+        _ => throw new IndexOutOfRangeException(),
+    };
+
+    /// <summary>$A6:D38A..D397 contains seven successive initial link angles, base through tip.</summary>
+    internal static ushort InitialAngle(int segmentIndex) => (uint)segmentIndex < 7
+        ? (ushort)(InitialBaseAngle + segmentIndex * IdealInterSegmentAngle)
+        : throw new ArgumentOutOfRangeException(nameof(segmentIndex));
 }

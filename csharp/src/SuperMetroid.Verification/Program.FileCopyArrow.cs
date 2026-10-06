@@ -16,7 +16,7 @@ internal static partial class Program
         var installation = new GameInstallation(GameAssetInstaller.DesktopRoot);
         var art = installation.LoadMaps();
         // All SRAM changes belong to this private imported address space.
-        var saves = new SuperMetroidSaveRam(rom);
+        var saves = new SuperMetroidSaveRam(rom, RetailPresentationFixture());
         for (int slot = 0; slot < 3; slot++)
             saves.SaveSlot(slot, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

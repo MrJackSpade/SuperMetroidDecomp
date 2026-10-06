@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -22,10 +23,14 @@ internal static partial class Program
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = new MotherBrainRoomPaletteReadGuard(rom);
-        var enemies = new RoomEnemySystem { MotherBrainRoomColors = RetailPresentationFixture().MotherBrainRoomColors };
+        var enemies = new RoomEnemySystem
+        {
+            MotherBrainRoomColors = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom))),
+        };
+        var output = new SnesCgram();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        var cgram = new SnesCgram();
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, output);
         MethodInfo run = typeof(RoomEnemySystem).GetMethod(
             "RunMotherBrainRoomPalette", flags)!;
         var state = new MotherBrainEnemyState(enemies.Slots[0])
@@ -34,38 +39,45 @@ internal static partial class Program
                 MotherBrainRoomPaletteProgramDefinitions.FlashStart,
         };
 
-        var executedOperands = new HashSet<ushort>();
+        var expected = new SnesCgram();
+        ushort nativePointer = 0xd046;
+        ushort nativeTimer = 0;
+        var nativeOperands = new HashSet<ushort>();
         for (int frame = 0; frame < 48; frame++)
         {
-            run.Invoke(enemies, [state]);
-            ushort operand = unchecked((ushort)(state.RoomPaletteInstructionPointer + 2));
-            executedOperands.Add(operand);
-            ushort source = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | operand);
-            for (int color = 0; color < MotherBrainRoomColorRomData.SliceColors; color++)
+            ushort duration = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | nativePointer);
+            if (nativeTimer == duration)
             {
-                ushort first = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (source + color * 2));
-                ushort second = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 |
-                    (source + (MotherBrainRoomColorRomData.SliceColors + color) * 2));
-                AssertEqual(first, cgram.Colors[MotherBrainRoomColorRomData.FirstColor + color],
-                    "Mother Brain flash first color slice matches cartridge");
-                AssertEqual(second, cgram.Colors[MotherBrainRoomColorRomData.SecondColor + color],
-                    "Mother Brain flash second color slice matches cartridge");
-                AssertEqual(second, cgram.Colors[MotherBrainRoomColorRomData.MirroredSecondColor + color],
-                    "Mother Brain flash mirrored color slice matches cartridge");
+                nativePointer += 4;
+                nativeTimer = 0;
+                if (ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | nativePointer) == 0x9b0f)
+                    nativePointer = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (nativePointer + 2));
             }
+            nativeTimer++;
+            nativeOperands.Add((ushort)(nativePointer + 2));
+            ushort palette = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (nativePointer + 2));
+            for (int color = 0; color < 12; color++)
+            {
+                expected.SetColor(0x34 + color, ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (palette + color * 2)));
+                ushort second = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (palette + (12 + color) * 2));
+                expected.SetColor(0x53 + color, second);
+                expected.SetColor(0x73 + color, second);
+            }
+            run.Invoke(enemies, [state]);
+            AssertEqual(nativePointer, state.RoomPaletteInstructionPointer, "native room flash pointer and loop");
+            AssertEqual(nativeTimer, state.RoomPaletteInstructionTimer, "native room flash two-tick cadence");
+            AssertTrue(expected.Colors.SequenceEqual(output.Colors), "native room flash full CGRAM and mirrored colors");
         }
+        AssertEqual(14, nativeOperands.Count, "native oracle traverses every room flash operand");
 
         AssertTrue(state.RoomPaletteInstructionPointer is >= 0xd046 and <= 0xd07e,
             "Mother Brain room-palette program loops within its authored control range");
         AssertEqual(0, guard.ForbiddenMechanicsReadAttempts,
             "Mother Brain room-palette execution avoids compiled mechanics bytes");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
-            "Mother Brain room palette performs zero live presentation reads");
-        AssertEqual(MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount,
-            executedOperands.Count, "Mother Brain flash executes every palette selection");
-        for (int index = 0; index < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; index++)
-            AssertTrue(executedOperands.Contains(MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(index)),
-                "Mother Brain flash selects every native palette row");
+        AssertEqual(
+            0,
+            guard.ObservedPresentationWords.Count,
+            "room flash uses installed colors without runtime presentation reads");
 
         AssertThrows<InvalidDataException>(
             () => MotherBrainRoomPaletteProgramDefinitions.ReadMechanicsWord(
@@ -85,7 +97,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Mother Brain room-palette mechanics: sixteen control words, fourteen " +
-            "native color selections, zero live reads, complete production loop, strict rejection, " +
+            "installed palettes, native CGRAM/pointer/timer loop, zero presentation reads, strict rejection, " +
             "and allocation-free lookup pass.");
     }
 

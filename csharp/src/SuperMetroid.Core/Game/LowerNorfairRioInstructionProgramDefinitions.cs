@@ -28,6 +28,12 @@ internal static class LowerNorfairRioInstructionProgramDefinitions
     /// <summary><c>UNUSED_HoltzConstants_A2C6C0</c>, adjacent data at $A2:C6C0.</summary>
     internal const ushort AdjacentMovementDefinitions = 0xc6c0;
 
+    /// <summary>A2:C630 preparation holds; required timing inputs until a functional derivation is established.</summary>
+    private static readonly ushort[] PreparationDurations = [3, 3, 3, 3, 2, 1, 2, 3, 3];
+    /// <summary>A2:C686 cooldown holds, including the distinct final three poses; required issue-1165 timing inputs.</summary>
+    private static readonly ushort[] CooldownDurations = [3, 3, 2, 1, 2, 3, 1, 1, 1];
+    /// <summary>A2:C6B0 flame display holds; the three values alone do not establish a halving process. Required input.</summary>
+    private static readonly ushort[] FlameDurations = [6, 4, 3];
     internal static int MechanicsWordCount => 51;
     internal static int PresentationWordCount => 32;
 
@@ -120,12 +126,9 @@ internal static class LowerNorfairRioInstructionProgramDefinitions
         Descending => 1,
         AscendingPart1 => 3,
         AscendingPart2 => 2,
-        // The turnaround speeds up toward pose 7, then slows away from it.
-        PrepareToSwoop => (ushort)Math.Min(3, 1 + Math.Abs(frame - 5)),
-        // Reverse turnaround has the same ramp, then three one-tick closing poses.
-        Cooldown => frame >= 6 ? (ushort)1 : (ushort)Math.Min(3, 1 + Math.Abs(frame - 3)),
-        // Flame poses halve their extra dwell above the three-tick minimum.
-        Flames => (ushort)(3 + (3 >> frame)),
+        PrepareToSwoop => PreparationDurations[frame],
+        Cooldown => CooldownDurations[frame],
+        Flames => FlameDurations[frame],
         _ => throw new InvalidDataException(),
     };
 

@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable RGB5 visor colors shared by X-ray and room palette cycling.</summary>
 public sealed class SamusVisorColorCatalog
 {
-    private readonly ushort[] colors;
+    private readonly Dictionary<int, ushort> colors;
 
-    private SamusVisorColorCatalog(ushort[] colors) => this.colors = colors;
+    private SamusVisorColorCatalog(Dictionary<int, ushort> colors) => this.colors = colors;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -37,14 +37,15 @@ public sealed class SamusVisorColorCatalog
             document.Colors is null || document.Colors.Length != SamusVisorColorFormat.ColorCount)
             throw new InvalidDataException("Samus visor colors require the supported version and six RGB5 colors.");
 
-        var compiled = new ushort[document.Colors.Length];
-        for (int index = 0; index < compiled.Length; index++)
+        var compiled = new Dictionary<int, ushort>();
+        for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
             if (color is null || (uint)color.Red > 31 ||
                 (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Samus visor color {index} requires RGB components from zero through 31.");
-            compiled[index] = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            ushort packed = (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+            if (packed != SamusVisorColorDefinitions.Color(index)) compiled.Add(index, packed);
         }
         return new(compiled);
     }
@@ -57,22 +58,26 @@ public sealed class SamusVisorColorCatalog
     }
 
     /// <summary>
-    /// Resolves only the six authored even offsets. A corrupted native timer/index may
-    /// address adjacent cartridge bytes; callers retain their bus path for that case.
+    /// Resolves only the six installed even offsets. Corrupted or adjacent offsets
+    /// return false so the caller can enforce its bounded palette contract.
     /// </summary>
     public bool TryResolveByteOffset(int byteOffset, out ushort color)
     {
-        if ((byteOffset & 1) == 0 && (uint)(byteOffset >> 1) < colors.Length)
+        if ((byteOffset & 1) == 0 && (uint)(byteOffset >> 1) < SamusVisorColorFormat.ColorCount)
         {
-            color = colors[byteOffset >> 1];
+            color = Resolve(byteOffset >> 1);
             return true;
         }
         color = 0;
         return false;
     }
 
-    public ushort Resolve(int index) => (uint)index < colors.Length
-        ? colors[index] : throw new ArgumentOutOfRangeException(nameof(index));
+    public ushort Resolve(int index)
+    {
+        if ((uint)index >= SamusVisorColorFormat.ColorCount)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        return colors.TryGetValue(index, out ushort color) ? color : SamusVisorColorDefinitions.Color(index);
+    }
 
     private static void RejectDuplicates(JsonElement value)
     {

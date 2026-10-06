@@ -36,7 +36,7 @@ internal static partial class Program
         // out of escape so room selection can demonstrate both Torizo encounters.
         snapshot.EventBytes[(int)EventNumber.ZebesTimebombSet >> 3] &=
             unchecked((byte)~(1 << ((int)EventNumber.ZebesTimebombSet & 7)));
-        var saves = new SuperMetroidSaveRam(bus);
+        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0) ?? throw new InvalidDataException("Boss reset fixture save failed validation.");
         var roomReader = typeof(SuperMetroidRuntime).GetMethod("LoadCartridgeRoomHeader",

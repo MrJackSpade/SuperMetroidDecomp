@@ -13,7 +13,7 @@ internal static class MaridiaElevatubePlmDefinitions
     /// <summary><c>$84:B8F6</c>: library-two elevatube sound operand.</summary>
     internal const byte SoundId = 0x15;
 
-    /// <summary>84:9369: solid block 180, shared with Kraid's physical draw.</summary>
+    /// <summary>84:9369: solid block 180, shared with Kraid's physical draw. The chosen visual block180 remains required issue-1165 input.</summary>
     internal const ushort PhysicalWord = 0x8180;
 
     // Temporary artwork DTO only. Gameplay draws the single physical word directly.
@@ -26,8 +26,10 @@ internal static class MaridiaElevatubePlmDefinitions
 
     internal const string VisualId = "elevatube-block";
 
-    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> AllDraws =>
-        [Draw];
+    internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> AllDraws
+    {
+        get { yield return Draw; }
+    }
 
     internal static string DrawVisualId(ushort pointer) => pointer == DrawPointer
         ? VisualId

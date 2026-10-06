@@ -152,149 +152,181 @@ internal static class CeresDoorInstructionProgramDefinitions
     /// </summary>
     internal const ushort RidleyEscapeMode7RightWallLoop = 0xf636;
 
-    private static readonly CeresDoorInstructionMechanicsWord[] Words =
-    [
-        new(0xf53a, CeresEnemyCodePointers.MakeCeresDoorIntangible),
-        new(0xf53c, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
-        new(0xf53e, 2),
-        new(0xf542, CeresEnemyCodePointers.MakeCeresDoorTangible),
-        new(0xf544, CeresEnemyCodePointers.ShowCeresDoor),
-        new(0xf546, 2), new(0xf54a, 2), new(0xf54e, 2), new(0xf552, 2),
-        new(0xf556, EnemyInstructionCodePointers.Instruction_CeresDoor_SetDrawnByRidleyFlag),
-        new(0xf558, 1),
-        new(0xf55c, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
-        new(0xf55e, 2),
-        new(0xf562, EnemyInstructionCodePointers.Instruction_CeresDoor_GotoYIfAreaBossIsAlive),
-        new(0xf564, RidleyRoomFacingRightWait),
-        new(0xf566, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsVisible_ClearDrawnByRidleyFlag),
-        new(0xf568, CommonEnemyInstructionCodes.Goto),
-        new(0xf56a, ClosedFacingRight),
+    /// <summary>Mechanics follow the Ridley handoff, two relocated normal doors, and four wall actors.</summary>
+    internal static CeresDoorInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 18)
+            return RidleyWord(index);
+        if (index < 78)
+            return NormalDoorWord((index - 18) % 30, (index - 18) / 30);
+        index -= 78;
+        if (index < 4)
+            return WallLoopWord(RotatingElevatorPreExplosionOverlay, index);
+        if (index < 11)
+        {
+            int local = index - 4;
+            return local switch
+            {
+                0 => new(RotatingElevatorInvisibleWall, EnemyInstructionCodePointers.Instruction_CeresDoor_GotoYIfCeresRidleyHasNotEscaped),
+                1 => new(RotatingElevatorInvisibleWall + 2, NormalFacingLeft),
+                2 => new(RotatingElevatorInvisibleWall + 4, CeresEnemyCodePointers.MakeCeresDoorTangible),
+                3 => new(RotatingElevatorInvisibleWall + 6, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
+                _ => WallLoopWord(RotatingElevatorInvisibleWallLoop - 2, local - 3),
+            };
+        }
+        index -= 11;
+        return WallLoopWord((ushort)(RidleyEscapeMode7LeftWall + 10 * (index / 4)), index % 4);
+    }
 
-        new(0xf56c, CeresEnemyCodePointers.MakeCeresDoorIntangible),
-        new(0xf56e, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
-        new(0xf570, 2),
-        new(0xf574, CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant),
-        new(0xf576, ClosedFacingRight),
-        new(0xf578, 2),
-        new(0xf57c, CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant),
-        new(0xf57e, CloseFacingRight),
-        new(0xf580, CommonEnemyInstructionCodes.Goto),
-        new(0xf582, OpenFacingRight),
-        new(0xf584, CeresEnemyCodePointers.MakeCeresDoorTangible),
-        new(0xf586, CeresEnemyCodePointers.ShowCeresDoor),
-        new(0xf588, 5), new(0xf58c, 5), new(0xf590, 5), new(0xf594, 5),
-        new(0xf598, CeresEnemyCodePointers.MakeCeresDoorTangible),
-        new(0xf59a, CeresEnemyCodePointers.ShowCeresDoor),
-        new(0xf59c, 2),
-        new(0xf5a0, CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant),
-        new(0xf5a2, ClosedFacingRightWait),
-        new(0xf5a4, EnemyInstructionCodePointers.Instruction_CeresDoor_QueueOpeningSFX),
-        new(0xf5a6, 5), new(0xf5aa, 5), new(0xf5ae, 5), new(0xf5b2, 5),
-        new(0xf5b6, CeresEnemyCodePointers.MakeCeresDoorIntangible),
-        new(0xf5b8, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
-        new(0xf5ba, CommonEnemyInstructionCodes.Goto),
-        new(0xf5bc, OpenFacingRight),
+    private static CeresDoorInstructionMechanicsWord WallLoopWord(ushort start, int index) => index switch
+    {
+        0 => new(start, CeresEnemyCodePointers.MakeCeresDoorIntangible),
+        1 => new((ushort)(start + 2), 1),
+        2 => new((ushort)(start + 6), CommonEnemyInstructionCodes.Goto),
+        _ => new((ushort)(start + 8), (ushort)(start + 2)),
+    };
 
-        new(0xf5be, CeresEnemyCodePointers.MakeCeresDoorIntangible),
-        new(0xf5c0, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
-        new(0xf5c2, 2),
-        new(0xf5c6, CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant),
-        new(0xf5c8, ClosedFacingLeft),
-        new(0xf5ca, 2),
-        new(0xf5ce, CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant),
-        new(0xf5d0, CloseFacingLeft),
-        new(0xf5d2, CommonEnemyInstructionCodes.Goto),
-        new(0xf5d4, OpenFacingLeft),
-        new(0xf5d6, CeresEnemyCodePointers.MakeCeresDoorTangible),
-        new(0xf5d8, CeresEnemyCodePointers.ShowCeresDoor),
-        new(0xf5da, 5), new(0xf5de, 5), new(0xf5e2, 5), new(0xf5e6, 5),
-        new(0xf5ea, CeresEnemyCodePointers.MakeCeresDoorTangible),
-        new(0xf5ec, CeresEnemyCodePointers.ShowCeresDoor),
-        new(0xf5ee, 2),
-        new(0xf5f2, CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant),
-        new(0xf5f4, ClosedFacingLeftWait),
-        new(0xf5f6, EnemyInstructionCodePointers.Instruction_CeresDoor_QueueOpeningSFX),
-        new(0xf5f8, 5), new(0xf5fc, 5), new(0xf600, 5), new(0xf604, 5),
-        new(0xf608, CeresEnemyCodePointers.MakeCeresDoorIntangible),
-        new(0xf60a, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
-        new(0xf60c, CommonEnemyInstructionCodes.Goto),
-        new(0xf60e, OpenFacingLeft),
+    private static CeresDoorInstructionMechanicsWord NormalDoorWord(int index, int facing)
+    {
+        int start = NormalFacingRight + facing * (NormalFacingLeft - NormalFacingRight);
+        if (index is >= 12 and < 16)
+            return new((ushort)(start + 28 + 4 * (index - 12)), 5);
+        if (index is >= 22 and < 26)
+            return new((ushort)(start + 58 + 4 * (index - 22)), 5);
+        (int offset, ushort value) = index switch
+        {
+            0 => (0, CeresEnemyCodePointers.MakeCeresDoorIntangible),
+            1 => (2, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
+            2 => (4, (ushort)2),
+            3 => (8, CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant),
+            4 => (10, (ushort)(start + ClosedFacingRight - NormalFacingRight)),
+            5 => (12, (ushort)2),
+            6 => (16, CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant),
+            7 => (18, (ushort)(start + CloseFacingRight - NormalFacingRight)),
+            8 => (20, CommonEnemyInstructionCodes.Goto),
+            9 => (22, (ushort)(start + OpenFacingRight - NormalFacingRight)),
+            10 => (24, CeresEnemyCodePointers.MakeCeresDoorTangible),
+            11 => (26, CeresEnemyCodePointers.ShowCeresDoor),
+            16 => (44, CeresEnemyCodePointers.MakeCeresDoorTangible),
+            17 => (46, CeresEnemyCodePointers.ShowCeresDoor),
+            18 => (48, (ushort)2),
+            19 => (52, CeresEnemyCodePointers.CeresDoorGotoIfSamusIsDistant),
+            20 => (54, (ushort)(start + ClosedFacingRightWait - NormalFacingRight)),
+            21 => (56, EnemyInstructionCodePointers.Instruction_CeresDoor_QueueOpeningSFX),
+            26 => (74, CeresEnemyCodePointers.MakeCeresDoorIntangible),
+            27 => (76, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
+            28 => (78, CommonEnemyInstructionCodes.Goto),
+            _ => (80, (ushort)(start + OpenFacingRight - NormalFacingRight)),
+        };
+        return new((ushort)(start + offset), value);
+    }
 
-        new(0xf610, CeresEnemyCodePointers.MakeCeresDoorIntangible),
-        new(0xf612, 1),
-        new(0xf616, CommonEnemyInstructionCodes.Goto),
-        new(0xf618, RotatingElevatorPreExplosionOverlayLoop),
-        new(0xf61a, EnemyInstructionCodePointers.Instruction_CeresDoor_GotoYIfCeresRidleyHasNotEscaped),
-        new(0xf61c, NormalFacingLeft),
-        new(0xf61e, CeresEnemyCodePointers.MakeCeresDoorTangible),
-        new(0xf620, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
-        new(0xf622, 1),
-        new(0xf626, CommonEnemyInstructionCodes.Goto),
-        new(0xf628, RotatingElevatorInvisibleWallLoop),
-        new(0xf62a, CeresEnemyCodePointers.MakeCeresDoorIntangible),
-        new(0xf62c, 1),
-        new(0xf630, CommonEnemyInstructionCodes.Goto),
-        new(0xf632, RidleyEscapeMode7LeftWallLoop),
-        new(0xf634, CeresEnemyCodePointers.MakeCeresDoorIntangible),
-        new(0xf636, 1),
-        new(0xf63a, CommonEnemyInstructionCodes.Goto),
-        new(0xf63c, RidleyEscapeMode7RightWallLoop),
-    ];
+    private static CeresDoorInstructionMechanicsWord RidleyWord(int index)
+    {
+        if (index is >= 5 and < 9)
+            return new((ushort)(RidleyRoomFacingRight + 12 + 4 * (index - 5)), 2);
+        (int offset, ushort value) = index switch
+        {
+            0 => (0, CeresEnemyCodePointers.MakeCeresDoorIntangible),
+            1 => (2, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
+            2 => (4, (ushort)2),
+            3 => (8, CeresEnemyCodePointers.MakeCeresDoorTangible),
+            4 => (10, CeresEnemyCodePointers.ShowCeresDoor),
+            9 => (28, EnemyInstructionCodePointers.Instruction_CeresDoor_SetDrawnByRidleyFlag),
+            10 => (30, (ushort)1),
+            11 => (34, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsInvisible),
+            12 => (36, (ushort)2),
+            13 => (40, EnemyInstructionCodePointers.Instruction_CeresDoor_GotoYIfAreaBossIsAlive),
+            14 => (42, RidleyRoomFacingRightWait),
+            15 => (44, EnemyInstructionCodePointers.Instruction_CeresDoor_SetAsVisible_ClearDrawnByRidleyFlag),
+            16 => (46, CommonEnemyInstructionCodes.Goto),
+            _ => (48, ClosedFacingRight),
+        };
+        return new((ushort)(RidleyRoomFacingRight + offset), value);
+    }
+    /// <summary>Spritemap_CeresDoor_RotatingElevRoomPreExplosionDoorOverlay at $A6:F921.</summary>
+    private const ushort ElevatorOverlaySpritemap = 0xf921;
+    /// <summary>Spritemap_CeresDoor_FacingLeft_Closed at $A6:F95F, followed by both facing pose sets.</summary>
+    private const ushort LeftClosedSpritemap = 0xf95f;
+    /// <summary>Spritemap_CeresDoor_RidleyEscapeMode7LeftWall at $A6:FACE.</summary>
+    private const ushort LeftWallSpritemap = 0xface;
+    /// <summary>Spritemap_CeresDoor_RidleyEscapeMode7RightWall at $A6:FB2F.</summary>
+    private const ushort RightWallSpritemap = 0xfb2f;
+
+    internal static int MechanicsWordCount => 97;
+    internal static int PresentationWordCount => 33;
+
+    internal static ushort PresentationWordAddress(int index) => PresentationWord(index).Address;
+    internal static ushort PresentationWordFrame(int index) => PresentationWord(index).Frame;
 
     /// <summary>
-    /// Stock spritemap selectors across the seven Ceres door variants.
-    /// The Ridley-room right-door program uses $F540, $F548, $F54C,
-    /// $F550, $F554, $F55A, and $F560, storing respectively $FAA7,
-    /// $FAA7, $FA87, $FA67, $FA3D, $FA13, and $FA13 in the pinned ROM.
-    /// Its repeated endpoints and mixed $20/$2A pose gaps preserve authored
-    /// presentation rather than a uniform pointer progression.
-    /// The ordinary right-door program uses $FA13 for its initial and
-    /// closed holds and $FAA7 for its open hold. Its four close-transition
-    /// operands at $F58A + 4*i are {$FAA7, $FA87, $FA67, $FA3D}; its four
-    /// open-transition operands at $F5A8 + 4*i are exactly that sequence
-    /// reversed, for i = 0..3.
-    /// The left-door close-transition operands at $F5DC + 4*i are
-    /// {$F9F3, $F9D3, $F9B3, $F989}; the open-transition operands at
-    /// $F5FA + 4*i reverse them. Each of these eight pointers is the
-    /// corresponding right-door transition pointer minus $00B4. The
-    /// left-door holds are authored separately: initial $FA13 and
-    /// open/closed $F95F, outside that offset rule.
-    /// The four single-frame control-actor variants have one pointer
-    /// each: variant 2 at $F614 stores $F921, variant 4 at $F624 stores
-    /// $F95F, variant 5 at $F62E stores $FACE, and variant 6 at $F638
-    /// stores $FB2F. The $F95F pose is shared with the left-door holds;
-    /// the remaining visual identities are authored per variant.
+    /// $A6:F95F-FAC6 contains five opening poses per facing. Four inner OAM parts
+    /// accompany four outer parts for the closed/first-opening pose, then two outer
+    /// parts for the remaining poses. A record is a two-byte count plus five bytes
+    /// per part: the first two widths are 42 and the final three 32. This derives
+    /// selector identity only; independently authored part geometry remains artwork.
     /// </summary>
-    private static readonly (ushort Address, ushort Frame)[] PresentationWords =
-    [
-        (0xf540, 0xfaa7), (0xf548, 0xfaa7), (0xf54c, 0xfa87),
-        (0xf550, 0xfa67), (0xf554, 0xfa3d), (0xf55a, 0xfa13),
-        (0xf560, 0xfa13), (0xf572, 0xfa13), (0xf57a, 0xfaa7),
-        (0xf58a, 0xfaa7), (0xf58e, 0xfa87), (0xf592, 0xfa67),
-        (0xf596, 0xfa3d), (0xf59e, 0xfa13), (0xf5a8, 0xfa3d),
-        (0xf5ac, 0xfa67), (0xf5b0, 0xfa87), (0xf5b4, 0xfaa7),
-        (0xf5c4, 0xfa13), (0xf5cc, 0xf95f), (0xf5dc, 0xf9f3),
-        (0xf5e0, 0xf9d3), (0xf5e4, 0xf9b3), (0xf5e8, 0xf989),
-        (0xf5f0, 0xf95f), (0xf5fa, 0xf989), (0xf5fe, 0xf9b3),
-        (0xf602, 0xf9d3), (0xf606, 0xf9f3), (0xf614, 0xf921),
-        (0xf624, 0xf95f), (0xf62e, 0xface), (0xf638, 0xfb2f),
-    ];
+    private static ushort DoorPose(bool facingRight, int openingPhase)
+    {
+        const int wideRecord = 2 + 5 * (4 + 4);
+        const int narrowRecord = 2 + 5 * (4 + 2);
+        int facingBytes = 2 * wideRecord + 3 * narrowRecord;
+        return (ushort)(LeftClosedSpritemap + (facingRight ? facingBytes : 0) +
+            Math.Min(openingPhase, 2) * wideRecord + Math.Max(openingPhase - 2, 0) * narrowRecord);
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static CeresDoorInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index].Address;
-    internal static ushort PresentationWordFrame(int index) => PresentationWords[index].Frame;
-
+    private static (ushort Address, ushort Frame) PresentationWord(int index)
+    {
+        if ((uint)index >= PresentationWordCount)
+            throw new IndexOutOfRangeException();
+        if (index < 7)
+        {
+            if (index is >= 1 and <= 4)
+                return ((ushort)(RidleyRoomFacingRight + 14 + 4 * (index - 1)), DoorPose(true, 5 - index));
+            return index switch
+            {
+                0 => ((ushort)(RidleyRoomFacingRight + 6), DoorPose(true, 4)),
+                5 => ((ushort)(RidleyRoomFacingRight + 32), DoorPose(true, 0)),
+                _ => ((ushort)(RidleyRoomFacingRightWait + 2), DoorPose(true, 0)),
+            };
+        }
+        if (index < 29)
+        {
+            int local = (index - 7) % 11;
+            bool facingRight = index < 18;
+            int start = facingRight ? NormalFacingRight : NormalFacingLeft;
+            if (local is >= 2 and <= 5)
+                return ((ushort)(start + 30 + 4 * (local - 2)), DoorPose(facingRight, 6 - local));
+            if (local >= 7)
+                return ((ushort)(start + 60 + 4 * (local - 7)), DoorPose(facingRight, local - 6));
+            return local switch
+            {
+                // Both invisible initial entries select the right-facing closed map.
+                0 => ((ushort)(start + 6), DoorPose(true, 0)),
+                // The native left hold uses its closed map; its actor is invisible here.
+                1 => ((ushort)(start + 14), DoorPose(facingRight, facingRight ? 4 : 0)),
+                _ => ((ushort)(start + 50), DoorPose(facingRight, 0)),
+            };
+        }
+        return index switch
+        {
+            29 => ((ushort)(RotatingElevatorPreExplosionOverlayLoop + 2), ElevatorOverlaySpritemap),
+            30 => ((ushort)(RotatingElevatorInvisibleWallLoop + 2), DoorPose(false, 0)),
+            31 => ((ushort)(RidleyEscapeMode7LeftWallLoop + 2), LeftWallSpritemap),
+            _ => ((ushort)(RidleyEscapeMode7RightWallLoop + 2), RightWallSpritemap),
+        };
+    }
     /// <summary>Returns the authored spritemap selector at a bank-$A6 operand.</summary>
     internal static ushort ReadPresentationFrame(ushort address)
     {
         int low = 0;
-        int high = PresentationWords.Length - 1;
+        int high = PresentationWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            var candidate = PresentationWords[middle];
+            var candidate = PresentationWord(middle);
             if (candidate.Address == address)
                 return candidate.Frame;
             if (candidate.Address < address)
@@ -311,11 +343,11 @@ internal static class CeresDoorInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            CeresDoorInstructionMechanicsWord candidate = Words[middle];
+            CeresDoorInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -333,9 +365,9 @@ internal static class CeresDoorInstructionProgramDefinitions
         if ((address & 0xff0000) != 0xa60000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

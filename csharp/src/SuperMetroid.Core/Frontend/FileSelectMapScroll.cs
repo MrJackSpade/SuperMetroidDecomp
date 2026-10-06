@@ -9,7 +9,7 @@ public enum MapScrollDirection { None, Left, Right, Up, Down }
 /// <summary>Initial room-select positioning and $81:AECA/$82:925D scroll ownership.</summary>
 public sealed class FileSelectMapScroll
 {
-    private readonly ushort[] buttons = new ushort[MapScrollControls.DirectionCount];
+    private readonly ushort[]? customButtons;
     private int tick;
     public ushort Horizontal { get; private set; }
     public ushort Vertical { get; private set; }
@@ -21,17 +21,10 @@ public sealed class FileSelectMapScroll
 
     public FileSelectMapScroll(ISnesAddressSpace bus, IAreaMapView map,
         Bank80SystemState system, ushort playerMapX, ushort playerMapY)
-        : this(bus, map, system, playerMapX, playerMapY, MapScrollControls.Buttons) { }
-
-    /// <summary>Independent cartridge-control injection for verification; production uses compiled input definitions.</summary>
-    internal FileSelectMapScroll(ISnesAddressSpace bus, IAreaMapView map,
-        Bank80SystemState system, ushort playerMapX, ushort playerMapY, ReadOnlySpan<ushort> controlButtons)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(system);
-        if (controlButtons.Length != buttons.Length) throw new ArgumentException("Map scrolling requires four ordered bindings.", nameof(controlButtons));
-        controlButtons.CopyTo(buttons);
         // Native selects one plane, not the union: a downloaded map uses its station
         // mask even if an explored secret cell lies outside that mask.
         bool Visible(int x, int y) => system.HasAreaMap(map.Area)
@@ -70,6 +63,21 @@ public sealed class FileSelectMapScroll
         MinimumY = Wrap(nativeMinimumY + 24);
     }
 
+    /// <summary>Independent cartridge-control injection; stock bindings use semantic dispatch.</summary>
+    internal FileSelectMapScroll(ISnesAddressSpace bus, IAreaMapView map,
+        Bank80SystemState system, ushort playerMapX, ushort playerMapY, ReadOnlySpan<ushort> controlButtons)
+        : this(bus, map, system, playerMapX, playerMapY)
+    {
+        if (controlButtons.Length != MapScrollControls.DirectionCount)
+            throw new ArgumentException("Map scrolling requires four ordered bindings.", nameof(controlButtons));
+        for (int index = 0; index < controlButtons.Length; index++)
+            if (controlButtons[index] != MapScrollControls.ButtonFor((MapScrollDirection)(index + 1)))
+            {
+                customButtons = controlButtons.ToArray();
+                break;
+            }
+    }
+
     public bool CanScroll(MapScrollDirection direction) => direction switch
     {
         MapScrollDirection.Left => Signed(MinimumX - 24 - Horizontal) < 0,
@@ -86,9 +94,9 @@ public sealed class FileSelectMapScroll
     /// </summary>
     public bool Step(ushort heldInput)
     {
-        for (int index = 0; index < buttons.Length; index++)
+        for (int index = 0; index < MapScrollControls.DirectionCount; index++)
             if (Direction == MapScrollDirection.None && CanScroll((MapScrollDirection)(index + 1)) &&
-                (heldInput & buttons[index]) != 0)
+                (heldInput & (customButtons?[index] ?? MapScrollControls.ButtonFor((MapScrollDirection)(index + 1)))) != 0)
                 Direction = (MapScrollDirection)(index + 1);
         // Native has this explicit cancellation only for the lower boundary.
         if (Direction == MapScrollDirection.Down && !CanScroll(Direction))

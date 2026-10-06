@@ -39,7 +39,7 @@ internal static partial class Program
             "Installed frozen shell artwork must exist.");
         var expected = new OamBuffer();
         expected.BeginFrame();
-        expected.AddEnemySpritemap(parts.Span, 120, 100, 0x0c00, 0);
+        expected.AddEnemySpritemap(parts, 120, 100, 0x0c00, 0);
         Require(expected.NextByteOffset > 0, "The frozen shell must contain visible sprite parts.");
         for (int frame = 0; frame < 3; frame++)
         {

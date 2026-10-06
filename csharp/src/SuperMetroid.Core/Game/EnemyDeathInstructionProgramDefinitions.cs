@@ -29,167 +29,144 @@ internal static class EnemyDeathInstructionProgramDefinitions
     /// <summary>Samus-contact death program at $86:EDFF.</summary>
     internal const ushort KilledBySamusContact = 0xedff;
 
-    private static readonly EnemyDeathInstructionMechanicsWord[] Words =
-    [
-        new(RespawnTail, 0x0040),
-        new(0xeca7,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_Pickup_HandleRespawningEnemy),
-        new(0xeca9, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    /// <summary>Unresolved blank respawn countdown 64 at $86:ECA3; no timing exception approved.</summary>
+    private const ushort UnresolvedRespawnBlankDuration = 64;
 
-        new(BigExplosion, EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
-        new(0xecad, 0x0005),
-        new(0xecaf,
-            EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_10),
-        new(0xecb1, 0x0003),
-        new(0xecb3,
-            EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_10),
-        new(0xecb5, 0x000c),
-        new(0xecb7, 0x0008),
-        new(0xecbb,
-            EnemyProjectileCodePointers.Instruction_EnemyProj_EDeathExplo_QueueSmallExplosionSoundFX),
-        new(0xecbd,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
-        new(0xecbf, 0xecaf),
-        new(0xecc1,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_EnemyDeathExplosion_BecomePickup),
-        new(0xecc3, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    /// <summary>Unresolved big-explosion repetition count 5, TimerInY operand at $86:ECAD.</summary>
+    private const ushort UnresolvedBigExplosionRepetitions = 5;
 
-        new(MiniKraidExplosion,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY),
-        new(0xecc7, 0x0010),
-        new(0xecc9,
-            EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_20),
-        new(0xeccb, 0x0003),
-        new(0xeccd,
-            EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_20),
-        new(0xeccf, 0x000c),
-        new(0xecd1,
-            EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_20),
-        new(0xecd3, 0x0015),
-        new(0xecd5, 0x0008),
-        new(0xecd9,
-            EnemyProjectileCodePointers.Instruction_EnemyProj_EDeathExplo_QueueSmallExplosionSoundFX),
-        new(0xecdb,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero),
-        new(0xecdd, 0xecc9),
-        new(0xecdf,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_EnemyDeathExplosion_BecomePickup),
-        new(0xece1, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    /// <summary>Unresolved Mini-Kraid repetition count 16, TimerInY operand at $86:ECC7.</summary>
+    private const ushort UnresolvedMiniKraidRepetitions = 16;
 
-        new(NormalExplosion, 0x0005),
-        new(0xed4f, 0x0005),
-        new(0xed53, 0x0005),
-        new(0xed57,
-            EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_QueueEnemyKilledSoundFX),
-        new(0xed59, 0x0005),
-        new(0xed5d, 0x0005),
-        new(0xed61, 0x0005),
-        new(0xed65,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_EnemyDeathExplosion_BecomePickup),
-        new(0xed67, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    /// <summary>Unresolved big-explosion blank hold 8 at $86:ECB7, after two sprite-spawn commands.</summary>
+    private const ushort UnresolvedBigExplosionBlankDuration = 8;
 
-        new(SmallExplosion, 0x0004),
-        new(0xed6d, 0x0006),
-        new(0xed71, 0x0005),
-        new(0xed75,
-            EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_QueueEnemyKilledSoundFX),
-        new(0xed77, 0x0005),
-        new(0xed7b, 0x0005),
-        new(0xed7f, 0x0006),
-        new(0xed83,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_EnemyDeathExplosion_BecomePickup),
-        new(0xed85, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
+    /// <summary>Unresolved Mini-Kraid blank hold 8 at $86:ECD5, after three sprite-spawn commands.</summary>
+    private const ushort UnresolvedMiniKraidBlankDuration = 8;
 
-        new(KilledBySamusContact, 0x0002),
-        new(0xee03, 0x0002),
-        new(0xee07, 0x0002),
-        new(0xee0b, 0x0002),
-        new(0xee0f, 0x0002),
-        new(0xee13, 0x0002),
-        new(0xee17, 0x0002),
-        new(0xee1b,
-            EnemyProjectileCodePointers.Instruction_EnemyProj_EDeathExplo_QueueContactKilledSoundFX),
-        new(0xee1d, 0x0002),
-        new(0xee21, 0x0002),
-        new(0xee25, 0x0002),
-        new(0xee29, 0x0002),
-        new(0xee2d, 0x0002),
-        new(0xee31, 0x0002),
-        new(0xee35, 0x0002),
-        new(0xee39, 0x0002),
-        new(0xee3d, 0x0002),
-        new(0xee41,
-            EnemyProjectileCodePointers.Instruction_EnemyProjectile_EnemyDeathExplosion_BecomePickup),
-        new(0xee43, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
+    /// <summary>Unresolved normal-explosion pose hold 5 at $86:ED4B..ED61.</summary>
+    private const ushort UnresolvedNormalExplosionPoseDuration = 5;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xeca5, 0xecb9, 0xecd7,
-        0xed4d, 0xed51, 0xed55, 0xed5b, 0xed5f, 0xed63,
-        0xed6b, 0xed6f, 0xed73, 0xed79, 0xed7d, 0xed81,
-        0xee01, 0xee05, 0xee09, 0xee0d, 0xee11, 0xee15, 0xee19, 0xee1f,
-        0xee23, 0xee27, 0xee2b, 0xee2f, 0xee33, 0xee37, 0xee3b, 0xee3f,
-    ];
+    /// <summary>Unresolved Samus-contact death pose hold 2 at $86:EDFF..EE3D.</summary>
+    private const ushort UnresolvedContactDeathPoseDuration = 2;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static EnemyDeathInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static int MechanicsWordCount => 66;
+    internal static int PresentationWordCount => 31;
+
+    internal static EnemyDeathInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int address;
+        if (index < 3) address = RespawnTail + (index == 0 ? 0 : 2 * (index + 1));
+        else if (index < 15) address = BigExplosion + LoopMechanicsOffset(index - 3, 12);
+        else if (index < 29) address = MiniKraidExplosion + LoopMechanicsOffset(index - 15, 16);
+        else if (index < 38) address = NormalExplosion + FrameMechanicsOffset(index - 29, 3, 6);
+        else if (index < 47) address = SmallExplosion + FrameMechanicsOffset(index - 38, 3, 6);
+        else address = KilledBySamusContact + FrameMechanicsOffset(index - 47, 7, 16);
+        return new((ushort)address, ReadMechanicsWord((ushort)address));
+    }
+
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(index switch
+        {
+            0 => RespawnTail + 2,
+            1 => BigExplosion + 14,
+            2 => MiniKraidExplosion + 18,
+            < 9 => NormalExplosion + FrameVisualOffset(index - 3, 3),
+            < 15 => SmallExplosion + FrameVisualOffset(index - 9, 3),
+            _ => KilledBySamusContact + FrameVisualOffset(index - 15, 7),
+        });
+    }
+
+    private static int LoopMechanicsOffset(int index, int delayOffset) =>
+        index * 2 + (index > delayOffset / 2 ? 2 : 0);
+
+    private static int FrameMechanicsOffset(int index, int framesBeforeSound, int frameCount) =>
+        index <= framesBeforeSound ? 4 * index
+        : index <= frameCount ? 4 * (index - 1) + 2
+        : 4 * frameCount + 2 + 2 * (index - frameCount - 1);
+
+    private static int FrameVisualOffset(int frame, int framesBeforeSound) =>
+        frame * 4 + 2 + (frame >= framesBeforeSound ? 2 : 0);
 
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) =>
         (kind == RoomEnemyProjectileKind.EnemyDeathExplosion ||
-         // A collected/expired pickup jumps to the same native respawn tail; it
-         // must not acquire ownership of the explosion programs that follow it.
-         (kind == RoomEnemyProjectileKind.EnemyDeathPickup &&
-          address >= RespawnTail && address < BigExplosion)) &&
-        FindWord(address) >= 0;
+         (kind == RoomEnemyProjectileKind.EnemyDeathPickup && address >= RespawnTail && address < BigExplosion)) &&
+        TryWord(address, out _);
 
-    internal static ushort ReadMechanicsWord(ushort address)
+    internal static ushort ReadMechanicsWord(ushort address) => TryWord(address, out ushort value)
+        ? value : throw new InvalidDataException($"Generic enemy-death mechanics pointer $86:{address:X4} is not compiled.");
+
+    internal static bool IsCompiledMechanicsByte(int address) =>
+        (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
+        (TryWord(unchecked((ushort)address), out _) || TryWord(unchecked((ushort)(address - 1)), out _));
+
+    private static bool TryWord(ushort address, out ushort value)
     {
-        int index = FindWord(address);
-        if (index >= 0)
-            return Words[index].Value;
-
-        throw new InvalidDataException(
-            $"Generic enemy-death mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
+        ushort? result = null;
+        if (address >= RespawnTail && address < BigExplosion && ((address - RespawnTail) & 1) == 0)
+            result = (address - RespawnTail) switch
             {
-                return true;
-            }
-        }
-
-        return false;
+                0 => UnresolvedRespawnBlankDuration,
+                4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Pickup_HandleRespawningEnemy,
+                6 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+                _ => null,
+            };
+        else if (address >= BigExplosion && address <= BigExplosion + 24 && ((address - BigExplosion) & 1) == 0)
+            result = RepeatedExplosionWord(address - BigExplosion, miniKraid: false);
+        else if (address >= MiniKraidExplosion && address <= MiniKraidExplosion + 28 && ((address - MiniKraidExplosion) & 1) == 0)
+            result = RepeatedExplosionWord(address - MiniKraidExplosion, miniKraid: true);
+        else if (address >= NormalExplosion && address <= NormalExplosion + 28 && ((address - NormalExplosion) & 1) == 0)
+            result = AnimatedExplosionWord(address - NormalExplosion, small: false, contact: false);
+        else if (address >= SmallExplosion && address <= SmallExplosion + 28 && ((address - SmallExplosion) & 1) == 0)
+            result = AnimatedExplosionWord(address - SmallExplosion, small: true, contact: false);
+        else if (address >= KilledBySamusContact && address <= KilledBySamusContact + 68 && ((address - KilledBySamusContact) & 1) == 0)
+            result = AnimatedExplosionWord(address - KilledBySamusContact, small: false, contact: true);
+        value = result.GetValueOrDefault();
+        return result.HasValue;
     }
 
-    private static int FindWord(ushort address)
+    // Big and Mini-Kraid deaths repeat two or three sprite spawns, one blank frame,
+    // sound and timer/goto control before becoming a pickup.
+    private static ushort? RepeatedExplosionWord(int offset, bool miniKraid)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        int firstFrameOffset = miniKraid ? 16 : 12;
+        if (offset == 0) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY;
+        if (offset == 2) return miniKraid ? UnresolvedMiniKraidRepetitions : UnresolvedBigExplosionRepetitions;
+        if (offset < firstFrameOffset)
+            return offset % 4 == 0
+                ? miniKraid ? EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_20
+                    : EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_10
+                : (ushort)(3 + 9 * ((offset - 6) / 4));
+        return (offset - firstFrameOffset) switch
         {
-            int middle = low + ((high - low) >> 1);
-            EnemyDeathInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return middle;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
+            0 => miniKraid ? UnresolvedMiniKraidBlankDuration : UnresolvedBigExplosionBlankDuration,
+            4 => EnemyProjectileCodePointers.Instruction_EnemyProj_EDeathExplo_QueueSmallExplosionSoundFX,
+            6 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero,
+            8 => (ushort)((miniKraid ? MiniKraidExplosion : BigExplosion) + 4),
+            10 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_EnemyDeathExplosion_BecomePickup,
+            12 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
+            _ => null,
+        };
+    }
 
-        return -1;
+    // Six normal/small frames or sixteen contact frames, with one sound command
+    // inserted before the second phase and the same pickup/delete tail.
+    private static ushort? AnimatedExplosionWord(int offset, bool small, bool contact)
+    {
+        int sound = contact ? 28 : 12;
+        int pickup = contact ? 66 : 26;
+        if (offset == sound)
+            return contact ? EnemyProjectileCodePointers.Instruction_EnemyProj_EDeathExplo_QueueContactKilledSoundFX
+                : EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_QueueEnemyKilledSoundFX;
+        if (offset == pickup) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_EnemyDeathExplosion_BecomePickup;
+        if (offset == pickup + 2) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
+        int normalized = offset - (offset > sound ? 2 : 0);
+        if (normalized % 4 != 0) return null;
+        if (contact) return UnresolvedContactDeathPoseDuration;
+        if (!small) return UnresolvedNormalExplosionPoseDuration;
+        return SmallExplosionAnimationDefinitions.Duration(normalized / 4);
     }
 }

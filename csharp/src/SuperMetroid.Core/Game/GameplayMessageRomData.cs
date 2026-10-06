@@ -70,35 +70,47 @@ public static class GameplayMessageRomData
 
     public static class Buttons
     {
-        // Order is observable for malformed multi-button bindings because the cartridge
-        // uses sequential BIT tests and accepts the first match.
-        private static readonly GameplayMessageButtonGlyph[] OrderedGlyphs =
-        [
-            new(SnesButton.A, new SnesBgTilemapWord(0x28e0)),
-            new(SnesButton.B, new SnesBgTilemapWord(0x3ce1)),
-            new(SnesButton.X, new SnesBgTilemapWord(0x2cf7)),
-            new(SnesButton.Y, new SnesBgTilemapWord(0x38f8)),
-            new(SnesButton.Select, new SnesBgTilemapWord(0x38d0)),
-            new(SnesButton.L, new SnesBgTilemapWord(0x38eb)),
-            new(SnesButton.R, new SnesBgTilemapWord(0x38f1)),
-        ];
-
-        public static ReadOnlySpan<GameplayMessageButtonGlyph> Glyphs => OrderedGlyphs;
-
+        /// <summary>$85:8426, DrawSpecialButton_SetupPPUForLargeMessageBox.buttons: A glyph.</summary>
+        private const ushort A = 0x28e0;
+        /// <summary>$85:8428, native buttons row: B glyph.</summary>
+        private const ushort B = 0x3ce1;
+        /// <summary>$85:842A, native buttons row: X glyph.</summary>
+        private const ushort X = 0x2cf7;
+        /// <summary>$85:842C, native buttons row: Y glyph.</summary>
+        private const ushort Y = 0x38f8;
+        /// <summary>$85:842E, native buttons row: Select glyph.</summary>
+        private const ushort Select = 0x38d0;
+        /// <summary>$85:8430, native buttons row: L glyph.</summary>
+        private const ushort L = 0x38eb;
+        /// <summary>$85:8432, native buttons row: R glyph.</summary>
+        private const ushort R = 0x38f1;
+        /// <summary>$85:8434, native buttons row: blank fallback when no supported binding bit matches.</summary>
         public static readonly SnesBgTilemapWord UnknownGlyph = new(0x284e);
 
-        // Literal byte offsets from MessageBoxTilemap at $85:8749, indexed by ID - 1.
-        public static ReadOnlySpan<ushort> SpecialGlyphByteOffsets =>
-        [
-            0x000, 0x12a, 0x12a, 0x12c, 0x12c, 0x12c, 0x000, 0x000,
-            0x000, 0x000, 0x000, 0x000, 0x120, 0x000, 0x000, 0x000,
-            0x000, 0x000, 0x12a, 0x000, 0x000, 0x000, 0x000, 0x000,
-            0x000, 0x000, 0x000,
-        ];
+        /// <summary>$85:83D1..8409 BIT-test order; the first matching button wins even for a malformed multibit binding.</summary>
+        public static ushort ResolveGlyphWord(ushort binding) => binding switch
+        {
+            var bits when (bits & (ushort)SnesButton.A) != 0 => A,
+            var bits when (bits & (ushort)SnesButton.B) != 0 => B,
+            var bits when (bits & (ushort)SnesButton.X) != 0 => X,
+            var bits when (bits & (ushort)SnesButton.Y) != 0 => Y,
+            var bits when (bits & (ushort)SnesButton.Select) != 0 => Select,
+            var bits when (bits & (ushort)SnesButton.L) != 0 => L,
+            var bits when (bits & (ushort)SnesButton.R) != 0 => R,
+            _ => UnknownGlyph.Raw,
+        };
+
+        /// <summary>$85:8749..877E Special_Button_Tilemap_Offsets, ID minus one; 1B is the native dummy boundary.</summary>
+        public static ushort SpecialGlyphByteOffset(GameplayMessageId messageId)
+        {
+            if ((uint)((byte)messageId - 1) >= 27) throw new IndexOutOfRangeException();
+            return messageId switch
+            {
+                GameplayMessageId.MissileTank or GameplayMessageId.SuperMissileTank or GameplayMessageId.Bombs => 0x12a,
+                GameplayMessageId.PowerBombTank or GameplayMessageId.GrappleBeam or GameplayMessageId.XrayScope => 0x12c,
+                GameplayMessageId.SpeedBooster => 0x120,
+                _ => 0,
+            };
+        }
     }
 }
-
-/// <summary>One ordered controller-mask to ROM tilemap-glyph mapping.</summary>
-public readonly record struct GameplayMessageButtonGlyph(
-    SnesButton Button,
-    SnesBgTilemapWord Glyph);

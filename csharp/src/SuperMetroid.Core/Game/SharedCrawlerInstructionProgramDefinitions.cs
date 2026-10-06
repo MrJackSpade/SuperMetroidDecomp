@@ -23,82 +23,68 @@ internal static class SharedCrawlerInstructionProgramDefinitions
     /// <summary>The first word of the adjacent initial-list pointer table at $A3:E2CC.</summary>
     internal const ushort AdjacentInitialSelectorTable = 0xe2cc;
 
-    private static readonly SharedCrawlerInstructionMechanicsWord[] Words =
-    [
-        new(UpsideRight, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0xe25e, (ushort)CrawlerEnemyFunction.CrawlingVertically),
-        new(0xe260, 3), new(0xe264, 3), new(0xe268, 3), new(0xe26c, 3),
-        new(0xe270, 3),
-        new(0xe274, CommonEnemyInstructionCodes.Goto), new(0xe276, 0xe260),
+    // Required animation policy: five poses are held for three ticks each.
+    // The repeated program layout derives from those still-independent choices.
+    private const int PoseCount = 5;
+    private const ushort PoseHold = 3;
+    private const int SurfaceCount = 4;
+    private const int SetupBytes = 4;
+    private const int PoseBytes = 4;
+    private const int LoopBytes = 4;
+    private const int ListBytes = SetupBytes + PoseCount * PoseBytes + LoopBytes;
+    private const int WordsPerList = 2 + PoseCount + 2;
 
-        new(UpsideLeft, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0xe27a, (ushort)CrawlerEnemyFunction.CrawlingVertically),
-        new(0xe27c, 3), new(0xe280, 3), new(0xe284, 3), new(0xe288, 3),
-        new(0xe28c, 3),
-        new(0xe290, CommonEnemyInstructionCodes.Goto), new(0xe292, 0xe27c),
+    internal static int MechanicsWordCount => SurfaceCount * WordsPerList;
+    internal static int PresentationWordCount => SurfaceCount * PoseCount;
 
-        new(UpsideDown, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0xe296, (ushort)CrawlerEnemyFunction.CrawlingHorizontally),
-        new(0xe298, 3), new(0xe29c, 3), new(0xe2a0, 3), new(0xe2a4, 3),
-        new(0xe2a8, 3),
-        new(0xe2ac, CommonEnemyInstructionCodes.Goto), new(0xe2ae, 0xe298),
+    internal static SharedCrawlerInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        int part = index % WordsPerList;
+        int offset = part < 2 ? part * 2
+            : part < 2 + PoseCount ? SetupBytes + (part - 2) * PoseBytes
+            : SetupBytes + PoseCount * PoseBytes + (part - 2 - PoseCount) * 2;
+        ushort address = (ushort)(UpsideRight + index / WordsPerList * ListBytes + offset);
+        return new(address, ReadMechanicsWord(address));
+    }
 
-        new(UpsideUp, EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY),
-        new(0xe2b2, (ushort)CrawlerEnemyFunction.CrawlingHorizontally),
-        new(0xe2b4, 3), new(0xe2b8, 3), new(0xe2bc, 3), new(0xe2c0, 3),
-        new(0xe2c4, 3),
-        new(0xe2c8, CommonEnemyInstructionCodes.Goto), new(0xe2ca, 0xe2b4),
-    ];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        return (ushort)(UpsideRight + index / PoseCount * ListBytes + SetupBytes + index % PoseCount * PoseBytes + 2);
+    }
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe262, 0xe266, 0xe26a, 0xe26e, 0xe272,
-        0xe27e, 0xe282, 0xe286, 0xe28a, 0xe28e,
-        0xe29a, 0xe29e, 0xe2a2, 0xe2a6, 0xe2aa,
-        0xe2b6, 0xe2ba, 0xe2be, 0xe2c2, 0xe2c6,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static SharedCrawlerInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-    internal static bool IsPresentationWord(ushort address) =>
-        Array.BinarySearch(PresentationWords, address) >= 0;
+    internal static bool IsPresentationWord(ushort address)
+    {
+        int relative = address - UpsideRight;
+        if ((uint)relative >= SurfaceCount * ListBytes) return false;
+        int offset = relative % ListBytes - SetupBytes;
+        return (uint)offset < PoseCount * PoseBytes && offset % PoseBytes == 2;
+    }
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
+        int relative = address - UpsideRight;
+        if ((uint)relative < SurfaceCount * ListBytes && (relative & 1) == 0 && !IsPresentationWord(address))
         {
-            int middle = low + ((high - low) >> 1);
-            SharedCrawlerInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
+            int surface = relative / ListBytes;
+            int offset = relative % ListBytes;
+            if (offset == 0) return EnemyInstructionCodePointers.Instruction_Crawlers_FunctionInY;
+            if (offset == 2) return (ushort)(surface < 2
+                ? CrawlerEnemyFunction.CrawlingVertically : CrawlerEnemyFunction.CrawlingHorizontally);
+            if (offset < SetupBytes + PoseCount * PoseBytes) return PoseHold;
+            if (offset == ListBytes - LoopBytes) return CommonEnemyInstructionCodes.Goto;
+            return (ushort)(UpsideRight + surface * ListBytes + SetupBytes);
         }
-
         throw new InvalidDataException(
             $"Shared-crawler instruction mechanics pointer $A3:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa30000) return false;
+        ushort word = (ushort)(address & 0xfffe);
+        int relative = word - UpsideRight;
+        return (uint)relative < SurfaceCount * ListBytes && !IsPresentationWord(word);
     }
 }

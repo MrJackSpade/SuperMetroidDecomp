@@ -63,7 +63,7 @@ internal static class GunshipSaveAudit
     private static void RunFrontend(string romPath, bool save)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        var saves = new SuperMetroidSaveRam(bus);
+        var saves = new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus));
         saves.SaveSlot(2, new SuperMetroidSaveSnapshot { Area = 0, SaveStation = 1, Health = 75, MaxHealth = 99 });
         saves.SelectSlot(2);
         var game = new SuperMetroidGame(bus, gameOptions: null, renderGameplayFrames: false);

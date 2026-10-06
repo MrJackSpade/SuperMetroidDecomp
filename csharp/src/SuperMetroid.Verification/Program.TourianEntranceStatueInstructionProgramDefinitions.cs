@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -29,6 +30,12 @@ internal static partial class Program
                 $"Tourian entrance-statue mechanics word $AA:{definition.Address:X4}");
         }
 
+        using var paletteStream = new MemoryStream(
+            SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom), writable: false);
+        EnemyTileArtworkCatalog artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+            new Dictionary<ushort, RoomCharacterAtlas>(),
+            new Dictionary<ushort, EnemyPaletteSheet>(),
+            tourianStatueColors: TourianStatueColorCatalog.Load(paletteStream));
         var guard = new TourianEntranceStatueInstructionReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeTourianEntranceStatue",

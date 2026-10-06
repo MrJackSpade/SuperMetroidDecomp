@@ -7,7 +7,7 @@ internal readonly record struct SpacePirateProjectileInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for the shared Pirate/Mother Brain laser and Ninja Pirate claw
-/// programs. Interleaved spritemap operands remain live cartridge presentation data.
+/// programs. Interleaved spritemap selectors address separately installed artwork.
 /// </summary>
 internal static class SpacePirateProjectileInstructionProgramDefinitions
 {
@@ -35,66 +35,65 @@ internal static class SpacePirateProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_PirateClaw_Right_1</c> at $86:9FE5.</summary>
     internal const ushort ClawRightLoop = 0x9fe5;
 
-    private static readonly SpacePirateProjectileInstructionMechanicsWord[] Words =
-    [
-        new(LaserLeft, 0x0002), new(0x9f45, 0x0002), new(0x9f49, 0x0002),
-        new(0x9f4d, EnemyProjectileCodePointers.Instruction_PreInstructionInY_ExecuteY),
-        new(0x9f4f,
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pirate_MotherBrain_Laser_Left),
-        new(0x9f51, 0x0001), new(0x9f55, 0x0001), new(0x9f59, 0x0001),
-        new(0x9f5d, 0x0001), new(0x9f61, 0x0001), new(0x9f65, 0x0001),
-        new(0x9f69, 0x0001), new(0x9f6d, 0x0001),
-        new(LaserLeftLoop, 0x0001), new(0x9f75, 0x0001),
-        new(0x9f79, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x9f7b, LaserLeftLoop),
+    /// <summary>Unresolved laser startup dwell at86:9F41/9F45/9F49 and right-facing equivalents; remains required under #1165.</summary>
+    private const ushort LaserStartupFrames = 2;
 
-        new(LaserRight, 0x0002), new(0x9f81, 0x0002), new(0x9f85, 0x0002),
-        new(0x9f89, EnemyProjectileCodePointers.Instruction_PreInstructionInY_ExecuteY),
-        new(0x9f8b,
-            EnemyProjectileCodePointers.PreInst_EnemyProjectile_Pirate_MotherBrain_Laser_Right),
-        new(0x9f8d, 0x0001), new(0x9f91, 0x0001), new(0x9f95, 0x0001),
-        new(0x9f99, 0x0001), new(0x9f9d, 0x0001), new(0x9fa1, 0x0001),
-        new(0x9fa5, 0x0001), new(0x9fa9, 0x0001),
-        new(LaserRightLoop, 0x0001), new(0x9fb1, 0x0001),
-        new(0x9fb5, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x9fb7, LaserRightLoop),
+    internal static int MechanicsWordCount => 58;
+    internal static int PresentationWordCount => 42;
 
-        new(ClawLeft, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0x9fbb, EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Left),
-        new(ClawLeftLoop, 0x0001), new(0x9fc1, 0x0001),
-        new(0x9fc5, 0x0001), new(0x9fc9, 0x0001),
-        new(0x9fcd, 0x0001), new(0x9fd1, 0x0001),
-        new(0x9fd5, 0x0001), new(0x9fd9, 0x0001),
-        new(0x9fdd, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0x9fdf, ClawLeftLoop),
+    /// <summary>
+    /// Each laser has three two-tick startup poses, an immediate movement callback,
+    /// ten one-tick poses and a two-pose loop. Each claw installs its movement callback
+    /// then loops eight one-tick poses. Left/right variants share these widths.
+    /// </summary>
+    internal static SpacePirateProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 34)
+        {
+            bool right = index >= 17;
+            int word = index % 17;
+            ushort start = right ? LaserRight : LaserLeft;
+            ushort loop = right ? LaserRightLoop : LaserLeftLoop;
+            if (word < 3) return new((ushort)(start + word * 4), LaserStartupFrames);
+            if (word < 5)
+                return new((ushort)(start + 12 + (word - 3) * 2),
+                    word == 3 ? EnemyProjectileCodePointers.Instruction_PreInstructionInY_ExecuteY
+                        : right ? EnemyProjectileCodePointers.PreInst_EnemyProjectile_Pirate_MotherBrain_Laser_Right
+                            : EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pirate_MotherBrain_Laser_Left);
+            if (word < 15) return new((ushort)(start + 16 + (word - 5) * 4), 1);
+            return new((ushort)(loop + 8 + (word - 15) * 2),
+                word == 15 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : loop);
+        }
+        else
+        {
+            bool right = index >= 46;
+            int word = (index - 34) % 12;
+            ushort start = right ? ClawRight : ClawLeft;
+            ushort loop = right ? ClawRightLoop : ClawLeftLoop;
+            if (word < 2)
+                return new((ushort)(start + word * 2),
+                    word == 0 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY
+                        : right ? EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Right
+                            : EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Left);
+            if (word < 10) return new((ushort)(loop + (word - 2) * 4), 1);
+            return new((ushort)(loop + 32 + (word - 10) * 2),
+                word == 10 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : loop);
+        }
+    }
 
-        new(ClawRight, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0x9fe3, EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_PirateClaw_Right),
-        new(ClawRightLoop, 0x0001), new(0x9fe9, 0x0001),
-        new(0x9fed, 0x0001), new(0x9ff1, 0x0001),
-        new(0x9ff5, 0x0001), new(0x9ff9, 0x0001),
-        new(0x9ffd, 0x0001), new(0xa001, 0x0001),
-        new(0xa005, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xa007, ClawRightLoop),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0x9f43, 0x9f47, 0x9f4b,
-        0x9f53, 0x9f57, 0x9f5b, 0x9f5f, 0x9f63, 0x9f67, 0x9f6b, 0x9f6f,
-        0x9f73, 0x9f77,
-        0x9f7f, 0x9f83, 0x9f87,
-        0x9f8f, 0x9f93, 0x9f97, 0x9f9b, 0x9f9f, 0x9fa3, 0x9fa7, 0x9fab,
-        0x9faf, 0x9fb3,
-        0x9fbf, 0x9fc3, 0x9fc7, 0x9fcb, 0x9fcf, 0x9fd3, 0x9fd7, 0x9fdb,
-        0x9fe7, 0x9feb, 0x9fef, 0x9ff3, 0x9ff7, 0x9ffb, 0x9fff, 0xa003,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static SpacePirateProjectileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index < 26)
+        {
+            ushort start = index < 13 ? LaserLeft : LaserRight;
+            int frame = index % 13;
+            return (ushort)(start + frame * 4 + (frame < 3 ? 2 : 6));
+        }
+        ushort loop = index < 34 ? ClawLeftLoop : ClawRightLoop;
+        return (ushort)(loop + (index - 26) % 8 * 4 + 2);
+    }
 
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.PirateMotherBrainLaser or
@@ -103,11 +102,11 @@ internal static class SpacePirateProjectileInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            SpacePirateProjectileInstructionMechanicsWord candidate = Words[middle];
+            SpacePirateProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address)
                 return candidate.Value;
             if (candidate.Address < address)
@@ -125,9 +124,9 @@ internal static class SpacePirateProjectileInstructionProgramDefinitions
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
             return false;
         ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
-            ushort wordAddress = Words[index].Address;
+            ushort wordAddress = MechanicsWord(index).Address;
             if (bankAddress == wordAddress ||
                 bankAddress == unchecked((ushort)(wordAddress + 1)))
             {

@@ -66,9 +66,17 @@ internal static partial class Program
                 AssertEqual(expected, body.InstructionPointer,
                     $"real {facing}-facing Yapping Maw body selects its named pose");
                 RunForcedTick(enemies, body);
+                AssertEqual(unchecked((ushort)(expected + 2)), body.PresentationOperandAddress,
+                    $"actual {facing}-facing body selects its installed presentation operand");
+                AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, body.SpritemapPointer,
+                    $"actual {facing}-facing body defers artwork resolution to the draw pass");
                 AssertEqual(unchecked((ushort)(expected + 4)), body.InstructionPointer,
                     $"{facing}-facing Yapping Maw body schedules its terminal sleep");
                 RunForcedTick(enemies, body);
+                AssertEqual(unchecked((ushort)(expected + 2)), body.PresentationOperandAddress,
+                    $"actual {facing}-facing body selects its installed presentation operand");
+                AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, body.SpritemapPointer,
+                    $"actual {facing}-facing body defers artwork resolution to the draw pass");
                 AssertEqual(unchecked((ushort)(expected + 4)), body.InstructionPointer,
                     $"{facing}-facing Yapping Maw body sleeps at the authored opcode");
                 AssertEqual((ushort)0, body.InstructionTimer,

@@ -13,8 +13,16 @@ public sealed class CeresDoorVisualCatalog
         {
             content.Append("tiles", tiles.Transfer.Span);
             content.AppendWords("normal", normal);
-            content.AppendWords("escape", escape);
-            content.AppendWordFrames("animation", animation);
+            Span<ushort> escapeColors = stackalloc ushort[CeresDoorVisualRomData.SetupColorCount];
+            for (int color = 0; color < escapeColors.Length; color++) escapeColors[color] = EscapeColor(color);
+            content.AppendWords("escape", escapeColors);
+            content.Append("animation", CeresDoorVisualRomData.AnimationRowCount);
+            Span<ushort> rowColors = stackalloc ushort[CeresDoorVisualRomData.AnimationColorCount];
+            for (int row = 0; row < CeresDoorVisualRomData.AnimationRowCount; row++)
+            {
+                for (int color = 0; color < rowColors.Length; color++) rowColors[color] = AnimationColor(row, color);
+                content.AppendWords("row", rowColors);
+            }
             content.Append("mode7-frames", mode7DoorFrames.Length);
             foreach (byte[] frame in mode7DoorFrames)
                 content.Append("mode7-frame", frame);
@@ -22,8 +30,11 @@ public sealed class CeresDoorVisualCatalog
 
     private readonly RoomCharacterAtlas tiles;
     private readonly ushort[] normal;
-    private readonly ushort[] escape;
-    private readonly ushort[][] animation;
+    private readonly ushort[] escapeUniqueColors;
+    private readonly Dictionary<int, ushort> escapeSharedEdits = [];
+    private readonly ushort[] animationSeeds;
+    private readonly Dictionary<int, ushort> animationPhaseResiduals = [];
+    private readonly Dictionary<int, ushort> animationRowEdits = [];
     private readonly byte[][] mode7DoorFrames;
 
     private CeresDoorVisualCatalog(RoomCharacterAtlas tiles, ushort[] normal,
@@ -31,8 +42,22 @@ public sealed class CeresDoorVisualCatalog
     {
         this.tiles = tiles;
         this.normal = normal;
-        this.escape = escape;
-        this.animation = animation;
+        // The two native states share slots9..14; their other colors remain
+        // independent unresolved choices. Preserve edits to either state separately.
+        escapeUniqueColors = new ushort[9];
+        Array.Copy(escape, escapeUniqueColors, 8);
+        escapeUniqueColors[8] = escape[14];
+        for (int color = 8; color < 14; color++)
+            if (escape[color] != normal[color]) escapeSharedEdits.Add(color, escape[color]);
+        animationSeeds = animation[1];
+        for (int phase = 0; phase < CeresDoorVisualRomData.AnimationRowCount / 2; phase++)
+        for (int color = 0; color < CeresDoorVisualRomData.AnimationColorCount; color++)
+            if (animation[phase][color] != AnimationRamp(phase, color))
+                animationPhaseResiduals.Add(phase * CeresDoorVisualRomData.AnimationColorCount + color, animation[phase][color]);
+        for (int row = CeresDoorVisualRomData.AnimationRowCount / 2; row < CeresDoorVisualRomData.AnimationRowCount; row++)
+        for (int color = 0; color < CeresDoorVisualRomData.AnimationColorCount; color++)
+            if (animation[row][color] != AnimationColor(row, color))
+                animationRowEdits.Add(row * CeresDoorVisualRomData.AnimationColorCount + color, animation[row][color]);
         this.mode7DoorFrames = mode7DoorFrames;
     }
 
@@ -89,11 +114,55 @@ public sealed class CeresDoorVisualCatalog
     public void LoadNormalColors(SnesCgram cgram, int destination) =>
         LoadColors(cgram, normal, destination);
 
-    public void LoadEscapeColors(SnesCgram cgram, int destination) =>
-        LoadColors(cgram, escape, destination);
+    public void LoadEscapeColors(SnesCgram cgram, int destination)
+    {
+        Ensure.NotNull(cgram);
+        if (destination < 0 || destination + CeresDoorVisualRomData.SetupColorCount > SnesCgram.ColorCount)
+            throw new ArgumentOutOfRangeException(nameof(destination));
+        for (int color = 0; color < CeresDoorVisualRomData.SetupColorCount; color++)
+            cgram.SetColor(destination + color, EscapeColor(color));
+    }
 
-    public void LoadAnimationColors(SnesCgram cgram, int row) =>
-        LoadColors(cgram, animation[row], CeresDoorVisualRomData.AnimationTargetColor);
+    /// <summary>
+    /// $A6:F4FE-F509 andF51E-F529 share six yellow/red colors in normal and escape
+    /// states (palette slots9..14). The other nine escape colors remain independent
+    /// supplied data; sharing alone does not resolve those RGB5 choices.
+    /// </summary>
+    private ushort EscapeColor(int color) => color is >= 8 and < 14
+        ? escapeSharedEdits.TryGetValue(color, out ushort edited) ? edited : normal[color]
+        : escapeUniqueColors[color < 8 ? color : 8];
+
+    public void LoadAnimationColors(SnesCgram cgram, int row)
+    {
+        ArgumentNullException.ThrowIfNull(cgram);
+        if ((uint)row >= CeresDoorVisualRomData.AnimationRowCount) throw new IndexOutOfRangeException();
+        for (int color = 0; color < CeresDoorVisualRomData.AnimationColorCount; color++)
+            cgram.SetColor(CeresDoorVisualRomData.AnimationTargetColor + color, AnimationColor(row, color));
+    }
+
+    private ushort AnimationColor(int row, int color)
+    {
+        int key = row * CeresDoorVisualRomData.AnimationColorCount + color;
+        if (animationRowEdits.TryGetValue(key, out ushort edited)) return edited;
+        int phase = Math.Min(row, CeresDoorVisualRomData.AnimationRowCount - 1 - row);
+        int phaseKey = phase * CeresDoorVisualRomData.AnimationColorCount + color;
+        return animationPhaseResiduals.TryGetValue(phaseKey, out ushort residual) ? residual : AnimationRamp(phase, color);
+    }
+
+    /// <summary>
+    /// $A6:F871-$F8EC: the eight rows mirror four phases. RGB5 channels change by five
+    /// per phase relative to phase1, clamped to0..31. Six seed choices and four stock
+    /// deviations remain unresolved; custom rows retain all independent differences.
+    /// </summary>
+    private ushort AnimationRamp(int phase, int color)
+    {
+        ushort seed = animationSeeds[color];
+        int delta = 5 * (1 - phase);
+        int red = Math.Clamp((seed & 31) + delta, 0, 31);
+        int green = Math.Clamp(((seed >> 5) & 31) + delta, 0, 31);
+        int blue = Math.Clamp(((seed >> 10) & 31) + delta, 0, 31);
+        return (ushort)(red | green << 5 | blue << 10);
+    }
 
     public void LoadMode7DoorFrame(SnesVram vram, int frame)
     {

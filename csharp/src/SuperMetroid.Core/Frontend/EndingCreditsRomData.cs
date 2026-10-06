@@ -191,18 +191,45 @@ public static class EndingCreditsRomData
         public const uint CreditsScrollDelta16Point16 = 0x0000_8000;
         public static SnesAngle PlanetSlowTargetAngle => SnesAngle.FromTableIndex(0xe0);
         public static SnesAngle PlanetExitTargetAngle => SnesAngle.FromTableIndex(0x10);
-        public static ReadOnlySpan<int> PlanetFastPattern =>
-        [
-            0x0000_8000, 0x0000_8000, 0x0000_8000, 0x0000_8000,
-            unchecked((int)0xffff_8000), unchecked((int)0xffff_8000), 0x0000_8000, 0x0000_8000,
-            0x0000_8000, unchecked((int)0xffff_8000), unchecked((int)0xffff_8000), 0x0000_8000,
-            0x0000_8000, 0x0000_8000, unchecked((int)0xffff_8000), unchecked((int)0xffff_8000),
-        ];
-        public static ReadOnlySpan<int> PlanetSlowPattern =>
-        [
-            0x0001_0000, 0x0001_0000, 0x0001_0000, unchecked((int)0xffff_0000),
-            unchecked((int)0xffff_0000), 0x0001_0000, 0x0001_0000, unchecked((int)0xffff_0000),
-        ];
+        /// <summary>$8B:DCDD masks EndingShipShakeIndex with0F, defining the sixteen-step fast domain.</summary>
+        public const int PlanetFastPatternLength = 16;
+        /// <summary>$8B:DD74 masks EndingShipShakeIndex with07, defining the eight-step slow domain.</summary>
+        public const int PlanetSlowPatternLength = 8;
+        /// <summary>$8B:DD02..DD41: selected half-pixel fast shake amplitude, still-required visual input.</summary>
+        private const int PlanetFastShakeAmplitude = 0x0000_8000;
+        /// <summary>$8B:DDAD..DDCC: selected one-pixel slow shake amplitude, still-required visual input.</summary>
+        private const int PlanetSlowShakeAmplitude = 0x0001_0000;
+        /// <summary>$8B:DD02..DD11/DD1A..DD29: chosen four-step positive fast runs; still-required schedule input.</summary>
+        private const int FastPositiveRun = 4;
+        /// <summary>$8B:DD12..DD19/DD2A..DD31/DD3A..DD41: chosen two-step negative fast runs; still-required schedule input.</summary>
+        private const int FastNegativeRun = 2;
+        /// <summary>$8B:DDAD..DDB8: chosen first three positive slow steps; still-required schedule input.</summary>
+        private const int SlowFirstPositiveRun = 3;
+        /// <summary>$8B:DDB9..DDC0: chosen following two negative slow steps; still-required schedule input.</summary>
+        private const int SlowFirstNegativeRun = 2;
+        /// <summary>$8B:DDC1..DDC8: chosen following two positive slow steps; still-required schedule input.</summary>
+        private const int SlowSecondPositiveRun = 2;
+
+        /// <summary>$8B:DD02..DD41: repeated positive/negative shake runs and the shorter final positive run.</summary>
+        /// <remarks>Only repeated samples and fixed-point sign assembly are calculated. The
+        /// selected amplitudes and directional schedule remain required under1165.</remarks>
+        public static int PlanetFastDelta(int index)
+        {
+            if ((uint)index >= PlanetFastPatternLength) throw new IndexOutOfRangeException();
+            int period = FastPositiveRun + FastNegativeRun;
+            int completeRuns = PlanetFastPatternLength / period * period;
+            int positiveRun = index < completeRuns ? FastPositiveRun : PlanetFastPatternLength - completeRuns - FastNegativeRun;
+            return index % period < positiveRun ? PlanetFastShakeAmplitude : -PlanetFastShakeAmplitude;
+        }
+
+        /// <summary>$8B:DDAD..DDCC: two selected positive runs separated by negative shake phases.</summary>
+        public static int PlanetSlowDelta(int index)
+        {
+            if ((uint)index >= PlanetSlowPatternLength) throw new IndexOutOfRangeException();
+            int secondStart = SlowFirstPositiveRun + SlowFirstNegativeRun;
+            bool positive = index < SlowFirstPositiveRun || index >= secondStart && index < secondStart + SlowSecondPositiveRun;
+            return positive ? PlanetSlowShakeAmplitude : -PlanetSlowShakeAmplitude;
+        }
     }
 
     public static class Text

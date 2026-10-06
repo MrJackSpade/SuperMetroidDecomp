@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 
@@ -18,15 +19,19 @@ public sealed class SuperMetroidSaveRam
     public const int SlotByteCount = SaveRamLayout.SlotByteCount;
     public const int SelectedSlotOffset = SaveRamLayout.SelectedSlotOffset;
 
+    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
     private readonly ISnesAddressSpace bus;
     private readonly ISnesMutableMemory mutableMemory;
 
-    public SuperMetroidSaveRam(ISnesAddressSpace bus)
+    public SuperMetroidSaveRam(ISnesAddressSpace bus, AreaMapPresentationCatalog? mapPresentation)
     {
+        this.mapPresentation = mapPresentation;
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         mutableMemory = bus as ISnesMutableMemory ??
             throw new ArgumentException("Save slots require an SRAM-capable address space.", nameof(bus));
     }
+
+    internal void BindMapPresentation(AreaMapPresentationCatalog? maps) => mapPresentation = maps;
 
     /// <summary>Returns a decoded slot only when either redundant checksum pair is valid.</summary>
     public SuperMetroidSaveSlot? ReadSlot(int slot)
@@ -341,7 +346,7 @@ public sealed class SuperMetroidSaveRam
         WriteSramByte(offset + 1, unchecked((byte)(value >> 8)));
     }
 
-    private static byte[] PackExploredMap(ReadOnlySpan<byte> exploredMap)
+    private byte[] PackExploredMap(ReadOnlySpan<byte> exploredMap)
     {
         int expectedByteCount =
             Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea;
@@ -355,9 +360,10 @@ public sealed class SuperMetroidSaveRam
         for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
         {
             ExploredMapPackingDefinition definition =
-                ExploredMapPackingDefinitions.Area(area);
-            ReadOnlySpan<byte> areaByteIndexes = definition.AreaByteIndexes.Span;
-            for (int index = 0; index < areaByteIndexes.Length; index++)
+                ExploredMapPackingDefinitions.Area(area, mapPresentation ??
+                    throw new InvalidOperationException("Save-map packing requires bound immutable stock map rules."));
+            ExploredMapPackingDefinitions.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
+            for (int index = 0; index < areaByteIndexes.Count; index++)
             {
                 int compressedIndex = definition.DestinationOffset + index;
                 if ((uint)compressedIndex >= compressed.Length)
@@ -370,7 +376,7 @@ public sealed class SuperMetroidSaveRam
         return compressed;
     }
 
-    private static byte[] UnpackExploredMap(ReadOnlySpan<byte> compressed)
+    private byte[] UnpackExploredMap(ReadOnlySpan<byte> compressed)
     {
         if (compressed.Length != SaveRamLayout.CompressedMapDataByteCount)
             throw new ArgumentException("Compressed map payload must contain exactly $500 bytes.", nameof(compressed));
@@ -380,9 +386,10 @@ public sealed class SuperMetroidSaveRam
         for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
         {
             ExploredMapPackingDefinition definition =
-                ExploredMapPackingDefinitions.Area(area);
-            ReadOnlySpan<byte> areaByteIndexes = definition.AreaByteIndexes.Span;
-            for (int index = 0; index < areaByteIndexes.Length; index++)
+                ExploredMapPackingDefinitions.Area(area, mapPresentation ??
+                    throw new InvalidOperationException("Save-map packing requires bound immutable stock map rules."));
+            ExploredMapPackingDefinitions.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
+            for (int index = 0; index < areaByteIndexes.Count; index++)
             {
                 int compressedIndex = definition.DestinationOffset + index;
                 if ((uint)compressedIndex >= compressed.Length)

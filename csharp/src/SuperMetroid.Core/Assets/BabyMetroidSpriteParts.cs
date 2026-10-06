@@ -1,0 +1,60 @@
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.Core.Assets;
+
+/// <summary>Exact bilateral composition of the three native Baby poses; independent half-artwork and drawing order remain required.</summary>
+internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
+{
+    private readonly EnemySpritemapPart[] halfParts;
+    private readonly sbyte[] drawingOrder;
+
+    private BabyMetroidSpriteParts(EnemySpritemapPart[] halfParts, sbyte[] drawingOrder)
+    {
+        this.halfParts = halfParts;
+        this.drawingOrder = drawingOrder;
+    }
+    public override int Count => drawingOrder.Length;
+    public override EnemySpritemapPart this[int index]
+    {
+        get
+        {
+            int selected = drawingOrder[index];
+            EnemySpritemapPart part = halfParts[Math.Abs(selected) - 1];
+            return selected < 0 ? Reflect(part) : part;
+        }
+    }
+
+    internal static EnemySpritemapParts Compile(int identity, EnemySpritemapPart[] supplied)
+    {
+        int offset = identity - BabyMetroidCompositionDefinitions.FirstPose;
+        if (offset < 0 || offset % BabyMetroidCompositionDefinitions.PoseStride != 0 || offset / BabyMetroidCompositionDefinitions.PoseStride >= 3 || supplied.Length != BabyMetroidCompositionDefinitions.NativePartCount)
+            return FromOwnedArray(supplied);
+        var halves = new List<EnemySpritemapPart>(BabyMetroidCompositionDefinitions.NativePartCount / 2);
+        var order = new sbyte[supplied.Length];
+        for (int index = 0; index < supplied.Length; index++)
+        {
+            if (order[index] != 0) continue;
+            EnemySpritemapPart reflected = Reflect(supplied[index]);
+            int opposite = -1;
+            for (int candidate = index + 1; candidate < supplied.Length; candidate++)
+                if (order[candidate] == 0 && supplied[candidate] == reflected)
+                { opposite = candidate; break; }
+            if (opposite < 0) return FromOwnedArray(supplied);
+            halves.Add(supplied[index]);
+            order[index] = (sbyte)halves.Count;
+            order[opposite] = (sbyte)-halves.Count;
+        }
+        return new BabyMetroidSpriteParts(halves.ToArray(), order);
+    }
+
+    private static EnemySpritemapPart Reflect(EnemySpritemapPart part)
+    {
+        int size = part.X.IsLarge ? 16 : 8;
+        int x = -part.X.SignedOffset - size;
+        return part with
+        {
+            X = new SnesSpritemapXWord((ushort)((part.X.Raw & ~0x1ff) | (x & 0x1ff))),
+            Attributes = new SnesObjAttributeWord((ushort)(part.Attributes.Raw ^ (ushort)SnesTileFlipFlags.Horizontal)),
+        };
+    }
+}

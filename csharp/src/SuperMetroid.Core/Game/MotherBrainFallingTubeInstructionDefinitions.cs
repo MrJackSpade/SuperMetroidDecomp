@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -18,9 +20,6 @@ public static class MotherBrainFallingTubeInstructionDefinitions
 
     /// <summary>Number of independently selected falling-tube compositions.</summary>
     public const int ListCount = 5;
-
-    private static ReadOnlySpan<ushort> VisualPointers =>
-        [0xada1, 0xadd5, 0xae09, 0xae33, 0xae5d];
 
     /// <summary>Reads a duration or terminal opcode, rejecting visual operands.</summary>
     public static ushort ReadMechanicsWord(ushort address)
@@ -44,7 +43,7 @@ public static class MotherBrainFallingTubeInstructionDefinitions
             throw new InvalidDataException(
                 $"Falling-tube word $A9:{address:X4} is not a visual selector.");
         }
-        return VisualPointers[index];
+        return MotherBrainVisualDefinitions.TubeFrame(index).Pointer;
     }
 
     private static (int Index, int Field) Locate(ushort address)

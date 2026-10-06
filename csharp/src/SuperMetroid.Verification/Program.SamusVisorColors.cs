@@ -38,10 +38,28 @@ internal static partial class Program
         Console.WriteLine("  Samus visor: all six native colors and guarded room/X-ray cycles pass.");
     }
 
+    private static SamusVisorColorCatalog ReadOriginalVisorColors(ISnesAddressSpace rom)
+    {
+        var colors = new PaletteRgb5[SamusVisorColorFormat.ColorCount];
+        for (int index = 0; index < colors.Length; index++)
+        {
+            int address = SamusVisorColorFormat.SourceAddress + index * sizeof(ushort);
+            ushort word = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            colors[index] = new PaletteRgb5
+            {
+                Red = word & 31,
+                Green = (word >> 5) & 31,
+                Blue = (word >> 10) & 31,
+            };
+        }
+        return SamusVisorColorCatalog.Load(new MemoryStream(SamusVisorColorCatalog.Write(
+            new SamusVisorColorDocument { Version = SamusVisorColorFormat.Version, Colors = colors })));
+    }
+
     private static void VerifyInstalledRoomVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
     {
-        var native = new SamusVisorPaletteState { PresentationColors = catalog };
+        var native = new SamusVisorPaletteState { PresentationColors = ReadOriginalVisorColors(rom) };
         var installed = new SamusVisorPaletteState { PresentationColors = catalog };
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
@@ -68,7 +86,7 @@ internal static partial class Program
         SamusVisorColorCatalog catalog)
     {
         var native = CreateXraySamus(rom);
-        native.Xray.PresentationColors = catalog;
+        native.Xray.PresentationColors = ReadOriginalVisorColors(rom);
         var installed = CreateXraySamus(rom);
         installed.Xray.PresentationColors = catalog;
         var nativeCgram = new SnesCgram();

@@ -50,7 +50,7 @@ internal static partial class Program
         byte[] legacyBytes = JsonSerializer.SerializeToUtf8Bytes(legacy, options);
         var merged = EnemySpritemapCatalog.Load(new MemoryStream(legacyBytes), stock);
         AssertTrue(merged.TryGetDisplay(previous[0].Bank, previous[0].Pointer, out var parts), "schema-68 override retains existing frame");
-        AssertEqual(-11, parts.Span[0].X.SignedOffset, "schema-68 edit survives stock refresh");
+        AssertEqual(-11, parts[0].X.SignedOffset, "schema-68 edit survives stock refresh");
         AssertThrows<InvalidDataException>(() => EnemySpritemapCatalog.Load(new MemoryStream(legacyBytes)), "schema-68 incomplete stock requires refresh");
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
             new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), spritemaps: merged);

@@ -6,7 +6,7 @@ internal readonly record struct SporeSpawnProjectileInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled control for Spore Spawn's stalk, ceiling emitter, and spore projectiles at
-/// $86:DC00-$DC58. Their seventeen spritemap operands remain live presentation data.
+/// $86:DC00-$DC58. Their seventeen spritemap operands identify compiled presentation.
 /// </summary>
 internal static class SporeSpawnProjectileInstructionProgramDefinitions
 {
@@ -21,41 +21,69 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitions
     /// <summary>Shot-spore explosion/drop program at $86:DC34.</summary>
     internal const ushort SporeShot = 0xdc34;
 
-    private static readonly SporeSpawnProjectileInstructionMechanicsWord[] Words =
-    [
-        new(SpawnerClosed, 1),
-        new(0xdc04, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(SpawnerRelease, 1), new(0xdc0a, 6),
-        new(0xdc0e, EnemyProjectileCodePointers.Instruction_EnemyProjectile_SporeSpawner_SpawnSpore),
-        new(0xdc10, 0x10), new(0xdc14, 6), new(0xdc18, 1),
-        new(0xdc1c, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(Spore, 5), new(0xdc22, 5), new(0xdc26, 5),
-        new(0xdc2a, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xdc2c, Spore),
-        new(Stalk, 5),
-        new(0xdc32, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(SporeShot, 1),
-        new(0xdc38, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Spores_SetProperties3000),
-        new(0xdc3a, 3), new(0xdc3e, 6), new(0xdc42, 5),
-        new(0xdc46, EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_QueueEnemyKilledSoundFX),
-        new(0xdc48, 5), new(0xdc4c, 5), new(0xdc50, 6),
-        new(0xdc54, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Spores_SpawnEnemyDrops),
-        new(0xdc56, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xdc58, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
-    ];
+    /// <summary>
+    /// $86:DC06 release-frame holds; the spawn callback lies between the second and third frames.
+    /// These unequal timings remain required issue-1165 work. Program position alone does not derive them.
+    /// </summary>
+    private static readonly ushort[] ReleaseDurations = [1, 6, 16, 6, 1];
+    /// <summary>
+    /// $86:DC34 shot-spore display holds around property, sound and drop callbacks.
+    /// These unequal timings remain required issue-1165 work, with no impossible/nonsense disposition established.
+    /// </summary>
+    private static readonly ushort[] ShotDurations = [1, 3, 6, 5, 5, 5, 6];
+    // Closed-emitter hold 1 and airborne/stalk holds 5 also remain independent required timing inputs.
+    internal static int MechanicsWordCount => 28;
+    internal static int PresentationWordCount => 17;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xdc02, 0xdc08, 0xdc0c, 0xdc12, 0xdc16, 0xdc1a,
-        0xdc20, 0xdc24, 0xdc28, 0xdc30,
-        0xdc36, 0xdc3c, 0xdc40, 0xdc44, 0xdc4a, 0xdc4e, 0xdc52,
-    ];
+    internal static SporeSpawnProjectileInstructionMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        if (index < 2) return new((ushort)(SpawnerClosed + 4 * index), index == 0 ? (ushort)1 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
+        if (index < 9)
+        {
+            int local = index - 2;
+            int offset = local < 3 ? 4 * local : 10 + 4 * (local - 3);
+            ushort value = local switch
+            {
+                0 or 1 => ReleaseDurations[local],
+                4 or 5 => ReleaseDurations[local - 1],
+                2 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_SporeSpawner_SpawnSpore,
+                3 => ReleaseDurations[2],
+                _ => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep,
+            };
+            return new((ushort)(SpawnerRelease + offset), value);
+        }
+        if (index < 14)
+        {
+            int local = index - 9;
+            return new((ushort)(Spore + (local < 4 ? 4 * local : 14)),
+                local < 3 ? (ushort)5 : local == 3 ? EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY : Spore);
+        }
+        if (index < 16) return new((ushort)(Stalk + 4 * (index - 14)), index == 14 ? (ushort)5 : EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep);
+        int shot = index - 16;
+        if (shot == 0) return new(SporeShot, ShotDurations[0]);
+        if (shot == 1) return new((ushort)(SporeShot + 4), EnemyProjectileCodePointers.Instruction_EnemyProjectile_Spores_SetProperties3000);
+        if (shot < 5) return new((ushort)(SporeShot + 6 + 4 * (shot - 2)), ShotDurations[shot - 1]);
+        if (shot == 5) return new((ushort)(SporeShot + 18), EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_QueueEnemyKilledSoundFX);
+        if (shot < 9) return new((ushort)(SporeShot + 20 + 4 * (shot - 6)), ShotDurations[shot - 2]);
+        return new((ushort)(SporeShot + 32 + 2 * (shot - 9)), shot switch
+        {
+            9 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Spores_SpawnEnemyDrops,
+            10 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY,
+            _ => CommonEnemyProjectileInstructionProgramDefinitions.Delete,
+        });
+    }
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static SporeSpawnProjectileInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
+    internal static ushort PresentationWordAddress(int index)
+    {
+        if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
+        if (index == 0) return SpawnerClosed + 2;
+        if (index < 6) return (ushort)(SpawnerRelease + 2 + 4 * (index - 1) + (index < 3 ? 0 : 2));
+        if (index < 9) return (ushort)(Spore + 2 + 4 * (index - 6));
+        if (index == 9) return Stalk + 2;
+        int shot = index - 10;
+        return (ushort)(SporeShot + (shot == 0 ? 2 : shot < 4 ? 8 + 4 * (shot - 1) : 22 + 4 * (shot - 4)));
+    }
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.SporeSpawnStalk or
         RoomEnemyProjectileKind.SporeSpawnSpore or
@@ -64,11 +92,11 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
-        int high = Words.Length - 1;
+        int high = MechanicsWordCount - 1;
         while (low <= high)
         {
             int middle = low + ((high - low) >> 1);
-            SporeSpawnProjectileInstructionMechanicsWord candidate = Words[middle];
+            SporeSpawnProjectileInstructionMechanicsWord candidate = MechanicsWord(middle);
             if (candidate.Address == address) return candidate.Value;
             if (candidate.Address < address) low = middle + 1;
             else high = middle - 1;
@@ -81,8 +109,9 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitions
     {
         if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);
-        foreach (SporeSpawnProjectileInstructionMechanicsWord word in Words)
+        for (int index = 0; index < MechanicsWordCount; index++)
         {
+            var word = MechanicsWord(index);
             if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
                 return true;
         }

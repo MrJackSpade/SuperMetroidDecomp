@@ -7,15 +7,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable reserve labels, digits and arrow appearance; energy and mode behavior stay compiled.</summary>
 public sealed class PauseReserveUiPresentation
 {
-    private readonly Dictionary<string, (int Offset, byte[] Cells)> labels;
+    private readonly Dictionary<string, ReserveLabel> labels;
     private readonly int digitOffset;
     private readonly byte[][]? digits;
     private readonly int[]? arrowOffsets;
     private readonly int enabledPalette, disabledPalette;
     private readonly ushort solidColor6, solidColor11;
-    private readonly (ushort Color6, ushort Color11)[] arrowFrames;
+    private readonly (ushort Color6, ushort Color11) arrowStart, arrowMiddle;
+    private readonly Dictionary<int, ushort> arrowColorEdits = [];
 
-    private PauseReserveUiPresentation(Dictionary<string, (int, byte[])> labels, int digitOffset,
+    private PauseReserveUiPresentation(Dictionary<string, ReserveLabel> labels, int digitOffset,
         byte[][] digits, int[] arrowOffsets, int enabledPalette, int disabledPalette,
         ushort solidColor6, ushort solidColor11, (ushort, ushort)[] arrowFrames)
     {
@@ -30,7 +31,16 @@ public sealed class PauseReserveUiPresentation
         this.arrowOffsets = stockArrow ? null : arrowOffsets;
         this.enabledPalette = enabledPalette;
         this.disabledPalette = disabledPalette; this.solidColor6 = solidColor6;
-        this.solidColor11 = solidColor11; this.arrowFrames = arrowFrames;
+        this.solidColor11 = solidColor11;
+        arrowStart = arrowFrames[0];
+        arrowMiddle = arrowFrames[PauseReserveUiDefinitions.ArrowFrames / 2 - 1];
+        for (int frame = 0; frame < arrowFrames.Length; frame++)
+        {
+            if (arrowFrames[frame].Item1 != CalculateArrowColor(frame, false))
+                arrowColorEdits.Add(frame * 2, arrowFrames[frame].Item1);
+            if (arrowFrames[frame].Item2 != CalculateArrowColor(frame, true))
+                arrowColorEdits.Add(frame * 2 + 1, arrowFrames[frame].Item2);
+        }
     }
 
     /// <summary>$82:8F70 selects the ten consecutive digit glyphs starting with native word $0804.</summary>
@@ -46,11 +56,11 @@ public sealed class PauseReserveUiPresentation
     public void ApplyLabel(Span<byte> tilemap, string name, bool preserveAttributes = false)
     {
         if (!labels.TryGetValue(name, out var label)) throw new InvalidDataException($"Unknown reserve label {name}.");
-        if (label.Offset < 0 || label.Offset + label.Cells.Length > tilemap.Length)
+        if (label.Offset < 0 || label.Offset + label.WordCount * sizeof(ushort) > tilemap.Length)
             throw new ArgumentException("Reserve label target is shorter than the authored tilemap range.", nameof(tilemap));
-        for (int index = 0; index < label.Cells.Length; index += sizeof(ushort))
+        for (int index = 0; index < label.WordCount * sizeof(ushort); index += sizeof(ushort))
         {
-            ushort word = BinaryPrimitives.ReadUInt16LittleEndian(label.Cells.AsSpan(index));
+            ushort word = label.Word(index / sizeof(ushort));
             if (preserveAttributes)
                 word = (ushort)((BinaryPrimitives.ReadUInt16LittleEndian(tilemap.Slice(label.Offset + index)) &
                     PauseReserveUiDefinitions.TileAttributeMask) | (word & ~PauseReserveUiDefinitions.TileAttributeMask));
@@ -80,10 +90,34 @@ public sealed class PauseReserveUiPresentation
 
     public void ApplyArrowColors(SnesCgram cgram, bool animated, int frame, int color6Index, int color11Index)
     {
-        var colors = animated ? arrowFrames[frame & (arrowFrames.Length - 1)] : (solidColor6, solidColor11);
+        var colors = animated ? (ArrowColor(frame, false), ArrowColor(frame, true)) : (solidColor6, solidColor11);
         cgram.SetColor(color6Index, colors.Item1); cgram.SetColor(color11Index, colors.Item2);
     }
 
+    /// <summary>
+    /// $82:AD5D/AD9D mirror two16-phase RGB ramps around the repeated midpoint.
+    /// Endpoint choices and six distinct native channel deviations remain pending
+    /// source payload; supplied deviations and independent edits are retained sparsely.
+    /// </summary>
+    private ushort CalculateArrowColor(int frame, bool second)
+    {
+        int last = PauseReserveUiDefinitions.ArrowFrames - 1;
+        int phase = Math.Min(frame, last - frame);
+        int steps = last / 2;
+        ushort start = second ? arrowStart.Color11 : arrowStart.Color6;
+        ushort end = second ? arrowMiddle.Color11 : arrowMiddle.Color6;
+        int value = 0;
+        for (int shift = 0; shift < 15; shift += 5)
+            value |= (((start >> shift & 31) * (steps - phase) + (end >> shift & 31) * phase) / steps) << shift;
+        return (ushort)value;
+    }
+
+    private ushort ArrowColor(int frame, bool second)
+    {
+        frame &= PauseReserveUiDefinitions.ArrowFrames - 1;
+        return arrowColorEdits.TryGetValue(frame * 2 + (second ? 1 : 0), out ushort supplied)
+            ? supplied : CalculateArrowColor(frame, second);
+    }
     public static PauseReserveUiPresentation Load(Stream json)
     {
         PauseReserveUiDocument document;
@@ -96,13 +130,14 @@ public sealed class PauseReserveUiPresentation
             document.Arrow.Frames is null || document.Arrow.Frames.Length != PauseReserveUiDefinitions.ArrowFrames ||
             (uint)document.Arrow.EnabledPalette > 7 || (uint)document.Arrow.DisabledPalette > 7)
             throw new InvalidDataException("Pause reserve UI requires four labels, ten digits, ten arrow cells, and 32 arrow frames.");
-        var labels = new Dictionary<string, (int, byte[])>();
+        var labels = new Dictionary<string, ReserveLabel>();
         foreach (var expected in new[] { "Mode", "ReserveTank", "Manual", "Auto" })
         {
             if (!document.Labels.TryGetValue(expected, out var label) || label is null || label.Cells is null ||
                 label.Cells.Length != (expected is "Manual" or "Auto" ? PauseReserveUiDefinitions.ModeWords : PauseReserveUiDefinitions.LabelWords))
                 throw new InvalidDataException($"Pause reserve UI label {expected} has the wrong shape.");
-            labels.Add(expected, (Offset(label.Anchor, expected), PauseTileGrid.Compile(label.Cells, $"Reserve.{expected}")));
+            labels.Add(expected, ReserveLabel.Load(expected, Offset(label.Anchor, expected),
+                PauseTileGrid.Compile(label.Cells, $"Reserve.{expected}")));
         }
         var digits = document.Digits.Cells.Select((cell, index) => PauseTileGrid.Compile([cell], $"Reserve.Digit{index}")).ToArray();
         int[] arrowOffsets = document.Arrow.Cells.Select((point, index) => Offset(point, $"Arrow.{index}")).ToArray();
@@ -125,6 +160,26 @@ public sealed class PauseReserveUiPresentation
             if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Pause reserve UI {name} requires RGB components from zero through 31.");
             return (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+        }
+    }
+
+    private sealed class ReserveLabel(string name, int? offsetEdit, Dictionary<int, ushort> edits)
+    {
+        internal int Offset => offsetEdit ?? PauseReserveUiDefinitions.StockLabelOffset(name);
+        internal int WordCount => PauseReserveUiDefinitions.StockLabelWords(name);
+        internal ushort Word(int index) => edits.TryGetValue(index, out ushort selected)
+            ? selected : PauseReserveUiDefinitions.StockLabelWord(name, index);
+
+        internal static ReserveLabel Load(string name, int offset, ReadOnlySpan<byte> bytes)
+        {
+            var edits = new Dictionary<int, ushort>();
+            for (int index = 0; index < bytes.Length / sizeof(ushort); index++)
+            {
+                ushort value = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(index * sizeof(ushort))..]);
+                if (value != PauseReserveUiDefinitions.StockLabelWord(name, index)) edits.Add(index, value);
+            }
+            int? editedOffset = offset == PauseReserveUiDefinitions.StockLabelOffset(name) ? null : offset;
+            return new(name, editedOffset, edits);
         }
     }
 

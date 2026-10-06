@@ -19,81 +19,61 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     /// <summary>The final grey room palette at $A9:D082.</summary>
     public const ushort FinalPalette = 0xd082;
 
-    private static readonly MotherBrainRoomPaletteMechanicsWord[] Words =
-    [
-        new(0xd046, 0x0002), new(0xd04a, 0x0002), new(0xd04e, 0x0002),
-        new(0xd052, 0x0002), new(0xd056, 0x0002), new(0xd05a, 0x0002),
-        new(0xd05e, 0x0002), new(0xd062, 0x0002), new(0xd066, 0x0002),
-        new(0xd06a, 0x0002), new(0xd06e, 0x0002), new(0xd072, 0x0002),
-        new(0xd076, 0x0002), new(0xd07a, 0x0002), new(0xd07e, 0x9b0f),
-        new(0xd080, 0xd046),
-    ];
+    /// <summary>$A9:D046-$D07C: fourteen two-tick frames, each with a palette operand.</summary>
+    internal const int PresentationWordCount = 14;
+    internal const int MechanicsWordCount = PresentationWordCount + 2;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xd048, 0xd04c, 0xd050, 0xd054, 0xd058, 0xd05c, 0xd060,
-        0xd064, 0xd068, 0xd06c, 0xd070, 0xd074, 0xd078, 0xd07c,
-    ];
+    /// <summary>$A9:D07E: closing Goto opcode following the timed frames.</summary>
+    private const ushort LoopInstruction = FlashStart + PresentationWordCount * 4;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static MotherBrainRoomPaletteMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static MotherBrainRoomPaletteMechanicsWord MechanicsWord(int index)
+    {
+        if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
+        return index < PresentationWordCount
+            ? new((ushort)(FlashStart + index * 4), 2)
+            : new((ushort)(LoopInstruction + (index - PresentationWordCount) * 2),
+                index == PresentationWordCount ? GotoInstruction : FlashStart);
+    }
+
+    internal static ushort PresentationWordAddress(int index) =>
+        (uint)index < PresentationWordCount ? (ushort)(FlashStart + index * 4 + 2) :
+            throw new IndexOutOfRangeException();
+
+    /// <summary>Chosen flash strength in thirds for the fourteen events at $A9:D046-$D07C.</summary>
+    internal static int FlashStrength(int frame) => frame switch
+    {
+        1 or 5 or 8 => 1,
+        2 or 11 or 13 => 2,
+        3 or 7 or 10 => 3,
+        0 or 4 or 6 or 9 or 12 => 0,
+        _ => throw new IndexOutOfRangeException(),
+    };
 
     internal static ushort ReadMechanicsWord(ushort address)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            MotherBrainRoomPaletteMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
+        int offset = address - FlashStart;
+        if ((uint)offset < PresentationWordCount * 4 && offset % 4 == 0) return 2;
+        if (address == LoopInstruction) return GotoInstruction;
+        if (address == LoopInstruction + 2) return FlashStart;
         throw new InvalidDataException(
             $"Mother Brain room-palette mechanics pointer $A9:{address:X4} is not compiled.");
     }
 
     internal static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa90000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa90000) return false;
+        int offset = (ushort)address - FlashStart;
+        return (uint)offset < PresentationWordCount * 4 && offset % 4 < 2 ||
+            offset >= PresentationWordCount * 4 && offset < PresentationWordCount * 4 + 4;
     }
 
     internal static bool TryGetPresentationWord(int address, out ushort wordAddress)
     {
         wordAddress = 0;
-        if ((address & 0xff0000) != 0xa90000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < PresentationWords.Length; index++)
-        {
-            ushort candidate = PresentationWords[index];
-            if (bankAddress == candidate ||
-                bankAddress == unchecked((ushort)(candidate + 1)))
-            {
-                wordAddress = candidate;
-                return true;
-            }
-        }
-        return false;
+        if ((address & 0xff0000) != 0xa90000) return false;
+        int offset = (ushort)address - FlashStart;
+        if ((uint)offset >= PresentationWordCount * 4 || offset % 4 < 2) return false;
+        wordAddress = (ushort)(address & 0xfffe);
+        return true;
     }
 }

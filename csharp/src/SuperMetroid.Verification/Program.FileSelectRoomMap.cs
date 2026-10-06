@@ -85,7 +85,7 @@ internal static partial class Program
     private static void VerifyMapCancelPresentation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var saves = new SuperMetroidSaveRam(bus);
+        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
         snapshot.MapStationBytes[4] = 1;
         snapshot.UsedSaveStationBytes[8] = 1;
@@ -283,7 +283,7 @@ internal static partial class Program
     private static void VerifySavedGameMapFrontend(ushort savedArea)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var saves = new SuperMetroidSaveRam(bus);
+        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99,
             LoadingGameState = savedArea == 6 ? SaveLoadingGameStates.CeresElevatorArrival : SaveLoadingGameStates.MainGame };
         snapshot.UsedSaveStationBytes[savedArea * 2] = 1;

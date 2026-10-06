@@ -515,7 +515,7 @@ public sealed partial class RoomEnemySystem
         }
 
         mouth.VariableA = unchecked((ushort)(_nextRandom!() & 3));
-        ReadOnlySpan<ushort> pattern = PhantoonCasualFlameDefinitions.Pattern(mouth.VariableA);
+        PhantoonCasualFlameDefinitions.Schedule pattern = PhantoonCasualFlameDefinitions.Pattern(mouth.VariableA);
         mouth.VariableC = pattern[0];
         mouth.VariableB = pattern[mouth.VariableC + 1];
     }

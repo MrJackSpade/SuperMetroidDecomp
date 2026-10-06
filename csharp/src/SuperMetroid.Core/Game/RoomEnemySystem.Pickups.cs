@@ -23,17 +23,6 @@ public sealed partial class RoomEnemySystem
     private const ushort EnemyPickupLifetime = 400;
     private const ushort EnemyPickupGrappleDelay = 16;
 
-    // Indexes zero through five are the accumulator order used by $86:F106. Notice that
-    // power bombs are last even though their returned pickup identity is three.
-    private static readonly EnemyPickupKind[] EnemyDropAccumulatorOrder =
-    [
-        EnemyPickupKind.SmallEnergy,
-        EnemyPickupKind.BigEnergy,
-        EnemyPickupKind.Missile,
-        EnemyPickupKind.NoDrop,
-        EnemyPickupKind.SuperMissile,
-        EnemyPickupKind.PowerBomb,
-    ];
 
     // $7E:0E1E is intentionally stateful in the 30..49 energy grace band. Starting false
     // matches cleared WRAM; room transitions do not reset it on the cartridge.
@@ -371,7 +360,7 @@ public sealed partial class RoomEnemySystem
                 accumulated = unchecked((ushort)(accumulated +
                     majorAdjustedBudget * chances[accumulatorIndex] / pooledMinorWeight));
                 if (accumulated >= random)
-                    return EnemyDropAccumulatorOrder[accumulatorIndex];
+                    return EnemyDropSelectionDefinitions.ForProbabilityColumn(accumulatorIndex);
             }
         }
         else
@@ -391,7 +380,7 @@ public sealed partial class RoomEnemySystem
 
             accumulated = unchecked((ushort)(accumulated + chances[accumulatorIndex]));
             if (accumulated >= random)
-                return EnemyDropAccumulatorOrder[accumulatorIndex];
+                return EnemyDropSelectionDefinitions.ForProbabilityColumn(accumulatorIndex);
         }
 
         return EnemyPickupKind.NoDrop;

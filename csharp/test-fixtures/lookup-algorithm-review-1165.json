@@ -10840,5 +10840,958 @@
     "ddd11b3b6"
   ],
   "confirmation": "Verification1438 warnings/zero errors. Rio51 native words,32 selectors,seven actual parent/flame programs and three callbacks; Draygon38 native words,27 actual visual selections,real goop/turret producers,touch/drop callbacks and all private programs. Source reads forbidden. Corrected standalone Rio flag to avoid invoking unrelated Draygon check; combined stream keeps both. No reviewed-source hash dependency; static index refreshed.",
-  "scope": "Lower Norfair Rio and Draygon projectile control/presentation-address arrays:four definitions."
-}}
+  "scope": "Three definitions complete: Lower Norfair Rio presentation addresses and Draygon projectile control/presentation addresses. Rio Words remains pending for independent turnaround/cooldown/flame timing."
+},"steamEvirBridgeIntegration":{
+  "implementationCommits": [
+    "bfde3a167",
+    "3fb4648b4",
+    "5538b5817"
+  ],
+  "remaining": "333 converted,three justified retained,792 pending. Crocomire rumble amplitude/cadence still required; invalid retention prose removed.",
+  "scope": "Steam/debris/Evir controls and presentation-address arrays plus unused reserve layout removed:seven definitions. Crocomire bridge mixed disposition.",
+  "confirmation": "Verification1438 warnings/zero errors. Steam68 native words/four cycles/36 selectors; debris4 words/both producers/sleep/delete/two selectors; Evir67 words/six programs/regeneration callbacks/49 selectors; bridge11 nativeX/11 actual allocations/cursor cutoff. Source reads forbidden. No reviewed-source hash dependency; static index refreshed. Shared command-list conflict resolved preserving all existing flags.",
+  "algorithm": "Directional strides,uniform timed poses,semantic activation/sleep/regeneration controls; removed unreferenced reserve catalog. Bridge coordinates calculate from16-pixel floor grid.",
+  "retention": "Only eleven chosen collapse columns remain; native A4:9136-9153 advances sequentially,86:9286 producer fixesY187/Xvelocity0 and independently randomizesYvelocity. No actor/physics/random function chooses collapse order; replacing it invents choreography.",
+  "state": "mixed"
+},"doorPaletteOperationsIntegration":{
+  "state": "converted",
+  "algorithm": "Named HUD,common-CRE and escape-timer copy operations in a dedicated native catalog; original caller conditional nesting preserved.",
+  "confirmation": "Verification1438 warnings/zero errors; integrated stream3 check compares17 copied slots and every untouched black slot against native82:E1F1-E264 STA operands. Caller source review confirms CRE/timer conditional ordering unchanged. No reviewed-source hash dependency; static index refreshed.",
+  "scope": "Three local door-fade palette-index lists.",
+  "implementationCommit": "33d3b64b1",
+  "remaining": "336 converted,three justified retained,789 pending. No new exception."
+},"motherBrainHealthRoomIntegration":{
+  "confirmation": "Verification1439 warnings/zero errors; ResourceAudit zero warnings/errors. Health120 native words/360 independent edits/no stock base or intermediate arrays/sixbody-zeroRear anchors. Recovery196 native words/588 edits/legacy fallback; flash48 actual ticks/native pointer,timer,fullCGRAM/14 operands/1008 edits/ownership and bounds. Three source hashes and static index refreshed.",
+  "algorithm": "Health RGB8 sharedbias+1 triangular red tint,quarter/fifth shade ramps,rear half-light and outline tint. Room recovery equal intensity steps; flash highlight thirds and level quarter-dimming; four-byte control strides and two-tick loop.",
+  "scope": "Health rear palette and two room-palette program arrays converted; body mixed six-anchor retention; room recovery/flash partial.",
+  "implementationCommits": [
+    "46538cf23",
+    "4fe4d27e7",
+    "c1afaadbf",
+    "5b64b377f",
+    "efcec1fdd",
+    "312bed324"
+  ],
+  "retention": "Only six body paint anchors. Independent static head B7:8000/A9:A586,neck A9:A694 and rear-foot A9:A974 masks plus AD:E3D5-E42E routing establish specific artistic roles; no health/geometry function selects those colors. All identified dependencies calculate,zero independent rear anchors.",
+  "state": "mixed",
+  "remaining": "339 converted,four justified retained,785 pending. Room recovery base/latent precision,flash base/highlight and chosen strength sequence,final room and other color payloads remain required; no blanket artwork exception."
+},"draygonBotwoonPaletteHoleIntegration":{
+  "scope": "Draygon white flash, Botwoon hole geometry and already converted wall draw reconciliation: three complete definitions. Both health palettes partially calculated.",
+  "implementationCommits": [
+    "c207c6dce",
+    "6f06086cb",
+    "ac7b824e7"
+  ],
+  "algorithm": "RGB5 interpolation removes 24 Draygon and 94 Botwoon intermediate words. Hole positions use named geometric directions; wall level words calculate a uniform fill.",
+  "confirmation": "Verification1441 warnings/zero errors; integrated stream4 checks pass after completed build. Draygon actual CGRAM and native palette values, Botwoon128 native palette words/independent edits/identity/bounds, hole native coordinates and actual detection/boundaries/invalid offsets. ResourceAudit zero warnings/errors; two source hashes and static index refreshed.",
+  "state": "partial",
+  "remaining": "342 converted,four justified retained,782 pending. Draygon8 endpoints and Botwoon32 endpoints plus2 nonmatching values remain required; no new retention."
+},"motherBrainPaletteGeometryIntegration":{
+  "scope": "Eleven definitions complete: two visual catalogs,four intro regions,two death fades,beam colors,beam dispatch,tube visual roots. Room basis and normal-restoration deduplication partial.",
+  "implementationCommits": [
+    "e2bd7d33f",
+    "beaf13afb",
+    "0102e7514",
+    "590fcbb72",
+    "ebac95e2d",
+    "3fc669949",
+    "cf507f9f3",
+    "059c1fbb3"
+  ],
+  "state": "partial",
+  "algorithm": "Native OAM record strides,semantic scene/CGRAM geometry,shared health tint and paint generator,five exact hue phases,edge-quadrant dispatch; room recovery direct RGB5 scaling/shared final basis.",
+  "confirmation": "Verification1441 warnings/zero errors; integrated stream3 native values,independent color edits,actual palette/program consumers,identities,bounds and absent stock rows passed. DebugRunner42 warnings/zero errors; ResourceAudit zero warnings/errors. Dedicated paint catalog added to health/death/rainbow source closures, reviewed hashes and static index refreshed.",
+  "remaining": "353 converted,four justified retained,771 pending. Final room colors,flash highlight,four recovery inputs,corpse final palette and other unchecked payloads remain required. No new retention."
+},"steamDoorCorpseGeometryIntegration":{
+  "confirmation": "Verification1441 warnings/zero errors. Five focused commands pass: lava7 native controls/both producers/drop/delete/2selectors; gate28 controls/both producers/four close-open stages/sleep-wake/delete/9selectors; steam28 components/21lists/4512 actual boundary comparisons; door97 controls/seven actual variants/33selectors; corpse30 rotation offsets/32sand words/32 DMA descriptors128fields/10terminators. Runtime ROM reads forbidden on converted paths. ResourceAudit zero warnings/errors; reviewed source hash and static index refreshed.",
+  "remaining": "365 converted,four justified retained,759 pending. Ceres steam shapes,door artwork selectors and Torizo asymmetric rectangles remain required; no new exception.",
+  "implementationCommits": [
+    "856f171bd",
+    "0cf3e49b2",
+    "d7d2e037e",
+    "9542eeb10"
+  ],
+  "state": "converted",
+  "scope": "Twelve definitions: gate/lava mechanics and operand locations,three steam frame mappings,Ceres door controls,four corpse geometry tables.",
+  "algorithm": "Semantic program phases and uniform pose strides; ten-byte steam frames/fourteen-byte rectangle records; shared relocated door controls; tile-width rotation offsets,two sand strips and clipped live-WRAM DMA row geometry."
+},"lightningTurtleEyeIntegration":{
+  "confirmation": "Verification1441 warnings/zero errors; integrated stream4 passes48 native empty frames/130components/actual shot-touch walkers,104surface/98dark palette values/independent edits/domains/identities,117turtle controls/75addresses/byte ownership/bounds/allocation,19eye controls/11 actual installed operands/aim-flight-impact-shot/delete. Corrected turtle console to avoid claiming actual program execution absent from its definition fixture. Static index refreshed; no source-hash dependency found.",
+  "implementationCommits": [
+    "04ea84406",
+    "859422d2a",
+    "acbe37826",
+    "3481b7188",
+    "3debae639"
+  ],
+  "scope": "Four complete definitions: Draygon empty OAM membership,Turtle presentation addresses and two eye-door programs. Turtle mechanics remains pending for independent spin/shell timing; surface/dark lightning partially calculated.",
+  "algorithm": "Extended-frame component strides and triangular sizes; semantic crawl/spin/shell cases; eye-door aim/impact duration ramps and control cases. Lightning phase/shade arithmetic and clamped per-channel fading remove195 samples.",
+  "remaining": "370 converted,four justified retained,754 pending. Surface lightning base/brightness parameters and seven dark inputs remain required,along with unchecked collision/artwork payloads; no new exception.",
+  "state": "partial"
+},"ceresPhantoonTubeIntegration":{
+  "scope": "Eight definitions complete: Phantoon eye/rain mapping,three uniform mouth schedules,sound cycle,tube shard starts and visual operand addresses. Elevator palette and tube mechanics partially calculated.",
+  "algorithm": "Mirrored elevator phases with RGB5 clamping; rain gap follows body column; octant eye dispatch; burst-rank uniform schedules and consecutive sound identifiers; tube/shard/bubble record layouts and regular timing.",
+  "implementationCommits": [
+    "bf7cc3aa6",
+    "3d871138b",
+    "443825330",
+    "d98ce06e0"
+  ],
+  "confirmation": "Verification1442 warnings/zero errors; four focused checks passed elevator48 native colors/48 independent edits/storage identity and bounds,Phantoon8 native columns/eight actual rain populations/nine eye selectors, tube207 mechanics/90 selectors/17 actual producers and lifetimes,Phantoon30 native schedule words/65536 selectors/8192 mouth frames/three sounds/two actual callback cycles. ResourceAudit and DebugRunner build passed; cinematic source hash and static index refreshed.",
+  "state": "partial",
+  "remaining": "378 converted,four justified retained,746 pending. Elevator6 seeds/4 residuals,tube5 irregular crack holds,Phantoon7 irregular intervals and other independent payloads remain required. No new exception."
+},"sciserDeathWaffleIntegration":{
+  "confirmation": "Verification1442 warnings/zero errors including AssetExtraction dependency. Integrated stream1 passes native Sciser32controls/16operands/12roots and four actual loops; death28initial bytes/10transfer words and actual D7/D8,ball/spin,five DMA records,timing,palettes,terminal state; Waffle native geometry/controls,parent/four-link loops,deletion,installed identities and guards. Reproduced missing-installed-palette and stale presentation-read fixtures adapted without relaxing behavior assertions. ResourceAudit zero warnings/errors; DebugRunner42warnings/zero errors. Two refreshed source hashes and calculated death geometry added to DMA closure; static index refreshed.",
+  "algorithm": "Sciser four equal surface programs and22-byte OAM strides; semantic death movement cases and cyclic source/VRAM pages; mirrored angular sweep and twelve-frame uniform loops.",
+  "scope": "Ten definitions: Sciser programs/visual roots,Samus death initial frames/transfers,Nuclear Waffle sweep geometry and parent/projectile programs.",
+  "implementationCommits": [
+    "e09ff80f2",
+    "995a44179",
+    "db912ab30"
+  ],
+  "state": "converted",
+  "remaining": "388 converted,four justified retained,736 pending. No new retained entry integrated."
+},"trailCoordinateCodeIndependentReviewPendingIntegration":{
+  "reason": "Managed code has no meaningful counterpart to original65816 instruction encodings and absolute relocations. Rebuilding an assembler byte sequence merely re-encodes the observed data. This is bounded coordinate-data observation,not native execution or unbounded memory emulation.",
+  "evidence": "Coordinator independently checked pinned9B:A42F-A445,B37B-B39B,B3A7-B3C2,directROM28bytes,and managedSpawnTrail low-six-bit type/frame operand flow. Reviewed worker proof of supportedSHA,nativefamilyB37B/downlistB39B,seven native animationframes3..9 and seven actualtype24spawns/allfourpositions with coordinate/code sourcewindow forbidden.",
+  "scope": "Exactly28native instruction bytes9B:B3A7-B3C2; other coordinate records/scalars remain required.",
+  "state": "approved-pending-integration"
+},"drainedPaintIndependentReviewPendingIntegration":{
+  "reason": "These values choose the particular olive-grey cortex/tissue highlight,silhouette/internal outline and darkest mouth/neck paint. A generic grayscale or lighting transform would invent different paint. All shades,shared plates,neutral colors,duplicate highlight and cross-sequence relationships still calculate.",
+  "evidence": "Coordinator inspected headA9A586/neckA9A694 artwork and index1/4/13 masks,guarded exporter tile mapping,pinnedAD:EEB8/F0BF/F1EB and copy routingEF1F-44/EF5C-81/F0FA-100. Direct supported ROM SHA12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72 and15endpoint words independently confirmed.",
+  "scope": "Only highlight4F38,outline0CA5,dark tissue1949,represented by exact quantized gradient endpoints. No whole palette exemption.",
+  "state": "integrated",
+  "limits": "RGB8 endpoints193/200/155 and79/83/55 are an exact quantized representation,not a historical-tool provenance claim. Revival and other channel endpoints still need dispositions. Worker must use dedicated domain catalog and preserve independent installed edits."
+},"flareOwtchPuyoIntegration":{
+  "scope": "13 flare/timer/Dragon identities, Owtch/Stoke layouts, Puyo programs, smoke geometry and Metroid quota dispatch definitions",
+  "state": "converted",
+  "confirmation": "Integrated Verification build1442 warnings/zero errors; focused stream1 passed native identities, exact domains, actual OAM, directional enemy programs/projectile spawns, all smoke families with RNG state, and resident PLM quota events. No new exception. Source contract hashes refreshed.",
+  "implementationCommits": [
+    "f1ef6f08d",
+    "451507846",
+    "a334e0def"
+  ]
+},"draygonComponentIntegration":{
+  "implementationCommits": [
+    "a8958ff8c",
+    "139eaa64a"
+  ],
+  "state": "converted",
+  "reviewCorrections": "Queued Stoke Words doubled walking hold, Skultera Words endpoint13, and SporeSpawnProjectile Words unequal holds remain unresolved. Their structural conversions do not establish complete timing disposition; worker agreed and followup is required before those entries can close.",
+  "confirmation": "Integrated Verification1442 warnings/zero errors; stream4 passed34 native BG2 component layouts,three hitbox lists,actual guarded shot dispatch,48 OAM frames and117 Turtle control words. Rectangles remain required. No new exception.",
+  "scope": "Three Draygon BG2 singleton component arrays and previously removed Baby Turtle crawl literal"
+},"trailDispatchRegularWaveIntegration":{
+  "partial": "170 of870 coordinate records calculate regular reflected Wave oscillations, capped spreads, cardinal offsets and defaults; Frames stays pending for700records. No new exception.",
+  "completed": "ProjectileTrailCoordinateDefinitions.Pointers:174 beam/direction pointer words replaced with semantic flags/direction dispatch and packed record strides",
+  "implementationCommits": [
+    "7582dc90f",
+    "ca28d0a07"
+  ],
+  "state": "partial",
+  "confirmation": "Integrated Verification1442 warnings/zero errors. Focused coordinate verifier confirmed174 native pointers,870 records,6600actualspawns/allfourpositions with coordinate ROM forbidden and196608operand boundary assertions. Legacy PowerShell stderr warning handling produced a wrapper failure despite passed output; explicit PowerShell7 process-exit check repeated same focused command and returned0."
+},"doorScrollCaseIntegration":{
+  "scope": "DoorScrollPrograms.Programs:74 native straight-line callbacks translated to named executable cases without stored write arrays/dictionary",
+  "state": "converted",
+  "confirmation": "Integrated Verification rebuild25 warnings/zero errors; stream3 exit0. Bounded independent native instruction interpreter confirms74x50scroll bytes including untouched cells/word stores; all65536callback identities,original enumeration order,unknown no-op and null rejection preserved. No new exception. Existing formatting changes were already integrated and retained. Local conflict-resolution script was initially blocked by legacy shell policy; corrected using PowerShell7, compiled and checked before folding resolution into the unpublished integration commit.",
+  "implementationCommit": "fead8cf4c"
+},"corpseGeometryIntegration":{
+  "confirmation": "Integrated Verification build1442warnings/zeroerrors; three focused commands passed16selectors,64configurationwords,8wraps,16controls,8actualinit/sleep paths,10nativeMVN triples,10column operands/clips,installed-artwork staging and actual move/copy rows0/7/8/37/38 including nonzero variant and bounds. ResourceAudit build passed. Existing missing-installed-artwork fixtures use native shared sheet and unused black palette; no production fallback. DeadMonsterRotting source hash refreshed.",
+  "implementationCommits": [
+    "be85c6cf0",
+    "047719e02"
+  ],
+  "state": "converted",
+  "remaining": "417converted,4justifiedretained,707pending. No new exception.",
+  "scope": "Ten corpse definitions: Zoomer/Ripper/Skree configurations and uniform sleep programs, Sidehopper staging/copy/column clipping tables",
+  "algorithm": "Species and native record/work-area/routine strides derive8configuration rows; uniform6byte programs;16tile atlas width and5tile staged rows derive copy spans/planar offsets with complementary top-row clipping."
+},"metroidSamusPolicyIntegration":{
+  "algorithm": "Metroid chasing/draining layouts derive20/5records and callbacks,OAM roots use record widths. Samus cases use named movement/room/pose domains; foot contact uses five-phase stride; crash echoes oppose selected axis by half-turn.",
+  "confirmation": "Integrated Verification1442warnings/zeroerrors; focused stream1 exit0, confirming31Metroidcontrols/25visuals/4bodymaps,actual chase/drain loops and sounds,28splash/10footcontact/duplicated room policies/HUD28handlers/12angles,256pose domain and actual particles/admission/crash behavior. Scoped stale shinespark fixture uses its existing synthetic palette assets; no production fallback.",
+  "state": "converted",
+  "scope": "Eight Metroid layout/visual and Samus atmospheric/HUD/crash-angle definitions",
+  "implementationCommits": [
+    "dbcbb1f89",
+    "d34d2cd22"
+  ],
+  "remaining": "425converted,4retained,699pending. Separately inventoried Metroid FrameDurations and HUD posture observations stay pending. No new exception."
+},"drainedPaintIntegrationAndTimingReaudit":{
+  "remaining": "425converted,4original justified-retained,699pending:two completed palette definitions offset two reopened timing definitions. New drained paint dependency separately documented; all other palette endpoints remain required.",
+  "reopened": "MamaTurtleInstructionProgramDefinitions.Words spin1/4/5/5/5 and unequal shell holds; LowerNorfairRioInstructionProgramDefinitions.Words turnaround/cooldown endpoint exceptions and flame6/4/3. Ordinal value agreement is insufficient explanation. Both are unchecked in master/report/issues; source corrections isolate exact pending timing inputs and integrated Verification1442warnings/zeroerrors plus focused stream4 pass.",
+  "scope": "CorpseFade and fakeDeathToGrey calculate from separately reviewed health/drained paints; new dedicated retained dependency MotherBrainDrainedPaintDefinitions has exactly3 RGB5 paints and reviewed exact RGB8 gradient precision,not an added original snapshot entry.",
+  "implementationCommits": [
+    "ccdf4da9d",
+    "317f87990",
+    "f3ff467a5"
+  ],
+  "confirmation": "Integrated Verification1442warnings/zeroerrors and stream3 pass native drain/corpse/fake-death rows, independent edit preservation and absent stock endpoint storage. ResourceAudit zero warnings/errors; reviewed source hashes and new dependency closure refreshed.",
+  "state": "integrated"
+},"ceresBabyMapHighlightIntegration":{
+  "implementationCommits": [
+    "0200a4aba",
+    "ad56ebed4"
+  ],
+  "remaining": "Eight independent16color map phases remain required; reverse traversal removes duplicate rows but does not close colors.427converted,4originalretained,697pending.",
+  "state": "partial",
+  "algorithm": "Two conditional four-pose groups and twelve callback/pose pairs with linear6..2..9hold ramp; map loop-origin pause15 and transitionhold3,mirrored phases0..7..1.",
+  "confirmation": "Integrated Verification1442warnings/zeroerrors; scoped Ceres proof43nativecontrols/20spritemap/13palette selectors and actual complete loop/save-load/branches passed. Map proof224nativecolors/14timings/actualCGRAM,224independentcolor edits/14duration edits,custom1/15/255frames,bounds/zero stock deviations passed.",
+  "completed": "CeresBabyInstructionProgramDefinitions.Words and MapPaletteCycle.durations"
+},"goldenTorizoControlIntegration":{
+  "completed": "GoldenTorizoInitialInstructionProgramDefinitions.Words; GoldenTorizoJumpLandingInstructionProgramDefinitions.Words",
+  "remaining": "429 converted,4 original justified retained,695 pending.",
+  "algorithm": "Initial upload/stance/lock/wake/one-pose/sleep sequence with calculated DMA operand spacing; four facing/forward-foot attack and return cases with calculated five-word layout.",
+  "workerCommit": "02c363a85516a45167e8b0ab1c9fb97f1d3d653c",
+  "confirmation": "Integrated build1442 warnings/zero errors; focused --lookup-stream2-golden-control passed all7 initial and20 landing native words, native instruction positions, exact installed sprite, bounded ownership and invalid indexes.",
+  "state": "converted"
+},"exploredMapPackingIntegration":{
+  "completed": "All six ExploredMapPackingDefinitions area index lists",
+  "algorithm": "Enumerate occupied groups of eight immutable stock map cells in native page order; cumulative prior counts determine SRAM offsets. Explicit map provider flows through persistence and is rebound after debugger restore.",
+  "confirmation": "Integrated native327 index/count/offset proof, SRAM roundtrip, six blank artwork overrides with identical SRAM, unbound failure without mutation, actual debugger rebind. Existing scoped JSON persistence verifies lossless native preservation, atomic replacement and legacy migration. Verification and all four affected consumer projects build successfully.",
+  "workerCommit": "d7083ac335656a428e7c2984508adb816b3b5b69",
+  "state": "converted",
+  "remaining": "435 converted,4 original justified retained,689 pending. Source map topology remains separately accounted for."
+},"morphBallEyeGeometryIntegration":{
+  "state": "converted",
+  "algorithm": "Named left/right/up/down one-tile mount offsets and programs; shared brightness8+abs(phase-8) with COLDATA channel selectors.",
+  "confirmation": "Integrated build1444warnings/zeroerrors; four native mount tuples,8 actual init/wrap cases,16native beam records, actual full-beam update/mask/wrap/bounds pass.",
+  "completed": "Three eye mount definitions and two beam color cycles",
+  "remaining": "440converted,4original justified retained,684pending.",
+  "workerCommit": "1eef53263350a9a9b2295e27dd29ad98d8e0ddec"
+},"roomTilesetDispatchIntegration":{
+  "workerCommit": "39b1a0d01161be551cc2839cd6896a9677644eca",
+  "algorithm": "Named29 graphics-theme cases select block/character/palette resources; definition address E6A2+9*selector. Artwork contents remain separate required entries.",
+  "confirmation": "Integrated Verification1444warnings/zeroerrors; stream4 focused checks pass116native pointer/resource fields and exact selector rejection. ResourceAudit build0warnings/errors; LF-normalized source hash refreshed in RoomArtworkClosedContractDefinitions.",
+  "state": "converted",
+  "completed": "RoomTilesetDefinitions.Entries",
+  "remaining": "441converted,4original justified retained,683pending."
+},"optionsGeometryIntegration":{
+  "algorithm": "Reuse native spacing/region/page operations without stored stock anchor/region collections; preserve independently edited geometry exactly.",
+  "completed": "Five GameOptionsPresentation geometry definitions",
+  "remaining": "446converted,4original justified retained,678pending; page,label and sprite artwork still required.",
+  "state": "converted",
+  "workerCommit": "d41da2cb97d3a02ebe0d63d2ede533e4cda6ceda",
+  "confirmation": "Integrated Verification1444warnings/zeroerrors and stream3 scoped checks pass:7native label anchors,17native cursor pairs,49label placements,language/toggle states,headingOAMscroll,edited geometry and absent stock collections. Menu audit source hash/description refreshed and ResourceAudit builds."
+},"backgroundSourceViewIntegration":{
+  "state": "converted",
+  "confirmation": "Integrated Verification1444warnings/zeroerrors; scoped stream4 proof passes all58native identities/order/index/membership and invalid domains. ResourceAudit builds; source closure now includes library program definitions, generated operands and command identities.",
+  "completed": "RoomBackgroundTilemapSources.Sources",
+  "algorithm": "Distinct ascending decompression-command source operands provide uncached membership/count/index/enumeration view; underlying commands remain separately required.",
+  "workerCommit": "6950c8ddadf0d4b4d635bfe21d8af8bb91f98cca",
+  "remaining": "447converted,4original justified retained,677pending."
+},"yappingMawHeldGeometryIntegration":{
+  "workerCommit": "ff5464eeae541f2e59fb1f8e0ca106dfd50215db",
+  "algorithm": "Eight-step radius16 Manhattan diamond with eight pixels exchanged between components per direction; both consumers use named domain operation.",
+  "state": "converted",
+  "confirmation": "Integrated Verification1444warnings/zeroerrors;16nativewords,eight actual held callbacks,256 angle-quantized BeginExtension writes including wrap and invalid direction bounds pass.",
+  "completed": "RoomEnemySystem.YappingMawHeldSamusOffsets",
+  "remaining": "448converted,4original justified retained,676pending."
+},"crystalFlashSingleColorIndependentReview":{
+  "reason": "Other35words calculate from rotated pink-to-white levels. Native91DBA0-DBBD uses uniform5tick cyclic traversal;91DC88-DCAE copies six colors with no frame-specific functional choice. The isolated white substitution for7BDF is independent painted content; generating it requires reencoding the exact frame/color exception.",
+  "native": "9B9774=7FFF; full six-word native row7FFF,77BF,6F7F,6B5F,673F,7FFF directly confirmed in pinned ROM",
+  "workerCommit": "e4fd495638d470823245b702afb055b20d222515", "state": "integrated",
+  "scope": "CrystalFlashColorCatalog.bubble frame5/color0 only",
+  "limits": "No blanket palette exemption; other35words calculated, independent edits preserved. Original inventory now records this mixed definition as justified-retained;448 converted,5 retained,675 pending. Audit source hash refreshed; ResourceAudit build passed1405warnings/zeroerrors."
+},"staticProjectileProgramIntegration":{
+  "completed": "PolypRock.Words and YappingMawBodyProjectile.Words/PresentationWords",
+  "fix": "Reproduced missing compiled86BBD7 selector now dispatches to native8D9340 Lavaquake-rock sprite. Awaiting player validation on1242.",
+  "workerCommit": "34bee5c2e1d266802a09110a9b486dafe23d591b",
+  "state": "converted",
+  "algorithm": "Single static pose then terminal sleep; two facing programs use six-byte width.",
+  "confirmation": "Integrated Verification1444warnings/zeroerrors; both scoped flags pass six nativecontrols/three exactselectors, real producers/eightlinks, sleep/shareddelete, rejected boundaries/allocation and zero live presentation reads.",
+  "remaining": "451converted,5original justified retained,672pending."
+},"samusArmCoverPolicyIntegration":{
+  "remaining": "452converted,5original justified retained,671pending.",
+  "confirmation": "Integrated Verification1444warnings/zeroerrors; six nativeflags,actualtwo-sample covertransitions,invalidHUDdomain pass with policy reads forbidden. Fixture explicitly installs extracted supplied-native artwork after reproduced missing-artwork prerequisite.",
+  "state": "converted",
+  "completed": "SamusArmCannonDefinitions.OpenFlags",
+  "algorithm": "Named missile/super/grapple HUD selections open cover; beam/power-bomb/Xray close it. No materialized policy table.",
+  "workerCommit": "29646cda96da60f9838ee68f4a14377d9c97a154"
+},"samusPoseAdjacentCodeIndependentReview":{
+  "scope": "Only15 adjacent-code observations for selectorsFD-FF, pose columns0/1/2/3/6 (facing,movement,no-input,aim,radius)",
+  "reason": "These are unrelated Xray HDMA65816instruction encodings; managed pose policies cannot derive them without reencoding native machine code. Byte-only metadata reader domain bounds observations; typed movement rejects FD8B/FF38 while FE00 remains standing.",
+  "native": "Pinned91BE11..BE28 and ROM rows08-8B-4B-AB-C2-30-8A-EB /29-00-FF-85-16-84-18-A5 /12-38-E5-14-85-1A-10-08",
+  "limits": "Actual00-FC policies require meaningful conversion; five containing definitions must be mixed, not fully converted. No other pose/artwork exemption; all five original definitions now recorded as mixed justified-retained.",
+  "state": "integrated"
+},"ceresDoorSelectorIntegration":{
+    "confirmation":  "Verification build: 1444 warnings, zero errors. Existing focused check passes 97 controls, 33 selectors, seven variants and actual transitions with ROM reads forbidden.",
+    "completed":  "CeresDoorInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "6a566201311d63e11a16a2fbc3204d23262ae323",
+    "state":  "converted",
+    "algorithm":  "Program widths and semantic opening phases derive 33 operand addresses and selectors; OAM records have 8,8,6,6,6 parts, giving 42/32-byte widths and 180 bytes per facing.",
+    "remaining":  "453 converted, 5 justified retained, 670 pending."
+},"samusPosePolicyIntegration":{
+    "workerCommits":  [
+                          "3fc3283d65067264ea9f9c7810e156d0a3633de0",
+                          "31816a1159081d743e7b27f137aad7cfe26ae805"
+                      ],
+    "confirmation":  "Root Verification build: 1444 warnings, zero errors. Scoped stream 1 check passes 768 native dispatch bytes, all 256 aims and collision radii, actual pose-history and radius publication with ROM reads forbidden.",
+    "remaining":  "453 wholly converted, 10 justified retained including mixed definitions, 665 pending.",
+    "state":  "integrated"
+},"samusProjectileOriginIntegration":{
+    "confirmation":  "Root build 1444 warnings/zero errors; existing origin checks pass 647680 beam cases, Grapple physical-versus-visual launch/cancellation, forty native muzzle words and 343872 real initializations including address spill and coordinate boundaries. Installed artwork prerequisites repaired in fixture only.",
+    "converted":  "SamusProjectileOriginDefinitions.Offsets: twenty physical direction/movement cases",
+    "workerCommit":  "fa92295adc762b139edffb6a1d0807c102261da9",
+    "evidence":  "Pinned bank91 REP immediate opcode, STA $16 operand and STA direct-page opcode independently match native rows; byte selector bounds retained.",
+    "state":  "integrated",
+    "mixed":  "SamusPoseProjectileOriginDefinitions.YCorrections: 253 real-pose cases, three adjacent instruction bytes 91BE15=C2 / BE1D=16 / BE25=85 retained as nonsense",
+    "remaining":  "454 converted, 11 justified retained/mixed, 663 pending."
+},"speedBoosterRevealIntegration":{
+    "confirmation":  "Root Verification build 1444 warnings/zero errors and focused stream1 pass, including native draw mapping and actual one-frame bomb reveal/deletion with source reads forbidden. Audit source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "SpeedBoosterBlockPlmDrawDefinitions.BombReveal and All",
+    "workerCommit":  "a72f3175d926ecb04463d568a81de471b7dffe93",
+    "state":  "converted",
+    "algorithm":  "Physical type-B word plus named SpeedBoosterParent already calculated; import/export DTO retained, singleton enumeration now yields calculated record. Reconciles stale inventory, no gameplay behavior change.",
+    "remaining":  "456 converted,11 justified retained/mixed,661 pending."
+},"controllerGlyphIntegration":{
+    "confirmation":  "Root Verification build 1444 warnings/zero errors; scoped stream3 passes 42 native words,49 placements and independently edited palette/reflection rendering. Audit source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "GameOptionsPresentation.controllerLabels",
+    "workerCommit":  "205f03608661d62e52274fef421990d49d826249",
+    "state":  "converted",
+    "algorithm":  "Semantic button glyphs from atlas row stride, consecutive columns, shared shoulder corners and geometric reflections; stock rows absent, independent edited labels retained.",
+    "remaining":  "457 converted,11 justified retained/mixed,660 pending."
+},"gameOverTextIntegration":{
+    "confirmation":  "Root Verification 1444 warnings/zero errors; scoped stream3 compares all1024 native VRAM words and edits to five text elements plus blank cell, storage absence and bounds. Audit source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "GameOverPresentation.tilemap",
+    "workerCommit":  "ece04195aa3311b5c39620ba06d6bf1fbb0c4732",
+    "state":  "converted",
+    "algorithm":  "Blank page plus five semantic text streams, contiguous small alphabet and named large glyph halves; stock tilemap absent, independent edited map preserved.",
+    "remaining":  "458 converted,11 justified retained/mixed,659 pending."
+},"enemyNameLexicalIndependentReview":{
+    "scope":  "Only69 chosen label strings and10 lexical fragments enumerated in Stream4 Batch49; original EnemyNames.Records must be mixed",
+    "workerCommits":  [
+                          "d8eea12ef",
+                          "7150c9575"
+                      ],
+    "reason":  "Lexical spelling is chosen text with no AI/physics derivation. Numbering/family composition,padding,ASCII packing,record index and identity selection remain calculated; no other payload exemption.",
+    "evidence":  "Independent pinned A0:8923-893F copies five opaque ASCII words,8941 reads separate spritemap selector,8948-8968 publishes. B4 literal ATOMIC atDD97,BOTOON atDDDD,BATTA1Na atE205 confirmed. Managed RoomEnemySystem snapshot constructor/ReadSpawnNameWords preserves opaque Word0-4/Word6 metadata.",
+    "state":  "integrated-mixed"
+},"pipeBugFormationIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; ten native immediate operands,both actual five-member facing formations,exact roles/rising programs,leader-only timer resets and bounds pass.",
+    "completed":  "RunNorfairPipeBugSamusWait staggerTargets and staggerFunctions",
+    "workerCommit":  "371c06dfd1879089147d10e1818200d42f535d24",
+    "state":  "converted",
+    "algorithm":  "Release counter104+8*signed vertical rank; named center/upper/lower movement roles replace both local arrays.",
+    "remaining":  "460 converted,11 justified retained/mixed,657 pending."
+},"enemyDropSelectionIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; six native bytes,six actual cumulative selections,zero RNG reroll,critical-health hysteresis,full-resource eligibility and bounds pass.",
+    "completed":  "RoomEnemySystem.EnemyDropAccumulatorOrder",
+    "workerCommit":  "fb8148076ad735611c2775bc8883de425ac6ca5a",
+    "state":  "converted",
+    "algorithm":  "Six semantic probability-column pickup cases; both accumulators,probabilities and RNG behavior unchanged.",
+    "remaining":  "461 converted,11 justified retained/mixed,656 pending. Independent drop magnitudes remain required."
+},"kraidLintInitializationIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; three native timers,actual initialization/reset/continuation and all512 alignment/countdown transitions including exact final ticks and bounds pass.",
+    "completed":  "RoomEnemySystem.FinishKraidGrowth / lintTimers",
+    "workerCommit":  "e7e848f5a46b60108501c0baa29bfcf9afd35b6e",
+    "state":  "converted",
+    "algorithm":  "Named top/middle/bottom initial delay policy. Native AE2F-AE47 separately selects each part and A916/A918/A91A timer; no mathematical sequence claim.",
+    "remaining":  "462 converted,11 justified retained/mixed,655 pending."
+},"motherBrainAttackPaintIndependentReview":{
+    "scope":  "Mother Brain phase-two attack paint endpoint choices only; no glass/final-room/recovery exemption",
+    "requiredDecomposition":  "Compose pure cyan/yellow/red from channel maxima; share6318 with existing recovery-neutral dependency while preserving independent edits; only5640 and0C63 remain separate independent stock paint anchors. Do not close dependent unresolved inputs or count a blanket palette exemption.",
+    "visualEvidence":  "Independently viewed attack-ring-expanded,bomb-center,beam-expanded and index masks1/3,4/7,11/15: cyan ring edge, yellow/red core, gray shell glint/outline. Native maps8D82C6/830C/835D/8387 from pinned sheet.",
+    "reason":  "Choosing these endpoint hues/shades is painted content, not a quantity determined by geometry or AI. Intermediates already interpolate; tissue/white use reviewed shared basis.",
+    "native":  "A9:8D1E-8D27 copies 15 colors from94B4-D0;8FC7 uploads attack sheet. Palette7FE0,6B20,5640,03FF,02BF,015F,001F,29F9,2173,150C,6318,4631,294A,7FFF,0C63.",
+    "state":  "approved-pending-decomposition-and-integration",
+    "workerEvidence":  "13f577d16"
+},"kagoFrameGeometryIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; three native instruction selectors,four-part headers,stable names,enumeration count and installed catalog membership pass.",
+    "completed":  "KagoVisualDefinitions.Frames / literal at L15",
+    "workerCommit":  "e67f9f4937ad2b91441ae4adc3726dd122fb92fa",
+    "state":  "converted",
+    "algorithm":  "Three identities from consecutive two-byte count plus four five-byte OAM record geometry; yields catalog entries without literal stock array.",
+    "remaining":  "463 converted,11 justified retained/mixed,654 pending. Independent artwork remains required."
+},"pipeBugVisualGeometryIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; existing native120 controls,16 complete actual variant programs and88 selectors/read guards pass;88 native OAM headers and adjacent nonvisual rejection also pass.",
+    "completed":  "PipeBugVisualDefinitions.Brinstar,Norfair,Yellow",
+    "workerCommit":  "36f0bf93fd849cb9af39654ca38b1794c64604dd",
+    "state":  "converted",
+    "algorithm":  "Opening/closing pose cycles,semantic variant/role/facing groups,four-byte timed records and seven-byte single-part OAM geometry; no selector arrays.",
+    "remaining":  "466 converted,11 justified retained/mixed,651 pending. Independent timings/artwork unchanged."
+},"horizontalCameraTargetIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; eight native offsets,32 actual mode/facing/reversal combinations,speed and invalid context pass. Camera audit hash refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "ScrollBoundaryCamera facingRightOffsets/facingLeftOffsets",
+    "workerCommit":  "9583a17ceb1b2e5bf68cfba47830d903eb2c3887",
+    "state":  "converted",
+    "algorithm":  "Named normal/boss/left-edge/right-edge target geometry; original XOR reversals,domain gate and speed untouched. Mode4 name states coordinate meaning only.",
+    "remaining":  "468 converted,11 justified retained/mixed,649 pending."
+},"ridleyClawCodeWindowIndependentReview":{
+    "scope":  "RidleyClawOffsets.ExistingOutOfRangeWindow six instruction words only",
+    "reason":  "Unrelated machine encodings cannot derive from physical claw geometry without reencoding native instructions. No unbounded emulation or exemption for ordinary geometry.",
+    "consumer":  "ReadY clamps min(feetDistanceIndex\u003e\u003e1,8), normal indices0..2 calculate; single Ridley claw Y consumer. This is existing managed bound, not claimed native clamp.",
+    "native":  "Direct ROM A6B9E1-B9EC: AF28787EF01F8512100449FF; words28AF,7E78,1FF0,1285,0410,FF49. Pinned LDA.l/BEQ/STA/BPL/EOR encodings match.",
+    "state":  "integrated-justified-retained"
+},"motherBrainGlassPaintIndependentReview":{
+    "scope":  "Only glass-face paint anchor7F8B atA9951A",
+    "visualEvidence":  "Independently viewed glass-shard-tilt/back-tilt composites and exact index04 masks showing bright cyan triangular face.",
+    "reason":  "Chosen face tint is painted content, not a geometry/AI-derived quantity. Other shades calculate by interpolation.",
+    "native":  "Direct ROM8B7F and palette listing match. 86CDF0 sets0640,83D9 splits tile/palette offsets;8D9750/976C select corrected tile162/165.",
+    "state":  "approved-pending-integration",
+    "limits":  "Shared dark0802/final-room and recovery inputs remain required; whole glass entry remains pending. Preserve independent supplied edits."
+},"gameplayMessageDispatchIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors;87 native metadata words,65536 bindings,27 exact patch destinations and every neighboring supplied cell/bounds pass. Source audit hash refreshed;ResourceAudit zero warnings/errors.",
+    "completed":  "GameplayMessageDefinitions.Definitions;Buttons.OrderedGlyphs;Buttons.SpecialGlyphByteOffsets",
+    "workerCommit":  "c4d360b4994c82fac8fe3aac55cf156eed7b43e4",
+    "state":  "converted",
+    "algorithm":  "Named message/setup/draw/content cases,ordered button-mask cases,message-specific patch destinations. Metadata proof distinguished from actual production button consumers.",
+    "remaining":  "471 converted,11 justified retained/mixed,646 pending. Text/pixels remain required."
+},"noticeRegionIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors;14 original rectangles/five notices,native border/content and installed outputs,both actual YES-to-NO transitions,live edit confinement,phase/radius and stock restoration pass. Audit hash refreshed;ResourceAudit zero warnings/errors.",
+    "completed":  "GameplayMessageNoticeDefinitions.MapAndEnergyRegions,MissileRegions,SaveRegions",
+    "workerCommit":  "cf7e1f7ebc7ea4a568c8fc7a1c606e6810285424",
+    "state":  "converted",
+    "algorithm":  "Imported32-cell glyph runs derive rectangles; single interword spaces included,wider/nontext gaps split regions. No duplicate layout table.",
+    "remaining":  "474 converted,11 justified retained/mixed,643 pending. Text/template/border payloads remain required."
+},"torizoPageDispatchIntegration":{
+    "confirmation":  "Root build1444 warnings/zero errors. Eight exact native page identities, installed atlas full/tail resolution, overrun/empty/index rejection and canonical content hash pass.",
+    "completed":  "TorizoInstructionVramArtworkDefinitions.Pages",
+    "workerCommit":  "3babe2470127393316bba3453964779626368be7",
+    "state":  "converted",
+    "algorithm":  "Named mutually exclusive artwork role dispatch preserves manifest order; no stored reference table.",
+    "remaining":  "475 converted,11 justified retained/mixed,642 pending. Independent artwork pixels remain required."
+},"ridleyTailTerrainIntegration":{
+  "algorithm": "Reverse tip-to-joint traversal and physical tip/joint Y offset cases replace both local arrays. Native A6B7E7-B84C preserves early return and unchecked word addition.",
+  "remaining": "477 converted,11 justified retained/mixed,640 pending.",
+  "confirmation": "Root build1444 warnings/zero errors. --lookup-stream-4 passed after completed build, including 70 actual-method boundary/wrap cases using native ADC operands and missing/incomplete state gates.",
+  "workerCommit": "59de66ec124daa702d298c06d1e64ea2bbc2381d",
+  "completed": "RidleyTailTouchesTerrain segmentIndexes and yOffsets",
+  "state": "converted"
+},"ridleyTailAnglesIntegration":{
+    "confirmation":  "Root build1444 warnings/zero errors; --lookup-stream-4 passed. Actual seven-link initialization/native independent fields,16 native selectors and record counts,full ordered frame membership and invalid bounds checked.",
+    "completed":  "CreateInitialRidleyTailSegments angles;RidleySupplementalVisualDefinitions.TailTipPointers",
+    "workerCommit":  "867134ec3ab8f05172bdb54801a563e8b23f8b81",
+    "state":  "converted",
+    "algorithm":  "Quarter-turn base plus ideal link separation; reversed circular direction selects consecutive seven-byte one-object records.",
+    "remaining":  "479 converted,11 justified retained/mixed,638 pending. Independent distances, OAM and pixels remain required."
+},"ridleyWingIdentityIntegration":{
+    "confirmation":  "Root build1444 warnings/zero errors; --lookup-stream-4 passed all20 native wing identities, complete sorted supplemental frame membership and invalid/extreme selector bounds.",
+    "completed":  "RidleySupplementalVisualDefinitions.WingPointers",
+    "workerCommit":  "c1732d2770508aedcd95d0cc5e40aa968a3acd6a",
+    "state":  "converted",
+    "algorithm":  "Ten-phase downstroke/upstroke selects six named elevations; opposite-facing records derive from equal-layout block displacement.",
+    "remaining":  "480 converted,11 justified retained/mixed,637 pending. Independent wing cadence and artwork remain required."
+},"ridleyMovementPolicyIntegration":{
+    "confirmation":  "Root build1444 warnings/zero errors; --lookup-stream-4 passed all256 selectors,253 actual pose grab/release consumers with ROM reads forbidden, release state writes and null fallbacks.",
+    "completed":  "RoomEnemySystem.RidleySamusMovementFlags",
+    "workerCommit":  "07dac4cf957b0d499c3d7c383ac122e85482fc56",
+    "state":  "converted",
+    "algorithm":  "Named ordinary/morphed/immune movement cases expose grab eligibility and release duration. Static audit proves lower six native bits unconsumed.",
+    "remaining":  "481 converted,11 justified retained/mixed,636 pending."
+},"ridleyCollisionCompositionIntegration":{
+    "confirmation":  "Root build1444 warnings/zero errors; --lookup-stream-4 passed 11 frames,41 components,17 lists,24 rectangles,11232 actual touch/shot boundary comparisons, Ceres overlap and65536 pointer memberships. Reference reads independent original ROM records; actual consumers prohibit ROM reads.",
+    "completed":  "RidleyCollisionDefinitions.FrameKeys,ListKeys,RightBase",
+    "workerCommit":  "2366b5428c5b7c564b4667f1fb3bd0f1cd522c23",
+    "state":  "partial-three-converted",
+    "algorithm":  "Record extents derive frame domain; remaining payload keys derive list identity view; reflection and matching-list displacement derive right-facing composition. Named mouth/leg states calculate component variants.",
+    "remaining":  "484 converted,11 justified retained/mixed,633 pending. LeftBase,Frames,Lists remain required: four origin pairs,forward Y=-6,and rectangle bounds. No retention exception."
+},"beamPaletteRelationsIntegration":{
+    "scope":  "BeamPaletteCatalog.palettes remains unchecked",
+    "confirmation":  "Root Verification1444 warnings/zero errors; all native colors, targeted independent edit isolation and bounds pass. Updated source closure; ResourceAudit0 warnings/errors.",
+    "workerCommits":  [
+                          "54ec3420b518607359222db25435883e2e888564",
+                          "6ed815fd46136416621420a400ba18bb5590734b",
+                          "912ab27e19de4d0204317663b565315f133d9617"
+                      ],
+    "state":  "partial-required",
+    "algorithm":  "192 stock words reduce to43 inputs through family/common aliases, black slots, RGB5 midpoint and cross-family channels; sparse supplied exceptions preserve edits.",
+    "remaining":  "43 independent color inputs required. Inventory unchanged:484 converted,12 justified retained/mixed,632 pending."
+},"enemyNameRecordIntegration":{
+    "workerCommits":  [
+                          "8b48ed007",
+                          "d8eea12ef",
+                          "7150c9575"
+                      ],
+    "confirmation":  "Root Verification1444 warnings/zero errors;90 native referenced identities,540 exact text/index words and absent/unaligned rejection pass. Native A08923-8968 and managed ReadSpawnNameWords preserve opaque labels.",
+    "remaining":  "484 converted,13 justified retained/mixed,631 pending. Exception limited to69 labels and10 fragments in Stream4 Batch49.",
+    "state":  "mixed"
+},"xrayBossExclusionIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; --lookup-stream5-xray-room-rules confirms every room/boss word,Fireflea precedence and color-math settings.",
+    "completed":  "XrayRoomDisplayRules.ExcludedBossIds",
+    "workerCommit":  "f4eb31131f298832bc96b8a650732fdd979d3ba8",
+    "state":  "converted",
+    "algorithm":  "Restore five native equality branches from91D158-D172 as direct conditional cases.",
+    "remaining":  "485 converted,13 justified retained/mixed,630 pending."
+},"tourianEntranceStatueIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; three native words,all actual initializer/delete paths,unused program rejection,forbidden mechanics reads and allocation confirmation pass. Fixture installs required native palette.",
+    "completed":  "TourianEntranceStatueInstructionProgramDefinitions.InitialPrograms,Words",
+    "workerCommit":  "3d29e03edadfc8fe5d3e6f5819d6e7feac7fed25",
+    "state":  "converted",
+    "algorithm":  "Named statue-role cases and native ten-byte instruction layout derive three immediate-delete programs.",
+    "remaining":  "487 converted,13 justified retained/mixed,628 pending."
+},"polypParentIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors; both native words,actual initializer-to-sleep,exact native sprite pointer,zero presentation reads,bounds and allocation checks pass.",
+    "completed":  "PolypInstructionProgramDefinitions.Words",
+    "workerCommit":  "7a27a6b00acc3dec3ff565a5b3fb0d7acb01b129",
+    "state":  "converted",
+    "algorithm":  "Four-byte pose width derives one-tick pose and terminal sleep; narrow installed selector resolvesA2B51C toB5FB.",
+    "remaining":  "488 converted,13 justified retained/mixed,627 pending. Missing-selector correction awaits player validation on1242."
+},"phantoonProgramStructureIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors;58 native controls,19 actual programs,four callbacks,27 compiled native selectors,zero presentation reads,bounds,save/load and allocation checks pass.",
+    "completed":  "PhantoonInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "2b31939a3be34484ab94f05f54a49144c44cfc95",
+    "state":  "partial-one-converted",
+    "algorithm":  "Named program widths derive27 visual operand addresses and58 control locations/commands.",
+    "remaining":  "Words remains required: eye10,tentacle8,mouth5 independent dwell inputs explicitly named. No exception.489 converted,13 justified retained/mixed,626 pending."
+},"pirateProjectileStructureIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors;58 native controls,actual producers/facings,movement,loops,deletion,42 exact native selectors,zero reads,bounds and allocations pass.",
+    "completed":  "SpacePirateProjectileInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "bf33a65b13fd06b7810c6d1efcbdcd4cb63f631d",
+    "state":  "partial-one-converted",
+    "algorithm":  "Shared facing/program record widths calculate42 visual addresses and58 control positions.",
+    "remaining":  "Words required: independent two-tick laser startup dwell named explicitly.490 converted,13 justified retained/mixed,625 pending."
+},"zebetiteGeometryIntegration":{
+    "confirmation":  "Root Verification1444 warnings/zero errors;24 native generation fields,10 health selectors,both populations,8 actual initializers,80 health handoffs,both respawns,20 controls and10 exact actual sprite selections pass with migrated reads forbidden.",
+    "completed":  "ZebetiteDefinitions.Generations,BigHealthInstructionLists,LinkedHealthInstructionLists;ZebetiteInstructionProgramDefinitions.Programs,Words",
+    "workerCommit":  "e349324c2913f18d6d270a1bdeef08a9f6bdae3d",
+    "state":  "converted",
+    "algorithm":  "Alternating large/split geometry,regular horizontal spacing,symmetric vertical positions and equal six-byte health pose/sleep records.",
+    "remaining":  "495 converted,13 justified retained/mixed,620 pending."
+},"zebetitePulseIntegration":{
+    "scope":  "ZebetiteColorCatalog.frames stays unchecked",
+    "confirmation":  "Root Verification1444 warnings/zero errors;16 native colors,48 RGB edits,actual CGRAM,canonical identity and bounds pass. Source contract refreshed;ResourceAudit0 warnings/errors.",
+    "workerCommit":  "5b0184150cd1414eb5503019e0c8647068c38473",
+    "state":  "partial-required",
+    "algorithm":  "Mirrored four-step RGB5 interpolation calculates eight rows; supplied independent differences use sparse edits.",
+    "remaining":  "Endpoint choices(31,2,0),(23,1,0),(31,0,0) required.495 converted,13 justified retained/mixed,620 pending unchanged."
+},"magdollitePulseIntegration":{
+    "scope":  "MagdollitePaletteCycle.frames remains unchecked",
+    "confirmation":  "Root Verification1444 warnings/zero errors;16 native colors,48 RGB edits,actual CGRAM,canonical identity,bounds and zero stock residuals pass.",
+    "workerCommit":  "30033fbddc42b54b9e6f2d8d45da84668f70bde6",
+    "state":  "partial-required",
+    "algorithm":  "Four phases calculate one-slot cyclic rotation of four seed colors; supplied independent deviations remain exact.",
+    "remaining":  "Four seed colors remain required.495 converted,13 justified retained/mixed,620 pending unchanged."
+},"phantoonRandomMarkerIntegration":{
+    "scope":  "Only eight ShotEyeMarkers bytes6,6,8,8,6,8,6,8",
+    "reason":  "Arbitrary random-bucket assignments to opaque exposed eye state. No physical/phase derivation; alternative equal-probability selection changes exact RNG-to-state mapping.",
+    "workerCommit":  "d869db4734fed289f4c370e46208957ce47524eb",
+    "state":  "justified-retained",
+    "confirmation":  "Root Verification1444 warnings/zero errors; supported ROM SHA verified,eight native bytes and eight actual bus-free shot writes preserve marker,selected pattern,one RNG call and16-tick window.",
+    "remaining":  "495 converted,14 justified retained/mixed,619 pending."
+},"phantoonFlameStructureIntegration":{
+    "confirmation":  "Root build1444 warnings/zero errors;58 native controls,both actual producers,every flame program,callbacks,deletion,31 native selectors with zero live reads,bounds and allocations pass.",
+    "completed":  "PhantoonProjectileInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "48222444a06ee588c7463ca69fe2550fa03b6b3a",
+    "state":  "partial-one-converted",
+    "algorithm":  "Named loops and instruction widths calculate58 controls and31 visual addresses.",
+    "remaining":  "Words required: five-tick flame cadence,eight-tick impact,four falling repetitions.496 converted,14 justified retained/mixed,618 pending."
+},"morphBallEyeStructureIntegration":{
+    "confirmation":  "Root Verification build: 1444 warnings, zero errors. All 46 native controls, eleven actual programs, six initializer roles, 36 native selectors, zero presentation reads, bounds, save/load and allocation checks passed.",
+    "completed":  "MorphBallEyeInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "06b6fb073b12042ef1e8fa3c60077882223b2f17",
+    "state":  "partial-one-converted",
+    "algorithm":  "Record widths calculate 36 visual addresses and 46 control positions for tracking, paired eyelid transitions and mounts.",
+    "remaining":  "Words remains required: eyelid holds 8/48/5, tracking cadence 10 and activation delay 32. No exception. 497 converted, 14 justified retained/mixed, 617 pending."
+},"crocomireRumbleEnvelopeIntegration":{
+    "scope":  "CrocomireRumbleDefinitions.Definitions remains unchecked",
+    "confirmation":  "Root Verification build: 1444 warnings, zero errors. All 32 native words and 537 exact production frames pass with original source reads forbidden.",
+    "workerCommits":  [
+                          "68ffc22228d6850bc1f7f8a7474d685e691ef4c4",
+                          "007b64d7e2d1175be708ab6a4a8c695f6d964cb7",
+                          "154d8fe9616064673bd2f25e53d3770d617eddc8"
+                      ],
+    "state":  "partial-required",
+    "algorithm":  "Record widths, sign/timing flags, terminators, power-of-two amplitude buildup/decay, symmetric approach speeds and regular cooldown envelope are calculated.",
+    "remaining":  "Final decay hold 3 and restored-prefix targets 4/1 remain unresolved independent inputs. No exception. 497 converted, 14 justified retained/mixed, 617 pending unchanged."
+},"tourianStatueRampsIntegration":{
+    "scope":  "TourianStatueColorCatalog.baseColors and greyColors remain unchecked",
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. All 56 native colors, 72 independent RGB channel edits, actual CGRAM writes, canonical identities, unchanged statue/eye colors and bounds pass. ResourceAudit build: zero warnings/errors; source hash refreshed.",
+    "workerCommit":  "11bf93de09d31f30761a634789198d48243bc09e",
+    "state":  "partial-required",
+    "algorithm":  "Nearest-integer RGB5 endpoint interpolation calculates base colors 1..8 and grey colors 1..7. Independent supplied deviations remain exact without caching complete ramps.",
+    "remaining":  "Independent endpoint/outside colors and grey color 6 green channel 7 instead of 8 at 87:83A8 remain required. No exception. Counts unchanged: 497 converted, 14 justified retained/mixed, 617 pending."
+},"zebesStarCompositionIntegration":{
+    "remaining":  "497 converted, 15 justified retained/mixed, 616 pending.",
+    "converted":  "Nineteen previously reviewed layouts plus star size, flags, palette inheritance and eight-pixel grid scaling.",
+    "state":  "mixed-converted-justified-retained",
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. 29 native parts, 261 independent field edits, exact ordered low/high OAM, calculated stock backing and content identity pass. ResourceAudit build zero warnings/errors; interface source hash refreshed.",
+    "retained":  "Only 29 ordered grid-X/grid-Y/glyph triples in four fixed decorative star pictures, 8C:975E-97F6. These arbitrary drawing choices have no individual functional role; generating different points changes the picture and encoding these choices as cases only restates them.",
+    "workerCommit":  "e3ad02fd75f5e971300a3cec93c173d6b4f37a09",
+    "scope":  "CeresDestructionSpritePresentation.frames",
+    "evidence":  "Independently inspected all native parts, 8B:CD83-CDA1 fixed-picture loops, 8B:C942-C991 actor origins/palette, 8B:C8B9-C941 whole-sheet translation and managed StepZebesActors/Draw. Separate pixels are not exempt."
+},"kiHunterAcidStructureIntegration":{
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. Native 27 controls, both real directional producers, movement handoffs, sleeps, floor impact, complete splash, shared deletion, 19 native selectors without ROM reads, bounds and allocations pass.",
+    "completed":  "KiHunterAcidSpitInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "d9a24b629d13045418e76ed114e2a3c92cad3d8d",
+    "state":  "partial-one-converted",
+    "algorithm":  "Shared directional and splash layouts calculate 27 control positions and 19 visual addresses; splash durations descend by two every two phases.",
+    "remaining":  "Words required: introduction holds 3/3/4/3/1 have no exception. 498 converted, 15 justified retained/mixed, 615 pending."
+},"ceresSetupPaletteSharingIntegration":{
+    "scope":  "CeresDoorVisualCatalog.escape remains unchecked",
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. Focused check passed 78 native setup/animation colors, 90 setup RGB edits, 48 animation edits, actual CGRAM, zero stock shared-slot overrides and exact content identities. ResourceAudit build zero warnings/errors; source hash refreshed.",
+    "workerCommit":  "37afd21ad7366d530627b6db218fe0fe83496b70",
+    "state":  "partial-required",
+    "algorithm":  "Six native setup palette slots 9..14 share normal colors. Only nine independent escape colors and sparse custom overrides remain stored; edits to either palette preserve the other supplied state.",
+    "remaining":  "Independent normal/escape colors, animation seeds and phase residuals remain required. No exception. Counts unchanged: 498 converted, 15 justified retained/mixed, 615 pending."
+},"yappingMawStructureIntegration":{
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. All 96 native controls, fourteen actual entries, seven carry/sound callbacks, 52 compiled selectors, source-read guards, bounds and allocations pass.",
+    "completed":  "YappingMawInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "fd0285a3f7fb24c03ce950543109363c98fe0665",
+    "state":  "partial-one-converted",
+    "algorithm":  "Eight equal-width directional attacks and mirrored cooldown groups calculate 96 control positions and 52 visual addresses; named callbacks preserve carry roles.",
+    "remaining":  "Words required: holds 5/3/80/4 have no exception. 499 converted, 15 justified retained/mixed, 614 pending."
+},"walkingPirateStructureIntegration":{
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. All 92 native words, eight production programs, both three-laser attacks with offset/velocity checks, 50 actual installed frame selections, source-read guards, bounds and zero per-lookup allocation pass.",
+    "completed":  "WalkingSpacePirateInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "d54a31aeb20ddc5652ea349b268e5b6b470461a7",
+    "state":  "partial-one-converted",
+    "algorithm":  "Stack-only composition of shared flinch, walk, three-shot attack and look/turn records calculates 92 control positions and 50 visual addresses.",
+    "remaining":  "Words required: holds 16/10/24/8/32 and shot offsets +8/+2/-8 have no exception. 500 converted, 15 justified retained/mixed, 613 pending."
+},"torizoMovementReflectionIntegration":{
+    "scope":  "BombTorizoMovementDefinitions.PostureX,PostureY,WalkVelocities remain unchecked",
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. All 88 native words, 32 real standing/sitting applications, 20 real walking consumers and invalid offsets pass with all six source tables forbidden.",
+    "workerCommit":  "723be80bf3ed556a8333d6b66a816f77be30362e",
+    "state":  "partial-required",
+    "algorithm":  "Opposite-facing horizontal posture and walking values calculate by sign reflection, removing duplicated facing sequences.",
+    "remaining":  "Eight base X, eight Y and ten walking values remain required. No exemption. Counts unchanged: 500 converted, 15 justified retained/mixed, 613 pending."
+},"reserveArrowPulseIntegration":{
+    "scope":  "PauseReserveUiPresentation.arrowFrames remains unchecked",
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. All 64 native colors, 192 independent channel edits including endpoints, solid/animated CGRAM writes, frame wrapping and 12 stock residual cells pass. ResourceAudit build zero warnings/errors; source hash refreshed.",
+    "workerCommit":  "7fe17c794e17544de5055f9828fc9eb0b950953c",
+    "state":  "partial-required",
+    "algorithm":  "Mirrored phase min(frame,31-frame), channelwise floor interpolation between four supplied endpoint colors, sparse exact independent edits.",
+    "remaining":  "Four endpoint colors and six distinct native channel deviations repeated in the mirrored half remain required. No exception or rounding-provenance claim. Counts unchanged: 500 converted, 15 justified retained/mixed, 613 pending."
+},"trailAppearanceIntegration":{
+    "scope":  "ProjectileTrailCatalog.attributes remains unchecked",
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. 42 native attributes, 252 independent field edits, zero stock residuals, invalid frame rejection, 67 native mechanics words, all four real paired-trail lifetimes/freeze/OAM/movement and mutable alias checks pass. ResourceAudit build zero warnings/errors; source hash refreshed.",
+    "workerCommit":  "779b41aab5c4dd6d4460352ea81cfb0fbfc76b09",
+    "state":  "partial-required",
+    "algorithm":  "Consecutive tile IDs and common OBJ settings calculate for both ice sides, wave and missile; independent custom attributes use sparse overrides.",
+    "remaining":  "Ice pose boundaries at records 4/8/16 remain required. No exception. Counts unchanged: 500 converted, 15 justified retained/mixed, 613 pending."
+},"chozoStructureIntegration":{
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. All 166 native controls, 52 independently decoded visual addresses and installed selectors, exact native list endpoints, bounds and allocation checks pass.",
+    "completed":  "ChozoStatueInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "3d4df3e72753ee23a249efb0e4e20e3d7c288f61",
+    "state":  "partial-one-converted",
+    "algorithm":  "Shared acquisition/rise/breathing/release structure and carrying strides derive 166 control positions and 52 visual addresses without rebuilding tables.",
+    "remaining":  "Words required: independent acquisition/stride/per-scene holds, four footstep offsets and repeat counts 4/5/16 have no exception. 501 converted, 15 justified retained/mixed, 612 pending."
+},"lavaJumperStructureIntegration":{
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. 23 native controls, 14 independently decoded addresses/selectors, all three actual programs, parent/follower initialization, rise/completion handshake, exact boundary, read guards and allocations pass.",
+    "completed":  "NorfairLavaJumperInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "7931a5c926d28849747e830c7695472ffba0cf49",
+    "state":  "partial-one-converted",
+    "algorithm":  "Hidden/jump/follower instruction widths and loop targets calculate 23 control positions and 14 visual addresses.",
+    "remaining":  "Words required: seven jump holds 1/5/9/7/3/10/1 have no exception. 502 converted, 15 justified retained/mixed, 611 pending."
+},"norfairRioStructureIntegration":{
+    "confirmation":  "Root Verification build: 1445 warnings, zero errors. 65 native words, seven actual parent/flame programs, eleven follower/completion callbacks, 34 exact compiled selectors, initializer selections, source-read guards, boundaries and allocations pass.",
+    "completed":  "NorfairRioInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "e4d0033fb546300e64c0dedb5ada6b4db49ed045",
+    "state":  "partial-one-converted",
+    "algorithm":  "Shared parent/flame loop widths and callback/pose transition widths calculate 65 control positions and 34 visual addresses.",
+    "remaining":  "Words required: idle 13/18, flight 6/5/8/6 and per-pose attachment callback sequence remain unresolved. Naming callbacks is not a disposition for independent offsets. 503 converted, 15 justified retained/mixed, 610 pending."
+},"torizoExplosionStructureIntegration":{
+    "confirmation":  "Root Verification build 1445 warnings, zero errors. 53 native words, actual low-health three cycles, both probabilistic death paths, exact jitter/lifetimes, 15 native selectors, source-read guards, bounds and allocations pass.",
+    "completed":  "TorizoExplosionInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "5944748166dc0872a89b186ebcb97584710f0b6e",
+    "state":  "partial-one-converted",
+    "algorithm":  "Three shared explosion phase layouts derive 53 control positions and 15 visual addresses, accounting for the packed sound byte.",
+    "remaining":  "Words required: small/large/smoke holds, random spread masks and biases, repeat counts 3/2. No exception. 504 converted, 15 justified retained/mixed, 609 pending."
+},"crawlerSpeedRampsIntegration":{
+    "scope":  "CrawlerSpeedDefinitions.Speeds remains unchecked",
+    "confirmation":  "Root Verification build 1445 warnings, zero errors. Both 32-word native copies, 384 actual crawler/Yard velocity resets and invalid parameter boundary pass.",
+    "workerCommit":  "3bd7be9eb81573e5def6bc8ebc320c19b6b50914",
+    "state":  "partial-required",
+    "algorithm":  "Calculate quarter-pixel ramps shared by native copies A3:E5F0 and A3:CCA2.",
+    "remaining":  "Gap parameters 14/16, skipped-step totals 1/4, penultimate eight-pixel magnitude and terminal zero remain required. No exception. Counts unchanged: 504 converted, 15 justified retained/mixed, 609 pending."
+},"deadTorizoGeometryIntegration":{
+    "confirmation":  "Root Verification build 1445 warnings, zero errors. Twelve native MVN descriptors, ten column offsets/clip limits, installed-art staging and 192 actual row copy/move operations match independent native operands across all 4096 work-buffer bytes.",
+    "completed":  "RoomEnemySystem.DeadTorizoColumnWordOffsets",
+    "workerCommit":  "247b541012654a7eedfb7a6832be88fdf16c1d26",
+    "state":  "partial-one-converted",
+    "algorithm":  "32-byte 4bpp tile columns advance 16 words. Initial copy descriptors and clipping derive from one shared crop geometry.",
+    "remaining":  "InitialGraphicsCopies and ColumnMinimumY remain unchecked: independently chosen silhouette and source placement require disposition. No exception. 505 converted, 15 justified retained/mixed, 608 pending."
+},"shitroidStructureIntegration":{
+    "confirmation":  "Root Verification build 1445 warnings, zero errors. 35 native words, 30 exact selectors, actual initialization/fallthrough/loops/both RNG branches/native cry, zero source reads, bounds and allocations pass.",
+    "completed":  "ShitroidInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "624d2dafde30a46249f553357c4c8dd09b6207bc",
+    "state":  "partial-one-converted",
+    "algorithm":  "Timed-pose strides and callback/branch boundaries calculate 35 control positions and 30 visual addresses. Post-cry pulse durations calculate as 2 + abs(frame - 4).",
+    "remaining":  "Words required: finish-drain 128, latched 8/8/5/2, normal 16 and pre-branch remorse 10. Root added the latter two omitted residuals. No exception. 506 converted, 15 justified retained/mixed, 607 pending."
+},"sparkStructureIntegration":{
+    "confirmation":  "Root Verification build 1445 warnings, zero errors. 33 native words, 26 exact selectors, four actual programs, tangibility and sleep, initializer selections, source-read guards, bounds and allocations pass.",
+    "completed":  "SparkInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "7f2d3fd9e3b4b92dd023e81c9011a0f86c74b722",
+    "state":  "partial-one-converted",
+    "algorithm":  "Timed-record strides, callbacks, loop back-edges and terminal sleep calculate 33 control positions and 26 visual addresses.",
+    "remaining":  "Words required: ten activation holds 1/2/1/2/1/2/1/1/2/2, loop cadence 3 and deactivation cadence 1. No exception. 507 converted, 15 justified retained/mixed, 606 pending."
+},"multiviolaRioStructureIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Focused native word checks and actual full Multiviola loop, Rio initializer/fallthrough/swoop/cooldown, compiled selectors, read guards, bounds and allocations pass.",
+    "completed":  "MultiviolaInstructionProgramDefinitions.PresentationWords; RioInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "1b192490e07ab9b3fc854d13af68878f931c5ad3",
+    "state":  "partial-two-converted",
+    "algorithm":  "Timed-pose block widths and loop/callback tails calculate 16/32 controls and 14/24 visual addresses.",
+    "remaining":  "Both Words entries required: Multiviola cadence 10; Rio idle 4 and swoop/recovery 3. Two conversions, not four. No exception. 509 converted, 15 justified retained/mixed, 604 pending."
+},"sporeSpawnCollisionIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Twelve roots/lists, 2376 actual touch/shot comparisons against independent native operands, source-read denial and invalid root/component boundaries pass.",
+    "completed":  "SporeSpawnCollisionDefinitions.Frames",
+    "workerCommit":  "23293673588d64845e14e1491308f5ea137e6462",
+    "state":  "partial-one-converted",
+    "algorithm":  "Opening head progression, B/C/D/C inner-point oscillation and fully-open B/C/D cycle derive ordered zero-offset components from native frame/list record widths.",
+    "remaining":  "Lists remains required; no hitbox geometry or callback payload exemption. 510 converted, 15 justified retained/mixed, 603 pending."
+},"roomSpriteDispatchIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. All 62 native entries and actual guarded spawns preserve initial program/timer/visual, kind, coordinates and graphics; invalid selectors reject.",
+    "completed":  "RoomSpriteObjectDefinitions.InstructionPointers",
+    "workerCommit":  "dcde33876846e0149f233f257d1a83286fb2565a",
+    "state":  "converted",
+    "algorithm":  "Native B4:BC65-BC77 dispatches object-kind to initial program through BDA8-BE23. Meaningful cases preserve 62 mutually exclusive program identities, including unused native kinds.",
+    "remaining":  "No exemption for program timing, visual selectors or artwork. 511 converted, 15 justified retained/mixed, 602 pending."
+},"titleCardLayoutIntegration":{
+    "scope":  "TitleSequenceInstructionDefinitions.Program remains unchecked",
+    "confirmation":  "Root Verification build 1445 warnings, zero errors. All 140 native bytes, 139 aligned/unaligned words and exact boundaries pass. Cinematic source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "workerCommit":  "4dd1a379bcdbf7d81d5bfbd67609d9bd4751bc39",
+    "state":  "partial-required",
+    "algorithm":  "Progressive text addresses derive from cumulative OAM record widths with split Metroid groups and blank-space reveal; named scene commands terminate each card.",
+    "remaining":  "Holds 60/8/45/120/32 remain required independent inputs. No timing/artwork exception. Counts unchanged: 511 converted, 15 justified retained/mixed, 602 pending."
+},"titleIdentitiesIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Independent native decoding confirms 31 sorted selectors, four pages, DMA sizes/destinations and invalid phases. Cinematic hashes refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "TitleSpriteDefinitions.Pointers; TitleSequenceRomData.Vram.BabySourcePages",
+    "workerCommit":  "4399993246c8338568eeff7548380392c898abb6",
+    "state":  "two-converted",
+    "algorithm":  "Enumerate 31 distinct sorted identities directly from calculated card layout; calculate Baby pages as min(frame, 4-frame).",
+    "remaining":  "No artwork or timing exemption. 513 converted, 15 justified retained/mixed, 600 pending."
+},"hudDigitsIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Twenty native words, ten numerals through real HUD drawing, zero stock entries, serialized separate edits, unchanged neighbors and invalid digits pass. Source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "GameplayHudPresentation.healthDigits; GameplayHudPresentation.ammoDigits",
+    "workerCommit":  "785a24b227478605ff81b5a5fce692dbc6ef79b8",
+    "state":  "two-converted",
+    "algorithm":  "Calculate cyclic digit glyph ordinal and shared OBJ-independent tile palette/priority settings; store only exact independent health/ammo edits.",
+    "remaining":  "No glyph-pixel exemption. HUD anchors separate. 515 converted, 15 justified retained/mixed, 598 pending."
+},"hudAnchorsIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Native 14/5/6 positions, actual drawing/clearing, zero stock anchors, four serialized edits, unchanged neighbors, overlap and bounds pass. Source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "completed":  "GameplayHudDefinitions.EnergyTankByteOffsets; GameplayHudDefinitions.ItemByteOffsets; GameplayHudPresentation.autoAnchors; GameplayHudPresentation.energyTankAnchors",
+    "workerCommit":  "4fbd943c0e62d478abf6831fc05f9081a25f146e",
+    "state":  "four-converted",
+    "algorithm":  "Two seven-tank rows, item widths plus gaps and two-column/three-row AUTO layout calculate default positions; retain only independent edits.",
+    "remaining":  "No artwork/icon/AUTO payload exemption. 519 converted, 15 justified retained/mixed, 594 pending."
+},"hudAutoCellsIntegration":{
+    "scope":  "GameplayHudPresentation.autoFull and autoEmpty remain unchecked",
+    "confirmation":  "Root build 1445 warnings, zero errors. Twelve native cells through actual drawing, four basis words/zero overrides, serialized palette/tile/flip/priority edits, unchanged neighbors and bounds pass. Source hash refreshed; ResourceAudit build zero warnings/errors.",
+    "workerCommit":  "2b35f4adcc88324bb8ece6d088f49769d74d0dfe",
+    "state":  "partial-required",
+    "algorithm":  "Derive eight AUTO cells from four shared full-state inputs using vertical reflection and empty-state palette-bit change.",
+    "remaining":  "Four independent glyph/style words required; no exception. Counts unchanged: 519 converted, 15 justified retained/mixed, 594 pending."
+},"flyEscapeIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Four native fly selectors/banks/names/object counts, sixteen native escape bytes and 128 actual random/inherited spawns with positions/sounds/read guards/bounds pass.",
+    "completed":  "FlyVisualDefinitions.Frames / literal at L15",
+    "workerCommit":  "1b6cd05a6d468eb00e8c50e03aab6030aeabcd71",
+    "state":  "partial-one-converted",
+    "algorithm":  "Four consecutive seven-byte single-object OAM records calculate fly identities. Escape effects dispatch named repeated effects.",
+    "remaining":  "ZebesEscapeExplosionDefinitions.Definitions required: bucket weights/order and sound-bearing choices not justified by naming cases. No artwork/weight exception. 520 converted, 15 justified retained/mixed, 593 pending."
+},"skulteraStructureIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Thirty-two native words, both swimming/turning programs, layers/completion/sleeps, 22 compiled selectors, source guards, boundaries and allocations pass.",
+    "completed":  "SkulteraInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "10c72a0fedaa8b8db0490e628b0ecbde0df3e5b0 with ed296b4b3933e53fccc7cd6576e372bd6c532add correction",
+    "state":  "partial-one-converted",
+    "algorithm":  "Paired swimming/turning record widths derive 32 control positions and 22 visual addresses; mirror four turn durations.",
+    "remaining":  "Words required: swimming 14 and turn-half 13/10/8/6. No exception. 521 converted, 15 justified retained/mixed, 592 pending."
+},"sporeProjectileStructureIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Twenty-eight native words, three real producers, release/loop/shot instruction paths, callbacks/drop/deletion, 17 selected native operands, guards/bounds/allocations pass. Fixture advances timers; no claim of separate elapsed-time simulation.",
+    "completed":  "SporeSpawnProjectileInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "a545a9d929695633cd0577d25068a487e6427328 with ed296b4b3933e53fccc7cd6576e372bd6c532add correction",
+    "state":  "partial-one-converted",
+    "algorithm":  "Native record widths/callback boundaries calculate 28 control positions and 17 presentation addresses.",
+    "remaining":  "Words required: release 1/6/16/6/1, shot 1/3/6/5/5/5/6, closed 1, airborne/stalk 5. No exception. 522 converted, 15 justified retained/mixed, 591 pending."
+},"stokeSkreeStructureIntegration":{
+    "confirmation":  "Root build 1445 warnings, zero errors. Three focused checks pass 26/4/40 native words, real walks/attacks/spawns/loops/deletion, eight Skree/Metaree programs/callbacks, 36 presentation selections, guards/bounds/allocations. Projectile path fixture advances timers.",
+    "completed":  "StokeInstructionProgramDefinitions.PresentationWords; StokeProjectileInstructionProgramDefinitions.PresentationWords; SkreeMetareeInstructionProgramDefinitions.MetareePresentationWords; SkreeMetareeInstructionProgramDefinitions.SkreePresentationWords",
+    "workerCommit":  "284b4a0ecbc7a7588b7e34146cf384494ba65880 with ed296b4b3933e53fccc7cd6576e372bd6c532add correction",
+    "state":  "partial-four-converted",
+    "algorithm":  "Direction/species program blocks derive timed-record positions, callbacks, loop targets and terminal sleeps.",
+    "remaining":  "All four mechanics entries required: Stoke walk 8/16/8/8 and attack 16; projectile 16; Skree/Metaree idle 10, preparation 16/8, dive 2, stop 1. No exception. 526 converted, 15 justified retained/mixed, 587 pending."
+},"phaseTwoRearLegIntegration":{
+    "confirmation":  "Root Verification build 1445 warnings/0 errors; ResourceAudit build 0/0. Focused production ApplyPhaseTwoInitial: 15 native colors/destinations and 45 independent RGB edits with unchanged neighbors and attack colors pass.",
+    "completed":  "MotherBrainRoomColorPresentation.phaseTwoRearLeg",
+    "workerCommit":  "72050b27b929a33c8404d5a53dad6cb52a9f30c3",
+    "state":  "converted",
+    "algorithm":  "Native A9:9494 repeats AD:E74C health-state-zero rear-leg palette; reuse calculated shades and approved shared paint anchors. No new retention.",
+    "remaining":  "Other room palette payloads required. 527 converted, 15 justified retained/mixed, 586 pending."
+},"auxiliaryPaletteIntegration":{
+    "confirmation":  "Root build1445/0; ResourceAudit0/0;393 native colors,1179 individual RGB edits, selected identity and bounds pass.",
+    "completed":  "EnemyAuxiliaryColorDefinitions.Definitions",
+    "workerCommits":  "03e09fdf3,61a97ff2c,14650bb97",
+    "state":  "partial-one-converted",
+    "algorithm":  "Named registration enumeration; nearest RGB5 health/drain gradients and mirrored glow. No RGB8 endpoint search.",
+    "remaining":  "Catalog frames pending:64 Torizo endpoints,9 Face Block inputs,30 Sidehopper endpoints,15 corpse colors. No exemption.528 converted,15 justified retained/mixed,585 pending."
+},"ceresDoorQuakeIntegration":{
+    "confirmation":  "Root1445warnings/0errors; four native bytes,65536 aliases,actual phases/editable art/read guards,56 actual wrapped low/high OAM comparisons pass. Fixture installs native art before first draw.",
+    "completed":  "CeresDoorQuakeDefinitions.XOffsets",
+    "workerCommit":  "2b9e1779364f608900be56106834a3004c272c8c",
+    "state":  "converted",
+    "algorithm":  "Decode signed bytes of neutral/native negative-four impulse; overlapping-word ninth OAM bit proven equivalent. A325 consumed; A326-A328 unread.",
+    "remaining":  "No quake table residual or exception.529 converted,15 justified retained/mixed,584 pending overall."
+},"armCannonSelectorsIntegration":{
+    "confirmation":  "Root build1445/0; ResourceAudit0/0; native12addresses/65536reverse inputs/10attributes/40selectors/384tilebytes, independent selector and pixel edits/hash and bounds pass.",
+    "completed":  [
+                      "SamusArmCannonArtworkFormat.TileSourcePointers",
+                      "SamusArmCannonArtworkCatalog.attributes",
+                      "SamusArmCannonArtworkCatalog.tileSources"
+                  ],
+    "workerCommits":  "4719f5d17c31138c286f2d812ec3d2795847355c;408ba8de3707fbcb8070ec13283b9e8675949e82",
+    "state":  "three-converted",
+    "algorithm":  "Twelve source identities from0200-byte block strides; physical aim orientation/opening-frame arithmetic; native direction reflections with shared OBJ fields; sparse custom overrides.",
+    "remaining":  "Pose pointers/drawing bytes/pixels required; no new exception.532converted,15justified retained/mixed,581pending."
+},"workRobotAndTimingReview":{
+    "remaining":  "WorkRobot Words includes9 named holds plus unpowered32767/entry1/callback1 pending. Owtch Words reopened for independent8-tick cadence;451507846 structure completion was insufficient.531converted,15justified retained/mixed,582pending.",
+    "workerCommit":  "48234d63dda36dc9e4048fcdf6165f9b88cc9625",
+    "confirmation":  "Root1445warnings/0errors.367native mechanics,227selectors,22actual entries/callback execution, guards/rejection/allocation pass. Timers forced; no elapsed-time claim.",
+    "algorithm":  "594-word Work Robot map becomes semantic program-phase selector with shared gait structure; all independent holds remain required.",
+    "state":  "partial"
+},"ceresFlightPaletteIntegration":{
+    "remaining":  "CeresFlightPalette.nativeBytes unchecked;80independent colors required, no exception.531converted/15justified retained-mixed/582pending.",
+    "workerCommit":  "0d22dd2320f6663093e09143cbfdbee9bad46eff",
+    "confirmation":  "Root1445warnings/0errors;256native colors,768edits,CGRAM/bytes/extractor round-trip/canonical hash/bounds pass; zero stock correction entries.",
+    "algorithm":  "Shared native palette sections/backdrops/fills and nearest RGB5 endpoint ramp; direct CGRAM access with independent custom edits and transient serialization bytes.",
+    "state":  "partial"
+},"shaktoolStructureAndTimingReview":{
+    "confirmation":  "Root1445/0; Shaktool110native/15selectors/21programs and WorkRobot367native/227selectors/22entries pass. Forced timer fixtures, not elapsed timing.",
+    "algorithm":  "Semantic synchronized attack/bob complements, saw loops and head-facing record strides; Work Robot names its12pending holds.",
+    "completed":  "ShaktoolInstructionProgramDefinitions.PresentationWords",
+    "workerCommits":  "81054e4cc;7774f0ba0",
+    "state":  "partial-one-converted-one-reopened",
+    "reopened":  "MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202",
+    "remaining":  "Shaktool Words timing inputs including facing step1 required; Baby Crawl10-tick hold reopened.531converted/15justified retained-mixed/582pending."
+},"tourianStatueProjectileIntegration":{
+    "confirmation":  "Root1445warnings/0errors;57native words,8actual actor families,28native selectors/zero reads,tailY,guards/bounds/allocation pass. Fixture installs native palette and forces timers.",
+    "completed":  "TourianStatueProjectileInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "19c264a5b2dc48ef6f978d6ca12fce0bf0c660b5",
+    "state":  "partial-one-converted",
+    "algorithm":  "Pose widths/packed sound byte/callbacks/loops derive instruction positions; tail increments halve8/4/2.",
+    "remaining":  "Words timing magnitudes/eye sequence/initial tail8/burst4 required; no exception.532converted/15justified retained-mixed/581pending."
+},"goldenEyeBeamIntegration":{
+    "confirmation":  "Root1445/0;28native controls,2producers,collision selection,exact wall/floor lifetime and damage transition,17native installed selectors/zero reads,bounds/allocation pass.",
+    "completed":  "GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "dd2af7f27b77ddd44e384b2ea76a615f81d07914",
+    "state":  "partial-one-converted",
+    "algorithm":  "Wall/floor/flight pose/control layout; packed sound byte and damage mask; unit-step explosion waits.",
+    "remaining":  "Words:wall4/landing8/flight1/explosion start4+increment1/damage enabling phase2 required; no exception.533converted/15justified retained-mixed/580pending."
+},"oumListLayoutIntegration":{
+    "confirmation":  "Root1445/0;30native frame operands,66native rectangles/callbacks,coverage and complete ushort rejection pass. No gameplay collision claim.",
+    "completed":  "MaridiaLargeSnailCollisionDefinitions.ListPointers",
+    "workerCommit":  "82e28aecab872280157a44eb0df33185637ea456",
+    "state":  "one-converted",
+    "algorithm":  "Consecutive records:2-byte header+12bytes per rectangle derive each hitbox-list identity from existing geometry.",
+    "remaining":  "Lists geometry/callbacks required; FrameKeys cache removed in c038077f3 and native indices/bounds confirmed. No exception.534converted/15justified retained-mixed/579pending."
+},"elevatubeAndRidleyReview":{
+    "confirmation":  "FinalVerification25/0 after corrected verifier method typo;ResourceAudit0/0. Native elevatube lifecycle/artwork edits/isolation/guards/bounds pass.",
+    "completed":  "MaridiaElevatubePlmDefinitions.AllDraws",
+    "workerCommit":  "d66140ddbde0be8b9fb3805e5de6459d615bda6a",
+    "state":  "one-converted-one-reopened",
+    "reopened":  "RidleyExplosionDefinitions.PartRecords",
+    "remaining":  "Elevatube visual180 and Ridley lifetime72/8/40/128 required.534converted/15justified retained-mixed/579pending."
+},"attractChoreographyIndependentReview":{
+    "scope":  "Exactly798 authored attract-demo duration/held/new triples only, contingent on bounded native comparison. Control dispatch, calculated next addresses, object selection and scene setup excluded.",
+    "evidence":  "Pinned91:83DF-83EC publishes held/new directly;83F2-8423 copies timer/held/new and advances6. Named demo scripts beginning8ACE encode timed controller performance.8AB0 returns while movement type1A, redirects to9346 otherwise.",
+    "reason":  "These operands encode a particular recorded demonstration performance; a generated gameplay policy would invent different choreography. Newly-pressed operands are independent content. No size/performance/provenance rationale.",
+    "remaining":  "Integrated4ac4125d4:823commands/23scenes/four sentinels and exact playback schedules pass; build1445warnings/0errors.535converted/16justified retained-mixed/577pending. Object selection and scene setup remain required.",
+    "state":  "approved-narrow-retention-integrated"
+},"ridleyBreakupOrderIntegration":{
+    "confirmation":  "Root1445/0;12native calls,32initializations/10actual effects,full/partial/empty pool,RNG assignment,lifetimes and retry guard pass; expected exceptions caught.",
+    "completed":  "RidleyExplosionDefinitions.SpawnOrder",
+    "workerCommit":  "aa351a237f0fe26b479701dae8744a0d7d373e3e",
+    "state":  "one-converted",
+    "algorithm":  "Native procedure: descending tail segments then five named body calls; per-call allocation preserves partial failure and RNG order.",
+    "remaining":  "PartRecords lifetime72/8/40/128 remains required. No exception.535converted/15justified retained-mixed/578pending."
+},"ceresBabyTransferPhaseIntegration":{
+    "confirmation":  "Root1445warnings/0errors;four native pointers,invalid inputs and actual16NMI handler cycle confirm bytes/high-byte isolation with cartridge reads denied.",
+    "completed":  "RoomEnemySystem.TickCeresRidleyMode7Getaway / babyTransferPointers",
+    "workerCommit":  "efaa16a8a17227f6a751bc0b85525a881fab19e9",
+    "state":  "one-converted",
+    "algorithm":  "Reflected phase min(phase,4-phase) selects consecutive equally sized transfer records; existing NMI gate and advance-before-select preserved.",
+    "remaining":  "Transfer artwork and other timing inputs remain required.536converted/16justified retained-mixed/576pending."
+},"ridleyTailRestIntegration":{
+    "confirmation":  "Root1445warnings/0errors;seven native initial distances,six shrink immediates and actual updater threshold/extension ordering pass.",
+    "completed":  "RoomEnemySystem.UpdateRidleyTailDistances / neutralDistances",
+    "workerCommit":  "dab3adb773d29fdd506c2e61b6bdf4cc6e2d3fe9",
+    "state":  "one-converted",
+    "algorithm":  "Native shrink thresholds alias initialized base/shaft/tip geometry; both duplicate arrays removed.",
+    "remaining":  "Initial lengths2/8/5 and maximum distances remain required.537converted/16justified retained-mixed/575pending."
+},"goldenAwakeningLayoutIntegration":{
+    "confirmation":  "Root1445warnings/0errors;69native controls,8DMA opcodes,21selectors,7physical frames and9hitbox lists pass. No gameplay timing claim.",
+    "completed":  "GoldenTorizoAwakeningInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "21f910e97686f3868ad43c3ae07517114047bcc3",
+    "state":  "partial-one-converted",
+    "algorithm":  "Compose falling,sitting,uploads,standing,color handoff from pose/function/branch/DMA widths and movement index progression.",
+    "remaining":  "Words independent hold scales/transitions and loop counts remain required.538converted/16justified retained-mixed/574pending."
+},"endingTextLayoutIntegration":{
+    "confirmation":  "Root1445warnings/0errors;ResourceAudit0/0.352direct native cell comparisons and zero stock overrides; independent edits/heading precedence/output isolation; actual subtitle draw/VRAM/clear/scroll pass.",
+    "completed":  "EndingTextPresentation.japaneseSubtitle",
+    "workerCommit":  "479318ecb38c90090ef1104afcf8e227684ab668 +9fdad56a7df404d60039705d0e57c114a5e51442",
+    "state":  "partial-one-converted",
+    "algorithm":  "Center13glyph caption across two rows; traverse packed font atlas after copyright digits. Result panel uses glyph compiler and centered credit lines.",
+    "remaining":  "ResultPanel labels/spacing/palettes and font pixels required. Earlier worker wrap error was corrected before integration.539converted/16justified retained-mixed/573pending."
+},"shaktoolProjectileLayoutIntegration":{
+    "confirmation":  "Root1445warnings/0errors;18native words,3actual linked-circle producers,8installed operands,zero live reads,bounds/allocation pass after completed build. Forced timers confirm control order,not elapsed time.",
+    "completed":  "ShaktoolProjectileInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "9b973ebd05efd3ecca64d382d7ebd1cd314d6a48",
+    "state":  "partial-one-converted",
+    "algorithm":  "Three linked-circle program shapes calculate control and visual operand addresses,callbacks and final-pose loop targets.",
+    "remaining":  "Words growth4,middle launch6,back launch10,held119 required.540converted/16justified retained-mixed/572pending."
+},"sparkActivationChoreographyIndependentReview":{
+    "scope":  "Only Spark activation flash-on1,ordinary blank2,final blank1,sustained-stage2 at A8:E5A9-E5CD. No original entry completion.",
+    "evidence":  "Root inspected pinned bank_A8 E5A7 tangible before duration/spritemap pairs; E5D1 visual loop has no transition callback. A0:C276,C295-C2A3 updates timer/spritemap/cursor. A8:E695/E6B7 functionTimer independently replaces animation; E6DC emission independent. A0:A08C rejects zero pointer,not blank804D; A0:EA3F fixed8x8 radii and A0:A0D0 onward contact geometry.",
+    "justification":  "Four cadence choices author the visible flash performance; inventing another rhythm would replace the visual content. This is not a performance,size,complexity or provenance exception.",
+    "remaining":  "Loop cadence3,deactivation1 and its tangible-state boundary,lifetime/RNG,selectors and artwork excluded. Words remains pending. Integrated worker followups preserve the unresolved remainder.",
+    "state":  "integrated-narrow-retention"
+},"sparseDefaultProofFollowup":{
+    "workerCommits":  "73f8c24d14900fc2d18d198b7e94d67e4d43f515;19140ab2c6b957abddfb00ff1cdd4b5ae0e60860",
+    "confirmation":  "Root1445warnings/0errors. Cannon50direct native defaults and both empty stock override dictionaries pass with existing edits/DMA checks. Beam exact43stored-basis membership and192native outputs/edit/CGRAM isolation pass.",
+    "remaining":  "Beam43independentcolors remain required. No production changes or new exemptions.540converted/16justified retained-mixed/572pending.",
+    "state":  "verification-strengthened-no-count-change"
+},"pauseEquipmentBlankIntegration":{
+    "confirmation":  "Root1445warnings/0errors;ResourceAudit0/0. Nine native zero words,zero stock storage,nine independent edits,hashes and20actual ordinary/Hyper writes with unchanged surrounding bytes pass.",
+    "completed":  "PauseEquipmentLabelPresentation.blank",
+    "workerCommit":  "8ce347f4e3cc47980692a7ba39944e2789fe37f0",
+    "state":  "one-converted",
+    "algorithm":  "Clear selected destination width; store only explicit nonzero edited cells.",
+    "remaining":  "Labels/artwork/placements separate and required.541converted/16justified retained-mixed/571pending."
+},"deadTorizoCropIndependentReview":{
+    "scope":  "RoomEnemySystem.DeadTorizoInitialGraphicsCopies and DeadTorizoColumnMinimumY remain pending.",
+    "evidence":  "Root read pinned A9:D6E2-D760:24large parts plus one8x8 tile197,97source tiles; DE18-DEBF twelve native MVN ranges. E272 onward column bounds follow same crop. Root viewed static native-art/OAM diagnostic. Worker cf2a4194f independently compares exact tile-set equality.",
+    "finding":  "Crop follows stock sprite composition coverage. Existing LeftColumn/EndColumn/source6 constants still encode the chosen stepped shape; evidence alone does not complete their implementation.",
+    "next":  "Derive row extents/source crop origin and column minima from immutable stock sprite geometry while preserving fixed staging under editable display-art changes. Keep composition artwork independently required; no new retention exception.",
+    "state":  "functional-derivation-supported-implementation-pending"
+},"fileSelectPatchIntegration":{
+    "confirmation":  "RootVerification1445warnings/0errors;ResourceAudit0/0 after corrected hash-update text.16native cells/3terminators,zero stock fallbacks,96attribute edits,16coordinate edits,reversed order and actual ApplyPatch pass.",
+    "completed":  "FileSelectPresentation.patches",
+    "workerCommit":  "99a34fa47c2a71b5b5ab14e72db75a929b09128c",
+    "state":  "one-converted",
+    "algorithm":  "Semantic ENERGY/colon/NO DATA dispatch calculates glyph IDs and row positions; stock cells discarded,independent supplied content/order/coordinates preserved.",
+    "remaining":  "Pages and sprite artwork required.542converted/16justified retained-mixed/570pending."
+},"pauseEquipmentLabelsIntegration":{
+    "confirmation":  "Root1445warnings/0errors;ResourceAudit0/0.115native words/15placements,106ordinary+5Hyper edits,disabled recolor,movedCharge,Plasma/Varia overrun,hashes/bounds pass;blank confirmation rechecked.",
+    "completed":  "PauseEquipmentLabelPresentation.labels",
+    "workerCommit":  "e096ddcc231cde6cb7f4550c06ac491cee953139",
+    "state":  "one-converted",
+    "algorithm":  "Named packed glyph runs/shared suffixes/padding and category geometry calculate label words/placement; only independent supplied differences stored.",
+    "remaining":  "Glyph pixel artwork remains separate required scope.543converted/16justified retained-mixed/569pending."
+},"deadTorizoCropIntegration":{
+  "algorithm": "Row union extents,source origin,packed bounds and column minima derive immutable stationary sprite tile coverage; hardcoded stepped outline removed.",
+  "remaining": "Chosen composition seeds remain required in Stream3 EnemySpritemapCatalog.frames,dead_torizo_stationary_a9_d6e2; owner acknowledged. No artwork exception.545converted/16justified retained-mixed/567pending.",
+  "state": "two-converted",
+  "confirmation": "Root1445warnings/0errors;25native parts/97tiles/12MVNs/10column limits,actual staging/192row operations,bounds and independent edited display OAM pass.",
+  "completed": "RoomEnemySystem.DeadTorizoInitialGraphicsCopies;RoomEnemySystem.DeadTorizoColumnMinimumY",
+  "workerCommit": "aa5dd7e251224d72e7daeb2f5ebe06c0d2487048 with cf2a4194f evidence"
+},"pauseReserveLabelsIntegration":{
+    "confirmation":  "Root1445warnings/0errors;ResourceAudit0/0.22nativewords/4destinations,22cell edits,56actual ordinary/attribute-preserving/moved patches and bounds pass.",
+    "completed":  "PauseReserveUiPresentation.labels",
+    "workerCommit":  "0a3b506a1032a9ad92268ce1bb5864e766573062",
+    "state":  "one-converted",
+    "algorithm":  "Named MODE/RESERVE TANK/MANUAL/AUTO glyph runs and shared mode anchor calculate words/placement with independent edits.",
+    "remaining":  "Glyph artwork and arrow residuals remain required.546converted/16justified retained-mixed/566pending."
+},"hopperProgramIntegration":{
+    "confirmation":  "Root1445warnings/0errors;96nativecontrols,16programs,5actualproducers,40native-walkselectorpositions,sound/offscreen/ready/sleep/guards/bounds/allocation pass. Forced timers do not prove elapsed time.",
+    "completed":  "HopperAnimationDefinitions.Variants;HopperInstructionProgramDefinitions.PresentationWords",
+    "workerCommit":  "c8533127a90cbbb748f17d811a06d44a4d49713b",
+    "state":  "partial-two-converted",
+    "algorithm":  "Species/size/orientation dispatch and shared airborne/landed prefix,pose,terminal widths calculate program identities and operand addresses.",
+    "remaining":  "Words airborne1,landing2/5/2/3 remain required.548converted/16justified retained-mixed/564pending."
+},"endingCreditWordingIndependentReview":{
+    "scope":  "Exact credit wording PRODUCED BY / DEER FORCE / OF / TEAM SHIKAMARU only.",
+    "evidence":  "Root inspected pinned8C:DC9B-DEDA glyph tilemap;8B:E19F-E1B1 copies576bytes without lexical interpretation;managed EndingCreditsState copies BuildResultPanel then uploads. Existing direct288cell confirmation established compiled text matches native.",
+    "justification":  "Chosen lexical identity has no gameplay-derived spelling; generating another phrase replaces the credited content. Arithmetic encoding of the spelling would merely disguise retained text.",
+    "remaining":  "Palette6/7,glyph pixels,timing and other unresolved placement excluded. resultPanel remains pending;no count change.",
+    "state":  "integrated-narrow-retention"
+},"sparkContinuousChoreographyIndependentReview":{
+    "scope":  "Shared Spark continuous visual-loop cadence3 atA8:E5D1-E5E3 andE609-E61B only.",
+    "evidence":  "Root native review includes four duration/spritemap pairs plusGoto in each loop,no callbacks. SeparateE6B7functionTimer owns lifetime;E6DC owns emission. Fixed8x8contact/nonzero spritemaps match previously reviewed activation scope.",
+    "justification":  "Cadence chooses the repeated visible performance; replacing it invents different visual content.",
+    "remaining":  "Deactivation1/E605intangible boundary/E6D3extra8,lifetime/RNG excluded. Words remains pending.",
+    "state":  "integrated-narrow-retention"
+},"endingCreditSpacingIntegration":{"workerCommits":"e1306d8de;4c62bd5fe","algorithm":"Distribute nine panel rows after two small and two large glyph lines evenly across three gaps.","confirmation":"Root Verification build1445warnings/0errors;288 direct native panel cells and64 subtitle cells, zero stock overrides, independent edits and heading precedence pass.","remaining":"Palette6/7 and font pixels remain required;resultPanel remains pending;counts unchanged548/16/564."},"sporeFadeIntegration":{"completed":"SporeSpawnColorCatalog.spores","workerCommit":"3586276c9fff65290739853611856bf7f3b38185","algorithm":"Nearest RGB5 interpolation over seven intervals; critical-health and healthy-spore aliases with independent supplied differences.","confirmation":"Root1445warnings/0errors;direct native defaults,exact stored basis,25 original room source sites,independent edits,bounds and content identities pass;Audit0/0.","remaining":"All64 health words,72 death words,25 room-color sites remain required.549converted/16retained-mixed/563pending."},"enemyFrameRegistrationIntegration":{"completed":"EnemySpritemapDefinitions.NamedFrameDefinitions","workerCommit":"09b807962","algorithm":"Semantic frame cases plus66 native record-stride sequences covering268 of472 identities; calculated aggregate collection preserves legacy order.","confirmation":"Root read202 native preceding headers;472 ordered identities,index/range,native additional targets,uniqueness and64 OAM/54 binding schemas pass. Verification1445warnings/0errors;Audit0/0.","remaining":"Geometry,tile selection,pixels remain required.550converted/16retained-mixed/562pending."},"introCaretRegistrationIntegration":{"completed":"IntroCaretSpriteDefinitions.frameDefinitions","workerCommit":"e944e8857","algorithm":"One semantic visible-frame property and calculated enumeration replace stored registration row.","confirmation":"Root native16-bit count,identity,enumeration and bounds pass;Verification1445warnings/0errors;Audit0/0.","remaining":"Artwork and timing remain separately required;551converted/16retained-mixed/561pending."},"pauseWireframePartialIntegration":{"workerCommit":"159a07c0da3f812f45cfc9b7330d9bff172eb1f0","state":"partial-required","algorithm":"Native rectangular atlas-piece progression plus horizontal reflection and empty cells replace stored complete frames.","confirmation":"Root viewed four native compositions;544words,266direct glyph formulas,exact19left/17right residual values,20independent edits,actual patch placement and bounds pass. Verification1445warnings/0errors;Audit0/0.","remaining":"All25piece origins,selected placements/extents,attributes and36residual words remain required under PauseWireframePresentation.frames.551converted/16retained-mixed/561pending unchanged."},"equipmentTemplatePartialIntegration":{"workerCommit":"97c52ce1c22e4fbadc22caf83de042182c50d8f5","state":"partial-required","algorithm":"Calculate panel borders,label runs,heading ornaments,reserve gauge and shared wireframe geometry with independent differences.","confirmation":"Root1024native words,exact23residuals,8edits,18actual rebinds,mutable output independence and bounds pass. Verification1445warnings/0errors;Audit0/0.","remaining":"Chosen panel layout,styles,glyph origins,wireframe composition and23residuals remain required.551converted/16retained-mixed/561pending unchanged."},"menuSpriteGeometryPartialIntegration":{"workerCommit":"9961db125","state":"partial-required","algorithm":"Centered missile/Baby geometry and reflected specimen-container cap parts replace native composition arrays when exact; independent supplied edits retain validated parts.","confirmation":"Root15native-imported parts,eight calculated game-over compositions,135field edits,reordered/expanded parts and all cursor frames through three loaders pass. Verification1445warnings/0errors;Audit0/0.","remaining":"Tile identities,cursor ordering and pixels remain required;all three sprite entries pending.551converted/16retained-mixed/561pending unchanged."},"pauseBackdropPartialIntegration":{"workerCommit":"5f90fd61fb9446c4d94eb0cf6a9cf99725be023c","state":"partial-required","algorithm":"Shared rectangular frame,inset fills,centered semantic area names and packed control glyph strips replace full stored pages.","confirmation":"Root viewed source backdrop;7680native words,exact15area+1button residuals,53actual VRAM loads,10independent edits and invalid no-write bounds pass. Verification1445warnings/0errors;Audit0/0.","remaining":"Chosen layout,glyph origins,styles and three distinct source differences remain required;areas/buttons unchecked.551converted/16retained-mixed/561pending unchanged."},"environmentalOwnerIntegration":{"workerCommit":"67cbb0ed71ea4a75e452ab09799cb786123fcd9c","completed":"NorfairEnvironmental Definitions;OldTourianEscapeAccent Definitions","confirmation":"Root six native bindings,292mechanics words,16phase bytes,six actual cycles,live colors,enumeration/bounds pass;1445warnings/0errors.","remaining":"Accent durations and colors remain required."},"reopenedUniformLoopHolds":{"state":"required","entries":"Mochtroid Words14/5;YellowPipeBug Words4/1;Ripper Words8/7","reason":"Uniform-loop structure does not derive independent hold magnitudes; no accepted impossibility/nonsense justification.","remaining":"550converted/16retained-mixed/562pending after two environmental conversions and three reopenings."},"additionalEarlyTimingReopenings":{"workerCommit":"5f00aef40","entries":"EnemyPickup Words8/5;Fireflea Words2/1;Choot Words1,8/1","reason":"Native magnitudes remain unexplained by converted program structure; no accepted exception. Original batch3–6 report claims corrected.","confirmation":"Root current-source inspection;documentation only,no runtime rerun.","remaining":"547converted/16retained-mixed/565pending."},"mochtroidVisualIntegration":{"workerCommit":"c5a12a507","completed":"MochtroidVisualDefinitions.Selectors;Frames","algorithm":"Two ping-pong pose cycles and native counted-record strides calculate selectors/registrations.","confirmation":"Root six counted native records,eight operands,rejection,actual initializer/state switch and both loops with mechanics reads denied pass;1445warnings/0errors.","remaining":"Timing14/5,shake amplitude and artwork required;549converted/16retained-mixed/563pending."},"mochtroidCadenceIndependentReview":{"state":"integrated-narrow-retention","scope":"Only14-tick free-flight and5-tick attached visual pulse cadences atA3:A745-A76B.","evidence":"Root inspected both duration/map/Goto loops without callbacks;A790 dispatch,managed steering/attachment movement, A953-A9A7 separate80-contact damage and global-frame&7sound;A0D8FF fixed10x12 radii;A0A08C nonzero gate and A0A0D0 fixed-radius contact;A0C276-C2AC updates timer/map/cursor. All six maps nonzero and contain body/claw artwork.","justification":"Exact pose-pulse tempo is chosen animation content. No functional consumer derives either cadence from physics or damage; replacing it generates a different visible performance. Encoding those choices arithmetically would merely disguise the same content.","excluded":"List-reset1,damage80,steering,shake,artwork and every other enemy cadence. Words aggregate now mixed; exclusions remain independently required.","remaining":"549converted/16retained-mixed/563pending unchanged."},"mochtroidCadenceShakeIntegration":{"workerCommits":"f0dda1607;5e99435f6","state":"one-justified-mixed;shake-partial-required","confirmation":"Root1445warnings/0errors;16native timer masks,12words,real initializer/state switch,both loops and8selectors with mechanics reads denied pass.","remaining":"Shake amplitude2 remains required;549converted/17retained-mixed/562pending."},"flarePlacementIntegration":{"workerCommits":"8a9a850a5;c5da84b64","completed":"ChargeFlarePlacementCatalog.offsets","algorithm":"Named aim/turn cases and bounded adjacent physical-origin/swing-selector aliases; explicit Grapple import and independent edits preserved.","confirmation":"Root1445warnings/0errors;128native words,zero stock overrides,128independent axis edits,bounds,four actual beam OAM fixtures with reads denied;ResourceAudit0warnings/0errors.","remaining":"Separate sprite/tile artwork required;550converted/17retained-mixed/561pending."},"timerLayoutIntegration":{"workerCommit":"24e5e2eaa","completed":"EscapeTimerPresentation.frames;anchors","algorithm":"Two-tile decimal glyphs, arithmetic font identities and centered eight-cell MM:SS:CC geometry; independent edits preserved.","confirmation":"Root1445warnings/0errors;25native parts,4anchors,10actual OAM fixtures,11frame edits,4anchor edits with spacing/palette,bounds pass.","remaining":"Font ink independently required;552converted/17retained-mixed/559pending."},"narrationRegistryIntegration":{"workerCommit":"6d8a8df8f","completed":"IntroNarrationDefinitions.NativePages","algorithm":"Named page dispatch and ordered enumeration preserve native source/callback identities without a stored registry.","confirmation":"Root1445warnings/0errors;six native pages through begin/finish extraction,text compilation,order,bounds;ResourceAudit0/0.","remaining":"Narrative text,placement,delays and artwork required;553converted/17retained-mixed/558pending."},"powampProgramIntegration":{"workerCommit":"c6eae9881","completed":"PowampInstructionProgramDefinitions.PresentationWords","algorithm":"Two three-frame body loops and two three-frame sleeping transitions calculate controls and operand locations.","confirmation":"Root terminal build1445warnings/0errors;18native controls,12visual operands,order,values,byte domains,bank and bounds pass.","remaining":"Words holds5/9/1/6/160 required;554converted/17retained-mixed/557pending."},"escapeDachoraProgramIntegration":{"workerCommit":"ecb3b4450","completed":"EscapeDachoraInstructionProgramDefinitions.PresentationWords","algorithm":"Directional six-frame runs,tide-specific branch suffixes and departure progression calculate native control and visual operand locations.","confirmation":"Root1445warnings/0errors;119controls/43visual operands through independent native traversal,values,order,read/byte domains,bank/bounds pass.","remaining":"Nine exact repeat/hold/acceleration inputs required;555converted/17retained-mixed/556pending."},"narrationWordingIndependentReview":{"state":"integrated-narrow-retention","scope":"Six exact English narrative page strings at8C:C383-C796,C797-CB44,CB45-CE32,CE33-D15C,D15D-D510,D511-D5DE and one authored break before GALACTIC CIVILIZATION.","evidence":"Root read all six extracted strings and native page span/coordinate records; extractor validates contiguous columns and named glyph payloads.31lines/25within-page boundaries;29column greedy wrapping accounts for24boundaries,one explicit emphasis break remains.","justification":"The selected story prose and deliberate emphasis break are authored narrative content; deriving different wording from a formula would not preserve that content. Arithmetic encoding would merely disguise it.","excluded":"Wrapping,row/column coordinates,glyph mapping,callbacks,timings and artwork.","remaining":"No aggregate closure until calculated layout and independent edits are confirmed."},"ripperCadenceIndependentReview":{"state":"integrated-narrow-retention","scope":"Only alternating8/7visual holds in six moving loops atA2:E19B,E1AF,E2E0,E2F4,E477,E48B.","evidence":"Root inspected native four-pose/Goto loops without callbacks,shared and ordinary maps with fixed body/changing wing-accessory art;A0D3FF/D43F/D47F fixed8x8/8x4collision headers;managed/native E221/E353/E4DA independent movement/reversal and velocity-selected frozen maps.","justification":"Exact wing/accessory animation cadence is a chosen visual performance. Physical displacement/contact does not determine either hold; manufacturing numeric relations would disguise the choice rather than derive it.","excluded":"Speed,radii,grapple,freeze,list-reset1,and all artwork.","remaining":"Name choices and confirm six production loops before integrated disposition;555converted/17retained-mixed/556pending unchanged."},"narrationLayoutIntegration":{"workerCommit":"a665c6e51","state":"justified-mixed","completed":"IntroNarrationPresentation.pages","algorithm":"Named page selection,29column wrapping and row4+2*line;retain only approved story prose/one authored break.","confirmation":"Root1445warnings/0errors;770native glyph/coordinates,six calculated pages,one hard break,34independent edits,bounds pass.","remaining":"Timings,glyph mapping,callbacks and artwork excluded;555converted/18retained-mixed/555pending."},"ripperCadenceIntegration":{"workerCommit":"7f9babb19","state":"justified-mixed","completed":"RipperInstructionProgramDefinitions.Words","confirmation":"Root1445warnings/0errors;36native words,six production loops,24selectors with source bytes forbidden pass.","scope":"Only neutral8/alternate7visual holds retained;speed,collision,grapple,freeze,reset1 and artwork excluded.","remaining":"555converted/19retained-mixed/554pending."},"projectileIdentityIntegration":{"workerCommits":"d30b18a514;6df4c64b0;5f7affb9f","completed":"ProjectileSpriteDefinitions.NativePointers","algorithm":"Named source groups and physical counted OAM records,including unselected startup extents,calculate all417 ordered identities.","confirmation":"Root1445warnings/0errors;417native union from805selectors,48physical startup records,417actual OAM comparisons,independent edit/ownership,54flare selectors,bounds pass.","remaining":"Selected phase policy remains ProjectileFrameBindingCatalog.sprites;chosen OAM counts/shapes/art remain ProjectileSpriteCatalog.frames.556converted/19retained-mixed/553pending."},"powerCompositionIntegration":{"workerCommit":"54825296a","state":"partial-required","algorithm":"Eight centered one-tile Power views calculate triangular glyph and native reflection phases;exact supplied differences retain independent parts.","confirmation":"Root1445warnings/0errors;exact8calculated views,417native/OAM comparisons,48startup records,Power edit/ownership,54flare selectors,bounds;Audit0/0.","remaining":"Glyph30,palette6,priority2,pixels and other OAM designs required;556converted/19retained-mixed/553pending."},"hudPostureIntegration":{"workerCommit":"e68a6acc9","state":"justified-mixed","completed":"SamusHudDefinitions.PostureObservationsByPose","algorithm":"Twelve authored flags become named pose cases.","retained":"Only207native instruction observations90:DD75-DDA9 andDDB6-DE4F;root inspected bounds/index/mask and actual consumer. These are unrelated instruction encodings,not posture policy;generating native code for accidental reads would merely re-encode bounded compatibility content.","confirmation":"Root1445warnings/0errors;219native bytes,512actual admission outcomes,DB-FFrejection pass.","remaining":"No larger memory/code exemption;556converted/20retained-mixed/552pending."},"samusAnimationPointerIntegration":{"workerCommit":"8887f6556","completed":"SamusAnimationDelayDefinitions.PosePointers","algorithm":"253named pose cases select127native animation identities;FD-FFderive exact adjacent delay-byte aliases with live WRAM reads.","confirmation":"Root1445warnings/0errors;256native pointers,full bounded image,actual initializer,domain rejection,three aliases/six WRAM mutations pass.","remaining":"DelayStreams timing/command payload required;557converted/20retained-mixed/551pending."},"cannonPoseIntegration":{"workerCommit":"1b62d9f1a","completed":"SamusArmCannonArtworkCatalog.posePointers","confirmation":"Root1445warnings/0errors;253 native mappings,253 isolated edits/hashes,zero stock overrides,unaffected poses and FD-FF bounds;Audit0/0.","algorithm":"253 named pose cases select57 native descriptors; independent supplied pointer differences only.","remaining":"Drawing data and artwork required;558converted/20retained-mixed/550pending."},"cannonDrawingIntegration":{"remaining":"238coordinate bytes required;drawingData pending;558converted/20retained-mixed/550pending.","workerCommits":"2d31d7a;5bea8d416;ab9d94a8c","confirmation":"Root1230warnings/0errors;608native bytes,exact238basis/override membership,608independent edits,bounds,253pose/hash checks;Audit0/0.","algorithm":"130 named controls;24 adjacent existing SBA costs;216 repeated origins from earlier per-descriptor coordinate basis.","state":"partial-required"},"atmosphericAttributesIntegration":{"remaining":"Palette5,priority2,pixels required;558converted/20retained-mixed/550pending.","workerCommit":"4328cc579","confirmation":"Root1445warnings/0errors;8native words,8fullword edits,hash/input isolation,16actual OAM frames,type2WRAM boundary;Audit0/0.","algorithm":"Consecutive footstep/lava/dust tile identities with nine-bit OBJ fields,read-only views and independent full-word overrides.","state":"partial-required"},"escapeWarningIntegration":{"retained":"Only five exact English warning strings atA6:C458,C472,C488,C4A4,C4B6 as authored narrative content;no glyph/layout/timing exemption.","confirmation":"Root1445warnings/0errors;5native lines,edits/counts/bounds,271actual production calls vsnative timing/destination/click/glyph/VRAM oracle;Audit0/0.","workerCommit":"c962486be","state":"partial-required","algorithm":"Named programs and calculated line views with independent line/text/destination edits.","remaining":"Column5,row8,step2,3/2line grouping,delay2 required;558converted/20retained-mixed/550pending."},"beamGeometrySelectionIntegration":{"remaining":"645selectors,Wave4distances+ratio3/4,EC3Eorder,othergeometry/art,timing/radii required;558converted/20retained-mixed/550pending.","workerCommits":"67ad12808;a705f29d4;792ff33e2;8b47c7ae8;5ba2cbc61;df144411a;d5f56dd57;ff94b789b","confirmation":"Root1445warnings/0errors;417native/OAM,48startup,84views,quadrant/Wave edits,54flare;805native targets,160actual handlers/edits,14bomb handlers,645residuals;Audit0/0.","algorithm":"84indexed beam compositions;160 compass,sequential and oscillating visual selections.","state":"partial-required"},"owtchCadenceIndependentReviewAndIntegration":{"excluded":"Reset1,motion,radii,selectors,pixel artwork.","workerCommit":"dbe23c0e0","evidence":"Root viewed native3poses and inspected loops,precycle callbacks,A579state gate,A0D03F8x8fixed radii,managed independent velocity/radius collision;nonempty maps fixed geometry.","confirmation":"Root1445warnings/0errors;12native words,6selectors,both25call production loops,callbacks/Goto/3frames,readguard/bounds pass.","completed":"OwtchInstructionProgramDefinitions.Words","scope":"Only cyclic visual hold8 atA2:A3AD/A3B1/A3B5/A3BF/A3C3/A3C7.","state":"justified-mixed","remaining":"558converted/21retained-mixed/549pending.","justification":"Authored cyclic visual tempo is not determined by physical movement/collision;arithmetic fitting would encode the same chosen performance."},"visorPhaseIntegration":{"retained":"Only3BE0normal-suit visor ink9B:A3C0=9408/9528/9808 under prior categorical ink disposition,root native/consumer reviewed;no crosscatalog mutation.","confirmation":"Root1445warnings/0errors;6native colors,basis,zero stock overrides,6edits,bounds,actual guarded room/Xray cycles;Audit0/0. Baseline fixtures install independent native colors without relaxing assertions.","workerCommits":"dcb13a1a2;dbe23c0e0","state":"partial-required","algorithm":"RGB5 widening toward white and fixed channel decrement; independent supplied words preserved.","remaining":"FullBeamStart43FF,DarkeningStep5 required;558converted/21retained-mixed/549pending."},"babySpriteReflectionIntegration":{"remaining":"Halfparts,draworder,pixels/othercompositions required;558converted/21retained-mixed/549pending.","workerCommit":"6503f14ba","confirmation":"Root25warnings/0errors;90native/OAM,90Xedits,27field edits,order/count/empty/hash/bounds,64legacy/54binding schemas;affectedDeadTorizo25parts/97tiles/12MVNs/10limits/192operations;Audit0/0.","algorithm":"Three30part Baby poses use15halfparts plus exact supplied drawing order;reflection-x-size/flipX through immutable views,independent asymmetric edits preserved.","state":"partial-required"},"cannonReflectionIntegration":{"remaining":"135coordinate inputs including native asymmetries required;558converted/21retained-mixed/549pending.","workerCommits":"ad106f3be;16e721d47;8a95f8158","confirmation":"Root1446warnings/0errors;608native/608edits,130controls/24costs/290aliases/29reflections/exact135basis,253pose/hash/bounds;Audit0/0.","algorithm":"Repeated vertical cycles,matching pairedY and29 mirroredX from actual8pixelOBJ footprint;acyclic supplied-source aliases preserve independent edits.","state":"partial-required"},"beamTileGeometryIntegration":{"retained":"Only five Plasma tile0 pen assignments row3x0/1/3=4/2/15,row4x0/1=5/3;root viewed native sheet and palette/consumer roles. Categorical paint choices,not numeric samples;fitting reencodes painting.","confirmation":"Root1446warnings/0errors;3072native bytes,exact1227basis/5pen domain,independent edits,300NMI drains/readguard/adjacentVRAM;Audit0/0.","workerCommits":"a688b01dd;26f45f27d;4c6fcce67;df4bd76d9;a534adf4e;f424d0bee;033e34f77","evidence":"9AF806/07/16/17=11/55/BB/11;F808/09/18/19=FF/55/AA/00;90C441/C451palettes.","state":"partial-required","algorithm":"Eight-tile256byte uploads calculate orientations,symmetries,blank/repeated rows and shared family tiles with independently supplied pixels.","remaining":"1227pixel inputs,RGBcolors,profile widths/periods/phases/otherart required;558converted/21retained-mixed/549pending."},"missileEffectGeometryIntegration":{"remaining":"523selectors,eight reversed final axial choices,pivots,ordering,glyphs,priorities,colors and other geometry required;558/21/549 unchanged.","workerCommits":"abd61b470;753ce6da5;c44ec7ea2;4f45daf9c;98d427139","confirmation":"Root1446warnings/0errors;417native/OAM,48startup,104views,independent edits,54flare;805operands,282handler/edit paths,14bomb paths,523residuals;Audit0/0.","algorithm":"104 calculated beam/missile/effect compositions;282 compass/phase selections;palette fields derive installed CGRAM rows.","state":"partial-required"},"spazerExteriorIntegration":{"remaining":"Band lead1,width3 and24interior ink pixels required;1123total required beam pixels;558/21/549 unchanged.","workerCommit":"0be87bd7c","confirmation":"Root1446warnings/0errors;3072nativebytes,exactbasis/domain,independentedits,348queuedNMI/readguard/bounds;Audit0/0.","algorithm":"Calculate104transparent pixels outside the native Spazer diagonal band.","state":"partial-required"},"endingShakeIntegration":{"confirmation":"Root1446warnings/0errors;24native values and17fast/9slow actual updates,indexwrap,carry/borrow,readguard,bounds.","workerCommit":"95e889c61","correction":"Fast sample9/11 signs corrected to+32768/-32768, pinned8BDD26/DD2E and supported ROM.","state":"partial-required","algorithm":"Repeated directional runs with signed fixed-point amplitudes.","remaining":"Two amplitudes and five directional-run inputs required;both entries pending;558/21/549 unchanged;visual correction awaits player confirmation."},"spazerProjectionIntegration":{"workerCommits":"1055a3c88;0f569e5c3","state":"partial-required","remaining":"Diagonal origin(-14,0),thickness2,interior pens and other artwork required;1123beam pixels and558/21/549 unchanged.","confirmation":"Root1446warnings/0errors;native origins/flips/order,3072bytes,exactbasis,independentedits,348NMI/readguard/bounds;Audit0/0.","algorithm":"45-degree pixel-center projection derives diagonal lead/width from native shared sprite origin and horizontal ribbon thickness."},"grappleTileGeometryIntegration":{"confirmation":"Root1447warnings/0errors;512nativebytes,64plane edits,8coverage edits,7transfer bindings,64byte stock storage,no generated caches;Audit0/0.","remaining":"Ten center/radius/clipping/pen scalars,four shape-order choices,eight masks64bytes required;aggregate pending;558/21/549 unchanged.","state":"partial-required","algorithm":"Four endpoint primitive cases,vertical transposes and shared binary coverage-to-planar encoding.","workerCommits":"406459523;e8f61e9d7;2788888a6"},"spazerCompositionIntegration":{"remaining":"Chosen ordering,spacing,projection,origin,strip length,glyphs,priority,pixels and irregular poses required;both aggregates pending;558/21/549 unchanged.","workerCommits":"574b83b08;bf2311055;afa0d08af;542d3c899;93cb310c0","confirmation":"Root1447warnings/0errors;417native/OAM,805union,48startup,169views,independentedits,54flare,bounds;Audit0/0.","algorithm":"65additional calculated Wave/Spazer compositions from repeated lanes,cell adjacency and reflection;169total.","state":"partial-required"},"beamRepeatedTextureIntegration":{"remaining":"1093beam pixels,highlight phase,pulse extent,seed pens,opposite phase,thickness,origin,colors and other art required;558/21/549 unchanged.","workerCommits":"3bb98b2db;f37e579b7","confirmation":"Root1447warnings/0errors;3072nativebytes,exactbasis,independentedits,456NMI/readguard/bounds;Audit0/0.","algorithm":"Cyclic/mirrored Spazer texture and opposite wide-ribbon edge shifts remove30repeated samples.","state":"partial-required"},"spazerStartupIntegration":{"remaining":"Placement/traversal policies,distances,lengths,glyphs,origin,priority,pixels and irregular layouts required;558/21/549 unchanged.","workerCommits":"c348d68aa;e228a7c5d","confirmation":"Root1447warnings/0errors;417native/OAM,805union,48startup,191views,independentedits,54flare,bounds;Audit0/0.","algorithm":"22additional charged vertical/startup views from cell adjacency,centering and reflection;191total.","state":"partial-required"},"maridiaPaletteLayoutIntegration":{"remaining":"Cadence,rotation sizes,band count,palette slots,starting colors and payloads required;558/21/549 unchanged.","workerCommit":"532abaf1c","confirmation":"Root1447warnings/0errors;3native programs,44mechanics,112color identities,3complete actual loops,bounds/readguards.","algorithm":"Three semantic owners calculate contiguous program/control/color layout from native record widths.","state":"partial-required"},"ceresAlarmReflectionIntegration":{"workerCommit":"93a5260f6","confirmation":"Root1448warnings/0errors;48native colors,27exactinputs,48edits,784CGRAMrows,legacy,bounds;Audit0/0.","state":"partial-required","algorithm":"Seven alarm return rows reflect the nine-row forward sequence;21duplicate words calculate.","remaining":"All27forward colors and other palette inputs required;aggregate pending;558/21/549 unchanged."},"ceresFadeSubsetIntegration":{"state":"partial-required","algorithm":"189exact RGB5 floor-scaled fade words;14endpoints and21deviations explicitly separate from edit overrides.","remaining":"All35basis words unresolved;formula mismatch is not exemption;558/21/549 unchanged.","workerCommit":"fb2d6faa8","confirmation":"Root1450warnings/0errors;224nativewords,exact7/28basis,zero stock overrides,224edits,3616row writes,bounds;Audit0/0."},"sharedDeathProgramIntegration":{"confirmation":"Root1450warnings/0errors;five death producers,66words/31selectors;39projectile programs307words plus25handbeam,exact durations/control/readguards;Audit0/0.","workerCommits":"777a68bdf;a7df0a460;3db73ec60;d82a56c4e","algorithm":"Semantic program roots and calculated record/presentation addresses.","remaining":"Death seven timing roles,shared53hold/ramp roles,ring/rainbow magnitudes,frame extents and independent artwork required;no new timing exemption;561/21/546.","completed":"EnemyDeathInstructionProgramDefinitions.PresentationWords;EnemyProjectileInstructionMechanicsDefinitions.MiscDustInitialPointers;EnemyProjectileInstructionMechanicsDefinitions.PresentationFrames","state":"three-converted-timing-pending"},"fileSelectBorderIntegration":{"state":"partial-required","remaining":"Bounds,dimensions,six appearances,order,palette,pixels required;561/21/546 unchanged.","algorithm":"Rectangular perimeter coordinates and repeated edges from supplied bounds/appearance/order with exact independent fallback.","confirmation":"Root1450warnings/0errors;114nativeparts,456edits,reversed/expandedcompositions;Audit0/0.","workerCommit":"b8895a6e3"},"planetTextFadeIntegration":{"remaining":"Three endpoints,cadence3,level count8,color count3,palette8/first1 remain required;no exemption or aggregate closure;561/21/546 unchanged.","workerCommit":"d51e166265cb06255c50a67d322773583c89dc1e","confirmation":"Root1450warnings/0errors;38native mechanics,48colors,exact3inputs,48independent edits,both actual installed one-shot fades and bounds pass.","algorithm":"Nearest RGB5 interpolation from three bright endpoints over seven intervals; fade-out reverses phase. Semantic owners calculate program layout.","state":"partial-required"},"chootLoopDistanceReopening":{"remaining":"560converted/21retained-mixed/547pending.","reason":"Semantic dispatch does not explain loop Y distances30/28/32. Native DFCE computes jump height and E0EB advances loop origin; no accepted exception.","workerCommit":"ee6aae2b35f13883c1af09e6cb67e13379c0c27b","state":"reopened-required","confirmation":"Root1450warnings/0errors;five selectors/distances,450frames,20initializers,five actual fall loops/source-read guards pass.","entry":"ChootPatternDefinitions.Patterns"},"maridiaColorRotationIntegration":{"remaining":"All16source colors and independent timing/layout choices required;560/21/547 unchanged.","workerCommit":"2f26a6ab913eeef89d2260727fa33c59e4571be4","confirmation":"Root1450warnings/0errors;112nativewords,exact16inputs,112edits,three actual cycles,bounds/readguards pass.","algorithm":"Cyclic sand/waterfall colors and shared lower sand band calculate96of112words.","state":"partial-required"},"optionsBorderIntegration":{"remaining":"Dimensions,bounds,six appearances,order,pixels required;560/21/547 unchanged.","workerCommit":"c3aa8dbebb6b8990ecfc5b3733f4479f09158be7","confirmation":"Root1450warnings/0errors;258nativeparts,1032edits,six reversed/expanded compositions;Audit0/0.","algorithm":"Three options headings share calculated rectangular perimeter view with file-select borders.","state":"partial-required"},"projectileFullSelectorDecomposition":{"remaining":"Chosen stages,growth,variants,cap/parity policies,glyphs,footprints,spacing,order,pixels required;both aggregates pending;560/21/547 unchanged.","workerCommits":"ab9368cb1;901abfe5b;e2fc8e520;ba20587f7;07f4e9e7;3385ef53e;dee04f273;cd3b99a38;0c43a7eb7;efa40ce90","confirmation":"Root1450warnings/0errors;805native/handler/independent edit paths,14bomb paths,417OAM,48startup,208views,54flare,bounds;Audit0/0.","algorithm":"All805selector operands calculate;17more centered/adjacent/reflected compositions total208.","state":"partial-required"},"ceresMode7TransferIntegration":{"remaining":"Positions,glyphs,six wing regions,run selections required;seven aggregates pending;560/21/547 unchanged.","workerCommit":"0be62c0451b1e67594867a131c7f8561e88e0aba","confirmation":"Root1450warnings/0errors;20native descriptors,170bytes,seven lists,exact low-byte VRAM/order pass.","algorithm":"Calculated transfer/tile views derive packed extents,map rows,adjacent glyphs and atlas runs; prior capsule phase selector preserved.","state":"partial-required"},"mapScrollButtonsIntegration":{"confirmation":"Root1450warnings/0errors;native masks/IDs,zero stock storage,bounds,default/custom pulses,release/priority;Audit0/0.","completed":"MapScrollControls.Buttons","workerCommit":"a20ecf5ee3c746f891f2c501c6beba319919ac42","state":"one-converted","algorithm":"Semantic direction to matching controller button; only custom bindings stored.","remaining":"561converted/21retained-mixed/546pending."},"sharedCrawlerLayoutIntegration":{"confirmation":"Root1450warnings/0errors;36native words,four families/four surfaces,20visuals,function/loop/readguard/allocation checks.","completed":"SharedCrawlerInstructionProgramDefinitions.PresentationWords","workerCommit":"79225b8f48e5347151851192e1707259c9b6c47a","state":"one-converted","algorithm":"Four surface-program record widths calculate visual operands,function dispatch and loops.","remaining":"Words pose count5/hold3 and artwork required;562/21/545."},"endingFontOutlineIntegration":{"remaining":"2026footprints,3875pixels including35deviations,pens1/2,width1 required;no exception;562/21/545 unchanged.","workerCommits":"78c4badfab1aa6b724cf8afb567bf784f3c3ef9b;e9d4c5138a9b04caafd0a47f077a2ffeb2c801e0;6f4db084a2f29481cba1fceb8883d0729ee48ae6","confirmation":"Root25warnings/0errors final incremental;5120nativebytes,exact2026/3875basis and35deviations,6401independent bit edits,native import/immutability/bounds.","algorithm":"Semantic spaces and clipped eight-neighbor outlines derive4339sites from2026required shape positions.","state":"partial-required"},"phantoonColorIntegration":{"confirmation":"Root1450warnings/0errors;16fade128health nativewords,exact8deviations,432edits,power/hash/bounds;Audit0/0.","completed":"PhantoonColorCatalog.fadeOut","workerCommits":"af8d5bcf0ee991a0dd053f9d1182a215f9d40501;073dd50cd40f6c5e70f2325a1a82b6456ab6cd94","state":"one-converted-health-partial","algorithm":"RGB-zero fade target and104matched health tint words from healthy endpoints.","remaining":"16healthy endpoints,8deviations,tint8/15,power paint required;563/21/544."},"phantoonCollisionIntegration":{"confirmation":"Root1450warnings/0errors;22nativeframes25components7rectangles/callbacks,actual touch/shot/eye exclusion,enumeration/bounds.","completed":"PhantoonCollisionDefinitions.Point;PhantoonCollisionDefinitions.FullBody;PhantoonCollisionDefinitions.EyeOnly;PhantoonCollisionDefinitions.DoublePoint;PhantoonCollisionDefinitions.PointHitboxes;PhantoonCollisionDefinitions.EyeOnlyHitboxes","workerCommit":"c88d48df168a880e4906f8b374450d6bb595dc53","state":"six-converted-shapes-required","algorithm":"Named body/inert frame roles and actor-origin components; no-op point and shared body-eye rectangle.","remaining":"All five body rectangles required;569/21/538."},"rinkaLayoutIntegration":{"confirmation":"Root1450warnings/0errors;26nativewords18selectors,both actual programs,visibility/offscreen/aim-delay/guards/bounds/allocation.","completed":"RinkaInstructionProgramDefinitions.PresentationWords","workerCommit":"789c838a70a39a7caa97ab04d185b7e4d44de1af","state":"one-converted-timing-required","algorithm":"Native record geometry,semantic setup and returning-stage mirrored dwell.","remaining":"Hidden64/seed16/pulse5/count8 required;570/21/537."},"phantoonTimerBucketOrderingReview":{"scope":"Only exact Phantoon CD41/CD53/CD63 random/frame bucket ordering.","evidence":"Root inspected native arrays and D060-D06C,D07C-D088,D5A6-D5B2,D7E7-D7F3; RNG\u00267 and first-round(NMI\u003e\u003e1)\u00263 select timer choices.","justification":"Opaque random bucket order is selected stochastic policy; numeric fitting merely reencodes the same permutation, not a physical or animation phase function.","remaining":"All duration magnitudes,scale/ratios and timer semantics required;no aggregate closure/count change.","state":"narrow-ordering-approved-implementation-pending"},"samusProjectileMechanicsIntegration":{"state":"partial-required","workerCommits":"3b7c13cde through7fbc681bd","algorithm":"Calculated timed-record geometry,trail phases,semantic cycles/one-shots and loop targets remove1816stored mechanics words.","confirmation":"Root1450warnings/0errors;1816native mechanics words/exact domains/rejection/no fallback;805selectors417OAMdraws48startuprecords/edits/bounds.","remaining":"Independent holds,phase counts and loop-entry choices remain required;Words unchecked;570/21/537 unchanged."}}

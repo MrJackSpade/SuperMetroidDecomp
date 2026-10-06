@@ -6,11 +6,12 @@ internal static class BossColorClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.BeamPaletteCatalog", "beam-palettes-v1-twelve-selections", ["LoadTo"],
-            [new("csharp/src/SuperMetroid.Core/Assets/BeamPaletteCatalog.cs", "37DE1F3097D9299ACC0C00205B3BF1815411B53425FB58393D43EF1726780C79"),
+            [new("csharp/src/SuperMetroid.Core/Assets/BeamPaletteCatalog.cs", "5EAEE09E03EC38A7F53F34EF5A8CEB10393865A47F090442255070178F1AC160"),
+             new("csharp/src/SuperMetroid.Core/Assets/BeamPaintDefinitions.cs", "6BE6D92401D28DB00BD888CE0519F5A06C2306DD6CEA95143F5E0BC05823E043"),
              new("csharp/src/SuperMetroid.Core/Game/SamusEquipmentFlags.cs", "698EB15B595FC4192181AC1CB301F85602A2F3DAA002076CA90A37CB85A8E232"),
              new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "C6FF1C62D59D61DA32F946B3EF98EAF4F3EB7AA2239246EE7F9DADB7408ABEBF"),
              new("csharp/src/SuperMetroid.Core/Assets/SpazerCompositionGeometryDefinitions.cs", "50531F1C89026140C12B131C252FB869BACA5A6EFB931FD619376E20F20C6DCF")],
-            "The private-constructor loader requires all twelve named beam selections with sixteen colors each; LoadTo bounds-checks that complete array."),
+            "The private-constructor loader requires all twelve named beam selections with sixteen colors each; LoadTo bounds-checks all selections and resolves reviewed calculated colors with independent sparse edits."),
         new("SuperMetroid.Core.Assets.CeresRidleyColorCatalog", "ceres-ridley-v3-complete-palette-rows",
             ["ApplyStart", "ApplyEyeFade", "ApplyBodyFade", "ApplyHealth", "ApplyAlarm", "ApplyRetreat", "ApplyBaby"],
             [new("csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs", "F2F32E1A0BDE203A0AA384811F91EE899ABC15411D2340436373D7820279CC9F"),

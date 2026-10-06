@@ -12386,4 +12386,13 @@
   ],
   "workerCommit": "a5fdebb8a6e1ad7d8619aa7ec5a1d9519238281b",
   "confirmation": "Root build1457warnings/0errors. Focused background check confirms4096nativewords,4096independent full-word edits, no stock output storage, ownership/isolation, canonical hash and actual8192-byte startup VRAM upload."
+},"ordinaryBeamPaintComplete":{
+  "completed": [
+    "BeamPaletteCatalog.palettes"
+  ],
+  "confirmation": "Root Verification1457warnings/0errors and ResourceAudit0/0;192native selected words,zero stock overrides,576RGB edits,6924palette copies including36actual queue/masked-selection producers with all bus reads/writes forbidden.",
+  "disposition": [
+    "All192selected outputs calculate from five reviewed material families, shared channels/hues, ramps and exact copied target metadata. Retain only exact55scalar paint/composition packet, Ice12/13 extra-green-step membership, blue14 slot0 and non-Ice9..14 black copied targets. These specify selected painted content; inventing functional replacements changes it. No pixel,cadence,freeze-logic or selection-policy exemption; independent selection/channel edits preserved."
+  ],
+  "workerCommit": "003ff8c7e688504828b7ee6815525a33a82a1703"
 }}

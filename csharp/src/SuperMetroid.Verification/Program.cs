@@ -590,6 +590,13 @@ if (args is ["--lookup-stream-4-ceres-fades"])
     VerifyLookupStream4CeresFades(rom);
     return 0;
 }
+if (args is ["--lookup-stream-4-beam-paint"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Beam paint oracle revision");
+    VerifyLookupStream4BeamColorRelations(rom);
+    return 0;
+}
 if (args is ["--lookup-stream-4-botwoon-health"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

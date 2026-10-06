@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 431,
+  "remainingTableDefinitionCount": 430,
   "fileCount": 523,
   "entries": [
     {
@@ -40,12 +40,15 @@
   "disposition": "Mixed complete:84displayed RGB5 values calculate floor(final-health endpoint*(5-frame)/7),using nine reviewed final-health paints and shared initial-paint dependencies. Five endpoint colors derive smoothstep,linear shades,half-glint,fang midpoint and three-quarter contour. Retain only exact endpoint/material/rounding policies; no other health rows,Ygate,timer or completion exemption. No inverse RGB8 search or stock endpoint array; independent edits preserved."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/BeamPaletteCatalog.cs",
-      "line": 11,
-      "name": "BeamPaletteCatalog.palettes",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind BeamPaletteCatalog.palettes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/BeamPaletteCatalog.cs",
+  "line": 11,
+  "name": "BeamPaletteCatalog.palettes",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind BeamPaletteCatalog.palettes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "003ff8c7e688504828b7ee6815525a33a82a1703",
+  "disposition": "All192selected outputs calculate from five reviewed material families, shared channels/hues, ramps and exact copied target metadata. Retain only exact55scalar paint/composition packet, Ice12/13 extra-green-step membership, blue14 slot0 and non-Ice9..14 black copied targets. These specify selected painted content; inventing functional replacements changes it. No pixel,cadence,freeze-logic or selection-policy exemption; independent selection/channel edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs",
       "line": 8,
@@ -21781,5 +21784,5 @@
     }
   ],
   "convertedSinceSnapshot": 602,
-  "justifiedRetainedSinceSnapshot": 95
+  "justifiedRetainedSinceSnapshot": 96
 }

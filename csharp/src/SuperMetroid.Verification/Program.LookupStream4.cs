@@ -1466,50 +1466,48 @@ internal static partial class Program
         byte[] source = BeamPaletteExtractor.Extract(rom);
         var stock = BeamPaletteCatalog.Load(new MemoryStream(source));
         var stored = (Dictionary<int, ushort>)typeof(BeamPaletteCatalog).GetField("palettes", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        AssertEqual(43, stored.Count, "Beam stock stores exactly the43 independently required colors, with no derived fallback samples");
-        for (int selection = 0; selection < 12; selection++)
-        for (int color = 0; color < 16; color++)
+        AssertEqual(0, stored.Count, "Every stock beam color calculates with zero overrides");
+        var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(rom), stock);
+        for (int edit = -1; edit < 576; edit++)
         {
-            bool basis = selection switch
+            var selected = stock;
+            if (edit >= 0)
             {
-                0 => color <= 8 || color == 15,
-                (int)SamusBeamFlags.Ice => color >= 2,
-                (int)SamusBeamFlags.Wave or (int)SamusBeamFlags.Plasma => color is >= 2 and <= 5 or 7 or 8 or 15,
-                (int)SamusBeamFlags.Spazer => color is >= 2 and <= 4 or 8 or 15,
-                _ => false,
-            };
-            AssertEqual(basis, stored.ContainsKey(selection * 16 + color), "Beam stored membership is exactly the documented Power/Ice/Wave/Plasma/Spazer basis");
-        }
-        Verify(stock, -1, -1);
-        foreach ((int selection, int color) in new[] { (0, 0), (2, 1), (3, 3), (1, 9), (8, 2), (4, 15), (8, 5), (8, 6), (4, 6) })
-        {
-            var document = System.Text.Json.Nodes.JsonNode.Parse(source)!;
-            var selected = document["palettes"]![BeamPaletteDefinitions.Key(selection)]![color]!;
-            selected["red"] = selected["red"]!.GetValue<int>() ^ 1;
-            var edited = BeamPaletteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
-            Verify(edited, selection, color);
-            Verify(stock, -1, -1);
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new SnesCgram(), invalid), "Calculated beam colors preserve selection bounds");
-
-        void Verify(BeamPaletteCatalog catalog, int editedSelection, int editedColor)
-        {
+                var document = System.Text.Json.Nodes.JsonNode.Parse(source)!;
+                int word = edit / 3, channel = edit % 3;
+                var color = document["palettes"]![BeamPaletteDefinitions.Key(word / 16)]![word % 16]!;
+                string component = channel switch { 0 => "red", 1 => "green", _ => "blue" };
+                color[component] = color[component]!.GetValue<int>() ^ 1;
+                selected = BeamPaletteCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+            }
             for (int selection = 0; selection < 12; selection++)
             {
                 var actual = new SnesCgram();
                 for (int index = 0; index < SnesCgram.ColorCount; index++) actual.SetColor(index, (ushort)(index * 31));
-                catalog.LoadTo(actual, selection);
+                if (edit is -1 or 0 or 575)
+                {
+                    var queue = new VramWriteQueue();
+                    SamusProjectileSystem.QueueBeamTilesAndLoadPalette(new ProjectileCompositionForbiddenBus(), queue, actual,
+                        (ushort)(selection | 0x1000), artwork, selected);
+                    AssertEqual(7, queue.TailInBytes, "Actual beam palette producer preserves seven-byte tile queue");
+                    AssertEqual(BeamTileAtlasDefinitions.ByteCount, (int)queue.Entries[0].SizeInBytes, "actual palette producer preserves tile extent");
+                    AssertEqual(BeamTileAtlasDefinitions.DestinationWord, queue.Entries[0].EncodedVramDestination, "actual palette producer preserves tile destination");
+                }
+                else selected.LoadTo(actual, selection);
                 int pointer = 0x900000 | Word(0x90c3c9 + selection * 2);
                 for (int index = 0; index < SnesCgram.ColorCount; index++)
                 {
                     int color = index - SamusProjectileRomData.Palettes.BeamDestinationIndex;
                     ushort expected = color is >= 0 and < 16 ? Word(pointer + color * 2) : (ushort)(index * 31);
-                    if (selection == editedSelection && color == editedColor) expected ^= 1;
-                    AssertEqual(expected, actual.Colors[index], "Derived beam color relationships preserve native rows, isolated edits and neighboring CGRAM");
+                    if (edit >= 0 && selection * 16 + color == edit / 3 && color is >= 0 and < 16)
+                        expected ^= (ushort)(1 << (edit % 3 * 5));
+                    AssertEqual(expected, actual.Colors[index], "Beam paint preserves native selected rows, independent RGB edits and every CGRAM neighbor");
                 }
             }
         }
+        foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new SnesCgram(), invalid), "Calculated beam colors preserve selection bounds");
+        Console.WriteLine("Beam paint:192 native selected words,zero stock overrides,576 independent RGB edits,6924 exact palette copies including36 actual masked-selection/queue producers and read guard pass.");
     }
     private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
     {

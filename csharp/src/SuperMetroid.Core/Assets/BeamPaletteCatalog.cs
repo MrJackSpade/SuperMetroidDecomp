@@ -8,39 +8,20 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable ordinary beam colors; selection and charge/Hyper animation remain engine-owned.</summary>
 public sealed class BeamPaletteCatalog
 {
-    // The 43 independent stock colors remain required conversion work. Derived aliases
-    // and black slots are evaluated per access; independently supplied edits stay exact.
+    // Reviewed exact material paint and copied target metadata have bounded dispositions;
+    // every stock output calculates, while independently supplied words stay exact.
     private readonly Dictionary<int, ushort> palettes = new();
     private BeamPaletteCatalog(ushort[][] rows)
     {
         for (int selection = 0; selection < rows.Length; selection++)
         for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
-        {
-            if (!TryDerivedColor(rows, selection, color, out ushort expected) || rows[selection][color] != expected)
+            if (rows[selection][color] != BeamPaintDefinitions.Color(selection, color))
                 palettes.Add(selection * BeamPaletteDefinitions.ColorCount + color, rows[selection][color]);
-        }
     }
 
-    private ushort Color(int selection, int color)
-    {
-        if (palettes.TryGetValue(selection * BeamPaletteDefinitions.ColorCount + color, out ushort supplied))
-            return supplied;
-        return TryDerivedColor(null, selection, color, out ushort derived) ? derived
-            : throw new InvalidDataException("Missing independent beam color input.");
-    }
-    private bool TryDerivedColor(ushort[][]? installed, int selection, int color, out ushort result)
-    {
-        ushort Input(int source, int entry) => installed is null ? Color(source, entry) : installed[source][entry];
-        int source = BeamPaletteDefinitions.ColorSourceSelection(selection, color);
-        if (BeamPaletteDefinitions.IsBlackSlot(selection, color)) result = 0;
-        else if (source != selection) result = Input(source, color);
-        else if (selection == (int)SamusBeamFlags.Spazer && color is >= 5 and <= 7)
-            result = BeamPaletteDefinitions.SpazerHighlight(Input((int)SamusBeamFlags.Plasma, color));
-        else if (color == 6 && selection is (int)SamusBeamFlags.Wave or (int)SamusBeamFlags.Plasma)
-            result = BeamPaletteDefinitions.MiddleHighlight(Input(selection, color - 1), Input(selection, color + 1));
-        else { result = 0; return false; }
-        return true;
-    }
+    private ushort Color(int selection, int color) =>
+        palettes.TryGetValue(selection * BeamPaletteDefinitions.ColorCount + color, out ushort supplied)
+            ? supplied : BeamPaintDefinitions.Color(selection, color);
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -126,8 +107,8 @@ public sealed record BeamPaletteDocument
 /// All 80 words match the pinned NTSC J/U v1.0 ROM and native listing.
 /// Every row begins <c>$3800,$7FFF</c>; Power, Wave, Plasma, and Spazer
 /// have six zero words at color indices 9..14, while Ice has none. The
-/// remaining color payload is still required work under #1165. Nonuniform
-/// artwork alone does not justify retaining its lookup representation.
+/// selected material paint is owned by BeamPaintDefinitions; its exact channel
+/// composition calculates all stock words and preserves independent replacements.
 /// Native palette loading copies exactly sixteen colors from the selected
 /// pointer; out-of-range beam selections are physical pointer-table reads,
 /// not extra color rows. Investigation: #625 / #901.

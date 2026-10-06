@@ -25,19 +25,66 @@ internal static class MotherBrainFallingTubePopulationDefinitions
     /// <summary>Main tube spawn at $A9:8B25.</summary>
     internal const ushort Main = 0x8b25;
 
-    /// <summary>The ordered native record identities for exhaustive parity tests.</summary>
-    internal static ReadOnlySpan<ushort> Pointers =>
-        [BottomLeft, BottomRight, BottomMiddleLeft, BottomMiddleRight, Main];
+    /// <summary>$A9:8AE5-8B34: five records of eight native words each.</summary>
+    private const int RecordBytes = 8 * sizeof(ushort), RecordCount = 5;
+    /// <summary>$A9:8B27: selected center X for the main tube; remains required.</summary>
+    private const ushort UnresolvedCenterX = 128;
+    /// <summary>$A9:8AE7/8AF7: chosen outside-piece horizontal distance from the center; remains required.</summary>
+    private const int UnresolvedOuterOffset = 32;
+    /// <summary>$A9:8B07/8B17: chosen inside-piece horizontal distance from the center; remains required.</summary>
+    private const int UnresolvedInnerOffset = 24;
+    /// <summary>$A9:8AE9/8AF9/8B09/8B19/8B29: the five compositions share exclusive bottom Y215.
+    /// This chosen placement baseline remains required, independent of installed artwork edits.</summary>
+    private const int UnresolvedBottomBaseline = 215;
+    /// <summary>$A9:ADA1/ADD5: outer tube compositions reach y28+8=36 below their origin.
+    /// Native geometry input remains required; not inferred from an editable presentation instance.</summary>
+    private const int UnresolvedOuterBottom = 36;
+    /// <summary>$A9:AE09/AE33: inner tube compositions reach y20+8=28 below their origin; required geometry.</summary>
+    private const int UnresolvedInnerBottom = 28;
+    /// <summary>$A9:AE5D: main tube composition reaches y40+8=48 below its origin; required geometry.</summary>
+    private const int UnresolvedMainBottom = 48;
+    /// <summary>$A9:8B33: main-tube delay decremented at $8BCB before falling; remains required.</summary>
+    private const ushort UnresolvedMainFallDelay = 32;
 
-    /// <summary>Resolves a complete 16-byte native population record.</summary>
-    internal static RoomEnemyPopulationRecord Get(ushort pointer) => pointer switch
+    /// <summary>Ordered native population identities, calculated from the eight-word record format.</summary>
+    internal static IReadOnlyList<ushort> Pointers => Records;
+    private static readonly RecordPointers Records = new();
+    private sealed class RecordPointers : IReadOnlyList<ushort>
     {
-        BottomLeft => new(EnemyDefinitionPointers.MotherBrainFallingTube, 0x0060, 0x00b3, 0x8c69, 0xa000, 0x0000, 0x0000, 0x0000),
-        BottomRight => new(EnemyDefinitionPointers.MotherBrainFallingTube, 0x00a0, 0x00b3, 0x8c6f, 0xa000, 0x0000, 0x0002, 0x0000),
-        BottomMiddleLeft => new(EnemyDefinitionPointers.MotherBrainFallingTube, 0x0068, 0x00bb, 0x8c75, 0xa000, 0x0000, 0x0004, 0x0000),
-        BottomMiddleRight => new(EnemyDefinitionPointers.MotherBrainFallingTube, 0x0098, 0x00bb, 0x8c7b, 0xa000, 0x0000, 0x0006, 0x0000),
-        Main => new(EnemyDefinitionPointers.MotherBrainFallingTube, 0x0080, 0x00a7, 0x8c81, 0xa800, 0x0000, 0x0008, 0x0020),
-        _ => throw new ArgumentOutOfRangeException(nameof(pointer), pointer,
-            "Unknown Mother Brain falling-tube population record."),
-    };
+        public int Count => RecordCount;
+        public ushort this[int index] => (uint)index < RecordCount
+            ? (ushort)(BottomLeft + index * RecordBytes) : throw new IndexOutOfRangeException();
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    /// <summary>
+    /// Resolves the selected piece. Native parameter1 is a word offset consumed at
+    /// $A9:8B38; pose lists at $8C69-8C85 each contain a duration/map pair and Sleep.
+    /// Placement magnitudes and main delay remain independent required inputs.
+    /// </summary>
+    internal static RoomEnemyPopulationRecord Get(ushort pointer)
+    {
+        int offset = pointer - BottomLeft;
+        if (offset < 0 || offset >= RecordCount * RecordBytes || offset % RecordBytes != 0)
+            throw new ArgumentOutOfRangeException(nameof(pointer), pointer,
+                "Unknown Mother Brain falling-tube population record.");
+        int piece = offset / RecordBytes;
+        bool main = pointer == Main;
+        bool outer = piece < 2;
+        int horizontalOffset = outer ? UnresolvedOuterOffset : UnresolvedInnerOffset;
+        ushort x = main ? UnresolvedCenterX : (ushort)(UnresolvedCenterX + ((piece & 1) == 0 ? -horizontalOffset : horizontalOffset));
+        int compositionBottom = main ? UnresolvedMainBottom : outer ? UnresolvedOuterBottom : UnresolvedInnerBottom;
+        ushort y = (ushort)(UnresolvedBottomBaseline - compositionBottom);
+        ushort pose = (ushort)(MotherBrainFallingTubeInstructionDefinitions.FirstList +
+            piece * MotherBrainFallingTubeInstructionDefinitions.ListStride);
+        EnemyProperties properties = EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions;
+        if (main) properties |= EnemyProperties.ProcessOffScreen;
+        return new(EnemyDefinitionPointers.MotherBrainFallingTube, x, y, pose,
+            (ushort)properties, (ushort)EnemyExtraProperties.None,
+            (ushort)(piece * sizeof(ushort)), main ? UnresolvedMainFallDelay : (ushort)0);
+    }
 }

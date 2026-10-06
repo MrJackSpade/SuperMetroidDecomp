@@ -6,6 +6,23 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3FallingTubePopulationLayout(ISnesAddressSpace rom)
+    {
+        ushort[] expected = [0x8ae5, 0x8af5, 0x8b05, 0x8b15, 0x8b25];
+        IReadOnlyList<ushort> pointers = MotherBrainFallingTubePopulationDefinitions.Pointers;
+        AssertTrue(expected.SequenceEqual(pointers), "five native falling-tube record identities");
+        AssertThrows<IndexOutOfRangeException>(() => _ = pointers[-1], "negative tube population index");
+        AssertThrows<IndexOutOfRangeException>(() => _ = pointers[pointers.Count], "upper tube population index");
+        for (int address = 0x8ae4; address <= 0x8b35; address++)
+        {
+            ushort pointer = (ushort)address;
+            if (!expected.Contains(pointer))
+                AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainFallingTubePopulationDefinitions.Get(pointer),
+                    $"nonrecord tube population address {pointer:X4}");
+        }
+        VerifyMotherBrainFallingTubePopulationDefinitions(rom);
+        Console.WriteLine("Falling-tube layout: five native records, all eight columns, production spawns and independent fixture behavior pass; placement magnitudes and delay remain required.");
+    }
     private static void VerifyStream3IntroPaletteRows(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, SnesCgram.ColorCount)

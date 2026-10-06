@@ -1258,3 +1258,8 @@ Divider cells calculate from a blank word and interior origin across paired tile
 ### Integrated intro palette dependencies (640aab891 /d2f0c896f)
 
 Five flat foreground rows, one four-shade RGB5 cycle, eight shared cross-fade gradient colors and its blue31/22/13/4 ramp now calculate matching supplied palettes. Independent mismatches retain their full row, with no coupling across loaded instances. Root inspected8C:E3E9-E5E8 and preserved161independent color words plus selected cycle4/step1/blue decrement9 as REQUIRED; aggregate remains unchecked. Root --lookup-stream3-intro-palette-rows passes256native colors/256independent RGB5 edits through transfer bytes and actual CGRAM,including source/destination rows and previous-instance isolation. Build1452warnings/0errors. No direct ResourceAudit source dependency. Fixed three joined-line formatting defects during integration. Master595/21/512 unchanged.
+
+
+### Integrated falling-tube population relationships (225c126f1 /0031a8b2c)
+
+Five16-byte population identities,6-byte pose lists,type-word offsets,shared flags and mirrored horizontal placement now calculate the records. Native ADA1/ADD5,AE09/AE33,AE5D compositions reach36/28/48pixels below their origin,aligning at chosen bottom215. Root inspected native OAM definitions and confirmed all40population words,five RAM-only production spawns,one independent constructed placement and invalid record/index domains. Build1452warnings/0errors. Center128,offsets32/24,baseline215,composition extents,main delay32 and selected policy remain REQUIRED;aggregate unchecked. No direct audit source dependency. Master595/21/512 unchanged.

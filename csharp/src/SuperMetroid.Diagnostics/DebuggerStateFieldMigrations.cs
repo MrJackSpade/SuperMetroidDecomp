@@ -36,6 +36,13 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Older ending state lacks shooting-star records; restarting the native star sequence on the next post-credits step.");
             return current.Where(field => field.Name != "shootingStars").ToArray();
         }
+        if (type == typeof(SuperMetroid.Core.Audio.ManagedSpcPlayer) &&
+            current.Any(field => field.Name == "soundCommandReads"))
+        {
+            // The SPC driver's $01-$03/$09-$0B sound-port pipeline; seeded after restore.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name is not "soundCommandReads" and not "previousSoundCommandReads").ToArray(), count);
+        }
         if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
             current.Any(field => field.Name == "<RoomMainScratch>k__BackingField"))
         {
@@ -656,6 +663,9 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Initializes fields omitted by explicitly recognized legacy layouts.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance is SuperMetroid.Core.Audio.ManagedSpcPlayer player &&
+            serializedCount < GetCurrentInstanceFieldCount(typeof(SuperMetroid.Core.Audio.ManagedSpcPlayer)))
+            SeedLegacySoundPortPipeline(player);
         if (instance is SuperMetroid.Core.Runtime.SuperMetroidRuntime legacyRuntime &&
             serializedCount < GetCurrentInstanceFieldCount(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)))
             SeedLegacyRoomMainScratch(legacyRuntime);
@@ -856,6 +866,31 @@ internal static class DebuggerStateFieldMigrations
     /// Counts the same declared instance fields as the graph serializer for migration
     /// comparisons without exposing the serializer's ordering implementation.
     /// </summary>
+    /// <summary>
+    /// Builds the SPC sound-port pipeline for a capture that predates it. Its driver consumed
+    /// each CPU write into a $FF sentinel and echoed it at once, so the last echo is the value
+    /// both pipeline words held; a still-unconsumed write remains a pending latch value.
+    /// </summary>
+    private static void SeedLegacySoundPortPipeline(SuperMetroid.Core.Audio.ManagedSpcPlayer player)
+    {
+        Type type = typeof(SuperMetroid.Core.Audio.ManagedSpcPlayer);
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var inputPorts = (byte[])type.GetField("inputPorts", flags)!.GetValue(player)!;
+        var reads = new byte[SuperMetroid.Core.Audio.AudioRomData.Queues.SoundLibraryCount];
+        var previous = new byte[reads.Length];
+        for (int library = 0; library < reads.Length; library++)
+        {
+            int port = library + SuperMetroid.Core.Audio.AudioRomData.Apu.FirstSoundPort;
+            byte echoed = player.ReadPort(port);
+            reads[library] = previous[library] = echoed;
+            if (inputPorts[port] == byte.MaxValue)
+                inputPorts[port] = echoed;
+        }
+        type.GetField("soundCommandReads", flags)!.SetValue(player, reads);
+        type.GetField("previousSoundCommandReads", flags)!.SetValue(player, previous);
+        Console.Error.WriteLine("WARNING: Legacy SPC state predates the sound-port read pipeline; seeding it from the last echoed commands.");
+    }
+
     /// <summary>
     /// Builds the shared RoomMainASMVar1 for a capture that predates it, from the private copy
     /// of whichever room main owned the active room. Earlier rooms' values were not retained.

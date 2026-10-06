@@ -246,6 +246,8 @@ public sealed partial class SuperMetroidGame
     /// upload, which the lag-free port does not spend as an update. Only that proven wait
     /// is accepted; replays of any other hardware stall must establish their own contract.
     /// </summary>
+    internal CartridgeAudioState AudioForVerification => audio;
+
     /// <summary>Accepted NMIs taken while a door transition's music upload blocks the main loop.</summary>
     public IDoorMusicUploadNmiSource DoorMusicUploadNmis { get; set; } = LagFreeDoorMusicUploadNmis.Instance;
 

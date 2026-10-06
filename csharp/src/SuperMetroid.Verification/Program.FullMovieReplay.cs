@@ -90,6 +90,15 @@ internal static partial class Program
             $"vs={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4} total={samus.HorizontalSpeed.TotalSpeed:X4}.{samus.HorizontalSpeed.TotalSubspeed:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4} accel={samus.HorizontalSpeed.AccelerationMode:X4}");
         Console.WriteLine($"  native pose={Native(MovieDesyncMemory.SamusPose)} X={Native(MovieDesyncMemory.SamusX)}.{Native(MovieDesyncMemory.SamusXFraction)} Y={Native(MovieDesyncMemory.SamusY)}.{Native(MovieDesyncMemory.SamusYFraction)} " +
             $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)}");
+        string Queues(Func<int, (byte, byte, byte)> read) => string.Join(" ",
+            Enumerable.Range(0, 3).Select(queue => read(queue)).Select(q => $"{q.Item1:X}/{q.Item2:X}/{q.Item3}"));
+        Console.WriteLine("  sfx port   " + Queues(queue =>
+        {
+            var q = game.AudioForVerification.SoundQueueForVerification(queue);
+            return (q.Start, q.Next, q.State);
+        }));
+        Console.WriteLine("  sfx native " + Queues(queue =>
+            (memory[0x0643 + queue], memory[0x0646 + queue], memory[0x0649 + queue])));
         if (game.RuntimeForVerification?.Enemies is { } traceEnemies)
         {
             // $1997 IDs, $1A4B X, $1A93 Y: one word per slot.

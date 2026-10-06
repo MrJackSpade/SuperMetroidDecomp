@@ -14,6 +14,9 @@ internal static class SpcDriverData
     internal const int DspCyclesPerDriverTick = 64;
     internal const int MaximumFastForwardTicks = 0x10000;
     internal const byte NoPortCommand = byte.MaxValue;
+
+    /// <summary>$1E90: the second half of the $AA/$BB ready signal, left on output port 1 by an upload.</summary>
+    internal const byte UploadReadyLibraryOnePort = 0xbb;
     internal const byte PauseMusicCommand = AudioRomData.Apu.PauseMusic;
     internal const byte ResumeMusicCommand = AudioRomData.Apu.ResumeMusic;
 

@@ -434,6 +434,10 @@ public sealed class CartridgeAudioState
         }
     }
 
+    /// <summary>Queue start/next indices and dispatcher state of one SFX library ($0643+/$0646+/$0649+).</summary>
+    internal (byte Start, byte Next, byte State) SoundQueueForVerification(int queue) =>
+        (_soundReadPositions[queue], _soundWritePositions[queue], _soundStates[queue]);
+
     private void SendNextSound(int queue, List<CartridgeAudioCommand> commands)
     {
         if (_soundReadPositions[queue] == _soundWritePositions[queue])

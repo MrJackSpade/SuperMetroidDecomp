@@ -5,12 +5,33 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Indexed Grapple artwork resolved at NMI, without embedding PNG data in pending state.</summary>
 public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTransferSource
 {
-    private readonly byte[] tiles;
+    private readonly byte[] independentTiles;
+    private readonly bool singleInk;
+    private readonly byte[]? firstPoint;
+    private readonly byte[]? secondPoint;
+    private readonly byte[]? thirdPoint;
+    private readonly byte[]? fourthPoint;
+    private readonly byte[]? verticalSegments;
     public GrappleSpriteCatalog? Sprites { get; }
     public ChargeFlarePlacementCatalog? FlarePlacement { get; }
     public GrappleSwingFrameCatalog? SwingFrames { get; }
     private GrappleTileAtlas(byte[] tiles, GrappleSpriteCatalog? sprites, ChargeFlarePlacementCatalog? flarePlacement, GrappleSwingFrameCatalog? swingFrames)
-    { this.tiles = tiles; Sprites = sprites; FlarePlacement = flarePlacement; SwingFrames = swingFrames; }
+    {
+        Sprites = sprites; FlarePlacement = flarePlacement; SwingFrames = swingFrames;
+        byte[]? coverage = GrappleBeamTilePatterns.InkCoverage(tiles.AsSpan(128, 256));
+        singleInk = coverage is not null;
+        independentTiles = coverage ?? tiles.AsSpan(128, 256).ToArray();
+        if (!tiles.AsSpan(0, 32).SequenceEqual(GrappleBeamTilePatterns.Point(0)))
+            firstPoint = tiles.AsSpan(0, 32).ToArray();
+        if (!tiles.AsSpan(32, 32).SequenceEqual(GrappleBeamTilePatterns.Point(1)))
+            secondPoint = tiles.AsSpan(32, 32).ToArray();
+        if (!tiles.AsSpan(64, 32).SequenceEqual(GrappleBeamTilePatterns.Point(2)))
+            thirdPoint = tiles.AsSpan(64, 32).ToArray();
+        if (!tiles.AsSpan(96, 32).SequenceEqual(GrappleBeamTilePatterns.Point(3)))
+            fourthPoint = tiles.AsSpan(96, 32).ToArray();
+        if (!tiles.AsSpan(384, 128).SequenceEqual(GrappleBeamTilePatterns.VerticalSegments(tiles.AsSpan(128, 128))))
+            verticalSegments = tiles.AsSpan(384, 128).ToArray();
+    }
     public static GrappleTileAtlas Load(Stream png, GrappleSpriteCatalog? sprites = null, ChargeFlarePlacementCatalog? flarePlacement = null, GrappleSwingFrameCatalog? swingFrames = null)
     {
         var image = IndexedPng.Read(png, GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
@@ -19,8 +40,20 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
     {
         var transfer = GrappleTileDefinitions.TransferFor(asset);
-        return tiles.AsMemory(transfer.AtlasOffset, transfer.ByteCount);
+        return asset switch
+        {
+            VramAssetId.GrapplePointFirstTiles => firstPoint ?? GrappleBeamTilePatterns.Point(0),
+            VramAssetId.GrapplePointSecondTiles => secondPoint ?? GrappleBeamTilePatterns.Point(1),
+            VramAssetId.GrapplePointThirdTiles => thirdPoint ?? GrappleBeamTilePatterns.Point(2),
+            VramAssetId.GrapplePointFourthTiles => fourthPoint ?? GrappleBeamTilePatterns.Point(3),
+            VramAssetId.GrappleVerticalSegmentTiles => verticalSegments ??
+                GrappleBeamTilePatterns.VerticalSegments(SegmentBytes(0).Span),
+            _ => SegmentBytes(transfer.AtlasOffset - 128),
+        };
     }
+    private ReadOnlyMemory<byte> SegmentBytes(int offset) => singleInk
+        ? GrappleBeamTilePatterns.EncodeInk(independentTiles.AsSpan(offset / 4, 32))
+        : independentTiles.AsMemory(offset, 128);
     /// <summary>Resolves native endpoint/segment queue records without requiring an eager queue rewrite.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {

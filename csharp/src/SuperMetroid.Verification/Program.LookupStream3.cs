@@ -6,6 +6,54 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3GrappleTilePatterns(ISnesAddressSpace rom, GrappleTileTransfer[] transfers)
+    {
+        byte[] planar = transfers.SelectMany(transfer => Enumerable.Range(0, transfer.ByteCount)
+            .Select(index => rom.ReadByte(transfer.SourceAddress + index))).ToArray();
+        GrappleTileAtlas Load()
+        {
+            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 16, out int width, out int height);
+            using var png = new MemoryStream();
+            IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+            return GrappleTileAtlas.Load(new MemoryStream(png.ToArray()));
+        }
+        void Check(GrappleTileAtlas atlas)
+        {
+            foreach (var transfer in transfers)
+            {
+                AssertTrue(planar.AsSpan(transfer.AtlasOffset, transfer.ByteCount).SequenceEqual(atlas.Resolve(transfer.Asset).Span),
+                    "stream 3 exact Grapple calculated/upload bytes");
+                AssertTrue(atlas.TryResolve(transfer.SourceAddress, transfer.ByteCount, out var resolved),
+                    "stream 3 existing Grapple transfer identity binding");
+                AssertTrue(resolved.Span.SequenceEqual(atlas.Resolve(transfer.Asset).Span),
+                    "stream 3 rebound Grapple bytes preserve transfer boundaries");
+            }
+        }
+        var stock = Load();
+        Check(stock);
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        AssertEqual(64, ((byte[])typeof(GrappleTileAtlas).GetField("independentTiles", fields)!.GetValue(stock)!).Length,
+            "stream 3 Grapple retains only eight independent binary coverage patterns");
+        foreach (string field in new[] { "firstPoint", "secondPoint", "thirdPoint", "fourthPoint", "verticalSegments" })
+            AssertTrue(typeof(GrappleTileAtlas).GetField(field, fields)!.GetValue(stock) is null,
+                "stream 3 calculated Grapple pixels have no cached stock characters");
+        for (int tile = 0; tile < 16; tile++)
+        for (int plane = 0; plane < 4; plane++)
+        {
+            int index = tile * 32 + plane / 2 * 16 + plane % 2;
+            planar[index] ^= 128;
+            Check(Load());
+            planar[index] ^= 128;
+        }
+        for (int tile = 4; tile < 12; tile++)
+        {
+            for (int plane = 0; plane < 4; plane++) planar[tile * 32 + plane / 2 * 16 + plane % 2] ^= 128;
+            Check(Load());
+            for (int plane = 0; plane < 4; plane++) planar[tile * 32 + plane / 2 * 16 + plane % 2] ^= 128;
+        }
+        Check(stock);
+        AssertTrue(!stock.TryResolve(transfers[0].SourceAddress, 31, out _), "stream 3 Grapple rejects partial transfer");
+    }
     private static void VerifyStream3NarrationLayout(ISnesAddressSpace rom, byte[] json, IntroNarrationPresentation stock)
     {
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;

@@ -26,6 +26,23 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream3-grapple-tile-patterns"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        GrappleTileTransfer[] expectedTransfers =
+        [
+            new(VramAssetId.GrapplePointFirstTiles, 0x9a8200, 0, 32),
+            new(VramAssetId.GrapplePointSecondTiles, 0x9a8400, 32, 32),
+            new(VramAssetId.GrapplePointThirdTiles, 0x9a8600, 64, 32),
+            new(VramAssetId.GrapplePointFourthTiles, 0x9a8800, 96, 32),
+            new(VramAssetId.GrappleHorizontalSegmentTiles, 0x9a8220, 128, 128),
+            new(VramAssetId.GrappleDiagonalSegmentTiles, 0x9a8a20, 256, 128),
+            new(VramAssetId.GrappleVerticalSegmentTiles, 0x9a9220, 384, 128),
+        ];
+        VerifyStream3GrappleTilePatterns(rom, expectedTransfers);
+    Console.WriteLine("Grapple tiles:512native bytes,64plane edits,8coverage edits,seven transfer bindings and64required coverage bytes pass;shape inputs remain pending.");
+    return 0;
+}
 if (args is ["--lookup-stream-4-ending-shake"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

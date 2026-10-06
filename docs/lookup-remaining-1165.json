@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 466,
+  "remainingTableDefinitionCount": 465,
   "fileCount": 523,
   "entries": [
     {
@@ -108,12 +108,15 @@
       "note": "Original/default payload behind CeresDoorVisualCatalog.animation. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CeresDoorVisualCatalog.cs",
-      "line": 27,
-      "name": "CeresDoorVisualCatalog.mode7DoorFrames",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CeresDoorVisualCatalog.mode7DoorFrames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CeresDoorVisualCatalog.cs",
+  "line": 27,
+  "name": "CeresDoorVisualCatalog.mode7DoorFrames",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CeresDoorVisualCatalog.mode7DoorFrames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "187a13437",
+  "disposition": "All8 platform cells calculate from selected light/dark left-cap identities68/8D and four-cell cap/interior/interior/cap topology. Interior=left+1,opposite light cap=left+16 source atlas row,dark cap=adjacent phase. Retain exact selected strip imagery/phase membership only; no pixels,RGB,cadence or map-placement exception. Sparse independent edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs",
       "line": 41,
@@ -21676,5 +21679,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 62
+  "justifiedRetainedSinceSnapshot": 63
 }

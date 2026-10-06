@@ -23,9 +23,13 @@ public sealed class CeresDoorVisualCatalog
                 for (int color = 0; color < rowColors.Length; color++) rowColors[color] = AnimationColor(row, color);
                 content.AppendWords("row", rowColors);
             }
-            content.Append("mode7-frames", mode7DoorFrames.Length);
-            foreach (byte[] frame in mode7DoorFrames)
-                content.Append("mode7-frame", frame);
+            content.Append("mode7-frames", CeresDoorVisualRomData.Mode7FrameCount);
+            Span<byte> platform = stackalloc byte[CeresDoorVisualRomData.Mode7FrameByteCount];
+            for (int frame = 0; frame < CeresDoorVisualRomData.Mode7FrameCount; frame++)
+            {
+                for (int index = 0; index < platform.Length; index++) platform[index] = PlatformTile(frame, index);
+                content.Append("mode7-frame", platform);
+            }
         });
 
     private readonly RoomCharacterAtlas tiles;
@@ -35,7 +39,7 @@ public sealed class CeresDoorVisualCatalog
     private readonly ushort[] animationSeeds;
     private readonly Dictionary<int, ushort> animationPhaseResiduals = [];
     private readonly Dictionary<int, ushort> animationRowEdits = [];
-    private readonly byte[][] mode7DoorFrames;
+    private readonly Dictionary<int, byte> platformEdits = [];
 
     private CeresDoorVisualCatalog(RoomCharacterAtlas tiles, ushort[] normal,
         ushort[] escape, ushort[][] animation, byte[][] mode7DoorFrames)
@@ -58,7 +62,10 @@ public sealed class CeresDoorVisualCatalog
         for (int color = 0; color < CeresDoorVisualRomData.AnimationColorCount; color++)
             if (animation[row][color] != AnimationColor(row, color))
                 animationRowEdits.Add(row * CeresDoorVisualRomData.AnimationColorCount + color, animation[row][color]);
-        this.mode7DoorFrames = mode7DoorFrames;
+        for (int frame = 0; frame < mode7DoorFrames.Length; frame++)
+        for (int index = 0; index < CeresDoorVisualRomData.Mode7FrameByteCount; index++)
+            if (mode7DoorFrames[frame][index] != PlatformTile(frame, index))
+                platformEdits.Add(frame * CeresDoorVisualRomData.Mode7FrameByteCount + index, mode7DoorFrames[frame][index]);
     }
 
     public static CeresDoorVisualCatalog Load(Stream tilePng, Stream paletteJson)
@@ -164,11 +171,19 @@ public sealed class CeresDoorVisualCatalog
         return (ushort)(red | green << 5 | blue << 10);
     }
 
+    /// <summary>$A6:F918/F91C: resolve shared canonical platform imagery or an independent supplied cell edit.</summary>
+    private byte PlatformTile(int frame, int index)
+    {
+        byte stock = CeresMode7TransferDefinitions.PlatformTile(frame, index);
+        return platformEdits.TryGetValue(frame * CeresDoorVisualRomData.Mode7FrameByteCount + index, out byte edit) ? edit : stock;
+    }
+
     public void LoadMode7DoorFrame(SnesVram vram, int frame)
     {
         ArgumentNullException.ThrowIfNull(vram);
-        vram.LoadMode7MapBytes(mode7DoorFrames[frame],
-            CeresDoorVisualRomData.Mode7DestinationWord);
+        Span<byte> transfer = stackalloc byte[CeresDoorVisualRomData.Mode7FrameByteCount];
+        for (int index = 0; index < transfer.Length; index++) transfer[index] = PlatformTile(frame, index);
+        vram.LoadMode7MapBytes(transfer, CeresDoorVisualRomData.Mode7DestinationWord);
     }
 
     private static byte[][] CompileMode7Frames(int[][]? source)

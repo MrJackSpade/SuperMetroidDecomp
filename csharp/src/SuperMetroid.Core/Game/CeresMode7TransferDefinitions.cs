@@ -108,14 +108,28 @@ public static class CeresMode7TransferDefinitions
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    /// <summary>$A6:F918-F91F,AD1B-AD26: independent platform boundary/middle glyphs and six baby row origins remain REQUIRED; duplicate middle and adjacent right tiles calculate.</summary>
+    /// <summary>$A6:F918/F91C: the selected light and dark platform left caps in the source Mode7 atlas. Their adjacent cells are the corresponding interior strips.</summary>
+    private const byte LightPlatformLeftCap = 0x68, DarkPlatformLeftCap = 0x8d;
+    /// <summary>$C0:E22A native character sheet packs sixteen8px tiles per source row; the full sheet reconstructs continuous multirow room artwork. This is source atlas geometry, not a Mode7 hardware requirement.</summary>
+    private const int PlatformAtlasColumns = 16;
+    /// <summary>$A6:F91B/F91F: light right cap is directly below the light left cap in the native atlas, followed by the adjacent dark-phase right cap.</summary>
+    private const byte PlatformRightCapPair = LightPlatformLeftCap + PlatformAtlasColumns;
+
+    /// <summary>Canonical two-phase four-cell platform composition. Selected light/dark left-cap identities, phase membership and the four-cell cap/interior/interior/cap topology are the exact authored strip imagery; generating different choices would change its drawn ends or width. Interior and paired right-cap atlas addresses calculate. This does not select animation timing, map placement, pixels or paint.</summary>
+    internal static byte PlatformTile(int frame, int column)
+    {
+        if ((uint)frame >= CeresDoorVisualRomData.Mode7FrameCount ||
+            (uint)column >= CeresDoorVisualRomData.Mode7FrameByteCount) throw new IndexOutOfRangeException();
+        byte left = frame == 0 ? LightPlatformLeftCap : DarkPlatformLeftCap;
+        return column == 0 ? left : column == CeresDoorVisualRomData.Mode7FrameByteCount - 1
+            ? (byte)(PlatformRightCapPair + frame) : (byte)(left + 1);
+    }
+
+    /// <summary>$A6:AD1B-AD26: six baby row origins remain REQUIRED; adjacent right tiles calculate. Platform glyphs use their shared canonical owner.</summary>
     private static byte TileAt(ushort pointer, int row, int column)
     {
         if (pointer is ElevatorLight or ElevatorDark)
-        {
-            bool dark = pointer == ElevatorDark;
-            return (byte)(column == 0 ? (dark ? 0x8d : 0x68) : column == 3 ? (dark ? 0x79 : 0x78) : (dark ? 0x8e : 0x69));
-        }
+            return PlatformTile(pointer == ElevatorDark ? 1 : 0, column);
         if (pointer is BabyFrame0 or BabyFrame1 or BabyFrame2)
         {
             int origin = (pointer, row) switch

@@ -6,6 +6,96 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5CeresPlatform(SuperMetroidAddressSpace rom)
+    {
+        var document = new CeresDoorVisualDocument
+        {
+            Version = 1,
+            Normal = Colors(CeresDoorVisualRomData.NormalColors,15),
+            Escape = Colors(CeresDoorVisualRomData.EscapeColors,15),
+            Animation = Enumerable.Range(0,8).Select(row => Colors(CeresDoorVisualRomData.AnimationColors +16*row,6)).ToArray(),
+            Mode7DoorFrames = Enumerable.Range(0,2).Select(frame => Enumerable.Range(0,4)
+                .Select(index => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource +4*frame+index)).ToArray()).ToArray(),
+        };
+        byte[] planar = Enumerable.Range(0,CeresDoorVisualRomData.TileByteCount)
+            .Select(index => rom.ReadByte(CeresDoorVisualRomData.TileSource+index)).ToArray();
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar,4,RoomCharacterAtlasFormat.TileColumns,out int width,out int height);
+        using var png = new MemoryStream();
+        IndexedPng.Write(png,width,height,pixels,SnesGraphics.DiagnosticPalette(16));
+        byte[] pngBytes = png.ToArray();
+        CeresDoorVisualCatalog Load(CeresDoorVisualDocument value) => CeresDoorVisualCatalog.Load(
+            new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualCatalog.Write(value)));
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var stock = Load(document);
+        CheckPlatformActor(stock, document);
+        CheckHash(stock, document);
+        AssertEqual(0, ((Dictionary<int,byte>)typeof(CeresDoorVisualCatalog).GetField("platformEdits", flags)!.GetValue(stock)!).Count, "No stored stock platform cells");
+        for (int frame = 0; frame < 2; frame++)
+        for (int cell = 0; cell < 4; cell++)
+        {
+            int[][] frames = document.Mode7DoorFrames.Select(row => row.ToArray()).ToArray();
+            frames[frame][cell] ^= 255;
+            var changed = document with { Mode7DoorFrames = frames };
+            var edited = Load(changed);
+            AssertEqual(1, ((Dictionary<int,byte>)typeof(CeresDoorVisualCatalog).GetField("platformEdits", flags)!.GetValue(edited)!).Count, "One independent platform override");
+            CheckPlatformActor(edited, changed);
+            CheckHash(edited, changed);
+        }
+        AssertThrows<IndexOutOfRangeException>(() => stock.LoadMode7DoorFrame(new SnesVram(), -1), "Platform lower frame domain");
+        AssertThrows<IndexOutOfRangeException>(() => stock.LoadMode7DoorFrame(new SnesVram(), 2), "Platform upper frame domain");
+        AssertThrows<ArgumentNullException>(() => stock.LoadMode7DoorFrame(null!, 0), "Platform preserves root null validation");
+        AssertThrows<IndexOutOfRangeException>(() => CeresMode7TransferDefinitions.PlatformTile(0, -1), "Canonical platform lower column domain");
+        AssertThrows<IndexOutOfRangeException>(() => CeresMode7TransferDefinitions.PlatformTile(0, 4), "Canonical platform upper column domain");
+        Console.WriteLine("Ceres platform: eight native cells/eight independent edits,99 actual phase calls through wrap, high-byte/neighbor preservation, canonical hashes and domains pass.");
+        PaletteRgb5[] Colors(int source,int count) => Enumerable.Range(0,count).Select(index =>
+        {
+            ushort word = ReadVerificationWord(rom,source+2*index);
+            return new PaletteRgb5 { Red = word &31, Green = (word>>5)&31, Blue = (word>>10)&31 };
+        }).ToArray();
+        void CheckPlatformActor(CeresDoorVisualCatalog visual, CeresDoorVisualDocument expected)
+        {
+            var system = new RoomEnemySystem
+            {
+                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+                    new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), ceresDoorVisual: visual),
+            };
+            var vram = new SnesVram();
+            int destination = CeresDoorVisualRomData.Mode7DestinationWord;
+            byte[] initial = Enumerable.Range(0, 12).Select(index => (byte)(index % 2 == 0 ? 0x5d : 0xa7)).ToArray();
+            vram.LoadBytes((destination - 1) * 2, initial);
+            typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(system, vram);
+            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(system, new SnesCgram());
+            var slots = (RoomEnemySlot[])typeof(RoomEnemySystem).GetField("_slots", flags)!.GetValue(system)!;
+            var animate = typeof(RoomEnemySystem).GetMethod("RunCeresDoorPaletteAnimation", flags)!;
+            foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
+            {
+                slots[0].FrameCounter = tick;
+                animate.Invoke(system, null);
+                int frame = (tick & 2) >> 1;
+                for (int cell = 0; cell < 4; cell++)
+                {
+                    AssertEqual((ushort)(0xa700 | expected.Mode7DoorFrames[frame][cell]), vram.ReadWord(destination + cell), "Actual platform phase and character-byte preservation");
+                    AssertEqual(rom.ReadByte(0xa6f918 + frame * 4 + cell), CeresMode7TransferDefinitions.PlatformTile(frame, cell), "Canonical platform cap/atlas geometry matches native");
+                }
+                AssertEqual((ushort)0xa75d, vram.ReadWord(destination - 1), "Platform preceding map/character unchanged");
+                AssertEqual((ushort)0xa75d, vram.ReadWord(destination + 4), "Platform following map/character unchanged");
+            }
+        }        static ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green<<5 | color.Blue<<10);
+        void CheckHash(CeresDoorVisualCatalog actual, CeresDoorVisualDocument expected)
+        {
+            string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1",content =>
+            {
+                content.Append("tiles",planar);
+                content.AppendWords("normal",expected.Normal.Select(Pack).ToArray());
+                content.AppendWords("escape",expected.Escape.Select(Pack).ToArray());
+                content.AppendWordFrames("animation",expected.Animation.Select(row=>row.Select(Pack).ToArray()).ToArray());
+                content.Append("mode7-frames",expected.Mode7DoorFrames.Length);
+                foreach(var frame in expected.Mode7DoorFrames) content.Append("mode7-frame",frame.Select(value=>(byte)value).ToArray());
+            });
+            AssertEqual(identity,actual.ContentIdentity,"Ceres calculated colors preserve canonical resource identity");
+        }
+    }
+
     private static void VerifyLookupStream5PhantoonExposure(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

@@ -595,7 +595,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/RinkaInstructionProgramDefinitions.cs
 
 - [ ] **RinkaInstructionProgramDefinitions.Words** ([L27](../csharp/src/SuperMetroid.Core/Game/RinkaInstructionProgramDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RinkaInstructionProgramDefinitions.PresentationWords** ([L40](../csharp/src/SuperMetroid.Core/Game/RinkaInstructionProgramDefinitions.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RinkaInstructionProgramDefinitions.PresentationWords** ([L40](../csharp/src/SuperMetroid.Core/Game/RinkaInstructionProgramDefinitions.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Rinka.cs
 
@@ -1019,3 +1019,13 @@ c88d48df1 converts Point,FullBody,EyeOnly,DoublePoint,PointHitboxes and EyeOnlyH
 FullBodyHitboxes remains pending with all five independent rectangles under RequiredBodyBounds. Shared callbacks and eye geometry do not exempt those shapes. Runtime collision/callback code is unchanged.
 
 Root Verification1450warnings/zero errors; --lookup-stream5-phantoon-collision passes22native frames,25components,all seven rectangles/callback pairs,actual full-body touch/shot and eye-only inclusion/exclusion,enumeration and bounds. The granted existing verifier adaptation changes only explicit span bindings. No direct ResourceAudit source-hash reference exists. Six converted entries;569converted/21retained-mixed/538pending.
+
+## Integrated Rinka program layout
+
+789c838a7 completes RinkaInstructionProgramDefinitions.PresentationWords through native setup/timed-record/loop widths. Semantic setup dispatch and returning visible stages calculate repeated mechanics and mirrored pulse holds. Words remains pending for hidden64,seed16,minimum pulse5 and cycle count8; no magnitude or animation exemption.
+
+Root Verification1450warnings/zero errors; existing --rinka-instruction-mechanics passes26native words,18selectors,both actual ordinary/special programs,visibility/offscreen/aim-delay behavior,source guards,bounds and allocation checks. No direct ResourceAudit hash dependency exists. One converted entry;570converted/21retained-mixed/537pending.
+
+## Narrow Phantoon random-bucket ordering review
+
+Root inspected exact native CD41/CD53/CD63 values and consumers D060-D06C,D07C-D088,D5A6-D5B2,D7E7-D7F3. Only the exact bucket ordering is approved authored random-choice content: indices are RNG&7 or first-round(NMI>>1)&3, not a progression through physical or animation phases. Fitting a numerical permutation would merely encode the same selected random policy. This does not exempt duration magnitudes,scale/ratios or timer semantics, and does not close any timer aggregate. Worker implementation and focused confirmation remain queued.

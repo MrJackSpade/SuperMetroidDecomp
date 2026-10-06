@@ -244,6 +244,7 @@ public sealed class EnemySpritemapCatalog
                 "Enemy compositions require the current version and every named frame.");
 
         var frames = new Dictionary<int, EnemySpritemapParts>();
+        BabyMetroidSpriteParts? sharedBabyBody = null;
         var identities = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (EnemySpritemapDefinition frame in expected)
         {
@@ -252,7 +253,7 @@ public sealed class EnemySpritemapCatalog
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} is missing or exceeds OAM capacity.");
             EnemySpritemapParts parts = BabyMetroidSpriteParts.Compile((frame.Bank << 16) | frame.Pointer,
-                CompileParts(visual, frame.Name));
+                CompileParts(visual, frame.Name), ref sharedBabyBody);
             if (!frames.TryAdd((frame.Bank << 16) | frame.Pointer, parts))
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");

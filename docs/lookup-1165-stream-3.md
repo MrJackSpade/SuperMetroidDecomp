@@ -1230,3 +1230,9 @@ Root Verification1450warnings/zero errors and ResourceAudit0warnings/zero errors
 Conversion d4ac1e58c completes StageStarts,ExternalCallInstructions and PresentationWords using three33-byte stages, seven4-byte timed records per stage and the5-byte external call after its first frame. Native86:C796/C7B7/C7D8 and C7F9 Delete confirm the structure; C7FB emits the next fired actor. MechanicsWords no longer stores a generated array, but it and Durations remain pending because holds3,3,2,2,1,1,1 are still REQUIRED.
 
 Root build1450warnings/0errors. Focused layout checks verify21visual operands,threecallbacks,101byte ownership and boundaries; existing native verification confirms25hand-beam words/callbacks plus307shared words and39actual programs with mechanics/callback reads forbidden. No timing exemption or whole-game claim. Inventory573converted/21retained-mixed/534pending.
+
+## Integrated shared Baby upper-body composition
+
+Partial233bbca6a shares nine identical negative-Y half-parts across the three Baby poses within each immutable catalog load. Native stock keeps27 half-parts rather than45; changed supplied records stay local, reflections and per-pose drawing order remain exact. Geometry,artwork and order are still REQUIRED; this is no aggregate completion or exemption.
+
+Root build1450warnings/0errors;90native OAM records,90single-part edits,27appearance edits,three symmetric-pair edits,prior-instance/cross-pose independence,reordered/expanded/empty frames and canonical hashes/bounds pass. Existing64legacy schemas/54binding schemas pass. ResourceAudit0/0 with both source dependencies refreshed. Inventory573converted/21retained-mixed/534pending unchanged.

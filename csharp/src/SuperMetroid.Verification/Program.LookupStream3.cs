@@ -2520,8 +2520,9 @@ internal static partial class Program
             AssertTrue(stock.TryGetDisplay(frame.Bank, frame.Pointer, out var parts), "stream 3 Baby display view");
             AssertTrue(parts is BabyMetroidSpriteParts, "stream 3 stock Baby full part arrays are discarded");
             var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-            AssertEqual(15, ((EnemySpritemapPart[])parts.GetType().GetField("halfParts", flags)!.GetValue(parts)!).Length,
-                "stream 3 Baby retains only one part per reflected pair");
+            bool sharedBody = parts.GetType().GetField("sharedBody", flags)!.GetValue(parts) is not null;
+            AssertEqual(sharedBody ? 6 : 15, ((EnemySpritemapPart[])parts.GetType().GetField("halfParts", flags)!.GetValue(parts)!).Length,
+                "stream 3 Baby shares nine upper-body halves and stores independent lower halves");
             var nativeOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, frame.Bank, frame.Pointer, 128, 128, 0, 0);
@@ -2536,6 +2537,23 @@ internal static partial class Program
                 Check(Load());
                 original[index] = saved;
             }
+            int upper = Array.FindIndex(original, value => value.OffsetY < 0);
+            SpriteVisualPart upperPart = original[upper];
+            int opposite = Array.FindIndex(original, value => value == (upperPart with
+            {
+                OffsetX = -upperPart.OffsetX - upperPart.Size,
+                FlipX = !upperPart.FlipX,
+            }));
+            AssertTrue(opposite >= 0, "native Baby upper-body part has its reflected pair");
+            SpriteVisualPart oppositePart = original[opposite];
+            original[upper] = upperPart with { OffsetY = upperPart.OffsetY + 1 };
+            original[opposite] = oppositePart with { OffsetY = oppositePart.OffsetY + 1 };
+            Check(Load());
+            AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(
+                original.Select((value, index) => index == upper ? upperPart : index == opposite ? oppositePart : value).ToArray(), frame.Name)),
+                "previous Baby component remains immutable after a symmetric supplied edit");
+            original[upper] = upperPart;
+            original[opposite] = oppositePart;
             var part = original[0];
             SpriteVisualPart[] edits =
             [

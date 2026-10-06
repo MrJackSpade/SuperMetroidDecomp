@@ -13,11 +13,16 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
     private const int PoseStride = 2 + NativePartCount * 5;
     private readonly EnemySpritemapPart[] halfParts;
     private readonly sbyte[] drawingOrder;
+    private readonly BabyMetroidSpriteParts? sharedBody;
+    private readonly sbyte[]? halfSelections;
 
-    private BabyMetroidSpriteParts(EnemySpritemapPart[] halfParts, sbyte[] drawingOrder)
+    private BabyMetroidSpriteParts(EnemySpritemapPart[] halfParts, sbyte[] drawingOrder,
+        BabyMetroidSpriteParts? sharedBody = null, sbyte[]? halfSelections = null)
     {
         this.halfParts = halfParts;
         this.drawingOrder = drawingOrder;
+        this.sharedBody = sharedBody;
+        this.halfSelections = halfSelections;
     }
     public override int Count => drawingOrder.Length;
     public override EnemySpritemapPart this[int index]
@@ -25,12 +30,12 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         get
         {
             int selected = drawingOrder[index];
-            EnemySpritemapPart part = halfParts[Math.Abs(selected) - 1];
+            EnemySpritemapPart part = HalfPart(Math.Abs(selected) - 1);
             return selected < 0 ? Reflect(part) : part;
         }
     }
 
-    internal static EnemySpritemapParts Compile(int identity, EnemySpritemapPart[] supplied)
+    internal static EnemySpritemapParts Compile(int identity, EnemySpritemapPart[] supplied, ref BabyMetroidSpriteParts? bodyTemplate)
     {
         int offset = identity - FirstPose;
         if (offset < 0 || offset % PoseStride != 0 || offset / PoseStride >= 3 || supplied.Length != NativePartCount)
@@ -50,7 +55,43 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
             order[index] = (sbyte)halves.Count;
             order[opposite] = (sbyte)-halves.Count;
         }
-        return new BabyMetroidSpriteParts(halves.ToArray(), order);
+        if (bodyTemplate is null)
+        {
+            bodyTemplate = new BabyMetroidSpriteParts(halves.ToArray(), order);
+            return bodyTemplate;
+        }
+        var local = new List<EnemySpritemapPart>();
+        var selections = new sbyte[halves.Count];
+        for (int index = 0; index < halves.Count; index++)
+        {
+            EnemySpritemapPart part = halves[index];
+            // The native negative-Y dome has nine identical half-parts across all
+            // three poses. Match complete supplied records, including orientation;
+            // edited parts remain local and never mutate another pose's component.
+            if (unchecked((sbyte)part.Y) < 0)
+            {
+                for (int candidate = 0; candidate < bodyTemplate.halfParts.Length; candidate++)
+                {
+                    EnemySpritemapPart shared = bodyTemplate.halfParts[candidate];
+                    if (part == shared) { selections[index] = (sbyte)-(2 * candidate + 1); break; }
+                    if (part == Reflect(shared)) { selections[index] = (sbyte)-(2 * candidate + 2); break; }
+                }
+            }
+            if (selections[index] != 0) continue;
+            local.Add(part);
+            selections[index] = (sbyte)local.Count;
+        }
+        return new BabyMetroidSpriteParts(local.ToArray(), order, bodyTemplate, selections);
+    }
+
+    private EnemySpritemapPart HalfPart(int index)
+    {
+        if (halfSelections is null) return halfParts[index];
+        int selection = halfSelections[index];
+        if (selection > 0) return halfParts[selection - 1];
+        int shared = -selection - 1;
+        EnemySpritemapPart part = sharedBody!.halfParts[shared / 2];
+        return (shared & 1) == 0 ? part : Reflect(part);
     }
 
     private static EnemySpritemapPart Reflect(EnemySpritemapPart part)

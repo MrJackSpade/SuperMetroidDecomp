@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream3-baby-body-sharing"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby OAM oracle revision");
+    VerifyStream3BabySpriteReflection(rom);
+    Console.WriteLine("Baby upper-body sharing: native OAM/order/hash, independent symmetric edits and legacy schemas pass; geometry/artwork remain required.");
+    return 0;
+}
 if (args is ["--lookup-stream3-hand-beam-layout"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

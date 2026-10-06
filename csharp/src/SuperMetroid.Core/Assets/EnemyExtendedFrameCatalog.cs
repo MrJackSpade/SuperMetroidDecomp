@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>One visual component of an extended enemy frame, without hitbox metadata.</summary>
 internal readonly record struct EnemyExtendedDrawComponent(
-    short OffsetX, short OffsetY, ReadOnlyMemory<EnemySpritemapPart> Parts);
+    short OffsetX, short OffsetY, EnemySpritemapParts Parts);
 
 /// <summary>
 /// Installed visual compositions for extended enemy frames. Hitbox records and
@@ -26,7 +26,7 @@ public sealed class EnemyExtendedFrameCatalog
                 {
                     content.Append("offset-x", component.OffsetX);
                     content.Append("offset-y", component.OffsetY);
-                    content.AppendEnemyParts(component.Parts.Span);
+                    content.AppendEnemyParts(component.Parts);
                 }
             }
             foreach ((int native, int selected) in displayFrames.OrderBy(pair => pair.Key))
@@ -246,7 +246,9 @@ public sealed class EnemyExtendedFrameCatalog
                     throw new InvalidDataException(
                         $"Extended enemy frame {definition.Name} exceeds OAM capacity.");
                 compiled[index] = new EnemyExtendedDrawComponent(
-                    (short)component.OffsetX, (short)component.OffsetY, parts);
+                    (short)component.OffsetX, (short)component.OffsetY,
+                    GoldenTorizoStrideGeometryDefinitions.Compile((definition.Bank << 16) | definition.Pointer,
+                        index, EnemySpritemapParts.FromOwnedArray(parts)));
             }
             if (!frames.TryAdd((definition.Bank << 16) | definition.Pointer,
                     compiled))

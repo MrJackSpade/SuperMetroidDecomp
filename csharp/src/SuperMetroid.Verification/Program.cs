@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream2-golden-torizo-strides"])
+{
+    VerifyLookupStream2GoldenTorizoFootGeometry(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--lookup-stream-1-escape-dachora-cadence"])
 {
     VerifyLookupStream1EscapeDachoraCadence(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

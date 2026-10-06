@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 496,
+  "remainingTableDefinitionCount": 495,
   "fileCount": 523,
   "entries": [
     {
@@ -4285,12 +4285,15 @@
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkDefinitions.cs",
-      "line": 7,
-      "name": "GoldenTorizoWalkDefinitions.Velocities",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkDefinitions.cs",
+    "line":  7,
+    "name":  "GoldenTorizoWalkDefinitions.Velocities",
+    "kind":  "stored definition",
+    "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+    "state":  "converted",
+    "implementationCommit":  "2e3e6e1be",
+    "disposition":  "Complete:all20 signed displacements derive changes in canonical planted-foot X,including both transfer steps;39 byte windows compose adjacent words. Shared immutable calculated artwork removes duplicate foot X. Seven origins remain explicitly required under EnemyExtendedFrameCatalog.frames; independent artwork edits preserve native motion. No movement magnitude retained."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingCollisionDefinitions.cs",
       "line": 14,
@@ -21584,6 +21587,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 598,
+  "convertedSinceSnapshot": 599,
   "justifiedRetainedSinceSnapshot": 34
 }

@@ -96,7 +96,7 @@ internal static partial class Program
             {
                 AssertEqual((short)expected[index].OffsetX, actual[index].OffsetX, context + " component X");
                 AssertEqual((short)expected[index].OffsetY, actual[index].OffsetY, context + " component Y");
-                AssertTrue(actual[index].Parts.Span.SequenceEqual(EnemySpritemapCatalog.CompileParts(expected[index].Parts, context)),
+                AssertTrue(actual[index].Parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(expected[index].Parts, context)),
                     context + " exact ordered OAM parts");
             }
         }

@@ -65,7 +65,7 @@ internal static partial class Program
                 parts[index] = new EnemySpritemapPart(SnesSpritemapXWord.Create(nativeX.SignedOffset, nativeX.IsLarge),
                     source.ReadCartridgeByte(address + 2), new SnesObjAttributeWord(Word(address + 3)));
             }
-            oam.Add(new EnemyExtendedDrawComponent(x, y, parts));
+            oam.Add(new EnemyExtendedDrawComponent(x, y, EnemySpritemapParts.FromOwnedArray(parts)));
         }
         return (oam.ToArray(), bg2.ToArray());
     }

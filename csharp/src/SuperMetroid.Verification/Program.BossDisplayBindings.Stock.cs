@@ -35,9 +35,9 @@ internal static partial class Program
                     EnemyExtendedDrawComponent original = native.Oam[index], imported = actual.Span[index];
                     AssertEqual(original.OffsetX, imported.OffsetX, frame.Name + " native component X");
                     AssertEqual(original.OffsetY, imported.OffsetY, frame.Name + " native component Y");
-                    AssertTrue(original.Parts.Span.SequenceEqual(imported.Parts.Span), frame.Name + " exact native sprite records");
+                    AssertTrue(original.Parts.SequenceEqual(imported.Parts), frame.Name + " exact native sprite records");
                     parts += original.Parts.Length;
-                    expectedOam.AddEnemySpritemap(original.Parts.Span,
+                    expectedOam.AddEnemySpritemap(original.Parts,
                         unchecked((ushort)(fixture.Actor.XPosition + original.OffsetX)),
                         unchecked((ushort)(fixture.Actor.YPosition + original.OffsetY)), 0, 0,
                         clipVerticalWrap: true, originYIsOnScreen: ((fixture.Actor.YPosition + original.OffsetY) >> 8) == 0);

@@ -1376,3 +1376,5 @@ Stream2 carry integration centralizes four immutable foot origins -31/-28/-14/-7
 
 
 Root integrated confirmation:1452 warnings/0 errors; Audit0/0;15 native colors,45 independent channel edits,recovery independence,paired rear routing and zero stock array passed. phaseTwoAttack is mixed complete; master598 converted/32 retained-mixed/498 pending.
+
+Golden Torizo shared artwork ownership: root integrated GoldenTorizoStrideGeometryDefinitions for ten extended frames AA:A4FA+34*phase,body component2. Seven canonical foot origins -37/-32/-13/3/-30/5/10 remain REQUIRED under EnemyExtendedFrameCatalog.frames. Their calculated immutable foot strips share one basis with fully derived walking magnitudes; this is no artwork exemption. Independent supplied edits remain exact.

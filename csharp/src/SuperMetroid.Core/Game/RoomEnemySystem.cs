@@ -941,7 +941,7 @@ public sealed partial class RoomEnemySystem
                         if (((componentX + 128) & 0xfe00) != 0 ||
                             ((componentY + 128) & 0xfe00) != 0)
                             continue;
-                        oam.AddEnemySpritemap(component.Parts.Span, componentX,
+                        oam.AddEnemySpritemap(component.Parts, componentX,
                             componentY, drawPaletteIndex, slot.VramTilesIndex,
                             clipVerticalWrap: true,
                             originYIsOnScreen: (componentY >> 8) == 0);

@@ -1275,3 +1275,38 @@ Coordinator applied the candidate to current main and added a dedicated early --
 
 Magnitudes is mixed complete, retaining ONLY foot-transfer advance2 and final planted-foot slide1 as authored pose-transition trajectory. The four immutable foot origins -31/-28/-14/-7 remain REQUIRED under Stream3 EnemySpritemapCatalog.frames, identified by the eight chozo_statue_aa_e943/e9ae/ea1e/ea8e/eafe/eb69/ebd9/ec49 compositions. They were centralized, not exempted. All other shape/style/order/glyph inputs remain within that existing obligation. Stream2 now99 resolved/127 required. No user playtesting or whole-game validation is claimed.
 Root complete disposition integrated;master598converted/31retained-mixed/499pending.
+
+## Golden Torizo walking: complete planted-foot derivation proposal
+
+Next bounded original entry is GoldenTorizoWalkDefinitions.Velocities. No retention is proposed for its20 movement words. Native AA:D54D-D599 performs one whole-pixel movement when the instruction selects a pose, preserving fractional position, collision/turn handling and slope alignment. The ten left walking extended frames AA:A4FA+34*phase have four8-byte components; component2 has zero offset and owns the body/feet. Right-facing words are the opposite sign. Complete odd byte-index windows remain part of the public domain0..38 and will compose adjacent calculated little-endian words.
+
+|Phase|Extended frame|Body OAM|Floor tile160 anchors by palette|Left displacement|
+|---|---|---|---|---|
+|0|A4FA|9672|palette2 X10 at967E; palette1 X-37 at968D|-5|
+|1|A51C|8FD4|palette1 X-37 at8FE0|0|
+|2|A53E|9044|palette1 X-32 at905F|-5|
+|3|A560|90AF|palette1 X-13 at90CA|-19|
+|4|A582|911A|palette1 X3 at9135|-16|
+|5|A5A4|96EC|palette1 X10 at96F8; palette2 X-37 at9720|-7|
+|6|A5C6|918A|palette2 X-37 at91B4|0|
+|7|A5E8|91FA|palette2 X-30 at9233|-7|
+|8|A60A|9265|palette2 X-13 at929E|-17|
+|9|A62C|92D0|palette2 X5 at930E|-18|
+
+All addresses above are bankAA and directly confirmed against the supported ROM. Floor strip tiles160/161/162 share Y40, with X adjacency8. Palette1/2 identifies the two legs; phases0/5 plant both feet. In the ordinary transitions, the movement cancels the change in the existing planted foot's local X. At phase0 the outgoing palette2 foot moves from5 to10, yielding displacement-5; at phase5 outgoing palette1 moves3 to10, yielding-7. Thus the transfer magnitudes also derive, with no selected advance or slide residual as in the separate Chozo entry.
+
+For example, starting before phase0 at bodyX0 gives planted palette1 world X=-42 through phases0/1/2/3/4 and the outgoing foot in5: cumulative bodyX -5/-5/-10/-29/-45/-52 plus footX -37/-37/-32/-13/3/10. The new palette2 plant stays at worldX-89 through5/6/7/8/9/next0: bodyX -52/-52/-59/-76/-94/-99 plus footX -37/-37/-30/-13/5/10. This directly accounts for every magnitude rather than treating numerical differences as authored velocities.
+
+Proposed shared immutable foot owner centralizes seven existing geometry choices -37/-32/-13/3/-30/5/10 and calculates three/six foot-X fields in matching body compositions. Those seven chosen origins remain REQUIRED under Stream3 EnemyExtendedFrameCatalog.frames; they are not exempted or duplicated as a new untracked movement table. Root currently exposes extended component Parts as ReadOnlyMemory even though plain EnemySpritemapParts supports calculated views. Requested narrow binding adaptation: EnemyExtendedFrameCatalog component/loader; RoomEnemySystem draw call; Program.BossDisplayBindings.Stock/Oracle; Program.EnemyExtendedLegacyOverrides; CrocomireSkeletonResourceChecks. Stream3 confirms no conflicting loader work and will retain the seven geometry inputs in its checklist. No production edits before coordinator grant.
+### Golden Torizo root-based implementation candidate
+
+Coordinator granted the new shared helper and exact narrow binding paths. Stable candidates are under csharp/test-temp/torizo-stride-candidate, built from current main files rather than the older isolated branch. GoldenTorizoStrideGeometryDefinitions owns seven immutable source origins and matches the third component of only the ten left-walking frames. Each matched body's three/six floor-tile X fields calculate from the shared anchor and8-pixel adjacency; its other parts and every foot flag/Y/attribute/order input remain preserved. Independent X/tile/palette mismatches retain the supplied view. The geometry basis is now shared with GoldenTorizoWalkDefinitions rather than duplicated as20 motion words. All seven origins remain REQUIRED under Stream3 EnemyExtendedFrameCatalog.frames; no artwork retention approval is claimed.
+
+Extended component Parts binds to the already existing immutable EnemySpritemapParts view. Exact binding-only consumers are RoomEnemySystem's extended OAM call, Program.BossDisplayBindings.Stock/Oracle, Program.EnemyExtendedLegacyOverrides and CrocomireSkeletonResourceChecks. The native oracle merely wraps its independently decoded owned array; no expectation/behavior assertion was removed. No projectile catalog migration occurs.
+
+Append VerifyLookupStream2GoldenTorizoFootGeometry to current root Program.LookupStream2.cs and invoke it under an early --lookup-stream2-golden-torizo-strides branch. It confirms all20 derived native words and39 little-endian windows,220 body parts/40 actual native components,ten calculated views,36 independently edited foot-X fields,display remapping,canonical hash and exact packed OAM,then invokes the existing actual movement/carry proof. This is identified-conversion confirmation only. Root application/build is pending; the original velocity entry remains unchecked until it passes.
+
+Audit dependencies: EnemyDisplayArtworkClosedContractDefinitions and NativeDisplaySelectorClosedContractDefinitions contain EnemyExtendedFrameCatalog source hashes. Refresh both catalog hashes; the artwork provider gains GoldenTorizoStrideGeometryDefinitions as a transitive dependency. The selector contract remains GetDisplayPointer mapping availability. RoomEnemySystem is statically analyzed by CompiledEnemyDisplayAudit without an embedded file hash for this binding-only call change. No existing GoldenTorizoWalkDefinitions hash dependency was found. Candidate LF hashes: catalog D658FAC93CBEA1A4697CEB0D0C5C02E935272372673A2C2290DEE18B3679B25B; helper B82370AED8024E53A741A8C09D0E7E700C0FB4FBB0B1061CC2EAAEBA9CB5BA36; walk D00A22CE772403BCE6E79A5BD5A2609DC4B2E8E4B2D5F3B112C40C7418839075. Coordinator owns ledger updates and publication.
+### Golden Torizo complete root confirmation
+
+Root independently reviewed native AA:D54D-D5C1,body component bindings and shared geometry calculation. Verification1452 warnings/0 errors;Audit0/0. All20 derived native words,39byte windows,220body parts/40components,10calculated views,36foot-X edits,canonical hash/display remapping/packed OAM and existing52actual movement/carry calls pass. Velocities is converted; master599converted/34retained-mixed/495pending. Seven origins remain required artwork content, with no movement-table residual.

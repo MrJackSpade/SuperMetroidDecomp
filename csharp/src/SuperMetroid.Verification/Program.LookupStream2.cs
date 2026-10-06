@@ -2228,4 +2228,118 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => stock.Resolve(0x86dc), "Program interior is not accepted as a timed record");
         Console.WriteLine("Stream2 Power bindings: 805calculated beam/effect selectors,805native operands,zero stored stock operands and805actual handler/edit paths pass.");
     }
+    private static void VerifyLookupStream2GoldenTorizoFootGeometry(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();
+        var document = new EnemyIdentityFixture().ExtendedDocument();
+        var selected = new EnemyExtendedFrameDefinition[10];
+        int nativeBodyParts = 0;
+        for (int phase = 0; phase < 10; phase++)
+        {
+            int identity = 0xaaa4fa + 34 * phase;
+            AssertEqual(identity, GoldenTorizoStrideGeometryDefinitions.NativeFrameIdentity(phase), "Golden Torizo native extended-record geometry");
+            var frame = definitions.Single(frame => ((frame.Bank << 16) | frame.Pointer) == identity);
+            selected[phase] = frame;
+            AssertEqual((ushort)4, Word(identity), "Golden Torizo four native visual components");
+            var components = new EnemyExtendedVisualComponent[4];
+            for (int component = 0; component < 4; component++)
+            {
+                int record = identity + 2 + component * 8;
+                int source = 0xaa0000 | Word(record + 4);
+                if (component == 2) nativeBodyParts += Word(source);
+                var parts = Enumerable.Range(0, Word(source)).Select(index =>
+                {
+                    int entry = source + 2 + index * 5;
+                    var x = new SnesSpritemapXWord(Word(entry));
+                    var attributes = new SnesObjAttributeWord(Word(entry + 3));
+                    return new SpriteVisualPart
+                    {
+                        OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
+                        TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
+                        Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                        FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
+                    };
+                }).ToArray();
+                components[component] = new EnemyExtendedVisualComponent
+                { OffsetX = unchecked((short)Word(record)), OffsetY = unchecked((short)Word(record + 2)), Parts = parts };
+            }
+            document.Frames[frame.Name] = components;
+        }
+        AssertEqual(220, nativeBodyParts, "Golden Torizo ten native body-composition extents");
+        EnemyExtendedFrameCatalog Load() => EnemyExtendedFrameCatalog.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        void Check(EnemyExtendedFrameCatalog catalog)
+        {
+            foreach (var frame in selected)
+            {
+                AssertTrue(catalog.TryGetDisplay(frame.Bank, frame.Pointer, out var actual), "Golden Torizo installed display binding");
+                var expected = document.Frames[document.DisplayFrames![frame.Name]];
+                AssertEqual(expected.Length, actual.Length, "Golden Torizo component order/extent");
+                var expectedOam = new OamBuffer(); expectedOam.BeginFrame();
+                var actualOam = new OamBuffer(); actualOam.BeginFrame();
+                for (int component = 0; component < expected.Length; component++)
+                {
+                    var wanted = expected[component];
+                    var found = actual.Span[component];
+                    var parts = EnemySpritemapCatalog.CompileParts(wanted.Parts, frame.Name);
+                    AssertEqual((short)wanted.OffsetX, found.OffsetX, "Golden Torizo independent component X");
+                    AssertEqual((short)wanted.OffsetY, found.OffsetY, "Golden Torizo independent component Y");
+                    AssertTrue(found.Parts.SequenceEqual(parts), "Golden Torizo exact supplied part order and fields");
+                    ushort x = unchecked((ushort)(128 + wanted.OffsetX)), y = unchecked((ushort)(96 + wanted.OffsetY));
+                    expectedOam.AddEnemySpritemap(parts.AsSpan(), x, y, 0, 0);
+                    actualOam.AddEnemySpritemap(found.Parts, x, y, 0, 0);
+                }
+                AssertEqual(expectedOam.NextByteOffset, actualOam.NextByteOffset, "Golden Torizo packed OBJ count");
+                AssertTrue(expectedOam.LowTable.SequenceEqual(actualOam.LowTable) && expectedOam.HighTable.SequenceEqual(actualOam.HighTable),
+                    "Golden Torizo calculated stock/supplied parts produce exact packed OAM");
+            }
+            var identities = definitions.ToDictionary(frame => frame.Name, frame => (frame.Bank << 16) | frame.Pointer, StringComparer.Ordinal);
+            string expectedHash = SelectedPresentationHash.Create("enemy-extended-oam-v1", content =>
+            {
+                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                {
+                    content.Append("frame", (frame.Bank << 16) | frame.Pointer);
+                    var components = document.Frames[frame.Name];
+                    content.Append("components", components.Length);
+                    foreach (var component in components)
+                    {
+                        content.Append("offset-x", component.OffsetX); content.Append("offset-y", component.OffsetY);
+                        content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(component.Parts, frame.Name));
+                    }
+                }
+                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                {
+                    content.Append("native-binding", (frame.Bank << 16) | frame.Pointer);
+                    content.Append("selected-binding", identities[document.DisplayFrames![frame.Name]]);
+                }
+            });
+            AssertEqual(expectedHash, catalog.ContentIdentity, "Golden Torizo calculated extended-part hash remains canonical");
+        }
+        var stock = Load(); Check(stock);
+        int edits = 0;
+        foreach (var frame in selected)
+        {
+            AssertTrue(stock.TryGet(frame.Bank, frame.Pointer, out var components), "Golden Torizo native identity stays installed");
+            AssertEqual("FootParts", components.Span[2].Parts.GetType().Name, "Golden Torizo stock foot strips use shared geometry");
+            var parts = document.Frames[frame.Name][2].Parts;
+            for (int index = 0; index < parts.Length; index++)
+            {
+                var original = parts[index];
+                if (original.TileRow * 16 + original.TileColumn is < 0x160 or > 0x162) continue;
+                parts[index] = original with { OffsetX = original.OffsetX + 1 };
+                Check(Load());
+                for (ushort offset = 0; offset <= 38; offset++)
+                    AssertEqual(Word(0xaad59a + offset), GoldenTorizoWalkDefinitions.Velocity(offset), "Edited foot artwork does not change native walking words/windows");
+                parts[index] = original;
+                edits++;
+            }
+        }
+        AssertEqual(36, edits, "Golden Torizo all independent calculated foot-X fields edited");
+        document.DisplayFrames![selected[0].Name] = selected[1].Name;
+        Check(Load());
+        VerifyCompiledStatueWalking(rom);
+        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoStrideGeometryDefinitions.HorizontalAdvance(10), "Golden Torizo phase upper bound");
+        Console.WriteLine("Golden Torizo foot geometry:20derived words,39native byte windows,220body parts/40components,10calculated views,36independent foot-X edits,display rebind/hash/packed OAM and actual walking calls pass; seven artwork origins remain required.");
+    }
 }

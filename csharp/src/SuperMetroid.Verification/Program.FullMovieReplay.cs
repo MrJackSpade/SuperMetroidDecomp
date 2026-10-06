@@ -1,0 +1,177 @@
+using System.Buffers.Binary;
+using System.IO.Compression;
+using System.Security.Cryptography;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+
+internal static partial class Program
+{
+    private const string FullPlaythroughMoviePath = "csharp/test-fixtures/full-100-percent/Super Metroid 100%.smv";
+    private const string FullPlaythroughMovieSha256 = "4D0E6E671E11BD99439AE498210943711135E6CBE8F57D97B2C56815315AE07E";
+
+    /// <summary>
+    /// Replays the supplied power-on 100% movie through production frontend and gameplay
+    /// code. The only imported state is the movie's own power-on SRAM; every later update
+    /// receives only its converted controller word, and native WRAM is read-only evidence.
+    /// </summary>
+    /// <param name="traceFromUpdate">
+    /// Diagnostic only: from this update on, print port and native Samus kinematics so a
+    /// divergence can be read field by field. Comparison and failure are unchanged.
+    /// </param>
+    private static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null)
+    {
+        byte[] movie = File.ReadAllBytes(FullPlaythroughMoviePath);
+        AssertEqual(FullPlaythroughMovieSha256, Convert.ToHexString(SHA256.HashData(movie)), "100% movie identity");
+        using var checkpoints = NativeMovieCheckpoints.Open(traceDirectory, movie);
+        var updates = checkpoints.Updates;
+
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        ReadResetMovieSaveRam(movie).CopyTo(bus.SaveRam);
+        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        var audio = new CartridgeAudioRenderer(runtimeFixtureInstallation.Value.LoadAudio());
+
+        byte[] memory = checkpoints.ReadAfter(0);
+        Console.WriteLine($"Native first input boundary: SMV frame {updates[0].SourceFrame}, " +
+            $"state {Word(memory, MovieDesyncMemory.GameState):X2}, RNG {Word(memory, MovieDesyncMemory.Random):X4}.");
+        var recentInputs = new Queue<string>();
+        for (int update = 1; update <= updates.Count; update++)
+        {
+            ConvertedMovieUpdate step = updates[update - 1];
+            // The last controller read of an eliminated music wait is still input the
+            // cartridge consumed: it decides whether this update sees a new press.
+            if (step.HardwareWaitLatch is { } latched)
+                game.AcceptDoorMusicWaitControllerRead(latched);
+            var output = game.Step(step.Input);
+            audio.RenderFrame(output.AudioCommands);
+            game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+            memory = checkpoints.ReadAfter(update);
+
+            if (update >= traceFromUpdate)
+                TraceMovieSamus(game, memory, update, step);
+            recentInputs.Enqueue($"{update}@{step.SourceFrame}:{step.Input:X4}/{step.Kind}");
+            if (recentInputs.Count > 12) recentInputs.Dequeue();
+            List<string> mismatches = CompareMovieDesyncState(game, memory, step.ExcludedNmiAfter);
+            if (mismatches.Count != 0)
+            {
+                Console.Error.WriteLine("Recent converted inputs: " + string.Join(", ", recentInputs));
+                throw new InvalidDataException(
+                    $"100% movie first divergence after update {update} (SMV source frame {step.SourceFrame}, " +
+                    $"native state {Word(memory, MovieDesyncMemory.GameState):X2}, port state {(ushort)game.GameState:X2}): " +
+                    string.Join("; ", mismatches));
+            }
+            if (update % 10000 == 0)
+                Console.WriteLine($"Update {update}/{updates.Count} (SMV frame {step.SourceFrame}) matches; state {(ushort)game.GameState:X2}.");
+        }
+        checkpoints.AssertExhausted();
+        Console.WriteLine($"100% movie replay: {updates.Count} updates across all {checkpoints.SourceFrameCount} source frames match.");
+    }
+
+    private static void TraceMovieSamus(SuperMetroidGame game, byte[] memory, int update, ConvertedMovieUpdate step)
+    {
+        var samus = game.RuntimeForVerification?.Samus;
+        string Native(int address) => Word(memory, address).ToString("X4");
+        Console.WriteLine($"trace {update}@{step.SourceFrame} in={step.Input:X4} state={(ushort)game.GameState:X2}/{Native(MovieDesyncMemory.GameState)}");
+        if (samus is null) return;
+        Console.WriteLine($"  port   pose={samus.Pose:X2} X={samus.XPosition:X4}.{samus.Kinematics.XSubposition:X4} Y={samus.YPosition:X4}.{samus.Kinematics.YSubposition:X4} " +
+            $"vs={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4} total={samus.HorizontalSpeed.TotalSpeed:X4}.{samus.HorizontalSpeed.TotalSubspeed:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)}");
+        Console.WriteLine($"  native pose={Native(MovieDesyncMemory.SamusPose)} X={Native(MovieDesyncMemory.SamusX)}.{Native(MovieDesyncMemory.SamusXFraction)} Y={Native(MovieDesyncMemory.SamusY)}.{Native(MovieDesyncMemory.SamusYFraction)} " +
+            $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)}");
+    }
+
+    private static ushort Word(byte[] memory, int address) =>
+        BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
+
+    /// <summary>
+    /// Compares the gameplay-outcome fields that reveal desynchronization. Door loading
+    /// is atomic in the port, so room-owned state is compared only once gameplay resumes.
+    /// </summary>
+    private static List<string> CompareMovieDesyncState(SuperMetroidGame game, byte[] memory, int excludedNmis)
+    {
+        var mismatches = new List<string>();
+        void Check(string name, ushort actual, int address)
+        {
+            ushort expected = Word(memory, address);
+            if (actual != expected) mismatches.Add($"{name}: native={expected:X4} port={actual:X4}");
+        }
+
+        Check("Game state", (ushort)game.GameState, MovieDesyncMemory.GameState);
+        bool doorTransition = game.GameState is SuperMetroidGameState.HitDoorBlock or
+            SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB;
+        if (!doorTransition)
+            Check("RNG", game.DispatcherRandomNumber, MovieDesyncMemory.Random);
+
+        // Native loading leaves Samus half-initialized across its NMI waits; the port
+        // loads atomically. The following state compares the completed result.
+        if (game.GameState is SuperMetroidGameState.SetUpNewGame or SuperMetroidGameState.LoadingGameData)
+            return mismatches;
+        var runtime = game.RuntimeForVerification;
+        if (runtime?.Samus is not { } samus) return mismatches;
+        Check("Samus X", samus.XPosition, MovieDesyncMemory.SamusX);
+        Check("Samus X fraction", samus.Kinematics.XSubposition, MovieDesyncMemory.SamusXFraction);
+        Check("Samus Y", samus.YPosition, MovieDesyncMemory.SamusY);
+        Check("Samus Y fraction", samus.Kinematics.YSubposition, MovieDesyncMemory.SamusYFraction);
+        Check("Samus health", samus.Health, MovieDesyncMemory.Health);
+        Check("Samus max health", samus.MaxHealth, MovieDesyncMemory.MaxHealth);
+        Check("Equipped items", samus.EquippedItems, MovieDesyncMemory.EquippedItems);
+        Check("Collected items", samus.CollectedItems, MovieDesyncMemory.CollectedItems);
+        Check("Equipped beams", samus.EquippedBeams, MovieDesyncMemory.EquippedBeams);
+        Check("Collected beams", samus.CollectedBeams, MovieDesyncMemory.CollectedBeams);
+        Check("Missiles", samus.Missiles, MovieDesyncMemory.Missiles);
+        Check("Max missiles", samus.MaxMissiles, MovieDesyncMemory.MaxMissiles);
+        Check("Super missiles", samus.SuperMissiles, MovieDesyncMemory.SuperMissiles);
+        Check("Max super missiles", samus.MaxSuperMissiles, MovieDesyncMemory.MaxSuperMissiles);
+        Check("Power bombs", samus.PowerBombs, MovieDesyncMemory.PowerBombs);
+        Check("Max power bombs", samus.MaxPowerBombs, MovieDesyncMemory.MaxPowerBombs);
+        Check("Reserve capacity", samus.MaxReserveEnergy, MovieDesyncMemory.MaxReserve);
+        Check("Reserve energy", samus.ReserveEnergy, MovieDesyncMemory.Reserve);
+        if (game.GameState != SuperMetroidGameState.MainGameplay) return mismatches;
+
+        Check("Samus pose", samus.Pose, MovieDesyncMemory.SamusPose);
+        Check("Room", runtime.ActiveRoom!.Pointer, MovieDesyncMemory.Room);
+        Check("Camera X", runtime.Camera!.XPosition, MovieDesyncMemory.CameraX);
+        Check("Camera Y", runtime.Camera.YPosition, MovieDesyncMemory.CameraY);
+        ushort normalizedNmi = unchecked((ushort)(Word(memory, MovieDesyncMemory.NmiCounter) - excludedNmis));
+        if (runtime.NmiFrameCounter != normalizedNmi)
+            mismatches.Add($"Accepted gameplay NMI: native={normalizedNmi:X4} port={runtime.NmiFrameCounter:X4}");
+        foreach (var actor in runtime.Enemies.Slots)
+        {
+            int address = MovieDesyncMemory.EnemyBase + actor.NativeIndex;
+            string owner = $"Enemy {actor.SlotIndex}";
+            Check(owner + " identity", actor.EnemyDefinitionPointer, address + MovieDesyncMemory.EnemyIdentityOffset);
+            if (actor.EnemyDefinitionPointer == 0) continue;
+            Check(owner + " X", actor.XPosition, address + MovieDesyncMemory.EnemyXOffset);
+            Check(owner + " X fraction", actor.XSubposition, address + MovieDesyncMemory.EnemyXFractionOffset);
+            Check(owner + " Y", actor.YPosition, address + MovieDesyncMemory.EnemyYOffset);
+            Check(owner + " Y fraction", actor.YSubposition, address + MovieDesyncMemory.EnemyYFractionOffset);
+            Check(owner + " health", actor.Health, address + MovieDesyncMemory.EnemyHealthOffset);
+        }
+        return mismatches;
+    }
+
+    /// <summary>
+    /// Extracts the 8 KiB cartridge SRAM that a reset-start Snes9x v4/v5 movie embeds in
+    /// place of a snapshot. Snapshot-start movies are rejected: they need state import.
+    /// </summary>
+    private static byte[] ReadResetMovieSaveRam(byte[] movie)
+    {
+        const int MovieOptionsOffset = 0x15, StateOffsetField = 0x18, ControllerOffsetField = 0x1c;
+        const byte StartFromReset = 0x01;
+        if (!movie.AsSpan(0, 4).SequenceEqual("SMV\x1a"u8))
+            throw new InvalidDataException("Not an SMV movie.");
+        uint version = BinaryPrimitives.ReadUInt32LittleEndian(movie.AsSpan(4));
+        if (version is not (4 or 5))
+            throw new InvalidDataException($"SMV version {version} SRAM layout is not supported.");
+        if ((movie[MovieOptionsOffset] & StartFromReset) == 0)
+            throw new InvalidDataException("Movie starts from a snapshot, not from power-on reset.");
+        int start = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(StateOffsetField));
+        int end = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(ControllerOffsetField));
+        using var gzip = new GZipStream(new MemoryStream(movie, start, end - start), CompressionMode.Decompress);
+        using var sram = new MemoryStream();
+        gzip.CopyTo(sram);
+        if (sram.Length < SuperMetroidAddressSpace.SaveRamByteCount)
+            throw new InvalidDataException("Embedded movie SRAM is shorter than the cartridge's 8 KiB.");
+        return sram.GetBuffer().AsSpan(0, SuperMetroidAddressSpace.SaveRamByteCount).ToArray();
+    }
+}

@@ -857,7 +857,8 @@ internal static partial class Program
         AssertTrue(Convert.ToHexString(SHA256.HashData(movie)) == "7E12861DC56C5ABED12C2BFA2B00D24BFA418F49F2CE4C027D930CE9A3663F66", "original Ridley movie hash");
         using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "updates.json")));
         var root = manifest.RootElement;
-        AssertEqual("super-metroid-gameplay-updates-v3", root.GetProperty("format").GetString()!, "converted replay format");
+        AssertEqual("super-metroid-gameplay-updates-v4", root.GetProperty("format").GetString()!, "converted replay format");
+        AssertEqual(0, root.GetProperty("initialRecord").GetInt32(), "snapshot movie has no folded boot prelude");
         AssertEqual(Convert.ToHexString(SHA256.HashData(movie)), root.GetProperty("movieSha256").GetString()!, "converted movie identity");
         AssertEqual(10890, root.GetProperty("sourceFrameCount").GetInt32(), "complete original movie coverage");
         var updates = root.GetProperty("updates").EnumerateArray().ToArray();

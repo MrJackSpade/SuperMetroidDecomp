@@ -48,7 +48,6 @@ public sealed partial class SuperMetroidGame
     private int selectedSaveSlot;
     private bool loadingExistingSave;
     private SuperMetroidSaveSlot? spacetimeIntroRestartSlot;
-    private int postCeresLoadFramesRemaining = -1;
     private byte postCeresFadeBrightness;
     private int postCeresFadeCounter = 1;
     private bool gameplayFadeLeadsToCeresArrival;
@@ -242,6 +241,19 @@ public sealed partial class SuperMetroidGame
     /// <summary>Equipment selector item, matching the high byte of native word $0754.</summary>
     public int PauseSelectedEquipmentItem => pauseMenu?.SelectedItem ?? -1;
 
+    /// <summary>
+    /// Applies the controller read of a native NMI accepted during the door music-wait APU
+    /// upload, which the lag-free port does not spend as an update. Only that proven wait
+    /// is accepted; replays of any other hardware stall must establish their own contract.
+    /// </summary>
+    internal void AcceptDoorMusicWaitControllerRead(ushort controllerInput)
+    {
+        if (GameState != SuperMetroidGameState.LoadingNextRoomB || runtime is null)
+            throw new InvalidOperationException(
+                $"A door music-wait controller read arrived in game state {GameState}.");
+        runtime.LatchHardwareWaitControllerRead(controllerInput);
+    }
+
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
     public FrontendFrame Step(ushort controllerInput)
     {
@@ -265,6 +277,7 @@ public sealed partial class SuperMetroidGame
             ? audio.AdvanceMusicDispatch() : Array.Empty<CartridgeAudioCommand>();
         var gameplayAudio = new GameplayAudioFramePublication(audio);
         FrameNumber++;
+        AdvanceMenuNmiFrameCounters();
         AdvanceMenuRandom();
         switch (GameState)
         {
@@ -452,17 +465,16 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.SetUpNewGame:
+                if (ResumesGameLoadingWait)
+                {
+                    StepGameLoadingWait(controllerInput);
+                    break;
+                }
+                // $82:8000 performs the whole load in one dispatch, then waits for NMIs.
                 bool usesCeresArrival = SetupSelectedGame();
-                if (usesCeresArrival)
-                {
-                    BeginGameplayFadeIn(leadsToCeresArrival: true);
-                    PublishBlack();
-                }
-                else
-                {
-                    GameState = SuperMetroidGameState.MainGameplay;
-                    PublishGameplay(runtime!);
-                }
+                BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits, usesCeresArrival
+                    ? GameLoadingCompletion.CeresArrivalFadeIn
+                    : GameLoadingCompletion.MainGameplay);
                 break;
 
             case SuperMetroidGameState.MadeItToCeresElevator:
@@ -471,17 +483,12 @@ public sealed partial class SuperMetroidGame
                     allowCeresElevatorDeparture: false,
                     queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 PublishGameplay(runtime);
-                if (ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator)
-                {
-                    if (ceresDeparture.StepHoldAfterGameplay())
-                        GameState = SuperMetroidGameState.BlackoutFromCeres;
-                }
-                else if (runtime.GroundedSamusMovementEnabled)
-                {
-                    // The bank-$86 elevator objects restore Samus's ordinary frame
-                    // handler only after the native 60-frame wait and 72-pixel descent.
-                    GameState = SuperMetroidGameState.MainGameplay;
-                }
+                // State $20 is only the departure hold. The arrival descent runs in
+                // ordinary state eight while the bank-$86 elevator objects lock Samus.
+                if (ceresDeparture.Phase != CeresDeparturePhase.HoldingOnElevator)
+                    throw new InvalidOperationException("State $20 requires the Ceres departure hold.");
+                if (ceresDeparture.StepHoldAfterGameplay())
+                    GameState = SuperMetroidGameState.BlackoutFromCeres;
                 break;
 
             case SuperMetroidGameState.MainGameplay:
@@ -917,24 +924,20 @@ public sealed partial class SuperMetroidGame
                     // CADF forces blank and publishes state six. The loader's special
                     // `$22` branch—not cinematic code—selects area zero/station eighteen.
                     GameState = SuperMetroidGameState.LoadingGameData;
-                    postCeresLoadFramesRemaining = -1;
                     PublishBlack();
                 }
                 break;
 
             case SuperMetroidGameState.LoadingGameData:
-                if (postCeresLoadFramesRemaining < 0)
+                if (ResumesGameLoadingWait)
                 {
-                    runtime!.InitializePostCeresZebesRoom();
-                    // `$82:80FB` performs fifteen enemy-tile transfer/NMI waits for this
-                    // branch, versus six for an ordinary saved-game load.
-                    postCeresLoadFramesRemaining = 15;
+                    StepGameLoadingWait(controllerInput);
+                    break;
                 }
-                else if (--postCeresLoadFramesRemaining <= 0)
-                {
-                    BeginGameplayFadeIn(leadsToCeresArrival: false);
-                }
-                PublishBlack();
+                // The `$22` Zebes-landing branch of $82:8000, followed by its NMI waits.
+                runtime!.InitializePostCeresZebesRoom();
+                BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
+                    GameLoadingCompletion.GameplayFadeIn);
                 break;
 
             case SuperMetroidGameState.MainGameplayFadeIn:
@@ -950,9 +953,9 @@ public sealed partial class SuperMetroidGame
                         postCeresFadeBrightness + 1);
                     if (postCeresFadeBrightness == 15)
                     {
-                        GameState = gameplayFadeLeadsToCeresArrival
-                            ? SuperMetroidGameState.MadeItToCeresElevator
-                            : SuperMetroidGameState.MainGameplay;
+                        // $82:8106 always selects state seven, which then enters state
+                        // eight; the Ceres arrival is ordinary gameplay with Samus locked.
+                        GameState = SuperMetroidGameState.MainGameplay;
                         gameplayFadeLeadsToCeresArrival = false;
                     }
                 }
@@ -1294,7 +1297,7 @@ public sealed partial class SuperMetroidGame
         SuperMetroidGameState.CeresGoesBoom =>
             $"Ceres destruction: {ceresDestruction?.Phase}",
         SuperMetroidGameState.LoadingGameData =>
-            $"Loading Landing Site ({Math.Max(0, postCeresLoadFramesRemaining)} transfers)",
+            $"Loading Landing Site ({gameLoadingWaitsRemaining} NMI waits)",
         SuperMetroidGameState.MainGameplayFadeIn =>
             gameplayFadeLeadsToCeresArrival
                 ? $"Ceres elevator fade-in (brightness {postCeresFadeBrightness})"
@@ -1400,6 +1403,8 @@ public sealed partial class SuperMetroidGame
     private void CreateGameplayRuntime(bool forAttractDemo = false)
     {
         ushort incomingRandom = FrontendRandomOwner.RandomNumber;
+        if (runtime is not null)
+            RetainRuntimeNmiFrameCounters();
         runtime = new SuperMetroidRuntime(
             bus,
             playerInvincibilityEnabled: !forAttractDemo && gameOptions.Invincibility,
@@ -1412,6 +1417,7 @@ public sealed partial class SuperMetroidGame
         // Runtime allocation is a managed ownership change, not Vector_RESET.
         // Publish before room initialization so random-consuming enemies see it too.
         runtime.System.SetRandomNumber(incomingRandom);
+        PublishMenuNmiFrameCounters();
         runtime.MapPresentation = mapPresentation;
         runtime.StandardObjectArt = standardObjectArt;
         runtime.SamusBodyArt = samusBodyArt;
@@ -1479,7 +1485,7 @@ public sealed partial class SuperMetroidGame
         // owner. Construct its ordinary HUD now so the cinematic's later room
         // handoff retains initialized HUD state and standard graphics transfers.
         InitializeSelectedGameHud(slot);
-        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.PublishForcedBlankTransfers();
         ApplySelectedGameOptions();
         ceresDestruction = new CeresDestructionCinematicState(
             bus, audio, mapPresentation?.PowerBombFixedColors,
@@ -1540,7 +1546,7 @@ public sealed partial class SuperMetroidGame
                 SelectedItem: 0,
                 ReserveHealth: restartSlot.ReserveEnergy,
                 ReserveMode: restartSlot.ReserveMode));
-            runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+            runtime.PublishForcedBlankTransfers();
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
             SamusState restartedSamus = runtime.Samus
@@ -1565,7 +1571,7 @@ public sealed partial class SuperMetroidGame
             InitializeSelectedGameHud(slot);
             runtime.GameTime.Load(slot.GameTimeFrames, slot.GameTimeSeconds,
                 slot.GameTimeMinutes, slot.GameTimeHours);
-            runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+            runtime.PublishForcedBlankTransfers();
 
             // Preserve the already-translated Ceres elevator entrance for its checkpoint.
             // Every other station uses the general cartridge-backed loader below.
@@ -1615,7 +1621,7 @@ public sealed partial class SuperMetroidGame
         // same cartridge-backed sequence used by the room diagnostic; there is no host
         // terrain image, hand-placed Samus, or alternate playable-only initialization.
         runtime!.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.PublishForcedBlankTransfers();
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
         // CinematicFunction_Intro_Func73 at `$8B:C100` publishes area six/station zero

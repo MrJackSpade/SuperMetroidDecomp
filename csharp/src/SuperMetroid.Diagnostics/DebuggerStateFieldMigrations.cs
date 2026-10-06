@@ -109,6 +109,16 @@ internal static class DebuggerStateFieldMigrations
                 field.Name != "<SavedLoadingGameState>k__BackingField").ToArray();
         }
         if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
+            count <= current.Length - 3 &&
+            current.Any(field => field.Name == "menuNmiFrameCounter"))
+        {
+            Console.Error.WriteLine(
+                "WARNING: Legacy frontend predates native loading-dispatch and menu NMI-counter ownership; " +
+                "restoring zero menu NMI counts and gameplay fade-in after any pending load.");
+            return SelectSerializedFields(type, current.Where(field => field.Name is not
+                ("menuNmiFrameCounter" or "menuNmiFrameCounter8" or "gameLoadingCompletion")).ToArray(), count);
+        }
+        if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
             count <= 48 &&
             current.Any(field => field.Name == "spacetimeIntroRestartSlot"))
         {
@@ -557,16 +567,21 @@ internal static class DebuggerStateFieldMigrations
         }
         if (type == typeof(FileSelectMenuState) && count == current.Length - 1)
         {
-            Console.Error.WriteLine("WARNING: Older file-select state lacks Copy arrow palette timing; restarting its initial delay.");
-            return current.Where(field => field.Name != "copyArrowPaletteTimer").ToArray();
+            Console.Error.WriteLine("WARNING: Older file-select state lacks native fade timing words; resuming with index two's delay of one.");
+            return current.Where(field => field.Name != "screenFade").ToArray();
         }
-        if (type == typeof(FileSelectMenuState) && count == current.Length - 2 &&
+        if (type == typeof(FileSelectMenuState) && count == current.Length - 2)
+        {
+            Console.Error.WriteLine("WARNING: Older file-select state lacks Copy arrow palette timing; restarting its initial delay.");
+            return current.Where(field => field.Name is not ("screenFade" or "copyArrowPaletteTimer")).ToArray();
+        }
+        if (type == typeof(FileSelectMenuState) && count == current.Length - 3 &&
             current.Any(field => field.Name == "currentPresentationPage"))
         {
             Console.Error.WriteLine(
                 "WARNING: Older file-select state lacks its installed-presentation page; " +
                 "reconstructing it from the captured menu phase.");
-            return current.Where(field => field.Name is not ("currentPresentationPage" or "copyArrowPaletteTimer")).ToArray();
+            return current.Where(field => field.Name is not ("screenFade" or "currentPresentationPage" or "copyArrowPaletteTimer")).ToArray();
         }
         if (type == typeof(SuperMetroidSaveSlot) && count == current.Length - 1 &&
             current.Any(field => field.Name == "<LoadingGameState>k__BackingField"))
@@ -713,9 +728,15 @@ internal static class DebuggerStateFieldMigrations
         if (instance is FileSelectMenuState fileSelect && serializedCount <
             GetCurrentInstanceFieldCount(typeof(FileSelectMenuState)))
         {
-            typeof(FileSelectMenuState).GetField("copyArrowPaletteTimer", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .SetValue(fileSelect, FileCopyArrowDefinitions.InitialPaletteDelay);
-            if (serializedCount == GetCurrentInstanceFieldCount(typeof(FileSelectMenuState)) - 2)
+            int fileSelectFields = GetCurrentInstanceFieldCount(typeof(FileSelectMenuState));
+            var fade = new ScreenFade();
+            fade.SetTiming(1, 1);
+            typeof(FileSelectMenuState).GetField("screenFade", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(fileSelect, fade);
+            if (serializedCount <= fileSelectFields - 2)
+                typeof(FileSelectMenuState).GetField("copyArrowPaletteTimer", BindingFlags.Instance | BindingFlags.NonPublic)!
+                    .SetValue(fileSelect, FileCopyArrowDefinitions.InitialPaletteDelay);
+            if (serializedCount == fileSelectFields - 3)
                 RestoreLegacyFileSelectPresentationPage(fileSelect);
         }
         if (instance is SuperMetroidSaveSlot saveSlot && serializedCount ==

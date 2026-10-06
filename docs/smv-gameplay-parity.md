@@ -73,6 +73,42 @@ all 10,890 source frames, with one initial state import and no subsequent native
 state injection. The supplied movie's no-gameplay-desynchronization task is
 complete under the acceptance criterion above.
 
+## 100% playthrough movie (#1269)
+
+`csharp/test-fixtures/full-100-percent/Super Metroid 100%.smv` (SMV v5, 503,668
+frames, SHA-256 `4D0E6E67...AE07E`) starts from power-on reset with SRAM, not from
+a snapshot. Its only imported state is that SRAM; the port then boots through
+title, file select, options and loading on converted input alone.
+
+Manifest v4 adds two conversion rules, both validated by retained input edges:
+
+- **Boot prelude.** Native `Boot` shows the logo with NMI enabled, then
+  `CommonBootSection` clears bank $7E (including `$05B6` and held input) before
+  `MainGameLoop`. Accepted NMIs before the first main-loop dispatch are folded
+  (`initialRecord`), and the first retained update must see its press edge from
+  an empty latch.
+- **Held input in door music waits.** The music-wait upload consumes no input, but
+  each of its NMIs latches the controller. The last such read is retained as
+  `hardwareWaitLatch` and applied before the next update without a dispatch.
+
+The conversion retains 426,470 updates (399,832 main-loop dispatches, 26,638
+continuations), excluding 149 prelude NMIs, 1,771 music-wait NMIs and 75,278
+refreshes without accepted input. Run:
+
+```text
+dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --full-playthrough-movie TRACE_DIRECTORY [--trace-from UPDATE]
+```
+
+The replay compares dispatcher state and RNG every update, plus room, camera,
+Samus position/resources, accepted-NMI counter and enemies during gameplay.
+It matches through update 1,298 (source frame 1,844) after modeling, from
+native evidence: file-select indices 0-2 as three dispatches and two NMI
+continuations, delay-one menu fades through the shared `$0723/$0725` words, the
+helmet turn's final-frame hold, the options start-game handoff (index 4), the
+60+7 / 60+16 NMI waits of the `$82:8000` loading dispatch, frontend ownership of
+`$05B6`, and the Ceres arrival as ordinary state eight. The first open divergence
+is Samus's Y subposition when she runs into a wall at source frame 1,845.
+
 ## Historical investigation evidence
 
 Earlier remaining-coverage lists and statements withholding completion describe

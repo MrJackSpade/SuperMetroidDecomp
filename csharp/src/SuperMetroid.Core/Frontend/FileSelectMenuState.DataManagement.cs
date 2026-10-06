@@ -29,7 +29,11 @@ public sealed partial class FileSelectMenuState
     private bool IsClearPhase =>
         showDataManagementScreen && pendingDataMode == FileSelectDataMode.Clear;
 
-    private bool ShouldDrawSelectionMissile => Phase is not
+    private bool IsEntryPhase => Phase is FileSelectPhase.EnterBlankScreen or
+        FileSelectPhase.EnterBlankScreenAfterNmi or FileSelectPhase.LoadBackground or
+        FileSelectPhase.InitializeMain or FileSelectPhase.InitializeMainAfterNmi;
+
+    private bool ShouldDrawSelectionMissile => !IsEntryPhase && Phase is not
         FileSelectPhase.CopyCompleted and not FileSelectPhase.ClearCompleted;
 
     private void StepMainMenu(SnesButton pressed)
@@ -89,8 +93,8 @@ public sealed partial class FileSelectMenuState
     {
         if (Phase is FileSelectPhase.FadeOutToDataManagement or FileSelectPhase.FadeOutToMain)
         {
-            brightness = Math.Max(0, brightness - 1);
-            if (brightness != 0)
+            screenFade.FadeOut(ref brightness);
+            if (!ScreenFade.IsForcedBlank(brightness))
                 return;
 
             if (Phase == FileSelectPhase.FadeOutToDataManagement)
@@ -109,8 +113,8 @@ public sealed partial class FileSelectMenuState
             return;
         }
 
-        brightness = Math.Min(15, brightness + 1);
-        if (brightness == 15)
+        screenFade.FadeIn(ref brightness);
+        if (brightness == ScreenFade.FullyLit)
             Phase = phaseAfterFadeIn;
     }
 

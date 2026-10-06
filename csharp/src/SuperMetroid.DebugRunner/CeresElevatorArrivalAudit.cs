@@ -55,10 +55,10 @@ internal static class CeresElevatorArrivalAudit
 
         if (!observedVisibleFadeFrame)
             throw new InvalidDataException("Ceres state-seven fade never produced a visible frame.");
-        if (frame.GameState != SuperMetroidGameState.MadeItToCeresElevator)
+        if (frame.GameState != SuperMetroidGameState.MainGameplay)
         {
             throw new InvalidDataException(
-                $"Ceres fade ended in {frame.GameState}, not the cartridge elevator state.");
+                $"Ceres fade ended in {frame.GameState}, not cartridge gameplay state eight.");
         }
         if (game.RuntimeForVerification?.CeresElevatorArrival is not { IsComplete: false })
             throw new InvalidDataException("Ceres elevator objects disappeared during fade-in.");

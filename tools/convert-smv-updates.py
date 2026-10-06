@@ -18,12 +18,28 @@ def classify_timing(kind, upload_active, scroll_before, scroll_after):
     return "other-continuation"
 
 
-def normalize_upload_intervals(updates, initial_input):
-    """Collapse proven post-scroll upload waits, retaining their input audit trail."""
+def boot_prelude_length(updates):
+    """Count accepted NMIs before the first main-loop dispatch of a power-on movie.
+
+    Native `Boot` displays the logo with NMI enabled, then `CommonBootSection`
+    ($80:8482) clears all of bank $7E, including the NMI counter and held-input
+    history, before seeding RNG and entering `MainGameLoop`. Nothing read by those
+    prelude NMIs survives into gameplay, so they are not port updates.
+    """
+    for index, update in enumerate(updates):
+        if update["kind"] == "main-loop":
+            return index
+    raise ValueError("Movie never reaches the native main game loop")
+
+
+def normalize_upload_intervals(updates, initial_input, prelude=0):
+    """Collapse the boot prelude and proven post-scroll upload waits, retaining their input audit trail."""
     normalized, excluded = [], []
     for record, original in enumerate(updates):
         update = dict(original)
         evidence = update["timingEvidence"]
+        if record < prelude:
+            continue
         if update["timingClass"] == "apu-upload-continuation":
             # This contract is deliberately limited to the native door music wait.
             # No CPU gameplay dispatch or moving door IRQ runs in this interval.
@@ -33,8 +49,9 @@ def normalize_upload_intervals(updates, initial_input):
                 not evidence["doorScrollFinished"] or
                 evidence["doorScrollCounterBefore"] != evidence["doorScrollCounterAfter"]):
                 raise ValueError("Unsupported APU continuation; cannot prove a pure post-scroll hardware wait")
-            if update["input"] != 0 or normalized[-1]["input"] != 0 or update["pressed"]:
-                raise ValueError("Non-neutral input inside APU upload requires a richer input-latch replay")
+            # The music wait runs no gameplay, but each of its NMIs still reads the
+            # controller and replaces the held/new latch. The replay therefore keeps
+            # the last such read (`hardwareWaitLatch`) without dispatching an update.
             excluded.append({"sourceFrame": update["sourceFrame"], "input": update["input"],
                              "pressed": update["pressed"], "record": record})
             continue
@@ -42,13 +59,19 @@ def normalize_upload_intervals(updates, initial_input):
             raise ValueError("APU upload overlaps another owner; automatic normalization is unsupported")
         update["inputRecord"] = record
         update["excludedNmiBefore"] = len(excluded)
+        waited = excluded and excluded[-1]["record"] == record - 1
+        update["hardwareWaitLatch"] = excluded[-1]["input"] if waited else None
         normalized.append(update)
     if not normalized or normalized[-1]["inputRecord"] != len(updates) - 1:
         raise ValueError("Movie ends during hardware upload; completed gameplay boundary is unavailable")
-    previous = initial_input
+    # A power-on port starts with an empty controller latch, as the cleared native
+    # bank $7E did; any held prelude input must therefore not hide a new press.
+    previous = 0 if prelude else initial_input
     for index, update in enumerate(normalized):
+        if update["hardwareWaitLatch"] is not None:
+            previous = update["hardwareWaitLatch"]
         if update["pressed"] != update["input"] & ~previous:
-            raise ValueError("Removing upload waits would change a consumed input edge")
+            raise ValueError(f"Removing hardware waits would change a consumed input edge at SMV frame {update['sourceFrame']}")
         previous = update["input"]
         following = normalized[index + 1] if index + 1 < len(normalized) else None
         update["update"] = index + 1
@@ -182,9 +205,16 @@ def run():
         "main-loop", "door-scroll-continuation", "apu-upload-continuation", "other-continuation")}
     source_frames = {u["sourceFrame"] for u in updates}
     accepted_input_count = len(updates)
-    updates, excluded = normalize_upload_intervals(updates, inputs[0])
+    # SMV v4/v5 option bit 0: the recording starts at power-on (with SRAM) rather
+    # than from an embedded snapshot, so the native boot prelude precedes gameplay.
+    from_reset = version in (4, 5) and bool(movie[21] & 1)
+    prelude = boot_prelude_length(updates) if from_reset else 0
+    updates, excluded = normalize_upload_intervals(updates, inputs[0], prelude)
     manifest = {
-        "format": "super-metroid-gameplay-updates-v3",
+        "format": "super-metroid-gameplay-updates-v4",
+        "startsFromReset": from_reset,
+        "initialRecord": prelude,
+        "bootPreludeInputsExcluded": prelude,
         "movieSha256": hashlib.sha256(movie).hexdigest().upper(),
         "romSha256": rom_hash,
         "nativeCapture": "Snes9x 1.60 913b75d07c6e8d54e966e2c4a79d7c55428007df; instrumented J/U input boundaries",

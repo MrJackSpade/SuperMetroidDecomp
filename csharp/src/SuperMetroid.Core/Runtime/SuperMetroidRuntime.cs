@@ -1329,6 +1329,16 @@ public sealed partial class SuperMetroidRuntime
     public ushort NmiFrameCounter { get; private set; }
 
     /// <summary>
+    /// Adopts <c>$05B5</c>/<c>$05B6</c> from the frontend that counted accepted NMIs before
+    /// this runtime existed. The cartridge has one pair of words; allocation never resets it.
+    /// </summary>
+    internal void AdoptNmiFrameCounters(byte counter8, ushort counter)
+    {
+        NmiFrameCounter8 = counter8;
+        NmiFrameCounter = counter;
+    }
+
+    /// <summary>
     /// Monotonic host sequence advanced only after a complete state-eight gameplay owner
     /// pass has published its per-frame audio requests.
     /// </summary>
@@ -4242,46 +4252,19 @@ public sealed partial class SuperMetroidRuntime
     /// Equivalent of WRAM's NMI request flag. False models a lag NMI: it skips transfers,
     /// input, and accepted-frame counters but still advances the all-NMI counter.
     /// </param>
+    /// <summary>
+    /// Performs only the accepted-NMI controller read at $80:95E1, for a recorded native
+    /// NMI that hardware delivered while the CPU was stalled outside gameplay. Every other
+    /// NMI effect belongs to the eliminated hardware wait and is deliberately absent.
+    /// </summary>
+    internal void LatchHardwareWaitControllerRead(ushort controller1Input) =>
+        Controller1.Latch(ControllerBindings.Normalize(controller1Input));
+
     public void RunNmi(ushort controller1Input, bool mainLoopRequestedNmi)
     {
         if (mainLoopRequestedNmi)
         {
-            // Preserve $80:95A1 -> $80:95D0 -> $80:95E1 order: dedicated Samus graphics
-            // DMA precedes the general video queue, and both precede controller latching.
-            // $80:959E uploads the finalized main-loop OAM image immediately before that
-            // Samus DMA. `$80:95A7` subsequently copies the Mode 7 shadow words to
-            // $211B..$2120. Retain both displayed values so software rendering sees one
-            // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
-            DisplayedOam.CopyFinalizedFrom(Oam);
-            GameplayWindowRegisters.LatchNmi(mainLoopRequestedNmi: true);
-            DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
-            var bg2Window = Enemies.Draygon is { } boss
-                ? DraygonMainScreenWindow.Select(boss.Body.XPosition, boss.Body.YPosition,
-                    BackgroundScroll.Layer1XPosition, BackgroundScroll.Layer1YPosition,
-                    boss.Body.Properties.HasAny(EnemyProperties.Deleted))
-                : (First: 32, End: 224);
-            DisplayedGameplayPpu = new GameplayPpuRenderSnapshot(
-                BackgroundScroll.Layer1XPosition,
-                BackgroundScroll.Layer1YPosition,
-                BackgroundScroll.Bg1HorizontalScroll,
-                BackgroundScroll.Bg1VerticalScroll,
-                BackgroundScroll.Bg2HorizontalScroll,
-                BackgroundScroll.Bg2VerticalScroll,
-                Enemies.LastRoomShake, bg2Window.First, bg2Window.End);
-            DisplayedRoomLayer3Fx = RoomLayer3Fx.CaptureForDisplay();
-            Enemies.Phantoon?.Wave.LatchDisplay();
-            if (Enemies.Phantoon is { } phantoonDisplay)
-                phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicRegister);
-            TourianStatues.LatchDisplay();
-            DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
-            Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
-            PublishReboundHudArtwork();
-            VramWrites.DrainTo(Vram, MutableMemory, this);
-            // A rebound snapshot may retain old VRAM and legacy queued transfers.
-            // Apply current content only at this accepted NMI, after those writes.
-            PublishReboundBeamArtwork();
-            PublishReboundTrailArtwork();
-            TransferXrayBg1Read();
+            PublishAcceptedNmiTransfers();
             // Menu code consumes raw physical buttons before a runtime exists. Once room
             // gameplay owns the controller, all bank-$90/$91 action checks use the seven
             // configurable WRAM masks. Canonicalizing here preserves one shared rising-edge
@@ -4302,6 +4285,54 @@ public sealed partial class SuperMetroidRuntime
 
         // $80:95F9 lies after the accepted/lagged branches rejoin, so it always advances.
         NmiCounterIncludingLag = unchecked((ushort)(NmiCounterIncludingLag + 1));
+    }
+
+    /// <summary>
+    /// Applies queued graphics while a loading dispatch holds forced blank with NMI
+    /// disabled. Native loaders write these directly; no NMI runs, so neither the
+    /// controller latch nor any NMI counter changes.
+    /// </summary>
+    internal void PublishForcedBlankTransfers() => PublishAcceptedNmiTransfers();
+
+    /// <summary>The OAM, Samus, video-queue and register publication of $80:959E..$80:95DE.</summary>
+    private void PublishAcceptedNmiTransfers()
+    {
+        // Preserve $80:95A1 -> $80:95D0 -> $80:95E1 order: dedicated Samus graphics
+        // DMA precedes the general video queue, and both precede controller latching.
+        // $80:959E uploads the finalized main-loop OAM image immediately before that
+        // Samus DMA. `$80:95A7` subsequently copies the Mode 7 shadow words to
+        // $211B..$2120. Retain both displayed values so software rendering sees one
+        // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
+        DisplayedOam.CopyFinalizedFrom(Oam);
+        GameplayWindowRegisters.LatchNmi(mainLoopRequestedNmi: true);
+        DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
+        var bg2Window = Enemies.Draygon is { } boss
+            ? DraygonMainScreenWindow.Select(boss.Body.XPosition, boss.Body.YPosition,
+                BackgroundScroll.Layer1XPosition, BackgroundScroll.Layer1YPosition,
+                boss.Body.Properties.HasAny(EnemyProperties.Deleted))
+            : (First: 32, End: 224);
+        DisplayedGameplayPpu = new GameplayPpuRenderSnapshot(
+            BackgroundScroll.Layer1XPosition,
+            BackgroundScroll.Layer1YPosition,
+            BackgroundScroll.Bg1HorizontalScroll,
+            BackgroundScroll.Bg1VerticalScroll,
+            BackgroundScroll.Bg2HorizontalScroll,
+            BackgroundScroll.Bg2VerticalScroll,
+            Enemies.LastRoomShake, bg2Window.First, bg2Window.End);
+        DisplayedRoomLayer3Fx = RoomLayer3Fx.CaptureForDisplay();
+        Enemies.Phantoon?.Wave.LatchDisplay();
+        if (Enemies.Phantoon is { } phantoonDisplay)
+            phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicRegister);
+        TourianStatues.LatchDisplay();
+        DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
+        Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
+        PublishReboundHudArtwork();
+        VramWrites.DrainTo(Vram, MutableMemory, this);
+        // A rebound snapshot may retain old VRAM and legacy queued transfers.
+        // Apply current content only at this accepted NMI, after those writes.
+        PublishReboundBeamArtwork();
+        PublishReboundTrailArtwork();
+        TransferXrayBg1Read();
     }
 
     /// <summary>

@@ -355,6 +355,8 @@ internal static class DebuggerObjectGraphSerializer
                     discardedIdentity = true;
                     continue;
                 }
+                if (DebuggerFieldRenameDefinitions.TryGetCurrentName(declaringType, fieldName, out string currentName))
+                    fieldName = currentName;
                 if (!remaining.Remove((declaringType, fieldName), out FieldInfo? field))
                 {
                     throw new InvalidDataException(

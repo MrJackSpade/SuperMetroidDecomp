@@ -391,8 +391,7 @@ static void VerifyFileSelectFreshSaveTilemap()
     AssertTrue(saveRam.ReadSlot(0) is null, "file-select CLEAR invalidates slot A checksums");
     AssertTrue(saveRam.ReadSlot(1) is not null, "file-select CLEAR preserves other slots");
 
-    for (int frame = 0; frame < 15; frame++)
-        savedMenu.Step(0);
+    AdvanceFileSelectFade(savedMenu, FileSelectPhase.Main);
     savedMenu.Step((ushort)SnesButton.A);
     for (int guard = 0;
          savedMenu.Phase != FileSelectPhase.FadeOutToOptions && guard < 80;
@@ -419,14 +418,20 @@ static void VerifyFileSelectFreshSaveTilemap()
 
 static void AdvanceFileSelectToMain(FileSelectMenuState menu)
 {
-    for (int frame = 0; frame < 15; frame++)
+    // Native indices 0-2 take five updates (two are NMI continuations), then index
+    // three's delay-one fade takes thirty dispatches (100% movie frames 399-437).
+    for (int frame = 0; frame < 34; frame++)
         menu.Step(0);
-    AssertEqual(FileSelectPhase.Main, menu.Phase, "file-select fade reaches main menu");
+    AssertTrue(menu.Phase != FileSelectPhase.Main, "file-select fade is still running on its 34th update");
+    menu.Step(0);
+    AssertEqual(FileSelectPhase.Main, menu.Phase, "file-select fade reaches main menu on its 35th update");
 }
 
 static void AdvanceFileSelectFade(FileSelectMenuState menu, FileSelectPhase expected)
 {
-    for (int guard = 0; menu.Phase != expected && guard < 40; guard++)
+    // Delay-one native fades: thirty updates out, thirty back in. The data-management
+    // screens' own force-blank NMI waits are not yet modeled as separate updates.
+    for (int guard = 0; menu.Phase != expected && guard < 64; guard++)
         menu.Step(0);
     AssertEqual(expected, menu.Phase, "file-select data-management fade completes");
 }

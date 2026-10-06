@@ -5119,6 +5119,11 @@ if (args is ["--boss-reset-on-load"])
     VerifyBossResetOnLoad();
     return 0;
 }
+if (args is ["--pause-map-arrows"])
+{
+    VerifyPauseMapArrows();
+    return 0;
+}
 if (args is ["--pause-equipment-interaction-fixture"])
 {
     VerifyPauseMenuEquipmentInteraction();
@@ -6167,6 +6172,7 @@ VerifyEyeDoorPlms();
 VerifyDraygonCannonPlms();
 VerifyBombTorizoHandPlm();
 VerifyPauseMenuEquipmentInteraction();
+VerifyPauseMapArrows();
 VerifyInvalidBeamSelection();
 VerifyInvalidBeamGraphics();
 VerifyMovedSamusCameraTracking();

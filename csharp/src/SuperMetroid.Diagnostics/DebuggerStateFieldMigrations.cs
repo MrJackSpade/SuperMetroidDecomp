@@ -382,6 +382,12 @@ internal static class DebuggerStateFieldMigrations
             return SelectSerializedFields(type, current.Where(field => field.Name != "_healthWarning").ToArray(), count);
         }
         if (type.FullName == "SuperMetroid.Core.Frontend.PauseMenuState" &&
+            current.Any(field => field.Name == "mapArrows") && count >= current.Length - 3 && count < current.Length)
+        {
+            Console.Error.WriteLine("WARNING: Legacy pause state lacks map arrows; counters initialize on artwork rebind and visibility on the next stable map frame.");
+            return SelectSerializedFields(type, current.Where(field => field.Name != "mapArrows").ToArray(), count);
+        }
+        if (type.FullName == "SuperMetroid.Core.Frontend.PauseMenuState" &&
             current.Any(field => field.Name == "pauseNmiFrameCounter8") &&
             (count == current.Length - 1 || count == current.Length - 2))
         {

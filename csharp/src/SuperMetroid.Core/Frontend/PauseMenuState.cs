@@ -42,6 +42,7 @@ internal sealed partial class PauseMenuState
     private ushort mapHorizontalScroll;
     private ushort mapVerticalScroll;
     private PauseMapScroll mapScroll = null!;
+    private FileSelectMapAnimations? mapArrows;
     private int mapIndicatorAnimationFrame;
     private int mapIndicatorAnimationTimer;
     private int itemSelectorAnimationFrame;
@@ -69,6 +70,7 @@ internal sealed partial class PauseMenuState
         this.samus = samus ?? throw new ArgumentNullException(nameof(samus));
         this.system = system ?? throw new ArgumentNullException(nameof(system));
         this.audio = audio;
+        mapArrows = new FileSelectMapAnimations(bus, mapPresentation.Arrows);
         paletteAnimation = new MapPaletteAnimation(bus);
         paletteAnimation.Bind(mapPresentation.HighlightCycle);
         area = areaIndex;
@@ -215,6 +217,8 @@ internal sealed partial class PauseMenuState
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
         AdvanceAnimations(nmiFrameCounter8);
+        if (ScreenMode == 0 && transition == PauseMenuTransition.None)
+            mapArrows!.StepArrows(direction => mapScroll.CanScroll(direction, mapHorizontalScroll, mapVerticalScroll));
         SnesButton delayedPressed = (SnesButton)delayedHeldInput;
         SnesButton newlyPressed = (SnesButton)newlyPressedInput;
         if (transition != PauseMenuTransition.None)
@@ -280,6 +284,8 @@ internal sealed partial class PauseMenuState
     /// </remarks>
     public void AdvanceAnimations(byte nmiFrameCounter8 = 0)
     {
+        // Only stable map dispatch calls $82:B934. Fade paths retain counters but hide arrows.
+        mapArrows?.StepArrows(_ => false);
         pauseNmiFrameCounter8 = nmiFrameCounter8;
         if (paletteAnimation.Step(cgram))
             audio?.QueueSound(SoundEffectLibrary3Sounds.MapPaletteLoop, maximumQueued: 6);
@@ -352,6 +358,7 @@ internal sealed partial class PauseMenuState
         oam.BeginFrame();
         if (ScreenMode == 0)
         {
+            mapArrows?.DrawArrows(oam, mapPresentation?.Sprites, PauseMapScrollLayout.ArrowVerticalOffset);
             DrawMapPositionIndicator();
             // Native pause draws the same boss lists and defeated overlays as
             // file select, after the player marker. Use the live progression owner.

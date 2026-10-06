@@ -54,7 +54,7 @@ internal static partial class Program
                 var speed = new SamusHorizontalSpeedState { SpecialPaletteFrame = (ushort)(phase * 2) };
                 var actual = new SnesCgram();
                 AssertTrue(speed.UpdateSpeedBoosterPalette(
-                    guarded, actual, SamusMovementType.SpinJumping, 0x1b,
+                    guarded, actual, SamusMovementType.SpinJumping, 1,
                     (ushort)(items | (ushort)SamusEquipmentFlags.ScrewAttack),
                     cycleColors: cycleColors),
                     "Screw Attack copies a palette without reading either pointer table");
@@ -127,7 +127,7 @@ internal static partial class Program
         var adjacentScrew = new SamusHorizontalSpeedState { SpecialPaletteFrame = 12 };
         var adjacentScrewColors = new SnesCgram();
         AssertTrue(adjacentScrew.UpdateSpeedBoosterPalette(
-            rom, adjacentScrewColors, SamusMovementType.SpinJumping, 0x1b,
+            rom, adjacentScrewColors, SamusMovementType.SpinJumping, 1,
             (ushort)SamusEquipmentFlags.ScrewAttack, cycleColors: cycleColors),
             "non-catalog Screw Attack phase retains native adjacent-data read");
         AssertPaletteColors(rom, adjacentScrewColors, 0x9ea0,
@@ -157,8 +157,8 @@ internal static partial class Program
             SamusPaletteRomData.FullBodyCycles.ReadScrewAttackPalettePointer(4, 12),
             "a Screw Attack read beyond the compiled three-suit window fails explicitly");
         AssertThrows<InvalidDataException>(() =>
-            SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(4, 8),
-            "a Speed Booster read beyond the compiled three-suit window fails explicitly");
+            SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(4, 12),
+            "a Speed Booster phase beyond both proven Screw Attack overruns fails explicitly");
 
         Console.WriteLine("Full-body palettes: all four suit-indexed list families match ROM and live CGRAM without pointer-table reads.");
 

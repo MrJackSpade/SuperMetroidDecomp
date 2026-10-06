@@ -5119,6 +5119,10 @@ if (args is ["--boss-reset-on-load"])
     VerifyBossResetOnLoad();
     return 0;
 }
+if (args is ["--speed-palette-overrun"]){
+    VerifySpeedPaletteOverrun();
+    return 0;
+}
 if (args is ["--pause-map-position"]){
     VerifyPauseMapPosition();
     return 0;
@@ -6184,6 +6188,7 @@ VerifyPauseMenuEquipmentInteraction();
 VerifyPauseMapArrows();
 VerifyPauseMapAreaLabels();
 VerifyPauseMapPosition();
+VerifySpeedPaletteOverrun();
 VerifyInvalidBeamSelection();
 VerifyInvalidBeamGraphics();
 VerifyMovedSamusCameraTracking();

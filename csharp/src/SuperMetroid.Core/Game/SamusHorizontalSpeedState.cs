@@ -424,12 +424,10 @@ public sealed class SamusHorizontalSpeedState
 
         ushort palettePointer = SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(
             suitTableOffset, SpecialPaletteFrame);
-        (cycleColors ?? throw new InvalidOperationException(
-            "Speed Booster palette requires installed Samus full-body cycle colors."))
-            .Apply(cgram, palettePointer);
+        SamusSpeedBoosterPalette.Apply(bus, cgram, palettePointer, cycleColors);
 
-        // Native advances offsets 0,2,4,6 and then pins six. No out-of-range lookup occurs
-        // in reachable play because initialization and cancellation both reset the word.
+        // The native clamp is AFTER the copy. Screw Attack can leave phase eight or ten
+        // in this shared word; retain that one bounded overrun before pinning phase six.
         SpecialPaletteFrame = SpecialPaletteFrame >= 6
             ? (ushort)6
             : unchecked((ushort)(SpecialPaletteFrame + 2));

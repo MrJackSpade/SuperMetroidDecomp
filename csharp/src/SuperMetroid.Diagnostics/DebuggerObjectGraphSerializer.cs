@@ -329,11 +329,7 @@ internal static class DebuggerObjectGraphSerializer
             }
             bool hasRetiredIdentity = count == currentFields.Length + 1 &&
                 DebuggerPresentationIdentityFieldDefinitions.Contains(type);
-            int retiredFields = DebuggerRetiredFieldDefinitions.CountFor(type);
-            bool hasRetiredFields = retiredFields > 0 && count == currentFields.Length + retiredFields;
             int drainedRetiredFields = 0;
-            FieldInfo[] expected = hasRetiredIdentity || hasRetiredFields ? currentFields :
-                DebuggerStateFieldMigrations.SelectSerializedFields(type, currentFields, count);
             var remaining = currentFields.ToDictionary(
                 field => (field.DeclaringType!, field.Name),
                 field => field);
@@ -358,10 +354,9 @@ internal static class DebuggerObjectGraphSerializer
                     discardedIdentity = true;
                     continue;
                 }
-                if (hasRetiredFields &&
-                    DebuggerRetiredFieldDefinitions.TryGetMigration(declaringType, fieldName, out Action<object?> migrate))
+                if (DebuggerRetiredFieldDefinitions.TryGetMigration(declaringType, fieldName, out RetiredFieldMigration migrate))
                 {
-                    migrate(Read());
+                    migrate(instance, fieldName, Read());
                     drainedRetiredFields++;
                     continue;
                 }
@@ -376,8 +371,11 @@ internal static class DebuggerObjectGraphSerializer
                 field.SetValue(instance, Read());
                 restored.Add(field);
             }
-            if (!restored.SetEquals(expected) || hasRetiredIdentity && !discardedIdentity ||
-                hasRetiredFields && drainedRetiredFields != retiredFields)
+            // A retired field is validated as though its layout never contained it.
+            int survivingCount = count - drainedRetiredFields;
+            FieldInfo[] expected = hasRetiredIdentity ? currentFields :
+                DebuggerStateFieldMigrations.SelectSerializedFields(type, currentFields, survivingCount);
+            if (!restored.SetEquals(expected) || hasRetiredIdentity && !discardedIdentity)
             {
                 throw new InvalidDataException(
                     $"Serialized {type.FullName} field set does not match its supported " +
@@ -386,7 +384,7 @@ internal static class DebuggerObjectGraphSerializer
                     ".");
             }
             DebuggerStateFieldMigrations.InitializeMissingFields(instance,
-                hasRetiredIdentity || hasRetiredFields ? currentFields.Length : count);
+                hasRetiredIdentity ? currentFields.Length : survivingCount);
             return instance;
         }
 

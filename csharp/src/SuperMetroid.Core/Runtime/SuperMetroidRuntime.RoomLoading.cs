@@ -800,13 +800,13 @@ public sealed partial class SuperMetroidRuntime
         // Gameplay PPU initialization selects BG34NBA=$04 for every ordinary room load.
         // A later library-background command eight may override it to $02 for Kraid.
         GameplayHudCharacterBaseWord = SnesPpuLayout.GameplayHudCharacterBaseWord;
-        _ceresFallingDebrisTimer = 0;
         WreckedShipTreadmill.Reset();
         MaridiaElevatube.Reset(
             active: room.State.MainCallback == RoomMainCallback.MaridiaElevatube);
         CeresElevatorShaft.Reset(
             active: room.State.MainCallback == RoomMainCallback.CeresElevatorShaft &&
-                door.UsesCeresElevatorMode7);
+                door.UsesCeresElevatorMode7,
+            RoomMainScratch);
         // Door setup `$8F:E4E0` writes these exact five registers before the fresh Ceres
         // elevator room becomes visible. Publishing the immutable transform here gives
         // Samus, her projectiles, and parameter-four/five steam a single authoritative

@@ -346,11 +346,13 @@ internal static class DoorSetupCallbackAudit
 
         SuperMetroidRuntime runtime = CreateRuntime(bus);
         runtime.LoadCartridgeRoomForDebug(MaridiaElevatubeRoom);
+        // $8F:E26C/$E291 never write RoomMainASMVar1, the tracked position's fraction.
+        ushort fractionBefore = runtime.RoomMainScratch.Var1;
         runtime.RunDoorSetupForVerification(door);
         SamusState samus = runtime.Samus ?? throw new InvalidDataException(
             "Elevatube entry lost Samus.");
         MaridiaElevatubeRoomMainState state = runtime.MaridiaElevatube;
-        if (!state.IsActive || !samus.InputLocked || state.PositionSubposition != 0 ||
+        if (!state.IsActive || !samus.InputLocked || runtime.RoomMainScratch.Var1 != fractionBefore ||
             state.Position != expectedPosition || state.Velocity != expectedVelocity ||
             state.Acceleration != expectedAcceleration)
         {
@@ -367,10 +369,10 @@ internal static class DoorSetupCallbackAudit
         samus.Kinematics.YSubposition = 0;
         RoomLevelData level = runtime.LevelData ?? throw new InvalidDataException(
             "Elevatube room has no level data.");
-        _ = state.Step(bus, level, samus, nmiFrameCounter: 0, runtime.Plms);
+        _ = state.Step(bus, level, samus, nmiFrameCounter: 0, runtime.Plms, runtime.RoomMainScratch);
         if (samus.XPosition != MaridiaElevatubeRomData.SamusCenterX ||
             samus.Kinematics.XSubposition != 0 || state.Position != expectedPositionAfterStep ||
-            state.PositionSubposition != 0 || state.Velocity != expectedVelocityAfterStep)
+            runtime.RoomMainScratch.Var1 != fractionBefore || state.Velocity != expectedVelocityAfterStep)
         {
             throw new InvalidDataException(
                 $"Elevatube {(fromSouth ? "south" : "north")} first room-main step diverged.");

@@ -7,11 +7,10 @@ namespace SuperMetroid.Core.Runtime;
 /// Cartridge-authored room-main state for Ceres room <c>$DF45</c>'s elevator shaft.
 /// </summary>
 /// <remarks>
-/// Door ASM <c>$8F:E4E0</c> seeds two otherwise anonymous room-main words before the
-/// shaft becomes visible. Room main <c>$89:ACC3</c> later consumes those words as a
-/// bidirectional index through the three-word records at <c>$89:AD5F</c>. Giving those
-/// words a room-scoped owner prevents their unusual signed wrap from leaking into the
-/// general runtime and makes the final elevator trigger independently testable.
+/// Door ASM <c>$8F:E4E0</c> seeds two room-main words before the shaft becomes visible.
+/// Room main <c>$89:ACC3</c> later consumes them as a bidirectional index through the
+/// three-word records at <c>$89:AD5F</c>. The index is the shared <c>RoomMainASMVar1</c>,
+/// which the following room inherits; the timer word is owned here.
 /// </remarks>
 public sealed class CeresElevatorShaftRoomMainState
 {
@@ -27,9 +26,6 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>Whether the active room owns this room-main routine.</summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>Live RoomMainASMVar1, including its encoded negative sweep.</summary>
-    public ushort RotationIndex { get; private set; }
-
     /// <summary>Live RoomMainASMVar2 countdown.</summary>
     public ushort RotationTimer { get; private set; }
 
@@ -43,13 +39,18 @@ public sealed class CeresElevatorShaftRoomMainState
     public SamusMode7Transform Transform { get; private set; } = CreateInitialTransform();
 
     /// <summary>
-    /// Applies the exact room-entry values written by door ASM <c>$8F:E4E0</c>.
+    /// Selects whether this room owns <c>$89:ACC3</c>. An active entry is the elevator door,
+    /// whose ASM <c>$8F:E4E0</c> writes the rotation index and timer.
     /// </summary>
-    public void Reset(bool active)
+    public void Reset(bool active, RoomMainScratchState scratch)
     {
+        ArgumentNullException.ThrowIfNull(scratch);
         IsActive = active;
-        RotationIndex = InitialRotationIndex;
-        RotationTimer = InitialRotationTimer;
+        if (active)
+        {
+            scratch.Var1 = InitialRotationIndex;
+            RotationTimer = InitialRotationTimer;
+        }
         DepartureRequested = false;
         DepartureRequestedThisFrame = false;
         Transform = CreateInitialTransform();
@@ -68,16 +69,18 @@ public sealed class CeresElevatorShaftRoomMainState
         ISnesAddressSpace bus,
         SamusState? samus,
         ushort ceresStatus,
-        bool allowDeparture)
+        bool allowDeparture,
+        RoomMainScratchState scratch)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(scratch);
         DepartureRequestedThisFrame = false;
 
         // The room code is entirely dormant before Ridley's self-destruct sequence sets
         // bit 15. In particular, the initial elevator descent retains door ASM's identity
         // matrix instead of prematurely consuming the rotation table.
         if (!IsActive || (ceresStatus & 0x8000) == 0)
-            return Snapshot(matrixChanged: false);
+            return Snapshot(scratch, matrixChanged: false);
 
         if (allowDeparture &&
             !DepartureRequested &&
@@ -105,12 +108,13 @@ public sealed class CeresElevatorShaftRoomMainState
         NativeWordCounterStep timer = NativeWordCounter.Decrement(RotationTimer);
         RotationTimer = timer.Value;
         if (timer.IsNonNegative)
-            return Snapshot(matrixChanged: false);
+            return Snapshot(scratch, matrixChanged: false);
 
         // Native computes `(uint16)(6 * index) >> 1`, not a conventional array index.
         // The encoded phase $8044 relies on the multiplication wrapping before the shift,
         // mapping back into the tail of this very table during the reverse sweep.
-        var record = CeresShaftRotationDefinitions.Read(RotationIndex);
+        ushort rotationIndex = scratch.Var1;
+        var record = CeresShaftRotationDefinitions.Read(rotationIndex);
         RotationTimer = record.Timer;
         ushort sine = record.Sine;
         ushort cosine = record.Cosine;
@@ -124,20 +128,20 @@ public sealed class CeresElevatorShaftRoomMainState
         // Values 0..67 sweep forward. The comparison occurs after INC, so 67 becomes
         // encoded negative phase $8044. Negative phases decrement until $8001 maps to
         // zero, restarting the forward sweep without ever exposing $8000.
-        if (unchecked((short)RotationIndex) < 0)
+        if (unchecked((short)rotationIndex) < 0)
         {
-            RotationIndex = RotationIndex == 0x8001
+            scratch.Var1 = rotationIndex == 0x8001
                 ? (ushort)0
-                : unchecked((ushort)(RotationIndex - 1));
+                : unchecked((ushort)(rotationIndex - 1));
         }
         else
         {
-            RotationIndex = RotationIndex == 67
+            scratch.Var1 = rotationIndex == 67
                 ? (ushort)0x8044
-                : unchecked((ushort)(RotationIndex + 1));
+                : unchecked((ushort)(rotationIndex + 1));
         }
 
-        return Snapshot(matrixChanged: true);
+        return Snapshot(scratch, matrixChanged: true);
     }
 
     private static bool IsInsideDepartureTrigger(SamusState samus) =>
@@ -150,9 +154,9 @@ public sealed class CeresElevatorShaftRoomMainState
         samus.Kinematics.YSpeed == 0 &&
         samus.Kinematics.YSubspeed == 0;
 
-    private CeresElevatorShaftRoomMainResult Snapshot(bool matrixChanged) => new(
+    private CeresElevatorShaftRoomMainResult Snapshot(RoomMainScratchState scratch, bool matrixChanged) => new(
         IsActive,
-        RotationIndex,
+        scratch.Var1,
         RotationTimer,
         Transform,
         matrixChanged,

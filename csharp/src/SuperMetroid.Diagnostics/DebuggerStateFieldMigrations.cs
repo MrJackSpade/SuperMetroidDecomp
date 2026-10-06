@@ -36,7 +36,16 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Older ending state lacks shooting-star records; restarting the native star sequence on the next post-credits step.");
             return current.Where(field => field.Name != "shootingStars").ToArray();
         }
-        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) && count == 111 && current.Length == 114)
+        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
+            current.Any(field => field.Name == "<RoomMainScratch>k__BackingField"))
+        {
+            // The shared RoomMainASMVar1 replaced the debris and escape timers, which the
+            // reader drains as retired fields; it is seeded once the graph is complete.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<RoomMainScratch>k__BackingField").ToArray(), count);
+        }
+        // Counts exclude the retired debris and escape timers, which this layout contained.
+        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) && count == 109 && current.Length == 112)
         {
             Console.Error.WriteLine("WARNING: Older runtime predates inventory/Tourian tester policy; restoring disabled options and no inventory recipient.");
             return current.Where(field => field.Name is not "testerInventoryRecipient"
@@ -647,6 +656,9 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Initializes fields omitted by explicitly recognized legacy layouts.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance is SuperMetroid.Core.Runtime.SuperMetroidRuntime legacyRuntime &&
+            serializedCount < GetCurrentInstanceFieldCount(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)))
+            SeedLegacyRoomMainScratch(legacyRuntime);
         if (instance is SuperMetroid.Core.Frontend.SuperMetroidGame game &&
             serializedCount < GetCurrentInstanceFieldCount(typeof(SuperMetroid.Core.Frontend.SuperMetroidGame)))
             game.DoorMusicUploadNmis = SuperMetroid.Core.Frontend.LagFreeDoorMusicUploadNmis.Instance;
@@ -844,6 +856,33 @@ internal static class DebuggerStateFieldMigrations
     /// Counts the same declared instance fields as the graph serializer for migration
     /// comparisons without exposing the serializer's ordering implementation.
     /// </summary>
+    /// <summary>
+    /// Builds the shared RoomMainASMVar1 for a capture that predates it, from the private copy
+    /// of whichever room main owned the active room. Earlier rooms' values were not retained.
+    /// </summary>
+    private static void SeedLegacyRoomMainScratch(SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime)
+    {
+        var main = runtime.ActiveRoom?.State.MainCallback;
+        (object Owner, string Field)? source =
+            runtime.CeresElevatorShaft.IsActive ? (runtime.CeresElevatorShaft, "<RotationIndex>k__BackingField") :
+            runtime.MaridiaElevatube.IsActive ? (runtime.MaridiaElevatube, "<PositionSubposition>k__BackingField") :
+            main == SuperMetroid.Core.Rooms.RoomMainCallback.SpawnCeresPreElevatorHallFallingDebris
+                ? (runtime, "_ceresFallingDebrisTimer") :
+            main is SuperMetroid.Core.Rooms.RoomMainCallback.ShakeScreenLightHorizontalAndMediumDiagonal or
+                SuperMetroid.Core.Rooms.RoomMainCallback.ShakeScreenMediumHorizontalAndStrongDiagonal
+                ? (runtime, "_escapeDiagonalFrames") : null;
+        ushort var1 = 0;
+        if (source is { } owner && !DebuggerRetiredFieldDefinitions.TryGetLegacyWord(owner.Owner, owner.Field, out var1))
+            throw new InvalidDataException(
+                $"Legacy runtime's active room main lacks its {owner.Field} room-main word.");
+        Console.Error.WriteLine(source is null
+            ? "WARNING: Legacy runtime predates the shared room-main word; no active room main owned it, so it restores as zero."
+            : "WARNING: Legacy runtime predates the shared room-main word; restoring it from the active room main.");
+        typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)
+            .GetField("<RoomMainScratch>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .SetValue(runtime, new SuperMetroid.Core.Runtime.RoomMainScratchState { Var1 = var1 });
+    }
+
     private static int GetCurrentInstanceFieldCount(Type type)
     {
         int count = 0;

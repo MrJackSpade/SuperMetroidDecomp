@@ -203,6 +203,23 @@ internal static partial class Program
             "legacy PLM slot preserves active header, instructions, timers, and block owner fields");
         var gameFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [gameType])!;
+        // The two retired room-main timers are drained by name, so the prior runtime layout
+        // differs from the current one only by the shared RoomMainASMVar1 owner.
+        var runtimeFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
+            BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)])!;
+        AssertTrue(runtimeFields.All(field => field.Name is not "_ceresFallingDebrisTimer" and not "_escapeDiagonalFrames"),
+            "retired room-main timers are not current runtime fields");
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime),
+                runtimeFields, runtimeFields.Length - 1)
+                .SequenceEqual(runtimeFields.Where(field => field.Name != "<RoomMainScratch>k__BackingField")),
+            "pre-shared-scratch runtime preserves every other saved field in order");
+        AssertTrue(DebuggerRetiredFieldDefinitions.TryGetMigration(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime),
+                "_ceresFallingDebrisTimer", out _) &&
+            DebuggerRetiredFieldDefinitions.TryGetMigration(typeof(SuperMetroid.Core.Runtime.CeresElevatorShaftRoomMainState),
+                "<RotationIndex>k__BackingField", out _) &&
+            DebuggerRetiredFieldDefinitions.TryGetMigration(typeof(SuperMetroid.Core.Runtime.MaridiaElevatubeRoomMainState),
+                "<PositionSubposition>k__BackingField", out _),
+            "every retired private RoomMainASMVar1 copy is drained");
         const string uploadNmiField = "<DoorMusicUploadNmis>k__BackingField";
         FieldInfo[] preUploadNmiFields = gameFields.Where(field => field.Name != uploadNmiField).ToArray();
         AssertEqual(gameFields.Length - 1, preUploadNmiFields.Length, "upload NMI source is one current frontend field");

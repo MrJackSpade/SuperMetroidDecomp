@@ -50,6 +50,15 @@ public sealed class CeresElevatorArrivalState
     /// <summary>True after both projectiles delete themselves when Samus reaches Y=72.</summary>
     public bool IsComplete => !pad.Active && !platform.Active;
 
+    /// <summary>True while the moving pad occupies native enemy-projectile slot $22.</summary>
+    public bool PadActive => pad.Active;
+
+    /// <summary>True while the level-data concealer occupies native enemy-projectile slot $20.</summary>
+    public bool PlatformActive => platform.Active;
+
+    /// <summary>Shared X word of both projectiles, copied from Samus by $86:A313.</summary>
+    public ushort XPosition => pad.XPosition;
+
     /// <summary>Current pad Y word, exposed for deterministic regression tests.</summary>
     public ushort PadYPosition => pad.YPosition;
 

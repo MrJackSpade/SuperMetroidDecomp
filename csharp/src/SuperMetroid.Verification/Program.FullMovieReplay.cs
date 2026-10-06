@@ -92,6 +92,14 @@ internal static partial class Program
             $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)}");
         if (game.RuntimeForVerification?.Enemies is { } traceEnemies)
         {
+            // $1997 IDs, $1A4B X, $1A93 Y: one word per slot.
+            var portProjectiles = traceEnemies.EnemyProjectiles.Select((projectile, slot) => (projectile, slot))
+                .Where(entry => entry.projectile.IsActive)
+                .Select(entry => $"{entry.slot}:{(ushort)entry.projectile.Kind:X4}@{entry.projectile.XPosition:X}/{entry.projectile.YPosition:X}");
+            var nativeProjectiles = Enumerable.Range(0, 18).Where(slot => Word(memory, 0x1997 + 2 * slot) != 0)
+                .Select(slot => $"{slot}:{Native(0x1997 + 2 * slot)}@{Word(memory, 0x1a4b + 2 * slot):X}/{Word(memory, 0x1a93 + 2 * slot):X}");
+            Console.WriteLine("  eproj port   " + string.Join(" ", portProjectiles));
+            Console.WriteLine("  eproj native " + string.Join(" ", nativeProjectiles));
             Console.WriteLine($"  ceres port={traceEnemies.CeresStatus:X4} native={Native(0x093f)} " +
                 $"nmi port={game.RuntimeForVerification!.NmiFrameCounter:X4} native-raw={Native(0x05b6)}");
             foreach (var actor in traceEnemies.Slots.Where(slot => slot.EnemyDefinitionPointer != 0))
@@ -178,6 +186,39 @@ internal static partial class Program
                 Check($"Ridley tail {index} X", ridley.TailSegments[index].XPosition, tail + MovieDesyncMemory.RidleyTailXOffset);
                 Check($"Ridley tail {index} Y", ridley.TailSegments[index].YPosition, tail + MovieDesyncMemory.RidleyTailYOffset);
             }
+        var projectiles = runtime.Enemies.EnemyProjectiles;
+        if (projectiles.Count != MovieDesyncMemory.EnemyProjectileSlots)
+            throw new InvalidOperationException($"Port has {projectiles.Count} enemy-projectile slots.");
+        // The fresh-Ceres pad ($86:A387) and concealer ($86:A395) live in their own arrival
+        // model, which owns native slots $22 and $20 while they exist; the pool leaves them free.
+        var arrival = runtime.CeresElevatorArrival;
+        void CheckArrivalSlot(int slot, bool active, ushort id, ushort y)
+        {
+            int offset = 2 * slot;
+            if (projectiles[slot].IsActive)
+                mismatches.Add($"Enemy projectile {slot} is allocated while the Ceres arrival owns it");
+            Check($"Enemy projectile {slot} ID", active ? id : (ushort)0, MovieDesyncMemory.EnemyProjectileIds + offset);
+            if (!active) return;
+            Check($"Enemy projectile {slot} X", arrival!.XPosition, MovieDesyncMemory.EnemyProjectileX + offset);
+            Check($"Enemy projectile {slot} Y", y, MovieDesyncMemory.EnemyProjectileY + offset);
+        }
+        bool arrivalLive = arrival is { IsComplete: false };
+        if (arrivalLive)
+        {
+            CheckArrivalSlot(17, arrival!.PadActive, 0xa387, arrival.PadYPosition);
+            CheckArrivalSlot(16, arrival.PlatformActive, 0xa395, arrival.PlatformYPosition);
+        }
+        for (int slot = 0; slot < (arrivalLive ? 16 : projectiles.Count); slot++)
+        {
+            // The port's projectile kind is the native bank-$86 header pointer.
+            var projectile = projectiles[slot];
+            int offset = 2 * slot;
+            Check($"Enemy projectile {slot} ID", projectile.IsActive ? (ushort)projectile.Kind : (ushort)0,
+                MovieDesyncMemory.EnemyProjectileIds + offset);
+            if (!projectile.IsActive) continue;
+            Check($"Enemy projectile {slot} X", projectile.XPosition, MovieDesyncMemory.EnemyProjectileX + offset);
+            Check($"Enemy projectile {slot} Y", projectile.YPosition, MovieDesyncMemory.EnemyProjectileY + offset);
+        }
         foreach (var actor in runtime.Enemies.Slots)
         {
             int address = MovieDesyncMemory.EnemyBase + actor.NativeIndex;

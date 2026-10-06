@@ -447,9 +447,8 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Most recent <c>$89:ACC3</c> room-main call.</summary>
     public CeresElevatorShaftRoomMainResult LastCeresElevatorShaftRoomMain { get; private set; }
 
-    // Native RoomMainASMVar1 for `$8F:E525`. Room load clears the shared scratch word;
-    // the debris routine then reloads eight after each signed underflow.
-    private ushort _ceresFallingDebrisTimer;
+    /// <summary>Room-main scratch word <c>$07E1</c>, which room loading never clears.</summary>
+    public RoomMainScratchState RoomMainScratch { get; private set; } = new();
 
     /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
@@ -4196,7 +4195,8 @@ public sealed partial class SuperMetroidRuntime
                 LevelData,
                 Samus,
                 NmiFrameCounter,
-                Plms);
+                Plms,
+                RoomMainScratch);
         }
 
         // Execute the active room's bank-$8F wrapper at the same seam as Landing Site's
@@ -4207,7 +4207,8 @@ public sealed partial class SuperMetroidRuntime
             _addressSpace,
             Samus,
             Enemies.CeresStatus,
-            allowDeparture: allowCeresElevatorDeparture);
+            allowDeparture: allowCeresElevatorDeparture,
+            RoomMainScratch);
         if (LastCeresElevatorShaftRoomMain.MatrixChanged)
             ActiveSamusMode7Transform = LastCeresElevatorShaftRoomMain.Transform;
 
@@ -4409,12 +4410,13 @@ public sealed partial class SuperMetroidRuntime
             Enemies.CeresStatus == 0)
             return;
 
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(_ceresFallingDebrisTimer);
-        _ceresFallingDebrisTimer = timer.Value;
+        // The timer is RoomMainASMVar1, inherited from the shaft's rotation index.
+        NativeWordCounterStep timer = NativeWordCounter.Decrement(RoomMainScratch.Var1);
+        RoomMainScratch.Var1 = timer.Value;
         if (timer.IsNonNegative)
             return;
 
-        _ceresFallingDebrisTimer = 8;
+        RoomMainScratch.Var1 = 8;
         ushort random = System.RandomNumber;
         ReadOnlySpan<ushort> xPositions =
         [

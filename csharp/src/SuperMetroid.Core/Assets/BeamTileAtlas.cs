@@ -103,10 +103,8 @@ public static class BeamTileAtlasDefinitions
     private const int WaveSmallImpactTile = 7;
     /// <summary>$9A:FA20..FA5F: the two adjacent Spazer diagonal upload tiles, used together by $93:D10E/D25A spritemaps.</summary>
     private const int SpazerDiagonalFirstTile = 1;
-    /// <summary>$9A:FA20..FA5F: required diagonal placement begins one pixel to the right of its row coordinate.</summary>
-    private const int SpazerDiagonalLead = 1;
-    /// <summary>$9A:FA20..FA5F: required selected diagonal band is three pixels wide; its ink samples remain independent.</summary>
-    private const int SpazerDiagonalWidth = 3;
+    /// <summary>$9A:FA06/FA08 and FA16/FA18: selected horizontal Spazer ribbon occupies two rows; this base artwork thickness remains REQUIRED.</summary>
+    internal const int SpazerRibbonThickness = 2;
     /// <summary>$9A:F880..F89F and FA80..FA9F: the wider horizontal ribbon occupies upload tile4.</summary>
     private const int LongBeamWideRibbonTile = 4;
     /// <summary>$9A:F882/F892: required wide-ribbon profile begins its uniform border at row1; row7 shares that border ink.</summary>
@@ -190,12 +188,17 @@ public static class BeamTileAtlasDefinitions
             source = y * Width + Height - 1 - x;
             return true;
         }
-        // The native pair forms one straight diagonal band. Its selected offset,
-        // width and interior inks remain required; only the exterior is transparent.
+        // Rotate the same physical ribbon through45 degrees and sample pixel centers.
+        // Native composition origins remain owned/required in the shared catalog;
+        // the base horizontal thickness remains required here. Neither is inferred
+        // from the diagonal mask that this projection produces.
         if ((beams & SamusBeamFlags.Spazer) != 0 && tile >= SpazerDiagonalFirstTile && tile <= SpazerDiagonalFirstTile + 1)
         {
             int bandX = (tile - SpazerDiagonalFirstTile) * Height + x;
-            bool outside = bandX < y + SpazerDiagonalLead || bandX >= y + SpazerDiagonalLead + SpazerDiagonalWidth;
+            double distance = (SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX
+                + SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY
+                + SpazerCompositionGeometryDefinitions.DiagonalStripWidth - bandX + y) / Math.Sqrt(2);
+            bool outside = Math.Abs(distance) >= SpazerRibbonThickness / 2.0;
             source = outside ? -1 : 0;
             return outside;
         }
@@ -262,11 +265,15 @@ public static class BeamTileAtlasDefinitions
         }
         if ((beams & SamusBeamFlags.Spazer) != 0 && tile == 0)
         {
-            int upper = (Height - 1) / 2;
+            double distance = SpazerCompositionGeometryDefinitions.HorizontalStripOriginY + y + 0.5;
+            if (Math.Abs(distance) >= SpazerRibbonThickness / 2.0)
+            {
+                source = -1;
+                return true;
+            }
+            int upper = -SpazerCompositionGeometryDefinitions.HorizontalStripOriginY - SpazerRibbonThickness / 2;
             if (y == upper) { source = 0; return false; }
-            if (y == upper + 1)
-                source = upper * Width + (x + Height - SpazerLowerRowShift) % Height;
-            else source = -1;
+            source = upper * Width + (x + Height - SpazerLowerRowShift * (y - upper)) % Height;
             return true;
         }
         if ((beams == 0 || beams == SamusBeamFlags.Ice) && tile >= TransparentTailFirstTile)

@@ -1786,6 +1786,17 @@ internal static partial class Program
     private static void VerifyLookupStream4BeamTileGeometry(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        int diagonalX = Word(0x93D110) & 0x1FF;
+        if (diagonalX >= 0x100) diagonalX -= 0x200;
+        AssertEqual(diagonalX, SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX, "shared diagonal origin matches original component");
+        AssertEqual((int)unchecked((sbyte)rom.ReadByte(0x93D112)), SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY, "shared diagonal Y remains exact source input");
+        AssertEqual((int)unchecked((sbyte)rom.ReadByte(0x93D6EE)), SpazerCompositionGeometryDefinitions.HorizontalStripOriginY, "horizontal strip centers the native small OBJ");
+        AssertEqual(0x32, Word(0x93D113) & 0x1FF, "first H-flipped diagonal component is raw tile2");
+        AssertEqual(0x31, Word(0x93D118) & 0x1FF, "second H-flipped diagonal component is raw tile1");
+        AssertEqual(0x4000, Word(0x93D113) & 0x4000, "diagonal first component horizontal flip");
+        AssertEqual(0x4000, Word(0x93D118) & 0x4000, "diagonal second component horizontal flip");
+        AssertEqual(16, SpazerCompositionGeometryDefinitions.DiagonalStripWidth, "two adjacent small cells form the strip width");
+        AssertEqual(2, BeamTileAtlasDefinitions.SpazerRibbonThickness, "required horizontal artwork thickness stays explicit");
         var files = BeamTileExtractor.Extract(rom);
         var palettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(rom)));
         var catalog = BeamTileCatalog.Load(files, palettes);

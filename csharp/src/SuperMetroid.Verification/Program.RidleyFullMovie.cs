@@ -1071,7 +1071,15 @@ internal static partial class Program
                     ushort instruction = slot.InstructionPointer;
                     ushort preInstruction = slot.PreInstruction == 0 ? RidleyMovieMemory.PlmDefaultPreInstruction : slot.PreInstruction;
                     var greyDoor = runtime.Plms.GreyDoors.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.BlockIndex == slot.BlockIndex);
-                    if (greyDoor.Header != 0 && greyDoor.Phase != GreyDoorPhase.Closing)
+                    AssertTrue(greyDoor.Header != 0,
+                        $"Movie PLM {slot.HeaderPointer:X4} needs a family-variable coverage mapping");
+                    Check($"PLM {slotIndex} grey-door condition", (ushort)((int)greyDoor.Condition * 2), RidleyMovieMemory.PlmFamilyVariable + offset);
+                    // Grey doors require one hit. Opening owns the incremented counter;
+                    // before that transition setup's zero is the live counter value.
+                    Check($"PLM {slotIndex} grey-door hit count",
+                        greyDoor.Phase == GreyDoorPhase.Opening ? (ushort)1 : (ushort)0,
+                        RidleyMovieMemory.PlmExtraVariable + offset);
+                    if (greyDoor.Phase != GreyDoorPhase.Closing)
                     {
                         ushort NativeProgramWord(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
                         ushort activation = NativeProgramWord(RidleyMovieMemory.PlmProgramBank | (greyDoor.InitialList + 6));
@@ -1095,7 +1103,9 @@ internal static partial class Program
                     // condition callback resets it to one before waking the native list.
                     if (greyDoor.Header == 0 || greyDoor.Phase != GreyDoorPhase.Locked)
                         Check($"PLM {slotIndex} InstructionTimer", slot.InstructionTimer, RidleyMovieMemory.PlmInstructionTimer + offset);
-                    // Generic retained link words are not compared until their live consumer is mapped.
+                    // Closing never consumes the retained link. Its fallthrough into
+                    // InitialList overwrites it before installing the condition callback;
+                    // all subsequent live links are checked through the semantic phase.
                 }
                 var activeLevel = runtime.LevelData ?? throw new InvalidDataException("Missing active collision data.");
                 for (int block = 0; block < activeLevel.WidthInBlocks * activeLevel.HeightInBlocks; block++)

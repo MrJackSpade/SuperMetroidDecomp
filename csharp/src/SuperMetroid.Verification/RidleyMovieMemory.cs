@@ -20,6 +20,10 @@ internal static class RidleyMovieMemory
     public const int PlmRoomArgument = 0x1dc7;
     /// <summary>$DE1C: PLM InstructionTimer, word-strided across forty physical slots.</summary>
     public const int PlmInstructionTimer = 0xde1c;
+    /// <summary>$1E17: PLM family variable; grey-door condition table byte offset.</summary>
+    public const int PlmFamilyVariable = 0x1e17;
+    /// <summary>$DF0C: extra PLM variable; grey-door hit counter.</summary>
+    public const int PlmExtraVariable = 0xdf0c;
     /// <summary>$DEBC: PLM LinkInstruction, word-strided across forty physical slots.</summary>
     public const int PlmLinkInstruction = 0xdebc;
     /// <summary>$2000: Ridley TailFunctionIndex, native bank-$A6 controller state.</summary>

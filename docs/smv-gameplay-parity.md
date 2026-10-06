@@ -471,3 +471,21 @@ solely from the retained word.
 The release build has zero errors and the independent input-only replay passes
 all 10,717 updates (`plm-clear-build.log`, `plm-clear-replay.log`). No subsequent
 native checkpoint state is injected. The remaining coverage audit stays open.
+
+### PLM family-variable and link-consumer audit
+
+The native movie's MainGameplay boundaries contain only grey-door headers $C842
+and $C848. The verifier now requires an explicit family mapping for every active
+PLM, compares the condition's native byte offset ($1E17) and maps the semantic
+one-hit opening state to the native hit counter ($DF0C). Room population spawn
+clears the counter ($84:846A); grey-door setup decodes the condition ($84:C794).
+All 10,717 updates pass these checks (`plm-family-build.log`,
+`plm-family-replay.log`); the release build has zero errors. No production change
+was required.
+
+The earlier generic-link gap is now narrowed for this movie: the entering door's
+closing list retains $DA54 but never consumes it. Fallthrough into the initial
+list overwrites the link before installing the condition callback. Live links
+in subsequent locked/flashing phases already compare through the semantic map.
+This does not establish coverage of unrelated PLM families or their retained
+variables. Draw/presentation state and partial-loading boundaries remain open.

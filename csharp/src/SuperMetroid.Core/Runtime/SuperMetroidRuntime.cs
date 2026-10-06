@@ -1242,6 +1242,7 @@ public sealed partial class SuperMetroidRuntime
         RunNmi(controllerInput, mainLoopRequestedNmi: true);
         Oam.BeginFrame();
         Oam.FinalizeFrame();
+        PublishDoorScrollingIrqNmiRequest();
     }
 
     /// <summary>

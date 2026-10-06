@@ -782,6 +782,7 @@ internal static partial class Program
         game.Step(0); // The atomic destination loader must use the pre-setup source.
         AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
         AssertEqual(0x010dc800u, samus.Kinematics.XFixed, "destination load carries both loading IRQ steps without restarting the scroll");
+        AssertEqual((byte)0, runtime.NmiFrameCounter8, "door end-drawing IRQ clears the adjacent byte counter");
         ushort palettePointer = (ushort)(bus.ReadByte(RidleyMovieMemory.BeamPalettePointers + (samus.EquippedBeams & 0x0fff) * 2) |
             bus.ReadByte(RidleyMovieMemory.BeamPalettePointers + (samus.EquippedBeams & 0x0fff) * 2 + 1) << 8);
         for (int color = 0; color < 16; color++)
@@ -795,6 +796,7 @@ internal static partial class Program
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForDoorOpeningScroll && scrollCalls < 64)
         {
             game.Step(0);
+            AssertEqual((byte)0, runtime.NmiFrameCounter8, "every moving door IRQ renews the byte-counter reset");
             scrollCalls++;
         }
         AssertEqual(61, scrollCalls, "left trajectory completes on its 61st remaining IRQ call");
@@ -823,9 +825,11 @@ internal static partial class Program
         AssertEqual(unchecked((ushort)(nmiBeforeNudge + 1)), runtime.NmiFrameCounter, "final transition accepts exactly one NMI");
         AssertEqual(samusAnimation, samus.AnimationFrame, "final transition does not animate Samus");
         AssertEqual(bodyInstruction, ridley.CurrentInstruction, "final transition does not advance destination enemy instructions");
+        AssertEqual((byte)0, runtime.NmiFrameCounter8, "final door scanout resets the byte before IRQ ownership changes");
         game.Step(0);
         AssertEqual(unchecked((ushort)(nmiBeforeNudge + 2)), runtime.NmiFrameCounter, "first fade accepts exactly one additional NMI");
         AssertEqual(samusAnimation, samus.AnimationFrame, "destination fade does not animate Samus");
+        AssertEqual((byte)1, runtime.NmiFrameCounter8, "first destination drawing frame resumes the byte counter");
         AssertEqual(RidleyMovieMemory.RidleyFirstFadeInstruction, ridley.CurrentInstruction, "first fade runs native Ridley instruction list");
         AssertEqual(RidleyMovieMemory.RidleyFirstFadeSpritemap, ridley.SpritemapPointer, "first fade publishes native Ridley sprite");
         AssertEqual((ushort)12, ridley.InstructionTimer, "first native fade visual duration");
@@ -1300,6 +1304,11 @@ internal static partial class Program
             ushort normalizedNmi = unchecked((ushort)(W(RidleyMovieMemory.NmiCounter) - excludedNmis));
             if (runtime.NmiFrameCounter != normalizedNmi)
                 mismatches.Add($"Accepted gameplay NMI: native={normalizedNmi:X4} port={runtime.NmiFrameCounter:X4}");
+            // All excluded accepted upload NMIs in this movie occur while the door
+            // IRQ repeatedly clears this byte. Its post-door phase therefore compares
+            // directly, unlike the independently retained word counter above.
+            AssertEqual(memory[RidleyMovieMemory.NmiCounterByte], runtime.NmiFrameCounter8,
+                $"update {frame}: byte NMI counter including native door IRQ reset");
             Check("Game state", (ushort)game.GameState, RidleyMovieMemory.GameState);
             Check("Enemy door gate", runtime.Enemies.EnemyDoorTransitionActive ? (ushort)1 : (ushort)0, RidleyMovieMemory.EnemyDoorTransition);
             // Native LoadDoorHeader publishes the destination room pointer before

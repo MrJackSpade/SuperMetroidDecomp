@@ -9,6 +9,7 @@ public sealed partial class SuperMetroidRuntime
 {
     // The IRQ owns these coordinates while state $0B waits inside LoadMoreThings. Keep
     // that ownership explicit instead of reducing the native scroll to a frontend timer.
+    private bool _doorScrollingIrqRequestsNmi;
     private DoorOpeningScrollState? _doorOpeningScroll;
     private DoorOpeningPpuScroll? _pendingDoorOpeningPpuScroll;
 
@@ -346,7 +347,21 @@ public sealed partial class SuperMetroidRuntime
     {
         if (DoorTransitionMainScreenLayers is null)
             throw new InvalidOperationException("Door-transition IRQ display is not active.");
+        // The final door scanout still uses the installed end-drawing command;
+        // the new gameplay IRQ takes ownership on the following frame.
+        PublishDoorScrollingIrqNmiRequest();
         DoorTransitionMainScreenLayers = null;
+        _doorScrollingIrqRequestsNmi = false;
+    }
+
+    /// <summary>
+    /// $80:97BA/$9823 ends a door scanout with a sixteen-bit STZ/INC at $05B4.
+    /// Its high byte is the adjacent eight-bit NMI counter, so the next accepted
+    /// NMI observes zero there while the independent $05B6 word keeps advancing.
+    /// </summary>
+    private void PublishDoorScrollingIrqNmiRequest()
+    {
+        if (_doorScrollingIrqRequestsNmi) NmiFrameCounter8 = 0;
     }
 
     /// <summary>
@@ -391,6 +406,8 @@ public sealed partial class SuperMetroidRuntime
             (direction & 2) != 0 ? Samus.YPosition : null);
         BackgroundScroll.Layer1XPosition = camera.X;
         BackgroundScroll.Layer1YPosition = camera.Y;
+        _doorScrollingIrqRequestsNmi = true;
+        PublishDoorScrollingIrqNmiRequest();
     }
 
     /// <summary>

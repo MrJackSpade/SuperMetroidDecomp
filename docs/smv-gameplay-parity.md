@@ -947,3 +947,31 @@ mismatch as merely a removed-upload phase or inject checkpoint counters.
 
 The expanded full replay is still failing at that next mismatch; neither full
 palette parity nor the overall goal is complete. Earlier open audit gaps remain.
+
+### Door IRQ byte-counter reset and complete current-palette pass
+
+The reserve-arrow mismatch at update 9471 is resolved. Door end-drawing IRQs
+$80:97BA/$9823 clear the sixteen-bit word starting at $05B4, then increment it to
+request NMI. This also clears the adjacent $05B5 eight-bit counter; $05B6 is a
+separate word and continues normally. The port omitted this overlap effect.
+
+Tile-loading now activates the modeled door IRQ write. Every blank loading/wait
+frame republishes it, and the last door scanout still clears the byte before IRQ
+ownership changes. The first destination drawing update resumes counting at one.
+A new every-update byte-counter assertion caught the initial implementation's
+one-frame-early resume at update 259/source 335, which was corrected against the
+source 336/338 native checkpoints. No native counters are injected after initial
+state import, and no hardware waits were reinstated. The word counter retains its
+existing independently normalized hardware-upload accounting.
+
+All 10,717 updates now pass, including every byte-counter sample and all 256 active
+palette colors through gameplay, door fades, pause, equipment transitions and
+unpause (`door-nmi-boundary-replay.log`). Partial CPU-loading palette writes retain
+the documented completion-boundary comparison and stability checks. No palette
+colors are waived for arrow phase. The real-room `--ridley-door-entry` case checks
+the reset during moving IRQs, the final door frame, and resume at one while its
+existing word-counter assertions remain unchanged (`door-nmi-focused.log`). Final
+build has zero errors (`door-nmi-final-build.log`). Player validation remains
+pending. Current palette output is covered for this movie; final pixels, transfer
+consumption/order and other previously documented audit gaps still prevent an
+overall full-parity completion claim.

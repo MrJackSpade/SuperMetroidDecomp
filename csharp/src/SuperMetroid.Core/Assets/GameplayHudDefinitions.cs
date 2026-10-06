@@ -90,6 +90,23 @@ public static class GameplayHudDefinitions
         int palette = containsEnergy ? AutoFullPalette : AutoEmptyPalette;
         return (ushort)(glyph | palette << 10 | 1 << 13 | (row == 2 ? 1 << 15 : 0));
     }
+    /// <summary>
+    /// $80:988B-98CA: blank HUD upper row followed by the minimap's five-cell
+    /// top edge and right cap. Native glyphs $1C/$1D ($9A:B3C0-B3DF) are the
+    /// adjacent cap/edge pair. This selected right-aligned border composition
+    /// shares the canonical blank's palette/priority; glyph pixels remain separate.
+    /// </summary>
+    private const int MinimapTopRightCapGlyph = 0x1c;
+    private const int MinimapVisibleColumns = 5;
+
+    internal static ushort TopRowWord(int column)
+    {
+        if ((uint)column >= Width) throw new IndexOutOfRangeException();
+        int firstEdge = Width - MinimapVisibleColumns - 1;
+        if (column < firstEdge) return BlankWord;
+        int glyph = MinimapTopRightCapGlyph + (column == Width - 1 ? 0 : 1);
+        return (ushort)((BlankWord & ~0x3ff) | glyph);
+    }
     public static string IconName(int itemIndex) => (uint)itemIndex < IconNames.Length
         ? IconNames[itemIndex]
         : throw new ArgumentOutOfRangeException(nameof(itemIndex));

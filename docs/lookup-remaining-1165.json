@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 400,
+  "remainingTableDefinitionCount": 399,
   "fileCount": 523,
   "entries": [
     {
@@ -998,12 +998,15 @@
       "note": "Original/default payload behind GameplayHudPresentation.template. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
-      "line": 11,
-      "name": "GameplayHudPresentation.topRowTransfer",
-      "kind": "installed stock table",
-      "note": "Stock document.TopRow cells serialized as DMA bytes. This is distinct from document.Template; conversion must target the stock cells, not the byte-packing loop."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
+  "line": 11,
+  "name": "GameplayHudPresentation.topRowTransfer",
+  "kind": "installed stock table",
+  "note": "Stock document.TopRow cells serialized as DMA bytes. This is distinct from document.Template; conversion must target the stock cells, not the byte-packing loop.",
+  "state": "justified-retained",
+  "implementationCommit": "6f42141488a0a6d82f5c6da7cd87c7d690de4ea2",
+  "disposition": "All32cells calculate with zero stock overrides and an ephemeral64-byte DMA buffer. Retained exact authored border composition: right-aligned five-column minimap edge, cap1C/adjacent edge1D, existing canonical blank/style, confirmed by native raw-index border image. Alternate arbitrary composition would change authored border. Pixels/RGB/template entries not exempted; independent edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
       "line": 12,
@@ -21874,5 +21877,5 @@
     }
   ],
   "convertedSinceSnapshot": 609,
-  "justifiedRetainedSinceSnapshot": 119
+  "justifiedRetainedSinceSnapshot": 120
 }

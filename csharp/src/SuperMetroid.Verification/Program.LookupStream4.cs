@@ -1205,6 +1205,46 @@ internal static partial class Program
             AssertEqual((ushort)1, Word(0xa20000 | flyFrames[frame].Pointer), "fly native single OAM object");
         }
     }
+    private static void VerifyLookupStream4HudTopRow(ISnesAddressSpace rom)
+    {
+        byte[] json=GameplayHudPresentationExtractor.Extract(rom);
+        var stock=GameplayHudPresentation.Load(new MemoryStream(json));
+        AssertEqual(0,((Dictionary<int,ushort>)typeof(GameplayHudPresentation).GetField("topRowOverrides",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(stock)!).Count,"HUD top row zero native overrides");
+        for(int edit=-1;edit<192;edit++)
+        {
+            var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;
+            if(edit>=0)
+            {
+                int index=edit/6;GameplayHudCell cell=document.TopRow[index];document.TopRow[index]=(edit%6) switch
+                {0=>cell with{TileColumn=cell.TileColumn^1},1=>cell with{TileRow=cell.TileRow^1},2=>cell with{Palette=cell.Palette^1},3=>cell with{Priority=!cell.Priority},4=>cell with{FlipX=!cell.FlipX},_=>cell with{FlipY=!cell.FlipY}};
+            }
+            using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);byte[] bytes=output.ToArray();
+            var selected=GameplayHudPresentation.Load(new MemoryStream(bytes));
+            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Top row exact serialized content identity");
+            ReadOnlyMemory<byte> transfer=selected.TopRowTransfer;
+            AssertEqual(64,transfer.Length,"Existing native top-row DMA extent");
+            for(int column=0;column<32;column++)
+            {
+                var cell=document.TopRow[column];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
+                AssertEqual(expected,(ushort)(transfer.Span[column*2]|transfer.Span[column*2+1]<<8),"Every supplied top-row cell survives output packing");
+                AssertEqual((ushort)(rom.ReadByte(0x80988b+column*2)|rom.ReadByte(0x80988c+column*2)<<8),GameplayHudDefinitions.TopRowWord(column),"Native calculated top-row word");
+            }
+            var vram=new SnesVram();vram.LoadBytes(0xb000,transfer.Span);
+            for(int index=0;index<64;index++)AssertEqual(transfer.Span[index],vram.Bytes[0xb000+index],"Existing top-row upload byte contract");
+            ushort[] actual=new ushort[96],original=new ushort[96];selected.ApplyTemplate(actual);stock.ApplyTemplate(original);AssertTrue(actual.AsSpan().SequenceEqual(original),"Top-row edits leave mutable template independent");
+        }
+        foreach(int invalid in new[]{-1,32,int.MinValue,int.MaxValue})AssertThrows<IndexOutOfRangeException>(()=>GameplayHudDefinitions.TopRowWord(invalid),"Top-row column domain");
+        const int scale=8,width=256,height=64;byte[] pixels=new byte[width*height];
+        for(int cell=0;cell<4;cell++)for(int y=0;y<8;y++)for(int x=0;x<8;x++)
+        {
+            int tile=cell==0?0x0f:cell==3?0x1c:0x1d,address=HudTileAtlasFormat.SourceAddress+tile*16+y*2;
+            int ink=(rom.ReadByte(address)>>(7-x)&1)|(rom.ReadByte(address+1)>>(7-x)&1)<<1;
+            for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[(y*scale+dy)*width+(cell*8+x)*scale+dx]=(byte)ink;
+        }
+        string directory=Path.GetFullPath("csharp/test-temp/hud-auto-source");Directory.CreateDirectory(directory);
+        using(var image=File.Create(Path.Combine(directory,"native-top-border.png")))IndexedPng.Write(image,width,height,pixels,[new Rgba32(20,20,20,255),new Rgba32(100,100,100,255),new Rgba32(180,180,180,255),new Rgba32(255,255,255,255)]);
+        Console.WriteLine("HUD top row:32native words/zero overrides,192independent edits/hash/193DMA outputs/template independence/bounds pass; native border source exported.");
+    }
     private static void VerifyLookupStream4HudAutoComplete(ISnesAddressSpace rom)
     {
         VerifyLookupStream4HudAutoCells(rom);

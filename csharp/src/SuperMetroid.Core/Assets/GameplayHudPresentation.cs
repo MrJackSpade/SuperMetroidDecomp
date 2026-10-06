@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class GameplayHudPresentation
 {
     private readonly ushort[] template;
-    private readonly byte[] topRowTransfer;
+    private readonly Dictionary<int, ushort> topRowOverrides;
     private readonly Dictionary<int, ushort> healthDigits;
     private readonly Dictionary<int, ushort> ammoDigits;
     private readonly Dictionary<int, ushort> autoReserveOverrides;
@@ -20,12 +20,9 @@ public sealed class GameplayHudPresentation
     {
         ushort[] topRow = CompileCells(document.TopRow, GameplayHudDefinitions.TopRowCellCount,
             "HUD immutable top row");
-        topRowTransfer = new byte[GameplayHudDefinitions.TopRowByteCount];
+        topRowOverrides = new();
         for (int index = 0; index < topRow.Length; index++)
-        {
-            topRowTransfer[index * 2] = (byte)topRow[index];
-            topRowTransfer[index * 2 + 1] = (byte)(topRow[index] >> 8);
-        }
+            if (topRow[index] != GameplayHudDefinitions.TopRowWord(index)) topRowOverrides.Add(index, topRow[index]);
         template = CompileCells(document.Template, GameplayHudDefinitions.CellCount, "HUD template");
         Blank = CompileCell(document.Blank, "HUD blank");
         FilledEnergyTank = CompileCell(document.EnergyTanks.Filled, "filled energy tank");
@@ -66,7 +63,22 @@ public sealed class GameplayHudPresentation
 
     public string ContentIdentity { get; }
     /// <summary>Native-order BG3 top-row bytes supplied at the existing queued DMA boundary.</summary>
-    public ReadOnlyMemory<byte> TopRowTransfer => topRowTransfer;
+    public ReadOnlyMemory<byte> TopRowTransfer
+    {
+        get
+        {
+            // This is the queued DMA output, not a cached stock lookup table.
+            byte[] transfer = new byte[GameplayHudDefinitions.TopRowByteCount];
+            for (int column = 0; column < GameplayHudDefinitions.Width; column++)
+            {
+                ushort word = topRowOverrides.TryGetValue(column, out ushort edited)
+                    ? edited : GameplayHudDefinitions.TopRowWord(column);
+                transfer[column * 2] = (byte)word;
+                transfer[column * 2 + 1] = (byte)(word >> 8);
+            }
+            return transfer;
+        }
+    }
     public ushort Blank { get; }
     public ushort FilledEnergyTank { get; }
     public ushort EmptyEnergyTank { get; }

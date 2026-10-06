@@ -1491,6 +1491,13 @@ internal static partial class Program
         }
         var stock = Load();
         Check(stock);
+        var targetFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object selectedSidehopper = typeof(ShitroidColorCatalog).GetField("sidehopper", targetFlags)!.GetValue(stock)!;
+        AssertEqual(0, ((ushort[])selectedSidehopper.GetType().GetField("independentOrSupplied", targetFlags)!.GetValue(selectedSidehopper)!).Length,
+            "stream 3 complete standalone Sidehopper target keeps no stock color array");
+        object selectedCorpse = typeof(ShitroidColorCatalog).GetField("deadSidehopper", targetFlags)!.GetValue(stock)!;
+        AssertEqual(0, ((ushort[])selectedCorpse.GetType().GetField("independentOrSupplied", targetFlags)!.GetValue(selectedCorpse)!).Length,
+            "stream 3 complete standalone corpse target keeps no stock color array");
         var pulse = typeof(ShitroidColorCatalog).GetField("normal",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertTrue(pulse.GetType().GetField("supplied", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!

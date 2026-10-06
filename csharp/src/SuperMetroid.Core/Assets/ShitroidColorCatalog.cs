@@ -10,11 +10,15 @@ public sealed class ShitroidColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
         {
-            content.AppendWords("sidehopper", sidehopper);
+            Span<ushort> selectedSidehopper = stackalloc ushort[ShitroidColorRomData.TargetColorCount];
+            for (int color = 0; color < selectedSidehopper.Length; color++) selectedSidehopper[color] = sidehopper.Resolve(color);
+            content.AppendWords("sidehopper", selectedSidehopper);
             Span<ushort> selectedShitroid = stackalloc ushort[ShitroidColorRomData.TargetColorCount];
             for (int color = 0; color < selectedShitroid.Length; color++) selectedShitroid[color] = TargetColor(ShitroidColorTarget.Shitroid, color);
             content.AppendWords("shitroid", selectedShitroid);
-            content.AppendWords("deadSidehopper", deadSidehopper);
+            Span<ushort> selectedCorpse = stackalloc ushort[ShitroidColorRomData.TargetColorCount];
+            for (int color = 0; color < selectedCorpse.Length; color++) selectedCorpse[color] = deadSidehopper.Resolve(color);
+            content.AppendWords("deadSidehopper", selectedCorpse);
             content.Append("normal", ShitroidColorRomData.NormalFrameCount);
             for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
             {
@@ -25,22 +29,22 @@ public sealed class ShitroidColorCatalog
         });
 
     private readonly ColorPulse normal;
-    private readonly ushort[] sidehopper;
+    private readonly SidehopperInitialPalette sidehopper;
     private readonly BabyMetroidInitialPalette shitroid;
     /// <summary>$A9:F8E6 is copied by EF9F-EFA8 to target slot A0. Stock3800 is an exact
     /// transparent-slot compatibility payload: OBJ ink0 is skipped before color lookup.
     /// It has no visible hue to derive; independently supplied replacements remain exact.</summary>
     private readonly ushort shitroidTransparentSlot;
-    private readonly ushort[] deadSidehopper;
+    private readonly SidehopperCorpsePalette deadSidehopper;
 
     private ShitroidColorCatalog(ushort[][] normal, ushort[] sidehopper,
         ushort[] shitroid, ushort[] deadSidehopper)
     {
         this.shitroid = new BabyMetroidInitialPalette(shitroid.AsSpan(1).ToArray());
         this.normal = new ColorPulse(normal, this.shitroid);
-        this.sidehopper = sidehopper;
+        this.sidehopper = new(sidehopper);
         shitroidTransparentSlot = shitroid[0];
-        this.deadSidehopper = deadSidehopper;
+        this.deadSidehopper = new(deadSidehopper);
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -63,14 +67,9 @@ public sealed class ShitroidColorCatalog
             if ((uint)color >= ShitroidColorRomData.TargetColorCount) throw new ArgumentOutOfRangeException(nameof(color));
             return color == 0 ? shitroidTransparentSlot : shitroid.Resolve(color - 1);
         }
-        ushort[] selected = target switch
-        {
-            ShitroidColorTarget.Sidehopper => sidehopper,
-            ShitroidColorTarget.DeadSidehopper => deadSidehopper,
-            _ => throw new ArgumentOutOfRangeException(nameof(target)),
-        };
-        return (uint)color < selected.Length ? selected[color] :
-            throw new ArgumentOutOfRangeException(nameof(color));
+        if (target == ShitroidColorTarget.Sidehopper) return sidehopper.Resolve(color);
+        return target == ShitroidColorTarget.DeadSidehopper ? deadSidehopper.Resolve(color) :
+            throw new ArgumentOutOfRangeException(nameof(target));
     }
 
     public static ShitroidColorCatalog Load(Stream json)

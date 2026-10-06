@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 472,
+  "remainingTableDefinitionCount": 470,
   "fileCount": 523,
   "entries": [
     {
@@ -2163,12 +2163,15 @@
   "disposition": "Mixed complete:32normal organ pulse colors derive reviewed initial paints,reflected four-level phase and channel clipping. Retain only selected dimming step5,saturated-red headroom5,red floor5 and organ-only symmetric intensity composition after native masks/consumer review. No cadence,SFX,low-health or other target exemption;zero stock pulse rows,independent target/frame edits preserved."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
-      "line": 20,
-      "name": "ShitroidColorCatalog.sidehopper",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind ShitroidColorCatalog.sidehopper. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
+  "line": 20,
+  "name": "ShitroidColorCatalog.sidehopper",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind ShitroidColorCatalog.sidehopper. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "b679d5dd6",
+  "disposition": "Calculate all16 target colors from seven reviewed categorical body/detail/claw paints, selected half-shadow and midpoint policies, repeated inks,saturated yellow/white, and standalone transparent3800 compatibility word. Exact chosen painting has no physical numeric basis. Shifted auxiliary visible ink1 is separately required; no geometry/timing exemption."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
   "line": 21,
@@ -2180,12 +2183,15 @@
   "disposition": "Mixed complete:15visible target colors share reviewed Baby initial calculation,with independent edits. Retain only exact copied slot0=3800 atA9F8E6 as transparent compatibility payload:EF9F-EFA8 copies it but OBJ ink0 skips color lookup; inventing a paint function for it would re-encode unrelated payload. No visible-background or other target exemption;installed suit palettes remain independent."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
-      "line": 22,
-      "name": "ShitroidColorCatalog.deadSidehopper",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind ShitroidColorCatalog.deadSidehopper. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
+  "line": 22,
+  "name": "ShitroidColorCatalog.deadSidehopper",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind ShitroidColorCatalog.deadSidehopper. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "b679d5dd6",
+  "disposition": "Calculate all16 shared corpse target colors from six reviewed limb/olive/eye/ochre paints, selected nearest3/4 and floor2/3 shades, seven-interval ramp,white and transparent3800 compatibility word. Exact chosen painting shared across Sidehopper/Zoomer/Ripper/Skree cannot derive from actor state. Shifted auxiliary separately required; no movement/rotting/timing exception."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs",
       "line": 23,
@@ -21658,5 +21664,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 56
+  "justifiedRetainedSinceSnapshot": 58
 }

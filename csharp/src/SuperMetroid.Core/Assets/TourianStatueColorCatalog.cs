@@ -14,24 +14,25 @@ public sealed class TourianStatueColorCatalog
             Span<ushort> row = stackalloc ushort[TourianStatuePaletteRomData.BaseColorCount];
             for (int color = 0; color < row.Length; color++) row[color] = ResolveBase(color);
             content.AppendWords("baseColors", row);
-            content.AppendWords("statueColors", statueColors);
+            content.AppendWords("statueColors", statueColors.Words());
             for (int color = 0; color < TourianStatuePaletteRomData.GreyColorCount; color++) row[color] = ResolveGrey(color);
             content.AppendWords("greyColors", row[..TourianStatuePaletteRomData.GreyColorCount]);
-            content.AppendWordFrames("eyeColors", eyeColors);
+            content.AppendWordFrames("eyeColors", Enumerable.Range(0, TourianStatuePaletteRomData.EyeRowCount).Select(row =>
+                Enumerable.Range(0, TourianStatuePaletteRomData.EyeColorCount).Select(color => ResolveEye(row, color)).ToArray()).ToArray());
         });
 
-    private readonly PaletteRamp baseColors;
-    private readonly ushort[] statueColors;
-    private readonly ushort[][] eyeColors;
-    private readonly PaletteRamp greyColors;
+    private readonly PaletteBand baseColors;
+    private readonly PaletteBand statueColors;
+    private readonly PaletteBand eyeColors;
+    private readonly PaletteBand greyColors;
 
     private TourianStatueColorCatalog(ushort[] baseColors, ushort[] statueColors,
         ushort[][] eyeColors, ushort[] greyColors)
     {
-        this.baseColors = new(baseColors, 1, 8);
-        this.statueColors = statueColors;
-        this.eyeColors = eyeColors;
-        this.greyColors = new(greyColors, 1, 7);
+        this.baseColors = new(TourianStatuePaintBand.Base, baseColors);
+        this.statueColors = new(TourianStatuePaintBand.Statue, statueColors);
+        this.eyeColors = new(TourianStatuePaintBand.Eye, eyeColors.SelectMany(row => row).ToArray());
+        this.greyColors = new(TourianStatuePaintBand.Grey, greyColors);
     }
 
     private static readonly JsonSerializerOptions Options = new()
@@ -42,22 +43,28 @@ public sealed class TourianStatueColorCatalog
     };
 
     public ushort ResolveBase(int color) => baseColors.Read(color);
-    public ushort ResolveStatue(int color) => statueColors[color];
-    public ushort ResolveEye(int row, int color) => eyeColors[row][color];
+    public ushort ResolveStatue(int color) => statueColors.Read(color);
+    public ushort ResolveEye(int row, int color)
+    {
+        if ((uint)row >= TourianStatuePaletteRomData.EyeRowCount ||
+            (uint)color >= TourianStatuePaletteRomData.EyeColorCount) throw new IndexOutOfRangeException();
+        return eyeColors.Read(row * TourianStatuePaletteRomData.EyeColorCount + color);
+    }
     public ushort ResolveGrey(int color) => greyColors.Read(color);
 
     public void ApplyEntrance(SnesCgram cgram)
     {
         baseColors.Apply(cgram, TourianStatuePaletteRomData.BaseCgramIndex);
-        Apply(cgram, statueColors, TourianStatuePaletteRomData.StatueCgramIndex);
+        statueColors.Apply(cgram, TourianStatuePaletteRomData.StatueCgramIndex);
     }
 
     public void ApplyEye(SnesCgram cgram, ushort doubledBossParameter)
     {
         if (doubledBossParameter > 6 || (doubledBossParameter & 1) != 0)
             throw new ArgumentOutOfRangeException(nameof(doubledBossParameter));
-        Apply(cgram, eyeColors[doubledBossParameter >> 1],
-            TourianStatuePaletteRomData.EyeCgramIndex);
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < TourianStatuePaletteRomData.EyeColorCount; color++)
+            cgram.SetColor(TourianStatuePaletteRomData.EyeCgramIndex + color, ResolveEye(doubledBossParameter >> 1, color));
     }
 
     public void ApplyGrey(SnesCgram cgram, int destinationColor) =>
@@ -114,75 +121,36 @@ public sealed class TourianStatueColorCatalog
         return compiled;
     }
 
-    /// <summary>
-    /// Endpoint interpolation for $AA:D785 base colors1..8 and $87:839C grey colors1..7.
-    /// The native base ramp is exact; the grey ramp has one green-channel residual.
-    /// Endpoints, outside colors and residual choices remain unresolved artwork under
-    /// issue1165; no artistic exception is inferred from the near-linear ramps.
-    /// </summary>
-    private sealed class PaletteRamp
+    /// <summary>One independent installed domain: stock colors calculate; arbitrary supplied words own sparse overrides.</summary>
+    private sealed class PaletteBand
     {
+        private readonly TourianStatuePaintBand band;
         private readonly int count;
-        private readonly int start;
-        private readonly int length;
-        private readonly ushort first;
-        private readonly ushort last;
-        private readonly ushort[] outside;
         private readonly Dictionary<int, ushort> edits = [];
-
-        internal PaletteRamp(ushort[] supplied, int start, int length)
+        internal PaletteBand(TourianStatuePaintBand band, ReadOnlySpan<ushort> supplied)
         {
+            this.band = band;
             count = supplied.Length;
-            this.start = start;
-            this.length = length;
-            first = supplied[start];
-            last = supplied[start + length - 1];
-            outside = new ushort[count - length];
             for (int color = 0; color < count; color++)
-            {
-                if (color < start || color >= start + length)
-                    outside[color < start ? color : color - length] = supplied[color];
-                else if (supplied[color] != Interpolate(color - start))
-                    edits.Add(color, supplied[color]);
-            }
+                if (supplied[color] != TourianStatuePaintDefinitions.Color(band, color)) edits.Add(color, supplied[color]);
         }
-
-        private ushort Interpolate(int step)
-        {
-            int denominator = length - 1;
-            int word = 0;
-            for (int shift = 0; shift <= 10; shift += 5)
-            {
-                int channel = (((first >> shift) & 31) * (denominator - step)
-                    + ((last >> shift) & 31) * step + denominator / 2) / denominator;
-                word |= channel << shift;
-            }
-            return (ushort)word;
-        }
-
         internal ushort Read(int color)
         {
             if ((uint)color >= count) throw new IndexOutOfRangeException();
-            if (color < start || color >= start + length)
-                return outside[color < start ? color : color - length];
-            return edits.TryGetValue(color, out ushort edited) ? edited : Interpolate(color - start);
+            return edits.TryGetValue(color, out ushort edited) ? edited : TourianStatuePaintDefinitions.Color(band, color);
         }
-
+        internal ushort[] Words()
+        {
+            var result = new ushort[count];
+            for (int color = 0; color < count; color++) result[color] = Read(color);
+            return result;
+        }
         internal void Apply(SnesCgram destination, int firstColor)
         {
             ArgumentNullException.ThrowIfNull(destination);
-            for (int color = 0; color < count; color++)
-                destination.SetColor(firstColor + color, Read(color));
+            for (int color = 0; color < count; color++) destination.SetColor(firstColor + color, Read(color));
         }
     }
-
-    private static void Apply(SnesCgram cgram, ushort[] colors, int destination)
-    {
-        ArgumentNullException.ThrowIfNull(cgram);
-        for (int color = 0; color < colors.Length; color++)
-            cgram.SetColor(destination + color, colors[color]);
-    }
-
     private static void RejectDuplicates(JsonElement value)
     {
         if (value.ValueKind == JsonValueKind.Object)

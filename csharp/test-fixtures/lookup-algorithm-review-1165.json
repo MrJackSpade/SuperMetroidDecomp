@@ -12634,4 +12634,19 @@
     "GameplayHudPresentation.template"
   ],
   "workerCommit": "cc2419afb283fd8fcf4605652bc2d48822b6270f"
+},"tourianStatuePaintComplete":{
+  "disposition": [
+    "All56output colors calculate with zero stock overrides; exact authored material paints, rounding and composition are the narrow remaining source-backed choices documented in the worker report. Uniform RGB8 interpolation replaces the former grey exception, shared Ridley eye paint and neutral/gamma/linear ramps derive repeated colors. Independent edits preserved.",
+    "All56output colors calculate with zero stock overrides; exact authored material paints, rounding and composition are the narrow remaining source-backed choices documented in the worker report. Uniform RGB8 interpolation replaces the former grey exception, shared Ridley eye paint and neutral/gamma/linear ramps derive repeated colors. Independent edits preserved.",
+    "All56output colors calculate with zero stock overrides; exact authored material paints, rounding and composition are the narrow remaining source-backed choices documented in the worker report. Uniform RGB8 interpolation replaces the former grey exception, shared Ridley eye paint and neutral/gamma/linear ramps derive repeated colors. Independent edits preserved.",
+    "All56output colors calculate with zero stock overrides; exact authored material paints, rounding and composition are the narrow remaining source-backed choices documented in the worker report. Uniform RGB8 interpolation replaces the former grey exception, shared Ridley eye paint and neutral/gamma/linear ramps derive repeated colors. Independent edits preserved."
+  ],
+  "confirmation": "Worker build1434warnings/0errors;56native words/168independent full-range channel edits/actual CGRAM/canonical identities/bounds passed. Coordinator mechanically integrates without review/retest.",
+  "completed": [
+    "TourianStatueColorCatalog.baseColors",
+    "TourianStatueColorCatalog.statueColors",
+    "TourianStatueColorCatalog.eyeColors",
+    "TourianStatueColorCatalog.greyColors"
+  ],
+  "workerCommit": "9564a2956a8403fc9733904ae3c2e9e2df96a417"
 }}

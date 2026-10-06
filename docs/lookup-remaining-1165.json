@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 398,
+  "remainingTableDefinitionCount": 394,
   "fileCount": 523,
   "entries": [
     {
@@ -2470,33 +2470,45 @@
       "implementationCommit": "3babe2470127393316bba3453964779626368be7"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs",
-      "line": 20,
-      "name": "TourianStatueColorCatalog.baseColors",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind TourianStatueColorCatalog.baseColors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs",
+  "line": 20,
+  "name": "TourianStatueColorCatalog.baseColors",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind TourianStatueColorCatalog.baseColors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "9564a2956a8403fc9733904ae3c2e9e2df96a417",
+  "disposition": "All56output colors calculate with zero stock overrides; exact authored material paints, rounding and composition are the narrow remaining source-backed choices documented in the worker report. Uniform RGB8 interpolation replaces the former grey exception, shared Ridley eye paint and neutral/gamma/linear ramps derive repeated colors. Independent edits preserved."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs",
-      "line": 21,
-      "name": "TourianStatueColorCatalog.statueColors",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind TourianStatueColorCatalog.statueColors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs",
+  "line": 21,
+  "name": "TourianStatueColorCatalog.statueColors",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind TourianStatueColorCatalog.statueColors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "9564a2956a8403fc9733904ae3c2e9e2df96a417",
+  "disposition": "All56output colors calculate with zero stock overrides; exact authored material paints, rounding and composition are the narrow remaining source-backed choices documented in the worker report. Uniform RGB8 interpolation replaces the former grey exception, shared Ridley eye paint and neutral/gamma/linear ramps derive repeated colors. Independent edits preserved."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs",
-      "line": 22,
-      "name": "TourianStatueColorCatalog.eyeColors",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind TourianStatueColorCatalog.eyeColors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs",
+  "line": 22,
+  "name": "TourianStatueColorCatalog.eyeColors",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind TourianStatueColorCatalog.eyeColors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "9564a2956a8403fc9733904ae3c2e9e2df96a417",
+  "disposition": "All56output colors calculate with zero stock overrides; exact authored material paints, rounding and composition are the narrow remaining source-backed choices documented in the worker report. Uniform RGB8 interpolation replaces the former grey exception, shared Ridley eye paint and neutral/gamma/linear ramps derive repeated colors. Independent edits preserved."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs",
-      "line": 23,
-      "name": "TourianStatueColorCatalog.greyColors",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind TourianStatueColorCatalog.greyColors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs",
+  "line": 23,
+  "name": "TourianStatueColorCatalog.greyColors",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind TourianStatueColorCatalog.greyColors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "9564a2956a8403fc9733904ae3c2e9e2df96a417",
+  "disposition": "All56output colors calculate with zero stock overrides; exact authored material paints, rounding and composition are the narrow remaining source-backed choices documented in the worker report. Uniform RGB8 interpolation replaces the former grey exception, shared Ridley eye paint and neutral/gamma/linear ramps derive repeated colors. Independent edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/WorkRobotPaletteCycle.cs",
       "line": 20,
@@ -21880,5 +21892,5 @@
     }
   ],
   "convertedSinceSnapshot": 609,
-  "justifiedRetainedSinceSnapshot": 121
+  "justifiedRetainedSinceSnapshot": 125
 }

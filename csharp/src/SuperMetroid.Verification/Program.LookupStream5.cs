@@ -932,27 +932,36 @@ internal static partial class Program
         var document = System.Text.Json.JsonSerializer.Deserialize<TourianStatueColorDocument>(nativeJson,
             new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
         var stock = Check(document);
-        CheckResidualCount("baseColors", 0);
-        CheckResidualCount("greyColors", 1);
-        foreach (bool grey in new[] { false, true })
+        foreach (string field in new[] { "baseColors", "statueColors", "eyeColors", "greyColors" }) CheckResidualCount(field, 0);
+        for (int domain = 0; domain < 4; domain++)
         {
-            PaletteRgb5[] source = grey ? document.Grey : document.Base;
+            PaletteRgb5[] source = domain switch
+            {
+                0 => document.Base, 1 => document.Statue, 2 => document.Eye.SelectMany(row => row).ToArray(), _ => document.Grey,
+            };
             for (int color = 0; color < source.Length; color++)
             for (int channel = 0; channel < 3; channel++)
             {
                 var changed = (PaletteRgb5[])source.Clone();
                 changed[color] = channel switch
                 {
-                    0 => changed[color] with { Red = changed[color].Red ^ 1 },
-                    1 => changed[color] with { Green = changed[color].Green ^ 1 },
-                    _ => changed[color] with { Blue = changed[color].Blue ^ 1 },
+                    0 => changed[color] with { Red = changed[color].Red ^ 31 },
+                    1 => changed[color] with { Green = changed[color].Green ^ 31 },
+                    _ => changed[color] with { Blue = changed[color].Blue ^ 31 },
                 };
-                Check(grey ? document with { Grey = changed } : document with { Base = changed });
+                Check(domain switch
+                {
+                    0 => document with { Base = changed },
+                    1 => document with { Statue = changed },
+                    2 => document with { Eye = Enumerable.Range(0, 4).Select(row => changed.Skip(row * 4).Take(4).ToArray()).ToArray() },
+                    _ => document with { Grey = changed },
+                });
             }
         }
-        AssertThrows<IndexOutOfRangeException>(() => stock.ResolveBase(-1), "Base ramp lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => stock.ResolveEye(0, 4), "Eye color cannot cross into next row");
+        AssertThrows<IndexOutOfRangeException>(() => stock.ResolveStatue(16), "Statue upper bound");        AssertThrows<IndexOutOfRangeException>(() => stock.ResolveBase(-1), "Base ramp lower bound");
         AssertThrows<IndexOutOfRangeException>(() => stock.ResolveGrey(8), "Grey ramp upper bound");
-        Console.WriteLine("Tourian statue ramps: all56 native palette colors,72 independent channel edits, actual CGRAM and canonical identities pass; one grey residual color and independent endpoints/outside colors remain pending.");
+        Console.WriteLine("Tourian statue ramps: all56 native palette colors,168 independent full-range channel edits, zero stock overrides, actual CGRAM and canonical identities pass; selected material paint scope complete.");
 
         void CheckResidualCount(string field, int expected)
         {

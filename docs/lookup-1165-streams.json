@@ -3274,6 +3274,7 @@
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/CeresDoorEscapeSurfacePaintDefinitions.cs","purpose":"Shared existing escape surface color operation; worker owns validation","stream":4}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/DraygonIntroPaintDefinitions.cs","purpose":"Worker-completed intro material aliases; worker owns validation","stream":4}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/ZebetitePulsePaintDefinitions.cs","purpose":"Worker-completed barrier-core pulse paint; worker owns disposition and validation","stream":5}
+,{"path":"csharp/src/SuperMetroid.Core/Assets/TourianStatuePaintDefinitions.cs","purpose":"Worker-completed statue material palettes; worker owns disposition and validation","stream":5}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers own implementation, acceptable evidence-backed disposition, and validation; they commit completed entries and continue without coordinator approval. Coordinator monitors, mechanically integrates, maintains accounting and exclusively pushes/publishes; coordinator does not review or repeat worker validation. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

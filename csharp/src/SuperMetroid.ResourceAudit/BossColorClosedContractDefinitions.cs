@@ -58,8 +58,9 @@ internal static class BossColorClosedContractDefinitions
             "Private construction requires all eight sixteen-color health bands, sixteen fade colors and 112 power-on colors. Bounded resolvers select calculated black/tint targets, required endpoint/deviation inputs or independently supplied overrides; power-on colors resolve installed bases, calculated shade runs and independent overrides. No further identity is selected."),
         new("SuperMetroid.Core.Assets.TourianStatueColorCatalog", "tourian-statue-v1-complete-eye-palettes",
             ["ApplyEntrance", "ApplyEye", "ApplyGrey"],
-            [new("csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs", "7FDE8ED04F0B0ACAD46756A1F3FA5739E023D347A1CD08025AA7AC6A2F837FC7"),
+            [new("csharp/src/SuperMetroid.Core/Assets/TourianStatueColorCatalog.cs", "32DDC43F855C8E99592418B356DB46F1D25A5DBD4900D83728C5F289A9A4597E"),
+             new("csharp/src/SuperMetroid.Core/Assets/TourianStatuePaintDefinitions.cs", "609126E168A87D57D9E14F3FE75019AD35EA4D7F4B11332D6A1EF4583A07A9AF"),
              new("csharp/src/SuperMetroid.Core/Game/TourianStatuePaletteRomData.cs", "8B40EBE9A88CA5DF57EE8E5DAE29AD520907B69E38210D28A192A3B53FC1E577")],
-            "Load validates complete base/statue/grey arrays and four four-color eye rows before private construction. ApplyEye accepts only even doubled indices 0..6; entrance/grey transfer fixed arrays. Unreviewed raw Resolve methods are excluded."),
+            "Load validates complete base/statue/grey arrays and four four-color eye rows, then retains only independent supplied edits against the calculated material palettes. ApplyEye accepts only even doubled indices 0..6; entrance/grey resolve calculated or edited colors. Unreviewed raw Resolve methods are excluded."),
     ];
 }

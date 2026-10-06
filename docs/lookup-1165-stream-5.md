@@ -983,3 +983,11 @@ The full stored CGRAM byte image is replaced with direct color access. Repeated 
 Timed-pose widths, the packed one-byte sound operand, callback boundaries and repeated actor loops calculate57 control positions and28 presentation addresses. Tail offsets halve8/4/2; the initial magnitude remains required. Only PresentationWords is complete. Words remains pending for eye holds8/8/8/7/7/7/6/6/5/48, splash8, particle3, tail4, soul8, decoration128/statue1911, initial tail displacement8 and particle burst4. No retention exception is granted.
 
 The fixture now installs native eye colors before spawning actors and compares all28 exact native compiled selectors with zero live reads. Root build passed (1445 warnings, zero errors). `--tourian-statue-projectile-instruction-mechanics` confirms all57 native words, eight real actor families, tail Y movement, selectors, guards/bounds and allocation checks. Its step helper forces instruction timers; this is not elapsed-time confirmation. Inventory:532 converted,15 justified retained/mixed,581 pending.
+
+## Integrated Ceres Mode7 transfer views
+
+0be62c045 replaces seven cached descriptor/payload lists with calculated readonly transfer and tile views. Native packed paired-frame source extents,128-column map rows,baby tile adjacency,wing atlas runs and shared cells calculate directly without reconstructing payload buffers. Main's previously integrated BabyFrameForPhase remains intact.
+
+Chosen platform/baby positions and glyphs,six wing regions,run origins/extents and isolated glyphs remain required. All seven aggregate entries remain pending; no new exception or completion;560converted/21retained-mixed/547pending unchanged.
+
+Root Verification1450warnings/zero errors; --lookup-stream5-mode7-transfers passes20native descriptors,170source bytes,all seven terminators and exact low-byte-only VRAM effects/order. Existing source-byte/destination/high-byte preservation assertions remain unchanged. No ResourceAudit source-hash reference exists for the changed production file.

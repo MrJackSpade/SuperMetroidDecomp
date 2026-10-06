@@ -1301,6 +1301,22 @@ if (args is ["--lookup-enemy-frame-registration"])
     VerifyStream3EnemyFrameRegistration(rom);
     return 0;
 }
+if (args is ["--lookup-dachora-colors"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Dachora colors oracle revision");
+    VerifyLookupDachoraColors(rom);
+    return 0;
+}
+if (args is ["--lookup-stream-4-spore-health-ramp"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Spore health ramp oracle revision");
+    VerifyLookupStream4SporeHealthRamp(rom);
+    return 0;
+}
 if (args is ["--lookup-stream-4-spore-fade"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

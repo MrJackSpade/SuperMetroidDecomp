@@ -14,20 +14,67 @@ public sealed class DachoraColorCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("DachoraColorCatalog-v1", content =>
         {
             content.AppendWords("normal", normal);
-            content.AppendWordFrames("speed", speed);
-            content.AppendWordFrames("shine", shine);
+            content.AppendWordFrames("speed", Frames(DachoraPalettePhase.Speed));
+            content.AppendWordFrames("shine", Frames(DachoraPalettePhase.Shine));
         });
 
     private readonly ushort[] normal;
-    private readonly ushort[][] speed;
-    private readonly ushort[][] shine;
+    // Speed and shine frames calculate from the normal colors; only supplied deviations are stored.
+    private readonly Dictionary<int, ushort> speedEdits = new();
+    private readonly Dictionary<int, ushort> shineEdits = new();
 
     private DachoraColorCatalog(ushort[] normal, ushort[][] speed, ushort[][] shine)
     {
         this.normal = normal;
-        this.speed = speed;
-        this.shine = shine;
+        for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
+        for (int color = 0; color < DachoraColorRomData.ColorsPerFrame; color++)
+        {
+            int key = frame * DachoraColorRomData.ColorsPerFrame + color;
+            if (speed[frame][color] != SpeedColor(frame, color)) speedEdits.Add(key, speed[frame][color]);
+            if (shine[frame][color] != ShineColor(frame, color)) shineEdits.Add(key, shine[frame][color]);
+        }
     }
+
+    /// <summary>$A7:F245 speed-boost sequence's flash backdrop in its first frame, authored paint.</summary>
+    private const ushort SpeedFlashBackdrop = 12 << 5 | 5 << 10;
+
+    /// <summary>
+    /// $A7:F245..F2C4: frame k raises each color's blue channel toward min(blue + 16, 31),
+    /// rounding to nearest over three steps; red and green keep the normal color. The first
+    /// frame's transparent slot is the authored flash backdrop, later frames keep the normal one.
+    /// </summary>
+    private ushort SpeedColor(int frame, int color)
+    {
+        ushort basis = normal[color];
+        if (color == 0) return frame == 0 ? SpeedFlashBackdrop : basis;
+        int blue = basis >> 10 & 31;
+        int target = Math.Min(blue + 16, 31);
+        int steps = DachoraColorRomData.AnimatedFrameCount - 1;
+        int shifted = blue + ((target - blue) * frame + steps / 2) / steps;
+        return (ushort)(basis & 0x3ff | shifted << 10);
+    }
+
+    /// <summary>
+    /// $A7:F2C5..F344: frame k fades every channel toward white by k/5, as
+    /// channel + floor(k * (31 - channel) / 5); the transparent slot keeps the normal color.
+    /// </summary>
+    private ushort ShineColor(int frame, int color)
+    {
+        ushort basis = normal[color];
+        if (color == 0) return basis;
+        int result = 0;
+        for (int shift = 0; shift <= 10; shift += 5)
+        {
+            int channel = basis >> shift & 31;
+            result |= channel + frame * (31 - channel) / 5 << shift;
+        }
+        return (ushort)result;
+    }
+
+    private ushort[][] Frames(DachoraPalettePhase phase) =>
+        Enumerable.Range(0, DachoraColorRomData.AnimatedFrameCount)
+            .Select(frame => Enumerable.Range(0, DachoraColorRomData.ColorsPerFrame)
+                .Select(color => Resolve(phase, frame, color)).ToArray()).ToArray();
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -38,17 +85,19 @@ public sealed class DachoraColorCatalog
 
     public ushort Resolve(DachoraPalettePhase phase, int frame, int color)
     {
-        ushort[] palette = phase switch
+        bool animated = phase is DachoraPalettePhase.Speed or DachoraPalettePhase.Shine;
+        if (!(phase == DachoraPalettePhase.Default && frame == 0) &&
+            !(animated && (uint)frame < DachoraColorRomData.AnimatedFrameCount))
+            throw new ArgumentOutOfRangeException(nameof(frame), $"Dachora phase {phase} has no frame {frame}.");
+        if ((uint)color >= DachoraColorRomData.ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        int key = frame * DachoraColorRomData.ColorsPerFrame + color;
+        return phase switch
         {
-            DachoraPalettePhase.Default when frame == 0 => normal,
-            DachoraPalettePhase.Speed when (uint)frame < speed.Length => speed[frame],
-            DachoraPalettePhase.Shine when (uint)frame < shine.Length => shine[frame],
-            _ => throw new ArgumentOutOfRangeException(nameof(frame),
-                $"Dachora phase {phase} has no frame {frame}."),
+            DachoraPalettePhase.Speed => speedEdits.TryGetValue(key, out ushort speed) ? speed : SpeedColor(frame, color),
+            DachoraPalettePhase.Shine => shineEdits.TryGetValue(key, out ushort shine) ? shine : ShineColor(frame, color),
+            _ => normal[color],
         };
-        return (uint)color < palette.Length
-            ? palette[color]
-            : throw new ArgumentOutOfRangeException(nameof(color));
     }
 
     public static DachoraColorCatalog Load(Stream json)

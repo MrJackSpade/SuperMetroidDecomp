@@ -78,9 +78,20 @@ internal static partial class Program
             address = 0xaa8787 + i * 2;
             native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
             AssertEqual(native, TorizoPaletteDefinitions.Golden[i], "Shared Golden fade target matches cartridge");
+            foreach ((int source, string name, ushort catalog) in new[]
+            {
+                (0xaa8687, "shared rows eleven/fifteen", TorizoPaletteDefinitions.SharedRows[i]),
+                (0xaa86c7, "Bomb Torizo initial body", TorizoPaletteDefinitions.BombInitial[i]),
+                (0xaa8747, "Golden Torizo initial body", TorizoPaletteDefinitions.GoldenInitial[i]),
+            })
+            {
+                address = source + i * 2;
+                native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                AssertEqual(native, catalog, $"Torizo {name} color {i} matches cartridge");
+            }
         }
         VerifyTorizoLandingLifetime();
-        Console.WriteLine("Torizo palette opcode: repeated calls preserve 32-frame landing shake, defer target writes, fade only sprite palettes 1/2, and create no quake.");
+        Console.WriteLine("Torizo palette opcode: repeated calls preserve 32-frame landing shake, defer target writes, fade only sprite palettes 1/2, and create no quake; all five cataloged Torizo palette pairs match the cartridge.");
         return 0;
     }
 }

@@ -30,12 +30,15 @@ public sealed class KraidColorCatalog
 
     private KraidColorCatalog(KraidColorDocument document)
     {
-        roomBackdrop = Compile(document.RoomBackdrop, KraidPaletteSource.RoomBackdrop);
-        initialTarget = Compile(document.InitialTarget, KraidPaletteSource.InitialTarget);
+        roomBackdrop = new StockBand(KraidPaletteSource.RoomBackdrop,
+            Compile(document.RoomBackdrop, KraidPaletteSource.RoomBackdrop));
+        initialTarget = new StockBand(KraidPaletteSource.InitialTarget,
+            Compile(document.InitialTarget, KraidPaletteSource.InitialTarget));
         health = new HealthPalette(Compile(document.Health, KraidPaletteSource.Health));
         ushort[] suppliedSecondary = Compile(document.Secondary, KraidPaletteSource.Secondary);
         secondary = suppliedSecondary.SequenceEqual(health) ? health : new HealthPalette(suppliedSecondary);
-        deathArm = Compile(document.DeathArm, KraidPaletteSource.DeathArm);
+        deathArm = new StockBand(KraidPaletteSource.DeathArm,
+            Compile(document.DeathArm, KraidPaletteSource.DeathArm));
     }
 
     /// <summary>
@@ -59,26 +62,73 @@ public sealed class KraidColorCatalog
     }
 
     /// <summary>
-    /// The nine $A7:B3D3/$B513 bands comprise a white flash and eight RGB5
-    /// health steps. Normal channels interpolate their endpoint colors to nearest
-    /// integer. The transparent slot switches from the first to final backdrop
-    /// after the first normal band. Exact supplied deviations remain independent.
-    /// Endpoint artwork and the two original color-six deviations still require
-    /// separate review under #1165; they are not retention exemptions.
+    /// One sixteen-color source stored as its supplied deviations from the stock paint in
+    /// <see cref="KraidPaintDefinitions"/>; an unedited stock band stores nothing.
+    /// </summary>
+    private sealed class StockBand : IReadOnlyList<ushort>
+    {
+        private readonly KraidPaletteSource source;
+        private readonly Dictionary<int, ushort> deviations = new();
+
+        internal StockBand(KraidPaletteSource source, ushort[] supplied)
+        {
+            this.source = source;
+            for (int index = 0; index < supplied.Length; index++)
+                if (KraidPaintDefinitions.Color(source, index) != supplied[index])
+                    deviations.Add(index, supplied[index]);
+        }
+
+        public int Count => KraidPaletteRomData.ColorCount(source);
+        public ushort this[int index] => deviations.TryGetValue(index, out ushort supplied)
+            ? supplied : KraidPaintDefinitions.Color(source, index);
+
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++)
+                yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    /// <summary>
+    /// Interpolates one channelwise health color for <paramref name="band"/> between the first
+    /// normal band and the final band, to nearest integer over the seven intervals.
+    /// </summary>
+    internal static ushort InterpolateHealth(ushort first, ushort last, int band)
+    {
+        int result = 0;
+        int intervals = KraidPaletteRomData.HealthBandCount - 2;
+        for (int shift = 0; shift <= 10; shift += 5)
+        {
+            int start = first >> shift & 31;
+            int end = last >> shift & 31;
+            int delta = end - start;
+            int channel = start + Math.Sign(delta) *
+                ((Math.Abs(delta) * (band - 1) + intervals / 2) / intervals);
+            result |= channel << shift;
+        }
+        return (ushort)result;
+    }
+
+    /// <summary>
+    /// The nine $A7:B3D3/$B513 bands comprise a white flash and eight RGB5 health steps.
+    /// The flash, both endpoint bands and the two authored color-six steps come from
+    /// <see cref="KraidPaintDefinitions"/> unless supplied differently; interior bands
+    /// interpolate the current endpoints, and their transparent slot is the final band's.
+    /// Only supplied deviations are stored, so edited endpoints still drive every step.
     /// </summary>
     private sealed class HealthPalette : IReadOnlyList<ushort>
     {
-        private readonly ushort[] first;
-        private readonly ushort[] last;
         private readonly Dictionary<int, ushort> deviations = new();
 
         internal HealthPalette(ushort[] supplied)
         {
-            first = supplied.AsSpan(KraidPaletteRomData.BandColors, KraidPaletteRomData.BandColors).ToArray();
-            last = supplied.AsSpan((KraidPaletteRomData.HealthBandCount - 1) * KraidPaletteRomData.BandColors).ToArray();
-
+            // Authored cells first: interior interpolation reads the (possibly edited) endpoints.
             for (int index = 0; index < supplied.Length; index++)
-                if (Calculate(index) != supplied[index])
+                if (KraidPaintDefinitions.HealthAuthored(index) is ushort stock && stock != supplied[index])
+                    deviations.Add(index, supplied[index]);
+            for (int index = 0; index < supplied.Length; index++)
+                if (KraidPaintDefinitions.HealthAuthored(index) is null && Calculate(index) != supplied[index])
                     deviations.Add(index, supplied[index]);
         }
 
@@ -95,25 +145,14 @@ public sealed class KraidColorCatalog
 
         private ushort Calculate(int index)
         {
+            if (KraidPaintDefinitions.HealthAuthored(index) is ushort authored)
+                return authored;
             int band = index / KraidPaletteRomData.BandColors;
             int color = index % KraidPaletteRomData.BandColors;
-            // Every channel saturates during the stock hit flash.
-            if (band == 0)
-                return 31 | 31 << 5 | 31 << 10;
+            int finalBand = (KraidPaletteRomData.HealthBandCount - 1) * KraidPaletteRomData.BandColors;
             if (color == 0)
-                return band == 1 ? first[color] : last[color];
-            int result = 0;
-            int intervals = KraidPaletteRomData.HealthBandCount - 2;
-            for (int shift = 0; shift <= 10; shift += 5)
-            {
-                int start = first[color] >> shift & 31;
-                int end = last[color] >> shift & 31;
-                int delta = end - start;
-                int channel = start + Math.Sign(delta) *
-                    ((Math.Abs(delta) * (band - 1) + intervals / 2) / intervals);
-                result |= channel << shift;
-            }
-            return (ushort)result;
+                return this[finalBand];
+            return InterpolateHealth(this[KraidPaletteRomData.BandColors + color], this[finalBand + color], band);
         }
 
         public IEnumerator<ushort> GetEnumerator()

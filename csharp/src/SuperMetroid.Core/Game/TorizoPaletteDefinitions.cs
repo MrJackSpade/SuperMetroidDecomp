@@ -9,6 +9,26 @@ internal static class TorizoPaletteDefinitions
     internal const int FadeDenominator = 12;
     /// <summary>$AA:C26F/$C276 target CGRAM rows 9 and 10, beginning at color 144.</summary>
     internal const int FirstBodyColor = 144;
+    /// <summary>
+    /// $AA:8687/$86A7, sprite palettes 3 and 7 shared by both Torizos (CGRAM rows eleven and
+    /// fifteen): orb/flame and statue-shading paint. Row eleven's colors nine to fifteen and
+    /// row fifteen's nine to eleven, thirteen and fourteen are single repeated fill colors.
+    /// </summary>
+    internal static ReadOnlySpan<ushort> SharedRows =>
+    [
+        0x3800, 0x03ff, 0x033b, 0x0216, 0x0113, 0x6b1e, 0x4a16, 0x3591,
+        0x20e9, 0x1580, 0x1580, 0x1580, 0x1580, 0x1580, 0x1580, 0x1580,
+        0x3800, 0x02df, 0x01d7, 0x00ac, 0x5a73, 0x41ad, 0x2d08, 0x1863,
+        0x1486, 0x0145, 0x0145, 0x0145, 0x7fff, 0x0145, 0x0145, 0x0000,
+    ];
+    /// <summary>$AA:86C7/$86E7, Bomb Torizo's initial (statue) body rows nine and ten.</summary>
+    internal static ReadOnlySpan<ushort> BombInitial =>
+    [
+        0x3800, 0x679f, 0x5299, 0x252e, 0x14aa, 0x5efc, 0x4657, 0x35b2,
+        0x2d70, 0x5b7f, 0x3df8, 0x2d0e, 0x5f5f, 0x5e1a, 0x5d35, 0x0c63,
+        0x3800, 0x4aba, 0x35b2, 0x0847, 0x0003, 0x4215, 0x2970, 0x18cb,
+        0x1089, 0x463a, 0x28b3, 0x1809, 0x6f7f, 0x51fd, 0x4113, 0x0c63,
+    ];
     /// <summary>$AA:8707/$8727, normal body targets loaded by $AA:C268.</summary>
     internal static ReadOnlySpan<ushort> Normal =>
     [
@@ -16,6 +36,17 @@ internal static class TorizoPaletteDefinitions
         0x1868, 0x6f7f, 0x51f8, 0x410e, 0x031f, 0x01da, 0x00f5, 0x0c63,
         0x3800, 0x4215, 0x2d0d, 0x0002, 0x0000, 0x3970, 0x20cb, 0x0c26,
         0x0403, 0x463a, 0x28b3, 0x1809, 0x6f7f, 0x51fd, 0x4113, 0x0c63,
+    ];
+    /// <summary>
+    /// $AA:8747/$8767, the Golden encounter's initial body pair written by Torizo_C280 before
+    /// the first live damage callback switches to bank $84's health-indexed gradient.
+    /// </summary>
+    internal static ReadOnlySpan<ushort> GoldenInitial =>
+    [
+        0x3800, 0x6ab5, 0x49b0, 0x1c45, 0x0c01, 0x5613, 0x416d, 0x2cc9,
+        0x2066, 0x5714, 0x31cc, 0x14e3, 0x5630, 0x3569, 0x1883, 0x0c66,
+        0x3800, 0x5610, 0x350b, 0x0800, 0x0000, 0x416e, 0x2cc8, 0x1823,
+        0x0c01, 0x6a31, 0x4caa, 0x2406, 0x7f7b, 0x75f4, 0x4d10, 0x0c63,
     ];
     /// <summary>$AA:8787/$87A7, Golden body targets loaded by $AA:C298.</summary>
     internal static ReadOnlySpan<ushort> Golden =>

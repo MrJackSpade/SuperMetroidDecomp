@@ -14,7 +14,9 @@ public sealed class SporeSpawnColorCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
         {
             content.AppendWords("spores", Enumerable.Range(0, SporeSpawnColorRomData.ColorsPerFrame).Select(ResolveSpore).ToArray());
-            content.AppendWordFrames("health", health);
+            content.AppendWordFrames("health", Enumerable.Range(0, SporeSpawnColorRomData.HealthFrameCount)
+                .Select(frame => Enumerable.Range(0, SporeSpawnColorRomData.ColorsPerFrame)
+                    .Select(color => health.Resolve(frame, color)).ToArray()).ToArray());
             content.AppendWordFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorRomData.DeathSpriteFrameCount)
                 .Select(frame => Enumerable.Range(0, SporeSpawnColorRomData.ColorsPerFrame)
                     .Select(color => ResolveDeathSprite(frame, color)).ToArray()).ToArray());
@@ -27,7 +29,7 @@ public sealed class SporeSpawnColorCatalog
         });
 
     private readonly Dictionary<int, ushort> spores = new();
-    private readonly ushort[][] health;
+    private readonly HealthRows health;
     // Endpoint colors remain required inputs; intermediate entries store independent edits only.
     private readonly Dictionary<int, ushort> deathSprite = new();
     private readonly Dictionary<int, ushort> deathLevel = new();
@@ -38,7 +40,7 @@ public sealed class SporeSpawnColorCatalog
     {
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
             if (spores[color] != health[0][color]) this.spores[color] = spores[color];
-        this.health = health;
+        this.health = new HealthRows(health);
         int last = SporeSpawnColorRomData.DeathSpriteFrameCount - 1;
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
@@ -84,10 +86,73 @@ public sealed class SporeSpawnColorCatalog
     {
         if ((uint)color >= SporeSpawnColorRomData.ColorsPerFrame)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return spores.TryGetValue(color, out ushort selected) ? selected : health[0][color];
+        return spores.TryGetValue(color, out ushort selected) ? selected : health.Resolve(0, color);
     }
-    public ushort ResolveHealth(int frame, int color) => Get(health[CheckFrame(
-        frame, SporeSpawnColorRomData.HealthFrameCount)], color);
+    public ushort ResolveHealth(int frame, int color)
+    {
+        _ = CheckFrame(frame, SporeSpawnColorRomData.HealthFrameCount);
+        if ((uint)color >= SporeSpawnColorRomData.ColorsPerFrame)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return health.Resolve(frame, color);
+    }
+
+    /// <summary>
+    /// $A5:E379..E3F8, the four health rows. The healthy and critical rows are authored paint.
+    /// In the two intermediate rows the shell and glow colors nine to fifteen interpolate those
+    /// rows to nearest integer over three intervals and the transparent slot repeats the
+    /// critical row's; colors one to eight are painted per row. Only supplied deviations from
+    /// the calculation are stored, so edited endpoint rows drive every intermediate step.
+    /// </summary>
+    private sealed class HealthRows
+    {
+        private const int FirstInterpolatedColor = 9;
+        private const int LastPaintedColor = 8;
+        private readonly ushort[] healthy;
+        private readonly ushort[] critical;
+        private readonly ushort[][] intermediatePaint;
+        private readonly Dictionary<int, ushort> intermediateEdits = new();
+
+        internal HealthRows(ushort[][] supplied)
+        {
+            int last = SporeSpawnColorRomData.HealthFrameCount - 1;
+            healthy = supplied[0];
+            critical = supplied[last];
+            intermediatePaint = new ushort[last - 1][];
+            for (int frame = 1; frame < last; frame++)
+            {
+                intermediatePaint[frame - 1] = supplied[frame].AsSpan(1, LastPaintedColor).ToArray();
+                for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
+                    if (IsCalculated(color) && supplied[frame][color] != Calculate(frame, color))
+                        intermediateEdits.Add(frame * SporeSpawnColorRomData.ColorsPerFrame + color, supplied[frame][color]);
+            }
+        }
+
+        internal ushort Resolve(int frame, int color)
+        {
+            int last = SporeSpawnColorRomData.HealthFrameCount - 1;
+            if (frame == 0) return healthy[color];
+            if (frame == last) return critical[color];
+            if (!IsCalculated(color)) return intermediatePaint[frame - 1][color - 1];
+            return intermediateEdits.TryGetValue(frame * SporeSpawnColorRomData.ColorsPerFrame + color, out ushort edit)
+                ? edit : Calculate(frame, color);
+        }
+
+        private static bool IsCalculated(int color) => color == 0 || color >= FirstInterpolatedColor;
+
+        private ushort Calculate(int frame, int color)
+        {
+            if (color == 0) return critical[0];
+            int intervals = SporeSpawnColorRomData.HealthFrameCount - 1;
+            int result = 0;
+            for (int shift = 0; shift <= 10; shift += 5)
+            {
+                int start = (healthy[color] >> shift) & 31;
+                int end = (critical[color] >> shift) & 31;
+                result |= (start * (intervals - frame) + end * frame + intervals / 2) / intervals << shift;
+            }
+            return (ushort)result;
+        }
+    }
     public ushort ResolveDeathSprite(int frame, int color)
     {
         _ = CheckFrame(frame, SporeSpawnColorRomData.DeathSpriteFrameCount);
@@ -96,7 +161,7 @@ public sealed class SporeSpawnColorCatalog
         if (deathSprite.TryGetValue(frame * SporeSpawnColorRomData.ColorsPerFrame + color, out ushort selected))
             return selected;
         ushort first = deathSprite.TryGetValue(color, out ushort suppliedFirst)
-            ? suppliedFirst : health[SporeSpawnColorRomData.HealthFrameCount - 1][color];
+            ? suppliedFirst : health.Resolve(SporeSpawnColorRomData.HealthFrameCount - 1, color);
         return CalculateDeathSpriteColor(first, deathSprite[
             (SporeSpawnColorRomData.DeathSpriteFrameCount - 1) * SporeSpawnColorRomData.ColorsPerFrame + color], frame);
     }
@@ -189,11 +254,6 @@ public sealed class SporeSpawnColorCatalog
 
     private static int CheckFrame(int frame, int count) =>
         (uint)frame < count ? frame : throw new ArgumentOutOfRangeException(nameof(frame));
-
-    private static ushort Get(ushort[] colors, int color) =>
-        (uint)color < colors.Length
-            ? colors[color]
-            : throw new ArgumentOutOfRangeException(nameof(color));
 
     private static ushort[][] CompileFrames(PaletteRgb5[][]? source, int count, string name)
     {

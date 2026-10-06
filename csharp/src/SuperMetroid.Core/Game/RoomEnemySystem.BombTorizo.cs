@@ -289,61 +289,22 @@ public sealed partial class RoomEnemySystem
 
     private void LoadTorizoSharedPaletteRows()
     {
-        ReadOnlySpan<ushort> rowEleven =
-        [
-            0x3800, 0x03ff, 0x033b, 0x0216, 0x0113, 0x6b1e, 0x4a16, 0x3591,
-            0x20e9, 0x1580, 0x1580, 0x1580, 0x1580, 0x1580, 0x1580, 0x1580,
-        ];
-        ReadOnlySpan<ushort> rowFifteen =
-        [
-            0x3800, 0x02df, 0x01d7, 0x00ac, 0x5a73, 0x41ad, 0x2d08, 0x1863,
-            0x1486, 0x0145, 0x0145, 0x0145, 0x7fff, 0x0145, 0x0145, 0x0000,
-        ];
+        ReadOnlySpan<ushort> rows = TorizoPaletteDefinitions.SharedRows;
         for (int color = 0; color < 16; color++)
         {
-            _cgram!.SetColor(176 + color, rowEleven[color]);
-            _cgram.SetColor(240 + color, rowFifteen[color]);
+            _cgram!.SetColor(176 + color, rows[color]);
+            _cgram.SetColor(240 + color, rows[16 + color]);
         }
     }
 
-    private void LoadBombTorizoPalette()
-    {
-        // Exact words from kTorizo_Palettes_2/_3 in bank $AA. Palette rows nine and ten
-        // are used by the two extended-spritemap halves of the Bomb Torizo body.
-        ReadOnlySpan<ushort> rowNine =
-        [
-            0x3800, 0x679f, 0x5299, 0x252e, 0x14aa, 0x5efc, 0x4657, 0x35b2,
-            0x2d70, 0x5b7f, 0x3df8, 0x2d0e, 0x5f5f, 0x5e1a, 0x5d35, 0x0c63,
-        ];
-        ReadOnlySpan<ushort> rowTen =
-        [
-            0x3800, 0x4aba, 0x35b2, 0x0847, 0x0003, 0x4215, 0x2970, 0x18cb,
-            0x1089, 0x463a, 0x28b3, 0x1809, 0x6f7f, 0x51fd, 0x4113, 0x0c63,
-        ];
-        for (int color = 0; color < 16; color++)
-        {
-            _cgram!.SetColor(144 + color, rowNine[color]);
-            _cgram.SetColor(160 + color, rowTen[color]);
-        }
-    }
+    // Palette rows nine and ten are used by the two extended-spritemap halves of the body.
+    private void LoadBombTorizoPalette() =>
+        LoadTorizoBodyPalette(TorizoPaletteDefinitions.BombInitial[..16], TorizoPaletteDefinitions.BombInitial[16..]);
 
-    private void LoadGoldenTorizoBasePalette()
-    {
-        // Torizo_C280 is the Golden encounter's initial body pair. Later hurt frames use
-        // bank $84's health-indexed gradient; keeping this initial write separate mirrors
-        // the cartridge's target-palette setup before the first live damage callback.
-        ReadOnlySpan<ushort> rowNine =
-        [
-            0x3800, 0x6ab5, 0x49b0, 0x1c45, 0x0c01, 0x5613, 0x416d, 0x2cc9,
-            0x2066, 0x5714, 0x31cc, 0x14e3, 0x5630, 0x3569, 0x1883, 0x0c66,
-        ];
-        ReadOnlySpan<ushort> rowTen =
-        [
-            0x3800, 0x5610, 0x350b, 0x0800, 0x0000, 0x416e, 0x2cc8, 0x1823,
-            0x0c01, 0x6a31, 0x4caa, 0x2406, 0x7f7b, 0x75f4, 0x4d10, 0x0c63,
-        ];
-        LoadTorizoBodyPalette(rowNine, rowTen);
-    }
+    // Later hurt frames use bank $84's health-indexed gradient; keeping this initial write
+    // separate mirrors the cartridge's target-palette setup before the first live damage callback.
+    private void LoadGoldenTorizoBasePalette() =>
+        LoadTorizoBodyPalette(TorizoPaletteDefinitions.GoldenInitial[..16], TorizoPaletteDefinitions.GoldenInitial[16..]);
 
     private void LoadTorizoDeathPalette() =>
         LoadTorizoBodyPalette(TorizoPaletteDefinitions.Normal[..16], TorizoPaletteDefinitions.Normal[16..]);

@@ -732,6 +732,67 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => EndingCreditsRomData.Motion.PlanetSlowDelta(index), "slow shake bounds");
         Console.WriteLine("Ending shake:24 native signed values, common two-pixel cycle displacement, both production cycles/index wraps, independent rotation/zoom, both phase handoffs and fixed-point carries pass.");
     }
+    private static void VerifyLookupStream4SporeHealthRamp(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort[][] native = Enumerable.Range(0, 4)
+            .Select(frame => Enumerable.Range(0, 16).Select(color => Word(0xa5e379 + frame * 32 + color * 2)).ToArray())
+            .ToArray();
+        // Independent oracle: colors 0 and 9..15 of rows 1 and 2 interpolate rows 0 and 3.
+        static bool Calculated(int frame, int color) => frame is 1 or 2 && (color == 0 || color >= 9);
+        static ushort Expected(ushort[][] rows, int frame, int color)
+        {
+            if (!Calculated(frame, color)) return rows[frame][color];
+            if (color == 0) return rows[3][0];
+            int value = 0;
+            for (int shift = 0; shift <= 10; shift += 5)
+                value |= ((rows[0][color] >> shift & 31) * (3 - frame) + (rows[3][color] >> shift & 31) * frame + 1) / 3 << shift;
+            return (ushort)value;
+        }
+        for (int frame = 0; frame < 4; frame++)
+        for (int color = 0; color < 16; color++)
+            AssertEqual(native[frame][color], Expected(native, frame, color), $"Native health row {frame} color {color} follows the interpolation");
+
+        byte[] source = SporeSpawnColorExtractor.Extract(rom);
+        var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
+        const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
+        object rows = typeof(SporeSpawnColorCatalog).GetField("health", fields)!.GetValue(stock)!;
+        var edits = (System.Collections.IDictionary)rows.GetType().GetField("intermediateEdits", fields)!.GetValue(rows)!;
+        AssertEqual(0, edits.Count, "Stock intermediate health colors store nothing beyond the interpolation");
+        Check(stock, native);
+        int stored = 0;
+        for (int frame = 0; frame < 4; frame++)
+        for (int color = 0; color < 16; color++)
+        {
+            var document = JsonSerializer.Deserialize<SporeSpawnColorDocument>(source,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+            document.Health[frame][color] = document.Health[frame][color] with { Red = document.Health[frame][color].Red ^ 1 };
+            var edited = SporeSpawnColorCatalog.Load(new MemoryStream(SporeSpawnColorCatalog.Write(document)));
+            ushort[][] expected = native.Select(row => (ushort[])row.Clone()).ToArray();
+            expected[frame][color] ^= 1;
+            // Every supplied cell resolves exactly; cells that no longer follow the (edited)
+            // endpoints are kept as stored deviations rather than recalculated.
+            Check(edited, expected);
+            object editedRows = typeof(SporeSpawnColorCatalog).GetField("health", fields)!.GetValue(edited)!;
+            int deviations = ((System.Collections.IDictionary)editedRows.GetType()
+                .GetField("intermediateEdits", fields)!.GetValue(editedRows)!).Count;
+            int expectedDeviations = 0;
+            for (int step = 1; step <= 2; step++)
+            for (int calculated = 0; calculated < 16; calculated++)
+                if (Calculated(step, calculated) && Expected(expected, step, calculated) != expected[step][calculated])
+                    expectedDeviations++;
+            AssertEqual(expectedDeviations, deviations, $"Edit of row {frame} color {color} stores only non-following cells");
+            stored += deviations;
+        }
+        Console.WriteLine($"Spore health ramp: all64 native colors, 14 calculated intermediate cells with no stored stock values, and all64 single-cell edits ({stored} stored deviations) pass.");
+
+        static void Check(SporeSpawnColorCatalog catalog, ushort[][] expected)
+        {
+            for (int frame = 0; frame < 4; frame++)
+            for (int color = 0; color < 16; color++)
+                AssertEqual(expected[frame][color], catalog.ResolveHealth(frame, color), $"Health row {frame} color {color}");
+        }
+    }
     private static void VerifyLookupStream4SporeHealthyAlias(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

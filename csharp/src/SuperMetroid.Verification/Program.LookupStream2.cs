@@ -1569,7 +1569,10 @@ internal static partial class Program
         Check(stock, original);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertEqual(8, ((ushort[])typeof(ChozoAndTubeColorCatalog).GetField("tubeColorSeeds", flags)!.GetValue(stock)!).Length,
-            "tube stores only eight unresolved independent colors");
+            "tube stores only its eight authored seed colors");
+        foreach (string statue in new[] { "wreckedShipEdits", "lowerNorfairEdits" })
+            AssertEqual(0, ((System.Collections.IDictionary)typeof(ChozoAndTubeColorCatalog).GetField(statue, flags)!.GetValue(stock)!).Count,
+                $"stock {statue} store no colors beyond the calculated statue paint");
         AssertEqual(0, ((System.Collections.IDictionary)typeof(ChozoAndTubeColorCatalog).GetField("tubeColorEdits", flags)!.GetValue(stock)!).Count,
             "stock tube ramp and repeated half need no residuals");
         for (int color = 0; color < 32; color++)
@@ -1578,10 +1581,21 @@ internal static partial class Program
             changed[color] = changed[color] with { Red = (changed[color].Red + 1) % 32 };
             var document = original with { TubeCracks = changed };
             Check(Load(document), document);
+            foreach (bool wrecked in new[] { true, false })
+            {
+                var statue = (PaletteRgb5[])(wrecked ? original.WreckedShip : original.LowerNorfair).Clone();
+                statue[color] = statue[color] with { Red = (statue[color].Red + 1) % 32 };
+                var statueDocument = wrecked ? original with { WreckedShip = statue } : original with { LowerNorfair = statue };
+                var edited = Load(statueDocument);
+                Check(edited, statueDocument);
+                int stored = ((System.Collections.IDictionary)typeof(ChozoAndTubeColorCatalog).GetField("wreckedShipEdits", flags)!.GetValue(edited)!).Count
+                    + ((System.Collections.IDictionary)typeof(ChozoAndTubeColorCatalog).GetField("lowerNorfairEdits", flags)!.GetValue(edited)!).Count;
+                AssertEqual(1, stored, "a statue edit stores only that color");
+            }
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveTubeCracks(-1), "tube negative color");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveTubeCracks(32), "tube past last color");
-        Console.WriteLine("Tube palette:32 native colors, full CGRAM writes,32 independent edits, unchanged statue palettes and canonical identity pass; eight seed colors remain unresolved.");
+        Console.WriteLine("Tube and statue palettes: 96 native colors, statue paint with no stored stock colors, full CGRAM writes, 96 independent edits and canonical identity pass; the eight tube seeds are authored.");
 
         static void Check(ChozoAndTubeColorCatalog catalog, ChozoAndTubeColorDocument document)
         {
@@ -1596,6 +1610,13 @@ internal static partial class Program
                 AssertEqual(Word(document.WreckedShip[color]), catalog.ResolveWreckedShip(color), "Wrecked Ship palette preserved");
                 AssertEqual(Word(document.LowerNorfair[color]), catalog.ResolveLowerNorfair(color), "Lower Norfair palette preserved");
             }
+            var statues = new SnesCgram();
+            catalog.ApplyWreckedShip(statues);
+            for (int color = 0; color < 32; color++)
+                AssertEqual(Word(document.WreckedShip[color]), statues.Colors[ChozoAndTubeColorRomData.Destination + color], "Wrecked Ship color reaches CGRAM");
+            catalog.ApplyLowerNorfair(statues);
+            for (int color = 0; color < 32; color++)
+                AssertEqual(Word(document.LowerNorfair[color]), statues.Colors[ChozoAndTubeColorRomData.Destination + color], "Lower Norfair color reaches CGRAM");
             string expected = SelectedPresentationHash.Create("ChozoAndTubeColorCatalog-v1", content =>
             {
                 content.AppendWords("tubeCracks", document.TubeCracks.Select(Word).ToArray());
@@ -2070,8 +2091,16 @@ internal static partial class Program
         object health = typeof(KraidColorCatalog).GetField("health", fields)!.GetValue(stock)!;
         object secondary = typeof(KraidColorCatalog).GetField("secondary", fields)!.GetValue(stock)!;
         AssertTrue(ReferenceEquals(health, secondary), "Identical Kraid secondary colors share calculated primary source");
-        var deviations = (System.Collections.IDictionary)health.GetType().GetField("deviations", fields)!.GetValue(health)!;
-        AssertEqual(2, deviations.Count, "Only the two original color-six deviations remain outside interpolation");
+        foreach (string name in new[] { "health", "roomBackdrop", "initialTarget", "deathArm" })
+        {
+            object band = typeof(KraidColorCatalog).GetField(name, fields)!.GetValue(stock)!;
+            var deviations = (System.Collections.IDictionary)band.GetType().GetField("deviations", fields)!.GetValue(band)!;
+            AssertEqual(0, deviations.Count, $"Stock Kraid {name} stores no colors beyond the calculated paint");
+        }
+        foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
+        for (int index = 0; index < KraidPaletteRomData.ColorCount(source); index++)
+            AssertEqual(ReadVerificationWord(rom, KraidPaletteRomData.SourceAddress(source) + 2 * index),
+                KraidPaintDefinitions.Color(source, index), $"Kraid {source} stock paint {index}");
         Check(stock, document);
         string expectedIdentity = SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
         {
@@ -2082,20 +2111,26 @@ internal static partial class Program
             }
         });
         AssertEqual(expectedIdentity, stock.ContentIdentity, "Calculated Kraid colors preserve canonical content identity");
-        foreach (KraidPaletteSource source in new[] { KraidPaletteSource.Health, KraidPaletteSource.Secondary })
+        foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         for (int index = 0; index < KraidPaletteRomData.ColorCount(source); index++)
         {
             var editedColors = (PaletteRgb5[])Source(document, source).Clone();
             editedColors[index] = editedColors[index] with { Red = (editedColors[index].Red + 1) % 32 };
-            var editedDocument = source == KraidPaletteSource.Health
-                ? document with { Health = editedColors } : document with { Secondary = editedColors };
+            var editedDocument = source switch
+            {
+                KraidPaletteSource.RoomBackdrop => document with { RoomBackdrop = editedColors },
+                KraidPaletteSource.InitialTarget => document with { InitialTarget = editedColors },
+                KraidPaletteSource.Health => document with { Health = editedColors },
+                KraidPaletteSource.Secondary => document with { Secondary = editedColors },
+                _ => document with { DeathArm = editedColors },
+            };
             var edited = KraidColorCatalog.Load(new MemoryStream(KraidColorCatalog.Write(editedDocument)));
             Check(edited, editedDocument);
             AssertTrue(edited.ContentIdentity != stock.ContentIdentity, "Every independent Kraid color edit changes content identity");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(KraidPaletteSource.Health, -1), "Kraid calculated lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(KraidPaletteSource.Secondary, 144), "Kraid calculated upper bound");
-        Console.WriteLine("Stream 2 Kraid health ramps: original336 colors, both288 edited cells, source independence and canonical identity pass; endpoints and2 deviations remain pending.");
+        Console.WriteLine("Stream 2 Kraid colors: all 336 stock words calculate from paint with no stored stock colors; every one of the 336 single-cell edits, source independence and canonical identity pass.");
 
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         static PaletteRgb5[] Source(KraidColorDocument value, KraidPaletteSource source) => source switch

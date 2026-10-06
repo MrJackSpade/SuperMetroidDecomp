@@ -17,26 +17,32 @@ public sealed class ChozoAndTubeColorCatalog
             Span<ushort> tube = stackalloc ushort[ChozoAndTubeColorRomData.ColorCount];
             for (int color = 0; color < tube.Length; color++) tube[color] = ResolveTubeCracks(color);
             content.AppendWords("tubeCracks", tube);
-            content.AppendWords("wreckedShip", wreckedShip);
-            content.AppendWords("lowerNorfair", lowerNorfair);
+            content.AppendWords("wreckedShip", Statue(ChozoStatuePalette.WreckedShip));
+            content.AppendWords("lowerNorfair", Statue(ChozoStatuePalette.LowerNorfair));
         });
 
     private readonly ushort[] tubeColorSeeds;
     private readonly Dictionary<int, ushort> tubeColorEdits = [];
-    private readonly ushort[] wreckedShip;
-    private readonly ushort[] lowerNorfair;
+    // Statue colors calculate from ChozoStatuePaintDefinitions; only supplied deviations are stored.
+    private readonly Dictionary<int, ushort> wreckedShipEdits = [];
+    private readonly Dictionary<int, ushort> lowerNorfairEdits = [];
 
     private ChozoAndTubeColorCatalog(ushort[] tubeCracks, ushort[] wreckedShip,
         ushort[] lowerNorfair)
     {
-        // Eight independent stock colors remain unresolved. The remaining stock
-        // values are a linear ramp and an exact repeated palette half.
+        // The eight crack seed colors are authored paint; the remaining stock values
+        // are a linear ramp and an exact repeated palette half.
         tubeColorSeeds = tubeCracks[..8];
         for (int color = 8; color < tubeCracks.Length; color++)
             if (tubeCracks[color] != CalculateTubeColor(color))
                 tubeColorEdits.Add(color, tubeCracks[color]);
-        this.wreckedShip = wreckedShip;
-        this.lowerNorfair = lowerNorfair;
+        for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
+        {
+            if (wreckedShip[color] != ChozoStatuePaintDefinitions.Color(ChozoStatuePalette.WreckedShip, color))
+                wreckedShipEdits.Add(color, wreckedShip[color]);
+            if (lowerNorfair[color] != ChozoStatuePaintDefinitions.Color(ChozoStatuePalette.LowerNorfair, color))
+                lowerNorfairEdits.Add(color, lowerNorfair[color]);
+        }
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -64,8 +70,19 @@ public sealed class ChozoAndTubeColorCatalog
         int blue = 29 - 4 * step;
         return (ushort)(red | green << 5 | blue << 10);
     }
-    public ushort ResolveWreckedShip(int color) => Get(wreckedShip, color);
-    public ushort ResolveLowerNorfair(int color) => Get(lowerNorfair, color);
+    public ushort ResolveWreckedShip(int color) => ResolveStatue(ChozoStatuePalette.WreckedShip, color);
+    public ushort ResolveLowerNorfair(int color) => ResolveStatue(ChozoStatuePalette.LowerNorfair, color);
+
+    private ushort ResolveStatue(ChozoStatuePalette palette, int color)
+    {
+        if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        Dictionary<int, ushort> edits = palette == ChozoStatuePalette.WreckedShip ? wreckedShipEdits : lowerNorfairEdits;
+        return edits.TryGetValue(color, out ushort edited) ? edited : ChozoStatuePaintDefinitions.Color(palette, color);
+    }
+
+    private ushort[] Statue(ChozoStatuePalette palette) =>
+        Enumerable.Range(0, ChozoAndTubeColorRomData.ColorCount).Select(color => ResolveStatue(palette, color)).ToArray();
 
     public void ApplyTubeCracks(SnesCgram cgram)
     {
@@ -73,8 +90,8 @@ public sealed class ChozoAndTubeColorCatalog
         for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
             cgram.SetColor(ChozoAndTubeColorRomData.Destination + color, ResolveTubeCracks(color));
     }
-    public void ApplyWreckedShip(SnesCgram cgram) => Apply(cgram, wreckedShip);
-    public void ApplyLowerNorfair(SnesCgram cgram) => Apply(cgram, lowerNorfair);
+    public void ApplyWreckedShip(SnesCgram cgram) => Apply(cgram, ChozoStatuePalette.WreckedShip);
+    public void ApplyLowerNorfair(SnesCgram cgram) => Apply(cgram, ChozoStatuePalette.LowerNorfair);
 
     public static ChozoAndTubeColorCatalog Load(Stream json)
     {
@@ -106,16 +123,11 @@ public sealed class ChozoAndTubeColorCatalog
         return bytes;
     }
 
-    private static ushort Get(ushort[] colors, int index) =>
-        (uint)index < colors.Length
-            ? colors[index]
-            : throw new ArgumentOutOfRangeException(nameof(index));
-
-    private static void Apply(SnesCgram cgram, ushort[] colors)
+    private void Apply(SnesCgram cgram, ChozoStatuePalette palette)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        for (int color = 0; color < colors.Length; color++)
-            cgram.SetColor(ChozoAndTubeColorRomData.Destination + color, colors[color]);
+        for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
+            cgram.SetColor(ChozoAndTubeColorRomData.Destination + color, ResolveStatue(palette, color));
     }
 
     private static ushort[] Compile(PaletteRgb5[]? source, string name)

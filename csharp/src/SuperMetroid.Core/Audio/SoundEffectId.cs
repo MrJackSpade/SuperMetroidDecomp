@@ -113,6 +113,9 @@ public static class SoundEffectLibrary1Sounds
 /// <summary>Named, proven sound sequences in cartridge SFX library two.</summary>
 public static class SoundEffectLibrary2Sounds
 {
+    /// <summary>$A6:B74F queues library-two $76 when Ridley's tail hits terrain.</summary>
+    public static SoundEffectId RidleyTailTerrainImpact => SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x76);
+
     /// <summary>$A8:F6DC, shared KiHunter acid-spit instruction, queues library-two $4C with Max6 once per spit.</summary>
     public static readonly SoundEffectId KiHunterAcidSpit = new(SoundEffectLibrary.Library2, 0x4c); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 

@@ -12,6 +12,29 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyRidleyTailImpact()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RidleyMovieMemory.RidleyRoom);
+        var state = runtime.Enemies.Ridley!;
+        var body = runtime.Enemies.Slots[0];
+        state.Function = RidleyAiFunction.NorfairFireballAttack;
+        state.TailSegments[6].XPosition = 4;
+        state.TailSegments[6].YPosition = 118;
+        var impact = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttack", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        impact.Invoke(runtime.Enemies, [body, state, null, runtime.LevelData]);
+        var dust = runtime.Enemies.EnemyProjectiles[17];
+        AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, dust.Kind, "native tail impact allocates highest free slot");
+        AssertEqual((ushort)4, dust.XPosition, "native tail impact dust X");
+        AssertEqual((ushort)130, dust.YPosition, "native tail impact dust Y includes twelve-pixel offset");
+        AssertEqual(MiscDustProjectileDefinitions.InstructionList(9), dust.InstructionPointer, "native impact selects variant nine");
+        AssertTrue(runtime.Enemies.SoundRequests.Any(request => request.SoundEffect == SoundEffectLibrary2Sounds.RidleyTailTerrainImpact && request.MaximumQueued == 6), "native impact queues library-two sound 76");
+        Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
+    }
+
     private static void VerifyRidleyScreenGate()
     {
         var update = typeof(RoomEnemySystem).GetMethod("UpdateNorfairRidleyIntangibility", BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -562,6 +585,19 @@ internal static partial class Program
                 Check(owner + " X radius", projectile.XRadius, RidleyMovieMemory.ProjectileXRadius + index);
                 Check(owner + " Y radius", projectile.YRadius, RidleyMovieMemory.ProjectileYRadius + index);
                 Check(owner + " damage", projectile.Damage, RidleyMovieMemory.ProjectileDamage + index);
+            }
+            if (game.GameState == SuperMetroidGameState.MainGameplay)
+            foreach (var projectile in runtime.Enemies.EnemyProjectiles)
+            {
+                int index = projectile.SlotIndex * 2;
+                string owner = $"Enemy projectile {projectile.SlotIndex}";
+                Check(owner + " identity", (ushort)projectile.Kind, RidleyMovieMemory.EnemyProjectileId + index);
+                if (!projectile.IsActive || W(RidleyMovieMemory.EnemyProjectileId + index) == 0) continue;
+                Check(owner + " X", projectile.XPosition, RidleyMovieMemory.EnemyProjectileX + index);
+                Check(owner + " Y", projectile.YPosition, RidleyMovieMemory.EnemyProjectileY + index);
+                Check(owner + " radii", (ushort)(projectile.XRadius | projectile.YRadius << 8), RidleyMovieMemory.EnemyProjectileRadius + index);
+                ushort nativeDamage = (ushort)(W(RidleyMovieMemory.EnemyProjectileProperties + index) & 0x0fff);
+                if (projectile.Damage != nativeDamage) mismatches.Add(owner + $" damage: native={nativeDamage} port={projectile.Damage}");
             }
             if (mismatches.Count != 0)
             {

@@ -178,6 +178,15 @@ following collision pass. Native source3062/3063 and exact boundary fixtures pas
 and the independent replay now matches the disputed damage and vertical movement.
 The replay also compares the interaction-disable bit on every Ridley update.
 
+Enemy-projectile comparison now also covers identities, X/Y, radii and damage.
+It exposed the omitted dust/sound side effects of Ridley's terrain strike at
+source767. Native $A6:B748/B74F now spawns dust variant nine at tip X/Y+12 and
+queues library-two $76 Max6. The real-room focused fixture confirms both, and the
+replay passes that interval. Expanded projectile coverage currently stops at
+update1111/source1212: the first fireball has native damage60 versus port3.
+The existing body/Samus/ordinary-projectile comparison reached the later boundary
+below; the newly added fields have not yet passed it.
+
 Checked state now matches through update 3036 of 10,717. The next divergence is
 update 3037 (original source frame 3140): Samus health native `$0235` versus port
 `$0244` (15 extra damage on the cartridge). This damage boundary remains under

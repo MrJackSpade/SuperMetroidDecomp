@@ -76,6 +76,7 @@ if (args is ["--ridley-acceleration-carry"])
     VerifyRidleyDeathAcceleration(rom);
     return 0;
 }
+if (args is ["--ridley-tail-impact"]) { VerifyRidleyTailImpact(); return 0; }
 if (args is ["--ridley-screen-gate"]) { VerifyRidleyScreenGate(); return 0; }
 if (args is ["--spring-ball-release"]) { VerifySpringBallRelease(); return 0; }
 if (args is ["--ridley-tail-offsets"]) { VerifyRidleyTailOffsets(); return 0; }

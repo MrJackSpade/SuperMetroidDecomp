@@ -41,6 +41,16 @@ internal static class RidleyMovieMemory
     public const int ProjectileCooldown = 0x0ccc;
     /// <summary>$0CD0: beam flare/charge counter.</summary>
     public const int BeamCharge = 0x0cd0;
+    /// <summary>$1997: enemy projectile identities.</summary>
+    public const int EnemyProjectileId = 0x1997;
+    /// <summary>$1A4B: enemy projectile X array.</summary>
+    public const int EnemyProjectileX = 0x1a4b;
+    /// <summary>$1A93: enemy projectile Y array.</summary>
+    public const int EnemyProjectileY = 0x1a93;
+    /// <summary>$1BB3: packed enemy projectile radii.</summary>
+    public const int EnemyProjectileRadius = 0x1bb3;
+    /// <summary>$1BD7: enemy projectile properties; low twelve bits hold damage.</summary>
+    public const int EnemyProjectileProperties = 0x1bd7;
     /// <summary>$079B: room_ptr.</summary>
     public const int Room = 0x079b;
     /// <summary>$0911: layer1_x_pos.</summary>

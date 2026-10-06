@@ -615,6 +615,9 @@ public sealed partial class RoomEnemySystem
         if (!RidleyTailTouchesTerrain(state, level))
             return;
 
+        RidleyTailSegment tip = state.TailSegments[6];
+        SpawnRidleyDust(tip.XPosition, unchecked((ushort)(tip.YPosition + 12)), variant: 9);
+        QueueEnemySound(SoundEffectLibrary2Sounds.RidleyTailTerrainImpact, maximumQueued: 6);
         EarthquakeType = 13;
         EarthquakeTimer = 4;
         SetRidleyPogoHorizontalDirection(slot, state, samus);

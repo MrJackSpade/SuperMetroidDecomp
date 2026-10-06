@@ -144,7 +144,9 @@ internal static partial class Program
             editedPalettePose, "palette edit does not change Baby pose selection");
         AssertEqual((ushort)100, editedPaletteState.BabyXPosition,
             "palette edit does not change Baby world position");
-        AssertEqual((ushort)2, editedPaletteState.BabyInstructionTimer,
+        // $A6:DBFE installs the frame reached through the ASM instructions with an
+        // elapsed timer of one; the palette edit must not alter that.
+        AssertEqual((ushort)1, editedPaletteState.BabyInstructionTimer,
             "palette edit does not change Baby animation timer");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "edited Ceres Baby color never rereads ROM visuals");
@@ -183,7 +185,9 @@ internal static partial class Program
             "private Ceres Baby draw matches native OAM with sprite ROM reads forbidden");
         AssertEqual(CeresBabyInstructionProgramDefinitions.HorizontalFrame,
             baby.BabyCurrentSpritemap, "installed art retains the authored Baby pose");
-        AssertEqual((ushort)2, baby.BabyInstructionTimer,
+        // `Initial` opens with GotoXIfMoving, so the first draw runs that ASM instruction
+        // and installs the following frame through $A6:DBFE with an elapsed timer of one.
+        AssertEqual((ushort)1, baby.BabyInstructionTimer,
             "installed art retains Baby's native instruction timing");
 
         EnemySpritemapDocument visual = JsonSerializer.Deserialize<EnemySpritemapDocument>(
@@ -210,7 +214,7 @@ internal static partial class Program
             "Baby art edit preserves the authored world X position");
         AssertEqual(nativeBaby.GetEntry(0).Y + 1, editedBaby.GetEntry(0).Y,
             "Baby art edit changes the visible Y offset");
-        AssertEqual((ushort)2, baby.BabyInstructionTimer,
+        AssertEqual((ushort)1, baby.BabyInstructionTimer,
             "Baby art edit cannot change the instruction clock");
 
         AssertThrows<InvalidDataException>(

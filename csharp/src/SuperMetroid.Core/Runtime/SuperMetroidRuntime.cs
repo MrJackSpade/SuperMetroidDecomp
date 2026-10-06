@@ -3787,11 +3787,14 @@ public sealed partial class SuperMetroidRuntime
                 }
                 else if (!animationTransitionApplied &&
                          usePoseDefinitionFallback && ProspectiveSamusPose is null &&
-                         Samus.Pose == poseAtFrameStart && SamusState.IsAerialTurnPose(poseAtFrameStart))
+                         Samus.Pose == poseAtFrameStart &&
+                         (SamusState.IsAerialTurnPose(poseAtFrameStart) ||
+                          movementTypeAtFrameStart == SamusMovementType.TurningOnGround))
                 {
                     // A $FF definition fallback retains the animation, not the momentum
-                    // command. Native command two still cancels reverse acceleration.
-                    Samus.ApplyAerialTurnInputFallback(_addressSpace);
+                    // command. Native command two still cancels reverse acceleration,
+                    // for ground turns ($0E) exactly as for aerial ones ($17/$18).
+                    Samus.ApplyTurnInputFallback(_addressSpace, movementTypeAtFrameStart);
                 }
                 else if (!animationTransitionApplied &&
                          movementTypeAtFrameStart == SamusMovementType.NormalJumping &&

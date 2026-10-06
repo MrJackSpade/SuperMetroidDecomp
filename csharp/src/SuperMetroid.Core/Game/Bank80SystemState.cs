@@ -235,8 +235,15 @@ public sealed class Bank80SystemState
     /// Advances Super Metroid's 16-bit pseudo-random sequence exactly as routine
     /// <c>$80:8111</c> does and returns the new seed.
     /// </summary>
+    /// <summary>
+    /// Diagnostic-only observer of each <see cref="NextRandom"/> call, used by movie-replay
+    /// tracing to attribute RNG consumers. Never part of gameplay state.
+    /// </summary>
+    [field: NonSerialized] internal Action? RandomCallObserver { get; set; }
+
     public ushort NextRandom()
     {
+        RandomCallObserver?.Invoke();
         // The ROM performs two separate 8x8 multiplies through the SNES hardware
         // multiplier ($4202/$4203). This first product is retained as a 16-bit word.
         int lowByteProduct = (RandomNumber & 0xff) * 5;

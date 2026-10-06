@@ -19,6 +19,14 @@ static gzFile updateTrace=nullptr;
 static std::ofstream eventCsv;
 static unsigned eventCount=0;
 static unsigned captureMovieLength=0;
+// Optional execution trace: every executed PC (with its source frame) inside one window.
+bool RidleyTraceActive=false;
+static gzFile instructionTrace=nullptr;
+void RidleyObserveInstruction(unsigned pc) {
+ unsigned frame=S9xMovieGetFrameCounter();
+ if(gzwrite(instructionTrace,&frame,4)!=4 || gzwrite(instructionTrace,&pc,4)!=4)
+  throw std::runtime_error("Cannot write instruction trace");
+}
 void RidleyObserveBoundary(unsigned pc) {
  if(!updateTrace) return;
  unsigned frame=S9xMovieActive() ? S9xMovieGetFrameCounter() : captureMovieLength;
@@ -43,10 +51,13 @@ int main(int argc,char** argv) {
  _set_abort_behavior(0,_WRITE_ABORT_MSG|_CALL_REPORTFAULT);
  _CrtSetReportMode(_CRT_ASSERT,_CRTDBG_MODE_FILE); _CrtSetReportFile(_CRT_ASSERT,_CRTDBG_FILE_STDERR);
  try {
-  if(argc!=5) throw std::runtime_error("usage: capture ROM MOVIE OUT frames-comma-separated");
+  bool traceMode=argc==7 && std::string(argv[4])=="--trace";
+  if(argc!=5 && !traceMode)
+   throw std::runtime_error("usage: capture ROM MOVIE OUT frames-comma-separated | capture ROM MOVIE OUT --trace START END");
   std::filesystem::path output=argv[3]; std::filesystem::create_directories(output);
-  std::set<unsigned> requested; std::stringstream args(argv[4]); std::string item;
-  while(std::getline(args,item,',')) requested.insert(std::stoul(item));
+  std::set<unsigned> requested;
+  if(!traceMode) { std::stringstream args(argv[4]); std::string item;
+   while(std::getline(args,item,',')) requested.insert(std::stoul(item)); }
   retro_set_environment(env); retro_set_video_refresh(video); retro_set_audio_sample_batch(audio);
   retro_set_input_poll(poll); retro_set_input_state(input); retro_init();
   std::ifstream rom(argv[1],std::ios::binary); rom.exceptions(std::ios::badbit);
@@ -58,6 +69,26 @@ int main(int argc,char** argv) {
   if(result!=SUCCESS) throw std::runtime_error("Movie restore failed: "+std::to_string(result));
   const auto length=S9xMovieGetLength();
   captureMovieLength=length;
+  if(traceMode) {
+   // Replays the unmodified movie and records executed PCs for source frames
+   // START..END inclusive, then stops; no WRAM checkpoints are written.
+   unsigned start=std::stoul(argv[5]), end=std::stoul(argv[6]);
+   if(start>end || end>=length) throw std::runtime_error("Trace window must lie within the movie");
+   instructionTrace=gzopen((output/"instructions.bin.gz").string().c_str(),"wb1");
+   if(!instructionTrace) throw std::runtime_error("Cannot open instruction trace");
+   unsigned loops=0;
+   while(S9xMovieActive() && S9xMovieGetFrameCounter()<=end) {
+    auto frame=S9xMovieGetFrameCounter();
+    RidleyTraceActive=frame>=start;
+    retro_run();
+    if(++loops>length+300) throw std::runtime_error("Movie playback did not terminate");
+   }
+   RidleyTraceActive=false;
+   if(gzclose(instructionTrace)!=Z_OK) throw std::runtime_error("Cannot finalize instruction trace");
+   instructionTrace=nullptr;
+   fprintf(stderr,"Traced source frames %u..%u\n",start,end);
+   retro_unload_game(); retro_deinit(); return 0;
+  }
   auto write=[&](unsigned frame) {
    std::ofstream out(output/("frame-"+std::to_string(frame)+".wram"),std::ios::binary);
    out.exceptions(std::ios::failbit|std::ios::badbit); out.write((char*)Memory.RAM,131072);

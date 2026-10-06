@@ -202,7 +202,7 @@ static void VerifySamusAerialTurnsAndWallJump()
         endpoint.InitializeAnimation(bus);
         endpoint.HorizontalSpeed.AccelerationMode = 1;
         ushort timerBeforeRelease = endpoint.AnimationFrameTimer;
-        endpoint.ApplyAerialTurnInputFallback(bus);
+        endpoint.ApplyTurnInputFallback(bus, endpoint.ReadMovementType(bus));
         AssertEqual(0, endpoint.HorizontalSpeed.AccelerationMode, "released turn invokes momentum command two");
         AssertEqual(source, endpoint.Pose, "released turn retains unfinished pose");
         AssertEqual(timerBeforeRelease, endpoint.AnimationFrameTimer, "released turn does not restart animation");

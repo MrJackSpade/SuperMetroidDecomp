@@ -508,24 +508,31 @@ public sealed partial class RoomEnemySystem
     private ushort AdvanceCeresBabyDrawInstruction(RidleyEnemyState state)
     {
         ushort cursor = state.BabyInstruction;
+        ushort current = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(cursor);
+        if ((current & 0x8000) == 0)
+        {
+            // $A6:DBE7 compares the current frame's duration with the elapsed timer. Any
+            // other value ticks the timer ($A6:DC0A) and keeps the current map.
+            if (current != state.BabyInstructionTimer)
+            {
+                state.BabyInstructionTimer = unchecked((ushort)(state.BabyInstructionTimer + 1));
+                state.BabyCurrentSpritemap =
+                    CeresBabyInstructionProgramDefinitions.ReadSpritemapOperand(
+                        unchecked((ushort)(cursor + 2)));
+                return state.BabyCurrentSpritemap;
+            }
+            cursor = unchecked((ushort)(cursor + 4));
+        }
+
+        // $A6:DBEF: run ASM instructions until the next frame, which `.specialInstruction`
+        // installs with an elapsed timer of one and returns without comparing its duration.
         for (int commandCount = 0; commandCount < 64; commandCount++)
         {
             ushort word = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(cursor);
             if ((word & 0x8000) == 0)
             {
-                // $A6:DBE7 compares the frame duration with the private elapsed timer. A
-                // match advances four bytes and immediately selects the next frame; all
-                // other calls increment the timer and retain the current map.
-                if (word == state.BabyInstructionTimer)
-                {
-                    cursor = unchecked((ushort)(cursor + 4));
-                    state.BabyInstruction = cursor;
-                    state.BabyInstructionTimer = 1;
-                    continue;
-                }
-
                 state.BabyInstruction = cursor;
-                state.BabyInstructionTimer = unchecked((ushort)(state.BabyInstructionTimer + 1));
+                state.BabyInstructionTimer = 1;
                 state.BabyCurrentSpritemap =
                     CeresBabyInstructionProgramDefinitions.ReadSpritemapOperand(
                         unchecked((ushort)(cursor + 2)));

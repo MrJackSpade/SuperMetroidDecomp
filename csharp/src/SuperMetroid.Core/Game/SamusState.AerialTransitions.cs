@@ -24,14 +24,16 @@ public sealed partial class SamusState
     }
 
     /// <summary>
-    /// Applies Samus_HandleTransitionsA_2 ($91:ECD0) when an aerial turn's input
-    /// lookup selects the same-pose definition fallback. This stops reverse acceleration
-    /// without restarting the unfinished turn animation or erasing velocity words.
+    /// Applies prospective pose change command two ($91:ECD0) when a turn's input lookup
+    /// fails and the pose definition retains the current pose. Movement types $0E, $17 and
+    /// $18 all select command two in $91:8332. This stops reverse acceleration without
+    /// restarting the unfinished turn animation or erasing velocity words.
     /// </summary>
-    public void ApplyAerialTurnInputFallback(ISnesAddressSpace bus)
+    public void ApplyTurnInputFallback(ISnesAddressSpace bus, SamusMovementType movementType)
     {
-        if (!IsAerialTurnPose(Pose))
-            throw new InvalidOperationException("Aerial turn fallback requires an aerial turn pose.");
+        if (movementType is not (SamusMovementType.TurningOnGround or
+            SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling))
+            throw new InvalidOperationException($"Turn fallback requires a turning movement type, not ${(byte)movementType:X2}.");
         HorizontalSpeed.AccelerationMode = SamusHorizontalAccelerationModes.Accelerating;
         HorizontalSpeed.CancelRunningMomentum(ReadPoseXDirection(bus));
     }

@@ -22,7 +22,19 @@ def run():
             (Registers.PB == 0x80 && (Registers.PCw == 0x9496 || Registers.PCw == 0x9459 || Registers.PCw == 0x8338)))
             RidleyObserveBoundary(Registers.PBPC);
 """
-        path.write_text(text.replace(instruction, hook + instruction))
+        text = text.replace(instruction, hook + instruction)
+        path.write_text(text)
+    if "RidleyObserveInstruction" not in text:
+        # Optional execution trace: a single flag test per instruction when inactive.
+        declaration = "extern void RidleyObserveBoundary(unsigned pc);"
+        boundary = "        if ((Registers.PB == 0x82 && (Registers.PCw == 0x8948 || Registers.PCw == 0x897a)) ||"
+        if text.count(declaration) != 1 or text.count(boundary) != 1:
+            raise ValueError("Unexpected instrumented CPU execution source layout")
+        text = text.replace(declaration, declaration +
+            "\nextern bool RidleyTraceActive;\nextern void RidleyObserveInstruction(unsigned pc);")
+        text = text.replace(boundary,
+            "        if (RidleyTraceActive)\n            RidleyObserveInstruction(Registers.PBPC);\n" + boundary)
+        path.write_text(text)
     # Current MSVC requires associative-container comparators to be const.
     changes = [
         ("conffile.cpp", "section_then_key_less::operator()(const ConfigEntry &a, const ConfigEntry &b) {", "section_then_key_less::operator()(const ConfigEntry &a, const ConfigEntry &b) const {"),

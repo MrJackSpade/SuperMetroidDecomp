@@ -39,6 +39,10 @@ internal static partial class Program
         for (int update = 1; update <= updates.Count; update++)
         {
             ConvertedMovieUpdate step = updates[update - 1];
+            if (update >= traceFromUpdate && game.RuntimeForVerification is { } tracedRuntime)
+                tracedRuntime.System.RandomCallObserver = () => Console.WriteLine(
+                    "  rng call: " + string.Join(" <- ", new System.Diagnostics.StackTrace(2)
+                        .GetFrames().Take(4).Select(frame => frame.GetMethod()?.Name)));
             // The last controller read of an eliminated music wait is still input the
             // cartridge consumed: it decides whether this update sees a new press.
             if (step.HardwareWaitLatch is { } latched)

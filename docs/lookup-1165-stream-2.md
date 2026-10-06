@@ -167,12 +167,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs
 
-- [ ] **ExtractedAudioAssetCatalog.streams** ([L14](../csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs#L14)) - installed stock table. Original/default payload behind ExtractedAudioAssetCatalog.streams. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **ExtractedAudioAssetCatalog.sampleBanks** ([L15](../csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs#L15)) - installed stock table. Stock bank/source-number selection and loop-entry source mapping only. ManagedPcmSample owns the waveform payload; do not count waveform copies or sample object references again.
-- [ ] **ExtractedAudioAssetCatalog.instrumentBanks** ([L16](../csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs#L16)) - installed stock table. Original/default payload behind ExtractedAudioAssetCatalog.instrumentBanks. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **ExtractedAudioAssetCatalog.musicBanks** ([L18](../csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs#L18)) - installed stock table. Original/default payload behind ExtractedAudioAssetCatalog.musicBanks. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **ExtractedAudioAssetCatalog.soundPrograms** ([L19](../csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs#L19)) - installed stock table. Original/default payload behind ExtractedAudioAssetCatalog.soundPrograms. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **ExtractedAudioAssetCatalog.soundLibraries** ([L20](../csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs#L20)) - installed stock table. Original/default payload behind ExtractedAudioAssetCatalog.soundLibraries. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **ExtractedAudioAssetCatalog.streams** ([L14](../csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs#L14)) - installed stock table. Original/default payload behind ExtractedAudioAssetCatalog.streams. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **ExtractedAudioAssetCatalog.sampleBanks** ([L15](../csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs#L15)) - installed stock table. Stock bank/source-number selection and loop-entry source mapping only. ManagedPcmSample owns the waveform payload; do not count waveform copies or sample object references again.
+- [x] **ExtractedAudioAssetCatalog.instrumentBanks** ([L16](../csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs#L16)) - installed stock table. Original/default payload behind ExtractedAudioAssetCatalog.instrumentBanks. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **ExtractedAudioAssetCatalog.musicBanks** ([L18](../csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs#L18)) - installed stock table. Original/default payload behind ExtractedAudioAssetCatalog.musicBanks. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **ExtractedAudioAssetCatalog.soundPrograms** ([L19](../csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs#L19)) - installed stock table. Original/default payload behind ExtractedAudioAssetCatalog.soundPrograms. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **ExtractedAudioAssetCatalog.soundLibraries** ([L20](../csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs#L20)) - installed stock table. Original/default payload behind ExtractedAudioAssetCatalog.soundLibraries. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/GunshipLiftoffArtworkCatalog.cs
 
@@ -216,7 +216,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/KraidHeadTilemapAtlas.cs
 
-- [ ] **KraidHeadTilemapAtlas.words** ([L12](../csharp/src/SuperMetroid.Core/Assets/KraidHeadTilemapAtlas.cs#L12)) - installed stock table. Original/default payload behind KraidHeadTilemapAtlas.words. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **KraidHeadTilemapAtlas.words** ([L12](../csharp/src/SuperMetroid.Core/Assets/KraidHeadTilemapAtlas.cs#L12)) - installed stock table. Original/default payload behind KraidHeadTilemapAtlas.words. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs
 
@@ -238,7 +238,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs
 
-- [ ] **KraidRoomPlmDrawDefinitions.All** ([L115](../csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs#L115)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **KraidRoomPlmDrawDefinitions.All** ([L115](../csharp/src/SuperMetroid.Core/Rooms/KraidRoomPlmDrawDefinitions.cs#L115)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/NinjaSpacePirateInstructionProgramDefinitions.cs
 
@@ -252,7 +252,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairLavaJumpDefinitions.cs
 
-- [ ] **NorfairLavaJumpDefinitions.InitialVerticalVelocities** ([L11](../csharp/src/SuperMetroid.Core/Game/NorfairLavaJumpDefinitions.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **NorfairLavaJumpDefinitions.InitialVerticalVelocities** ([L11](../csharp/src/SuperMetroid.Core/Game/NorfairLavaJumpDefinitions.cs#L11)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs
 
@@ -280,8 +280,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/PauseBackdropPresentation.cs
 
-- [ ] **PauseBackdropPresentation.areas** ([L10](../csharp/src/SuperMetroid.Core/Assets/PauseBackdropPresentation.cs#L10)) - installed stock table. Original/default payload behind PauseBackdropPresentation.areas. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **PauseBackdropPresentation.buttons** ([L11](../csharp/src/SuperMetroid.Core/Assets/PauseBackdropPresentation.cs#L11)) - installed stock table. Original/default payload behind PauseBackdropPresentation.buttons. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **PauseBackdropPresentation.areas** ([L10](../csharp/src/SuperMetroid.Core/Assets/PauseBackdropPresentation.cs#L10)) - installed stock table. Original/default payload behind PauseBackdropPresentation.areas. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **PauseBackdropPresentation.buttons** ([L11](../csharp/src/SuperMetroid.Core/Assets/PauseBackdropPresentation.cs#L11)) - installed stock table. Original/default payload behind PauseBackdropPresentation.buttons. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBaseDefinitions.cs
 
@@ -330,11 +330,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileFrameBindingCatalog.cs
 
-- [ ] **ProjectileFrameBindingCatalog.sprites** ([L13](../csharp/src/SuperMetroid.Core/Assets/ProjectileFrameBindingCatalog.cs#L13)) - installed stock table. Original/default payload behind ProjectileFrameBindingCatalog.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **ProjectileFrameBindingCatalog.sprites** ([L13](../csharp/src/SuperMetroid.Core/Assets/ProjectileFrameBindingCatalog.cs#L13)) - installed stock table. Original/default payload behind ProjectileFrameBindingCatalog.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteCatalog.cs
 
-- [ ] **ProjectileSpriteCatalog.frames** ([L10](../csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteCatalog.cs#L10)) - installed stock table. Original/default payload behind ProjectileSpriteCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **ProjectileSpriteCatalog.frames** ([L10](../csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteCatalog.cs#L10)) - installed stock table. Original/default payload behind ProjectileSpriteCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteDefinitions.cs
 
@@ -342,11 +342,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlas.cs
 
-- [ ] **ProjectileTrailAtlas.tiles** ([L8](../csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlas.cs#L8)) - installed stock table. Original/default payload behind ProjectileTrailAtlas.tiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **ProjectileTrailAtlas.tiles** ([L8](../csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlas.cs#L8)) - installed stock table. Original/default payload behind ProjectileTrailAtlas.tiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileTrailCatalog.cs
 
-- [ ] **ProjectileTrailCatalog.attributes** ([L10](../csharp/src/SuperMetroid.Core/Assets/ProjectileTrailCatalog.cs#L10)) - installed stock table. Original/default payload behind ProjectileTrailCatalog.attributes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **ProjectileTrailCatalog.attributes** ([L10](../csharp/src/SuperMetroid.Core/Assets/ProjectileTrailCatalog.cs#L10)) - installed stock table. Original/default payload behind ProjectileTrailCatalog.attributes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/ProjectileTrailVisualDefinitions.cs
 
@@ -354,9 +354,9 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs
 
-- [ ] **ProjectileTrailCoordinateDefinitions.ReachableAdjacentCode** ([L215](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs#L215)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ProjectileTrailCoordinateDefinitions.ReachableAdjacentCode** ([L215](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs#L215)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **ProjectileTrailCoordinateDefinitions.Pointers** ([L222](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs#L222)) - factory-built stock table. Stored FrozenDictionary<int, ushort> initialized by CreatePointers(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **ProjectileTrailCoordinateDefinitions.Frames** ([L223](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs#L223)) - factory-built stock table. Stored FrozenDictionary<int, Offset> initialized by CreateFrames(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **ProjectileTrailCoordinateDefinitions.Frames** ([L223](../csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs#L223)) - factory-built stock table. Stored FrozenDictionary<int, Offset> initialized by CreateFrames(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/ProjectileTrailDefinitions.cs
 
@@ -390,7 +390,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs
 
-- [ ] **BombTorizoAttackDefinitions.SwipePlacements** ([L17](../csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BombTorizoAttackDefinitions.SwipePlacements** ([L17](../csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **BombTorizoAttackDefinitions.ExplosionPlacements** ([L37](../csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs#L37)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/BombTorizoMovementDefinitions.cs
@@ -605,7 +605,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoInstructionVramTransferDefinitions.cs
 
-- [ ] **TorizoInstructionVramTransferDefinitions.Entries** ([L17](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionVramTransferDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoInstructionVramTransferDefinitions.Entries** ([L17](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionVramTransferDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoJumpBackCollisionDefinitions.cs
 

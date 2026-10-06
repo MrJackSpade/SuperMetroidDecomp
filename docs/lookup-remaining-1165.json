@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 163,
+  "remainingTableDefinitionCount": 0,
   "fileCount": 523,
   "entries": [
     {
@@ -10,14 +10,20 @@
       "line": 10,
       "name": "AreaMapPresentationAsset.cells",
       "kind": "installed stock table",
-      "note": "Original/default payload behind AreaMapPresentationAsset.cells. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind AreaMapPresentationAsset.cells. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationAsset.cs",
       "line": 11,
       "name": "Area map stock station-reveal plane",
       "kind": "installed stock table",
-      "note": "Original area-map station bitplanes; AreaMapCartridgeData.StationRevealMaskBytes and installed station masks are views of the same source mapping. Discoverability and reveal-above are calculated from map cells, not separate source tables."
+      "note": "Original area-map station bitplanes; AreaMapCartridgeData.StationRevealMaskBytes and installed station masks are views of the same source mapping. Discoverability and reveal-above are calculated from map cells, not separate source tables.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs",
@@ -54,7 +60,10 @@
       "line": 8,
       "name": "BeamTileAtlas.tiles",
       "kind": "installed stock table",
-      "note": "Original/default payload behind BeamTileAtlas.tiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind BeamTileAtlas.tiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/BotwoonColorCatalog.cs",
@@ -80,7 +89,10 @@
       "line": 26,
       "name": "CeresDestructionArtworkCatalog.CeresMaps",
       "kind": "installed stock table",
-      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
+      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresDestructionSpritePresentation.cs",
@@ -168,28 +180,40 @@
       "line": 24,
       "name": "CeresFlightArtworkCatalog.Mode7Characters",
       "kind": "installed stock table",
-      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
+      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresFlightArtworkCatalog.cs",
       "line": 26,
       "name": "CeresFlightArtworkCatalog.Mode7Maps",
       "kind": "installed stock table",
-      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
+      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresFlightArtworkCatalog.cs",
       "line": 27,
       "name": "CeresFlightArtworkCatalog.ObjectCharacters",
       "kind": "installed stock table",
-      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
+      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresFlightPalette.cs",
       "line": 10,
       "name": "CeresFlightPalette.nativeBytes",
       "kind": "installed stock table",
-      "note": "Original/default payload behind CeresFlightPalette.nativeBytes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind CeresFlightPalette.nativeBytes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Painted palette image; no exact ramp or copy rule beyond incidental shading (palette survey). (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresRevealActorLayout.cs",
@@ -352,91 +376,130 @@
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.Bank86",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA2.Definitions.cs",
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.BankA2",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA3.Definitions.cs",
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.BankA3",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA4.Definitions.cs",
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.BankA4",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA5.Definitions.cs",
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.BankA5",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA6.Definitions.cs",
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.BankA6",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA7.Definitions.cs",
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.BankA7",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA8.Definitions.cs",
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.BankA8",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankA9.Definitions.cs",
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.BankA9",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankAA.Definitions.cs",
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.BankAA",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankB2.Definitions.cs",
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.BankB2",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankB3.Definitions.cs",
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.BankB3",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.BankB4.Definitions.cs",
       "line": 7,
       "name": "CompiledEnemyVisualSelectors.BankB4",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Frame chosen at each enemy instruction step: authored animation sequencing. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CreditsPresentation.cs",
@@ -590,14 +653,20 @@
       "line": 19,
       "name": "DeadTourianCorpseVisualDefinitions.Entries",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/DeadTourianCorpseVisualDefinitions.cs",
       "line": 31,
       "name": "DeadTourianCorpseVisualDefinitions.SidehopperSelectors",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/DragonVisualDefinitions.cs",
@@ -662,42 +731,60 @@
       "line": 6,
       "name": "EndingFontAtlas.transfer",
       "kind": "installed stock table",
-      "note": "Original/default payload behind EndingFontAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind EndingFontAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs",
       "line": 27,
       "name": "EndingMode7SceneArtwork.Map",
       "kind": "installed stock table",
-      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
+      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs",
       "line": 28,
       "name": "EndingMode7SceneArtwork.Characters",
       "kind": "installed stock table",
-      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
+      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs",
       "line": 130,
       "name": "EndingRewardIconArtwork.Transfer",
       "kind": "installed stock table",
-      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
+      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EndingPaletteCatalog.cs",
       "line": 23,
       "name": "EndingPalette.nativeBytes",
       "kind": "installed stock table",
-      "note": "Unresolved ending palette resources only. The reviewed gunship ink/unused-color fields and logo-fade endpoint artwork are excluded; no whole-ending palette exemption."
+      "note": "Unresolved ending palette resources only. The reviewed gunship ink/unused-color fields and logo-fade endpoint artwork are excluded; no whole-ending palette exemption.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Painted palette image; no exact ramp or copy rule beyond incidental shading (palette survey). (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs",
       "line": 9,
       "name": "EndingTextPresentation.resultPanel",
       "kind": "installed stock table",
-      "note": "Original/default payload behind EndingTextPresentation.resultPanel. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind EndingTextPresentation.resultPanel. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs",
@@ -732,49 +819,70 @@
       "line": 31,
       "name": "EnemyBg2FrameCatalog.frames",
       "kind": "installed stock table",
-      "note": "Original/default payload behind EnemyBg2FrameCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind EnemyBg2FrameCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameCatalog.cs",
       "line": 39,
       "name": "EnemyExtendedFrameCatalog.frames",
       "kind": "installed stock table",
-      "note": "Original/default payload behind EnemyExtendedFrameCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind EnemyExtendedFrameCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EnemyPaletteSheet.cs",
       "line": 16,
       "name": "EnemyPaletteSheet.colors",
       "kind": "installed stock table",
-      "note": "Original/default payload behind EnemyPaletteSheet.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind EnemyPaletteSheet.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Painted palette image; no exact ramp or copy rule beyond incidental shading (palette survey). (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs",
       "line": 26,
       "name": "EnemyProjectileSpritemapCatalog.frames",
       "kind": "installed stock table",
-      "note": "Original/default payload behind EnemyProjectileSpritemapCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind EnemyProjectileSpritemapCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs",
       "line": 27,
       "name": "EnemyProjectileSpritemapCatalog.programFrames",
       "kind": "installed stock table",
-      "note": "Original/default payload behind EnemyProjectileSpritemapCatalog.programFrames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind EnemyProjectileSpritemapCatalog.programFrames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs",
       "line": 289,
       "name": "EnemyProjectileSpritemapDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs",
       "line": 25,
       "name": "EnemySpritemapCatalog.frames",
       "kind": "installed stock table",
-      "note": "Original/default payload behind EnemySpritemapCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind EnemySpritemapCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs",
@@ -831,14 +939,20 @@
       "line": 17,
       "name": "EvirVisualDefinitions.Frames / literal at L17",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs",
       "line": 14,
       "name": "FileSelectPresentation.pages",
       "kind": "installed stock table",
-      "note": "Original/default payload behind FileSelectPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind FileSelectPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs",
@@ -891,7 +1005,10 @@
       "line": 16,
       "name": "GameOptionsPresentation.pages",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameOptionsPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameOptionsPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs",
@@ -981,14 +1098,20 @@
       "line": 9,
       "name": "GameplayBasePaletteCatalog.initial",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameplayBasePaletteCatalog.initial. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameplayBasePaletteCatalog.initial. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Painted palette image; no exact ramp or copy rule beyond incidental shading (palette survey). (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs",
       "line": 10,
       "name": "GameplayBasePaletteCatalog.commonSprites",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameplayBasePaletteCatalog.commonSprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameplayBasePaletteCatalog.commonSprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Painted palette image; no exact ramp or copy rule beyond incidental shading (palette survey). (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs",
@@ -1126,42 +1249,60 @@
       "line": 13,
       "name": "GameplayMessageNoticePresentation.notices",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameplayMessageNoticePresentation.notices. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameplayMessageNoticePresentation.notices. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs",
       "line": 14,
       "name": "GameplayMessageNoticePresentation.border",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameplayMessageNoticePresentation.border. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameplayMessageNoticePresentation.border. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn asymmetric border row. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelPresentation.cs",
       "line": 13,
       "name": "GameplayMessagePanelPresentation.panels",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameplayMessagePanelPresentation.panels. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameplayMessagePanelPresentation.panels. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelPresentation.cs",
       "line": 14,
       "name": "GameplayMessagePanelPresentation.border",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameplayMessagePanelPresentation.border. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameplayMessagePanelPresentation.border. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn asymmetric border row. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs",
       "line": 13,
       "name": "GameplayMessageTitlePresentation.titles",
       "kind": "installed stock table",
-      "note": "Original/default payload behind GameplayMessageTitlePresentation.titles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind GameplayMessageTitlePresentation.titles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs",
       "line": 25,
       "name": "GameplayMessageTitlePresentation.Border",
       "kind": "installed stock table",
-      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
+      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn asymmetric border row. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/GrappleSpriteCatalog.cs",
@@ -1232,7 +1373,10 @@
       "line": 8,
       "name": "HudTileAtlas.transfer",
       "kind": "installed stock table",
-      "note": "Original/default payload behind HudTileAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind HudTileAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/IntroCaretSpriteDefinitions.cs",
@@ -1327,7 +1471,8 @@
       "kind": "installed stock table",
       "note": "Original/default payload behind IntroNarrationPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
       "state": "justified-retained",
-      "implementationCommit": "a665c6e51e6e14015372333dc0930db06b4128e6"
+      "implementationCommit": "a665c6e51e6e14015372333dc0930db06b4128e6",
+      "disposition": "Story prose: the six paragraph strings and the one deliberate emphasis break are authored narrative (nonsense exception); wrapping and rows are calculated. (narrationLayoutIntegration)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/KagoVisualDefinitions.cs",
@@ -1393,7 +1538,10 @@
       "line": 12,
       "name": "KraidHeadTilemapAtlas.words",
       "kind": "installed stock table",
-      "note": "Original/default payload behind KraidHeadTilemapAtlas.words. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind KraidHeadTilemapAtlas.words. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MagdollitePaletteCycle.cs",
@@ -1410,14 +1558,20 @@
       "line": 9,
       "name": "MapLandmarkLayout.points",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MapLandmarkLayout.points. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MapLandmarkLayout.points. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Authored drawing anchors on the area maps. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MapObjectTileArtwork.cs",
       "line": 14,
       "name": "MapObjectTileArtwork.otherCharacters",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MapObjectTileArtwork.otherCharacters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MapObjectTileArtwork.otherCharacters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MapPaletteCycle.cs",
@@ -1443,42 +1597,60 @@
       "line": 10,
       "name": "MapScreenPresentation.pages",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MapScreenPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MapScreenPresentation.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MapStaticPalettes.cs",
       "line": 10,
       "name": "MapStaticPalettes.fileSelect",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MapStaticPalettes.fileSelect. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MapStaticPalettes.fileSelect. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Painted palette image; no exact ramp or copy rule beyond incidental shading (palette survey). (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MapStaticPalettes.cs",
       "line": 10,
       "name": "MapStaticPalettes.pause",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MapStaticPalettes.pause. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MapStaticPalettes.pause. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Painted palette image; no exact ramp or copy rule beyond incidental shading (palette survey). (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MapStaticPalettes.cs",
       "line": 11,
       "name": "MapStaticPalettes.world",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MapStaticPalettes.world. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MapStaticPalettes.world. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Painted palette image; no exact ramp or copy rule beyond incidental shading (palette survey). (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MapStationLayout.cs",
       "line": 9,
       "name": "MapStationLayout.points",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MapStationLayout.points. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MapStationLayout.points. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Authored station drawing positions. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MapTileAtlas.cs",
       "line": 8,
       "name": "MapTileAtlas.planar",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MapTileAtlas.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MapTileAtlas.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MetroidVisualDefinitions.cs",
@@ -1508,7 +1680,10 @@
       "line": 15,
       "name": "MorphBallEyeVisualDefinitions.Frames / literal at L15",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainCorpseArtworkDefinitions.cs",
@@ -1789,14 +1964,20 @@
       "line": 10,
       "name": "PauseBackdropPresentation.areas",
       "kind": "installed stock table",
-      "note": "Original/default payload behind PauseBackdropPresentation.areas. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind PauseBackdropPresentation.areas. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/PauseBackdropPresentation.cs",
       "line": 11,
       "name": "PauseBackdropPresentation.buttons",
       "kind": "installed stock table",
-      "note": "Original/default payload behind PauseBackdropPresentation.buttons. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind PauseBackdropPresentation.buttons. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBaseDefinitions.cs",
@@ -1972,7 +2153,10 @@
       "name": "ProjectileFrameBindingCatalog.sprites",
       "kind": "installed stock table",
       "note": "Original/default payload behind ProjectileFrameBindingCatalog.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
-      "identityConversionDependency": "Selected startup stages1/3/6/7 axial and2/4/8/10 diagonal remain required; calculating NativePointers addresses does not derive this selection policy."
+      "identityConversionDependency": "Selected startup stages1/3/6/7 axial and2/4/8/10 diagonal remain required; calculating NativePointers addresses does not derive this selection policy.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteCatalog.cs",
@@ -1980,7 +2164,10 @@
       "name": "ProjectileSpriteCatalog.frames",
       "kind": "installed stock table",
       "note": "Original/default payload behind ProjectileSpriteCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
-      "identityConversionDependency": "All chosen OAM footprint counts,ordered shapes and artwork remain required; NativePointers uses physical record extents without exempting this content."
+      "identityConversionDependency": "All chosen OAM footprint counts,ordered shapes and artwork remain required; NativePointers uses physical record extents without exempting this content.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ProjectileSpriteDefinitions.cs",
@@ -1996,14 +2183,20 @@
       "line": 8,
       "name": "ProjectileTrailAtlas.tiles",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ProjectileTrailAtlas.tiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ProjectileTrailAtlas.tiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ProjectileTrailCatalog.cs",
       "line": 10,
       "name": "ProjectileTrailCatalog.attributes",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ProjectileTrailCatalog.attributes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ProjectileTrailCatalog.attributes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ProjectileTrailVisualDefinitions.cs",
@@ -2055,49 +2248,70 @@
       "line": 11,
       "name": "RoomBackgroundTilemapAtlas.transfer",
       "kind": "installed stock table",
-      "note": "Original/default payload behind RoomBackgroundTilemapAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind RoomBackgroundTilemapAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs",
       "line": 11,
       "name": "RoomCharacterAtlas.planar",
       "kind": "installed stock table",
-      "note": "Original/default payload behind RoomCharacterAtlas.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind RoomCharacterAtlas.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileAtlas.cs",
       "line": 9,
       "name": "RoomFxAnimatedTileAtlas.transfer",
       "kind": "installed stock table",
-      "note": "Original/default payload behind RoomFxAnimatedTileAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind RoomFxAnimatedTileAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/RoomMetatileAtlas.cs",
       "line": 15,
       "name": "RoomMetatileAtlas.blockDefinitions",
       "kind": "installed stock table",
-      "note": "Original/default payload behind RoomMetatileAtlas.blockDefinitions. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind RoomMetatileAtlas.blockDefinitions. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/RoomPaletteFxPresentation.cs",
       "line": 12,
       "name": "RoomPaletteFxPresentation.colors",
       "kind": "installed stock table",
-      "note": "Remaining original palette payloads only. Exclude specifically completed heat, suit-loading and ending-logo fade fields; their component dispositions remain authoritative. Other effect inks/endpoints are not exempt."
+      "note": "Remaining original palette payloads only. Exclude specifically completed heat, suit-loading and ending-logo fade fields; their component dispositions remain authoritative. Other effect inks/endpoints are not exempt.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Painted palette image; no exact ramp or copy rule beyond incidental shading (palette survey). (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/RoomSkyTilemapCatalog.cs",
       "line": 9,
       "name": "RoomSkyTilemapCatalog.pages",
       "kind": "installed stock table",
-      "note": "Original/default payload behind RoomSkyTilemapCatalog.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind RoomSkyTilemapCatalog.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/RoomStaticPalette.cs",
       "line": 11,
       "name": "RoomStaticPalette.nativeBytes",
       "kind": "installed stock table",
-      "note": "Original/default payload behind RoomStaticPalette.nativeBytes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind RoomStaticPalette.nativeBytes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Painted palette image; no exact ramp or copy rule beyond incidental shading (palette survey). (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
@@ -2334,7 +2548,10 @@
       "line": 25,
       "name": "SamusSpritemapArtworkCatalog.definitions",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SamusSpritemapArtworkCatalog.definitions. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SamusSpritemapArtworkCatalog.definitions. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Samus OAM compositions drawn per pose; facing pairs are not mirrors (71 of the right-facing maps are), and selectors and pointers already calculate. (drawnArtworkResidualReview)"
     },
     {
     "file":  "csharp/src/SuperMetroid.Core/Assets/SamusVisorColorCatalog.cs",
@@ -2457,49 +2674,70 @@
       "line": 13,
       "name": "TitleGradientPresentation.variants",
       "kind": "installed stock table",
-      "note": "Original/default payload behind TitleGradientPresentation.variants. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind TitleGradientPresentation.variants. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Scanline gradient bands with hand-set band heights per zoom bucket. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs",
       "line": 12,
       "name": "TitleGraphicsPresentation.babyCharacters",
       "kind": "installed stock table",
-      "note": "Original/default payload behind TitleGraphicsPresentation.babyCharacters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind TitleGraphicsPresentation.babyCharacters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs",
       "line": 12,
       "name": "TitleGraphicsPresentation.mode7Characters",
       "kind": "installed stock table",
-      "note": "Original/default payload behind TitleGraphicsPresentation.mode7Characters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind TitleGraphicsPresentation.mode7Characters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs",
       "line": 12,
       "name": "TitleGraphicsPresentation.mode7Map",
       "kind": "installed stock table",
-      "note": "Original/default payload behind TitleGraphicsPresentation.mode7Map. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind TitleGraphicsPresentation.mode7Map. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn tile layout or page. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs",
       "line": 12,
       "name": "TitleGraphicsPresentation.objectCharacters",
       "kind": "installed stock table",
-      "note": "Original/default payload behind TitleGraphicsPresentation.objectCharacters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind TitleGraphicsPresentation.objectCharacters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn character pixels. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs",
       "line": 13,
       "name": "TitleGraphicsPresentation.sprites",
       "kind": "installed stock table",
-      "note": "Original/default payload behind TitleGraphicsPresentation.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind TitleGraphicsPresentation.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn sprite compositions and frame choices. (drawnArtworkResidualReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs",
       "line": 13,
       "name": "TitlePalettePresentation.colors",
       "kind": "installed stock table",
-      "note": "Original/default payload behind TitlePalettePresentation.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind TitlePalettePresentation.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Painted palette image; no exact ramp or copy rule beyond incidental shading (palette survey). (drawnArtworkResidualReview)"
     },
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs",
@@ -2633,84 +2871,120 @@
       "line": 14,
       "name": "ExtractedAudioAssetCatalog.streams",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ExtractedAudioAssetCatalog.streams. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ExtractedAudioAssetCatalog.streams. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Lossless SPC driver/music upload streams (composed music and driver data). (spcAuthoredAudioDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs",
       "line": 15,
       "name": "ExtractedAudioAssetCatalog.sampleBanks",
       "kind": "installed stock table",
-      "note": "Stock bank/source-number selection and loop-entry source mapping only. ManagedPcmSample owns the waveform payload; do not count waveform copies or sample object references again."
+      "note": "Stock bank/source-number selection and loop-entry source mapping only. ManagedPcmSample owns the waveform payload; do not count waveform copies or sample object references again.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Stock bank and source-number selection of recorded instrument samples. (spcAuthoredAudioDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs",
       "line": 16,
       "name": "ExtractedAudioAssetCatalog.instrumentBanks",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ExtractedAudioAssetCatalog.instrumentBanks. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ExtractedAudioAssetCatalog.instrumentBanks. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Authored instrument definitions (ADSR/gain/pitch per instrument). (spcAuthoredAudioDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs",
       "line": 18,
       "name": "ExtractedAudioAssetCatalog.musicBanks",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ExtractedAudioAssetCatalog.musicBanks. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ExtractedAudioAssetCatalog.musicBanks. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Composed music sequences per bank. (spcAuthoredAudioDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs",
       "line": 19,
       "name": "ExtractedAudioAssetCatalog.soundPrograms",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ExtractedAudioAssetCatalog.soundPrograms. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ExtractedAudioAssetCatalog.soundPrograms. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Authored sound-effect programs. (spcAuthoredAudioDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs",
       "line": 20,
       "name": "ExtractedAudioAssetCatalog.soundLibraries",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ExtractedAudioAssetCatalog.soundLibraries. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ExtractedAudioAssetCatalog.soundLibraries. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Authored sound-effect libraries. (spcAuthoredAudioDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Audio/ManagedPcmSample.cs",
       "line": 8,
       "name": "ManagedPcmSample stock PCM sample payloads",
       "kind": "installed stock table",
-      "note": "Canonical sample/waveform data indexed by sample identity and sample position. Sample-bank dictionaries and loop-entry aliases are references to this payload; authored sound content is not assumed exempt without a concrete disposition."
+      "note": "Canonical sample/waveform data indexed by sample identity and sample position. Sample-bank dictionaries and loop-entry aliases are references to this payload; authored sound content is not assumed exempt without a concrete disposition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Recorded instrument and effect waveforms. (spcAuthoredAudioDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs",
       "line": 284,
       "name": "SPC default FIR coefficients / fourth",
       "kind": "confirmed pending logical table",
-      "note": "spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables."
+      "note": "spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Hand-tuned asymmetric echo filter; no windowed-sinc design reproduces it; carried byte-exact in the upload and read through mutable RAM. (spcAuthoredAudioDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs",
       "line": 284,
       "name": "SPC default FIR coefficients / reverb",
       "kind": "confirmed pending logical table",
-      "note": "spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables."
+      "note": "spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Hand-tuned asymmetric echo filter; no windowed-sinc design reproduces it; carried byte-exact in the upload and read through mutable RAM. (spcAuthoredAudioDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs",
       "line": 284,
       "name": "SPC default FIR coefficients / sharp",
       "kind": "confirmed pending logical table",
-      "note": "spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables."
+      "note": "spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Identity impulse (127, then zeros) carried byte-exact in the verbatim upload and read only through mutable RAM; a generator would only reproduce the cartridge bytes. (spcAuthoredAudioDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs",
       "line": 284,
       "name": "SPC default FIR coefficients / smooth",
       "kind": "confirmed pending logical table",
-      "note": "spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables."
+      "note": "spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Hand-tuned asymmetric echo filter; no windowed-sinc design reproduces it; carried byte-exact in the upload and read through mutable RAM. (spcAuthoredAudioDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
       "line": 50,
       "name": "SpcMusicTables.panVolume",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Hand-shaped pan law; no polynomial, sigmoid, CDF, sin^2 or dB family reproduces it, and the upper-half recurrence needs a fitted ratio. (spcAuthoredAudioDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/DoorTransitionState.cs",
@@ -2917,21 +3191,30 @@
       "line": 16,
       "name": "MapStationDiscoveryRules.missile",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Authored station locations on the area maps. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapStationDiscoveryRules.cs",
       "line": 22,
       "name": "MapStationDiscoveryRules.energy",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Authored station locations on the area maps. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapStationDiscoveryRules.cs",
       "line": 33,
       "name": "MapStationDiscoveryRules.map",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Authored station locations on the area maps. (authoredDesignDataReview)"
     },
     {
   "file": "csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs",
@@ -3007,14 +3290,20 @@
       "line": 53,
       "name": "BabyMetroidRouteDefinitions.Records",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Divisor index, leg callback (extra-$10 for legs 0-4, extra-$08 after) and the overlapping following word (next waypoint X, then the $CA66 callback) calculate; the eight waypoints are the authored route. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs",
       "line": 17,
       "name": "BombTorizoAttackDefinitions.SwipePlacements",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Two hand-placed swipe arcs that differ slightly. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/BombTorizoAttackDefinitions.cs",
@@ -3060,7 +3349,10 @@
       "line": 15,
       "name": "BotwoonMovementSampleData.PackedSamples",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn swim routes as a five-symbol component stream. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/BotwoonNavigationDefinitions.cs",
@@ -3741,7 +4033,10 @@
       "line": 34,
       "name": "DeadMonsterRottingDefinitions.TorizoHitboxRecords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Seven asymmetric touch rectangles fitted to the corpse drawing. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs",
@@ -3786,14 +4081,20 @@
       "line": 7,
       "name": "DeadSidehopperLaunchDefinitions.Vertical",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored four-phase landing launch velocities. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DeadSidehopperLaunchDefinitions.cs",
       "line": 9,
       "name": "DeadSidehopperLaunchDefinitions.Horizontal",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored four-phase landing launch velocities. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DeadTorizoInstructionProgramDefinitions.cs",
@@ -4074,7 +4375,10 @@
       "line": 41,
       "name": "EnemyDropChanceDefinitions.PackedChances",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Per-enemy drop weights (game balance). (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EnemyPickupDefinitions.cs",
@@ -4153,7 +4457,10 @@
       "line": 74,
       "name": "EnemyVulnerabilityDefinitions.PackedVulnerabilities",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Per-enemy weapon damage multipliers (game balance). (authoredDesignDataReview)"
     },
     {
     "file":  "csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs",
@@ -4918,14 +5225,20 @@
       "line": 8,
       "name": "GrappleBodyPlacementDefinitions.LeftOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Hand-placed swing positions approximating a 31-pixel circle; a rounded circle misses, and the facings differ by hand. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GrappleBodyPlacementDefinitions.cs",
       "line": 17,
       "name": "GrappleBodyPlacementDefinitions.RightOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Hand-placed swing positions approximating a 31-pixel circle; a rounded circle misses, and the facings differ by hand. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs",
@@ -4950,7 +5263,10 @@
       "line": 29,
       "name": "GrappleConnectionDefinitions.SpecialAngleRecords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Every other record calculates as the reflection of the preceding stop (angle $0100-a, X negated, pose facing swapped); the four authored stops remain. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GrappleConnectionDefinitions.cs",
@@ -5373,14 +5689,20 @@
       "line": 19,
       "name": "MamaTurtleShellContourDefinitions.Offsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Drawn shell profile; the halves are asymmetric. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.cs",
       "line": 31,
       "name": "MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.Definitions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Explicit named per-owner palette-FX program definitions; mechanics words calculate from record layout, and palette slot, first color, rotation width and cadence are named scalars. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailCollisionDefinitions.cs",
@@ -5492,7 +5814,8 @@
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
       "state": "justified-retained",
-      "implementationCommit": "f0dda1607"
+      "implementationCommit": "f0dda1607",
+      "disposition": "Only the authored flight 14 / attached 5 visual pulse tempos are retained; control, layout and repetition are calculated. (stream 3, Mochtroid pulse review)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MochtroidInstructionProgramDefinitions.cs",
@@ -5656,28 +5979,40 @@
       "line": 18,
       "name": "MotherBrainDoorFragmentDefinitions.Definitions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "X offset, Y offset (-32+8p) and X velocity calculate; only the authored Y velocities remain. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainEnemyProjectileSystem.cs",
       "line": 42,
       "name": "MotherBrainEnemyProjectileSystem.BombYAccelerations",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Calculated: fall gravity 7, then 16 plus 16*min(bounce,4) per bounce, then the zero expiry sentinel; MotherBrainBombBounceDefinitions replaces both parallel copies. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainEnemyProjectileSystem.cs",
       "line": 44,
       "name": "MotherBrainEnemyProjectileSystem.EscapeDoorParticleYOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Calculated as -32+8p in MotherBrainDoorFragmentDefinitions, now the single owner for both projectile systems. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainEnemyProjectileSystem.cs",
       "line": 46,
       "name": "MotherBrainEnemyProjectileSystem.EscapeDoorParticleYVelocities",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored non-monotonic scatter speeds, now owned once by MotherBrainDoorFragmentDefinitions. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubeInstructionDefinitions.cs",
@@ -5874,14 +6209,20 @@
       "line": 127,
       "name": "MotherBrainRainbowBeamAttackSequence.ExplosionXOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored eight-point explosion scatter. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs",
       "line": 130,
       "name": "MotherBrainRainbowBeamAttackSequence.ExplosionYOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored eight-point explosion scatter. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.StateMachine.cs",
@@ -6063,42 +6404,60 @@
       "line": 7,
       "name": "NoobTubeProjectileRomData.ShardXOffsetWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored shard/bubble placement and launch; velocity/offset ratios vary about 4 to 40, so there is no common rule. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NoobTubeProjectileRomData.cs",
       "line": 9,
       "name": "NoobTubeProjectileRomData.ShardYOffsetWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored shard/bubble placement and launch; velocity/offset ratios vary about 4 to 40, so there is no common rule. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NoobTubeProjectileRomData.cs",
       "line": 11,
       "name": "NoobTubeProjectileRomData.ShardXVelocityWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored shard/bubble placement and launch; velocity/offset ratios vary about 4 to 40, so there is no common rule. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NoobTubeProjectileRomData.cs",
       "line": 13,
       "name": "NoobTubeProjectileRomData.ShardYVelocityWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored shard/bubble placement and launch; velocity/offset ratios vary about 4 to 40, so there is no common rule. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NoobTubeProjectileRomData.cs",
       "line": 14,
       "name": "NoobTubeProjectileRomData.BubbleXOffsetWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored shard/bubble placement and launch; velocity/offset ratios vary about 4 to 40, so there is no common rule. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NoobTubeProjectileRomData.cs",
       "line": 15,
       "name": "NoobTubeProjectileRomData.BubbleYOffsetWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored shard/bubble placement and launch; velocity/offset ratios vary about 4 to 40, so there is no common rule. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs",
@@ -6121,7 +6480,10 @@
       "line": 11,
       "name": "NorfairLavaJumpDefinitions.InitialVerticalVelocities",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored jump strengths -2049,-1794,-1601,-1281 with uneven steps. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs",
@@ -6257,7 +6619,8 @@
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
       "state": "justified-retained",
-      "implementationCommit": "dbe23c0e07e5f4cf658f10920301d0f1b4bafebe"
+      "implementationCommit": "dbe23c0e07e5f4cf658f10920301d0f1b4bafebe",
+      "disposition": "Authored cyclic visual tempo is not determined by movement or collision; arithmetic fitting would encode the same chosen performance. (owtchCadenceIndependentReviewAndIntegration)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/OwtchInstructionProgramDefinitions.cs",
@@ -6300,7 +6663,10 @@
       "line": 12,
       "name": "PhantoonCasualFlameDefinitions.Pattern / literal at L12",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Uniform bursts calculate from burst rank; the seven irregular intervals 16,64,32,64,32,16,32 are authored timing. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs",
@@ -6559,7 +6925,10 @@
       "line": 215,
       "name": "ProjectileTrailCoordinateDefinitions.ReachableAdjacentCode",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Compatibility values: the bytes of adjacent native code at $9B:B3A7-B3C2 that a bounded restored projectile type/frame reads out of bounds; preserved as required for cartridge compatibility. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailCoordinateDefinitions.cs",
@@ -6575,7 +6944,10 @@
       "line": 223,
       "name": "ProjectileTrailCoordinateDefinitions.Frames",
       "kind": "factory-built stock table",
-      "note": "Stored FrozenDictionary<int, Offset> initialized by CreateFrames(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored FrozenDictionary<int, Offset> initialized by CreateFrames(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Right sparkles calculate as the left reflected across the beam travel axis for 668 of 700 records; the left sparkle paths and the 32 diagonal right sparkles drawn off the rule remain. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ProjectileTrailDefinitions.cs",
@@ -6982,7 +7354,8 @@
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
       "state": "justified-retained",
-      "implementationCommit": "7f9babb19e10cbaec599d2eacdeaadac11047f71"
+      "implementationCommit": "7f9babb19e10cbaec599d2eacdeaadac11047f71",
+      "disposition": "Only the neutral 8 / alternate 7 visual holds are retained; speed, collision, grapple, freeze and artwork are excluded and calculated. (ripperCadenceIntegration)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RipperInstructionProgramDefinitions.cs",
@@ -6998,56 +7371,80 @@
       "line": 12,
       "name": "RoomEnemyAuxiliaryDefinitionCatalog.Definitions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Auxiliary actor headers: native code identities and authored stats. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemyDefinitionCatalog.cs",
       "line": 15,
       "name": "RoomEnemyDefinitionCatalog.Definitions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Enemy headers: native code identities and authored balance values. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment0.cs",
       "line": 7,
       "name": "RoomEnemyGraphicsSetDefinitions.BuildSegment0 / literal at L7",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Per-room enemy graphics selections (level design). (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment1.cs",
       "line": 7,
       "name": "RoomEnemyGraphicsSetDefinitions.BuildSegment1 / literal at L7",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Per-room enemy graphics selections (level design). (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment0.cs",
       "line": 7,
       "name": "RoomEnemyPopulationDefinitions.BuildSegment0 / literal at L7",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Per-room enemy placements (level design). (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment1.cs",
       "line": 7,
       "name": "RoomEnemyPopulationDefinitions.BuildSegment1 / literal at L7",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Per-room enemy placements (level design). (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment2.cs",
       "line": 7,
       "name": "RoomEnemyPopulationDefinitions.BuildSegment2 / literal at L7",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Per-room enemy placements (level design). (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment3.cs",
       "line": 7,
       "name": "RoomEnemyPopulationDefinitions.BuildSegment3 / literal at L7",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Per-room enemy placements (level design). (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySpawnNameDefinitions.cs",
@@ -7240,7 +7637,10 @@
       "line": 83,
       "name": "RoomEnemySystem.PublishCrocomireBridgeCollapsePlms / dustPositions",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Calculated: X $600+16i, Y $C0 with puffs 0 and 2 raised to $B0. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadSidehopper.cs",
@@ -7319,21 +7719,30 @@
       "line": 26,
       "name": "RoomEnemySystem.DeadZoomerProfile",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Variants calculate from the corpse tile layout (columns x rows tiles stacked in the work buffer, one sheet row per tile row, rot depth = height - 2); its three variants sit at evenly spaced sheet positions. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs",
       "line": 53,
       "name": "RoomEnemySystem.DeadRipperProfile",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Variants calculate from the corpse tile layout (columns x rows tiles stacked in the work buffer, one sheet row per tile row, rot depth = height - 2); its two variants sit at evenly spaced sheet positions. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs",
       "line": 75,
       "name": "RoomEnemySystem.DeadSkreeProfile",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Variants calculate from the corpse tile layout (columns x rows tiles stacked in the work buffer, one sheet row per tile row, rot depth = height - 2); only its three tile-sheet positions are authored. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.KraidGrowth.cs",
@@ -7414,63 +7823,90 @@
       "line": 15,
       "name": "RoomEnemySystem.MotherBrainFakeDeathExplosionPositions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored scatter positions with no ordering, symmetry or ramp. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs",
       "line": 26,
       "name": "RoomEnemySystem.MotherBrainFallingTubeXRadius",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Explicit case mapping by piece role (outer pair, inner pair, main tube). (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs",
       "line": 27,
       "name": "RoomEnemySystem.MotherBrainFallingTubeYRadius",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Explicit case mapping by piece role (outer pair, inner pair, main tube). (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs",
       "line": 28,
       "name": "RoomEnemySystem.MotherBrainFallingTubeFloor",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Explicit case mapping by piece role (outer pair, inner pair, main tube). (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs",
       "line": 29,
       "name": "RoomEnemySystem.MotherBrainFallingTubeSmokeXOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored smoke puff offsets -8,2,-4,6. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwo.cs",
       "line": 23,
       "name": "RoomEnemySystem.MotherBrainAscentDustXPositions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored scatter positions with no ordering, symmetry or ramp. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwo.cs",
       "line": 558,
       "name": "RoomEnemySystem.ChooseMotherBrainSecondPhaseAttack / thresholds",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration. Additional source branches/rows at lines 558, 559."
+      "note": "Fixed values inside a method; not an array parameter/return declaration. Additional source branches/rows at lines 558, 559.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Explicit near/far two-case policy; the near weights $10/$20/$D0 are authored. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwoProjectiles.cs",
       "line": 11,
       "name": "RoomEnemySystem.MotherBrainDroolXOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored scatter positions with no ordering, symmetry or ramp. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainPhaseTwoProjectiles.cs",
       "line": 14,
       "name": "RoomEnemySystem.MotherBrainDroolYOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Authored scatter positions with no ordering, symmetry or ramp. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Pickups.cs",
@@ -7576,7 +8012,10 @@
       "line": 86,
       "name": "RoomEnemySystem.RinkaSpawnResources",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Resource tokens calculate as 2(i+1); the eleven spawn points are authored room placements. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs",
@@ -7793,7 +8232,8 @@
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
       "state": "justified-retained",
-      "implementationCommit": "e68a6acc96018d29c3de58a94339a19cd3dde5e2"
+      "implementationCommit": "e68a6acc96018d29c3de58a94339a19cd3dde5e2",
+      "disposition": "Only 207 native instruction bytes at 90:DD75-DDA9 and DDB6-DE4F read as unrelated instruction encodings, not posture policy; generating them would re-encode bounded compatibility content. (hudPostureIntegration)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusPoseAimDefinitions.cs",
@@ -9182,7 +9622,10 @@
       "line": 17,
       "name": "SporeSpawnProjectileDefinitions.Movement",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Drawn drift path (128 unit steps) whose return is not a mirror of its outbound half. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs",
@@ -9449,7 +9892,10 @@
       "line": 17,
       "name": "TorizoInstructionVramTransferDefinitions.Entries",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Tile-upload choreography of the authored Torizo animation programs. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoJumpBackCollisionDefinitions.cs",
@@ -9594,7 +10040,10 @@
       "line": 34,
       "name": "TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.Definitions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Explicit named per-owner palette-FX program definitions; mechanics words calculate from record layout, and palette slot, first color, rotation width and cadence are named scalars. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.cs",
@@ -9638,7 +10087,10 @@
       "line": 15,
       "name": "TourianStatueUnlockDefinitions.EyePositions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Four eye placements on the drawn statues. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs",
@@ -9896,14 +10348,20 @@
       "line": 36,
       "name": "ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.LavaDurations",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Calculated V schedule: 9-f for f<=4, then f. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.cs",
       "line": 39,
       "name": "ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.Definitions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Explicit named per-owner program definitions (afterglow and lava) with calculated mechanics words. (gameSmallTablesReview)"
     },
     {
   "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.cs",
@@ -9920,14 +10378,20 @@
       "line": 42,
       "name": "ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.Definitions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Explicit named per-owner palette-FX program definitions; mechanics words calculate from record layout, and palette slot, first color, rotation width and cadence are named scalars. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.cs",
       "line": 73,
       "name": "ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.All",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Explicit named per-owner palette-FX program definitions; mechanics words calculate from record layout, and palette slot, first color, rotation width and cadence are named scalars. (gameSmallTablesReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ZebetiteDefinitions.cs",
@@ -10034,21 +10498,30 @@
       "line": 115,
       "name": "KraidRoomPlmDrawDefinitions.All",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Every draw word calculates from named blocks and run structure; no stored words remain. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramGeneratedDefinitions.cs",
       "line": 8,
       "name": "LibraryBackgroundProgramDefinitions.programs",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Per-room background load programs (level design). (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs",
       "line": 23,
       "name": "MaridiaElevatubePlmDefinitions.Draw",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "The single draw shares Kraid's first crumble list; block 180 is one named scalar. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs",
@@ -10091,14 +10564,20 @@
       "line": 14,
       "name": "RoomLevelStreamDefinitions.Installed stock level corpus",
       "kind": "embedded stock table",
-      "note": "RoomLevelStreams.bin contains the canonical native level allocations keyed by source identity. Foreground collision words, BTS bytes and background words require independent field dispositions; RoomLevelData live/streaming copies are aliases, not additional tables."
+      "note": "RoomLevelStreams.bin contains the canonical native level allocations keyed by source identity. Foreground collision words, BTS bytes and background words require independent field dispositions; RoomLevelData live/streaming copies are aliases, not additional tables.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "The rooms' level block data (level design). (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Rooms/RoomScrollDefinitions.cs",
       "line": 25,
       "name": "RoomScrollDefinitions.Definitions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Per-room scroll zones in their 50-byte native windows, preserving neighbouring bytes the engine reads. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs",
@@ -10114,14 +10593,20 @@
       "line": 12,
       "name": "RoomVisualLayout.foreground",
       "kind": "installed stock table",
-      "note": "Original/default payload behind RoomVisualLayout.foreground. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind RoomVisualLayout.foreground. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn room tile layouts. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs",
       "line": 13,
       "name": "RoomVisualLayout.background",
       "kind": "installed stock table",
-      "note": "Original/default payload behind RoomVisualLayout.background. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind RoomVisualLayout.background. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn room tile layouts. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Rooms/SpeedBoosterBlockPlmDrawDefinitions.cs",
@@ -10146,21 +10631,30 @@
       "line": 29,
       "name": "XrayOverlayVisualCatalog.itemMetatiles",
       "kind": "installed stock table",
-      "note": "Original/default payload behind XrayOverlayVisualCatalog.itemMetatiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind XrayOverlayVisualCatalog.itemMetatiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Drawn X-ray item metatiles. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs",
       "line": 43,
       "name": "XrayOverlayVisualCatalog.rooms",
       "kind": "installed stock table",
-      "note": "Original/default payload behind XrayOverlayVisualCatalog.rooms. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind XrayOverlayVisualCatalog.rooms. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "0cd4add6c",
+      "disposition": "Per-room X-ray overlay layouts. (authoredDesignDataReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs",
       "line": 4319,
       "name": "SuperMetroidRuntime.RunCeresFallingDebrisRoomMain / xPositions",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "cadc1ad165e44c9c020add08302bef53358d023b",
+      "disposition": "Calculated two-slope column ramp: $50+16c through $F0, then $F0+32(c-10). (gameSmallTablesReview)"
     }
   ],
   "excluded": [
@@ -22571,6 +23065,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 690,
-  "justifiedRetainedSinceSnapshot": 275
+  "convertedSinceSnapshot": 707,
+  "justifiedRetainedSinceSnapshot": 421
 }

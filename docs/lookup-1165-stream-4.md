@@ -133,8 +133,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationAsset.cs
 
-- [ ] **AreaMapPresentationAsset.cells** ([L10](../csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationAsset.cs#L10)) - installed stock table. Original/default payload behind AreaMapPresentationAsset.cells. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **Area map stock station-reveal plane** ([L11](../csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationAsset.cs#L11)) - installed stock table. Original area-map station bitplanes; AreaMapCartridgeData.StationRevealMaskBytes and installed station masks are views of the same source mapping. Discoverability and reveal-above are calculated from map cells, not separate source tables.
+- [x] **AreaMapPresentationAsset.cells** ([L10](../csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationAsset.cs#L10)) - installed stock table. Original/default payload behind AreaMapPresentationAsset.cells. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **Area map stock station-reveal plane** ([L11](../csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationAsset.cs#L11)) - installed stock table. Original area-map station bitplanes; AreaMapCartridgeData.StationRevealMaskBytes and installed station masks are views of the same source mapping. Discoverability and reveal-above are calculated from map cells, not separate source tables.
 
 ### csharp/src/SuperMetroid.Core/Assets/BeamPaletteCatalog.cs
 
@@ -142,7 +142,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs
 
-- [ ] **BeamTileAtlas.tiles** ([L8](../csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs#L8)) - installed stock table. Original/default payload behind BeamTileAtlas.tiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **BeamTileAtlas.tiles** ([L8](../csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs#L8)) - installed stock table. Original/default payload behind BeamTileAtlas.tiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/BotwoonColorCatalog.cs
 
@@ -150,7 +150,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/BotwoonMovementSampleData.cs
 
-- [ ] **BotwoonMovementSampleData.PackedSamples** ([L15](../csharp/src/SuperMetroid.Core/Game/BotwoonMovementSampleData.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BotwoonMovementSampleData.PackedSamples** ([L15](../csharp/src/SuperMetroid.Core/Game/BotwoonMovementSampleData.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/BotwoonNavigationDefinitions.cs
 
@@ -200,21 +200,21 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/EndingFontAtlas.cs
 
-- [ ] **EndingFontAtlas.transfer** ([L6](../csharp/src/SuperMetroid.Core/Assets/EndingFontAtlas.cs#L6)) - installed stock table. Original/default payload behind EndingFontAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **EndingFontAtlas.transfer** ([L6](../csharp/src/SuperMetroid.Core/Assets/EndingFontAtlas.cs#L6)) - installed stock table. Original/default payload behind EndingFontAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs
 
-- [ ] **EndingMode7SceneArtwork.Map** ([L27](../csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs#L27)) - installed stock table. Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.
-- [ ] **EndingMode7SceneArtwork.Characters** ([L28](../csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs#L28)) - installed stock table. Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.
-- [ ] **EndingRewardIconArtwork.Transfer** ([L130](../csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs#L130)) - installed stock table. Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.
+- [x] **EndingMode7SceneArtwork.Map** ([L27](../csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs#L27)) - installed stock table. Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.
+- [x] **EndingMode7SceneArtwork.Characters** ([L28](../csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs#L28)) - installed stock table. Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.
+- [x] **EndingRewardIconArtwork.Transfer** ([L130](../csharp/src/SuperMetroid.Core/Assets/EndingMode7ArtworkCatalog.cs#L130)) - installed stock table. Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/EndingPaletteCatalog.cs
 
-- [ ] **EndingPalette.nativeBytes** ([L23](../csharp/src/SuperMetroid.Core/Assets/EndingPaletteCatalog.cs#L23)) - installed stock table. Unresolved ending palette resources only. The reviewed gunship ink/unused-color fields and logo-fade endpoint artwork are excluded; no whole-ending palette exemption.
+- [x] **EndingPalette.nativeBytes** ([L23](../csharp/src/SuperMetroid.Core/Assets/EndingPaletteCatalog.cs#L23)) - installed stock table. Unresolved ending palette resources only. The reviewed gunship ink/unused-color fields and logo-fade endpoint artwork are excluded; no whole-ending palette exemption.
 
 ### csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs
 
-- [ ] **EndingTextPresentation.resultPanel** ([L9](../csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs#L9)) - installed stock table. Original/default payload behind EndingTextPresentation.resultPanel. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **EndingTextPresentation.resultPanel** ([L9](../csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs#L9)) - installed stock table. Original/default payload behind EndingTextPresentation.resultPanel. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [x] **EndingTextPresentation.japaneseSubtitle** ([L11](../csharp/src/SuperMetroid.Core/Assets/EndingTextPresentation.cs#L11)) - installed stock table. Original/default payload behind EndingTextPresentation.japaneseSubtitle. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Frontend/EndingCreditsRomData.cs
@@ -253,8 +253,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs
 
-- [ ] **GameplayBasePaletteCatalog.initial** ([L9](../csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs#L9)) - installed stock table. Original/default payload behind GameplayBasePaletteCatalog.initial. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **GameplayBasePaletteCatalog.commonSprites** ([L10](../csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs#L10)) - installed stock table. Original/default payload behind GameplayBasePaletteCatalog.commonSprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayBasePaletteCatalog.initial** ([L9](../csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs#L9)) - installed stock table. Original/default payload behind GameplayBasePaletteCatalog.initial. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayBasePaletteCatalog.commonSprites** ([L10](../csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs#L10)) - installed stock table. Original/default payload behind GameplayBasePaletteCatalog.commonSprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs
 
@@ -281,18 +281,18 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs
 
-- [ ] **GameplayMessageNoticePresentation.notices** ([L13](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs#L13)) - installed stock table. Original/default payload behind GameplayMessageNoticePresentation.notices. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **GameplayMessageNoticePresentation.border** ([L14](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs#L14)) - installed stock table. Original/default payload behind GameplayMessageNoticePresentation.border. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayMessageNoticePresentation.notices** ([L13](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs#L13)) - installed stock table. Original/default payload behind GameplayMessageNoticePresentation.notices. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayMessageNoticePresentation.border** ([L14](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageNoticePresentation.cs#L14)) - installed stock table. Original/default payload behind GameplayMessageNoticePresentation.border. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelPresentation.cs
 
-- [ ] **GameplayMessagePanelPresentation.panels** ([L13](../csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelPresentation.cs#L13)) - installed stock table. Original/default payload behind GameplayMessagePanelPresentation.panels. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **GameplayMessagePanelPresentation.border** ([L14](../csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelPresentation.cs#L14)) - installed stock table. Original/default payload behind GameplayMessagePanelPresentation.border. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayMessagePanelPresentation.panels** ([L13](../csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelPresentation.cs#L13)) - installed stock table. Original/default payload behind GameplayMessagePanelPresentation.panels. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayMessagePanelPresentation.border** ([L14](../csharp/src/SuperMetroid.Core/Assets/GameplayMessagePanelPresentation.cs#L14)) - installed stock table. Original/default payload behind GameplayMessagePanelPresentation.border. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs
 
-- [ ] **GameplayMessageTitlePresentation.titles** ([L13](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs#L13)) - installed stock table. Original/default payload behind GameplayMessageTitlePresentation.titles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **GameplayMessageTitlePresentation.Border** ([L25](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs#L25)) - installed stock table. Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.
+- [x] **GameplayMessageTitlePresentation.titles** ([L13](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs#L13)) - installed stock table. Original/default payload behind GameplayMessageTitlePresentation.titles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **GameplayMessageTitlePresentation.Border** ([L25](../csharp/src/SuperMetroid.Core/Assets/GameplayMessageTitlePresentation.cs#L25)) - installed stock table. Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GameplayMessageDefinitions.cs
 
@@ -320,22 +320,22 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MamaTurtleShellContourDefinitions.cs
 
-- [ ] **MamaTurtleShellContourDefinitions.Offsets** ([L19](../csharp/src/SuperMetroid.Core/Game/MamaTurtleShellContourDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MamaTurtleShellContourDefinitions.Offsets** ([L19](../csharp/src/SuperMetroid.Core/Game/MamaTurtleShellContourDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Audio/ManagedPcmSample.cs
 
-- [ ] **ManagedPcmSample stock PCM sample payloads** ([L8](../csharp/src/SuperMetroid.Core/Audio/ManagedPcmSample.cs#L8)) - installed stock table. Canonical sample/waveform data indexed by sample identity and sample position. Sample-bank dictionaries and loop-entry aliases are references to this payload; authored sound content is not assumed exempt without a concrete disposition.
+- [x] **ManagedPcmSample stock PCM sample payloads** ([L8](../csharp/src/SuperMetroid.Core/Audio/ManagedPcmSample.cs#L8)) - installed stock table. Canonical sample/waveform data indexed by sample identity and sample position. Sample-bank dictionaries and loop-entry aliases are references to this payload; authored sound content is not assumed exempt without a concrete disposition.
 
 ### csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs
 
-- [ ] **SPC default FIR coefficients / fourth** ([L284](../csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs#L284)) - confirmed pending logical table. spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables.
-- [ ] **SPC default FIR coefficients / reverb** ([L284](../csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs#L284)) - confirmed pending logical table. spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables.
-- [ ] **SPC default FIR coefficients / sharp** ([L284](../csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs#L284)) - confirmed pending logical table. spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables.
-- [ ] **SPC default FIR coefficients / smooth** ([L284](../csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs#L284)) - confirmed pending logical table. spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables.
+- [x] **SPC default FIR coefficients / fourth** ([L284](../csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs#L284)) - confirmed pending logical table. spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables.
+- [x] **SPC default FIR coefficients / reverb** ([L284](../csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs#L284)) - confirmed pending logical table. spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables.
+- [x] **SPC default FIR coefficients / sharp** ([L284](../csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs#L284)) - confirmed pending logical table. spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables.
+- [x] **SPC default FIR coefficients / smooth** ([L284](../csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Music.cs#L284)) - confirmed pending logical table. spcFirPresetOwnershipReview: SPC1E32..1E51 contains four independent eight-tap defaults. Imported through SpcAudioAssetExtractor; mutable FIR RAM and later writes are not additional fixed tables.
 
 ### csharp/src/SuperMetroid.Core/Game/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.Definitions** ([L31](../csharp/src/SuperMetroid.Core/Game/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.cs#L31)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.Definitions** ([L31](../csharp/src/SuperMetroid.Core/Game/MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.cs#L31)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailCollisionDefinitions.cs
 
@@ -353,7 +353,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs
 
-- [ ] **MaridiaElevatubePlmDefinitions.Draw** ([L23](../csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MaridiaElevatubePlmDefinitions.Draw** ([L23](../csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **MaridiaElevatubePlmDefinitions.AllDraws** ([L30](../csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PlanetZebesTextPaletteFxProgramMechanicsDefinitions.cs
@@ -471,63 +471,63 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs
 
-- [ ] **RoomBackgroundTilemapAtlas.transfer** ([L11](../csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs#L11)) - installed stock table. Original/default payload behind RoomBackgroundTilemapAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **RoomBackgroundTilemapAtlas.transfer** ([L11](../csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs#L11)) - installed stock table. Original/default payload behind RoomBackgroundTilemapAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs
 
-- [ ] **RoomCharacterAtlas.planar** ([L11](../csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs#L11)) - installed stock table. Original/default payload behind RoomCharacterAtlas.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **RoomCharacterAtlas.planar** ([L11](../csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs#L11)) - installed stock table. Original/default payload behind RoomCharacterAtlas.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileAtlas.cs
 
-- [ ] **RoomFxAnimatedTileAtlas.transfer** ([L9](../csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileAtlas.cs#L9)) - installed stock table. Original/default payload behind RoomFxAnimatedTileAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **RoomFxAnimatedTileAtlas.transfer** ([L9](../csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileAtlas.cs#L9)) - installed stock table. Original/default payload behind RoomFxAnimatedTileAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/RoomMetatileAtlas.cs
 
-- [ ] **RoomMetatileAtlas.blockDefinitions** ([L15](../csharp/src/SuperMetroid.Core/Assets/RoomMetatileAtlas.cs#L15)) - installed stock table. Original/default payload behind RoomMetatileAtlas.blockDefinitions. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **RoomMetatileAtlas.blockDefinitions** ([L15](../csharp/src/SuperMetroid.Core/Assets/RoomMetatileAtlas.cs#L15)) - installed stock table. Original/default payload behind RoomMetatileAtlas.blockDefinitions. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/RoomPaletteFxPresentation.cs
 
-- [ ] **RoomPaletteFxPresentation.colors** ([L12](../csharp/src/SuperMetroid.Core/Assets/RoomPaletteFxPresentation.cs#L12)) - installed stock table. Remaining original palette payloads only. Exclude specifically completed heat, suit-loading and ending-logo fade fields; their component dispositions remain authoritative. Other effect inks/endpoints are not exempt.
+- [x] **RoomPaletteFxPresentation.colors** ([L12](../csharp/src/SuperMetroid.Core/Assets/RoomPaletteFxPresentation.cs#L12)) - installed stock table. Remaining original palette payloads only. Exclude specifically completed heat, suit-loading and ending-logo fade fields; their component dispositions remain authoritative. Other effect inks/endpoints are not exempt.
 
 ### csharp/src/SuperMetroid.Core/Assets/RoomSkyTilemapCatalog.cs
 
-- [ ] **RoomSkyTilemapCatalog.pages** ([L9](../csharp/src/SuperMetroid.Core/Assets/RoomSkyTilemapCatalog.cs#L9)) - installed stock table. Original/default payload behind RoomSkyTilemapCatalog.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **RoomSkyTilemapCatalog.pages** ([L9](../csharp/src/SuperMetroid.Core/Assets/RoomSkyTilemapCatalog.cs#L9)) - installed stock table. Original/default payload behind RoomSkyTilemapCatalog.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/RoomStaticPalette.cs
 
-- [ ] **RoomStaticPalette.nativeBytes** ([L11](../csharp/src/SuperMetroid.Core/Assets/RoomStaticPalette.cs#L11)) - installed stock table. Original/default payload behind RoomStaticPalette.nativeBytes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **RoomStaticPalette.nativeBytes** ([L11](../csharp/src/SuperMetroid.Core/Assets/RoomStaticPalette.cs#L11)) - installed stock table. Original/default payload behind RoomStaticPalette.nativeBytes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemyAuxiliaryDefinitionCatalog.cs
 
-- [ ] **RoomEnemyAuxiliaryDefinitionCatalog.Definitions** ([L12](../csharp/src/SuperMetroid.Core/Game/RoomEnemyAuxiliaryDefinitionCatalog.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemyAuxiliaryDefinitionCatalog.Definitions** ([L12](../csharp/src/SuperMetroid.Core/Game/RoomEnemyAuxiliaryDefinitionCatalog.cs#L12)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemyDefinitionCatalog.cs
 
-- [ ] **RoomEnemyDefinitionCatalog.Definitions** ([L15](../csharp/src/SuperMetroid.Core/Game/RoomEnemyDefinitionCatalog.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemyDefinitionCatalog.Definitions** ([L15](../csharp/src/SuperMetroid.Core/Game/RoomEnemyDefinitionCatalog.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment0.cs
 
-- [ ] **RoomEnemyGraphicsSetDefinitions.BuildSegment0 / literal at L7** ([L7](../csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment0.cs#L7)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemyGraphicsSetDefinitions.BuildSegment0 / literal at L7** ([L7](../csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment0.cs#L7)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment1.cs
 
-- [ ] **RoomEnemyGraphicsSetDefinitions.BuildSegment1 / literal at L7** ([L7](../csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment1.cs#L7)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemyGraphicsSetDefinitions.BuildSegment1 / literal at L7** ([L7](../csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment1.cs#L7)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment0.cs
 
-- [ ] **RoomEnemyPopulationDefinitions.BuildSegment0 / literal at L7** ([L7](../csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment0.cs#L7)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemyPopulationDefinitions.BuildSegment0 / literal at L7** ([L7](../csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment0.cs#L7)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment1.cs
 
-- [ ] **RoomEnemyPopulationDefinitions.BuildSegment1 / literal at L7** ([L7](../csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment1.cs#L7)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemyPopulationDefinitions.BuildSegment1 / literal at L7** ([L7](../csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment1.cs#L7)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment2.cs
 
-- [ ] **RoomEnemyPopulationDefinitions.BuildSegment2 / literal at L7** ([L7](../csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment2.cs#L7)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemyPopulationDefinitions.BuildSegment2 / literal at L7** ([L7](../csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment2.cs#L7)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment3.cs
 
-- [ ] **RoomEnemyPopulationDefinitions.BuildSegment3 / literal at L7** ([L7](../csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment3.cs#L7)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemyPopulationDefinitions.BuildSegment3 / literal at L7** ([L7](../csharp/src/SuperMetroid.Core/Game/RoomEnemyPopulationDefinitions.Segment3.cs#L7)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySpawnNameDefinitions.cs
 
@@ -548,11 +548,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Rooms/RoomLevelStreamDefinitions.cs
 
-- [ ] **RoomLevelStreamDefinitions.Installed stock level corpus** ([L14](../csharp/src/SuperMetroid.Core/Rooms/RoomLevelStreamDefinitions.cs#L14)) - embedded stock table. RoomLevelStreams.bin contains the canonical native level allocations keyed by source identity. Foreground collision words, BTS bytes and background words require independent field dispositions; RoomLevelData live/streaming copies are aliases, not additional tables.
+- [x] **RoomLevelStreamDefinitions.Installed stock level corpus** ([L14](../csharp/src/SuperMetroid.Core/Rooms/RoomLevelStreamDefinitions.cs#L14)) - embedded stock table. RoomLevelStreams.bin contains the canonical native level allocations keyed by source identity. Foreground collision words, BTS bytes and background words require independent field dispositions; RoomLevelData live/streaming copies are aliases, not additional tables.
 
 ### csharp/src/SuperMetroid.Core/Rooms/RoomScrollDefinitions.cs
 
-- [ ] **RoomScrollDefinitions.Definitions** ([L25](../csharp/src/SuperMetroid.Core/Rooms/RoomScrollDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomScrollDefinitions.Definitions** ([L25](../csharp/src/SuperMetroid.Core/Rooms/RoomScrollDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs
 
@@ -560,8 +560,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs
 
-- [ ] **RoomVisualLayout.foreground** ([L12](../csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs#L12)) - installed stock table. Original/default payload behind RoomVisualLayout.foreground. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **RoomVisualLayout.background** ([L13](../csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs#L13)) - installed stock table. Original/default payload behind RoomVisualLayout.background. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **RoomVisualLayout.foreground** ([L12](../csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs#L12)) - installed stock table. Original/default payload behind RoomVisualLayout.foreground. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **RoomVisualLayout.background** ([L13](../csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs#L13)) - installed stock table. Original/default payload behind RoomVisualLayout.background. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Game/SaveRamLayout.cs
 
@@ -616,7 +616,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 - [x] **SporeSpawnProjectileDefinitions.StalkYOffsets** ([L10](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileDefinitions.cs#L10)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **SporeSpawnProjectileDefinitions.SpawnerXPositions** ([L13](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileDefinitions.cs#L13)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SporeSpawnProjectileDefinitions.Movement** ([L17](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SporeSpawnProjectileDefinitions.Movement** ([L17](../csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs
 
@@ -635,19 +635,19 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/TitleGradientPresentation.cs
 
-- [ ] **TitleGradientPresentation.variants** ([L13](../csharp/src/SuperMetroid.Core/Assets/TitleGradientPresentation.cs#L13)) - installed stock table. Original/default payload behind TitleGradientPresentation.variants. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **TitleGradientPresentation.variants** ([L13](../csharp/src/SuperMetroid.Core/Assets/TitleGradientPresentation.cs#L13)) - installed stock table. Original/default payload behind TitleGradientPresentation.variants. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs
 
-- [ ] **TitleGraphicsPresentation.babyCharacters** ([L12](../csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs#L12)) - installed stock table. Original/default payload behind TitleGraphicsPresentation.babyCharacters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **TitleGraphicsPresentation.mode7Characters** ([L12](../csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs#L12)) - installed stock table. Original/default payload behind TitleGraphicsPresentation.mode7Characters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **TitleGraphicsPresentation.mode7Map** ([L12](../csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs#L12)) - installed stock table. Original/default payload behind TitleGraphicsPresentation.mode7Map. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **TitleGraphicsPresentation.objectCharacters** ([L12](../csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs#L12)) - installed stock table. Original/default payload behind TitleGraphicsPresentation.objectCharacters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **TitleGraphicsPresentation.sprites** ([L13](../csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs#L13)) - installed stock table. Original/default payload behind TitleGraphicsPresentation.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **TitleGraphicsPresentation.babyCharacters** ([L12](../csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs#L12)) - installed stock table. Original/default payload behind TitleGraphicsPresentation.babyCharacters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **TitleGraphicsPresentation.mode7Characters** ([L12](../csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs#L12)) - installed stock table. Original/default payload behind TitleGraphicsPresentation.mode7Characters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **TitleGraphicsPresentation.mode7Map** ([L12](../csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs#L12)) - installed stock table. Original/default payload behind TitleGraphicsPresentation.mode7Map. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **TitleGraphicsPresentation.objectCharacters** ([L12](../csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs#L12)) - installed stock table. Original/default payload behind TitleGraphicsPresentation.objectCharacters. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **TitleGraphicsPresentation.sprites** ([L13](../csharp/src/SuperMetroid.Core/Assets/TitleGraphicsPresentation.cs#L13)) - installed stock table. Original/default payload behind TitleGraphicsPresentation.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs
 
-- [ ] **TitlePalettePresentation.colors** ([L13](../csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs#L13)) - installed stock table. Original/default payload behind TitlePalettePresentation.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **TitlePalettePresentation.colors** ([L13](../csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs#L13)) - installed stock table. Original/default payload behind TitlePalettePresentation.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [x] **TitlePalettePresentation.animatedColors** ([L14](../csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs#L14)) - installed stock table. Original/default payload behind TitlePalettePresentation.animatedColors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/TitleSpriteDefinitions.cs
@@ -677,8 +677,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.LavaDurations** ([L36](../csharp/src/SuperMetroid.Core/Game/ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.Definitions** ([L39](../csharp/src/SuperMetroid.Core/Game/ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.LavaDurations** ([L36](../csharp/src/SuperMetroid.Core/Game/ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.Definitions** ([L39](../csharp/src/SuperMetroid.Core/Game/ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.cs
 
@@ -686,11 +686,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.Definitions** ([L42](../csharp/src/SuperMetroid.Core/Game/ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.Definitions** ([L42](../csharp/src/SuperMetroid.Core/Game/ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.All** ([L73](../csharp/src/SuperMetroid.Core/Game/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.cs#L73)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.All** ([L73](../csharp/src/SuperMetroid.Core/Game/ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.cs#L73)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ## Agent handoff
 

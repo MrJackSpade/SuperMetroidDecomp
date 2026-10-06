@@ -1,4 +1,5 @@
 using Android.App;
+using SuperMetroid.Desktop;
 
 namespace SuperMetroid.Android;
 
@@ -17,7 +18,7 @@ public sealed partial class MainActivity
         menuOpen = true;
         session.SetActive(false);
         new AlertDialog.Builder(this)
-            .SetTitle($"Testing tools - slot {selectedSlot}")!
+            .SetTitle($"Testing tools - slot {DebuggerSaveStateStore.SlotName(selectedSlot)}")!
             .SetItems(new[] { "Resume", "Choose state slot", "Save state", "Load state", "INI settings (next launch)", "Controller bindings", "Export private diagnostics", "Import debugger state", "Import regular save (next launch)" }, (_, args) =>
             {
                 menuOpen = false;
@@ -42,7 +43,7 @@ public sealed partial class MainActivity
     {
         menuOpen = true;
         new AlertDialog.Builder(this).SetTitle("Debugger state slot")!
-            .SetSingleChoiceItems(Enumerable.Range(0, 10).Select(slot => $"Slot {slot}").ToArray(), selectedSlot,
+            .SetSingleChoiceItems(Enumerable.Range(0, DebuggerStateFormat.AutomaticSlot + 1).Select(slot => $"Slot {DebuggerSaveStateStore.SlotName(slot)}").ToArray(), selectedSlot,
                 (sender, args) =>
                 {
                     selectedSlot = args.Which;

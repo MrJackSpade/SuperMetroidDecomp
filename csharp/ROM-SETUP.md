@@ -1323,3 +1323,9 @@ unequipped. Saving retains the granted inventory after the option is turned off.
 bosses or setting their defeat flags. It does not teleport Samus or skip Tourian's
 rooms or Mother Brain's encounter. Both settings are preserved in input recordings
 and excluded from attract demos.
+
+### Door-transition recovery states
+
+`[Game] DoorTransitionAutosave=true` saves a recovery state after each completed door transition on Windows and Android. It also defaults to true when absent from an existing INI. Set it to false and restart to disable new autosaves.
+
+Choose `auto` in the existing state-slot selector and use **Load State**. The file is `debug-states/SuperMetroid-debug-slot-auto.smstate` under the player-data directory, beside the numbered states; attach it for diagnostic handoff. It is separate from manual slots 0–9. Each completed write atomically replaces the previous auto state; failed writes retain the last valid state and log the exception. Playback replays do not autosave.

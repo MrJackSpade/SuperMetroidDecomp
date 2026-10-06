@@ -11,6 +11,8 @@ internal static class AndroidFileImport
     /// <summary>Imports a state into an installed game without opening its private ROM.</summary>
     public static string ImportState(string root, string source, int slot)
     {
+        if (slot == DebuggerStateFormat.AutomaticSlot)
+            return "The auto slot is reserved for door transitions. Choose a numbered slot (0-9) to import a state.";
         var installation = new SuperMetroid.AssetExtraction.GameInstallation(root);
         var contentIdentity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(
             installation.LoadAudio(),

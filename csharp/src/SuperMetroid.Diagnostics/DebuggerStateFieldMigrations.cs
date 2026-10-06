@@ -21,6 +21,9 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SuperMetroidGameOptions) && current.Length == 15 && count is 9 or 11 or 13 or 14)
+            return SelectSerializedFields(type, current.Where(field => field.Name !=
+                "<DoorTransitionAutosave>k__BackingField").ToArray(), count);
         if (type == typeof(TorizoEnemyState) && count == current.Length - 1 &&
             current.Any(field => field.Name == "<PaletteTransition>k__BackingField"))
         {
@@ -621,6 +624,9 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Initializes fields omitted by explicitly recognized legacy layouts.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance is SuperMetroidGameOptions && serializedCount < 15)
+            typeof(SuperMetroidGameOptions).GetField("<DoorTransitionAutosave>k__BackingField",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(instance, true);
         if (instance is SamusHorizontalSpeedState speed && serializedCount ==
             GetCurrentInstanceFieldCount(typeof(SamusHorizontalSpeedState)) - 1)
             speed.EchoSoundFlag = (speed.SpeedBoostCounter & SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage) != 0

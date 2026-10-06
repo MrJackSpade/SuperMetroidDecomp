@@ -254,8 +254,14 @@ internal sealed class AndroidSessionData : IDisposable
     public string ImportSave(string path) =>
         AndroidFileImport.StageRegularSave(root, path);
 
+    public void SaveCompletedDoor(SuperMetroidGameState previousState) =>
+        DoorTransitionAutosave.TrySave(Options.DoorTransitionAutosave, replay: false,
+            previousState, states, Bus, Game, Audio.Player);
+
     public string SaveSlot(int slot)
     {
+        if (slot == DebuggerStateFormat.AutomaticSlot)
+            return "The auto slot is written at completed door transitions. Select 0-9 for a manual save.";
         DebuggerSaveStateMetadata metadata = states.Save(slot, Bus, Game, Audio.Player);
         FlushRecording();
         return $"Saved slot {slot}, frame {metadata.FrameNumber}, room {metadata.RoomPointer:X4}.";
@@ -264,7 +270,7 @@ internal sealed class AndroidSessionData : IDisposable
     public string LoadSlot(int slot)
     {
         if (!states.TryLoad(slot, out DebuggerSaveStateLoadResult loaded))
-            return $"Slot {slot} is empty. No state to load.";
+            return $"Slot {DebuggerSaveStateStore.SlotName(slot)} is empty. No state to load.";
         if (loaded.AudioPlayer is null)
             throw new InvalidDataException("This state has no managed audio graph; cannot resume its audio accurately.");
 
@@ -330,7 +336,7 @@ internal sealed class AndroidSessionData : IDisposable
         string seed = Path.ChangeExtension(recorder.Path, ".seed.smstate");
         File.Copy(states.GetSlotPath(slot), seed, overwrite: false);
         WriteRecordingMetadata(Path.GetFileName(seed));
-        return $"Loaded slot {slot}, frame {loaded.Metadata.FrameNumber}." +
+        return $"Loaded slot {DebuggerSaveStateStore.SlotName(slot)}, frame {loaded.Metadata.FrameNumber}." +
             (loaded.Warnings.Count == 0 ? "" : "\nWARNING: " + string.Join("\n", loaded.Warnings));
     }
 

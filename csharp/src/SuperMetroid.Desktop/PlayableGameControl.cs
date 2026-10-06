@@ -100,12 +100,13 @@ public sealed partial class PlayableGameControl : UserControl
         var stateSlot = new ToolStripComboBox
         {
             AutoSize = false,
-            Width = 48,
+            Width = 60,
             DropDownStyle = ComboBoxStyle.DropDownList,
-            ToolTipText = "Debugger save-state slot (0-9)",
+            ToolTipText = "Debugger state: manual slots 0-9 or automatic door recovery",
         };
         for (int slot = 0; slot < 10; slot++)
             stateSlot.Items.Add(slot.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        stateSlot.Items.Add("auto");
         stateSlot.SelectedIndex = 0;
         var saveStateButton = new ToolStripButton("Save State")
         {
@@ -162,6 +163,8 @@ public sealed partial class PlayableGameControl : UserControl
             SaveDebuggerState(stateSlot.SelectedIndex);
             canvas.Focus();
         };
+        stateSlot.SelectedIndexChanged += (_, _) =>
+            saveStateButton.Enabled = replay is null && stateSlot.SelectedIndex != DebuggerStateFormat.AutomaticSlot;
         loadStateButton.Click += async (_, _) =>
         {
             await LoadDebuggerState(stateSlot.SelectedIndex);
@@ -433,24 +436,27 @@ public sealed partial class PlayableGameControl : UserControl
         if (replay is not null)
             throw new InvalidOperationException("Debugger states are disabled during an input replay.");
 
-        // Probe the slot before stopping playback or disposing the current recorder/audio
-        // graph. An empty slot is a normal ten-slot UI state, not a runtime failure, and the
-        // live game must remain fully usable after the informational message is dismissed.
-        if (!stateStore.TryLoad(slot, out DebuggerSaveStateLoadResult loaded))
+        // Decode and check compatibility before changing the live game or its audio.
+        DebuggerSaveStateLoadResult loaded;
+        try
         {
-            statusLabel.Text = $"state slot {slot} is empty";
-            MessageBox.Show(
-                this,
-                $"Debugger save-state slot {slot} is empty.",
-                "Load State",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            if (!stateStore.TryLoad(slot, out loaded))
+            {
+                statusLabel.Text = $"state slot {DebuggerSaveStateStore.SlotName(slot)} is empty";
+                Console.Error.WriteLine($"Debugger save-state slot {DebuggerSaveStateStore.SlotName(slot)} is empty: {stateStore.GetSlotPath(slot)}");
+                canvas.Focus();
+                return;
+            }
+            if (gpuWorker is not null && loaded.Game.GetRetainedDisplay(displaySequence + 1, displayGeneration + 1) is null)
+                throw new NotSupportedException("This debugger state contains legacy pixels, not a captured scene. Load it with Renderer=Software.");
+        }
+        catch (Exception exception)
+        {
+            statusLabel.Text = $"state slot {DebuggerSaveStateStore.SlotName(slot)} could not load: {exception.Message}";
+            Console.Error.WriteLine(exception.ToString());
             canvas.Focus();
             return;
         }
-
-        if (gpuWorker is not null && loaded.Game.GetRetainedDisplay(displaySequence + 1, displayGeneration + 1) is null)
-            throw new NotSupportedException("This debugger state contains legacy pixels, not a captured scene. Load it with Renderer=Software.");
 
         bool resumePlayback = playbackTimer.Enabled;
         SetPlaying(playing: false);
@@ -557,7 +563,7 @@ public sealed partial class PlayableGameControl : UserControl
         RefreshFrame(pendingDisplay is not null ? game.CurrentFrameMetadata : game.CurrentFrame);
         statusLabel.Text =
             (loaded.Warnings.Count != 0 ? "WARNING: state compatibility differs | " : "") +
-            $"loaded state {slot} | frame {loaded.Metadata.FrameNumber} | " +
+            $"loaded state {DebuggerSaveStateStore.SlotName(slot)} | frame {loaded.Metadata.FrameNumber} | " +
             FormatStateRoom(loaded.Metadata.RoomPointer, loaded.Metadata.RoomStatePointer);
         SetPlaying(resumePlayback);
     }
@@ -679,6 +685,7 @@ public sealed partial class PlayableGameControl : UserControl
             inputRecorder?.RecordFrame(input);
         }
         string beforeFrameContext = game.CaptureGameplayFailureContext();
+        var previousGameState = game.GameState;
         try
         {
             long frameStarted = Stopwatch.GetTimestamp();
@@ -710,6 +717,8 @@ public sealed partial class PlayableGameControl : UserControl
                         InputRecordingPath: inputRecorder?.Path)) ?? "audio failure (see console; GitHub reporting disabled)";
                 });
             }
+            DoorTransitionAutosave.TrySave(gameOptions.DoorTransitionAutosave, replay is not null,
+                previousGameState, stateStore, addressSpace, game, audioEngine?.Player);
             frameTimings.RecordEmulatedFrame(Stopwatch.GetTimestamp() - frameStarted);
             PublishGpuDisplay();
             return frame;

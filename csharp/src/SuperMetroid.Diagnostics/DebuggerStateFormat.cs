@@ -13,6 +13,8 @@ internal static class DebuggerStateFormat
     /// <summary>Version five adds the bounded named-presentation-catalog identity table.</summary>
     public const int CurrentVersion = 5;
     public const int SlotCount = 10;
+    /// <summary>Separate recovery slot; numbered manual slots remain zero through nine.</summary>
+    public const int AutomaticSlot = SlotCount;
     public const int GuidBytes = 16;
     public const int DigestBytes = 32;
 }

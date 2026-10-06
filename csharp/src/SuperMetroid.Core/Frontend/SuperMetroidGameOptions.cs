@@ -53,6 +53,9 @@ public sealed record SuperMetroidGameOptions
     /// <summary>Resets bosses and persistent enemy encounters outside Tourian when loading a regular save.</summary>
     public bool ResetBossesOnLoad { get; init; }
 
+    /// <summary>Preserves a separate recovery state after each completed door transition.</summary>
+    public bool DoorTransitionAutosave { get; init; } = true;
+
     /// <summary>Lets Ceres and Zebes escape countdowns run normally, but holds them at 00:01.00 instead of expiring.</summary>
     public bool PreventEscapeTimeout { get; init; }
 
@@ -121,6 +124,7 @@ public static partial class SuperMetroidGameOptionsIni
         bool? grantAllEquipment = null;
         bool? unlockTourian = null;
         bool? resetBossesOnLoad = null;
+        bool? doorTransitionAutosave = null;
         bool? preventEscapeTimeout = null;
         ushort? endingTimeOverrideMinutes = null;
         bool endingTimeOverrideSeen = false;
@@ -212,6 +216,13 @@ public static partial class SuperMetroidGameOptionsIni
                     if (grantAllEquipment.HasValue)
                         throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
                     grantAllEquipment = ParseBoolean(sourceName, lineNumber, key, value);
+                    continue;
+                }
+                if (key.Equals(nameof(SuperMetroidGameOptions.DoorTransitionAutosave), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (doorTransitionAutosave.HasValue)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    doorTransitionAutosave = ParseBoolean(sourceName, lineNumber, key, value);
                     continue;
                 }
                 if (key.Equals(nameof(SuperMetroidGameOptions.ResetBossesOnLoad), StringComparison.OrdinalIgnoreCase))
@@ -330,6 +341,7 @@ public static partial class SuperMetroidGameOptionsIni
             GrantAllEquipment = grantAllEquipment ?? false,
             UnlockTourian = unlockTourian ?? false,
             ResetBossesOnLoad = resetBossesOnLoad ?? false,
+            DoorTransitionAutosave = doorTransitionAutosave ?? true,
             PreventEscapeTimeout = preventEscapeTimeout ?? false,
             EndingTimeOverrideMinutes = endingTimeOverrideMinutes,
             MapReveal = mapReveal ?? MapRevealMode.None,

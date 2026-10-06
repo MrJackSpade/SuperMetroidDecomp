@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Text.Json;
+using SuperMetroid.Desktop;
 
 namespace SuperMetroid.Android;
 
@@ -12,8 +13,7 @@ internal static class AndroidDiagnosticBundle
 {
     public static string Create(string root, string destination, int slot)
     {
-        if (slot is < 0 or > 9) throw new ArgumentOutOfRangeException(nameof(slot));
-        string state = $"debug-states/SuperMetroid-debug-slot-{slot}.smstate";
+        string state = $"debug-states/SuperMetroid-debug-slot-{DebuggerSaveStateStore.SlotName(slot)}.smstate";
         var files = new List<string>();
         foreach (string name in new[] { "SuperMetroid.save.json", "SuperMetroid.save.json.bak",
             "SuperMetroid.ini", "controller-bindings.json", "last-error.txt", "timing.log", "resume-timing.log", "frame-handoff.log", "input-events.log", state })

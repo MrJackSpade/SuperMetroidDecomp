@@ -139,6 +139,7 @@ internal sealed class AndroidGameSession
                 data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());
                 ushort input = Input.Sample();
                 data.Record(input);
+                var previousGameState = data.Game.GameState;
                 CapturedFrontendFrame frame = data.Game.StepCaptured(input, ++sequence, data.Generation);
                 view.SetRoomIdentity(data.Game.GameplayActiveAreaIndex is { } area && data.Game.GameplayActiveRoomIndex is { } room
                     ? $"Room ${(byte)area:X2}/${room:X2} [$8F:{data.Game.GameplayActiveRoomPointer:X4}, state $8F:{data.Game.GameplayActiveRoomStatePointer:X4}]"
@@ -152,6 +153,8 @@ internal sealed class AndroidGameSession
                     for (int i = 0; i < samples.Length; i++) samples[i] = (short)(samples[i] * options.MasterVolumePercent / 100);
                 double mixed = clock.Elapsed.TotalMilliseconds;
                 output?.Submit(samples);
+                data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());
+                data.SaveCompletedDoor(previousGameState);
                 double submitted = clock.Elapsed.TotalMilliseconds;
                 if (resumeTrace is { Full: false })
                     resumeTrace.Record("frame", $"sequence={sequence} startMs={start:F3} endMs={submitted:F3} " +

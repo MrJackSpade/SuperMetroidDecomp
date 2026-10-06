@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 486,
+  "remainingTableDefinitionCount": 485,
   "fileCount": 523,
   "entries": [
     {
@@ -2005,12 +2005,15 @@
   "disposition": "Mixed complete: landing compression and recovery coordinates derive named real-pose graphics origins, with facing aliases and inactive padding. Retain only90:8D38 PLB opcode AB observed by final unaligned word; deriving unrelated native instruction content from geometry would be nonsense. Exact17-byte boundary, independent edits and wrapped rendering observations preserved."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
-      "line": 30,
-      "name": "SamusBodyArtworkCatalog.postureYOffsets",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind SamusBodyArtworkCatalog.postureYOffsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
+  "line": 30,
+  "name": "SamusBodyArtworkCatalog.postureYOffsets",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind SamusBodyArtworkCatalog.postureYOffsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "600acef09",
+  "disposition": "Mixed complete: all24 offsets derive source opaque support, destination graphics origin, full eight-frame rolling support envelope, named phases/padding/facing aliases. Retain only exact standing join -1 and second-unmorph join +1 as selected visual continuity; equal-radius transition consumers do not shift physical Y. No timing/pixel/physics exemption. Independently supplied offsets remain exact under edited or unavailable artwork; zero stock fallbacks."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
       "line": 31,
@@ -21616,5 +21619,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 42
+  "justifiedRetainedSinceSnapshot": 43
 }

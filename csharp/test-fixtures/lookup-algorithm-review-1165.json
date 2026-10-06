@@ -11954,4 +11954,13 @@
   ],
   "confirmation": "Root Verification25warnings/0errors;Audit0/0;17native bytes,16unaligned windows,41independent landing/posture edits,16actual Draw positions and physical-Y isolation pass.",
   "workerCommit": "759f16603"
+},"samusPostureOffsetsComplete":{
+  "completed": [
+    "SamusBodyArtworkCatalog.postureYOffsets"
+  ],
+  "disposition": [
+    "Mixed complete: all24 offsets derive source opaque support, destination graphics origin, full eight-frame rolling support envelope, named phases/padding/facing aliases. Retain only exact standing join -1 and second-unmorph join +1 as selected visual continuity; equal-radius transition consumers do not shift physical Y. No timing/pixel/physics exemption. Independently supplied offsets remain exact under edited or unavailable artwork; zero stock fallbacks."
+  ],
+  "workerCommit": "600acef09",
+  "confirmation": "Root Verification1452existing warnings/0errors;Audit0/0;24native defaults/zero stock fallbacks,24independent offset edits,12actual Draw cases and empty/pointer/blank/shifted-art independence pass; prior landing check passes."
 }}

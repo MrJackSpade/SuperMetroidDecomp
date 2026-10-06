@@ -103,10 +103,6 @@ public sealed partial class SamusBodyArtworkCatalog
                 ? SamusBodyPlacementDefinitions.DefaultLandingByte(index)
                 : landingYOffsets[SamusBodyPlacementDefinitions.LandingSourceIndex(index)]))
             .ToDictionary(index => index, index => landingYOffsets[index]);
-        this.postureYOffsets = Enumerable.Range(0, postureYOffsets.Length)
-            .Where(index => SamusBodyPlacementDefinitions.PostureSourceIndex(index) == index ||
-                postureYOffsets[index] != postureYOffsets[SamusBodyPlacementDefinitions.PostureSourceIndex(index)])
-            .ToDictionary(index => index, index => postureYOffsets[index]);
         this.drainedYOffsets = (sbyte[])drainedYOffsets.Clone();
         byte[] components = frames.SelectMany(frame => new byte[] { frame.TopSet, frame.TopPosition, frame.BottomSet, frame.BottomPosition }).ToArray();
         this.frames = Enumerable.Range(0, components.Length)
@@ -123,6 +119,11 @@ public sealed partial class SamusBodyArtworkCatalog
         SamusBodyDefinitionLayout.ValidateCompleteGroups(topPointers, bottomPointers, this.top, this.bottom);
         IndexDefinitions(true, this.top);
         IndexDefinitions(false, this.bottom);
+        this.postureYOffsets = Enumerable.Range(0, postureYOffsets.Length)
+            .Where(index => SamusBodyPlacementDefinitions.PostureSourceIndex(index) == index
+                ? !SamusBodyPlacementDefinitions.TryDefaultPostureByte(this, index, out sbyte calculated) || postureYOffsets[index] != calculated
+                : postureYOffsets[index] != postureYOffsets[SamusBodyPlacementDefinitions.PostureSourceIndex(index)])
+            .ToDictionary(index => index, index => postureYOffsets[index]);
         foreach (ushort pointer in posePointers)
             if (pointer < FirstFrameOffset ||
                 pointer >= FrameEndOffset ||
@@ -148,7 +149,10 @@ public sealed partial class SamusBodyArtworkCatalog
         ? value : SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index
             ? SamusBodyPlacementDefinitions.DefaultLandingByte(index) : LandingByte(SamusBodyPlacementDefinitions.LandingSourceIndex(index));
     private sbyte PostureByte(int index) => postureYOffsets.TryGetValue(index, out sbyte value)
-        ? value : postureYOffsets[SamusBodyPlacementDefinitions.PostureSourceIndex(index)];
+        ? value : SamusBodyPlacementDefinitions.PostureSourceIndex(index) != index
+            ? PostureByte(SamusBodyPlacementDefinitions.PostureSourceIndex(index))
+            : SamusBodyPlacementDefinitions.TryDefaultPostureByte(this, index, out sbyte calculated)
+                ? calculated : throw new InvalidDataException("Selected posture geometry no longer supplies its installed offset.");
 
     public bool TryLandingYOffset(int index, out ushort value)
     {

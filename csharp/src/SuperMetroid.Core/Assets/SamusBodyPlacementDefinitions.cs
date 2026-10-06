@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Native facing-pair layout for Samus's landing and transition visual offsets.</summary>
+/// <summary>Calculated pose-origin and selected-glyph support relationships for Samus landing and posture transitions.</summary>
 internal static class SamusBodyPlacementDefinitions
 {
     /// <summary>
@@ -46,7 +46,134 @@ internal static class SamusBodyPlacementDefinitions
             : spin ? Game.SamusPoseId.SpinLandingRightPose : Game.SamusPoseId.NormalLandingRightPose;
         return unchecked((byte)DefaultGraphicsYOffset((byte)pose));
     }
-    /// <summary>Transition left-facing copies use their right-facing row; each first-facing coordinate remains REQUIRED.</summary>
+    /// <summary>$90:8D8C: selected standing-transition join one pixel above its destination support; narrowly retained visual composition.</summary>
+    private const int StandingSupportJoin = -1;
+    /// <summary>$90:8D91: selected second-unmorph join one pixel below crouching support; narrowly retained visual composition.</summary>
+    private const int UnmorphSupportJoin = 1;
+
+    /// <summary>$91:B378: eight ordinary Morph Ball rolling frames before the loop command; both facing sequences share this domain.</summary>
+    private const int RollingSupportFrames = 8;
+    /// <summary>$90:8D80..8D97: align each selected transition's opaque support to its destination pose.</summary>
+    /// <remarks>Unavailable or independently edited non-body geometry remains supplied content rather than narrowing the editable schema.</remarks>
+    internal static bool TryDefaultPostureByte(SamusBodyArtworkCatalog art, int index, out sbyte value)
+    {
+        int source = PostureSourceIndex(index);
+        var pose = (Game.SamusPoseId)((byte)Game.SamusPoseId.CrouchingTransitionRightPose + source / PosturePoseBytes);
+        int frame = source % PosturePoseBytes;
+        Game.SamusPoseId target;
+        bool sourceBottom;
+        int join = 0;
+        switch (pose)
+        {
+            case Game.SamusPoseId.CrouchingTransitionRightPose:
+                if (frame != 0) { value = 0; return true; }
+                target = Game.SamusPoseId.CrouchingRightPose; sourceBottom = true;
+                break;
+            case Game.SamusPoseId.StandingTransitionRightPose:
+                if (frame != 0) { value = 0; return true; }
+                target = Game.SamusPoseId.FacingRightNormalPose; sourceBottom = true; join = StandingSupportJoin;
+                break;
+            case Game.SamusPoseId.MorphingTransitionRightPose:
+                target = Game.SamusPoseId.MorphBallGroundRightPose; sourceBottom = false;
+                break;
+            case Game.SamusPoseId.UnmorphingTransitionRightPose:
+                target = Game.SamusPoseId.CrouchingRightPose; sourceBottom = false;
+                join = frame == 1 ? UnmorphSupportJoin : 0;
+                break;
+            default:
+                value = 0; return true;
+        }
+        value = 0;
+        try
+        {
+            bool targetBottom = target != Game.SamusPoseId.MorphBallGroundRightPose;
+            if (!TryOpaqueBottom(art, (byte)pose, (ushort)frame, sourceBottom, out int sourceY) ||
+                !TryOpaqueBottom(art, (byte)target, 0, targetBottom, out int targetY)) return false;
+            if (!targetBottom)
+            {
+                // Rolling frames bob by one pixel in either direction. Align the
+                // incoming morph to the support envelope, independent of facing's
+                // initial rolling phase, rather than selecting a sampled target Y.
+                for (ushort phase = 1; phase < RollingSupportFrames; phase++)
+                {
+                    if (!TryOpaqueBottom(art, (byte)target, phase, false, out int phaseBottom)) return false;
+                    targetY = Math.Max(targetY, phaseBottom);
+                }
+            }
+            int offset = targetY - art.GraphicsYOffset((byte)target) - sourceY + join;
+            if (offset < sbyte.MinValue || offset > sbyte.MaxValue) return false;
+            value = (sbyte)offset;
+            return true;
+        }
+        catch (InvalidDataException)
+        {
+            // Edited frame identities may be admitted by the document yet unavailable
+            // until selected for drawing. Preserve the supplied offset independently.
+            return false;
+        }
+    }
+
+    private static bool TryOpaqueBottom(SamusBodyArtworkCatalog art, byte pose, ushort frame,
+        bool drawBottom, out int bottom)
+    {
+        int windowBytes = 2 * (Game.SamusRenderingRomData.TileTransfers.BottomDestinations.Second -
+            Game.SamusRenderingRomData.TileTransfers.TopDestinations.First) + SamusBodyArtworkCatalog.BytesPerDefinitionSlot;
+        Span<byte> pixels = stackalloc byte[windowBytes];
+        Span<bool> defined = stackalloc bool[windowBytes];
+        pixels.Clear(); defined.Clear();
+        SamusBodyFrameSelection selected = art.Frame(pose, frame);
+        Upload(art.GetDefinition(true, selected.TopSet, selected.TopPosition),
+            Game.SamusRenderingRomData.TileTransfers.TopDestinations, pixels, defined);
+        if (selected.BottomSet != Game.SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
+            Upload(art.GetDefinition(false, selected.BottomSet, selected.BottomPosition),
+                Game.SamusRenderingRomData.TileTransfers.BottomDestinations, pixels, defined);
+        bottom = int.MinValue;
+        for (int half = 0; half < (drawBottom ? 2 : 1); half++)
+        {
+            int baseIndex = half == 0 ? art.Spritemaps.TopBase(pose) : art.Spritemaps.BottomBase(pose);
+            int index = baseIndex + frame;
+            if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount ||
+                !art.Spritemaps.TryGet((ushort)index, out SamusSpritemapDefinition? map)) return false;
+            foreach (SamusSpritePart part in map!.Parts)
+            {
+                int size = (part.X & 0x8000) != 0 ? 16 : 8;
+                var attributes = new Hardware.SnesObjAttributeWord(part.Attributes);
+                if (attributes.TileNumber >= 256) return false;
+                for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    int sx = attributes.FlipHorizontally ? size - 1 - x : x;
+                    int sy = attributes.FlipVertically ? size - 1 - y : y;
+                    int tile = (attributes.TileNumber + (sy / 8) * 16 + sx / 8) & 255;
+                    int row = tile * 32 + (sy % 8) * 2;
+                    int mask = 128 >> (sx % 8);
+                    bool opaque = false;
+                    for (int plane = 0; plane < 4; plane++)
+                    {
+                        int at = row + plane % 2 + plane / 2 * 16;
+                        if ((uint)at >= pixels.Length || !defined[at]) return false;
+                        opaque |= (pixels[at] & mask) != 0;
+                    }
+                    if (opaque) bottom = Math.Max(bottom, unchecked((sbyte)part.Y) + y);
+                }
+            }
+        }
+        return bottom != int.MinValue;
+
+        static void Upload(SamusBodyTileDefinition definition,
+            Game.SamusRenderingRomData.TileTransfers.SplitVramDestinations destination,
+            Span<byte> data, Span<bool> coverage)
+        {
+            ReadOnlySpan<byte> source = definition.Planar.Span;
+            int firstByte = Game.SamusRenderingRomData.TileTransfers.TopDestinations.First * 2;
+            int first = destination.First * 2 - firstByte, second = destination.Second * 2 - firstByte;
+            source[..definition.FirstSize].CopyTo(data[first..]);
+            coverage.Slice(first, definition.FirstSize).Fill(true);
+            source[definition.FirstSize..].CopyTo(data[second..]);
+            coverage.Slice(second, definition.SecondSize).Fill(true);
+        }
+    }
+    /// <summary>Transition left-facing copies use their right-facing row; source defaults derive from selected support geometry.</summary>
     internal static int PostureSourceIndex(int index)
     {
         if ((uint)index >= PostureDataBytes) throw new ArgumentOutOfRangeException(nameof(index));

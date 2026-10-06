@@ -616,6 +616,67 @@ internal static partial class Program
         Console.WriteLine("Body graphics origins:253 direct native/default values, zero stock overrides,253 independent visual edits isolated from physics and hash/bounds checks pass.");
     }
 
+    private static void VerifyLookupStream1PostureGeometry(ISnesAddressSpace rom)
+    {
+        string directory = Path.GetFullPath("csharp/test-temp/posture-geometry-native");
+        SamusBodyArtworkFiles.Extract(rom, directory, SupportedCartridge.Sha256);
+        SamusBodyArtworkCatalog stock = SamusBodyArtworkFiles.Load(directory, null);
+        sbyte[] native = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)rom.ReadByte(0x908d80 + index))).ToArray();
+        var field = typeof(SamusBodyArtworkCatalog).GetField("postureYOffsets",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        int Stored(SamusBodyArtworkCatalog art) => ((Dictionary<int, sbyte>)field.GetValue(art)!).Count;
+        SamusBodyArtworkCatalog Create(sbyte[] offsets, SamusSpritemapArtworkCatalog? maps = null,
+            SamusBodyTileDefinition[][]? upper = null, SamusBodyTileDefinition[][]? lower = null) => new(
+            stock.TopSetPointers.ToArray(), stock.BottomSetPointers.ToArray(), stock.PosePointers.ToArray(),
+            stock.GraphicsYOffsets.ToArray(), stock.Frames.ToArray(),
+            upper ?? Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => stock.TopSet(index).ToArray()).ToArray(),
+            lower ?? Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => stock.BottomSet(index).ToArray()).ToArray(),
+            maps ?? stock.Spritemaps, stock.Atmosphere, stock.DeathPalettes, stock.DeathTiles, stock.ArmCannon,
+            stock.LandingYOffsets.ToArray(), offsets, stock.DrainedYOffsets.ToArray());
+        AssertEqual(0, Stored(stock), "Native posture uses no stored offset fallback: " + string.Join(", ", ((Dictionary<int, sbyte>)field.GetValue(stock)!).Select(pair => pair.Key + " native=" + pair.Value + " derived=" + (SamusBodyPlacementDefinitions.TryDefaultPostureByte(stock, pair.Key, out sbyte calculated) ? calculated.ToString() : "unavailable"))));
+        for (int index = 0; index < 24; index++)
+        {
+            AssertTrue(SamusBodyPlacementDefinitions.TryDefaultPostureByte(stock, index, out sbyte direct), "Every native posture has a derived default");
+            AssertEqual(native[index], direct, "Direct native support-aligned offset");
+            sbyte[] changed = (sbyte[])native.Clone(); changed[index] ^= 1;
+            var edited = Create(changed);
+            AssertTrue(edited.PostureYOffsets.SequenceEqual(changed), "Every independent posture edit remains exact");
+            AssertTrue(edited.ContentIdentity != stock.ContentIdentity, "Posture edit changes selected identity");
+        }
+        foreach (byte pose in new byte[] { 0x35, 0x36, 0x37, 0x38, 0x3b, 0x3c, 0x3d, 0x3e })
+        {
+            int count = pose is 0x35 or 0x36 or 0x3b or 0x3c ? 1 : 2;
+            for (ushort frame = 0; frame < count; frame++)
+            {
+                var samus = new SamusState { Pose = pose, AnimationFrame = frame, XPosition = 128, YPosition = 128 };
+                samus.TileTransfers.BindArtwork(stock);
+                samus.Draw(rom, new OamBuffer(), 0, 0);
+                AssertEqual(unchecked((ushort)(128 + native[(pose - 0x35) * 2 + frame])), samus.SpritemapYPosition,
+                    "Actual transition rendering preserves native support correction");
+                AssertEqual((ushort)128, samus.YPosition, "Posture art never mutates physical center");
+            }
+        }
+        var emptyMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
+            stock.Spritemaps.Pointers.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer, [])).ToArray());
+        var empty = Create(native, emptyMaps);
+        AssertTrue(empty.PostureYOffsets.SequenceEqual(native), "Supplied empty art preserves all independent offsets");
+        var zeroPointers = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
+            new ushort[SamusSpritemapArtworkCatalog.PointerCount], []);
+        AssertTrue(Create(native, zeroPointers).PostureYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
+        SamusBodyTileDefinition[][] Blank(bool top) => Enumerable.Range(0, top ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount)
+            .Select(set => (top ? stock.TopSet(set) : stock.BottomSet(set)).ToArray().Select(definition =>
+                new SamusBodyTileDefinition(definition.SourceAddress, definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
+        var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
+        AssertTrue(blankPixels.PostureYOffsets.SequenceEqual(native), "Independently blank PNG pixels preserve original offsets");
+        ushort changedPointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(0x37)];
+        var shiftedMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
+            stock.Spritemaps.Pointers.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer,
+                map.Pointer == changedPointer ? map.Parts.Select(part => part with { Y = unchecked((byte)(part.Y + 1)) }).ToArray() : map.Parts)).ToArray());
+        var shifted = Create(native, shiftedMaps);
+        AssertTrue(shifted.PostureYOffsets.SequenceEqual(native), "Changed source support does not couple independent offset edits");
+        AssertTrue(Stored(shifted) > 0, "Edited source geometry stores explicit independent differences");
+        Console.WriteLine("Posture geometry:24 direct native defaults, zero stock fallbacks,24 offset edits,12 actual draw cases and empty/pointer/pixel/shifted-art independence pass.");
+    }
     private static void VerifyLookupStream1BodyFacingOffsets(ISnesAddressSpace rom)
     {
         ushort[] landing = Enumerable.Range(0, 17).Select(index => (ushort)rom.ReadByte(0x908d28 + index)).ToArray();
@@ -631,9 +692,9 @@ internal static partial class Program
         SamusBodyArtworkCatalog stock = Create(landing, posture);
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         var landingBasis = (Dictionary<int, ushort>)typeof(SamusBodyArtworkCatalog).GetField("landingYOffsets", flags)!.GetValue(stock)!;
-        var postureBasis = (Dictionary<int, sbyte>)typeof(SamusBodyArtworkCatalog).GetField("postureYOffsets", flags)!.GetValue(stock)!;
+
         AssertEqual(0, landingBasis.Count, "Landing stock stores no coordinate or instruction-byte overrides");
-        AssertEqual(12, postureBasis.Count, "Posture retains twelve first-facing coordinates only");
+        // This synthetic fixture supplies independent artwork; direct native geometry is confirmed separately.
         for (int index = 0; index < landing.Length; index++)
         {
             int source = index is >= 4 and < 8 or >= 12 and < 16 ? index - 4 : index;
@@ -646,7 +707,7 @@ internal static partial class Program
             int source = (index & 2) != 0 ? index - 2 : index;
             AssertEqual(source, SamusBodyPlacementDefinitions.PostureSourceIndex(index), "Native transition facing row alias");
             AssertEqual(posture[index], posture[source], "Direct native posture facing equality");
-            AssertEqual(source == index, postureBasis.ContainsKey(index), "Exact required posture basis domain");
+
         }
         void Check(SamusBodyArtworkCatalog catalog, ushort[] expectedLanding, sbyte[] expectedPosture)
         {

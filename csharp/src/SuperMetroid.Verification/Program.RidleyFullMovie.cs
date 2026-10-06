@@ -877,6 +877,17 @@ internal static partial class Program
             Check("Samus vertical fraction", samus.Kinematics.YSubspeed, RidleyMovieMemory.VerticalFraction);
             Check("Samus vertical direction", samus.Kinematics.YDirection, RidleyMovieMemory.VerticalDirection);
             Check("Samus health", samus.Health, RidleyMovieMemory.Health);
+            Check("Samus maximum health", samus.MaxHealth, RidleyMovieMemory.MaxHealth);
+            Check("Samus equipped items", samus.EquippedItems, RidleyMovieMemory.Items);
+            Check("Samus collected items", samus.CollectedItems, RidleyMovieMemory.CollectedItems);
+            Check("Samus equipped beams", samus.EquippedBeams, RidleyMovieMemory.Beams);
+            Check("Samus collected beams", samus.CollectedBeams, RidleyMovieMemory.CollectedBeams);
+            Check("Samus missiles", samus.Missiles, RidleyMovieMemory.Missiles);
+            Check("Samus missile capacity", samus.MaxMissiles, RidleyMovieMemory.MaxMissiles);
+            Check("Samus super missiles", samus.SuperMissiles, RidleyMovieMemory.SuperMissiles);
+            Check("Samus super missile capacity", samus.MaxSuperMissiles, RidleyMovieMemory.MaxSuperMissiles);
+            Check("Samus power bombs", samus.PowerBombs, RidleyMovieMemory.PowerBombs);
+            Check("Samus power bomb capacity", samus.MaxPowerBombs, RidleyMovieMemory.MaxPowerBombs);
             Check("Samus reserve mode", samus.ReserveTankMode, RidleyMovieMemory.ReserveMode);
             Check("Samus reserve capacity", samus.MaxReserveEnergy, RidleyMovieMemory.MaxReserve);
             Check("Samus reserve energy", samus.ReserveEnergy, RidleyMovieMemory.Reserve);

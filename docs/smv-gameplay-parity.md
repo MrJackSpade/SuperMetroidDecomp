@@ -49,6 +49,24 @@ The converter must:
 
 ## Current evidence and remaining work
 
+### Coverage audit (current)
+
+The complete10,717-update input-only replay passes the currently implemented checks.
+This is an end-to-end baseline, not proof that every gameplay owner is covered.
+
+| Contract | Current evidence | Remaining work |
+| --- | --- | --- |
+| Source identity, immutable movie, input edges, lag classification, terminal boundary | Converter v3 and complete replay pass | Retain these checks with each coverage expansion |
+| Samus position/fractions, camera position/fractions, pose/history, animation, primary speeds | Compared every retained interval | Control handlers, movement flags, combat timers and secondary motion state |
+| Health, reserves, equipment, collected inventory, ammunition and capacities | Complete replay passes all these fields (`inventory-coverage-replay.log`) | HUD selection and combat/input ownership |
+| Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Full actor properties, timers, AI variables and seven-segment tail state |
+| Ordinary/enemy projectiles | Active identities, positions, radii, damage, shared cooldown and charge checked | Full motion/instruction/pre-instruction state, bombs and explosion owners |
+| Persistent world state and room effects | Initial import and selected room checked | Boss/event/door/item bits, PLM changes, environmental gameplay state |
+| Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
+
+The history below records earlier divergence boundaries, not current completion.
+
+
 The original Ridley movie was played through all 10,890 video frames in Snes9x
 1.60. The local native trace contains 10,891 WRAM records, including the initial
 state and terminal record. Its source movie SHA-256 is
@@ -85,8 +103,8 @@ subpixels, movement speeds, animation, health, accepted NMI, RNG, dispatcher sta
 room identity, and active enemies' identities, positions, health and visual cursors.
 That comparison is still under development; conversion success is not port parity.
 Door-entry and source-fade HDMA/RNG/actor omissions were reproduced and fixed,
-along with missing RNG advancement through the outer loading dispatches. The
-current checked properties match through update 3036, with loading-owner alignment
+along with missing RNG advancement through the outer loading dispatches. At that stage, the
+checked properties matched through update 3036, with loading-owner alignment
 and upload normalization as described here. Setup now applies
 Samus's first displacement before destination rebasing; the atomic loader retains
 the pre-setup source coordinates so it does not count that movement twice. A

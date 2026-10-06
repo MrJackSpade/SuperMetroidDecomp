@@ -43,6 +43,7 @@ internal sealed partial class PauseMenuState
     private ushort mapVerticalScroll;
     private PauseMapScroll mapScroll = null!;
     private FileSelectMapAnimations? mapArrows;
+    private bool mapLabelsBeforeIcons;
     private int mapIndicatorAnimationFrame;
     private int mapIndicatorAnimationTimer;
     private int itemSelectorAnimationFrame;
@@ -282,8 +283,10 @@ internal sealed partial class PauseMenuState
     /// (for example, a debugger watch or PNG capture). The dispatcher calls this exactly
     /// once per emulated frame so inspection cannot change cartridge-visible timing.
     /// </remarks>
-    public void AdvanceAnimations(byte nmiFrameCounter8 = 0)
+    public void AdvanceAnimations(byte nmiFrameCounter8 = 0, bool fadingOut = false)
     {
+        // $82:9156 and $82:9353 emit destination labels before map icons during fade-out.
+        mapLabelsBeforeIcons = fadingOut || transition == PauseMenuTransition.MapToEquipmentFadeOut;
         // Only stable map dispatch calls $82:B934. Fade paths retain counters but hide arrows.
         mapArrows?.StepArrows(_ => false);
         pauseNmiFrameCounter8 = nmiFrameCounter8;
@@ -358,14 +361,16 @@ internal sealed partial class PauseMenuState
         oam.BeginFrame();
         if (ScreenMode == 0)
         {
-            mapArrows?.DrawArrows(oam, mapPresentation?.Sprites, PauseMapScrollLayout.ArrowVerticalOffset);
-            DrawMapPositionIndicator();
-            // Native pause draws the same boss lists and defeated overlays as
-            // file select, after the player marker. Use the live progression owner.
             var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(mapPresentation?.Landmarks);
             icons.BindSprites(mapPresentation?.Sprites);
+            if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(oam, mapHorizontalScroll, mapVerticalScroll);
+            mapArrows?.DrawArrows(oam, mapPresentation?.Sprites, PauseMapScrollLayout.ArrowVerticalOffset);
+            DrawMapPositionIndicator();
+            // Native pause shares the boss lists, defeated overlays and downloaded
+            // destination lettering with file select. Preserve their per-phase OAM order.
             icons.DrawBossMarkers(oam, mapHorizontalScroll, mapVerticalScroll);
+            if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(oam, mapHorizontalScroll, mapVerticalScroll);
         }
         else
         {

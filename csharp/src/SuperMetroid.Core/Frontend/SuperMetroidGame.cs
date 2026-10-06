@@ -814,7 +814,7 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.UnpausingA:
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseMenu!.SynchronizeAcceptedHud(runtime.Vram);
-                pauseMenu!.AdvanceAnimations(runtime.NmiFrameCounter8);
+                pauseMenu!.AdvanceAnimations(runtime.NmiFrameCounter8, fadingOut: true);
                 PublishMenu(pauseMenu!);
                 AdvancePauseFade(brightening: false);
                 ApplyDisplayBrightness(pauseBrightness);

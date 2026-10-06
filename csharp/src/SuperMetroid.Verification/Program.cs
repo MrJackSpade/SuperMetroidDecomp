@@ -5119,6 +5119,11 @@ if (args is ["--boss-reset-on-load"])
     VerifyBossResetOnLoad();
     return 0;
 }
+if (args is ["--pause-map-area-labels"])
+{
+    VerifyPauseMapAreaLabels();
+    return 0;
+}
 if (args is ["--pause-map-arrows"])
 {
     VerifyPauseMapArrows();
@@ -6173,6 +6178,7 @@ VerifyDraygonCannonPlms();
 VerifyBombTorizoHandPlm();
 VerifyPauseMenuEquipmentInteraction();
 VerifyPauseMapArrows();
+VerifyPauseMapAreaLabels();
 VerifyInvalidBeamSelection();
 VerifyInvalidBeamGraphics();
 VerifyMovedSamusCameraTracking();

@@ -82,6 +82,12 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
                 scrollX, scrollY, FileSelectMapRomData.StationMarkerPalette);
         }
         drawArrows?.Invoke();
+        DrawElevatorLabels(oam, scrollX, scrollY);
+    }
+
+    /// <summary>$82:BB30: destination lettering is visible only after downloading this area's map.</summary>
+    public void DrawElevatorLabels(OamBuffer oam, ushort scrollX, ushort scrollY)
+    {
         if (!system.HasAreaMap(area)) return;
         var elevatorLayout = landmarks ?? throw new InvalidOperationException(
             "Elevator labels require installed landmark layout.");

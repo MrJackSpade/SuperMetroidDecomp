@@ -118,7 +118,8 @@ internal static partial class Program
         AssertEqual(116, pause.LastIndicatorOriginX, "pause map marker X origin");
         AssertEqual(64, pause.LastIndicatorOriginY, "pause map marker Y origin");
         AssertEqual(0x5f, pause.LastIndicatorSpritemapId, "pause map marker initial frame");
-        AssertEqual(1, pause.LastRenderedSpriteCount, "pause map marker OAM count");
+        // The fixture retains the five retail Crateria destination labels (22 OBJ parts).
+        AssertEqual(23, pause.LastRenderedSpriteCount, "pause marker plus downloaded destination labels OAM count");
         AssertEqual(0x1400, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
             "pause map label bright palette reached BG2");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(822) & 0x1c00,

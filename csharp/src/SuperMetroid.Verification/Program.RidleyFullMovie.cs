@@ -136,6 +136,18 @@ internal static partial class Program
         AssertEqual((ushort)0x2b2, state.HorizontalVelocity, "native lunge grab X acceleration");
         AssertEqual((ushort)0xfc25, state.VerticalVelocity, "native lunge grab reverses before carry acceleration");
         AssertEqual((ushort)31, state.FunctionTimer, "native lunge grab falls through countdown");
+        // Source10132 takes the zero-health branch, whose JMP executes C538 immediately.
+        body.XPosition = 134; body.XSubposition = 0x7d00;
+        body.YPosition = 356; body.YSubposition = 0xec00; body.Health = 0;
+        state.HorizontalVelocity = 0x1de; state.VerticalVelocity = 0x419;
+        state.FightMode = 1; state.GrabState = 0; state.FunctionTimer = 0x29;
+        samus.XPosition = 134; samus.YPosition = 411; samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.RefreshCollisionRadii(bus);
+        lunge.Invoke(runtime.Enemies, [body, state, samus]);
+        AssertEqual(RidleyAiFunction.NorfairReleaseSamus, state.Function, "zero-health grab enters death movement");
+        AssertEqual((ushort)0x1c6, state.HorizontalVelocity, "death entry immediately accelerates X toward death spot");
+        AssertEqual((ushort)0xfbde, state.VerticalVelocity, "death entry immediately accelerates Y toward death spot");
+        AssertEqual((ushort)0x29, state.FunctionTimer, "death entry retains existing general countdown");
         var dispatch = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (var function in new[] { RidleyAiFunction.NorfairCarryRise, RidleyAiFunction.NorfairCarryRelease })
         {

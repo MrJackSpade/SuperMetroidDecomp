@@ -774,6 +774,8 @@ public sealed partial class RoomEnemySystem
         if (slot.Health == 0)
         {
             StartNorfairRidleyDeathSequence(slot, state);
+            // $A6:BB8C tail-jumps to $C538 on the same successful zero-health grab.
+            TickNorfairRidleyMoveToDeathSpot(slot, state);
             return;
         }
         // $BB8F falls through $BBC4 on the grabbing update.

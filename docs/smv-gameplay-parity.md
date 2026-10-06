@@ -279,9 +279,15 @@ Focused manual reserve checks pass (selection, toggle, first transfer, suspensio
 resumption, sound/clamp and visible digits); the historical-layout assertion now
 accounts for subsequently added map fields and excludes nonserialized assets.
 Independent replay passes the recorded reserve transfer and all currently compared
-fields through update9964/10717. Next difference: update9965/source10132, Ridley's
-zero-health grab: X fraction native4300 vs port5D00, Y fraction nativeCA00 vs portCB00.
-The death-entry movement boundary is the next investigation.
+fields through the reserve interval.
+
+Successful zero-health grabs now execute death movement immediately after setup,
+matching $A6:BB8C's JMP to $C538. Deferring it lost the first death-spot acceleration.
+The focused source10132 fixture confirms X velocity01C6, Y velocityFBDE and retained
+countdown29; independent replay confirms both position fractions and subsequent
+movement. All currently compared fields match through update10161/10717.
+Next difference: update10162/source10329, twelve Ridley breakup actors initially have
+native spritemap804D versus port0000. Their initialization is the next investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

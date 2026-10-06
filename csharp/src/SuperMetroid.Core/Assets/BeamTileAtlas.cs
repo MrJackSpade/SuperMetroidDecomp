@@ -101,6 +101,12 @@ public static class BeamTileAtlasDefinitions
     private const int WaveCenteredImpactTile = 6;
     /// <summary>$9A:F6E0..F6FF: Wave impact tile7 has half-turn symmetry.</summary>
     private const int WaveSmallImpactTile = 7;
+    /// <summary>$9A:FA20..FA5F: the two adjacent Spazer diagonal upload tiles, used together by $93:D10E/D25A spritemaps.</summary>
+    private const int SpazerDiagonalFirstTile = 1;
+    /// <summary>$9A:FA20..FA5F: required diagonal placement begins one pixel to the right of its row coordinate.</summary>
+    private const int SpazerDiagonalLead = 1;
+    /// <summary>$9A:FA20..FA5F: required selected diagonal band is three pixels wide; its ink samples remain independent.</summary>
+    private const int SpazerDiagonalWidth = 3;
     /// <summary>$9A:F880..F89F and FA80..FA9F: the wider horizontal ribbon occupies upload tile4.</summary>
     private const int LongBeamWideRibbonTile = 4;
     /// <summary>$9A:F882/F892: required wide-ribbon profile begins its uniform border at row1; row7 shares that border ink.</summary>
@@ -183,6 +189,15 @@ public static class BeamTileAtlasDefinitions
         {
             source = y * Width + Height - 1 - x;
             return true;
+        }
+        // The native pair forms one straight diagonal band. Its selected offset,
+        // width and interior inks remain required; only the exterior is transparent.
+        if ((beams & SamusBeamFlags.Spazer) != 0 && tile >= SpazerDiagonalFirstTile && tile <= SpazerDiagonalFirstTile + 1)
+        {
+            int bandX = (tile - SpazerDiagonalFirstTile) * Height + x;
+            bool outside = bandX < y + SpazerDiagonalLead || bandX >= y + SpazerDiagonalLead + SpazerDiagonalWidth;
+            source = outside ? -1 : 0;
+            return outside;
         }
         // Native Wave impact sheets are centered shapes: two half-turn pairs and
         // one shape reflected across both central axes. Keep their source quadrants required.

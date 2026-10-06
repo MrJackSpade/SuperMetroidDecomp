@@ -3,13 +3,16 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>$82:D24B/D2F7/D41B: options heading outlines. Stock bounds follow immutable heading typography;
+/// <summary>$82:D00B/D0AD/D177 and D24B/D2F7/D41B: file-select/options heading outlines. Stock bounds follow immutable heading typography;
 /// independently edited title pages or sprite parts do not change these stock layout definitions. Exact title/padding, glyph roles and traversal are selected display content. Native82:8CA1 feeds ordered OAM; order may affect hardware limits and is preserved. Pixels, colors and timing are excluded.</summary>
 internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Native heading words on the options BG pages; each uses eight-pixel character cells.</summary>
     private string Text => heading switch
     {
+        "Border.Main" => "SAMUS DATA",
+        "Border.Copy" => "DATA COPY MODE",
+        "Border.Clear" => "DATA CLEAR MODE",
         "Heading.Primary" => "OPTION MODE",
         "Heading.Controller" => "CONTROLLER SETTING MODE",
         "Heading.Special" => "SPECIAL SETTING MODE",
@@ -31,14 +34,31 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
     private static ReadOnlySpan<byte> SpecialCenter => [0, 1, 4, 3, 2];
 
     internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied) =>
-        name is "Heading.Primary" or "Heading.Controller" or "Heading.Special"
+        name is "Heading.Primary" or "Heading.Controller" or "Heading.Special" or "Border.Main" or "Border.Copy" or "Border.Clear"
             ? supplied.CalculateIfMatching(new MenuHeadingBorderDefinitions(name)) : supplied;
 
     public int Count => 2 * (Columns + Rows - 2);
     private (int Column, int Row) Position(int index)
     {
         bool primary = heading == "Heading.Primary";
-        if (primary)
+        bool fileSelect = heading.StartsWith("Border.", StringComparison.Ordinal);
+        if (fileSelect)
+        {
+            bool clear = heading == "Border.Clear";
+            if (clear)
+            {
+                if (index < 2) return (OuterRunLength + 1, index == 0 ? 0 : Rows - 1);
+                index -= 2;
+            }
+            if (heading != "Border.Main")
+            {
+                if (index < 8)
+                    return (OuterRunLength + 1 + (clear ? 1 : 0) + (index % 4 + 2) % 4,
+                        index < 4 ? Rows - 1 : 0);
+                index -= 8;
+            }
+        }
+        else if (primary)
         {
             if (index < 4) return (OuterRunLength + 1 - index / 2, index % 2 == 0 ? Rows - 1 : 0);
             index -= 4;

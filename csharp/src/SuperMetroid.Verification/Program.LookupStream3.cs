@@ -285,10 +285,20 @@ internal static partial class Program
         {
             var original = Read();
             var stock = Load(original)[name];
-            AssertTrue(typeof(SpriteComposition).GetField("parts", flags)!.GetValue(stock) is MenuBorderParts,
-                "native border stores perimeter inputs instead of full parts");
+            AssertTrue(typeof(SpriteComposition).GetField("parts", flags)!.GetValue(stock) is MenuHeadingBorderDefinitions,
+                "native file border uses semantic title and calculated perimeter");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
+            var presentation = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, MapPresentationFormat.JsonOptions)));
+            string page = original.BorderAnchors.Keys.Single(key => FileSelectPresentationDefinitions.BorderFrameName(key) == name);
+            var actualOam = new OamBuffer();
+            var expectedOam = new OamBuffer();
+            presentation.DrawBorder(actualOam, page);
+            var anchor = original.BorderAnchors[page];
+            MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
+                (ushort)anchor.X, (ushort)anchor.Y, (ushort)(original.ObjectPalette << 9));
+            AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) && actualOam.HighTable.SequenceEqual(expectedOam.HighTable),
+                "actual file-select border draw preserves native OAM");
             ushort Word(int location) => (ushort)(rom.ReadByte(location) | rom.ReadByte(location + 1) << 8);
             AssertEqual((ushort)count, Word(address), "native border header");
             for (int index = 0; index < count; index++)
@@ -3369,5 +3379,85 @@ internal static partial class Program
             Console.WriteLine("Initial narration: 1024 native words, 1024 independent word edits, ownership, empty stock storage and canonical bundle identity pass.");
         }
         finally { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); }
+    }
+    private static void VerifyStream3FileSelectSprites(ISnesAddressSpace rom)
+    {
+        byte[] imported = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom);
+        VerifyStream3FileSelectBorders(rom, imported);
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        FileSelectPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        SpriteComposition Composition(FileSelectPresentation owner, string name) =>
+            ((Dictionary<string, SpriteComposition>)typeof(FileSelectPresentation).GetField("sprites", flags)!.GetValue(owner)!)[name];
+        var original = Read();
+        var stock = Load(original);
+        for (int frame = 0; frame < 8; frame++)
+        {
+            string name = FileSelectPresentationDefinitions.HelmetFrameName(frame);
+            var composition = Composition(stock, name);
+            AssertTrue(typeof(SpriteComposition).GetField("parts", flags)!.GetValue(composition) is FileSelectHelmetParts,
+                "stock helmet retains semantic frame only");
+            Confirm(stock, original, frame);
+            int pointer = ReadVerificationWord(rom, 0x82c569 + FileSelectHelmetAnimation.SpritemapId(frame) * 2);
+            int address = 0x820000 | pointer;
+            AssertEqual((int)ReadVerificationWord(rom, address), composition.PartCount, "exact native helmet part count");
+            for (int part = 0; part < composition.PartCount; part++)
+            {
+                int entry = address + 2 + part * 5;
+                var nativeX = new SnesSpritemapXWord(ReadVerificationWord(rom, entry));
+                AssertEqual(nativeX.SignedOffset, composition.Part(part).X.SignedOffset, "native helmet X");
+                AssertEqual(nativeX.IsLarge, composition.Part(part).X.IsLarge, "native helmet size");
+                AssertEqual(rom.ReadByte(entry + 2), composition.Part(part).Y, "native helmet Y");
+                AssertEqual((ushort)(ReadVerificationWord(rom, entry + 3) & ~0x0e00), composition.Part(part).Attributes.Raw, "native helmet attributes with caller palette inheritance");
+            }
+            for (int part = 0; part < original.Sprites[name].Length; part++)
+            for (int field = 0; field < 9; field++)
+            {
+                var edited = Read();
+                var source = edited.Sprites[name][part];
+                edited.Sprites[name][part] = field switch
+                {
+                    0 => source with { OffsetX = source.OffsetX + 1 },
+                    1 => source with { OffsetY = source.OffsetY + 1 },
+                    2 => source with { TileColumn = source.TileColumn ^ 1 },
+                    3 => source with { TileRow = source.TileRow ^ 1 },
+                    4 => source with { Size = source.Size == 8 ? 16 : 8 },
+                    5 => source with { Priority = source.Priority ^ 1 },
+                    6 => source with { Palette = 0 },
+                    7 => source with { FlipX = !source.FlipX },
+                    _ => source with { FlipY = !source.FlipY },
+                };
+                var changed = edited.Sprites[name][part];
+                if (changed.TileColumn > MapSpriteFormat.TileColumns - changed.Size / 8 ||
+                    changed.TileRow > MapSpriteFormat.TileRows - changed.Size / 8)
+                    AssertThrows<InvalidDataException>(() => Load(edited), "helmet edited footprint remains bounded");
+                else Confirm(Load(edited), edited, frame);
+            }
+            var reversed = Read();
+            Array.Reverse(reversed.Sprites[name]);
+            Confirm(Load(reversed), reversed, frame);
+            var expanded = Read();
+            expanded.Sprites[name] = [.. expanded.Sprites[name], expanded.Sprites[name][0]];
+            Confirm(Load(expanded), expanded, frame);
+            Confirm(stock, original, frame);
+        }
+        Console.WriteLine("File-select sprites: 114 border parts/456 edits, 42 helmet parts/378 field cases, ordering/count edits and actual helmet OAM pass; cursor dependency previously confirmed.");
+        void Confirm(FileSelectPresentation actual, FileSelectPresentationDocument expected, int frame)
+        {
+            string name = FileSelectPresentationDefinitions.HelmetFrameName(frame);
+            var expectedParts = MenuSpriteCompiler.Compile(expected.Sprites[name], name);
+            var selected = Composition(actual, name);
+            AssertEqual(expectedParts.PartCount, selected.PartCount, "helmet part count");
+            for (int part = 0; part < expectedParts.PartCount; part++)
+                AssertEqual(expectedParts.Part(part), selected.Part(part), "exact selected helmet part");
+            var actualOam = new OamBuffer();
+            var expectedOam = new OamBuffer();
+            actual.DrawHelmet(actualOam, frame, 0);
+            var anchor = expected.HelmetAnchors[0];
+            expectedParts.DrawOnScreen(expectedOam, (ushort)anchor.X, (ushort)anchor.Y, (ushort)(expected.ObjectPalette << 9));
+            AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) && actualOam.HighTable.SequenceEqual(expectedOam.HighTable),
+                "actual helmet draw preserves native and independent edited ordered OAM");
+        }
     }
 }

@@ -13,7 +13,7 @@ internal static class MenuClosedPresentationContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/MapSpriteCatalog.cs", "6FDADA7BC65E29CCCA60F6D9301DD5B6020202553A025A2994AADA8BE497DA28"),
              new("csharp/src/SuperMetroid.Core/Frontend/MenuMissileAnimationDefinitions.cs", "92CFE18B185C1526FACE125CF345944D1D878525935BE219DC21EE19838E3E9E"),
              new("csharp/src/SuperMetroid.Core/Assets/MenuCursorParts.cs", "718108CB3359B183DF55EBB1F4C86D41E0858FC5DFE1AF6A01FC0612E69AD0FF"),
-             new("csharp/src/SuperMetroid.Core/Assets/MenuHeadingBorderDefinitions.cs", "40ECFBF2ADE308FC71BB90B1EEC1A00E70308F9D49DB9F190C9614E2621380E2"),
+             new("csharp/src/SuperMetroid.Core/Assets/MenuHeadingBorderDefinitions.cs", "A492AC3C7692DA38E0E838CAB60DC605DDC8E875DBE098475EBAC530C0E47372"),
              new("csharp/src/SuperMetroid.Core/Assets/MenuBorderParts.cs", "6B79556FD47098253A8A977E398C98A1908D01A7DD4E9E5916A38634A33E0080"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOptionsRomData.cs",
                 "6402E8F44472D8FE1481FC111C546ED638FE28A11EB297F6A048318879CE262A")],

@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 440,
+  "remainingTableDefinitionCount": 439,
   "fileCount": 523,
   "entries": [
     {
@@ -802,12 +802,15 @@
       "implementationCommit": "a0d04c1ac"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs",
-      "line": 18,
-      "name": "FileSelectPresentation.sprites",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind FileSelectPresentation.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs",
+  "line": 18,
+  "name": "FileSelectPresentation.sprites",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind FileSelectPresentation.sprites. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "e6e377b22fc092a7dbf57335552289ebc359887d",
+  "disposition": "Calculate164parts:114title borders,42helmet/visor parts and8previously reviewed cursor parts. Retain exact title/glyph identities,native pose/part order,canonical padding/overlap/visor alignment as selected composition; derive rectangle geometry,atlas packing,shared bodies and traversals. No pixel,color,position-anchor or timing exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/FlyVisualDefinitions.cs",
       "line": 15,
@@ -21754,5 +21757,5 @@
     }
   ],
   "convertedSinceSnapshot": 602,
-  "justifiedRetainedSinceSnapshot": 86
+  "justifiedRetainedSinceSnapshot": 87
 }

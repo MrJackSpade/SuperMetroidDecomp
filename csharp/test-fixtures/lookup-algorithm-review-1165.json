@@ -12312,4 +12312,13 @@
     "Calculate15retreat colors from existing body phase1/15,eye phase1/15 and Golden neutral through shared biased quantizer. Preserve independent source/output edits. No new retained values or exemption.",
     "Calculate135colors from existing14body/eye paints and Golden neutral endpoint using common floor((channel*exposure+1)/15). Retain only selected two-rate zoom exposure15-min(z,6)-2max(0,z-6) as visual dimming design; no new neutral magnitude or residual samples. Independent edits and all15copied colors preserved; no pixel/movement/timing exemption."
   ]
+},"fileSelectSpritesWholeEntry":{
+  "completed": [
+    "FileSelectPresentation.sprites"
+  ],
+  "disposition": [
+    "Calculate164parts:114title borders,42helmet/visor parts and8previously reviewed cursor parts. Retain exact title/glyph identities,native pose/part order,canonical padding/overlap/visor alignment as selected composition; derive rectangle geometry,atlas packing,shared bodies and traversals. No pixel,color,position-anchor or timing exemption."
+  ],
+  "workerCommit": "e6e377b22fc092a7dbf57335552289ebc359887d",
+  "confirmation": "Root viewed helmet poses and all3border source composites. Build1457warnings/0errors;114native border parts/456edits,42native helmet parts/378field cases,order/count/isolation and actual border/helmet OAM pass; shared options144parts/576edits/OAM remains exact. Audit0/0."
 }}

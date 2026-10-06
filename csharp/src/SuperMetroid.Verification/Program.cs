@@ -330,6 +330,12 @@ if (args is ["--lookup-stream3-menu-sprites"])
     Console.WriteLine("Menu sprites: 15 native parts, 135 independent field edits, reordered/expanded compositions and shared cursor loaders pass.");
     return 0;
 }
+if (args is ["--lookup-stream3-file-select-sprites"])
+{
+    var oracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyStream3FileSelectSprites(oracle);
+    return 0;
+}
 if (args is ["--lookup-stream3-options-sprites"])
 {
     var oracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

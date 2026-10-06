@@ -1,6 +1,21 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$0A1F: native Samus movement-type byte used by draw dispatch.</summary>
+    public const int SamusMovementType = 0x0a1f;
+    /// <summary>$093F: Ceres status; high bit requests Mode 7 position transformation.</summary>
+    public const int CeresStatus = 0x093f;
+    /// <summary>$92:9263/$92:945D: top/bottom pose-to-base-spritemap tables.</summary>
+    public const int TopSpritemapBases = 0x929263, BottomSpritemapBases = 0x92945d;
+    /// <summary>$91:B629: eight-byte pose definitions; graphics Y offset is byte four.</summary>
+    public const int PoseDefinitions = 0x91b629;
+    /// <summary>$90:8D28: landing offsets, read as unaligned sixteen-bit words.</summary>
+    public const int LandingDrawOffsets = 0x908d28;
+    /// <summary>$90:8D80: signed crouch/posture drawing offsets.</summary>
+    public const int PostureDrawOffsets = 0x908d80;
+    /// <summary>$90:8DEF: signed drained crouch/fall drawing offsets.</summary>
+    public const int DrainedDrawOffsets = 0x908def;
+
     /// <summary>$0A68: shared shine timer bypassing ordinary invincibility flicker.</summary>
     public const int SamusShineTimer = 0x0a68;
 

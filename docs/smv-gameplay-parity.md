@@ -827,3 +827,25 @@ still does not establish composed OAM/pixels, cannon DMA/display output, or body
 selection on updates where the two NMI phases disagree. Those remain explicit
 presentation coverage gaps; full-parity completion is not claimed. No native
 state is injected after initialization.
+
+### Body-record comparison across opposite flicker phases
+
+The read-only `RidleyNativeBodyRecord` oracle now derives top/bottom indices and
+screen origin from each native checkpoint's pose, animation, movement type,
+position and camera, using the original ROM tables. Its source is the pinned
+$90:85E2/$864E/$8C1F routines, including unaligned landing offset words, signed
+posture/drained offsets and the lower-half dispatcher. It never calls production
+drawing methods or uses extracted port artwork. Unsupported Ceres Mode 7 status
+fails explicitly (the supplied movie does not use it).
+
+At every native-visible gameplay update, the oracle must reproduce the actual
+captured sprite records. At every port-visible gameplay update, port output must
+match that oracle, independently of native visibility. Existing hidden-frame
+retention checks and direct paired-visible comparisons remain. This closes the
+previously recorded opposite-phase body-index/origin gap for this movie without
+injecting native state or restoring removed hardware waits.
+
+Release build has zero errors and all 10,717 updates pass
+(`samus-oracle-build.log`, `samus-oracle-replay.log`). No production behavior
+changed. This verifies the selected body records, not composed OAM/pixels, tile
+transfer timing, cannon drawing output, palettes or the other open audit areas.

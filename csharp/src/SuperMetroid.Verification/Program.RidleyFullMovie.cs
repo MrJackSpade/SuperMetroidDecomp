@@ -1114,6 +1114,17 @@ internal static partial class Program
                         retainedHiddenBodyRecords++;
                     }
                 }
+                if (frame != 0)
+                {
+                    var nativeDraw = RidleyNativeBodyRecord(bus, memory);
+                    if (nativeBodyVisible)
+                        AssertEqual((W(RidleyMovieMemory.SamusTopSpritemap), W(RidleyMovieMemory.SamusBottomSpritemap),
+                                W(RidleyMovieMemory.SamusSpriteX), W(RidleyMovieMemory.SamusSpriteY)),
+                            nativeDraw, $"update {frame}: cartridge draw oracle matches native visible records");
+                    if (normalizedBodyVisible)
+                        AssertEqual(nativeDraw, BodyRecord(),
+                            $"update {frame}: visible body matches cartridge draw oracle regardless of flicker phase");
+                }
                 // Flicker deliberately follows the retained NMI clock. Removed hardware
                 // waits can change its parity, and hidden frames retain the last visible
                 // origin/indices. Compare newly published records when both draws execute.

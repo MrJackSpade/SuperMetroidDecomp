@@ -254,10 +254,16 @@ Fallback now uses the compiled definition ($91:82D9), including both $FF and an
 explicit same-pose value. Retained compact aerial poses skip pose reinitialization.
 The verifier now compares all four history words at every boundary; focused production
 checks cover ordinary spin, Space Jump and Screw Attack in both directions. The
-independent replay passes the original wall probe and all checked fields through
-update8280/10717. Next difference: update8281/source8395, during a Ridley carry:
-Ridley Y native0155 vs port015C, Samus Y native0193 vs port019A, plus fractions/tail.
-This new vertical movement boundary has not yet been diagnosed.
+independent replay passes the original wall probe.
+
+Ridley's successful lunge grab now negates vertical velocity before carry setup,
+matching $A6:BB56-$BB5D. The separate ground-attack reversal was already present;
+its shared carry entry did not supply this lunge-specific write. The source8395
+focused fixture confirms velocityFC25, immediate carry and countdown31, and the
+independent movie passes the recorded carry positions. All currently compared fields
+now match through update9380/10717. Next difference: update9381/source9502,
+RNG native7266 vs port117D; no other currently compared field differs at that boundary.
+The RNG producer has not yet been diagnosed.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

@@ -752,7 +752,11 @@ public sealed partial class RoomEnemySystem
             divisorIndex);
 
         if (RidleyClawOverlapsSamus(slot, state, samus, radiusX: 8, radiusY: 12))
+        {
+            // $A6:BB56-$BB5D reverses the lunge before the carry setup accelerates.
+            state.VerticalVelocity = unchecked((ushort)-state.VerticalVelocity);
             BeginNorfairRidleyGrab(slot, state, samus);
+        }
     }
 
     private static void BeginNorfairRidleyGrab(

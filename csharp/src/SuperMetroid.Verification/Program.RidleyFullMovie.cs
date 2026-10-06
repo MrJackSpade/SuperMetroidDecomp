@@ -121,6 +121,21 @@ internal static partial class Program
         AssertTrue(!samus.InputLocked && !samus.StationaryScriptControlLocked, "native release restores ordinary control");
         bombs.StepFrame(bus, runtime.LevelData!, samus, 0, 0, advancePowerBombHdma: false);
         AssertEqual((ushort)9, bombs.CooldownTimer, "native unlocked alpha resumes cooldown");
+        // Native source8395: a descending lunge grabs standing Samus. Ground attacks
+        // have their own reversal; this entry must negate after its lunge acceleration.
+        body.XPosition = 172; body.XSubposition = 0x6300;
+        body.YPosition = 345; body.YSubposition = 0x0a00;
+        state.HorizontalVelocity = 0x2b0; state.VerticalVelocity = 0x3cd;
+        state.FacingDirection = 2; state.HealthStage = 3; state.HitRoomBoundary = false;
+        state.GrabState = 0; state.FeetDistanceIndex = 0;
+        samus.XPosition = 156; samus.YPosition = 411; samus.Pose = SamusPoseIds.FacingLeftNormalPose;
+        samus.RefreshCollisionRadii(bus);
+        var lunge = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGrabApproach", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        lunge.Invoke(runtime.Enemies, [body, state, samus]);
+        AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "lunge grab enters immediate carry");
+        AssertEqual((ushort)0x2b2, state.HorizontalVelocity, "native lunge grab X acceleration");
+        AssertEqual((ushort)0xfc25, state.VerticalVelocity, "native lunge grab reverses before carry acceleration");
+        AssertEqual((ushort)31, state.FunctionTimer, "native lunge grab falls through countdown");
         var dispatch = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (var function in new[] { RidleyAiFunction.NorfairCarryRise, RidleyAiFunction.NorfairCarryRelease })
         {

@@ -860,7 +860,7 @@ static void VerifySamusLiquidPhysics()
         WriteTestWord(bus, 0x909ea7 + medium * 2, 0);
     }
 
-    var sample = new SamusState { XPosition = 64, YPosition = 100 };
+    var sample = new SamusState { Pose = SamusPoseIds.SpinJumpRightPose, XPosition = 64, YPosition = 100 };
     sample.Kinematics.YRadius = 12; // top 88, exclusive bottom 112, occupied bottom pixel 111
     sample.LiquidPhysics.ConfigureWater(surfaceY: 110);
     AssertEqual(SamusLiquidPhysicsState.Water,

@@ -187,7 +187,10 @@ public sealed partial class SamusLiquidPhysicsState
         ArgumentNullException.ThrowIfNull(samus);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
             return Air;
-        return DetermineRawMediumAtBoundary(samus.Kinematics.BottomPixel);
+        // Samus_GetBottom_R18 samples the current pose definition, even before the next
+        // movement pass publishes its radius to the live collision state.
+        ushort bottom = unchecked((ushort)(samus.YPosition + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
+        return DetermineRawMediumAtBoundary(bottom);
     }
 
     /// <summary>
@@ -250,7 +253,7 @@ public sealed partial class SamusLiquidPhysicsState
             return samus.XSpeedDivisor;
 
         ushort bottomMinusOne = unchecked((ushort)(
-            samus.Kinematics.YPosition + samus.Kinematics.YRadius - 1));
+            samus.YPosition + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
         return DetermineRawMediumAtBoundary(bottomMinusOne) switch
         {
             Water => 3,

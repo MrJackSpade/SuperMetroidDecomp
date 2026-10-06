@@ -28,7 +28,7 @@ public sealed partial class SamusBodyArtworkCatalog
     private readonly Dictionary<int, sbyte> graphicsYOffsets;
     private readonly Dictionary<int, ushort> landingYOffsets;
     private readonly Dictionary<int, sbyte> postureYOffsets;
-    private readonly sbyte[] drainedYOffsets;
+    private readonly Dictionary<int, sbyte> drainedYOffsets;
     private readonly Dictionary<int, byte> frames;
     private readonly SamusBodyTileDefinition[][] top;
     private readonly SamusBodyTileDefinition[][] bottom;
@@ -103,7 +103,7 @@ public sealed partial class SamusBodyArtworkCatalog
                 ? SamusBodyPlacementDefinitions.DefaultLandingByte(index)
                 : landingYOffsets[SamusBodyPlacementDefinitions.LandingSourceIndex(index)]))
             .ToDictionary(index => index, index => landingYOffsets[index]);
-        this.drainedYOffsets = (sbyte[])drainedYOffsets.Clone();
+
         byte[] components = frames.SelectMany(frame => new byte[] { frame.TopSet, frame.TopPosition, frame.BottomSet, frame.BottomPosition }).ToArray();
         this.frames = Enumerable.Range(0, components.Length)
             .Where(index => SamusBodyFrameDefinitions.SourceComponent(index) == index ||
@@ -124,6 +124,9 @@ public sealed partial class SamusBodyArtworkCatalog
                 ? !SamusBodyPlacementDefinitions.TryDefaultPostureByte(this, index, out sbyte calculated) || postureYOffsets[index] != calculated
                 : postureYOffsets[index] != postureYOffsets[SamusBodyPlacementDefinitions.PostureSourceIndex(index)])
             .ToDictionary(index => index, index => postureYOffsets[index]);
+        this.drainedYOffsets = Enumerable.Range(0, drainedYOffsets.Length)
+            .Where(index => !SamusBodyPlacementDefinitions.TryDefaultDrainedByte(this, index, out sbyte calculated) || drainedYOffsets[index] != calculated)
+            .ToDictionary(index => index, index => drainedYOffsets[index]);
         foreach (ushort pointer in posePointers)
             if (pointer < FirstFrameOffset ||
                 pointer >= FrameEndOffset ||
@@ -144,7 +147,7 @@ public sealed partial class SamusBodyArtworkCatalog
     /// <summary>Native landing table, including the one adjacent byte read by an unaligned word.</summary>
     public ReadOnlySpan<ushort> LandingYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
     public ReadOnlySpan<sbyte> PostureYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount).Select(PostureByte).ToArray();
-    public ReadOnlySpan<sbyte> DrainedYOffsets => drainedYOffsets;
+    public ReadOnlySpan<sbyte> DrainedYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount).Select(DrainedByte).ToArray();
     private ushort LandingByte(int index) => landingYOffsets.TryGetValue(index, out ushort value)
         ? value : SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index
             ? SamusBodyPlacementDefinitions.DefaultLandingByte(index) : LandingByte(SamusBodyPlacementDefinitions.LandingSourceIndex(index));
@@ -154,6 +157,9 @@ public sealed partial class SamusBodyArtworkCatalog
             : SamusBodyPlacementDefinitions.TryDefaultPostureByte(this, index, out sbyte calculated)
                 ? calculated : throw new InvalidDataException("Selected posture geometry no longer supplies its installed offset.");
 
+    private sbyte DrainedByte(int index) => drainedYOffsets.TryGetValue(index, out sbyte value)
+        ? value : SamusBodyPlacementDefinitions.TryDefaultDrainedByte(this, index, out sbyte calculated)
+            ? calculated : throw new InvalidDataException("Selected drained geometry no longer supplies its installed offset.");
     public bool TryLandingYOffset(int index, out ushort value)
     {
         if ((uint)index >= SamusRenderingRomData.Body.LandingVerticalOffsetByteCount - 1)
@@ -172,8 +178,8 @@ public sealed partial class SamusBodyArtworkCatalog
     }
     public bool TryDrainedYOffset(int index, out sbyte value)
     {
-        if ((uint)index >= drainedYOffsets.Length) { value = 0; return false; }
-        value = drainedYOffsets[index];
+        if ((uint)index >= SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount) { value = 0; return false; }
+        value = DrainedByte(index);
         return true;
     }
     /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>

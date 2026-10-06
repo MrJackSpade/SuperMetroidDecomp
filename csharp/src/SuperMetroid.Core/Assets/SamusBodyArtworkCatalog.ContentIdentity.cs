@@ -10,7 +10,7 @@ public sealed partial class SamusBodyArtworkCatalog
         content.Append("graphics y offsets", GraphicsYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
         content.AppendWords("landing y offsets", LandingYOffsets);
         content.Append("posture y offsets", PostureYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
-        content.Append("drained y offsets", drainedYOffsets.Select(value => unchecked((byte)value)).ToArray());
+        content.Append("drained y offsets", DrainedYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
         foreach (SamusBodyFrameSelection frame in Frames)
         {
             content.Append("top set", frame.TopSet);

@@ -11985,4 +11985,13 @@
     "BabyMetroidCutsceneColorCatalog.initial",
     "BabyMetroidCutsceneColorCatalog.fade"
   ]
+},"samusDrainedOffsetsComplete":{
+  "workerCommit": "8ab3734af",
+  "disposition": [
+    "Mixed complete:32offsets derive native opaque support,named drained phases,existing graphics origin,normal standing support and existing radius21 terminal alignment; command padding/repeated phases calculate. Retain only selected compact support17/impact18 and exact phase-alignment policy after native controller/radius review. No timing,pixel or physics exemption. All supplied offsets remain independently editable under unavailable/changed artwork;zero stock fallbacks."
+  ],
+  "completed": [
+    "SamusBodyArtworkCatalog.drainedYOffsets"
+  ],
+  "confirmation": "Root Verification1452existing warnings/0errors;Audit0/0;32native defaults/zero stock fallbacks,32independent edits,22actual draws and empty/pointer/blank/shifted-art/graphics-origin independence pass."
 }}

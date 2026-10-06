@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Calculated pose-origin and selected-glyph support relationships for Samus landing and posture transitions.</summary>
+/// <summary>Calculated pose-origin and selected-glyph support relationships for Samus landing, posture and drained transitions.</summary>
 internal static class SamusBodyPlacementDefinitions
 {
     /// <summary>
@@ -111,6 +111,59 @@ internal static class SamusBodyPlacementDefinitions
             // until selected for drawing. Preserve the supplied offset independently.
             return false;
         }
+    }
+
+    /// <summary>$90:8DEF/8DF0: narrowly retained common support of the two upper-half-only compact drained poses; selected scene composition.</summary>
+    private const int DrainedCompactSupport = 17;
+    /// <summary>$90:8DF6: narrowly retained impact support before the kneeling cycle; selected scene composition.</summary>
+    private const int DrainedImpactSupport = 18;
+
+    /// <summary>$90:8DEF..8E0E: shared drained placement, indexed by byte position in the complete $91:B268 left-facing program.</summary>
+    internal static bool TryDefaultDrainedByte(SamusBodyArtworkCatalog art, int index, out sbyte value)
+    {
+        if ((uint)index >= Game.SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        value = 0;
+        const byte pose = (byte)Game.SamusPoseId.DrainedCrouchingLeftPose;
+        ushort frame;
+        switch (index)
+        {
+            // Repeated kneeling, tucked recovery, hit and Hyper Beam poses use
+            // the drained pose's ordinary drawing origin. Command-only slots
+            // remain zero even when a controller briefly publishes their index.
+            case 8 or 9 or 10 or 11 or 14 or 19 or 23 or 26 or 29:
+                int usual = -art.GraphicsYOffset(pose);
+                if (usual > sbyte.MaxValue) return false;
+                value = (sbyte)usual; return true;
+            case 0 or 1: frame = (ushort)index; break;
+            case >= 2 and <= 6: frame = 2; break;
+            case 7: frame = 7; break;
+            case 15 or 20 or 22: frame = 15; break;
+            case 16 or 21: frame = 16; break;
+            default: return true;
+        }
+        try
+        {
+            if (!TryOpaqueBottom(art, pose, frame, frame >= 2, out int sourceY)) return false;
+            int targetY;
+            if (frame < 2) targetY = DrainedCompactSupport;
+            else if (frame == 7) targetY = DrainedImpactSupport;
+            else if (frame == 16)
+                // This final rise selects the collision boundary itself, while
+                // falling/intermediate rise select standing's visible support.
+                targetY = Game.SamusPoseCollisionDefinitions.ReadVerticalRadius(pose);
+            else
+            {
+                const byte standing = (byte)Game.SamusPoseId.FacingLeftNormalPose;
+                if (!TryOpaqueBottom(art, standing, 0, true, out targetY)) return false;
+                targetY -= art.GraphicsYOffset(standing);
+            }
+            int offset = targetY - sourceY;
+            if (offset < sbyte.MinValue || offset > sbyte.MaxValue) return false;
+            value = (sbyte)offset;
+            return true;
+        }
+        catch (InvalidDataException) { return false; }
     }
 
     private static bool TryOpaqueBottom(SamusBodyArtworkCatalog art, byte pose, ushort frame,

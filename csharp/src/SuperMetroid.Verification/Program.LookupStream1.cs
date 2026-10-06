@@ -616,6 +616,75 @@ internal static partial class Program
         Console.WriteLine("Body graphics origins:253 direct native/default values, zero stock overrides,253 independent visual edits isolated from physics and hash/bounds checks pass.");
     }
 
+    private static void VerifyLookupStream1DrainedGeometry(ISnesAddressSpace rom)
+    {
+        string directory = Path.GetFullPath("csharp/test-temp/drained-geometry-native");
+        SamusBodyArtworkFiles.Extract(rom, directory, SupportedCartridge.Sha256);
+        SamusBodyArtworkCatalog stock = SamusBodyArtworkFiles.Load(directory, null);
+        sbyte[] native = Enumerable.Range(0, 32).Select(index => unchecked((sbyte)rom.ReadByte(0x908def + index))).ToArray();
+        var field = typeof(SamusBodyArtworkCatalog).GetField("drainedYOffsets",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        int Stored(SamusBodyArtworkCatalog art) => ((Dictionary<int, sbyte>)field.GetValue(art)!).Count;
+        SamusBodyArtworkCatalog Create(sbyte[] offsets, SamusSpritemapArtworkCatalog? maps = null,
+            SamusBodyTileDefinition[][]? upper = null, SamusBodyTileDefinition[][]? lower = null, sbyte[]? graphics = null) => new(
+            stock.TopSetPointers.ToArray(), stock.BottomSetPointers.ToArray(), stock.PosePointers.ToArray(),
+            graphics ?? stock.GraphicsYOffsets.ToArray(), stock.Frames.ToArray(),
+            upper ?? Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => stock.TopSet(index).ToArray()).ToArray(),
+            lower ?? Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => stock.BottomSet(index).ToArray()).ToArray(),
+            maps ?? stock.Spritemaps, stock.Atmosphere, stock.DeathPalettes, stock.DeathTiles, stock.ArmCannon,
+            stock.LandingYOffsets.ToArray(), stock.PostureYOffsets.ToArray(), offsets);
+        AssertEqual(0, Stored(stock), "Native drained placement uses no stored offset fallback: " + string.Join(", ", ((Dictionary<int, sbyte>)field.GetValue(stock)!).Select(pair => pair.Key + " native=" + pair.Value + " derived=" + (SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, pair.Key, out sbyte calculated) ? calculated.ToString() : "unavailable"))));
+        for (int index = 0; index < 32; index++)
+        {
+            AssertTrue(SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, index, out sbyte direct), "Every native drained phase has a derived default");
+            AssertEqual(native[index], direct, "Direct native support-aligned offset");
+            sbyte[] changed = (sbyte[])native.Clone(); changed[index] ^= 1;
+            var edited = Create(changed);
+            AssertTrue(edited.DrainedYOffsets.SequenceEqual(changed), "Every independent drained edit remains exact");
+            AssertTrue(edited.ContentIdentity != stock.ContentIdentity, "Drained edit changes selected identity");
+        }
+        int draws = 0;
+        for (ushort frame = 0; frame < 32; frame++)
+        {
+            AssertTrue(stock.TryDrainedYOffset(frame, out sbyte offset), "Entire native drained byte window admitted");
+            AssertEqual(native[frame], offset, "Installed native byte including command slots");
+            if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
+            var samus = new SamusState { Pose = 0xe9, AnimationFrame = frame, XPosition = 128, YPosition = 128 };
+            samus.TileTransfers.BindArtwork(stock);
+            samus.Draw(rom, new OamBuffer(), 0, 0);
+            AssertEqual(unchecked((ushort)(128 + native[frame])), samus.SpritemapYPosition,
+                "Actual drained drawing uses exact signed native correction");
+            AssertEqual((ushort)128, samus.YPosition, "Drawing preserves physical center");
+            draws++;
+        }
+        AssertEqual(22, draws, "Every nonempty source phase drawn");
+        AssertTrue(!stock.TryDrainedYOffset(-1, out _) && !stock.TryDrainedYOffset(32, out _), "Exact drained bounds");
+        var emptyMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
+            stock.Spritemaps.Pointers.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer, [])).ToArray());
+        var empty = Create(native, emptyMaps);
+        AssertTrue(empty.DrainedYOffsets.SequenceEqual(native), "Supplied empty art preserves all independent offsets");
+        var zeroPointers = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
+            new ushort[SamusSpritemapArtworkCatalog.PointerCount], []);
+        AssertTrue(Create(native, zeroPointers).DrainedYOffsets.SequenceEqual(native), "Mutable-zero-pointer art preserves offset schema");
+        SamusBodyTileDefinition[][] Blank(bool top) => Enumerable.Range(0, top ? SamusBodyArtworkCatalog.TopSetCount : SamusBodyArtworkCatalog.BottomSetCount)
+            .Select(set => (top ? stock.TopSet(set) : stock.BottomSet(set)).ToArray().Select(definition =>
+                new SamusBodyTileDefinition(definition.SourceAddress, definition.FirstSize, definition.SecondSize, new byte[definition.Planar.Length])).ToArray()).ToArray();
+        var blankPixels = Create(native, upper: Blank(true), lower: Blank(false));
+        AssertTrue(blankPixels.DrainedYOffsets.SequenceEqual(native), "Independently blank PNG pixels preserve original offsets");
+        ushort changedPointer = stock.Spritemaps.Pointers[stock.Spritemaps.TopBase(0xe9)];
+        var shiftedMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
+            stock.Spritemaps.Pointers.ToArray(), stock.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer,
+                map.Pointer == changedPointer ? map.Parts.Select(part => part with { Y = unchecked((byte)(part.Y + 1)) }).ToArray() : map.Parts)).ToArray());
+        var shifted = Create(native, shiftedMaps);
+        AssertTrue(shifted.DrainedYOffsets.SequenceEqual(native), "Changed source support does not couple independent offset edits");
+        AssertTrue(Stored(shifted) > 0, "Edited source geometry stores explicit independent differences");
+        sbyte[] editedGraphics = stock.GraphicsYOffsets.ToArray();
+        editedGraphics[0xe9]++; editedGraphics[0x02]++;
+        AssertTrue(Create(native, graphics: editedGraphics).DrainedYOffsets.SequenceEqual(native),
+            "Independently changed crouching/standing origins preserve all supplied drained offsets");
+        AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyPlacementDefinitions.TryDefaultDrainedByte(stock, 32, out _), "Default drained bound");
+        Console.WriteLine("Drained geometry:32 native defaults, zero stock fallbacks,32 independent edits,22 actual draws and independent empty/pointer/pixel/shifted-art checks pass.");
+    }
     private static void VerifyLookupStream1PostureGeometry(ISnesAddressSpace rom)
     {
         string directory = Path.GetFullPath("csharp/test-temp/posture-geometry-native");

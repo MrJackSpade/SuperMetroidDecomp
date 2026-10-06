@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 481,
+  "remainingTableDefinitionCount": 480,
   "fileCount": 523,
   "entries": [
     {
@@ -2027,12 +2027,15 @@
   "disposition": "Mixed complete: all24 offsets derive source opaque support, destination graphics origin, full eight-frame rolling support envelope, named phases/padding/facing aliases. Retain only exact standing join -1 and second-unmorph join +1 as selected visual continuity; equal-radius transition consumers do not shift physical Y. No timing/pixel/physics exemption. Independently supplied offsets remain exact under edited or unavailable artwork; zero stock fallbacks."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
-      "line": 31,
-      "name": "SamusBodyArtworkCatalog.drainedYOffsets",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind SamusBodyArtworkCatalog.drainedYOffsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
+  "line": 31,
+  "name": "SamusBodyArtworkCatalog.drainedYOffsets",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind SamusBodyArtworkCatalog.drainedYOffsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "8ab3734af",
+  "disposition": "Mixed complete:32offsets derive native opaque support,named drained phases,existing graphics origin,normal standing support and existing radius21 terminal alignment; command padding/repeated phases calculate. Retain only selected compact support17/impact18 and exact phase-alignment policy after native controller/radius review. No timing,pixel or physics exemption. All supplied offsets remain independently editable under unavailable/changed artwork;zero stock fallbacks."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
       "line": 32,
@@ -21631,5 +21634,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 47
+  "justifiedRetainedSinceSnapshot": 48
 }

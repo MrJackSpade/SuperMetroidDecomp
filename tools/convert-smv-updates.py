@@ -18,6 +18,46 @@ def classify_timing(kind, upload_active, scroll_before, scroll_after):
     return "other-continuation"
 
 
+def normalize_upload_intervals(updates, initial_input):
+    """Collapse proven post-scroll upload waits, retaining their input audit trail."""
+    normalized, excluded = [], []
+    for record, original in enumerate(updates):
+        update = dict(original)
+        evidence = update["timingEvidence"]
+        if update["timingClass"] == "apu-upload-continuation":
+            # This contract is deliberately limited to the native door music wait.
+            # No CPU gameplay dispatch or moving door IRQ runs in this interval.
+            if (not normalized or normalized[-1]["kind"] != "main-loop" or
+                not normalized[-1]["timingEvidence"]["apuUploadActiveAtNextBoundary"] or
+                evidence["nativeGameState"] != 11 or evidence["nativeDoorFunction"] != 0xe664 or
+                not evidence["doorScrollFinished"] or
+                evidence["doorScrollCounterBefore"] != evidence["doorScrollCounterAfter"]):
+                raise ValueError("Unsupported APU continuation; cannot prove a pure post-scroll hardware wait")
+            if update["input"] != 0 or normalized[-1]["input"] != 0 or update["pressed"]:
+                raise ValueError("Non-neutral input inside APU upload requires a richer input-latch replay")
+            excluded.append({"sourceFrame": update["sourceFrame"], "input": update["input"],
+                             "pressed": update["pressed"], "record": record})
+            continue
+        if evidence["apuUploadActiveAtInput"]:
+            raise ValueError("APU upload overlaps another owner; automatic normalization is unsupported")
+        update["inputRecord"] = record
+        update["excludedNmiBefore"] = len(excluded)
+        normalized.append(update)
+    if not normalized or normalized[-1]["inputRecord"] != len(updates) - 1:
+        raise ValueError("Movie ends during hardware upload; completed gameplay boundary is unavailable")
+    previous = initial_input
+    for index, update in enumerate(normalized):
+        if update["pressed"] != update["input"] & ~previous:
+            raise ValueError("Removing upload waits would change a consumed input edge")
+        previous = update["input"]
+        following = normalized[index + 1] if index + 1 < len(normalized) else None
+        update["update"] = index + 1
+        update["expectedRecord"] = following["inputRecord"] if following else len(updates)
+        update["endSourceFrame"] = following["sourceFrame"] if following else update["endSourceFrame"]
+        update["excludedNmiAfter"] = following["excludedNmiBefore"] if following else len(excluded)
+    return normalized, excluded
+
+
 def run():
     import argparse
     import csv
@@ -106,6 +146,7 @@ def run():
     # APU upload alone proves a gameplay update or a disposable video refresh.
     apu_uploading, door_scroll_counter = 0x0617, 0x0925
     boundary_timing = []
+    boundary_loading = []
     with gzip.open(boundaries_path, "rb") as source:
         for index in range(len(updates) + 1):
             record = source.read(131080)
@@ -116,6 +157,10 @@ def run():
             boundary_timing.append((
                 struct.unpack_from("<H", record, 8 + apu_uploading)[0],
                 struct.unpack_from("<H", record, 8 + door_scroll_counter)[0]))
+            boundary_loading.append((
+                struct.unpack_from("<H", record, 8 + 0x0998)[0],  # GameState
+                struct.unpack_from("<H", record, 8 + 0x099c)[0],  # DoorTransitionFunction
+                bool(struct.unpack_from("<H", record, 8 + 0x0931)[0] & 0x8000)))
             if frame != expected_frame or pc != (read_enter if index < len(updates) else 0):
                 raise ValueError(f"Checkpoint {index} disagrees with its input boundary")
         if source.read(1):
@@ -128,16 +173,18 @@ def run():
             "apuUploadActiveAtNextBoundary": next_upload != 0,
             "doorScrollCounterBefore": scroll,
             "doorScrollCounterAfter": next_scroll,
+            "nativeGameState": boundary_loading[index][0],
+            "nativeDoorFunction": boundary_loading[index][1],
+            "doorScrollFinished": boundary_loading[index][2],
         }
         update["timingClass"] = classify_timing(update["kind"], upload != 0, scroll, next_scroll)
-    # Keep every input event until replay can preserve the hardware wait's input
-    # latch/counter effects without executing another gameplay frame. Reporting
-    # these separately prevents claiming that accepted NMI == gameplay update.
     timing_counts = {name: sum(u["timingClass"] == name for u in updates) for name in (
         "main-loop", "door-scroll-continuation", "apu-upload-continuation", "other-continuation")}
     source_frames = {u["sourceFrame"] for u in updates}
+    accepted_input_count = len(updates)
+    updates, excluded = normalize_upload_intervals(updates, inputs[0])
     manifest = {
-        "format": "super-metroid-gameplay-updates-v2",
+        "format": "super-metroid-gameplay-updates-v3",
         "movieSha256": hashlib.sha256(movie).hexdigest().upper(),
         "romSha256": rom_hash,
         "nativeCapture": "Snes9x 1.60 913b75d07c6e8d54e966e2c4a79d7c55428007df; instrumented J/U input boundaries",
@@ -145,7 +192,10 @@ def run():
         "sourceFrameCount": frames, "initialInput": inputs[0],
         "updateCount": len(updates),
         "timingCounts": timing_counts,
-        "hardwareUploadNormalizationComplete": not any(upload for upload, _ in boundary_timing),
+        "acceptedInputCount": accepted_input_count,
+        "hardwareUploadNormalizationComplete": True,
+        "hardwareUploadInputsExcluded": len(excluded),
+        "excludedUploadInputs": excluded,
         "hardwareLagRefreshesExcluded": frames - len(source_frames),
         "mainLoopUpdates": sum(u["kind"] == "main-loop" for u in updates),
         "continuationUpdates": sum(u["kind"] == "nmi-continuation" for u in updates),
@@ -153,7 +203,7 @@ def run():
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({k: v for k, v in manifest.items() if k != "updates"}, indent=2))
+    print(json.dumps({k: v for k, v in manifest.items() if k not in ("updates", "excludedUploadInputs")}, indent=2))
     return 0
 
 

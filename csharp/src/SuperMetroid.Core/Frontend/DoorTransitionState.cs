@@ -233,37 +233,25 @@ public sealed class DoorTransitionState
 
             case DoorTransitionPhase.HandleTransition:
                 runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: true);
                 // `$82:E6A2` applies the narrow-door X/Y nudges only after the opening IRQ
                 // and music queue are both complete. The atomic loader computed that exact
                 // endpoint, which is restored here rather than during the visible scroll.
                 runtime.FinishDoorOpeningScroll();
                 runtime.EndDoorTransitionIrqDisplay();
-                // Commit the consumed scroll stage before calling destination actors.
-                // A recoverable actor exception must retry drawing, not finalize a scroll
-                // whose owner was already released. The normal path still runs this now.
+                // E6A2 returns before the next E737 actor/fade dispatch. Falling
+                // through ran Samus movement and accepted three NMIs in one update.
                 Phase = DoorTransitionPhase.BuildDestinationOam;
-                goto case DoorTransitionPhase.BuildDestinationOam;
-
-            case DoorTransitionPhase.BuildDestinationOam:
-                // `$82:E737` begins running enemy/draw owners only after the incremental
-                // door IRQ has replaced the complete viewport. The previous implementation
-                // called the full gameplay frame immediately after room construction; its
-                // ordinary camera streamer wrote extra destination columns before the first
-                // IRQ step and visibly corrupted both horizontal door directions. Build and
-                // publish the destination OAM now, while the palette is still black, so the
-                // first fade-in frame cannot expose stale source-room objects.
-                // NMI continues sampling the physical controller while the door coroutine
-                // owns Samus. Supplying zero here creates a fake release and makes a held
-                // chord look newly pressed again on the first fade frame. The input lock,
-                // not a fabricated neutral sample, prevents gameplay movement.
-                runtime.StepFrame(controller1Input: controllerInput, advanceGameTime: false,
-                    queueEchoSound: queueEchoSound);
-                runtime.RunNmi(controller1Input: controllerInput, mainLoopRequestedNmi: true);
-                Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 break;
 
+            case DoorTransitionPhase.BuildDestinationOam:
             case DoorTransitionPhase.FadeInDestinationPalette:
                 runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: true);
+                // E737 runs enemy/draw owners on every fade step, without Samus's
+                // movement/animation handler or the ordinary camera streamer.
+                runtime.DrawDoorTransitionActors();
+                Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 // Enemy instruction lists run after the initial destination palette copy.
                 // Their target writes belong to this same fade, not a private dead buffer.
                 runtime.Enemies.ConsumeTargetPaletteWrites(paletteTransition!.SetTargetColor);

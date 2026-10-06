@@ -58,24 +58,27 @@ The reusable converter is `tools/convert-smv-updates.py`. Its native capture ada
 and build instructions are in `tools/smv-native-capture/`. The instrumented complete
 movie produces 10,758 accepted input intervals: 10,655 outer main-loop dispatches
 and 103 NMI continuations. Accepted input is not by itself a gameplay update.
-Manifest v2 records native APU-upload and door-scroll-counter evidence: 61
-continuations change the scroll counter, 41 occur during APU upload after scrolling
-has stopped, and one completes the scrolling coroutine without a counter change.
-The last group remains explicitly unclassified rather than inferred disposable.
+Manifest v3 records native APU-upload and door-scroll evidence: 61 continuations
+change the scroll counter, 41 are hardware APU waits, and one completes the
+scrolling coroutine without a counter change. Both scrolling groups remain.
 
-The 41 APU intervals are source frames 294–334. Native `$80:8028` sets the WRAM
+The 41 hardware intervals are source frames 294-334. Native `$80:8028` sets WRAM
 upload flag `$0617` around `SendAPUData`; the door IRQ keeps requesting NMI at
-`$80:9823`, so accepted controller reads continue while the main CPU is uploading.
-These intervals must not become artificial gameplay frames in the port. The
-converter preserves them for now, with `hardwareUploadNormalizationComplete=false`;
-the verifier refuses to execute them as gameplay. Input-latch and counter effects
-still need normalization, including any simultaneous IRQ gameplay. A future
-converter must not simply delete all samples with the upload flag set.
+`$80:9823` even after scrolling finishes. V3 folds these neutral-input intervals
+into the preceding outer dispatch and compares its completed checkpoint. It
+retains an audit record for every omitted input, plus source/record mappings and
+the cumulative excluded NMI count. The verifier subtracts that count only when
+comparing the reference's NMI bookkeeping; no runtime state is injected. Any
+derived gameplay-state mismatch still fails normally.
 
-The converter already excludes 132 refreshes without accepted input, retains all
-observed input edges, and verifies every private checkpoint through the original
-movie's terminal state. Original SMV and ROM hashes remain unchanged. The earlier
-claim that all 103 continuations were intentional gameplay waits was too broad.
+Normalization requires the native door music-wait dispatcher, completed scrolling,
+no changing scroll counter, no outer dispatch in the omitted interval, and neutral
+input throughout. Non-neutral input, overlapping owners, an unfinished terminal
+upload, or changed retained input edges fail conversion rather than being guessed.
+The original movie now converts to 10,717 replay updates: 10,655 outer dispatches
+and 62 continuations. It excludes 132 refreshes without accepted input and 41
+proven upload intervals. Every original checkpoint and input edge is validated
+through the terminal state; ROM and SMV hashes remain unchanged.
 
 The full-replay diagnostic imports state once and compares Samus position,
 subpixels, movement speeds, animation, health, accepted NMI, RNG, dispatcher state,
@@ -83,7 +86,8 @@ room identity, and active enemies' identities, positions, health and visual curs
 That comparison is still under development; conversion success is not port parity.
 Door-entry and source-fade HDMA/RNG/actor omissions were reproduced and fixed,
 along with missing RNG advancement through the outer loading dispatches. The
-current checked gameplay properties match through update 243 with the loading-owner alignment described below. Setup now applies
+current checked properties match through update 531, with loading-owner alignment
+and upload normalization as described here. Setup now applies
 Samus's first displacement before destination rebasing; the atomic loader retains
 the pre-setup source coordinates so it does not count that movement twice. A
 focused failing-then-passing regression confirms native `$0013.5800` at setup,
@@ -112,15 +116,22 @@ before the music wait. It accepts one NMI without another main-loop RNG call;
 the following animated-tile and music-wait dispatches advance RNG normally. The
 focused fixture confirms native positions and RNG through those boundaries.
 
-The next divergence is update 244 (source frame 279): the port has already entered
-destination animation and accepts extra NMIs. Source inspection identifies two
-remaining problems: the frontend advances music delays on every IRQ-only wait,
-although native `$88:84BD` calls the music handler from the outer main-loop
-prologue; and its final transition dispatch falls through into a full gameplay
-frame instead of returning before destination fade processing. The existing
-`--door-music-timing` check passes its old expectation of uploading during scroll,
-but this expectation conflicts with the new native trace and must be corrected.
-Hardware-upload normalization remains unfinished as described above.
+Music handling now runs before each outer door dispatch; IRQ-only waits preserve
+its queued delays. Sound dispatch waits for the suspended coroutine to return.
+The corrected real-door test checks post-scroll stop/upload timing and the track's
+next-prologue acquisition plus eight-dispatch delay. Audio queue and autosave
+continuation checks pass.
+
+The final `$82:E6A2` dispatch now returns after one NMI without moving/animating
+Samus or advancing destination actors. Each following `$82:E737` fade dispatch
+runs the enemy/draw owners and palette step, still without Samus movement. Native
+first-fade instruction `$E546`, sprite `$E9A5`, and durations 12 then 11 are covered
+by the focused fixture. The independent replay passes the entire door transition.
+
+The next divergence is normalized update 532 (original source frame 633): Ridley's
+instruction cursor changes to `$E6B2` in the port while native retains `$E546`;
+native duration is `$FEFC`, port duration 6. The other currently compared fields,
+including positions and RNG, still agree there. This is the next investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375â€“744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

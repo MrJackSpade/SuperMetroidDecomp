@@ -9,6 +9,10 @@ internal static class RidleyMovieMemory
     public const ushort LoadMoreThings = 0xe4a9;
     /// <summary>$82:E659: HandleAnimTiles; destination loading and its coroutine have completed.</summary>
     public const ushort HandleAnimTiles = 0xe659;
+    /// <summary>$A6:E546: Ridley's first displayed instruction after the E737 fade owner runs.</summary>
+    public const ushort RidleyFirstFadeInstruction = 0xe546;
+    /// <summary>$A6:E9A5: native Ridley body sprite installed on the first fade update.</summary>
+    public const ushort RidleyFirstFadeSpritemap = 0xe9a5;
     /// <summary>$079B: room_ptr.</summary>
     public const int Room = 0x079b;
     /// <summary>$0911: layer1_x_pos.</summary>

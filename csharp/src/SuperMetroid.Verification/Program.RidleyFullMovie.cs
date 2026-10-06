@@ -112,7 +112,28 @@ internal static partial class Program
         AssertEqual((ushort)0xc5b9, runtime.System.RandomNumber, "native animated-tile outer dispatch RNG");
         game.Step(0);
         AssertEqual((ushort)0xa1ea, runtime.System.RandomNumber, "native music-wait outer dispatch RNG");
-        Console.WriteLine("Ridley door entry/fade/loading: native RNG/NMI, setup displacement, complete IRQ trajectory and final alignment agree.");
+        int musicWaits = 0;
+        while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForMusicQueue && musicWaits++ < 32)
+            game.Step(0);
+        AssertEqual(DoorTransitionPhase.HandleTransition, game.DoorTransitionPhaseForVerification, "native music queue reaches final door dispatch");
+        ushort nmiBeforeNudge = runtime.NmiFrameCounter;
+        ushort samusAnimation = samus.AnimationFrame;
+        var ridley = runtime.Enemies.Slots[0];
+        ushort bodyInstruction = ridley.CurrentInstruction;
+        game.Step(0);
+        AssertEqual(DoorTransitionPhase.BuildDestinationOam, game.DoorTransitionPhaseForVerification, "final nudge returns before first fade");
+        AssertEqual(unchecked((ushort)(nmiBeforeNudge + 1)), runtime.NmiFrameCounter, "final transition accepts exactly one NMI");
+        AssertEqual(samusAnimation, samus.AnimationFrame, "final transition does not animate Samus");
+        AssertEqual(bodyInstruction, ridley.CurrentInstruction, "final transition does not advance destination enemy instructions");
+        game.Step(0);
+        AssertEqual(unchecked((ushort)(nmiBeforeNudge + 2)), runtime.NmiFrameCounter, "first fade accepts exactly one additional NMI");
+        AssertEqual(samusAnimation, samus.AnimationFrame, "destination fade does not animate Samus");
+        AssertEqual(RidleyMovieMemory.RidleyFirstFadeInstruction, ridley.CurrentInstruction, "first fade runs native Ridley instruction list");
+        AssertEqual(RidleyMovieMemory.RidleyFirstFadeSpritemap, ridley.SpritemapPointer, "first fade publishes native Ridley sprite");
+        AssertEqual((ushort)12, ridley.InstructionTimer, "first native fade visual duration");
+        game.Step(0);
+        AssertEqual((ushort)11, ridley.InstructionTimer, "later fade updates continue enemy animation");
+        Console.WriteLine("Ridley door entry/loading/fade: native positions, RNG, one NMI per dispatch, stationary Samus animation and continuing enemy visuals agree.");
     }
 
     private static void VerifyRidleyFullMovie(string directory)
@@ -121,7 +142,7 @@ internal static partial class Program
         AssertTrue(Convert.ToHexString(SHA256.HashData(movie)) == "7E12861DC56C5ABED12C2BFA2B00D24BFA418F49F2CE4C027D930CE9A3663F66", "original Ridley movie hash");
         using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "updates.json")));
         var root = manifest.RootElement;
-        AssertEqual("super-metroid-gameplay-updates-v2", root.GetProperty("format").GetString()!, "converted replay format");
+        AssertEqual("super-metroid-gameplay-updates-v3", root.GetProperty("format").GetString()!, "converted replay format");
         AssertEqual(Convert.ToHexString(SHA256.HashData(movie)), root.GetProperty("movieSha256").GetString()!, "converted movie identity");
         AssertEqual(10890, root.GetProperty("sourceFrameCount").GetInt32(), "complete original movie coverage");
         var updates = root.GetProperty("updates").EnumerateArray().ToArray();
@@ -132,9 +153,16 @@ internal static partial class Program
         file.Position = 0;
         using var trace = new GZipStream(file, CompressionMode.Decompress);
         var record = new byte[131080];
+        int lastNativeRecord = -1;
         byte[] ReadFrame(int update)
         {
-            trace.ReadExactly(record);
+            int wantedRecord = update == 0 ? 0 : updates[update - 1].GetProperty("expectedRecord").GetInt32();
+            AssertTrue(wantedRecord > lastNativeRecord, "native checkpoint order remains forward-only");
+            while (lastNativeRecord < wantedRecord)
+            {
+                trace.ReadExactly(record);
+                lastNativeRecord++;
+            }
             int expectedFrame = update < length ? updates[update].GetProperty("sourceFrame").GetInt32() : 10890;
             AssertEqual(expectedFrame, BinaryPrimitives.ReadInt32LittleEndian(record), "native input-boundary frame");
             AssertEqual(update < length ? RidleyMovieMemory.ReadControllerInput : 0,
@@ -259,7 +287,12 @@ internal static partial class Program
                 ushort expected = W(address);
                 if (actual != expected) mismatches.Add($"{name}: native={expected:X4} port={actual:X4}");
             }
-            Check("Accepted NMI", runtime.NmiFrameCounter, RidleyMovieMemory.NmiCounter);
+            // Only the reference's proven hardware-upload NMI count is normalized;
+            // gameplay state is never copied back into the production runtime.
+            int excludedNmis = frame == 0 ? 0 : updates[frame - 1].GetProperty("excludedNmiAfter").GetInt32();
+            ushort normalizedNmi = unchecked((ushort)(W(RidleyMovieMemory.NmiCounter) - excludedNmis));
+            if (runtime.NmiFrameCounter != normalizedNmi)
+                mismatches.Add($"Accepted gameplay NMI: native={normalizedNmi:X4} port={runtime.NmiFrameCounter:X4}");
             Check("Game state", (ushort)game.GameState, RidleyMovieMemory.GameState);
             // Native LoadDoorHeader publishes the destination room pointer before
             // loading its room/state data. The port keeps that identity in the pending

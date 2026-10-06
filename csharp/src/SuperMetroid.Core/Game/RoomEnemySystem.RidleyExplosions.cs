@@ -49,6 +49,8 @@ public sealed partial class RoomEnemySystem
             RoomEnemySlot fragment = _slots[slotIndex];
             InitializeSlotFromDefinition(fragment, population, definition);
             InitializeNorfairRidleyExplosion(fragment, body, state);
+            // SpawnEnemy's post-init $A0:93D9 write precedes the first instruction tick.
+            fragment.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
             EnemyCount = unchecked((ushort)Math.Max(EnemyCount, slotIndex + 1));
             FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * NativeSlotSize));
         }

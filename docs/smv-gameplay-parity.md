@@ -286,8 +286,13 @@ matching $A6:BB8C's JMP to $C538. Deferring it lost the first death-spot acceler
 The focused source10132 fixture confirms X velocity01C6, Y velocityFBDE and retained
 countdown29; independent replay confirms both position fractions and subsequent
 movement. All currently compared fields match through update10161/10717.
-Next difference: update10162/source10329, twelve Ridley breakup actors initially have
-native spritemap804D versus port0000. Their initialization is the next investigation.
+Ridley breakup spawning now installs the common empty spritemap after initialization,
+matching SpawnEnemy $A0:93D9. The focused twelve-actor fixture confirms this initial
+value and its replacement by each first instruction; all29 breakup programs pass.
+Independent replay now matches through update10202/10717. Next difference:
+update10203/source10375, enemy8 should be removed and enemy-projectile17 should be
+pickupF345, but the port retains the actor and publishes E509. Fragment expiry is
+not yet diagnosed.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

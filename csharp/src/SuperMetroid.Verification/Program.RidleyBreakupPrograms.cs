@@ -32,7 +32,13 @@ internal static partial class Program
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
         AssertEqual((ushort)0xca9b, fragments[0].CurrentInstruction, "reported tail orientation selects CA9B");
         foreach (var fragment in fragments)
+        {
+            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, fragment.SpritemapPointer,
+                "native breakup spawn installs empty frame before instruction processing");
             process(fragment, null, null, 0, 0, 0, 0);
+            AssertTrue(fragment.SpritemapPointer != CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap &&
+                fragment.SpritemapPointer != 0, "first breakup instruction replaces empty frame");
+        }
         var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
         var stock = EnemySpritemapCatalog.Load(new MemoryStream(stockBytes));

@@ -953,10 +953,10 @@ internal sealed partial class EndingCreditsState
         AddSignedFixed(
             ref mode7X,
             ref mode7XSubposition,
-            EndingCreditsRomData.Motion.PlanetFastPattern[planetMotionIndex]);
+            EndingCreditsRomData.Motion.PlanetFastDelta(planetMotionIndex));
         planetMotionIndex = unchecked((ushort)(
             (planetMotionIndex + 1) &
-            (EndingCreditsRomData.Motion.PlanetFastPattern.Length - 1)));
+            (EndingCreditsRomData.Motion.PlanetFastPatternLength - 1)));
         mode7Zoom = unchecked((ushort)(mode7Zoom - 8));
         if (mode7Zoom < EndingCreditsRomData.Motion.PlanetFastEndScale)
         {
@@ -973,10 +973,10 @@ internal sealed partial class EndingCreditsState
         AddSignedFixed(
             ref mode7X,
             ref mode7XSubposition,
-            EndingCreditsRomData.Motion.PlanetSlowPattern[planetMotionIndex]);
+            EndingCreditsRomData.Motion.PlanetSlowDelta(planetMotionIndex));
         planetMotionIndex = unchecked((ushort)(
             (planetMotionIndex + 1) &
-            (EndingCreditsRomData.Motion.PlanetSlowPattern.Length - 1)));
+            (EndingCreditsRomData.Motion.PlanetSlowPatternLength - 1)));
         mode7Zoom = unchecked((ushort)(mode7Zoom - 2));
         if (mode7Zoom < EndingCreditsRomData.Motion.PlanetSlowEndScale)
         {

@@ -9,6 +9,49 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4EndingShake(ISnesAddressSpace rom)
+    {
+        int Native(int address)
+        {
+            ushort whole = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort fraction = (ushort)(rom.ReadByte(address + 2) | rom.ReadByte(address + 3) << 8);
+            return unchecked((int)((uint)whole << 16 | fraction));
+        }
+        for (int index = 0; index < 16; index++)
+            AssertEqual(Native(0x8BDD02 + index * 4), EndingCreditsRomData.Motion.PlanetFastDelta(index), "native fast shake signed fixed-point value");
+        for (int index = 0; index < 8; index++)
+            AssertEqual(Native(0x8BDDAD + index * 4), EndingCreditsRomData.Motion.PlanetSlowDelta(index), "native slow shake signed fixed-point value");
+        AssertEqual(32768, EndingCreditsRomData.Motion.PlanetFastDelta(9), "native DD26 fast sample9 is positive half-pixel");
+        AssertEqual(-32768, EndingCreditsRomData.Motion.PlanetFastDelta(11), "native DD2E fast sample11 is negative half-pixel");
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        foreach (bool fast in new[] { true, false })
+        {
+            int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
+            var state = new EndingCreditsState(new FrontendCartridgeReadGuard(rom), new SuperMetroid.Core.Audio.CartridgeAudioState(), 0, 0);
+            var type = typeof(EndingCreditsState);
+            void Set(string name, object value) => type.GetField(name, flags)!.SetValue(state, value);
+            ushort Get(string name) => (ushort)type.GetField(name, flags)!.GetValue(state)!;
+            Set("mode7X", (ushort)100); Set("mode7XSubposition", (ushort)0xC000);
+            Set("mode7Zoom", (ushort)0xC00); Set("phaseTimer", 100);
+            type.GetProperty(nameof(EndingCreditsState.Phase))!.SetValue(state,
+                fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow);
+            var step = type.GetMethod(fast ? "StepPlanetEscapeFast" : "StepPlanetEscapeSlow", flags)!.CreateDelegate<Action>(state);
+            uint expected = 100u << 16 | 0xC000;
+            for (int frame = 0; frame <= count; frame++)
+            {
+                expected = unchecked(expected + (uint)Native(address + (frame % count) * 4));
+                step();
+                AssertEqual((ushort)(expected >> 16), Get("mode7X"), "production shake whole position follows native indexed values");
+                AssertEqual((ushort)expected, Get("mode7XSubposition"), "production shake fraction preserves carry/borrow");
+                AssertEqual((ushort)((frame + 1) % count), Get("planetMotionIndex"), "production shake advances after selection and wraps native mask");
+            }
+        }
+        foreach (int index in new[] { -1, 16, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => EndingCreditsRomData.Motion.PlanetFastDelta(index), "fast shake bounds");
+        foreach (int index in new[] { -1, 8, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => EndingCreditsRomData.Motion.PlanetSlowDelta(index), "slow shake bounds");
+        Console.WriteLine("Ending shake:24 native signed values, corrected samples9/11, both production cycles/index wraps and fixed-point carries pass.");
+    }
     private static void VerifyLookupStream4SporeHealthyAlias(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

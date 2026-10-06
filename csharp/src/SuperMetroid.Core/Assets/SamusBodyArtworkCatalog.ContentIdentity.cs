@@ -4,14 +4,14 @@ public sealed partial class SamusBodyArtworkCatalog
 {
     private string CreateContentIdentity() => SelectedPresentationHash.Create(nameof(SamusBodyArtworkCatalog), content =>
     {
-        content.AppendWords("top pointers", topPointers);
-        content.AppendWords("bottom pointers", bottomPointers);
-        content.AppendWords("pose pointers", posePointers);
-        content.Append("graphics y offsets", graphicsYOffsets.Select(value => unchecked((byte)value)).ToArray());
-        content.AppendWords("landing y offsets", landingYOffsets);
-        content.Append("posture y offsets", postureYOffsets.Select(value => unchecked((byte)value)).ToArray());
+        content.AppendWords("top pointers", TopSetPointers);
+        content.AppendWords("bottom pointers", BottomSetPointers);
+        content.AppendWords("pose pointers", PosePointers);
+        content.Append("graphics y offsets", GraphicsYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
+        content.AppendWords("landing y offsets", LandingYOffsets);
+        content.Append("posture y offsets", PostureYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
         content.Append("drained y offsets", drainedYOffsets.Select(value => unchecked((byte)value)).ToArray());
-        foreach (SamusBodyFrameSelection frame in frames)
+        foreach (SamusBodyFrameSelection frame in Frames)
         {
             content.Append("top set", frame.TopSet);
             content.Append("top position", frame.TopPosition);

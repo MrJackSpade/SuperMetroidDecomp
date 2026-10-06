@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 518,
+  "remainingTableDefinitionCount": 514,
   "fileCount": 523,
   "entries": [
     {
@@ -1927,28 +1927,36 @@
       "line": 25,
       "name": "SamusBodyArtworkCatalog.topPointers",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SamusBodyArtworkCatalog.topPointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SamusBodyArtworkCatalog.topPointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "44b30f26cfe139363c6813bab4473b7f1a80c9c4"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
       "line": 26,
       "name": "SamusBodyArtworkCatalog.bottomPointers",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SamusBodyArtworkCatalog.bottomPointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SamusBodyArtworkCatalog.bottomPointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "44b30f26cfe139363c6813bab4473b7f1a80c9c4"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
       "line": 27,
       "name": "SamusBodyArtworkCatalog.posePointers",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SamusBodyArtworkCatalog.posePointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SamusBodyArtworkCatalog.posePointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "44b30f26cfe139363c6813bab4473b7f1a80c9c4"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
       "line": 28,
       "name": "SamusBodyArtworkCatalog.graphicsYOffsets",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SamusBodyArtworkCatalog.graphicsYOffsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SamusBodyArtworkCatalog.graphicsYOffsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "44b30f26cfe139363c6813bab4473b7f1a80c9c4"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
@@ -21542,6 +21550,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 589,
+  "convertedSinceSnapshot": 593,
   "justifiedRetainedSinceSnapshot": 21
 }

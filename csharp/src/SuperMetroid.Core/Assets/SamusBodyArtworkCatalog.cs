@@ -22,14 +22,14 @@ public sealed partial class SamusBodyArtworkCatalog
     public const int TilesPerDefinition = 16;
     public const int BytesPerDefinitionSlot = TilesPerDefinition * 32;
 
-    private readonly ushort[] topPointers;
-    private readonly ushort[] bottomPointers;
-    private readonly ushort[] posePointers;
-    private readonly sbyte[] graphicsYOffsets;
-    private readonly ushort[] landingYOffsets;
-    private readonly sbyte[] postureYOffsets;
+    private readonly Dictionary<int, ushort> topPointers;
+    private readonly Dictionary<int, ushort> bottomPointers;
+    private readonly Dictionary<int, ushort> posePointers;
+    private readonly Dictionary<int, sbyte> graphicsYOffsets;
+    private readonly Dictionary<int, ushort> landingYOffsets;
+    private readonly Dictionary<int, sbyte> postureYOffsets;
     private readonly sbyte[] drainedYOffsets;
-    private readonly SamusBodyFrameSelection[] frames;
+    private readonly Dictionary<int, byte> frames;
     private readonly SamusBodyTileDefinition[][] top;
     private readonly SamusBodyTileDefinition[][] bottom;
     private readonly Dictionary<int, SamusBodyTileDefinition> definitionsByAddress = [];
@@ -84,27 +84,45 @@ public sealed partial class SamusBodyArtworkCatalog
             top.Length != TopSetCount || bottom.Length != BottomSetCount)
             throw new InvalidDataException("Samus body selector tables have an invalid length.");
 
-        this.topPointers = (ushort[])topPointers.Clone();
-        this.bottomPointers = (ushort[])bottomPointers.Clone();
-        this.posePointers = (ushort[])posePointers.Clone();
-        this.graphicsYOffsets = (sbyte[])graphicsYOffsets.Clone();
-        this.landingYOffsets = (ushort[])landingYOffsets.Clone();
-        if (this.landingYOffsets.Any(value => value > byte.MaxValue))
+        this.topPointers = Enumerable.Range(0, topPointers.Length)
+            .Where(index => topPointers[index] != SamusBodyDefinitionLayout.DefaultTopPointer(index))
+            .ToDictionary(index => index, index => topPointers[index]);
+        this.bottomPointers = Enumerable.Range(0, bottomPointers.Length)
+            .Where(index => bottomPointers[index] != SamusBodyDefinitionLayout.DefaultBottomPointer(index))
+            .ToDictionary(index => index, index => bottomPointers[index]);
+        this.posePointers = Enumerable.Range(0, posePointers.Length)
+            .Where(pose => posePointers[pose] != SamusBodyPoseDefinitions.DefaultFrameList((byte)pose))
+            .ToDictionary(pose => pose, pose => posePointers[pose]);
+        this.graphicsYOffsets = Enumerable.Range(0, graphicsYOffsets.Length)
+            .Where(index => graphicsYOffsets[index] != SamusBodyPlacementDefinitions.DefaultGraphicsYOffset((byte)index))
+            .ToDictionary(index => index, index => graphicsYOffsets[index]);
+        if (landingYOffsets.Any(value => value > byte.MaxValue))
             throw new InvalidDataException("Samus landing visual bytes must fit in one byte.");
-        this.postureYOffsets = (sbyte[])postureYOffsets.Clone();
+        this.landingYOffsets = Enumerable.Range(0, landingYOffsets.Length)
+            .Where(index => SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index ||
+                landingYOffsets[index] != landingYOffsets[SamusBodyPlacementDefinitions.LandingSourceIndex(index)])
+            .ToDictionary(index => index, index => landingYOffsets[index]);
+        this.postureYOffsets = Enumerable.Range(0, postureYOffsets.Length)
+            .Where(index => SamusBodyPlacementDefinitions.PostureSourceIndex(index) == index ||
+                postureYOffsets[index] != postureYOffsets[SamusBodyPlacementDefinitions.PostureSourceIndex(index)])
+            .ToDictionary(index => index, index => postureYOffsets[index]);
         this.drainedYOffsets = (sbyte[])drainedYOffsets.Clone();
-        this.frames = (SamusBodyFrameSelection[])frames.Clone();
+        byte[] components = frames.SelectMany(frame => new byte[] { frame.TopSet, frame.TopPosition, frame.BottomSet, frame.BottomPosition }).ToArray();
+        this.frames = Enumerable.Range(0, components.Length)
+            .Where(index => SamusBodyFrameDefinitions.SourceComponent(index) == index ||
+                components[index] != components[SamusBodyFrameDefinitions.SourceComponent(index)])
+            .ToDictionary(index => index, index => components[index]);
         Spritemaps = spritemaps;
         Atmosphere = atmosphere;
         DeathPalettes = deathPalettes;
         DeathTiles = deathTiles;
         ArmCannon = armCannon;
-        this.top = CloneAndValidate(this.topPointers, top);
-        this.bottom = CloneAndValidate(this.bottomPointers, bottom);
-        SamusBodyDefinitionLayout.ValidateCompleteGroups(this.topPointers, this.bottomPointers, this.top, this.bottom);
+        this.top = CloneAndValidate(topPointers, top);
+        this.bottom = CloneAndValidate(bottomPointers, bottom);
+        SamusBodyDefinitionLayout.ValidateCompleteGroups(topPointers, bottomPointers, this.top, this.bottom);
         IndexDefinitions(true, this.top);
         IndexDefinitions(false, this.bottom);
-        foreach (ushort pointer in this.posePointers)
+        foreach (ushort pointer in posePointers)
             if (pointer < FirstFrameOffset ||
                 pointer >= FrameEndOffset ||
                 (pointer - FirstFrameOffset) % 4 != 0)
@@ -117,28 +135,33 @@ public sealed partial class SamusBodyArtworkCatalog
     /// <summary>SHA-256 of selected body art, all visual selectors and every bundled Samus catalog.</summary>
     public string ContentIdentity => CreateContentIdentity();
 
-    public ReadOnlySpan<ushort> TopSetPointers => topPointers;
-    public ReadOnlySpan<ushort> BottomSetPointers => bottomPointers;
-    public ReadOnlySpan<ushort> PosePointers => posePointers;
-    public ReadOnlySpan<sbyte> GraphicsYOffsets => graphicsYOffsets;
+    public ReadOnlySpan<ushort> TopSetPointers => Enumerable.Range(0, TopSetCount).Select(index => SetPointer(true, index)).ToArray();
+    public ReadOnlySpan<ushort> BottomSetPointers => Enumerable.Range(0, BottomSetCount).Select(index => SetPointer(false, index)).ToArray();
+    public ReadOnlySpan<ushort> PosePointers => Enumerable.Range(0, PoseCount).Select(pose => PosePointer((byte)pose)).ToArray();
+    public ReadOnlySpan<sbyte> GraphicsYOffsets => Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset((byte)index)).ToArray();
     /// <summary>Native landing table, including the one adjacent byte read by an unaligned word.</summary>
-    public ReadOnlySpan<ushort> LandingYOffsets => landingYOffsets;
-    public ReadOnlySpan<sbyte> PostureYOffsets => postureYOffsets;
+    public ReadOnlySpan<ushort> LandingYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
+    public ReadOnlySpan<sbyte> PostureYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount).Select(PostureByte).ToArray();
     public ReadOnlySpan<sbyte> DrainedYOffsets => drainedYOffsets;
+    private ushort LandingByte(int index) => landingYOffsets.TryGetValue(index, out ushort value)
+        ? value : landingYOffsets[SamusBodyPlacementDefinitions.LandingSourceIndex(index)];
+    private sbyte PostureByte(int index) => postureYOffsets.TryGetValue(index, out sbyte value)
+        ? value : postureYOffsets[SamusBodyPlacementDefinitions.PostureSourceIndex(index)];
+
     public bool TryLandingYOffset(int index, out ushort value)
     {
-        if ((uint)index >= landingYOffsets.Length - 1)
+        if ((uint)index >= SamusRenderingRomData.Body.LandingVerticalOffsetByteCount - 1)
         {
             value = 0;
             return false;
         }
-        value = (ushort)(landingYOffsets[index] | landingYOffsets[index + 1] << 8);
+        value = (ushort)(LandingByte(index) | LandingByte(index + 1) << 8);
         return true;
     }
     public bool TryPostureYOffset(int index, out sbyte value)
     {
-        if ((uint)index >= postureYOffsets.Length) { value = 0; return false; }
-        value = postureYOffsets[index];
+        if ((uint)index >= SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount) { value = 0; return false; }
+        value = PostureByte(index);
         return true;
     }
     public bool TryDrainedYOffset(int index, out sbyte value)
@@ -149,38 +172,50 @@ public sealed partial class SamusBodyArtworkCatalog
     }
     /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
     public sbyte GraphicsYOffset(byte pose) =>
-        pose < PoseCount ? graphicsYOffsets[pose] :
+        pose < PoseCount ? graphicsYOffsets.TryGetValue(pose, out sbyte value) ? value : SamusBodyPlacementDefinitions.DefaultGraphicsYOffset(pose) :
             throw new InvalidDataException($"Pose ${pose:X2} has no authored graphics Y offset.");
-    public ReadOnlySpan<SamusBodyFrameSelection> Frames => frames;
+    public ReadOnlySpan<SamusBodyFrameSelection> Frames => Enumerable.Range(0, FrameCount).Select(FrameAt).ToArray();
+    private byte FrameComponent(int index) => frames.TryGetValue(index, out byte value)
+        ? value : frames[SamusBodyFrameDefinitions.SourceComponent(index)];
+    private SamusBodyFrameSelection FrameAt(int index) => new(FrameComponent(index * 4), FrameComponent(index * 4 + 1),
+        FrameComponent(index * 4 + 2), FrameComponent(index * 4 + 3));
     public IReadOnlyList<SamusBodyTileDefinition> TopSet(int set) => top[set];
     public IReadOnlyList<SamusBodyTileDefinition> BottomSet(int set) => bottom[set];
+
+    private ushort PosePointer(byte pose) => posePointers.TryGetValue(pose, out ushort value)
+        ? value : SamusBodyPoseDefinitions.DefaultFrameList(pose);
 
     /// <summary>Resolve the cartridge's pose pointer plus four bytes per animation frame.</summary>
     public SamusBodyFrameSelection Frame(byte pose, ushort animationFrame)
     {
         if (pose >= PoseCount)
             throw new InvalidDataException($"Pose ${pose:X2} has no authored Samus body frame list.");
-        ushort address = unchecked((ushort)(posePointers[pose] + animationFrame * 4));
+        ushort address = unchecked((ushort)(PosePointer(pose) + animationFrame * 4));
         if (address < FirstFrameOffset || address >= FrameEndOffset ||
             (address - FirstFrameOffset) % 4 != 0)
             throw new InvalidDataException($"Samus frame ${address:X4} is outside extracted visual selectors.");
-        SamusBodyFrameSelection frame = frames[(address - FirstFrameOffset) / 4];
+        SamusBodyFrameSelection frame = FrameAt((address - FirstFrameOffset) / 4);
         GetDefinition(true, frame.TopSet, frame.TopPosition);
         if (frame.BottomSet != SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
             GetDefinition(false, frame.BottomSet, frame.BottomPosition);
         return frame;
     }
 
+    private ushort SetPointer(bool upperHalf, int set)
+    {
+        Dictionary<int, ushort> overrides = upperHalf ? topPointers : bottomPointers;
+        return overrides.TryGetValue(set, out ushort value) ? value : upperHalf
+            ? SamusBodyDefinitionLayout.DefaultTopPointer(set) : SamusBodyDefinitionLayout.DefaultBottomPointer(set);
+    }
     public SamusBodyTileDefinition GetDefinition(bool upperHalf, byte set, byte position)
     {
-        ushort[] pointers = upperHalf ? topPointers : bottomPointers;
-        if (set >= pointers.Length)
+        if (set >= (upperHalf ? TopSetCount : BottomSetCount))
             throw new InvalidDataException(
                 $"Samus {(upperHalf ? "top" : "bottom")} definition {set:X2}/{position:X2} is absent.");
         // The native selector adds position*7 to the chosen set pointer without a
         // per-set bounds check. Several authored frames intentionally land in the
         // next definition group; resolve the physical address, not a C# jagged index.
-        int address = SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(pointers[set] +
+        int address = SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(SetPointer(upperHalf, set) +
             position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
         return DefinitionAt(upperHalf, address);
     }
@@ -188,7 +223,7 @@ public sealed partial class SamusBodyArtworkCatalog
     public int DefinitionAddress(bool upperHalf, byte set, byte position)
     {
         _ = GetDefinition(upperHalf, set, position);
-        return SamusBodyDefinitionLayout.BankBase | unchecked((ushort)((upperHalf ? topPointers : bottomPointers)[set] +
+        return SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(SetPointer(upperHalf, set) +
             position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
     }
 
@@ -202,11 +237,10 @@ public sealed partial class SamusBodyArtworkCatalog
 
     private void IndexDefinitions(bool upperHalf, SamusBodyTileDefinition[][] groups)
     {
-        ushort[] pointers = upperHalf ? topPointers : bottomPointers;
         for (int set = 0; set < groups.Length; set++)
         for (int position = 0; position < groups[set].Length; position++)
         {
-            int address = SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(pointers[set] +
+            int address = SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(SetPointer(upperHalf, set) +
                 position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
             if (!definitionsByAddress.TryAdd(address, groups[set][position]))
                 throw new InvalidDataException($"Samus body definition ${address:X6} is duplicated.");

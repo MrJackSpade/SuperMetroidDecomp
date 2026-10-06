@@ -5,6 +5,322 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1XrayBodyFrames(ISnesAddressSpace rom)
+    {
+        int count = SamusBodyArtworkCatalog.FrameCount * 4;
+        byte[] native = Enumerable.Range(0, count).Select(index => rom.ReadByte(0x92db48 + index)).ToArray();
+        ushort[] Words(int address, int length) => Enumerable.Range(0, length).Select(index =>
+            (ushort)(rom.ReadByte(address + index * 2) | rom.ReadByte(address + index * 2 + 1) << 8)).ToArray();
+        ushort[] top = Words(0x92d91e, 13), bottom = Words(0x92d938, 11), poses = Words(0x92d94e, 253);
+        ushort[] starts = top.Concat(bottom).Order().ToArray();
+        SamusBodyTileDefinition[][] Groups(ushort[] pointers) => pointers.Select(pointer =>
+        {
+            int next = Array.IndexOf(starts, pointer) + 1;
+            int end = next == starts.Length ? 0xd7d3 : starts[next];
+            return Enumerable.Range(0, (end - pointer) / 7).Select(_ => new SamusBodyTileDefinition(0x9a8000, 32, 0, new byte[32])).ToArray();
+        }).ToArray();
+        var upper = Groups(top); var lower = Groups(bottom);
+        var template = CreateSamusIdentityFixture();
+        SamusBodyFrameSelection[] Decode(byte[] data) => Enumerable.Range(0, count / 4).Select(index =>
+            new SamusBodyFrameSelection(data[index * 4], data[index * 4 + 1], data[index * 4 + 2], data[index * 4 + 3])).ToArray();
+        SamusBodyArtworkCatalog Create(byte[] data) => new(top, bottom, poses, template.GraphicsYOffsets.ToArray(), Decode(data), upper, lower,
+            template.Spritemaps, template.Atmosphere, template.DeathPalettes, template.DeathTiles, template.ArmCannon,
+            template.LandingYOffsets.ToArray(), template.PostureYOffsets.ToArray(), template.DrainedYOffsets.ToArray());
+        int Source(int index)
+        {
+            int address = 0xdb48 + index;
+            if (address >= 0xdc20 && address < 0xdc48 && (address - 0xdc20) % 4 < 2) return index - 40;
+            if (address >= 0xdc70 && address < 0xdce8 && (address - 0xdc48) % 4 >= 2) return 0xdc48 - 0xdb48 + (address - 0xdc48) % 40;
+            if (address >= 0xdf28 && address < 0xe018 && (address - 0xdf28) % 4 >= 2) return 0xdc48 - 0xdb48 + (address - 0xdf28) % 40;
+            if (address >= 0xde18 && address < 0xde60 && (address - 0xde18) % 4 < 2) return address - 0xde18;
+            if (address >= 0xdd48 && address < 0xdd58) return 0xdd28 - 0xdb48 + address - 0xdd48;
+            if (address >= 0xdeb0 && address < 0xdec0) return 0xdd18 - 0xdb48 + address - 0xdeb0;
+            return index;
+        }
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        Dictionary<int, byte> Stored(SamusBodyArtworkCatalog value) =>
+            (Dictionary<int, byte>)typeof(SamusBodyArtworkCatalog).GetField("frames", flags)!.GetValue(value)!;
+        var stock = Create(native);
+        AssertEqual(count - 268, Stored(stock).Count, "Exactly 268 repeated components removed");
+        for (int index = 0; index < count; index++)
+        {
+            AssertEqual(Source(index), SamusBodyFrameDefinitions.SourceComponent(index), "Exact native crouching/standing component relation domain");
+            AssertEqual(native[index], native[Source(index)], "Direct native source relationship");
+            AssertEqual(Source(index) == index, Stored(stock).ContainsKey(index), "Exact required source-key membership without stock fallbacks");
+        }
+        AssertTrue(stock.Frames.SequenceEqual(Decode(native)), "All supplied frame components preserved");
+        AssertEqual(CanonicalBodyHash(template, top, bottom, poses, Decode(native), upper, lower), stock.ContentIdentity, "Original canonical frame hash");
+        foreach (int address in Enumerable.Range(0xdbf8, 240).Concat(Enumerable.Range(0xdf28, 240))
+            .Concat(Enumerable.Range(0xdb48, 72)).Concat(Enumerable.Range(0xde18, 72))
+            .Concat(Enumerable.Range(0xdd18, 32)).Concat(Enumerable.Range(0xdd48, 16)).Concat(Enumerable.Range(0xdeb0, 16)))
+        {
+            byte[] supplied = (byte[])native.Clone(); supplied[address - 0xdb48] ^= 1;
+            var edited = Create(supplied);
+            AssertTrue(edited.Frames.SequenceEqual(Decode(supplied)), "Independent source/derived/lower component edits preserved");
+            for (int index = 0; index < count; index++)
+                AssertEqual(Source(index) == index || supplied[index] != supplied[Source(index)], Stored(edited).ContainsKey(index), "Exact required basis and independent exception membership");
+            foreach (byte pose in new byte[] { 0xd5, 0xd6, 0xd9, 0xda })
+            for (ushort frame = 0; frame < 5; frame++)
+                AssertEqual(Decode(supplied)[(poses[pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual four X-ray pose selections resolve independent supplied components");
+            foreach (byte pose in new byte[] { 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12 })
+            for (ushort frame = 0; frame < 10; frame++)
+                AssertEqual(Decode(supplied)[(poses[pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual ten moving poses resolve independent supplied lower gait and upper components");
+            foreach (byte pose in new byte[] { 0x01, 0x02, 0x27, 0x28 })
+            for (ushort frame = 0; frame < 9; frame++)
+                AssertEqual(Decode(supplied)[(poses[pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual standing/crouching normal upper selection");
+            foreach (byte pose in new byte[] { 0x13, 0x14, 0x51, 0x52, 0x17, 0x18, 0x2d, 0x2e })
+            for (ushort frame = 0; frame < 2; frame++)
+                AssertEqual(Decode(supplied)[(poses[pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual stationary/forward jump and downward-aim jump/fall selection");
+            AssertEqual(CanonicalBodyHash(template, top, bottom, poses, Decode(supplied), upper, lower), edited.ContentIdentity, "Original canonical edited frame hash");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyFrameDefinitions.SourceComponent(-1), "Negative component rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyFrameDefinitions.SourceComponent(count), "Component end rejected");
+        AssertThrows<InvalidDataException>(() => stock.Frame(0xfd, 0), "Original pose bound preserved");
+        Console.WriteLine("Body frames:268 native component aliases, exact remaining basis,688 independent component edits, actual26-pose selection and original canonical hashes pass.");
+    }
+    private static void VerifyLookupStream1BodyPosePointers(ISnesAddressSpace rom)
+    {
+        ushort[] native = Enumerable.Range(0, 253).Select(pose => (ushort)(rom.ReadByte(0x92d94e + pose * 2) | rom.ReadByte(0x92d94f + pose * 2) << 8)).ToArray();
+        SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
+        ushort[] top = template.TopSetPointers.ToArray(), bottom = template.BottomSetPointers.ToArray();
+        var topGroups = Enumerable.Range(0, 13).Select(set => template.TopSet(set).ToArray()).ToArray();
+        var bottomGroups = Enumerable.Range(0, 11).Select(set => template.BottomSet(set).ToArray()).ToArray();
+        var frames = Enumerable.Range(0, SamusBodyArtworkCatalog.FrameCount)
+            .Select(index => new SamusBodyFrameSelection((byte)(index % 13), 0, (byte)(index % 11), 0)).ToArray();
+        SamusBodyArtworkCatalog Create(ushort[] selected) => new(top, bottom, selected,
+            template.GraphicsYOffsets.ToArray(), frames, topGroups, bottomGroups,
+            template.Spritemaps, template.Atmosphere, template.DeathPalettes, template.DeathTiles, template.ArmCannon,
+            template.LandingYOffsets.ToArray(), template.PostureYOffsets.ToArray(), template.DrainedYOffsets.ToArray());
+        SamusBodyArtworkCatalog stock = Create(native);
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        int Count(SamusBodyArtworkCatalog value) => ((Dictionary<int, ushort>)typeof(SamusBodyArtworkCatalog).GetField("posePointers", flags)!.GetValue(value)!).Count;
+        AssertEqual(0, Count(stock), "No stock pose-pointer override survives");
+        AssertEqual(CanonicalBodyHash(template, top, bottom, native, frames, topGroups, bottomGroups), stock.ContentIdentity, "Exact old canonical stock pose hash");
+        AssertTrue(stock.Frames.SequenceEqual(frames), "Independent frame payload remains intact");
+        for (int pose = 0; pose < 253; pose++)
+        {
+            AssertEqual(native[pose], SamusBodyPoseDefinitions.DefaultFrameList((byte)pose), "Named semantic pose dispatch matches native list identity");
+            int index = (native[pose] - 0xdb48) / 4;
+            AssertEqual(frames[index], stock.Frame((byte)pose, 0), "Runtime selects supplied frame payload through native default");
+            ushort[] selected = (ushort[])native.Clone();
+            selected[pose] = native[pose] + 4 < 0xed24 ? (ushort)(native[pose] + 4) : (ushort)0xdb48;
+            SamusBodyArtworkCatalog changed = Create(selected);
+            AssertEqual(1, Count(changed), "Exactly one independent valid pose-pointer edit");
+            AssertTrue(changed.PosePointers.SequenceEqual(selected), "All supplied pose-pointer identities preserved");
+            AssertTrue(changed.Frames.SequenceEqual(frames), "Pointer edit never changes independent frame records");
+            AssertEqual(frames[(selected[pose] - 0xdb48) / 4], changed.Frame((byte)pose, 0), "Runtime honors edited frame-list identity");
+            AssertEqual(CanonicalBodyHash(template, top, bottom, selected, frames, topGroups, bottomGroups), changed.ContentIdentity, "Exact old canonical edited pose hash");
+            AssertTrue(changed.ContentIdentity != stock.ContentIdentity, "Independent pose edit changes hash");
+        }
+        foreach (byte pose in new byte[] { 0xfd, 0xfe, 0xff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyPoseDefinitions.DefaultFrameList(pose), "Default pose dispatch excludes adjacent data");
+            AssertThrows<InvalidDataException>(() => stock.Frame(pose, 0), "Installed pose domain stays bounded");
+        }
+        ushort[] invalid = (ushort[])native.Clone(); invalid[0] = 0xdb49;
+        AssertThrows<InvalidDataException>(() => Create(invalid), "Edited pose pointer retains alignment validation");
+        AssertTrue(stock.PosePointers.SequenceEqual(native), "Stock pose identities immutable");
+        Console.WriteLine("Body pose pointers:253 native semantic cases,156 list identities, zero stock overrides,253 independent edits, supplied frame resolution and exact canonical hashes pass.");
+    }
+
+    private static string CanonicalBodyHash(SamusBodyArtworkCatalog template, ushort[] upper, ushort[] lower, ushort[] posePointers, SamusBodyFrameSelection[] frames, SamusBodyTileDefinition[][] upperGroups, SamusBodyTileDefinition[][] lowerGroups) =>
+        SelectedPresentationHash.Create(nameof(SamusBodyArtworkCatalog), content =>
+        {
+            content.AppendWords("top pointers", upper); content.AppendWords("bottom pointers", lower);
+            content.AppendWords("pose pointers", posePointers);
+            content.Append("graphics y offsets", template.GraphicsYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
+            content.AppendWords("landing y offsets", template.LandingYOffsets);
+            content.Append("posture y offsets", template.PostureYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
+            content.Append("drained y offsets", template.DrainedYOffsets.ToArray().Select(value => unchecked((byte)value)).ToArray());
+            foreach (SamusBodyFrameSelection frame in frames)
+            {
+                content.Append("top set", frame.TopSet); content.Append("top position", frame.TopPosition);
+                content.Append("bottom set", frame.BottomSet); content.Append("bottom position", frame.BottomPosition);
+            }
+            var definitions = upper.SelectMany((pointer, set) => upperGroups[set].Select((definition, position) => (Address: 0x920000 | (pointer + position * 7), Definition: definition)))
+                .Concat(lower.SelectMany((pointer, set) => lowerGroups[set].Select((definition, position) => (Address: 0x920000 | (pointer + position * 7), Definition: definition))));
+            foreach (var item in definitions.OrderBy(item => item.Address))
+            {
+                content.Append("definition address", item.Address); content.Append("source address", item.Definition.SourceAddress);
+                content.Append("first transfer size", item.Definition.FirstSize); content.Append("second transfer size", item.Definition.SecondSize);
+                content.Append("characters", item.Definition.Planar.Span);
+            }
+            content.Append("spritemaps", Convert.FromHexString(template.Spritemaps.ContentIdentity));
+            content.Append("atmosphere", Convert.FromHexString(template.Atmosphere.ContentIdentity));
+            content.Append("death palettes", Convert.FromHexString(template.DeathPalettes.ContentIdentity));
+            content.Append("death tiles", Convert.FromHexString(template.DeathTiles.ContentIdentity));
+            content.Append("arm cannon", Convert.FromHexString(template.ArmCannon.ContentIdentity));
+        });
+
+
+    private static void VerifyLookupStream1BodySetPointers(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort[] top = Enumerable.Range(0, 13).Select(set => Word(0x92d91e + set * 2)).ToArray();
+        ushort[] bottom = Enumerable.Range(0, 11).Select(set => Word(0x92d938 + set * 2)).ToArray();
+        var physical = top.Select((pointer, set) => (Upper: true, Set: set, Pointer: pointer))
+            .Concat(bottom.Select((pointer, set) => (Upper: false, Set: set, Pointer: pointer))).OrderBy(value => value.Pointer).ToArray();
+        SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
+        SamusBodyTileDefinition sample = template.TopSet(0)[0];
+        var topGroups = new SamusBodyTileDefinition[13][]; var bottomGroups = new SamusBodyTileDefinition[11][];
+        for (int order = 0; order < physical.Length; order++)
+        {
+            var item = physical[order]; int end = order + 1 == physical.Length ? 0xd7d3 : physical[order + 1].Pointer;
+            (item.Upper ? topGroups : bottomGroups)[item.Set] = Enumerable.Repeat(sample, (end - item.Pointer) / 7).ToArray();
+        }
+        SamusBodyArtworkCatalog Create(ushort[] upper, ushort[] lower, SamusBodyTileDefinition[][] upperGroups, SamusBodyTileDefinition[][] lowerGroups) => new(
+            upper, lower, template.PosePointers.ToArray(), template.GraphicsYOffsets.ToArray(), template.Frames.ToArray(),
+            upperGroups, lowerGroups, template.Spritemaps, template.Atmosphere, template.DeathPalettes, template.DeathTiles,
+            template.ArmCannon, template.LandingYOffsets.ToArray(), template.PostureYOffsets.ToArray(), template.DrainedYOffsets.ToArray());
+        // Independent oracle for the pre-conversion canonical serialization order (520c810c4).
+        string Canonical(ushort[] upper, ushort[] lower, SamusBodyTileDefinition[][] upperGroups, SamusBodyTileDefinition[][] lowerGroups) =>
+            CanonicalBodyHash(template, upper, lower, template.PosePointers.ToArray(), template.Frames.ToArray(), upperGroups, lowerGroups);
+        SamusBodyArtworkCatalog stock = Create(top, bottom, topGroups, bottomGroups);
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        int Count(SamusBodyArtworkCatalog value, string field) => ((Dictionary<int, ushort>)typeof(SamusBodyArtworkCatalog).GetField(field, flags)!.GetValue(value)!).Count;
+        AssertEqual(0, Count(stock, "topPointers"), "Zero stock top pointer overrides");
+        AssertEqual(0, Count(stock, "bottomPointers"), "Zero stock bottom pointer overrides");
+        for (int set = 0; set < 13; set++) AssertEqual(top[set], SamusBodyDefinitionLayout.DefaultTopPointer(set), "Named top allocation matches original ROM");
+        for (int set = 0; set < 11; set++) AssertEqual(bottom[set], SamusBodyDefinitionLayout.DefaultBottomPointer(set), "Named bottom allocation matches original ROM");
+        AssertEqual(Canonical(top, bottom, topGroups, bottomGroups), stock.ContentIdentity, "Exact pre-conversion canonical stock hash");
+        for (int edit = 0; edit < physical.Length; edit++)
+        {
+            var item = physical[edit]; ushort[] upper = (ushort[])top.Clone(), lower = (ushort[])bottom.Clone();
+            var upperGroups = topGroups.Select(group => group.ToArray()).ToArray(); var lowerGroups = bottomGroups.Select(group => group.ToArray()).ToArray();
+            (item.Upper ? upper : lower)[item.Set] += 7;
+            (item.Upper ? upperGroups : lowerGroups)[item.Set] = (item.Upper ? upperGroups : lowerGroups)[item.Set][1..];
+            if (edit > 0)
+            {
+                var previous = physical[edit - 1];
+                var groups = previous.Upper ? upperGroups : lowerGroups;
+                groups[previous.Set] = groups[previous.Set].Append(sample).ToArray();
+            }
+            SamusBodyArtworkCatalog changed = Create(upper, lower, upperGroups, lowerGroups);
+            AssertEqual(1, Count(changed, "topPointers") + Count(changed, "bottomPointers"), "Exactly one valid independent pointer override");
+            AssertTrue(changed.TopSetPointers.SequenceEqual(upper) && changed.BottomSetPointers.SequenceEqual(lower), "Independent selected allocation identities preserved");
+            AssertEqual(0x920000 | (item.Pointer + 7), changed.DefinitionAddress(item.Upper, (byte)item.Set, 0), "Runtime definition selection honors arbitrary valid edited pointer");
+            AssertEqual(Canonical(upper, lower, upperGroups, lowerGroups), changed.ContentIdentity, "Exact pre-conversion canonical edited hash");
+            AssertTrue(changed.ContentIdentity != stock.ContentIdentity, "Each allocation edit changes identity");
+        }
+        AssertTrue(stock.TopSetPointers.SequenceEqual(top) && stock.BottomSetPointers.SequenceEqual(bottom), "Stock pointer snapshots remain immutable");
+        AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyDefinitionLayout.DefaultTopPointer(13), "Top allocation selector bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyDefinitionLayout.DefaultBottomPointer(11), "Bottom allocation selector bound");
+        AssertThrows<InvalidDataException>(() => stock.GetDefinition(true, 13, 0), "Installed top selector retains rejection");
+        AssertThrows<InvalidDataException>(() => stock.GetDefinition(false, 11, 0), "Installed bottom selector retains rejection");
+        Console.WriteLine("Body allocation pointers:24 native semantic identities, zero stock overrides,24 valid independent allocation edits, runtime addresses and exact canonical hashes pass.");
+    }
+
+    private static void VerifyLookupStream1BodyGraphicsOrigins(ISnesAddressSpace rom)
+    {
+        sbyte[] native = Enumerable.Range(0, 253).Select(pose => unchecked((sbyte)rom.ReadByte(0x91b62d + pose * 8))).ToArray();
+        SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
+        SamusBodyArtworkCatalog Create(sbyte[] selected) => new(
+            template.TopSetPointers.ToArray(), template.BottomSetPointers.ToArray(), template.PosePointers.ToArray(),
+            selected, template.Frames.ToArray(),
+            Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => template.TopSet(index).ToArray()).ToArray(),
+            Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => template.BottomSet(index).ToArray()).ToArray(),
+            template.Spritemaps, template.Atmosphere, template.DeathPalettes, template.DeathTiles, template.ArmCannon,
+            template.LandingYOffsets.ToArray(), template.PostureYOffsets.ToArray(), template.DrainedYOffsets.ToArray());
+        SamusBodyArtworkCatalog stock = Create(native);
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        int Count(SamusBodyArtworkCatalog value) => ((Dictionary<int, sbyte>)typeof(SamusBodyArtworkCatalog).GetField("graphicsYOffsets", flags)!.GetValue(value)!).Count;
+        AssertEqual(0, Count(stock), "No stock graphics-origin override survives");
+        for (int pose = 0; pose < 253; pose++)
+        {
+            AssertEqual(native[pose], SamusBodyPlacementDefinitions.DefaultGraphicsYOffset((byte)pose), "Direct calculated visual origin matches native real-pose byte");
+            AssertEqual(native[pose], stock.GraphicsYOffset((byte)pose), "Installed default origin");
+        }
+        AssertTrue(stock.GraphicsYOffsets.SequenceEqual(native), "Visual origin snapshot ordering");
+        string identity = stock.ContentIdentity;
+        for (int edit = 0; edit < 253; edit++)
+        {
+            sbyte[] selected = (sbyte[])native.Clone(); selected[edit] ^= 1;
+            SamusBodyArtworkCatalog changed = Create(selected);
+            AssertEqual(1, Count(changed), "Exactly one independent graphics-origin override");
+            AssertTrue(changed.GraphicsYOffsets.SequenceEqual(selected), "Every supplied visual origin remains independent");
+            AssertTrue(changed.ContentIdentity != identity, "Every visual-origin edit changes content identity");
+            for (int pose = 0; pose < 253; pose++)
+            {
+                AssertEqual(selected[pose], changed.GraphicsYOffset((byte)pose), "Edited runtime origin");
+                AssertEqual(unchecked((byte)native[pose]), SamusPoseProjectileOriginDefinitions.ReadYOffset((byte)pose), "Visual edits never change physical projectile origins");
+            }
+        }
+        AssertEqual(identity, stock.ContentIdentity, "Stock visual origin hash immutable");
+        foreach (byte pose in new byte[] { 0xfd, 0xfe, 0xff })
+        {
+            AssertThrows<InvalidDataException>(() => stock.GraphicsYOffset(pose), "Installed graphics excludes adjacent instruction poses");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyPlacementDefinitions.DefaultGraphicsYOffset(pose), "Default graphics excludes adjacent instruction poses");
+        }
+        Console.WriteLine("Body graphics origins:253 direct native/default values, zero stock overrides,253 independent visual edits isolated from physics and hash/bounds checks pass.");
+    }
+
+    private static void VerifyLookupStream1BodyFacingOffsets(ISnesAddressSpace rom)
+    {
+        ushort[] landing = Enumerable.Range(0, 17).Select(index => (ushort)rom.ReadByte(0x908d28 + index)).ToArray();
+        sbyte[] posture = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)rom.ReadByte(0x908d80 + index))).ToArray();
+        SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
+        SamusBodyArtworkCatalog Create(ushort[] selectedLanding, sbyte[] selectedPosture) => new(
+            template.TopSetPointers.ToArray(), template.BottomSetPointers.ToArray(), template.PosePointers.ToArray(),
+            template.GraphicsYOffsets.ToArray(), template.Frames.ToArray(),
+            Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => template.TopSet(index).ToArray()).ToArray(),
+            Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => template.BottomSet(index).ToArray()).ToArray(),
+            template.Spritemaps, template.Atmosphere, template.DeathPalettes, template.DeathTiles, template.ArmCannon,
+            selectedLanding, selectedPosture, template.DrainedYOffsets.ToArray());
+        SamusBodyArtworkCatalog stock = Create(landing, posture);
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var landingBasis = (Dictionary<int, ushort>)typeof(SamusBodyArtworkCatalog).GetField("landingYOffsets", flags)!.GetValue(stock)!;
+        var postureBasis = (Dictionary<int, sbyte>)typeof(SamusBodyArtworkCatalog).GetField("postureYOffsets", flags)!.GetValue(stock)!;
+        AssertEqual(9, landingBasis.Count, "Landing retains eight first-facing coordinates and adjacent byte only");
+        AssertEqual(12, postureBasis.Count, "Posture retains twelve first-facing coordinates only");
+        for (int index = 0; index < landing.Length; index++)
+        {
+            int source = index is >= 4 and < 8 or >= 12 and < 16 ? index - 4 : index;
+            AssertEqual(source, SamusBodyPlacementDefinitions.LandingSourceIndex(index), "Native normal/spin facing row alias");
+            AssertEqual(landing[index], landing[source], "Direct native landing facing equality");
+            AssertEqual(source == index, landingBasis.ContainsKey(index), "Exact required landing basis domain");
+        }
+        for (int index = 0; index < posture.Length; index++)
+        {
+            int source = (index & 2) != 0 ? index - 2 : index;
+            AssertEqual(source, SamusBodyPlacementDefinitions.PostureSourceIndex(index), "Native transition facing row alias");
+            AssertEqual(posture[index], posture[source], "Direct native posture facing equality");
+            AssertEqual(source == index, postureBasis.ContainsKey(index), "Exact required posture basis domain");
+        }
+        void Check(SamusBodyArtworkCatalog catalog, ushort[] expectedLanding, sbyte[] expectedPosture)
+        {
+            AssertTrue(catalog.LandingYOffsets.SequenceEqual(expectedLanding), "Landing snapshot preserves supplied bytes");
+            AssertTrue(catalog.PostureYOffsets.SequenceEqual(expectedPosture), "Posture snapshot preserves supplied bytes");
+            for (int index = 0; index < 16; index++)
+            {
+                AssertTrue(catalog.TryLandingYOffset(index, out ushort actual), "Landing word admission");
+                AssertEqual((ushort)(expectedLanding[index] | expectedLanding[index + 1] << 8), actual, "Native unaligned landing word including adjacent byte");
+            }
+            for (int index = 0; index < 24; index++)
+            {
+                AssertTrue(catalog.TryPostureYOffset(index, out sbyte actual), "Posture admission");
+                AssertEqual(expectedPosture[index], actual, "Signed posture offset");
+            }
+        }
+        Check(stock, landing, posture);
+        string identity = stock.ContentIdentity;
+        for (int edit = 0; edit < 41; edit++)
+        {
+            ushort[] changedLanding = (ushort[])landing.Clone(); sbyte[] changedPosture = (sbyte[])posture.Clone();
+            if (edit < 17) changedLanding[edit] ^= 1; else changedPosture[edit - 17] ^= 1;
+            SamusBodyArtworkCatalog changed = Create(changedLanding, changedPosture);
+            Check(changed, changedLanding, changedPosture);
+            AssertTrue(changed.ContentIdentity != identity, "Every independent placement edit changes identity");
+            Check(stock, landing, posture);
+            AssertEqual(identity, stock.ContentIdentity, "Placement edits leave stock identity immutable");
+        }
+        foreach (int index in new[] { -1, 16, 17, int.MaxValue })
+            AssertTrue(!stock.TryLandingYOffset(index, out _), "Landing reader original word bounds");
+        foreach (int index in new[] { -1, 24, int.MaxValue })
+            AssertTrue(!stock.TryPostureYOffset(index, out _), "Posture reader original bounds");
+        AssertEqual((ushort)0xab, landing[16], "Adjacent native PLB byte remains a required input");
+        Console.WriteLine("Body facing offsets:41 native bytes, exact9/12 required bases,20 calculated aliases,41 independent edits, unaligned reads and content identities pass.");
+    }
+
     private static void VerifyLookupStream1BodyOamBases(ISnesAddressSpace rom)
     {
         ushort[] ReadWords(int address, int count) => Enumerable.Range(0, count)

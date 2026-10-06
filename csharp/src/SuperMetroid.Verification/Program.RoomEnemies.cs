@@ -1181,8 +1181,11 @@ static void VerifyCeresRidleyRoomEntry()
          address < 0xa6c4cb;
          address++)
         bus.WriteByte(address, 0);
+    bool ceresBossDefeated = false;
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x1234,
-        readRandomNumber: () => 0x1234);
+        readRandomNumber: () => 0x1234,
+        isAreaBossDefeated: () => ceresBossDefeated,
+        setAreaBossDefeated: () => ceresBossDefeated = true);
 
     RoomEnemySlot ridley = enemies.Slots[0];
     RidleyEnemyState state = enemies.CeresRidley
@@ -1579,6 +1582,8 @@ static void VerifyCeresRidleyRoomEntry()
     }
     AssertTrue(enemies.CeresEscapeStartedThisFrame,
         "Ceres escape starts only after the complete English warning is typed");
+    AssertTrue(ceresBossDefeated,
+        "$A6:C131 sets the area-boss bit within the escape-start enemy pass");
     AssertTrue(typewriterFrames > 128,
         "Ceres English warning remains visible long enough to type all three lines");
     AssertEqual(0x3594, vram.ReadWord(0x5105),

@@ -116,13 +116,9 @@ public sealed partial class SuperMetroidRuntime
             }
             if (Enemies.CeresEscapeStartedThisFrame)
             {
-                // $A6:C117 publishes these global side effects on the same EnemyMain call
-                // that changes ceres_status from one to two. Keep the actor as producer,
-                // but apply timer and boss state in their existing runtime-owned systems.
+                // $A6:C117 starts the escape timer on the same EnemyMain call that changes
+                // ceres_status from one to two; the actor sets the boss bit itself.
                 EscapeTimer.RequestCeresStart();
-                if (ActiveRoom is null)
-                    throw new InvalidOperationException("Ceres escape started without an active room.");
-                System.SetBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss);
             }
             if (Enemies.RequestedShitroidCameraX is ushort shitroidCameraX)
             {

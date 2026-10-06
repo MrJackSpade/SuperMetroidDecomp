@@ -35,7 +35,7 @@ internal static class TitleSequenceInstructionDefinitions
         return (ushort)(ReadByte(address) | ReadByte(address + 1) << 8);
     }
 
-    // Initial/reveal/final/logo holds 60/8/45/120/32 remain required independent inputs under #1165.
+    // Initial/reveal/final/logo holds 60/8/45/120/32 are the title card's authored timing (see residualScalarInputsReview).
     private static ushort WordAt(int offset)
     {
         if (offset < 4) return (ushort)(offset == 0 ? 60 : 0);

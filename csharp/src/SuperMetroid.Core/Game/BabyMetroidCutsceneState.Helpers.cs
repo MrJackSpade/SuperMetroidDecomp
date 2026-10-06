@@ -95,13 +95,15 @@ public sealed partial class BabyMetroidCutsceneState
 
         DeathExplosionTimer = 4;
         DeathExplosionPatternIndex++;
-        if (DeathExplosionPatternIndex >= 10)
+        if (DeathExplosionPatternIndex >= DeathExplosionScatterDefinitions.Count)
             DeathExplosionPatternIndex = 0;
-        int index = DeathExplosionPatternIndex;
+        // `$A9:CDFC` holds the scatter shared with Ridley's death. The handler increments its
+        // index before looking up a pair, so a freshly cleared counter begins at entry one.
+        (short x, short y) = DeathExplosionScatterDefinitions.Offset(DeathExplosionPatternIndex);
         return new BabyMetroidDeathExplosionRequest(
             PatternIndex: DeathExplosionPatternIndex,
-            XPosition: unchecked((ushort)(XPosition + DeathExplosionXOffsets[index])),
-            YPosition: unchecked((ushort)(YPosition + DeathExplosionYOffsets[index])),
+            XPosition: unchecked((ushort)(XPosition + x)),
+            YPosition: unchecked((ushort)(YPosition + y)),
             ProjectileParameter: 3,
             SoundEffect: 0x0013);
     }

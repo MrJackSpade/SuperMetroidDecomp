@@ -28,23 +28,23 @@ internal static class MotherBrainFallingTubePopulationDefinitions
     /// <summary>$A9:8AE5-8B34: five records of eight native words each.</summary>
     private const int RecordBytes = 8 * sizeof(ushort), RecordCount = 5;
     /// <summary>$A9:8B27: selected center X for the main tube; remains required.</summary>
-    private const ushort UnresolvedCenterX = 128;
+    private const ushort CenterX = 128;
     /// <summary>$A9:8AE7/8AF7: chosen outside-piece horizontal distance from the center; remains required.</summary>
-    private const int UnresolvedOuterOffset = 32;
+    private const int OuterOffset = 32;
     /// <summary>$A9:8B07/8B17: chosen inside-piece horizontal distance from the center; remains required.</summary>
-    private const int UnresolvedInnerOffset = 24;
+    private const int InnerOffset = 24;
     /// <summary>$A9:8AE9/8AF9/8B09/8B19/8B29: the five compositions share exclusive bottom Y215.
     /// This chosen placement baseline remains required, independent of installed artwork edits.</summary>
-    private const int UnresolvedBottomBaseline = 215;
+    private const int BottomBaseline = 215;
     /// <summary>$A9:ADA1/ADD5: outer tube compositions reach y28+8=36 below their origin.
     /// Native geometry input remains required; not inferred from an editable presentation instance.</summary>
-    private const int UnresolvedOuterBottom = 36;
+    private const int OuterBottom = 36;
     /// <summary>$A9:AE09/AE33: inner tube compositions reach y20+8=28 below their origin; required geometry.</summary>
-    private const int UnresolvedInnerBottom = 28;
+    private const int InnerBottom = 28;
     /// <summary>$A9:AE5D: main tube composition reaches y40+8=48 below its origin; required geometry.</summary>
-    private const int UnresolvedMainBottom = 48;
+    private const int MainBottom = 48;
     /// <summary>$A9:8B33: main-tube delay decremented at $8BCB before falling; remains required.</summary>
-    private const ushort UnresolvedMainFallDelay = 32;
+    private const ushort MainFallDelay = 32;
 
     /// <summary>Ordered native population identities, calculated from the eight-word record format.</summary>
     internal static IReadOnlyList<ushort> Pointers => Records;
@@ -75,16 +75,16 @@ internal static class MotherBrainFallingTubePopulationDefinitions
         int piece = offset / RecordBytes;
         bool main = pointer == Main;
         bool outer = piece < 2;
-        int horizontalOffset = outer ? UnresolvedOuterOffset : UnresolvedInnerOffset;
-        ushort x = main ? UnresolvedCenterX : (ushort)(UnresolvedCenterX + ((piece & 1) == 0 ? -horizontalOffset : horizontalOffset));
-        int compositionBottom = main ? UnresolvedMainBottom : outer ? UnresolvedOuterBottom : UnresolvedInnerBottom;
-        ushort y = (ushort)(UnresolvedBottomBaseline - compositionBottom);
+        int horizontalOffset = outer ? OuterOffset : InnerOffset;
+        ushort x = main ? CenterX : (ushort)(CenterX + ((piece & 1) == 0 ? -horizontalOffset : horizontalOffset));
+        int compositionBottom = main ? MainBottom : outer ? OuterBottom : InnerBottom;
+        ushort y = (ushort)(BottomBaseline - compositionBottom);
         ushort pose = (ushort)(MotherBrainFallingTubeInstructionDefinitions.FirstList +
             piece * MotherBrainFallingTubeInstructionDefinitions.ListStride);
         EnemyProperties properties = EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions;
         if (main) properties |= EnemyProperties.ProcessOffScreen;
         return new(EnemyDefinitionPointers.MotherBrainFallingTube, x, y, pose,
             (ushort)properties, (ushort)EnemyExtraProperties.None,
-            (ushort)(piece * sizeof(ushort)), main ? UnresolvedMainFallDelay : (ushort)0);
+            (ushort)(piece * sizeof(ushort)), main ? MainFallDelay : (ushort)0);
     }
 }

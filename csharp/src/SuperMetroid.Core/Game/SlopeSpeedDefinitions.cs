@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Grounded horizontal movement policy for the native slope geometry families.</summary>
 public static class SlopeSpeedDefinitions
 {
-    // REQUIRED: these selected movement coefficients are not derived from geometry.
-    // Family membership follows native height profiles; no trigonometric rounding is claimed.
+    // Family membership follows native height profiles. The coefficients are authored tuning:
+    // cos(atan r), 1/(1+r^2) and linear-in-rise all fail to reproduce them (see residualScalarInputsReview).
     /// <summary>$94:8588, unity coefficient for square/flat/V/overhang profiles without slope scaling.</summary>
     private const ushort Unscaled = 0x100;
     /// <summary>$94:85C0/85C4, four-pixel/two-pixel descending stair profiles 14/15.</summary>

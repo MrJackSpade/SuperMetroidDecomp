@@ -12,18 +12,18 @@ public static class CrawlerSpeedDefinitions
     /// <summary>Number of authored speed records; trailing zero is an intentional stationary entry.</summary>
     public const int Count = 32;
 
-    /// <summary>$A3:E60C: first parameter whose quarter-pixel ramp skips one step; independent gap choice remains required under issue1165.</summary>
+    /// <summary>$A3:E60C: first parameter whose quarter-pixel ramp skips one step; an authored gap in the ramp.</summary>
     private const int FirstGapParameter = 14;
-    /// <summary>$A3:E610: first parameter whose ramp has skipped four total quarter-pixel steps; independent gap choice remains required.</summary>
+    /// <summary>$A3:E610: first parameter whose ramp has skipped four total quarter-pixel steps; an authored gap in the ramp.</summary>
     private const int SecondGapParameter = 16;
-    /// <summary>$A3:E62C: penultimate speed is eight pixels rather than the continuing ramp; this independent choice remains required.</summary>
+    /// <summary>$A3:E62C: penultimate speed is eight pixels rather than the continuing ramp; an authored speed.</summary>
     private const ushort PenultimateMagnitude = 0x0800;
 
     /// <summary>
     /// Both native copies consist of quarter-pixel ramps separated by two gaps,
-    /// followed by a repeated eight-pixel speed and a stationary entry. Calculate
-    /// each ramp; the irregular gap choices and penultimate magnitude remain
-    /// unresolved payloads rather than an exemption for the original table.
+    /// followed by a repeated eight-pixel speed and a stationary entry. Each ramp
+    /// calculates; the two gap points and the penultimate magnitude are authored tuning
+    /// with no rule in the ramp (see residualScalarInputsReview).
     /// </summary>
     public static ushort ForParameter(ushort parameter)
     {

@@ -132,118 +132,118 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary>$8D:B098/B0AE versus B0C4/B0DA/B0F0: four small versus four large burst quadrants.</summary>
     private enum RainbowBurstPhase { Compact, Expanded }
     /// <summary>$86:C436 holds the single 8x8 seed tile $1AD selected by $8D:8276.</summary>
-    private const ushort UnresolvedRingSeedFrames = 16;
+    private const ushort RingSeedFrames = 16;
     /// <summary>$86:C43E holds the single 16x16 ring tile $1A7 selected by $8D:827D.</summary>
-    private const ushort UnresolvedRingFormationFrames = 10;
+    private const ushort RingFormationFrames = 10;
     /// <summary>$86:C446/C44E/C456/C45E: composite quadrant growth holds 8/7/6/5 ticks at collision radii 3/4/5/6.</summary>
-    private const int UnresolvedRingExpansionCadenceBase = 11;
+    private const int RingExpansionCadenceBase = 11;
     /// <summary>$86:E152/E156: compact 16x16 burst formed from four 8x8 quadrants at $8D:B098/B0AE.</summary>
-    private const ushort UnresolvedCompactRainbowBurstFrames = 3;
+    private const ushort CompactRainbowBurstFrames = 3;
     /// <summary>$86:E15A/E15E/E162: expanded 32x32 burst formed from four 16x16 quadrants at $8D:B0C4/B0DA/B0F0.</summary>
-    private const ushort UnresolvedExpandedRainbowBurstFrames = 4;
+    private const ushort ExpandedRainbowBurstFrames = 4;
     /// <summary>
     /// $86:E2CE holds final centered beam tile $6C ($8D:AD16) for five ticks before deletion.
     /// This independent dwell remains required by #1165: program termination does not
     /// yet justify its five-versus-three timing. The medium-beam sibling continues
     /// through the same pose for three ticks at $86:E2E8 before adding a second tile.
     /// </summary>
-    private const ushort UnresolvedShortBeamTerminalFrames = 5;
+    private const ushort ShortBeamTerminalFrames = 5;
 
 
     /// <summary>$86:C829: RainbowCharge selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedRainbowChargeFrames = 5;
+    private const ushort RainbowChargeFrames = 5;
     /// <summary>$86:C8E3: DroolSplash selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedDroolSplashFrames = 10;
+    private const ushort DroolSplashFrames = 10;
     /// <summary>$86:CB0D: Subtitle selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedSubtitleFrames = 1;
+    private const ushort SubtitleFrames = 1;
     /// <summary>$86:E0EE: BeamCharge selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedBeamChargeFrames = 3;
+    private const ushort BeamChargeFrames = 3;
     /// <summary>$86:E1C6: CorpseDust selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedCorpseDustFrames = 3;
+    private const ushort CorpseDustFrames = 3;
     /// <summary>$86:E2D4: MediumBeamCloud selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedMediumBeamCloudFrames = 3;
+    private const ushort MediumBeamCloudFrames = 3;
     /// <summary>$86:E17E: DudShot selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedDudShotFrames = 4;
+    private const ushort DudShotFrames = 4;
     /// <summary>$86:E40A: ContractingGate selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedContractingGateFrames = 4;
+    private const ushort ContractingGateFrames = 4;
     /// <summary>$86:E198: PowerBomb selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedPowerBombFrames = 5;
+    private const ushort PowerBombFrames = 5;
     /// <summary>$86:E1B0: SmallDust selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedSmallDustFrames = 5;
+    private const ushort SmallDustFrames = 5;
     /// <summary>$86:E1D8: EyeSweat selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedEyeSweatFrames = 5;
+    private const ushort EyeSweatFrames = 5;
     /// <summary>$86:E246: DustBomb selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedDustBombFrames = 5;
+    private const ushort DustBombFrames = 5;
     /// <summary>$86:E2F2: BigDust selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedBigDustFrames = 5;
+    private const ushort BigDustFrames = 5;
     /// <summary>$86:E208: BigDeathExplosion selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedBigDeathExplosionFrames = 5;
+    private const ushort BigDeathExplosionFrames = 5;
     /// <summary>$86:E1A6: ElevatorPad selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedElevatorPadFrames = 1;
+    private const ushort ElevatorPadFrames = 1;
     /// <summary>$86:E314: LongBeam selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedLongBeamFrames = 1;
+    private const ushort LongBeamFrames = 1;
     /// <summary>$86:E392: FlickeringBeam selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedFlickeringBeamFrames = 1;
+    private const ushort FlickeringBeamFrames = 1;
     /// <summary>$86:E3C6: SaveStationLaser selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedSaveStationLaserFrames = 1;
+    private const ushort SaveStationLaserFrames = 1;
     /// <summary>$86:E1FC: LoopingElevatorPad selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedLoopingElevatorPadFrames = 1;
+    private const ushort LoopingElevatorPadFrames = 1;
     /// <summary>$86:E1EA: DeathSmoke selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedDeathSmokeFrames = 8;
+    private const ushort DeathSmokeFrames = 8;
     /// <summary>$86:E222: SmallHealth selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedSmallHealthFrames = 8;
+    private const ushort SmallHealthFrames = 8;
     /// <summary>$86:E234: BigHealth selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedBigHealthFrames = 8;
+    private const ushort BigHealthFrames = 8;
     /// <summary>$86:E3A0: DraygonBubbles selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedDraygonBubblesFrames = 8;
+    private const ushort DraygonBubblesFrames = 8;
     /// <summary>$86:E258: WeirdHealth selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedWeirdHealthFrames = 16;
+    private const ushort WeirdHealthFrames = 16;
     /// <summary>$86:E3E8: ExpandingGate selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedExpandingGateFrames = 16;
+    private const ushort ExpandingGateFrames = 16;
     /// <summary>$86:E266: RockParticles selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedRockParticlesFrames = 2;
+    private const ushort RockParticlesFrames = 2;
     /// <summary>$86:E2A8: ShortBigDust selected repeated hold remains required; repeated program structure does not justify its magnitude.</summary>
-    private const ushort UnresolvedShortBigDustFrames = 2;
+    private const ushort ShortBigDustFrames = 2;
     /// <summary>$86:C76E: bomb hold ramp peak; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedBombPeakFrames = 6;
+    private const ushort BombPeakFrames = 6;
     /// <summary>$86:C76E-C78E: bomb hold change per pose; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedBombHoldStepFrames = 1;
+    private const ushort BombHoldStepFrames = 1;
     /// <summary>$86:CAA6: purple-breath initial paired dwell; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedPurpleBreathStartFrames = 8;
+    private const ushort PurpleBreathStartFrames = 8;
     /// <summary>$86:CAA6-CAC2: purple-breath increment per pair; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedPurpleBreathStepFrames = 1;
+    private const ushort PurpleBreathStepFrames = 1;
     /// <summary>$86:CA22-CA2E: first four fragment poses; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedDoorEarlyFrames = 1;
+    private const ushort DoorEarlyFrames = 1;
     /// <summary>$86:CA32: first later fragment pair; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedDoorLaterStartFrames = 3;
+    private const ushort DoorLaterStartFrames = 3;
     /// <summary>$86:CA32-CA3E: fragment increment per later pair; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedDoorLaterStepFrames = 1;
+    private const ushort DoorLaterStepFrames = 1;
     /// <summary>$86:E100: elbow-particle initial hold; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedElbowParticleStartFrames = 5;
+    private const ushort ElbowParticleStartFrames = 5;
     /// <summary>$86:E108-E114: elbow-particle hold floor; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedElbowParticleMinimumFrames = 3;
+    private const ushort ElbowParticleMinimumFrames = 3;
     /// <summary>$86:E100-E108: elbow-particle decline per pose; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedElbowParticleStepFrames = 1;
+    private const ushort ElbowParticleStepFrames = 1;
     /// <summary>$86:E11A: elbow-energy initial hold; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedElbowEnergyStartFrames = 4;
+    private const ushort ElbowEnergyStartFrames = 4;
     /// <summary>$86:E122-E12E: elbow-energy hold floor; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedElbowEnergyMinimumFrames = 2;
+    private const ushort ElbowEnergyMinimumFrames = 2;
     /// <summary>$86:E11A-E122: elbow-energy decline per pose; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedElbowEnergyStepFrames = 1;
+    private const ushort ElbowEnergyStepFrames = 1;
     /// <summary>$86:E132: terminal held ignition pose; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedElbowEnergyTerminalFrames = 12;
+    private const ushort ElbowEnergyTerminalFrames = 12;
     /// <summary>$86:E168-E174: beam trail poses; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedTrailFrames = 8;
+    private const ushort TrailFrames = 8;
     /// <summary>$86:E178: terminal charge-particle pose; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedTrailTerminalFrames = 24;
+    private const ushort TrailTerminalFrames = 24;
     /// <summary>$86:E2BA-E2CA: ordinary short-beam cloud poses; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedShortBeamOrdinaryFrames = 3;
+    private const ushort ShortBeamOrdinaryFrames = 3;
     /// <summary>$86:C468-C47C: ring impact poses; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedRingTouchFrames = 5;
+    private const ushort RingTouchFrames = 5;
     /// <summary>$86:C8B0-C8C0: attached drool poses; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedDroolAttachedFrames = 10;
+    private const ushort DroolAttachedFrames = 10;
     /// <summary>$86:C8CA: released drool pose before Sleep; this chosen timing input remains required.</summary>
-    private const ushort UnresolvedDroolReleaseFrames = 10;
+    private const ushort DroolReleaseFrames = 10;
 
     private static ushort BlueRingDuration(int radius)
     {
@@ -256,16 +256,16 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
         };
         return phase switch
         {
-            RingGrowthPhase.Seed => UnresolvedRingSeedFrames,
-            RingGrowthPhase.Formation => UnresolvedRingFormationFrames,
-            _ => (ushort)(UnresolvedRingExpansionCadenceBase - radius),
+            RingGrowthPhase.Seed => RingSeedFrames,
+            RingGrowthPhase.Formation => RingFormationFrames,
+            _ => (ushort)(RingExpansionCadenceBase - radius),
         };
     }
 
     private static ushort RainbowExplosionDuration(int frame)
     {
         RainbowBurstPhase phase = frame < 2 ? RainbowBurstPhase.Compact : RainbowBurstPhase.Expanded;
-        return phase == RainbowBurstPhase.Compact ? UnresolvedCompactRainbowBurstFrames : UnresolvedExpandedRainbowBurstFrames;
+        return phase == RainbowBurstPhase.Compact ? CompactRainbowBurstFrames : ExpandedRainbowBurstFrames;
     }
     private const int TimedProgramCount = 36;
     private static EnemyProjectileTimedProgramDefinition TimedProgram(int index) => index switch
@@ -311,44 +311,44 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
 
     private static ushort TimedDuration(ushort program, int frame) => program switch
     {
-        MotherBrainBombInitial => (ushort)(UnresolvedBombPeakFrames - Math.Min(frame, 9 - frame) * UnresolvedBombHoldStepFrames),
-        MotherBrainPurpleBreathInitial => (ushort)(UnresolvedPurpleBreathStartFrames + frame / 2 * UnresolvedPurpleBreathStepFrames),
-        MotherBrainEscapeDoorFragmentInitial => (ushort)(frame < 4 ? UnresolvedDoorEarlyFrames : UnresolvedDoorLaterStartFrames + (frame - 4) / 2 * UnresolvedDoorLaterStepFrames),
-        MiscDustElbowChargeParticle => (ushort)Math.Max(UnresolvedElbowParticleMinimumFrames, UnresolvedElbowParticleStartFrames - frame * UnresolvedElbowParticleStepFrames),
+        MotherBrainBombInitial => (ushort)(BombPeakFrames - Math.Min(frame, 9 - frame) * BombHoldStepFrames),
+        MotherBrainPurpleBreathInitial => (ushort)(PurpleBreathStartFrames + frame / 2 * PurpleBreathStepFrames),
+        MotherBrainEscapeDoorFragmentInitial => (ushort)(frame < 4 ? DoorEarlyFrames : DoorLaterStartFrames + (frame - 4) / 2 * DoorLaterStepFrames),
+        MiscDustElbowChargeParticle => (ushort)Math.Max(ElbowParticleMinimumFrames, ElbowParticleStartFrames - frame * ElbowParticleStepFrames),
         // The final pose changes to small-explosion ignition; its selected hold remains required.
-        MiscDustElbowChargeEnergy => (ushort)(frame == 6 ? UnresolvedElbowEnergyTerminalFrames : Math.Max(UnresolvedElbowEnergyMinimumFrames, UnresolvedElbowEnergyStartFrames - frame * UnresolvedElbowEnergyStepFrames)),
+        MiscDustElbowChargeEnergy => (ushort)(frame == 6 ? ElbowEnergyTerminalFrames : Math.Max(ElbowEnergyMinimumFrames, ElbowEnergyStartFrames - frame * ElbowEnergyStepFrames)),
         MotherBrainSmallDeathExplosionInitial => SmallExplosionAnimationDefinitions.Duration(frame),
         MotherBrainRainbowExplosionInitial => RainbowExplosionDuration(frame),
         // The final distinct charge-particle pose and trail dwell magnitudes remain independent.
-        MiscDustBeamTrail => frame == 4 ? UnresolvedTrailTerminalFrames : UnresolvedTrailFrames,
-        MiscDustShortBeamCloud => frame == 5 ? UnresolvedShortBeamTerminalFrames : UnresolvedShortBeamOrdinaryFrames,
-        MotherBrainRainbowBeamChargingInitial => UnresolvedRainbowChargeFrames,
-        MotherBrainDroolFalling => UnresolvedDroolSplashFrames,
-        MotherBrainSubtitleInitial => UnresolvedSubtitleFrames,
-        MiscDustBeamCharge => UnresolvedBeamChargeFrames,
-        MiscDustCorpseDustCloud => UnresolvedCorpseDustFrames,
-        MiscDustMediumBeamCloud => UnresolvedMediumBeamCloudFrames,
-        MiscDustDudShot => UnresolvedDudShotFrames,
-        MiscDustContractingGate => UnresolvedContractingGateFrames,
-        MiscDustPowerBomb => UnresolvedPowerBombFrames,
-        MiscDustSmallDustCloud => UnresolvedSmallDustFrames,
-        MiscDustEyeDoorSweat => UnresolvedEyeSweatFrames,
-        MiscDustBomb => UnresolvedDustBombFrames,
-        MiscDustBigDustCloud => UnresolvedBigDustFrames,
-        MotherBrainBigDeathExplosionInitial => UnresolvedBigDeathExplosionFrames,
-        MiscDustElevatorPad => UnresolvedElevatorPadFrames,
-        MiscDustLongBeam => UnresolvedLongBeamFrames,
-        MiscDustFlickeringBeam => UnresolvedFlickeringBeamFrames,
-        MiscDustSaveStationLaser => UnresolvedSaveStationLaserFrames,
-        MiscDustLoopingElevatorPad => UnresolvedLoopingElevatorPadFrames,
-        MotherBrainDeathSmokeInitial => UnresolvedDeathSmokeFrames,
-        MiscDustSmallHealthDrop => UnresolvedSmallHealthFrames,
-        MiscDustBigHealthDrop => UnresolvedBigHealthFrames,
-        MiscDustDraygonBubbles => UnresolvedDraygonBubblesFrames,
-        MiscDustWeirdHealthDrop => UnresolvedWeirdHealthFrames,
-        MiscDustExpandingGate => UnresolvedExpandingGateFrames,
-        MiscDustRockParticles => UnresolvedRockParticlesFrames,
-        MiscDustShortBigDustCloud => UnresolvedShortBigDustFrames,
+        MiscDustBeamTrail => frame == 4 ? TrailTerminalFrames : TrailFrames,
+        MiscDustShortBeamCloud => frame == 5 ? ShortBeamTerminalFrames : ShortBeamOrdinaryFrames,
+        MotherBrainRainbowBeamChargingInitial => RainbowChargeFrames,
+        MotherBrainDroolFalling => DroolSplashFrames,
+        MotherBrainSubtitleInitial => SubtitleFrames,
+        MiscDustBeamCharge => BeamChargeFrames,
+        MiscDustCorpseDustCloud => CorpseDustFrames,
+        MiscDustMediumBeamCloud => MediumBeamCloudFrames,
+        MiscDustDudShot => DudShotFrames,
+        MiscDustContractingGate => ContractingGateFrames,
+        MiscDustPowerBomb => PowerBombFrames,
+        MiscDustSmallDustCloud => SmallDustFrames,
+        MiscDustEyeDoorSweat => EyeSweatFrames,
+        MiscDustBomb => DustBombFrames,
+        MiscDustBigDustCloud => BigDustFrames,
+        MotherBrainBigDeathExplosionInitial => BigDeathExplosionFrames,
+        MiscDustElevatorPad => ElevatorPadFrames,
+        MiscDustLongBeam => LongBeamFrames,
+        MiscDustFlickeringBeam => FlickeringBeamFrames,
+        MiscDustSaveStationLaser => SaveStationLaserFrames,
+        MiscDustLoopingElevatorPad => LoopingElevatorPadFrames,
+        MotherBrainDeathSmokeInitial => DeathSmokeFrames,
+        MiscDustSmallHealthDrop => SmallHealthFrames,
+        MiscDustBigHealthDrop => BigHealthFrames,
+        MiscDustDraygonBubbles => DraygonBubblesFrames,
+        MiscDustWeirdHealthDrop => WeirdHealthFrames,
+        MiscDustExpandingGate => ExpandingGateFrames,
+        MiscDustRockParticles => RockParticlesFrames,
+        MiscDustShortBigDustCloud => ShortBigDustFrames,
         _ => throw new InvalidDataException($"Unknown timed projectile program ${program:X4}."),
     };
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
@@ -448,16 +448,16 @@ internal static class EnemyProjectileInstructionMechanicsDefinitions
         offset = address - MotherBrainBlueRingTouch;
         if (offset == 0) { value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_UsePalette0_Duplicate; return true; }
         if (offset == 2) { value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction; return true; }
-        if (offset is >= 4 and < 28 && offset % 4 == 0) { value = UnresolvedRingTouchFrames; return true; }
+        if (offset is >= 4 and < 28 && offset % 4 == 0) { value = RingTouchFrames; return true; }
         if (offset == 28) { value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete; return true; }
         offset = address - MotherBrainDroolInitial;
-        if (offset is >= 0 and < 20 && offset % 4 == 0) { value = UnresolvedDroolAttachedFrames; return true; }
+        if (offset is >= 0 and < 20 && offset % 4 == 0) { value = DroolAttachedFrames; return true; }
         switch (offset)
         {
             case 20: value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY; return true;
             case 22: value = EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsDrool_Falling; return true;
             case 24: value = EnemyProjectileCodePointers.Instruction_EnemyProj_MotherBrainsDrool_MoveDownCPixels; return true;
-            case 26: value = UnresolvedDroolReleaseFrames; return true;
+            case 26: value = DroolReleaseFrames; return true;
             case 30: value = EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep; return true;
         }
         for (int index = 0; index < TimedProgramCount; index++)

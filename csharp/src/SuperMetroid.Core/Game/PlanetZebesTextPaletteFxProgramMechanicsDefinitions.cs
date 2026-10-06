@@ -22,22 +22,22 @@ public enum PlanetZebesTextPaletteFxProgramOwner
 /// color rows and their reverse form48 native presentation identities. The
 /// presentation view calculates rounded RGB5 interpolation from three required
 /// endpoints and preserves independent supplied edits. This catalog supplies
-/// control words; selected levels, cadence and palette inputs remain required.
+/// control words; the text endpoints, cadence and palette selection are authored inputs.
 /// ROM SHA-256:
 /// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
 /// </remarks>
 public static class PlanetZebesTextPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>$8D:C912..C960: REQUIRED eight selected brightness records per fade.</summary>
+    /// <summary>$8D:C912..C960: eight brightness records per fade.</summary>
     public const int FrameCount = 8;
 
-    /// <summary>$8D:C914..C918: REQUIRED three selected text colors per record.</summary>
+    /// <summary>$8D:C914..C918: three text colors per record.</summary>
     public const int ColorsPerFrame = 3;
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = sizeof(ushort) * (ColorsPerFrame + 2);
 
-    /// <summary>$8D:C912/C968: REQUIRED selected three-frame hold; no timing exception is claimed.</summary>
+    /// <summary>$8D:C912/C968: the authored three-frame hold.</summary>
     public const ushort FrameDuration = 3;
 
     /// <summary>Each complete one-shot fade lasts 24 frames.</summary>
@@ -47,9 +47,9 @@ public static class PlanetZebesTextPaletteFxProgramMechanicsDefinitions
     internal const ushort FadeInDefinition = 0xE1B0;
     /// <summary>$8D:C90E: native fade-in setup; fade-out follows its terminal delete.</summary>
     internal const ushort FadeInProgram = 0xC90E;
-    /// <summary>$8D:C910/C966: REQUIRED selected CGRAM palette8 for the cinematic text.</summary>
+    /// <summary>$8D:C910/C966: CGRAM palette 8 for the cinematic text.</summary>
     internal const int TextPalette = 8;
-    /// <summary>$8D:C910/C966: REQUIRED first text color1 within the selected palette.</summary>
+    /// <summary>$8D:C910/C966: first text color 1 within the selected palette.</summary>
     internal const int FirstTextColor = 1;
 
     /// <summary>The fade-in and fade-out programs in native order without cached definition records.</summary>

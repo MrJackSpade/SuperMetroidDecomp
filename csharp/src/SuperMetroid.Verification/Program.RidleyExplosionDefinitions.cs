@@ -101,6 +101,11 @@ internal static partial class Program
                 unchecked((short)Word(rom, 0xa6c670 + index * 4)),
                 placement.YOffset,
                 $"Ridley death explosion {index} Y offset");
+            // The Baby Metroid death stores the identical scatter at $A9:CDFC.
+            AssertEqual(Word(rom, 0xa6c66e + index * 4), Word(rom, 0xa9cdfc + index * 4),
+                $"Baby Metroid death explosion {index} X matches the shared scatter");
+            AssertEqual(Word(rom, 0xa6c670 + index * 4), Word(rom, 0xa9cdfe + index * 4),
+                $"Baby Metroid death explosion {index} Y matches the shared scatter");
         }
         AssertThrows<ArgumentOutOfRangeException>(
             () => RidleyExplosionDefinitions.DeathExplosionPlacement(-1),

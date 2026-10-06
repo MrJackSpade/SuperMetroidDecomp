@@ -62,29 +62,10 @@ internal static class RidleyExplosionDefinitions
     }
 
     /// <summary>
-    /// Ten signed body-relative positions consumed cyclically by
-    /// <c>SpawnSmallExplosionNearRidley</c> at <c>$A6:C623</c>. The interleaved
-    /// X/Y words occupy <c>$A6:C66E-$A6:C695</c>.
-    /// </summary>
-    private static readonly RidleyDeathExplosionPlacement[] DeathExplosionPlacements =
-    [
-        new(-24, -24),
-        new(-20, 20),
-        new(16, -30),
-        new(30, -3),
-        new(14, -13),
-        new(-2, 18),
-        new(-2, -32),
-        new(-31, 8),
-        new(-4, -10),
-        new(19, 19),
-    ];
-
-    /// <summary>
     /// $A6:C6CE lifetimes and $A6:C6E6 initializer pointers, selected by the even
     /// parameter at $0FB4. Tail segments expire eight frames apart and their
-    /// equal-sized initializers advance by 24 bytes. Chosen lifetime bases72/40,
-    /// shared step8 and torso lifetime128 remain required issue-1165 inputs.
+    /// equal-sized initializers advance by 24 bytes. Lifetime bases 72/40, the shared
+    /// step 8 and torso lifetime 128 are authored breakup timing (see residualScalarInputsReview).
     /// </summary>
     public static RidleyExplosionPartDefinition GetPart(ushort parameter)
     {
@@ -104,12 +85,15 @@ internal static class RidleyExplosionDefinitions
         return new(parameter, lifetime, (ushort)(BodyInitializerStart + 0x32 * body));
     }
 
-    /// <summary>Returns one authored small-explosion position selected by its cyclic index.</summary>
+    /// <summary>
+    /// Returns one of the ten body-relative positions consumed cyclically by
+    /// <c>SpawnSmallExplosionNearRidley</c> at <c>$A6:C623</c> (words $A6:C66E-$A6:C695,
+    /// shared with the Baby Metroid death).
+    /// </summary>
     public static RidleyDeathExplosionPlacement DeathExplosionPlacement(int index)
     {
-        if ((uint)index >= DeathExplosionPlacements.Length)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        return DeathExplosionPlacements[index];
+        (short x, short y) = DeathExplosionScatterDefinitions.Offset(index);
+        return new(x, y);
     }
 
     /// <summary>

@@ -22,7 +22,7 @@ internal static class ZebesEscapeExplosionDefinitions
     /// cloud, two smoke clouds, two short big dust clouds and one big dust cloud.
     /// Only the first small-explosion and smoke choices carry a sound.
     /// </summary>
-    // The bucket distribution and sound-bearing choices remain required independent inputs under #1165.
+    // The bucket weights and sound-bearing choices are authored effect variety (see residualScalarInputsReview).
     internal static ZebesEscapeExplosionDefinition ForIndex(int index) => index switch
     {
         0 or 1 => new(RoomSpriteObjectKind.SporeSpawnDyingExplosion,

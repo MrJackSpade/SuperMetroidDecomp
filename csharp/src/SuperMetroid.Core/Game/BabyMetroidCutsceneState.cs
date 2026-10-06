@@ -31,18 +31,10 @@ public sealed partial class BabyMetroidCutsceneState
     public const ushort DrainingMotherBrainInstructionList =
         MotherBrainBabyInstructionProgramDefinitions.DrainingMotherBrain;
     // `$A9:93BB-$93CA` is shared by Mother Brain's brain shake and the latched Baby.
-    // `Enemy.frameCounter & 6` is a byte offset into these four 16-bit entries.
+    // `Enemy.frameCounter & 6` is a byte offset into these four 16-bit entries. The jitter
+    // is authored: X steps 0,-1,0,1 but Y does not mirror it (see residualScalarInputsReview).
     private static ReadOnlySpan<short> ShakingXOffsets => [0, -1, 0, 1];
     private static ReadOnlySpan<short> ShakingYOffsets => [0, 1, -1, 1];
-
-    // `$A9:CDFC-$CE22` is stored as ten interleaved X/Y word pairs. The death handler
-    // increments its shared index before looking up a pair, so a freshly cleared counter
-    // deliberately begins at entry one rather than entry zero.
-    private static ReadOnlySpan<short> DeathExplosionXOffsets =>
-        [-24, -20, 16, 30, 14, -2, -2, -31, -4, 19];
-
-    private static ReadOnlySpan<short> DeathExplosionYOffsets =>
-        [-24, 20, -30, -3, -13, 18, -32, 8, -10, 19];
 
     // Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's
     // friendly names, `$A0:8AFF/$8B05` copy those words directly into the enemy slot's

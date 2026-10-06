@@ -12658,4 +12658,90 @@
   "disposition": [
     "All22words calculate through adjacent atlas halves, reflections, shared anchors and style, with zero stock overrides. Retain exact five authored pictogram identities/membership/composition confirmed from native image; arbitrary alternative icons would alter content. Independent edits and custom anchors preserved."
   ]
+},"collisionRecordRunsReview":{
+  "state": "converted control; retained drawing geometry",
+  "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+  "owners": [
+    "TorizoCollisionDefinitions",
+    "CrocomireBodyCollisionDefinitions",
+    "CeresSteamCollisionDefinitions",
+    "MaridiaLargeSnailCollisionDefinitions",
+    "RidleyCollisionDefinitions",
+    "SpacePirateCollisionDefinitions",
+    "SporeSpawnCollisionDefinitions",
+    "DraygonCollisionDefinitions",
+    "KraidArmCollisionDefinitions",
+    "PhantoonCollisionDefinitions"
+  ],
+  "reviewedEvidence": "Read every stored frame and hitbox list against the pinned cartridge layout: each extended frame is a count word plus 8-byte components, each list a count word plus 12-byte rectangles. Reconstructing addresses from run starts and record sizes reproduces every stored key: Torizo 106 frames in 4 runs, Crocomire 50 frames in 4 runs, Ceres steam 21 lists in 1 run, Oum 30 lists in 1 run, Ridley 17 lists in 2 runs, Space Pirate 132 frames in 8 runs and 147 lists in 22 runs.",
+  "positiveSemanticEvidence": "Stored addresses were redundant with record layout and are now calculated (CollisionRecordRuns). Torizo right-facing frames 1..49 are exact X mirrors of the 49 left-facing frames with list+$015E, so they calculate. What remains is per-drawing geometry: component placements and rectangles fitted to individual drawings.",
+  "generationAssessment": [
+    "Facing mirrors were tested for every two-facing owner. Ridley right lists are not mirrors of the left (e.g. mouth-closed left (-12,-26,11,13) vs right (-12,-25,11,13)); Draygon body lists differ ((-17,-16,18,30) vs (-18,-7,18,30)); Space Pirate has 0 mirror list pairs among 147; Torizo jump-back facings are drawn differently. Calculating mirrors there would change collision.",
+    "Space Pirate repeats 42 distinct rectangle sets across 147 lists; the repeats are separate native records at their own addresses, consumed by address.",
+    "Kraid arm poses 0..9 are articulation keyframes (e.g. pose 2 (-48,-13),(-38,-13) to pose 4 (-45,8),(-38,2)); no interpolation, rotation or linear sequence reproduces them, so a formula would invent motion."
+  ],
+  "retentionRationale": "Hitbox rectangles and component placements are fitted to particular drawings; no mirror, interpolation or record-layout rule explains them. Encoding them as a switch would recite the same authored geometry, so they qualify under the nonsense exception. All address/identity control is calculated."
+},"enemyPaletteResidualReview":{
+  "state": "converted structure; retained paint",
+  "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+  "owners": [
+    "KraidColorCatalog/KraidPaintDefinitions",
+    "SporeSpawnColorCatalog",
+    "DachoraColorCatalog",
+    "ChozoAndTubeColorCatalog/ChozoStatuePaintDefinitions",
+    "TorizoPaletteDefinitions",
+    "MagdollitePaletteCycle",
+    "PowerBombFixedColorCatalog",
+    "MapPaletteCycle"
+  ],
+  "reviewedEvidence": "Decoded every stock RGB5 word from the pinned ROM ($A7:86C7, AAA6, B3D3..B652; $A5:E359..E6B8; $A7:F225..F344; $AA:E2DD..E39C; $AA:8687..87C6; $A8:AC1C; $88:8D85; $82:A987). For every row, tested all subsequences of 3 or more colors for channelwise linear interpolation (nearest, floor and truncating rounding), tested every color across frame sequences for interpolation between the first and last frames, tested additive-channel and fade-to-white rules, and checked exact copies between rows and palettes.",
+  "positiveSemanticEvidence": "All rules that held exactly are now calculated, and catalogs store only supplied deviations: Kraid flash, backdrop slots, the (26,19,4)->(3,1,0) hide ramp, the death arm's reuse of band 1, and secondary == health; Spore Spawn health colors 9..15 interpolate rows 0/3 (one nearest rule for all 7); Dachora speed blue -> min(b+16,31) and shine c+floor(k(31-c)/5) for all 128 cells; Chozo shared colors, gold/grey ramps and Lower Norfair's one-shade repeat.",
+  "generationAssessment": [
+    "Kraid final band 4..14 (31,28,18),(23,25,15),(16,22,13),(9,19,11),(8,16,9)...: only a 4-color floor fit exists, matching 2 interior points; the full sequence has red steps 8,7,7,1,2 and green steps 3,3,3,3,3, not one ramp.",
+    "Spore Spawn health colors 1..8 across frames, e.g. color 3 (2,7,0),(4,6,0),(5,5,0),(3,3,1), rise and fall non-monotonically: hand-painted per frame.",
+    "Map highlight phases are monotone but unevenly eased (color 1 red 31,28,26,23,22,20,18,13; color 10 holds then jumps 11->15->29). No rounding mode makes them linear.",
+    "Power Bomb explosion 21..31: red 26,26,25,24,23,22,21,18,18,18,18 and green 24,23,22,21,21,20,19,16,14,13,13 hold and drop independently.",
+    "Torizo palette rows (shared, Bomb and Golden initial) and the Magdollite glow reds 31,28,24 contain no 3-color ramp beyond repeated fill colors."
+  ],
+  "retentionRationale": "Each retained color is a painted material choice with no exact interpolation, offset or copy rule; reciting it in a formula or switch would disguise the same paint, so it qualifies under the nonsense exception. Everything with an exact rule is calculated, and supplied edits stay exact."
+},"residualScalarInputsReview":{
+  "state": "converted control; retained authored timing, motion and scatter",
+  "implementationCommit": "see the reconciliation commit recorded on each inventory entry",
+  "owners": [
+    "ChootInstructionProgramDefinitions",
+    "EnemyPickupInstructionProgramDefinitions",
+    "FirefleaInstructionProgramDefinitions",
+    "YellowPipeBugInstructionProgramDefinitions",
+    "ChootPatternDefinitions",
+    "ChootFallingPathDefinitions",
+    "MamaTurtleInstructionProgramDefinitions",
+    "RidleyExplosionDefinitions",
+    "DeathExplosionScatterDefinitions",
+    "BabyMetroidCutsceneState",
+    "BombTorizoMovementDefinitions",
+    "CrawlerSpeedDefinitions",
+    "SlopeSpeedDefinitions",
+    "MochtroidShakeDefinitions",
+    "RidleyTailDefinitions",
+    "RoomEnemySystem.CeresRidleyComposition",
+    "EnemyProjectileInstructionMechanicsDefinitions",
+    "PlanetZebesTextPaletteFxProgramMechanicsDefinitions",
+    "TitleSequenceInstructionDefinitions",
+    "ZebesEscapeExplosionDefinitions",
+    "CeresMode7TransferDefinitions",
+    "MotherBrainFallingTubePopulationDefinitions"
+  ],
+  "reviewedEvidence": "Re-read every owner whose stored table earlier #1165 commits had already replaced (instruction programs, Choot patterns/paths, Mama Turtle crawl, Ridley breakup and tail, Bomb Torizo movement, crawler and slope speeds, Mochtroid shake, projectile mechanics, Planet Zebes text, title card, Zebes escape, Ceres Mode 7 transfers, Mother Brain falling tube). In each, addresses, record layout, dispatch and symmetric structure already calculate. Searched the pinned ROM for duplicated authored payloads: the ten-point death-explosion scatter appears exactly twice, as identical interleaved X/Y words at $A6:C66E (Ridley) and $A9:CDFC (Baby Metroid), and now has one owner.",
+  "positiveSemanticEvidence": "What remains in the converted owners is isolated named scalars inside calculated algorithms: frame durations (Choot 1/8/1, 53 projectile animation holds, title holds 60/8/45/120/32, the Planet Zebes 3-frame hold, the Mama Turtle 10-tick crawl hold, the Mother Brain tube 32-frame fall delay); one amplitude (Mochtroid 2 px); lengths (Ridley tail 2/8/5 px); lifetimes (Ridley 72/40, step 8, torso 128); and placements (Ceres platform (14,12), baby (4,10), tube center 128 and offsets 32/24). Each is a single parameter, not a lookup, and those entries are converted. Zebes escape and slope speeds are explicit named case mappings.",
+  "generationAssessment": [
+    "Death-explosion scatter: radii 33.9, 28.3, 34.0, 30.1, 19.1, 18.1, 32.1, 32.0, 10.8, 26.9 and quadrants (-,-),(-,+),(+,-),(+,-),(+,-),(-,+),(-,-),(-,+),(-,-),(+,+); no rotation, symmetry, radial ordering or LCG reproduces it. It is an authored scatter like the retained Ceres explosion choreography.",
+    "Bomb Torizo posture X -9,-6,-7,5,-16,-7,0,0 and Y 0,-6,-6,-7,0,0,0,0, and walk strides -5,0,-5,-19,-16,-7,0,-7,-17,-18, follow the drawn animation frames; no ramp, period or symmetry fits.",
+    "Choot falling paths are drawn trajectories: very wide Y wobbles non-monotonically (4->3 at frames 24..27, 20->19 at 58..62), and the loop advances 30/28/32 are not the paths' final offsets 31/29/32. The best rounded sine fit of X still misses 37/53/50 of 73 samples (normal/wide/very wide), and least-squares polynomials of degree 2..6 miss at least 36.",
+    "Ceres Ridley wing deltas 12,14,16,18,28,32,40,48: steps 2,2,2,10,4,8,8 and ratios 1.125..1.56 are neither linear nor geometric.",
+    "Ridley tail shrink limits 0,$1800,$1800,$1600,$1600,$1200,$0500 hold in pairs then fall by unequal amounts.",
+    "Baby/Mother Brain shake jitter X 0,-1,0,1 and Y 0,1,-1,1: Y is not a reflection or rotation of X.",
+    "Ceres Mode 7 wing row extents (11,4),(0,14),(0,14),(1,12),(1,15),(0,16) trace the drawn wing silhouette; tested as linear and symmetric spans, neither fits.",
+    "Slope coefficients $C0/$D8/$F0/$80/$50 for rises 1, 1/2, 1/3, 2, 3: cos(atan r), cos^2, 1/(1+r^2) and linear in r all fail."
+  ],
+  "retentionRationale": "The retained sequences are animation timing, drawn motion, authored scatter or silhouettes with no mathematical or functional rule; a switch reciting them would disguise the same data, so they qualify under the nonsense exception. Every structural part of these owners calculates."
 }}

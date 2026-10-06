@@ -48,13 +48,13 @@ public static class CeresMode7TransferDefinitions
     private const int BabyPayload = 0xa6ad1b;
     /// <summary>$A6:ADB7: wing rows store frame0 then frame1, with identical extent per row.</summary>
     private const int WingPayload = 0xa6adb7;
-    /// <summary>$A6:F904/F90E: chosen platform map position(14,12) remains REQUIRED layout input.</summary>
+    /// <summary>$A6:F904/F90E: platform map position (14,12), an authored layout placement.</summary>
     private const int PlatformColumn = 14, PlatformRow = 12;
-    /// <summary>$A6:ACE2/ACF5/AD08: chosen baby map position(4,10) remains REQUIRED layout input.</summary>
+    /// <summary>$A6:ACE2/ACF5/AD08: baby map position (4,10), an authored layout placement.</summary>
     private const int BabyColumn = 4, BabyRow = 10;
     private readonly record struct WingRegion(int Column, int Width);
-    /// <summary>$A6:AD49/AD80: six chosen wing row extents remain REQUIRED under Wing0/Wing1. Only row stepping and packed paired-frame addresses derive from them.</summary>
-    private static readonly WingRegion[] RequiredWingRegions =
+    /// <summary>$A6:AD49/AD80: the six wing row extents trace the drawn wing silhouette and are authored drawing content; row stepping and packed paired-frame addresses derive from them (see residualScalarInputsReview).</summary>
+    private static readonly WingRegion[] WingRegions =
     [ new(11,4), new(0,14), new(0,14), new(1,12), new(1,15), new(0,16) ];
 
     /// <summary>Resolves a native list pointer without reading cartridge memory or constructing a transfer table.</summary>
@@ -62,7 +62,7 @@ public static class CeresMode7TransferDefinitions
     {
         ElevatorLight or ElevatorDark => new(pointer, 1),
         BabyFrame0 or BabyFrame1 or BabyFrame2 => new(pointer, 2),
-        WingFrame0 or WingFrame1 => new(pointer, RequiredWingRegions.Length),
+        WingFrame0 or WingFrame1 => new(pointer, WingRegions.Length),
         _ => throw new InvalidDataException($"Unknown Ceres Mode7 transfer list $A6:{pointer:X4}."),
     };
     public readonly struct TransferSequence(ushort pointer, int count) : IReadOnlyList<CeresMode7Transfer>
@@ -83,9 +83,9 @@ public static class CeresMode7TransferDefinitions
                     return new(BabyPayload + frame * 4 + index * 2,
                         (ushort)((BabyRow + index) * MapColumns + BabyColumn), new(pointer, index, 2));
                 }
-                WingRegion region = RequiredWingRegions[index];
+                WingRegion region = WingRegions[index];
                 int offset = 0;
-                for (int row = 0; row < index; row++) offset += 2 * RequiredWingRegions[row].Width;
+                for (int row = 0; row < index; row++) offset += 2 * WingRegions[row].Width;
                 if (pointer == WingFrame1) offset += region.Width;
                 return new(WingPayload + offset, (ushort)(index * MapColumns + region.Column),
                     new(pointer, index, region.Width));

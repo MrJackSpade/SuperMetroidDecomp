@@ -9,7 +9,7 @@ internal static class EnemyProjectileArtworkClosedContractDefinitions
             ["Get", "GetProgramFrame"],
             [new("csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs", "6D196AA19D6C4437F62AAE5729601A586516D153A33328324F2F9EF35A89191D"),
              new("csharp/src/SuperMetroid.Core/Game/EnemyProjectilePresentationFrameDefinitions.cs", "EFED0B48AC4007EDA5128A805A7E2987861E25E2B04A676111859E0B88985923"),
-             new("csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs", "D6AD632375FAB8940DD3B71BF3D5B3505BB815F5263A45E5B8309BCE5639491D"),
+             new("csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs", "DCB8206CC3BEF45B14B6369D10EFF25BDE0E82B980507BC03499F6154A361287"),
              new("csharp/src/SuperMetroid.Core/Game/SmallExplosionAnimationDefinitions.cs", "64CBF66FDA0E75FDF85665C3AD832FD96C7CF20B368FF2D5595DB6B1DCCE62C4"),
              new("csharp/src/SuperMetroid.Core/Game/EnemyDeathInstructionProgramDefinitions.cs", "5E0D21D99117FFFE15492CDABAD5C6A2A0E9022E43F91514E323075EAD4F8B52"),
              new("csharp/src/SuperMetroid.Core/Assets/SkreeMetareeParticleVisualDefinitions.cs", "1D2E4DB442FED52CAA82DEEB84E6067FBC63DDB77A7A9081A2628FAA09629B81")],

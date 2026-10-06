@@ -49,13 +49,14 @@ public static class SamusMorphBallMovement
             // `$90:A546` passes an explicit zero base magnitude through the ordinary
             // direction-aware displacement path. With no external displacement this is a
             // zero-pixel block scan, but it still publishes total X speed just like SNES.
-            int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed: 0);
+            var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed: 0);
             horizontal = SamusBlockCollision.MoveHorizontal(
                 bus,
                 level,
                 samus.Kinematics,
-                requested,
-                plms: plms);
+                requested.Displacement,
+                plms: plms,
+                collisionMovementDirection: requested.CollisionDirection);
             if (horizontal.Collided)
                 speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         }
@@ -69,13 +70,14 @@ public static class SamusMorphBallMovement
                 speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
                 liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidPhysicsState.Air);
             uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
-            int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed);
+            var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
             horizontal = SamusBlockCollision.MoveHorizontal(
                 bus,
                 level,
                 samus.Kinematics,
-                requested,
-                plms: plms);
+                requested.Displacement,
+                plms: plms,
+                collisionMovementDirection: requested.CollisionDirection);
             if (horizontal.Collided)
                 speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         }
@@ -151,24 +153,25 @@ public static class SamusMorphBallMovement
 
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType);
-        int requestedHorizontal;
+        SamusHorizontalDisplacement requestedHorizontal;
         if (!directionHeld && speed.AccelerationMode == 0)
         {
             speed.BaseSpeed = 0;
             speed.BaseSubspeed = 0;
-            requestedHorizontal = CalculateDirectedDisplacement(bus, samus, baseSpeed: 0);
+            requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed: 0);
         }
         else
         {
-            requestedHorizontal = CalculateDirectedDisplacement(bus, samus, calculation.Speed);
+            requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);
         }
 
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal,
-            plms: plms);
+            requestedHorizontal.Displacement,
+            plms: plms,
+            collisionMovementDirection: requestedHorizontal.CollisionDirection);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -253,6 +256,8 @@ public static class SamusMorphBallMovement
         bool directionHeld = (controllerInput &
             ((ushort)SnesButton.Left | (ushort)SnesButton.Right)) != 0;
         int requestedHorizontal;
+        // Null when native skips MoveSamus_Horizontally entirely ($90:902B): no probe runs.
+        SamusCollisionDirection? collisionDirection = null;
         if (speed.AccelerationMode == 0 && !directionHeld)
         {
             // `$90:901E` clears the displacement and persistent base words when no
@@ -264,7 +269,9 @@ public static class SamusMorphBallMovement
         }
         else
         {
-            requestedHorizontal = CalculateDirectedDisplacement(bus, samus, calculation.Speed);
+            var calculated = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);
+            requestedHorizontal = calculated.Displacement;
+            collisionDirection = calculated.CollisionDirection;
         }
 
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
@@ -272,7 +279,8 @@ public static class SamusMorphBallMovement
             level,
             samus.Kinematics,
             requestedHorizontal,
-            plms: plms);
+            plms: plms,
+            collisionMovementDirection: collisionDirection);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -310,13 +318,14 @@ public static class SamusMorphBallMovement
 
         // `$90:A635` deliberately supplies zero base speed but still uses pose direction,
         // collision, and the already-published total-speed words.
-        int requestedHorizontal = CalculateDirectedDisplacement(bus, samus, baseSpeed: 0);
+        var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed: 0);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal,
-            plms: plms);
+            requestedHorizontal.Displacement,
+            plms: plms,
+            collisionMovementDirection: requestedHorizontal.CollisionDirection);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -441,24 +450,6 @@ public static class SamusMorphBallMovement
         // jump. Its speed/direction writes belong to the later winning transition.
         hitCeiling = displacement < 0 && result.Collided;
         return result;
-    }
-
-    private static int CalculateDirectedDisplacement(
-        ISnesAddressSpace bus,
-        SamusState samus,
-        uint baseSpeed)
-    {
-        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        byte direction = samus.ReadPoseXDirection(bus);
-
-        // `$90:8EA9` reverses pose direction only for mode one. That is what preserves old
-        // travel during a `$1E <-> $1F` turn; mode two uses the new facing normally.
-        bool movesLeft = speed.AccelerationMode == 1
-            ? direction == 8
-            : direction == 4;
-        return movesLeft
-            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
-            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
     }
 
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;

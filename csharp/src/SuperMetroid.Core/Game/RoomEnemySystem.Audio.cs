@@ -40,6 +40,28 @@ public sealed partial class RoomEnemySystem
     /// <summary>Exact music-queue calls published by the current enemy frame.</summary>
     public IReadOnlyList<EnemyMusicRequest> MusicRequests => _musicRequests;
 
+    // Enemy initialization runs while a room loads, outside EnemyMain's publication window,
+    // and its frontend consumes the requests within that same update. Nothing here
+    // survives an update boundary, so debugger snapshots never contain it.
+    [NonSerialized] private List<MusicCommand>? _initializationMusicDelayed8;
+
+    /// <summary>
+    /// Records an enemy initialization's <c>QueueMusicDataOrTrack_8FrameDelay</c> ($80:8FC1)
+    /// call, which room loading performs after queuing the room's own music data.
+    /// </summary>
+    private void QueueInitializationMusicDelayed8(MusicCommand command) =>
+        (_initializationMusicDelayed8 ??= []).Add(command);
+
+    /// <summary>Returns and clears the initialization music calls of the room just loaded.</summary>
+    internal IReadOnlyList<MusicCommand> ConsumeInitializationMusicDelayed8()
+    {
+        if (_initializationMusicDelayed8 is not { Count: > 0 } pending)
+            return [];
+        MusicCommand[] commands = [.. pending];
+        pending.Clear();
+        return commands;
+    }
+
     /// <summary>Begins the native EnemyMain publication window.</summary>
     private void BeginEnemySoundRequestFrame()
     {

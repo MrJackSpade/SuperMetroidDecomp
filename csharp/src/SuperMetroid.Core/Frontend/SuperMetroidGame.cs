@@ -1152,6 +1152,10 @@ public sealed partial class SuperMetroidGame
                 audio.QueueRoomMusic(roomState.MusicDataIndex, roomState.MusicTrackIndex);
             lastAudioRoomStatePointer = roomState.Pointer;
         }
+        // Enemy initialization follows the room's music-data queueing in native loading.
+        if (runtime is not null)
+            foreach (MusicCommand command in runtime.Enemies.ConsumeInitializationMusicDelayed8())
+                audio.QueueMusicDelayed8(command);
 
         // The message-box selector is an NMI-only owner, not part of the gameplay
         // publication generation below. It has explicit consume semantics so its one-shot

@@ -128,14 +128,13 @@ public sealed class SamusCeresRidleyEjectionState
         uint baseSpeed = horizontalSpeed.CalculateBaseSpeed(
             bus,
             samus.ReadMovementType(bus));
-        int requestedX = PushDirection == 1
-            ? horizontalSpeed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
-            : horizontalSpeed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
+        var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == 1, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            requestedX);
+            requestedX.Displacement,
+            collisionMovementDirection: requestedX.CollisionDirection);
 
         if (horizontal.Collided)
         {

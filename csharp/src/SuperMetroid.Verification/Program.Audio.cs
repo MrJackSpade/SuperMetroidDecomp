@@ -101,16 +101,19 @@ internal static partial class Program
 
         // Each music operation starts eight SFX-downtime frames. Those frames deliberately
         // write zero to all three ports, so filter port-zero music commands separately.
-        CartridgeAudioCommand? track = null;
-        for (int frame = 0; frame < 8; frame++)
+        // `$80:8FA2` returns after a data upload without loading the next entry; the
+        // following call underflows the zero timer, fetches the track and its eight-frame
+        // delay, so the track write lands on the ninth call after the upload.
+        int trackCall = 0;
+        for (int call = 1; call <= 9; call++)
         {
             foreach (CartridgeAudioCommand command in audio.AdvanceFrame(bus, default))
             {
                 if (command == CartridgeAudioCommand.WritePort(0, 5))
-                    track = command;
+                    trackCall = call;
             }
         }
-        AssertEqual(CartridgeAudioCommand.WritePort(0, 5), track!.Value, "delayed track write");
+        AssertEqual(9, trackCall, "delayed track write follows the data upload's separate fetch call");
 
         // Every permanent item uses the same $84:8BDD -> $82:E118 sequence. Seed a stale
         // request to prove queue clearing, then observe track two, the 360-frame fanfare

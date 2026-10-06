@@ -88,10 +88,11 @@ public static partial class SamusBlockCollision
     /// Ports <c>BlockColl_Handle_Horiz</c> at <c>$94:9543</c>, the position addition in
     /// <c>Samus_MoveRight_NoSolidColl</c>, and the subsequent non-square slope alignment.
     /// </summary>
-    /// <param name="zeroDisplacementDirection">
-    /// Preserves the native left/right movement entrypoint when the signed displacement
-    /// is zero. Supplying it retains solid-enemy probe side effects without inventing
-    /// motion; null retains an ordinary no-movement call with no enemy probe.
+    /// <param name="collisionMovementDirection">
+    /// Native $0B02 stored by the displacement calculator. When supplied, this is a bank-$90
+    /// <c>MoveSamus_Right/Left</c> call: the solid-enemy probe always runs in this direction,
+    /// even for a zero displacement, while the sign selects the entry (zero enters right).
+    /// Null keeps a sign-derived probe that is skipped for a zero displacement.
     /// </param>
     public static BlockMoveResult MoveHorizontal(
         ISnesAddressSpace bus,
@@ -103,15 +104,15 @@ public static partial class SamusBlockCollision
         bool publishDoorSideEffects = true,
         bool alignToSlopeAfterMovement = true,
         SamusCollisionDirection? blockReactionDirection = null,
-        SamusCollisionDirection? zeroDisplacementDirection = null)
+        SamusCollisionDirection? collisionMovementDirection = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(state);
 
-        if (zeroDisplacementDirection is { } zeroDirection &&
-            zeroDirection is not (SamusCollisionDirection.Left or SamusCollisionDirection.Right))
-            throw new ArgumentOutOfRangeException(nameof(zeroDisplacementDirection));
+        if (collisionMovementDirection is { } storedDirection &&
+            storedDirection is not (SamusCollisionDirection.Left or SamusCollisionDirection.Right))
+            throw new ArgumentOutOfRangeException(nameof(collisionMovementDirection));
 
         int acceptedDisplacement = displacement;
         bool collided = false;
@@ -119,7 +120,7 @@ public static partial class SamusBlockCollision
         RoomCollisionBlock? collisionBlock = null;
         RoomCollisionBlock? brokenBombBlock = null;
 
-        if ((acceptedDisplacement != 0 || zeroDisplacementDirection.HasValue) && state.InteractiveEnemies.Count != 0)
+        if ((acceptedDisplacement != 0 || collisionMovementDirection.HasValue) && state.InteractiveEnemies.Count != 0)
         {
             // `$90:9350/$93B1` presents bank $A0 with an unsigned magnitude even though the
             // managed block mover receives signed 16.16 displacement. Preserve both halves:
@@ -127,14 +128,12 @@ public static partial class SamusBlockCollision
             uint magnitude = acceptedDisplacement < 0
                 ? unchecked((uint)(-acceptedDisplacement))
                 : unchecked((uint)acceptedDisplacement);
-            // Signed zero loses the native left/right entrypoint. Callers that actually
-            // dispatch a zero-distance move supply it explicitly: the enemy probe can
-            // still clear fractional Y on tangency even though X remains unchanged.
-            SamusCollisionDirection direction = acceptedDisplacement == 0
-                ? zeroDisplacementDirection!.Value
-                : acceptedDisplacement < 0
-                ? SamusCollisionDirection.Left
-                : SamusCollisionDirection.Right;
+            // `LDA $12 : BMI` selects the entry: zero is not negative and enters right.
+            // The probe itself reads the calculator's stored direction, so a zero move
+            // still detects tangency (and clears fractional Y) in the facing direction.
+            bool entersLeft = acceptedDisplacement < 0;
+            SamusCollisionDirection direction = collisionMovementDirection ??
+                (entersLeft ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
             SolidEnemyCollisionResult probe = SamusSolidEnemyCollision.Probe(
                 state,
                 state.InteractiveEnemies,
@@ -148,7 +147,7 @@ public static partial class SamusBlockCollision
                 // On enemy collision the bank-$90 wrapper skips bank-$94 block detection and
                 // invokes the corresponding no-collision position adder with `$12.0000`.
                 int clippedMagnitude = probe.Distance << 16;
-                acceptedDisplacement = direction == SamusCollisionDirection.Left
+                acceptedDisplacement = entersLeft
                     ? -clippedMagnitude
                     : clippedMagnitude;
                 collided = true;

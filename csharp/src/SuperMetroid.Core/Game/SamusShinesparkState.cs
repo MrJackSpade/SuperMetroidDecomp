@@ -824,20 +824,15 @@ public sealed class SamusShinesparkState
             samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         }
 
-        int displacement = samus.IsFacingLeft(bus)
-            ? samus.HorizontalSpeed.CalculateLeftDisplacement(
-                baseSpeed: 0,
-                samus.Kinematics.ExtraXFixed)
-            : samus.HorizontalSpeed.CalculateRightDisplacement(
-                baseSpeed: 0,
-                samus.Kinematics.ExtraXFixed);
+        var displacement = SamusHorizontalDisplacement.Toward(samus.IsFacingLeft(bus), samus, baseSpeed: 0);
         return SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            displacement,
+            displacement.Displacement,
             canBreakBombBlocks: true,
-            plms: plms);
+            plms: plms,
+            collisionMovementDirection: displacement.CollisionDirection);
     }
 
     private BlockMoveResult MoveY(

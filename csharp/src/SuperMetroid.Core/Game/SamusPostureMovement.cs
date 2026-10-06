@@ -89,15 +89,14 @@ public static class SamusPostureMovement
         // `$35/$36`; bank $91 samples and stores the shine before normal crouching clears
         // that momentum. The old exception at this seam prevented that native route.
         bool facingLeft = samus.IsFacingLeft(bus);
-        int requestedHorizontal = facingLeft
-            ? speed.CalculateLeftDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed)
-            : speed.CalculateRightDisplacement(baseSpeed: 0, samus.Kinematics.ExtraXFixed);
+        var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            requestedHorizontal,
-            plms: plms);
+            requestedHorizontal.Displacement,
+            plms: plms,
+            collisionMovementDirection: requestedHorizontal.CollisionDirection);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 

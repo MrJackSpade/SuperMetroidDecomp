@@ -320,6 +320,11 @@ public sealed class CartridgeAudioState
                     AudioAssetCatalogData.ResolveDataIndex(_musicEntry.DataIndex);
                 commands.Add(CartridgeAudioCommand.Upload(upload.SnesAddress));
                 MusicTrackIndex = 0;
+                // `$80:8F89-$8FA2` retires the data entry and returns. The timer stays zero,
+                // so the next entry is fetched only on the following call when it underflows.
+                ClearAndAdvanceMusicEntry();
+                _soundHandlerDowntime = AudioRomData.Queues.MusicAndSfxDowntimeFrames;
+                return;
             }
             else
             {

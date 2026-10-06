@@ -72,19 +72,14 @@ public static class SamusBombJumpMovement
             uint baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeedAtAddress(
                 bus,
             SamusMovementRomData.VerticalMotion.DiagonalBombJumpHorizontalSpeed);
-            int displacement = direction == 1
-                ? samus.HorizontalSpeed.CalculateLeftDisplacement(
-                    baseSpeed,
-                    samus.Kinematics.ExtraXFixed)
-                : samus.HorizontalSpeed.CalculateRightDisplacement(
-                    baseSpeed,
-                    samus.Kinematics.ExtraXFixed);
+            var displacement = SamusHorizontalDisplacement.Toward(direction == 1, samus, baseSpeed);
             horizontal = SamusBlockCollision.MoveHorizontal(
                 bus,
                 level,
                 samus.Kinematics,
-                displacement,
-                plms: plms);
+                displacement.Displacement,
+                plms: plms,
+                collisionMovementDirection: displacement.CollisionDirection);
             // The native direction-aware X mover clears momentum on a wall hit
             // before the later Y scan replaces its collision result. This must
             // not end the bomb ascent, but it must stop horizontal acceleration.

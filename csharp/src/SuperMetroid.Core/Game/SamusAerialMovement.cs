@@ -153,15 +153,14 @@ public static class SamusAerialMovement
             SamusPoseIds.NormalJumpTransitionAimDiagonalDownLeftPose)
         {
             samus.HorizontalSpeed.AccelerationMode = 0;
-            int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed: 0);
+            var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed: 0);
             BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
                 bus,
                 level,
                 samus.Kinematics,
-                requested,
+                requested.Displacement,
                 plms: plms,
-                zeroDisplacementDirection: samus.ReadFacingDirection(bus) == SamusFacingDirection.Left
-                    ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
+                collisionMovementDirection: requested.CollisionDirection);
             if (horizontal.Collided)
                 samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -287,14 +286,15 @@ public static class SamusAerialMovement
             speed.AccelerationMode = 2;
         }
 
-        int requested = CalculateDirectedDisplacement(bus, samus, calculation.Speed);
+        var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            requested,
+            requested.Displacement,
             canBreakBombBlocks: canBreakCollisionBombBlocks,
-            plms: plms);
+            plms: plms,
+            collisionMovementDirection: requested.CollisionDirection);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -450,13 +450,14 @@ public static class SamusAerialMovement
             liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidPhysicsState.Air);
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
-        int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed);
+        var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            requested,
-            plms: plms);
+            requested.Displacement,
+            plms: plms,
+            collisionMovementDirection: requested.CollisionDirection);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -610,8 +611,9 @@ public static class SamusAerialMovement
         }
         else
         {
-            int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, requested, plms: plms);
+            var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
+            horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, requested.Displacement, plms: plms,
+                collisionMovementDirection: requested.CollisionDirection);
             if (horizontal.Collided)
                 speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         }
@@ -660,13 +662,14 @@ public static class SamusAerialMovement
             return SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, 0, plms: plms);
         }
 
-        int requested = CalculateDirectedDisplacement(bus, samus, calculation.Speed);
+        var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
             bus,
             level,
             samus.Kinematics,
-            requested,
-            plms: plms);
+            requested.Displacement,
+            plms: plms,
+            collisionMovementDirection: requested.CollisionDirection);
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         return horizontal;
@@ -903,24 +906,6 @@ public static class SamusAerialMovement
         // magnitude, Speed Booster's split-word bonus, dry-air gravity, and upward direction.
         SamusAerialMovement.InitializeJump(bus, samus);
         return true;
-    }
-
-    private static int CalculateDirectedDisplacement(
-        ISnesAddressSpace bus,
-        SamusState samus,
-        uint baseSpeed)
-    {
-        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        byte direction = samus.ReadPoseXDirection(bus);
-
-        // $90:8EA9 reverses the pose's direction only in mode one. Modes zero and two use
-        // the pose direction normally; this is why mode two is safe for aerial carry.
-        bool movesLeft = speed.AccelerationMode == 1
-            ? direction == 8
-            : direction == 4;
-        return movesLeft
-            ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
-            : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);
     }
 
     private static void ClearBaseHorizontalMotion(SamusHorizontalSpeedState speed)

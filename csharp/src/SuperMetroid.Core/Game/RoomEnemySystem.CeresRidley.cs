@@ -158,6 +158,8 @@ public sealed partial class RoomEnemySystem
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle,
             TailSegments = CreateInitialRidleyTailSegments(),
         };
+        // `$A6:A280` ends Ceres Ridley's initialization by queuing music zero (stop).
+        QueueInitializationMusicDelayed8(MusicCommand.Stop);
 
         // WriteColorsToTargetPalette($140, $A6:E16F, $20) installs the Ceres door and Baby
         // Metroid container palettes. This runtime exposes the final target directly in

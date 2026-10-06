@@ -5,6 +5,142 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1TimerGlyphs(ISnesAddressSpace rom)
+    {
+        byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
+        var image = IndexedPng.Read(new MemoryStream(png), 200, 8);
+        byte[] native = Enumerable.Range(0, 800).Select(index => rom.ReadByte(0xb0c000 + index)).ToArray();
+        var stock = EscapeTimerTileAtlas.Load(new MemoryStream(png));
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        HashSet<int> Fill(EscapeTimerTileAtlas value) => (HashSet<int>)typeof(EscapeTimerTileAtlas).GetField("fillPixels", flags)!.GetValue(value)!;
+        Dictionary<int, byte> Overrides(EscapeTimerTileAtlas value) => (Dictionary<int, byte>)typeof(EscapeTimerTileAtlas).GetField("pixelOverrides", flags)!.GetValue(value)!;
+        Dictionary<int, bool> FillOverrides(EscapeTimerTileAtlas value) => (Dictionary<int, bool>)typeof(EscapeTimerTileAtlas).GetField("fillOverrides", flags)!.GetValue(value)!;
+        bool DefaultFill(int pixel, out bool fill)
+        {
+            int tile = pixel % 200 / 8, x = pixel % 8, y = pixel / 200 + (tile >= 10 ? 8 : 0);
+            if (tile >= 22)
+            {
+                int labelX = (tile - 22) * 8 + x, labelY = pixel / 200;
+                fill = labelX is >= 0 and <= 5 && (labelY == 1 || labelY is >= 2 and <= 5 && labelX is 2 or 3) ||
+                    labelX is 7 or 8 && labelY is >= 1 and <= 5 ||
+                    labelX is >= 18 and <= 22 && (labelY is 1 or 5 ||
+                        labelX is 18 or 19 && labelY is >= 2 and <= 4 || labelY == 3 && labelX <= 21);
+                return labelX <= 5 || labelX is 7 or 8 || labelX is >= 18 and <= 22;
+            }
+            fill = x is 3 or 4 && y is >= 1 and <= 13 || x == 2 && y is 2 or 3 || x is >= 2 and <= 5 && y is 12 or 13;
+            if (tile is 0 or 10)
+            {
+                fill = x is >= 1 and <= 6 && y is >= 1 and <= 13 &&
+                    !((x == 1 || x == 6) && (y == 1 || y == 13)) &&
+                    !(x is >= 3 and <= 4 && y is >= 3 and <= 11);
+            }
+            if (tile == 8)
+            {
+                fill = x is >= 1 and <= 6 && y is >= 1 and <= 7 &&
+                    !((x == 1 || x == 6) && (y == 1 || y == 7)) &&
+                    !(x is >= 3 and <= 4 && y is >= 3 and <= 5);
+            }
+            if (tile is 2 or 12)
+            {
+                fill = y == 1 && x is >= 2 and <= 5 ||
+                    y == 2 && x is >= 1 and <= 6 ||
+                    y is 3 or 4 && x is 1 or 2 or 5 or 6 ||
+                    y == 5 && x is 5 or 6 ||
+                    y == 6 && x is >= 4 and <= 6 ||
+                    y == 7 && x is >= 3 and <= 5 ||
+                    y == 8 && x is 3 or 4 ||
+                    y == 9 && x is >= 2 and <= 4 ||
+                    y == 10 && x is 2 or 3 ||
+                    y == 11 && x is >= 1 and <= 3 ||
+                    y is 12 or 13 && x is >= 1 and <= 6;
+            }
+            if (tile is 7 or 17)
+            {
+                fill = y is 1 or 2 && x is >= 1 and <= 6 || y is >= 10 and <= 13 && x is 2 or 3;
+                return y < 3 || y >= 10;
+            }
+            return tile is 0 or 1 or 2 or 8 or 10 or 11 or 12;
+        }
+        byte Ink(int pixel) => (byte)(pixel % 200 / 8 < 22 ? 1 : 2);
+        int Source(int pixel)
+        {
+            int tile = pixel % 200 / 8, x = pixel % 8, y = pixel / 200;
+            if (tile is 16 or 18) tile = 10;
+            if (tile == 10 && y <= 6) { tile = 0; y = 6 - y; }
+            if ((tile == 0 || tile == 8) && x >= 4) x = 7 - x;
+            if (tile == 21) { tile = 20; if (x >= 4) x -= 3; }
+            return y * 200 + tile * 8 + x;
+        }
+        byte Outline(byte[] pixels, int index)
+        {
+            int tile = index % 200 / 8, x = index % 8, y = index / 200;
+            int gx = tile >= 22 ? (tile - 22) * 8 + x : x, gy = tile is >= 10 and < 20 ? y + 8 : y;
+            for (int ny = gy - 1; ny <= gy + 1; ny++)
+            for (int nx = gx - 1; nx <= gx + 1; nx++)
+            {
+                if (nx < 0 || nx >= (tile >= 22 ? 24 : 8) || ny < 0 || ny >= (tile < 20 ? 16 : 8)) continue;
+                int selectedTile = tile < 20 ? tile % 10 + ny / 8 * 10 : tile >= 22 ? 22 + nx / 8 : tile;
+                int neighbor = ny % 8 * 200 + selectedTile * 8 + nx % 8;
+                if (pixels[neighbor] == Ink(neighbor)) return 14;
+            }
+            return 0;
+        }
+        byte[] Transfer(EscapeTimerTileAtlas value) => value.Resolve(VramAssetId.EscapeTimerFirstTiles).ToArray()
+            .Concat(value.Resolve(VramAssetId.EscapeTimerSecondTiles).ToArray()).ToArray();
+        AssertTrue(Transfer(stock).SequenceEqual(native), "Both reconstructed timer pages match all800 native planar bytes");
+        AssertEqual(275, Fill(stock).Count, "Exact retained timer fill footprint after calculated digit and label shapes");
+        AssertEqual(0, FillOverrides(stock).Count, "Zero stock calculated-footprint overrides");
+        AssertTrue(Overrides(stock).Keys.ToHashSet().SetEquals(new[] { 1161, 1163, 189, 999 }), "Exact four still-retained native deviations");
+        for (int index = 0; index < 1600; index++)
+        {
+            bool fill = image.Pixels[index] == Ink(index);
+            bool calculated = DefaultFill(index, out bool expectedFill);
+            AssertEqual(calculated, EscapeTimerGlyphDefinitions.TryDefaultFill(index, out bool productionFill), "Exact digit/T/I/E footprint domain");
+            if (calculated) { AssertEqual(fill, expectedFill, "Direct native three-part digit/T/I/E footprint"); AssertEqual(fill, productionFill, "Direct calculated digit/T/I/E footprint"); }
+            AssertEqual(Source(index) == index && !calculated && fill, Fill(stock).Contains(index), "Exact retained stock footprint membership");
+            AssertEqual(Source(index), EscapeTimerGlyphDefinitions.SourcePixel(index), "Exact native shared lower-half pixel domain");
+            if (Source(index) != index) AssertEqual(image.Pixels[index], image.Pixels[Source(index)], "Direct native repeated lower-half pixel");
+            else if (!fill && !Overrides(stock).ContainsKey(index))
+                AssertEqual(image.Pixels[index], EscapeTimerGlyphDefinitions.Outline(index, pixel => image.Pixels[pixel] == Ink(pixel)), "Direct native calculated outline/transparency");
+            byte[] editedPixels = (byte[])image.Pixels.Clone(); editedPixels[index] ^= 15;
+            using var stream = new MemoryStream();
+            IndexedPng.Write(stream, 200, 8, editedPixels, image.Palette); stream.Position = 0;
+            var edited = EscapeTimerTileAtlas.Load(stream);
+            for (int other = 0; other < 1600; other++)
+            {
+                bool selectedFill = editedPixels[other] == Ink(other);
+                bool calculatedFill = DefaultFill(other, out bool defaultFill);
+                AssertEqual(Source(other) == other && !calculatedFill && selectedFill, Fill(edited).Contains(other), "Every independently supplied retained footprint edit preserved");
+                AssertEqual(Source(other) == other && calculatedFill && selectedFill != defaultFill, FillOverrides(edited).ContainsKey(other), "Exact independently supplied calculated-footprint override membership");
+                bool expectedOverride = Source(other) != other ? editedPixels[other] != editedPixels[Source(other)] : !selectedFill && editedPixels[other] != Outline(editedPixels, other);
+                AssertEqual(expectedOverride, Overrides(edited).ContainsKey(other), "Exact independent outline/shared-pixel deviation membership");
+            }
+            byte[] expected = (byte[])native.Clone();
+            int tile = index % 200 / 8, x = index % 8, y = index / 200;
+            for (int plane = 0; plane < 4; plane++) expected[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] ^= (byte)(1 << (7 - x));
+            AssertTrue(Transfer(edited).SequenceEqual(expected), "Every PNG pixel edit changes exactly its four native planar bits");
+        }
+        var queue = new VramWriteQueue(); stock.QueueTo(queue);
+        AssertEqual(2, queue.Entries.Count, "Original two-page queue count");
+        AssertEqual((ushort)512, queue.Entries[0].SizeInBytes, "First page size");
+        AssertEqual((ushort)0x7e00, queue.Entries[0].EncodedVramDestination, "First page destination");
+        AssertEqual(VramAssetId.EscapeTimerFirstTiles, queue.Entries[0].AssetId, "First typed page identity");
+        AssertEqual((ushort)288, queue.Entries[1].SizeInBytes, "Second page size");
+        AssertEqual((ushort)0x7f00, queue.Entries[1].EncodedVramDestination, "Second page destination");
+        AssertEqual(VramAssetId.EscapeTimerSecondTiles, queue.Entries[1].AssetId, "Second typed page identity");
+        var nativeQueue = new VramWriteQueue();
+        AssertTrue(stock.TryQueueNativeTransfer(nativeQueue, 0xb0c000, 512, 0x7e00) && stock.TryQueueNativeTransfer(nativeQueue, 0xb0c200, 288, 0x7f00), "Native queue descriptors accepted");
+        AssertTrue(nativeQueue.Entries.SequenceEqual(queue.Entries), "Native and typed queues preserve exact order and descriptors");
+        var vram = new SnesVram();
+        AssertTrue(stock.TryLoadNativeTransfer(vram, 0xb0c000, 512, 0x7e00) && stock.TryLoadNativeTransfer(vram, 0xb0c200, 288, 0x7f00), "Both synchronous native uploads accepted");
+        AssertTrue(vram.Bytes.Slice(0xfc00, 800).SequenceEqual(native), "Actual two-page VRAM upload matches native bytes");
+        AssertTrue(stock.TryResolve(0xb0c000, 512, out var first) && first.Span.SequenceEqual(native.AsSpan(0, 512)), "First restored native page resolution");
+        AssertTrue(stock.TryResolve(0xb0c200, 288, out var second) && second.Span.SequenceEqual(native.AsSpan(512)), "Second restored native page resolution");
+        AssertTrue(!stock.TryResolve(0xb0c000, 511, out _), "Mismatched native page rejected");
+        AssertTrue(!stock.TryLoadNativeTransfer(vram, 0xb0c200, 288, 0x7e00), "Mismatched synchronous destination rejected");
+        AssertTrue(Transfer(stock).SequenceEqual(native), "Stock timer remains immutable");
+        Console.WriteLine("Timer font:836 direct outline pixels,312 shared/reflected pixels,275 retained fill positions/four deviations,173 calculated digit/T/I/E basis fill sites,1600 independent PNG edits,800 native planar bytes and exact two-page queue/VRAM uploads pass.");
+    }
     private static void VerifyLookupStream1XrayBodyFrames(ISnesAddressSpace rom)
     {
         int count = SamusBodyArtworkCatalog.FrameCount * 4;

@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 511,
+  "remainingTableDefinitionCount": 510,
   "fileCount": 523,
   "entries": [
     {
@@ -704,8 +704,7 @@
       "line": 8,
       "name": "EscapeTimerTileAtlas.transfer",
       "kind": "installed stock table",
-      "note": "Original/default payload behind EscapeTimerTileAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+      "note": "Original/default payload behind EscapeTimerTileAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.","state":"justified-retained","implementationCommit":"38c23ee56a77f647994f8b110d0e4993f9e26781","disposition":"Mixed complete:836outline/312alias/173geometric basis pixels calculated. Retain only275original font contour sites+blank complement,four edge decisions,18typography parameters and listed joins;digit identity cannot determine the selected bitmap typeface. Exact per-domain evidence in stream1 Batch81. RGB/countdown/otherart excluded."},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterPresentation.cs",
       "line": 9,
@@ -21548,5 +21547,5 @@
     }
   ],
   "convertedSinceSnapshot": 596,
-  "justifiedRetainedSinceSnapshot": 21
+  "justifiedRetainedSinceSnapshot": 22
 }

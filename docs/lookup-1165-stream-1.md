@@ -192,7 +192,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs
 
-- [ ] **EscapeTimerTileAtlas.transfer** ([L8](../csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs#L8)) - installed stock table. Original/default payload behind EscapeTimerTileAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **EscapeTimerTileAtlas.transfer** - MIXED COMPLETE: calculated font relationships plus narrowly retained original typeface contours/metrics; see final timer disposition below.
 
 ### csharp/src/SuperMetroid.Core/Assets/EscapeTypewriterPresentation.cs
 
@@ -1023,3 +1023,17 @@ Root build1452warnings/0errors;41native offset bytes/41edits/unaligned reads;253
 ### Independent timer pen identity review
 
 Approved only digit/separator fill pen1, TIME fill pen2 and outline pen14 as selected categorical paint-role identities. Root viewed the native glyph-role export and independently decoded B0:C000 pixel(2,1)=1, pixel(1,0)=14 and B0:C2C0 pixel(0,1)=2. Native80:9FCA chooses OBJ palette5; the production renderer treats0 as transparent and selects CGRAM128+palette*16+pen (209/210/222). Geometry cannot determine these particular chosen slot numbers; a numerical generator would merely restate the art choice. No RGB, footprint, deviation, width, spacing, glyph-one metric/policy or aggregate exemption follows. Latest worker23bdd65e9 leaves416footprint positions/four deviations plus those parameters required; its production integration is still queued. Master595/21/512 unchanged.
+
+
+## Batch 81: timer font mixed disposition complete
+
+EscapeTimerTileAtlas.transfer is now MIXED COMPLETE. Totals189 wholly converted / nine mixed /28 unchecked. Scope is only the800 planar bytes B0:C000..C31F, not RGB palettes, countdown timing or other artwork.
+
+- Calculated output remains836 outline pixels,312 repeated/reflected pixels and173 geometric basis fill sites. Retained original typeface membership is275 fill sites and their specified blank complement: digit3=47 (B0:C060/C1A0), digit4=45 (C080/C1C0), digit5=51 (C0A0/C1E0), digit6 upper=31 (C0C0), digit7 middle rows3..9=14 (C0E0/C220), digit9=55 (C120/C260), single separator=6 (C280), TIME M=26 (label columns10..16,C2E0/C300).
+- Four retained contour-edge decisions: PNG index1161(tile20,x1,y5)=0 and1163(tile20,x3,y5)=0 carve separator outline corners;189(tile23,x5,y0)=14 bridges the label top at M center;999(tile24,x7,y4)=0 trims E's right margin. These are precise paint choices, not an exemption inferred from a failed dilation.
+- Eighteen reviewed typography parameters: outline width1; separator advance3; digit stroke2; upper-eight fill end8; two cap end5/stem end7/slope2; seven terminal start10/X2; label stem2/T width6/I origin7/E origin18/E width5/top1/height5/middle inset1; bottom padding1. Reviewed policies are the zero/eight rounded corners and rectangular counters, one's centered stem/flag/foot, two's selected cap/stem/band/foot joins, seven's selected cap/terminal domains, T's centered stem and E's three-arm design.
+- Root independently reviewed the native-role image csharp/test-temp/timer-native-glyph-roles.png, original80:9F95..9FB0 BCD nibble selection,80:9FE8..A07A tile composition and80:9FCA palette5 routing. Managed EscapeTimer.cs247..274 computes countdown independently; EscapeTimerPresentation.cs42..44 selects digit identities; EscapeTimerPresentationDefinitions.cs75 derives the selected glyph tiles. The atlas only emits planar artwork. The extractor supplies a diagnostic PNG palette; game RGB is not this entry's payload.
+- Narrow nonsense rationale: a numeric digit or glyph transport cell cannot determine this selected bitmap typeface. Its open four, asymmetrical bowls, seven contour and M joins are specific font-design choices; another contour can depict the same digit. Further geometric encoding can describe those choices but still requires the same selected typography/outline inputs. This approval covers only the exact remaining font design listed above, not a general artwork exemption. Existing useful constructions remain calculated.
+- Root explicitly approved this complete bounded mixed disposition. Helper names/comments now identify Chosen parameters instead of falsely pending REQUIRED inputs. Independent PNG edits remain supported at every pixel, including calculated/aliased pixels.
+- Final confirmation: Verification build1,434 warnings/zero errors; --lookup-stream-1-timer-glyphs passes624 direct native default-mask positions, zero stock fill overrides, exact275-site/four-edge retained basis, all1,600 independent PNG edits, all800 original planar bytes and actual typed/native two-page queue/VRAM upload. One final XML-only correction clarifies the approved outline width versus excluded RGBs; executable tokens unchanged after build. Root refreshed AreaMap, Cinematic, VramDmaPresentation and VramDmaSource contracts.
+Root integration confirmation:1452warnings/0errors;Audit0/0;all listed timer checks pass. Master596converted/22retained-mixed/510pending.

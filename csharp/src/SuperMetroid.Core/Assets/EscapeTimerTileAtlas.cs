@@ -5,9 +5,57 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable four-bit OBJ characters used by the Ceres and Zebes escape timers.</summary>
 public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
 {
-    private readonly byte[] transfer;
+    // Native digit/label identities select a typeface; they do not generate its selected contours.
+    // The reviewed original basis is275 fill sites plus their blank complement and four edge choices.
+    // Independent PNG edits remain separate from calculated defaults and shared pixel relationships.
+    private readonly HashSet<int> fillPixels;
+    private readonly Dictionary<int, bool> fillOverrides;
+    private readonly Dictionary<int, byte> pixelOverrides;
 
-    private EscapeTimerTileAtlas(byte[] transfer) => this.transfer = transfer;
+    private EscapeTimerTileAtlas(byte[] pixels)
+    {
+        fillPixels = new HashSet<int>();
+        fillOverrides = new Dictionary<int, bool>();
+        for (int index = 0; index < pixels.Length; index++)
+        {
+            if (EscapeTimerGlyphDefinitions.SourcePixel(index) != index) continue;
+            bool filled = pixels[index] == EscapeTimerGlyphDefinitions.FillInk(index);
+            if (EscapeTimerGlyphDefinitions.TryDefaultFill(index, out bool expected))
+            {
+                if (filled != expected) fillOverrides.Add(index, filled);
+            }
+            else if (filled) fillPixels.Add(index);
+        }
+        pixelOverrides = Enumerable.Range(0, pixels.Length)
+            .Where(index => EscapeTimerGlyphDefinitions.SourcePixel(index) != index && pixels[index] != pixels[EscapeTimerGlyphDefinitions.SourcePixel(index)])
+            .ToDictionary(index => index, index => pixels[index]);
+        foreach (int index in Enumerable.Range(0, pixels.Length))
+            if (EscapeTimerGlyphDefinitions.SourcePixel(index) == index && !IsFill(index) &&
+                pixels[index] != EscapeTimerGlyphDefinitions.Outline(index, IsFill))
+                pixelOverrides.Add(index, pixels[index]);
+    }
+
+    private bool IsFill(int index)
+    {
+        int source = EscapeTimerGlyphDefinitions.SourcePixel(index);
+        return source != index && pixelOverrides.TryGetValue(index, out byte value)
+            ? value == EscapeTimerGlyphDefinitions.FillInk(index) : BasisFill(source);
+    }
+
+    private bool BasisFill(int index) => fillOverrides.TryGetValue(index, out bool supplied) ? supplied :
+        EscapeTimerGlyphDefinitions.TryDefaultFill(index, out bool calculated) ? calculated : fillPixels.Contains(index);
+
+    private byte Pixel(int index)
+    {
+        if (pixelOverrides.TryGetValue(index, out byte value)) return value;
+        int source = EscapeTimerGlyphDefinitions.SourcePixel(index);
+        if (source != index) return Pixel(source);
+        return BasisFill(index) ? EscapeTimerGlyphDefinitions.FillInk(index) : EscapeTimerGlyphDefinitions.Outline(index, IsFill);
+    }
+
+    private byte[] Transfer() => SnesPlanarTileEncoder.Encode(
+        Enumerable.Range(0, EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height).Select(Pixel).ToArray(),
+        EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height, EscapeTimerTileAtlasFormat.BitsPerPixel);
 
     /// <summary>Loads the indexed PNG and compiles its pixels to the cartridge's two native DMA pages.</summary>
     public static EscapeTimerTileAtlas Load(Stream png)
@@ -20,18 +68,20 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
         if (planar.Length != EscapeTimerTileAtlasFormat.TotalByteCount)
             throw new InvalidDataException(
                 $"Escape timer artwork compiled to {planar.Length} bytes; expected {EscapeTimerTileAtlasFormat.TotalByteCount}.");
-        return new(planar);
+        return new(image.Pixels);
     }
 
     /// <summary>Resolves one native page without combining or retiming its original transfer record.</summary>
-    public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset switch
+    public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
     {
-        VramAssetId.EscapeTimerFirstTiles => transfer.AsMemory(0, EscapeTimerTileAtlasFormat.FirstByteCount),
-        VramAssetId.EscapeTimerSecondTiles => transfer.AsMemory(
-            EscapeTimerTileAtlasFormat.FirstByteCount,
-            EscapeTimerTileAtlasFormat.SecondByteCount),
-        _ => throw new InvalidDataException($"Escape timer artwork cannot resolve VRAM asset {asset}."),
-    };
+        byte[] transfer = Transfer();
+        return asset switch
+        {
+            VramAssetId.EscapeTimerFirstTiles => transfer.AsMemory(0, EscapeTimerTileAtlasFormat.FirstByteCount),
+            VramAssetId.EscapeTimerSecondTiles => transfer.AsMemory(EscapeTimerTileAtlasFormat.FirstByteCount, EscapeTimerTileAtlasFormat.SecondByteCount),
+            _ => throw new InvalidDataException($"Escape timer artwork cannot resolve VRAM asset {asset}."),
+        };
+    }
 
     /// <summary>Restored native queue descriptors resolve the same two installed pages as typed uploads.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
@@ -54,7 +104,7 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
     public void QueueTo(VramWriteQueue queue)
     {
         ArgumentNullException.ThrowIfNull(queue);
-        if (transfer.Length != EscapeTimerTileAtlasFormat.TotalByteCount)
+        if (Transfer().Length != EscapeTimerTileAtlasFormat.TotalByteCount)
             throw new InvalidDataException("Escape timer artwork no longer matches its native transfer pages.");
         queue.EnqueueAsset(VramAssetId.EscapeTimerFirstTiles,
             EscapeTimerTileAtlasFormat.FirstByteCount, EscapeTimerTileAtlasFormat.FirstDestinationWord);

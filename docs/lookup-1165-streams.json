@@ -3243,6 +3243,7 @@
 ,{"path":"csharp/src/SuperMetroid.Core/Game/CeresDoorRumbleGeometryDefinitions.cs","stream":5,"purpose":"Calculated staggered destruction formation with narrowly reviewed discrete composition anchors; no timing/sound/artwork exemption"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/CeresDoorNormalPaintDefinitions.cs","stream":5,"purpose":"Exact reviewed normal/escape material paints with calculated hue/shade/alias relationships and independent edits; animation,pixels,timing excluded"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/CeresDoorEscapePaintDefinitions.cs","stream":5,"purpose":"Exact reviewed normal/escape material paints with calculated hue/shade/alias relationships and independent edits; animation,pixels,timing excluded"}
+,{"path":"csharp/src/SuperMetroid.Core/Assets/IntroCinematicPaintDefinitions.cs","stream":3,"purpose":"Complete256 intro color composition from precisely reviewed material/compatibility choices and calculated gamma,sepia,tint,alias relationships; pixel,timing,gameplay excluded"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 457,
+  "remainingTableDefinitionCount": 456,
   "fileCount": 523,
   "entries": [
     {
@@ -1149,12 +1149,15 @@
       "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicPalette.cs",
-      "line": 10,
-      "name": "IntroCinematicPalette.nativeBytes",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind IntroCinematicPalette.nativeBytes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicPalette.cs",
+  "line": 10,
+  "name": "IntroCinematicPalette.nativeBytes",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind IntroCinematicPalette.nativeBytes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "9620408f9bea495e0c87ede2d3867fcacd5bc9f1",
+  "disposition": "All256 colors calculate through semantic material rows, sepia and hue ramps, gamma2 helmet/visor/green glow shading, shared plate paint, tint/neutral/cycle relationships. Retain only precise named portrait/material endpoint hues, terminal textshadow11/ceil-gamma policy, selected slot/tint/rounding composition and copied zero-word compatibility. Source artwork and actual2bpp consumer establish categorical roles; choosing different hues would invent content. No pixel,timing,mechanics or other-palette exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs",
       "line": 9,
@@ -21703,5 +21706,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 71
+  "justifiedRetainedSinceSnapshot": 72
 }

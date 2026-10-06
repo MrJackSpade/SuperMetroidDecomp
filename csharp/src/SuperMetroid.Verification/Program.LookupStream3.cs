@@ -29,14 +29,17 @@ internal static partial class Program
             .Select(color => ReadVerificationWord(rom, IntroCinematicRomData.Assets.Palette + 2 * color)).ToArray();
         IntroCinematicPalette stock = Load(native);
         Confirm(stock, native);
+        var rows = (Array)typeof(IntroCinematicPalette).GetField("rows", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, rows.Length, "intro complete stock palette stores no rows or paint words");
         for (int color = 0; color < native.Length; color++)
+        for (int channel = 0; channel < 4; channel++)
         {
             ushort[] edited = (ushort[])native.Clone();
-            edited[color] ^= 0x0421;
+            edited[color] ^= channel == 3 ? (ushort)0x0421 : (ushort)(1 << (channel * 5));
             Confirm(Load(edited), edited);
             Confirm(stock, native);
         }
-        Console.WriteLine("Intro palette rows:256 native colors and256 independent RGB5 edits preserve transfer bytes/CGRAM/instance isolation; paints and cycle choices remain required.");
+        Console.WriteLine("Intro palette rows:256 native colors and768 single-channel and256 combined RGB5 edits preserve transfer bytes/CGRAM/instance isolation; reviewed material choices and all shade calculations keep no stock rows.");
         static void Confirm(IntroCinematicPalette selected, ushort[] expected)
         {
             ReadOnlySpan<byte> bytes = selected.Transfer.Span;

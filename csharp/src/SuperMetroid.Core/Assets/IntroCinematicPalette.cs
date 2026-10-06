@@ -11,6 +11,7 @@ public sealed class IntroCinematicPalette
 
     private IntroCinematicPalette(byte[] nativeBytes)
     {
+        if (IntroCinematicPaintDefinitions.Matches(nativeBytes)) { rows = []; return; }
         rows = new PaletteRow[SnesCgram.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow];
         for (int row = 0; row < rows.Length; row++)
         {
@@ -28,9 +29,9 @@ public sealed class IntroCinematicPalette
         get
         {
             var output = new byte[SnesCgram.ByteCount];
-            for (int row = 0; row < rows.Length; row++)
+            for (int row = 0; row < SnesCgram.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow; row++)
             for (int color = 0; color < IntroCinematicPaletteFormat.ColorsPerRow; color++)
-                BinaryPrimitives.WriteUInt16LittleEndian(output.AsSpan(2 * (row * IntroCinematicPaletteFormat.ColorsPerRow + color)), rows[row].Resolve(color));
+                BinaryPrimitives.WriteUInt16LittleEndian(output.AsSpan(2 * (row * IntroCinematicPaletteFormat.ColorsPerRow + color)), rows.Length == 0 ? IntroCinematicPaintDefinitions.Color(row, color) : rows[row].Resolve(color));
             return output;
         }
     }
@@ -74,9 +75,9 @@ public sealed class IntroCinematicPalette
             for (int color = 1; color <= 8; color++)
                 if (colors[color] != source.Resolve(color)) return false;
             int blue = colors[9] >> 10;
-            if ((colors[9] & 0x3ff) != 0 || blue < 3 * IntroCinematicPaletteFormat.UnresolvedCrossFadeBlueStep) return false;
+            if ((colors[9] & 0x3ff) != 0 || blue < 3 * IntroCinematicPaletteFormat.CrossFadeBlueStep) return false;
             for (int shade = 1; shade < 4; shade++)
-                if (colors[9 + shade] != (blue - shade * IntroCinematicPaletteFormat.UnresolvedCrossFadeBlueStep) << 10) return false;
+                if (colors[9 + shade] != (blue - shade * IntroCinematicPaletteFormat.CrossFadeBlueStep) << 10) return false;
             return true;
         }
         internal ushort Resolve(int color)
@@ -86,7 +87,7 @@ public sealed class IntroCinematicPalette
                 if (color == 0) return crossFadeInputs[0];
                 if (color <= 8) return sharedGradient!.Resolve(color);
                 if (color <= 12) return (ushort)(((crossFadeInputs[1] >> 10) -
-                    (color - 9) * IntroCinematicPaletteFormat.UnresolvedCrossFadeBlueStep) << 10);
+                    (color - 9) * IntroCinematicPaletteFormat.CrossFadeBlueStep) << 10);
                 return crossFadeInputs[color - 11];
             }
             return supplied is not null ? supplied[color] :
@@ -94,8 +95,8 @@ public sealed class IntroCinematicPalette
         }
         private ushort CycleColor(int color)
         {
-            int decrease = (color - 1) % IntroCinematicPaletteFormat.UnresolvedNeutralCycleLength *
-                IntroCinematicPaletteFormat.UnresolvedNeutralCycleStep;
+            int decrease = (color - 1) % IntroCinematicPaletteFormat.NeutralCycleLength *
+                IntroCinematicPaletteFormat.NeutralCycleStep;
             int result = 0;
             for (int shift = 0; shift < 15; shift += 5)
                 result |= Math.Max(0, (foreground >> shift & 31) - decrease) << shift;
@@ -148,15 +149,15 @@ public static class IntroCinematicPaletteFormat
     internal const int ColorsPerRow = 16;
     /// <summary>$8C:E4E9-E508: first object palette repeats a neutral ramp after its background slot.</summary>
     internal const int NeutralCycleRow = 8;
-    /// <summary>$8C:E4EB-E4F2: selected four-shade cycle; period remains required.</summary>
-    internal const int UnresolvedNeutralCycleLength = 4;
-    /// <summary>$8C:E4EB-E508: selected unit decrement in every RGB5 channel; magnitude remains required.</summary>
-    internal const int UnresolvedNeutralCycleStep = 1;
+    /// <summary>$8C:E4EB-E4F2: reviewed four-shade neutral material cycle.</summary>
+    internal const int NeutralCycleLength = IntroCinematicPaintDefinitions.WhiteCycleLength;
+    /// <summary>$8C:E4EB-E508: reviewed unit decrement in every RGB5 channel.</summary>
+    internal const int NeutralCycleStep = IntroCinematicPaintDefinitions.WhiteCycleStep;
     /// <summary>$8C:E5A9-E5C8, Palettes_Intro_CrossFade; its first eight visible inks repeat palette2.</summary>
     internal const int CrossFadeRow = 14;
     /// <summary>$8C:E42B-E43A supplies the eight-color gradient also copied atE5AB-E5BA.</summary>
     internal const int SharedCrossFadeSourceRow = 2;
-    /// <summary>$8C:E5BB-E5C2: selected blue levels31/22/13/4; decrement9 remains required.</summary>
-    internal const int UnresolvedCrossFadeBlueStep = 9;
+    /// <summary>$8C:E5BB-E5C2: reviewed blue endpoints31/4 derive their equal three-interval decrement.</summary>
+    internal const int CrossFadeBlueStep = IntroCinematicPaintDefinitions.CrossfadeBlueStep;
     public const string FileName = "intro-narration-palette.json";
 }

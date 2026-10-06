@@ -12,6 +12,33 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyRidleySpinFireball()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RidleyMovieMemory.RidleyRoom);
+        var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
+        var tick = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyPogo", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        foreach (var sample in new[] { (0x7f, false, 2, false), (0x80, false, 2, true),
+            (0xff, true, 2, false), (0xff, false, 1, false), (0x180, false, 0, true) })
+        {
+            runtime.System.SetRandomNumber((ushort)sample.Item1);
+            state.Roaring = sample.Item2; state.FacingDirection = (ushort)sample.Item3;
+            state.FunctionTimer = 20; samus.Pose = SamusPoseIds.SpinJumpRightPose;
+            body.CurrentInstruction = RidleyMovieMemory.RidleyRightFlyingSleep;
+            body.InstructionTimer = 9; body.Timer = 11;
+            tick.Invoke(runtime.Enemies, [body, state, samus, true]);
+            AssertEqual(sample.Item4 ? RidleyInstructionProgramDefinitions.Fireballing : RidleyMovieMemory.RidleyRightFlyingSleep,
+                body.CurrentInstruction, "native spin-response fireball threshold/roar/facing gate");
+            AssertEqual(sample.Item4 ? (ushort)1 : (ushort)9, body.InstructionTimer, "native fireball restarts instruction timer only when admitted");
+            AssertEqual(sample.Item4 ? (ushort)0 : (ushort)11, body.Timer, "native fireball clears loop counter only when admitted");
+            AssertEqual((ushort)sample.Item1, runtime.System.RandomNumber, "native fireball admission does not generate random state");
+        }
+        Console.WriteLine("Ridley spin-response fireball: native RNG threshold, roar/turn gates and instruction reset pass.");
+    }
+
     private static void VerifyRidleyContactOrdering()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -548,6 +548,10 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
+        // $A6:B669 uses the existing RNG byte; it does not advance the generator.
+        if ((RequireRandomNumber() & 0xff) >= 0x80 && !state.Roaring && state.FacingDirection != 1)
+            SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.Fireballing);
+
         if (!TickRidleyFunctionTimer(state))
             return;
 

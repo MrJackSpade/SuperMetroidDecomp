@@ -234,9 +234,15 @@ The focused real-room boundary fixture fails before the change and passes after:
 movement into overlap is harmless until the subsequent body contact pass, which
 still deals40 damage. Input-only replay confirms the disputed source4234 hit is gone.
 
-Expanded checked state now matches through update 4213 of 10,717. The next
-mismatch is update4214/source4322: Ridley instruction nativeE7BC/timer8 versus
-portE704/timerFFEA. This remains under investigation.
+Ridley's spin-jump response now follows $A6:B669-$B684: the current RNG low byte
+at least$80 starts the fireball instruction sequence unless roaring or mid-turn.
+The port omitted this producer, retaining a sleeping turn instruction. Focused
+threshold/roar/facing tests confirm instruction timer/loop reset and unchanged RNG;
+independent replay passes the recorded source4322 instruction transition.
+
+Expanded checked state now matches through update 6570 of 10,717. The next
+mismatch is update6571/source6684: camera Y native270 versus port269.
+This remains under investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

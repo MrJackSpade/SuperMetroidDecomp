@@ -2613,4 +2613,28 @@ internal static partial class Program
         foreach (int index in new[] { -1, 3, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(index), "hand-beam callback index domain");
     }
+    private static void VerifyStream3BabyInstructionLayout(ISnesAddressSpace rom)
+    {
+        ushort[] mechanics = [0xcfa2,0xcfa6,0xcfaa,0xcfae,0xcfb2,0xcfb8,0xcfbc,0xcfc0,0xcfc4,0xcfc8,0xcfce,0xcfd2];
+        ushort[] visual = [0xcfa4,0xcfa8,0xcfac,0xcfb0,0xcfba,0xcfbe,0xcfc2,0xcfc6,0xcfd0];
+        AssertEqual(mechanics.Length, MotherBrainBabyInstructionProgramDefinitions.MechanicsWordCount, "Baby native mechanics count");
+        AssertEqual(visual.Length, MotherBrainBabyInstructionProgramDefinitions.PresentationWordCount, "Baby native visual count");
+        for (int index = 0; index < mechanics.Length; index++)
+        {
+            var word = MotherBrainBabyInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(mechanics[index], word.Address, "Baby exact native mechanics enumeration");
+            AssertEqual((ushort)(rom.ReadByte(0xa90000 | word.Address) | rom.ReadByte(0xa90000 | (word.Address + 1)) << 8),
+                word.Value, "Baby exact native mechanics operand");
+        }
+        for (int index = 0; index < visual.Length; index++)
+            AssertEqual(visual[index], MotherBrainBabyInstructionProgramDefinitions.PresentationWordAddress(index), "Baby exact native visual enumeration");
+        for (int address = 0xcfa1; address <= 0xcfd4; address++)
+            if (!mechanics.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
+                    "Baby program rejects operand bytes and adjacent callbacks as mechanics");
+        foreach (int index in new[] { -1,12,int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitions.MechanicsWord(index), "Baby mechanics enumeration domain");
+        foreach (int index in new[] { -1,9,int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitions.PresentationWordAddress(index), "Baby visual enumeration domain");
+    }
 }

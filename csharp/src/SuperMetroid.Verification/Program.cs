@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream3-baby-instruction-layout"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby instruction oracle revision");
+    VerifyStream3BabyInstructionLayout(rom);
+    VerifyMotherBrainBabyInstructionProgramDefinitions(rom);
+    Console.WriteLine("Baby command layout: twelve native words, nine visual addresses and rejection domains pass; six hold roles remain required.");
+    return 0;
+}
 if (args is ["--lookup-stream3-baby-body-sharing"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -446,7 +446,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs
 
 - [ ] **MotherBrainBabyInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MotherBrainBabyInstructionProgramDefinitions.PresentationWords** ([L45](../csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainBabyInstructionProgramDefinitions.PresentationWords** ([L45](../csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainBeamRomData.cs
 
@@ -1236,3 +1236,9 @@ Root build1450warnings/0errors. Focused layout checks verify21visual operands,th
 Partial233bbca6a shares nine identical negative-Y half-parts across the three Baby poses within each immutable catalog load. Native stock keeps27 half-parts rather than45; changed supplied records stay local, reflections and per-pose drawing order remain exact. Geometry,artwork and order are still REQUIRED; this is no aggregate completion or exemption.
 
 Root build1450warnings/0errors;90native OAM records,90single-part edits,27appearance edits,three symmetric-pair edits,prior-instance/cross-pose independence,reordered/expanded/empty frames and canonical hashes/bounds pass. Existing64legacy schemas/54binding schemas pass. ResourceAudit0/0 with both source dependencies refreshed. Inventory573converted/21retained-mixed/534pending unchanged.
+
+## Integrated Baby instruction address layout
+
+Conversiona5d65b5da completes MotherBrainBabyInstructionProgramDefinitions.PresentationWords with two four-frame loops and the fatal-blow visual operand. Semantic callbacks and address calculations remove stored mechanics rows, but Words remains pending for six chosen hold roles: initial16,drain8/8/5/2,fatal128. Native A9:CFA2/CFB8/CFCE establish each list; CFD4 is adjacent Mother Brain palette code, not Baby movement.
+
+Root build1450warnings/0errors;12native mechanics words,ninevisual addresses,exact bounded rejection,index domains and allocation checks pass. Corrected existing verifier output that overstated production coverage; this check does not execute the three live programs. No timing exemption. Inventory574converted/21retained-mixed/533pending.

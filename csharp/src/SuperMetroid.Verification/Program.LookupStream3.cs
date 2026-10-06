@@ -2967,4 +2967,101 @@ internal static partial class Program
         }
     }
 
+    private static void VerifyStream3RoomEntryPalettes(ISnesAddressSpace rom)
+    {
+        byte[] imported = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        MotherBrainRoomColorDocument Read() => System.Text.Json.JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(
+            imported, MapPresentationFormat.JsonOptions)!;
+        MotherBrainRoomColorPresentation Load(MotherBrainRoomColorDocument document, MotherBrainRoomColorPresentation? current = null) =>
+            MotherBrainRoomColorPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
+                document, MapPresentationFormat.JsonOptions)), current);
+        var document = Read();
+        var stock = Load(document);
+        for (int color = 0; color < MotherBrainRoomColorRomData.InitialColors; color++)
+        {
+            int glassAddress = MotherBrainRoomColorRomData.InitialGlassShardSource + color * sizeof(ushort);
+            int tubeAddress = MotherBrainRoomColorRomData.InitialTubeProjectileSource + color * sizeof(ushort);
+            AssertEqual((ushort)(rom.ReadByte(glassAddress) | rom.ReadByte(glassAddress + 1) << 8), Word(document.InitialGlassShard![color]), "glass direct native color");
+            AssertEqual((ushort)(rom.ReadByte(tubeAddress) | rom.ReadByte(tubeAddress + 1) << 8), Word(document.InitialTubeProjectile![color]), "tube direct native color");
+        }
+        Confirm(stock, document);
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        foreach (string name in new[] { "finalRoom", "phaseTwoAttack", "initialGlassShard", "initialTubeProjectile" })
+        {
+            object palette = typeof(MotherBrainRoomColorPresentation).GetField(name, fields)!.GetValue(stock)!;
+            AssertTrue(palette.GetType().GetField("supplied", fields)!.GetValue(palette) is null,
+                "stream 3 room initial palette calculates dependent stock shades: " + name);
+        }
+        object finalRoom = typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", fields)!.GetValue(stock)!;
+        AssertEqual(0, finalRoom.GetType().GetFields(fields).Count(field => field.FieldType == typeof(ushort)),
+            "final room calculates from reviewed catalog choices without per-instance paint words");
+        object attack = typeof(MotherBrainRoomColorPresentation).GetField("phaseTwoAttack", fields)!.GetValue(stock)!;
+        AssertTrue(!attack.GetType().GetFields(fields).Any(field => field.FieldType == typeof(ushort)),
+            "stock attack keeps no duplicated scalar paint endpoints");
+        object glass = typeof(MotherBrainRoomColorPresentation).GetField("initialGlassShard", fields)!.GetValue(stock)!;
+        AssertTrue(!glass.GetType().GetFields(fields).Any(field => field.FieldType == typeof(ushort)),
+            "stock glass keeps no duplicated scalar paint endpoint");
+        foreach (PaletteRgb5[] palette in new[] { document.InitialGlassShard!, document.InitialTubeProjectile! })
+        for (int color = 0; color < palette.Length; color++)
+        for (int component = 0; component < 3; component++)
+        {
+            PaletteRgb5 original = palette[color];
+            palette[color] = Change(original, component);
+            Confirm(Load(document), document);
+            palette[color] = original;
+        }
+        // Editing either shared supplied source must not change separately supplied attack/glass/tube output.
+        for (int color = 0; color < 24; color++)
+        for (int component = 0; component < 3; component++)
+        {
+            PaletteRgb5 original = document.FinalRoom[color];
+            document.FinalRoom[color] = Change(original, component);
+            Confirm(Load(document), document);
+            document.FinalRoom[color] = original;
+        }
+        for (int component = 0; component < 3; component++)
+        {
+            PaletteRgb5 original = document.RecoveryLights![6][14];
+            document.RecoveryLights[6][14] = Change(original, component);
+            Confirm(Load(document), document);
+            document.RecoveryLights[6][14] = original;
+        }
+        foreach (int version in new[] { MotherBrainRoomColorFormat.PreRoomEntryVersion, MotherBrainRoomColorFormat.PreRecoveryLightsVersion })
+        {
+            var legacy = document with { Version = version, RecoveryLights = null };
+            if (version == MotherBrainRoomColorFormat.PreRoomEntryVersion)
+                legacy = legacy with { InitialGlassShard = null, InitialTubeProjectile = null };
+            Confirm(Load(legacy, stock), document);
+        }
+
+        static PaletteRgb5 Change(PaletteRgb5 rgb, int component) => component switch
+        {
+            0 => rgb with { Red = rgb.Red ^ 1 },
+            1 => rgb with { Green = rgb.Green ^ 1 },
+            _ => rgb with { Blue = rgb.Blue ^ 1 },
+        };
+        static ushort Word(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        static void Confirm(MotherBrainRoomColorPresentation palette, MotherBrainRoomColorDocument expected)
+        {
+            var final = new SnesCgram();
+            palette.ApplyFinal(final);
+            for (int color = 0; color < expected.FinalRoom.Length; color++)
+            {
+                int destination = color < 12 ? 0x34 + color : 0x53 + color - 12;
+                AssertEqual(Word(expected.FinalRoom[color]), final.Colors[destination], "final room exact native/edited shade");
+                if (color >= 12) AssertEqual(Word(expected.FinalRoom[color]), final.Colors[0x73 + color - 12], "final room mirrored shade");
+            }
+            var phase = new SnesCgram();
+            var entry = new SnesCgram();
+            palette.ApplyPhaseTwoInitial(phase);
+            palette.ApplyRoomEntry(entry);
+            for (int color = 0; color < 15; color++)
+            {
+                AssertEqual(Word(expected.PhaseTwoAttack[color]), phase.Colors[0xa1 + color], "room attack exact native/edited shade");
+                AssertEqual(Word(expected.PhaseTwoRearLeg[color]), phase.Colors[0xb1 + color], "room rear independence");
+                AssertEqual(Word(expected.InitialGlassShard![color]), entry.Colors[0xb1 + color], "room glass exact native/edited shade");
+                AssertEqual(Word(expected.InitialTubeProjectile![color]), entry.Colors[0xf1 + color], "room tube exact native/edited shade");
+            }
+        }
+    }
 }

@@ -11,8 +11,8 @@ public sealed class MotherBrainRoomColorPresentation
     private readonly FinalRoomPalette finalRoom;
     private readonly AttackPalette phaseTwoAttack;
     private readonly ushort[]? phaseTwoRearLeg;
-    private readonly ushort[] initialGlassShard;
-    private readonly ushort[] initialTubeProjectile;
+    private readonly GlassPalette initialGlassShard;
+    private readonly TubePalette initialTubeProjectile;
     private readonly RecoveryLightFade recoveryLights;
 
     /// <summary>Timed-entry identities installed by the validated flash rows; exposes no color payload.</summary>
@@ -22,7 +22,7 @@ public sealed class MotherBrainRoomColorPresentation
 
     private MotherBrainRoomColorPresentation(ushort[][] flash, FinalRoomPalette finalRoom,
         ushort[] phaseTwoAttack, ushort[] phaseTwoRearLeg,
-        ushort[] initialGlassShard, ushort[] initialTubeProjectile,
+        GlassPalette initialGlassShard, TubePalette initialTubeProjectile,
         RecoveryLightFade recoveryLights)
     {
         this.flash = new RoomFlash(flash, finalRoom);
@@ -76,9 +76,9 @@ public sealed class MotherBrainRoomColorPresentation
         for (int index = 0; index < MotherBrainRoomColorRomData.InitialColors; index++)
         {
             cgram.SetColor(MotherBrainRoomColorRomData.InitialGlassShardColor + index,
-                initialGlassShard[index]);
+                initialGlassShard.Color(index));
             cgram.SetColor(MotherBrainRoomColorRomData.InitialTubeProjectileColor + index,
-                initialTubeProjectile[index]);
+                initialTubeProjectile.Color(index));
         }
     }
 
@@ -135,12 +135,12 @@ public sealed class MotherBrainRoomColorPresentation
                 "phase-two rear leg"),
             document.Version == MotherBrainRoomColorFormat.PreRoomEntryVersion
                 ? currentStock!.initialGlassShard
-                : Compile(document.InitialGlassShard, MotherBrainRoomColorRomData.InitialColors,
-                    "room-entry glass shard"),
+                : new GlassPalette(Compile(document.InitialGlassShard, MotherBrainRoomColorRomData.InitialColors,
+                    "room-entry glass shard"), finalRoom),
             document.Version == MotherBrainRoomColorFormat.PreRoomEntryVersion
                 ? currentStock!.initialTubeProjectile
-                : Compile(document.InitialTubeProjectile, MotherBrainRoomColorRomData.InitialColors,
-                    "room-entry tube projectile"),
+                : new TubePalette(Compile(document.InitialTubeProjectile, MotherBrainRoomColorRomData.InitialColors,
+                    "room-entry tube projectile"), finalRoom),
             document.Version < MotherBrainRoomColorFormat.Version
                 ? currentStock!.recoveryLights
                 : new RecoveryLightFade(CompileRecoveryLights(document.RecoveryLights), finalRoom));
@@ -237,6 +237,48 @@ public sealed class MotherBrainRoomColorPresentation
                     + (last >> shift & 31) * shade + intervals / 2) / intervals) << shift;
             return (ushort)result;
         }
+    }
+    private sealed class GlassPalette
+    {
+        private readonly FinalRoomPalette room;
+        private readonly ushort[]? supplied;
+        public GlassPalette(ushort[] colors, FinalRoomPalette room)
+        {
+            this.room = room;
+            for (int color = 0; color < colors.Length; color++)
+                if (Calculate(color) != colors[color]) { supplied = colors; return; }
+        }
+        public ushort Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        private ushort Calculate(int color)
+        {
+            if (color < MotherBrainRoomColorRomData.GlassRampFirst)
+                return room[MotherBrainRoomColorRomData.RoomGrayFirst + color];
+            if (color < MotherBrainRoomColorRomData.GlassDarkGrayColor)
+                return InterpolateRgb5(MotherBrainGlassPaintDefinitions.FaceHighlight, room[MotherBrainRoomColorRomData.RoomOutlineColor],
+                    color - MotherBrainRoomColorRomData.GlassRampFirst, MotherBrainRoomColorRomData.GlassRampCount - 1);
+            return color switch
+            {
+                MotherBrainRoomColorRomData.GlassDarkGrayColor => room[MotherBrainRoomColorRomData.RoomDarkGrayColor],
+                MotherBrainRoomColorRomData.GlassNeutralColor => MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight,
+                _ => MotherBrainHealthPalettePresentation.StockBaseColor(false, color),
+            };
+        }
+    }
+    private sealed class TubePalette
+    {
+        private readonly FinalRoomPalette room;
+        private readonly ushort[]? supplied;
+        public TubePalette(ushort[] colors, FinalRoomPalette room)
+        {
+            this.room = room;
+            for (int color = 0; color < colors.Length; color++)
+                if (Calculate(color) != colors[color]) { supplied = colors; return; }
+        }
+        public ushort Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        private ushort Calculate(int color) => color < MotherBrainRoomColorRomData.TubeNeutralCount
+            ? MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight : color == MotherBrainRoomColorRomData.RoomEntryBlackColor
+                ? MotherBrainHealthPalettePresentation.StockBaseColor(false, color)
+                : room[MotherBrainRoomColorRomData.RoomOutlineColor + color - MotherBrainRoomColorRomData.TubeNeutralCount];
     }
     /// <summary>Background highlight interpolation paired with darkening level colors.</summary>
     private sealed class RoomFlash

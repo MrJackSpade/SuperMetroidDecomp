@@ -26,6 +26,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream3-room-entry-palettes"])
+{
+    VerifyStream3RoomEntryPalettes(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    Console.WriteLine("Glass/tube:30native colors,90edits,room/recovery independence and legacy inheritance pass.");
+    return 0;
+}
 if (args is ["--lookup-stream3-recovery-lights"])
 {
     VerifyStream3RecoveryLights(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

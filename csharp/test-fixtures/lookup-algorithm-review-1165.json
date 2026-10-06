@@ -11907,4 +11907,14 @@
     "workerCommit":  "dbf5b0ab0",
     "state":  "converted",
     "algorithm":  "Seven equal floorRGB5 intensity steps across28colors,using previously reviewed doorway rim/casing/final-room paints; no capturedpaint scalars/stock arrays."
+},"motherBrainRoomEntryPalettesComplete":{
+    "confirmation":  "Root1452warnings/0errors;Audit0/0;30native words,90edits,72room edits,3recovery-neutral edits,actual CGRAM and legacy inheritance pass.",
+    "justification":  "Glass only previously reviewed7F8B triangular face tint; all other values derive fully reviewed dependencies. No new paint or timing exemption.",
+    "completed":  [
+                      "MotherBrainRoomColorPresentation.initialGlassShard",
+                      "MotherBrainRoomColorPresentation.initialTubeProjectile"
+                  ],
+    "workerCommit":  "4b998dbfc",
+    "state":  "glass mixed-complete; tube converted",
+    "algorithm":  "Glass shared room grays/8shade nearest ramp/contour/casing/white-black; tube shared casing twice/room12..23/black,without stock output arrays or duplicated paints."
 }}

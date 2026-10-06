@@ -94,4 +94,12 @@ public static class MotherBrainRoomColorRomData
     public const int RoomGlowColor = 22;
     /// <summary>$A9:D0B0, final-room white neutral.</summary>
     public const int RoomWhiteColor = 23;
+    /// <summary>$A9:9510/9530 terminate the room-entry palettes with the body palette's black slot14.</summary>
+    public const int RoomEntryBlackColor = 14;
+    /// <summary>$A9:951A-9528, Palette_MotherBrain_GlassShards eight-color RGB5 shade ramp.</summary>
+    public const int GlassRampFirst = 3, GlassRampCount = 8;
+    /// <summary>$A9:952A-952C, glass dark-neutral and neutral-highlight slots.</summary>
+    public const int GlassDarkGrayColor = 11, GlassNeutralColor = 12;
+    /// <summary>$A9:94F4/94F6 repeat recovery-light neutral highlight; following twelve slots repeat final-room12..23.</summary>
+    public const int TubeNeutralCount = 2;
 }

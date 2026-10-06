@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 493,
+  "remainingTableDefinitionCount": 491,
   "fileCount": 523,
   "entries": [
     {
@@ -1513,19 +1513,25 @@
       "implementationCommit": "72050b27b929a33c8404d5a53dad6cb52a9f30c3"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
-      "line": 14,
-      "name": "MotherBrainRoomColorPresentation.initialGlassShard",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainRoomColorPresentation.initialGlassShard. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
+    "line":  14,
+    "name":  "MotherBrainRoomColorPresentation.initialGlassShard",
+    "kind":  "installed stock table",
+    "note":  "Original/default payload behind MotherBrainRoomColorPresentation.initialGlassShard. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+    "state":  "justified-retained",
+    "implementationCommit":  "4b998dbfc",
+    "disposition":  "Mixed complete:15colors calculate room grays,nearest8shade glass ramp,shared contour/casing/white/black. Only previously reviewed7F8B categorical glass-face paint remains; zero stock array/scalar endpoints; edits and legacy inheritance preserved."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
-      "line": 15,
-      "name": "MotherBrainRoomColorPresentation.initialTubeProjectile",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainRoomColorPresentation.initialTubeProjectile. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
+    "line":  15,
+    "name":  "MotherBrainRoomColorPresentation.initialTubeProjectile",
+    "kind":  "installed stock table",
+    "note":  "Original/default payload behind MotherBrainRoomColorPresentation.initialTubeProjectile. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+    "state":  "converted",
+    "implementationCommit":  "4b998dbfc",
+    "disposition":  "Complete:15colors derive shared casing highlight twice,final-room12..23 and black. No new retained inputs or stock array; independent edits and legacy inheritance preserved."
+},
     {
     "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
     "line":  16,
@@ -21593,6 +21599,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 35
+  "convertedSinceSnapshot": 601,
+  "justifiedRetainedSinceSnapshot": 36
 }

@@ -1018,3 +1018,8 @@ Combined reviewed chain9ec9cd7cb,520c810c4,7d4a315d5,d08b77115,45f14dcc1,1379438
 Landing/posture derive20facing aliases but retain9/12inputs,including adjacentPLB byte. Frame relationships calculate268upper/lower components across X-ray,moving/aiming,crouch,jump/fall lists;4304component bytes and selected counts/order/artwork remain REQUIRED. These aggregates stay unchecked. Canonical hashing uses uncached selected snapshots and preserves independent source/derived edits.
 
 Root build1452warnings/0errors;41native offset bytes/41edits/unaligned reads;253graphics values/edits/physics isolation;24allocation pointers/valid edits/runtime addresses;253pose pointers/edits;268native component aliases/exact basis/688component edits/actual26pose selections all pass with original stock/edited hashes and bounds. ResourceAudit0/0; all changed dependencies pinned. Inventory593converted/21retained-mixed/514pending.
+
+
+### Independent timer pen identity review
+
+Approved only digit/separator fill pen1, TIME fill pen2 and outline pen14 as selected categorical paint-role identities. Root viewed the native glyph-role export and independently decoded B0:C000 pixel(2,1)=1, pixel(1,0)=14 and B0:C2C0 pixel(0,1)=2. Native80:9FCA chooses OBJ palette5; the production renderer treats0 as transparent and selects CGRAM128+palette*16+pen (209/210/222). Geometry cannot determine these particular chosen slot numbers; a numerical generator would merely restate the art choice. No RGB, footprint, deviation, width, spacing, glyph-one metric/policy or aggregate exemption follows. Latest worker23bdd65e9 leaves416footprint positions/four deviations plus those parameters required; its production integration is still queued. Master595/21/512 unchanged.

@@ -777,6 +777,13 @@ internal static partial class Program
         SamusState samus = runtime.Samus ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load Samus.");
         samus.InputLocked = false;
+        for (int address = RidleyMovieMemory.ProjectileInheritancePrefix;
+             address < RidleyMovieMemory.SamusSlopeAdjusted; address++)
+            bus.WriteByte(address, memory[address]);
+        samus.Kinematics.PositionAdjustedBySlope = W(RidleyMovieMemory.SamusSlopeAdjusted) != 0;
+        for (int direction = 0; direction < 4; direction++)
+            samus.Kinematics.RecordSolidEnemyCollision((SamusCollisionDirection)direction,
+                W(RidleyMovieMemory.SamusSolidEnemyIndices + direction * 2));
         typeof(SamusHorizontalSpeedState).GetProperty(nameof(samus.HorizontalSpeed.ActiveSpeedTableBaseAddress))!
             .SetValue(samus.HorizontalSpeed, W(RidleyMovieMemory.HorizontalSpeedTable));
         samus.HorizontalSpeed.DecelerationMultiplier = memory[RidleyMovieMemory.HorizontalDecelerationMultiplier];
@@ -1068,6 +1075,15 @@ internal static partial class Program
             AssertEqual(memory[RidleyMovieMemory.HorizontalDecelerationMultiplier], samus.HorizontalSpeed.DecelerationMultiplier,
                 $"update {frame}: Samus horizontal deceleration multiplier");
             Check("Samus echo sound latch", samus.HorizontalSpeed.EchoSoundFlag, RidleyMovieMemory.SpeedEchoSoundLatch);
+            Check("Samus slope adjustment", samus.Kinematics.PositionAdjustedBySlope ? (ushort)1 : (ushort)0,
+                RidleyMovieMemory.SamusSlopeAdjusted);
+            for (int direction = 0; direction < 4; direction++)
+                Check($"Samus solid enemy {direction}", samus.Kinematics.SolidEnemyCollisionIndexes[direction],
+                    RidleyMovieMemory.SamusSolidEnemyIndices + direction * 2);
+            for (int address = RidleyMovieMemory.ProjectileInheritancePrefix;
+                 address < RidleyMovieMemory.SamusSlopeAdjusted; address += 2)
+                Check($"Projectile inherited movement ${address:X4}",
+                    (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8), address);
             Check("Samus total horizontal speed", samus.HorizontalSpeed.TotalSpeed, RidleyMovieMemory.TotalHorizontalSpeed);
             Check("Samus total horizontal fraction", samus.HorizontalSpeed.TotalSubspeed, RidleyMovieMemory.TotalHorizontalSubspeed);
             Check("Samus movement handler", samus.KnockbackActive

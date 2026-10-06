@@ -1,6 +1,15 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$0DA8: camera Y fractional displacement adjacent to projectile inheritance.</summary>
+    public const int ProjectileInheritancePrefix = 0x0da8;
+    /// <summary>$0DAA-$0DB9: left/right/up/down projectile-inherited displacement pairs.</summary>
+    public const int ProjectileInheritedMovement = 0x0daa;
+    /// <summary>$0DBA: slope collision/alignment changed Samus Y.</summary>
+    public const int SamusSlopeAdjusted = 0x0dba;
+    /// <summary>$182C-$1833: retained solid-enemy indices for left/right/up/down collision.</summary>
+    public const int SamusSolidEnemyIndices = 0x182c;
+
     /// <summary>$0DBC/$0DBE: total horizontal speed after extra momentum and divisor.</summary>
     public const int TotalHorizontalSpeed = 0x0dbc, TotalHorizontalSubspeed = 0x0dbe;
     /// <summary>$0A58: installed Samus movement handler.</summary>

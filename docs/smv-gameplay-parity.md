@@ -57,8 +57,8 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Contract | Current evidence | Remaining work |
 | --- | --- | --- |
 | Source identity, immutable movie, input edges, lag classification, terminal boundary | Converter v3 and complete replay pass | Retain these checks with each coverage expansion |
-| Samus movement and collision | Positions/fractions, camera, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state, momentum/boost, environment speed-table selection, deceleration multiplier, echo sound latch, total horizontal speed and normal/knockback plus alpha/beta handler identity pass | Remaining control handlers, movement flags and secondary motion state |
-| Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication, charge palette/audio words, retained held/press samples, auto-jump timer and pose-input handler pass | Remaining combat/input ownership |
+| Samus movement and collision | Positions/fractions, camera, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state, momentum/boost, environment speed-table selection, deceleration multiplier, echo sound latch, total horizontal speed and normal/knockback plus alpha/beta handler identity, slope adjustment and directional solid-enemy contacts pass | Remaining control handlers, movement flags and secondary motion state |
+| Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication, charge palette/audio words, retained held/press samples, auto-jump timer, pose-input handler and directional shot-inheritance movement records pass | Remaining combat/input ownership |
 | Enemies and Ridley | Active enemy collision/properties/timers; complete Ridley tail records, shared tail/body controller, wing/grab/damage/health/facing state pass | Remaining actor AI variables and phase-dependent aliases |
 | Ordinary/enemy projectiles | Ordinary active-slot motion/program/art and callback identity; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Final render composition/pixels; bombs need live mappings only if a different movie activates them |
 | Persistent world and room effects | Complete boss/event/item/door bitsets; gameplay foreground/BTS; movie grey-door execution, condition and hit state; acid surface/tide phase pass | Loading-boundary mutations, remaining persistence allocations, environmental state, and PLM draw/presentation state |
@@ -707,3 +707,21 @@ pose and was corrected to the ordinary airborne pose before this passing result.
 The movie reproduced the shared aerial defect; the two equivalent branches were
 confirmed with focused production-path fixtures and pinned cartridge source.
 Player validation and the remaining full-parity coverage audit remain pending.
+
+
+### Directional movement inheritance and collision history
+
+Every retained boundary now compares all eight directional movement words at
+$0DAA-$0DB9, plus the adjacent camera Y fractional displacement at $0DA8. These
+are the actual mutable records consumed by projectile launch velocity, including
+its cross-word byte reads; they are not reconstructed from net frame position.
+The starting snapshot initializes them once, and later values remain production
+output. Also compare slope-adjustment state ($0DBA) and all four retained
+solid-enemy collision indices ($182C-$1833), including pause and retained loading
+intervals.
+
+Release build has zero errors and all 10,717 updates pass
+(`inherited-motion-build.log`, `inherited-motion-replay.log`). No production fix
+was needed. This establishes the directional inheritance and contact history for
+the supplied movie; remaining movement/control, presentation and loading coverage
+in the audit table still prevents claiming full parity.

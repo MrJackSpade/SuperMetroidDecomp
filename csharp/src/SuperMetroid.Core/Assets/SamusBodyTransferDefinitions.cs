@@ -95,8 +95,14 @@ internal static class SamusBodyTransferDefinitions
         int payloadBytes, out ushort firstSize)
     {
         if (TrySelectedPacking(upper, set, position, payloadBytes, out firstSize)) return true;
-        ReadOnlySpan<ushort> pointers = body.PosePointers;
-        ReadOnlySpan<SamusBodyFrameSelection> frames = body.Frames;
+        return TryFirstSize(body, upper, set, position, payloadBytes, body.PosePointers, body.Frames, out firstSize);
+    }
+
+    /// <summary>Import binding reuses its transient calculated snapshot across records; no snapshot is retained by the installed catalog.</summary>
+    internal static bool TryFirstSize(SamusBodyArtworkCatalog body, bool upper, int set, int position,
+        int payloadBytes, ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames, out ushort firstSize)
+    {
+        if (TrySelectedPacking(upper, set, position, payloadBytes, out firstSize)) return true;
         int firstTiles = 0;
         for (int pose = 0; pose < pointers.Length; pose++)
         {

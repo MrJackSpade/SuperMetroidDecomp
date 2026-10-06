@@ -434,6 +434,22 @@ if (args is ["--lookup-stream5-ceres-source-pages"])
     VerifyCeresEscapeVramTransferDefinitions(ceresPageOracle);
     return 0;
 }
+if (args is ["--lookup-stream-1-body-frame-basis"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body frame oracle revision");
+    VerifyLookupStream1XrayBodyFrames(rom, true);
+    return 0;
+}
+if (args is ["--lookup-stream-1-body-frame-final"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body frame oracle revision");
+    VerifyLookupStream1XrayBodyFrames(rom, false, true);
+    return 0;
+}
 if (args is ["--lookup-stream-1-body-facing"] or ["--lookup-stream-1-xray-frames"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

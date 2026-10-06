@@ -106,8 +106,9 @@ public sealed partial class SamusBodyArtworkCatalog
 
         byte[] components = frames.SelectMany(frame => new byte[] { frame.TopSet, frame.TopPosition, frame.BottomSet, frame.BottomPosition }).ToArray();
         this.frames = Enumerable.Range(0, components.Length)
-            .Where(index => SamusBodyFrameDefinitions.SourceComponent(index) == index ||
-                components[index] != components[SamusBodyFrameDefinitions.SourceComponent(index)])
+            .Where(index => SamusBodyFrameDefinitions.SourceComponent(index) != index
+                ? components[index] != components[SamusBodyFrameDefinitions.SourceComponent(index)]
+                : !SamusBodyFrameDefinitions.TryComponent(index, out byte calculated) || components[index] != calculated)
             .ToDictionary(index => index, index => components[index]);
         Spritemaps = spritemaps;
         Atmosphere = atmosphere;
@@ -144,9 +145,11 @@ public sealed partial class SamusBodyArtworkCatalog
 
     private void BindTransfers(bool upper, SamusBodyTileDefinition[][] groups)
     {
+        ReadOnlySpan<ushort> pointers = PosePointers;
+        ReadOnlySpan<SamusBodyFrameSelection> frameSnapshot = Frames;
         for (int set = 0; set < groups.Length; set++)
         for (int position = 0; position < groups[set].Length; position++)
-            groups[set][position] = groups[set][position].WithTransferGeometry(this, upper, set, position);
+            groups[set][position] = groups[set][position].WithTransferGeometry(this, upper, set, position, pointers, frameSnapshot);
     }
 
     /// <summary>SHA-256 of selected body art, all visual selectors and every bundled Samus catalog.</summary>
@@ -200,7 +203,10 @@ public sealed partial class SamusBodyArtworkCatalog
             throw new InvalidDataException($"Pose ${pose:X2} has no authored graphics Y offset.");
     public ReadOnlySpan<SamusBodyFrameSelection> Frames => Enumerable.Range(0, FrameCount).Select(FrameAt).ToArray();
     private byte FrameComponent(int index) => frames.TryGetValue(index, out byte value)
-        ? value : frames[SamusBodyFrameDefinitions.SourceComponent(index)];
+        ? value : SamusBodyFrameDefinitions.SourceComponent(index) != index
+            ? FrameComponent(SamusBodyFrameDefinitions.SourceComponent(index))
+            : SamusBodyFrameDefinitions.TryComponent(index, out byte calculated) ? calculated
+                : throw new InvalidDataException("Installed body frame has no selected component.");
     private SamusBodyFrameSelection FrameAt(int index) => new(FrameComponent(index * 4), FrameComponent(index * 4 + 1),
         FrameComponent(index * 4 + 2), FrameComponent(index * 4 + 3));
     public IReadOnlyList<SamusBodyTileDefinition> TopSet(int set) => top[set];
@@ -325,7 +331,7 @@ public sealed class SamusBodyTileDefinition
     }
 
     private SamusBodyTileDefinition(SamusBodyTileDefinition supplied, SamusBodyArtworkCatalog body,
-        bool upper, int set, int position)
+        bool upper, int set, int position, ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames)
     {
         this.body = body;
         this.upper = upper;
@@ -335,12 +341,16 @@ public sealed class SamusBodyTileDefinition
         int source = supplied.SourceAddress;
         ushort first = supplied.FirstSize;
         sourceAddressOverride = source == SamusBodyTransferDefinitions.SourceAddress(body, upper, set, position) ? null : source;
-        firstSizeOverride = SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, planar.Length, out ushort calculated)
+        firstSizeOverride = SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, planar.Length, pointers, frames, out ushort calculated)
             && first == calculated ? null : first;
     }
 
     internal SamusBodyTileDefinition WithTransferGeometry(SamusBodyArtworkCatalog body, bool upper, int set, int position) =>
-        new(this, body, upper, set, position);
+        new(this, body, upper, set, position, body.PosePointers, body.Frames);
+
+    internal SamusBodyTileDefinition WithTransferGeometry(SamusBodyArtworkCatalog body, bool upper, int set, int position,
+        ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames) =>
+        new(this, body, upper, set, position, pointers, frames);
 
     public int SourceAddress => sourceAddressOverride ?? SamusBodyTransferDefinitions.SourceAddress(body!, upper, set, position);
     public ushort FirstSize => firstSizeOverride ??

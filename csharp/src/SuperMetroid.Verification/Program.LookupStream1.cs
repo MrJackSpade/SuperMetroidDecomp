@@ -487,7 +487,7 @@ internal static partial class Program
         AssertTrue(Transfer(stock).SequenceEqual(native), "Stock timer remains immutable");
         Console.WriteLine("Timer font:836 direct outline pixels,312 shared/reflected pixels,275 retained fill positions/four deviations,173 calculated digit/T/I/E basis fill sites,1600 independent PNG edits,800 native planar bytes and exact two-page queue/VRAM uploads pass.");
     }
-    private static void VerifyLookupStream1XrayBodyFrames(ISnesAddressSpace rom)
+    private static void VerifyLookupStream1XrayBodyFrames(ISnesAddressSpace rom, bool basisOnly = false, bool finalOnly = false)
     {
         int count = SamusBodyArtworkCatalog.FrameCount * 4;
         byte[] native = Enumerable.Range(0, count).Select(index => rom.ReadByte(0x92db48 + index)).ToArray();
@@ -508,9 +508,145 @@ internal static partial class Program
         SamusBodyArtworkCatalog Create(byte[] data) => new(top, bottom, poses, template.GraphicsYOffsets.ToArray(), Decode(data), upper, lower,
             template.Spritemaps, template.Atmosphere, template.DeathPalettes, template.DeathTiles, template.ArmCannon,
             template.LandingYOffsets.ToArray(), template.PostureYOffsets.ToArray(), template.DrainedYOffsets.ToArray());
-        int Source(int index)
+        int SourceStep(int index)
         {
             int address = 0xdb48 + index;
+            if (address >= 0xe888 && address < 0xe890) return index - 8;
+            if (address >= 0xe298 && address < 0xe2b8) return index - 36;
+            if (address >= 0xe2b8 && address < 0xe374)
+            {
+                int offset = address - 0xe2b8, phase = offset / 4, component = offset % 4, basis = phase;
+                if (component < 2 && phase is >= 13 and <= 20) basis = 13;
+                if (phase >= 23)
+                {
+                    int relative = phase - 23;
+                    basis = component >= 2 ? 23 + relative % 8 : relative / 3 % 2 == 1 ? 13 : 23 + relative / 3 * 3;
+                }
+                if (basis != phase) return index - (phase - basis) * 4;
+            }
+            if (address >= 0xe050 && address < 0xe260)
+            {
+                int start = address < 0xe158 ? 0xe050 : 0xe158, offset = address - start, phase = offset / 4;
+                if (offset % 4 >= 2 && phase < 64)
+                {
+                    int within = phase % 16, basis = within switch { 4 => 3, 6 => 5, 8 or 9 => 7, 11 => 10, 13 => 12, _ => within };
+                    return start - 0xdb48 + (phase - within + basis) * 4 + offset % 4;
+                }
+            }
+            if (address >= 0xdf28 && address < 0xe018 && address % 4 < 2)
+            {
+                int offset = (address - 0xdf28) % 40, phase = offset / 4 % 5;
+                int basis = phase is 0 or 1 ? 0 : phase == 4 ? 2 : phase;
+                return address - offset - 0xdb48 + basis * 4 + offset % 4;
+            }
+            if (address >= 0xdce8 && address < 0xdd18 || address >= 0xe450 && address < 0xe4b0)
+            {
+                int range = address < 0xdd18 ? 0xdce8 : 0xe450, offset = (address - range) % 24;
+                if (offset % 4 < 2) return address - offset - 0xdb48 + (offset / 4 % 3 == 0 ? 0 : 1) * 4 + offset % 4;
+                if (range == 0xe450) return 0xdd00 - 0xdb48 + offset;
+            }
+            if (address >= 0xe890 && address < 0xe908)
+            {
+                int offset = (address - 0xe890) % 60, phase = offset / 4, component = offset % 4;
+                int basis = phase switch { 5 or 10 or 11 => 4, 6 => 2, 9 => 7, 12 => 1, _ => phase };
+                if (component >= 2 && (phase == 3 || phase is >= 6 and <= 9)) basis = 2;
+                if (phase == 13) basis = component < 2 ? 1 : 0;
+                if (basis != phase) return address - offset - 0xdb48 + basis * 4 + component;
+            }
+            if (address >= 0xe938 && address < 0xe9f4)
+            {
+                bool left = address >= 0xe974;
+                int start = left ? 0xe974 : 0xe938, offset = address - start, phase = offset / 4, component = offset % 4;
+                int basis = left ? phase switch
+                {
+                    >= 3 and <= 6 => 2, 11 => 9, 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31 => 12,
+                    >= 19 and <= 23 => 14 + Math.Min(phase - 19, 23 - phase), 26 or 29 => 8, _ => phase
+                } : phase switch { >= 4 and <= 7 => 3, 11 => 9, 13 => 12, _ => phase };
+                if (component >= 2 && phase is >= 9 and <= 11) basis = 8;
+                if (basis != phase) return start - 0xdb48 + basis * 4 + component;
+            }
+            if (address >= 0xe9f4 && address < 0xea24 && (address - 0xe9f4) % 24 < 16)
+            {
+                int offset = (address - 0xe9f4) % 24, phase = offset / 4;
+                return address - offset - 0xdb48 + (offset % 4 >= 2 ? 0 : phase == 3 ? 1 : phase) * 4 + offset % 4;
+            }
+            if (address >= 0xe050 && address < 0xe260)
+            {
+                int start = address < 0xe158 ? 0xe050 : 0xe158, offset = address - start, phase = offset / 4;
+                if (offset % 4 < 2 && phase >= 32)
+                    return start - 0xdb48 + (phase < 64 ? phase % 32 : 16) * 4 + offset % 4;
+            }
+            if (address >= 0xe798 && address < 0xe828)
+            {
+                int pair = (address - 0xe798) / 24, offset = (address - 0xe798) % 24;
+                if (offset >= 12) return 0xe798 + pair * 24 + (2 - (offset - 12) / 4) * 4 + offset % 4 - 0xdb48;
+                if (pair is 1 or 2 && offset % 4 >= 2) return 0xe798 - 0xdb48 + offset;
+                if (pair >= 3 && offset % 4 < 2) return 0xe798 + (pair - 3) * 24 - 0xdb48 + offset;
+                if (pair >= 4 && offset % 4 >= 2) return 0xe7e0 - 0xdb48 + offset;
+            }
+            if (address >= 0xea24)
+            {
+                bool suited = address >= 0xeba4;
+                int start = suited ? 0xeba4 : 0xea24, offset = address - start, phase = offset / 4, component = offset % 4;
+                if (suited && phase >= 1 && component < 2) return 0xea24 - 0xdb48 + offset;
+                if (phase >= 2 && component >= 2) return start - 0xdb48 + 8 + component;
+                if (suited && phase == 1) return 0xea24 - 0xdb48 + offset;
+                if (!suited && phase >= 3 && component < 2)
+                {
+                    int basis = phase % 2 == 1 ? 3 : phase < 80 ? 2 + (phase - 2) % 6 : phase >= 90 ? phase - 6 : phase;
+                    return 0xea24 - 0xdb48 + basis * 4 + component;
+                }
+            }
+            if (address >= 0xe37c && address < 0xe430) return index - 188;
+            if (address >= 0xe530 && address < 0xe5f8)
+            {
+                int list = (address - 0xe508) / 40, offset = (address - 0xe508) % 40;
+                int phase = offset / 4;
+                return 0xe508 - 0xdb48 + ((list % 2 == 1 && phase < 8) ? 7 - phase : phase) * 4 + offset % 4;
+            }
+            if (address >= 0xe4c8 && address < 0xe4d8)
+            {
+                int offset = (address - 0xe4c8) % 8;
+                return 0xe4b8 - 0xdb48 + (address - 0xe4c8) / 8 * 8 + (1 - offset / 4) * 4 + offset % 4;
+            }
+            if (address >= 0xe4f0 && address < 0xe508)
+            {
+                int offset = (address - 0xe4f0) % 12;
+                return 0xe4d8 - 0xdb48 + (address - 0xe4f0) / 12 * 12 + (2 - offset / 4) * 4 + offset % 4;
+            }
+            if (address >= 0xe5f8 && address < 0xe798)
+            {
+                int list = address < 0xe6b8 ? (address - 0xe5f8) / 48 : 4 + (address - 0xe6b8) / 112;
+                int offset = address < 0xe6b8 ? (address - 0xe5f8) % 48 : (address - 0xe6b8) % 112;
+                int phase = offset / 4, wall = list % 2 == 0 ? 0xe2b8 : 0xe374;
+                int last = list < 4 ? 11 : 27;
+                if (phase == last)
+                {
+                    if (list >= 2) return 0xe5f8 + list % 2 * 48 + 44 - 0xdb48 + offset % 4;
+                }
+                else
+                {
+                    int wallPhase = phase == 0 ? 1 : list < 2 ? phase + 2 : list < 4 ? phase + 12 : phase < 25 ? phase + 22 : phase - 4;
+                    return wall - 0xdb48 + wallPhase * 4 + offset % 4;
+                }
+            }
+            if (address >= 0xdb48 && address < 0xdb90)
+            {
+                int offset = (address - 0xdb48) % 36;
+                int phase = offset / 4;
+                int first = address - offset;
+                int basis = phase switch { 3 or 6 or 8 => 1, 5 => 0, 7 when offset % 4 >= 2 => 2, _ => phase };
+                return first - 0xdb48 + basis * 4 + offset % 4;
+            }
+            if (address >= 0xdba0 && address < 0xdbb8 && address % 4 < 2)
+            {
+                int side = (address - 0xdba0) / 12, phase = (address - 0xdba0) % 12 / 4;
+                return 0xdb90 + side * 8 - 0xdb48 + (1 - phase % 2) * 4 + address % 4;
+            }
+            if (address >= 0xdbb8 && address < 0xdbf8 && address % 4 >= 2)
+                return 0xdb90 + (address - 0xdbb8) / 8 % 2 * 8 - 0xdb48 + (address - 0xdbb8) % 8;
+            if (address >= 0xdbf8 && address < 0xdc48 && address % 4 >= 2)
+                return 0xdbf8 + (address - 0xdbf8) / 20 * 20 - 0xdb48 + address % 4;
             if (address >= 0xdc20 && address < 0xdc48 && (address - 0xdc20) % 4 < 2) return index - 40;
             if (address >= 0xdc70 && address < 0xdce8 && (address - 0xdc48) % 4 >= 2) return 0xdc48 - 0xdb48 + (address - 0xdc48) % 40;
             if (address >= 0xdf28 && address < 0xe018 && (address - 0xdf28) % 4 >= 2) return 0xdc48 - 0xdb48 + (address - 0xdf28) % 40;
@@ -519,28 +655,62 @@ internal static partial class Program
             if (address >= 0xdeb0 && address < 0xdec0) return 0xdd18 - 0xdb48 + address - 0xdeb0;
             return index;
         }
+        int Source(int index)
+        {
+            int source = SourceStep(index);
+            while (source != index) { index = source; source = SourceStep(index); }
+            return source;
+        }
+        bool Direct(int index)
+        {
+            int address = 0xdb48 + index;
+            int record = address & ~3;
+            if (record is 0xdb58 or 0xdb7c or 0xde28 or 0xde4c or 0xe2c0 or 0xe2e4 or 0xe2e8 or 0xe30c or 0xe310 or
+                0xe8a0 or 0xe8dc or 0xe968 or 0xe9a4 or 0xea04 or 0xea1c or 0xe528 or 0xea28 or 0xeba8) return true;            return address % 4 < 2 && (address >= 0xe050 && address < 0xe0d0 || address >= 0xe158 && address < 0xe1d8);
+        }
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         Dictionary<int, byte> Stored(SamusBodyArtworkCatalog value) =>
             (Dictionary<int, byte>)typeof(SamusBodyArtworkCatalog).GetField("frames", flags)!.GetValue(value)!;
         var stock = Create(native);
-        AssertEqual(count - 268, Stored(stock).Count, "Exactly 268 repeated components removed");
+        AssertEqual(Enumerable.Range(0, count).Count(index => Source(index) == index && !Direct(index)), Stored(stock).Count, "Exact native shared-component basis");
         for (int index = 0; index < count; index++)
         {
             AssertEqual(Source(index), SamusBodyFrameDefinitions.SourceComponent(index), "Exact native crouching/standing component relation domain");
             AssertEqual(native[index], native[Source(index)], "Direct native source relationship");
-            AssertEqual(Source(index) == index, Stored(stock).ContainsKey(index), "Exact required source-key membership without stock fallbacks");
+            AssertEqual(Direct(index), SamusBodyFrameDefinitions.TryComponent(index, out byte calculated), "Exact direct angular-allocation domain");
+            if (Direct(index)) AssertEqual(native[index], calculated, "Direct native angular allocation set/position");
+            AssertEqual(Source(index) == index && !Direct(index), Stored(stock).ContainsKey(index), "Exact required source-key membership without stock fallbacks");
         }
         AssertTrue(stock.Frames.SequenceEqual(Decode(native)), "All supplied frame components preserved");
         AssertEqual(CanonicalBodyHash(template, top, bottom, poses, Decode(native), upper, lower), stock.ContentIdentity, "Original canonical frame hash");
-        foreach (int address in Enumerable.Range(0xdbf8, 240).Concat(Enumerable.Range(0xdf28, 240))
-            .Concat(Enumerable.Range(0xdb48, 72)).Concat(Enumerable.Range(0xde18, 72))
-            .Concat(Enumerable.Range(0xdd18, 32)).Concat(Enumerable.Range(0xdd48, 16)).Concat(Enumerable.Range(0xdeb0, 16)))
+        Directory.CreateDirectory("csharp/test-temp");
+        File.WriteAllLines("csharp/test-temp/samus-body-frame-required.csv", new[] { "Component,NativeAddress,Value" }
+            .Concat(Stored(stock).OrderBy(pair => pair.Key).Select(pair => $"{pair.Key:X4},{0x92db48 + pair.Key:X6},{pair.Value:X2}")));
+        if (basisOnly)
         {
+            Console.WriteLine($"Body frame basis:{count} native components,{count - Stored(stock).Count} calculated/aliased components,{Stored(stock).Count} independent source components,zero stock alias fallbacks/canonical hash pass.");
+            return;
+        }
+        IEnumerable<int> editAddresses = Enumerable.Range(0xdbf8, 240).Concat(Enumerable.Range(0xdf28, 240))
+            .Concat(Enumerable.Range(0xdb48, 176)).Concat(Enumerable.Range(0xde18, 72))
+            .Concat(Enumerable.Range(0xdd18, 32)).Concat(Enumerable.Range(0xdd48, 16)).Concat(Enumerable.Range(0xdeb0, 16))
+            .Concat(new[] { 0xe050, 0xe0d0, 0xe150, 0xe158, 0xe1d8, 0xe258, 0xe2c0, 0xe37c, 0xe4c8, 0xe4d0, 0xe4f0, 0xe4fc,
+                0xe508, 0xe530, 0xe558, 0xe580, 0xe5a8, 0xe5d0, 0xe5f8, 0xe628, 0xe658, 0xe688, 0xe6b8, 0xe728,
+                0xe798, 0xe7a4, 0xe7b0, 0xe7bc, 0xe7c8, 0xe7d4, 0xe7e0, 0xe7ec, 0xe7f8, 0xe804, 0xe810, 0xe81c,
+                0xe890, 0xe8cc, 0xe938, 0xe974, 0xe9f4, 0xea0c, 0xea24, 0xeba4, 0xea28, 0xe968 }.SelectMany(address => Enumerable.Range(address, 4)));
+        if (finalOnly)
+            editAddresses = new[] { 0xdb58, 0xdb54, 0xdba0, 0xdbbc, 0xdbfc, 0xe2ec, 0xe37c, 0xe600, 0xe65c,
+                0xe6bc, 0xe534, 0xe29c, 0xe7a8, 0xe050, 0xe158, 0xe060, 0xe0d0, 0xea40, 0xeba8,
+                0xe984, 0xe8a8, 0xea00, 0xdf40, 0xe458, 0xe888 }.SelectMany(address => Enumerable.Range(address, 4));
+        int edits = 0;
+        foreach (int address in editAddresses)
+        {
+            edits++;
             byte[] supplied = (byte[])native.Clone(); supplied[address - 0xdb48] ^= 1;
             var edited = Create(supplied);
             AssertTrue(edited.Frames.SequenceEqual(Decode(supplied)), "Independent source/derived/lower component edits preserved");
             for (int index = 0; index < count; index++)
-                AssertEqual(Source(index) == index || supplied[index] != supplied[Source(index)], Stored(edited).ContainsKey(index), "Exact required basis and independent exception membership");
+                AssertEqual(Source(index) != index ? supplied[index] != supplied[Source(index)] : !Direct(index) || supplied[index] != native[index], Stored(edited).ContainsKey(index), "Exact required basis and independent exception membership");
             foreach (byte pose in new byte[] { 0xd5, 0xd6, 0xd9, 0xda })
             for (ushort frame = 0; frame < 5; frame++)
                 AssertEqual(Decode(supplied)[(poses[pose] - 0xdb48) / 4 + frame], edited.Frame(pose, frame), "Actual four X-ray pose selections resolve independent supplied components");
@@ -558,7 +728,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyFrameDefinitions.SourceComponent(-1), "Negative component rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyFrameDefinitions.SourceComponent(count), "Component end rejected");
         AssertThrows<InvalidDataException>(() => stock.Frame(0xfd, 0), "Original pose bound preserved");
-        Console.WriteLine("Body frames:268 native component aliases, exact remaining basis,688 independent component edits, actual26-pose selection and original canonical hashes pass.");
+        Console.WriteLine($"Body frames:{count - Stored(stock).Count} calculated/aliased components, exact remaining basis,{edits} independent component edits, actual pose selection and original canonical hashes pass.");
     }
     private static void VerifyLookupStream1BodyPosePointers(ISnesAddressSpace rom)
     {

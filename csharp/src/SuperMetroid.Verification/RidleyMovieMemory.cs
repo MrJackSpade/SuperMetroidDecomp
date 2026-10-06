@@ -1,6 +1,15 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$0B0A/$0B0E: ideal layer-one camera targets.</summary>
+    public const int IdealCameraX = 0x0b0a, IdealCameraY = 0x0b0e;
+    /// <summary>$0B10-$0B17: previous Samus position retained by scrolling.</summary>
+    public const int PreviousSamusX = 0x0b10, PreviousSamusXFraction = 0x0b12,
+        PreviousSamusY = 0x0b14, PreviousSamusYFraction = 0x0b16;
+    /// <summary>$0DA2-$0DA9: camera distance-plus-one whole/fractional X/Y pairs.</summary>
+    public const int CameraSpeedX = 0x0da2, CameraSpeedXFraction = 0x0da4,
+        CameraSpeedY = 0x0da6, CameraSpeedYFraction = 0x0da8;
+
     /// <summary>$0DA8: camera Y fractional displacement adjacent to projectile inheritance.</summary>
     public const int ProjectileInheritancePrefix = 0x0da8;
     /// <summary>$0DAA-$0DB9: left/right/up/down projectile-inherited displacement pairs.</summary>

@@ -764,6 +764,18 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(W(RidleyMovieMemory.Room), W(RidleyMovieMemory.CameraX), W(RidleyMovieMemory.CameraY));
         typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.XSubposition))!.SetValue(runtime.Camera, W(RidleyMovieMemory.CameraXFraction));
         typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.YSubposition))!.SetValue(runtime.Camera, W(RidleyMovieMemory.CameraYFraction));
+        foreach (var (property, address) in new[]
+        {
+            (nameof(ScrollBoundaryCamera.IdealXPosition), RidleyMovieMemory.IdealCameraX),
+            (nameof(ScrollBoundaryCamera.IdealYPosition), RidleyMovieMemory.IdealCameraY),
+            (nameof(ScrollBoundaryCamera.CameraXSpeed), RidleyMovieMemory.CameraSpeedX),
+            (nameof(ScrollBoundaryCamera.CameraXSubspeed), RidleyMovieMemory.CameraSpeedXFraction),
+            (nameof(ScrollBoundaryCamera.CameraYSpeed), RidleyMovieMemory.CameraSpeedY),
+            (nameof(ScrollBoundaryCamera.CameraYSubspeed), RidleyMovieMemory.CameraSpeedYFraction),
+        }) typeof(ScrollBoundaryCamera).GetProperty(property)!.SetValue(runtime.Camera, W(address));
+        runtime.Camera!.FinishSamusScrolling(new SamusCameraPoint(
+            W(RidleyMovieMemory.PreviousSamusX), W(RidleyMovieMemory.PreviousSamusXFraction),
+            W(RidleyMovieMemory.PreviousSamusY), W(RidleyMovieMemory.PreviousSamusYFraction)));
         // Preserve the native room's already-mutated doors and item blocks. Rebuilding
         // these from the pristine room header would no longer represent this movie frame.
         RoomLevelData level = runtime.LevelData ?? throw new InvalidDataException(
@@ -1010,6 +1022,23 @@ internal static partial class Program
             Check("Camera X fraction", runtime.Camera.XSubposition, RidleyMovieMemory.CameraXFraction);
             Check("Camera Y", runtime.Camera.YPosition, RidleyMovieMemory.CameraY);
             Check("Camera Y fraction", runtime.Camera.YSubposition, RidleyMovieMemory.CameraYFraction);
+            if (game.GameState == SuperMetroidGameState.MainGameplay)
+            {
+                Check("Ideal camera X", runtime.Camera.IdealXPosition, RidleyMovieMemory.IdealCameraX);
+                Check("Ideal camera Y", runtime.Camera.IdealYPosition, RidleyMovieMemory.IdealCameraY);
+                Check("Camera speed X", runtime.Camera.CameraXSpeed, RidleyMovieMemory.CameraSpeedX);
+                Check("Camera speed X fraction", runtime.Camera.CameraXSubspeed, RidleyMovieMemory.CameraSpeedXFraction);
+                Check("Camera speed Y", runtime.Camera.CameraYSpeed, RidleyMovieMemory.CameraSpeedY);
+                Check("Camera speed Y fraction", runtime.Camera.CameraYSubspeed, RidleyMovieMemory.CameraSpeedYFraction);
+                // A fresh door camera defers its first sample to the runtime's frame-start
+                // fallback. Compare that effective sample instead of requiring storage.
+                var previous = runtime.Camera.PreviousSamusPoint ?? new SamusCameraPoint(
+                    samus.XPosition, samus.Kinematics.XSubposition, samus.YPosition, samus.Kinematics.YSubposition);
+                Check("Previous Samus X", previous.XPosition, RidleyMovieMemory.PreviousSamusX);
+                Check("Previous Samus X fraction", previous.XSubposition, RidleyMovieMemory.PreviousSamusXFraction);
+                Check("Previous Samus Y", previous.YPosition, RidleyMovieMemory.PreviousSamusY);
+                Check("Previous Samus Y fraction", previous.YSubposition, RidleyMovieMemory.PreviousSamusYFraction);
+            }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
                 for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)

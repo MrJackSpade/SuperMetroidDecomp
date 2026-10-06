@@ -57,7 +57,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Contract | Current evidence | Remaining work |
 | --- | --- | --- |
 | Source identity, immutable movie, input edges, lag classification, terminal boundary | Converter v3 and complete replay pass | Retain these checks with each coverage expansion |
-| Samus movement and collision | Positions/fractions, camera, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state, momentum/boost, environment speed-table selection, deceleration multiplier, echo sound latch, total horizontal speed and normal/knockback plus alpha/beta handler identity, slope adjustment and directional solid-enemy contacts pass | Remaining control handlers, movement flags and secondary motion state |
+| Samus movement and collision | Positions/fractions, camera positions plus gameplay targets/speed/previous-Samus samples, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state, momentum/boost, environment speed-table selection, deceleration multiplier, echo sound latch, total horizontal speed and normal/knockback plus alpha/beta handler identity, slope adjustment and directional solid-enemy contacts pass | Remaining control handlers, movement flags and secondary motion state |
 | Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication, charge palette/audio words, retained held/press samples, auto-jump timer, pose-input handler and directional shot-inheritance movement records pass | Remaining combat/input ownership |
 | Enemies and Ridley | Active enemy collision/properties/timers; complete Ridley tail records, shared tail/body controller, wing/grab/damage/health/facing state pass | Remaining actor AI variables and phase-dependent aliases |
 | Ordinary/enemy projectiles | Ordinary active-slot motion/program/art and callback identity; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Final render composition/pixels; bombs need live mappings only if a different movie activates them |
@@ -725,3 +725,35 @@ Release build has zero errors and all 10,717 updates pass
 was needed. This establishes the directional inheritance and contact history for
 the supplied movie; remaining movement/control, presentation and loading coverage
 in the audit table still prevents claiming full parity.
+
+
+### Camera tracking history through doors and posture changes
+
+Gameplay boundaries now compare ideal camera X/Y, distance-plus-one X/Y pairs,
+and all four prior Samus position words. Initial owners are imported once. A
+fresh camera's nullable prior sample is compared using the runtime's effective
+frame-start fallback; this exposed a real mismatch rather than excusing it.
+
+Two reproduced discrepancies were corrected:
+- Update 274/source 375, first resumed room: replacing the room camera and each
+  door IRQ incorrectly reset its targets, speeds and previous-position history.
+  Native $82:E3C0 rebases previous whole X/Y; $80:AE7E/$AEC2/$AF02/$AF89 update
+  the moving axis's whole word, retaining fractions and tracking targets/speeds.
+  Door cameras now inherit that state, position writes retain it, and placement
+  and IRQ movement publish the appropriate previous whole coordinates. Final
+  doorway alignment/nudges no longer erase the pre-nudge checkpoint.
+- Update 356/source 457, crouch entry: native camera speed Y was 1 versus port 6,
+  and ideal Y was $0132 versus $0130. Command seven ($91:ED0E) writes the aligned
+  current Y to previous Y. The crouch path changed current Y alone; it now records
+  that checkpoint before scrolling, just as the existing morph path does.
+
+All 10,717 updates pass with the new checks (`camera-posture-replay.log`). Final
+release build has zero errors (`camera-final-build.log`). --door-alignment passes
+all four IRQ trajectories and 1,072 native camera/alignment steps with retained
+fractions (`camera-door-final-focused.log`); --samus-posture-movement passes
+(`camera-posture-focused.log`). The door fixture's stale HandleTransition-to-fade
+observation was updated to the existing explicit BuildDestinationOam dispatch;
+no production timing was changed to satisfy that fixture.
+
+Both fixes await player validation. Final pixels and partial loading-state
+coverage remain separate open items; this is not a full-parity completion claim.

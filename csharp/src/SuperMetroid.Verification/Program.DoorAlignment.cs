@@ -163,7 +163,7 @@ internal static partial class Program
             if (transition.Phase == DoorTransitionPhase.AlignSourceCamera)
                 alignmentCalls++;
             transition.Step(runtime, audio, heldLeftRight);
-            if (phaseBeforeStep == DoorTransitionPhase.HandleTransition &&
+            if (phaseBeforeStep == DoorTransitionPhase.BuildDestinationOam &&
                 transition.Phase == DoorTransitionPhase.FadeInDestinationPalette)
             {
                 observedDestinationBuild = true;

@@ -204,6 +204,9 @@ public sealed partial class SamusState
             // radius 16, then moves center Y down five. Old radius 21 and new radius 16
             // therefore share exactly the same bottom collision boundary.
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + 5));
+            // Command seven publishes the aligned whole Y before scrolling; the
+            // posture change itself must not become camera movement.
+            RecordPoseCollisionCameraY(Kinematics.YPosition);
             InitializeAnimation(bus, initialFrame: 0);
             return true;
         }

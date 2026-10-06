@@ -377,6 +377,7 @@ public sealed partial class SuperMetroidRuntime
         if (Samus is null || Camera is null)
             throw new InvalidOperationException("Door tile loading requires Samus and camera.");
         var position = DoorOpeningScrollState.RebaseSamus(door, Samus.Kinematics.XFixed, Samus.Kinematics.YFixed);
+        Camera.PublishDoorSamusPosition((ushort)(position.X >> 16), (ushort)(position.Y >> 16));
         position = DoorOpeningScrollState.AdvanceSamus(door, position.X, position.Y);
         Samus.Kinematics.SetXFixed(position.X);
         Samus.Kinematics.SetYFixed(position.Y);
@@ -386,6 +387,8 @@ public sealed partial class SuperMetroidRuntime
         if ((direction & 2) == 0) camera.X = unchecked((ushort)(camera.X + delta));
         else camera.Y = unchecked((ushort)(camera.Y + delta));
         Camera.SetDoorTransitionPosition(camera.X, camera.Y);
+        Camera.PublishDoorSamusPosition((direction & 2) == 0 ? Samus.XPosition : null,
+            (direction & 2) != 0 ? Samus.YPosition : null);
         BackgroundScroll.Layer1XPosition = camera.X;
         BackgroundScroll.Layer1YPosition = camera.Y;
     }
@@ -485,6 +488,7 @@ public sealed partial class SuperMetroidRuntime
         }
         Samus.Kinematics.SetXFixed(_doorOpeningScroll.SamusXFixed);
         Samus.Kinematics.SetYFixed(_doorOpeningScroll.SamusYFixed);
+        Camera.PublishDoorSamusPosition(Samus.XPosition, Samus.YPosition);
         // Recreate the VRAM producer requests for IRQ progress already published
         // before the atomic destination load. Those steps do not consume more input.
         for (int step = 0; step < completedLoadingIrqSteps; step++)
@@ -532,6 +536,8 @@ public sealed partial class SuperMetroidRuntime
         }
         Samus.Kinematics.SetXFixed(state.SamusXFixed);
         Samus.Kinematics.SetYFixed(state.SamusYFixed);
+        Camera.PublishDoorSamusPosition((state.Direction & 2) == 0 ? Samus.XPosition : null,
+            (state.Direction & 2) != 0 ? Samus.YPosition : null);
         return completed;
     }
 
@@ -805,8 +811,11 @@ public sealed partial class SuperMetroidRuntime
         ScrollBoundaryCamera? previousCamera = Camera;
         Camera = new ScrollBoundaryCamera(assets.Scrolls);
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
+        {
+            if (previousCamera is not null) Camera.InheritTrackingState(previousCamera);
             Camera.SetDoorTransitionPosition(cameraX, cameraY,
                 previousCamera?.XSubposition ?? 0, previousCamera?.YSubposition ?? 0);
+        }
         else
             Camera.SetPosition(cameraX, cameraY);
         BackgroundScroll.Layer2ScrollX = room.State.Layer2ScrollX;

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Immutable mechanics for the wide foreground part of the Zebes explosion.</summary>
@@ -12,9 +14,8 @@ namespace SuperMetroid.Core.Game;
 /// 105 black). Frames 0..5 fill that prefix uniformly with, respectively,
 /// <c>7C00,7CA0,7DE0,7DE0,7E80,7F20</c>. Later frames have authored accents:
 /// frame 6 starts <c>7FFD,7FE9</c>, frame 14 ends <c>6B40</c>, and frame 15
-/// ends <c>7FF7</c>. Retain all 240 presentation words to preserve those
-/// colors; the presentation compiler supplies them while this catalog supplies
-/// the control words to the palette-FX runtime. ROM SHA-256:
+/// ends <c>7FF7</c>. All 240 presentation words belong to a separate color entry;
+/// this cadence conversion grants no color exception. ROM SHA-256:
 /// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
 /// </remarks>
 public static class ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
@@ -26,10 +27,10 @@ public static class ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
     public const ushort ProgramStart = 0xcb3c;
 
     /// <summary>The first timed record at <c>$8D:CB40</c>.</summary>
-    public const ushort FirstFramePointer = 0xcb40;
+    public const ushort FirstFramePointer = ProgramStart + 2 * sizeof(ushort);
 
     /// <summary>The terminal <c>delete</c> command at <c>$8D:CD60</c>.</summary>
-    public const ushort DeleteInstructionPointer = 0xcd60;
+    public const ushort DeleteInstructionPointer = FirstFramePointer + FrameCount * FrameByteCount;
 
     /// <summary>The foreground explosion writes CGRAM from byte index <c>$0002</c>.</summary>
     public const ushort ColorByteIndex = 0x0002;
@@ -41,13 +42,28 @@ public static class ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
     public const int ColorsPerFrame = 15;
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 34;
+    public const int FrameByteCount = (ColorsPerFrame + 2) * sizeof(ushort);
 
     /// <summary>The complete one-shot foreground explosion lasts 144 frames.</summary>
-    public const int CycleFrames = 144;
+    public const int CycleFrames = EndingExplosionInstructionDefinitions.RightStarInitialHoldTicks;
 
-    private static readonly ushort[] Durations =
-        [4, 4, 4, 60, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6];
+    /// <summary>$8D:CB40-CBA5: three initial prefix-reveal records; authored reveal-to-hold boundary.</summary>
+    private const int InitialRevealRecords = 3;
+    /// <summary>$8D:CB40/CB62/CB84: selected four-tick initial reveal exposure.</summary>
+    private const ushort RevealTicks = 4;
+    /// <summary>$8D:CBA6: remaining exposure before the synchronized $8B:EB71 finale handoff.</summary>
+    private const ushort CrestTicks = CycleFrames - InitialRevealRecords * RevealTicks -
+        (FrameCount - InitialRevealRecords - 1) * ExpansionTicks;
+    /// <summary>$8D:CBC8-CD3E: selected six-tick exposure of each remaining expansion record.</summary>
+    private const ushort ExpansionTicks = 6;
+
+    /// <summary>Exact initial reveal, fourth-prefix hold and expansion choreography; independent colors remain separate.</summary>
+    internal static ushort Duration(int frame)
+    {
+        if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
+        return frame < InitialRevealRecords ? RevealTicks : frame == InitialRevealRecords ? CrestTicks : ExpansionTicks;
+    }
+
 
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)
@@ -84,7 +100,7 @@ public static class ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
             int offset = pointer - FramePointer(frame);
             value = offset switch
             {
-                0 => Durations[frame],
+                0 => Duration(frame),
                 FrameByteCount - sizeof(ushort) => PaletteFxInstructionCodes.Wait,
                 _ => 0,
             };

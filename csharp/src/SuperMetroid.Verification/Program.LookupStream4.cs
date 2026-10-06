@@ -9,6 +9,60 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4ForegroundCadence(CartridgeImportAddressSpace rom)
+    {
+        VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(rom);
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort nativeProgram = Word(0x8de1ca);
+        AssertEqual(nativeProgram, ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ProgramStart, "Native foreground entry");
+        int destination = Word(0x8d0000 | nativeProgram + 2) / 2;
+        var rows = new List<(ushort Duration, ushort[] Colors)>();
+        int cursor = nativeProgram + 4;
+        while (Word(0x8d0000 | cursor) < 0x8000)
+        {
+            ushort duration = Word(0x8d0000 | cursor);
+            AssertEqual(duration, ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.Duration(rows.Count), "Every native foreground duration");
+            cursor += 2;
+            var colors = new List<ushort>();
+            while (Word(0x8d0000 | cursor) < 0x8000)
+            {
+                colors.Add(Word(0x8d0000 | cursor));
+                cursor += 2;
+            }
+            AssertEqual(PaletteFxInstructionCodes.Wait, Word(0x8d0000 | cursor), "Native foreground wait");
+            cursor += 2;
+            rows.Add((duration, colors.ToArray()));
+        }
+        AssertEqual(PaletteFxInstructionCodes.Delete, Word(0x8d0000 | cursor), "Native foreground delete");
+        AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DeleteInstructionPointer, "Derived foreground terminal address");
+        var guarded = new PaletteFxMechanicsForbiddenBus(rom);
+        var fx = new RoomPaletteFxSystem();
+        var cgram = new SnesCgram();
+        fx.SpawnDefinition(guarded, ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer, 0);
+        int ticks = 0;
+        foreach (var row in rows)
+        for (int hold = 0; hold < row.Duration; hold++)
+        {
+            fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
+            for (int color = 0; color < SnesCgram.ColorCount; color++)
+            {
+                ushort expected = color >= destination && color < destination + row.Colors.Length
+                    ? row.Colors[color - destination] : (ushort)0;
+                AssertEqual(expected, cgram.Colors[color], "Actual foreground color exposure and untouched CGRAM");
+            }
+            AssertTrue(fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer), "Foreground remains active during native exposure");
+            ticks++;
+        }
+        AssertEqual((int)Word(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
+        AssertEqual(Word(0x8beb71), EndingExplosionInstructionDefinitions.ReadWord(0xeb71), "Actual actor program retains the shared native handoff");
+        AssertEqual(ticks, ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.CycleFrames, "Derived complete exposure");
+        fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
+        AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "Foreground mechanics avoid live ROM reads");
+        foreach (int invalid in new[] { -1, rows.Count, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.Duration(invalid), "Foreground duration domain");
+        Console.WriteLine("Foreground cadence:35 native controls,16 independently decoded durations,144 actual CGRAM exposures plus exact deletion/native star handoff/read guard/bounds pass; color artwork remains required.");
+    }
     private static void VerifyLookupStream4TitleAmbientColors(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

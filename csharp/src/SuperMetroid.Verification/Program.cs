@@ -26,6 +26,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream-4-foreground-cadence"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Foreground cadence oracle revision");
+    VerifyLookupStream4ForegroundCadence(rom);
+    return 0;
+}
 if (args is ["--lookup-stream-4-title-ambient-complete"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -12027,4 +12027,13 @@
     "TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.Definitions",
     "TitlePalettePresentation.animatedColors"
   ]
+},"foregroundCadenceWhole":{
+  "workerCommit": "b254cb0a5",
+  "disposition": [
+    "All16 durations calculate from three initial reveal records at4 ticks, expansion at6 ticks and the existing144-tick star handoff. Only selected reveal boundary and4/6 exposure choreography remain; the60-tick crest is derived. Actor timing and240 colors are separate required entries."
+  ],
+  "completed": [
+    "ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.Durations"
+  ],
+  "confirmation": "Root build1452 warnings/0 errors; focused foreground cadence passed35 native controls,16 decoded durations,144 actual CGRAM exposures, deletion/star handoff,read guard and bounds."
 }}

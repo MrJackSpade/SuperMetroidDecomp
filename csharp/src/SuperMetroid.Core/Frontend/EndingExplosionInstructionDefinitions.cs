@@ -20,6 +20,8 @@ internal static class EndingExplosionInstructionDefinitions
     private const ushort Silhouette = 0xeb69;
     /// <summary>$8B:EB71, right stars and scene handoff.</summary>
     private const ushort RightStars = 0xeb71;
+    /// <summary>$8B:EB71: right-star exposure before ExplosionFinale; the selected actor timing remains separately required.</summary>
+    internal const ushort RightStarInitialHoldTicks = 144;
     /// <summary>$8B:EB81, left stars loop; also the right program's fallthrough.</summary>
     private const ushort LeftStars = 0xeb81;
     /// <summary>$8B:EB89, afterglow loop.</summary>
@@ -62,7 +64,7 @@ internal static class EndingExplosionInstructionDefinitions
         if (pointer < LeftStars)
             return ((pointer - RightStars) / 2) switch
             {
-                0 => 144,
+                0 => RightStarInitialHoldTicks,
                 1 or 4 => EndingExplosionSpriteDefinitions.Pointer(Pose.Stars),
                 2 => CinematicCodePointers.Ending_Instruction_ExplosionFinale,
                 3 => 332,

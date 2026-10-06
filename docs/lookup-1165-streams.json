@@ -3230,6 +3230,7 @@
 {"path":"csharp/src/SuperMetroid.Core/Assets/BabyMetroidInitialPaintDefinitions.cs","purpose":"Complete reviewed initial/final-health categorical paints and calculated shade/fade relationships; independent edits; no other health,geometry or timing exemption","stream":3},
 {"path":"csharp/src/SuperMetroid.Core/Assets/BabyMetroidInitialPalette.cs","purpose":"Complete reviewed initial/final-health categorical paints and calculated shade/fade relationships; independent edits; no other health,geometry or timing exemption","stream":3},
 {"path":"csharp/src/SuperMetroid.Core/Assets/BabyMetroidFinalHealthPaintDefinitions.cs","purpose":"Complete reviewed initial/final-health categorical paints and calculated shade/fade relationships; independent edits; no other health,geometry or timing exemption","stream":3}
+,{"path":"csharp/src/SuperMetroid.Core/Frontend/EndingExplosionInstructionDefinitions.cs","stream":4,"purpose":"Expose existing right-star144-tick hold as shared foreground handoff owner only; actor timing remains separately required"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

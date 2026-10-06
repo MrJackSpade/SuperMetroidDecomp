@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 474,
+  "remainingTableDefinitionCount": 473,
   "fileCount": 523,
   "entries": [
     {
@@ -8989,12 +8989,15 @@
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.cs",
-      "line": 50,
-      "name": "ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.Durations",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.cs",
+  "line": 50,
+  "name": "ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.Durations",
+  "kind": "stored definition",
+  "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+  "state": "justified-retained",
+  "implementationCommit": "b254cb0a5",
+  "disposition": "All16 durations calculate from three initial reveal records at4 ticks, expansion at6 ticks and the existing144-tick star handoff. Only selected reveal boundary and4/6 exposure choreography remain; the60-tick crest is derived. Actor timing and240 colors are separate required entries."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.cs",
       "line": 42,
@@ -21652,5 +21655,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 54
+  "justifiedRetainedSinceSnapshot": 55
 }

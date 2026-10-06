@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 430,
+  "remainingTableDefinitionCount": 427,
   "fileCount": 523,
   "entries": [
     {
@@ -2242,12 +2242,15 @@
       "implementationCommit": "e09ff80f2"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs",
-      "line": 16,
-      "name": "ShaktoolVisualDefinitions.Frames / literal at L16",
-      "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs",
+  "line": 16,
+  "name": "ShaktoolVisualDefinitions.Frames / literal at L16",
+  "kind": "method-local definition",
+  "note": "Fixed values inside a method; not an array parameter/return declaration.",
+  "state": "converted",
+  "implementationCommit": "9c3351ba847ef39e725470b31b5523f6f547ee01",
+  "disposition": "All15 registrations calculate from native single-part/four-part record sizes, contiguous saw/arm/head families and semantic compass identities; exact names/order preserved with no cached array."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
   "line": 19,
@@ -2438,12 +2441,15 @@
       "implementationCommit": "2c06205ffcf5afd50f03381ef002732694e99a97"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/WorkRobotVisualDefinitions.cs",
-      "line": 17,
-      "name": "WorkRobotVisualDefinitions.Frames / literal at L17",
-      "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/WorkRobotVisualDefinitions.cs",
+  "line": 17,
+  "name": "WorkRobotVisualDefinitions.Frames / literal at L17",
+  "kind": "method-local definition",
+  "note": "Fixed values inside a method; not an array parameter/return declaration.",
+  "state": "converted",
+  "implementationCommit": "84f610ceb3b7d75d9708aca846c66f210cdc63c0",
+  "disposition": "All27 bank/pointer/name records calculate from two12pose facing groups, native12part/sixpart record sizes and semantic unpowered identities; exact installed order preserved with no cached array."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/WorldMapArtwork.cs",
   "line": 8,
@@ -5490,12 +5496,15 @@
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.","state":"converted","implementationCommit":"7173d035b5738a6bbad15f05cfacbcc765206786"},
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs",
-      "line": 72,
-      "name": "NintendoLogoFadePaletteFxProgramMechanicsDefinitions.Definitions",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs",
+  "line": 72,
+  "name": "NintendoLogoFadePaletteFxProgramMechanicsDefinitions.Definitions",
+  "kind": "stored definition",
+  "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+  "state": "converted",
+  "implementationCommit": "5cc51d8787dc65c1c41c219c32288bbe67b9dc73",
+  "disposition": "Two stored records replaced by semantic boot fallthrough/copyright branch dispatch using named native definitions, entries, slots and shared body target. Indexing/order preserved; colors and dwell remain separate."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NoobTubeProjectileInstructionProgramDefinitions.cs",
       "line": 21,
@@ -21783,6 +21792,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 602,
+  "convertedSinceSnapshot": 605,
   "justifiedRetainedSinceSnapshot": 96
 }

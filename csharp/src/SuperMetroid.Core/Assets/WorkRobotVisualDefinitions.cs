@@ -13,37 +13,32 @@ internal static class WorkRobotVisualDefinitions
     internal const byte Bank = 0xa8;
     internal const int FrameCount = 27;
 
-    internal static EnemySpritemapDefinition[] Frames() =>
-    [
-        new(Bank, 0xd1f1, "work_robot_left_00"),
-        new(Bank, 0xd22f, "work_robot_left_01"),
-        new(Bank, 0xd26d, "work_robot_left_02"),
-        new(Bank, 0xd2ab, "work_robot_left_03"),
-        new(Bank, 0xd2e9, "work_robot_left_04"),
-        new(Bank, 0xd327, "work_robot_left_05"),
-        new(Bank, 0xd365, "work_robot_left_06"),
-        new(Bank, 0xd3a3, "work_robot_left_07"),
-        new(Bank, 0xd3e1, "work_robot_left_08"),
-        new(Bank, 0xd41f, "work_robot_left_09"),
-        new(Bank, 0xd45d, "work_robot_left_10"),
-        new(Bank, 0xd49b, "work_robot_left_11"),
-        new(Bank, 0xd4d9, "work_robot_right_00"),
-        new(Bank, 0xd517, "work_robot_right_01"),
-        new(Bank, 0xd555, "work_robot_right_02"),
-        new(Bank, 0xd593, "work_robot_right_03"),
-        new(Bank, 0xd5d1, "work_robot_right_04"),
-        new(Bank, 0xd60f, "work_robot_right_05"),
-        new(Bank, 0xd64d, "work_robot_right_06"),
-        new(Bank, 0xd68b, "work_robot_right_07"),
-        new(Bank, 0xd6c9, "work_robot_right_08"),
-        new(Bank, 0xd707, "work_robot_right_09"),
-        new(Bank, 0xd745, "work_robot_right_10"),
-        new(Bank, 0xd783, "work_robot_right_11"),
-        new(Bank, 0xd7e1, "work_robot_unpowered_neutral"),
-        new(Bank, 0xd7c1, "work_robot_unpowered_left"),
-        new(Bank, 0xd801, "work_robot_unpowered_right"),
-    ];
+    /// <summary>$A8:D1F1: first powered Work Robot spritemap. Every powered header through $D783 declares twelve five-byte OAM parts.</summary>
+    private const ushort FirstPoweredFrame = 0xd1f1;
+    /// <summary>$A8:D1F1-D7C0: twelve native poses per facing, followed immediately by the six-part unpowered maps.</summary>
+    private const int PoweredPosesPerFacing = 12;
+    /// <summary>$A8:D1F1-D783: two-byte count plus twelve five-byte parts per powered record.</summary>
+    private const int PoweredRecordBytes = sizeof(ushort) + 12 * 5;
+    /// <summary>$A8:D7C1/D7E1/D801: each unpowered record declares six five-byte parts after its two-byte count.</summary>
+    private const int UnpoweredRecordBytes = sizeof(ushort) + 6 * 5;
+    /// <summary>$A8:D7C1: unpowered-left record immediately follows both complete powered-facing groups.</summary>
+    private const ushort UnpoweredLeft = FirstPoweredFrame + 2 * PoweredPosesPerFacing * PoweredRecordBytes;
 
+    internal static IEnumerable<EnemySpritemapDefinition> Frames()
+    {
+        for (int facing = 0; facing < 2; facing++)
+        for (int pose = 0; pose < PoweredPosesPerFacing; pose++)
+        {
+            string direction = facing == 0 ? "left" : "right";
+            ushort pointer = (ushort)(FirstPoweredFrame + (facing * PoweredPosesPerFacing + pose) * PoweredRecordBytes);
+            yield return new(Bank, pointer, $"work_robot_{direction}_{pose.ToString("00", System.Globalization.CultureInfo.InvariantCulture)}");
+        }
+        // Installed compatibility order is neutral, then the two facing identities;
+        // the native physical record order is left, neutral, right.
+        yield return new(Bank, UnpoweredLeft + UnpoweredRecordBytes, "work_robot_unpowered_neutral");
+        yield return new(Bank, UnpoweredLeft, "work_robot_unpowered_left");
+        yield return new(Bank, UnpoweredLeft + 2 * UnpoweredRecordBytes, "work_robot_unpowered_right");
+    }
     /// <summary>Resolves only the 227 authored Work Robot presentation operands.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {

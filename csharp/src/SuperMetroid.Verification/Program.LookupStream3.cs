@@ -3575,6 +3575,86 @@ internal static partial class Program
     }
 
 
+    private static void VerifyStream3WorkRobotRegistry()
+    {
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        EnemySpritemapDefinition[] frames = WorkRobotVisualDefinitions.Frames().ToArray();
+        AssertEqual(27, frames.Length, "all Work Robot registration identities");
+        string identities = string.Concat(frames.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.Name}\n"));
+        string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(identities)));
+        AssertEqual("4ADE0C5ABD612C37688FA6578C9E49D4A902CB4BA9E7EEE3E2CC2F4D131DFB23", hash,
+            "all 27 legacy bank/pointer/name/order identities remain exact");
+        int cursor = frames[0].Pointer;
+        for (int index = 0; index < 24; index++)
+        {
+            AssertEqual((ushort)cursor, frames[index].Pointer, "powered registration follows actual native record length");
+            ushort count = ReadVerificationWord(rom, 0xa80000 | cursor);
+            AssertEqual((ushort)12, count, "each native powered header has twelve parts");
+            cursor += sizeof(ushort) + count * 5;
+        }
+        foreach (int index in new[] { 25, 24, 26 })
+        {
+            AssertEqual((ushort)cursor, frames[index].Pointer, "unpowered semantic identity maps to native physical order");
+            ushort count = ReadVerificationWord(rom, 0xa80000 | cursor);
+            AssertEqual((ushort)6, count, "each native unpowered header has six parts");
+            cursor += sizeof(ushort) + count * 5;
+        }
+        AssertTrue(WorkRobotVisualDefinitions.Frames().SequenceEqual(frames), "independent enumeration preserves order");
+        Console.WriteLine("Work Robot registry: 27 native headers and exact legacy bank/pointer/name/order hash pass; artwork and timing remain separate.");
+    }
+
+    private static void VerifyStream3ShaktoolRegistry()
+    {
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        EnemySpritemapDefinition[] frames = ShaktoolVisualDefinitions.Frames().ToArray();
+        AssertEqual(15, frames.Length, "all Shaktool registration identities");
+        string identities = string.Concat(frames.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.Name}\n"));
+        string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(identities)));
+        AssertEqual("1D724428CB3831C0C43A4987E4D05D772ED8762650C5DEEC4C5E68D69B506892", hash,
+            "all 15 legacy bank/pointer/name/order identities remain exact");
+        int cursor = frames[0].Pointer;
+        for (int index = 0; index < frames.Length; index++)
+        {
+            AssertEqual((ushort)cursor, frames[index].Pointer, "Shaktool registry follows actual native record lengths");
+            ushort count = ReadVerificationWord(rom, 0xaa0000 | cursor);
+            AssertEqual((ushort)(index is >= 4 and < 12 ? 4 : 1), count, "each native saw/arm/head part count");
+            cursor += sizeof(ushort) + count * 5;
+        }
+        AssertTrue(ShaktoolVisualDefinitions.Frames().SequenceEqual(frames), "independent enumeration preserves order");
+        Console.WriteLine("Shaktool registry: 15 native headers and exact legacy bank/pointer/name/order hash pass; artwork and timing remain separate.");
+    }
+
+    private static void VerifyStream3NintendoFadeEntries()
+    {
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var entries = NintendoLogoFadePaletteFxProgramMechanicsDefinitions.All;
+        AssertEqual(2, entries.Count, "both semantic Nintendo fade entries");
+        AssertEqual(NintendoLogoFadePaletteFxProgramOwner.BootLogo, entries[0].Owner, "boot entry remains first");
+        AssertEqual(NintendoLogoFadePaletteFxProgramOwner.Copyright, entries[1].Owner, "copyright entry remains second");
+        foreach (var entry in entries)
+        {
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | (entry.DefinitionPointer + 2)), entry.ProgramStart,
+                "native definition selects exact semantic program entry");
+            AssertEqual(PaletteFxInstructionCodes.SetColorIndex, ReadVerificationWord(rom, 0x8d0000 | entry.ProgramStart),
+                "each entry sets its own CGRAM slot");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | (entry.ProgramStart + 2)), entry.ColorByteIndex,
+                "each entry preserves the native CGRAM byte index");
+            if (entry.BranchesToSharedBody)
+            {
+                AssertEqual(PaletteFxInstructionCodes.Goto, ReadVerificationWord(rom, 0x8d0000 | (entry.ProgramStart + 4)),
+                    "copyright actually branches");
+                AssertEqual(NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FirstFramePointer,
+                    ReadVerificationWord(rom, 0x8d0000 | (entry.ProgramStart + 6)), "copyright branch target");
+            }
+            else AssertEqual(NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FirstFramePointer,
+                (ushort)(entry.ProgramStart + 4), "boot actually falls through");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = entries[-1], "fade entry lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = entries[2], "fade entry upper bound");
+        AssertTrue(entries.SequenceEqual(new[] { entries[0], entries[1] }), "fade enumeration and indexing agree");
+        Console.WriteLine("Nintendo fade entries: both native definition/slot/fallthrough-or-branch contracts, order and bounds pass; timing/colors unchanged.");
+    }
+
     private static void VerifyStream3PortraitMap()
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "portrait-map-" + Guid.NewGuid().ToString("N")));

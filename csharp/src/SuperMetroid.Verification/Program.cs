@@ -345,6 +345,9 @@ if (args is ["--lookup-stream3-options-sprites"])
 }
 if (args is ["--lookup-stream3-intro-font"]){ VerifyStream3IntroFont(); return 0; }
 if (args is ["--lookup-stream3-background-maps"]){ VerifyStream3BackgroundMaps(); return 0; }
+if (args is ["--lookup-stream3-work-robot-registry"]) { VerifyStream3WorkRobotRegistry(); return 0; }
+if (args is ["--lookup-stream3-shaktool-registry"]) { VerifyStream3ShaktoolRegistry(); return 0; }
+if (args is ["--lookup-stream3-nintendo-fade-entries"]) { VerifyStream3NintendoFadeEntries(); return 0; }
 if (args is ["--lookup-stream3-portrait-map"])
 {
     VerifyStream3PortraitMap();

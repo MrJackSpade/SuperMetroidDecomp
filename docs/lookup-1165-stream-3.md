@@ -581,7 +581,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **NintendoLogoFadePaletteFxProgramMechanicsDefinitions.Definitions** ([L72](../csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs#L72)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **NintendoLogoFadePaletteFxProgramMechanicsDefinitions.Definitions** ([L72](../csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs#L72)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RioInstructionProgramDefinitions.cs
 
@@ -600,7 +600,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs
 
-- [ ] **ShaktoolVisualDefinitions.Frames / literal at L16** ([L16](../csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs#L16)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **ShaktoolVisualDefinitions.Frames / literal at L16** ([L16](../csharp/src/SuperMetroid.Core/Assets/ShaktoolVisualDefinitions.cs#L16)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.ShaktoolProjectiles.cs
 
@@ -649,7 +649,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/WorkRobotVisualDefinitions.cs
 
-- [ ] **WorkRobotVisualDefinitions.Frames / literal at L17** ([L17](../csharp/src/SuperMetroid.Core/Assets/WorkRobotVisualDefinitions.cs#L17)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **WorkRobotVisualDefinitions.Frames / literal at L17** ([L17](../csharp/src/SuperMetroid.Core/Assets/WorkRobotVisualDefinitions.cs#L17)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Game/WorkRobotInstructionProgramDefinitions.cs
 
@@ -1796,3 +1796,30 @@ Root integration: Root build1457 warnings/0errors; focused portrait flag confirm
 - Build1436warnings/0errors. `--lookup-stream3-background-maps` / `VerifyStream3BackgroundMaps()` passes4096nativewords,4096independent full-word edits, no stock output storage, input ownership, page isolation, canonical bundle hash and actual8192-byte constructor VRAM upload. The first complete implementation matched all words; no source-searching gameplay test was used. Root approved the exact residual placements/atlas anchors/silhouette/style, including copied blank attributes, after source-image/helper review. All rectangles, strides, repetitions and reflections remain calculated. Whole-field completion is mixed, with no timing/collision/pixel or unused-data exemption.
 
 Root integration: Root build1457warnings/0errors. Focused background check confirms4096nativewords,4096independent full-word edits, no stock output storage, ownership/isolation, canonical hash and actual8192-byte startup VRAM upload. Master 602 converted/95 retained-mixed/431 pending.
+
+
+### Batch 203: complete Work Robot frame registry
+
+- `WorkRobotVisualDefinitions.Frames / literal at L17` is ready for converted completion. The literal27-element factory array is replaced by yielding two twelve-pose facing groups and the semantic unpowered Neutral/Left/Right identities. Every powered address follows the two-byte header plus twelve five-byte OAM parts; the immediately following unpowered records use six parts. Installed names/order remain exact, including neutral-first compatibility order versus native left/neutral/right physical order. No generated registration table is cached.
+- Pinned A8:D1F1,D22F,D26D,D2AB,D2E9,D327,D365,D3A3,D3E1,D41F,D45D,D49B,D4D9,D517,D555,D593,D5D1,D60F,D64D,D68B,D6C9,D707,D745,D783 each explicitly declares000C; D7C1/D7E1/D801 each declares0006. Source inspection covered all27headers, not an inference from equal pointer differences. XML records the format and native anchors on the domain constants. Existing registry/verification consumers enumerate the calculated sequence without API adaptations outside owned files.
+- Build1436warnings/0errors. `--lookup-stream3-work-robot-registry` / `VerifyStream3WorkRobotRegistry()` confirms every native header and walks actual native record lengths, then matches the pre-change bank/pointer/name/order SHA256 `4ADE0C5ABD612C37688FA6578C9E49D4A902CB4BA9E7EEE3E2CC2F4D131DFB23`. Independent enumeration remains identical. Only registration completes; original WorkRobot Words timing inputs and actual composition/pixel payload remain required separately.
+
+Root integration: Root Verification build1457warnings/0errors; dedicated focused flag confirms exact native headers or control-flow contracts, installed identity/order and bounds as applicable. No gameplay search. Master 603 converted/96 retained-mixed/429 pending.
+
+
+### Batch 204: complete Shaktool frame registry
+
+- `ShaktoolVisualDefinitions.Frames / literal at L16` is ready for converted completion. The literal15-element factory array becomes an enumeration of three final-saw poses, the arm, eight semantic compass head identities and three primary-saw poses. Native two-byte headers plus one/four five-byte OAM parts calculate every record address; adjacent family origins derive from the preceding complete family. Names preserve the existing left/up-left/up/up-right/right/down-right/down/down-left direction domain. No registration output array is cached.
+- Individually inspected pinned headers AA:DF5C/DF63/DF6A/DF71 and E028/E02F/E036 all declare0001; DF78/DF8E/DFA4/DFBA/DFD0/DFE6/DFFC/E012 all declare0004. These actual part counts establish the stride, not equal-address differences alone. XML records source identities and native format; all callers already enumerate so no cross-owned API edits are needed.
+- Build1436warnings/0errors. Dedicated `--lookup-stream3-shaktool-registry` / `VerifyStream3ShaktoolRegistry()` passes all15native headers/record progression and exact pre-change bank/pointer/name/order SHA256 `1D724428CB3831C0C43A4987E4D05D772ED8762650C5DEEC4C5E68D69B506892`. Independent enumeration matches. Only this registry completes; actual compositions/pixels, motion and pending instruction timing do not inherit a disposition.
+
+Root integration: Root Verification build1457warnings/0errors; dedicated focused flag confirms exact native headers or control-flow contracts, installed identity/order and bounds as applicable. No gameplay search. Master 604 converted/96 retained-mixed/428 pending.
+
+
+### Batch 205: complete Nintendo fade entry definitions
+
+- `NintendoLogoFadePaletteFxProgramMechanicsDefinitions.Definitions` is ready for converted completion. The stored two-record array/read-only wrapper becomes an indexed semantic provider: boot sets its own CGRAM index and falls through into the shared body; copyright sets its index and explicitly branches there. Existing domain-named native pointer/slot constants retain their identities, and definition ordering/bounds remain unchanged. Each requested immutable record is created from that entry's actual control-flow role, with no cached generated table.
+- Pinned8D:C7AC sets0132 then reachesC7B0 directly; C7F2 sets0192, C7F6 isGoto andC7F8 targetsC7B0. Native definitionsE198/E19C select those two program starts. This conversion covers owner/definition/program/slot/branch metadata only; the shared fade's colors and three-frame dwell do not inherit a new disposition.
+- Build1436warnings/0errors. Dedicated `--lookup-stream3-nintendo-fade-entries` / `VerifyStream3NintendoFadeEntries()` confirms both actual native definition pointers, CGRAM instructions/slots, fallthrough-versus-Goto behavior, target, order, indexing/enumeration and invalid index rejection. No extra gameplay or palette sequence stepping.
+
+Root integration: Root Verification build1457warnings/0errors; dedicated focused flag confirms exact native headers or control-flow contracts, installed identity/order and bounds as applicable. No gameplay search. Master 605 converted/96 retained-mixed/427 pending.

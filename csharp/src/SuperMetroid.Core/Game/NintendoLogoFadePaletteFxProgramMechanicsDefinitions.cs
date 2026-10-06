@@ -68,28 +68,29 @@ public static class NintendoLogoFadePaletteFxProgramMechanicsDefinitions
     /// <summary>Either entry runs the shared fade for 24 frames.</summary>
     public const int CycleFrames = FrameCount * FrameDuration;
 
-    private static readonly NintendoLogoFadePaletteFxProgramDefinition[] Definitions =
-    [
-        new(
-            NintendoLogoFadePaletteFxProgramOwner.BootLogo,
-            BootLogoDefinitionPointer,
-            BootLogoEntry,
-            BootLogoColorByteIndex,
-            BranchesToSharedBody: false),
-        new(
-            NintendoLogoFadePaletteFxProgramOwner.Copyright,
-            CopyrightDefinitionPointer,
-            CopyrightEntry,
-            CopyrightColorByteIndex,
-            BranchesToSharedBody: true),
-    ];
-    private static readonly IReadOnlyList<NintendoLogoFadePaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+    private static readonly DefinitionList ReadOnlyDefinitions = new();
 
-    /// <summary>The boot-logo and copyright entries in definition order.</summary>
-    public static IReadOnlyList<NintendoLogoFadePaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+    /// <summary>The boot-logo and copyright entries in native definition order, calculated from their semantic entry contracts.</summary>
+    public static IReadOnlyList<NintendoLogoFadePaletteFxProgramDefinition> All => ReadOnlyDefinitions;
 
+    /// <summary>$8D:E198/E19C select two distinct entry operations: boot sets its slot then falls through; copyright sets its slot then explicitly branches to the shared fade body.</summary>
+    private sealed class DefinitionList : IReadOnlyList<NintendoLogoFadePaletteFxProgramDefinition>
+    {
+        public int Count => 2;
+        public NintendoLogoFadePaletteFxProgramDefinition this[int index] => index switch
+        {
+            0 => new(NintendoLogoFadePaletteFxProgramOwner.BootLogo, BootLogoDefinitionPointer,
+                BootLogoEntry, BootLogoColorByteIndex, BranchesToSharedBody: false),
+            1 => new(NintendoLogoFadePaletteFxProgramOwner.Copyright, CopyrightDefinitionPointer,
+                CopyrightEntry, CopyrightColorByteIndex, BranchesToSharedBody: true),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+        public IEnumerator<NintendoLogoFadePaletteFxProgramDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>Returns one shared timed-record pointer.</summary>
     public static ushort FramePointer(int frame)
     {

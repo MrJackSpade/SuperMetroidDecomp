@@ -11,7 +11,7 @@ namespace SuperMetroid.Desktop;
 /// managed queue transfers pacing to one background worker so waveOut cannot block WinForms
 /// painting. Queue exhaustion and worker/device failure remain loud on the submitting thread.
 /// </remarks>
-internal sealed partial class WaveOutAudioDevice : IDisposable
+internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
 {
     private const uint WaveMapper = uint.MaxValue;
     private const uint HeaderDone = 0x0000_0001;
@@ -32,7 +32,7 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
     private bool prerollRequired = true;
     private bool disposed;
     private readonly WaveOutQueueHealth queueHealth = new();
-    internal WaveOutQueueHealthSnapshot QueueHealth => queueHealth.Snapshot(pendingFrames.Count);
+    public WaveOutQueueHealthSnapshot QueueHealth => queueHealth.Snapshot(pendingFrames.Count);
 
     public WaveOutAudioDevice(
         int sampleRate,
@@ -99,7 +99,7 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
     /// A failed worker remains eligible so Submit reports its original device failure
     /// through the existing recoverable audio boundary instead of freezing gameplay.
     /// </summary>
-    internal bool CanAcceptFrame => Volatile.Read(ref workerFailure) is not null || pendingFrames.HasCapacity;
+    public bool CanAcceptFrame => Volatile.Read(ref workerFailure) is not null || pendingFrames.HasCapacity;
     public void Submit(ReadOnlySpan<short> samples)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
@@ -415,8 +415,8 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
             throw CreateError(result, operation);
     }
 
-    private static InvalidOperationException CreateError(uint result, string operation) =>
-        new($"{operation} failed with multimedia error {result}.");
+    private static WaveOutDeviceException CreateError(uint result, string operation) =>
+        new(result, operation);
 
     private static void RecordFailure(List<Exception> failures, uint result, string operation)
     {

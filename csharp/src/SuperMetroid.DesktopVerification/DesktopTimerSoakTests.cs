@@ -50,7 +50,7 @@ internal static partial class Program
                 var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
                 string adapter = await worker.Ready;
                 if (visible) VisibleSoakWindow.ShowWithoutActivation(form.Handle);
-                var output = Field<WaveOutAudioDevice>(control, "audioDevice");
+                var output = Field<RecoveringAudioOutput>(control, "audioDevice");
                 counter.EmulatedFrameMeasured += Measure;
                 counter.LateFramesRecorded += RecordDiscard;
                 ushort startFrame = game.FrameNumber;

@@ -39,7 +39,7 @@ public sealed partial class PlayableGameControl : UserControl
     private readonly string? installedAudioDirectory;
     private readonly string playerDataDirectory;
     private GameContentIdentity? installedContentIdentity;
-    private WaveOutAudioDevice? audioDevice;
+    private RecoveringAudioOutput? audioDevice;
     private ControllerInputRecorder? inputRecorder;
     private DebuggerSaveStateStore stateStore = null!;
     private int replayFrameIndex;
@@ -242,11 +242,11 @@ public sealed partial class PlayableGameControl : UserControl
             audioEngine = new SpcAudioEngine(
                 selectedAudioAssets,
                 new ManagedSpcPlayer());
-            audioDevice = new WaveOutAudioDevice(
+            audioDevice = new RecoveringAudioOutput(() => new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,
                 SpcAudioEngine.ChannelCount,
                 SpcAudioEngine.StereoFramesPerVideoFrame * SpcAudioEngine.ChannelCount,
-                gameOptions.MasterVolumePercent);
+                gameOptions.MasterVolumePercent));
         }
         if (replay is null)
             LoadSaveRamFromDisk();
@@ -536,11 +536,11 @@ public sealed partial class PlayableGameControl : UserControl
             audioEngine = new SpcAudioEngine(
                 LoadAudioAssets(),
                 restoredAudio);
-            audioDevice = new WaveOutAudioDevice(
+            audioDevice = new RecoveringAudioOutput(() => new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,
                 SpcAudioEngine.ChannelCount,
                 SpcAudioEngine.StereoFramesPerVideoFrame * SpcAudioEngine.ChannelCount,
-                gameOptions.MasterVolumePercent);
+                gameOptions.MasterVolumePercent));
         }
 
         // Begin a new crash recorder at the restored boundary. The debugger state itself
@@ -692,8 +692,8 @@ public sealed partial class PlayableGameControl : UserControl
                 audioFrameRecovery.Run(() =>
                 {
                     ReadOnlySpan<short> samples = audioEngine.RenderFrame(frame.AudioCommands);
-                    audioDevice.Submit(samples);
                     game.SetAudioAcknowledgements(audioEngine.ReadAcknowledgements());
+                    audioDevice.Submit(samples);
                 }, exception =>
                 {
                     lastRecoverableError = errorReporter?.Report(exception, new GitHubErrorContext(

@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 546,
+  "remainingTableDefinitionCount": 547,
   "fileCount": 523,
   "entries": [
     {
@@ -3042,8 +3042,8 @@
       "name": "ChootPatternDefinitions.Patterns",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "converted",
-      "implementationCommit": "5670b1983384c99fbee47e1e63f84324ab7186ed"
+      "state": "pending",
+      "reopeningReason": "Selector dispatch is converted, but loop Y advances30/28/32 remain unresolved functional trajectory inputs; no accepted exception."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ChozoCarryMotionDefinitions.cs",
@@ -21484,6 +21484,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 561,
+  "convertedSinceSnapshot": 560,
   "justifiedRetainedSinceSnapshot": 21
 }

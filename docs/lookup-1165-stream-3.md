@@ -137,7 +137,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs
 
-- [x] **ChootPatternDefinitions.Patterns** ([L33](../csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [ ] **ChootPatternDefinitions.Patterns** ([L33](../csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs
 
@@ -694,7 +694,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 - Changed production: `EnemyPickupDefinitions.cs`, `EnemyDeathExplosionDefinitions.cs`, `EnemyPickupInstructionProgramDefinitions.cs`, `FirefleaInstructionProgramDefinitions.cs`. Confirmation extends the assigned stream partial; no additional dependencies.
 ### Confirmed batch 4: Choot control and motion selection
 
-- Converted two selector/layout definitions. Motion selection is semantic dispatch and visual operand addresses calculate. Idle/jump/fall control structure calculates, but the Words aggregate remains pending for independent idle1 and jump/fall8+1 holds.
+- Converted the visual operand layout. Motion selection is semantic dispatch, but Patterns remains pending for independent loop Y advances30/28/32. Idle/jump/fall control structure calculates, but the Words aggregate remains pending for independent idle1 and jump/fall8+1 holds.
 - Idle disables off-screen processing, displays one tick and sleeps. Jump/fall enable off-screen processing, display eight ticks then one tick and sleep; their final visual operands remain separate. The physical program layouts supply record addresses without cached word arrays.
 - Shared path identities are named once in `ChootFallingPathDefinitions.cs`; selection retains the five original loop advances. The three original motion arrays are still required. Their former retention claims based on correction complexity, readability or scaling were deleted, as were obsolete retention claims in the converted selector/control files. No retained exception is asserted.
 - Confirmation: Verification build passed (1431 warnings, zero errors), `--lookup-stream-3` passed all five pointers and native indirect loop advances ($A2:DF5E/$DF6A), all eleven native control words/five visual operand addresses ($D82C-$D84A), complete word/byte ownership, alias rejection and index boundaries.
@@ -1213,3 +1213,8 @@ b8895a6e3 calculates the rectangular perimeters at82:D00B/D0AD/D177:32/40/42smal
 Bounds/dimensions,six appearance roles,draw order,palette choices and pixel artwork remain required. FileSelectPresentation.sprites stays pending; no exception or aggregate closure. Inventory561converted/21retained-mixed/546pending unchanged.
 
 Root Verification1450warnings/zero errors; dedicated --lookup-stream3-file-select-borders passes114direct native parts,456independent coordinate/appearance edits,reversed orders and expanded compositions. ResourceAudit0warnings/0errors; FileSelect provider closure includes MenuBorderParts. These checks confirm composition output, not whole-menu player validation.
+## Reopened Choot loop-distance inputs
+
+ee6aae2b3 corrects the earlier whole-entry completion claim for ChootPatternDefinitions.Patterns. Semantic selector dispatch remains converted, but the selected loop advances30/28/32 at A2:D974/DA9E/DBC8 (normal also DD42/DF5C) remain required. Native DFCE uses these values to calculate jump height, and E0EB adds them to each loop origin; they are functional trajectory inputs. No complexity, provenance or visual-shape exception applies. The three sampled paths and plateau holds remain separately pending. Inventory560converted/21retained-mixed/547pending.
+
+Root Verification1450warnings/zero errors; --choot-pattern-definitions passes five native selectors/distances,450physical path frames,20initializers,five complete fall loops and source-read guards. Root checked native DFCE and E0EB consumers. This accounting correction preserves behavior.

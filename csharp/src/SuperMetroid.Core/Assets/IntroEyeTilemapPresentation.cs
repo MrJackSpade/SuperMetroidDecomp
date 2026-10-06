@@ -6,25 +6,52 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Four editable 3x2 Samus-eye BG2 rectangles; blink timing stays in code.</summary>
 public sealed class IntroEyeTilemapPresentation
 {
-    private readonly ushort[][] frames;
+    private readonly EyeRectangle[] frames;
 
-    private IntroEyeTilemapPresentation(ushort[][] frames) => this.frames = frames;
+    private IntroEyeTilemapPresentation(ushort[][] frames) => this.frames = frames.Select(words => new EyeRectangle(words)).ToArray();
 
     /// <summary>Identity of every selected eye rectangle in its compiled blink-selector order.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
     {
         content.Append("frames", frames.Length);
-        foreach (ushort[] frame in frames)
-            content.AppendWords("frame", frame);
+        foreach (EyeRectangle frame in frames)
+            content.AppendWords("frame", frame.Words);
     });
 
     public ReadOnlySpan<ushort> FrameWords(int index)
     {
         if ((uint)index >= frames.Length)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return frames[index];
+        return frames[index].Words;
     }
 
+    private sealed class EyeRectangle
+    {
+        private readonly ushort origin;
+        private readonly ushort[]? supplied;
+        internal EyeRectangle(ushort[] words)
+        {
+            origin = words[0];
+            for (int cell = 0; cell < words.Length; cell++)
+            {
+                if (words[cell] == Calculate(cell)) continue;
+                supplied = words;
+                break;
+            }
+        }
+        private ushort Calculate(int cell) => unchecked((ushort)(origin +
+            cell % IntroEyeTilemapFormat.Columns + cell / IntroEyeTilemapFormat.Columns * IntroEyeTilemapFormat.UnresolvedNativeRowStride));
+        internal ReadOnlySpan<ushort> Words
+        {
+            get
+            {
+                if (supplied is not null) return supplied;
+                var output = new ushort[IntroEyeTilemapFormat.CellsPerFrame];
+                for (int cell = 0; cell < output.Length; cell++) output[cell] = Calculate(cell);
+                return output;
+            }
+        }
+    }
     public static IntroEyeTilemapPresentation Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -92,6 +119,8 @@ public static class IntroEyeTilemapFormat
     public const int Columns = 3;
     public const int Rows = 2;
     public const int CellsPerFrame = Columns * Rows;
+    /// <summary>$8C:D785/D795/D7A5/D7B5: second tile row begins16 characters after the first; this selected atlas geometry remains required.</summary>
+    internal const int UnresolvedNativeRowStride = 16;
     public const string FileName = "intro-samus-eye-frames.json";
 
     public static string FrameId(int index)

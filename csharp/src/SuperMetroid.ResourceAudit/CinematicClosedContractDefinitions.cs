@@ -19,7 +19,7 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs", "55FB939A7977CA89913E2250DFCA24B3981F78FFB1C3B4C93D9BCCBCB8B8075F")],
             "The sole private-constructor loader validates all sheets/map dimensions and requires each of the 31 compiled sprite selectors, not merely 31 arbitrary entries. DrawSprite selects the complete sparse pointer set. Blank timed entries are not artwork. Tile DMA, clipping and scene order are not certified."),
         new("SuperMetroid.Core.Assets.IntroEyeTilemapPresentation", "intro-complete-eye-rectangles", ["FrameWords"],
-            [new("csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs", "216CD3CA1BF9968DB46243CEAC79FC6D74F9AED0C9D80ECEFA4DF98371047262")],
+            [new("csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs", "11B8714A1B4BC5229A9A7C0C3544256DE803D79E2193622112C3FED22CBE2214")],
             "Private construction requires all four stable ordered six-cell eye rectangles and compiles independent words. FrameWords guards the index and returns a read-only span. Blink phase selection and portrait placement are not certified."),
         new("SuperMetroid.Core.Assets.IntroCaretSpritePresentation", "intro-complete-visible-caret", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Assets/IntroCaretSpritePresentation.cs", "ABE095FDF79B509ECDD3AEBBAF28569D5A89958AFE7B6C79729A4D678C1F640E"),

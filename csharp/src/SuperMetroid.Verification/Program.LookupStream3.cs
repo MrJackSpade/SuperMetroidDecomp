@@ -6,6 +6,105 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3IntroEyeRectangles(ISnesAddressSpace rom)
+    {
+        ushort[][] native = Enumerable.Range(0, 4).Select(frame => Enumerable.Range(0, 6)
+            .Select(cell => ReadVerificationWord(rom, 0x8cd785 + 16 * frame + 2 * cell)).ToArray()).ToArray();
+        IntroEyeTilemapPresentation stock = Load(native);
+        Confirm(stock, native);
+        for (int frame = 0; frame < 4; frame++)
+        for (int cell = 0; cell < 6; cell++)
+        {
+            ushort[][] edited = native.Select(words => (ushort[])words.Clone()).ToArray();
+            edited[frame][cell] ^= 0x4401;
+            Confirm(Load(edited), edited);
+            Confirm(stock, native);
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameWords(-1).ToArray(), "negative eye frame");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameWords(4).ToArray(), "upper eye frame");
+        Console.WriteLine("Intro eye rectangles:24 native cells,24 independent edits, content identities and bounds pass; four origins/row stride/artwork remain required.");
+
+        static void Confirm(IntroEyeTilemapPresentation selected, ushort[][] expected)
+        {
+            for (int frame = 0; frame < expected.Length; frame++)
+                AssertTrue(expected[frame].AsSpan().SequenceEqual(selected.FrameWords(frame)), $"eye rectangle {frame}");
+            string identity = SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
+            {
+                content.Append("frames", expected.Length);
+                foreach (ushort[] words in expected) content.AppendWords("frame", words);
+            });
+            AssertEqual(identity, selected.ContentIdentity, "eye rectangle original identity framing");
+        }
+        static IntroEyeTilemapPresentation Load(ushort[][] frames)
+        {
+            var document = new IntroEyeTilemapDocument
+            {
+                Version = IntroEyeTilemapFormat.Version,
+                Frames = frames.Select((words, frame) => new IntroEyeTilemapFrame
+                {
+                    Id = IntroEyeTilemapFormat.FrameId(frame),
+                    Cells = words.Select(raw =>
+                    {
+                        var word = new SnesBgTilemapWord(raw);
+                        return new RoomBackgroundTilemapCell
+                        {
+                            TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
+                            TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
+                            Palette = word.PaletteIndex, Priority = word.HasPriority,
+                            FlipX = word.FlipHorizontally, FlipY = word.FlipVertically,
+                        };
+                    }).ToArray(),
+                }).ToArray(),
+            };
+            using var json = new MemoryStream();
+            IntroEyeTilemapPresentation.Write(json, document);
+            json.Position = 0;
+            return IntroEyeTilemapPresentation.Load(json);
+        }
+    }
+    private static void VerifyStream3IntroDivider(ISnesAddressSpace rom)
+    {
+        var native = new ushort[IntroFinalLineTilemapFormat.CellCount];
+        for (int index = 0; index < native.Length; index++)
+            native[index] = ReadVerificationWord(rom, IntroCinematicRomData.Assets.FinalTextLine + 2 * index);
+        IntroFinalLineTilemap stock = Load(native);
+        AssertTrue(native.AsSpan().SequenceEqual(stock.Words.Span), "all128 native intro divider cells");
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        AssertTrue(typeof(IntroFinalLineTilemap).GetField("suppliedWords", fields)!.GetValue(stock) is null,
+            "native divider retains no generated lookup");
+        for (int changed = 0; changed < native.Length; changed++)
+        {
+            var edited = (ushort[])native.Clone();
+            edited[changed] ^= 0x4401;
+            IntroFinalLineTilemap selected = Load(edited);
+            AssertTrue(edited.AsSpan().SequenceEqual(selected.Words.Span), $"independent divider cell edit {changed}");
+            AssertTrue(native.AsSpan().SequenceEqual(stock.Words.Span), "previous divider instance remains immutable");
+        }
+        Console.WriteLine("Intro divider:128 native cells and128 independent tile/palette/flip edits pass; base words and selected arrangement remain required.");
+
+        static IntroFinalLineTilemap Load(ushort[] words)
+        {
+            var cells = words.Select(raw =>
+            {
+                var word = new SnesBgTilemapWord(raw);
+                return new RoomBackgroundTilemapCell
+                {
+                    TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
+                    TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
+                    Palette = word.PaletteIndex, Priority = word.HasPriority,
+                    FlipX = word.FlipHorizontally, FlipY = word.FlipVertically,
+                };
+            }).ToArray();
+            using var json = new MemoryStream();
+            IntroFinalLineTilemap.Write(json, new IntroFinalLineTilemapDocument
+            {
+                Version = IntroFinalLineTilemapFormat.Version, Cells = cells,
+            });
+            json.Position = 0;
+            return IntroFinalLineTilemap.Load(json);
+        }
+    }
+
     private static void VerifyStream3HandBeamBodyLayout()
     {
         ushort[] nativeOperands = [0x9a46, 0x9a4a, 0x9a4e, 0x9a5a, 0x9a66, 0x9a72,

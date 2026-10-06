@@ -26,6 +26,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream3-intro-layouts"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro layout oracle revision");
+    VerifyStream3IntroEyeRectangles(rom);
+    VerifyStream3IntroDivider(rom);
+    return 0;
+}
 if (args is ["--lookup-stream5-ceres-source-pages"])
 {
     var ceresPageOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

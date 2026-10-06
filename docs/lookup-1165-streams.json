@@ -3088,7 +3088,7 @@
     ,{"stream":4,"path":"csharp/src/SuperMetroid.Core/Assets/TitleAmbientColorDefinitions.cs","purpose":"Calculate title tube-light ramp while preserving independent installed overrides; endpoint disposition remains pending"}
     ,{"purpose":"Native selector and zero live read confirmation preserving real projectile lifetimes","stream":5,"path":"csharp/src/SuperMetroid.Verification/Program.SpacePirateProjectileInstructionProgramDefinitions.cs"}
     ,{"purpose":"Confirm identified missing installed selector through actual initialization and sleep","stream":5,"path":"csharp/src/SuperMetroid.Verification/Program.PolypInstructionProgramDefinitions.cs"}
-    ,{"purpose":"Narrow Polyp dispatch branch only, delegating to owned named selector","stream":5,"path":"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectorDefinitions.cs"}
+    ,{"purpose":"Narrow Polyp dispatch branch and27 Phantoon selector enumeration/dispatch only; preserve other families","stream":5,"path":"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectorDefinitions.cs"}
     ,{"purpose":"Calculate lava triangle and mirrored afterglow aliases; unresolved inputs stay required","stream":4,"path":"csharp/src/SuperMetroid.Core/Assets/ZebesExplosionAmbientColorDefinitions.cs"}
     ,{"purpose":"Calculate crust and cloud fades preserving independent installed inputs","stream":4,"path":"csharp/src/SuperMetroid.Core/Assets/ZebesExplosionLayerFadeColorDefinitions.cs"}
     ,{"purpose":"Calculate black suffix and repeated prefixes preserving independent supplied colors","stream":4,"path":"csharp/src/SuperMetroid.Core/Assets/ZebesExplosionForegroundColorDefinitions.cs"}
@@ -3217,7 +3217,8 @@
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/SamusHurtColorDefinitions.cs","stream":1,"purpose":"Exact hurt RGB blend and shared intro channels; weights,slot roles,base levels and independent edits remain required"}
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/SamusBodyFrameDefinitions.cs","stream":1,"purpose":"Exact named standing/crouching X-ray upper-half and moving/aiming-pose lower-gait and crouch/jump/fall aliases; preserve independent components,counts,bounds and hashes; source artwork required"}
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.MotherBrainBabyInstructionProgramDefinitions.cs","stream":3,"purpose":"Message-only correction to accurately describe native word/rejection/allocation checks; preserve assertions and do not claim live producer coverage"}
-    ,{"path":"csharp/src/SuperMetroid.Core/Assets/EscapeTimerGlyphDefinitions.cs","stream":1,"purpose":"Exact native glyph grouping/shared tiles,zero/upper-eight glyph reflections, repeated separator and outline operation; preserve independent PNG edits and required footprints,inks,policy/deviations"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Assets/EscapeTimerGlyphDefinitions.cs","stream":1,"purpose":"Exact native glyph grouping/shared tiles,zero/upper-eight glyph reflections, repeated separator,glyph-one stem/flag/foot geometry and outline operation; preserve independent PNG edits and required footprints,inks,policy/deviations"}
+,{"path":"csharp/src/SuperMetroid.Core/Assets/PhantoonBg2FrameDefinitions.cs","stream":5,"purpose":"Named Phantoon frame-role/compass operations for27selectors only; preserve independent art and timing requirements"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

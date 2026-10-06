@@ -6,13 +6,44 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>The four-row illustrated-page divider, as ordered editable BG tile references.</summary>
 public sealed class IntroFinalLineTilemap
 {
-    private readonly ushort[] words;
+    private readonly ushort[]? suppliedWords;
+    private readonly ushort blankWord, firstInteriorWord;
 
-    private IntroFinalLineTilemap(ushort[] words) => this.words = words;
+    private IntroFinalLineTilemap(ushort[] words)
+    {
+        blankWord = words[0];
+        firstInteriorWord = words[IntroFinalLineTilemapFormat.UnresolvedMarginColumns];
+        for (int index = 0; index < words.Length; index++)
+        {
+            if (words[index] == CalculateWord(index)) continue;
+            suppliedWords = words;
+            break;
+        }
+    }
 
     /// <summary>Native word order: 32 columns in each of four consecutive rows.</summary>
-    public ReadOnlyMemory<ushort> Words => words;
+    public ReadOnlyMemory<ushort> Words
+    {
+        get
+        {
+            if (suppliedWords is not null) return suppliedWords;
+            var output = new ushort[IntroFinalLineTilemapFormat.CellCount];
+            for (int index = 0; index < output.Length; index++) output[index] = CalculateWord(index);
+            return output;
+        }
+    }
 
+    private ushort CalculateWord(int index)
+    {
+        int column = index % IntroFinalLineTilemapFormat.Columns;
+        int row = index / IntroFinalLineTilemapFormat.Columns;
+        int margin = IntroFinalLineTilemapFormat.UnresolvedMarginColumns;
+        int interiorColumns = IntroFinalLineTilemapFormat.Columns - 2 * margin;
+        if (column < margin || column >= margin + interiorColumns) return blankWord;
+        // Paired screen rows select the upper/lower halves of each two-row tile strip.
+        int tileStripRow = 2 * (row & 1) + (row >> 1);
+        return unchecked((ushort)(firstInteriorWord + tileStripRow * interiorColumns + column - margin));
+    }
     public static IntroFinalLineTilemap Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);
@@ -64,5 +95,7 @@ public static class IntroFinalLineTilemapFormat
     public const int Columns = 32;
     public const int Rows = 4;
     public const int CellCount = Columns * Rows;
+    /// <summary>$8B:A72B-A82A subtitle tilemap: four blank columns at each side; this chosen margin remains required.</summary>
+    internal const int UnresolvedMarginColumns = 4;
     public const string FileName = "intro-final-text-divider.json";
 }

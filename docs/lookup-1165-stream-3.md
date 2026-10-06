@@ -1248,3 +1248,8 @@ Root build1450warnings/0errors;12native mechanics words,ninevisual addresses,exa
 Conversion8134fd936 completes MotherBrainHandBeamBodyInstructionDefinitions.VisualOperands. An immutable indexed view computes three entry-frame addresses,eight dust-record visual addresses,the pre-emission frame and three post-emission frames from native A9:9A42-9AC6 command widths. No cached address array remains. Selected dust coordinates,parameters and holds remain REQUIRED.
 
 Root build1450warnings/0errors;15native operand identities,index/enumeration bounds and all52mechanics+15visual words through guarded production readers match the pinned ROM with list reads forbidden. This is reader-level confirmation,not a full attack replay. Inventory587converted/21retained-mixed/520pending.
+
+
+### Integrated intro layout relationships (ef8d67265 /39cf275fd)
+
+Divider cells calculate from a blank word and interior origin across paired tile-strip rows. Eye frames calculate four3x2rectangles from their individual atlas origins and16tile row stride. Root inspected native8B:A72B-A82A and8C:D785/D795/D7A5/D7B5. Focused --lookup-stream3-intro-layouts passes128divider and24eye native cells,152independent full-word edits,previous-instance isolation,eye original hash framing and index bounds. Verification1452warnings/0errors;ResourceAudit0/0. Both entries remain REQUIRED: chosen base words/origins,margins/arrangement,atlas geometry and pixels need dispositions. No retention or aggregate closure;master595/21/512 unchanged.

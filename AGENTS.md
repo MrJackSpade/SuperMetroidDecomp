@@ -43,6 +43,30 @@
   common directory. Never commit either. If delivery is uncertain, reconcile the
   existing attempt before posting again.
 
+## Gameplay parity and hardware lag
+
+- The standing project goal is functionally exact cartridge gameplay with hardware
+  lag eliminated. Preserve the cartridge's gameplay-update order, state changes,
+  collision rules, RNG behavior, and actual input consumption. Smooth execution is
+  an intended improvement, not a parity defect.
+- Compare every gameplay update across a supplied recording, including entry,
+  transitions, combat, and the recorded ending. Do not require reproducing SNES
+  CPU stalls, repeated video refreshes, or elapsed wall-clock slowdown. Do not add
+  artificial lag merely to match an SMV's video-frame numbers.
+- Preserve behaviorally meaningful timers, deliberate waits, animation cadence,
+  and input edges. Hardware lag elimination does not authorize speeding up or
+  skipping authored gameplay behavior.
+- Keep original SMVs immutable. A reusable converter may derive a separate port
+  replay and source-frame-to-update map from a verified native input-consumption
+  trace. Never infer removable frames merely from duplicate inputs, unchanged
+  images, or unchanged actor positions. See [the replay contract](docs/smv-gameplay-parity.md).
+- Full-movie parity requires a single initial-state import followed by the
+  converted input timeline. Do not feed recorded Samus state, RNG, enemy state,
+  or expected results back into the port during replay. Isolated subsystem
+  comparisons remain useful diagnostics but do not establish full-movie parity.
+- Report the original movie coverage, compared update count, input alignment,
+  compared properties, and any remaining mismatch or unverified coverage.
+
 ## Diagnostic references
 
 - [InsaneFirebat Super Metroid disassembly](https://github.com/InsaneFirebat/sm_disassembly)

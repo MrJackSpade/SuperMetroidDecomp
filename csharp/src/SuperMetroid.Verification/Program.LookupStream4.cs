@@ -2286,6 +2286,113 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => KzanInstructionProgramDefinitions.MechanicsWord(invalid), "Kzan control index bounds");
     }
+    private static void ExportLookupStream4DraygonHealthSource(CartridgeImportAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] tiles = SnesGraphics.DecodePlanarTiles(Enumerable.Range(0, 0x2000).Select(i => rom.ReadByte(0xb0c800 + i)).ToArray(), 4, 16, out int width, out int height);
+        byte[] roomPlanar = RomDataReader.Decompress(rom, RoomTilesetDefinitions.Get(0x1c).CharacterAddress);
+        byte[] bgTiles = SnesGraphics.DecodePlanarTiles(roomPlanar, 4, 16, out int bgWidth, out _);
+        string directory = Path.GetFullPath("csharp/test-temp/draygon-health-source"); Directory.CreateDirectory(directory);
+        var canvas = new byte[256 * 256];
+        int cursor = 0xa5b240;
+        while (Word(cursor) != 0xffff)
+        {
+            int first = (Word(cursor) - 0x2000) / 2, count = Word(cursor + 2); cursor += 4;
+            for (int cell = 0; cell < count; cell++, cursor += 2)
+            {
+                int attr = Word(cursor), tile = attr & 0x3ff;
+                for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++)
+                {
+                    int sx = (attr & 0x4000) == 0 ? x : 7 - x, sy = (attr & 0x8000) == 0 ? y : 7 - y;
+                    byte ink = bgTiles[(tile / 16 * 8 + sy) * bgWidth + tile % 16 * 8 + sx];
+                    canvas[((first + cell) / 32 * 8 + y) * 256 + (first + cell) % 32 * 8 + x] = ink;
+                }
+            }
+        }
+        for (int endpoint = 0; endpoint < 2; endpoint++)
+        {
+            var palette = Enumerable.Range(0, 16).Select(i => SnesGraphics.DecodeBgr555Color(Word(0xa5a277 + i * 2))).ToArray();
+            for (int shade = 0; shade < 4; shade++) palette[9 + shade] = SnesGraphics.DecodeBgr555Color(Word(0xa596af + endpoint * 7 * 8 + shade * 2));
+            palette[0] = new Rgba32(35,35,35,255);
+            byte[] enlarged = Enumerable.Range(0, width * height * 16).Select(i => tiles[i / (width * 4) / 4 * width + i % (width * 4) / 4]).ToArray();
+            using (var output = File.Create(Path.Combine(directory, $"atlas-{endpoint}.png"))) IndexedPng.Write(output, width * 4, height * 4, enlarged, palette);
+            byte[] body = Enumerable.Range(0, 512 * 512).Select(i => canvas[i / 512 / 2 * 256 + i % 512 / 2]).ToArray();
+            using (var output = File.Create(Path.Combine(directory, $"body-{endpoint}.png"))) IndexedPng.Write(output, 512, 512, body, palette);
+            if (endpoint == 0) for (int shade = 0; shade < 4; shade++)
+            {
+                int slot = 9 + shade;
+                using var output = File.Create(Path.Combine(directory, $"body-slot-{slot}.png"));
+                IndexedPng.Write(output, 512, 512, body.Select(pixel => (byte)(pixel == slot ? 1 : 0)).ToArray(), [new Rgba32(35,35,35,255),new Rgba32(255,220,0,255)]);
+                Console.WriteLine($"Native Draygon B23E slot{slot}: {canvas.Count(pixel => pixel == slot)} pixels; separate sprite atlas {tiles.Count(pixel => pixel == slot)}.");
+            }
+        }
+    }
+
+    private static void VerifyLookupStream4DraygonHealth(ISnesAddressSpace rom)
+    {
+        VerifyLookupStream4DraygonColors(rom);
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        byte[] json = DraygonColorExtractor.Extract(rom);
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        for (int edit = -1; edit < 96; edit++)
+        {
+            var document = JsonSerializer.Deserialize<DraygonColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+            if (edit >= 0)
+            {
+                int word = edit / 3; var rgb = document.HealthBands[word / 4][word % 4];
+                document.HealthBands[word / 4][word % 4] = (edit % 3) switch
+                { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
+            }
+            var selected = DraygonColorCatalog.Load(new MemoryStream(DraygonColorCatalog.Write(document)));
+            string hash = SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
+            {
+                content.AppendWords("intro", document.Intro.Select(Pack).ToArray()); content.AppendWords("background", document.Background.Select(Pack).ToArray());
+                content.AppendWords("sprite", document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash", document.WhiteFlash.Select(Pack).ToArray());
+                content.AppendWordFrames("healthBands", document.HealthBands.Select(row => row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(hash, selected.ContentIdentity, "Draygon health independent RGB edits preserve full resource identity");
+            for (int band = 0; band < 8; band++)
+            {
+                var cgram = new SnesCgram(); for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                selected.ApplyHealthBand(cgram, (ushort)(band * 2));
+                for (int color = 0; color < 256; color++)
+                    AssertEqual(color is >= 89 and < 93 ? Pack(document.HealthBands[band][color - 89]) : (ushort)0x1234, cgram.Colors[color], "Exact changed health transfer and neighbors");
+                for (int shade = 0; shade < 4; shade++)
+                    AssertEqual((ushort)(Word(0xa596af + (band * 4 + shade) * 2) ^ (edit >= 0 && edit / 3 == band * 4 + shade ? 1 << (edit % 3 * 5) : 0)),
+                        selected.ResolveHealthBand(band, shade), "All native shades and independent endpoint/intermediate edits");
+            }
+            if (edit is -1 or 0 or 95)
+            {
+                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort,RoomCharacterAtlas>(), new Dictionary<ushort,EnemyPaletteSheet>(), draygonColors: selected);
+                var enemies = new RoomEnemySystem { TileArtwork = artwork };
+                var cgram = new SnesCgram();
+                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new ProjectileCompositionForbiddenBus());
+                RoomEnemySlot body = enemies.Slots[0]; var state = new DraygonEnemyState(body);
+                var update = typeof(RoomEnemySystem).GetMethod("UpdateDraygonHealthPalette",flags)!.CreateDelegate<Action<DraygonEnemyState>>(enemies);
+                var hurt = typeof(RoomEnemySystem).GetMethod("ApplyDraygonHurt",flags)!.CreateDelegate<Action<RoomEnemySlot,DraygonEnemyState,SamusState?>>(enemies);
+                for (int band = 0; band < 8; band++)
+                {
+                    body.Health = (ushort)((7 - band) * 750); state.HealthPaletteTableByteIndex = ushort.MaxValue;
+                    update(state);
+                    AssertEqual((ushort)(band * 2), state.HealthPaletteTableByteIndex, "Actual health threshold selects native color band");
+                    for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer copy");
+                    cgram.SetColor(89, 0x1234); update(state);
+                    AssertEqual((ushort)0x1234, cgram.Colors[89], "Same health band does not spuriously recopy colors");
+                    body.FlashTimer = 2; hurt(body,state,null);
+                    for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
+                    body.FlashTimer = 0; hurt(body,state,null);
+                    for (int color = 0; color < 16; color++)
+                    {
+                        AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands[band][color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");
+                        AssertEqual(Pack(document.Sprite[color]),cgram.Colors[240 + color],"Separate sprite paint remains independent");
+                    }
+                }
+            }
+        }
+        Console.WriteLine("Draygon health:32 native colors/zero overrides,96RGB edits/hash,776full copies,48actual health calls and48actual hurt calls/read guard/held band/restore pass.");
+    }
     private static void VerifyLookupStream4DraygonColors(ISnesAddressSpace rom)
     {
         byte[] original = DraygonColorExtractor.Extract(rom);
@@ -2294,7 +2401,8 @@ internal static partial class Program
         int Stored(string field) => ((System.Collections.IDictionary)typeof(DraygonColorCatalog)
             .GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count;
         AssertEqual(0, Stored("whiteFlash"), "Draygon stock flash is calculated without stored colors");
-        AssertEqual(8, Stored("healthBands"), "Draygon health stores only unresolved endpoint colors");
+        var health = (DraygonHealthPaintDefinitions)typeof(DraygonColorCatalog).GetField("healthBands", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, ((Dictionary<int, ushort>)typeof(DraygonHealthPaintDefinitions).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(health)!).Count, "All native Draygon health colors calculate without overrides");
         for (int variation = -1; variation < 4; variation++)
         {
             var document = JsonSerializer.Deserialize<DraygonColorDocument>(original, options)!;

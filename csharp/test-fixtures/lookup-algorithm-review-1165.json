@@ -12504,4 +12504,13 @@
   "completed": [
     "PhantoonColorCatalog.healthBands"
   ]
+},"draygonHealthPaintComplete":{
+  "workerCommit": "7a461a2142505513477d986c21651f56c202e56f",
+  "disposition": [
+    "All32colors calculate through selected gold R5/G6 steps and red-leading shade assignment, critical nearest RGB5-maximum quarter-red ramp, and nearest-seventh health interpolation. Native BG2 artwork establishes all four belly shades; only exact material choices remain. Inventing replacement paint changes authored content; independent edits preserved."
+  ],
+  "confirmation": "Worker build1444warnings/0errors and exporter25warnings/0errors;32native values/zero overrides/96RGB edits/hash/776copies/48actual health and48hurt restore calls/readguard/domains passed. Coordinator mechanically integrates without review/retest.",
+  "completed": [
+    "DraygonColorCatalog.healthBands"
+  ]
 }}

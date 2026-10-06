@@ -33,7 +33,7 @@ public sealed class DraygonColorCatalog
     private readonly ushort[] background;
     private readonly ushort[] sprite;
     private readonly Dictionary<int, ushort> whiteFlash = new();
-    private readonly Dictionary<int, ushort> healthBands = new();
+    private readonly DraygonHealthPaintDefinitions healthBands;
 
     private DraygonColorCatalog(ushort[] intro, ushort[] background, ushort[] sprite,
         ushort[] whiteFlash, ushort[][] healthBands)
@@ -43,14 +43,7 @@ public sealed class DraygonColorCatalog
         this.sprite = sprite;
         for (int color = 0; color < whiteFlash.Length; color++)
             if (whiteFlash[color] != StockWhiteFlash(color)) this.whiteFlash.Add(color, whiteFlash[color]);
-        for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
-        {
-            this.healthBands.Add(color, healthBands[0][color]);
-            this.healthBands.Add(28 + color, healthBands[7][color]);
-            for (int band = 1; band < 7; band++)
-                if (healthBands[band][color] != InterpolateHealth(healthBands[0][color], healthBands[7][color], band))
-                    this.healthBands.Add(band * 4 + color, healthBands[band][color]);
-        }
+        this.healthBands = new(healthBands);
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -75,27 +68,11 @@ public sealed class DraygonColorCatalog
         _ = CheckBand(band);
         if ((uint)color >= DraygonColorRomData.HealthBandColorCount)
             throw new ArgumentOutOfRangeException(nameof(color));
-        return healthBands.TryGetValue(band * 4 + color, out ushort selected) ? selected
-            : InterpolateHealth(healthBands[color], healthBands[28 + color], band);
+        return healthBands.Color(band, color);
     }
 
     /// <summary><c>Palette_Draygon_WhiteFlash</c> at $A5:A297 preserves the backdrop; all visible inks are white.</summary>
     private static ushort StockWhiteFlash(int color) => color == 0 ? (ushort)0x3800 : (ushort)0x7fff;
-
-    /// <summary><c>DraygonHealthBasedPaletteTable</c> at $A5:96AF interpolates RGB5 channels by nearest sevenths.</summary>
-    /// <remarks>Endpoint colors remain unresolved inputs; independently edited middle rows override this ramp.</remarks>
-    private static ushort InterpolateHealth(ushort first, ushort last, int band)
-    {
-        int result = 0;
-        for (int shift = 0; shift <= 10; shift += 5)
-        {
-            int start = first >> shift & 31;
-            int difference = (last >> shift & 31) - start;
-            int channel = start + Math.Sign(difference) * ((Math.Abs(difference) * band + 3) / 7);
-            result |= channel << shift;
-        }
-        return (ushort)result;
-    }
 
     public void ApplyIntro(SnesCgram cgram) =>
         Apply(cgram, intro, DraygonColorRomData.IntroDestination);

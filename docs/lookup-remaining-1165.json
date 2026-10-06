@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 414,
+  "remainingTableDefinitionCount": 413,
   "fileCount": 523,
   "entries": [
     {
@@ -612,12 +612,15 @@
       "implementationCommit": "c207c6dce"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs",
-      "line": 28,
-      "name": "DraygonColorCatalog.healthBands",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind DraygonColorCatalog.healthBands. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs",
+  "line": 28,
+  "name": "DraygonColorCatalog.healthBands",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind DraygonColorCatalog.healthBands. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "7a461a2142505513477d986c21651f56c202e56f",
+  "disposition": "All32colors calculate through selected gold R5/G6 steps and red-leading shade assignment, critical nearest RGB5-maximum quarter-red ramp, and nearest-seventh health interpolation. Native BG2 artwork establishes all four belly shades; only exact material choices remain. Inventing replacement paint changes authored content; independent edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EndingFontAtlas.cs",
       "line": 6,
@@ -21832,5 +21835,5 @@
     }
   ],
   "convertedSinceSnapshot": 606,
-  "justifiedRetainedSinceSnapshot": 108
+  "justifiedRetainedSinceSnapshot": 109
 }

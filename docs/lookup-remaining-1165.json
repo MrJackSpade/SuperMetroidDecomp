@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 291,
+  "remainingTableDefinitionCount": 283,
   "fileCount": 523,
   "entries": [
     {
@@ -5315,14 +5315,20 @@
       "line": 94,
       "name": "MotherBrainBodyInstructionProgramDefinitions.TryWalkFrame / frames",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "13a23cfda9b1ff59bd06c87a7bbbcd436603bddd",
+      "disposition": "Stored frame list removed; each walk step's drawing is a named compiled visual identity (ExtendedSpritemap_MotherBrainBody_Standing, Walking_0..7) in the semantic layout, read by ReadVisualSelector."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainBodyInstructionProgramDefinitions.cs",
       "line": 145,
       "name": "MotherBrainBodyInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored MotherBrainBodyInstructionMechanicsWord[] initialized by CreateWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored MotherBrainBodyInstructionMechanicsWord[] initialized by CreateWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "justified-retained",
+      "implementationCommit": "13a23cfda9b1ff59bd06c87a7bbbcd436603bddd",
+      "disposition": "Mixed: startup word cache and builders removed; named pose/movement instructions, visual identities, entry checks and addresses derive from InstructionProgramLayout. Only frame durations remain as authored walk/crouch/stand cadence."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainContactHitboxDefinitions.cs",
@@ -5510,42 +5516,60 @@
       "line": 63,
       "name": "MotherBrainHeadInstructionProgramDefinitions.EarlyWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "13a23cfda9b1ff59bd06c87a7bbbcd436603bddd",
+      "disposition": "Mixed: stored word region removed; named head instructions, label-checked entries, frames naming their compiled extended spritemaps and every address derive from InstructionProgramLayout. Only frame durations remain as authored head cadence."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs",
       "line": 82,
       "name": "MotherBrainHeadInstructionProgramDefinitions.RainbowAndNeutralPhaseTwoWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "13a23cfda9b1ff59bd06c87a7bbbcd436603bddd",
+      "disposition": "Mixed: stored word region removed; named head instructions, label-checked entries, frames naming their compiled extended spritemaps and every address derive from InstructionProgramLayout. Only frame durations remain as authored head cadence."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs",
       "line": 90,
       "name": "MotherBrainHeadInstructionProgramDefinitions.NeutralWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "13a23cfda9b1ff59bd06c87a7bbbcd436603bddd",
+      "disposition": "Mixed: stored word region removed; named head instructions, label-checked entries, frames naming their compiled extended spritemaps and every address derive from InstructionProgramLayout. Only frame durations remain as authored head cadence."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs",
       "line": 100,
       "name": "MotherBrainHeadInstructionProgramDefinitions.CorpseAndRingsWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "13a23cfda9b1ff59bd06c87a7bbbcd436603bddd",
+      "disposition": "Mixed: stored word region removed; named head instructions, label-checked entries, frames naming their compiled extended spritemaps and every address derive from InstructionProgramLayout. Only frame durations remain as authored head cadence."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs",
       "line": 118,
       "name": "MotherBrainHeadInstructionProgramDefinitions.BombAndLaserWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "13a23cfda9b1ff59bd06c87a7bbbcd436603bddd",
+      "disposition": "Mixed: stored word region removed; named head instructions, label-checked entries, frames naming their compiled extended spritemaps and every address derive from InstructionProgramLayout. Only frame durations remain as authored head cadence."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs",
       "line": 130,
       "name": "MotherBrainHeadInstructionProgramDefinitions.RainbowChargeWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "13a23cfda9b1ff59bd06c87a7bbbcd436603bddd",
+      "disposition": "Mixed: stored word region removed; named head instructions, label-checked entries, frames naming their compiled extended spritemaps and every address derive from InstructionProgramLayout. Only frame durations remain as authored head cadence."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs",
@@ -22200,6 +22224,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 635,
-  "justifiedRetainedSinceSnapshot": 202
+  "convertedSinceSnapshot": 636,
+  "justifiedRetainedSinceSnapshot": 209
 }

@@ -237,8 +237,9 @@ public sealed class RoomEnemyProjectileSlot
     internal void Clear()
     {
         Kind = RoomEnemyProjectileKind.None;
-        XPosition = XSubposition = YPosition = YSubposition = 0;
-        XVelocity = YVelocity = 0;
+        // $86:8016/8154 release identity only. SpawnEprojInner clears fractions,
+        // but leaves whole coordinates and velocities for the family initializer.
+        XSubposition = YSubposition = 0;
         InstructionPointer = InstructionTimer = SpritemapPointer = PreInstruction = 0;
         PresentationOperandAddress = 0;
         GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = GeneralTimer = 0;
@@ -2372,6 +2373,9 @@ public sealed partial class RoomEnemySystem
         InitializeEnemyProjectileFromDefinition(center, kind, FireballGraphicsIndex);
         center.XPosition = x;
         center.YPosition = y;
+        // $86:9499/$949C explicitly stop the center; allocation retains prior velocities.
+        center.XVelocity = 0;
+        center.YVelocity = 0;
         center.RemainingAfterburns = remaining;
     }
 
@@ -2426,8 +2430,8 @@ public sealed partial class RoomEnemySystem
         projectile.InstructionPointer =
             CeresRidleyProjectileInstructionProgramDefinitions.AfterburnFinal;
         projectile.InstructionTimer = 1;
-        projectile.XVelocity = 0;
-        projectile.YVelocity = 0;
+        // $86:950D/$9522 replace the list; its clear-pre-instruction stops motion.
+        // The native velocity words themselves remain unchanged.
         projectile.CanDamageSamus = false;
     }
 

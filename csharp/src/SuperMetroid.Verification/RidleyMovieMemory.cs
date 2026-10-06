@@ -1,6 +1,26 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$19BB: enemy projectile Graphics, word-strided per slot.</summary>
+    public const int EnemyProjectileGraphics = 0x19bb;
+    /// <summary>$19DF: enemy projectile Timer, word-strided per slot.</summary>
+    public const int EnemyProjectileTimer = 0x19df;
+    /// <summary>$1A03: enemy projectile PreInstruction, word-strided per slot.</summary>
+    public const int EnemyProjectilePreInstruction = 0x1a03;
+    /// <summary>$1A27: enemy projectile XFraction, word-strided per slot.</summary>
+    public const int EnemyProjectileXFraction = 0x1a27;
+    /// <summary>$1A6F: enemy projectile YFraction, word-strided per slot.</summary>
+    public const int EnemyProjectileYFraction = 0x1a6f;
+    /// <summary>$1AB7: enemy projectile XVelocity, word-strided per slot.</summary>
+    public const int EnemyProjectileXVelocity = 0x1ab7;
+    /// <summary>$1ADB: enemy projectile YVelocity, word-strided per slot.</summary>
+    public const int EnemyProjectileYVelocity = 0x1adb;
+    /// <summary>$1B47: enemy projectile Instruction, word-strided per slot.</summary>
+    public const int EnemyProjectileInstruction = 0x1b47;
+    /// <summary>$1B6B: enemy projectile Spritemap, word-strided per slot.</summary>
+    public const int EnemyProjectileSpritemap = 0x1b6b;
+    /// <summary>$1B8F: enemy projectile InstructionTimer, word-strided per slot.</summary>
+    public const int EnemyProjectileInstructionTimer = 0x1b8f;
     /// <summary>$0B8C: ordinary projectile XFraction, word-strided per slot.</summary>
     public const int ProjectileXFraction = 0x0b8c;
     /// <summary>$0BA0: ordinary projectile YFraction, word-strided per slot.</summary>

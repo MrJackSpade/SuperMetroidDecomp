@@ -60,7 +60,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Samus position/fractions, camera position/fractions, pose/history, animation, primary speeds | Compared every retained interval | Control handlers, remaining movement flags and secondary motion state |
 | Health, reserves, equipment, collected inventory, ammunition and capacities | Complete replay passes these fields, fractional health, hurt/invincibility/knockback timers and directions, HUD selection/cancellation and X acceleration mode (`tide-owner-replay.log`) | Remaining combat/input ownership |
 | Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Full actor properties, timers, AI variables and seven-segment tail state |
-| Ordinary/enemy projectiles | Ordinary active-slot subpixels, velocities, directions, instruction cursors/timers, spritemaps, trail/auxiliary words also pass the full replay | Pre-instruction identity, enemy-projectile motion/instructions, bombs and explosion owners |
+| Ordinary/enemy projectiles | Ordinary active-slot subpixels, velocities, directions, instruction cursors/timers, spritemaps, trail/auxiliary words also pass the full replay | Ordinary pre-instruction identity, enemy-projectile family variables/properties, bombs and explosion owners |
 | Persistent world state and room effects | Selected room plus acid damage surface/tide phase checked during gameplay | Boss/event/door/item bits, PLM changes, remaining environmental gameplay state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
 
@@ -371,3 +371,25 @@ lifetime correction, not evidence of a player-visible missile defect.
 Release build and the independent input-only movie pass all10,717 updates with
 these additional checks (`projectile-retained-build.log` and
 `projectile-retained-replay.log`). The original movie remains unchanged.
+
+### Enemy-projectile motion and composition coverage
+
+All active enemy-projectile subpixels, velocities, graphics indices, general and
+instruction timers, instruction cursors and native callbacks now pass the full
+movie. Installed program-frame identifiers are compared by rendering their parts
+and comparing OAM to the cartridge spritemap; placeholder pointer values are not
+mistaken for missing art. Every encountered composition mapping is checked once.
+
+The expansion reproduced retained velocity differences at update666/source767
+(dust reusing an inactive physical slot) and update1200/source1301 (afterburn final
+animation). $86:8027 leaves whole coordinates/velocities to family initializers;
+$86:950D/$9522 stop afterburn movement by replacing its instruction list, whose
+callback clear stops integration without zeroing velocity. The port now preserves
+these words and explicitly applies the center-afterburn initializer's velocity
+clears at $86:9499/$949C. Inactive initial coordinates/velocities are imported once
+from the movie snapshot. These are state-lifetime corrections; no new visible
+projectile defect is inferred solely from an unused retained word.
+
+The release build and input-only replay pass all10,717 updates with the expanded
+checks (`enemy-projectile-final-build.log`, `enemy-projectile-final-replay.log`).
+The remaining coverage audit above is still active.

@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
@@ -786,6 +787,18 @@ internal static partial class Program
             object slot = initialPlms.GetValue(index)!;
             slot.GetType().GetProperty("Active")!.SetValue(slot, false);
         }
+        foreach (var projectile in runtime.Enemies.EnemyProjectiles)
+        {
+            int index = projectile.SlotIndex * 2;
+            AssertEqual((ushort)0, W(RidleyMovieMemory.EnemyProjectileId + index), "initial native enemy projectile pool is inactive");
+            foreach (var field in new[] {
+                ("XPosition", RidleyMovieMemory.EnemyProjectileX),
+                ("YPosition", RidleyMovieMemory.EnemyProjectileY),
+                ("XVelocity", RidleyMovieMemory.EnemyProjectileXVelocity),
+                ("YVelocity", RidleyMovieMemory.EnemyProjectileYVelocity) })
+                typeof(RoomEnemyProjectileSlot).GetProperty(field.Item1)!.SetValue(projectile, W(field.Item2 + index));
+        }
+        var checkedProjectileCompositions = new HashSet<(ushort Operand, ushort Direct, ushort Native)>();
         // This is a one-time initial snapshot import. No native state is fed back during replay.
         runtime.System.SetRandomNumber(W(RidleyMovieMemory.Random));
         // Native frame zero already has the acid BG3 callback installed at $18F0.
@@ -1016,6 +1029,34 @@ internal static partial class Program
                 if (!projectile.IsActive || W(RidleyMovieMemory.EnemyProjectileId + index) == 0) continue;
                 Check(owner + " X", projectile.XPosition, RidleyMovieMemory.EnemyProjectileX + index);
                 Check(owner + " Y", projectile.YPosition, RidleyMovieMemory.EnemyProjectileY + index);
+                Check(owner + " Graphics", projectile.GraphicsIndex, RidleyMovieMemory.EnemyProjectileGraphics + index);
+                Check(owner + " Timer", projectile.GeneralTimer, RidleyMovieMemory.EnemyProjectileTimer + index);
+                Check(owner + " PreInstruction", projectile.PreInstruction, RidleyMovieMemory.EnemyProjectilePreInstruction + index);
+                Check(owner + " XFraction", projectile.XSubposition, RidleyMovieMemory.EnemyProjectileXFraction + index);
+                Check(owner + " YFraction", projectile.YSubposition, RidleyMovieMemory.EnemyProjectileYFraction + index);
+                Check(owner + " XVelocity", projectile.XVelocity, RidleyMovieMemory.EnemyProjectileXVelocity + index);
+                Check(owner + " YVelocity", projectile.YVelocity, RidleyMovieMemory.EnemyProjectileYVelocity + index);
+                Check(owner + " Instruction", projectile.InstructionPointer, RidleyMovieMemory.EnemyProjectileInstruction + index);
+                ushort nativeMap = W(RidleyMovieMemory.EnemyProjectileSpritemap + index);
+                if (checkedProjectileCompositions.Add((projectile.PresentationOperandAddress, projectile.SpritemapPointer, nativeMap)))
+                {
+                    var artwork = runtime.Enemies.TileArtwork!.ProjectileSpritemaps!;
+                    var parts = projectile.PresentationOperandAddress != 0
+                        ? artwork.GetProgramFrame(projectile.PresentationOperandAddress)
+                        : artwork.Get(projectile.SpritemapPointer);
+                    var expectedOam = new OamBuffer();
+                    var actualOam = new OamBuffer();
+                    expectedOam.BeginFrame();
+                    actualOam.BeginFrame();
+                    DrawImportedEnemyProjectileSpritemap(bus, expectedOam, nativeMap, 128, 96, 0, true);
+                    actualOam.AddEnemySpritemap(parts.Span, 128, 96, 0, 0,
+                        clipVerticalWrap: true, originYIsOnScreen: true);
+                    if (actualOam.NextByteOffset != expectedOam.NextByteOffset ||
+                        !actualOam.LowTable.SequenceEqual(expectedOam.LowTable) ||
+                        !actualOam.HighTable.SequenceEqual(expectedOam.HighTable))
+                        mismatches.Add(owner + $" composition differs from native ${nativeMap:X4}");
+                }
+                Check(owner + " InstructionTimer", projectile.InstructionTimer, RidleyMovieMemory.EnemyProjectileInstructionTimer + index);
                 Check(owner + " radii", (ushort)(projectile.XRadius | projectile.YRadius << 8), RidleyMovieMemory.EnemyProjectileRadius + index);
                 ushort nativeDamage = (ushort)(W(RidleyMovieMemory.EnemyProjectileProperties + index) & 0x0fff);
                 if (projectile.Damage != nativeDamage) mismatches.Add(owner + $" damage: native={nativeDamage} port={projectile.Damage}");

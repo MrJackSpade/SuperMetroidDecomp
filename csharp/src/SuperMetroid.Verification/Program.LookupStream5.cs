@@ -6,6 +6,61 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5PhantoonClosedEye(SuperMetroidAddressSpace rom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        int totalTicks = 0;
+        foreach (int bucket in new[] { 1, 2, 0 })
+        foreach (bool reversed in new[] { false, true })
+        {
+            var system = new RoomEnemySystem();
+            var body = system.Slots[0];
+            var eye = system.Slots[1];
+            var mouth = system.Slots[3];
+            var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.Slots[2], Mouth = mouth };
+            int randomCalls = 0;
+            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(system,
+                (Func<ushort>)(() => { randomCalls++; return (ushort)(reversed ? 1 : 0); }));
+            var begin = typeof(RoomEnemySystem).GetMethod("RunPhantoonPickFirstRoundPattern", flags)!
+                .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState, byte>>(system);
+            var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonFirstRoundFigureEight", flags)!
+                .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(system);
+            body.XPosition = 128; body.YPosition = 96; body.VariableE = 1; body.Parameter2 = 1;
+            begin(body, state, (byte)(bucket * 2));
+            ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);
+            AssertEqual(duration, eye.VariableA, "Native first-round closed-eye duration");
+            AssertEqual((ushort)(reversed ? 1 : 0), eye.VariableC, "Direction selection remains independent of duration bucket");
+            // A valid unexpired casual-flame hold keeps this fixture specific to
+            // the identified closed-eye countdown and its actual expiry producer.
+            mouth.VariableB = (ushort)(duration + 1);
+            for (int elapsed = 1; elapsed <= duration; elapsed++)
+            {
+                tick(body, state); totalTicks++;
+                AssertEqual((ushort)(duration - elapsed), eye.VariableA, "Closed-eye timer decrements once despite movement speed/cursor");
+                if (elapsed < duration)
+                {
+                    AssertEqual((ushort)PhantoonAiFunction.MoveInFigureEightThenOpenEye, body.VariableF, "No early eye opening");
+                    AssertEqual(0, system.EnemyProjectiles.Count(projectile => projectile.IsActive), "No expiry spiral before selected duration");
+                }
+            }
+            AssertEqual((ushort)PhantoonAiFunction.NoOperation, body.VariableF, "Selected duration stops moving phase");
+            AssertEqual(PhantoonInstructionProgramDefinitions.EyeOpen, eye.CurrentInstruction, "Expiration starts exact eye-opening program");
+            AssertEqual((ushort)1, eye.InstructionTimer, "Eye-opening program executes on next instruction step");
+            AssertEqual((ushort)0, body.Parameter2, "Opening clears flame-rain trigger");
+            AssertEqual((ushort)1, mouth.VariableB, "Casual hold still advances on every movement call");
+            AssertEqual(1, randomCalls, "Only independent initial direction consumes RNG in this fixture");
+            var flames = system.EnemyProjectiles.Where(projectile => projectile.IsActive).ToArray();
+            AssertEqual(8, flames.Length, "Exact expiry spawns eight real spiral projectiles");
+            foreach (var flame in flames)
+            {
+                AssertEqual(RoomEnemyProjectileKind.PhantoonDestroyableFlame, flame.Kind, "Expiry produces actual Phantoon flame family");
+                AssertEqual(body.XPosition, flame.XPosition, "Spiral begins at current independently traversed body X");
+                AssertEqual(unchecked((ushort)(body.YPosition + 16)), flame.YPosition, "Spiral begins at current body offset Y");
+            }
+        }
+        AssertEqual(2280, totalTicks, "Three native closed-eye durations in both directions");
+        Console.WriteLine("Phantoon closed eye:60/360/720 native waits,2280 actual moving countdown calls,both directions/exact eye-open handoffs and48 real spiral spawns pass.");
+    }
     private static void VerifyLookupStream5CeresPlatform(SuperMetroidAddressSpace rom)
     {
         var document = new CeresDoorVisualDocument

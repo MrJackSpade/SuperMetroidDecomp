@@ -12101,4 +12101,13 @@
   "completed": [
     "CeresDoorVisualCatalog.mode7DoorFrames"
   ]
+},"phantoonClosedEyeWhole":{
+  "confirmation": "Root build1452 warnings/0 errors;2280 actual closed-eye countdown calls at60/360/720 in both directions,exact EyeOpen handoff/rain reset and48 actual spiral spawns passed,along with existing native selector/exposure checks.",
+  "disposition": [
+    "Compute60/360/720 from existing15-call unit and selected closed-eye phase ratios4/6/2. Retain only chosen attack pacing and reviewed RNG/NMI bucket ordering. Native countdown expires independently of movement cursor/position; no path-completion formula selects these durations. Movement,flames,RainHiding and swoop remain separate obligations."
+  ],
+  "workerCommit": "a7094fc69",
+  "completed": [
+    "PhantoonTimerDefinitions.EyeClosed"
+  ]
 }}

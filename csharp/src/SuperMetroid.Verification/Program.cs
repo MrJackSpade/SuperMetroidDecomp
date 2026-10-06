@@ -364,6 +364,7 @@ if (args is ["--lookup-stream5-phantoon-timers"])
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Phantoon timer oracle revision");
     VerifyCompiledPhantoonTimers(rom);
     VerifyLookupStream5PhantoonExposure(rom);
+    VerifyLookupStream5PhantoonClosedEye(rom);
     return 0;
 }
 if (args is ["--lookup-stream-1-power-programs"])

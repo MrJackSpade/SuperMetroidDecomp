@@ -100,13 +100,16 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         ushort controllerInput,
         RoomLevelData? level = null,
-        SamusProjectileSystem? samusProjectiles = null)
+        SamusProjectileSystem? samusProjectiles = null,
+        ushort cameraX = 0,
+        ushort cameraY = 0)
     {
         RidleyEnemyState state = RequireNorfairRidley(slot);
         state.HurtMovementClamp = unchecked((ushort)Math.Max(
             0,
             unchecked((short)state.HurtMovementClamp) - 4));
 
+        UpdateNorfairRidleyIntangibility(slot, state, cameraX, cameraY);
         PrepareNorfairRidleyCombatFrame(slot, state);
 
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);

@@ -14,7 +14,6 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        UpdateNorfairRidleyIntangibility(body, state);
         if (state.PowerBombReactionLatched == 0)
             return;
 
@@ -39,11 +38,14 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         ushort controllerInput,
         RoomLevelData? level,
-        SamusProjectileSystem? samusProjectiles)
+        SamusProjectileSystem? samusProjectiles,
+        ushort cameraX,
+        ushort cameraY)
     {
         RidleyEnemyState state = RequireNorfairRidley(body);
         if ((body.FrameCounter & 1) == 0)
         {
+            UpdateNorfairRidleyIntangibility(body, state, cameraX, cameraY);
             PrepareNorfairRidleyCombatFrame(body, state);
             RunNorfairRidleyFunction(body, state, samus, controllerInput, level);
             if (state.MovementAnimationEnabled != 0)
@@ -99,33 +101,34 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>
     /// Ports the collision-relevant portion of <c>HandleRidleySamusInteractionBit</c> at
-    /// $A6:BCB4. A grabbed or off-screen body is tangible; after release the authored short
-    /// grace timer expires before the extended body rejoins bank-$A0 collision lists.
+    /// $A6:BCB4. Off-screen bodies disable collision and suspend the release timer.
+    /// On-screen fight AI clears the gate before ticking that timer. EnemyMain has
+    /// already consumed the previous gate value for this update's body collision.
     /// </summary>
     private static void UpdateNorfairRidleyIntangibility(
         RoomEnemySlot body,
-        RidleyEnemyState state)
+        RidleyEnemyState state,
+        ushort cameraX,
+        ushort cameraY)
     {
-        // Fight mode $FFFF is the death latch. Native never clears tangible again once that
-        // sign bit is set, which prevents stray shots or contact from restarting the scene.
         if (unchecked((short)state.FightMode) < 0)
             return;
-
-        if (state.GrabState != 0)
+        if (state.FightMode != 0)
         {
-            body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
-            return;
+            if (RidleyCollisionDefinitions.IsOutsideInteractionWindow(
+                body.XPosition, body.YPosition, cameraX, cameraY))
+            {
+                body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                return;
+            }
+            body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         }
-
         if (state.IntangibilityTimer != 0)
         {
             state.IntangibilityTimer--;
-            if (state.IntangibilityTimer != 0)
-                return;
+            if (state.IntangibilityTimer == 0)
+                body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         }
-
-        if (state.FightMode != 0)
-            body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
     }
 
     /// <summary>

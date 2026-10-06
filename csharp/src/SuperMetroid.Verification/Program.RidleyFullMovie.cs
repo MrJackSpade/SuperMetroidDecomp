@@ -12,6 +12,28 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyRidleyScreenGate()
+    {
+        var update = typeof(RoomEnemySystem).GetMethod("UpdateNorfairRidleyIntangibility", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var body = new RoomEnemySlot(0) { XPosition = 64, YPosition = 253 };
+        var state = new RidleyEnemyState { FightMode = 1, IntangibilityTimer = 3 };
+        // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
+        update.Invoke(null, [body, state, (ushort)0, (ushort)287]);
+        AssertTrue(body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native above-camera Ridley disables collision");
+        AssertEqual((ushort)3, state.IntangibilityTimer, "offscreen return preserves release timer");
+        // At the next AI call Y257 is inside. EnemyMain already tested the old
+        // collision bit; the cleared gate is consumed by the following update.
+        body.YPosition = 257;
+        update.Invoke(null, [body, state, (ushort)0, (ushort)287]);
+        AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native reentry clears collision gate");
+        AssertEqual((ushort)2, state.IntangibilityTimer, "onscreen AI resumes release timer");
+        AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(64, 254, 0, 287), "one pixel above native window");
+        AssertTrue(!RidleyCollisionDefinitions.IsOutsideInteractionWindow(64, 255, 0, 287), "native upper edge is admitted");
+        AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(64, 543, 0, 287), "native lower edge is excluded");
+        AssertTrue(!RidleyCollisionDefinitions.IsOutsideInteractionWindow(64, 542, 0, 287), "last lower pixel is admitted");
+        Console.WriteLine("Ridley screen gate: recorded reentry, signed bounds and timer ownership pass.");
+    }
+
     private static void VerifySpringBallRelease()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -511,6 +533,9 @@ internal static partial class Program
             if (!deferLoadingOwners && runtime.Enemies.Ridley is { } ridleyState &&
                 W(RidleyMovieMemory.EnemyBase) == RoomEnemySystem.NorfairRidleyDefinition)
             {
+                bool expectedGate = (W(RidleyMovieMemory.EnemyBase + 14) & 0x0400) != 0;
+                if (runtime.Enemies.Slots[0].Properties.HasAny(EnemyProperties.IgnoreSamusCollision) != expectedGate)
+                    mismatches.Add($"Ridley interaction gate: native={expectedGate}");
                 Check("Ridley AI function", (ushort)ridleyState.Function, RidleyMovieMemory.RidleyFunction);
                 Check("Ridley AI timer", ridleyState.FunctionTimer, RidleyMovieMemory.RidleyFunctionTimer);
                 if (game.GameState == SuperMetroidGameState.MainGameplay)

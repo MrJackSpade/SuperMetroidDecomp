@@ -20,6 +20,18 @@ internal static class RidleyCollisionDefinitions
     private const ushort Touch = EnemyAiCodePointers.BankA6.RidleyExtendedTouch;
     private const ushort Shot = EnemyAiCodePointers.BankA6.RidleyShot;
 
+    /// <summary>$A6:DE7A, CheckIfRidleyIsOffScreen: signed world coordinates and the
+    /// camera-relative origin plus 32 must be inside 320 by 288 pixels.</summary>
+    internal static bool IsOutsideInteractionWindow(ushort x, ushort y, ushort cameraX, ushort cameraY)
+    {
+        short relativeX = unchecked((short)(x + 32 - cameraX));
+        short relativeY = unchecked((short)(y + 32 - cameraY));
+        return unchecked((short)x) < 0 || unchecked((short)y) < 0 ||
+            relativeX < 0 || relativeY < 0 ||
+            unchecked((short)(relativeX - 320)) >= 0 ||
+            unchecked((short)(relativeY - 288)) >= 0;
+    }
+
     private enum BodyFrame : ushort
     {
         /// <summary>$A6:E983, ExtendedSpritemap_Ridley_FacingLeft.</summary>

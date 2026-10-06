@@ -86,7 +86,7 @@ room identity, and active enemies' identities, positions, health and visual curs
 That comparison is still under development; conversion success is not port parity.
 Door-entry and source-fade HDMA/RNG/actor omissions were reproduced and fixed,
 along with missing RNG advancement through the outer loading dispatches. The
-current checked properties match through update 2960, with loading-owner alignment
+current checked properties match through update 3036, with loading-owner alignment
 and upload normalization as described here. Setup now applies
 Samus's first displacement before destination rebasing; the atomic loader retains
 the pre-setup source coordinates so it does not count that movement twice. A
@@ -171,10 +171,17 @@ or either current/previous Shoot edge selects the ordinary firing delay. The por
 incorrectly used the longer held-fire delay, suppressing a later shot. The focused
 producer checks and movie now pass that interval with the expanded coverage.
 
-Checked state now matches through update 2960 of 10,717. The next divergence is
-update 2961 (original source frame 3063): Ridley native Y `$0105.8A00` versus
-port `$0101.6A00`, health `$4362` versus `$4074`, and corresponding tail-tip Y.
-The collision/damage boundary remains under investigation.
+Ridley's interaction gate now follows $A6:BCB4/$DE7A's signed camera window.
+Normal and hurt AI apply the screen test after EnemyMain has consumed the prior
+gate. Offscreen AI suspends the release timer; reentry clears the gate for the
+following collision pass. Native source3062/3063 and exact boundary fixtures pass,
+and the independent replay now matches the disputed damage and vertical movement.
+The replay also compares the interaction-disable bit on every Ridley update.
+
+Checked state now matches through update 3036 of 10,717. The next divergence is
+update 3037 (original source frame 3140): Samus health native `$0235` versus port
+`$0244` (15 extra damage on the cartridge). This damage boundary remains under
+investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

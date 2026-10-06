@@ -684,7 +684,7 @@ public sealed partial class RoomEnemySystem
                         samus,
                         controllerInput,
                         level,
-                        samusProjectiles);
+                        samusProjectiles, cameraX, cameraY);
                     ranActorAi = true;
                 }
                 if (!ranActorAi &&
@@ -1841,7 +1841,7 @@ public sealed partial class RoomEnemySystem
                     samus,
                     controllerInput,
                     level,
-                    samusProjectiles);
+                    samusProjectiles, cameraX, cameraY);
                 return;
             case EnemyAiCodePointers.MainAI_RidleyExplosion when slot.EnemyDefinitionPointer == RidleyExplosionDefinitions.EnemyDefinition:
                 RunNorfairRidleyExplosionMain(slot);

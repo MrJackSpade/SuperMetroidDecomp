@@ -6,16 +6,16 @@ internal static partial class Program
 {
     private static void VerifyFakeKraidProjectileInstructionProgramDefinitions()
     {
-        VerifyFakeKraidProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyFakeKraidProjectileInstructionProgramDefinitions), () => VerifyFakeKraidProjectileInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyFakeKraidProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        VerifyFakeKraidProjectileMechanicsMapping(rom);
-        VerifyFakeKraidProjectilePresentationAddresses();
+        Suite(nameof(VerifyFakeKraidProjectileMechanicsMapping), () => VerifyFakeKraidProjectileMechanicsMapping(rom));
+        Suite(nameof(VerifyFakeKraidProjectilePresentationAddresses), () => VerifyFakeKraidProjectilePresentationAddresses());
 
         var guard = new FakeKraidProjectileInstructionReadGuard(rom);
         var selectedPresentationWords = new HashSet<ushort>();

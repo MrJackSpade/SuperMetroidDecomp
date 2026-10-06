@@ -9,8 +9,8 @@ internal static partial class Program
 {
     private static void VerifyWorldMapLabels(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
-        VerifyMapWindowOriginX(bus, original.Labels);
-        VerifyMapWindowOriginY(bus, original.Labels);
+        Suite(nameof(VerifyMapWindowOriginX), () => VerifyMapWindowOriginX(bus, original.Labels));
+        Suite(nameof(VerifyMapWindowOriginY), () => VerifyMapWindowOriginY(bus, original.Labels));
         var guard = new WorldLabelReadGuard(bus);
         ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapRomData.AreaCount).ToArray();
         var native = new FileSelectAreaMapGraphics(bus, 0, original.Tiles,

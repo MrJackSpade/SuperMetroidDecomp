@@ -6,10 +6,10 @@ internal static partial class Program
 {
     private static void VerifyObjSubscreenAddition()
     {
-        VerifyMode7ObjSubtraction();
-        VerifyMode7Bg1Addition();
-        VerifyBg4SubscreenAddition();
-        VerifyObjFixedColor();
+        Suite(nameof(VerifyMode7ObjSubtraction), () => VerifyMode7ObjSubtraction());
+        Suite(nameof(VerifyMode7Bg1Addition), () => VerifyMode7Bg1Addition());
+        Suite(nameof(VerifyBg4SubscreenAddition), () => VerifyBg4SubscreenAddition());
+        Suite(nameof(VerifyObjFixedColor), () => VerifyObjFixedColor());
         byte[] vram = new byte[SnesPpuLayout.VramByteCount];
         for (int row = 0; row < 8; row++) vram[row * 2] = 255;
         ushort[] colors = new ushort[256];

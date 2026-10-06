@@ -36,9 +36,9 @@ internal static partial class Program
         }
         AssertEqual(60, compiled, "Default 30 + vertical 20 + crouching 10 authored reads");
         guard.ForbidReads = true;
-        VerifyGrappleConnectionDispatch(rom);
-        VerifyGrappleSpecialConnections(rom, guard);
-        VerifyGrappleCancellationAndDrop(rom);
+        Suite(nameof(VerifyGrappleConnectionDispatch), () => VerifyGrappleConnectionDispatch(rom));
+        Suite(nameof(VerifyGrappleSpecialConnections), () => VerifyGrappleSpecialConnections(rom, guard));
+        Suite(nameof(VerifyGrappleCancellationAndDrop), () => VerifyGrappleCancellationAndDrop(rom));
         Console.WriteLine("Grapple connection definitions: 100 native words and 48 policy bytes, 3072 address classifications with loud non-catalog rejection, and real connection/angle/cancel/drop dispatch pass with migrated reads forbidden.");
     }
 

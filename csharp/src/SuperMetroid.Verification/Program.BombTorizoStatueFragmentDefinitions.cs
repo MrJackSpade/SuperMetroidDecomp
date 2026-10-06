@@ -8,11 +8,11 @@ internal static partial class Program
     private static void VerifyBombTorizoStatueFragmentDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyStatueFragmentProgramField(rom);
-        VerifyStatueFragmentXField(rom);
-        VerifyStatueFragmentYField(rom);
-        VerifyStatueFragmentVelocityField(rom);
-        VerifyStatueFragmentAccelerationField(rom);
+        Suite(nameof(VerifyStatueFragmentProgramField), () => VerifyStatueFragmentProgramField(rom));
+        Suite(nameof(VerifyStatueFragmentXField), () => VerifyStatueFragmentXField(rom));
+        Suite(nameof(VerifyStatueFragmentYField), () => VerifyStatueFragmentYField(rom));
+        Suite(nameof(VerifyStatueFragmentVelocityField), () => VerifyStatueFragmentVelocityField(rom));
+        Suite(nameof(VerifyStatueFragmentAccelerationField), () => VerifyStatueFragmentAccelerationField(rom));
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (ushort parameter = 1; parameter < 32; parameter += 2)
             AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueFragmentDefinitions.ForParameter(parameter), "statue rejects every odd parameter in the native range");

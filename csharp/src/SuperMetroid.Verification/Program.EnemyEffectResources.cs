@@ -30,7 +30,7 @@ internal static partial class Program
         CheckCrocomireResourceFailure(art, fixture => fixture.InitializeMap(0), "unknown melt tilemap");
         CheckCrocomireResourceFailure(art, fixture => fixture.Call("InitializeCrocomireMeltingGraphics"),
             "unknown melt header", invalidHeader: true);
-        VerifyDeadTourianMissingArtwork();
+        Suite(nameof(VerifyDeadTourianMissingArtwork), () => VerifyDeadTourianMissingArtwork());
         Console.WriteLine("  Enemy effect resources: missing/unknown art fails before changing WRAM, phases, actors, graphics or VRAM.");
     }
 

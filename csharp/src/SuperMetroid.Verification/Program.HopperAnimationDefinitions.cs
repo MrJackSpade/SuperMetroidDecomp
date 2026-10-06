@@ -112,7 +112,7 @@ internal static partial class Program
                 $"hopper landed sound {variant}/{orientation}");
         }
 
-        VerifyTourianSidehopperInstructionAlias(rom, flags, process, artwork);
+        Suite(nameof(VerifyTourianSidehopperInstructionAlias), () => VerifyTourianSidehopperInstructionAlias(rom, flags, process, artwork));
 
         AssertEqual(0,
             guard.ObservedPresentationWords.Count,

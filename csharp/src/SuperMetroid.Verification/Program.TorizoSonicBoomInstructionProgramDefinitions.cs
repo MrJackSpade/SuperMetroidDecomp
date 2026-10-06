@@ -7,8 +7,8 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     private static void VerifyTorizoSonicBoomInstructionProgramDefinitions() =>
-        VerifyTorizoSonicBoomInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyTorizoSonicBoomInstructionProgramDefinitions), () => VerifyTorizoSonicBoomInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyTorizoSonicBoomInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -151,7 +151,7 @@ internal static partial class Program
             }
         }
         process.Invoke(impactEnemies, [impact, null, (ushort)0, (ushort)0]);
-        VerifyExecutedProjectileFrame(rom, impact, spriteArtwork, executedOperands);
+        Suite(nameof(VerifyExecutedProjectileFrame), () => VerifyExecutedProjectileFrame(rom, impact, spriteArtwork, executedOperands));
         AssertTrue(!impact.IsActive,
             "Torizo sonic-boom impact deletes after five exact twelve-frame cycles");
         AssertEqual(0, impactRandom.Count,

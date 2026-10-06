@@ -4,10 +4,10 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyKraidHealthEighths(SuperMetroidAddressSpace rom) =>
-        VerifyKraidHealthFraction(rom, 0xa7aa05, 3, 8, (state, index) => state.HealthEighthThreshold(index));
+        Suite(nameof(VerifyKraidHealthFraction), () => VerifyKraidHealthFraction(rom, 0xa7aa05, 3, 8, (state, index) => state.HealthEighthThreshold(index)));
 
     private static void VerifyKraidHealthQuarters(SuperMetroidAddressSpace rom) =>
-        VerifyKraidHealthFraction(rom, 0xa7aa26, 2, 4, (state, index) => state.HealthQuarterThreshold(index));
+        Suite(nameof(VerifyKraidHealthFraction), () => VerifyKraidHealthFraction(rom, 0xa7aa26, 2, 4, (state, index) => state.HealthQuarterThreshold(index)));
 
     private static void VerifyKraidHealthFraction(SuperMetroidAddressSpace rom, int shiftAddress,
         int shifts, int count, Func<KraidEnemyState, int, ushort> actual)

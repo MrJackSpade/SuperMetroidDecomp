@@ -12,8 +12,8 @@ internal static partial class Program
 {
     private static void VerifyMapPresentation()
     {
-        VerifyIndexedPng();
-        VerifyQueuedVramAssets();
+        Suite(nameof(VerifyIndexedPng), () => VerifyIndexedPng());
+        Suite(nameof(VerifyQueuedVramAssets), () => VerifyQueuedVramAssets());
         var rules = new PresentationMapRules();
         var cell = new MapPresentationCell { TileColumn = 17, TileRow = 2, Palette = 3,
             Priority = true, FlipX = true, FlipY = false };
@@ -207,30 +207,30 @@ internal static partial class Program
         }
         AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
         Directory.CreateDirectory(overrides);
-        VerifyTitleGraphicsOverride(bus, stock, overrides, original);
-        VerifyTitleSpriteCompositionOverride(bus, stock, overrides, original);
-        VerifyTitlePaletteOverride(bus, stock, overrides, original);
-        VerifyTitleGradientOverride(bus, stock, overrides, original);
-        VerifyRoomPaletteFxOverride(bus, stock, overrides, original, initialPalettes);
-        VerifyRoomFxAnimatedTileArtworkOverride(bus, stock, overrides, original, initialPalettes);
-        VerifyRoomFxLayer3TilemapOverride(stock, overrides, original);
-        VerifyRoomFxPaletteBlendOverride(stock, overrides, original);
-        VerifyPowerBombFixedColorOverride(stock, overrides, original);
-        VerifySamusVisorColorOverride(stock, overrides, original, bus,
-            initialPalettes, fixtureAssets);
-        VerifySamusHurtColorOverride(stock, overrides, original, bus);
-        VerifySamusSuitColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets);
-        VerifySamusFullBodyCycleColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets);
-        VerifyCrystalFlashColorOverride(stock, overrides, original, bus);
-        VerifySamusChargeColorOverride(stock, overrides, original, bus);
-        VerifyCeresRidleyColorOverride(stock, overrides, original, bus, initialPalettes,
-            fixtureAssets);
-        VerifyCeresRidleyMode7ColorOverride(stock, overrides, original, bus, initialPalettes);
-        VerifySamusHyperBeamColorOverride(stock, overrides, original, bus, initialPalettes,
-            fixtureAssets);
-        VerifyMotherBrainHealthPaletteOverride(bus, stock, overrides, original, initialPalettes);
-        VerifyMotherBrainRainbowPaletteOverride(bus, stock, overrides, original, initialPalettes);
-        VerifyMotherBrainRoomColors(bus, stock, overrides, original, initialPalettes);
+        Suite(nameof(VerifyTitleGraphicsOverride), () => VerifyTitleGraphicsOverride(bus, stock, overrides, original));
+        Suite(nameof(VerifyTitleSpriteCompositionOverride), () => VerifyTitleSpriteCompositionOverride(bus, stock, overrides, original));
+        Suite(nameof(VerifyTitlePaletteOverride), () => VerifyTitlePaletteOverride(bus, stock, overrides, original));
+        Suite(nameof(VerifyTitleGradientOverride), () => VerifyTitleGradientOverride(bus, stock, overrides, original));
+        Suite(nameof(VerifyRoomPaletteFxOverride), () => VerifyRoomPaletteFxOverride(bus, stock, overrides, original, initialPalettes));
+        Suite(nameof(VerifyRoomFxAnimatedTileArtworkOverride), () => VerifyRoomFxAnimatedTileArtworkOverride(bus, stock, overrides, original, initialPalettes));
+        Suite(nameof(VerifyRoomFxLayer3TilemapOverride), () => VerifyRoomFxLayer3TilemapOverride(stock, overrides, original));
+        Suite(nameof(VerifyRoomFxPaletteBlendOverride), () => VerifyRoomFxPaletteBlendOverride(stock, overrides, original));
+        Suite(nameof(VerifyPowerBombFixedColorOverride), () => VerifyPowerBombFixedColorOverride(stock, overrides, original));
+        Suite(nameof(VerifySamusVisorColorOverride), () => VerifySamusVisorColorOverride(stock, overrides, original, bus,
+            initialPalettes, fixtureAssets));
+        Suite(nameof(VerifySamusHurtColorOverride), () => VerifySamusHurtColorOverride(stock, overrides, original, bus));
+        Suite(nameof(VerifySamusSuitColorOverride), () => VerifySamusSuitColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets));
+        Suite(nameof(VerifySamusFullBodyCycleColorOverride), () => VerifySamusFullBodyCycleColorOverride(stock, overrides, original, bus, initialPalettes, fixtureAssets));
+        Suite(nameof(VerifyCrystalFlashColorOverride), () => VerifyCrystalFlashColorOverride(stock, overrides, original, bus));
+        Suite(nameof(VerifySamusChargeColorOverride), () => VerifySamusChargeColorOverride(stock, overrides, original, bus));
+        Suite(nameof(VerifyCeresRidleyColorOverride), () => VerifyCeresRidleyColorOverride(stock, overrides, original, bus, initialPalettes,
+            fixtureAssets));
+        Suite(nameof(VerifyCeresRidleyMode7ColorOverride), () => VerifyCeresRidleyMode7ColorOverride(stock, overrides, original, bus, initialPalettes));
+        Suite(nameof(VerifySamusHyperBeamColorOverride), () => VerifySamusHyperBeamColorOverride(stock, overrides, original, bus, initialPalettes,
+            fixtureAssets));
+        Suite(nameof(VerifyMotherBrainHealthPaletteOverride), () => VerifyMotherBrainHealthPaletteOverride(bus, stock, overrides, original, initialPalettes));
+        Suite(nameof(VerifyMotherBrainRainbowPaletteOverride), () => VerifyMotherBrainRainbowPaletteOverride(bus, stock, overrides, original, initialPalettes));
+        Suite(nameof(VerifyMotherBrainRoomColors), () => VerifyMotherBrainRoomColors(bus, stock, overrides, original, initialPalettes));
         string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options)!;
@@ -249,56 +249,56 @@ internal static partial class Program
             AssertEqual(original.Get(area).IsRevealedByMapStation(x, y), edited.Get(area).IsRevealedByMapStation(x, y), "override cannot alter station reveal");
             AssertEqual(original.Get(area).RevealsCellAbove(x, y), edited.Get(area).RevealsCellAbove(x, y), "override cannot alter slope exploration");
         }
-        VerifyLiveMapCatalog(bus, original, edited, rules.Values.ToArray(), initialPalettes,
-            fixtureAssets);
+        Suite(nameof(VerifyLiveMapCatalog), () => VerifyLiveMapCatalog(bus, original, edited, rules.Values.ToArray(), initialPalettes,
+            fixtureAssets));
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "map override changes content identity");
         AssertTrue(edited.Get(AreaId.Crateria).GetTile(0, 0) != original.Get(AreaId.Crateria).GetTile(0, 0), "catalog prefers valid override");
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, repaired, "test-provenance");
         var afterRepair = AreaMapPresentationCatalog.Load(repaired, overrides);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity, "re-extracted stock preserves selected override");
         AssertTrue(editedBytes.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)), "stock extraction and reload never rewrite override bytes");
-        VerifyBundledMapMaskValidation(repaired);
-        VerifyMapAtlasIntegration(bus, stock, Path.Combine(root, "atlas-overrides"), original, rules.Values.ToArray());
-        VerifyHudAtlasIntegration(bus, stock, Path.Combine(root, "hud-overrides"), original,
-            rules.Values.ToArray(), initialPalettes, fixtureAssets);
-        VerifyMapPaletteCycleIntegration(bus, stock, Path.Combine(root, "cycle-overrides"), original, rules.Values.ToArray());
-        VerifyMapStaticPaletteIntegration(bus, stock, Path.Combine(root, "palette-overrides"), original, rules.Values.ToArray());
-        VerifyWorldMapLabels(bus, stock, Path.Combine(root, "label-overrides"), original);
-        VerifyMapStationLayout(bus, stock, Path.Combine(root, "station-overrides"), original);
-        VerifyMapLandmarks(bus, stock, Path.Combine(root, "landmark-overrides"), original);
-        VerifyMapSaveMarkers(bus, stock, Path.Combine(root, "save-marker-overrides"), original);
-        VerifyMapArrows(bus, stock, Path.Combine(root, "arrow-overrides"), original);
-        VerifyMapScreens(bus, stock, Path.Combine(root, "screen-overrides"), original);
-        VerifyMapSprites(bus, stock, Path.Combine(root, "sprite-overrides"), original);
-        VerifyPauseTileAtlas(bus, stock, Path.Combine(root, "pause-art-overrides"), original);
-        VerifyCompiledPauseEquipmentRules(bus, original);
-        VerifyPauseBackdrops(bus, stock, Path.Combine(root, "pause-backdrop-overrides"), original);
-        VerifyPauseWireframes(bus, stock, Path.Combine(root, "pause-wireframe-overrides"), original);
-        VerifyPauseSelectors(bus, stock, Path.Combine(root, "pause-selector-overrides"), original);
-        VerifyPauseReserveTankAssets(bus, stock, Path.Combine(root, "pause-reserve-tank-overrides"), original);
-        VerifyPauseReserveUiAssets(bus, stock, Path.Combine(root, "pause-reserve-ui-overrides"), original);
-        VerifyPauseEquipmentBaseAssets(bus, stock, Path.Combine(root, "pause-equipment-base-overrides"), original);
-        VerifyPauseEquipmentLabelAssets(bus, stock, Path.Combine(root, "pause-equipment-label-overrides"), original);
-        VerifyEscapeTimerPresentationAssets(bus, stock,
-            Path.Combine(root, "escape-timer-overrides"), original, initialPalettes);
-        VerifyGameplayHudPresentationAssets(bus, stock,
-            Path.Combine(root, "gameplay-hud-overrides"), original, initialPalettes);
-        VerifyGameOverPresentationAssets(bus, stock, Path.Combine(root, "game-over-overrides"), original);
-        VerifyGameOptionsPresentationAssets(bus, stock, Path.Combine(root, "game-options-overrides"), original);
-        VerifyFileSelectPresentationAssets(bus, stock, Path.Combine(root, "file-select-overrides"), original);
-        VerifyGameplayMessagePanelAssets(bus, stock, Path.Combine(root, "gameplay-message-panel-overrides"), original);
-        VerifyGameplayMessageNoticeAssets(bus, stock, Path.Combine(root, "gameplay-message-notice-overrides"), original);
-        VerifyEscapeTypewriterAssets(bus, stock, Path.Combine(root, "escape-typewriter-overrides"), original);
-        VerifyIntroNarrationAssets(bus, stock, Path.Combine(root, "intro-narration-overrides"), original);
-        VerifyIntroFontAssets(bus, stock, Path.Combine(root, "intro-font-overrides"), original);
-        VerifyEndingTextAssets(bus, stock, Path.Combine(root, "ending-text-overrides"), original);
-        VerifyEndingFontAssets(bus, stock, Path.Combine(root, "ending-font-overrides"), original);
-        VerifyStaffCreditsAssets(stock, Path.Combine(root, "staff-credits-overrides"), original);
+        Suite(nameof(VerifyBundledMapMaskValidation), () => VerifyBundledMapMaskValidation(repaired));
+        Suite(nameof(VerifyMapAtlasIntegration), () => VerifyMapAtlasIntegration(bus, stock, Path.Combine(root, "atlas-overrides"), original, rules.Values.ToArray()));
+        Suite(nameof(VerifyHudAtlasIntegration), () => VerifyHudAtlasIntegration(bus, stock, Path.Combine(root, "hud-overrides"), original,
+            rules.Values.ToArray(), initialPalettes, fixtureAssets));
+        Suite(nameof(VerifyMapPaletteCycleIntegration), () => VerifyMapPaletteCycleIntegration(bus, stock, Path.Combine(root, "cycle-overrides"), original, rules.Values.ToArray()));
+        Suite(nameof(VerifyMapStaticPaletteIntegration), () => VerifyMapStaticPaletteIntegration(bus, stock, Path.Combine(root, "palette-overrides"), original, rules.Values.ToArray()));
+        Suite(nameof(VerifyWorldMapLabels), () => VerifyWorldMapLabels(bus, stock, Path.Combine(root, "label-overrides"), original));
+        Suite(nameof(VerifyMapStationLayout), () => VerifyMapStationLayout(bus, stock, Path.Combine(root, "station-overrides"), original));
+        Suite(nameof(VerifyMapLandmarks), () => VerifyMapLandmarks(bus, stock, Path.Combine(root, "landmark-overrides"), original));
+        Suite(nameof(VerifyMapSaveMarkers), () => VerifyMapSaveMarkers(bus, stock, Path.Combine(root, "save-marker-overrides"), original));
+        Suite(nameof(VerifyMapArrows), () => VerifyMapArrows(bus, stock, Path.Combine(root, "arrow-overrides"), original));
+        Suite(nameof(VerifyMapScreens), () => VerifyMapScreens(bus, stock, Path.Combine(root, "screen-overrides"), original));
+        Suite(nameof(VerifyMapSprites), () => VerifyMapSprites(bus, stock, Path.Combine(root, "sprite-overrides"), original));
+        Suite(nameof(VerifyPauseTileAtlas), () => VerifyPauseTileAtlas(bus, stock, Path.Combine(root, "pause-art-overrides"), original));
+        Suite(nameof(VerifyCompiledPauseEquipmentRules), () => VerifyCompiledPauseEquipmentRules(bus, original));
+        Suite(nameof(VerifyPauseBackdrops), () => VerifyPauseBackdrops(bus, stock, Path.Combine(root, "pause-backdrop-overrides"), original));
+        Suite(nameof(VerifyPauseWireframes), () => VerifyPauseWireframes(bus, stock, Path.Combine(root, "pause-wireframe-overrides"), original));
+        Suite(nameof(VerifyPauseSelectors), () => VerifyPauseSelectors(bus, stock, Path.Combine(root, "pause-selector-overrides"), original));
+        Suite(nameof(VerifyPauseReserveTankAssets), () => VerifyPauseReserveTankAssets(bus, stock, Path.Combine(root, "pause-reserve-tank-overrides"), original));
+        Suite(nameof(VerifyPauseReserveUiAssets), () => VerifyPauseReserveUiAssets(bus, stock, Path.Combine(root, "pause-reserve-ui-overrides"), original));
+        Suite(nameof(VerifyPauseEquipmentBaseAssets), () => VerifyPauseEquipmentBaseAssets(bus, stock, Path.Combine(root, "pause-equipment-base-overrides"), original));
+        Suite(nameof(VerifyPauseEquipmentLabelAssets), () => VerifyPauseEquipmentLabelAssets(bus, stock, Path.Combine(root, "pause-equipment-label-overrides"), original));
+        Suite(nameof(VerifyEscapeTimerPresentationAssets), () => VerifyEscapeTimerPresentationAssets(bus, stock,
+            Path.Combine(root, "escape-timer-overrides"), original, initialPalettes));
+        Suite(nameof(VerifyGameplayHudPresentationAssets), () => VerifyGameplayHudPresentationAssets(bus, stock,
+            Path.Combine(root, "gameplay-hud-overrides"), original, initialPalettes));
+        Suite(nameof(VerifyGameOverPresentationAssets), () => VerifyGameOverPresentationAssets(bus, stock, Path.Combine(root, "game-over-overrides"), original));
+        Suite(nameof(VerifyGameOptionsPresentationAssets), () => VerifyGameOptionsPresentationAssets(bus, stock, Path.Combine(root, "game-options-overrides"), original));
+        Suite(nameof(VerifyFileSelectPresentationAssets), () => VerifyFileSelectPresentationAssets(bus, stock, Path.Combine(root, "file-select-overrides"), original));
+        Suite(nameof(VerifyGameplayMessagePanelAssets), () => VerifyGameplayMessagePanelAssets(bus, stock, Path.Combine(root, "gameplay-message-panel-overrides"), original));
+        Suite(nameof(VerifyGameplayMessageNoticeAssets), () => VerifyGameplayMessageNoticeAssets(bus, stock, Path.Combine(root, "gameplay-message-notice-overrides"), original));
+        Suite(nameof(VerifyEscapeTypewriterAssets), () => VerifyEscapeTypewriterAssets(bus, stock, Path.Combine(root, "escape-typewriter-overrides"), original));
+        Suite(nameof(VerifyIntroNarrationAssets), () => VerifyIntroNarrationAssets(bus, stock, Path.Combine(root, "intro-narration-overrides"), original));
+        Suite(nameof(VerifyIntroFontAssets), () => VerifyIntroFontAssets(bus, stock, Path.Combine(root, "intro-font-overrides"), original));
+        Suite(nameof(VerifyEndingTextAssets), () => VerifyEndingTextAssets(bus, stock, Path.Combine(root, "ending-text-overrides"), original));
+        Suite(nameof(VerifyEndingFontAssets), () => VerifyEndingFontAssets(bus, stock, Path.Combine(root, "ending-font-overrides"), original));
+        Suite(nameof(VerifyStaffCreditsAssets), () => VerifyStaffCreditsAssets(stock, Path.Combine(root, "staff-credits-overrides"), original));
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
-        VerifyInstalledFileSelectMenu(bus, new ForbiddenMapBus(), original, original, verifyCapturedRendering: true);
-        VerifyMapLoadAnchors(bus, original);
-        VerifyCompiledMapScrollControls(bus, original);
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, new ForbiddenMapBus(), original, original, verifyCapturedRendering: true));
+        Suite(nameof(VerifyMapLoadAnchors), () => VerifyMapLoadAnchors(bus, original));
+        Suite(nameof(VerifyCompiledMapScrollControls), () => VerifyCompiledMapScrollControls(bus, original));
         AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
         File.WriteAllText(replacement, "{ broken JSON");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt override fails instead of selecting stock");
@@ -335,7 +335,7 @@ internal static partial class Program
             JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(
                 File.ReadAllBytes(source), MapPresentationFormat.JsonOptions)
             ?? throw new InvalidDataException("Extracted Mother Brain rainbow palette is null.");
-        VerifyMotherBrainFakeDeathPalette(bus, original.MotherBrainRainbowPalette);
+        Suite(nameof(VerifyMotherBrainFakeDeathPalette), () => VerifyMotherBrainFakeDeathPalette(bus, original.MotherBrainRainbowPalette));
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.RainbowFrameCount; frame++)
         {
             var native = new SnesCgram();
@@ -1344,8 +1344,8 @@ internal static partial class Program
         AssertEqual(x, pause.MapHorizontalScroll, "pause content rebind retains horizontal scroll");
         AssertEqual(y, pause.MapVerticalScroll, "pause content rebind retains vertical scroll");
         _ = pause.Render();
-        VerifyFileSelectMapCatalog(bus, guard, original, edited);
-        VerifyInstalledFileSelectMenu(bus, guard, original, edited);
+        Suite(nameof(VerifyFileSelectMapCatalog), () => VerifyFileSelectMapCatalog(bus, guard, original, edited));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, edited));
         Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind excludes stale content and preserves scroll.");
     }
 

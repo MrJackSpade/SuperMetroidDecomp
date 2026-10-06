@@ -6,9 +6,9 @@ internal static partial class Program
 {
     private static void VerifyDraygonIntroDanceDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyDraygonIntroLatencyDefinitions(rom);
-        VerifyDraygonIntroMovementDefinitions(rom);
-        VerifyCompleteDraygonIntroTrajectory(rom);
+        Suite(nameof(VerifyDraygonIntroLatencyDefinitions), () => VerifyDraygonIntroLatencyDefinitions(rom));
+        Suite(nameof(VerifyDraygonIntroMovementDefinitions), () => VerifyDraygonIntroMovementDefinitions(rom));
+        Suite(nameof(VerifyCompleteDraygonIntroTrajectory), () => VerifyCompleteDraygonIntroTrajectory(rom));
 
         Console.WriteLine(
             "Draygon intro dance definitions: all four latency words and all 1,104 " +
@@ -39,7 +39,7 @@ internal static partial class Program
 
     private static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyDraygonIntroDeleteSelection(rom);
+        Suite(nameof(VerifyDraygonIntroDeleteSelection), () => VerifyDraygonIntroDeleteSelection(rom));
         const int source = DraygonIntroDanceDefinitions.NativeMovementStreamAddress;
         for (ushort offset = 0;
              offset <= DraygonIntroDanceDefinitions.LastMovementStreamOffset;

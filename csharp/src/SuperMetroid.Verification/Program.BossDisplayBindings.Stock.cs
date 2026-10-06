@@ -60,7 +60,7 @@ internal static partial class Program
                     Tiles = write.Tiles.ToArray().Select(value => (int)value).ToArray() }).ToArray());
             }
         }
-        VerifyBossDisplayInstallation(path, overrides, installed);
+        Suite(nameof(VerifyBossDisplayInstallation), () => VerifyBossDisplayInstallation(path, overrides, installed));
         Console.WriteLine($"PASS stock boss import: {frames} native roots, {parts} sprites, {runs} BG2 runs/{tiles} words, " +
             $"{nativeLists.Count} compiled collision lists; exact RAM-only packed drawing and installation acceptance.");
     }

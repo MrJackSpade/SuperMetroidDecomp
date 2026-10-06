@@ -52,13 +52,13 @@ internal static partial class Program
     }
 
     private static void VerifyMotherBrainBoundaryCollision(SuperMetroidAddressSpace rom) =>
-        VerifyMotherBrainBoundaryCells(rom, 0);
+        Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 0));
 
     private static void VerifyMotherBrainWallVisuals(SuperMetroidAddressSpace rom) =>
-        VerifyMotherBrainBoundaryCells(rom, 1);
+        Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 1));
 
     private static void VerifyMotherBrainDoorVisuals(SuperMetroidAddressSpace rom) =>
-        VerifyMotherBrainBoundaryCells(rom, 2);
+        Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 2));
 
     private static void VerifyMotherBrainBoundaryCells(SuperMetroidAddressSpace rom, int field)
     {

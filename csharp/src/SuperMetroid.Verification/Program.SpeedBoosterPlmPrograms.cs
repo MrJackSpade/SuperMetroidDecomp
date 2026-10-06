@@ -106,10 +106,10 @@ internal static partial class Program
     }
 
     private static void VerifySpeedBlockHeaderSelection(SuperMetroidAddressSpace rom) =>
-        VerifySpeedBlockSelectionField(rom, instruction: false);
+        Suite(nameof(VerifySpeedBlockSelectionField), () => VerifySpeedBlockSelectionField(rom, instruction: false));
 
     private static void VerifySpeedBlockInstructionSelection(SuperMetroidAddressSpace rom) =>
-        VerifySpeedBlockSelectionField(rom, instruction: true);
+        Suite(nameof(VerifySpeedBlockSelectionField), () => VerifySpeedBlockSelectionField(rom, instruction: true));
 
     private static void VerifySpeedBlockSelectionField(SuperMetroidAddressSpace rom, bool instruction)
     {
@@ -144,13 +144,13 @@ internal static partial class Program
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        VerifySpeedBlockHeaderSelection(rom);
-        VerifySpeedBlockInstructionSelection(rom);
-        VerifySpeedBlockControlMapping(rom);
-        VerifySpeedBlockDrawOperandMapping(rom);
-        VerifySpeedBlockSoundMapping(rom);
+        Suite(nameof(VerifySpeedBlockHeaderSelection), () => VerifySpeedBlockHeaderSelection(rom));
+        Suite(nameof(VerifySpeedBlockInstructionSelection), () => VerifySpeedBlockInstructionSelection(rom));
+        Suite(nameof(VerifySpeedBlockControlMapping), () => VerifySpeedBlockControlMapping(rom));
+        Suite(nameof(VerifySpeedBlockDrawOperandMapping), () => VerifySpeedBlockDrawOperandMapping(rom));
+        Suite(nameof(VerifySpeedBlockSoundMapping), () => VerifySpeedBlockSoundMapping(rom));
 
-        VerifySpeedBlockRevealDrawMapping(rom);
+        Suite(nameof(VerifySpeedBlockRevealDrawMapping), () => VerifySpeedBlockRevealDrawMapping(rom));
 
         var cases = new (RoomBlockBehavior Bts, AreaId Area, bool Respawns)[]
         {

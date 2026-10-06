@@ -10,24 +10,24 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Spore ceiling oracle revision");
-        VerifySporeSpawnCeilingProgramControls(rom);
-        VerifySporeSpawnCeilingProgramDraws(rom);
-        VerifySporeSpawnCeilingProgramSound(rom);
+        Suite(nameof(VerifySporeSpawnCeilingProgramControls), () => VerifySporeSpawnCeilingProgramControls(rom));
+        Suite(nameof(VerifySporeSpawnCeilingProgramDraws), () => VerifySporeSpawnCeilingProgramDraws(rom));
+        Suite(nameof(VerifySporeSpawnCeilingProgramSound), () => VerifySporeSpawnCeilingProgramSound(rom));
 
-        VerifySporeSpawnCeilingDrawMapping(rom);
+        Suite(nameof(VerifySporeSpawnCeilingDrawMapping), () => VerifySporeSpawnCeilingDrawMapping(rom));
 
-        VerifySporeSpawnCeiling(clear: false);
-        VerifySporeSpawnCeiling(clear: true);
+        Suite(nameof(VerifySporeSpawnCeiling), () => VerifySporeSpawnCeiling(clear: false));
+        Suite(nameof(VerifySporeSpawnCeiling), () => VerifySporeSpawnCeiling(clear: true));
         Console.WriteLine(
             "Spore Spawn ceiling: two native lists and four 2x2 physical draws match ROM; crumble/clear, sound and deletion run with source bytes forbidden.");
     }
 
     private static void VerifySporeSpawnCeilingProgramControls(SuperMetroidAddressSpace rom) =>
-        VerifySporeSpawnCeilingProgramField(rom, false);
+        Suite(nameof(VerifySporeSpawnCeilingProgramField), () => VerifySporeSpawnCeilingProgramField(rom, false));
 
     private static void VerifySporeSpawnCeilingProgramDraws(SuperMetroidAddressSpace rom)
     {
-        VerifySporeSpawnCeilingProgramField(rom, true);
+        Suite(nameof(VerifySporeSpawnCeilingProgramField), () => VerifySporeSpawnCeilingProgramField(rom, true));
         ushort[] originalOperands = [0xab17,0xab1b,0xab1f];
         for (int frame = 0; frame < originalOperands.Length; frame++)
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | originalOperands[frame]),

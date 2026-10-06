@@ -98,9 +98,9 @@ internal static partial class Program
 
     private static void VerifyMapLoadAnchors(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
-        VerifyMapLoadAnchorX(bus);
-        VerifyMapLoadAnchorY(bus);
-        VerifyFileSelectMapAreaCases(bus);
+        Suite(nameof(VerifyMapLoadAnchorX), () => VerifyMapLoadAnchorX(bus));
+        Suite(nameof(VerifyMapLoadAnchorY), () => VerifyMapLoadAnchorY(bus));
+        Suite(nameof(VerifyFileSelectMapAreaCases), () => VerifyFileSelectMapAreaCases(bus));
         var guard = new ForbiddenMapBus();
         int anchors = 0;
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
@@ -146,7 +146,7 @@ internal static partial class Program
         AssertEqual(34, anchors, "all native valid saved-map anchors checked");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Ceres, 0), "Ceres has no file-select map anchor");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Maridia, 16), "invalid station index not clamped");
-        VerifyInstalledFileSelectMenu(bus, guard, catalog, catalog);
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, catalog, catalog));
         AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(bus,
             new CartridgeAudioState(), new SuperMetroidSaveRam(bus, RetailPresentationFixture()).ReadSlot(0)!, 0),
             "file-select map cannot construct a cartridge-backed fallback graph");

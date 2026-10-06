@@ -112,7 +112,7 @@ internal static partial class Program
         AssertTrue(DrawPhantoonBg2(edited, noCartridge,
                 firstPointer, newInstructionFrame: false).All(value => value == 0),
             "Phantoon BG2 override retains the native new-frame producer gate");
-        VerifyPhantoonCollisionDefinitions(rom, noCartridge, stock, edited);
+        Suite(nameof(VerifyPhantoonCollisionDefinitions), () => VerifyPhantoonCollisionDefinitions(rom, noCartridge, stock, edited));
         EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(reloaded.PhantoonBg2Frames!.TryGet(

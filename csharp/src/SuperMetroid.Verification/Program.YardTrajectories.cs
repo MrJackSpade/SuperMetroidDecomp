@@ -11,10 +11,10 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xd5a7);
         var assets = CartridgeRoomAssets.Load(bus, room);
-        VerifyYardLanding(bus, room);
-        VerifyYardRuntimeDistancePublication();
-        VerifyYardKickWords(bus, room);
-        VerifyYardAirborneTrajectories(bus, room);
+        Suite(nameof(VerifyYardLanding), () => VerifyYardLanding(bus, room));
+        Suite(nameof(VerifyYardRuntimeDistancePublication), () => VerifyYardRuntimeDistancePublication());
+        Suite(nameof(VerifyYardKickWords), () => VerifyYardKickWords(bus, room));
+        Suite(nameof(VerifyYardAirborneTrajectories), () => VerifyYardAirborneTrajectories(bus, room));
         for (int focus = 0; focus < 5; focus++)
         {
             var enemies = new RoomEnemySystem();

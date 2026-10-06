@@ -14,10 +14,10 @@ internal static partial class Program
     }
 
     private static void VerifyNamiFuneLeftLaunchMapping(SuperMetroidAddressSpace rom) =>
-        VerifyNamiFuneLaunchField(rom, left: true);
+        Suite(nameof(VerifyNamiFuneLaunchField), () => VerifyNamiFuneLaunchField(rom, left: true));
 
     private static void VerifyNamiFuneRightLaunchMapping(SuperMetroidAddressSpace rom) =>
-        VerifyNamiFuneLaunchField(rom, left: false);
+        Suite(nameof(VerifyNamiFuneLaunchField), () => VerifyNamiFuneLaunchField(rom, left: false));
 
     private static void VerifyNamiFuneLaunchField(SuperMetroidAddressSpace rom, bool left)
     {
@@ -41,9 +41,9 @@ internal static partial class Program
 
     private static void VerifyCompiledEnemyFireballLaunches(SuperMetroidAddressSpace rom)
     {
-        VerifyAlcoonVerticalLaunchMapping(rom);
-        VerifyNamiFuneLeftLaunchMapping(rom);
-        VerifyNamiFuneRightLaunchMapping(rom);
+        Suite(nameof(VerifyAlcoonVerticalLaunchMapping), () => VerifyAlcoonVerticalLaunchMapping(rom));
+        Suite(nameof(VerifyNamiFuneLeftLaunchMapping), () => VerifyNamiFuneLeftLaunchMapping(rom));
+        Suite(nameof(VerifyNamiFuneRightLaunchMapping), () => VerifyNamiFuneRightLaunchMapping(rom));
         Console.WriteLine("Enemy fireball launches: three independent mappings, 19 native words, 2048 valid parameter aliases and invalid selectors pass.");
     }
 }

@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifySkreeMetareeParticleInstructionProgramDefinitions()
     {
-        VerifySkreeMetareeParticleInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifySkreeMetareeParticleInstructionProgramDefinitions), () => VerifySkreeMetareeParticleInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifySkreeMetareeParticleInstructionProgramDefinitions(

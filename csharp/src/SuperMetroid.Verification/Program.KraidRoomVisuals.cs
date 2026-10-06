@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyKraidRoomVisuals()
     {
-        VerifyKraidRoomVisualSelection();
+        Suite(nameof(VerifyKraidRoomVisualSelection), () => VerifyKraidRoomVisualSelection());
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
@@ -110,18 +110,18 @@ internal static partial class Program
         var tube = new RoomPlmMaridiaElevatubeVisualCatalog(
             [new RoomPlmMaridiaElevatubeVisualEntry(
                 MaridiaElevatubePlmDefinitions.VisualId, [0x005b])]);
-        VerifyKraidDraw(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1,
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1,
             KraidRoomPlmDrawDefinitions.CrumbleFirst, 0,
-            0x8180, 0x0058, edited, tube, layer1X: 0);
-        VerifyKraidDraw(RoomPlmHeaders.ClearKraidCeiling,
+            0x8180, 0x0058, edited, tube, layer1X: 0));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(RoomPlmHeaders.ClearKraidCeiling,
             KraidRoomPlmDrawDefinitions.ClearCeiling, 14,
-            0x0130, 0x0059, edited, tube, layer1X: 64);
-        VerifyKraidDraw(RoomPlmHeaders.ClearKraidSpikes,
+            0x0130, 0x0059, edited, tube, layer1X: 64));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(RoomPlmHeaders.ClearKraidSpikes,
             KraidRoomPlmDrawDefinitions.ClearSpikes, 21,
-            0x0110, 0x005a, edited, tube, layer1X: 192);
-        VerifyKraidDraw(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1,
+            0x0110, 0x005a, edited, tube, layer1X: 192));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1,
             KraidRoomPlmDrawDefinitions.CrumbleFirst, 0,
-            0x8180, 0x0180, null, tube, layer1X: 0);
+            0x8180, 0x0180, null, tube, layer1X: 0));
 
         RoomLevelData tubeLevel = CreateRoom(4, 4, new ushort[16], new byte[16],
             blockDefinitions: new byte[0x400 * 8]);

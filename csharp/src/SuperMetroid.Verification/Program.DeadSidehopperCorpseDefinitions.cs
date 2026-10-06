@@ -6,25 +6,25 @@ internal static partial class Program
 {
     private static void VerifyDeadSidehopperCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyDefinition(
+        Suite(nameof(VerifyDefinition), () => VerifyDefinition(
             rom,
             DeadSidehopperCorpseDefinitions.InitiallyAlive,
-            expectedConfigurationPointer: 0xdd68);
-        VerifyDefinition(
+            expectedConfigurationPointer: 0xdd68));
+        Suite(nameof(VerifyDefinition), () => VerifyDefinition(
             rom,
             DeadSidehopperCorpseDefinitions.InitiallyDead,
-            expectedConfigurationPointer: 0xdd78);
+            expectedConfigurationPointer: 0xdd78));
 
-        VerifyProductionInitialization(
+        Suite(nameof(VerifyProductionInitialization), () => VerifyProductionInitialization(
             rom,
             parameter1: 0,
             graphicsVariant: 0,
-            DeadSidehopperCorpseDefinitions.InitiallyAlive);
-        VerifyProductionInitialization(
+            DeadSidehopperCorpseDefinitions.InitiallyAlive));
+        Suite(nameof(VerifyProductionInitialization), () => VerifyProductionInitialization(
             rom,
             parameter1: 2,
             graphicsVariant: 2,
-            DeadSidehopperCorpseDefinitions.InitiallyDead);
+            DeadSidehopperCorpseDefinitions.InitiallyDead));
 
         Console.WriteLine(
             "Dead sidehopper corpse definitions: all 16 native configuration words, two derived wrap offsets, and both production initializers pass with migrated metadata reads forbidden.");

@@ -111,9 +111,9 @@ internal static partial class Program
         }
         Equal(elevatorExpected, elevatorActual, "Ceres elevator owner ordering and placements");
 
-        VerifyOamSpritemapPacking();
-        VerifyMotherBrainProjectileRendering();
-        VerifyMiscDustProjectiles();
+        Suite(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking());
+        Suite(nameof(VerifyMotherBrainProjectileRendering), () => VerifyMotherBrainProjectileRendering());
+        Suite(nameof(VerifyMiscDustProjectiles), () => VerifyMiscDustProjectiles());
         AssertTrue(typeof(OamBuffer).GetMethod("AddEnemyProjectileSpritemap") is null &&
             typeof(OamBuffer).GetMethod("ReadSpritemapByte", BindingFlags.Static | BindingFlags.NonPublic) is null,
             "Core OAM cannot recover a generic spritemap address reader");

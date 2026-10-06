@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyBlueDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyBlueDoorProgramDefinitions(rom);
+        Suite(nameof(VerifyBlueDoorProgramDefinitions), () => VerifyBlueDoorProgramDefinitions(rom));
         static ushort ReadNativeWord(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
@@ -32,9 +32,9 @@ internal static partial class Program
             "blue-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(leftFirstDraw, 0),
             "stock blue-door visual retains native tile choice");
-        VerifyBlueCapGeometry(rom);
-        VerifyBlueCapCollision(rom);
-        VerifyBlueCapVisuals(rom);
+        Suite(nameof(VerifyBlueCapGeometry), () => VerifyBlueCapGeometry(rom));
+        Suite(nameof(VerifyBlueCapCollision), () => VerifyBlueCapCollision(rom));
+        Suite(nameof(VerifyBlueCapVisuals), () => VerifyBlueCapVisuals(rom));
 
         foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
         {
@@ -129,17 +129,17 @@ internal static partial class Program
         }
 
         editedFrame.Blocks[0] = originalVisual;
-        VerifyBlueDoorVisualInstallation(rom, leftFirstDraw);
+        Suite(nameof(VerifyBlueDoorVisualInstallation), () => VerifyBlueDoorVisualInstallation(rom, leftFirstDraw));
 
         Console.WriteLine("  Blue-door PLMs: 196 compiled program bytes, all opening/closing/closed lists, twenty physical draws and sixteen compatible visual identities pass with source reads forbidden.");
     }
 
     private static void VerifyBlueDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyBlueProgramControls(rom);
-        VerifyBlueProgramDraws(rom);
-        VerifyBlueProgramSounds(rom);
-        VerifyBlueProgramBts(rom);
+        Suite(nameof(VerifyBlueProgramControls), () => VerifyBlueProgramControls(rom));
+        Suite(nameof(VerifyBlueProgramDraws), () => VerifyBlueProgramDraws(rom));
+        Suite(nameof(VerifyBlueProgramSounds), () => VerifyBlueProgramSounds(rom));
+        Suite(nameof(VerifyBlueProgramBts), () => VerifyBlueProgramBts(rom));
     }
 
     private static void VerifyBlueDoorVisualInstallation(

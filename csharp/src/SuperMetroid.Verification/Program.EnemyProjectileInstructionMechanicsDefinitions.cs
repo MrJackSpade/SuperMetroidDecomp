@@ -73,13 +73,13 @@ internal static partial class Program
         };
         var samus = new SamusState { XPosition = 0x4000, YPosition = 0x4000 };
 
-        VerifyCompiledBlueRingProgram(guarded, motherBrain, samus);
-        VerifyCompiledBombProgram(guarded, motherBrain, samus);
-        VerifyCompiledPurpleBreathProgram(guarded, motherBrain, samus);
-        VerifyCompiledEscapeDoorProgram(guarded, motherBrain, samus);
-        VerifyCompiledSubtitleProgram(guarded, motherBrain, samus);
-        VerifyCompiledMiscDustPrograms(guarded, motherBrain, samus);
-        VerifyCompiledRoomSharedPrograms(guarded, samus, rom);
+        Suite(nameof(VerifyCompiledBlueRingProgram), () => VerifyCompiledBlueRingProgram(guarded, motherBrain, samus));
+        Suite(nameof(VerifyCompiledBombProgram), () => VerifyCompiledBombProgram(guarded, motherBrain, samus));
+        Suite(nameof(VerifyCompiledPurpleBreathProgram), () => VerifyCompiledPurpleBreathProgram(guarded, motherBrain, samus));
+        Suite(nameof(VerifyCompiledEscapeDoorProgram), () => VerifyCompiledEscapeDoorProgram(guarded, motherBrain, samus));
+        Suite(nameof(VerifyCompiledSubtitleProgram), () => VerifyCompiledSubtitleProgram(guarded, motherBrain, samus));
+        Suite(nameof(VerifyCompiledMiscDustPrograms), () => VerifyCompiledMiscDustPrograms(guarded, motherBrain, samus));
+        Suite(nameof(VerifyCompiledRoomSharedPrograms), () => VerifyCompiledRoomSharedPrograms(guarded, samus, rom));
 
         var invalid = new MotherBrainEnemyProjectileSystem();
         int invalidSlotIndex = invalid.SpawnTimeBombSetSubtitle() ??
@@ -433,8 +433,8 @@ internal static partial class Program
         AssertTrue(!ring.IsActive,
             "onion-ring impact deletes on the frame after its exact 30-frame lifetime");
 
-        VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDrool, 0x007f);
-        VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDyingDrool, 0x0080);
+        Suite(nameof(VerifyDroolVariant), () => VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDrool, 0x007f));
+        Suite(nameof(VerifyDroolVariant), () => VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDyingDrool, 0x0080));
 
         RoomEnemySystem fragmentEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot fragment = fragmentEnemies.EnemyProjectiles[^1];

@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyPolypRockInstructionProgramDefinitions()
     {
-        VerifyPolypRockInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyPolypRockInstructionProgramDefinitions), () => VerifyPolypRockInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyPolypRockInstructionProgramDefinitions(
@@ -56,7 +56,7 @@ internal static partial class Program
             "Polyp rock selects its installed presentation binding without cartridge reads");
         var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
             ?? throw new InvalidOperationException("Polyp rock fixture requires installed projectile artwork.");
-        VerifyExecutedProjectileFrame(rom, rock, spriteArtwork, new HashSet<ushort>());
+        Suite(nameof(VerifyExecutedProjectileFrame), () => VerifyExecutedProjectileFrame(rom, rock, spriteArtwork, new HashSet<ushort>()));
         AssertEqual(PolypRockInstructionProgramDefinitions.Sleep,
             rock.InstructionPointer,
             "Polyp rock reaches its terminal sleep after the authored frame");

@@ -14,25 +14,25 @@ internal static partial class Program
         var rom = CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "FX blend oracle revision");
-        VerifyFxBlendSelectorIdentities();
-        VerifyFxBlendSourceAddresses(rom);
+        Suite(nameof(VerifyFxBlendSelectorIdentities), () => VerifyFxBlendSelectorIdentities());
+        Suite(nameof(VerifyFxBlendSourceAddresses), () => VerifyFxBlendSourceAddresses(rom));
         RoomFxPaletteBlendCatalog catalog = RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(new BlackBlendSourceGuard(new DerivedBlendSourceGuard(rom)))));
-        VerifyCeresDefaultRed(rom, catalog);
-        VerifyCeresDefaultGreen(rom, catalog);
-        VerifyCeresDefaultBlue(rom, catalog);
-        VerifyCeresDefaultTintStructure(rom);
-        VerifyFxBlendBlackRed(rom, catalog);
-        VerifyFxBlendBlackGreen(rom, catalog);
-        VerifyFxBlendBlackBlue(rom, catalog);
-        VerifyFxBlendBlackStorageAndEdits(catalog);
-        VerifyFxPairRed(rom, catalog);
-        VerifyFxPairGreen(rom, catalog);
-        VerifyFxPairBlue(rom, catalog);
-        VerifyFxPairStorageAndEdits(rom);
-        VerifyFxWeatherThirdGreen(rom, catalog);
-        VerifyFxWeatherThirdBlue(rom, catalog);
-        VerifyFxBlendPageDispatch(rom, catalog);
+        Suite(nameof(VerifyCeresDefaultRed), () => VerifyCeresDefaultRed(rom, catalog));
+        Suite(nameof(VerifyCeresDefaultGreen), () => VerifyCeresDefaultGreen(rom, catalog));
+        Suite(nameof(VerifyCeresDefaultBlue), () => VerifyCeresDefaultBlue(rom, catalog));
+        Suite(nameof(VerifyCeresDefaultTintStructure), () => VerifyCeresDefaultTintStructure(rom));
+        Suite(nameof(VerifyFxBlendBlackRed), () => VerifyFxBlendBlackRed(rom, catalog));
+        Suite(nameof(VerifyFxBlendBlackGreen), () => VerifyFxBlendBlackGreen(rom, catalog));
+        Suite(nameof(VerifyFxBlendBlackBlue), () => VerifyFxBlendBlackBlue(rom, catalog));
+        Suite(nameof(VerifyFxBlendBlackStorageAndEdits), () => VerifyFxBlendBlackStorageAndEdits(catalog));
+        Suite(nameof(VerifyFxPairRed), () => VerifyFxPairRed(rom, catalog));
+        Suite(nameof(VerifyFxPairGreen), () => VerifyFxPairGreen(rom, catalog));
+        Suite(nameof(VerifyFxPairBlue), () => VerifyFxPairBlue(rom, catalog));
+        Suite(nameof(VerifyFxPairStorageAndEdits), () => VerifyFxPairStorageAndEdits(rom));
+        Suite(nameof(VerifyFxWeatherThirdGreen), () => VerifyFxWeatherThirdGreen(rom, catalog));
+        Suite(nameof(VerifyFxWeatherThirdBlue), () => VerifyFxWeatherThirdBlue(rom, catalog));
+        Suite(nameof(VerifyFxBlendPageDispatch), () => VerifyFxBlendPageDispatch(rom, catalog));
         RoomFxLayer3TilemapCatalog tilemaps = RoomFxLayer3TilemapCatalog.Load(
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(rom)));
         foreach (byte id in RoomFxPaletteBlendDefinitions.Ids)
@@ -66,7 +66,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(System.Text.Encoding.UTF8.GetBytes(duplicate))),
             "duplicate room-FX blend property fails loudly");
-        VerifyCeresHazeTintOverride(rom);
+        Suite(nameof(VerifyCeresHazeTintOverride), () => VerifyCeresHazeTintOverride(rom));
         Console.WriteLine("  Room-FX blend palettes: all 24 native words and guarded load/reload paths pass.");
     }
 

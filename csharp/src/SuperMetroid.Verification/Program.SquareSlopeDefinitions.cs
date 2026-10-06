@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyCompiledSquareSlopes(SuperMetroidAddressSpace rom)
     {
-        VerifySamusSquareSlopeAlgorithm(rom);
-        VerifyEnemySquareSlopeAlgorithm(rom);
+        Suite(nameof(VerifySamusSquareSlopeAlgorithm), () => VerifySamusSquareSlopeAlgorithm(rom));
+        Suite(nameof(VerifyEnemySquareSlopeAlgorithm), () => VerifyEnemySquareSlopeAlgorithm(rom));
     }
 
     private static void VerifySamusSquareSlopeAlgorithm(SuperMetroidAddressSpace rom)

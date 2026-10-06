@@ -46,7 +46,7 @@ internal static partial class Program
             AssertTrue(!scroll.Step(input), "unrelated controller bit does not queue map sound");
             AssertEqual(MapScrollDirection.None, scroll.Direction, "unrelated controller bit cannot start map scrolling");
         }
-        VerifyInstalledFileSelectMenu(bus, guard, catalog, catalog);
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, catalog, catalog));
         Console.WriteLine("Compiled map controls: four native masks/order, 16 direction combinations, trajectories/sound boundaries and guarded full menu parity pass.");
     }
 

@@ -22,10 +22,10 @@ internal static partial class Program
     }
     private static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
-        VerifyTitleGradientObjectEligibility();
-        VerifyExtractedTitleGraphics(bus);
-        VerifyExtractedTitlePalette(bus);
-        VerifyExtractedTitleGradient(bus);
+        Suite(nameof(VerifyTitleGradientObjectEligibility), () => VerifyTitleGradientObjectEligibility());
+        Suite(nameof(VerifyExtractedTitleGraphics), () => VerifyExtractedTitleGraphics(bus));
+        Suite(nameof(VerifyExtractedTitlePalette), () => VerifyExtractedTitlePalette(bus));
+        Suite(nameof(VerifyExtractedTitleGradient), () => VerifyExtractedTitleGradient(bus));
         // Independently transcribed boundaries from $8C:BC7D and $88:EB95.
         var lines = TitleGradientDecoder.Decode(bus, 0);
         AssertEqual(new TitleGradientLine(15, 15, 15, 0xa1), lines[0], "title gradient starts subtracting fifteen");
@@ -232,9 +232,9 @@ internal static partial class Program
         AssertEqual(TitleSequenceRomData.Palette.CopyrightRed,
             presentation.SkipCopyrightRed, "extracted title skip copyright red");
 
-        VerifyExtractedTitleAmbientPalette(bus, presentation);
+        Suite(nameof(VerifyExtractedTitleAmbientPalette), () => VerifyExtractedTitleAmbientPalette(bus, presentation));
 
-        VerifyTitlePaletteValidation(extracted);
+        Suite(nameof(VerifyTitlePaletteValidation), () => VerifyTitlePaletteValidation(extracted));
         var paletteAddresses = Enumerable.Range(
             TitleSequenceRomData.Assets.PaletteAddress,
             SnesCgram.ByteCount).ToHashSet();
@@ -401,7 +401,7 @@ internal static partial class Program
                     TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom)))
                 throw new InvalidDataException($"Extracted title gradient differs at zoom ${zoom:X2}.");
         }
-        VerifyTitleGradientValidation(extracted);
+        Suite(nameof(VerifyTitleGradientValidation), () => VerifyTitleGradientValidation(extracted));
 
         // The rest of title setup remains cartridge-backed presentation for later #549
         // slices. Forbid only the complete gradient source closure discovered above, then

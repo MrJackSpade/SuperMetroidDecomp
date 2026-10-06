@@ -5,15 +5,15 @@ internal static partial class Program
 {
     private static void VerifyCrocomireTongueInstructionProgramDefinitions()
     {
-        VerifyCrocomireTongueInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyCrocomireTongueInstructionProgramDefinitions), () => VerifyCrocomireTongueInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyCrocomireTongueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyCrocomireTongueMechanicsDispatch(rom);
-        VerifyCrocomireTonguePresentationPositions(rom);
+        Suite(nameof(VerifyCrocomireTongueMechanicsDispatch), () => VerifyCrocomireTongueMechanicsDispatch(rom));
+        Suite(nameof(VerifyCrocomireTonguePresentationPositions), () => VerifyCrocomireTonguePresentationPositions(rom));
 
         _ = ProbeCrocomireTongueInstructionMechanicsAllocation();
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();

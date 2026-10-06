@@ -6,9 +6,9 @@ internal static partial class Program
 {
     private static void VerifyGunshipMotionDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyGunshipBrakeAlgorithm(rom);
-        VerifyGunshipHoverTimerAlgorithm(rom);
-        VerifyGunshipHoverDeltaSelection(rom);
+        Suite(nameof(VerifyGunshipBrakeAlgorithm), () => VerifyGunshipBrakeAlgorithm(rom));
+        Suite(nameof(VerifyGunshipHoverTimerAlgorithm), () => VerifyGunshipHoverTimerAlgorithm(rom));
+        Suite(nameof(VerifyGunshipHoverDeltaSelection), () => VerifyGunshipHoverDeltaSelection(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var brakeMethod = typeof(RoomEnemySystem).GetMethod("BouncePostCeresGunship", flags)!;
         var bobMethod = typeof(RoomEnemySystem).GetMethod("StepGunshipBob", flags)!;

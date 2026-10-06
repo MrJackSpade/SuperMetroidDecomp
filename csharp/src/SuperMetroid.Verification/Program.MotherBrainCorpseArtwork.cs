@@ -13,7 +13,7 @@ internal static partial class Program
         var source = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         EnemyTileArtworkFiles.Extract(source, temporary.Root, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(temporary.Root);
-        VerifyInstalledMotherBrainCorpseArtwork(temporary.Root, EnemyTileArtworkFiles.Load(temporary.Root, null));
+        Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(temporary.Root, EnemyTileArtworkFiles.Load(temporary.Root, null)));
     }
 
     private static void VerifyInstalledMotherBrainCorpseArtwork(

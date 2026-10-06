@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyLowerNorfairRioInstructionProgramDefinitions()
     {
-        VerifyLowerNorfairRioInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyLowerNorfairRioInstructionProgramDefinitions), () => VerifyLowerNorfairRioInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyLowerNorfairRioInstructionProgramDefinitions(
@@ -91,7 +91,7 @@ internal static partial class Program
                 $"Lower Norfair Rio {name} animation signal");
         }
 
-        VerifyLowerNorfairRioInitializerSelections(guard, flags);
+        Suite(nameof(VerifyLowerNorfairRioInitializerSelections), () => VerifyLowerNorfairRioInitializerSelections(guard, flags));
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Lower Norfair Rio presentation selectors are compiled, not ROM reads");

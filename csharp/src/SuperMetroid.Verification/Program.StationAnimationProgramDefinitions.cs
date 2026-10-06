@@ -8,22 +8,22 @@ internal static partial class Program
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Station animation oracle revision");
-        VerifyStationVisualIds();
-        VerifyStationAnimationDurations(rom);
-        VerifyStationAnimationDraws(rom);
+        Suite(nameof(VerifyStationVisualIds), () => VerifyStationVisualIds());
+        Suite(nameof(VerifyStationAnimationDurations), () => VerifyStationAnimationDurations(rom));
+        Suite(nameof(VerifyStationAnimationDraws), () => VerifyStationAnimationDraws(rom));
 
-        VerifyStationLayoutGeometry(rom);
-        VerifyStationLayoutCollision(rom);
-        VerifyStationLayoutVisuals(rom);
+        Suite(nameof(VerifyStationLayoutGeometry), () => VerifyStationLayoutGeometry(rom));
+        Suite(nameof(VerifyStationLayoutCollision), () => VerifyStationLayoutCollision(rom));
+        Suite(nameof(VerifyStationLayoutVisuals), () => VerifyStationLayoutVisuals(rom));
 
-        VerifyStationAccessRetractedDraws(rom);
-        VerifyStationAccessExtendedDraws(rom);
+        Suite(nameof(VerifyStationAccessRetractedDraws), () => VerifyStationAccessRetractedDraws(rom));
+        Suite(nameof(VerifyStationAccessExtendedDraws), () => VerifyStationAccessExtendedDraws(rom));
 
         // The population fixture carries no station animation, access selection,
         // or draw-list bytes.
         // Its real map, missile, and save paths can finish only with compiled data.
-        VerifySequentialRoomPlmPopulationLoader();
-        VerifyStationVisuals(rom);
+        Suite(nameof(VerifySequentialRoomPlmPopulationLoader), () => VerifySequentialRoomPlmPopulationLoader());
+        Suite(nameof(VerifyStationVisuals), () => VerifyStationVisuals(rom));
         Console.WriteLine(
             "Station animations: all 15 frame records, 20 draw lists, and 12 access selections match ROM; sparse-bus station activation and save animation use compiled data.");
     }

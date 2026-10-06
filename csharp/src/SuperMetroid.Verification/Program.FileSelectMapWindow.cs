@@ -17,10 +17,10 @@ internal static partial class Program
     }
     private static void VerifyFileSelectMapWindow()
     {
-        VerifyFileSelectAreaMapGraphics();
-        VerifyFileSelectRoomMapGraphics();
-        VerifyFileSelectMapWindowComposition();
-        VerifyFileSelectMapEntry();
+        Suite(nameof(VerifyFileSelectAreaMapGraphics), () => VerifyFileSelectAreaMapGraphics());
+        Suite(nameof(VerifyFileSelectRoomMapGraphics), () => VerifyFileSelectRoomMapGraphics());
+        Suite(nameof(VerifyFileSelectMapWindowComposition), () => VerifyFileSelectMapWindowComposition());
+        Suite(nameof(VerifyFileSelectMapEntry), () => VerifyFileSelectMapEntry());
         var fake = new TestAddressSpace();
         WriteTestWord(fake, FileSelectMapRomData.WindowTimers, 1);
         // The lower-bound clamp must preserve .C000, or frame two will still
@@ -41,11 +41,11 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectMapWindow(fake, 6), "Ceres has no area-select window record");
 
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        VerifyMapWindowLeftVelocities(bus);
-        VerifyMapWindowRightVelocities(bus);
-        VerifyMapWindowTopVelocities(bus);
-        VerifyMapWindowBottomVelocities(bus);
-        VerifyMapWindowTimers(bus);
+        Suite(nameof(VerifyMapWindowLeftVelocities), () => VerifyMapWindowLeftVelocities(bus));
+        Suite(nameof(VerifyMapWindowRightVelocities), () => VerifyMapWindowRightVelocities(bus));
+        Suite(nameof(VerifyMapWindowTopVelocities), () => VerifyMapWindowTopVelocities(bus));
+        Suite(nameof(VerifyMapWindowBottomVelocities), () => VerifyMapWindowBottomVelocities(bus));
+        Suite(nameof(VerifyMapWindowTimers), () => VerifyMapWindowTimers(bus));
         int[] durations = [52, 54, 46, 52, 52, 35];
         int[] labelX = [91, 42, 94, 206, 206, 135];
         int[] labelY = [50, 127, 181, 80, 159, 139];

@@ -12,14 +12,14 @@ internal static partial class Program
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "FX tilemap oracle revision");
-        VerifyFxTilemapTypeEnumeration();
-        VerifyFxTilemapSourceAddresses(rom);
+        Suite(nameof(VerifyFxTilemapTypeEnumeration), () => VerifyFxTilemapTypeEnumeration());
+        Suite(nameof(VerifyFxTilemapSourceAddresses), () => VerifyFxTilemapSourceAddresses(rom));
         byte[] json = RoomFxLayer3TilemapExtractor.Extract(new LiquidTilemapSourceGuard(rom));
         RoomFxLayer3TilemapCatalog catalog = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(json));
-        VerifyLiquidTilemaps(rom, catalog);
-        VerifySporeTilemapAttributes(rom, catalog);
-        VerifyAtmosphereTilemapFields(rom, catalog);
-        VerifyFxTilemapPageDispatch(rom, catalog);
+        Suite(nameof(VerifyLiquidTilemaps), () => VerifyLiquidTilemaps(rom, catalog));
+        Suite(nameof(VerifySporeTilemapAttributes), () => VerifySporeTilemapAttributes(rom, catalog));
+        Suite(nameof(VerifyAtmosphereTilemapFields), () => VerifyAtmosphereTilemapFields(rom, catalog));
+        Suite(nameof(VerifyFxTilemapPageDispatch), () => VerifyFxTilemapPageDispatch(rom, catalog));
         RoomFxPaletteBlendCatalog paletteColors = RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(RoomFxPaletteBlendExtractor.Extract(rom)));
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)

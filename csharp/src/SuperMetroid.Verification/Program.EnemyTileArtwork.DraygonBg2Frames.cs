@@ -68,9 +68,9 @@ internal static partial class Program
         AssertEqual(34, DraygonBg2FrameDefinitions.Frames.Length,
             "all selected Draygon BG2 frame identities are installed");
         AssertEqual(102, writeCount, "all Draygon BG2 command writes are installed");
-        VerifyCompiledDraygonBg2Collision(rom);
-        VerifyCompiledDraygonOamCollision(rom);
-        VerifyCompiledSporeSpawnCollision(rom);
+        Suite(nameof(VerifyCompiledDraygonBg2Collision), () => VerifyCompiledDraygonBg2Collision(rom));
+        Suite(nameof(VerifyCompiledDraygonOamCollision), () => VerifyCompiledDraygonOamCollision(rom));
+        Suite(nameof(VerifyCompiledSporeSpawnCollision), () => VerifyCompiledSporeSpawnCollision(rom));
 
         string stockPath = Path.Combine(stockDirectory, DraygonBg2FrameDefinitions.FileName);
         byte[] original = File.ReadAllBytes(stockPath);

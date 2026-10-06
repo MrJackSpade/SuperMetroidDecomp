@@ -8,9 +8,9 @@ internal static partial class Program
     private static void VerifyCompiledDynamicCollectibleGraphics(
         SuperMetroidAddressSpace rom)
     {
-        VerifyDynamicCollectibleSourcePointers(rom);
-        VerifyDynamicCollectibleKindIdentity();
-        VerifyDynamicCollectiblePaletteSelectors(rom);
+        Suite(nameof(VerifyDynamicCollectibleSourcePointers), () => VerifyDynamicCollectibleSourcePointers(rom));
+        Suite(nameof(VerifyDynamicCollectibleKindIdentity), () => VerifyDynamicCollectibleKindIdentity());
+        Suite(nameof(VerifyDynamicCollectiblePaletteSelectors), () => VerifyDynamicCollectiblePaletteSelectors(rom));
 
         // Retail population $8F:83FE contains a Chozo-orb Bombs item. Ban every
         // compiled graphics payload and every retail item-list upload from the bus,
@@ -37,7 +37,7 @@ internal static partial class Program
                 $"retail Bombs item VRAM character byte {offset}");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "retail collectible loader does not reread compiled character or palette bytes");
-        VerifyInstalledDynamicCollectibleArt(rom);
+        Suite(nameof(VerifyInstalledDynamicCollectibleArt), () => VerifyInstalledDynamicCollectibleArt(rom));
     }
 
     private static ushort ReadCollectibleGraphicsWord(

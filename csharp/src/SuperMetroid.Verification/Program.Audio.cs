@@ -10,10 +10,10 @@ internal static partial class Program
     /// </summary>
     private static void VerifyCartridgeAudioQueues()
     {
-        VerifyDoorSoundDisableGuard();
+        Suite(nameof(VerifyDoorSoundDisableGuard), () => VerifyDoorSoundDisableGuard());
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        VerifyAudioUploadCatalog(retail);
+        Suite(nameof(VerifyAudioUploadCatalog), () => VerifyAudioUploadCatalog(retail));
         var invalidMusicData = new CartridgeAudioState();
         invalidMusicData.AdvanceFrame(retail, default);
         invalidMusicData.QueueMusicDelayed8(MusicCommand.LoadData(0x01));
@@ -73,8 +73,8 @@ internal static partial class Program
         WriteAudioRomByte(rom, 0x918001, 0x00); // terminator
         WriteAudioRomByte(rom, 0x918002, 0x00);
         var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-        VerifySoundQueueAccumulator(bus);
-        VerifyGameplayAudioPublication(bus);
+        Suite(nameof(VerifySoundQueueAccumulator), () => VerifySoundQueueAccumulator(bus));
+        Suite(nameof(VerifyGameplayAudioPublication), () => VerifyGameplayAudioPublication(bus));
 
         var audio = new CartridgeAudioState();
         audio.QueueMusicDelayed8(MusicCommand.LoadData(0x03));

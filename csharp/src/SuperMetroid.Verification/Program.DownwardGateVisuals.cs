@@ -85,7 +85,7 @@ internal static partial class Program
                 entry.Id == "column-frame-5" ? entry with { Id = "unknown-frame" } : entry)),
             "gate visual catalog rejects unknown frame IDs");
 
-        VerifyDownwardGateVisualInstallation();
+        Suite(nameof(VerifyDownwardGateVisualInstallation), () => VerifyDownwardGateVisualInstallation());
     }
 
     private static void VerifyDownwardGateVisualInstallation()

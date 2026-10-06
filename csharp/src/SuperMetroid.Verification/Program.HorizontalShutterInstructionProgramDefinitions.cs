@@ -6,16 +6,16 @@ internal static partial class Program
 {
     private static void VerifyHorizontalShutterInstructionProgramDefinitions()
     {
-        VerifyHorizontalShutterInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyHorizontalShutterInstructionProgramDefinitions), () => VerifyHorizontalShutterInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyHorizontalShutterInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        VerifyHorizontalShutterMechanicsMapping(rom);
-        VerifyHorizontalShutterPresentationMapping();
+        Suite(nameof(VerifyHorizontalShutterMechanicsMapping), () => VerifyHorizontalShutterMechanicsMapping(rom));
+        Suite(nameof(VerifyHorizontalShutterPresentationMapping), () => VerifyHorizontalShutterPresentationMapping());
 
         var guard = new HorizontalShutterInstructionProgramReadGuard(rom);
         var enemies = new RoomEnemySystem();

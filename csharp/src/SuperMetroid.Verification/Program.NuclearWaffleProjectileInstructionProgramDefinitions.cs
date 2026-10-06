@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyNuclearWaffleProjectileInstructionProgramDefinitions()
     {
-        VerifyNuclearWaffleProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyNuclearWaffleProjectileInstructionProgramDefinitions), () => VerifyNuclearWaffleProjectileInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyNuclearWaffleProjectileInstructionProgramDefinitions(

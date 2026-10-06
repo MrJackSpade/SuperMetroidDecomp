@@ -19,8 +19,8 @@ internal static partial class Program
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         fx.PaletteBlendColors = SuperMetroid.Core.Assets.RoomFxPaletteBlendCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.RoomFxPaletteBlendExtractor.Extract(rom)));
-        VerifyFirefleaFlashingAlgorithm(rom);
-        VerifyFirefleaDarknessAlgorithm(rom);
+        Suite(nameof(VerifyFirefleaFlashingAlgorithm), () => VerifyFirefleaFlashingAlgorithm(rom));
+        Suite(nameof(VerifyFirefleaDarknessAlgorithm), () => VerifyFirefleaDarknessAlgorithm(rom));
         fx.Load(bus, vram, new SnesCgram(), record, 0, 0);
         AssertEqual(6, bus.ReadByte(0x1778), "Fireflea load initializes native six-frame timer");
         AssertTrue(!fx.IsRenderable, "Fireflea darkness does not invent a BG3 texture");

@@ -6,23 +6,23 @@ internal static partial class Program
 {
     private static void VerifyManagedSnesDsp()
     {
-        VerifyManagedDspResetProducesSilence();
-        VerifyManagedDspPlaysConstructedPcmSample();
-        VerifyManagedDspUsesLiveSourceAtLoop();
-        VerifyManagedDspUsesIndependentLoopEntry();
-        VerifyReleasedVoiceBankSwitch();
-        VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement();
-        VerifyPcmReplacementPreservesStableIdentity();
-        VerifyManagedDspRejectsInvalidBoundaries();
-        VerifyLinearStereoResampler();
-        VerifyStereoPcmContinuityMeter();
-        VerifyManagedSpcUsesAddressedFirCoefficients();
-        VerifyManagedSpcSoundOwnershipPreservesPhase();
-        VerifyBrrLoopExtractionRetainsPredictorHistory();
-        VerifyEditableAudioInstruments();
-        VerifyPersistentAudioOverrides();
-        VerifyEditableSoundEffectPrograms();
-        VerifyEditableMusicPrograms();
+        Suite(nameof(VerifyManagedDspResetProducesSilence), () => VerifyManagedDspResetProducesSilence());
+        Suite(nameof(VerifyManagedDspPlaysConstructedPcmSample), () => VerifyManagedDspPlaysConstructedPcmSample());
+        Suite(nameof(VerifyManagedDspUsesLiveSourceAtLoop), () => VerifyManagedDspUsesLiveSourceAtLoop());
+        Suite(nameof(VerifyManagedDspUsesIndependentLoopEntry), () => VerifyManagedDspUsesIndependentLoopEntry());
+        Suite(nameof(VerifyReleasedVoiceBankSwitch), () => VerifyReleasedVoiceBankSwitch());
+        Suite(nameof(VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement), () => VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement());
+        Suite(nameof(VerifyPcmReplacementPreservesStableIdentity), () => VerifyPcmReplacementPreservesStableIdentity());
+        Suite(nameof(VerifyManagedDspRejectsInvalidBoundaries), () => VerifyManagedDspRejectsInvalidBoundaries());
+        Suite(nameof(VerifyLinearStereoResampler), () => VerifyLinearStereoResampler());
+        Suite(nameof(VerifyStereoPcmContinuityMeter), () => VerifyStereoPcmContinuityMeter());
+        Suite(nameof(VerifyManagedSpcUsesAddressedFirCoefficients), () => VerifyManagedSpcUsesAddressedFirCoefficients());
+        Suite(nameof(VerifyManagedSpcSoundOwnershipPreservesPhase), () => VerifyManagedSpcSoundOwnershipPreservesPhase());
+        Suite(nameof(VerifyBrrLoopExtractionRetainsPredictorHistory), () => VerifyBrrLoopExtractionRetainsPredictorHistory());
+        Suite(nameof(VerifyEditableAudioInstruments), () => VerifyEditableAudioInstruments());
+        Suite(nameof(VerifyPersistentAudioOverrides), () => VerifyPersistentAudioOverrides());
+        Suite(nameof(VerifyEditableSoundEffectPrograms), () => VerifyEditableSoundEffectPrograms());
+        Suite(nameof(VerifyEditableMusicPrograms), () => VerifyEditableMusicPrograms());
     }
 
     private static void VerifyManagedDspUsesLiveSourceAtLoop()

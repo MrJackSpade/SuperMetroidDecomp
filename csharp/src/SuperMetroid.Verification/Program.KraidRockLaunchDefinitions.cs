@@ -17,7 +17,7 @@ internal static partial class Program
 
     private static void VerifyKraidRockLaunchDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        VerifyKraidRockLaunchSpeedSelection(rom);
+        Suite(nameof(VerifyKraidRockLaunchSpeedSelection), () => VerifyKraidRockLaunchSpeedSelection(rom));
         if (definitionsOnly)
         {
             Console.WriteLine("Kraid spit speeds: all65536 RNG words match the eight native signed8.8 choices.");

@@ -8,13 +8,13 @@ internal static partial class Program
 {
     private static void VerifyElevatorPlatformPlmDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyElevatorPlatformControls(rom);
-        VerifyElevatorPlatformDrawSelection(rom);
-        VerifyElevatorPlatformLoopTarget(rom);
+        Suite(nameof(VerifyElevatorPlatformControls), () => VerifyElevatorPlatformControls(rom));
+        Suite(nameof(VerifyElevatorPlatformDrawSelection), () => VerifyElevatorPlatformDrawSelection(rom));
+        Suite(nameof(VerifyElevatorPlatformLoopTarget), () => VerifyElevatorPlatformLoopTarget(rom));
 
-        VerifyElevatorPlatformLayoutGeometry(rom);
-        VerifyElevatorPlatformLayoutCollision(rom);
-        VerifyElevatorPlatformLayoutVisuals(rom);
+        Suite(nameof(VerifyElevatorPlatformLayoutGeometry), () => VerifyElevatorPlatformLayoutGeometry(rom));
+        Suite(nameof(VerifyElevatorPlatformLayoutCollision), () => VerifyElevatorPlatformLayoutCollision(rom));
+        Suite(nameof(VerifyElevatorPlatformLayoutVisuals), () => VerifyElevatorPlatformLayoutVisuals(rom));
         Console.WriteLine("Elevator platform PLM: native instruction loop and three complete draw lists match cartridge.");
     }
 
@@ -50,8 +50,8 @@ internal static partial class Program
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
             (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
-        VerifyFallbackDoorHeaders(rom);
-        VerifyFallbackDoorLists(rom);
+        Suite(nameof(VerifyFallbackDoorHeaders), () => VerifyFallbackDoorHeaders(rom));
+        Suite(nameof(VerifyFallbackDoorLists), () => VerifyFallbackDoorLists(rom));
         for (byte direction = 0; direction < DoorClosingPlmRomData.DirectionCount; direction++)
         {
             ushort expectedHeader = ReadWord(
@@ -95,10 +95,10 @@ internal static partial class Program
             () => DoorClosingPlmRomData.GetDefinition(DoorClosingPlmRomData.DirectionCount),
             "out-of-range door-closing direction fails loudly");
         if (fallbackOnly) return;
-        VerifyResidentDoorClosingDefinitions(rom);
-        VerifyMotherBrainEscapeGateCompiledDefinitions(rom);
-        VerifyEscapeGateVisuals(rom);
-        VerifySequentialRoomPlmPopulationLoader();
+        Suite(nameof(VerifyResidentDoorClosingDefinitions), () => VerifyResidentDoorClosingDefinitions(rom));
+        Suite(nameof(VerifyMotherBrainEscapeGateCompiledDefinitions), () => VerifyMotherBrainEscapeGateCompiledDefinitions(rom));
+        Suite(nameof(VerifyEscapeGateVisuals), () => VerifyEscapeGateVisuals(rom));
+        Suite(nameof(VerifySequentialRoomPlmPopulationLoader), () => VerifySequentialRoomPlmPopulationLoader());
         Console.WriteLine(
             "Door-closing definitions: all twelve fallback and eighteen resident selections match.");
     }
@@ -203,15 +203,15 @@ internal static partial class Program
     private static void VerifySpeedBoosterEscapeStageDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifySpeedEscapeProgramControls(rom);
-        VerifySpeedEscapeProgramCallbacks(rom);
-        VerifySpeedEscapeStageTargets(rom);
-        VerifySpeedEscapeStageHeights(rom);
-        VerifySpeedEscapeStageVelocities(rom);
+        Suite(nameof(VerifySpeedEscapeProgramControls), () => VerifySpeedEscapeProgramControls(rom));
+        Suite(nameof(VerifySpeedEscapeProgramCallbacks), () => VerifySpeedEscapeProgramCallbacks(rom));
+        Suite(nameof(VerifySpeedEscapeStageTargets), () => VerifySpeedEscapeStageTargets(rom));
+        Suite(nameof(VerifySpeedEscapeStageHeights), () => VerifySpeedEscapeStageHeights(rom));
+        Suite(nameof(VerifySpeedEscapeStageVelocities), () => VerifySpeedEscapeStageVelocities(rom));
 
         // This fresh bus contains the PLM program and FX fixture, but deliberately omits
         // $84:B876-$B889. The production controller must finish all three physical stages.
-        VerifySpeedBoosterEscapePlm(new TestAddressSpace());
+        Suite(nameof(VerifySpeedBoosterEscapePlm), () => VerifySpeedBoosterEscapePlm(new TestAddressSpace()));
         Console.WriteLine(
             "Speed Booster escape definitions: three physical stages and the terminal event match.");
     }
@@ -306,17 +306,17 @@ internal static partial class Program
             plms.StationActivationEvents[0].MessageBoxIndex,
             "energy station uses cartridge message $15");
 
-        VerifyOtherStationFamilies(bus);
-        VerifySaveStationConfirmation(bus);
-        VerifyNativeOutOfBoundsPopulationSetupOrder(bus);
-        VerifyMetroidsClearedStatePlm(bus);
-        VerifyShaktoolRoomPlm();
-        VerifyMotherBrainEscapeRoomGate(bus);
-        VerifyBombTorizoGreyDoorClosingReentry(bus);
-        VerifyStandardGreyDoorClosingFallthrough(bus);
-        VerifySpeedBoosterEscapePlm(bus);
-        VerifyWreckedShipAtticPlm(bus);
-        VerifyUnsupportedPopulationContext(bus);
+        Suite(nameof(VerifyOtherStationFamilies), () => VerifyOtherStationFamilies(bus));
+        Suite(nameof(VerifySaveStationConfirmation), () => VerifySaveStationConfirmation(bus));
+        Suite(nameof(VerifyNativeOutOfBoundsPopulationSetupOrder), () => VerifyNativeOutOfBoundsPopulationSetupOrder(bus));
+        Suite(nameof(VerifyMetroidsClearedStatePlm), () => VerifyMetroidsClearedStatePlm(bus));
+        Suite(nameof(VerifyShaktoolRoomPlm), () => VerifyShaktoolRoomPlm());
+        Suite(nameof(VerifyMotherBrainEscapeRoomGate), () => VerifyMotherBrainEscapeRoomGate(bus));
+        Suite(nameof(VerifyBombTorizoGreyDoorClosingReentry), () => VerifyBombTorizoGreyDoorClosingReentry(bus));
+        Suite(nameof(VerifyStandardGreyDoorClosingFallthrough), () => VerifyStandardGreyDoorClosingFallthrough(bus));
+        Suite(nameof(VerifySpeedBoosterEscapePlm), () => VerifySpeedBoosterEscapePlm(bus));
+        Suite(nameof(VerifyWreckedShipAtticPlm), () => VerifyWreckedShipAtticPlm(bus));
+        Suite(nameof(VerifyUnsupportedPopulationContext), () => VerifyUnsupportedPopulationContext(bus));
         Console.WriteLine(
             "  Room PLM population: one-pass native slots, synchronous reuse, elevator, and station families agree.");
     }
@@ -1091,11 +1091,11 @@ internal static partial class Program
     private static void VerifyMotherBrainEscapeGateCompiledDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyEscapeGateProgramControls(rom);
-        VerifyEscapeGateProgramDraws(rom);
-        VerifyEscapeGateDrawGeometry(rom);
-        VerifyEscapeGateDrawCollision(rom);
-        VerifyEscapeGateDrawVisuals(rom);
+        Suite(nameof(VerifyEscapeGateProgramControls), () => VerifyEscapeGateProgramControls(rom));
+        Suite(nameof(VerifyEscapeGateProgramDraws), () => VerifyEscapeGateProgramDraws(rom));
+        Suite(nameof(VerifyEscapeGateDrawGeometry), () => VerifyEscapeGateDrawGeometry(rom));
+        Suite(nameof(VerifyEscapeGateDrawCollision), () => VerifyEscapeGateDrawCollision(rom));
+        Suite(nameof(VerifyEscapeGateDrawVisuals), () => VerifyEscapeGateDrawVisuals(rom));
     }
 
     private static void WriteVerticalPlmDraw(
@@ -1401,7 +1401,7 @@ internal static partial class Program
         AssertTrue(samus.InputLocked, "save animation owns Samus input");
         AssertEqual(level.GetBlockIndex(18, 6), saveRequest.BlockIndex,
             "save activation retains the executing PLM block for bank-$86 electricity");
-        VerifySaveStationElectricity(bus, level, saveRequest.BlockIndex);
+        Suite(nameof(VerifySaveStationElectricity), () => VerifySaveStationElectricity(bus, level, saveRequest.BlockIndex));
 
         StationActivationEvent completion = default;
         bool completionPublished = false;

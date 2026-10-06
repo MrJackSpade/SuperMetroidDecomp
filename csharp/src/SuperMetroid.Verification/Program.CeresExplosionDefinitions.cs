@@ -7,21 +7,21 @@ internal static partial class Program
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
-        VerifyActor(retail, CeresExplosionDefinitions.InitialActor, "initial explosion");
-        VerifyActor(retail, CeresExplosionDefinitions.RepeatingActor, "repeating explosion");
-        VerifyActor(retail, CeresExplosionDefinitions.FinalWaveActor, "final-wave explosion");
-        VerifyActor(retail, CeresExplosionDefinitions.StationBlastActor, "station blast");
-        VerifyActor(retail, CeresExplosionDefinitions.SpawnerActor, "explosion spawner");
+        Suite(nameof(VerifyActor), () => VerifyActor(retail, CeresExplosionDefinitions.InitialActor, "initial explosion"));
+        Suite(nameof(VerifyActor), () => VerifyActor(retail, CeresExplosionDefinitions.RepeatingActor, "repeating explosion"));
+        Suite(nameof(VerifyActor), () => VerifyActor(retail, CeresExplosionDefinitions.FinalWaveActor, "final-wave explosion"));
+        Suite(nameof(VerifyActor), () => VerifyActor(retail, CeresExplosionDefinitions.StationBlastActor, "station blast"));
+        Suite(nameof(VerifyActor), () => VerifyActor(retail, CeresExplosionDefinitions.SpawnerActor, "explosion spawner"));
 
-        VerifyCeresInitialBlastX(retail);
-        VerifyCeresInitialBlastY(retail);
-        VerifyCeresInitialBlastDelay(retail);
-        VerifyCeresFinalBlastX(retail);
-        VerifyCeresFinalBlastDelay(retail);
+        Suite(nameof(VerifyCeresInitialBlastX), () => VerifyCeresInitialBlastX(retail));
+        Suite(nameof(VerifyCeresInitialBlastY), () => VerifyCeresInitialBlastY(retail));
+        Suite(nameof(VerifyCeresInitialBlastDelay), () => VerifyCeresInitialBlastDelay(retail));
+        Suite(nameof(VerifyCeresFinalBlastX), () => VerifyCeresFinalBlastX(retail));
+        Suite(nameof(VerifyCeresFinalBlastDelay), () => VerifyCeresFinalBlastDelay(retail));
 
-        VerifyCeresBurstLayout(retail);
+        Suite(nameof(VerifyCeresBurstLayout), () => VerifyCeresBurstLayout(retail));
 
-        VerifyCeresSpawnerSchedule(retail);
+        Suite(nameof(VerifyCeresSpawnerSchedule), () => VerifyCeresSpawnerSchedule(retail));
 
         AssertThrows<ArgumentOutOfRangeException>(
             () => CeresExplosionDefinitions.InitialExplosion(

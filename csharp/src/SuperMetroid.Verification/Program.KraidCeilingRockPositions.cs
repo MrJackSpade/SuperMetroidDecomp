@@ -17,7 +17,7 @@ internal static partial class Program
 
     private static void VerifyKraidCeilingRockPositions(SuperMetroidAddressSpace rom)
     {
-        VerifyKraidCeilingRockCoordinates(rom);
+        Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();

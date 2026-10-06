@@ -23,8 +23,8 @@ internal static partial class Program
                 $"Metroid random cry {index}");
         }
 
-        VerifyMetroidEscapeConsumer(rom);
-        VerifyMetroidCryConsumer(rom);
+        Suite(nameof(VerifyMetroidEscapeConsumer), () => VerifyMetroidEscapeConsumer(rom));
+        Suite(nameof(VerifyMetroidCryConsumer), () => VerifyMetroidCryConsumer(rom));
         Console.WriteLine(
             "Metroid behavior definitions: eight displacement words, eight cry words, all 65,536 escape selectors and all eight production instruction selections pass with source tables forbidden.");
     }

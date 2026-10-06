@@ -13,12 +13,12 @@ internal static partial class Program
     {
         ChozoAndTubeColorCatalog native = stock.ChozoAndTubeColors ??
             throw new InvalidDataException("Installed enemy art has no Chozo/tube colors.");
-        VerifyBand(ChozoAndTubeColorRomData.TubeCracksSource,
-            native.ResolveTubeCracks, "tube cracks");
-        VerifyBand(ChozoAndTubeColorRomData.WreckedShipSource,
-            native.ResolveWreckedShip, "Wrecked Ship Chozo");
-        VerifyBand(ChozoAndTubeColorRomData.LowerNorfairSource,
-            native.ResolveLowerNorfair, "Lower Norfair Chozo");
+        Suite(nameof(VerifyBand), () => VerifyBand(ChozoAndTubeColorRomData.TubeCracksSource,
+            native.ResolveTubeCracks, "tube cracks"));
+        Suite(nameof(VerifyBand), () => VerifyBand(ChozoAndTubeColorRomData.WreckedShipSource,
+            native.ResolveWreckedShip, "Wrecked Ship Chozo"));
+        Suite(nameof(VerifyBand), () => VerifyBand(ChozoAndTubeColorRomData.LowerNorfairSource,
+            native.ResolveLowerNorfair, "Lower Norfair Chozo"));
 
         string file = Path.Combine(stockDirectory, ChozoAndTubeColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
@@ -51,14 +51,14 @@ internal static partial class Program
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
         var guarded = new ChozoAndTubePaletteReadGuard(rom);
-        VerifyLive((ushort)0, colors.ResolveTubeCracks,
-            "n00b-tube cracks", "InitializeN00bTubeCracks", null);
-        VerifyLive((ushort)0, colors.ResolveWreckedShip,
+        Suite(nameof(VerifyLive), () => VerifyLive((ushort)0, colors.ResolveTubeCracks,
+            "n00b-tube cracks", "InitializeN00bTubeCracks", null));
+        Suite(nameof(VerifyLive), () => VerifyLive((ushort)0, colors.ResolveWreckedShip,
             "Wrecked Ship Chozo", "InitializeChozoStatue",
-            ChozoStatueInstructionProgramDefinitions.WreckedShipInitial);
-        VerifyLive((ushort)2, colors.ResolveLowerNorfair,
+            ChozoStatueInstructionProgramDefinitions.WreckedShipInitial));
+        Suite(nameof(VerifyLive), () => VerifyLive((ushort)2, colors.ResolveLowerNorfair,
             "Lower Norfair Chozo", "InitializeChozoStatue",
-            ChozoStatueInstructionProgramDefinitions.LowerNorfairInitial);
+            ChozoStatueInstructionProgramDefinitions.LowerNorfairInitial));
 
         File.WriteAllBytes(overrideFile, [0]);
         AssertThrows<InvalidDataException>(

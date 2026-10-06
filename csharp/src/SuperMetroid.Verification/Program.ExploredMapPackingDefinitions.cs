@@ -76,7 +76,7 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "save/load avoids compiled explored-map codec tables");
 
-        VerifyCalculatedMapPackingBindings(retail, explored);
+        Suite(nameof(VerifyCalculatedMapPackingBindings), () => VerifyCalculatedMapPackingBindings(retail, explored));
 
         Console.WriteLine(
             "  Explored-map packing: six area records and all 327 exported byte indexes match the cartridge; production save/load round-trips with the native codec tables forbidden.");

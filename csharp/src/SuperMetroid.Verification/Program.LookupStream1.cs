@@ -307,7 +307,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameCount(invalid), "Inactive/out-of-domain atmospheric type rejects");
             AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameTimer(invalid, 0), "Invalid atmospheric type fails before frame selection");
         }
-        VerifyProductionAtmosphericCadence(new SamusAtmosphericAnimationReadGuard(rom));
+        Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence(new SamusAtmosphericAnimationReadGuard(rom)));
     }
     private static void VerifyLookupStream1TimerCadence(ISnesAddressSpace rom)
     {
@@ -1862,19 +1862,19 @@ internal static partial class Program
             AssertEqual(rom.ReadByte(0x91b62a + pose * 8), SamusPoseDispatchDefinitions.ReadMovement((byte)pose), "Native named-pose raw movement case");
             AssertEqual(rom.ReadByte(0x91b62b + pose * 8), SamusPoseDispatchDefinitions.ReadNoInputPose((byte)pose), "Native named-pose no-input case");
         }
-        VerifyLookupStream1SamusPolicyDomains(rom);
-        VerifyLookupStream1MetroidLayout(rom);
-        VerifyLookupStream1PuyoAndQuota(rom);
-        VerifyLookupStream1OwtchStoke(rom);
-        VerifyLookupStream1VisualCatalogs(rom);
-        VerifyLookupStream1NuclearWaffle(rom);
-        VerifyLookupStream1DeathDefinitions(rom);
-        VerifyLookupStream1Sciser(rom);
-        VerifyLookupStream1PowampMotion(rom);
-        VerifyLookupStream1HibashiDragonFireball(rom);
-        VerifyLookupStream1CommonFrames(rom);
-        VerifyLookupStream1EnemyMovement(rom);
-        VerifyLookupStream1CadencePrograms(rom);
+        Suite(nameof(VerifyLookupStream1SamusPolicyDomains), () => VerifyLookupStream1SamusPolicyDomains(rom));
+        Suite(nameof(VerifyLookupStream1MetroidLayout), () => VerifyLookupStream1MetroidLayout(rom));
+        Suite(nameof(VerifyLookupStream1PuyoAndQuota), () => VerifyLookupStream1PuyoAndQuota(rom));
+        Suite(nameof(VerifyLookupStream1OwtchStoke), () => VerifyLookupStream1OwtchStoke(rom));
+        Suite(nameof(VerifyLookupStream1VisualCatalogs), () => VerifyLookupStream1VisualCatalogs(rom));
+        Suite(nameof(VerifyLookupStream1NuclearWaffle), () => VerifyLookupStream1NuclearWaffle(rom));
+        Suite(nameof(VerifyLookupStream1DeathDefinitions), () => VerifyLookupStream1DeathDefinitions(rom));
+        Suite(nameof(VerifyLookupStream1Sciser), () => VerifyLookupStream1Sciser(rom));
+        Suite(nameof(VerifyLookupStream1PowampMotion), () => VerifyLookupStream1PowampMotion(rom));
+        Suite(nameof(VerifyLookupStream1HibashiDragonFireball), () => VerifyLookupStream1HibashiDragonFireball(rom));
+        Suite(nameof(VerifyLookupStream1CommonFrames), () => VerifyLookupStream1CommonFrames(rom));
+        Suite(nameof(VerifyLookupStream1EnemyMovement), () => VerifyLookupStream1EnemyMovement(rom));
+        Suite(nameof(VerifyLookupStream1CadencePrograms), () => VerifyLookupStream1CadencePrograms(rom));
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         for (ushort medium = 0; medium < 3; medium++)
         {
@@ -2581,7 +2581,7 @@ internal static partial class Program
         }
         byte[] nativePlanar = expected.SelectMany(pointer => Enumerable.Range(0, 32).Select(offset => rom.ReadByte((0x9a0000 | pointer) + offset))).ToArray();
         AssertEqual(ReferenceIdentity(json, nativePlanar), stock.ContentIdentity, "Calculated cannon selectors preserve canonical native content identity");
-        VerifySelectors(stock, -1, 0);
+        Suite(nameof(VerifySelectors), () => VerifySelectors(stock, -1, 0));
         for (int direction = 0; direction < 10; direction++)
         {
             var document = System.Text.Json.Nodes.JsonNode.Parse(json)!;

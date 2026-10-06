@@ -16,16 +16,18 @@ internal static partial class Program
         foreach (var frame in allEdited["frames"]!.AsObject())
         foreach (var part in frame.Value!.AsArray())
             part!["offsetX"] = part["offsetX"]!.GetValue<int>() + 7;
+        // The retail ROM's installation is shared and only read here; another ROM installs its own.
         using var temporaryDirectory = new MapCatalogTestDirectory();
-        GameInstallation installation = GameAssetInstaller.Install(
-            Path.GetFullPath(sourceRom), temporaryDirectory.Root);
+        GameInstallation installation = Path.GetFullPath(sourceRom) == Path.GetFullPath("Super Metroid.smc")
+            ? runtimeFixtureInstallation.Value
+            : GameAssetInstaller.Install(Path.GetFullPath(sourceRom), temporaryDirectory.Root);
         SamusBodyArtworkCatalog body = installation.LoadSamusBodyArt();
         var roomAssets = new MapPresentationInstalledRoomAssets(installation);
         var maps = installation.LoadMaps();
-        VerifyChargeFlareProduction(bus, stock, Load(allEdited), body,
-            roomAssets, maps);
-        VerifyGrappleFlarePresentation(bus, stock, Load(allEdited), body,
-            roomAssets, maps, installation.LoadProjectiles().GrappleTiles);
+        Suite(nameof(VerifyChargeFlareProduction), () => VerifyChargeFlareProduction(bus, stock, Load(allEdited), body,
+            roomAssets, maps));
+        Suite(nameof(VerifyGrappleFlarePresentation), () => VerifyGrappleFlarePresentation(bus, stock, Load(allEdited), body,
+            roomAssets, maps, installation.LoadProjectiles().GrappleTiles));
         if (!flareOnly)
         {
             VerifyGrapplePointAnimation(bus);

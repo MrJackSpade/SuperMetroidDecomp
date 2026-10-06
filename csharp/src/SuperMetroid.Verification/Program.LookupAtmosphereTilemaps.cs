@@ -7,11 +7,11 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyRainTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
-        VerifyAtmosphereTileField(rom, stock, RoomFxType.Rain, 0x1c00);
+        Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Rain, 0x1c00));
     private static void VerifyFogTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
-        VerifyAtmosphereTileField(rom, stock, RoomFxType.Fog, 0x1c00);
+        Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Fog, 0x1c00));
     private static void VerifyFogTilePriority(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
-        VerifyAtmosphereTileField(rom, stock, RoomFxType.Fog, 0x2000);
+        Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Fog, 0x2000));
 
     private static void VerifyAtmosphereTileField(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock,
         RoomFxType type, int mask)
@@ -76,9 +76,9 @@ internal static partial class Program
 
     private static void VerifyAtmosphereTilemapFields(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
-        VerifyRainTilePalette(rom, stock);
-        VerifyFogTilePalette(rom, stock);
-        VerifyFogTilePriority(rom, stock);
-        VerifyAtmosphereTilemapDomainAndEdits(rom, stock);
+        Suite(nameof(VerifyRainTilePalette), () => VerifyRainTilePalette(rom, stock));
+        Suite(nameof(VerifyFogTilePalette), () => VerifyFogTilePalette(rom, stock));
+        Suite(nameof(VerifyFogTilePriority), () => VerifyFogTilePriority(rom, stock));
+        Suite(nameof(VerifyAtmosphereTilemapDomainAndEdits), () => VerifyAtmosphereTilemapDomainAndEdits(rom, stock));
     }
 }

@@ -669,7 +669,7 @@ internal static partial class Program
     private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
-        VerifyIntroCaretInstructions(bus);
+        Suite(nameof(VerifyIntroCaretInstructions), () => VerifyIntroCaretInstructions(bus));
         const ushort originX = 8;
         const ushort originY = 24;
         ushort paletteBits = IntroCinematicRomData.Objects.ScientistPalette.Raw;

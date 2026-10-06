@@ -7,30 +7,30 @@ internal static partial class Program
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        VerifyKraidRoomProgramMapping(rom);
+        Suite(nameof(VerifyKraidRoomProgramMapping), () => VerifyKraidRoomProgramMapping(rom));
 
-        VerifyKraidDrawAddresses();
-        VerifyKraidDrawOwnerClassification(rom);
-        VerifyKraidDrawShapes(rom);
-        VerifyKraidDrawWords(rom);
-        VerifyKraidDrawVisualIds();
+        Suite(nameof(VerifyKraidDrawAddresses), () => VerifyKraidDrawAddresses());
+        Suite(nameof(VerifyKraidDrawOwnerClassification), () => VerifyKraidDrawOwnerClassification(rom));
+        Suite(nameof(VerifyKraidDrawShapes), () => VerifyKraidDrawShapes(rom));
+        Suite(nameof(VerifyKraidDrawWords), () => VerifyKraidDrawWords(rom));
+        Suite(nameof(VerifyKraidDrawVisualIds), () => VerifyKraidDrawVisualIds());
 
-        VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1,
-            12, 0x013c, 1);
-        VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2,
-            12, 0x0131, 1);
-        VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3,
-            12, 0x0130, 1);
-        VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidPlatformVariant1,
-            3, 0x0131, 1);
-        VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidPlatformVariant2,
-            3, 0x0130, 1);
-        VerifyKraidMutation(RoomPlmHeaders.ClearKraidCeiling,
-            1, 0x013c, 15);
-        VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidSpikes,
-            264, 0x0111, 22);
-        VerifyKraidMutation(RoomPlmHeaders.ClearKraidSpikes,
-            1, 0x0111, 22);
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1,
+            12, 0x013c, 1));
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2,
+            12, 0x0131, 1));
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3,
+            12, 0x0130, 1));
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidPlatformVariant1,
+            3, 0x0131, 1));
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidPlatformVariant2,
+            3, 0x0130, 1));
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(RoomPlmHeaders.ClearKraidCeiling,
+            1, 0x013c, 15));
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(RoomPlmHeaders.CrumbleKraidSpikes,
+            264, 0x0111, 22));
+        Suite(nameof(VerifyKraidMutation), () => VerifyKraidMutation(RoomPlmHeaders.ClearKraidSpikes,
+            1, 0x0111, 22));
         Console.WriteLine(
             "Kraid room PLMs: eight reachable programs and ten physical draws match ROM; all live ceiling/spike paths, timing and collision run without source reads.");
     }

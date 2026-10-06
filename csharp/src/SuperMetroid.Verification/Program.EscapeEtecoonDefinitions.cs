@@ -86,8 +86,8 @@ internal static partial class Program
 
     private static void VerifyEscapeEtecoonInstructionProgramDefinitions()
     {
-        VerifyEscapeEtecoonInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyEscapeEtecoonInstructionProgramDefinitions), () => VerifyEscapeEtecoonInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyEscapeEtecoonInstructionProgramDefinitions(

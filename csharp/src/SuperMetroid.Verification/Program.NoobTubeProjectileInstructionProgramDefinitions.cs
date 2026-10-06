@@ -7,8 +7,8 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     private static void VerifyNoobTubeProjectileInstructionProgramDefinitions() =>
-        VerifyNoobTubeProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyNoobTubeProjectileInstructionProgramDefinitions), () => VerifyNoobTubeProjectileInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyNoobTubeProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)

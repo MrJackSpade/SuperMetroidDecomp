@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyIntroPoseHistory()
     {
-        VerifyIntroScenePoseHistory();
+        Suite(nameof(VerifyIntroScenePoseHistory), () => VerifyIntroScenePoseHistory());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Pose = SamusPoseIds.FacingLeftNormalPose, XPosition = 128, YPosition = 235 };
         var entries = new ushort[16 * 32];

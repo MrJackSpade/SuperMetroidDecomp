@@ -72,8 +72,8 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed flight never reads its cartridge art, palette, or spritemap sources");
 
-        VerifyCeresFlightSpriteArtwork(installation, bus, stock, guard);
-        VerifyCeresFlightActorLayout(installation, bus, stock, guard);
+        Suite(nameof(VerifyCeresFlightSpriteArtwork), () => VerifyCeresFlightSpriteArtwork(installation, bus, stock, guard));
+        Suite(nameof(VerifyCeresFlightActorLayout), () => VerifyCeresFlightActorLayout(installation, bus, stock, guard));
 
         Directory.CreateDirectory(installation.IntroCinematicOverrideDirectory);
         string[] names =
@@ -140,8 +140,8 @@ internal static partial class Program
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "edited Ceres artwork and debugger rebind never read cartridge art sources");
-        VerifyCeresVisibleOverrides(installation, bus);
-        VerifyCeresFlightPaletteOverride(installation, new IntroArtworkSourceReadGuard(bus), stock);
+        Suite(nameof(VerifyCeresVisibleOverrides), () => VerifyCeresVisibleOverrides(installation, bus));
+        Suite(nameof(VerifyCeresFlightPaletteOverride), () => VerifyCeresFlightPaletteOverride(installation, new IntroArtworkSourceReadGuard(bus), stock));
 
         string invalidMap = Path.Combine(installation.IntroCinematicOverrideDirectory,
             CeresFlightArtworkFormat.MapFileName);

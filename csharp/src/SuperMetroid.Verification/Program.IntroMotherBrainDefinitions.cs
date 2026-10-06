@@ -8,8 +8,8 @@ internal static partial class Program
     private static void VerifyIntroMotherBrainDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        VerifyIntroMotherBrainInstructions(retail);
-        VerifyIntroMotherBrainExplosionPrograms(retail);
+        Suite(nameof(VerifyIntroMotherBrainInstructions), () => VerifyIntroMotherBrainInstructions(retail));
+        Suite(nameof(VerifyIntroMotherBrainExplosionPrograms), () => VerifyIntroMotherBrainExplosionPrograms(retail));
 
         IntroMotherBrainActorDefinition[] actors =
         [

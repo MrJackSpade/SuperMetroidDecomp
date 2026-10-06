@@ -20,10 +20,10 @@ internal static partial class Program
                     (frame * ShitroidColorRomData.NormalColorsPerFrame + color) * 2),
                 native.NormalColor(frame, color),
                 $"installed Shitroid normal frame {frame} color {color}");
-        VerifyTarget(ShitroidColorTarget.Sidehopper, ShitroidColorRomData.SidehopperTarget);
-        VerifyTarget(ShitroidColorTarget.Shitroid, ShitroidColorRomData.ShitroidTarget);
-        VerifyTarget(ShitroidColorTarget.DeadSidehopper,
-            ShitroidColorRomData.DeadSidehopperTarget);
+        Suite(nameof(VerifyTarget), () => VerifyTarget(ShitroidColorTarget.Sidehopper, ShitroidColorRomData.SidehopperTarget));
+        Suite(nameof(VerifyTarget), () => VerifyTarget(ShitroidColorTarget.Shitroid, ShitroidColorRomData.ShitroidTarget));
+        Suite(nameof(VerifyTarget), () => VerifyTarget(ShitroidColorTarget.DeadSidehopper,
+            ShitroidColorRomData.DeadSidehopperTarget));
 
         string file = Path.Combine(stockDirectory, ShitroidColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);

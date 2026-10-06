@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledRidleyPogo(SuperMetroidAddressSpace rom)
     {
-        VerifyRidleyAttackTimerRandomReads(rom);
+        Suite(nameof(VerifyRidleyAttackTimerRandomReads), () => VerifyRidleyAttackTimerRandomReads(rom));
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         var reference = new (ushort X, ushort Y, ushort Up, ushort Down)[4, 6];
         for (int pattern = 0; pattern < 4; pattern++)

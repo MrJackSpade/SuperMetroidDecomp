@@ -50,9 +50,9 @@ internal static partial class Program
             }
         }
         AssertTrue(hits > 0, "collision samples include actual touch and shot hitboxes, not only empty space");
-        VerifyBossDisplayResources(stock, edits);
-        VerifyBossDisplayClipping();
-        VerifyBossDisplayClocks(stock, edits);
+        Suite(nameof(VerifyBossDisplayResources), () => VerifyBossDisplayResources(stock, edits));
+        Suite(nameof(VerifyBossDisplayClipping), () => VerifyBossDisplayClipping());
+        Suite(nameof(VerifyBossDisplayClocks), () => VerifyBossDisplayClocks(stock, edits));
         Console.WriteLine($"PASS boss display: {frames} exact packed OAM/BG2 replacements, empty BG2-only stock, " +
             $"mixed remaps, native new-frame gating and {hitSamples} compiled collision samples ({hits} hits). RAM-only production.");
     }

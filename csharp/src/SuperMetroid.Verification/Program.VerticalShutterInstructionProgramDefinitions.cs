@@ -7,17 +7,17 @@ internal static partial class Program
 {
     private static void VerifyVerticalShutterInstructionProgramDefinitions()
     {
-        VerifyVerticalShutterInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyVerticalShutterInstructionProgramDefinitions), () => VerifyVerticalShutterInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyVerticalShutterInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        VerifyVerticalShutterMechanicsMapping(rom);
-        VerifyVerticalShutterPresentationAddresses();
-        VerifyKamerPlatformVisualSelectors(rom);
+        Suite(nameof(VerifyVerticalShutterMechanicsMapping), () => VerifyVerticalShutterMechanicsMapping(rom));
+        Suite(nameof(VerifyVerticalShutterPresentationAddresses), () => VerifyVerticalShutterPresentationAddresses());
+        Suite(nameof(VerifyKamerPlatformVisualSelectors), () => VerifyKamerPlatformVisualSelectors(rom));
 
         var guard = new VerticalShutterInstructionProgramReadGuard(rom);
         var enemies = new RoomEnemySystem();

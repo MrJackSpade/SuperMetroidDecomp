@@ -123,9 +123,9 @@ internal static partial class Program
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        VerifyContactCrumbleControlMapping(rom);
-        VerifyContactCrumbleDrawMapping(rom);
-        VerifyContactCrumbleSoundMapping(rom);
+        Suite(nameof(VerifyContactCrumbleControlMapping), () => VerifyContactCrumbleControlMapping(rom));
+        Suite(nameof(VerifyContactCrumbleDrawMapping), () => VerifyContactCrumbleDrawMapping(rom));
+        Suite(nameof(VerifyContactCrumbleSoundMapping), () => VerifyContactCrumbleSoundMapping(rom));
         var forbidden = new HashSet<int>();
         foreach (ushort address in RoomPlmContactCrumbleProgramDefinitions.MechanicsWordAddresses())
         {
@@ -135,7 +135,7 @@ internal static partial class Program
         foreach (ushort address in RoomPlmContactCrumbleProgramDefinitions.MechanicsByteAddresses())
             forbidden.Add(0x840000 | address);
 
-        VerifyContactCrumbleRestorationMapping(rom);
+        Suite(nameof(VerifyContactCrumbleRestorationMapping), () => VerifyContactCrumbleRestorationMapping(rom));
         // Guard the independently identified native restoration byte regions.
         for (int address = 0xa4a1; address < 0xa4c1; address++)
             forbidden.Add(0x840000 | address);
@@ -185,8 +185,8 @@ internal static partial class Program
                 $"contact-crumble BTS {bts} completes its native timeline");
         }
 
-        VerifyContactCrumbleVisualSeparation(rom, forbidden);
-        VerifyLinkedRestoreVisualSeparation(rom, forbidden, bomb: false);
+        Suite(nameof(VerifyContactCrumbleVisualSeparation), () => VerifyContactCrumbleVisualSeparation(rom, forbidden));
+        Suite(nameof(VerifyLinkedRestoreVisualSeparation), () => VerifyLinkedRestoreVisualSeparation(rom, forbidden, bomb: false));
 
         Console.WriteLine($"Contact-crumble PLMs: 64 control words, 8 sound bytes, and 3 restoration lists match ROM; all eight programs run with source reads forbidden.");
     }

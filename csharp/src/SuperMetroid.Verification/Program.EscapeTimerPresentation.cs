@@ -10,7 +10,7 @@ internal static partial class Program
         string overrides, AreaMapPresentationCatalog original,
         GameplayBasePaletteCatalog initialPalettes)
     {
-        VerifyEscapeTimerPointerDefinitions(bus);
+        Suite(nameof(VerifyEscapeTimerPointerDefinitions), () => VerifyEscapeTimerPointerDefinitions(bus));
 
         string stockPath = Path.Combine(stock, EscapeTimerPresentationDefinitions.FileName);
         string stockTilePath = Path.Combine(stock, EscapeTimerTileAtlasFormat.FileName);

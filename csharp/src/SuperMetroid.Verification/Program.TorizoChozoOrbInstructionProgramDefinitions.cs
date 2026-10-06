@@ -6,8 +6,8 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyTorizoChozoOrbInstructionProgramDefinitions() =>
-        VerifyTorizoChozoOrbInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyTorizoChozoOrbInstructionProgramDefinitions), () => VerifyTorizoChozoOrbInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyTorizoChozoOrbInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -102,8 +102,8 @@ internal static partial class Program
         AssertTrue(!floor.IsActive,
             "Torizo orb floor impact deletes after exact 4/5/6/7/8/9-frame poses");
 
-        VerifyShotDrop(golden: false);
-        VerifyShotDrop(golden: true);
+        Suite(nameof(VerifyShotDrop), () => VerifyShotDrop(golden: false));
+        Suite(nameof(VerifyShotDrop), () => VerifyShotDrop(golden: true));
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "compiled Torizo orb visuals require no cartridge reads");

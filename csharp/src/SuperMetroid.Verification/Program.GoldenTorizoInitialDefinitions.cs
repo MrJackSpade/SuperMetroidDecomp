@@ -76,19 +76,19 @@ internal static partial class Program
         Console.WriteLine(
             "Golden Torizo initial entry: seven mechanics words, one visual frame, " +
             "and one native collision rectangle match the pinned cartridge.");
-        VerifyGoldenTorizoAwakeningDefinitions(rom);
-        VerifyGoldenTorizoWalkingDefinitions(rom);
-        VerifyGoldenTorizoRightwardDefinitions(rom);
-        VerifyTorizoJumpBackDefinitions(rom);
-        VerifyGoldenTorizoJumpLandingDefinitions(rom);
-        VerifyGoldenTorizoRightOrbDefinitions(rom);
-        VerifyGoldenTorizoLeftOrbDefinitions(rom);
-        VerifyGoldenTorizoRightSonicDefinitions(rom);
-        VerifyGoldenTorizoEyeBeamAttackDefinitions(rom);
-        VerifyGoldenTorizoStunnedDefinitions(rom);
-        VerifyGoldenTorizoLeftTurnDefinitions(rom);
-        VerifyTorizoFallingLeftDefinitions(rom);
-        VerifyGoldenTorizoLeftFootOrbDefinitions(rom);
+        Suite(nameof(VerifyGoldenTorizoAwakeningDefinitions), () => VerifyGoldenTorizoAwakeningDefinitions(rom));
+        Suite(nameof(VerifyGoldenTorizoWalkingDefinitions), () => VerifyGoldenTorizoWalkingDefinitions(rom));
+        Suite(nameof(VerifyGoldenTorizoRightwardDefinitions), () => VerifyGoldenTorizoRightwardDefinitions(rom));
+        Suite(nameof(VerifyTorizoJumpBackDefinitions), () => VerifyTorizoJumpBackDefinitions(rom));
+        Suite(nameof(VerifyGoldenTorizoJumpLandingDefinitions), () => VerifyGoldenTorizoJumpLandingDefinitions(rom));
+        Suite(nameof(VerifyGoldenTorizoRightOrbDefinitions), () => VerifyGoldenTorizoRightOrbDefinitions(rom));
+        Suite(nameof(VerifyGoldenTorizoLeftOrbDefinitions), () => VerifyGoldenTorizoLeftOrbDefinitions(rom));
+        Suite(nameof(VerifyGoldenTorizoRightSonicDefinitions), () => VerifyGoldenTorizoRightSonicDefinitions(rom));
+        Suite(nameof(VerifyGoldenTorizoEyeBeamAttackDefinitions), () => VerifyGoldenTorizoEyeBeamAttackDefinitions(rom));
+        Suite(nameof(VerifyGoldenTorizoStunnedDefinitions), () => VerifyGoldenTorizoStunnedDefinitions(rom));
+        Suite(nameof(VerifyGoldenTorizoLeftTurnDefinitions), () => VerifyGoldenTorizoLeftTurnDefinitions(rom));
+        Suite(nameof(VerifyTorizoFallingLeftDefinitions), () => VerifyTorizoFallingLeftDefinitions(rom));
+        Suite(nameof(VerifyGoldenTorizoLeftFootOrbDefinitions), () => VerifyGoldenTorizoLeftFootOrbDefinitions(rom));
 
         ushort ReadWord(ushort address) =>
             (ushort)(rom.ReadByte((bank << 16) | address) |

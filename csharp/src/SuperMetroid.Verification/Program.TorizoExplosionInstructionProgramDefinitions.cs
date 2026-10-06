@@ -6,8 +6,8 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyTorizoExplosionInstructionProgramDefinitions() =>
-        VerifyTorizoExplosionInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyTorizoExplosionInstructionProgramDefinitions), () => VerifyTorizoExplosionInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyTorizoExplosionInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -84,13 +84,13 @@ internal static partial class Program
             }
         }
         process.Invoke(lowEnemies, [low, null, (ushort)0, (ushort)0]);
-        VerifyExecutedProjectileFrame(rom, low, spriteArtwork, executedOperands);
+        Suite(nameof(VerifyExecutedProjectileFrame), () => VerifyExecutedProjectileFrame(rom, low, spriteArtwork, executedOperands));
         AssertTrue(!low.IsActive,
             "low-health explosion deletes after three exact twelve-frame cycles");
         AssertEqual(0, lowRandom.Count,
             "low-health explosion consumes three random words per cycle");
 
-        VerifyDeathPath(
+        Suite(nameof(VerifyDeathPath), () => VerifyDeathPath(
             branchSample: 0,
             random: new Queue<ushort>(
                 [0, 0xc000, 7, 25, 0x0000, 1, 20]),
@@ -98,8 +98,8 @@ internal static partial class Program
             expectedFirst: (993, 491),
             expectedSecond: (1001, 504),
             secondCycleFrame: 32,
-            "large explosions");
-        VerifyDeathPath(
+            "large explosions"));
+        Suite(nameof(VerifyDeathPath), () => VerifyDeathPath(
             branchSample: 0xc000,
             random: new Queue<ushort>(
                 [0xc000, 0x8000, 8, 9, 0x4000, 2, 12]),
@@ -107,7 +107,7 @@ internal static partial class Program
             expectedFirst: (992, 505),
             expectedSecond: (1002, 492),
             secondCycleFrame: 33,
-            "smoke");
+            "smoke"));
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "TorizoExplosion execution performs no live spritemap operand reads");

@@ -5,16 +5,16 @@ internal static partial class Program
 {
     private static void VerifyCeresRearPrograms(ISnesAddressSpace rom)
     {
-        VerifyCeresFlightProgram(rom, 0xcc47, 0xcc4f, true, true);
-        VerifyCeresFlightProgram(rom, 0xcc4f, 0xcc57, true, true);
-        VerifyCeresFlightProgram(rom, 0xcc57, 0xcc63, false, true);
+        Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xcc47, 0xcc4f, true, true));
+        Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xcc4f, 0xcc57, true, true));
+        Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xcc57, 0xcc63, false, true));
     }
 
     private static void VerifyCeresFlightPrograms(ISnesAddressSpace rom)
     {
-        VerifyCeresRearPrograms(rom);
-        VerifyCeresFlightProgram(rom, 0xcda3, 0xcdab, false, false);
-        VerifyCeresFlightProgram(rom, 0xce4b, 0xce53, false, false);
+        Suite(nameof(VerifyCeresRearPrograms), () => VerifyCeresRearPrograms(rom));
+        Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xcda3, 0xcdab, false, false));
+        Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xce4b, 0xce53, false, false));
         foreach (ushort invalid in new ushort[] { 0, 0xcc46, 0xcc63, 0xcda2, 0xcdab, 0xce4a, 0xce53, 0xffff })
         {
             AssertThrows<InvalidDataException>(() => CeresFlightSpriteInstructionDefinitions.ReadByte(invalid), "unowned flight byte");

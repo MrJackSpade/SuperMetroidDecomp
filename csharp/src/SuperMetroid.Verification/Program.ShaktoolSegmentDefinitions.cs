@@ -6,13 +6,13 @@ internal static partial class Program
 {
     private static void VerifyShaktoolSegmentDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyShaktoolPropertySelection(rom);
-        VerifyShaktoolOwnerOffsetAlgorithm(rom);
-        VerifyShaktoolInitialInstructionSelection(rom);
-        VerifyShaktoolLayerSelection(rom);
-        VerifyShaktoolCallbackSelection(rom);
-        VerifyShaktoolInitialAngleAlgorithm(rom);
-        VerifyShaktoolAngularVelocityAlgorithm(rom);
+        Suite(nameof(VerifyShaktoolPropertySelection), () => VerifyShaktoolPropertySelection(rom));
+        Suite(nameof(VerifyShaktoolOwnerOffsetAlgorithm), () => VerifyShaktoolOwnerOffsetAlgorithm(rom));
+        Suite(nameof(VerifyShaktoolInitialInstructionSelection), () => VerifyShaktoolInitialInstructionSelection(rom));
+        Suite(nameof(VerifyShaktoolLayerSelection), () => VerifyShaktoolLayerSelection(rom));
+        Suite(nameof(VerifyShaktoolCallbackSelection), () => VerifyShaktoolCallbackSelection(rom));
+        Suite(nameof(VerifyShaktoolInitialAngleAlgorithm), () => VerifyShaktoolInitialAngleAlgorithm(rom));
+        Suite(nameof(VerifyShaktoolAngularVelocityAlgorithm), () => VerifyShaktoolAngularVelocityAlgorithm(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort Word(int address) =>
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
@@ -92,17 +92,17 @@ internal static partial class Program
     }
 
     private static void VerifyShaktoolPropertySelection(SuperMetroidAddressSpace rom) =>
-        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
-            definition => definition.PropertyMask, "property selection");
+        Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
+            definition => definition.PropertyMask, "property selection"));
 
     private static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>
-        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
-            definition => definition.InitialOrbitAngle, "initial angle algorithm");
+        Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
+            definition => definition.InitialOrbitAngle, "initial angle algorithm"));
 
     private static void VerifyShaktoolAngularVelocityAlgorithm(SuperMetroidAddressSpace rom)
     {
-        VerifyShaktoolDefinitionField(rom, ShaktoolAngularVelocityDefinitions.ReferenceAddress,
-            definition => definition.AngularVelocity, "angular velocity algorithm");
+        Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolAngularVelocityDefinitions.ReferenceAddress,
+            definition => definition.AngularVelocity, "angular velocity algorithm"));
         for (int index = 0; index < 7; index++)
             AssertEqual(ShaktoolSegmentDefinitions.ForIndex(index).AngularVelocity,
                 ShaktoolAngularVelocityDefinitions.ForSegment(index), "Shaktool velocity alias");
@@ -112,20 +112,20 @@ internal static partial class Program
     }
 
     private static void VerifyShaktoolOwnerOffsetAlgorithm(SuperMetroidAddressSpace rom) =>
-        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,
-            definition => definition.OwnerNativeOffset, "owner offset");
+        Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,
+            definition => definition.OwnerNativeOffset, "owner offset"));
 
     private static void VerifyShaktoolInitialInstructionSelection(SuperMetroidAddressSpace rom) =>
-        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInstructionAddress,
-            definition => definition.InitialInstruction, "initial instruction selection");
+        Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInstructionAddress,
+            definition => definition.InitialInstruction, "initial instruction selection"));
 
     private static void VerifyShaktoolLayerSelection(SuperMetroidAddressSpace rom) =>
-        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeLayerAddress,
-            definition => definition.Layer, "layer selection");
+        Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeLayerAddress,
+            definition => definition.Layer, "layer selection"));
 
     private static void VerifyShaktoolCallbackSelection(SuperMetroidAddressSpace rom) =>
-        VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeCallbackAddress,
-            definition => (ushort)definition.PreInstruction, "callback selection");
+        Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeCallbackAddress,
+            definition => (ushort)definition.PreInstruction, "callback selection"));
 
     private static void VerifyShaktoolDefinitionField(SuperMetroidAddressSpace rom,
         int nativeAddress, Func<ShaktoolSegmentDefinition, ushort> select, string label)

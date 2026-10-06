@@ -35,7 +35,7 @@ internal static partial class Program
             File.WriteAllBytes(Path.Combine(resolvedDirectory, "installed.graph"),
                 installedSnapshot.ToArray());
         }
-        VerifyFrontendRomFreeRoomCensus(nativeSnapshot, installedSnapshot, bindInstalled);
+        Suite(nameof(VerifyFrontendRomFreeRoomCensus), () => VerifyFrontendRomFreeRoomCensus(nativeSnapshot, installedSnapshot, bindInstalled));
     }
 
     /// <summary>Repeat a room census from the private pre-room debugger graphs.</summary>

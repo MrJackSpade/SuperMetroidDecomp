@@ -30,14 +30,14 @@ internal static partial class Program
         for (int category = 1; category < names.Length; category++)
         foreach (int item in new[] { int.MinValue, -1, names[category].Length, 256, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.Key(category, item), "label category bounds");
-        VerifyPauseLabelIdentityAdmission(rom, expectedNames.Where(entry => entry.category != 0).Select(entry => entry.name)
-            .Append("Beam.Hyper").ToArray());
+        Suite(nameof(VerifyPauseLabelIdentityAdmission), () => VerifyPauseLabelIdentityAdmission(rom, expectedNames.Where(entry => entry.category != 0).Select(entry => entry.name)
+            .Append("Beam.Hyper").ToArray()));
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
         var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
         AssertEqual(0, stock.StoredAnchorComponentCount, "stock selector stores no coordinate table");
-        VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: true);
-        VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: false);
+        Suite(nameof(VerifyPauseSelectorAnchorField), () => VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: true));
+        Suite(nameof(VerifyPauseSelectorAnchorField), () => VerifyPauseSelectorAnchorField(rom, document, stock, horizontal: false));
         foreach (int category in new[] { int.MinValue, -1, 4, 256, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Anchor(category, 0), "unsupported selector category");
         for (int category = 0; category < names.Length; category++)

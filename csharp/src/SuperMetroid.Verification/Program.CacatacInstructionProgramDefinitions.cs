@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyCacatacInstructionProgramDefinitions()
     {
-        VerifyCacatacInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyCacatacInstructionProgramDefinitions), () => VerifyCacatacInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyCacatacInstructionProgramDefinitions(
@@ -28,9 +28,9 @@ internal static partial class Program
         }
 
         var guard = new CacatacInstructionProgramReadGuard(rom);
-        VerifyIdle(upsideUp: true, CacatacInstructionProgramDefinitions.UpsideUpIdle);
-        VerifyIdle(upsideUp: false, CacatacInstructionProgramDefinitions.UpsideDownIdle);
-        VerifyAttack(
+        Suite(nameof(VerifyIdle), () => VerifyIdle(upsideUp: true, CacatacInstructionProgramDefinitions.UpsideUpIdle));
+        Suite(nameof(VerifyIdle), () => VerifyIdle(upsideUp: false, CacatacInstructionProgramDefinitions.UpsideDownIdle));
+        Suite(nameof(VerifyAttack), () => VerifyAttack(
             upsideUp: true,
             CacatacInstructionProgramDefinitions.UpsideUpAttack,
             [
@@ -39,8 +39,8 @@ internal static partial class Program
                 CacatacSpikeDirection.Up,
                 CacatacSpikeDirection.UpRight,
                 CacatacSpikeDirection.RightFacingUp,
-            ]);
-        VerifyAttack(
+            ]));
+        Suite(nameof(VerifyAttack), () => VerifyAttack(
             upsideUp: false,
             CacatacInstructionProgramDefinitions.UpsideDownAttack,
             [
@@ -49,7 +49,7 @@ internal static partial class Program
                 CacatacSpikeDirection.Down,
                 CacatacSpikeDirection.DownRight,
                 CacatacSpikeDirection.RightFacingDown,
-            ]);
+            ]));
 
         for (int index = 0;
              index < CacatacInstructionProgramDefinitions.PresentationWordCount;

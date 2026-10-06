@@ -68,11 +68,11 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed Norfair palette loops avoid cartridge color reads");
 
-        VerifyExtractedSamusHeatPaletteFxPresentation(bus, presentation);
+        Suite(nameof(VerifyExtractedSamusHeatPaletteFxPresentation), () => VerifyExtractedSamusHeatPaletteFxPresentation(bus, presentation));
 
-        VerifyExtractedMaridiaPaletteFxPresentation(bus, presentation);
-        VerifyExtractedWreckedShipPaletteFxPresentation(bus, presentation);
-        VerifyInstalledPaletteFxFamily(
+        Suite(nameof(VerifyExtractedMaridiaPaletteFxPresentation), () => VerifyExtractedMaridiaPaletteFxPresentation(bus, presentation));
+        Suite(nameof(VerifyExtractedWreckedShipPaletteFxPresentation), () => VerifyExtractedWreckedShipPaletteFxPresentation(bus, presentation));
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus,
             presentation,
             "Red Brinstar glow",
@@ -80,8 +80,8 @@ internal static partial class Program
             RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorPointer,
             [RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
-            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
-        VerifyInstalledPaletteFxFamily(
+            RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.CycleFrames * 2));
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus,
             presentation,
             "Tourian glow",
@@ -92,7 +92,7 @@ internal static partial class Program
                 TourianGlowPaletteFxProgramMechanicsDefinitions.LiveDefinitionPointer,
                 TourianGlowPaletteFxProgramMechanicsDefinitions.CloneDefinitionPointer,
             ],
-            TourianGlowPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
+            TourianGlowPaletteFxProgramMechanicsDefinitions.CycleFrames * 2));
         foreach (BrinstarBlueSporePaletteFxProgramDefinition definition in
                  BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All)
         {
@@ -119,7 +119,7 @@ internal static partial class Program
                 [definition.DefinitionPointer],
                 TorizoBellyPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
         }
-        VerifyInstalledPaletteFxFamily(
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus,
             presentation,
             "Tourian statue grey-out",
@@ -129,7 +129,7 @@ internal static partial class Program
             TourianStatueGreyPaletteFxProgramMechanicsDefinitions.All
                 .Select(definition => definition.DefinitionPointer)
                 .ToArray(),
-            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FramesThroughDeletion);
+            TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FramesThroughDeletion));
         foreach (CrateriaLightningPaletteFxProgramDefinition definition in
                  CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
         {
@@ -144,7 +144,7 @@ internal static partial class Program
                 definition.CycleFrames * 2,
                 CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY);
         }
-        VerifyInstalledPaletteFxFamily(
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus,
             presentation,
             "Ceres gunship-engine lights",
@@ -156,8 +156,8 @@ internal static partial class Program
             [CeresCinematicLightPaletteFxProgramMechanicsDefinitions
                 .GunshipEngineDefinitionPointer],
             CeresCinematicLightPaletteFxProgramMechanicsDefinitions
-                .GunshipEngineCycleFrames * 2);
-        VerifyInstalledPaletteFxFamily(
+                .GunshipEngineCycleFrames * 2));
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus,
             presentation,
             "Ceres navigation lights",
@@ -173,7 +173,7 @@ internal static partial class Program
                     .BackgroundNavigationLightsDefinitionPointer,
             ],
             CeresCinematicLightPaletteFxProgramMechanicsDefinitions
-                .NavigationLightsCycleFrames * 2);
+                .NavigationLightsCycleFrames * 2));
         foreach (PlanetZebesTextPaletteFxProgramDefinition definition in
                  PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)
         {
@@ -200,7 +200,7 @@ internal static partial class Program
                 [definition.DefinitionPointer],
                 definition.CycleFrames * 2);
         }
-        VerifyInstalledPaletteFxFamily(
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus,
             presentation,
             "exploding Zebes fade",
@@ -208,8 +208,8 @@ internal static partial class Program
             ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
             [ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer],
-            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
-        VerifyInstalledPaletteFxFamily(
+            ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1));
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus,
             presentation,
             "unused cinematic fade",
@@ -217,8 +217,8 @@ internal static partial class Program
             UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
             [UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer],
-            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
-        VerifyInstalledPaletteFxFamily(
+            UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1));
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus,
             presentation,
             "title-logo fade",
@@ -226,8 +226,8 @@ internal static partial class Program
             TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorPointer,
             [TitleLogoFadePaletteFxProgramMechanicsDefinitions.DefinitionPointer],
-            TitleLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
-        VerifyInstalledPaletteFxFamily(
+            TitleLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1));
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus,
             presentation,
             "Nintendo shared fade",
@@ -237,29 +237,29 @@ internal static partial class Program
             NintendoLogoFadePaletteFxProgramMechanicsDefinitions.All
                 .Select(definition => definition.DefinitionPointer)
                 .ToArray(),
-            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
-        VerifyInstalledPaletteFxFamily(
+            NintendoLogoFadePaletteFxProgramMechanicsDefinitions.CycleFrames + 1));
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus, presentation, "Zebes explosion foreground",
             ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.FrameCount,
             ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorPointer,
             [ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
-            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
-        VerifyInstalledPaletteFxFamily(
+            ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.CycleFrames + 1));
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus, presentation, "Zebes explosion finale",
             ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FrameCount,
             ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorPointer,
             [ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.DefinitionPointer],
-            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
-        VerifyInstalledPaletteFxFamily(
+            ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.CycleFrames + 1));
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus, presentation, "Zebes explosion shared whiteout",
             ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.FrameCount,
             ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorPointer,
             ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.All
                 .Select(definition => definition.DefinitionPointer).ToArray(),
-            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.CycleFrames + 1);
+            ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.CycleFrames + 1));
         foreach (ZebesExplosionAmbientPaletteFxProgramDefinition definition in
                  ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.All)
         {
@@ -278,9 +278,9 @@ internal static partial class Program
                 definition.ColorPointer, [definition.DefinitionPointer],
                 definition.CycleFrames + 1);
         }
-        VerifyExtractedEndingGunshipPaletteFxPresentation(bus, presentation);
-        VerifyExtractedSamusLoadingPaletteFxPresentation(bus, presentation);
-        VerifyExtractedLogoGlarePaletteFxPresentation(bus, presentation);
+        Suite(nameof(VerifyExtractedEndingGunshipPaletteFxPresentation), () => VerifyExtractedEndingGunshipPaletteFxPresentation(bus, presentation));
+        Suite(nameof(VerifyExtractedSamusLoadingPaletteFxPresentation), () => VerifyExtractedSamusLoadingPaletteFxPresentation(bus, presentation));
+        Suite(nameof(VerifyExtractedLogoGlarePaletteFxPresentation), () => VerifyExtractedLogoGlarePaletteFxPresentation(bus, presentation));
         foreach (TourianEscapeRedFlashPaletteFxProgramDefinition definition in
                  TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.All)
         {
@@ -290,21 +290,21 @@ internal static partial class Program
                 definition.ColorsPerFrame, definition.ColorPointer,
                 [definition.DefinitionPointer], definition.CycleFrames * 2);
         }
-        VerifyInstalledPaletteFxFamily(
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus, presentation, "Tourian escape shared red flash",
             TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
             TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
             TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.All
                 .Select(definition => definition.DefinitionPointer).ToArray(),
-            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
-        VerifyInstalledPaletteFxFamily(
+            TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames * 2));
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus, presentation, "old Tourian escape red flash",
             OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
             OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
             [OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
-            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
+            OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames * 2));
         foreach (OldTourianEscapeAccentPaletteFxProgramDefinition definition in
                  OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All)
         {
@@ -315,13 +315,13 @@ internal static partial class Program
                 definition.ColorPointer, [definition.DefinitionPointer],
                 OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
         }
-        VerifyInstalledPaletteFxFamily(
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus, presentation, "upper Crateria escape red flash",
             UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount,
             UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer,
             [UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
-            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
+            UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames * 2));
         foreach (CrateriaEscapeLightningPaletteFxProgramDefinition definition in
                  CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All)
         {
@@ -332,14 +332,14 @@ internal static partial class Program
                 [definition.DefinitionPointer],
                 CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
         }
-        VerifyInstalledPaletteFxFamily(
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(
             bus, presentation, "Crateria and Brinstar beacon flash",
             BeaconPaletteFxProgramMechanicsDefinitions.FrameCount,
             BeaconPaletteFxProgramMechanicsDefinitions.ColorsPerFrame,
             BeaconPaletteFxProgramMechanicsDefinitions.ColorPointer,
             [BeaconPaletteFxProgramMechanicsDefinitions.DefinitionPointer],
-            BeaconPaletteFxProgramMechanicsDefinitions.CycleFrames * 2);
-        VerifyRoomPaletteFxPresentationValidation(extracted, bus);
+            BeaconPaletteFxProgramMechanicsDefinitions.CycleFrames * 2));
+        Suite(nameof(VerifyRoomPaletteFxPresentationValidation), () => VerifyRoomPaletteFxPresentationValidation(extracted, bus));
         Console.WriteLine(
             "  Room palette presentation: 5108 editable palette colors match ROM; " +
             "fifty-five installed programs match native execution without color-source reads.");
@@ -348,8 +348,8 @@ internal static partial class Program
     private static void VerifyExtractedEndingGunshipPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
-        VerifyInstalledPaletteFxFamily(bus, presentation, "Zebes explosion gunship",
-            16, 16, (frame, color) => (ushort)(0xd6c0 + frame * 36 + color * 2), [0xe1e4], 385);
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Zebes explosion gunship",
+            16, 16, (frame, color) => (ushort)(0xd6c0 + frame * 36 + color * 2), [0xe1e4], 385));
         var original = new Dictionary<ushort, ushort>();
         var coordinates = new Dictionary<ushort, (int Frame, int Color)>();
         for (int frame = 0; frame < 16; frame++)
@@ -427,8 +427,8 @@ internal static partial class Program
     private static void VerifyExtractedLogoGlarePaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
-        VerifyInstalledPaletteFxFamily(bus, presentation, "post-credits icon glare",
-            14, 16, (frame, color) => (ushort)(0xdf9a + frame * 36 + color * 2), [0xe200], 15);
+        Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "post-credits icon glare",
+            14, 16, (frame, color) => (ushort)(0xdf9a + frame * 36 + color * 2), [0xe200], 15));
         var original = new Dictionary<ushort, ushort>();
         var coordinates = new Dictionary<ushort, (int Frame, int Color)>();
         for (int frame = 0; frame < 14; frame++)

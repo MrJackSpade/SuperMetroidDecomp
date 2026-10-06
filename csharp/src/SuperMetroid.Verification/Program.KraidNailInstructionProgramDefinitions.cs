@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyKraidNailInstructionProgramDefinitions()
     {
-        VerifyKraidNailInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyKraidNailInstructionProgramDefinitions), () => VerifyKraidNailInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyKraidNailInstructionProgramDefinitions(
@@ -38,8 +38,8 @@ internal static partial class Program
                     (ushort)EnemyExtraProperties.UsesExtendedSpritemap) == 0,
                 $"retail Kraid nail slot {slotIndex} uses ordinary OAM composition");
         }
-        VerifyKraidNailMechanicsMapping(rom);
-        VerifyKraidNailPresentationMapping();
+        Suite(nameof(VerifyKraidNailMechanicsMapping), () => VerifyKraidNailMechanicsMapping(rom));
+        Suite(nameof(VerifyKraidNailPresentationMapping), () => VerifyKraidNailPresentationMapping());
 
         var guard = new KraidNailInstructionReadGuard(rom);
         foreach (ushort definitionPointer in new ushort[]
@@ -73,7 +73,7 @@ internal static partial class Program
                 $"Kraid fingernail ${definitionPointer:X4} loops to its first frame");
         }
 
-        VerifyKraidNailVisualSelectors(rom);
+        Suite(nameof(VerifyKraidNailVisualSelectors), () => VerifyKraidNailVisualSelectors(rom));
         AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
             "Kraid fingernail programs never read installed visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,

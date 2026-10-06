@@ -57,9 +57,9 @@ internal static partial class Program
 
     private static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
-        VerifyPauseBeamMasks(bus);
-        VerifyPauseSuitMasks(bus);
-        VerifyPauseBootMasks(bus);
+        Suite(nameof(VerifyPauseBeamMasks), () => VerifyPauseBeamMasks(bus));
+        Suite(nameof(VerifyPauseSuitMasks), () => VerifyPauseSuitMasks(bus));
+        Suite(nameof(VerifyPauseBootMasks), () => VerifyPauseBootMasks(bus));
         var guard = new PauseRulesReadGuard(bus);
         for (int category = 1; category <= 3; category++)
         {
@@ -89,7 +89,7 @@ internal static partial class Program
         }
         ushort[] wireframeMasks = Enumerable.Range(0, 4).Select(index => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             PauseMenuRomData.EquipmentSetTable + index * 2)).ToArray();
-        VerifyPauseWireframeSelection(bus);
+        Suite(nameof(VerifyPauseWireframeSelection), () => VerifyPauseWireframeSelection(bus));
         foreach (ushort items in wireframeMasks.SelectMany(mask => new[] { mask, (ushort)(mask | (ushort)SamusEquipmentFlags.GravitySuit) }))
         {
             var pause = Create(new SamusState { EquippedItems = items, CollectedItems = items }); EnterEquipment(pause);

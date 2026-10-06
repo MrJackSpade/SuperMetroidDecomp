@@ -10,14 +10,14 @@ internal static partial class Program
 {
     private static void VerifyChargeFlarePlacement(SuperMetroidAddressSpace bus)
     {
-        VerifyChargeFlareCompositions(bus);
+        Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(bus));
         byte[] json = ChargeFlarePlacementExtractor.Extract(bus);
         var stock = ChargeFlarePlacementCatalog.Load(new MemoryStream(json));
         var document = JsonNode.Parse(json)!;
         foreach (var entry in document["offsets"]!.AsObject())
             entry.Value!["x"] = entry.Value["x"]!.GetValue<int>() + 7;
         var edited = Load(document);
-        VerifyRuntimeFlarePlacement(bus, stock, edited);
+        Suite(nameof(VerifyRuntimeFlarePlacement), () => VerifyRuntimeFlarePlacement(bus, stock, edited));
         var system = new SamusProjectileSystem();
         var sprites = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
         var drawMetadata = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponentWithMetadata", BindingFlags.Instance | BindingFlags.NonPublic)!

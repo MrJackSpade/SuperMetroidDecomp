@@ -119,7 +119,7 @@ internal static partial class Program
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
-        VerifyEndingObjectFragmentMetadata(bus);
+        Suite(nameof(VerifyEndingObjectFragmentMetadata), () => VerifyEndingObjectFragmentMetadata(bus));
         AssertSheet(stock.Clouds, EndingCreditsRomData.Assets.EscapeCloudCharacters,
             EndingObjectArtworkFormat.CloudByteCount, "clouds");
         AssertSheet(stock.Explosion, EndingCreditsRomData.Assets.EndingObjectCharacters,
@@ -161,7 +161,7 @@ internal static partial class Program
                 nativeLogoMap.AsSpan(0, EndingObjectArtworkFormat.PostShotLogoMapByteCount)),
             "installed post-shot logo map preserves all native BG2 tile words");
 
-        VerifyEndingCloudDefinitions(bus);
+        Suite(nameof(VerifyEndingCloudDefinitions), () => VerifyEndingCloudDefinitions(bus));
         for (int index = 0; index < EndingCloudSpriteDefinitions.Frames.Count; index++)
         {
             EndingCloudSpriteFrameDefinition definition = EndingCloudSpriteDefinitions.Frames[index];
@@ -189,12 +189,12 @@ internal static partial class Program
                     $"ending cloud {definition.Name} at Y=${y:X4} preserves cartridge OAM");
             }
         }
-        VerifyEndingExplosionActorArtwork(installation, bus, stock);
-        VerifyEndingCompletionTextInstructions(bus);
-        VerifyEndingCompletionTextSpriteArtwork(bus, stock);
-        VerifyEndingRewardInstructions(bus);
-        VerifyEndingRewardSpriteArtwork(bus, stock);
-        VerifyEndingLogoSpriteArtwork(bus, stock);
+        Suite(nameof(VerifyEndingExplosionActorArtwork), () => VerifyEndingExplosionActorArtwork(installation, bus, stock));
+        Suite(nameof(VerifyEndingCompletionTextInstructions), () => VerifyEndingCompletionTextInstructions(bus));
+        Suite(nameof(VerifyEndingCompletionTextSpriteArtwork), () => VerifyEndingCompletionTextSpriteArtwork(bus, stock));
+        Suite(nameof(VerifyEndingRewardInstructions), () => VerifyEndingRewardInstructions(bus));
+        Suite(nameof(VerifyEndingRewardSpriteArtwork), () => VerifyEndingRewardSpriteArtwork(bus, stock));
+        Suite(nameof(VerifyEndingLogoSpriteArtwork), () => VerifyEndingLogoSpriteArtwork(bus, stock));
 
         var guard = new EndingObjectSourceReadGuard(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
@@ -237,9 +237,9 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed ending OBJ scenes never reread compiled instructions, sprite maps or character sources");
 
-        VerifyEndingExplosionVisualOverride(installation, stock, guard);
-        VerifyEndingCompletionTextVisualOverride(installation, stock, guard);
-        VerifyEndingRewardVisualOverride(installation, stock, guard);
+        Suite(nameof(VerifyEndingExplosionVisualOverride), () => VerifyEndingExplosionVisualOverride(installation, stock, guard));
+        Suite(nameof(VerifyEndingCompletionTextVisualOverride), () => VerifyEndingCompletionTextVisualOverride(installation, stock, guard));
+        Suite(nameof(VerifyEndingRewardVisualOverride), () => VerifyEndingRewardVisualOverride(installation, stock, guard));
 
         string cloudSpriteName = EndingCloudSpriteFormat.FileName;
         Directory.CreateDirectory(installation.EndingObjectOverrideDirectory);
@@ -427,7 +427,7 @@ internal static partial class Program
             "ending cloud sprite override survives stock repair with edited OAM");
         File.Delete(invalidPath);
         File.Delete(cloudSpriteOverride);
-        VerifyPostCreditsCharacterArtwork(repaired);
+        Suite(nameof(VerifyPostCreditsCharacterArtwork), () => VerifyPostCreditsCharacterArtwork(repaired));
         Console.WriteLine("Ending/credits art: compiled cloud, explosion, completion-text, reward and logo actors, editable cloud/explosion/text/reward/logo OAM, twelve native sheets and two BG maps, visible independent edits, guarded runtime and stock repair pass.");
 
         void AssertSheet(RoomCharacterAtlas sheet, int source, int bytes, string name)

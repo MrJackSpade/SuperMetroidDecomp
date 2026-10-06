@@ -7,10 +7,10 @@ internal static partial class Program
     private static void VerifyEndingRewardGesture()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
-        VerifyEndingRewardActorDefinitions(bus);
-        VerifyEndingPostShot(bus);
-        VerifyEndingLogo(bus);
-        VerifyEndingCloudMotion();
+        Suite(nameof(VerifyEndingRewardActorDefinitions), () => VerifyEndingRewardActorDefinitions(bus));
+        Suite(nameof(VerifyEndingPostShot), () => VerifyEndingPostShot(bus));
+        Suite(nameof(VerifyEndingLogo), () => VerifyEndingLogo(bus));
+        Suite(nameof(VerifyEndingCloudMotion), () => VerifyEndingCloudMotion());
         var uploadBus = new EndingRewardUploadDefinitionReadGuard(bus);
         var graphicsUpload = new EndingRewardGraphicsUpload(uploadBus);
         var graphicsVram = new SnesVram();

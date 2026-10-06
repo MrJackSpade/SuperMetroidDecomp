@@ -6,8 +6,8 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyGunshipDustInstructionProgramDefinitions() =>
-        VerifyGunshipDustInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyGunshipDustInstructionProgramDefinitions), () => VerifyGunshipDustInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyGunshipDustInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)

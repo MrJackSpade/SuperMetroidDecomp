@@ -9,8 +9,8 @@ internal static partial class Program
     private static void VerifyInstalledDeadTorizoArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
-        VerifyDeadTorizoVramTransferDefinitions(stock);
-        VerifyDeadTorizoStationaryVisual(stock);
+        Suite(nameof(VerifyDeadTorizoVramTransferDefinitions), () => VerifyDeadTorizoVramTransferDefinitions(stock));
+        Suite(nameof(VerifyDeadTorizoStationaryVisual), () => VerifyDeadTorizoStationaryVisual(stock));
         // The corpse initializer copies discontinuous portions of the ordinary ED3F
         // enemy sheet to WRAM. Later rotting frames draw sand words from that same
         // sheet. Guard the entire source interval so neither path can accidentally

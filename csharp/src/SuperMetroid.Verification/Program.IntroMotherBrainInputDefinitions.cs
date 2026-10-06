@@ -9,7 +9,7 @@ internal static partial class Program
     private static void VerifyIntroMotherBrainDemoInput(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {
-        VerifyIntroMotherBrainInputSource(bus);
+        Suite(nameof(VerifyIntroMotherBrainInputSource), () => VerifyIntroMotherBrainInputSource(bus));
         ushort ReferenceWord(ushort pointer) => (ushort)(bus.ReadByte(0x910000 | pointer) |
             bus.ReadByte(0x910000 | unchecked((ushort)(pointer + 1))) << 8);
         AssertThrows<InvalidDataException>(() =>

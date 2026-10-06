@@ -13,14 +13,14 @@ internal static partial class Program
     {
         DraygonColorCatalog native = stock.DraygonColors ??
             throw new InvalidDataException("Installed enemy art has no Draygon colors.");
-        VerifyBand(DraygonColorRomData.IntroSource, DraygonColorRomData.IntroCount,
-            native.ResolveIntro, "intro");
-        VerifyBand(DraygonColorRomData.BackgroundSource,
-            DraygonColorRomData.BackgroundCount, native.ResolveBackground, "background");
-        VerifyBand(DraygonColorRomData.SpriteSource,
-            DraygonColorRomData.SpriteCount, native.ResolveSprite, "sprite");
-        VerifyBand(DraygonColorRomData.WhiteFlashSource,
-            DraygonColorRomData.WhiteFlashCount, native.ResolveWhiteFlash, "white flash");
+        Suite(nameof(VerifyBand), () => VerifyBand(DraygonColorRomData.IntroSource, DraygonColorRomData.IntroCount,
+            native.ResolveIntro, "intro"));
+        Suite(nameof(VerifyBand), () => VerifyBand(DraygonColorRomData.BackgroundSource,
+            DraygonColorRomData.BackgroundCount, native.ResolveBackground, "background"));
+        Suite(nameof(VerifyBand), () => VerifyBand(DraygonColorRomData.SpriteSource,
+            DraygonColorRomData.SpriteCount, native.ResolveSprite, "sprite"));
+        Suite(nameof(VerifyBand), () => VerifyBand(DraygonColorRomData.WhiteFlashSource,
+            DraygonColorRomData.WhiteFlashCount, native.ResolveWhiteFlash, "white flash"));
         for (int band = 0; band < DraygonColorRomData.HealthBandCount; band++)
         for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),

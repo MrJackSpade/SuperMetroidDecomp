@@ -24,7 +24,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => EnemySpritemapDefinitions.AlcoonFrameAt(0xdcc7),
             "Alcoon rejects adjacent control data as presentation");
-        VerifyAlcoonInstructionProgramDefinitions(rom, stock);
+        Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(rom, stock));
     }
 
     private static void VerifyInstalledBeetomInstructionFrames(
@@ -44,7 +44,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => EnemySpritemapDefinitions.BeetomFrameAt(0xb6c0),
             "Beetom rejects the adjacent unused hop program as presentation");
-        VerifyBeetomInstructionProgramDefinitions(rom, stock);
+        Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(rom, stock));
     }
 
     private static void VerifyInstalledHopperInstructionFrames(
@@ -77,7 +77,7 @@ internal static partial class Program
             () => EnemySpritemapDefinitions.HopperFrameAt(
                 HopperInstructionProgramDefinitions.LastAdjacentPhysicsWord),
             "Hopper rejects adjacent physics data as a visual selector");
-        VerifyHopperAnimationDefinitions(rom, stock);
+        Suite(nameof(VerifyHopperAnimationDefinitions), () => VerifyHopperAnimationDefinitions(rom, stock));
     }
 
     private static void VerifyInstalledChootInstructionFrames(
@@ -97,7 +97,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => EnemySpritemapDefinitions.ChootFrameAt(0xd84c),
             "Choot rejects adjacent path data as a visual selector");
-        VerifyChootInstructionProgramDefinitions(rom, stock);
+        Suite(nameof(VerifyChootInstructionProgramDefinitions), () => VerifyChootInstructionProgramDefinitions(rom, stock));
     }
 
     private static void VerifyInstalledBullInstructionFrames(
@@ -647,19 +647,19 @@ internal static partial class Program
         }
         AssertEqual(0, norfairRioGuard.ObservedPresentationWords.Count,
             "installed Norfair Rio programs never read ROM visual selectors");
-        VerifyInstalledPuyoInstructionFrames(rom, stock, flags);
-        VerifyInstalledBullInstructionFrames(rom, stock, flags);
-        VerifyInstalledAlcoonInstructionFrames(rom, stock);
-        VerifyInstalledMochtroidVisuals(rom, stock);
-        VerifyInstalledEvirVisuals(rom, stock);
-        VerifyInstalledWorkRobotVisuals(rom, stock);
-        VerifyInstalledYardVisuals(rom, stock);
-        VerifyInstalledBotwoonVisuals(rom, stock);
-        VerifyInstalledBeetomInstructionFrames(rom, stock);
-        VerifyInstalledHopperInstructionFrames(rom, stock);
-        VerifyInstalledChootInstructionFrames(rom, stock);
-        VerifyInstalledHZoomerInstructionFrames(rom, stock);
-        VerifyInstalledSharedCrawlerFrames(rom, stock);
+        Suite(nameof(VerifyInstalledPuyoInstructionFrames), () => VerifyInstalledPuyoInstructionFrames(rom, stock, flags));
+        Suite(nameof(VerifyInstalledBullInstructionFrames), () => VerifyInstalledBullInstructionFrames(rom, stock, flags));
+        Suite(nameof(VerifyInstalledAlcoonInstructionFrames), () => VerifyInstalledAlcoonInstructionFrames(rom, stock));
+        Suite(nameof(VerifyInstalledMochtroidVisuals), () => VerifyInstalledMochtroidVisuals(rom, stock));
+        Suite(nameof(VerifyInstalledEvirVisuals), () => VerifyInstalledEvirVisuals(rom, stock));
+        Suite(nameof(VerifyInstalledWorkRobotVisuals), () => VerifyInstalledWorkRobotVisuals(rom, stock));
+        Suite(nameof(VerifyInstalledYardVisuals), () => VerifyInstalledYardVisuals(rom, stock));
+        Suite(nameof(VerifyInstalledBotwoonVisuals), () => VerifyInstalledBotwoonVisuals(rom, stock));
+        Suite(nameof(VerifyInstalledBeetomInstructionFrames), () => VerifyInstalledBeetomInstructionFrames(rom, stock));
+        Suite(nameof(VerifyInstalledHopperInstructionFrames), () => VerifyInstalledHopperInstructionFrames(rom, stock));
+        Suite(nameof(VerifyInstalledChootInstructionFrames), () => VerifyInstalledChootInstructionFrames(rom, stock));
+        Suite(nameof(VerifyInstalledHZoomerInstructionFrames), () => VerifyInstalledHZoomerInstructionFrames(rom, stock));
+        Suite(nameof(VerifyInstalledSharedCrawlerFrames), () => VerifyInstalledSharedCrawlerFrames(rom, stock));
         for (int index = 0; index < SciserInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
@@ -1199,8 +1199,8 @@ internal static partial class Program
                 $"production room draws installed {frame.Name} without visual ROM reads");
         }
 
-        VerifyInstalledMotherBrainDrawHook(rom, stock);
-        VerifyInstalledRidleySupplementalArtwork(rom, stock);
+        Suite(nameof(VerifyInstalledMotherBrainDrawHook), () => VerifyInstalledMotherBrainDrawHook(rom, stock));
+        Suite(nameof(VerifyInstalledRidleySupplementalArtwork), () => VerifyInstalledRidleySupplementalArtwork(rom, stock));
 
         string fileName = EnemySpritemapDefinitions.FileName;
         string stockPath = Path.Combine(stockDirectory, fileName);
@@ -2392,7 +2392,7 @@ internal static partial class Program
             AssertEqual(stockSbug.LowTable[0], editedSbug.LowTable[0],
                 $"Sbug visual edit leaves enemy ${definition:X4} physical X unchanged");
         }
-        VerifyHZoomerInstructionProgramDefinitions(rom, edited);
+        Suite(nameof(VerifyHZoomerInstructionProgramDefinitions), () => VerifyHZoomerInstructionProgramDefinitions(rom, edited));
         foreach (ushort definition in new ushort[]
                  {
                      RoomEnemySystem.ZeelaDefinition,
@@ -2411,7 +2411,7 @@ internal static partial class Program
             AssertEqual(stockCrawler.LowTable[0], editedCrawler.LowTable[0],
                 $"shared crawler ${definition:X4} retains physical X");
         }
-        VerifySharedCrawlerInstructionProgramDefinitions(rom, edited);
+        Suite(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions(rom, edited));
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");

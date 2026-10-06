@@ -35,7 +35,7 @@ internal static partial class Program
     }
     private static void VerifyKraidBodyContour(SuperMetroidAddressSpace rom)
     {
-        VerifyKraidBodyContourCases(rom);
+        Suite(nameof(VerifyKraidBodyContourCases), () => VerifyKraidBodyContourCases(rom));
         var enemies = new RoomEnemySystem();
         var overlaps = CreateKraidBodyContourProbe();
         var body = enemies.Slots[0];

@@ -10,10 +10,10 @@ internal static partial class Program
     private static void VerifyMotherBrainGlassPlmDrawDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyMotherBrainGlassPlmProgram(rom);
-        VerifyGlassLayoutGeometry(rom);
-        VerifyGlassLayoutCollision(rom);
-        VerifyGlassLayoutVisuals(rom);
+        Suite(nameof(VerifyMotherBrainGlassPlmProgram), () => VerifyMotherBrainGlassPlmProgram(rom));
+        Suite(nameof(VerifyGlassLayoutGeometry), () => VerifyGlassLayoutGeometry(rom));
+        Suite(nameof(VerifyGlassLayoutCollision), () => VerifyGlassLayoutCollision(rom));
+        Suite(nameof(VerifyGlassLayoutVisuals), () => VerifyGlassLayoutVisuals(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             MotherBrainGlassPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
@@ -43,7 +43,7 @@ internal static partial class Program
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             VerifyMotherBrainGlassNativeDrawPath(bank84, lists, list,
                 list.Pointer == 0x978f ? edited : null);
-        VerifyMotherBrainGlassVisualInstallation(rom);
+        Suite(nameof(VerifyMotherBrainGlassVisualInstallation), () => VerifyMotherBrainGlassVisualInstallation(rom));
         Console.WriteLine(
             "  Mother Brain glass PLM: 11 guarded native layouts and editable stock/override appearance preserve physical blocks.");
     }

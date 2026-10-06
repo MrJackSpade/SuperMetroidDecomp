@@ -8,8 +8,8 @@ internal static partial class Program
 {
     private static void VerifyFakeKraidInstructionProgramDefinitions()
     {
-        VerifyFakeKraidInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyFakeKraidInstructionProgramDefinitions), () => VerifyFakeKraidInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyFakeKraidInstructionProgramDefinitions(
@@ -29,8 +29,8 @@ internal static partial class Program
                 (ushort)EnemyExtraProperties.UsesExtendedSpritemap) == 0,
             "retail Fake Kraid uses ordinary OAM composition");
 
-        VerifyFakeKraidMechanicsMapping(rom);
-        VerifyFakeKraidPresentationAddresses();
+        Suite(nameof(VerifyFakeKraidMechanicsMapping), () => VerifyFakeKraidMechanicsMapping(rom));
+        Suite(nameof(VerifyFakeKraidPresentationAddresses), () => VerifyFakeKraidPresentationAddresses());
 
         var guard = new FakeKraidInstructionProgramReadGuard(rom);
         var level = new RoomLevelData(
@@ -41,8 +41,8 @@ internal static partial class Program
             new ushort[1024],
             new byte[8]);
 
-        VerifyInitializer(movingRight: false);
-        VerifyInitializer(movingRight: true);
+        Suite(nameof(VerifyInitializer), () => VerifyInitializer(movingRight: false));
+        Suite(nameof(VerifyInitializer), () => VerifyInitializer(movingRight: true));
 
         ExerciseWalk(
             FakeKraidInstructionProgramDefinitions.StepForwardsFacingLeft,
@@ -69,7 +69,7 @@ internal static partial class Program
 
         AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
             "Fake Kraid programs never read installed visual selectors");
-        VerifyFakeKraidVisualSelectors(rom);
+        Suite(nameof(VerifyFakeKraidVisualSelectors), () => VerifyFakeKraidVisualSelectors(rom));
         AssertThrows<InvalidDataException>(
             () => KraidVisualDefinitions.FrameAt(
                 RoomEnemySystem.FakeKraidDefinition, 0x9a42),

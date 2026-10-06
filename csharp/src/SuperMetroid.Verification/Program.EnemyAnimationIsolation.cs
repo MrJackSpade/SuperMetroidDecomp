@@ -8,8 +8,8 @@ internal static partial class Program
         var stock = new EnemyIdentityFixture().Build();
         var edited = CreateEditedEnemyAnimationArtwork();
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "animation replacement changes selected artwork identity");
-        VerifyBoyonAnimationIsolation(new(stock, golden: false), new(edited, golden: false));
-        VerifyTorizoAnimationIsolation(new(stock, golden: true), new(edited, golden: true));
+        Suite(nameof(VerifyBoyonAnimationIsolation), () => VerifyBoyonAnimationIsolation(new(stock, golden: false), new(edited, golden: false)));
+        Suite(nameof(VerifyTorizoAnimationIsolation), () => VerifyTorizoAnimationIsolation(new(stock, golden: true), new(edited, golden: true)));
         Console.WriteLine("Enemy animation isolation: RAM-only ordinary proximity/bounce, " +
             "boss attack/hitbox windows and death progression remain frame-exact with replaced display sequences and projectile art.");
     }

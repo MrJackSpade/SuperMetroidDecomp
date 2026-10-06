@@ -5,10 +5,10 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     private static void VerifyLandSkyChunkPointers(SuperMetroidAddressSpace rom) =>
-        VerifySkyChunkPointers(rom, 0x88ad9c, RoomMainCallback.ScrollingSkyLand);
+        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, 0x88ad9c, RoomMainCallback.ScrollingSkyLand));
 
     private static void VerifyOceanSkyChunkPointers(SuperMetroidAddressSpace rom) =>
-        VerifySkyChunkPointers(rom, 0x88ada6, RoomMainCallback.ScrollingSkyOcean);
+        Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, 0x88ada6, RoomMainCallback.ScrollingSkyOcean));
 
     private static void VerifySkyChunkPointers(SuperMetroidAddressSpace rom, int table, RoomMainCallback callback)
     {

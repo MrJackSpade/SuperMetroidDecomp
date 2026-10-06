@@ -74,7 +74,7 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrides),
             "malformed Kraid BG2 override fails at load");
-        VerifyInstalledKraidHeadFrames(rom, directory, stock);
+        Suite(nameof(VerifyInstalledKraidHeadFrames), () => VerifyInstalledKraidHeadFrames(rom, directory, stock));
     }
 
     private static void VerifyInstalledKraidHeadFrames(
@@ -144,8 +144,8 @@ internal static partial class Program
         File.WriteAllBytes(overridePath, [0]);
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(directory, overrides),
             "malformed Kraid head override fails at load");
-        VerifyInstalledKraidRoomBackground(rom, directory, stock);
-        VerifyInstalledKraidBg3Restoration(rom, directory, stock);
+        Suite(nameof(VerifyInstalledKraidRoomBackground), () => VerifyInstalledKraidRoomBackground(rom, directory, stock));
+        Suite(nameof(VerifyInstalledKraidBg3Restoration), () => VerifyInstalledKraidBg3Restoration(rom, directory, stock));
     }
 
     private static void VerifyInstalledKraidBg3Restoration(

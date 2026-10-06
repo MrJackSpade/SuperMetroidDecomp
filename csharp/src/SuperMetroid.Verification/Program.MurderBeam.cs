@@ -166,9 +166,9 @@ internal static partial class Program
         AssertEqual((ushort)200, shot.Damage,
             "phase-three Murder Beam retains its damage payload");
 
-        VerifyMissileAutoCancelMurderBeam(bus, level);
-        VerifyUnsafeMurderBeamDirection(bus, level);
-        VerifyUnsafeUnchargedMurderBeam(bus, level);
+        Suite(nameof(VerifyMissileAutoCancelMurderBeam), () => VerifyMissileAutoCancelMurderBeam(bus, level));
+        Suite(nameof(VerifyUnsafeMurderBeamDirection), () => VerifyUnsafeMurderBeamDirection(bus, level));
+        Suite(nameof(VerifyUnsafeUnchargedMurderBeam), () => VerifyUnsafeUnchargedMurderBeam(bus, level));
         Console.WriteLine(
             "Murder Beam: precharge and missile auto-cancel setups, left-facing zero-list " +
             "persistence through Mother Brain's phase boundary, repeated 200-point damage " +

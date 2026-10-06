@@ -37,7 +37,7 @@ internal static partial class Program
         }
         projectiles.Reset();
         byte[] json = ProjectileTrailExtractor.Extract(bus);
-        VerifyIntroTrailPng(bus, intro, game, json, Draw);
+        Suite(nameof(VerifyIntroTrailPng), () => VerifyIntroTrailPng(bus, intro, game, json, Draw));
         var trails = ProjectileTrailCatalog.Load(new MemoryStream(json));
         var document = JsonNode.Parse(json)!;
         ushort frame = ProjectileTrailVisualDefinitions.Frames[0];

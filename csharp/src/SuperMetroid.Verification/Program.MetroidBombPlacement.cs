@@ -11,7 +11,7 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xdae1);
-        VerifyMetroidBombRuntime(bus, room);
+        Suite(nameof(VerifyMetroidBombRuntime), () => VerifyMetroidBombRuntime(bus, room));
         var assets = CartridgeRoomAssets.Load(bus, room);
         var enemies = new RoomEnemySystem();
         var random = new Bank80SystemState();

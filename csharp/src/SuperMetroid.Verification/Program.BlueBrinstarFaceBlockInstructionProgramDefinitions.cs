@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions()
     {
-        VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions), () => VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(
@@ -16,35 +16,35 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        VerifyFaceBlockMechanicsMapping(rom);
-        VerifyFaceBlockPresentationMapping();
-        VerifyFaceBlockVisualMapping(rom);
+        Suite(nameof(VerifyFaceBlockMechanicsMapping), () => VerifyFaceBlockMechanicsMapping(rom));
+        Suite(nameof(VerifyFaceBlockPresentationMapping), () => VerifyFaceBlockPresentationMapping());
+        Suite(nameof(VerifyFaceBlockVisualMapping), () => VerifyFaceBlockVisualMapping(rom));
 
         var guard = new BlueBrinstarFaceBlockProgramReadGuard(rom);
-        VerifyBlueBrinstarFaceBlockProgram(
+        Suite(nameof(VerifyBlueBrinstarFaceBlockProgram), () => VerifyBlueBrinstarFaceBlockProgram(
             guard,
             parameter2: 0,
             samusX: null,
             BlueBrinstarFaceBlockInstructionProgramDefinitions.Initial,
             terminal: 0xe82c,
             frames: 4,
-            "initial");
-        VerifyBlueBrinstarFaceBlockProgram(
+            "initial"));
+        Suite(nameof(VerifyBlueBrinstarFaceBlockProgram), () => VerifyBlueBrinstarFaceBlockProgram(
             guard,
             parameter2: 0,
             samusX: 0x00e0,
             BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusLeft,
             terminal: 0xe818,
             frames: 96,
-            "Samus-left");
-        VerifyBlueBrinstarFaceBlockProgram(
+            "Samus-left"));
+        Suite(nameof(VerifyBlueBrinstarFaceBlockProgram), () => VerifyBlueBrinstarFaceBlockProgram(
             guard,
             parameter2: 1,
             samusX: 0x0120,
             BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusRight,
             terminal: 0xe826,
             frames: 96,
-            "Samus-right");
+            "Samus-right"));
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "face-block programs use compiled spritemap selectors");

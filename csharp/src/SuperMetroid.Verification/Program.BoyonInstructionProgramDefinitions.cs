@@ -79,8 +79,8 @@ internal static partial class Program
     }
     private static void VerifyBoyonInstructionProgramDefinitions()
     {
-        VerifyBoyonInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyBoyonInstructionProgramDefinitions), () => VerifyBoyonInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyBoyonInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
@@ -88,9 +88,9 @@ internal static partial class Program
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
-        VerifyBoyonMechanicsMapping(rom);
-        VerifyBoyonPresentationAddresses();
-        VerifyBoyonVisualSelectors(rom);
+        Suite(nameof(VerifyBoyonMechanicsMapping), () => VerifyBoyonMechanicsMapping(rom));
+        Suite(nameof(VerifyBoyonPresentationAddresses), () => VerifyBoyonPresentationAddresses());
+        Suite(nameof(VerifyBoyonVisualSelectors), () => VerifyBoyonVisualSelectors(rom));
 
         var guard = new BoyonInstructionProgramReadGuard(rom);
         RoomEnemySystem idleSystem = CreateBoyonProgramSystem(guard, out RoomEnemySlot idle);

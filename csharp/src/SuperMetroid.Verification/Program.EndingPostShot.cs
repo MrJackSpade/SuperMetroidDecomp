@@ -7,7 +7,7 @@ internal static partial class Program
 {
     private static void VerifyEndingPostShot(ISnesAddressSpace bus)
     {
-        VerifyEndingPostShotTransferFields(bus);
+        Suite(nameof(VerifyEndingPostShotTransferFields), () => VerifyEndingPostShotTransferFields(bus));
         var guardedBus = new PostShotUploadTableReadGuard(bus);
         var cgram = new SnesCgram();
         SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, 0x8ce7e9);

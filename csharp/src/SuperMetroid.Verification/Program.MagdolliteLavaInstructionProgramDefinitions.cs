@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyMagdolliteLavaInstructionProgramDefinitions()
     {
-        VerifyMagdolliteLavaInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyMagdolliteLavaInstructionProgramDefinitions), () => VerifyMagdolliteLavaInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyMagdolliteLavaInstructionProgramDefinitions(

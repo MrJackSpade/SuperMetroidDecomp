@@ -78,7 +78,7 @@ internal static partial class Program
     {
         AssertTrue(stock.ExtendedFrames is not null && stock.CrocomireBg2Frames is not null,
             "installed Crocomire body has both OAM and BG2 presentations");
-        VerifyCrocomireBodyFrameGeometry(rom);
+        Suite(nameof(VerifyCrocomireBodyFrameGeometry), () => VerifyCrocomireBodyFrameGeometry(rom));
         for (int index = 0;
              index < CrocomireInstructionProgramDefinitions.PresentationWordCount;
              index++)

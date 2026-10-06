@@ -36,12 +36,12 @@ internal static partial class Program
 
     private static void VerifyRetailPopulationMappings(SuperMetroidAddressSpace rom)
     {
-        VerifyRetailPopulationIdentities();
-        VerifyRetailPopulationHeaders(rom);
-        VerifyRetailPopulationX(rom);
-        VerifyRetailPopulationY(rom);
-        VerifyRetailPopulationArguments(rom);
-        VerifyRetailPopulationTermination(rom);
+        Suite(nameof(VerifyRetailPopulationIdentities), () => VerifyRetailPopulationIdentities());
+        Suite(nameof(VerifyRetailPopulationHeaders), () => VerifyRetailPopulationHeaders(rom));
+        Suite(nameof(VerifyRetailPopulationX), () => VerifyRetailPopulationX(rom));
+        Suite(nameof(VerifyRetailPopulationY), () => VerifyRetailPopulationY(rom));
+        Suite(nameof(VerifyRetailPopulationArguments), () => VerifyRetailPopulationArguments(rom));
+        Suite(nameof(VerifyRetailPopulationTermination), () => VerifyRetailPopulationTermination(rom));
     }
 
     private static void VerifyRetailPopulationIdentities()

@@ -4,11 +4,11 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     private static void VerifyDownwardGateDrawGeometry(SuperMetroidAddressSpace rom) =>
-        VerifyDownwardGateDrawField(rom, 0);
+        Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 0));
     private static void VerifyDownwardGateDrawCollision(SuperMetroidAddressSpace rom) =>
-        VerifyDownwardGateDrawField(rom, 1);
+        Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 1));
     private static void VerifyDownwardGateDrawVisuals(SuperMetroidAddressSpace rom) =>
-        VerifyDownwardGateDrawField(rom, 2);
+        Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 2));
 
     private static void VerifyDownwardGateDrawField(SuperMetroidAddressSpace rom, int field)
     {

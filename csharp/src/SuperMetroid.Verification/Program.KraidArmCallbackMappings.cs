@@ -4,9 +4,9 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyKraidArmTouchCallbacks(SuperMetroidAddressSpace rom) =>
-        VerifyKraidArmCallbackField(rom, false, KraidArmCollisionDefinitions.TouchCallback);
+        Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, false, KraidArmCollisionDefinitions.TouchCallback));
     private static void VerifyKraidArmShotCallbacks(SuperMetroidAddressSpace rom) =>
-        VerifyKraidArmCallbackField(rom, true, KraidArmCollisionDefinitions.ShotCallback);
+        Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, true, KraidArmCollisionDefinitions.ShotCallback));
 
     private static void VerifyKraidArmCallbackField(SuperMetroidAddressSpace rom, bool shot, Func<int, ushort> calculate)
     {

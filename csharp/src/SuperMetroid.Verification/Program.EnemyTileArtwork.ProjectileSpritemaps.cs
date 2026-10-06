@@ -54,8 +54,8 @@ internal static partial class Program
             AssertEqual(nativePointer, pointer,
                 $"particle visual operand $86:{operand:X4} selects its editable composition");
         }
-        VerifyBurstVisuals(stock);
-        VerifySharedProgramVisuals(stock);
+        Suite(nameof(VerifyBurstVisuals), () => VerifyBurstVisuals(stock));
+        Suite(nameof(VerifySharedProgramVisuals), () => VerifySharedProgramVisuals(stock));
         ushort ceresOperand = CeresRidleyProjectileInstructionProgramDefinitions
             .PresentationWordAddress(0);
         OamBuffer nativeCeres = DrawReferenceProgramFrame(ceresOperand, bus,

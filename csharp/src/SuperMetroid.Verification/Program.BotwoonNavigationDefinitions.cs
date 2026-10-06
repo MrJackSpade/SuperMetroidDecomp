@@ -49,9 +49,9 @@ internal static partial class Program
 
     private static void VerifyBotwoonPathDescriptorMappings(SuperMetroidAddressSpace rom)
     {
-        VerifyBotwoonPathPointerMapping(rom);
-        VerifyBotwoonPathDirectionMapping(rom);
-        VerifyBotwoonPathDestinationMapping(rom);
+        Suite(nameof(VerifyBotwoonPathPointerMapping), () => VerifyBotwoonPathPointerMapping(rom));
+        Suite(nameof(VerifyBotwoonPathDirectionMapping), () => VerifyBotwoonPathDirectionMapping(rom));
+        Suite(nameof(VerifyBotwoonPathDestinationMapping), () => VerifyBotwoonPathDestinationMapping(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
         var run = typeof(RoomEnemySystem).GetMethod("RunBotwoonMovement", flags)!
             .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
@@ -108,8 +108,8 @@ internal static partial class Program
 
     private static void VerifyBotwoonNavigationDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyBotwoonHoleRightBounds(rom);
-        VerifyBotwoonHoleBottomBounds(rom);
+        Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
+        Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
         ushort Word(int address) =>

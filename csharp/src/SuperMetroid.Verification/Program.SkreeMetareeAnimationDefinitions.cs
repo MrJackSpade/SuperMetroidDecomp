@@ -17,9 +17,9 @@ internal static partial class Program
                 $"Skree animation phase {phase}");
         }
 
-        VerifyAllSkreeMetareeInstallHandoffs();
-        VerifyLiveMetareeAnimationHandoffs(rom);
-        VerifyLiveSkreeAnimationHandoffs(rom);
+        Suite(nameof(VerifyAllSkreeMetareeInstallHandoffs), () => VerifyAllSkreeMetareeInstallHandoffs());
+        Suite(nameof(VerifyLiveMetareeAnimationHandoffs), () => VerifyLiveMetareeAnimationHandoffs(rom));
+        Suite(nameof(VerifyLiveSkreeAnimationHandoffs), () => VerifyLiveSkreeAnimationHandoffs(rom));
 
         var invalid = (SkreeMetareeAnimationPhase)4;
         AssertThrows<InvalidDataException>(

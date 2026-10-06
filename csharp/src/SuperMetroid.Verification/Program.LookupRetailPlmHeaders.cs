@@ -4,9 +4,9 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     private static void VerifyRetailPlmHeaderSetups(SuperMetroidAddressSpace rom) =>
-        VerifyRetailPlmHeaderField(rom, false);
+        Suite(nameof(VerifyRetailPlmHeaderField), () => VerifyRetailPlmHeaderField(rom, false));
     private static void VerifyRetailPlmHeaderInstructions(SuperMetroidAddressSpace rom) =>
-        VerifyRetailPlmHeaderField(rom, true);
+        Suite(nameof(VerifyRetailPlmHeaderField), () => VerifyRetailPlmHeaderField(rom, true));
 
     private static void VerifyRetailPlmHeaderField(SuperMetroidAddressSpace rom, bool instruction)
     {

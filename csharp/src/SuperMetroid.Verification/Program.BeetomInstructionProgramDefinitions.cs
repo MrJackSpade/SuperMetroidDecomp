@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyBeetomInstructionProgramDefinitions()
     {
-        VerifyBeetomInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyBeetomInstructionProgramDefinitions(
@@ -16,11 +16,11 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
-        VerifyBeetomMechanicsMapping(rom);
-        VerifyBeetomPresentationMapping();
-        VerifyBeetomVisualSelectors(rom);
-        VerifyBeetomDistantActionMapping(rom);
-        VerifyBeetomDistantDirectionMapping();
+        Suite(nameof(VerifyBeetomMechanicsMapping), () => VerifyBeetomMechanicsMapping(rom));
+        Suite(nameof(VerifyBeetomPresentationMapping), () => VerifyBeetomPresentationMapping());
+        Suite(nameof(VerifyBeetomVisualSelectors), () => VerifyBeetomVisualSelectors(rom));
+        Suite(nameof(VerifyBeetomDistantActionMapping), () => VerifyBeetomDistantActionMapping(rom));
+        Suite(nameof(VerifyBeetomDistantDirectionMapping), () => VerifyBeetomDistantDirectionMapping());
 
         var guard = new BeetomInstructionReadGuard(rom, forbidPresentation: artwork is not null);
         var enemies = new RoomEnemySystem { TileArtwork = artwork };

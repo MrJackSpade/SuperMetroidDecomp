@@ -61,7 +61,7 @@ internal static partial class Program
                 inherited.SequenceEqual(expected),
                 $"#1154 legacy override inherits new {frame.Name} from stock");
         }
-        VerifyGunshipLandingCompositions(installationRoot, stock);
+        Suite(nameof(VerifyGunshipLandingCompositions), () => VerifyGunshipLandingCompositions(installationRoot, stock));
         Console.WriteLine("#1154: all 13 gunship compositions match native OAM; schema-60 edits survive and inherit ship art. Bundle: " + directory);
     }
 

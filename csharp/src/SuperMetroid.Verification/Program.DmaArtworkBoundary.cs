@@ -12,9 +12,9 @@ internal static partial class Program
     /// </summary>
     private static void VerifyDmaArtworkBoundary(string sourceRom)
     {
-        VerifyVramWriteQueue();
-        VerifyDmaSourceRouting();
-        VerifyQueuedVramAssets();
+        Suite(nameof(VerifyVramWriteQueue), () => VerifyVramWriteQueue());
+        Suite(nameof(VerifyDmaSourceRouting), () => VerifyDmaSourceRouting());
+        Suite(nameof(VerifyQueuedVramAssets), () => VerifyQueuedVramAssets());
         using var temporary = new MapCatalogTestDirectory();
         GameInstallation installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
         var reference = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);

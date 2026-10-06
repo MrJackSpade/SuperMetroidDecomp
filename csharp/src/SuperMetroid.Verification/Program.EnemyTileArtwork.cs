@@ -16,8 +16,8 @@ internal static partial class Program
             return;
         }
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        VerifyBombTorizoDormantDefinitions(bus);
-        VerifyGoldenTorizoInitialDefinitions(bus);
+        Suite(nameof(VerifyBombTorizoDormantDefinitions), () => VerifyBombTorizoDormantDefinitions(bus));
+        Suite(nameof(VerifyGoldenTorizoInitialDefinitions), () => VerifyGoldenTorizoInitialDefinitions(bus));
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
             "enemy-tiles-" + Guid.NewGuid().ToString("N"));
         try

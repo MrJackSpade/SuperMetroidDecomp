@@ -11,7 +11,7 @@ internal static partial class Program
     static void VerifyCeresElevatorArrivalGraphicsIndex()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        VerifyCompiledDefinitions(rom);
+        Suite(nameof(VerifyCompiledDefinitions), () => VerifyCompiledDefinitions(rom));
         var memory = new TestAddressSpace();
 
         // Give both one-entry spritemaps conspicuous source attributes. With native

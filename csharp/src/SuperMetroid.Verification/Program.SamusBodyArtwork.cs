@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
     {
         SamusBodyArtworkCatalog stock = installation.LoadSamusBodyArt();
-        VerifySamusArmCannonArtwork(bus, stock);
+        Suite(nameof(VerifySamusArmCannonArtwork), () => VerifySamusArmCannonArtwork(bus, stock));
         int definitions = 0;
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {

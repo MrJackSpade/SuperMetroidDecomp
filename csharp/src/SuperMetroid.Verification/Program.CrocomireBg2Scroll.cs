@@ -5,8 +5,8 @@ internal static partial class Program
 {
     private static void VerifyCrocomireBg2ScrollDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyCrocomireBg2FramePositions(rom);
-        VerifyCrocomireBg2PoseCorrections(rom);
+        Suite(nameof(VerifyCrocomireBg2FramePositions), () => VerifyCrocomireBg2FramePositions(rom));
+        Suite(nameof(VerifyCrocomireBg2PoseCorrections), () => VerifyCrocomireBg2PoseCorrections(rom));
     }
 
     private static ushort CrocomireBg2NativeWord(SuperMetroidAddressSpace rom, int address) =>

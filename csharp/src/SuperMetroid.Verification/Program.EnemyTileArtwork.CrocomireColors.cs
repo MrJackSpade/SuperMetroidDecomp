@@ -13,17 +13,17 @@ internal static partial class Program
     {
         CrocomireColorCatalog native = stock.CrocomireColors ??
             throw new InvalidDataException("Installed enemy art has no Crocomire colors.");
-        VerifyBand(CrocomirePaletteRomData.FightBodySource,
-            CrocomirePaletteRomData.FightBodyCount, native.ResolveFightBody, "fight body");
-        VerifyBand(CrocomirePaletteRomData.InitialWallSource,
-            CrocomirePaletteRomData.InitialWallCount, native.ResolveInitialWall, "initial wall");
-        VerifyBand(CrocomirePaletteRomData.InitialProjectileSource,
+        Suite(nameof(VerifyBand), () => VerifyBand(CrocomirePaletteRomData.FightBodySource,
+            CrocomirePaletteRomData.FightBodyCount, native.ResolveFightBody, "fight body"));
+        Suite(nameof(VerifyBand), () => VerifyBand(CrocomirePaletteRomData.InitialWallSource,
+            CrocomirePaletteRomData.InitialWallCount, native.ResolveInitialWall, "initial wall"));
+        Suite(nameof(VerifyBand), () => VerifyBand(CrocomirePaletteRomData.InitialProjectileSource,
             CrocomirePaletteRomData.InitialProjectileCount, native.ResolveInitialProjectile,
-            "initial projectile");
-        VerifyBand(CrocomirePaletteRomData.SkeletonArmSource,
-            CrocomirePaletteRomData.SkeletonArmCount, native.ResolveSkeletonArm, "skeleton arm");
-        VerifyBand(CrocomirePaletteRomData.WallSpikesSource,
-            CrocomirePaletteRomData.WallSpikesCount, native.ResolveWallSpikes, "wall spikes");
+            "initial projectile"));
+        Suite(nameof(VerifyBand), () => VerifyBand(CrocomirePaletteRomData.SkeletonArmSource,
+            CrocomirePaletteRomData.SkeletonArmCount, native.ResolveSkeletonArm, "skeleton arm"));
+        Suite(nameof(VerifyBand), () => VerifyBand(CrocomirePaletteRomData.WallSpikesSource,
+            CrocomirePaletteRomData.WallSpikesCount, native.ResolveWallSpikes, "wall spikes"));
 
         string file = Path.Combine(stockDirectory, CrocomireColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);

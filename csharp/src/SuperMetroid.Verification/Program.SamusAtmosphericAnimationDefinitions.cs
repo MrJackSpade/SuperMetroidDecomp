@@ -40,12 +40,12 @@ internal static partial class Program
             "acid whole damage rate");
 
         var guarded = new SamusAtmosphericAnimationReadGuard(rom);
-        VerifyProductionAtmosphericCadence(guarded);
-        VerifyNullAtmosphericPointerReadsMirroredWorkRam(rom, guarded);
-        VerifyProductionLiquidDamage(guarded, RoomFxType.Lava,
-            SamusLiquidDamageDefinitions.Lava);
-        VerifyProductionLiquidDamage(guarded, RoomFxType.Acid,
-            SamusLiquidDamageDefinitions.Acid);
+        Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence(guarded));
+        Suite(nameof(VerifyNullAtmosphericPointerReadsMirroredWorkRam), () => VerifyNullAtmosphericPointerReadsMirroredWorkRam(rom, guarded));
+        Suite(nameof(VerifyProductionLiquidDamage), () => VerifyProductionLiquidDamage(guarded, RoomFxType.Lava,
+            SamusLiquidDamageDefinitions.Lava));
+        Suite(nameof(VerifyProductionLiquidDamage), () => VerifyProductionLiquidDamage(guarded, RoomFxType.Acid,
+            SamusLiquidDamageDefinitions.Acid));
 
         AssertThrows<InvalidDataException>(
             () => SamusAtmosphericAnimationDefinitions.FrameCount(0),

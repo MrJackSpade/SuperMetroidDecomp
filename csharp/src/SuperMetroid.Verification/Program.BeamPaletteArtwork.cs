@@ -11,7 +11,7 @@ internal static partial class Program
     {
         byte[] bytes = BeamPaletteExtractor.Extract(bus);
         var catalog = BeamPaletteCatalog.Load(new MemoryStream(bytes));
-        VerifyBeamPaletteOwnership(bus, catalog);
+        Suite(nameof(VerifyBeamPaletteOwnership), () => VerifyBeamPaletteOwnership(bus, catalog));
         for (ushort selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
         {
             var expected = new SnesCgram(); var actual = new SnesCgram();

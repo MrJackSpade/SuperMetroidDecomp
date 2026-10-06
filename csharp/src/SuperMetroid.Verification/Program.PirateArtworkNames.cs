@@ -25,7 +25,7 @@ internal static partial class Program
         "walking_pirate_look_right_0", "walking_pirate_look_right_1",
         "walking_pirate_look_right_2",
     ];
-        VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitions.Walking);
+        Suite(nameof(VerifyPirateArtworkNames), () => VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitions.Walking));
     }
 
     private static void VerifyWallPirateArtworkNames()
@@ -41,7 +41,7 @@ internal static partial class Program
         "wall_pirate_climb_right_1", "wall_pirate_climb_right_2",
         "wall_pirate_climb_right_3", "wall_pirate_climb_right_4",
     ];
-        VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitions.Wall);
+        Suite(nameof(VerifyPirateArtworkNames), () => VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitions.Wall));
     }
 
     // Original published keys, copied before removing their production lists.

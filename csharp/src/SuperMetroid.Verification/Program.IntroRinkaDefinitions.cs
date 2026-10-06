@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyIntroRinkaDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        VerifyIntroRinkaPrograms(retail);
+        Suite(nameof(VerifyIntroRinkaPrograms), () => VerifyIntroRinkaPrograms(retail));
         IntroRinkaActorDefinition[] actors =
         [
             IntroRinkaDefinitions.RinkaActor,

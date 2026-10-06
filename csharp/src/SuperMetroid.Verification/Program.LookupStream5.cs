@@ -1766,7 +1766,7 @@ internal static partial class Program
         }
     }    private static void VerifyLookupStream5DoorQuakeDecoding(SuperMetroidAddressSpace rom)
     {
-        VerifyCeresDoorQuakeDefinitions(rom);
+        Suite(nameof(VerifyCeresDoorQuakeDefinitions), () => VerifyCeresDoorQuakeDefinitions(rom));
         byte[] stockJson = SuperMetroid.AssetExtraction.EnemySpritemapFiles.Extract(rom);
         var installed = EnemySpritemapCatalog.Load(new MemoryStream(stockJson, writable: false));
         var enemies = new RoomEnemySystem

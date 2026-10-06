@@ -12,11 +12,11 @@ internal static partial class Program
     /// </summary>
     private static void VerifySpeedBoosterCollisionBlocks()
     {
-        VerifyInactiveSpeedBlockRemainsSolid();
-        VerifyBoostedFloorContactRunsRespawningPlm();
-        VerifyBoostedWallContactRunsPermanentPlm();
-        VerifyBrinstarAreaTableVariants();
-        VerifyCompiledSpeedBoosterPlmPrograms();
+        Suite(nameof(VerifyInactiveSpeedBlockRemainsSolid), () => VerifyInactiveSpeedBlockRemainsSolid());
+        Suite(nameof(VerifyBoostedFloorContactRunsRespawningPlm), () => VerifyBoostedFloorContactRunsRespawningPlm());
+        Suite(nameof(VerifyBoostedWallContactRunsPermanentPlm), () => VerifyBoostedWallContactRunsPermanentPlm());
+        Suite(nameof(VerifyBrinstarAreaTableVariants), () => VerifyBrinstarAreaTableVariants());
+        Suite(nameof(VerifyCompiledSpeedBoosterPlmPrograms), () => VerifyCompiledSpeedBoosterPlmPrograms());
 
         Console.WriteLine(
             "  Speed Booster blocks: contact gating, all five PLMs, sound, crumble, and respawn agree.");

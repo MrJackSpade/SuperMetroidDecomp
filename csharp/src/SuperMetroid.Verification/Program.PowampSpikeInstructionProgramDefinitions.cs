@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyPowampSpikeInstructionProgramDefinitions()
     {
-        VerifyPowampSpikeInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyPowampSpikeInstructionProgramDefinitions), () => VerifyPowampSpikeInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyPowampSpikeInstructionProgramDefinitions(

@@ -12,11 +12,11 @@ internal static partial class Program
     private static void VerifyEnemyDefinitionBoundary(string sourceRom)
     {
         var source = CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
-        VerifyEnemyMappedSourceRouting();
-        VerifyCompleteTorizoDefinitions(source);
-        VerifyCorpseMetadataDefinitions(source);
-        VerifyCrocomirePowerBombReactionDefinitions(source);
-        VerifyEnemyAuxiliaryColors(source);
+        Suite(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting());
+        Suite(nameof(VerifyCompleteTorizoDefinitions), () => VerifyCompleteTorizoDefinitions(source));
+        Suite(nameof(VerifyCorpseMetadataDefinitions), () => VerifyCorpseMetadataDefinitions(source));
+        Suite(nameof(VerifyCrocomirePowerBombReactionDefinitions), () => VerifyCrocomirePowerBombReactionDefinitions(source));
+        Suite(nameof(VerifyEnemyAuxiliaryColors), () => VerifyEnemyAuxiliaryColors(source));
         using var temporary = new MapCatalogTestDirectory();
         EnemyTileArtworkCatalog artwork = GameAssetInstaller.Install(sourceRom, temporary.Root).LoadEnemyTiles();
         AssertTrue(artwork.AuxiliaryColors is not null, "complete installation supplies auxiliary palettes");

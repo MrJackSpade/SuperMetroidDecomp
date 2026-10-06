@@ -39,22 +39,22 @@ internal static partial class Program
 
     private static void VerifyRoomStateSettings(SuperMetroidAddressSpace rom)
     {
-        VerifyRoomStateIdentities();
-        VerifyRoomStateCompressedLevelDataAddress(rom);
-        VerifyRoomStateGraphicsSet(rom);
-        VerifyRoomStateMusicDataIndex(rom);
-        VerifyRoomStateMusicTrackIndex(rom);
-        VerifyRoomStateFxPointer(rom);
-        VerifyRoomStateEnemyPopulationPointer(rom);
-        VerifyRoomStateEnemyTilesetPointer(rom);
-        VerifyRoomStateLayer2ScrollX(rom);
-        VerifyRoomStateLayer2ScrollY(rom);
-        VerifyRoomStateScrollPointer(rom);
-        VerifyRoomStateXrayPointer(rom);
-        VerifyRoomStateMainCodePointer(rom);
-        VerifyRoomStatePlmPointer(rom);
-        VerifyRoomStateBackgroundDataPointer(rom);
-        VerifyRoomStateSetupCodePointer(rom);
+        Suite(nameof(VerifyRoomStateIdentities), () => VerifyRoomStateIdentities());
+        Suite(nameof(VerifyRoomStateCompressedLevelDataAddress), () => VerifyRoomStateCompressedLevelDataAddress(rom));
+        Suite(nameof(VerifyRoomStateGraphicsSet), () => VerifyRoomStateGraphicsSet(rom));
+        Suite(nameof(VerifyRoomStateMusicDataIndex), () => VerifyRoomStateMusicDataIndex(rom));
+        Suite(nameof(VerifyRoomStateMusicTrackIndex), () => VerifyRoomStateMusicTrackIndex(rom));
+        Suite(nameof(VerifyRoomStateFxPointer), () => VerifyRoomStateFxPointer(rom));
+        Suite(nameof(VerifyRoomStateEnemyPopulationPointer), () => VerifyRoomStateEnemyPopulationPointer(rom));
+        Suite(nameof(VerifyRoomStateEnemyTilesetPointer), () => VerifyRoomStateEnemyTilesetPointer(rom));
+        Suite(nameof(VerifyRoomStateLayer2ScrollX), () => VerifyRoomStateLayer2ScrollX(rom));
+        Suite(nameof(VerifyRoomStateLayer2ScrollY), () => VerifyRoomStateLayer2ScrollY(rom));
+        Suite(nameof(VerifyRoomStateScrollPointer), () => VerifyRoomStateScrollPointer(rom));
+        Suite(nameof(VerifyRoomStateXrayPointer), () => VerifyRoomStateXrayPointer(rom));
+        Suite(nameof(VerifyRoomStateMainCodePointer), () => VerifyRoomStateMainCodePointer(rom));
+        Suite(nameof(VerifyRoomStatePlmPointer), () => VerifyRoomStatePlmPointer(rom));
+        Suite(nameof(VerifyRoomStateBackgroundDataPointer), () => VerifyRoomStateBackgroundDataPointer(rom));
+        Suite(nameof(VerifyRoomStateSetupCodePointer), () => VerifyRoomStateSetupCodePointer(rom));
     }
 
     private static void VerifyRoomStateIdentities()
@@ -76,7 +76,7 @@ internal static partial class Program
 
     private static void VerifyRoomStateCompressedLevelDataAddress(SuperMetroidAddressSpace rom)
     {
-        VerifyRoomStateField(rom, state => state.CompressedLevelDataAddress, "CompressedLevelDataAddress");
+        Suite(nameof(VerifyRoomStateField), () => VerifyRoomStateField(rom, state => state.CompressedLevelDataAddress, "CompressedLevelDataAddress"));
         int[] original = OriginalRoomStatePointers.Select(pointer => CartridgeRoomStateImporter.Load(rom, pointer).CompressedLevelDataAddress)
             .Distinct().Order().ToArray();
         AssertTrue(RoomVisualLayoutSourceDefinitions.All.SequenceEqual(original),
@@ -95,7 +95,7 @@ internal static partial class Program
     private static void VerifyRoomStateScrollPointer(SuperMetroidAddressSpace rom) => VerifyRoomStateField(rom, state => state.ScrollPointer, "ScrollPointer");
     private static void VerifyRoomStateXrayPointer(SuperMetroidAddressSpace rom)
     {
-        VerifyRoomStateField(rom, state => state.XrayPointer, "XrayPointer");
+        Suite(nameof(VerifyRoomStateField), () => VerifyRoomStateField(rom, state => state.XrayPointer, "XrayPointer"));
         ushort[] original = OriginalRoomStatePointers.Select(pointer => CartridgeRoomStateImporter.Load(rom, pointer).XrayPointer)
             .Where(pointer => pointer != 0).Distinct().Order().ToArray();
         AssertTrue(XrayRoomOverlaySourceDefinitions.All.SequenceEqual(original),

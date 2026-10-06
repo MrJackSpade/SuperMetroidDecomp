@@ -8,7 +8,7 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Room-state oracle revision");
-        VerifyRoomStateSettings(bus);
+        Suite(nameof(VerifyRoomStateSettings), () => VerifyRoomStateSettings(bus));
 
         ushort ceresPointer = LoadStationDefinitions.Get(
             SuperMetroid.Core.Game.AreaId.Ceres, 0).RoomPointer;

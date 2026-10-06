@@ -38,7 +38,7 @@ internal static partial class Program
             AssertEqual(ReadWord(TorizoInstructionProgramDefinitions.Bank, address), selected,
                 $"stock Torizo native visual identity {address:X4}");
         }
-        VerifyGoldenTorizoRightOrbDefinitions(source);
+        Suite(nameof(VerifyGoldenTorizoRightOrbDefinitions), () => VerifyGoldenTorizoRightOrbDefinitions(source));
         Console.WriteLine($"Animation stock parity: {BoyonInstructionProgramDefinitions.MechanicsWordCount} Boyon and " +
             $"{TorizoInstructionProgramDefinitions.MechanicsWordCount} shared/Bomb/Golden Torizo control/timing words; " +
             $"{BoyonInstructionProgramDefinitions.PresentationWordCount + TorizoInstructionProgramDefinitions.PresentationWordCount} " +

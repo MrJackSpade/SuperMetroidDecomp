@@ -43,9 +43,9 @@ internal static partial class Program
         const byte testPose = SamusPoseIds.MovingRightNormalPose;
         var guarded = new SamusAtmosphericPolicyReadGuard(source);
 
-        VerifyProductionWaterSplashSelection();
-        VerifyProductionRunningContacts(guarded, testPose);
-        VerifyProductionCrateriaPolicies(guarded, testPose);
+        Suite(nameof(VerifyProductionWaterSplashSelection), () => VerifyProductionWaterSplashSelection());
+        Suite(nameof(VerifyProductionRunningContacts), () => VerifyProductionRunningContacts(guarded, testPose));
+        Suite(nameof(VerifyProductionCrateriaPolicies), () => VerifyProductionCrateriaPolicies(guarded, testPose));
 
         AssertThrows<InvalidDataException>(
             () => SamusAtmosphericEffectDefinitions.WaterSplashFor((SamusMovementType)0x1c),

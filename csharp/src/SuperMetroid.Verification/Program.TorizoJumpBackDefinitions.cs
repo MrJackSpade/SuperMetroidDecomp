@@ -116,7 +116,7 @@ internal static partial class Program
             "occurrences, three physical frames and four hitbox lists match " +
             "the pinned cartridge.");
 
-        VerifyTorizoJumpBackLeftDefinitions(rom);
+        Suite(nameof(VerifyTorizoJumpBackLeftDefinitions), () => VerifyTorizoJumpBackLeftDefinitions(rom));
 
         ushort ReadWord(ushort address) =>
             (ushort)(rom.ReadByte((bank << 16) | address) |

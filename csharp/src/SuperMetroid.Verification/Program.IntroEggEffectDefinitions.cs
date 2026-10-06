@@ -7,12 +7,12 @@ internal static partial class Program
     private static void VerifyIntroEggEffectDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        VerifyIntroEggEffectPrograms(retail);
+        Suite(nameof(VerifyIntroEggEffectPrograms), () => VerifyIntroEggEffectPrograms(retail));
         for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
             VerifyIntroEggEffectActor(retail, IntroEggEffectDefinitions.Particle(index),
                 $"intro egg particle {index}");
-        VerifyIntroEggEffectActor(retail, IntroEggEffectDefinitions.SlimeDrop,
-            "intro egg slime drop");
+        Suite(nameof(VerifyIntroEggEffectActor), () => VerifyIntroEggEffectActor(retail, IntroEggEffectDefinitions.SlimeDrop,
+            "intro egg slime drop"));
         AssertThrows<ArgumentOutOfRangeException>(
             () => IntroEggEffectDefinitions.Particle(IntroEggEffectDefinitions.ParticleCount),
             "intro egg particle definition boundary");

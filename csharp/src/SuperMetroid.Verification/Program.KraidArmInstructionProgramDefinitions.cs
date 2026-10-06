@@ -6,16 +6,16 @@ internal static partial class Program
 {
     private static void VerifyKraidArmInstructionProgramDefinitions()
     {
-        VerifyKraidArmInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyKraidArmInstructionProgramDefinitions), () => VerifyKraidArmInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyKraidArmInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyKraidArmCollisionDefinitions(rom);
-        VerifyKraidArmGeneratedMechanics(rom);
-        VerifyKraidArmGeneratedPresentation(rom);
+        Suite(nameof(VerifyKraidArmCollisionDefinitions), () => VerifyKraidArmCollisionDefinitions(rom));
+        Suite(nameof(VerifyKraidArmGeneratedMechanics), () => VerifyKraidArmGeneratedMechanics(rom));
+        Suite(nameof(VerifyKraidArmGeneratedPresentation), () => VerifyKraidArmGeneratedPresentation(rom));
 
         var guard = new KraidArmInstructionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
@@ -142,7 +142,7 @@ internal static partial class Program
         process.Invoke(
             enemies,
             [arm, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
-        VerifyExecutedEnemySelector(rom, arm, executedOperands);
+        Suite(nameof(VerifyExecutedEnemySelector), () => VerifyExecutedEnemySelector(rom, arm, executedOperands));
     }
 
     private static int ProbeKraidArmInstructionAllocation()

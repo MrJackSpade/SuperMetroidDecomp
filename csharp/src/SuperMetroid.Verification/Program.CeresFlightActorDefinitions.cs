@@ -6,7 +6,7 @@ internal static partial class Program
     private static void VerifyCeresFlightActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        VerifyCeresFlightActorMetadata(retail);
+        Suite(nameof(VerifyCeresFlightActorMetadata), () => VerifyCeresFlightActorMetadata(retail));
 
         AssertThrows<InvalidDataException>(() =>
             CeresFlightSpriteInstructionDefinitions.ReadWord(
@@ -17,7 +17,7 @@ internal static partial class Program
                 CeresFlightSpriteInstructionDefinitions.StarsEnd),
             "Ceres flight instruction reader cannot enter the adjacent explosion list");
 
-        VerifyCeresFlightPrograms(retail);
+        Suite(nameof(VerifyCeresFlightPrograms), () => VerifyCeresFlightPrograms(retail));
 
         var guard = new CeresFlightActorDefinitionReadGuard(retail);
         var state = new IntroCeresFlightState(guard, runtimeFixtureInstallation.Value.LoadIntroCinematicArt().CeresFlight);

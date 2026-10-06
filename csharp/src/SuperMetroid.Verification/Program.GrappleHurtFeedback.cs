@@ -118,8 +118,8 @@ internal static partial class Program
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count(request =>
             request.SoundEffect.Library == SoundEffectLibrary.Library1 && request.SoundEffect.Value == 0x35),
             "unchanged health does not repeat the gasp");
-        VerifyHurtHealthHistoryRestoration();
-        VerifyDebuggerVersionCompatibility();
+        Suite(nameof(VerifyHurtHealthHistoryRestoration), () => VerifyHurtHealthHistoryRestoration());
+        Suite(nameof(VerifyDebuggerVersionCompatibility), () => VerifyDebuggerVersionCompatibility());
         Console.WriteLine("Grapple hurt feedback: real enemy contact retains hanging/no knockback and starts one native counter-two gasp.");
     }
 

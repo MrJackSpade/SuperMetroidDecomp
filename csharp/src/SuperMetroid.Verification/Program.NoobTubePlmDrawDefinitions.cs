@@ -9,9 +9,9 @@ internal static partial class Program
 {
     private static void VerifyNoobTubePlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyTubeGeometry(rom);
-        VerifyTubeCollision(rom);
-        VerifyTubeVisuals(rom);
+        Suite(nameof(VerifyTubeGeometry), () => VerifyTubeGeometry(rom));
+        Suite(nameof(VerifyTubeCollision), () => VerifyTubeCollision(rom));
+        Suite(nameof(VerifyTubeVisuals), () => VerifyTubeVisuals(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             NoobTubePlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
@@ -41,7 +41,7 @@ internal static partial class Program
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             VerifyNoobTubeNativeDrawPath(bank84, lists, list,
                 list.Pointer == 0x98e3 ? edited : null);
-        VerifyNoobTubeVisualInstallation(rom);
+        Suite(nameof(VerifyNoobTubeVisualInstallation), () => VerifyNoobTubeVisualInstallation(rom));
         Console.WriteLine(
             "  N00b-tube PLM: seven guarded native layouts and editable stock/override appearance preserve physical blocks.");
     }

@@ -59,7 +59,7 @@ internal static partial class Program
         AssertEqual((ushort)0x100e, samus.EquippedBeams,
             "same-frame Boots Left+A creates the SpaceTime beam word");
 
-        VerifySpacetimeBeamGraphics();
+        Suite(nameof(VerifySpacetimeBeamGraphics), () => VerifySpacetimeBeamGraphics());
 
         samus.Pose = 1;
         samus.XPosition = 128;
@@ -184,7 +184,7 @@ internal static partial class Program
         AssertEqual(saved.PowerBombs, restarted.PowerBombs,
             "intro flashback preserves Power Bombs");
 
-        VerifySpacetimeSaveRestartFrontend();
+        Suite(nameof(VerifySpacetimeSaveRestartFrontend), () => VerifySpacetimeSaveRestartFrontend());
 
         Console.WriteLine(
             "SpaceTime Beam: pause setup, $90:AD16 WRAM copy, progression corruption, " +

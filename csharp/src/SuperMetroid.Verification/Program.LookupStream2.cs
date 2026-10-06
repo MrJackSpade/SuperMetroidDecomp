@@ -94,7 +94,7 @@ internal static partial class Program
                 AssertEqual(ChozoCarryMotionDefinitions.Read(12).Velocity, (short)-0xe00, "Chozo edited art does not alter late support displacement");
             }
         }
-        VerifyCompiledStatueWalking(rom);
+        Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
         AssertThrows<ArgumentOutOfRangeException>(() => ChozoStrideGeometryDefinitions.SupportFootX(4), "Chozo support-phase upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => ChozoStrideGeometryDefinitions.NativePoseIdentity(-1), "Chozo pose lower bound");
         Console.WriteLine("Chozo shared geometry:174 native parts,eight stock views,16 independent foot-X edits,hash/display order and existing96-word/actual carry checks pass; shape and two movement-policy inputs remain documented.");
@@ -171,7 +171,7 @@ internal static partial class Program
 
     private static void VerifyLookupStream2TourianAccentCadence(CartridgeImportAddressSpace rom)
     {
-        VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom);
+        Suite(nameof(VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom));
         foreach (var definition in OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All)
         {
             ushort[] nativeDurations = new ushort[15];
@@ -229,7 +229,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => NinjaSpacePirateInstructionProgramDefinitions.MechanicsWord(308), "Ninja control upper bound");
         AssertThrows<IndexOutOfRangeException>(() => NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress(-1), "Ninja selector lower bound");
         AssertThrows<IndexOutOfRangeException>(() => NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress(140), "Ninja selector upper bound");
-        VerifyNinjaSpacePirateInstructionProgramDefinitions();
+        Suite(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions());
     }
 
     private static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
@@ -458,8 +458,8 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = norfair[4]; }, "Norfair upper owner bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = accents[-1]; }, "Accent lower owner bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = accents[2]; }, "Accent upper owner bound");
-        VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(rom);
-        VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom);
+        Suite(nameof(VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions), () => VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(rom));
+        Suite(nameof(VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom));
         Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
     }
     private static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
@@ -1076,7 +1076,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream2LavaJumperLayout(SuperMetroidAddressSpace rom)
     {
-        VerifyNorfairLavaJumperInstructionProgramDefinitions(rom);
+        Suite(nameof(VerifyNorfairLavaJumperInstructionProgramDefinitions), () => VerifyNorfairLavaJumperInstructionProgramDefinitions(rom));
         int visual = 0;
         int cursor = 0xbe3c;
         while (cursor < 0xbe86)
@@ -1098,7 +1098,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream2ChozoLayout(SuperMetroidAddressSpace rom)
     {
-        VerifyChozoStatueInstructionProgramDefinitions(rom);
+        Suite(nameof(VerifyChozoStatueInstructionProgramDefinitions), () => VerifyChozoStatueInstructionProgramDefinitions(rom));
         int visual = 0;
         int mechanics = 0;
         foreach ((int start, int end) in new[] { (0xe39d, 0xe429), (0xe457, 0xe57f) })
@@ -1276,7 +1276,7 @@ internal static partial class Program
             AssertEqual(expected, fixture.System.SelectRandomEnemyDrop(projectile),
                 "Actual cumulative selection preserves each semantic column");
         }
-        VerifyEnemyDropSelectionRules();
+        Suite(nameof(VerifyEnemyDropSelectionRules), () => VerifyEnemyDropSelectionRules());
         AssertThrows<IndexOutOfRangeException>(() => EnemyDropSelectionDefinitions.ForProbabilityColumn(-1),
             "Drop column lower bound");
         AssertThrows<IndexOutOfRangeException>(() => EnemyDropSelectionDefinitions.ForProbabilityColumn(6),
@@ -1285,9 +1285,9 @@ internal static partial class Program
     }
     private static void VerifyLookupStream2PipeBugVisualGeometry(SuperMetroidAddressSpace rom)
     {
-        VerifyBrinstarPipeBugInstructionProgramDefinitions(rom);
-        VerifyNorfairPipeBugInstructionProgramDefinitions(rom);
-        VerifyYellowPipeBugInstructionProgramDefinitions(rom);
+        Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions(rom));
+        Suite(nameof(VerifyNorfairPipeBugInstructionProgramDefinitions), () => VerifyNorfairPipeBugInstructionProgramDefinitions(rom));
+        Suite(nameof(VerifyYellowPipeBugInstructionProgramDefinitions), () => VerifyYellowPipeBugInstructionProgramDefinitions(rom));
         for (int index = 0; index < BrinstarPipeBugInstructionProgramDefinitions.PresentationWordCount; index++)
             Check(index < 28 ? PipeBugDefinitions.BrinstarEnemyDefinition : PipeBugDefinitions.StrongBrinstarEnemyDefinition,
                 BrinstarPipeBugInstructionProgramDefinitions.PresentationWordAddress(index));
@@ -1360,7 +1360,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream2GoldenControl(SuperMetroidAddressSpace rom)
     {
-        VerifyGoldenTorizoJumpLandingDefinitions(rom);
+        Suite(nameof(VerifyGoldenTorizoJumpLandingDefinitions), () => VerifyGoldenTorizoJumpLandingDefinitions(rom));
         int address = 0xc9cb;
         for (int index = 0; index < 7; index++)
         {
@@ -1432,7 +1432,7 @@ internal static partial class Program
             }
         }
         AssertThrows<InvalidDataException>(() => stock.Resolve(0), "Unknown trail frame rejected");
-        VerifyLookupStream2TrailPrograms(rom);
+        Suite(nameof(VerifyLookupStream2TrailPrograms), () => VerifyLookupStream2TrailPrograms(rom));
         Console.WriteLine("Trail appearance:42 native words,252 independent field edits and existing real OAM/lifetime/freeze proof pass; ice phase boundaries remain pending.");
     }
     private static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
@@ -1490,7 +1490,7 @@ internal static partial class Program
         }
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
         AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(bus, 0x91b4c9), "Trail program rejects a wrong-bank alias");
-        VerifyTrailMutableAlias();
+        Suite(nameof(VerifyTrailMutableAlias), () => VerifyTrailMutableAlias());
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileTrailVisualDefinitions.Frames[-1], "Calculated trail frame lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileTrailVisualDefinitions.Frames[42], "Calculated trail frame upper bound");
         Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
@@ -2362,7 +2362,7 @@ internal static partial class Program
         AssertEqual(36, edits, "Golden Torizo all independent calculated foot-X fields edited");
         document.DisplayFrames![selected[0].Name] = selected[1].Name;
         Check(Load());
-        VerifyCompiledStatueWalking(rom);
+        Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
         AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoStrideGeometryDefinitions.HorizontalAdvance(10), "Golden Torizo phase upper bound");
         Console.WriteLine("Golden Torizo foot geometry:20derived words,39native byte windows,220body parts/40components,10calculated views,36independent foot-X edits,display rebind/hash/packed OAM and actual walking calls pass; seven artwork origins remain required.");
     }

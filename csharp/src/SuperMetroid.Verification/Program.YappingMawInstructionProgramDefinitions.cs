@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyYappingMawInstructionProgramDefinitions()
     {
-        VerifyYappingMawInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyYappingMawInstructionProgramDefinitions), () => VerifyYappingMawInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyYappingMawInstructionProgramDefinitions(
@@ -103,7 +103,7 @@ internal static partial class Program
                 $"Yapping Maw {name} cooldown publishes its sound");
         }
 
-        VerifyYappingMawInitializerSelections(guard, flags);
+        Suite(nameof(VerifyYappingMawInitializerSelections), () => VerifyYappingMawInitializerSelections(guard, flags));
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids all compiled Yapping Maw mechanics and visual bytes");

@@ -7,10 +7,10 @@ internal static partial class Program
 {
     private static void VerifyEndingDma()
     {
-        VerifyObjSubscreenAddition();
-        VerifyEndingRewardGesture();
-        VerifyEndingCloudPlacement();
-        VerifyEndingExplosionSlotOrder();
+        Suite(nameof(VerifyObjSubscreenAddition), () => VerifyObjSubscreenAddition());
+        Suite(nameof(VerifyEndingRewardGesture), () => VerifyEndingRewardGesture());
+        Suite(nameof(VerifyEndingCloudPlacement), () => VerifyEndingCloudPlacement());
+        Suite(nameof(VerifyEndingExplosionSlotOrder), () => VerifyEndingExplosionSlotOrder());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = new EndingCreditsState(bus, audio, 0, 0);

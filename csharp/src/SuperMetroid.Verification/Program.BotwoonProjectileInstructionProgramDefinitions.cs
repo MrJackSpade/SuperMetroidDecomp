@@ -6,16 +6,16 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyBotwoonProjectileInstructionProgramDefinitions() =>
-        VerifyBotwoonProjectileInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyBotwoonProjectileInstructionProgramDefinitions), () => VerifyBotwoonProjectileInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyBotwoonProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        VerifyBotwoonProjectileControlMapping(rom);
-        VerifyBotwoonProjectileOperandMapping(rom);
-        VerifyBotwoonProjectileProgramEnumeration();
+        Suite(nameof(VerifyBotwoonProjectileControlMapping), () => VerifyBotwoonProjectileControlMapping(rom));
+        Suite(nameof(VerifyBotwoonProjectileOperandMapping), () => VerifyBotwoonProjectileOperandMapping(rom));
+        Suite(nameof(VerifyBotwoonProjectileProgramEnumeration), () => VerifyBotwoonProjectileProgramEnumeration());
         for (int index = 0;
              index < BotwoonProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)
@@ -187,7 +187,7 @@ internal static partial class Program
             AssertEqual(known.Contains((ushort)address), BotwoonProjectileInstructionProgramDefinitions.IsPresentationWord((ushort)address), "Botwoon projectile full operand membership");
         foreach (int index in new[] {int.MinValue,-1,46,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BotwoonProjectileInstructionProgramDefinitions.PresentationWordAddress(index), "Botwoon operand ordinal domain");
-        VerifyBotwoonProjectileVisualMapping(rom, operands);
+        Suite(nameof(VerifyBotwoonProjectileVisualMapping), () => VerifyBotwoonProjectileVisualMapping(rom, operands));
     }
 
     private static void VerifyBotwoonProjectileVisualMapping(SuperMetroidAddressSpace rom, ushort[] nativeOperands)

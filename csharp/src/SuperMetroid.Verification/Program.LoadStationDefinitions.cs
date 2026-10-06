@@ -10,15 +10,15 @@ internal static partial class Program
         var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Load-station oracle revision");
-        VerifyLoadStationDomain(rom);
-        VerifyLoadStationListPointers(rom);
-        VerifyLoadStationRoomPointer(rom);
-        VerifyLoadStationDoorPointer(rom);
-        VerifyLoadStationDoorBts(rom);
-        VerifyLoadStationCameraX(rom);
-        VerifyLoadStationCameraY(rom);
-        VerifyLoadStationSamusYOffset(rom);
-        VerifyLoadStationSamusXOffset(rom);
+        Suite(nameof(VerifyLoadStationDomain), () => VerifyLoadStationDomain(rom));
+        Suite(nameof(VerifyLoadStationListPointers), () => VerifyLoadStationListPointers(rom));
+        Suite(nameof(VerifyLoadStationRoomPointer), () => VerifyLoadStationRoomPointer(rom));
+        Suite(nameof(VerifyLoadStationDoorPointer), () => VerifyLoadStationDoorPointer(rom));
+        Suite(nameof(VerifyLoadStationDoorBts), () => VerifyLoadStationDoorBts(rom));
+        Suite(nameof(VerifyLoadStationCameraX), () => VerifyLoadStationCameraX(rom));
+        Suite(nameof(VerifyLoadStationCameraY), () => VerifyLoadStationCameraY(rom));
+        Suite(nameof(VerifyLoadStationSamusYOffset), () => VerifyLoadStationSamusYOffset(rom));
+        Suite(nameof(VerifyLoadStationSamusXOffset), () => VerifyLoadStationSamusXOffset(rom));
         Console.WriteLine("Load stations: all134 original records, seven area pointers/lengths, seven placement fields and complete byte area/station bounds pass.");
     }
 

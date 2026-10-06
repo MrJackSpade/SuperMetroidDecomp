@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyKiHunterInstructionProgramDefinitions()
     {
-        VerifyKiHunterInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyKiHunterInstructionProgramDefinitions), () => VerifyKiHunterInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyKiHunterInstructionProgramDefinitions(
@@ -27,19 +27,19 @@ internal static partial class Program
         }
 
         var guard = new KiHunterInstructionProgramReadGuard(rom);
-        VerifyFlying(KiHunterInstructionProgramDefinitions.FlyingLeft, movingRight: false);
-        VerifyFlying(KiHunterInstructionProgramDefinitions.FlyingRight, movingRight: true);
-        VerifySwoop(KiHunterInstructionProgramDefinitions.SwoopLeft, movingRight: false);
-        VerifySwoop(KiHunterInstructionProgramDefinitions.SwoopRight, movingRight: true);
-        VerifyWingLoop(KiHunterInstructionProgramDefinitions.WingsLeft, "left");
-        VerifyWingLoop(KiHunterInstructionProgramDefinitions.WingsRight, "right");
-        VerifyDetachedWings();
-        VerifyJump(KiHunterInstructionProgramDefinitions.JumpLeft, "left");
-        VerifyJump(KiHunterInstructionProgramDefinitions.JumpRight, "right");
-        VerifyLanding(KiHunterInstructionProgramDefinitions.LandLeft, "left");
-        VerifyLanding(KiHunterInstructionProgramDefinitions.LandRight, "right");
-        VerifySpit(KiHunterInstructionProgramDefinitions.SpitLeft, movingRight: false);
-        VerifySpit(KiHunterInstructionProgramDefinitions.SpitRight, movingRight: true);
+        Suite(nameof(VerifyFlying), () => VerifyFlying(KiHunterInstructionProgramDefinitions.FlyingLeft, movingRight: false));
+        Suite(nameof(VerifyFlying), () => VerifyFlying(KiHunterInstructionProgramDefinitions.FlyingRight, movingRight: true));
+        Suite(nameof(VerifySwoop), () => VerifySwoop(KiHunterInstructionProgramDefinitions.SwoopLeft, movingRight: false));
+        Suite(nameof(VerifySwoop), () => VerifySwoop(KiHunterInstructionProgramDefinitions.SwoopRight, movingRight: true));
+        Suite(nameof(VerifyWingLoop), () => VerifyWingLoop(KiHunterInstructionProgramDefinitions.WingsLeft, "left"));
+        Suite(nameof(VerifyWingLoop), () => VerifyWingLoop(KiHunterInstructionProgramDefinitions.WingsRight, "right"));
+        Suite(nameof(VerifyDetachedWings), () => VerifyDetachedWings());
+        Suite(nameof(VerifyJump), () => VerifyJump(KiHunterInstructionProgramDefinitions.JumpLeft, "left"));
+        Suite(nameof(VerifyJump), () => VerifyJump(KiHunterInstructionProgramDefinitions.JumpRight, "right"));
+        Suite(nameof(VerifyLanding), () => VerifyLanding(KiHunterInstructionProgramDefinitions.LandLeft, "left"));
+        Suite(nameof(VerifyLanding), () => VerifyLanding(KiHunterInstructionProgramDefinitions.LandRight, "right"));
+        Suite(nameof(VerifySpit), () => VerifySpit(KiHunterInstructionProgramDefinitions.SpitLeft, movingRight: false));
+        Suite(nameof(VerifySpit), () => VerifySpit(KiHunterInstructionProgramDefinitions.SpitRight, movingRight: true));
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled KiHunter mechanics and visual bytes");

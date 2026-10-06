@@ -91,29 +91,29 @@ internal static partial class Program
 
     private static void VerifyBoulderInstructionProgramDefinitions()
     {
-        VerifyBoulderInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyBoulderInstructionProgramDefinitions), () => VerifyBoulderInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyBoulderInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        VerifyBoulderMechanicsMapping(rom);
-        VerifyBoulderPresentationAddresses();
-        VerifyBoulderVisualSelectors(rom);
+        Suite(nameof(VerifyBoulderMechanicsMapping), () => VerifyBoulderMechanicsMapping(rom));
+        Suite(nameof(VerifyBoulderPresentationAddresses), () => VerifyBoulderPresentationAddresses());
+        Suite(nameof(VerifyBoulderVisualSelectors), () => VerifyBoulderVisualSelectors(rom));
 
         var guard = new BoulderInstructionProgramReadGuard(rom);
-        VerifyBoulderInstructionProgram(
+        Suite(nameof(VerifyBoulderInstructionProgram), () => VerifyBoulderInstructionProgram(
             guard,
             parameter1: 0x0100,
             BoulderInstructionProgramDefinitions.Left,
-            "left");
-        VerifyBoulderInstructionProgram(
+            "left"));
+        Suite(nameof(VerifyBoulderInstructionProgram), () => VerifyBoulderInstructionProgram(
             guard,
             parameter1: 0x0000,
             BoulderInstructionProgramDefinitions.Right,
-            "right");
+            "right"));
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Boulder mechanics and visual bytes");

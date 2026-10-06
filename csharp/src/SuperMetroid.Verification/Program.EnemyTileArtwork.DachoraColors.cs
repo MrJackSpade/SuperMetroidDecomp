@@ -14,7 +14,7 @@ internal static partial class Program
     {
         DachoraColorCatalog native = stock.DachoraColors ??
             throw new InvalidDataException("Installed enemy art has no Dachora colors.");
-        VerifyFrame(DachoraPalettePhase.Default, 0);
+        Suite(nameof(VerifyFrame), () => VerifyFrame(DachoraPalettePhase.Default, 0));
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
         {
             VerifyFrame(DachoraPalettePhase.Speed, frame);

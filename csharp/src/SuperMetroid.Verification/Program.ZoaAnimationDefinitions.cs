@@ -23,9 +23,9 @@ internal static partial class Program
             Console.WriteLine("Zoa animation cases: four original pointers and unsupported flag bounds pass.");
             return;
         }
-        VerifyAllZoaAnimationHandoffs();
-        VerifyLiveZoaAnimationHandoffs(rom, facingRight: false);
-        VerifyLiveZoaAnimationHandoffs(rom, facingRight: true);
+        Suite(nameof(VerifyAllZoaAnimationHandoffs), () => VerifyAllZoaAnimationHandoffs());
+        Suite(nameof(VerifyLiveZoaAnimationHandoffs), () => VerifyLiveZoaAnimationHandoffs(rom, facingRight: false));
+        Suite(nameof(VerifyLiveZoaAnimationHandoffs), () => VerifyLiveZoaAnimationHandoffs(rom, facingRight: true));
 
         AssertThrows<InvalidDataException>(
             () => ZoaAnimationDefinitions.InstructionList((ZoaAnimationSelector)4),

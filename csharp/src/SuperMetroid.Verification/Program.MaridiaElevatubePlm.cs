@@ -10,10 +10,10 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevatube oracle revision");
-        VerifyElevatubePhysicalDraw(rom);
-        VerifyElevatubeProgramControls(rom);
-        VerifyElevatubeProgramDraw(rom);
-        VerifyElevatubeProgramSound(rom);
+        Suite(nameof(VerifyElevatubePhysicalDraw), () => VerifyElevatubePhysicalDraw(rom));
+        Suite(nameof(VerifyElevatubeProgramControls), () => VerifyElevatubeProgramControls(rom));
+        Suite(nameof(VerifyElevatubeProgramDraw), () => VerifyElevatubeProgramDraw(rom));
+        Suite(nameof(VerifyElevatubeProgramSound), () => VerifyElevatubeProgramSound(rom));
 
         RoomLevelData level = CreateRoom(4, 4, new ushort[16], new byte[16],
             blockDefinitions: new byte[0x400 * 8]);

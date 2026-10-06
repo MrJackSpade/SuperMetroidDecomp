@@ -7,13 +7,13 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifySporeTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
-        VerifySporeTileAttribute(rom, stock, 0x1c00);
+        Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x1c00));
     private static void VerifySporeTilePriority(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
-        VerifySporeTileAttribute(rom, stock, 0x2000);
+        Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x2000));
     private static void VerifySporeTileHorizontalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
-        VerifySporeTileAttribute(rom, stock, 0x4000);
+        Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x4000));
     private static void VerifySporeTileVerticalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
-        VerifySporeTileAttribute(rom, stock, 0x8000);
+        Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x8000));
 
     private static void VerifySporeTileAttribute(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock, int mask)
     {
@@ -59,10 +59,10 @@ internal static partial class Program
 
     private static void VerifySporeTilemapAttributes(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
-        VerifySporeTilePalette(rom, stock);
-        VerifySporeTilePriority(rom, stock);
-        VerifySporeTileHorizontalFlip(rom, stock);
-        VerifySporeTileVerticalFlip(rom, stock);
-        VerifySporeAttributeStorageAndEdits(rom, stock);
+        Suite(nameof(VerifySporeTilePalette), () => VerifySporeTilePalette(rom, stock));
+        Suite(nameof(VerifySporeTilePriority), () => VerifySporeTilePriority(rom, stock));
+        Suite(nameof(VerifySporeTileHorizontalFlip), () => VerifySporeTileHorizontalFlip(rom, stock));
+        Suite(nameof(VerifySporeTileVerticalFlip), () => VerifySporeTileVerticalFlip(rom, stock));
+        Suite(nameof(VerifySporeAttributeStorageAndEdits), () => VerifySporeAttributeStorageAndEdits(rom, stock));
     }
 }

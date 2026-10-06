@@ -5,16 +5,16 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyKraidNailLaunchXFraction(SuperMetroidAddressSpace rom) =>
-        VerifyKraidNailLaunchField(rom, 0, value => value.XFraction);
+        Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 0, value => value.XFraction));
 
     private static void VerifyKraidNailLaunchXWhole(SuperMetroidAddressSpace rom) =>
-        VerifyKraidNailLaunchField(rom, 2, value => value.XWhole);
+        Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 2, value => value.XWhole));
 
     private static void VerifyKraidNailLaunchYFraction(SuperMetroidAddressSpace rom) =>
-        VerifyKraidNailLaunchField(rom, 4, value => value.YFraction);
+        Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 4, value => value.YFraction));
 
     private static void VerifyKraidNailLaunchYWhole(SuperMetroidAddressSpace rom) =>
-        VerifyKraidNailLaunchField(rom, 6, value => value.YWhole);
+        Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 6, value => value.YWhole));
 
     private static void VerifyKraidNailLaunchField(SuperMetroidAddressSpace rom, int fieldOffset,
         Func<(ushort XFraction, ushort XWhole, ushort YFraction, ushort YWhole), ushort> field)
@@ -37,10 +37,10 @@ internal static partial class Program
 
     private static void VerifyKraidNailSibling(SuperMetroidAddressSpace rom)
     {
-        VerifyKraidNailLaunchXFraction(rom);
-        VerifyKraidNailLaunchXWhole(rom);
-        VerifyKraidNailLaunchYFraction(rom);
-        VerifyKraidNailLaunchYWhole(rom);
+        Suite(nameof(VerifyKraidNailLaunchXFraction), () => VerifyKraidNailLaunchXFraction(rom));
+        Suite(nameof(VerifyKraidNailLaunchXWhole), () => VerifyKraidNailLaunchXWhole(rom));
+        Suite(nameof(VerifyKraidNailLaunchYFraction), () => VerifyKraidNailLaunchYFraction(rom));
+        Suite(nameof(VerifyKraidNailLaunchYWhole), () => VerifyKraidNailLaunchYWhole(rom));
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();

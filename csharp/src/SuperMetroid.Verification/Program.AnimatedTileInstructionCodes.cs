@@ -15,7 +15,7 @@ internal static partial class Program
         AssertAnimatedTileCatalog(typeof(AnimatedTileInstructionCodes), 14);
         AssertAnimatedTileCatalog(typeof(AnimatedTileObjectPointers), 19);
         AssertAnimatedTileCatalog(typeof(AnimatedTileInstructionListPointers), 4);
-        VerifyConstructedAnimatedTileStreams();
+        Suite(nameof(VerifyConstructedAnimatedTileStreams), () => VerifyConstructedAnimatedTileStreams());
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -27,8 +27,8 @@ internal static partial class Program
         }
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        VerifyRetailTreadmillMechanics(bus);
-        VerifyRetailTreadmillStream(
+        Suite(nameof(VerifyRetailTreadmillMechanics), () => VerifyRetailTreadmillMechanics(bus));
+        Suite(nameof(VerifyRetailTreadmillStream), () => VerifyRetailTreadmillStream(
             bus,
             WreckedShipTreadmillDirection.Rightwards,
             [
@@ -36,8 +36,8 @@ internal static partial class Program
                 WreckedShipTreadmillRomData.Frame1Source,
                 WreckedShipTreadmillRomData.Frame2Source,
                 WreckedShipTreadmillRomData.Frame3Source,
-            ]);
-        VerifyRetailTreadmillStream(
+            ]));
+        Suite(nameof(VerifyRetailTreadmillStream), () => VerifyRetailTreadmillStream(
             bus,
             WreckedShipTreadmillDirection.Leftwards,
             [
@@ -45,7 +45,7 @@ internal static partial class Program
                 WreckedShipTreadmillRomData.Frame2Source,
                 WreckedShipTreadmillRomData.Frame1Source,
                 WreckedShipTreadmillRomData.Frame0Source,
-            ]);
+            ]));
 
         Console.WriteLine(
             "  Animated tiles: 37 named bank-$87 pointers, constructed fail-loud " +
@@ -122,16 +122,16 @@ internal static partial class Program
 
     private static void VerifyRetailTreadmillMechanics(ISnesAddressSpace bus)
     {
-        VerifyTreadmillHeaderSelection();
-        VerifyTreadmillWaitPointers(bus);
-        VerifyTreadmillFramePointers(bus);
-        VerifyTreadmillDurations(bus);
-        VerifyTreadmillControlOpcodes(bus);
-        VerifyTreadmillLoopTargets(bus);
-        VerifyTreadmillTransferSizes(bus);
-        VerifyTreadmillVramDestinations(bus);
-        VerifyTreadmillMechanicsDomain(bus);
-        VerifyTreadmillArtworkSources(bus);
+        Suite(nameof(VerifyTreadmillHeaderSelection), () => VerifyTreadmillHeaderSelection());
+        Suite(nameof(VerifyTreadmillWaitPointers), () => VerifyTreadmillWaitPointers(bus));
+        Suite(nameof(VerifyTreadmillFramePointers), () => VerifyTreadmillFramePointers(bus));
+        Suite(nameof(VerifyTreadmillDurations), () => VerifyTreadmillDurations(bus));
+        Suite(nameof(VerifyTreadmillControlOpcodes), () => VerifyTreadmillControlOpcodes(bus));
+        Suite(nameof(VerifyTreadmillLoopTargets), () => VerifyTreadmillLoopTargets(bus));
+        Suite(nameof(VerifyTreadmillTransferSizes), () => VerifyTreadmillTransferSizes(bus));
+        Suite(nameof(VerifyTreadmillVramDestinations), () => VerifyTreadmillVramDestinations(bus));
+        Suite(nameof(VerifyTreadmillMechanicsDomain), () => VerifyTreadmillMechanicsDomain(bus));
+        Suite(nameof(VerifyTreadmillArtworkSources), () => VerifyTreadmillArtworkSources(bus));
     }
     private static void AssertAnimatedTileCatalog(Type catalog, int expectedCount)
     {

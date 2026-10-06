@@ -25,11 +25,11 @@ internal static partial class Program
     }
 
     private static void VerifySimpleAnimationInstructionStarts(SuperMetroidAddressSpace rom) =>
-        VerifySimpleAnimationHeaderField(rom, 0, definition => definition.InstructionPointer);
+        Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 0, definition => definition.InstructionPointer));
     private static void VerifySimpleAnimationTransferSizes(SuperMetroidAddressSpace rom) =>
-        VerifySimpleAnimationHeaderField(rom, 2, definition => definition.TransferByteCount);
+        Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 2, definition => definition.TransferByteCount));
     private static void VerifySimpleAnimationVramDestinations(SuperMetroidAddressSpace rom) =>
-        VerifySimpleAnimationHeaderField(rom, 4, definition => definition.EncodedVramDestination);
+        Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 4, definition => definition.EncodedVramDestination));
 
     private static void VerifySimpleAnimationHeaderField(SuperMetroidAddressSpace rom, int offset,
         Func<RoomFxAnimatedTileObjectDefinition, ushort> field)

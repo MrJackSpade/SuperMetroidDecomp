@@ -15,12 +15,12 @@ internal static partial class Program
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Animated area oracle revision");
-        VerifyAnimatedAreaListPointers(rom);
-        VerifyAnimatedAreaObjectSelection(rom);
-        VerifyCompiledAreaSelection(rom, AreaId.Maridia, 0x0c, expectedSand: 2,
-            expectedTreadmills: 0);
-        VerifyCompiledAreaSelection(rom, AreaId.WreckedShip, 0x0c, expectedSand: 0,
-            expectedTreadmills: 2);
+        Suite(nameof(VerifyAnimatedAreaListPointers), () => VerifyAnimatedAreaListPointers(rom));
+        Suite(nameof(VerifyAnimatedAreaObjectSelection), () => VerifyAnimatedAreaObjectSelection(rom));
+        Suite(nameof(VerifyCompiledAreaSelection), () => VerifyCompiledAreaSelection(rom, AreaId.Maridia, 0x0c, expectedSand: 2,
+            expectedTreadmills: 0));
+        Suite(nameof(VerifyCompiledAreaSelection), () => VerifyCompiledAreaSelection(rom, AreaId.WreckedShip, 0x0c, expectedSand: 0,
+            expectedTreadmills: 2));
 
         Console.WriteLine(
             "  Area animated-tile definitions: 8 list pointers and 64 object " +

@@ -26,7 +26,7 @@ internal static partial class Program
         Method("LoadMotherBrainRoomEntryColors").Invoke(installed, null);
         AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
             "installed Mother Brain room-entry glass and tube palettes match full native CGRAM");
-        VerifyMotherBrainRecoveryLights(rom, original.MotherBrainRoomColors, extracted);
+        Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(rom, original.MotherBrainRoomColors, extracted));
         var nativeState = new MotherBrainEnemyState(native.Slots[0])
         {
             RoomPaletteInstructionPointer = MotherBrainRoomPaletteProgramDefinitions.FlashStart,

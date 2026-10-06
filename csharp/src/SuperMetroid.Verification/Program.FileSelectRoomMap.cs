@@ -9,13 +9,13 @@ internal static partial class Program
 {
     private static void VerifyFileSelectRoomMapGraphics()
     {
-        VerifyFileSelectStationMarker();
-        VerifyFileSelectMapScroll();
-        VerifyFileSelectMapNavigation();
-        VerifySavedGameMapFrontend();
-        VerifyFileSelectMapIcons();
-        VerifyFileSelectMapAnimations();
-        VerifyMapCancelPresentation();
+        Suite(nameof(VerifyFileSelectStationMarker), () => VerifyFileSelectStationMarker());
+        Suite(nameof(VerifyFileSelectMapScroll), () => VerifyFileSelectMapScroll());
+        Suite(nameof(VerifyFileSelectMapNavigation), () => VerifyFileSelectMapNavigation());
+        Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend());
+        Suite(nameof(VerifyFileSelectMapIcons), () => VerifyFileSelectMapIcons());
+        Suite(nameof(VerifyFileSelectMapAnimations), () => VerifyFileSelectMapAnimations());
+        Suite(nameof(VerifyMapCancelPresentation), () => VerifyMapCancelPresentation());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int areaIndex = 0; areaIndex < FileSelectMapRomData.AreaCount; areaIndex++)
         foreach (bool downloaded in new[] { false, true })
@@ -276,8 +276,8 @@ internal static partial class Program
 
     private static void VerifySavedGameMapFrontend()
     {
-        VerifySavedGameMapFrontend(4);
-        VerifySavedGameMapFrontend(6);
+        Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend(4));
+        Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend(6));
     }
 
     private static void VerifySavedGameMapFrontend(ushort savedArea)

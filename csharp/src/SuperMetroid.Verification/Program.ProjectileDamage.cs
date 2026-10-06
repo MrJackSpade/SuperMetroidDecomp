@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
-        VerifyComboMechanicsDefinitions(rom, Word);
+        Suite(nameof(VerifyComboMechanicsDefinitions), () => VerifyComboMechanicsDefinitions(rom, Word));
         int[] headers = Enumerable.Range(0, 24).Select(i => 0x938431 + i * 22).Concat(new[]
         {
             0x938641, 0x938657, 0x93866d, 0x938671, 0x938675, 0x938679, 0x93867d, 0x938681,
@@ -104,9 +104,9 @@ internal static partial class Program
         SuperMetroidAddressSpace rom,
         Func<int, ushort> readWord)
     {
-        VerifyComboPowerBombCostAlgorithm(readWord);
-        VerifyComboOriginAngleAlgorithm(readWord);
-        VerifyComboMotionAndActivation(rom);
+        Suite(nameof(VerifyComboPowerBombCostAlgorithm), () => VerifyComboPowerBombCostAlgorithm(readWord));
+        Suite(nameof(VerifyComboOriginAngleAlgorithm), () => VerifyComboOriginAngleAlgorithm(readWord));
+        Suite(nameof(VerifyComboMotionAndActivation), () => VerifyComboMotionAndActivation(rom));
     }
 
     private static void VerifyComboPowerBombCostAlgorithm(Func<int, ushort> readWord)
@@ -166,7 +166,7 @@ internal static partial class Program
 
     private static void VerifyComboMotionAndActivation(SuperMetroidAddressSpace rom)
     {
-        VerifyComboSineOffsetAlias(rom);
+        Suite(nameof(VerifyComboSineOffsetAlias), () => VerifyComboSineOffsetAlias(rom));
         var guarded = new ComboMechanicsReadGuard(rom);
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {

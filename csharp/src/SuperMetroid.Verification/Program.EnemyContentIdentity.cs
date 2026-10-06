@@ -27,7 +27,7 @@ internal static partial class Program
             AssertEqual(baseline, new EnemyIdentityFixture(edit).Build().ContentIdentity,
                 edit + " preserves decoded enemy presentation identity");
 
-        VerifyLegacyEnemyIdentityMerges();
+        Suite(nameof(VerifyLegacyEnemyIdentityMerges), () => VerifyLegacyEnemyIdentityMerges());
         // Inspect serialization shape, not data, so computed digests cannot silently change
         // the field count of a debugger snapshot. The hash itself uses typed production fields.
         Type[] childTypes = typeof(EnemyTileArtworkCatalog).GetProperties()

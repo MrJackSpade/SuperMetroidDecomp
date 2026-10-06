@@ -7,17 +7,17 @@ internal static partial class Program
 {
     private static void VerifyFuneNamiheFireballInstructionProgramDefinitions()
     {
-        VerifyFuneNamiheFireballInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyFuneNamiheFireballInstructionProgramDefinitions), () => VerifyFuneNamiheFireballInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyFuneNamiheFireballInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        VerifyFuneNamiheFireballMechanicsMapping(rom);
-        VerifyFuneNamiheFireballPresentationAddresses();
-        VerifyFuneNamiheFireballVisualSelectors(rom);
+        Suite(nameof(VerifyFuneNamiheFireballMechanicsMapping), () => VerifyFuneNamiheFireballMechanicsMapping(rom));
+        Suite(nameof(VerifyFuneNamiheFireballPresentationAddresses), () => VerifyFuneNamiheFireballPresentationAddresses());
+        Suite(nameof(VerifyFuneNamiheFireballVisualSelectors), () => VerifyFuneNamiheFireballVisualSelectors(rom));
 
         var guard = new FuneNamiheFireballInstructionReadGuard(rom);
         var observedVisuals = new HashSet<ushort>();

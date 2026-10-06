@@ -245,7 +245,7 @@ internal static partial class Program
 
     private static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
-        VerifyEndingPaletteRoleSelection();
+        Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());
         EndingPaletteCatalog stock = installation.LoadEndingPalettes();
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
@@ -323,7 +323,7 @@ internal static partial class Program
                 $"ending palette parity exercises {phase}");
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
             "installed ending never rereads static, logo or palette-FX ROM colors");
-        VerifyEndingLogoPaletteArtwork(stock, nativeBus, guardedBus);
+        Suite(nameof(VerifyEndingLogoPaletteArtwork), () => VerifyEndingLogoPaletteArtwork(stock, nativeBus, guardedBus));
 
         Directory.CreateDirectory(installation.EndingPaletteOverrideDirectory);
         foreach (EndingPaletteId id in Enum.GetValues<EndingPaletteId>())
@@ -393,9 +393,9 @@ internal static partial class Program
             }
             File.Delete(overridePath);
         }
-        VerifyVisibleCreditsPaletteOverride(installation, guardedBus, nativeBus);
-        VerifyVisibleLogoPaletteOverride(installation, guardedBus, nativeBus);
-        VerifyVisibleEndingPaletteFxOverride(installation, guardedBus, nativeBus);
+        Suite(nameof(VerifyVisibleCreditsPaletteOverride), () => VerifyVisibleCreditsPaletteOverride(installation, guardedBus, nativeBus));
+        Suite(nameof(VerifyVisibleLogoPaletteOverride), () => VerifyVisibleLogoPaletteOverride(installation, guardedBus, nativeBus));
+        Suite(nameof(VerifyVisibleEndingPaletteFxOverride), () => VerifyVisibleEndingPaletteFxOverride(installation, guardedBus, nativeBus));
 
         string invalidPath = Path.Combine(installation.EndingPaletteOverrideDirectory,
             EndingPaletteDefinitions.FileName(EndingPaletteId.Escape));

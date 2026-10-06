@@ -81,8 +81,8 @@ internal static partial class Program
         AssertEqual(BotwoonWallPlmDrawDefinitions.EndExclusive, cursor,
             "Botwoon clear draw covers exactly its native span");
 
-        VerifyBotwoonWall(clear: false);
-        VerifyBotwoonWall(clear: true);
+        Suite(nameof(VerifyBotwoonWall), () => VerifyBotwoonWall(clear: false));
+        Suite(nameof(VerifyBotwoonWall), () => VerifyBotwoonWall(clear: true));
         Console.WriteLine(
             "Botwoon wall: ROM-matched programs and nine-block clear draw run their timed crumble/clear paths without source reads.");
 

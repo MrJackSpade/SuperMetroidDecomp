@@ -9,11 +9,11 @@ internal static partial class Program
 {
     private static void VerifyEyeDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyEyeDoorVisualIds();
-        VerifyEyeDoorProgramDefinitions(rom);
-        VerifyEyeDoorLayoutGeometry(rom);
-        VerifyEyeDoorLayoutCollision(rom);
-        VerifyEyeDoorLayoutVisuals(rom);
+        Suite(nameof(VerifyEyeDoorVisualIds), () => VerifyEyeDoorVisualIds());
+        Suite(nameof(VerifyEyeDoorProgramDefinitions), () => VerifyEyeDoorProgramDefinitions(rom));
+        Suite(nameof(VerifyEyeDoorLayoutGeometry), () => VerifyEyeDoorLayoutGeometry(rom));
+        Suite(nameof(VerifyEyeDoorLayoutCollision), () => VerifyEyeDoorLayoutCollision(rom));
+        Suite(nameof(VerifyEyeDoorLayoutVisuals), () => VerifyEyeDoorLayoutVisuals(rom));
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             EyeDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
         RoomPlmEyeDoorVisualEntry[] entries = EyeDoorPlmDrawDefinitions.Editable.Select(draw =>
@@ -38,29 +38,29 @@ internal static partial class Program
                 EyeDoorPlmDrawDefinitions.MirroredOpeningClear), block) ^ (ushort)LevelBlockFlipFlags.Horizontal),
                 edited.GetWord(EyeDoorPlmDrawDefinitions.MirroredOpeningClear, block),
                 "left opening clear mirrors its authored appearance without changing the override schema");
-        VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Left, lists, null);
-        VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Right, lists, edited);
-        VerifyEyeDoorRetailProgramPath(rom, EyeDoorOrientation.Left, lists);
-        VerifyEyeDoorRetailProgramPath(rom, EyeDoorOrientation.Right, lists);
-        VerifyEyeDoorVisualInstallation(rom);
+        Suite(nameof(VerifyEyeDoorNativeDrawPath), () => VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Left, lists, null));
+        Suite(nameof(VerifyEyeDoorNativeDrawPath), () => VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Right, lists, edited));
+        Suite(nameof(VerifyEyeDoorRetailProgramPath), () => VerifyEyeDoorRetailProgramPath(rom, EyeDoorOrientation.Left, lists));
+        Suite(nameof(VerifyEyeDoorRetailProgramPath), () => VerifyEyeDoorRetailProgramPath(rom, EyeDoorOrientation.Right, lists));
+        Suite(nameof(VerifyEyeDoorVisualInstallation), () => VerifyEyeDoorVisualInstallation(rom));
         Console.WriteLine(
             "  Eye doors: 622 compiled instruction bytes, guarded mirrored lifecycles, 24 physical draws and 23 compatible authored identities preserve collision.");
     }
 
     private static void VerifyEyeDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyEyeDoorProgramControl(rom);
-        VerifyEyeDoorProgramDuration(rom);
-        VerifyEyeDoorProgramDraw(rom);
-        VerifyEyeDoorProgramTarget(rom);
-        VerifyEyeDoorProgramCallback(rom);
-        VerifyEyeDoorProgramColumns(rom);
-        VerifyEyeDoorProgramRows(rom);
-        VerifyEyeDoorProgramAttack(rom);
-        VerifyEyeDoorProgramSweat(rom);
-        VerifyEyeDoorProgramSound(rom);
-        VerifyEyeDoorProgramHitCount(rom);
-        VerifyEyeDoorProgramLoopCount(rom);
+        Suite(nameof(VerifyEyeDoorProgramControl), () => VerifyEyeDoorProgramControl(rom));
+        Suite(nameof(VerifyEyeDoorProgramDuration), () => VerifyEyeDoorProgramDuration(rom));
+        Suite(nameof(VerifyEyeDoorProgramDraw), () => VerifyEyeDoorProgramDraw(rom));
+        Suite(nameof(VerifyEyeDoorProgramTarget), () => VerifyEyeDoorProgramTarget(rom));
+        Suite(nameof(VerifyEyeDoorProgramCallback), () => VerifyEyeDoorProgramCallback(rom));
+        Suite(nameof(VerifyEyeDoorProgramColumns), () => VerifyEyeDoorProgramColumns(rom));
+        Suite(nameof(VerifyEyeDoorProgramRows), () => VerifyEyeDoorProgramRows(rom));
+        Suite(nameof(VerifyEyeDoorProgramAttack), () => VerifyEyeDoorProgramAttack(rom));
+        Suite(nameof(VerifyEyeDoorProgramSweat), () => VerifyEyeDoorProgramSweat(rom));
+        Suite(nameof(VerifyEyeDoorProgramSound), () => VerifyEyeDoorProgramSound(rom));
+        Suite(nameof(VerifyEyeDoorProgramHitCount), () => VerifyEyeDoorProgramHitCount(rom));
+        Suite(nameof(VerifyEyeDoorProgramLoopCount), () => VerifyEyeDoorProgramLoopCount(rom));
     }
 
     private static void VerifyEyeDoorNativeDrawPath(

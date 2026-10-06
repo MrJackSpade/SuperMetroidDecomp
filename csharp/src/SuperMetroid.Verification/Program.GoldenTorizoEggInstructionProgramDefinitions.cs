@@ -7,8 +7,8 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     private static void VerifyGoldenTorizoEggInstructionProgramDefinitions() =>
-        VerifyGoldenTorizoEggInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyGoldenTorizoEggInstructionProgramDefinitions), () => VerifyGoldenTorizoEggInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyGoldenTorizoEggInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)

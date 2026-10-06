@@ -117,10 +117,10 @@ internal static partial class Program
 
     private static void VerifyAtomicMovementDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyAtomicInitialProgramSelection(rom);
-        VerifyAtomicMechanicsMapping(rom);
-        VerifyAtomicPresentationAddresses();
-        VerifyAtomicVisualSelectors(rom);
+        Suite(nameof(VerifyAtomicInitialProgramSelection), () => VerifyAtomicInitialProgramSelection(rom));
+        Suite(nameof(VerifyAtomicMechanicsMapping), () => VerifyAtomicMechanicsMapping(rom));
+        Suite(nameof(VerifyAtomicPresentationAddresses), () => VerifyAtomicPresentationAddresses());
+        Suite(nameof(VerifyAtomicVisualSelectors), () => VerifyAtomicVisualSelectors(rom));
         const int instructionTable = 0xa8e380;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 

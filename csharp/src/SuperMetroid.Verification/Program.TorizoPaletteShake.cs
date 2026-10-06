@@ -90,7 +90,7 @@ internal static partial class Program
                 AssertEqual(native, catalog, $"Torizo {name} color {i} matches cartridge");
             }
         }
-        VerifyTorizoLandingLifetime();
+        Suite(nameof(VerifyTorizoLandingLifetime), () => VerifyTorizoLandingLifetime());
         Console.WriteLine("Torizo palette opcode: repeated calls preserve 32-frame landing shake, defer target writes, fade only sprite palettes 1/2, and create no quake; all five cataloged Torizo palette pairs match the cartridge.");
         return 0;
     }

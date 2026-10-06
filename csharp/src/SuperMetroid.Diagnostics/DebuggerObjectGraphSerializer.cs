@@ -477,7 +477,14 @@ internal static class DebuggerObjectGraphSerializer
         }
     }
 
+    // A type's field layout is fixed for the process; graphs hold many objects of each type.
+    // Callers treat the returned array as read-only (migrations build filtered copies).
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, FieldInfo[]> serializableFields = new();
+
     private static FieldInfo[] GetSerializableFields(Type type) =>
+        serializableFields.GetOrAdd(type, CollectSerializableFields);
+
+    private static FieldInfo[] CollectSerializableFields(Type type) =>
         EnumerateHierarchy(type)
             .SelectMany(level => level.GetFields(
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic |
@@ -495,7 +502,19 @@ internal static class DebuggerObjectGraphSerializer
             yield return current;
     }
 
+    // Resolution of a name is fixed for the process, and graphs repeat the same few type
+    // names for every object; only allowed results are cached, so rejections still throw.
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Type> allowedTypes = new(StringComparer.Ordinal);
+
     private static Type ResolveAllowedType(string assemblyQualifiedName)
+    {
+        if (allowedTypes.TryGetValue(assemblyQualifiedName, out Type? cached)) return cached;
+        Type allowed = ResolveAllowedTypeUncached(assemblyQualifiedName);
+        allowedTypes.TryAdd(assemblyQualifiedName, allowed);
+        return allowed;
+    }
+
+    private static Type ResolveAllowedTypeUncached(string assemblyQualifiedName)
     {
         Type type = DebuggerStateTypeIdentity.Resolve(assemblyQualifiedName)
             ?? throw new InvalidDataException(

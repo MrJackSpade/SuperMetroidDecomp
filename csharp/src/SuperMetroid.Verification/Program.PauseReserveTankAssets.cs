@@ -17,9 +17,9 @@ internal static partial class Program
         byte[] bytes = File.ReadAllBytes(stockPath);
         var document = JsonSerializer.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions)!;
         var guard = new ReserveTankAssetReadGuard(bus);
-        VerifyPauseReserveAnchors(bus);
+        Suite(nameof(VerifyPauseReserveAnchors), () => VerifyPauseReserveAnchors(bus));
         int comparisons = 0;
-        VerifyPauseReserveNativeFrames(bus, catalog.PauseReserveTanks);
+        Suite(nameof(VerifyPauseReserveNativeFrames), () => VerifyPauseReserveNativeFrames(bus, catalog.PauseReserveTanks));
         foreach (ushort capacity in new ushort[] { 0, 100, 200, 300, 400 })
         {
             var nativeSamus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = 2 };

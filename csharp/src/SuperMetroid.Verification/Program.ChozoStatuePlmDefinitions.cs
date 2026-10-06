@@ -6,12 +6,12 @@ internal static partial class Program
 {
     private static void VerifyChozoStatuePlmDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyChozoTerrainHeaders(rom);
-        VerifyChozoProgramControls(rom);
-        VerifyChozoProgramDraws(rom);
-        VerifyChozoProgramTargets(rom);
-        VerifyChozoProgramCallback(rom);
-        VerifyChozoProgramEvent(rom);
+        Suite(nameof(VerifyChozoTerrainHeaders), () => VerifyChozoTerrainHeaders(rom));
+        Suite(nameof(VerifyChozoProgramControls), () => VerifyChozoProgramControls(rom));
+        Suite(nameof(VerifyChozoProgramDraws), () => VerifyChozoProgramDraws(rom));
+        Suite(nameof(VerifyChozoProgramTargets), () => VerifyChozoProgramTargets(rom));
+        Suite(nameof(VerifyChozoProgramCallback), () => VerifyChozoProgramCallback(rom));
+        Suite(nameof(VerifyChozoProgramEvent), () => VerifyChozoProgramEvent(rom));
         AssertTrue(RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(
             RoomPlmSharedDeleteProgramDefinitions.Start, out ushort sharedDelete),
             "shared delete list is compiled");
@@ -21,10 +21,10 @@ internal static partial class Program
         AssertTrue(!RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(
             RoomPlmSharedDeleteProgramDefinitions.End, out _),
             "shared delete list refuses a word crossing its boundary");
-        VerifyChozoLayoutGeometry(rom);
-        VerifyChozoLayoutCollision(rom);
-        VerifyChozoLayoutVisuals(rom);
-        VerifyChozoStatueVisualInstallation(rom);
+        Suite(nameof(VerifyChozoLayoutGeometry), () => VerifyChozoLayoutGeometry(rom));
+        Suite(nameof(VerifyChozoLayoutCollision), () => VerifyChozoLayoutCollision(rom));
+        Suite(nameof(VerifyChozoLayoutVisuals), () => VerifyChozoLayoutVisuals(rom));
+        Suite(nameof(VerifyChozoStatueVisualInstallation), () => VerifyChozoStatueVisualInstallation(rom));
         Console.WriteLine(
             "Chozo statue PLMs: five headers, four bounded instruction streams, shared delete, native draws and visual-only terrain overrides pass.");
     }

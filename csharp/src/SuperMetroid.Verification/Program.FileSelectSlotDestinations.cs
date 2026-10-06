@@ -10,20 +10,20 @@ internal static partial class Program
         var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Slot field oracle revision");
-        VerifyFileSelectSlotLabelSources(rom);
+        Suite(nameof(VerifyFileSelectSlotLabelSources), () => VerifyFileSelectSlotLabelSources(rom));
         byte[] json = FileSelectPresentationExtractor.Extract(rom);
         _ = FileSelectPresentation.Load(new MemoryStream(json));
         FileSelectPresentationDocument document = JsonSerializer.Deserialize<FileSelectPresentationDocument>(
             json, MapPresentationFormat.JsonOptions)!;
         // Each independently indexed field uses its own original LDX operands.
-        VerifyField(false, FileSelectSlotField.Label, [0x819f16, 0x819f49, 0x819f7f]);
-        VerifyField(false, FileSelectSlotField.Energy, [0x819f25, 0x819f5b, 0x819f91]);
-        VerifyField(false, FileSelectSlotField.TimeValue, [0x819f31, 0x819f67, 0x819f9d]);
-        VerifyField(false, FileSelectSlotField.TimeLabel, [0x819f40, 0x819f76, 0x819fac]);
-        VerifyField(true, FileSelectSlotField.Label, [0x819639, 0x819669, 0x819699]);
-        VerifyField(true, FileSelectSlotField.Energy, [0x81960f, 0x81963f, 0x81966f]);
-        VerifyField(true, FileSelectSlotField.TimeValue, [0x81961e, 0x81964e, 0x81967e]);
-        VerifyField(true, FileSelectSlotField.TimeLabel, [0x819630, 0x819660, 0x819690]);
+        Suite(nameof(VerifyField), () => VerifyField(false, FileSelectSlotField.Label, [0x819f16, 0x819f49, 0x819f7f]));
+        Suite(nameof(VerifyField), () => VerifyField(false, FileSelectSlotField.Energy, [0x819f25, 0x819f5b, 0x819f91]));
+        Suite(nameof(VerifyField), () => VerifyField(false, FileSelectSlotField.TimeValue, [0x819f31, 0x819f67, 0x819f9d]));
+        Suite(nameof(VerifyField), () => VerifyField(false, FileSelectSlotField.TimeLabel, [0x819f40, 0x819f76, 0x819fac]));
+        Suite(nameof(VerifyField), () => VerifyField(true, FileSelectSlotField.Label, [0x819639, 0x819669, 0x819699]));
+        Suite(nameof(VerifyField), () => VerifyField(true, FileSelectSlotField.Energy, [0x81960f, 0x81963f, 0x81966f]));
+        Suite(nameof(VerifyField), () => VerifyField(true, FileSelectSlotField.TimeValue, [0x81961e, 0x81964e, 0x81967e]));
+        Suite(nameof(VerifyField), () => VerifyField(true, FileSelectSlotField.TimeLabel, [0x819630, 0x819660, 0x819690]));
 
         void VerifyField(bool dataPage, FileSelectSlotField field, int[] instructions)
         {

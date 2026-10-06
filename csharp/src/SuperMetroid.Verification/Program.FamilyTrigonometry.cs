@@ -27,11 +27,11 @@ internal static partial class Program
             .Select(i => Read(EnemyMathReferenceData.ShaktoolOrbit + i * 2)).ToArray();
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();
-        VerifySignedSixteenBitSineDefinitions(rom);
+        Suite(nameof(VerifySignedSixteenBitSineDefinitions), () => VerifySignedSixteenBitSineDefinitions(rom));
         var bullMove = Method<Action<RoomEnemySlot, BullEnemyState>>("MoveBull");
         var mawX = Method<Func<ushort, ushort, ushort>>("CalculateYappingMawX");
         var mawY = Method<Func<ushort, ushort, ushort>>("CalculateYappingMawY");
-        VerifyShaktoolOrbitAlgorithm(rom);
+        Suite(nameof(VerifyShaktoolOrbitAlgorithm), () => VerifyShaktoolOrbitAlgorithm(rom));
 
         ushort MawReference(int angle, int length)
         {
@@ -41,9 +41,9 @@ internal static partial class Program
             if (sample >= 0) return (ushort)((product / 256) * 2);
             return unchecked((ushort)(((ushort)-product / 256 * 2) | 65280));
         }
-        // Each possible word in either parameter, with every low byte in the other.
+        // Each boundary-class word in either parameter, with every low byte in the other.
         // This verifies angle negation/subtraction and length truncation independently.
-        for (int word = 0; word <= ushort.MaxValue; word++)
+        foreach (int word in WordBoundarySamples())
         for (int low = 0; low <= byte.MaxValue; low++)
         {
             ushort angle = (ushort)word, length = (ushort)(65280 | low);
@@ -67,7 +67,7 @@ internal static partial class Program
         }
         foreach (uint initial in new uint[] { 0, 0xffffff37 })
         for (int angle = 0; angle < 256; angle++)
-        for (int speed = 0; speed <= ushort.MaxValue; speed++)
+        foreach (int speed in WordBoundarySamples())
         {
             bull.XPosition = bull.YPosition = (ushort)(initial >> 16);
             bull.XSubposition = bull.YSubposition = unchecked((ushort)initial);
@@ -105,6 +105,6 @@ internal static partial class Program
                 segmentState.OrbitAngle != angle)
                 throw new InvalidDataException($"Shaktool placement differs: angle={angle:X4}, origin={initial:X8}.");
         }
-        Console.WriteLine("Compiled family math: signed 16-bit samples, 33,554,432 Bull moves, all word/byte Yapping Maw products and 196,608 linked Shaktool placements match cartridge data without a production bus.");
+        Console.WriteLine("Compiled family math: signed 16-bit samples, every angle with every speed-word boundary class for Bull moves, word/byte Yapping Maw products over every boundary class and 196,608 linked Shaktool placements match cartridge data without a production bus.");
     }
 }

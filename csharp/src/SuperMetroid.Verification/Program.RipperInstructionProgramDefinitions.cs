@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyRipperInstructionProgramDefinitions()
     {
-        VerifyRipperInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyRipperInstructionProgramDefinitions), () => VerifyRipperInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyRipperInstructionProgramDefinitions(
@@ -64,22 +64,22 @@ internal static partial class Program
 
         var guard = new RipperInstructionProgramReadGuard(rom);
         HashSet<ushort> observedFrames = [];
-        VerifyGRipper(1,
+        Suite(nameof(VerifyGRipper), () => VerifyGRipper(1,
             RipperInstructionProgramDefinitions.GRipperMovingRight,
-            "GRipper right");
-        VerifyGRipperReversal();
-        VerifyRipper2(0,
+            "GRipper right"));
+        Suite(nameof(VerifyGRipperReversal), () => VerifyGRipperReversal());
+        Suite(nameof(VerifyRipper2), () => VerifyRipper2(0,
             RipperInstructionProgramDefinitions.Ripper2MovingRight,
-            "Ripper II native-right label");
-        VerifyRipper2(1,
+            "Ripper II native-right label"));
+        Suite(nameof(VerifyRipper2), () => VerifyRipper2(1,
             RipperInstructionProgramDefinitions.Ripper2MovingLeft,
-            "Ripper II native-left label");
-        VerifyRipper(1,
+            "Ripper II native-left label"));
+        Suite(nameof(VerifyRipper), () => VerifyRipper(1,
             RipperInstructionProgramDefinitions.RipperMovingRight,
-            "Ripper right");
-        VerifyRipper(0,
+            "Ripper right"));
+        Suite(nameof(VerifyRipper), () => VerifyRipper(0,
             RipperInstructionProgramDefinitions.RipperMovingLeft,
-            "Ripper left");
+            "Ripper left"));
 
         AssertEqual(12, observedFrames.Count,
             "all Ripper-family walking frames execute across six native loops");

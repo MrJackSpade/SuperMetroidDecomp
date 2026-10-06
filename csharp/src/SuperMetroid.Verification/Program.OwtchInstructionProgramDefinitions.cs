@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyOwtchInstructionProgramDefinitions()
     {
-        VerifyOwtchInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyOwtchInstructionProgramDefinitions), () => VerifyOwtchInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyOwtchInstructionProgramDefinitions(
@@ -42,18 +42,18 @@ internal static partial class Program
 
         var guard = new OwtchInstructionProgramReadGuard(rom);
         HashSet<ushort> observedFrames = [];
-        VerifyProgram(
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             initialState: OwtchBehaviorState.MovingRight,
             program: OwtchInstructionProgramDefinitions.MovingLeft,
             expectedState: OwtchBehaviorState.MovingLeft,
             expectedLoopCursor: 0xa3b1,
-            direction: "left");
-        VerifyProgram(
+            direction: "left"));
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             initialState: OwtchBehaviorState.MovingLeft,
             program: OwtchInstructionProgramDefinitions.MovingRight,
             expectedState: OwtchBehaviorState.MovingRight,
             expectedLoopCursor: 0xa3c3,
-            direction: "right");
+            direction: "right"));
 
         AssertEqual(3, observedFrames.Count, "both Owtch loops visit all three frames");
         foreach (ushort frame in new ushort[] { 0xa589, 0xa590, 0xa597 })

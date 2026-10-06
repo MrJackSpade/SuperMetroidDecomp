@@ -12,8 +12,8 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        VerifyLandSkyChunkPointers(bus);
-        VerifyOceanSkyChunkPointers(bus);
+        Suite(nameof(VerifyLandSkyChunkPointers), () => VerifyLandSkyChunkPointers(bus));
+        Suite(nameof(VerifyOceanSkyChunkPointers), () => VerifyOceanSkyChunkPointers(bus));
         var pages = new RoomBackgroundTilemapAtlas[RoomSkyTilemapFormat.PageCount];
         var json = new byte[pages.Length][];
         for (int page = 0; page < pages.Length; page++)

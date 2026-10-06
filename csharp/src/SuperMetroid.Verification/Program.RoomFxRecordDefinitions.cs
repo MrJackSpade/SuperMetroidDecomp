@@ -29,13 +29,13 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "FX oracle revision");
         SortedDictionary<ushort, RoomFxRecordDefinition> records = CaptureRetailRoomFxRecords(bus);
-        VerifyRoomFxFields(bus, records);
-        VerifyRoomFxListSelection(bus);
+        Suite(nameof(VerifyRoomFxFields), () => VerifyRoomFxFields(bus, records));
+        Suite(nameof(VerifyRoomFxListSelection), () => VerifyRoomFxListSelection(bus));
         string generated = RenderRoomFxDefinitions(records.Values).Replace("\r\n", "\n");
         string checkedIn = File.ReadAllText(RoomFxGeneratedPath).Replace("\r\n", "\n");
         AssertEqual(generated, checkedIn,
             "checked-in room-FX catalog is deterministic from pinned cartridge and all retail states");
-        VerifyCompiledCeresRoomFxConsumers(bus);
+        Suite(nameof(VerifyCompiledCeresRoomFxConsumers), () => VerifyCompiledCeresRoomFxConsumers(bus));
         Console.WriteLine($"Compiled room FX: {records.Count} typed records across {RoomStateDefinitions.All.Count()} room states match every native field.");
     }
 

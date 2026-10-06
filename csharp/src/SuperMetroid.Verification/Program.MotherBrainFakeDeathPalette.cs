@@ -8,8 +8,8 @@ internal static partial class Program
     private static void VerifyMotherBrainFakeDeathPalette(
         ISnesAddressSpace rom, MotherBrainRainbowPalettePresentation installed)
     {
-        VerifyFade(toGrey: true);
-        VerifyFade(toGrey: false);
+        Suite(nameof(VerifyFade), () => VerifyFade(toGrey: true));
+        Suite(nameof(VerifyFade), () => VerifyFade(toGrey: false));
 
         void VerifyFade(bool toGrey)
         {

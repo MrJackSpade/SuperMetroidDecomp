@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyKraidLintInstructionProgramDefinitions()
     {
-        VerifyKraidLintInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyKraidLintInstructionProgramDefinitions), () => VerifyKraidLintInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyKraidLintInstructionProgramDefinitions(
@@ -15,8 +15,8 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        VerifyKraidLintMechanicsMapping(rom);
-        VerifyKraidLintPresentationMapping();
+        Suite(nameof(VerifyKraidLintMechanicsMapping), () => VerifyKraidLintMechanicsMapping(rom));
+        Suite(nameof(VerifyKraidLintPresentationMapping), () => VerifyKraidLintPresentationMapping());
 
         var guard = new KraidLintInstructionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();

@@ -87,16 +87,16 @@ internal static partial class Program
         }
     }
     private static void VerifyBombTorizoDroolInstructionProgramDefinitions() =>
-        VerifyBombTorizoDroolInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyBombTorizoDroolInstructionProgramDefinitions), () => VerifyBombTorizoDroolInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyBombTorizoDroolInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyBombTorizoDroolInitialSelection(rom);
-        VerifyBombTorizoDroolMechanicsMapping(rom);
-        VerifyBombTorizoDroolPresentationMapping();
-        VerifyBombTorizoDroolVisualMapping(rom);
+        Suite(nameof(VerifyBombTorizoDroolInitialSelection), () => VerifyBombTorizoDroolInitialSelection(rom));
+        Suite(nameof(VerifyBombTorizoDroolMechanicsMapping), () => VerifyBombTorizoDroolMechanicsMapping(rom));
+        Suite(nameof(VerifyBombTorizoDroolPresentationMapping), () => VerifyBombTorizoDroolPresentationMapping());
+        Suite(nameof(VerifyBombTorizoDroolVisualMapping), () => VerifyBombTorizoDroolVisualMapping(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < BombTorizoDroolInstructionProgramDefinitions.MechanicsWordCount;

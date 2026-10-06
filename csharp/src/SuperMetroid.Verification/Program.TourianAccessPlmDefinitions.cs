@@ -5,10 +5,10 @@ internal static partial class Program
 {
     private static void VerifyTourianAccessPlmDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyTourianAccessHeaderSelection(rom);
-        VerifyTourianAccessInstructionSelection(rom);
-        VerifyDefinition(clear: false);
-        VerifyDefinition(clear: true);
+        Suite(nameof(VerifyTourianAccessHeaderSelection), () => VerifyTourianAccessHeaderSelection(rom));
+        Suite(nameof(VerifyTourianAccessInstructionSelection), () => VerifyTourianAccessInstructionSelection(rom));
+        Suite(nameof(VerifyDefinition), () => VerifyDefinition(clear: false));
+        Suite(nameof(VerifyDefinition), () => VerifyDefinition(clear: true));
 
         Console.WriteLine(
             "Tourian access PLMs: both native header/list identities and real highest-slot spawns pass without runtime header reads.");
@@ -45,10 +45,10 @@ internal static partial class Program
     }
 
     private static void VerifyTourianAccessHeaderSelection(SuperMetroidAddressSpace rom) =>
-        VerifyTourianAccessSpawnField(rom, false);
+        Suite(nameof(VerifyTourianAccessSpawnField), () => VerifyTourianAccessSpawnField(rom, false));
 
     private static void VerifyTourianAccessInstructionSelection(SuperMetroidAddressSpace rom) =>
-        VerifyTourianAccessSpawnField(rom, true);
+        Suite(nameof(VerifyTourianAccessSpawnField), () => VerifyTourianAccessSpawnField(rom, true));
 
     private static void VerifyTourianAccessSpawnField(SuperMetroidAddressSpace rom, bool instruction)
     {

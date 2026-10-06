@@ -22,7 +22,7 @@ internal static partial class Program
         }
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        VerifyProjectileSoundRoutingDefinitions(bus);
+        Suite(nameof(VerifyProjectileSoundRoutingDefinitions), () => VerifyProjectileSoundRoutingDefinitions(bus));
         foreach (int originTable in new[]
         {
             SamusProjectileRomData.Origins.DefaultX,

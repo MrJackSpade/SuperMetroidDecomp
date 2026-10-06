@@ -9,7 +9,7 @@ internal static partial class Program
     {
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);
         var atlas = ProjectileTrailAtlas.Load(new MemoryStream(png));
-        VerifyTrailAtlasBinding(bus, png);
+        Suite(nameof(VerifyTrailAtlasBinding), () => VerifyTrailAtlasBinding(bus, png));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();

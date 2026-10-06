@@ -144,8 +144,8 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(
             () => MotherBrainTileTransferDefinitions.BabyTileTransfer(baby.PageCount),
             "compiled Baby tile transfer rejects a record past the terminator");
-        VerifyMotherBrainLegTileTransfers(stock, rom);
-        VerifyMotherBrainInstalledTransferBoundary(stock, rom);
+        Suite(nameof(VerifyMotherBrainLegTileTransfers), () => VerifyMotherBrainLegTileTransfers(stock, rom));
+        Suite(nameof(VerifyMotherBrainInstalledTransferBoundary), () => VerifyMotherBrainInstalledTransferBoundary(stock, rom));
         Console.WriteLine(
             "  Mother Brain special sprites: legs, Baby, attack and exploded-door pages match cartridge records, guarded live uploads, PNG edits, reload, invalid override and strict installed-source boundary pass.");
     }

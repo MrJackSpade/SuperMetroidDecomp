@@ -8,9 +8,9 @@ internal static partial class Program
 {
     private static void VerifyGrappleFiringDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyGrappleLaunchXSelection(rom);
-        VerifyGrappleLaunchYSelection(rom);
-        VerifyGrappleLaunchAngleAlgorithm(rom);
+        Suite(nameof(VerifyGrappleLaunchXSelection), () => VerifyGrappleLaunchXSelection(rom));
+        Suite(nameof(VerifyGrappleLaunchYSelection), () => VerifyGrappleLaunchYSelection(rom));
+        Suite(nameof(VerifyGrappleLaunchAngleAlgorithm), () => VerifyGrappleLaunchAngleAlgorithm(rom));
         short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
@@ -34,6 +34,9 @@ internal static partial class Program
         byte[] movementPoses = Enumerable.Range(0, 253).GroupBy(pose =>
             rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1))
             .OrderBy(group => group.Key).Select(group => (byte)group.First()).ToArray();
+        // The graphics-Y byte only enters the flare as a signed offset, so the signed byte
+        // classes cover it; each needs one full artwork fixture.
+        ushort[] positions = [0x0000, 0x0001, 0x7fff, 0x8000, 0xfffe, 0xffff];
         for (byte direction = 0; direction < 10; direction++)
         {
             byte[] aimingPoses = Enumerable.Range(0, 253).Where(pose =>
@@ -43,14 +46,17 @@ internal static partial class Program
             int offset = direction * 2;
             short vx = Word(0x9bc0db + offset), vy = Word(0x9bc0ef + offset);
             ushort angle = unchecked((ushort)Word(0x9bc104 + offset));
-            for (int raw = 0; raw <= ushort.MaxValue; raw++)
+            foreach (byte graphicsY in SignedByteClasses)
             {
-                // Use actual authored aim/movement combinations while sweeping every
-                // signed graphics-Y byte and X/Y position word.
-                samus.Pose = bus.SourcePose = aimingPoses[(raw >> 8) % aimingPoses.Length];
+            bus.GraphicsY = graphicsY;
+            samus.TileTransfers.BindArtwork(SamusGraphicsOffsetFixture(unchecked((sbyte)graphicsY)));
+            foreach (byte pose in aimingPoses)
+            foreach (ushort raw in positions)
+            {
+                // Every authored aim/movement pose for the direction, each signed graphics-Y
+                // class and the X/Y position wrap boundaries.
+                samus.Pose = bus.SourcePose = pose;
                 byte movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + samus.Pose * 8 + 1);
-                bus.GraphicsY = (byte)raw;
-                samus.TileTransfers.BindArtwork(SamusGraphicsOffsetFixture(unchecked((sbyte)bus.GraphicsY)));
                 bus.Direction = direction;
                 bool running = movement == 1;
                 short x = Word((running ? 0x9bc172 : 0x9bc122) + offset);
@@ -85,6 +91,7 @@ internal static partial class Program
                 AssertEqual(unchecked((ushort)(samus.XPosition + flareX)), grapple.BeamStartX, "Flare X remains separate");
                 AssertEqual(unchecked((ushort)(samus.YPosition + flareY - unchecked((sbyte)bus.GraphicsY))), grapple.BeamStartY, "Flare Y remains separate");
             }
+            }
         }
         // Run the real four-substep extension path in empty terrain, not just its setup.
         // Presentation overrides must change Flare without changing trajectory or Start.
@@ -117,9 +124,22 @@ internal static partial class Program
         }
         grapple.FlarePlacement = stockFlare;
         // Moving Draygon-held poses use controller-derived direction and a fixed six-
-        // pixel correction. Exercise every input word through the actual launch route.
+        // pixel correction. Only the four direction bits select the aim, so exercise all
+        // sixteen combinations with the other buttons clear, all set, and mixed.
+        int directionBits = (int)(SnesButton.Left | SnesButton.Right | SnesButton.Up | SnesButton.Down);
+        var heldInputs = new List<int>();
+        for (int combination = 0; combination < 16; combination++)
+        {
+            int bits = 0;
+            if ((combination & 1) != 0) bits |= (int)SnesButton.Left;
+            if ((combination & 2) != 0) bits |= (int)SnesButton.Right;
+            if ((combination & 4) != 0) bits |= (int)SnesButton.Up;
+            if ((combination & 8) != 0) bits |= (int)SnesButton.Down;
+            foreach (int others in new[] { 0, 0xffff & ~directionBits, 0x5555 & ~directionBits })
+                heldInputs.Add(bits | others);
+        }
         foreach (bool left in new[] { false, true })
-        for (int input = 0; input <= ushort.MaxValue; input++)
+        foreach (int input in heldInputs)
         {
             samus.Pose = left ? SamusPoseIds.DraygonGrabbedMovingLeftPose : SamusPoseIds.DraygonGrabbedMovingRightPose;
             samus.XPosition = samus.YPosition = 512;
@@ -160,27 +180,27 @@ internal static partial class Program
             AssertEqual(unchecked((ushort)(grapple.RopeStartY - Word(0x9bc136 + direction * 2))), samus.YPosition, "Locked connection body Y ignores graphics correction");
         }
         AssertEqual(54, locked, "All six locked directions in three source movement families at three boundaries");
-        VerifyGrappleOriginXSelection(rom);
-        VerifyGrappleOriginDefaultYSelection(rom);
-        VerifyGrappleOriginRunningYSelection(rom);
-        Console.WriteLine("Grapple firing definitions: 70 native words, loud non-catalog origin rejection, 655360 launch/late-origin cases, 131072 held launches, 200 trajectory frames with flare overrides and 54 locked snaps pass; authored mechanics reads forbidden.");
+        Suite(nameof(VerifyGrappleOriginXSelection), () => VerifyGrappleOriginXSelection(rom));
+        Suite(nameof(VerifyGrappleOriginDefaultYSelection), () => VerifyGrappleOriginDefaultYSelection(rom));
+        Suite(nameof(VerifyGrappleOriginRunningYSelection), () => VerifyGrappleOriginRunningYSelection(rom));
+        Console.WriteLine("Grapple firing definitions: 70 native words, loud non-catalog origin rejection, every direction and aiming pose with every signed graphics-Y class and position wrap boundary, every held direction combination, 200 trajectory frames with flare overrides and 54 locked snaps pass; authored mechanics reads forbidden.");
     }
 
     private static void VerifyGrappleOriginXSelection(SuperMetroidAddressSpace rom)
     {
-        VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginXReferenceAddress,
-            false, origin => origin.X, "default X alias");
-        VerifyGrappleOriginField(rom, GrappleFiringDefinitions.RunningOriginXReferenceAddress,
-            true, origin => origin.X, "running X alias");
+        Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginXReferenceAddress,
+            false, origin => origin.X, "default X alias"));
+        Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.RunningOriginXReferenceAddress,
+            true, origin => origin.X, "running X alias"));
     }
 
     private static void VerifyGrappleOriginDefaultYSelection(SuperMetroidAddressSpace rom) =>
-        VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginYReferenceAddress,
-            false, origin => origin.Y, "default Y");
+        Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginYReferenceAddress,
+            false, origin => origin.Y, "default Y"));
 
     private static void VerifyGrappleOriginRunningYSelection(SuperMetroidAddressSpace rom) =>
-        VerifyGrappleOriginField(rom, GrappleFiringDefinitions.RunningOriginYReferenceAddress,
-            true, origin => origin.Y, "running Y");
+        Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.RunningOriginYReferenceAddress,
+            true, origin => origin.Y, "running Y"));
 
     private static void VerifyGrappleOriginField(SuperMetroidAddressSpace rom, int address,
         bool running, Func<(short X, short Y), short> select, string label)
@@ -197,16 +217,16 @@ internal static partial class Program
                 $"Grapple origin {label} bounds");
     }
     private static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
-        VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
-            direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).XVelocity), "X velocity");
+        Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
+            direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).XVelocity), "X velocity"));
 
     private static void VerifyGrappleLaunchYSelection(SuperMetroidAddressSpace rom) =>
-        VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.YVelocityReferenceAddress,
-            direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).YVelocity), "Y velocity");
+        Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.YVelocityReferenceAddress,
+            direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).YVelocity), "Y velocity"));
 
     private static void VerifyGrappleLaunchAngleAlgorithm(SuperMetroidAddressSpace rom) =>
-        VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.AngleReferenceAddress,
-            direction => GrappleFiringDefinitions.Launch(direction).Angle, "angle");
+        Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.AngleReferenceAddress,
+            direction => GrappleFiringDefinitions.Launch(direction).Angle, "angle"));
 
     private static void VerifyGrappleLaunchField(SuperMetroidAddressSpace rom, int source,
         Func<byte, ushort> select, string label)

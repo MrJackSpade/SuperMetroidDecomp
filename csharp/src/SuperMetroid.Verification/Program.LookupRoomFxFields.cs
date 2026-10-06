@@ -36,19 +36,19 @@ internal static partial class Program
     private static void VerifyRoomFxFields(SuperMetroidAddressSpace rom,
         SortedDictionary<ushort, RoomFxRecordDefinition> originals)
     {
-        VerifyRoomFxIdentities(originals);
-        VerifyRoomFxDoorPointer(rom);
-        VerifyRoomFxBaseYPosition(rom);
-        VerifyRoomFxTargetYPosition(rom);
-        VerifyRoomFxPackedYVelocity(rom);
-        VerifyRoomFxTimer(rom);
-        VerifyRoomFxType(rom);
-        VerifyRoomFxDefaultLayerBlend(rom);
-        VerifyRoomFxLayer3LayerBlend(rom);
-        VerifyRoomFxLiquidOptions(rom);
-        VerifyRoomFxPaletteFxBitset(rom);
-        VerifyRoomFxAnimatedTileBitset(rom);
-        VerifyRoomFxPaletteBlend(rom);
+        Suite(nameof(VerifyRoomFxIdentities), () => VerifyRoomFxIdentities(originals));
+        Suite(nameof(VerifyRoomFxDoorPointer), () => VerifyRoomFxDoorPointer(rom));
+        Suite(nameof(VerifyRoomFxBaseYPosition), () => VerifyRoomFxBaseYPosition(rom));
+        Suite(nameof(VerifyRoomFxTargetYPosition), () => VerifyRoomFxTargetYPosition(rom));
+        Suite(nameof(VerifyRoomFxPackedYVelocity), () => VerifyRoomFxPackedYVelocity(rom));
+        Suite(nameof(VerifyRoomFxTimer), () => VerifyRoomFxTimer(rom));
+        Suite(nameof(VerifyRoomFxType), () => VerifyRoomFxType(rom));
+        Suite(nameof(VerifyRoomFxDefaultLayerBlend), () => VerifyRoomFxDefaultLayerBlend(rom));
+        Suite(nameof(VerifyRoomFxLayer3LayerBlend), () => VerifyRoomFxLayer3LayerBlend(rom));
+        Suite(nameof(VerifyRoomFxLiquidOptions), () => VerifyRoomFxLiquidOptions(rom));
+        Suite(nameof(VerifyRoomFxPaletteFxBitset), () => VerifyRoomFxPaletteFxBitset(rom));
+        Suite(nameof(VerifyRoomFxAnimatedTileBitset), () => VerifyRoomFxAnimatedTileBitset(rom));
+        Suite(nameof(VerifyRoomFxPaletteBlend), () => VerifyRoomFxPaletteBlend(rom));
     }
 
     private static void VerifyRoomFxIdentities(SortedDictionary<ushort, RoomFxRecordDefinition> originals)

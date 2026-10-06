@@ -16,7 +16,7 @@ internal static partial class Program
     /// </summary>
     static void VerifyPermanentCollectibles()
     {
-        VerifyMorphBallPickupCollision();
+        Suite(nameof(VerifyMorphBallPickupCollision), () => VerifyMorphBallPickupCollision());
         var bus = new TestAddressSpace();
         SeedCollectibleRom(bus);
         // Full-table audit: unused native entries still allocate a deleting PLM,
@@ -217,9 +217,9 @@ internal static partial class Program
         AssertEqual(0xc123, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).LevelWord,
             "collected shot block restores concealed collision word");
 
-        VerifyCollectedItemSaveRoundTrip();
-        VerifyPermanentItemMessageBox();
-        VerifySuitPickupTransformation();
+        Suite(nameof(VerifyCollectedItemSaveRoundTrip), () => VerifyCollectedItemSaveRoundTrip());
+        Suite(nameof(VerifyPermanentItemMessageBox), () => VerifyPermanentItemMessageBox());
+        Suite(nameof(VerifySuitPickupTransformation), () => VerifySuitPickupTransformation());
         Console.WriteLine(
             "  Permanent collectibles: 63 ROM headers, all 21 effects, three presentations, SRAM bits, bank-$85 messages, and suit transformations agree.");
     }
@@ -653,7 +653,7 @@ internal static partial class Program
         WriteWord(bus, 0x9b9800, 0x7c00);
         SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
-        VerifySuitPickupHistory(bus, suitColors);
+        Suite(nameof(VerifySuitPickupHistory), () => VerifySuitPickupHistory(bus, suitColors));
         var cgram = new SnesCgram();
         var samus = new SamusState
         {

@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyStokeInstructionProgramDefinitions()
     {
-        VerifyStokeInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyStokeInstructionProgramDefinitions), () => VerifyStokeInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyStokeInstructionProgramDefinitions(
@@ -42,32 +42,32 @@ internal static partial class Program
 
         var guard = new StokeInstructionProgramReadGuard(rom);
         HashSet<ushort> observedFrames = [];
-        VerifyWalking(
+        Suite(nameof(VerifyWalking), () => VerifyWalking(
             StokeInstructionProgramDefinitions.MovingLeft,
             StokeDirection.Left,
             StokeAiFunction.MovingLeft,
             0x8938,
-            "left");
-        VerifyWalking(
+            "left"));
+        Suite(nameof(VerifyWalking), () => VerifyWalking(
             StokeInstructionProgramDefinitions.MovingRight,
             StokeDirection.Right,
             StokeAiFunction.MovingRight,
             0x895e,
-            "right");
-        VerifyAttack(
+            "right"));
+        Suite(nameof(VerifyAttack), () => VerifyAttack(
             StokeInstructionProgramDefinitions.AttackingLeft,
             StokeDirection.Left,
             StokeAiFunction.MovingLeft,
             0x8938,
             expectedProjectileDirection: 0,
-            direction: "left");
-        VerifyAttack(
+            direction: "left"));
+        Suite(nameof(VerifyAttack), () => VerifyAttack(
             StokeInstructionProgramDefinitions.AttackingRight,
             StokeDirection.Right,
             StokeAiFunction.MovingRight,
             0x895e,
             expectedProjectileDirection: 1,
-            direction: "right");
+            direction: "right"));
 
         AssertEqual(10, observedFrames.Count, "all Stoke walking/attack frames execute");
         foreach (ushort frame in new ushort[]

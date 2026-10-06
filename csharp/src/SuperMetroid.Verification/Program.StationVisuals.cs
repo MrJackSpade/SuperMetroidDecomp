@@ -74,8 +74,8 @@ internal static partial class Program
 
         var gameplayBus = new TestAddressSpace();
         SeedRoomPlmPopulationRom(gameplayBus);
-        VerifyOtherStationFamilies(gameplayBus, edited);
-        VerifyStationVisualInstallation(rom);
+        Suite(nameof(VerifyOtherStationFamilies), () => VerifyOtherStationFamilies(gameplayBus, edited));
+        Suite(nameof(VerifyStationVisualInstallation), () => VerifyStationVisualInstallation(rom));
     }
 
     private static void VerifyStationVisualInstallation(SuperMetroidAddressSpace rom)

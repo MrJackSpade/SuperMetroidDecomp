@@ -9,9 +9,9 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Door header oracle revision");
-        VerifyRetailDoorHeaders(bus);
-        VerifyRetailDoorListMapping(bus);
-        VerifyCompiledDoorListCollision();
+        Suite(nameof(VerifyRetailDoorHeaders), () => VerifyRetailDoorHeaders(bus));
+        Suite(nameof(VerifyRetailDoorListMapping), () => VerifyRetailDoorListMapping(bus));
+        Suite(nameof(VerifyCompiledDoorListCollision), () => VerifyCompiledDoorListCollision());
         Console.WriteLine("Doors: all597 physical headers, full elevator overlap and262 room lists match original ROM; collision resolves without native reads.");
     }
 

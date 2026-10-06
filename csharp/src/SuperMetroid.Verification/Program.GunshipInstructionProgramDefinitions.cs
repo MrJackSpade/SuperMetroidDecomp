@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyGunshipInstructionProgramDefinitions()
     {
-        VerifyGunshipInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyGunshipInstructionProgramDefinitions), () => VerifyGunshipInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyGunshipInstructionProgramDefinitions(
@@ -28,48 +28,48 @@ internal static partial class Program
         }
 
         var guard = new GunshipInstructionReadGuard(rom);
-        VerifyProgram(
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             GunshipInstructionProgramDefinitions.EntrancePadOpening,
             GunshipEnemyDefinitions.BottomEntrance,
             frames: 123,
             expectedCursor: 0xa5ea,
             expectedTimer: 4,
             expectedSpritemap: 0xaf9d,
-            "opening pad reaches its open loop");
-        VerifyProgram(
+            "opening pad reaches its open loop"));
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             GunshipInstructionProgramDefinitions.EntrancePadClosing,
             GunshipEnemyDefinitions.BottomEntrance,
             frames: 79,
             expectedCursor: 0xa612,
             expectedTimer: 8,
             expectedSpritemap: 0xafdd,
-            "closing pad falls through to its closed loop");
-        VerifyProgram(
+            "closing pad falls through to its closed loop"));
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             GunshipInstructionProgramDefinitions.BottomEntrancePad,
             GunshipEnemyDefinitions.BottomEntrance,
             frames: 9,
             expectedCursor: 0xa612,
             expectedTimer: 8,
             expectedSpritemap: 0xafdd,
-            "closed pad loops");
-        VerifyProgram(
+            "closed pad loops"));
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             GunshipInstructionProgramDefinitions.TopHull,
             GunshipEnemyDefinitions.Top,
             frames: 2,
             expectedCursor: 0xa61a,
             expectedTimer: 0,
             expectedSpritemap: 0xad81,
-            "top hull sleeps on its static frame");
-        VerifyProgram(
+            "top hull sleeps on its static frame"));
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             GunshipInstructionProgramDefinitions.BottomHull,
             GunshipEnemyDefinitions.BottomEntrance,
             frames: 2,
             expectedCursor: 0xa620,
             expectedTimer: 0,
             expectedSpritemap: 0xaddd,
-            "bottom hull sleeps on its static frame");
+            "bottom hull sleeps on its static frame"));
 
-        VerifyInitializers();
+        Suite(nameof(VerifyInitializers), () => VerifyInitializers());
 
         AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled gunship visuals require no cartridge reads");
         for (int index = 0;

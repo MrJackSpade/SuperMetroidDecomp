@@ -26,9 +26,9 @@ internal static partial class Program
                 $"Dragon idle mapping {selector}");
         }
 
-        VerifyAllDragonAnimationInstalls();
-        VerifyLiveDragonAnimationHandoffs(rom, facingLeft: false);
-        VerifyLiveDragonAnimationHandoffs(rom, facingLeft: true);
+        Suite(nameof(VerifyAllDragonAnimationInstalls), () => VerifyAllDragonAnimationInstalls());
+        Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(rom, facingLeft: false));
+        Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(rom, facingLeft: true));
 
         AssertThrows<InvalidDataException>(
             () => DragonAnimationDefinitions.InstructionList(

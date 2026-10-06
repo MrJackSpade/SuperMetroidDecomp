@@ -49,8 +49,8 @@ internal static partial class Program
             () => new RoomPlmEscapeGateVisualCatalog(entries),
             "escape-gate catalog rejects collision bits in a visual word");
         closed.Blocks[0] = stockClosed;
-        VerifyEscapeGateLiveVisual(edited);
-        VerifyEscapeGateVisualInstallation(rom);
+        Suite(nameof(VerifyEscapeGateLiveVisual), () => VerifyEscapeGateLiveVisual(edited));
+        Suite(nameof(VerifyEscapeGateVisualInstallation), () => VerifyEscapeGateVisualInstallation(rom));
         Console.WriteLine(
             "Escape-gate visuals: closed/closing edits preserve physical collision, installed overrides survive refresh, and invalid content fails loudly.");
     }

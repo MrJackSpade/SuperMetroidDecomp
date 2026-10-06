@@ -50,7 +50,7 @@ internal static partial class Program
         AssertEqual(0x23, IntroCinematicRomData.Objects.BabyCry1.Value,
             "Baby cry one sequence");
 
-        VerifyCinematicCodePointerCatalog();
+        Suite(nameof(VerifyCinematicCodePointerCatalog), () => VerifyCinematicCodePointerCatalog());
 
         Console.WriteLine(
             "  Intro ROM data: resources, VRAM ranges, tilemaps, palette spans, text " +

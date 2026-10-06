@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyMagdolliteInstructionProgramDefinitions()
     {
-        VerifyMagdolliteInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyMagdolliteInstructionProgramDefinitions), () => VerifyMagdolliteInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyMagdolliteInstructionProgramDefinitions(
@@ -28,14 +28,14 @@ internal static partial class Program
         }
 
         var guard = new MagdolliteInstructionProgramReadGuard(rom);
-        VerifyIdle(MagdolliteInstructionProgramDefinitions.LeftIdle, "left");
-        VerifyIdle(MagdolliteInstructionProgramDefinitions.RightIdle, "right");
-        VerifyThrow(MagdolliteInstructionProgramDefinitions.LeftThrow, "left");
-        VerifyThrow(MagdolliteInstructionProgramDefinitions.RightThrow, "right");
-        VerifySubmerge(MagdolliteInstructionProgramDefinitions.LeftSubmerge, "left");
-        VerifySubmerge(MagdolliteInstructionProgramDefinitions.RightSubmerge, "right");
-        VerifyEmerge(MagdolliteInstructionProgramDefinitions.LeftEmerge, "left");
-        VerifyEmerge(MagdolliteInstructionProgramDefinitions.RightEmerge, "right");
+        Suite(nameof(VerifyIdle), () => VerifyIdle(MagdolliteInstructionProgramDefinitions.LeftIdle, "left"));
+        Suite(nameof(VerifyIdle), () => VerifyIdle(MagdolliteInstructionProgramDefinitions.RightIdle, "right"));
+        Suite(nameof(VerifyThrow), () => VerifyThrow(MagdolliteInstructionProgramDefinitions.LeftThrow, "left"));
+        Suite(nameof(VerifyThrow), () => VerifyThrow(MagdolliteInstructionProgramDefinitions.RightThrow, "right"));
+        Suite(nameof(VerifySubmerge), () => VerifySubmerge(MagdolliteInstructionProgramDefinitions.LeftSubmerge, "left"));
+        Suite(nameof(VerifySubmerge), () => VerifySubmerge(MagdolliteInstructionProgramDefinitions.RightSubmerge, "right"));
+        Suite(nameof(VerifyEmerge), () => VerifyEmerge(MagdolliteInstructionProgramDefinitions.LeftEmerge, "left"));
+        Suite(nameof(VerifyEmerge), () => VerifyEmerge(MagdolliteInstructionProgramDefinitions.RightEmerge, "right"));
 
         ushort[] pillarPrograms =
         [
@@ -50,10 +50,10 @@ internal static partial class Program
         ];
         for (int phase = 0; phase < pillarPrograms.Length; phase++)
             VerifyStaticProgram(pillarPrograms[phase], MagdollitePart.RisingBody, $"pillar {phase}");
-        VerifyStaticProgram(
+        Suite(nameof(VerifyStaticProgram), () => VerifyStaticProgram(
             MagdolliteInstructionProgramDefinitions.PillarCap,
             MagdollitePart.TrackingOverlay,
-            "pillar cap");
+            "pillar cap"));
 
         for (int index = 0;
              index < MagdolliteInstructionProgramDefinitions.PresentationWordCount;

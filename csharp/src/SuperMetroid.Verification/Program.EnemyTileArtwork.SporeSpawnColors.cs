@@ -13,19 +13,19 @@ internal static partial class Program
     {
         SporeSpawnColorCatalog native = stock.SporeSpawnColors ??
             throw new InvalidDataException("Installed enemy art has no Spore Spawn colors.");
-        VerifyFrame(SporeSpawnColorRomData.SporeSource, native.ResolveSpore,
-            "spore initialization");
-        VerifyFrames(SporeSpawnColorRomData.HealthSource,
-            SporeSpawnColorRomData.HealthFrameCount, native.ResolveHealth, "health");
-        VerifyFrames(SporeSpawnColorRomData.DeathSpriteSource,
+        Suite(nameof(VerifyFrame), () => VerifyFrame(SporeSpawnColorRomData.SporeSource, native.ResolveSpore,
+            "spore initialization"));
+        Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnColorRomData.HealthSource,
+            SporeSpawnColorRomData.HealthFrameCount, native.ResolveHealth, "health"));
+        Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnColorRomData.DeathSpriteSource,
             SporeSpawnColorRomData.DeathSpriteFrameCount, native.ResolveDeathSprite,
-            "death sprite");
-        VerifyFrames(SporeSpawnColorRomData.DeathLevelSource,
+            "death sprite"));
+        Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnColorRomData.DeathLevelSource,
             SporeSpawnColorRomData.DeathSceneFrameCount, native.ResolveDeathLevel,
-            "death level");
-        VerifyFrames(SporeSpawnColorRomData.DeathBackgroundSource,
+            "death level"));
+        Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnColorRomData.DeathBackgroundSource,
             SporeSpawnColorRomData.DeathSceneFrameCount, native.ResolveDeathBackground,
-            "death background");
+            "death background"));
 
         string file = Path.Combine(stockDirectory, SporeSpawnColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);

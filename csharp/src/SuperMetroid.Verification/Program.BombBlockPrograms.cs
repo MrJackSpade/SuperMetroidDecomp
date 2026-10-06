@@ -126,9 +126,9 @@ internal static partial class Program
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        VerifyBombBlockControlMapping(rom);
-        VerifyBombBlockDrawMapping(rom);
-        VerifyBombBlockSoundMapping(rom);
+        Suite(nameof(VerifyBombBlockControlMapping), () => VerifyBombBlockControlMapping(rom));
+        Suite(nameof(VerifyBombBlockDrawMapping), () => VerifyBombBlockDrawMapping(rom));
+        Suite(nameof(VerifyBombBlockSoundMapping), () => VerifyBombBlockSoundMapping(rom));
         var forbidden = new HashSet<int>();
         foreach (ushort address in RoomPlmBombBlockProgramDefinitions.MechanicsWordAddresses())
         {
@@ -138,7 +138,7 @@ internal static partial class Program
         foreach (ushort address in RoomPlmBombBlockProgramDefinitions.MechanicsByteAddresses())
             forbidden.Add(0x840000 | address);
 
-        VerifyBombBlockRestorationMapping(rom);
+        Suite(nameof(VerifyBombBlockRestorationMapping), () => VerifyBombBlockRestorationMapping(rom));
         for (int address = 0xa4c7; address < 0xa4e7; address++)
             forbidden.Add(0x840000 | address);
 
@@ -189,9 +189,9 @@ internal static partial class Program
                 $"bomb BTS {behavior}/{producer} completes its native timeline");
         }
 
-        VerifyBombBlockVisualSeparation(rom, forbidden);
-        VerifyLinkedRestoreVisualInstallation(rom);
-        VerifyLinkedRestoreVisualSeparation(rom, forbidden, bomb: true);
+        Suite(nameof(VerifyBombBlockVisualSeparation), () => VerifyBombBlockVisualSeparation(rom, forbidden));
+        Suite(nameof(VerifyLinkedRestoreVisualInstallation), () => VerifyLinkedRestoreVisualInstallation(rom));
+        Suite(nameof(VerifyLinkedRestoreVisualSeparation), () => VerifyLinkedRestoreVisualSeparation(rom, forbidden, bomb: true));
 
         Console.WriteLine($"Bomb-block PLMs: 88 control words, 16 sounds, 3 restoration lists, and all 24 collision/bomb/power-bomb timelines match ROM with source reads forbidden.");
     }

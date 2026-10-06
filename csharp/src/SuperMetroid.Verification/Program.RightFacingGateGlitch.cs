@@ -21,8 +21,8 @@ internal static partial class Program
 
     private static void VerifyRightFacingGateGlitches()
     {
-        VerifyPinkBrinstarRightFacingGateGlitch();
-        VerifyEastTunnelFrozenEnemyGateGlitch();
+        Suite(nameof(VerifyPinkBrinstarRightFacingGateGlitch), () => VerifyPinkBrinstarRightFacingGateGlitch());
+        Suite(nameof(VerifyEastTunnelFrozenEnemyGateGlitch), () => VerifyEastTunnelFrozenEnemyGateGlitch());
     }
 
     private static void VerifyPinkBrinstarRightFacingGateGlitch()

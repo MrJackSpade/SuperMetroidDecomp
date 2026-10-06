@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyEscapeDachoraInstructionProgramDefinitions()
     {
-        VerifyEscapeDachoraInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyEscapeDachoraInstructionProgramDefinitions), () => VerifyEscapeDachoraInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyEscapeDachoraInstructionProgramDefinitions(

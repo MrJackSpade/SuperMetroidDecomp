@@ -12,7 +12,7 @@ internal static partial class Program
 {
     private static void VerifyLookupStream4ForegroundCadence(CartridgeImportAddressSpace rom)
     {
-        VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(rom);
+        Suite(nameof(VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions), () => VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(rom));
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         ushort nativeProgram = Word(0x8de1ca);
         AssertEqual(nativeProgram, ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ProgramStart, "Native foreground entry");
@@ -114,7 +114,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream4TitleAmbientMechanics(CartridgeImportAddressSpace rom)
     {
-        VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(rom);
+        Suite(nameof(VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions), () => VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(rom));
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         int ticks = 0;
         foreach (var definition in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
@@ -167,7 +167,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream4TitleAmbientComplete(CartridgeImportAddressSpace rom)
     {
-        VerifyLookupStream4TitleAmbientColors(rom);
+        Suite(nameof(VerifyLookupStream4TitleAmbientColors), () => VerifyLookupStream4TitleAmbientColors(rom));
         byte[] json = TitlePaletteExtractor.Extract(rom);
         TitlePaletteDocument Document() => JsonSerializer.Deserialize<TitlePaletteDocument>(json,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
@@ -395,7 +395,7 @@ internal static partial class Program
             AssertEqual(Word(0xE1B2 + owner * 4), all[owner].ProgramStart, "native text definition target");
             AssertEqual(Word(all[owner].ProgramStart + 2), all[owner].ColorByteIndex, "native text color destination");
         }
-        VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(rom);
+        Suite(nameof(VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions), () => VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(rom));
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
         var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation)
@@ -665,7 +665,7 @@ internal static partial class Program
         AssertEqual(112, colors, "native presentation words remain independently owned");
         foreach (int index in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = all[index], "owner selector bounds");
-        VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(rom);
+        Suite(nameof(VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions), () => VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(rom));
         Console.WriteLine("Maridia palette definitions: three native programs,44 mechanics words,112 color identities and actual complete loops pass; timing/destination/group inputs remain required.");
     }
     private static void VerifyLookupStream4EndingShake(ISnesAddressSpace rom)
@@ -1165,7 +1165,7 @@ internal static partial class Program
     private static void VerifyLookupStream4TailRestGeometry(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        VerifyLookupStream4TailAngles(rom);
+        Suite(nameof(VerifyLookupStream4TailAngles), () => VerifyLookupStream4TailAngles(rom));
         for (int link = 0; link < 7; link++)
             AssertEqual(Word(0xa6d37c + link * 2), RidleyTailDefinitions.RestDistance(link), "Shared tail rest geometry preserves the native initial separation");
         for (int link = 1; link < 7; link++)
@@ -1430,7 +1430,7 @@ internal static partial class Program
     }
     private static void VerifyLookupStream4HudAutoComplete(ISnesAddressSpace rom)
     {
-        VerifyLookupStream4HudAutoCells(rom);
+        Suite(nameof(VerifyLookupStream4HudAutoCells), () => VerifyLookupStream4HudAutoCells(rom));
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         static ushort Word(GameplayHudCell cell)=>SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,
             (cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
@@ -1960,14 +1960,14 @@ internal static partial class Program
     }
     private static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
-        VerifyLookupStream4EnemyNameRecords(rom);
-        VerifyLookupStream4RidleyFrameDomain(rom);
-        VerifyLookupStream4BeamColorRelations(rom);
-        VerifyLookupStream4RidleyMovementPolicy(rom);
-        VerifyLookupStream4TailAngles(rom);
-        VerifyLookupStream4TailTerrain(rom);
-        VerifyLookupStream4MessageDispatch(rom);
-        VerifyLookupStream4NoticeRegions(rom);
+        Suite(nameof(VerifyLookupStream4EnemyNameRecords), () => VerifyLookupStream4EnemyNameRecords(rom));
+        Suite(nameof(VerifyLookupStream4RidleyFrameDomain), () => VerifyLookupStream4RidleyFrameDomain(rom));
+        Suite(nameof(VerifyLookupStream4BeamColorRelations), () => VerifyLookupStream4BeamColorRelations(rom));
+        Suite(nameof(VerifyLookupStream4RidleyMovementPolicy), () => VerifyLookupStream4RidleyMovementPolicy(rom));
+        Suite(nameof(VerifyLookupStream4TailAngles), () => VerifyLookupStream4TailAngles(rom));
+        Suite(nameof(VerifyLookupStream4TailTerrain), () => VerifyLookupStream4TailTerrain(rom));
+        Suite(nameof(VerifyLookupStream4MessageDispatch), () => VerifyLookupStream4MessageDispatch(rom));
+        Suite(nameof(VerifyLookupStream4NoticeRegions), () => VerifyLookupStream4NoticeRegions(rom));
         for (ushort offset = 0; offset <= 24; offset += 8)
         {
             var hole = BotwoonNavigationDefinitions.HoleForByteOffset(offset);
@@ -1978,18 +1978,18 @@ internal static partial class Program
             AssertEqual((ushort)(Native(0) + 4), hole.TargetX, "Botwoon named hole center X");
             AssertEqual((ushort)(Native(4) + 4), hole.TargetY, "Botwoon named hole center Y");
         }
-        VerifyLookupStream4DarkLightningColors(rom);
-        VerifyLookupStream4LightningColors(rom);
-        VerifyLookupStream4BotwoonColors(rom);
-        VerifyLookupStream4DraygonColors(rom);
-        VerifyLookupStream4KzanCeresPrograms(rom);
-        VerifyLookupStream4GeometryLayout(rom);
-        VerifyLookupStream4PowerBombColors(rom);
-        VerifyLookupStream4SporeAndFly(rom);
-        VerifyLookupStream4Burial(rom);
-        VerifyLookupStream4StatueColors(rom);
-        VerifyLookupStream4Programs(rom);
-        VerifyLookupStream4ProgramConsumers(rom);
+        Suite(nameof(VerifyLookupStream4DarkLightningColors), () => VerifyLookupStream4DarkLightningColors(rom));
+        Suite(nameof(VerifyLookupStream4LightningColors), () => VerifyLookupStream4LightningColors(rom));
+        Suite(nameof(VerifyLookupStream4BotwoonColors), () => VerifyLookupStream4BotwoonColors(rom));
+        Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
+        Suite(nameof(VerifyLookupStream4KzanCeresPrograms), () => VerifyLookupStream4KzanCeresPrograms(rom));
+        Suite(nameof(VerifyLookupStream4GeometryLayout), () => VerifyLookupStream4GeometryLayout(rom));
+        Suite(nameof(VerifyLookupStream4PowerBombColors), () => VerifyLookupStream4PowerBombColors(rom));
+        Suite(nameof(VerifyLookupStream4SporeAndFly), () => VerifyLookupStream4SporeAndFly(rom));
+        Suite(nameof(VerifyLookupStream4Burial), () => VerifyLookupStream4Burial(rom));
+        Suite(nameof(VerifyLookupStream4StatueColors), () => VerifyLookupStream4StatueColors(rom));
+        Suite(nameof(VerifyLookupStream4Programs), () => VerifyLookupStream4Programs(rom));
+        Suite(nameof(VerifyLookupStream4ProgramConsumers), () => VerifyLookupStream4ProgramConsumers(rom));
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         for (byte theme = 0; theme < RoomTilesetDefinitions.Count; theme++)
         {
@@ -2526,7 +2526,7 @@ internal static partial class Program
         }
         AssertEqual("D35407018D9032B43BC27AE2341FDBE7647C7B87D36E21BBDAB88B65C2DEFAF0",Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(identities)),"Exact ordered native selector-address identity");
         foreach(int invalid in new[]{-1,250,int.MinValue,int.MaxValue})AssertThrows<IndexOutOfRangeException>(()=>DraygonInstructionProgramDefinitions.PresentationWordAddress(invalid),"Original presentation enumeration domain");
-        VerifyDraygonInstructionProgramDefinitions();
+        Suite(nameof(VerifyDraygonInstructionProgramDefinitions), () => VerifyDraygonInstructionProgramDefinitions());
         Console.WriteLine("Draygon presentation layout:250 exact ordered native operand identities/actual selector reads,mechanics separation/domains and existing four-owner reset/IRQ proof pass.");
     }
     private static void VerifyLookupStream4DraygonIntro(ISnesAddressSpace rom)
@@ -2826,7 +2826,7 @@ internal static partial class Program
 
     private static void VerifyLookupStream4DraygonHealth(ISnesAddressSpace rom)
     {
-        VerifyLookupStream4DraygonColors(rom);
+        Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);

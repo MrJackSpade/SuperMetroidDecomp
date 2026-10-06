@@ -10,9 +10,9 @@ internal static partial class Program
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);
         var original = MapArrowPresentation.Load(new MemoryStream(bytes));
-        VerifyMapArrowXSelection(rom, original);
-        VerifyMapArrowYSelection(rom, original);
-        VerifyMapArrowShapeCases(rom);
+        Suite(nameof(VerifyMapArrowXSelection), () => VerifyMapArrowXSelection(rom, original));
+        Suite(nameof(VerifyMapArrowYSelection), () => VerifyMapArrowYSelection(rom, original));
+        Suite(nameof(VerifyMapArrowShapeCases), () => VerifyMapArrowShapeCases(rom));
         var document = JsonSerializer.Deserialize<MapArrowDocument>(bytes,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })!;
         for (int selected = 1; selected <= 4; selected++)

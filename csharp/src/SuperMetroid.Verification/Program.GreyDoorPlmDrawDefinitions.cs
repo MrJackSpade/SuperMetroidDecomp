@@ -9,8 +9,8 @@ internal static partial class Program
 {
     private static void VerifyGreyDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyGreyDoorProgramDefinitions(rom);
-        VerifyBombTorizoGreyDoorProgramDefinitions(rom);
+        Suite(nameof(VerifyGreyDoorProgramDefinitions), () => VerifyGreyDoorProgramDefinitions(rom));
+        Suite(nameof(VerifyBombTorizoGreyDoorProgramDefinitions), () => VerifyBombTorizoGreyDoorProgramDefinitions(rom));
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
@@ -32,9 +32,9 @@ internal static partial class Program
             "grey-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(0xa6d7, 0),
             "stock grey-door visual retains native tile choice");
-        VerifyGreyCapGeometry(rom);
-        VerifyGreyCapCollision(rom);
-        VerifyGreyCapVisuals(rom);
+        Suite(nameof(VerifyGreyCapGeometry), () => VerifyGreyCapGeometry(rom));
+        Suite(nameof(VerifyGreyCapCollision), () => VerifyGreyCapCollision(rom));
+        Suite(nameof(VerifyGreyCapVisuals), () => VerifyGreyCapVisuals(rom));
 
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)
@@ -164,8 +164,8 @@ internal static partial class Program
             }
         }
         editedFrame.Blocks[0] = originalVisual;
-        VerifySharedDoorClearVisual(rom, entries, lists);
-        VerifyGreyDoorVisualInstallation(rom);
+        Suite(nameof(VerifySharedDoorClearVisual), () => VerifySharedDoorClearVisual(rom, entries, lists));
+        Suite(nameof(VerifyGreyDoorVisualInstallation), () => VerifyGreyDoorVisualInstallation(rom));
         Console.WriteLine(
             "  Grey doors: 420 ordinary and 117 Bomb Torizo program bytes, five close/unlock/open/reload paths, 20 physical draws, and editable visual blocks pass with source reads blocked.");
     }
@@ -245,23 +245,23 @@ internal static partial class Program
 
     private static void VerifyGreyDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyGreyProgramControls(rom);
-        VerifyGreyProgramDraws(rom);
-        VerifyGreyProgramTargets(rom);
-        VerifyGreyProgramSounds(rom);
-        VerifyGreyProgramHitCount(rom);
-        VerifyGreyProgramCallback(rom);
+        Suite(nameof(VerifyGreyProgramControls), () => VerifyGreyProgramControls(rom));
+        Suite(nameof(VerifyGreyProgramDraws), () => VerifyGreyProgramDraws(rom));
+        Suite(nameof(VerifyGreyProgramTargets), () => VerifyGreyProgramTargets(rom));
+        Suite(nameof(VerifyGreyProgramSounds), () => VerifyGreyProgramSounds(rom));
+        Suite(nameof(VerifyGreyProgramHitCount), () => VerifyGreyProgramHitCount(rom));
+        Suite(nameof(VerifyGreyProgramCallback), () => VerifyGreyProgramCallback(rom));
     }
 
     private static void VerifyBombTorizoGreyDoorProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyTorizoDoorControls(rom);
-        VerifyTorizoDoorDraws(rom);
-        VerifyTorizoDoorTargets(rom);
-        VerifyTorizoDoorSounds(rom);
-        VerifyTorizoDoorHitCount(rom);
-        VerifyTorizoDoorCallback(rom);
+        Suite(nameof(VerifyTorizoDoorControls), () => VerifyTorizoDoorControls(rom));
+        Suite(nameof(VerifyTorizoDoorDraws), () => VerifyTorizoDoorDraws(rom));
+        Suite(nameof(VerifyTorizoDoorTargets), () => VerifyTorizoDoorTargets(rom));
+        Suite(nameof(VerifyTorizoDoorSounds), () => VerifyTorizoDoorSounds(rom));
+        Suite(nameof(VerifyTorizoDoorHitCount), () => VerifyTorizoDoorHitCount(rom));
+        Suite(nameof(VerifyTorizoDoorCallback), () => VerifyTorizoDoorCallback(rom));
     }
 
     private static void VerifySharedDoorClearVisual(

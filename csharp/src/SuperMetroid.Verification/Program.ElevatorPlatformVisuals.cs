@@ -67,7 +67,7 @@ internal static partial class Program
         AssertEqual((ushort)0x0053, changed.rendered,
             "edited elevator art survives camera streaming");
 
-        VerifyElevatorPlatformVisualInstallation();
+        Suite(nameof(VerifyElevatorPlatformVisualInstallation), () => VerifyElevatorPlatformVisualInstallation());
     }
 
     private static void VerifyElevatorPlatformVisualInstallation()

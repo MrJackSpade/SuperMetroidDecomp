@@ -8,15 +8,15 @@ using SuperMetroid.Core.Rom;
 internal static partial class Program
 {
     private static void VerifyLiquidTileCharacters(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
-        VerifyLiquidTileField(rom, catalog, 0x03ff);
+        Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x03ff));
     private static void VerifyLiquidTilePalettes(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
-        VerifyLiquidTileField(rom, catalog, 0x1c00);
+        Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x1c00));
     private static void VerifyLiquidTilePriority(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
-        VerifyLiquidTileField(rom, catalog, 0x2000);
+        Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x2000));
     private static void VerifyLiquidTileHorizontalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
-        VerifyLiquidTileField(rom, catalog, 0x4000);
+        Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x4000));
     private static void VerifyLiquidTileVerticalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
-        VerifyLiquidTileField(rom, catalog, 0x8000);
+        Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x8000));
 
     private static void VerifyLiquidTileField(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog, int mask)
     {
@@ -78,12 +78,12 @@ internal static partial class Program
 
     private static void VerifyLiquidTilemaps(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
-        VerifyLiquidTileCharacters(rom, stock);
-        VerifyLiquidTilePalettes(rom, stock);
-        VerifyLiquidTilePriority(rom, stock);
-        VerifyLiquidTileHorizontalFlip(rom, stock);
-        VerifyLiquidTileVerticalFlip(rom, stock);
-        VerifyLiquidTilemapDomainAndStorage(rom, stock);
+        Suite(nameof(VerifyLiquidTileCharacters), () => VerifyLiquidTileCharacters(rom, stock));
+        Suite(nameof(VerifyLiquidTilePalettes), () => VerifyLiquidTilePalettes(rom, stock));
+        Suite(nameof(VerifyLiquidTilePriority), () => VerifyLiquidTilePriority(rom, stock));
+        Suite(nameof(VerifyLiquidTileHorizontalFlip), () => VerifyLiquidTileHorizontalFlip(rom, stock));
+        Suite(nameof(VerifyLiquidTileVerticalFlip), () => VerifyLiquidTileVerticalFlip(rom, stock));
+        Suite(nameof(VerifyLiquidTilemapDomainAndStorage), () => VerifyLiquidTilemapDomainAndStorage(rom, stock));
     }
 
     private sealed class LiquidTilemapSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource

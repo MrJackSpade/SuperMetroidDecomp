@@ -67,7 +67,7 @@ internal static partial class Program
     private static void VerifyLinkedRestoreVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
-        VerifyLinkedRestoreStockMapping(rom);
+        Suite(nameof(VerifyLinkedRestoreStockMapping), () => VerifyLinkedRestoreStockMapping(rom));
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "linked-restore-visual-" + Guid.NewGuid().ToString("N")));
         string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +

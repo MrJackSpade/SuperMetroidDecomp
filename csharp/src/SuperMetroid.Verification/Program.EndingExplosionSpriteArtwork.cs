@@ -128,7 +128,7 @@ internal static partial class Program
 
     private static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
     {
-        VerifyEndingExplosionCalculatedParts(bus);
+        Suite(nameof(VerifyEndingExplosionCalculatedParts), () => VerifyEndingExplosionCalculatedParts(bus));
         // Independent original list operands select every distinct visual frame.
         ushort[] operands = [0xeb15, 0xeb19, 0xeb1d, 0xeb21, 0xeb2b, 0xeb2f, 0xeb33, 0xeb37,
             0xeb5f, 0xeb63, 0xeb3f, 0xeb43, 0xeb47, 0xeb53, 0xeb6b, 0xeb8b];
@@ -304,8 +304,8 @@ internal static partial class Program
     private static void VerifyEndingExplosionActorArtwork(GameInstallation installation,
         ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
     {
-        VerifyEndingExplosionPrograms(bus);
-        VerifyEndingExplosionFrameCatalog(bus);
+        Suite(nameof(VerifyEndingExplosionPrograms), () => VerifyEndingExplosionPrograms(bus));
+        Suite(nameof(VerifyEndingExplosionFrameCatalog), () => VerifyEndingExplosionFrameCatalog(bus));
 
         foreach (EndingExplosionSpriteFrameDefinition frame in EndingExplosionSpriteDefinitions.Frames)
         {

@@ -4,7 +4,7 @@ internal static partial class Program
 {
     private static void VerifyHardwareWindows()
     {
-        VerifyWindowRegisterCache();
+        Suite(nameof(VerifyWindowRegisterCache), () => VerifyWindowRegisterCache());
         // Independent truth-table oracle for pinned ppu_getWindowState (ppu.c).
         // Bit index is first*2+second; do not call production's Boolean branches.
         int[] operations = [0b1110, 0b1000, 0b0110, 0b1001];
@@ -36,7 +36,7 @@ internal static partial class Program
         }
         AssertThrows<ArgumentOutOfRangeException>(() => SnesWindowMask.Contains((SnesWindowSelection)16,
             SnesWindowLogic.Or, 0, 0, 0, 0, 0), "window evaluator rejects a packed byte masquerading as one nibble");
-        VerifyPackedWindowRegisters();
+        Suite(nameof(VerifyPackedWindowRegisters), () => VerifyPackedWindowRegisters());
         Console.WriteLine($"Hardware windows: {cases} membership comparisons cover enable/invert, logic, inclusive edges and empty intervals.");
     }
 

@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyNorfairLavaJumperInstructionProgramDefinitions()
     {
-        VerifyNorfairLavaJumperInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyNorfairLavaJumperInstructionProgramDefinitions), () => VerifyNorfairLavaJumperInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyNorfairLavaJumperInstructionProgramDefinitions(

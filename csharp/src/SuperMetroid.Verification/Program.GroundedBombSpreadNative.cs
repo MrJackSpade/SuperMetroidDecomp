@@ -62,8 +62,8 @@ internal static partial class Program
                 }
             }
         }
-        VerifyGroundedSpreadOverlap(bus, reader);
-        VerifyGroundedSpreadAdmission(bus, reader);
+        Suite(nameof(VerifyGroundedSpreadOverlap), () => VerifyGroundedSpreadOverlap(bus, reader));
+        Suite(nameof(VerifyGroundedSpreadAdmission), () => VerifyGroundedSpreadAdmission(bus, reader));
         AssertTrue(reader.ReadLine() is null, "native spread trace has no unconsumed cases");
         Console.WriteLine($"Retail CPU grounded spread: {observations} slot observations match.");
     }

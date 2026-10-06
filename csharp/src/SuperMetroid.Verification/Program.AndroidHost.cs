@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyAndroidHostPolicies()
     {
-        VerifyQueuedPcmSink();
+        Suite(nameof(VerifyQueuedPcmSink), () => VerifyQueuedPcmSink());
         AssertTrue(SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, false, false, true, true), "foreground audio owner runs");
         AssertTrue(!SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, false, false, true, false), "audio interruption gates simulation even with window focus");
         AssertTrue(SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, false, false, false, false), "muted host does not require audio focus");

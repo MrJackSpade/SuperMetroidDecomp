@@ -8,8 +8,8 @@ internal static partial class Program
 {
     private static void VerifyKiHunterAcidSpitInstructionProgramDefinitions()
     {
-        VerifyKiHunterAcidSpitInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyKiHunterAcidSpitInstructionProgramDefinitions), () => VerifyKiHunterAcidSpitInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyKiHunterAcidSpitInstructionProgramDefinitions(
@@ -52,14 +52,14 @@ internal static partial class Program
 
         RoomEnemyProjectileSlot left = Find(RoomEnemyProjectileKind.KiHunterAcidSpitLeft);
         RoomEnemyProjectileSlot right = Find(RoomEnemyProjectileKind.KiHunterAcidSpitRight);
-        VerifyIntroduction(
+        Suite(nameof(VerifyIntroduction), () => VerifyIntroduction(
             left,
             KiHunterAcidSpitInstructionProgramDefinitions.Left,
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Left);
-        VerifyIntroduction(
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Left));
+        Suite(nameof(VerifyIntroduction), () => VerifyIntroduction(
             right,
             KiHunterAcidSpitInstructionProgramDefinitions.Right,
-            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Right);
+            EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Right));
 
         var blocks = new ushort[64];
         Array.Fill(blocks, (ushort)0x8000, 32, 32);

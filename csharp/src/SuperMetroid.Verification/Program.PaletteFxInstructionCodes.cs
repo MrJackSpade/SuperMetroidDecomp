@@ -18,7 +18,7 @@ internal static partial class Program
         AssertPaletteFxCatalog(typeof(PaletteFxPreInstructionCodes), expectedCount: 9);
         AssertPaletteFxCatalog(typeof(PaletteFxInstructionListPointers), expectedCount: 5);
         AssertPaletteFxCatalog(typeof(PaletteFxHeatData), expectedCount: 2, requireMappedPointers: false);
-        VerifyConstructedAudioInstructions();
+        Suite(nameof(VerifyConstructedAudioInstructions), () => VerifyConstructedAudioInstructions());
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -46,49 +46,49 @@ internal static partial class Program
             }
         }
 
-        VerifyBeaconSoundInstruction(bus);
-        VerifyPaletteFxDeleteProgramMechanicsDefinitions(bus);
-        VerifyTitleLogoFadePaletteFxProgramMechanicsDefinitions(bus);
-        VerifyNintendoLogoFadePaletteFxProgramMechanicsDefinitions(bus);
-        VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyCeresCinematicLightPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyCinematicGlowPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyExplodingZebesFadePaletteFxProgramMechanicsDefinitions(bus);
-        VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyZebesExplosionFinalePaletteFxProgramMechanicsDefinitions(bus);
-        VerifyZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions(bus);
-        VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyUnusedCinematicFadePaletteFxProgramMechanicsDefinitions(bus);
-        VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(bus);
-        VerifyPaletteFxHeatInstructionListDefinitions(bus);
-        VerifyPaletteFxHeatProgramMechanicsDefinitions(bus);
-        VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyTourianStatueGreyPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyTorizoBellyPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(bus);
-        VerifyRedBrinstarGlowPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyTourianGlowPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyBeaconPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyTourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyOldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyUpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus);
-        VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions(bus);
+        Suite(nameof(VerifyBeaconSoundInstruction), () => VerifyBeaconSoundInstruction(bus));
+        Suite(nameof(VerifyPaletteFxDeleteProgramMechanicsDefinitions), () => VerifyPaletteFxDeleteProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyTitleLogoFadePaletteFxProgramMechanicsDefinitions), () => VerifyTitleLogoFadePaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyNintendoLogoFadePaletteFxProgramMechanicsDefinitions), () => VerifyNintendoLogoFadePaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions), () => VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyCeresCinematicLightPaletteFxProgramMechanicsDefinitions), () => VerifyCeresCinematicLightPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions), () => VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyCinematicGlowPaletteFxProgramMechanicsDefinitions), () => VerifyCinematicGlowPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyExplodingZebesFadePaletteFxProgramMechanicsDefinitions), () => VerifyExplodingZebesFadePaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions), () => VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyZebesExplosionFinalePaletteFxProgramMechanicsDefinitions), () => VerifyZebesExplosionFinalePaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions), () => VerifyZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions), () => VerifyZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions), () => VerifyZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions), () => VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyUnusedCinematicFadePaletteFxProgramMechanicsDefinitions), () => VerifyUnusedCinematicFadePaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions), () => VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions), () => VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyPaletteFxHeatInstructionListDefinitions), () => VerifyPaletteFxHeatInstructionListDefinitions(bus));
+        Suite(nameof(VerifyPaletteFxHeatProgramMechanicsDefinitions), () => VerifyPaletteFxHeatProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions), () => VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyTourianStatueGreyPaletteFxProgramMechanicsDefinitions), () => VerifyTourianStatueGreyPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyTorizoBellyPaletteFxProgramMechanicsDefinitions), () => VerifyTorizoBellyPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions), () => VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyRedBrinstarGlowPaletteFxProgramMechanicsDefinitions), () => VerifyRedBrinstarGlowPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions), () => VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions), () => VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyTourianGlowPaletteFxProgramMechanicsDefinitions), () => VerifyTourianGlowPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyBeaconPaletteFxProgramMechanicsDefinitions), () => VerifyBeaconPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions), () => VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions), () => VerifyTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyTourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions), () => VerifyTourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyOldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyUpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions), () => VerifyUpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus));
+        Suite(nameof(VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions), () => VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions(bus));
         var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
-        VerifyNorfairHeatPaletteHandshake(guardedHeatBus);
+        Suite(nameof(VerifyNorfairHeatPaletteHandshake), () => VerifyNorfairHeatPaletteHandshake(guardedHeatBus));
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
             "Norfair heat pre-instruction performs no selector-table ROM reads");
-        VerifyNorfairGlowCycles(bus);
-        VerifyExtractedRoomPaletteFxPresentation(bus);
-        VerifyTitleGradientTables(bus);
+        Suite(nameof(VerifyNorfairGlowCycles), () => VerifyNorfairGlowCycles(bus));
+        Suite(nameof(VerifyExtractedRoomPaletteFxPresentation), () => VerifyExtractedRoomPaletteFxPresentation(bus));
+        Suite(nameof(VerifyTitleGradientTables), () => VerifyTitleGradientTables(bus));
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; 48 heat selectors " +
@@ -3633,18 +3633,18 @@ internal static partial class Program
 
     private static void VerifyConstructedAudioInstructions()
     {
-        VerifyConstructedSoundInstruction(
+        Suite(nameof(VerifyConstructedSoundInstruction), () => VerifyConstructedSoundInstruction(
             PaletteFxInstructionCodes.QueueSfx1,
             SoundEffectLibrary.Library1,
-            sound: 0x11);
-        VerifyConstructedSoundInstruction(
+            sound: 0x11));
+        Suite(nameof(VerifyConstructedSoundInstruction), () => VerifyConstructedSoundInstruction(
             PaletteFxInstructionCodes.QueueSfx2,
             SoundEffectLibrary.Library2,
-            sound: 0x22);
-        VerifyConstructedSoundInstruction(
+            sound: 0x22));
+        Suite(nameof(VerifyConstructedSoundInstruction), () => VerifyConstructedSoundInstruction(
             PaletteFxInstructionCodes.QueueSfx3,
             SoundEffectLibrary.Library3,
-            sound: 0x33);
+            sound: 0x33));
 
         (RoomPaletteFxSystem paletteFx, TestAddressSpace bus) =
             CreateSingleAudioInstruction(PaletteFxInstructionCodes.QueueMusic, operand: 0x05);

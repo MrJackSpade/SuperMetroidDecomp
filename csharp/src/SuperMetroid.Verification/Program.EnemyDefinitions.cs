@@ -93,7 +93,7 @@ internal static partial class Program
             () => RoomEnemySpawnNameDefinitions.Get(0),
             "compiled enemy names reject an unrecognized pointer");
 
-        VerifyMotherBrainFallingTubePopulationDefinitions(bus);
+        Suite(nameof(VerifyMotherBrainFallingTubePopulationDefinitions), () => VerifyMotherBrainFallingTubePopulationDefinitions(bus));
 
         Console.WriteLine(
             $"Enemy definitions: {referencedPointers.Count} retail + " +

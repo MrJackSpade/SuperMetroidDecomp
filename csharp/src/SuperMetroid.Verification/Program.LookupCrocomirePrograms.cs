@@ -4,10 +4,10 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     private static void VerifyCrocomireProgramControls(ISnesAddressSpace rom) =>
-        VerifyCrocomireProgramField(rom, false);
+        Suite(nameof(VerifyCrocomireProgramField), () => VerifyCrocomireProgramField(rom, false));
 
     private static void VerifyCrocomireProgramDraws(ISnesAddressSpace rom) =>
-        VerifyCrocomireProgramField(rom, true);
+        Suite(nameof(VerifyCrocomireProgramField), () => VerifyCrocomireProgramField(rom, true));
 
     private static void VerifyCrocomireProgramField(ISnesAddressSpace rom, bool draw)
     {

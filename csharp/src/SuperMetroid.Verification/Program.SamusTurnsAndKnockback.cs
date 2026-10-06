@@ -91,8 +91,8 @@ static void VerifySamusAerialTurnsAndWallJump()
 
     for (int direction = 0; direction < 10; direction++)
     {
-        VerifySelector(jumping: true, jumpSources[direction], jumpTargets[direction], direction);
-        VerifySelector(jumping: false, fallSources[direction], fallTargets[direction], direction);
+        Suite(nameof(VerifySelector), () => VerifySelector(jumping: true, jumpSources[direction], jumpTargets[direction], direction));
+        Suite(nameof(VerifySelector), () => VerifySelector(jumping: false, fallSources[direction], fallTargets[direction], direction));
     }
 
     void VerifySelector(bool jumping, byte sourcePose, byte expectedPose, int shotDirection)

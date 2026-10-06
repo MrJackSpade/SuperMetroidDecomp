@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyCinematicCrystalFlash(string nativeTracePath)
     {
-        VerifyNativeCinematicFlashOwnership(nativeTracePath);
+        Suite(nameof(VerifyNativeCinematicFlashOwnership), () => VerifyNativeCinematicFlashOwnership(nativeTracePath));
 
         // Mother Brain command `$18` preserves the Flash pointer but replaces frame-handler
         // beta with a no-op. The movement owner must therefore remain visible without being

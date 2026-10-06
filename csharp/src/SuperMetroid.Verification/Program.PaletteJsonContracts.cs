@@ -79,8 +79,8 @@ internal static partial class Program
             }
         }
         AssertEqual(0, accepted.Count, "palette compilers must reject ambiguous/corrupt data:\n" + string.Join('\n', accepted));
-        VerifyPaletteContractLegacyOverrides();
-        VerifyPaletteContractVisibleIsolation();
+        Suite(nameof(VerifyPaletteContractLegacyOverrides), () => VerifyPaletteContractLegacyOverrides());
+        Suite(nameof(VerifyPaletteContractVisibleIsolation), () => VerifyPaletteContractVisibleIsolation());
         Console.WriteLine($"PASS palette JSON contracts: 12 formats / 18 selections, {rejected} invalid documents, " +
             "legacy overrides and exact visible palette/animation isolation.");
     }

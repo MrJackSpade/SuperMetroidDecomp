@@ -37,7 +37,7 @@ internal static partial class Program
         AssertEqual(0, writes.Count(command => command.Port == 2 && command.Value == 0x1d),
             "opening flame never sends materialization-library 1D");
         AssertEqual(6, enemies.SoundRequests.Single().MaximumQueued, "opening flame uses native Max6");
-        VerifyPhantoonFlameSound();
+        Suite(nameof(VerifyPhantoonFlameSound), () => VerifyPhantoonFlameSound());
         Console.WriteLine("Phantoon intro flame: actual spawn sends library 3 / 1D / Max6 through the production audio queue.");
     }
 

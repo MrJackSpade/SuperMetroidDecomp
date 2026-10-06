@@ -64,7 +64,7 @@ internal static partial class Program
         AssertEqual(1, stops, "one stop reaches the SPC");
         AssertEqual((byte)0, libraries[2].CurrentSound, "SPC echo ends without footsteps or landing sounds");
         AssertEqual(0, finalPeak, "echo PCM reaches silence after wall cancellation");
-        VerifyEchoFlagOwnership(bus);
+        Suite(nameof(VerifyEchoFlagOwnership), () => VerifyEchoFlagOwnership(bus));
         Console.WriteLine("Speed Booster echo: one start, no premature stop, one wall-cancellation stop, then SPC/PCM silence.");
     }
 

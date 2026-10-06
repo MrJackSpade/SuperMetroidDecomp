@@ -43,7 +43,7 @@ internal static partial class Program
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        VerifySpeedBoosterStockVisualMapping(rom);
+        Suite(nameof(VerifySpeedBoosterStockVisualMapping), () => VerifySpeedBoosterStockVisualMapping(rom));
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "speed-booster-visual-" + Guid.NewGuid().ToString("N")));
         string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +

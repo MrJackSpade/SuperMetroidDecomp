@@ -8,9 +8,9 @@ internal static partial class Program
 {
     private static void VerifyCrystalFlashRuntime()
     {
-        VerifyCrystalFlashRuntimeRoute(capacity: 11, refill: false);
-        VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: true);
-        VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: false);
+        Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 11, refill: false));
+        Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: true));
+        Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: false));
     }
 
     private static void VerifyCrystalFlashRuntimeRoute(ushort capacity, bool refill)

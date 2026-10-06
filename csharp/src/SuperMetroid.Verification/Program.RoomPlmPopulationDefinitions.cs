@@ -8,13 +8,13 @@ internal static partial class Program
     private static void VerifyCompiledRoomPlmPopulationDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyRetailPopulationMappings(rom);
+        Suite(nameof(VerifyRetailPopulationMappings), () => VerifyRetailPopulationMappings(rom));
 
-        VerifyRetailPlmHeaderSetups(rom);
-        VerifyRetailPlmHeaderInstructions(rom);
-        VerifyCompiledRoomPlmHeaderLoad(rom);
-        VerifyCompiledRoomScrollPrograms(rom);
-        VerifyCompiledDynamicCollectibleGraphics(rom);
+        Suite(nameof(VerifyRetailPlmHeaderSetups), () => VerifyRetailPlmHeaderSetups(rom));
+        Suite(nameof(VerifyRetailPlmHeaderInstructions), () => VerifyRetailPlmHeaderInstructions(rom));
+        Suite(nameof(VerifyCompiledRoomPlmHeaderLoad), () => VerifyCompiledRoomPlmHeaderLoad(rom));
+        Suite(nameof(VerifyCompiledRoomScrollPrograms), () => VerifyCompiledRoomScrollPrograms(rom));
+        Suite(nameof(VerifyCompiledDynamicCollectibleGraphics), () => VerifyCompiledDynamicCollectibleGraphics(rom));
         Console.WriteLine("  PLM populations, headers, scroll programs and collectible uploads match ROM.");
     }
 

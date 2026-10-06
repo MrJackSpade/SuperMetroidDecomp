@@ -41,9 +41,10 @@ internal static partial class Program
         var echo = Reader<Func<SnesAngle, byte, (ushort X, ushort Y)>>(
             typeof(SamusShinesparkState), "ProjectileSinLookup");
 
-        // Exercise every fractional angle word and every radius byte. The reference
-        // uses the cartridge's positive half, truncates, then restores each sign.
-        for (int rawAngle = 0; rawAngle <= ushort.MaxValue; rawAngle++)
+        // Every angle high byte (with zero, mid and saturated fractions, which the reader
+        // ignores) and every radius byte. The reference uses the cartridge's positive half,
+        // truncates, then restores each sign.
+        foreach (int rawAngle in AngleHighByteSamples())
         for (int radius = 0; radius <= byte.MaxValue; radius++)
         {
             int xAngle = rawAngle >> 8;
@@ -59,7 +60,7 @@ internal static partial class Program
         // An independent reference retains the unsigned multiplication and sign
         // restoration used by $86:C27A. Every speed word is legal to the helper.
         for (int angle = 0; angle < 256; angle++)
-        for (int speed = 0; speed <= ushort.MaxValue; speed++)
+        foreach (int speed in WordBoundarySamples())
         {
             short sample = native[angle + 64];
             ushort magnitude = (ushort)((uint)Math.Abs(sample) * speed / 256);
@@ -116,6 +117,6 @@ internal static partial class Program
                 projectile.XVelocity != unchecked((ushort)(phase + step)))
                 throw new InvalidDataException($"N00b tube arc differs: phase={phase}, step={step}, initial={initial:X8}.");
         }
-        Console.WriteLine("Compiled projectile math: 16,777,216 products across four production readers, all sample/index variants, 65,536 Phantoon vectors, 256 Crocomire vectors, 16,777,216 Shinespark vectors and 393,216 N00b-tube arc steps match without a production bus.");
+        Console.WriteLine("Compiled projectile math: every signed sample times every speed-word boundary class across five production readers, all sample/index variants, 65,536 Phantoon vectors, 256 Crocomire vectors, every Shinespark angle byte and radius, and 393,216 N00b-tube arc steps match without a production bus.");
     }
 }

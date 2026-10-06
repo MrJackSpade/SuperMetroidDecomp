@@ -15,8 +15,8 @@ internal static partial class Program
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions)!;
         var stock = PauseReserveTankPresentation.Load(new MemoryStream(bytes));
-        VerifyPauseReserveNativeFrames(rom, stock);
-        VerifyPauseReserveStockParts(rom, document);
+        Suite(nameof(VerifyPauseReserveNativeFrames), () => VerifyPauseReserveNativeFrames(rom, stock));
+        Suite(nameof(VerifyPauseReserveStockParts), () => VerifyPauseReserveStockParts(rom, document));
         AssertEqual(0, stock.StoredFrameCount, "stock reserve frames use no stored compositions");
         foreach (var changed in ReserveFrameOracle())
         {

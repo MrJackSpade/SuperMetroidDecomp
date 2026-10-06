@@ -20,7 +20,7 @@ internal static partial class Program
                 AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainFallingTubePopulationDefinitions.Get(pointer),
                     $"nonrecord tube population address {pointer:X4}");
         }
-        VerifyMotherBrainFallingTubePopulationDefinitions(rom);
+        Suite(nameof(VerifyMotherBrainFallingTubePopulationDefinitions), () => VerifyMotherBrainFallingTubePopulationDefinitions(rom));
         Console.WriteLine("Falling-tube layout: five native records, all eight columns, production spawns and independent fixture behavior pass; placement magnitudes and delay remain required.");
     }
     private static void VerifyStream3IntroPaletteRows(ISnesAddressSpace rom)
@@ -190,7 +190,7 @@ internal static partial class Program
         AssertTrue(nativeOperands.SequenceEqual(calculated), "hand-beam body indexed/enumerated order");
         AssertThrows<IndexOutOfRangeException>(() => _ = calculated[-1], "hand-beam body negative operand index");
         AssertThrows<IndexOutOfRangeException>(() => _ = calculated[calculated.Count], "hand-beam body upper operand index");
-        VerifyMotherBrainHandBeamBodyInstructionDefinitions();
+        Suite(nameof(VerifyMotherBrainHandBeamBodyInstructionDefinitions), () => VerifyMotherBrainHandBeamBodyInstructionDefinitions());
         Console.WriteLine("Hand-beam body address layout: fifteen native identities, enumeration and index bounds pass; selected mechanics inputs remain required.");
     }
     private static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
@@ -592,7 +592,7 @@ internal static partial class Program
         AssertTrue(all.Skip(472).Take(expectedAdditional.Length).SequenceEqual(expectedAdditional),
             "enemy additional room-sprite sort and duplicate exclusion preserve named prefix");
         AssertEqual(all.Length, all.Select(frame => (frame.Bank, frame.Pointer)).Distinct().Count(), "enemy frame identities remain unique");
-        VerifyEnemyLegacyOverrides();
+        Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
     private static void VerifyStream3HopperOperandPositions(ISnesAddressSpace rom)
     {
@@ -848,8 +848,8 @@ internal static partial class Program
     }
     private static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
-        VerifyStream3GameOverText(rom);
-        VerifyStream3OptionsGeometry(rom);
+        Suite(nameof(VerifyStream3GameOverText), () => VerifyStream3GameOverText(rom));
+        Suite(nameof(VerifyStream3OptionsGeometry), () => VerifyStream3OptionsGeometry(rom));
         ushort[] expectedDoorCallbacks =
         [
             DoorCodes.DoorCode_Scroll6_Green,
@@ -964,7 +964,7 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainBeamRomData.DirectionForQuadrants(invalid),
                 "stream 3 beam dispatcher preserves span index bounds");
-        VerifyMotherBrainFallingTubeInstructionDefinitions();
+        Suite(nameof(VerifyMotherBrainFallingTubeInstructionDefinitions), () => VerifyMotherBrainFallingTubeInstructionDefinitions());
         IntroCinematicRomData.Palette.Regions[] introRegions =
         [IntroCinematicRomData.Palette.Gameplay, IntroCinematicRomData.Palette.GameplayClear,
          IntroCinematicRomData.Palette.Narration, IntroCinematicRomData.Palette.Discovery];
@@ -1145,24 +1145,24 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => ShaktoolInstructionDefinitions.AttackForSegment(invalid),
                 "stream 3 invalid Shaktool attack segment");
         }
-        VerifyStream3WorkRobotColors(rom);
-        VerifyStream3PickupAndFirefleaPrograms(rom);
-        VerifyStream3ChootControl(rom);
-        VerifyStream3RipperMappings(rom);
-        VerifyStream3UniformEnemyLoops(rom);
-        VerifyStream3MotherBrainFades(rom);
-        VerifyStream3BabyFade(rom);
-        VerifyStream3DrainFades(rom);
-        VerifyStream3ShitroidPulse(rom);
-        VerifyStream3HealthTint(rom);
-        VerifyStream3RecoveryLights(rom);
-        VerifyStream3RoomFlash(rom);
-        VerifyMotherBrainRoomPaletteProgramDefinitions();
-        VerifyStream3CorpseGeometry(rom);
-        VerifyStream3EscapeGeometry(rom);
-        VerifyStream3PainfulWalking(rom);
-        VerifyStream3DeathSelectors(rom);
-        VerifyMotherBrainContactHitboxes();
+        Suite(nameof(VerifyStream3WorkRobotColors), () => VerifyStream3WorkRobotColors(rom));
+        Suite(nameof(VerifyStream3PickupAndFirefleaPrograms), () => VerifyStream3PickupAndFirefleaPrograms(rom));
+        Suite(nameof(VerifyStream3ChootControl), () => VerifyStream3ChootControl(rom));
+        Suite(nameof(VerifyStream3RipperMappings), () => VerifyStream3RipperMappings(rom));
+        Suite(nameof(VerifyStream3UniformEnemyLoops), () => VerifyStream3UniformEnemyLoops(rom));
+        Suite(nameof(VerifyStream3MotherBrainFades), () => VerifyStream3MotherBrainFades(rom));
+        Suite(nameof(VerifyStream3BabyFade), () => VerifyStream3BabyFade(rom));
+        Suite(nameof(VerifyStream3DrainFades), () => VerifyStream3DrainFades(rom));
+        Suite(nameof(VerifyStream3ShitroidPulse), () => VerifyStream3ShitroidPulse(rom));
+        Suite(nameof(VerifyStream3HealthTint), () => VerifyStream3HealthTint(rom));
+        Suite(nameof(VerifyStream3RecoveryLights), () => VerifyStream3RecoveryLights(rom));
+        Suite(nameof(VerifyStream3RoomFlash), () => VerifyStream3RoomFlash(rom));
+        Suite(nameof(VerifyMotherBrainRoomPaletteProgramDefinitions), () => VerifyMotherBrainRoomPaletteProgramDefinitions());
+        Suite(nameof(VerifyStream3CorpseGeometry), () => VerifyStream3CorpseGeometry(rom));
+        Suite(nameof(VerifyStream3EscapeGeometry), () => VerifyStream3EscapeGeometry(rom));
+        Suite(nameof(VerifyStream3PainfulWalking), () => VerifyStream3PainfulWalking(rom));
+        Suite(nameof(VerifyStream3DeathSelectors), () => VerifyStream3DeathSelectors(rom));
+        Suite(nameof(VerifyMotherBrainContactHitboxes), () => VerifyMotherBrainContactHitboxes());
         byte[] grappleSpriteJson = SuperMetroid.AssetExtraction.GrappleSpriteExtractor.Extract(rom);
         var grappleSprites = GrappleSpriteCatalog.Load(new MemoryStream(grappleSpriteJson));
         AssertTrue(typeof(GrappleSpriteCatalog).GetField("segments", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
@@ -1237,7 +1237,7 @@ internal static partial class Program
         }
         string[] expectedCreditRoles = ["staff-heading", "producer-heading", "producer-name", "director-heading", "director-name", "background-designers-heading", "background-designer-1", "background-designer-2", "background-designer-3", "object-designers-heading", "object-designer-1", "object-designer-2", "samus-original-designer-heading", "samus-original-designer-name", "samus-designer-heading", "samus-designer-name", "sound-program-heading", "sound-effects-heading", "sound-programmer-name", "music-composers-heading", "music-composer-1", "music-composer-2", "program-director-heading", "program-director-name", "system-coordinator-heading", "system-coordinator-name", "system-programmer-heading", "system-programmer-name", "samus-programmer-heading", "samus-programmer-name", "event-programmer-heading", "event-programmer-name", "enemy-programmer-heading", "enemy-programmer-name", "map-programmer-heading", "map-programmer-name", "assistant-programmer-heading", "assistant-programmer-name", "coordinators-heading", "coordinator-1", "coordinator-2", "printed-art-work-heading", "printed-art-work-1", "printed-art-work-2", "printed-art-work-3", "printed-art-work-4", "printed-art-work-5", "printed-art-work-6", "special-thanks-heading", "special-thanks-01", "special-thanks-02", "special-thanks-03", "special-thanks-04", "special-thanks-05", "special-thanks-06", "special-thanks-07", "special-thanks-08", "special-thanks-09", "special-thanks-10", "special-thanks-11", "special-thanks-12", "special-thanks-13", "special-thanks-14", "special-thanks-15", "special-thanks-r-and-d", "general-manager-heading", "general-manager-name"];
         AssertTrue(CreditsPresentationDefinitions.Lines.Select(line => line.Id).SequenceEqual(expectedCreditRoles), "stream 3 all credit role identities and order");
-        VerifyCreditsPresentation(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyCreditsPresentation), () => VerifyCreditsPresentation(Path.GetFullPath("Super Metroid.smc")));
         byte[] creditsJson = SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(rom);
         var credits = CreditsPresentation.Load(new MemoryStream(creditsJson));
         AssertTrue(typeof(CreditsPresentation).GetField("fixtureRows", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
@@ -1245,7 +1245,7 @@ internal static partial class Program
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(creditsJson)), credits.ContentIdentity, "stream 3 credits source identity preserved");
         foreach (int invalid in new[] { -1, credits.RowCount, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = credits.GetRow(invalid).Length, "stream 3 calculated credits row bounds");
-        VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.CartridgeImportAddressSpace)rom);
+        Suite(nameof(VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions), () => VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.CartridgeImportAddressSpace)rom));
         foreach (var lightning in CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
         {
             foreach (int invalid in new[] { -1, lightning.Frames.Count, int.MaxValue })
@@ -1255,7 +1255,7 @@ internal static partial class Program
             foreach (int invalid in new[] { -1, 2, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = lightning.MechanicsBytes[invalid], "stream 3 lightning timer bounds");
         }
-        VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.CartridgeImportAddressSpace)rom);
+        Suite(nameof(VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions), () => VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions((SuperMetroid.AssetExtraction.CartridgeImportAddressSpace)rom));
         var escapePrograms = CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All;
         AssertEqual(2, escapePrograms.Count, "stream 3 escape lightning owner count");
         AssertTrue(escapePrograms.Select(program => program.Owner).SequenceEqual(new[] { CrateriaEscapeLightningPaletteOwner.YellowLightning, CrateriaEscapeLightningPaletteOwner.CreBlockPixel }), "stream 3 escape lightning owner order");
@@ -1263,10 +1263,10 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => _ = escapePrograms[invalid], "stream 3 escape lightning owner bounds");
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.Duration(invalid), "stream 3 escape lightning duration bounds");
-        VerifyGrappleConnectionDefinitions((SuperMetroidAddressSpace)rom);
-        VerifyWorkRobotLaserInstructionProgramDefinitions((SuperMetroidAddressSpace)rom);
-        VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom);
-        VerifyMotherBrainTurretInstructionProgramDefinitions((SuperMetroidAddressSpace)rom);
+        Suite(nameof(VerifyGrappleConnectionDefinitions), () => VerifyGrappleConnectionDefinitions((SuperMetroidAddressSpace)rom));
+        Suite(nameof(VerifyWorkRobotLaserInstructionProgramDefinitions), () => VerifyWorkRobotLaserInstructionProgramDefinitions((SuperMetroidAddressSpace)rom));
+        Suite(nameof(VerifyMotherBrainTurretDefinitions), () => VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom));
+        Suite(nameof(VerifyMotherBrainTurretInstructionProgramDefinitions), () => VerifyMotherBrainTurretInstructionProgramDefinitions((SuperMetroidAddressSpace)rom));
         var turretMechanics = new HashSet<int>();
         for (int direction = 0; direction < 8; direction++)
         {
@@ -1429,8 +1429,8 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(invalid), "stream 3 door transfer bounds");
         using var temporary = new MapCatalogTestDirectory();
         SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Extract(rom, temporary.Root, SuperMetroid.AssetExtraction.SupportedCartridge.Sha256);
-        VerifyInstalledMotherBrainEscapeTextArtwork(temporary.Root,
-            SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(temporary.Root, null));
+        Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(temporary.Root,
+            SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(temporary.Root, null)));
     }
 
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
@@ -1507,7 +1507,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainCorpseArtworkDefinitions.VramPageDestination(invalid), "stream 3 corpse destination bounds");
             AssertThrows<IndexOutOfRangeException>(() => _ = transfers[invalid], "stream 3 corpse transfer bounds");
         }
-        VerifyMotherBrainCorpseStockArtwork();
+        Suite(nameof(VerifyMotherBrainCorpseStockArtwork), () => VerifyMotherBrainCorpseStockArtwork());
     }
 
     private static void VerifyStream3ShitroidPulse(ISnesAddressSpace rom)
@@ -2128,8 +2128,8 @@ internal static partial class Program
 
     private static void VerifyStream3UniformEnemyLoops(ISnesAddressSpace rom)
     {
-        VerifyMochtroidInstructionProgramDefinitions();
-        VerifyYellowPipeBugInstructionProgramDefinitions();
+        Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions());
+        Suite(nameof(VerifyYellowPipeBugInstructionProgramDefinitions), () => VerifyYellowPipeBugInstructionProgramDefinitions());
         Check(0xa30000, [0xa745, 0xa759],
             index =>
             {
@@ -2182,7 +2182,7 @@ internal static partial class Program
 
     private static void VerifyStream3RipperMappings(ISnesAddressSpace rom)
     {
-        VerifyRipperInstructionProgramDefinitions();
+        Suite(nameof(VerifyRipperInstructionProgramDefinitions), () => VerifyRipperInstructionProgramDefinitions());
         ushort[] programs = [0xe19b, 0xe1af, 0xe2e0, 0xe2f4, 0xe477, 0xe48b];
         var bytes = new HashSet<int>();
         int wordIndex = 0, visualIndex = 0;
@@ -2989,7 +2989,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => _ = parts[-1], "stream 3 calculated part lower bound");
             AssertThrows<IndexOutOfRangeException>(() => _ = parts[30], "stream 3 calculated part upper bound");
         }
-        VerifyEnemyLegacyOverrides();
+        Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
     private static void VerifyStream3HandBeamLayout()
     {
@@ -3388,7 +3388,7 @@ internal static partial class Program
     private static void VerifyStream3FileSelectSprites(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom);
-        VerifyStream3FileSelectBorders(rom, imported);
+        Suite(nameof(VerifyStream3FileSelectBorders), () => VerifyStream3FileSelectBorders(rom, imported));
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         FileSelectPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
         FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(

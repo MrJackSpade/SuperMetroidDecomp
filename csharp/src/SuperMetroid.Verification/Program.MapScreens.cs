@@ -36,7 +36,7 @@ internal static partial class Program
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
                 AssertTrue(nativeRoom.RenderBackgrounds(scroll, scroll).AsSpan().SequenceEqual(installedRoom.RenderBackgrounds(scroll, scroll)), "fixed room frame remains exact while map scrolls");
         }
-        VerifyInstalledFileSelectMenu(bus, guard, original, original, verifyCapturedRendering: true);
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original, verifyCapturedRendering: true));
         Directory.CreateDirectory(overrides);
         string jsonPath = Path.Combine(overrides, MapScreenDefinitions.FileName);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -70,7 +70,7 @@ internal static partial class Program
         worldAfter = DebuggerObjectGraphSerializer.Deserialize<FileSelectAreaMapGraphics>(captured);
         worldAfter.BindScreens(original.Screens, original.WorldArtwork);
         AssertTrue(worldBefore.RenderBackgrounds().AsSpan().SequenceEqual(worldAfter.RenderBackgrounds()), "restored world replaces stale edited page without changing selected area");
-        VerifyScreenMenuRebinding(bus, guard, original, edited);
+        Suite(nameof(VerifyScreenMenuRebinding), () => VerifyScreenMenuRebinding(bus, guard, original, edited));
         // Test each PNG independently: a combined edit must not mask a disconnected resource.
         File.WriteAllBytes(jsonPath, File.ReadAllBytes(Path.Combine(stock, MapScreenDefinitions.FileName)));
         foreach (var atlas in new[]

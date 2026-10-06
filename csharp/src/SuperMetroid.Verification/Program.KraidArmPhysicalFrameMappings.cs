@@ -48,7 +48,7 @@ internal static partial class Program
     }
     private static HashSet<ushort> VerifyKraidArmPhysicalLayoutSelection(SuperMetroidAddressSpace rom)
     {
-        VerifyKraidArmStationaryPositions(rom);
+        Suite(nameof(VerifyKraidArmStationaryPositions), () => VerifyKraidArmStationaryPositions(rom));
         var expectedPointers = NativeKraidArmPhysicalFrames(rom).ToHashSet();
         HashSet<ushort> hitboxPointers = [];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

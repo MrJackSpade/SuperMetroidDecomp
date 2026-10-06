@@ -9,8 +9,8 @@ internal static partial class Program
         0xe983, 0xe9a5, 0xe9c7, 0xe9e9, 0xea0b, 0xea2d,
         0xea4f, 0xea71, 0xea93, 0xeab5, 0xead7,
     ];
-        VerifyBossOamRoots(rom, 0xa6, expected, BossOamFrameDefinitions.RidleyPointer,
-            index => index == 10 ? 1 : 4);
+        Suite(nameof(VerifyBossOamRoots), () => VerifyBossOamRoots(rom, 0xa6, expected, BossOamFrameDefinitions.RidleyPointer,
+            index => index == 10 ? 1 : 4));
     }
 
     private static void VerifyDraygonOamRootGeometry(SuperMetroidAddressSpace rom)
@@ -26,8 +26,8 @@ internal static partial class Program
         0xa811, 0xa833, 0xa85d, 0xa88f, 0xa8c9, 0xa90b,
     ];
         int[] components = [1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,3,4,5,6,7,8,8];
-        VerifyBossOamRoots(rom, 0xa5, expected, BossOamFrameDefinitions.DraygonPointer,
-            index => components[index % 24]);
+        Suite(nameof(VerifyBossOamRoots), () => VerifyBossOamRoots(rom, 0xa5, expected, BossOamFrameDefinitions.DraygonPointer,
+            index => components[index % 24]));
     }
 
     private static void VerifySporeSpawnOamRootGeometry(SuperMetroidAddressSpace rom)
@@ -36,8 +36,8 @@ internal static partial class Program
         0xee65, 0xee6f, 0xee79, 0xee8b, 0xee9d, 0xeeaf, 0xeec1,
         0xeed3, 0xeee5, 0xef3d, 0xef4f, 0xef61,
     ];
-        VerifyBossOamRoots(rom, 0xa5, expected, BossOamFrameDefinitions.SporeSpawnPointer,
-            index => index < 2 ? 1 : 2);
+        Suite(nameof(VerifyBossOamRoots), () => VerifyBossOamRoots(rom, 0xa5, expected, BossOamFrameDefinitions.SporeSpawnPointer,
+            index => index < 2 ? 1 : 2));
     }
 
     // Expected roots were captured from the published catalog before conversion;

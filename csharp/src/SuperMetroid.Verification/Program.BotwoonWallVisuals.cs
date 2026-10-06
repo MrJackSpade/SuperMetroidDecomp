@@ -39,7 +39,7 @@ internal static partial class Program
             foreach (ushort pointer in new ushort[] {0,0x930e,0x9310,0xffff})
                 AssertThrows<InvalidDataException>(() => catalog.GetWord(pointer, 0, 0), "Botwoon visual pointer domain");
         }
-        VerifyBotwoonWallVisualSeparation(custom);
+        Suite(nameof(VerifyBotwoonWallVisualSeparation), () => VerifyBotwoonWallVisualSeparation(custom));
     }
 
     private static void VerifyBotwoonWallVisualIdMapping()

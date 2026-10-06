@@ -7,16 +7,16 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     private static void VerifyBombTorizoStatueInstructionProgramDefinitions() =>
-        VerifyBombTorizoStatueInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyBombTorizoStatueInstructionProgramDefinitions), () => VerifyBombTorizoStatueInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyBombTorizoStatueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyBombTorizoStatueInitialDurations(rom);
-        VerifyStatueProgramControlLayout(rom);
-        VerifyStatueProgramPresentationLayout();
-        VerifyStatueFragmentVisualMapping(rom);
+        Suite(nameof(VerifyBombTorizoStatueInitialDurations), () => VerifyBombTorizoStatueInitialDurations(rom));
+        Suite(nameof(VerifyStatueProgramControlLayout), () => VerifyStatueProgramControlLayout(rom));
+        Suite(nameof(VerifyStatueProgramPresentationLayout), () => VerifyStatueProgramPresentationLayout());
+        Suite(nameof(VerifyStatueFragmentVisualMapping), () => VerifyStatueFragmentVisualMapping(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < BombTorizoStatueInstructionProgramDefinitions.MechanicsWordCount;

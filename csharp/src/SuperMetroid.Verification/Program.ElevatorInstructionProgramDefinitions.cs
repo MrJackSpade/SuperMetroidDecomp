@@ -7,16 +7,16 @@ internal static partial class Program
 {
     private static void VerifyElevatorInstructionProgramDefinitions()
     {
-        VerifyElevatorInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyElevatorInstructionProgramDefinitions), () => VerifyElevatorInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyElevatorInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyElevatorMechanicsMapping(rom);
-        VerifyElevatorPresentationMapping();
-        VerifyElevatorVisualPointers(rom);
+        Suite(nameof(VerifyElevatorMechanicsMapping), () => VerifyElevatorMechanicsMapping(rom));
+        Suite(nameof(VerifyElevatorPresentationMapping), () => VerifyElevatorPresentationMapping());
+        Suite(nameof(VerifyElevatorVisualPointers), () => VerifyElevatorVisualPointers(rom));
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = new ElevatorInstructionReadGuard(rom);

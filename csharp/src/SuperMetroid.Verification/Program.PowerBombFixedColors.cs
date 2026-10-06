@@ -36,9 +36,9 @@ internal static partial class Program
             }
         }
 
-        VerifyPowerBombColorAnimation(rom, catalog, crystalFlash: false);
-        VerifyPowerBombColorAnimation(rom, catalog, crystalFlash: true);
-        VerifyCeresExplosionTimeline(catalog);
+        Suite(nameof(VerifyPowerBombColorAnimation), () => VerifyPowerBombColorAnimation(rom, catalog, crystalFlash: false));
+        Suite(nameof(VerifyPowerBombColorAnimation), () => VerifyPowerBombColorAnimation(rom, catalog, crystalFlash: true));
+        Suite(nameof(VerifyCeresExplosionTimeline), () => VerifyCeresExplosionTimeline(catalog));
         AssertThrows<InvalidDataException>(() => PowerBombFixedColorCatalog.Load(
             new MemoryStream([1, 2, 3])), "corrupt Power Bomb colors fail loudly");
         AssertThrows<InvalidDataException>(() => PowerBombFixedColorCatalog.Load(

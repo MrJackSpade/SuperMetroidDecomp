@@ -7,13 +7,13 @@ internal static partial class Program
 {
     private static void VerifyDownwardGateShotBlockDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyDownwardGateListSelection(rom);
-        VerifyDownwardGateLeftSelection(rom);
-        VerifyDownwardGateRightSelection(rom);
+        Suite(nameof(VerifyDownwardGateListSelection), () => VerifyDownwardGateListSelection(rom));
+        Suite(nameof(VerifyDownwardGateLeftSelection), () => VerifyDownwardGateLeftSelection(rom));
+        Suite(nameof(VerifyDownwardGateRightSelection), () => VerifyDownwardGateRightSelection(rom));
 
         // The synthetic address space intentionally omits all three source tables. Running
         // every row through production setup proves room loading no longer reads them.
-        VerifyDownwardGatePlms();
+        Suite(nameof(VerifyDownwardGatePlms), () => VerifyDownwardGatePlms());
     }
 
     /// <summary>
@@ -22,11 +22,11 @@ internal static partial class Program
     /// </summary>
     private static void VerifyDownwardGatePlms()
     {
-        VerifyDownwardGateHeaderDefinitions();
-        VerifyDownwardGateProgramDefinitions();
-        VerifyDownwardGateDrawDefinitions();
-        VerifyDownwardGateVisuals();
-        VerifyDownwardGateSetupAndProjectile();
+        Suite(nameof(VerifyDownwardGateHeaderDefinitions), () => VerifyDownwardGateHeaderDefinitions());
+        Suite(nameof(VerifyDownwardGateProgramDefinitions), () => VerifyDownwardGateProgramDefinitions());
+        Suite(nameof(VerifyDownwardGateDrawDefinitions), () => VerifyDownwardGateDrawDefinitions());
+        Suite(nameof(VerifyDownwardGateVisuals), () => VerifyDownwardGateVisuals());
+        Suite(nameof(VerifyDownwardGateSetupAndProjectile), () => VerifyDownwardGateSetupAndProjectile());
 
         var cases = new (DownwardGateTriggerBehavior Trigger, ushort Projectile, bool Accepted)[]
         {
@@ -75,9 +75,9 @@ internal static partial class Program
         var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate draw oracle revision");
-        VerifyDownwardGateDrawGeometry(rom);
-        VerifyDownwardGateDrawCollision(rom);
-        VerifyDownwardGateDrawVisuals(rom);
+        Suite(nameof(VerifyDownwardGateDrawGeometry), () => VerifyDownwardGateDrawGeometry(rom));
+        Suite(nameof(VerifyDownwardGateDrawCollision), () => VerifyDownwardGateDrawCollision(rom));
+        Suite(nameof(VerifyDownwardGateDrawVisuals), () => VerifyDownwardGateDrawVisuals(rom));
     }
 
     private static void VerifyDownwardGateProgramDefinitions()
@@ -85,10 +85,10 @@ internal static partial class Program
         var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate program oracle revision");
-        VerifyDownwardGateProgramControls(rom);
-        VerifyDownwardGateProgramDraws(rom);
-        VerifyDownwardGateProgramOperands(rom);
-        VerifyDownwardGateProgramSounds(rom);
+        Suite(nameof(VerifyDownwardGateProgramControls), () => VerifyDownwardGateProgramControls(rom));
+        Suite(nameof(VerifyDownwardGateProgramDraws), () => VerifyDownwardGateProgramDraws(rom));
+        Suite(nameof(VerifyDownwardGateProgramOperands), () => VerifyDownwardGateProgramOperands(rom));
+        Suite(nameof(VerifyDownwardGateProgramSounds), () => VerifyDownwardGateProgramSounds(rom));
     }
 
     private static void VerifyDownwardGateSetupAndProjectile()

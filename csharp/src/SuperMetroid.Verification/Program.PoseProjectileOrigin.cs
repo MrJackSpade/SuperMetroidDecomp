@@ -16,7 +16,9 @@ internal static partial class Program
         var samus = PrepareRetailSamusFixture(new SamusState());
         var slot = new SamusProjectileSlot(0);
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
-        var artwork = Enumerable.Range(0, 256).Select(art => new SamusBodyArtworkCatalog(
+        // The graphics-Y byte only enters as a signed offset, so one artwork fixture per signed
+        // byte class covers it.
+        var artwork = SignedByteClasses.Select(art => new SamusBodyArtworkCatalog(
             template.TopSetPointers.ToArray(), template.BottomSetPointers.ToArray(),
             template.PosePointers.ToArray(),
             Enumerable.Repeat(unchecked((sbyte)art), SamusBodyArtworkCatalog.PoseCount).ToArray(),
@@ -34,10 +36,11 @@ internal static partial class Program
         }
         for (int pose = 0; pose <= 0xfc; pose++)
         for (byte direction = 0; direction < 10; direction++)
-        for (int art = 0; art <= byte.MaxValue; art++)
+        for (int artIndex = 0; artIndex < artwork.Length; artIndex++)
         {
             bus.Pose = samus.Pose = (byte)pose;
-            samus.TileTransfers.BindArtwork(artwork[art]);
+            int art = SignedByteClasses[artIndex];
+            samus.TileTransfers.BindArtwork(artwork[artIndex]);
             samus.XPosition = unchecked((ushort)(pose * 251 + art));
             samus.YPosition = unchecked((ushort)~samus.XPosition);
             byte physicalY = rom.ReadByte(0x91b629 + pose * 8 + 4);
@@ -73,7 +76,7 @@ internal static partial class Program
             AssertEqual(unchecked((ushort)(samus.YPosition + flareY - unchecked((sbyte)art))), g.BeamStartY, "Late Grapple flare uses current artwork");
             AssertEqual(endpoint, g.AnchorY, "Late draw does not move collision endpoint");
         }
-        Console.WriteLine("Pose projectile origins: 647680 beam-origin cases and authored Grapple launch/cancellation checks preserve physics while replacing every graphics-Y byte.");
+        Console.WriteLine("Pose projectile origins: every pose and direction with each signed graphics-Y class, and authored Grapple launch/cancellation checks, preserve physics while replacing the graphics-Y byte.");
     }
 
     private sealed class PoseOriginPresentationBus(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource

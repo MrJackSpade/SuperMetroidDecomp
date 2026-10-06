@@ -7,9 +7,9 @@ using SuperMetroid.Core.Rom;
 internal static partial class Program
 {
     private static void VerifyMapWindowOriginX(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
-        VerifyMapWindowOrigin(rom, labels, vertical: false);
+        Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: false));
     private static void VerifyMapWindowOriginY(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
-        VerifyMapWindowOrigin(rom, labels, vertical: true);
+        Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: true));
 
     private static void VerifyMapWindowOrigin(ISnesAddressSpace rom, WorldMapLabelLayout labels, bool vertical)
     {
@@ -51,13 +51,13 @@ internal static partial class Program
     }
 
     private static void VerifyMapWindowLeftVelocities(ISnesAddressSpace rom) =>
-        VerifyMapWindowVelocity(rom, 0, motion => motion.Left);
+        Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 0, motion => motion.Left));
     private static void VerifyMapWindowRightVelocities(ISnesAddressSpace rom) =>
-        VerifyMapWindowVelocity(rom, 1, motion => motion.Right);
+        Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 1, motion => motion.Right));
     private static void VerifyMapWindowTopVelocities(ISnesAddressSpace rom) =>
-        VerifyMapWindowVelocity(rom, 2, motion => motion.Top);
+        Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 2, motion => motion.Top));
     private static void VerifyMapWindowBottomVelocities(ISnesAddressSpace rom) =>
-        VerifyMapWindowVelocity(rom, 3, motion => motion.Bottom);
+        Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 3, motion => motion.Bottom));
 
     private static void VerifyMapWindowVelocity(ISnesAddressSpace rom, int edge,
         Func<FileSelectMapWindowMotion, uint> select)
@@ -70,7 +70,7 @@ internal static partial class Program
             AssertEqual(expected, select(FileSelectMapWindowMotions.Get(area)),
                 $"map window area {area} edge {edge} signed16.16 velocity");
         }
-        VerifyMapWindowMotionBounds();
+        Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
     }
 
     private static void VerifyMapWindowTimers(ISnesAddressSpace rom)
@@ -78,7 +78,7 @@ internal static partial class Program
         for (int area = 0; area < 6; area++)
             AssertEqual(ReadVerificationWord(rom, 0x81aa94 + area * 2),
                 FileSelectMapWindowMotions.Get(area).Timer, $"map window area {area} timer");
-        VerifyMapWindowMotionBounds();
+        Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
     }
 
     private static void VerifyMapWindowMotionBounds()

@@ -13,10 +13,10 @@ internal static partial class Program
     {
         PhantoonColorCatalog native = stock.PhantoonColors ??
             throw new InvalidDataException("Installed enemy art has no Phantoon colors.");
-        VerifyBand(PhantoonColorRomData.FadeOutSource,
-            PhantoonColorRomData.FadeOutCount, native.ResolveFadeOut, "fade-out");
-        VerifyBand(PhantoonColorRomData.PowerOnSource,
-            PhantoonColorRomData.PowerOnCount, native.ResolvePowerOn, "power-on");
+        Suite(nameof(VerifyBand), () => VerifyBand(PhantoonColorRomData.FadeOutSource,
+            PhantoonColorRomData.FadeOutCount, native.ResolveFadeOut, "fade-out"));
+        Suite(nameof(VerifyBand), () => VerifyBand(PhantoonColorRomData.PowerOnSource,
+            PhantoonColorRomData.PowerOnCount, native.ResolvePowerOn, "power-on"));
         for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),

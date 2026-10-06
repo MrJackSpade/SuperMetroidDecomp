@@ -42,12 +42,12 @@ internal static partial class Program
 
     private static void VerifyPaletteFxDispatch(SuperMetroidAddressSpace rom)
     {
-        VerifyPaletteFxDispatchDomain();
-        VerifyPaletteFxSetupSelection(rom);
-        VerifyPaletteFxInitialListSelection(rom);
+        Suite(nameof(VerifyPaletteFxDispatchDomain), () => VerifyPaletteFxDispatchDomain());
+        Suite(nameof(VerifyPaletteFxSetupSelection), () => VerifyPaletteFxSetupSelection(rom));
+        Suite(nameof(VerifyPaletteFxInitialListSelection), () => VerifyPaletteFxInitialListSelection(rom));
         var forbidden = OriginalPaletteFxObjects().SelectMany(pointer =>
             Enumerable.Range(0x8d0000 | pointer, 4)).ToHashSet();
-        VerifyPaletteFxDispatchSpawns(new RoomPaletteFxDefinitionReadGuard(rom, forbidden),
-            OriginalPaletteFxObjects());
+        Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(new RoomPaletteFxDefinitionReadGuard(rom, forbidden),
+            OriginalPaletteFxObjects()));
     }
 }

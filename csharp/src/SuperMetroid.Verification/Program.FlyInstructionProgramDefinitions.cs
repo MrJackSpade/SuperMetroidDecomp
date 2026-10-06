@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyFlyInstructionProgramDefinitions()
     {
-        VerifyFlyInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyFlyInstructionProgramDefinitions), () => VerifyFlyInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyFlyInstructionProgramDefinitions(SuperMetroidAddressSpace rom)

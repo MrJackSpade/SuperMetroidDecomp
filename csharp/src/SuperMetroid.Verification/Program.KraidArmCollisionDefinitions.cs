@@ -6,15 +6,15 @@ internal static partial class Program
     private static void VerifyKraidArmCollisionDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyKraidArmComponentHitboxes(rom);
-        VerifyKraidArmTouchCallbacks(rom);
-        VerifyKraidArmShotCallbacks(rom);
-        VerifyKraidArmPhysicalFramePointers(rom);
+        Suite(nameof(VerifyKraidArmComponentHitboxes), () => VerifyKraidArmComponentHitboxes(rom));
+        Suite(nameof(VerifyKraidArmTouchCallbacks), () => VerifyKraidArmTouchCallbacks(rom));
+        Suite(nameof(VerifyKraidArmShotCallbacks), () => VerifyKraidArmShotCallbacks(rom));
+        Suite(nameof(VerifyKraidArmPhysicalFramePointers), () => VerifyKraidArmPhysicalFramePointers(rom));
         HashSet<ushort> hitboxPointers = VerifyKraidArmPhysicalLayoutSelection(rom);
 
         AssertEqual(16, hitboxPointers.Count,
             "Kraid arm selected frames reference all 16 physical hitbox lists");
-        VerifyKraidArmHitboxListSelection(rom);
+        Suite(nameof(VerifyKraidArmHitboxListSelection), () => VerifyKraidArmHitboxListSelection(rom));
         Console.WriteLine(
             "Kraid arm physical definitions: 22 frame maps, 16 hitbox lists, " +
             "and 24 rectangles/callback pairs match the retail ROM.");

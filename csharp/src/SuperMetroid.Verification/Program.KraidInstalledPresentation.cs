@@ -5,18 +5,18 @@ internal static partial class Program
 {
     private static void VerifyKraidInstalledPresentation()
     {
-        VerifyKraidWorkingMapTail();
+        Suite(nameof(VerifyKraidWorkingMapTail), () => VerifyKraidWorkingMapTail());
         var source = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         using var temporary = new MapCatalogTestDirectory();
         string stockPath = Path.Combine(temporary.Root, "stock");
         EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(stockPath);
         EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(stockPath, null);
-        VerifyInstalledKraidBackground(source, stockPath, stock);
-        VerifyKraidInstalledControlOracle(source);
-        VerifyKraidInstalledHeadIsolation(stockPath, stock);
-        VerifyKraidLiveHeadAlias(stock);
-        VerifyKraidRequiredFiles(stockPath);
+        Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(source, stockPath, stock));
+        Suite(nameof(VerifyKraidInstalledControlOracle), () => VerifyKraidInstalledControlOracle(source));
+        Suite(nameof(VerifyKraidInstalledHeadIsolation), () => VerifyKraidInstalledHeadIsolation(stockPath, stock));
+        Suite(nameof(VerifyKraidLiveHeadAlias), () => VerifyKraidLiveHeadAlias(stock));
+        Suite(nameof(VerifyKraidRequiredFiles), () => VerifyKraidRequiredFiles(stockPath));
         Console.WriteLine("PASS installed Kraid maps, head frames, room characters and HUD restoration.");
     }
 }

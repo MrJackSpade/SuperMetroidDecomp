@@ -9,15 +9,15 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain mutation oracle revision");
-        VerifyMotherBrainMutationProgramControls(rom);
-        VerifyMotherBrainMutationProgramDraws(rom);
-        VerifyMotherBrainRegularDrawMapping(rom);
-        VerifyMotherBrainBackgroundGeometry(rom);
-        VerifyMotherBrainBackgroundCollision(rom);
-        VerifyMotherBrainBoundaryGeometry(rom);
-        VerifyMotherBrainBoundaryCollision(rom);
-        VerifyMotherBrainWallVisuals(rom);
-        VerifyMotherBrainDoorVisuals(rom);
+        Suite(nameof(VerifyMotherBrainMutationProgramControls), () => VerifyMotherBrainMutationProgramControls(rom));
+        Suite(nameof(VerifyMotherBrainMutationProgramDraws), () => VerifyMotherBrainMutationProgramDraws(rom));
+        Suite(nameof(VerifyMotherBrainRegularDrawMapping), () => VerifyMotherBrainRegularDrawMapping(rom));
+        Suite(nameof(VerifyMotherBrainBackgroundGeometry), () => VerifyMotherBrainBackgroundGeometry(rom));
+        Suite(nameof(VerifyMotherBrainBackgroundCollision), () => VerifyMotherBrainBackgroundCollision(rom));
+        Suite(nameof(VerifyMotherBrainBoundaryGeometry), () => VerifyMotherBrainBoundaryGeometry(rom));
+        Suite(nameof(VerifyMotherBrainBoundaryCollision), () => VerifyMotherBrainBoundaryCollision(rom));
+        Suite(nameof(VerifyMotherBrainWallVisuals), () => VerifyMotherBrainWallVisuals(rom));
+        Suite(nameof(VerifyMotherBrainDoorVisuals), () => VerifyMotherBrainDoorVisuals(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] draws =
             MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray();

@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyWalkingSpacePirateInstructionProgramDefinitions()
     {
-        VerifyWalkingSpacePirateInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyWalkingSpacePirateInstructionProgramDefinitions), () => VerifyWalkingSpacePirateInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyWalkingSpacePirateInstructionProgramDefinitions(
@@ -26,38 +26,38 @@ internal static partial class Program
         }
 
         var guard = new WalkingSpacePirateInstructionReadGuard(rom);
-        VerifyProgram(
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateInstructionProgramDefinitions.WalkingLeft,
             frames: 81,
             expectedCursor: 0xfb6c,
-            expectedFunction: WalkingSpacePirateFunction.WalkingLeft);
-        VerifyProgram(
+            expectedFunction: WalkingSpacePirateFunction.WalkingLeft));
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateInstructionProgramDefinitions.WalkingRight,
             frames: 81,
             expectedCursor: 0xfbee,
-            expectedFunction: WalkingSpacePirateFunction.WalkingRight);
-        VerifyProgram(
+            expectedFunction: WalkingSpacePirateFunction.WalkingRight));
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateInstructionProgramDefinitions.FlinchFacingLeft,
             frames: 17,
             expectedCursor: 0xfb6c,
-            expectedFunction: WalkingSpacePirateFunction.WalkingLeft);
-        VerifyProgram(
+            expectedFunction: WalkingSpacePirateFunction.WalkingLeft));
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateInstructionProgramDefinitions.FlinchFacingRight,
             frames: 17,
             expectedCursor: 0xfbee,
-            expectedFunction: WalkingSpacePirateFunction.WalkingRight);
-        VerifyProgram(
+            expectedFunction: WalkingSpacePirateFunction.WalkingRight));
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateInstructionProgramDefinitions.LookingFacingLeft,
             frames: 125,
             expectedCursor: 0xfbee,
-            expectedFunction: WalkingSpacePirateFunction.WalkingRight);
-        VerifyProgram(
+            expectedFunction: WalkingSpacePirateFunction.WalkingRight));
+        Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateInstructionProgramDefinitions.LookingFacingRight,
             frames: 125,
             expectedCursor: 0xfb6c,
-            expectedFunction: WalkingSpacePirateFunction.WalkingLeft);
-        VerifyAttack(movingRight: false);
-        VerifyAttack(movingRight: true);
+            expectedFunction: WalkingSpacePirateFunction.WalkingLeft));
+        Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: false));
+        Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: true));
 
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;

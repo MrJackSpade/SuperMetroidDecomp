@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyDeadTorizoInstructionProgramDefinitions()
     {
-        VerifyDeadTorizoInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyDeadTorizoInstructionProgramDefinitions), () => VerifyDeadTorizoInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyDeadTorizoInstructionProgramDefinitions(

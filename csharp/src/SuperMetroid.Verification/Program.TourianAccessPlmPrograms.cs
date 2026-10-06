@@ -10,25 +10,25 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tourian draw native oracle revision");
-        VerifyTourianAccessPlmDefinitions(rom);
-        VerifyTourianAccessProgramControls(rom);
-        VerifyTourianAccessProgramDraws(rom);
-        VerifyTourianAccessProgramLoopCount(rom);
+        Suite(nameof(VerifyTourianAccessPlmDefinitions), () => VerifyTourianAccessPlmDefinitions(rom));
+        Suite(nameof(VerifyTourianAccessProgramControls), () => VerifyTourianAccessProgramControls(rom));
+        Suite(nameof(VerifyTourianAccessProgramDraws), () => VerifyTourianAccessProgramDraws(rom));
+        Suite(nameof(VerifyTourianAccessProgramLoopCount), () => VerifyTourianAccessProgramLoopCount(rom));
 
-        VerifyTourianAccessPhysicalDrawMapping(rom);
+        Suite(nameof(VerifyTourianAccessPhysicalDrawMapping), () => VerifyTourianAccessPhysicalDrawMapping(rom));
 
-        VerifyFloor(clear: true);
-        VerifyFloor(clear: false);
+        Suite(nameof(VerifyFloor), () => VerifyFloor(clear: true));
+        Suite(nameof(VerifyFloor), () => VerifyFloor(clear: false));
         Console.WriteLine(
             "Tourian access PLMs: both native programs and five draws match ROM; complete clear and six-row crumble run without source reads.");
     }
 
     private static void VerifyTourianAccessProgramControls(SuperMetroidAddressSpace rom) =>
-        VerifyTourianAccessProgramField(rom, false);
+        Suite(nameof(VerifyTourianAccessProgramField), () => VerifyTourianAccessProgramField(rom, false));
 
     private static void VerifyTourianAccessProgramDraws(SuperMetroidAddressSpace rom)
     {
-        VerifyTourianAccessProgramField(rom, true);
+        Suite(nameof(VerifyTourianAccessProgramField), () => VerifyTourianAccessProgramField(rom, true));
         ushort[] originalOperands = [0xaaea,0xaaee,0xaaf2,0xaaf6];
         for (int frame = 0; frame < originalOperands.Length; frame++)
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | originalOperands[frame]),

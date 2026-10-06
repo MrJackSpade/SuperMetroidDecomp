@@ -14,8 +14,8 @@ internal static partial class Program
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),
             "Samus Eater native oracle revision");
-        VerifySamusEaterDrawGeometry(rom);
-        VerifySamusEaterDrawWords(rom);
+        Suite(nameof(VerifySamusEaterDrawGeometry), () => VerifySamusEaterDrawGeometry(rom));
+        Suite(nameof(VerifySamusEaterDrawWords), () => VerifySamusEaterDrawWords(rom));
         string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
             "samus-eater-visual-" + Guid.NewGuid().ToString("N")));
         string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
@@ -163,10 +163,10 @@ internal static partial class Program
     }
 
     private static void VerifySamusEaterDrawGeometry(SuperMetroidAddressSpace rom) =>
-        VerifySamusEaterDrawField(rom, false);
+        Suite(nameof(VerifySamusEaterDrawField), () => VerifySamusEaterDrawField(rom, false));
 
     private static void VerifySamusEaterDrawWords(SuperMetroidAddressSpace rom) =>
-        VerifySamusEaterDrawField(rom, true);
+        Suite(nameof(VerifySamusEaterDrawField), () => VerifySamusEaterDrawField(rom, true));
 
     private static void VerifySamusEaterDrawField(SuperMetroidAddressSpace rom, bool words)
     {

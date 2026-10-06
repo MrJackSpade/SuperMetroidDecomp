@@ -13,7 +13,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyNoobTubePlm()
     {
-        VerifyNoobTubeProgramDefinitions();
+        Suite(nameof(VerifyNoobTubeProgramDefinitions), () => VerifyNoobTubeProgramDefinitions());
         var bus = new TestAddressSpace();
         SeedNoobTubeRom(bus);
 
@@ -217,10 +217,10 @@ internal static partial class Program
             "fully submerged Samus uses underwater movement after tube break");
         AssertEqual(0, plms.ActiveCount, "completed n00b-tube PLM deletes itself");
 
-        VerifyNoobTubeProjectileInitializers(bus, level, blockIndex, projectiles);
+        Suite(nameof(VerifyNoobTubeProjectileInitializers), () => VerifyNoobTubeProjectileInitializers(bus, level, blockIndex, projectiles));
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "n00b-tube complete break never rereads its program source bytes");
-        VerifyAlreadyBrokenNoobTube(bus, level, streamer, samus);
+        Suite(nameof(VerifyAlreadyBrokenNoobTube), () => VerifyAlreadyBrokenNoobTube(bus, level, streamer, samus));
         Console.WriteLine(
             "  N00b tube: setup, two-stage wake, debris, earthquake, event, water, and reload agree.");
     }
@@ -231,12 +231,12 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tube oracle revision");
-        VerifyTubeControls(rom);
-        VerifyTubeDraws(rom);
-        VerifyTubeTargets(rom);
-        VerifyTubeCallbacks(rom);
-        VerifyTubeEvents(rom);
-        VerifyTubeSound(rom);
+        Suite(nameof(VerifyTubeControls), () => VerifyTubeControls(rom));
+        Suite(nameof(VerifyTubeDraws), () => VerifyTubeDraws(rom));
+        Suite(nameof(VerifyTubeTargets), () => VerifyTubeTargets(rom));
+        Suite(nameof(VerifyTubeCallbacks), () => VerifyTubeCallbacks(rom));
+        Suite(nameof(VerifyTubeEvents), () => VerifyTubeEvents(rom));
+        Suite(nameof(VerifyTubeSound), () => VerifyTubeSound(rom));
     }
 
     /// <summary>

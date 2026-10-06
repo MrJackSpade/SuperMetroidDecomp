@@ -4,10 +4,10 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyFakeKraidSpitHorizontalVelocity(SuperMetroidAddressSpace rom) =>
-        VerifyFakeKraidSpitVelocityField(rom, 0, launch => launch.XVelocity);
+        Suite(nameof(VerifyFakeKraidSpitVelocityField), () => VerifyFakeKraidSpitVelocityField(rom, 0, launch => launch.XVelocity));
 
     private static void VerifyFakeKraidSpitVerticalVelocity(SuperMetroidAddressSpace rom) =>
-        VerifyFakeKraidSpitVelocityField(rom, 2, launch => launch.YVelocity);
+        Suite(nameof(VerifyFakeKraidSpitVelocityField), () => VerifyFakeKraidSpitVelocityField(rom, 2, launch => launch.YVelocity));
 
     private static void VerifyFakeKraidSpitVelocityField(
         SuperMetroidAddressSpace rom, int fieldOffset, Func<FakeKraidSpitLaunch, ushort> select)

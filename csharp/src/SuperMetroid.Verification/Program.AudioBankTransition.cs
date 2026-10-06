@@ -38,7 +38,7 @@ internal static partial class Program
 
     private static void VerifyAudioBankTransition(string directory)
     {
-        VerifyReleasedVoiceBankSwitch();
+        Suite(nameof(VerifyReleasedVoiceBankSwitch), () => VerifyReleasedVoiceBankSwitch());
         var assets = ExtractedAudioAssetCatalog.Load(directory);
         foreach (var bank in AudioAssetCatalogData.Music)
         {

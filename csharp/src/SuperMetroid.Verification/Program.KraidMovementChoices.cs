@@ -6,11 +6,11 @@ internal static partial class Program
 {
     private static void VerifyKraidMovementTargets(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
-        VerifyKraidMovementField(positions, expected, value => value.TargetX);
+        Suite(nameof(VerifyKraidMovementField), () => VerifyKraidMovementField(positions, expected, value => value.TargetX));
 
     private static void VerifyKraidMovementTimers(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
-        VerifyKraidMovementField(positions, expected, value => value.ThinkTimer);
+        Suite(nameof(VerifyKraidMovementField), () => VerifyKraidMovementField(positions, expected, value => value.ThinkTimer));
 
     private static void VerifyKraidMovementField(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected,
@@ -56,8 +56,8 @@ internal static partial class Program
             int choice = Math.Min((random & 28) / 4, 4);
             return (targets[row, choice], timers[row, choice]);
         }
-        VerifyKraidMovementTargets(positions, Expected);
-        VerifyKraidMovementTimers(positions, Expected);
+        Suite(nameof(VerifyKraidMovementTargets), () => VerifyKraidMovementTargets(positions, Expected));
+        Suite(nameof(VerifyKraidMovementTimers), () => VerifyKraidMovementTimers(positions, Expected));
         if (definitionsOnly)
         {
             Console.WriteLine("Kraid movement selectors: both fields, every RNG word per row and every position/choice pass native-data proofs.");

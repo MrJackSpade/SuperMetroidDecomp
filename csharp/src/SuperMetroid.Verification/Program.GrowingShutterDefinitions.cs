@@ -6,9 +6,9 @@ internal static partial class Program
 {
     private static void VerifyCompiledGrowingShutters(SuperMetroidAddressSpace rom)
     {
-        VerifyGrowingShutterInitialSelection(rom);
-        VerifyGrowingShutterWholeSpeed(rom);
-        VerifyGrowingShutterFractionalSpeed(rom);
+        Suite(nameof(VerifyGrowingShutterInitialSelection), () => VerifyGrowingShutterInitialSelection(rom));
+        Suite(nameof(VerifyGrowingShutterWholeSpeed), () => VerifyGrowingShutterWholeSpeed(rom));
+        Suite(nameof(VerifyGrowingShutterFractionalSpeed), () => VerifyGrowingShutterFractionalSpeed(rom));
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         var enemies = new RoomEnemySystem();
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeGrowingShutter", BindingFlags.NonPublic | BindingFlags.Instance)!
@@ -57,10 +57,10 @@ internal static partial class Program
     }
 
     private static void VerifyGrowingShutterWholeSpeed(SuperMetroidAddressSpace rom) =>
-        VerifyGrowingShutterSpeedField(rom, fractional: false);
+        Suite(nameof(VerifyGrowingShutterSpeedField), () => VerifyGrowingShutterSpeedField(rom, fractional: false));
 
     private static void VerifyGrowingShutterFractionalSpeed(SuperMetroidAddressSpace rom) =>
-        VerifyGrowingShutterSpeedField(rom, fractional: true);
+        Suite(nameof(VerifyGrowingShutterSpeedField), () => VerifyGrowingShutterSpeedField(rom, fractional: true));
 
     private static void VerifyGrowingShutterSpeedField(SuperMetroidAddressSpace rom, bool fractional)
     {

@@ -21,7 +21,7 @@ internal static partial class Program
             AssertTrue(Draw(native).AsSpan().SequenceEqual(Draw(installed)), "all four extracted arrow sprites match native OAM");
             AssertTrue(Counters(native).AsSpan().SequenceEqual(Counters(installed)), "arrow phase/timer and visibility match native including hidden pauses");
         }
-        VerifyInstalledFileSelectMenu(bus, guard, original, original);
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapArrowDocument>(File.ReadAllBytes(Path.Combine(stock, MapArrowFormat.FileName)), options)!;
         var entries = new Dictionary<string, MapArrowEntry>(document.Arrows);

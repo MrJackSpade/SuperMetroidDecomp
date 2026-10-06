@@ -26,8 +26,8 @@ internal static partial class Program
             AssertEqual(native, catalog.Resolve(index), $"native visor color {index}");
         }
 
-        VerifyInstalledRoomVisorCycle(rom, catalog);
-        VerifyInstalledXrayVisorCycle(rom, catalog);
+        Suite(nameof(VerifyInstalledRoomVisorCycle), () => VerifyInstalledRoomVisorCycle(rom, catalog));
+        Suite(nameof(VerifyInstalledXrayVisorCycle), () => VerifyInstalledXrayVisorCycle(rom, catalog));
         AssertTrue(!catalog.TryResolveByteOffset(1, out _), "odd visor offsets are outside the installed color domain");
         AssertTrue(!catalog.TryResolveByteOffset(12, out _), "adjacent visor bytes are outside the installed color domain");
         AssertThrows<InvalidDataException>(() => SamusVisorColorCatalog.Load(

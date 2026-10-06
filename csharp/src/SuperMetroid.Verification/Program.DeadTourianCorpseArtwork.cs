@@ -9,7 +9,7 @@ internal static partial class Program
     private static void VerifyInstalledDeadTourianCorpseArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
-        VerifyDeadTourianCorpseVisuals(stock);
+        Suite(nameof(VerifyDeadTourianCorpseVisuals), () => VerifyDeadTourianCorpseVisuals(stock));
         // Compare the installed initialization callbacks with independent native
         // copy layouts. The installed path forbids reads from the visual source bank.
         foreach (ushort parameter in new ushort[] { 0, 2 })

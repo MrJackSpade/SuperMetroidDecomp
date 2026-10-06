@@ -114,8 +114,8 @@ internal static partial class Program
             () => RidleyExplosionDefinitions.DeathExplosionPlacement(10),
             "Ridley death explosion index after authored cycle");
 
-        VerifyRidleyExplosionProductionInitializer(rom);
-        VerifyRidleyDeathExplosionProductionSpawns(rom);
+        Suite(nameof(VerifyRidleyExplosionProductionInitializer), () => VerifyRidleyExplosionProductionInitializer(rom));
+        Suite(nameof(VerifyRidleyDeathExplosionProductionSpawns), () => VerifyRidleyDeathExplosionProductionSpawns(rom));
         Console.WriteLine(
             "Ridley breakup definitions: all 12 lifetimes/callbacks, native spawn order, " +
             "six fixed tail selectors, 16 tip orientations, ten body records, ten death " +

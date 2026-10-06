@@ -12,17 +12,17 @@ internal static partial class Program
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
             .Select(pointer => pointer!.Value).Distinct().Order().ToArray();
-        VerifyRoomHeaderIdentities(rooms);
-        VerifyRoomHeaderRoomIndex(rom, rooms);
-        VerifyRoomHeaderAreaIndex(rom, rooms);
-        VerifyRoomHeaderMapX(rom, rooms);
-        VerifyRoomHeaderMapY(rom, rooms);
-        VerifyRoomHeaderWidthInScreens(rom, rooms);
-        VerifyRoomHeaderHeightInScreens(rom, rooms);
-        VerifyRoomHeaderUpScroller(rom, rooms);
-        VerifyRoomHeaderDownScroller(rom, rooms);
-        VerifyRoomHeaderCreBitset(rom, rooms);
-        VerifyRoomHeaderDoorListPointer(rom, rooms);
+        Suite(nameof(VerifyRoomHeaderIdentities), () => VerifyRoomHeaderIdentities(rooms));
+        Suite(nameof(VerifyRoomHeaderRoomIndex), () => VerifyRoomHeaderRoomIndex(rom, rooms));
+        Suite(nameof(VerifyRoomHeaderAreaIndex), () => VerifyRoomHeaderAreaIndex(rom, rooms));
+        Suite(nameof(VerifyRoomHeaderMapX), () => VerifyRoomHeaderMapX(rom, rooms));
+        Suite(nameof(VerifyRoomHeaderMapY), () => VerifyRoomHeaderMapY(rom, rooms));
+        Suite(nameof(VerifyRoomHeaderWidthInScreens), () => VerifyRoomHeaderWidthInScreens(rom, rooms));
+        Suite(nameof(VerifyRoomHeaderHeightInScreens), () => VerifyRoomHeaderHeightInScreens(rom, rooms));
+        Suite(nameof(VerifyRoomHeaderUpScroller), () => VerifyRoomHeaderUpScroller(rom, rooms));
+        Suite(nameof(VerifyRoomHeaderDownScroller), () => VerifyRoomHeaderDownScroller(rom, rooms));
+        Suite(nameof(VerifyRoomHeaderCreBitset), () => VerifyRoomHeaderCreBitset(rom, rooms));
+        Suite(nameof(VerifyRoomHeaderDoorListPointer), () => VerifyRoomHeaderDoorListPointer(rom, rooms));
         Console.WriteLine("Room headers: all262 identities, ten original native fields, sorted enumeration and complete ushort rejection domain pass.");
     }
 

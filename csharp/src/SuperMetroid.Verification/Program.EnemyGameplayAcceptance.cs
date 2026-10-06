@@ -17,14 +17,14 @@ internal static partial class Program
     private static void VerifyEnemyGameplayAcceptance()
     {
         var source = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        VerifyCompiledEnemyDefinitions();
-        VerifyCompiledEnemyRoomLists();
-        VerifyEnemyVulnerabilityDefinitions(source);
-        VerifyEnemyDropChanceDefinitions(source);
-        VerifyEnemyDefinitionReferenceClosure();
-        VerifyEnemyVulnerabilityDispatch(source);
-        VerifyEnemyPopulationPresentationIsolation(source);
-        VerifyEnemyDrops();
+        Suite(nameof(VerifyCompiledEnemyDefinitions), () => VerifyCompiledEnemyDefinitions());
+        Suite(nameof(VerifyCompiledEnemyRoomLists), () => VerifyCompiledEnemyRoomLists());
+        Suite(nameof(VerifyEnemyVulnerabilityDefinitions), () => VerifyEnemyVulnerabilityDefinitions(source));
+        Suite(nameof(VerifyEnemyDropChanceDefinitions), () => VerifyEnemyDropChanceDefinitions(source));
+        Suite(nameof(VerifyEnemyDefinitionReferenceClosure), () => VerifyEnemyDefinitionReferenceClosure());
+        Suite(nameof(VerifyEnemyVulnerabilityDispatch), () => VerifyEnemyVulnerabilityDispatch(source));
+        Suite(nameof(VerifyEnemyPopulationPresentationIsolation), () => VerifyEnemyPopulationPresentationIsolation(source));
+        Suite(nameof(VerifyEnemyDrops), () => VerifyEnemyDrops());
         Console.WriteLine("Enemy gameplay acceptance: complete stock definitions, reference closure, " +
             "vulnerability selection, linked population initialization and editable-art isolation pass.");
     }

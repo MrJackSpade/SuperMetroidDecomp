@@ -15,7 +15,7 @@ internal static partial class Program
         string sourceRom, GameInstallation installed)
     {
         SuperMetroidAddressSpace inventoryBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);
-        VerifyCompiledLibraryBackgroundPrograms(inventoryBus);
+        Suite(nameof(VerifyCompiledLibraryBackgroundPrograms), () => VerifyCompiledLibraryBackgroundPrograms(inventoryBus));
         IReadOnlyList<LibraryBackgroundSource> sources =
             LibraryBackgroundSourceInventory.Scan(inventoryBus);
         RoomBackgroundTilemapCatalog backgrounds = installed.LoadRoomBackgroundTilemaps();
@@ -89,7 +89,7 @@ internal static partial class Program
         }
         AssertEqual(0, unknownListBus.ForbiddenReadAttempts,
             "installed background rejects unknown list before any cartridge read");
-        VerifyInstalledBackgroundTransferFailures(backgrounds, skies, hud, characters);
+        Suite(nameof(VerifyInstalledBackgroundTransferFailures), () => VerifyInstalledBackgroundTransferFailures(backgrounds, skies, hud, characters));
         Console.WriteLine($"  Library backgrounds: {cases} ordinary and door-selected cases " +
             "match installed VRAM/WRAM without command-list or visual ROM-source reads.");
     }

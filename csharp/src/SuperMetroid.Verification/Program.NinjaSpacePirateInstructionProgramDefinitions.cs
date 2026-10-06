@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyNinjaSpacePirateInstructionProgramDefinitions()
     {
-        VerifyNinjaSpacePirateInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyNinjaSpacePirateInstructionProgramDefinitions(
@@ -84,18 +84,18 @@ internal static partial class Program
             RunFrames(enemies, slot, samus, 140);
         }
 
-        VerifyClawAttack(
+        Suite(nameof(VerifyClawAttack), () => VerifyClawAttack(
             NinjaSpacePirateInstructionProgramDefinitions.ClawAttackLeft,
-            expectedFirstXOffset: -32);
-        VerifyClawAttack(
+            expectedFirstXOffset: -32));
+        Suite(nameof(VerifyClawAttack), () => VerifyClawAttack(
             NinjaSpacePirateInstructionProgramDefinitions.ClawAttackRight,
-            expectedFirstXOffset: 32);
-        VerifyDive(
+            expectedFirstXOffset: 32));
+        Suite(nameof(VerifyDive), () => VerifyDive(
             NinjaSpacePirateInstructionProgramDefinitions.DivekickLeftDive,
-            NinjaSpacePirateFunction.DivekickLeftDive);
-        VerifyDive(
+            NinjaSpacePirateFunction.DivekickLeftDive));
+        Suite(nameof(VerifyDive), () => VerifyDive(
             NinjaSpacePirateInstructionProgramDefinitions.DivekickRightDive,
-            NinjaSpacePirateFunction.DivekickRightDive);
+            NinjaSpacePirateFunction.DivekickRightDive));
 
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;

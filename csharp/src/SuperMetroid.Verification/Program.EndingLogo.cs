@@ -8,8 +8,8 @@ internal static partial class Program
 {
     private static void VerifyEndingLogo(ISnesAddressSpace bus)
     {
-        VerifyEndingLogoDefinitions(bus);
-        VerifyEndingLogoPrograms(bus);
+        Suite(nameof(VerifyEndingLogoDefinitions), () => VerifyEndingLogoDefinitions(bus));
+        Suite(nameof(VerifyEndingLogoPrograms), () => VerifyEndingLogoPrograms(bus));
         var guarded = new EndingLogoDefinitionReadGuard(bus);
         var cgram = new SnesCgram();
         var nativeCgram = new SnesCgram();
@@ -222,7 +222,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoDefinitions.Actor(invalid), "actor definition bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoDefinitions.Origin(invalid), "actor origin bounds");
         }
-        VerifyEndingLogoPaletteSources(bus);
+        Suite(nameof(VerifyEndingLogoPaletteSources), () => VerifyEndingLogoPaletteSources(bus));
         AssertThrows<ArgumentOutOfRangeException>(
             () => EndingLogoDefinitions.Actor(4),
             "logo actor definition boundary");

@@ -72,8 +72,8 @@ internal static partial class Program
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres haze oracle revision");
-        VerifyCeresHazeNativeRamp(rom);
-        VerifyCeresHazePhaseControl(rom);
+        Suite(nameof(VerifyCeresHazeNativeRamp), () => VerifyCeresHazeNativeRamp(rom));
+        Suite(nameof(VerifyCeresHazePhaseControl), () => VerifyCeresHazePhaseControl(rom));
 
         var runtime = CreateRetailRuntimeFixture(rom);
         runtime.InitializeHud(HudSnapshot.CeresDebug);

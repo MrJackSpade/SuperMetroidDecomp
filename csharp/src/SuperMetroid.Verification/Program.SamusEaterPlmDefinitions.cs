@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifySamusEaterPlmDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifySamusEaterHeaderInstructionMapping(rom);
-        VerifySamusEaterMountingMapping(rom);
+        Suite(nameof(VerifySamusEaterHeaderInstructionMapping), () => VerifySamusEaterHeaderInstructionMapping(rom));
+        Suite(nameof(VerifySamusEaterMountingMapping), () => VerifySamusEaterMountingMapping(rom));
         SamusEaterPlmDefinition[] definitions =
             [SamusEaterPlmDefinitions.Resolve(0xb6cb), SamusEaterPlmDefinitions.Resolve(0xb6cf)];
         AssertEqual(2, definitions.Length, "Samus Eater PLM definition count");
@@ -19,9 +19,9 @@ internal static partial class Program
             "ceiling plant header enters its compiled instruction program");
         AssertEqual(0xad38, SamusEaterPlmProgramDefinitions.EndExclusive,
             "plant program ends before the Wrecked Ship treadmill");
-        VerifySamusEaterProgramControls(rom);
-        VerifySamusEaterProgramDraws(rom);
-        VerifySamusEaterProgramSound(rom);
+        Suite(nameof(VerifySamusEaterProgramControls), () => VerifySamusEaterProgramControls(rom));
+        Suite(nameof(VerifySamusEaterProgramDraws), () => VerifySamusEaterProgramDraws(rom));
+        Suite(nameof(VerifySamusEaterProgramSound), () => VerifySamusEaterProgramSound(rom));
 
         foreach (SamusEaterPlmDefinition definition in definitions)
         {
@@ -70,10 +70,10 @@ internal static partial class Program
     }
 
     private static void VerifySamusEaterHeaderInstructionMapping(SuperMetroidAddressSpace rom) =>
-        VerifySamusEaterHeaderField(rom, false);
+        Suite(nameof(VerifySamusEaterHeaderField), () => VerifySamusEaterHeaderField(rom, false));
 
     private static void VerifySamusEaterMountingMapping(SuperMetroidAddressSpace rom) =>
-        VerifySamusEaterHeaderField(rom, true);
+        Suite(nameof(VerifySamusEaterHeaderField), () => VerifySamusEaterHeaderField(rom, true));
 
     private static void VerifySamusEaterHeaderField(SuperMetroidAddressSpace rom, bool mounting)
     {

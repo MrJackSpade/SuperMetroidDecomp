@@ -10,7 +10,7 @@ internal static partial class Program
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
         var stock = PauseSelectorPresentation.Load(new MemoryStream(bytes));
-        VerifyPauseSelectorNativeDurations(rom, stock);
+        Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(rom, stock));
         AssertEqual(0, stock.StoredDurationCount, "selector stock timing stores no phase values");
         for (int editedPhase = 0; editedPhase < stock.PhaseCount; editedPhase++)
         foreach (int delay in new[] { 1, 254 })

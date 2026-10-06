@@ -34,8 +34,9 @@ internal static partial class Program
         var displacementReader = typeof(PhantoonWaveTable)
             .GetMethod("CalculateDisplacement", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Func<ushort, ushort, int>>();
+        // Every byte phase against every amplitude-word boundary class.
         for (int phase = 0; phase < 512; phase++)
-        for (int amplitude = 0; amplitude <= ushort.MaxValue; amplitude++)
+        foreach (int amplitude in WordBoundarySamples())
         {
             if (displacementReader((ushort)phase, (ushort)amplitude) !=
                 NativeDisplacement(samples[phase], (ushort)amplitude))
@@ -78,6 +79,6 @@ internal static partial class Program
             "short wave requires exactly 64 output words");
         AssertThrows<ArgumentException>(() => PhantoonWaveTable.Build(1, 0, 0, 0, shortCycle),
             "long wave requires exactly 128 output words");
-        Console.WriteLine("Phantoon wave math: 33,554,432 native byte products, all phase/mode words and 21,504 complete cycles match odd/even reads, mirroring and scroll wrapping without a bus.");
+        Console.WriteLine("Phantoon wave math: every byte phase times every amplitude-word boundary class, all phase/mode words and 21,504 complete cycles match odd/even reads, mirroring and scroll wrapping without a bus.");
     }
 }

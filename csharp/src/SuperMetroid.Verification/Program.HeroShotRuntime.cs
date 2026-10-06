@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyHeroShotRuntimeCamera(string? nativeTrace = null)
     {
-        VerifyPoseCollisionCameraCheckpoint();
+        Suite(nameof(VerifyPoseCollisionCameraCheckpoint), () => VerifyPoseCollisionCameraCheckpoint());
         var native = nativeTrace is null ? null : File.ReadLines(nativeTrace).Skip(1)
             .Select(line => line.Split(','))
             .ToDictionary(row => (int.Parse(row[0]), int.Parse(row[1])), row => row.Skip(2)

@@ -12,16 +12,16 @@ internal static partial class Program
         var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Collectible oracle revision");
-        VerifyCollectibleDrawGeometry(rom);
-        VerifyCollectibleDrawCollision(rom);
-        VerifyCollectibleDrawVisuals(rom);
-        VerifyCollectibleDrawIdentity(rom);
+        Suite(nameof(VerifyCollectibleDrawGeometry), () => VerifyCollectibleDrawGeometry(rom));
+        Suite(nameof(VerifyCollectibleDrawCollision), () => VerifyCollectibleDrawCollision(rom));
+        Suite(nameof(VerifyCollectibleDrawVisuals), () => VerifyCollectibleDrawVisuals(rom));
+        Suite(nameof(VerifyCollectibleDrawIdentity), () => VerifyCollectibleDrawIdentity(rom));
         RoomPlmCollectibleVisualCatalog stock = RoomPlmCollectibleVisualCatalog.Stock();
 
-        VerifyCollectibleOrbSelector(rom);
-        VerifyCollectibleRevealSelector(rom);
-        VerifyCollectibleTankSelector(rom);
-        VerifyCollectibleDynamicSelector(rom);
+        Suite(nameof(VerifyCollectibleOrbSelector), () => VerifyCollectibleOrbSelector(rom));
+        Suite(nameof(VerifyCollectibleRevealSelector), () => VerifyCollectibleRevealSelector(rom));
+        Suite(nameof(VerifyCollectibleTankSelector), () => VerifyCollectibleTankSelector(rom));
+        Suite(nameof(VerifyCollectibleDynamicSelector), () => VerifyCollectibleDynamicSelector(rom));
 
         RoomPlmCollectibleVisualEntry[] entries =
             RoomPlmCollectibleDrawDefinitions.All.ToArray()
@@ -108,7 +108,7 @@ internal static partial class Program
                 $"collectible presentation ${header:X4} survives ROM-free drawing");
         }
 
-        VerifyCollectibleVisualInstallation(rom);
+        Suite(nameof(VerifyCollectibleVisualInstallation), () => VerifyCollectibleVisualInstallation(rom));
         Console.WriteLine(
             "Collectible visuals: 24 native draw lists, eight dynamic selectors, " +
             "all 21 item kinds, orb/reveal paths, live edits, physical isolation, " +

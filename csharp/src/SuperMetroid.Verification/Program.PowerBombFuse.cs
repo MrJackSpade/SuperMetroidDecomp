@@ -33,7 +33,7 @@ internal static partial class Program
             AssertEqual(frame == 59, result.SpawnExplosion, "native fuse expiration frame");
         }
         AssertEqual(1, spawns, "one expiration across complete fuse");
-        VerifyPowerBombRetainedRadiusSpeed();
+        Suite(nameof(VerifyPowerBombRetainedRadiusSpeed), () => VerifyPowerBombRetainedRadiusSpeed());
         Console.WriteLine("Power Bomb fuse: native boundary/flag/wrap cases and complete 60-frame fuse agree.");
     }
 

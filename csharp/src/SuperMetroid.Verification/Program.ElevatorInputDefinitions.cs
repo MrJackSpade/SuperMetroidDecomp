@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyElevatorInputDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyElevatorDirectionInputMapping(rom);
+        Suite(nameof(VerifyElevatorDirectionInputMapping), () => VerifyElevatorDirectionInputMapping(rom));
         using var artworkDirectory = new MapCatalogTestDirectory();
         SuperMetroid.AssetExtraction.SamusBodyArtworkFiles.Extract(rom, artworkDirectory.Root,
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc")))));

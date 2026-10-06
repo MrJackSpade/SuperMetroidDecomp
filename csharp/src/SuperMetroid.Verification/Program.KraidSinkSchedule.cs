@@ -15,11 +15,11 @@ internal static partial class Program
     }
 
     private static void VerifyKraidSinkPlmColumns(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
-        VerifyKraidSinkPlmField(rom, callbacks, 17, request => request.BlockX);
+        Suite(nameof(VerifyKraidSinkPlmField), () => VerifyKraidSinkPlmField(rom, callbacks, 17, request => request.BlockX));
     private static void VerifyKraidSinkPlmRows(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
-        VerifyKraidSinkPlmField(rom, callbacks, 18, request => request.BlockY);
+        Suite(nameof(VerifyKraidSinkPlmField), () => VerifyKraidSinkPlmField(rom, callbacks, 18, request => request.BlockY));
     private static void VerifyKraidSinkPlmHeaders(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
-        VerifyKraidSinkPlmField(rom, callbacks, 19, request => request.Header);
+        Suite(nameof(VerifyKraidSinkPlmField), () => VerifyKraidSinkPlmField(rom, callbacks, 19, request => request.Header));
 
     private static void VerifyKraidSinkPlmField(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks,
         int offset, Func<KraidPlmRequest, ushort> field)
@@ -85,11 +85,11 @@ internal static partial class Program
             if ((y & 0x8000) != 0) break;
             callbacks.Add(y, Word(address + 4));
         }
-        VerifyKraidSinkCallbackSelection(callbacks);
-        VerifyKraidSinkPlmColumns(rom, callbacks.Values);
-        VerifyKraidSinkPlmRows(rom, callbacks.Values);
-        VerifyKraidSinkPlmHeaders(rom, callbacks.Values);
-        VerifyKraidSinkRockPlacement(rom, callbacks);
+        Suite(nameof(VerifyKraidSinkCallbackSelection), () => VerifyKraidSinkCallbackSelection(callbacks));
+        Suite(nameof(VerifyKraidSinkPlmColumns), () => VerifyKraidSinkPlmColumns(rom, callbacks.Values));
+        Suite(nameof(VerifyKraidSinkPlmRows), () => VerifyKraidSinkPlmRows(rom, callbacks.Values));
+        Suite(nameof(VerifyKraidSinkPlmHeaders), () => VerifyKraidSinkPlmHeaders(rom, callbacks.Values));
+        Suite(nameof(VerifyKraidSinkRockPlacement), () => VerifyKraidSinkRockPlacement(rom, callbacks));
         if (definitionsOnly)
         {
             Console.WriteLine("Kraid sinking: full Y selection, native PLM fields and all seven production rock/mutation callbacks pass.");

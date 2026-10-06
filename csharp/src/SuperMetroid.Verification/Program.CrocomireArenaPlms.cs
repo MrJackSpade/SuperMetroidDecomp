@@ -9,21 +9,21 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Crocomire native oracle revision");
-        VerifyCrocomireProgramControls(rom);
-        VerifyCrocomireProgramDraws(rom);
+        Suite(nameof(VerifyCrocomireProgramControls), () => VerifyCrocomireProgramControls(rom));
+        Suite(nameof(VerifyCrocomireProgramDraws), () => VerifyCrocomireProgramDraws(rom));
 
-        VerifyCrocomirePhysicalDrawMapping(rom);
+        Suite(nameof(VerifyCrocomirePhysicalDrawMapping), () => VerifyCrocomirePhysicalDrawMapping(rom));
 
-        VerifyCrocomireMutation(RoomPlmHeaders.ClearCrocomireBridge,
-            (x, y) => y == 0 && x < 10 ? (ushort)0x0080 : (ushort)0x8123);
-        VerifyCrocomireMutation(RoomPlmHeaders.CrumbleCrocomireBridgeBlock,
-            (x, y) => x == 0 && y == 0 ? (ushort)0x810b : (ushort)0x8123);
-        VerifyCrocomireMutation(RoomPlmHeaders.ClearCrocomireBridgeBlock,
-            (x, y) => x == 0 && y == 0 ? (ushort)0x0080 : (ushort)0x8123);
-        VerifyCrocomireMutation(RoomPlmHeaders.ClearCrocomireInvisibleWall,
-            (x, y) => x < 3 && y < 8 ? WallWord(x, y, false) : (ushort)0x8123);
-        VerifyCrocomireMutation(RoomPlmHeaders.CreateCrocomireInvisibleWall,
-            (x, y) => x < 3 && y < 8 ? WallWord(x, y, true) : (ushort)0x8123);
+        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(RoomPlmHeaders.ClearCrocomireBridge,
+            (x, y) => y == 0 && x < 10 ? (ushort)0x0080 : (ushort)0x8123));
+        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(RoomPlmHeaders.CrumbleCrocomireBridgeBlock,
+            (x, y) => x == 0 && y == 0 ? (ushort)0x810b : (ushort)0x8123));
+        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(RoomPlmHeaders.ClearCrocomireBridgeBlock,
+            (x, y) => x == 0 && y == 0 ? (ushort)0x0080 : (ushort)0x8123));
+        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(RoomPlmHeaders.ClearCrocomireInvisibleWall,
+            (x, y) => x < 3 && y < 8 ? WallWord(x, y, false) : (ushort)0x8123));
+        Suite(nameof(VerifyCrocomireMutation), () => VerifyCrocomireMutation(RoomPlmHeaders.CreateCrocomireInvisibleWall,
+            (x, y) => x < 3 && y < 8 ? WallWord(x, y, true) : (ushort)0x8123));
         Console.WriteLine("Crocomire PLMs: five programs and physical draws match ROM; all mutations execute without source reads.");
 
     }

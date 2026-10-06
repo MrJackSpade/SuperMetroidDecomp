@@ -108,10 +108,10 @@ internal static partial class Program
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        VerifyGrappleBlockStockVisualMapping(rom);
-        VerifyGrappleBlockControlMapping(rom);
-        VerifyGrappleBlockDrawOperandMapping(rom);
-        VerifyGrappleBlockSoundMapping(rom);
+        Suite(nameof(VerifyGrappleBlockStockVisualMapping), () => VerifyGrappleBlockStockVisualMapping(rom));
+        Suite(nameof(VerifyGrappleBlockControlMapping), () => VerifyGrappleBlockControlMapping(rom));
+        Suite(nameof(VerifyGrappleBlockDrawOperandMapping), () => VerifyGrappleBlockDrawOperandMapping(rom));
+        Suite(nameof(VerifyGrappleBlockSoundMapping), () => VerifyGrappleBlockSoundMapping(rom));
         var forbidden = new HashSet<int>();
         foreach (ushort address in RoomPlmGrappleBlockProgramDefinitions.MechanicsWordAddresses())
         {
@@ -121,7 +121,7 @@ internal static partial class Program
         foreach (ushort address in RoomPlmGrappleBlockProgramDefinitions.MechanicsByteAddresses())
             forbidden.Add(0x840000 | address);
 
-        VerifyGrappleBlockPhysicalDrawMapping(rom);
+        Suite(nameof(VerifyGrappleBlockPhysicalDrawMapping), () => VerifyGrappleBlockPhysicalDrawMapping(rom));
         for (int address = 0xa4f9; address < 0xa517; address++)
             forbidden.Add(0x840000 | address);
 
@@ -152,8 +152,8 @@ internal static partial class Program
                 $"Grapple BTS {bts} finishes its cartridge timeline");
         }
 
-        VerifyGrappleBlockVisualSeparation(rom, forbidden);
-        VerifyGrappleBlockVisualInstallation(rom);
+        Suite(nameof(VerifyGrappleBlockVisualSeparation), () => VerifyGrappleBlockVisualSeparation(rom, forbidden));
+        Suite(nameof(VerifyGrappleBlockVisualInstallation), () => VerifyGrappleBlockVisualInstallation(rom));
 
         Console.WriteLine($"Grapple-block PLMs: 19 control words, 2 sound bytes, and 5 draw lists match ROM; both programs run with source reads forbidden.");
     }

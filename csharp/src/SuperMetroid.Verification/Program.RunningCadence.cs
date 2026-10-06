@@ -9,15 +9,15 @@ internal static partial class Program
     {
         var bus = new RunningCadenceReadGuard(rom);
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        VerifyOrdinaryRunningPointer(rom);
-        VerifyOrdinaryRunningStream(rom);
-        VerifyBoostRunningPointers(rom);
-        VerifyBoostRunningStream0(rom);
-        VerifyBoostRunningStream1(rom);
-        VerifyBoostRunningStream2(rom);
-        VerifyBoostRunningStream3(rom);
-        VerifyBoostRunningStream4(rom);
-        VerifyBoostRunningResets(rom);
+        Suite(nameof(VerifyOrdinaryRunningPointer), () => VerifyOrdinaryRunningPointer(rom));
+        Suite(nameof(VerifyOrdinaryRunningStream), () => VerifyOrdinaryRunningStream(rom));
+        Suite(nameof(VerifyBoostRunningPointers), () => VerifyBoostRunningPointers(rom));
+        Suite(nameof(VerifyBoostRunningStream0), () => VerifyBoostRunningStream0(rom));
+        Suite(nameof(VerifyBoostRunningStream1), () => VerifyBoostRunningStream1(rom));
+        Suite(nameof(VerifyBoostRunningStream2), () => VerifyBoostRunningStream2(rom));
+        Suite(nameof(VerifyBoostRunningStream3), () => VerifyBoostRunningStream3(rom));
+        Suite(nameof(VerifyBoostRunningStream4), () => VerifyBoostRunningStream4(rom));
+        Suite(nameof(VerifyBoostRunningResets), () => VerifyBoostRunningResets(rom));
         var ordinary = typeof(SamusState).GetMethod("ReadDefaultRunningAnimationByte", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Func<ISnesAddressSpace, ushort, byte>>();
         var speed = new SamusHorizontalSpeedState();
@@ -138,7 +138,7 @@ internal static partial class Program
 
     private static void VerifyOrdinaryRunningPointer(SuperMetroidAddressSpace rom)
     {
-        VerifyCadenceBytes(rom, 0x91b5d1, 2);
+        Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b5d1, 2));
         AssertEqual((ushort)(rom.ReadByte(0x91b5d1) | rom.ReadByte(0x91b5d2) << 8),
             SamusRunningCadenceDefinitions.DefaultRunningDelayListPointer, "Original ordinary pointer");
     }
@@ -152,7 +152,7 @@ internal static partial class Program
 
     private static void VerifyBoostRunningPointers(SuperMetroidAddressSpace rom)
     {
-        VerifyCadenceBytes(rom, 0x91b5de, 10);
+        Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b5de, 10));
         for (byte selection = 0; selection <= 5; selection++)
         {
             int address = 0x91b5de + 2 * selection;
@@ -165,7 +165,7 @@ internal static partial class Program
 
     private static void VerifyBoostRunningResets(SuperMetroidAddressSpace rom)
     {
-        VerifyCadenceBytes(rom, 0x91b61f, 12);
+        Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b61f, 12));
         for (byte selection = 0; selection <= 5; selection++)
         {
             int address = 0x91b61f + 2 * selection;

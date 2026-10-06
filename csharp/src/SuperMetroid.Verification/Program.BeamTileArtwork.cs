@@ -7,13 +7,13 @@ internal static partial class Program
 {
     private static void VerifyBeamTileArtwork(ISnesAddressSpace bus)
     {
-        VerifyProjectileTrailDefinitions(bus);
-        VerifyProjectileTrailArtwork(bus);
+        Suite(nameof(VerifyProjectileTrailDefinitions), () => VerifyProjectileTrailDefinitions(bus));
+        Suite(nameof(VerifyProjectileTrailArtwork), () => VerifyProjectileTrailArtwork(bus));
         var files = BeamTileExtractor.Extract(bus);
         var palettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
         var catalog = BeamTileCatalog.Load(files, palettes);
-        VerifyBeamPaletteArtwork(bus, catalog);
-        VerifyRuntimeBeamArtwork(bus, files, catalog);
+        Suite(nameof(VerifyBeamPaletteArtwork), () => VerifyBeamPaletteArtwork(bus, catalog));
+        Suite(nameof(VerifyRuntimeBeamArtwork), () => VerifyRuntimeBeamArtwork(bus, files, catalog));
         AssertEqual(14, files.Count, "Every legal beam combination and both bounded invalid uploads have editable artwork");
         for (ushort selection = 0; selection < 12; selection++)
         {

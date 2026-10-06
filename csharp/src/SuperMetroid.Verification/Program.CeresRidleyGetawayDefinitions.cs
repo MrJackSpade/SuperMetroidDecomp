@@ -20,7 +20,7 @@ internal static partial class Program
         }
         foreach (ushort invalid in new ushort[] { 1, 223, 225, 226, 65535 })
             AssertThrows<InvalidDataException>(() => CeresRidleyGetawayDefinitions.FromByteIndex(invalid), "Ceres invalid curve index");
-        VerifyCompiledCeresRidleyMode7Transfers(rom);
+        Suite(nameof(VerifyCompiledCeresRidleyMode7Transfers), () => VerifyCompiledCeresRidleyMode7Transfers(rom));
         Console.WriteLine("Ceres Ridley compiled getaway: all 337 native curve words match, including irregular zoom steps and terminal frame.");
     }
 

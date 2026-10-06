@@ -45,7 +45,7 @@ internal static partial class Program
 
         AssertEqual(28, completedCases, "all native door-alignment cases complete");
 
-        VerifyCompleteDoorAlignmentHandoff();
+        Suite(nameof(VerifyCompleteDoorAlignmentHandoff), () => VerifyCompleteDoorAlignmentHandoff());
 
         // The scrolling owner replaces only whole position words. Fractional movement
         // survives the complete transition and is therefore available to the first frame

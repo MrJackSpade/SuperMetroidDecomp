@@ -113,7 +113,7 @@ internal static partial class Program
                 Directory.Delete(root, recursive: true);
         }
 
-        VerifyGameContentIdentityComposition();
+        Suite(nameof(VerifyGameContentIdentityComposition), () => VerifyGameContentIdentityComposition());
 
         Console.WriteLine(
             "Persistent audio overrides: isolated initialization, selection, stock repair, " +

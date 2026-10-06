@@ -16,7 +16,7 @@ internal static partial class Program
             VerifyHyperBeamFxColorArtwork(rom);
         }
         var content = ProjectileSpriteCatalog.Load(new MemoryStream(json));
-        VerifyProjectileCompositionOwners(rom, content);
+        Suite(nameof(VerifyProjectileCompositionOwners), () => VerifyProjectileCompositionOwners(rom, content));
         int draws = 0;
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
         foreach (ushort origin in new ushort[] { 0, 1, 127, 255, 256, 0x7fff, 0xffff })
@@ -43,13 +43,13 @@ internal static partial class Program
         document.Frames[name][0] = original with { OffsetX = original.OffsetX == 255 ? 254 : original.OffsetX + 1 };
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(document, options);
         var edited = ProjectileSpriteCatalog.Load(new MemoryStream(editedJson));
-        VerifyProjectileFiles(rom, editedJson);
+        Suite(nameof(VerifyProjectileFiles), () => VerifyProjectileFiles(rom, editedJson));
         using var temporaryDirectory = new MapCatalogTestDirectory();
         GameInstallation installation = GameAssetInstaller.Install(
             Path.GetFullPath(sourceRom), temporaryDirectory.Root);
         var roomAssets = new MapPresentationInstalledRoomAssets(installation);
-        VerifyRuntimeProjectileCompositions(rom, content, edited, editedId,
-            roomAssets, installation.LoadMaps());
+        Suite(nameof(VerifyRuntimeProjectileCompositions), () => VerifyRuntimeProjectileCompositions(rom, content, edited, editedId,
+            roomAssets, installation.LoadMaps()));
         if (!compositionOnly)
             VerifyIntroProjectileArtwork(rom, content, edited, editedId);
         var baselineOam = new OamBuffer(); var editedOam = new OamBuffer();

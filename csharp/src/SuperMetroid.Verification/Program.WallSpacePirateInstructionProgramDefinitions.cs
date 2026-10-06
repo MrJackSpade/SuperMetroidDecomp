@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyWallSpacePirateInstructionProgramDefinitions()
     {
-        VerifyWallSpacePirateInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyWallSpacePirateInstructionProgramDefinitions), () => VerifyWallSpacePirateInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyWallSpacePirateInstructionProgramDefinitions(
@@ -28,34 +28,34 @@ internal static partial class Program
 
         var guard = new WallSpacePirateInstructionReadGuard(rom);
         RoomLevelData level = CreateOpenWallPirateRoom();
-        VerifyAttack(movingRight: false);
-        VerifyAttack(movingRight: true);
-        VerifyClimb(
+        Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: false));
+        Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: true));
+        Suite(nameof(VerifyClimb), () => VerifyClimb(
             WallSpacePirateInstructionProgramDefinitions.LandedOnLeftWall,
             expectedFunction: WallSpacePirateFunction.ClimbingLeftWall,
-            frames: 12);
-        VerifyClimb(
+            frames: 12));
+        Suite(nameof(VerifyClimb), () => VerifyClimb(
             WallSpacePirateInstructionProgramDefinitions.MovingUpLeftWall,
             expectedFunction: WallSpacePirateFunction.ClimbingLeftWall,
-            frames: 260);
-        VerifyClimb(
+            frames: 260));
+        Suite(nameof(VerifyClimb), () => VerifyClimb(
             WallSpacePirateInstructionProgramDefinitions.MovingDownLeftWall,
             expectedFunction: WallSpacePirateFunction.ClimbingLeftWall,
-            frames: 260);
-        VerifyClimb(
+            frames: 260));
+        Suite(nameof(VerifyClimb), () => VerifyClimb(
             WallSpacePirateInstructionProgramDefinitions.LandedOnRightWall,
             expectedFunction: WallSpacePirateFunction.ClimbingRightWall,
-            frames: 12);
-        VerifyClimb(
+            frames: 12));
+        Suite(nameof(VerifyClimb), () => VerifyClimb(
             WallSpacePirateInstructionProgramDefinitions.MovingDownRightWall,
             expectedFunction: WallSpacePirateFunction.ClimbingRightWall,
-            frames: 260);
-        VerifyClimb(
+            frames: 260));
+        Suite(nameof(VerifyClimb), () => VerifyClimb(
             WallSpacePirateInstructionProgramDefinitions.MovingUpRightWall,
             expectedFunction: WallSpacePirateFunction.ClimbingRightWall,
-            frames: 260);
-        VerifyCollisionReversal(onRightWall: false);
-        VerifyCollisionReversal(onRightWall: true);
+            frames: 260));
+        Suite(nameof(VerifyCollisionReversal), () => VerifyCollisionReversal(onRightWall: false));
+        Suite(nameof(VerifyCollisionReversal), () => VerifyCollisionReversal(onRightWall: true));
 
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions", flags)!;

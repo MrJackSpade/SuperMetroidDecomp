@@ -34,10 +34,10 @@ internal static partial class Program
                    nativeEmpty.HighTable.SequenceEqual(installedEmpty.HighTable) &&
                    nativeEmpty.NextByteOffset == installedEmpty.NextByteOffset,
             "walking Pirate common empty frame draws without ROM reads");
-        VerifySharedEmptyExtendedFrames(rom, stock);
-        VerifyInstalledCeresSteamInstructionFrames(stock);
-        VerifyInstalledOumVisualSelectors(rom, stock);
-        VerifyInstalledCrocomireTongueVisualSelectors(rom, stock);
+        Suite(nameof(VerifySharedEmptyExtendedFrames), () => VerifySharedEmptyExtendedFrames(rom, stock));
+        Suite(nameof(VerifyInstalledCeresSteamInstructionFrames), () => VerifyInstalledCeresSteamInstructionFrames(stock));
+        Suite(nameof(VerifyInstalledOumVisualSelectors), () => VerifyInstalledOumVisualSelectors(rom, stock));
+        Suite(nameof(VerifyInstalledCrocomireTongueVisualSelectors), () => VerifyInstalledCrocomireTongueVisualSelectors(rom, stock));
         AssertEqual(EnemyExtendedFrameDefinitions.ExpectedFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Length,
             "walking/wall Pirate distinct extended-frame count");
@@ -69,7 +69,7 @@ internal static partial class Program
             }
         }
         Console.WriteLine("  Extended enemy OAM: every installed composition matches native component offsets, clipping, and packed sprite bytes at all three fixture origins.");
-        VerifyInstalledSporeSpawnSelectorPrograms(rom, stock);
+        Suite(nameof(VerifyInstalledSporeSpawnSelectorPrograms), () => VerifyInstalledSporeSpawnSelectorPrograms(rom, stock));
         AssertEqual(EnemyExtendedFrameDefinitions.RidleyFrameCount,
             EnemyExtendedFrameDefinitions.Frames.ToArray().Count(
                 frame => frame.Name.StartsWith("ridley_body_", StringComparison.Ordinal)),
@@ -1241,7 +1241,7 @@ internal static partial class Program
         AssertTrue(reloadedClosedSpore.LowTable.SequenceEqual(openSpore.LowTable) &&
                    reloadedClosedSpore.HighTable.SequenceEqual(openSpore.HighTable),
             "Spore Spawn display remap survives asset reload");
-        VerifySporeSpawnVisualRemapKeepsMechanics(rom, stock, swappedSpore);
+        Suite(nameof(VerifySporeSpawnVisualRemapKeepsMechanics), () => VerifySporeSpawnVisualRemapKeepsMechanics(rom, stock, swappedSpore));
 
         EnemyExtendedFrameDocument remapped =
             JsonSerializer.Deserialize<EnemyExtendedFrameDocument>(original,

@@ -7,15 +7,15 @@ internal static partial class Program
 {
     private static void VerifyMotherBrainGlassShardDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyGlassShardXPlacement(rom);
-        VerifyGlassShardYPlacement(rom);
+        Suite(nameof(VerifyGlassShardXPlacement), () => VerifyGlassShardXPlacement(rom));
+        Suite(nameof(VerifyGlassShardYPlacement), () => VerifyGlassShardYPlacement(rom));
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", instance)!;
         FieldInfo randomField = typeof(RoomEnemySystem).GetField("_nextRandom", instance)!;
         var guarded = new MotherBrainGlassShardReadGuard(rom);
 
-        VerifyGlassShardProgramSelection(rom);
-        VerifyGlassShardProgramOrigins(rom);
+        Suite(nameof(VerifyGlassShardProgramSelection), () => VerifyGlassShardProgramSelection(rom));
+        Suite(nameof(VerifyGlassShardProgramOrigins), () => VerifyGlassShardProgramOrigins(rom));
 
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {

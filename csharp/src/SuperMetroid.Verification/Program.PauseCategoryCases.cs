@@ -5,11 +5,11 @@ internal static partial class Program
 {
     private static void VerifyPauseCategoryCases(ISnesAddressSpace rom)
     {
-        VerifyPauseCategoryOffsets(rom);
-        VerifyPauseCategoryTilemapPointers(rom);
-        VerifyPauseCategoryMaskPointers(rom);
-        VerifyPauseCategoryItemCounts(rom);
-        VerifyPauseCategoryCopyLengths(rom);
+        Suite(nameof(VerifyPauseCategoryOffsets), () => VerifyPauseCategoryOffsets(rom));
+        Suite(nameof(VerifyPauseCategoryTilemapPointers), () => VerifyPauseCategoryTilemapPointers(rom));
+        Suite(nameof(VerifyPauseCategoryMaskPointers), () => VerifyPauseCategoryMaskPointers(rom));
+        Suite(nameof(VerifyPauseCategoryItemCounts), () => VerifyPauseCategoryItemCounts(rom));
+        Suite(nameof(VerifyPauseCategoryCopyLengths), () => VerifyPauseCategoryCopyLengths(rom));
         AssertEqual(new PauseEquipmentCategoryDefinition(0, 0, 0, 0, 0, 0),
             PauseEquipmentCategories.Get(0), "reserve controls retain the original managed zero-data contract");
         for (int category = 0; category < 4; category++)

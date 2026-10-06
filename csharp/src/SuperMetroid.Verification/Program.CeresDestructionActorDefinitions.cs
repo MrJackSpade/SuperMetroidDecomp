@@ -7,9 +7,9 @@ internal static partial class Program
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
-        VerifyCeresInitialActorMetadata(retail);
+        Suite(nameof(VerifyCeresInitialActorMetadata), () => VerifyCeresInitialActorMetadata(retail));
 
-        VerifyCeresZebesActorMetadata(retail);
+        Suite(nameof(VerifyCeresZebesActorMetadata), () => VerifyCeresZebesActorMetadata(retail));
 
         AssertThrows<ArgumentOutOfRangeException>(
             () => CeresDestructionActorDefinitions.InitialActor(
@@ -20,11 +20,11 @@ internal static partial class Program
                 CeresDestructionActorDefinitions.ZebesActorCount),
             "Zebes reveal actor definition boundary");
 
-        VerifyCeresBackdropPrograms(retail);
-        VerifyCeresInitialExplosionProgram(retail);
-        VerifyCeresRepeatingExplosionProgram(retail);
-        VerifyCeresFinalWaveProgram(retail);
-        VerifyCeresStationBlastProgram(retail);
+        Suite(nameof(VerifyCeresBackdropPrograms), () => VerifyCeresBackdropPrograms(retail));
+        Suite(nameof(VerifyCeresInitialExplosionProgram), () => VerifyCeresInitialExplosionProgram(retail));
+        Suite(nameof(VerifyCeresRepeatingExplosionProgram), () => VerifyCeresRepeatingExplosionProgram(retail));
+        Suite(nameof(VerifyCeresFinalWaveProgram), () => VerifyCeresFinalWaveProgram(retail));
+        Suite(nameof(VerifyCeresStationBlastProgram), () => VerifyCeresStationBlastProgram(retail));
         AssertThrows<InvalidDataException>(() =>
             CeresDestructionSpriteInstructionDefinitions.ReadWord(
                 CeresDestructionSpriteInstructionDefinitions.InitialExplosionEnd - 1),
@@ -33,7 +33,7 @@ internal static partial class Program
             CeresDestructionSpriteInstructionDefinitions.ReadWord(
                 CeresDestructionSpriteInstructionDefinitions.StarSheetsStart + 7),
             "Ceres star-sheet reader cannot cross into the next quadrant");
-        VerifyCeresRearPrograms(retail);
+        Suite(nameof(VerifyCeresRearPrograms), () => VerifyCeresRearPrograms(retail));
 
         var guard = new CeresDestructionActorDefinitionReadGuard(retail);
         var state = CreateRetailDestructionFixture(guard);

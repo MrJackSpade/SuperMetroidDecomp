@@ -5,13 +5,13 @@ internal static partial class Program
 {
     private static void VerifyCeresBackdropPrograms(ISnesAddressSpace rom)
     {
-        VerifyCeresBackdropProgram(rom, 0xcc3f, 0xcc47, false);
-        VerifyCeresBackdropProgram(rom, 0xccab, 0xccb3, false);
-        VerifyCeresBackdropProgram(rom, 0xccbb, 0xccd5, true);
-        VerifyCeresBackdropProgram(rom, 0xcd83, 0xcd8b, false);
-        VerifyCeresBackdropProgram(rom, 0xcd8b, 0xcd93, false);
-        VerifyCeresBackdropProgram(rom, 0xcd93, 0xcd9b, false);
-        VerifyCeresBackdropProgram(rom, 0xcd9b, 0xcda3, false);
+        Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcc3f, 0xcc47, false));
+        Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xccab, 0xccb3, false));
+        Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xccbb, 0xccd5, true));
+        Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcd83, 0xcd8b, false));
+        Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcd8b, 0xcd93, false));
+        Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcd93, 0xcd9b, false));
+        Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcd9b, 0xcda3, false));
     }
 
     private static void VerifyCeresBackdropProgram(ISnesAddressSpace rom, ushort start, ushort end, bool title)

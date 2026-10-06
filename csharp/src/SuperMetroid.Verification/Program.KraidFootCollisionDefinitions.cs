@@ -27,11 +27,11 @@ internal static partial class Program
             .. Enumerable.Range(0, KraidFootCollisionDefinitions.FrameCount)
                 .Select(KraidFootCollisionDefinitions.FramePointer),
         ];
-        VerifyKraidFootFirstX(rom);
-        VerifyKraidFootFirstY(rom);
-        VerifyKraidFootSecondX(rom);
-        VerifyKraidFootSecondY(rom);
-        VerifyKraidFootSharedHitbox(rom);
+        Suite(nameof(VerifyKraidFootFirstX), () => VerifyKraidFootFirstX(rom));
+        Suite(nameof(VerifyKraidFootFirstY), () => VerifyKraidFootFirstY(rom));
+        Suite(nameof(VerifyKraidFootSecondX), () => VerifyKraidFootSecondX(rom));
+        Suite(nameof(VerifyKraidFootSecondY), () => VerifyKraidFootSecondY(rom));
+        Suite(nameof(VerifyKraidFootSharedHitbox), () => VerifyKraidFootSharedHitbox(rom));
 
         for (int index = 0;
              index < KraidFootInstructionProgramDefinitions.PresentationWordCount;

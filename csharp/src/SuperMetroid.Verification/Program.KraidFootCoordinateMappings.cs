@@ -4,13 +4,13 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyKraidFootFirstX(SuperMetroidAddressSpace rom) =>
-        VerifyKraidFootCoordinate(rom, 0, false, KraidFootCollisionDefinitions.FirstX);
+        Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, false, KraidFootCollisionDefinitions.FirstX));
     private static void VerifyKraidFootFirstY(SuperMetroidAddressSpace rom) =>
-        VerifyKraidFootCoordinate(rom, 0, true, KraidFootCollisionDefinitions.FirstY);
+        Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, true, KraidFootCollisionDefinitions.FirstY));
     private static void VerifyKraidFootSecondX(SuperMetroidAddressSpace rom) =>
-        VerifyKraidFootCoordinate(rom, 1, false, KraidFootCollisionDefinitions.SecondX);
+        Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, false, KraidFootCollisionDefinitions.SecondX));
     private static void VerifyKraidFootSecondY(SuperMetroidAddressSpace rom) =>
-        VerifyKraidFootCoordinate(rom, 1, true, KraidFootCollisionDefinitions.SecondY);
+        Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, true, KraidFootCollisionDefinitions.SecondY));
 
     private static void VerifyKraidFootCoordinate(SuperMetroidAddressSpace rom, int component, bool vertical, Func<int, short> calculate)
     {

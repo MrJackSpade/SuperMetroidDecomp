@@ -73,7 +73,7 @@ internal static partial class Program
     private static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = new SaveMarkerReadGuard(bus);
-        VerifySaveMarkerEligibility(bus);
+        Suite(nameof(VerifySaveMarkerEligibility), () => VerifySaveMarkerEligibility(bus));
         int valid = 0;
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         for (int index = 0; index < MapSaveMarkerDefinitions.SlotsPerArea; index++)
@@ -100,7 +100,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(guard, AreaId.Ceres, 0, original.SaveMarkers), "Ceres marker rejected");
         foreach (int invalid in new[] { -1, MapSaveMarkerDefinitions.SlotsPerArea })
             AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(guard, AreaId.Crateria, invalid, original.SaveMarkers), "out-of-range marker rejected");
-        VerifyInstalledFileSelectMenu(bus, guard, original, original);
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapSaveMarkerDocument>(File.ReadAllBytes(Path.Combine(stock, MapSaveMarkerFormat.FileName)), options)!;
         var points = new Dictionary<string, MapLabelPoint>(document.Markers);

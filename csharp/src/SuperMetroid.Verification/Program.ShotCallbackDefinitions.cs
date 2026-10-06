@@ -79,7 +79,7 @@ internal static partial class Program
         var shortcut = typeof(RoomEnemySystem).GetMethod("IsCanonicalMultiboxNoOpAi", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Func<ushort, bool>>();
         AssertTrue(!shortcut(0x94b5) && shortcut(0x804b) && shortcut(0x804c), "Kraid private RTL is not a canonical multibox shortcut");
-        VerifyLiteralNoOpCombatAdmission(rom, expectedTouchNoOps, expectedShotNoOps);
+        Suite(nameof(VerifyLiteralNoOpCombatAdmission), () => VerifyLiteralNoOpCombatAdmission(rom, expectedTouchNoOps, expectedShotNoOps));
         Console.WriteLine(
             "Combat callback inventory: 163 headers, 221 lists, 309 hitboxes, 71 touch " +
             "and 80 shot callbacks match; all bank/pointer pairs and twenty-seven real admission " +

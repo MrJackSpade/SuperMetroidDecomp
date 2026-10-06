@@ -57,7 +57,7 @@ internal static partial class Program
                 $"invalid Tourian statue parameter {parameter}");
         }
 
-        VerifyTourianStatueAnimatedTileMechanics(rom);
+        Suite(nameof(VerifyTourianStatueAnimatedTileMechanics), () => VerifyTourianStatueAnimatedTileMechanics(rom));
 
         Console.WriteLine(
             "Tourian statue eye positions: eight native words and all eight real eye/soul spawns pass with position tables forbidden.");
@@ -66,10 +66,10 @@ internal static partial class Program
     private static void VerifyTourianStatueAnimatedTileMechanics(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
-        VerifyTourianStatueArtworkSources(rom);
-        VerifyTourianStatueDescriptorFields(rom);
-        VerifyTourianStatueProgramMappings(rom);
-        VerifyTourianStatueSpawnOrder(rom);
+        Suite(nameof(VerifyTourianStatueArtworkSources), () => VerifyTourianStatueArtworkSources(rom));
+        Suite(nameof(VerifyTourianStatueDescriptorFields), () => VerifyTourianStatueDescriptorFields(rom));
+        Suite(nameof(VerifyTourianStatueProgramMappings), () => VerifyTourianStatueProgramMappings(rom));
+        Suite(nameof(VerifyTourianStatueSpawnOrder), () => VerifyTourianStatueSpawnOrder(rom));
         int mechanicsWordCount = 0;
         int presentationWordCount = 0;
         RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlas.Load(

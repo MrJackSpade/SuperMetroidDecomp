@@ -21,9 +21,9 @@ internal static partial class Program
                 RoomPaletteFxDefinitions.TourianDefinitionsBegin,
                 RoomPaletteFxDefinitions.TourianDefinitionsEnd),
         ];
-        VerifyPaletteFxDispatchDomain();
-        VerifyPaletteFxSetupSelection(rom);
-        VerifyPaletteFxInitialListSelection(rom);
+        Suite(nameof(VerifyPaletteFxDispatchDomain), () => VerifyPaletteFxDispatchDomain());
+        Suite(nameof(VerifyPaletteFxSetupSelection), () => VerifyPaletteFxSetupSelection(rom));
+        Suite(nameof(VerifyPaletteFxInitialListSelection), () => VerifyPaletteFxInitialListSelection(rom));
         AssertEqual(63, pointers.Length, "compiled palette-FX definition count");
 
         var forbidden = new HashSet<int>();
@@ -56,8 +56,8 @@ internal static partial class Program
         AssertEqual(1, specializedCompiledPrograms,
             "specialized Hyper Beam palette-FX definition count");
 
-        VerifyPaletteFxAreaListPointers(rom);
-        VerifyPaletteFxAreaSelections(rom);
+        Suite(nameof(VerifyPaletteFxAreaListPointers), () => VerifyPaletteFxAreaListPointers(rom));
+        Suite(nameof(VerifyPaletteFxAreaSelections), () => VerifyPaletteFxAreaSelections(rom));
         for (int area = 0; area < RoomPaletteFxDefinitions.AreaCount; area++)
         {
             int pointerAddress = RoomFxRomData.Tables.AreaPaletteFxObjectListPointers + area * 2;
@@ -74,7 +74,7 @@ internal static partial class Program
         }
 
         var guardedRom = new RoomPaletteFxDefinitionReadGuard(rom, forbidden);
-        VerifyPaletteFxDispatchSpawns(guardedRom, pointers);
+        Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(guardedRom, pointers));
 
         const ushort fxPointer = 0x9000;
         for (int area = 0; area < AreaIds.RetailCount; area++)

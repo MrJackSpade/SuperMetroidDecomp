@@ -4,10 +4,10 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     private static void VerifyMotherBrainMutationProgramControls(ISnesAddressSpace rom) =>
-        VerifyMotherBrainMutationProgramField(rom, false);
+        Suite(nameof(VerifyMotherBrainMutationProgramField), () => VerifyMotherBrainMutationProgramField(rom, false));
 
     private static void VerifyMotherBrainMutationProgramDraws(ISnesAddressSpace rom) =>
-        VerifyMotherBrainMutationProgramField(rom, true);
+        Suite(nameof(VerifyMotherBrainMutationProgramField), () => VerifyMotherBrainMutationProgramField(rom, true));
 
     private static void VerifyMotherBrainMutationProgramField(ISnesAddressSpace rom, bool draw)
     {

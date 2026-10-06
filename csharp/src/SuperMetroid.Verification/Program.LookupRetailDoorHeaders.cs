@@ -5,16 +5,16 @@ internal static partial class Program
 {
     private static void VerifyRetailDoorHeaders(SuperMetroidAddressSpace rom)
     {
-        VerifyDoorHeaderIdentities();
-        VerifyDoorHeaderDestinationRoomPointer(rom);
-        VerifyDoorHeaderBitFlags(rom);
-        VerifyDoorHeaderOrientation(rom);
-        VerifyDoorHeaderPlmX(rom);
-        VerifyDoorHeaderPlmY(rom);
-        VerifyDoorHeaderDestinationScreenX(rom);
-        VerifyDoorHeaderDestinationScreenY(rom);
-        VerifyDoorHeaderSamusDistance(rom);
-        VerifyDoorHeaderSetupCodePointer(rom);
+        Suite(nameof(VerifyDoorHeaderIdentities), () => VerifyDoorHeaderIdentities());
+        Suite(nameof(VerifyDoorHeaderDestinationRoomPointer), () => VerifyDoorHeaderDestinationRoomPointer(rom));
+        Suite(nameof(VerifyDoorHeaderBitFlags), () => VerifyDoorHeaderBitFlags(rom));
+        Suite(nameof(VerifyDoorHeaderOrientation), () => VerifyDoorHeaderOrientation(rom));
+        Suite(nameof(VerifyDoorHeaderPlmX), () => VerifyDoorHeaderPlmX(rom));
+        Suite(nameof(VerifyDoorHeaderPlmY), () => VerifyDoorHeaderPlmY(rom));
+        Suite(nameof(VerifyDoorHeaderDestinationScreenX), () => VerifyDoorHeaderDestinationScreenX(rom));
+        Suite(nameof(VerifyDoorHeaderDestinationScreenY), () => VerifyDoorHeaderDestinationScreenY(rom));
+        Suite(nameof(VerifyDoorHeaderSamusDistance), () => VerifyDoorHeaderSamusDistance(rom));
+        Suite(nameof(VerifyDoorHeaderSetupCodePointer), () => VerifyDoorHeaderSetupCodePointer(rom));
     }
 
     private static void VerifyDoorHeaderIdentities()

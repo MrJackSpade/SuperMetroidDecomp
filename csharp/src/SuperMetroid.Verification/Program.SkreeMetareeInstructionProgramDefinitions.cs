@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifySkreeMetareeInstructionProgramDefinitions()
     {
-        VerifySkreeMetareeInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifySkreeMetareeInstructionProgramDefinitions), () => VerifySkreeMetareeInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifySkreeMetareeInstructionProgramDefinitions(
@@ -30,8 +30,8 @@ internal static partial class Program
         }
 
         var guard = new SkreeMetareeInstructionProgramReadGuard(rom);
-        VerifySpecies(metaree: true);
-        VerifySpecies(metaree: false);
+        Suite(nameof(VerifySpecies), () => VerifySpecies(metaree: true));
+        Suite(nameof(VerifySpecies), () => VerifySpecies(metaree: false));
 
         AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
             "Skree/Metaree programs never read installed visual selectors");

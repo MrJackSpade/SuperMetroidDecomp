@@ -58,16 +58,16 @@ internal static partial class Program
 
     private static void VerifyQuicksandDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifySpecialAirInsideHeaderMapping(rom);
-        VerifySpecialAirInsideSetupMapping(rom);
-        VerifySpecialAirCollisionHeaderMapping(rom);
-        VerifySpecialAirCollisionSetupMapping(rom);
+        Suite(nameof(VerifySpecialAirInsideHeaderMapping), () => VerifySpecialAirInsideHeaderMapping(rom));
+        Suite(nameof(VerifySpecialAirInsideSetupMapping), () => VerifySpecialAirInsideSetupMapping(rom));
+        Suite(nameof(VerifySpecialAirCollisionHeaderMapping), () => VerifySpecialAirCollisionHeaderMapping(rom));
+        Suite(nameof(VerifySpecialAirCollisionSetupMapping), () => VerifySpecialAirCollisionSetupMapping(rom));
 
-        VerifyQuicksandSetupMapping(rom);
-        VerifyQuicksandInstructionMapping(rom);
-        VerifyQuicksandMovingDisplacement(rom);
-        VerifyQuicksandStationaryDisplacement(rom);
-        VerifyQuicksandUpwardLimit(rom);
+        Suite(nameof(VerifyQuicksandSetupMapping), () => VerifyQuicksandSetupMapping(rom));
+        Suite(nameof(VerifyQuicksandInstructionMapping), () => VerifyQuicksandInstructionMapping(rom));
+        Suite(nameof(VerifyQuicksandMovingDisplacement), () => VerifyQuicksandMovingDisplacement(rom));
+        Suite(nameof(VerifyQuicksandStationaryDisplacement), () => VerifyQuicksandStationaryDisplacement(rom));
+        Suite(nameof(VerifyQuicksandUpwardLimit), () => VerifyQuicksandUpwardLimit(rom));
 
         var guarded = new QuicksandDefinitionReadGuard(rom);
         var level = new RoomLevelData(
@@ -136,10 +136,10 @@ internal static partial class Program
     }
 
     private static void VerifyQuicksandSetupMapping(SuperMetroidAddressSpace rom) =>
-        VerifyQuicksandReactionField(rom, false);
+        Suite(nameof(VerifyQuicksandReactionField), () => VerifyQuicksandReactionField(rom, false));
 
     private static void VerifyQuicksandInstructionMapping(SuperMetroidAddressSpace rom) =>
-        VerifyQuicksandReactionField(rom, true);
+        Suite(nameof(VerifyQuicksandReactionField), () => VerifyQuicksandReactionField(rom, true));
 
     private static void VerifyQuicksandReactionField(SuperMetroidAddressSpace rom, bool instruction)
     {
@@ -167,13 +167,13 @@ internal static partial class Program
     }
 
     private static void VerifyQuicksandMovingDisplacement(SuperMetroidAddressSpace rom) =>
-        VerifyQuicksandPhysicsField(rom, 0x84b48b, physics => physics.MovingDisplacement);
+        Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b48b, physics => physics.MovingDisplacement));
 
     private static void VerifyQuicksandStationaryDisplacement(SuperMetroidAddressSpace rom) =>
-        VerifyQuicksandPhysicsField(rom, 0x84b48f, physics => physics.StationaryDisplacement);
+        Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b48f, physics => physics.StationaryDisplacement));
 
     private static void VerifyQuicksandUpwardLimit(SuperMetroidAddressSpace rom) =>
-        VerifyQuicksandPhysicsField(rom, 0x84b493, physics => physics.UpwardSpeedLimit);
+        Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b493, physics => physics.UpwardSpeedLimit));
 
     private static void VerifyQuicksandPhysicsField(SuperMetroidAddressSpace rom, int address,
         Func<QuicksandSurfacePhysics, ushort> field)
@@ -185,16 +185,16 @@ internal static partial class Program
     }
 
     private static void VerifySpecialAirInsideHeaderMapping(SuperMetroidAddressSpace rom) =>
-        VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveInside, 0x949b06, false);
+        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveInside, 0x949b06, false));
 
     private static void VerifySpecialAirInsideSetupMapping(SuperMetroidAddressSpace rom) =>
-        VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveInside, 0x949b06, true);
+        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveInside, 0x949b06, true));
 
     private static void VerifySpecialAirCollisionHeaderMapping(SuperMetroidAddressSpace rom) =>
-        VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveCollision, 0x9492d9, false);
+        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveCollision, 0x9492d9, false));
 
     private static void VerifySpecialAirCollisionSetupMapping(SuperMetroidAddressSpace rom) =>
-        VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveCollision, 0x9492d9, true);
+        Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveCollision, 0x9492d9, true));
 
     private static void VerifySpecialAirField(SuperMetroidAddressSpace rom,
         Func<AreaId, byte, SpecialAirReactionDefinition> resolve, int nativePointers, bool setup)

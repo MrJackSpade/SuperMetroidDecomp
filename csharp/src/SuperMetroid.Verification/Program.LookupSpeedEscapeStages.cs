@@ -4,13 +4,13 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     private static void VerifySpeedEscapeStageTargets(SuperMetroidAddressSpace rom) =>
-        VerifySpeedEscapeStageField(rom, 0);
+        Suite(nameof(VerifySpeedEscapeStageField), () => VerifySpeedEscapeStageField(rom, 0));
 
     private static void VerifySpeedEscapeStageHeights(SuperMetroidAddressSpace rom) =>
-        VerifySpeedEscapeStageField(rom, 1);
+        Suite(nameof(VerifySpeedEscapeStageField), () => VerifySpeedEscapeStageField(rom, 1));
 
     private static void VerifySpeedEscapeStageVelocities(SuperMetroidAddressSpace rom) =>
-        VerifySpeedEscapeStageField(rom, 2);
+        Suite(nameof(VerifySpeedEscapeStageField), () => VerifySpeedEscapeStageField(rom, 2));
 
     private static void VerifySpeedEscapeStageField(SuperMetroidAddressSpace rom, int field)
     {

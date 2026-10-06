@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyWreckedShipGhostInstructionProgramDefinitions()
     {
-        VerifyWreckedShipGhostInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyWreckedShipGhostInstructionProgramDefinitions), () => VerifyWreckedShipGhostInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyWreckedShipGhostInstructionProgramDefinitions(

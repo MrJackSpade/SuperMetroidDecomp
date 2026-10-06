@@ -147,12 +147,12 @@ internal static partial class Program
         AssertPaletteColors(rom, adjacentBoostColors, 0x9d20,
             "Speed Booster phase eight reads the adjacent Varia list");
 
-        VerifyCompiledWindow(0xda50, 6,
+        Suite(nameof(VerifyCompiledWindow), () => VerifyCompiledWindow(0xda50, 6,
             SamusPaletteRomData.FullBodyCycles.ReadScrewAttackPalettePointer,
-            "Screw Attack");
-        VerifyCompiledWindow(0xdaaf, 4,
+            "Screw Attack"));
+        Suite(nameof(VerifyCompiledWindow), () => VerifyCompiledWindow(0xdaaf, 4,
             SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer,
-            "active Speed Booster");
+            "active Speed Booster"));
         AssertThrows<InvalidDataException>(() =>
             SamusPaletteRomData.FullBodyCycles.ReadScrewAttackPalettePointer(4, 12),
             "a Screw Attack read beyond the compiled three-suit window fails explicitly");

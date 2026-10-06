@@ -33,14 +33,14 @@ internal static partial class Program
         foreach ((RoomFxType type, ushort nativeValue) in representativeTypes)
             AssertEqual(nativeValue, (ushort)type, $"{type} native room-FX value");
 
-        VerifyRoomLayer3FxTypes();
-        VerifyAreaAnimatedTileObjectDefinitions();
-        VerifyRoomFxAnimatedTileMechanicsDefinitions();
-        VerifyRoomFxAnimatedTileArtwork();
-        VerifyRoomFxLayer3Tilemaps();
-        VerifyRoomFxPaletteBlends();
-        VerifyRetailRoomFxInventory();
-        VerifyFxValidationBoundaries();
+        Suite(nameof(VerifyRoomLayer3FxTypes), () => VerifyRoomLayer3FxTypes());
+        Suite(nameof(VerifyAreaAnimatedTileObjectDefinitions), () => VerifyAreaAnimatedTileObjectDefinitions());
+        Suite(nameof(VerifyRoomFxAnimatedTileMechanicsDefinitions), () => VerifyRoomFxAnimatedTileMechanicsDefinitions());
+        Suite(nameof(VerifyRoomFxAnimatedTileArtwork), () => VerifyRoomFxAnimatedTileArtwork());
+        Suite(nameof(VerifyRoomFxLayer3Tilemaps), () => VerifyRoomFxLayer3Tilemaps());
+        Suite(nameof(VerifyRoomFxPaletteBlends), () => VerifyRoomFxPaletteBlends());
+        Suite(nameof(VerifyRetailRoomFxInventory), () => VerifyRetailRoomFxInventory());
+        Suite(nameof(VerifyFxValidationBoundaries), () => VerifyFxValidationBoundaries());
 
         Console.WriteLine(
             "  Room FX: shared record/table catalog, typed blending, liquid rise " +
@@ -52,8 +52,8 @@ internal static partial class Program
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "FX validation oracle revision");
-        VerifyRoomFxTypeValidation(rom);
-        VerifyLayerBlendValidation(rom);
+        Suite(nameof(VerifyRoomFxTypeValidation), () => VerifyRoomFxTypeValidation(rom));
+        Suite(nameof(VerifyLayerBlendValidation), () => VerifyLayerBlendValidation(rom));
     }
 
     private static void VerifyRoomFxTypeValidation(ISnesAddressSpace rom)
@@ -164,11 +164,11 @@ internal static partial class Program
             AssertTrue(!state.IsRenderable, $"{type} does not impersonate rain/fog BG3");
         }
 
-        VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Lava);
-        VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Acid);
-        VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Water);
-        VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Rain);
-        VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Fog);
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Lava));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Acid));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Water));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Rain));
+        Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Fog));
     }
 
     private static void VerifyRenderableLayer3Fx(
@@ -199,7 +199,7 @@ internal static partial class Program
             (byte)layerBlend);
 
         LoadSyntheticRoomFx(state, bus, vram, cgram, record);
-        VerifyRoomFxSharedRandomState(bus, vram, cgram, state, record, type);
+        Suite(nameof(VerifyRoomFxSharedRandomState), () => VerifyRoomFxSharedRandomState(bus, vram, cgram, state, record, type));
         AssertEqual(RoomFxRomData.Layer3.ClearTilemapWord,
             vram.ReadWord(RoomFxRomData.Layer3.ClearDestinationWord),
             $"{type} room load clears the first gameplay BG3 FX word");

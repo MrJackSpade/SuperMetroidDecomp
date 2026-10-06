@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyPlatformInstructionProgramDefinitions()
     {
-        VerifyPlatformInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyPlatformInstructionProgramDefinitions), () => VerifyPlatformInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyPlatformInstructionProgramDefinitions(
@@ -17,11 +17,11 @@ internal static partial class Program
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
-        VerifyPlatformMechanicsMapping(rom);
-        VerifyPlatformPresentationMapping();
-        VerifyTripperFrozenFrameSelection(rom);
-        VerifyPlatformInitialProgramSelection(rom);
-        VerifyPlatformAnimationProgramSelection(rom);
+        Suite(nameof(VerifyPlatformMechanicsMapping), () => VerifyPlatformMechanicsMapping(rom));
+        Suite(nameof(VerifyPlatformPresentationMapping), () => VerifyPlatformPresentationMapping());
+        Suite(nameof(VerifyTripperFrozenFrameSelection), () => VerifyTripperFrozenFrameSelection(rom));
+        Suite(nameof(VerifyPlatformInitialProgramSelection), () => VerifyPlatformInitialProgramSelection(rom));
+        Suite(nameof(VerifyPlatformAnimationProgramSelection), () => VerifyPlatformAnimationProgramSelection(rom));
 
         var guard = new PlatformInstructionProgramReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializePlatform", flags)!;
@@ -91,8 +91,8 @@ internal static partial class Program
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Tripper/Kamer execution uses compiled spritemap selectors");
-        VerifyPlatformVisualPointers(rom);
-        VerifyPlatformExportIdentities(rom);
+        Suite(nameof(VerifyPlatformVisualPointers), () => VerifyPlatformVisualPointers(rom));
+        Suite(nameof(VerifyPlatformExportIdentities), () => VerifyPlatformExportIdentities(rom));
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Tripper/Kamer mechanics byte");
 

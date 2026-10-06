@@ -14,13 +14,13 @@ internal static partial class Program
     /// </summary>
     private static void VerifyEnemyDrops()
     {
-        VerifyEveryEnemyPickupEffect();
-        VerifyEnemyDropSelectionRules();
-        VerifyEnemyPickupLifetimeAndCollision();
-        VerifyEnemyPickupGrappleDelay();
-        VerifyEnemyProjectileSlotZeroDropBug();
-        VerifyGenericEnemyDeathDropConversion();
-        VerifyContactDeathStopsEnemyDispatch();
+        Suite(nameof(VerifyEveryEnemyPickupEffect), () => VerifyEveryEnemyPickupEffect());
+        Suite(nameof(VerifyEnemyDropSelectionRules), () => VerifyEnemyDropSelectionRules());
+        Suite(nameof(VerifyEnemyPickupLifetimeAndCollision), () => VerifyEnemyPickupLifetimeAndCollision());
+        Suite(nameof(VerifyEnemyPickupGrappleDelay), () => VerifyEnemyPickupGrappleDelay());
+        Suite(nameof(VerifyEnemyProjectileSlotZeroDropBug), () => VerifyEnemyProjectileSlotZeroDropBug());
+        Suite(nameof(VerifyGenericEnemyDeathDropConversion), () => VerifyGenericEnemyDeathDropConversion());
+        Suite(nameof(VerifyContactDeathStopsEnemyDispatch), () => VerifyContactDeathStopsEnemyDispatch());
 
         Console.WriteLine(
             "  Enemy drops: native random selection, five effects, collision/lifetime, grapple delay, slot-zero bug, and death conversion agree.");

@@ -8,10 +8,10 @@ internal static partial class Program
     {
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        VerifyFakeKraidSpitHorizontalVelocity(rom);
-        VerifyFakeKraidSpitVerticalVelocity(rom);
+        Suite(nameof(VerifyFakeKraidSpitHorizontalVelocity), () => VerifyFakeKraidSpitHorizontalVelocity(rom));
+        Suite(nameof(VerifyFakeKraidSpitVerticalVelocity), () => VerifyFakeKraidSpitVerticalVelocity(rom));
 
-        VerifyFakeKraidSpikeRowSelection(rom);
+        Suite(nameof(VerifyFakeKraidSpikeRowSelection), () => VerifyFakeKraidSpikeRowSelection(rom));
 
         AssertThrows<InvalidDataException>(
             () => FakeKraidProjectileDefinitions.SpitLaunch(false, -1),

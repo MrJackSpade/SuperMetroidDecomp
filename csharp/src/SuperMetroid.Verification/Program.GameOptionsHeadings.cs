@@ -14,8 +14,8 @@ internal static partial class Program
         byte[] json = GameOptionsPresentationExtractor.Extract(rom);
         _ = GameOptionsPresentation.Load(new MemoryStream(json));
         var document = JsonSerializer.Deserialize<GameOptionsPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
-        VerifyGameOptionsHeadingIds(rom, document);
-        VerifyGameOptionsHeadingAnchors(rom, document);
+        Suite(nameof(VerifyGameOptionsHeadingIds), () => VerifyGameOptionsHeadingIds(rom, document));
+        Suite(nameof(VerifyGameOptionsHeadingAnchors), () => VerifyGameOptionsHeadingAnchors(rom, document));
     }
 
     private static string OriginalHeadingName(int index) => index switch

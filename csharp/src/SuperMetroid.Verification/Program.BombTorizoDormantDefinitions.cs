@@ -11,7 +11,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyBombTorizoDormantDefinitions(ISnesAddressSpace rom)
     {
-        VerifyBombTorizoDormantControlMapping(rom);
+        Suite(nameof(VerifyBombTorizoDormantControlMapping), () => VerifyBombTorizoDormantControlMapping(rom));
         const byte bank = BombTorizoDormantFrameDefinitions.Bank;
         for (int index = 0;
              index < BombTorizoDormantInstructionProgramDefinitions.MechanicsWordCount;

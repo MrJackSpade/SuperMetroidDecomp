@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyCompiledBotwoonSpeeds(SuperMetroidAddressSpace rom)
     {
-        VerifyBotwoonSpeedAlgorithm(rom);
-        VerifyBotwoonSpacingAlgorithm(rom);
+        Suite(nameof(VerifyBotwoonSpeedAlgorithm), () => VerifyBotwoonSpeedAlgorithm(rom));
+        Suite(nameof(VerifyBotwoonSpacingAlgorithm), () => VerifyBotwoonSpacingAlgorithm(rom));
     }
 
     private static void VerifyBotwoonSpeedAlgorithm(SuperMetroidAddressSpace rom)

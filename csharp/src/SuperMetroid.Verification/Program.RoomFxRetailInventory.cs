@@ -67,8 +67,8 @@ internal static partial class Program
             "retail room-FX inventory state count");
         AssertEqual(RetailRoomFxDoorCount, doors.Length,
             "retail room-FX inventory physical door count");
-        VerifyRetailRoomFxAnimatedTileHeaders(bus);
-        VerifyRetailLavaSurface(bus, states);
+        Suite(nameof(VerifyRetailRoomFxAnimatedTileHeaders), () => VerifyRetailRoomFxAnimatedTileHeaders(bus));
+        Suite(nameof(VerifyRetailLavaSurface), () => VerifyRetailLavaSurface(bus, states));
 
         var doorByPointer = doors.ToDictionary(door => door.Pointer);
         ILookup<ushort, CartridgeDoorHeader> incomingDoors = doors
@@ -176,10 +176,10 @@ internal static partial class Program
         AssertEqual(RetailRoomFxStateCount, auditedStatePointers.Count,
             "every retail room state has an FX classification");
         AssertKnownRetailLiquidExamples(knownExamples);
-        VerifyRetailLiquidRise(bus, states, doors, RetailRoomFxDefinitions.RisingLavaRoom21);
-        VerifyRetailLiquidRise(bus, states, doors, RetailRoomFxDefinitions.RisingLavaRoom28);
-        VerifyRetailRisingLavaFeedback(bus, doors);
-        VerifyRetailFxTransitionReset(bus, states);
+        Suite(nameof(VerifyRetailLiquidRise), () => VerifyRetailLiquidRise(bus, states, doors, RetailRoomFxDefinitions.RisingLavaRoom21));
+        Suite(nameof(VerifyRetailLiquidRise), () => VerifyRetailLiquidRise(bus, states, doors, RetailRoomFxDefinitions.RisingLavaRoom28));
+        Suite(nameof(VerifyRetailRisingLavaFeedback), () => VerifyRetailRisingLavaFeedback(bus, doors));
+        Suite(nameof(VerifyRetailFxTransitionReset), () => VerifyRetailFxTransitionReset(bus, states));
 
         string inventoryPath = Path.GetFullPath(
             Path.Combine("csharp", "retail-room-fx-inventory.tsv"));
@@ -346,30 +346,30 @@ internal static partial class Program
 
     private static void VerifyRetailRoomFxAnimatedTileHeaders(SuperMetroidAddressSpace bus)
     {
-        VerifyRetailRoomFxAnimatedTileHeader(
+        Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
             AnimatedTileObjectPointers.Lava,
             RoomFxRomData.Layer3AnimatedTiles.LavaFirstInstruction,
             RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
             RoomFxRomData.Layer3AnimatedTiles.LiquidDestinationWord,
             RoomFxRomData.Layer3AnimatedTiles.LavaFirstFrame,
-            "lava");
-        VerifyRetailRoomFxAnimatedTileHeader(
+            "lava"));
+        Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
             AnimatedTileObjectPointers.Acid,
             RoomFxRomData.Layer3AnimatedTiles.AcidFirstInstruction,
             RoomFxRomData.Layer3AnimatedTiles.LiquidFrameByteCount,
             RoomFxRomData.Layer3AnimatedTiles.LiquidDestinationWord,
             RoomFxRomData.Layer3AnimatedTiles.AcidFirstFrame,
-            "acid");
-        VerifyRetailRoomFxAnimatedTileHeader(
+            "acid"));
+        Suite(nameof(VerifyRetailRoomFxAnimatedTileHeader), () => VerifyRetailRoomFxAnimatedTileHeader(
             bus,
             AnimatedTileObjectPointers.Rain,
             RoomFxRomData.Layer3AnimatedTiles.RainFirstInstruction,
             RoomFxRomData.Layer3AnimatedTiles.RainFrameByteCount,
             RoomFxRomData.Layer3AnimatedTiles.RainDestinationWord,
             RoomFxRomData.Layer3AnimatedTiles.RainFirstFrame,
-            "rain");
+            "rain"));
     }
 
     /// <summary>

@@ -216,7 +216,7 @@ internal static partial class Program
                 .Map.Span.SequenceEqual(selectedMap),
             "stock ending art repair preserves the external map override");
         File.Delete(invalidMapPath);
-        VerifyEndingRewardIconArtwork(installation);
+        Suite(nameof(VerifyEndingRewardIconArtwork), () => VerifyEndingRewardIconArtwork(installation));
         Console.WriteLine("Ending Mode-7 art: three native scenes plus the reward icon, guarded runtime and independent edits pass.");
     }
 

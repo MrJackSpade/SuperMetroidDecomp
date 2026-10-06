@@ -18,8 +18,8 @@ internal static partial class Program
         var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
         var guard = new PauseSelectorReadGuard(bus);
         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82b9c9), PauseMenuLayout.MapMarkerPaletteBits, "compiled map caller palette matches native word");
-        VerifyPauseSelectorAnchors(bus);
-        VerifyPauseSelectorNativeDurations(bus, catalog.PauseSelectors);
+        Suite(nameof(VerifyPauseSelectorAnchors), () => VerifyPauseSelectorAnchors(bus));
+        Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(bus, catalog.PauseSelectors));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(bus, catalog.PauseSelectors, group);
         foreach (var anchor in PauseSelectorDefinitions.Anchors())
         {

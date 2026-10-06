@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyBossResetOnLoad()
     {
-        VerifyGameConfigurationIni();
+        Suite(nameof(VerifyGameConfigurationIni), () => VerifyGameConfigurationIni());
         AssertTrue(!new SuperMetroidGameOptions().ResetBossesOnLoad &&
             !SuperMetroidGameOptionsIni.Parse("").ResetBossesOnLoad &&
             !SuperMetroidGameOptionsIni.Parse(SuperMetroidGameOptionsIni.DefaultFileContents).ResetBossesOnLoad,

@@ -27,14 +27,14 @@ internal static partial class Program
         using var serialized = new MemoryStream();
         MapSaveMarkerLayout.Write(serialized, original);
         AssertTrue(extracted.AsSpan().SequenceEqual(serialized.ToArray()), "original marker JSON names, order and values preserved");
-        VerifyMapSaveMarkerX(original, extracted);
-        VerifyMapSaveMarkerY(original, extracted);
+        Suite(nameof(VerifyMapSaveMarkerX), () => VerifyMapSaveMarkerX(original, extracted));
+        Suite(nameof(VerifyMapSaveMarkerY), () => VerifyMapSaveMarkerY(original, extracted));
     }
 
     private static void VerifyMapSaveMarkerX(MapSaveMarkerDocument original, byte[] extracted) =>
-        VerifyMapSaveMarkerCoordinateField(original, extracted, vertical: false);
+        Suite(nameof(VerifyMapSaveMarkerCoordinateField), () => VerifyMapSaveMarkerCoordinateField(original, extracted, vertical: false));
     private static void VerifyMapSaveMarkerY(MapSaveMarkerDocument original, byte[] extracted) =>
-        VerifyMapSaveMarkerCoordinateField(original, extracted, vertical: true);
+        Suite(nameof(VerifyMapSaveMarkerCoordinateField), () => VerifyMapSaveMarkerCoordinateField(original, extracted, vertical: true));
 
     private static void VerifyMapSaveMarkerCoordinateField(MapSaveMarkerDocument original, byte[] extracted, bool vertical)
     {

@@ -25,13 +25,13 @@ internal static partial class Program
                 expectedPassedFrame: int.Parse(columns[1]),
                 expectedOpenFrame: int.Parse(columns[2]));
         }
-        VerifyIndirectGModeOmitsGateActor();
-        VerifyGModeBlueDoorAllocation();
-        VerifyGModeSandOverload();
-        VerifyGModeStationSoftlock();
-        VerifyGModeRemoteItemAcquisition();
-        VerifyGModeNoobTubeSuspension();
-        VerifyGModeDefaultBlockCollision();
+        Suite(nameof(VerifyIndirectGModeOmitsGateActor), () => VerifyIndirectGModeOmitsGateActor());
+        Suite(nameof(VerifyGModeBlueDoorAllocation), () => VerifyGModeBlueDoorAllocation());
+        Suite(nameof(VerifyGModeSandOverload), () => VerifyGModeSandOverload());
+        Suite(nameof(VerifyGModeStationSoftlock), () => VerifyGModeStationSoftlock());
+        Suite(nameof(VerifyGModeRemoteItemAcquisition), () => VerifyGModeRemoteItemAcquisition());
+        Suite(nameof(VerifyGModeNoobTubeSuspension), () => VerifyGModeNoobTubeSuspension());
+        Suite(nameof(VerifyGModeDefaultBlockCollision), () => VerifyGModeDefaultBlockCollision());
         Console.WriteLine(
             "  G-Mode: native gate timing, direct/indirect ownership, sand overload, and default block collision pass.");
     }
@@ -275,26 +275,26 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
-        VerifyFullPoolBlock(
+        Suite(nameof(VerifyFullPoolBlock), () => VerifyFullPoolBlock(
             RoomCollisionType.SpecialBlock,
             bts: 0,
             expectedPass: true,
-            "untouched crumble block");
-        VerifyFullPoolBlock(
+            "untouched crumble block"));
+        Suite(nameof(VerifyFullPoolBlock), () => VerifyFullPoolBlock(
             RoomCollisionType.SpecialBlock,
             bts: 0x0e,
             expectedPass: true,
-            "inactive Speed Booster block");
-        VerifyFullPoolBlock(
+            "inactive Speed Booster block"));
+        Suite(nameof(VerifyFullPoolBlock), () => VerifyFullPoolBlock(
             RoomCollisionType.BombableBlock,
             bts: 0,
             expectedPass: true,
-            "untouched bomb block");
-        VerifyFullPoolBlock(
+            "untouched bomb block"));
+        Suite(nameof(VerifyFullPoolBlock), () => VerifyFullPoolBlock(
             RoomCollisionType.ShootableBlock,
             bts: 0,
             expectedPass: false,
-            "shot block");
+            "shot block"));
 
         void VerifyFullPoolBlock(
             RoomCollisionType collisionType,

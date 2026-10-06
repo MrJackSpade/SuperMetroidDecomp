@@ -5,19 +5,19 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyMotherBrainGlassInstructionProgramDefinitions() =>
-        VerifyMotherBrainGlassInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyMotherBrainGlassInstructionProgramDefinitions), () => VerifyMotherBrainGlassInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     private static void VerifyMotherBrainGlassInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        VerifyGlassMechanicsAddresses(rom);
-        VerifyGlassPresentationAddresses(rom);
-        VerifyGlassShardCadence(rom);
-        VerifyGlassSparkleCadence(rom);
-        VerifyGlassProjectileControls(rom);
-        VerifyGlassProjectileLoopTargets(rom);
+        Suite(nameof(VerifyGlassMechanicsAddresses), () => VerifyGlassMechanicsAddresses(rom));
+        Suite(nameof(VerifyGlassPresentationAddresses), () => VerifyGlassPresentationAddresses(rom));
+        Suite(nameof(VerifyGlassShardCadence), () => VerifyGlassShardCadence(rom));
+        Suite(nameof(VerifyGlassSparkleCadence), () => VerifyGlassSparkleCadence(rom));
+        Suite(nameof(VerifyGlassProjectileControls), () => VerifyGlassProjectileControls(rom));
+        Suite(nameof(VerifyGlassProjectileLoopTargets), () => VerifyGlassProjectileLoopTargets(rom));
 
         var guard = new MotherBrainGlassInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(

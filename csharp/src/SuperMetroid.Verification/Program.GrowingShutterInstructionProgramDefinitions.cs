@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyGrowingShutterInstructionProgramDefinitions()
     {
-        VerifyGrowingShutterInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyGrowingShutterInstructionProgramDefinitions), () => VerifyGrowingShutterInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyGrowingShutterInstructionProgramDefinitions(
@@ -15,9 +15,9 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
-        VerifyGrowingShutterMechanicsMapping(rom);
-        VerifyGrowingShutterPresentationMapping();
-        VerifyGrowingShutterProgramEntries();
+        Suite(nameof(VerifyGrowingShutterMechanicsMapping), () => VerifyGrowingShutterMechanicsMapping(rom));
+        Suite(nameof(VerifyGrowingShutterPresentationMapping), () => VerifyGrowingShutterPresentationMapping());
+        Suite(nameof(VerifyGrowingShutterProgramEntries), () => VerifyGrowingShutterProgramEntries());
 
         var guard = new GrowingShutterInstructionProgramReadGuard(rom);
         var enemies = new RoomEnemySystem();

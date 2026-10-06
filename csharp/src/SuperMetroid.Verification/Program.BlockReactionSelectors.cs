@@ -94,26 +94,26 @@ internal static partial class Program
     }
 
     private static void VerifyCollisionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
-        VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
-            RoomPlmInstructionLists.CollisionBombByReactionIndex, "collision bomb");
+        Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
+            RoomPlmInstructionLists.CollisionBombByReactionIndex, "collision bomb"));
 
     private static void VerifyReactionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
-        VerifyNativeBlockInstructionSelection(rom, 0x94a012, 8,
-            RoomPlmInstructionLists.ReactionBombByReactionIndex, "bomb reaction");
+        Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94a012, 8,
+            RoomPlmInstructionLists.ReactionBombByReactionIndex, "bomb reaction"));
 
     private static void VerifyCrumbleRevealInstructionSelection(SuperMetroidAddressSpace rom) =>
-        VerifyNativeBlockInstructionSelection(rom, 0x949da4, 4,
-            RoomPlmInstructionLists.CrumbleRevealBySize, "crumble reveal");
+        Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 4,
+            RoomPlmInstructionLists.CrumbleRevealBySize, "crumble reveal"));
 
     private static void VerifyContactCrumbleInstructionSelection(SuperMetroidAddressSpace rom) =>
-        VerifyNativeBlockInstructionSelection(rom, 0x949139, 8,
-            RoomPlmInstructionLists.ContactCrumbleByReactionIndex, "contact crumble");
+        Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949139, 8,
+            RoomPlmInstructionLists.ContactCrumbleByReactionIndex, "contact crumble"));
 
     private static void VerifyBombSpecialInstructionSelection(SuperMetroidAddressSpace rom)
     {
         AssertEqual(80, BombSpecialBlockReactions.Count, "bounded native normal-BTS compatibility extent");
-        VerifyNativeBlockInstructionSelection(rom, 0x949da4, 80,
-            BombSpecialBlockReactions.InstructionListAt, "bomb special including adjacent area aliases");
+        Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 80,
+            BombSpecialBlockReactions.InstructionListAt, "bomb special including adjacent area aliases"));
     }
 
     private static void VerifyNativeBlockInstructionSelection(SuperMetroidAddressSpace rom,

@@ -51,12 +51,12 @@ internal static partial class Program
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        VerifyShotBlockStockVisualMapping(rom);
-        VerifyShotBlockProgramControlMapping(rom);
-        VerifyShotBlockProgramDrawMapping(rom);
-        VerifyShotBlockProgramSoundMapping(rom);
-        VerifyRespawningShotSizeSelection(rom);
-        VerifyPermanentShotSizeSelection(rom);
+        Suite(nameof(VerifyShotBlockStockVisualMapping), () => VerifyShotBlockStockVisualMapping(rom));
+        Suite(nameof(VerifyShotBlockProgramControlMapping), () => VerifyShotBlockProgramControlMapping(rom));
+        Suite(nameof(VerifyShotBlockProgramDrawMapping), () => VerifyShotBlockProgramDrawMapping(rom));
+        Suite(nameof(VerifyShotBlockProgramSoundMapping), () => VerifyShotBlockProgramSoundMapping(rom));
+        Suite(nameof(VerifyRespawningShotSizeSelection), () => VerifyRespawningShotSizeSelection(rom));
+        Suite(nameof(VerifyPermanentShotSizeSelection), () => VerifyPermanentShotSizeSelection(rom));
         var forbidden = new HashSet<int>();
         ushort[] nativeDraws = [0xa345,0xa35d,0xa37d,0xa39d,0xa34b,0xa365,0xa385,0xa3ad,
             0xa351,0xa36d,0xa38d,0xa3bd,0xa357,0xa375,0xa395,0xa3cd,0xa47b,0xa483,0xa48b];
@@ -183,8 +183,8 @@ internal static partial class Program
                 $"shot-block BTS {behavior} completes within the retail timer window");
         }
 
-        VerifyShotBlockVisualSeparation(rom, forbidden);
-        VerifyShotBlockVisualInstallation(rom);
+        Suite(nameof(VerifyShotBlockVisualSeparation), () => VerifyShotBlockVisualSeparation(rom, forbidden));
+        Suite(nameof(VerifyShotBlockVisualInstallation), () => VerifyShotBlockVisualInstallation(rom));
 
         Console.WriteLine($"Shot-block PLMs: {wordCount} control words, {byteCount} sound bytes and {drawListCount} draw lists match ROM; all eight programs execute with source bytes forbidden.");
     }

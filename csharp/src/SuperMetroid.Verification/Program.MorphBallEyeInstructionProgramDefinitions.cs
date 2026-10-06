@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyMorphBallEyeInstructionProgramDefinitions()
     {
-        VerifyMorphBallEyeInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyMorphBallEyeInstructionProgramDefinitions), () => VerifyMorphBallEyeInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyMorphBallEyeInstructionProgramDefinitions(
@@ -120,7 +120,7 @@ internal static partial class Program
                 $"Morph Ball eye {name} reaches terminal sleep");
         }
 
-        VerifyMorphBallEyeInitializerSelections(guard, flags);
+        Suite(nameof(VerifyMorphBallEyeInitializerSelections), () => VerifyMorphBallEyeInitializerSelections(guard, flags));
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Morph Ball eye programs use compiled spritemap selectors");

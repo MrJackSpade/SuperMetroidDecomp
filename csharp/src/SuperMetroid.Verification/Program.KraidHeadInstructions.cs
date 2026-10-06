@@ -9,8 +9,8 @@ internal static partial class Program
         ushort Word(int address) => unchecked((ushort)(
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
 
-        VerifyKraidHeadCommandMapping(rom);
-        VerifyKraidGrowthResumeCases(rom);
+        Suite(nameof(VerifyKraidHeadCommandMapping), () => VerifyKraidHeadCommandMapping(rom));
+        Suite(nameof(VerifyKraidGrowthResumeCases), () => VerifyKraidGrowthResumeCases(rom));
 
         AssertEqual(Word(0xa796d2), KraidHeadInstructionDefinitions.RoarEntryTimer,
             "Native roar entry timer");
@@ -19,8 +19,8 @@ internal static partial class Program
         AssertEqual(Word(0xa79764), KraidHeadInstructionDefinitions.DeathEntryTimer,
             "Native death entry timer");
 
-        VerifyProductionInterpreter(rom);
-        VerifyTimerAndGrowthConsumers(rom);
+        Suite(nameof(VerifyProductionInterpreter), () => VerifyProductionInterpreter(rom));
+        Suite(nameof(VerifyTimerAndGrowthConsumers), () => VerifyTimerAndGrowthConsumers(rom));
 
         AssertThrows<InvalidDataException>(
             () => KraidHeadInstructionDefinitions.Resolve(0x9788),

@@ -78,19 +78,19 @@ internal static partial class Program
 
     private static void VerifyKraidDrawWords(SuperMetroidAddressSpace rom)
     {
-        VerifyKraidSingleDrawWords(rom);
-        VerifyKraidCeilingClearWords(rom);
-        VerifyKraidSpikeClearWords(rom);
+        Suite(nameof(VerifyKraidSingleDrawWords), () => VerifyKraidSingleDrawWords(rom));
+        Suite(nameof(VerifyKraidCeilingClearWords), () => VerifyKraidCeilingClearWords(rom));
+        Suite(nameof(VerifyKraidSpikeClearWords), () => VerifyKraidSpikeClearWords(rom));
     }
 
     private static void VerifyKraidSingleDrawWords(SuperMetroidAddressSpace rom) =>
-        VerifyKraidDrawWordSet(rom, KraidDrawOracle().Take(8));
+        Suite(nameof(VerifyKraidDrawWordSet), () => VerifyKraidDrawWordSet(rom, KraidDrawOracle().Take(8)));
 
     private static void VerifyKraidCeilingClearWords(SuperMetroidAddressSpace rom) =>
-        VerifyKraidDrawWordSet(rom, KraidDrawOracle().Where(draw => draw.Pointer == 0x939d));
+        Suite(nameof(VerifyKraidDrawWordSet), () => VerifyKraidDrawWordSet(rom, KraidDrawOracle().Where(draw => draw.Pointer == 0x939d)));
 
     private static void VerifyKraidSpikeClearWords(SuperMetroidAddressSpace rom) =>
-        VerifyKraidDrawWordSet(rom, KraidDrawOracle().Where(draw => draw.Pointer == 0x93bf));
+        Suite(nameof(VerifyKraidDrawWordSet), () => VerifyKraidDrawWordSet(rom, KraidDrawOracle().Where(draw => draw.Pointer == 0x93bf)));
 
     private static void VerifyKraidDrawWordSet(SuperMetroidAddressSpace rom,
         IEnumerable<(ushort Pointer, int Count, string Id)> definitions)

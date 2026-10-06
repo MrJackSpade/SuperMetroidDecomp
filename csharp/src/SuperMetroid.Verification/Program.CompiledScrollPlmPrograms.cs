@@ -7,10 +7,10 @@ internal static partial class Program
 {
     private static void VerifyCompiledRoomScrollPrograms(SuperMetroidAddressSpace rom)
     {
-        VerifyScrollProgramIdentities(rom);
-        VerifyScrollProgramIndices(rom);
-        VerifyScrollProgramStates(rom);
-        VerifyScrollProgramTermination(rom);
+        Suite(nameof(VerifyScrollProgramIdentities), () => VerifyScrollProgramIdentities(rom));
+        Suite(nameof(VerifyScrollProgramIndices), () => VerifyScrollProgramIndices(rom));
+        Suite(nameof(VerifyScrollProgramStates), () => VerifyScrollProgramStates(rom));
+        Suite(nameof(VerifyScrollProgramTermination), () => VerifyScrollProgramTermination(rom));
 
         // Retail population $8F:8230 contains one resident $B703 trigger at
         // (8,13). Its $8F:94FA program changes storage cell zero to green.

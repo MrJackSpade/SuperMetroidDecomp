@@ -9,8 +9,8 @@ internal static partial class Program
 {
     private static void VerifyEndingCloudPlacement()
     {
-        VerifyEndingTakeoffColorMath(checkWrapping: true);
-        VerifyEndingTakeoffColorMath(checkWrapping: false);
+        Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(checkWrapping: true));
+        Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(checkWrapping: false));
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = new EndingCreditsState(bus, audio, 0, 0);

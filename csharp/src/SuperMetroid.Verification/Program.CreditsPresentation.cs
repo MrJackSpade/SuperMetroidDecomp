@@ -62,18 +62,18 @@ internal static partial class Program
         AssertTrue(!edited.GetRow(firstTextRow).SequenceEqual(
             presentation.GetRow(firstTextRow)), "staff-credit override changes rendered content");
 
-        VerifyBadCreditDocument(extracted, document => document["version"] = 2,
-            "unsupported staff-credit schema rejected");
-        VerifyBadCreditDocument(extracted, document =>
-            document["lines"]!.AsArray().RemoveAt(0), "missing staff-credit line rejected");
-        VerifyBadCreditDocument(extracted, document =>
-            document["lines"]![0]!["id"] = "wrong", "reordered staff-credit identity rejected");
-        VerifyBadCreditDocument(extracted, document =>
-            document["lines"]![0]!["text"] = "BAD?", "unsupported staff-credit glyph rejected");
-        VerifyBadCreditDocument(extracted, document =>
-            document["lines"]![0]!["column"] = 31, "overflowing staff-credit line rejected");
-        VerifyBadCreditDocument(extracted, document =>
-            document["lines"]![0]!["palette"] = 8, "invalid staff-credit palette rejected");
+        Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document => document["version"] = 2,
+            "unsupported staff-credit schema rejected"));
+        Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document =>
+            document["lines"]!.AsArray().RemoveAt(0), "missing staff-credit line rejected"));
+        Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document =>
+            document["lines"]![0]!["id"] = "wrong", "reordered staff-credit identity rejected"));
+        Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document =>
+            document["lines"]![0]!["text"] = "BAD?", "unsupported staff-credit glyph rejected"));
+        Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document =>
+            document["lines"]![0]!["column"] = 31, "overflowing staff-credit line rejected"));
+        Suite(nameof(VerifyBadCreditDocument), () => VerifyBadCreditDocument(extracted, document =>
+            document["lines"]![0]!["palette"] = 8, "invalid staff-credit palette rejected"));
         AssertThrows<InvalidDataException>(() => CreditsPresentation.Load(
             new MemoryStream("not json"u8.ToArray())), "corrupt staff-credit JSON rejected");
 

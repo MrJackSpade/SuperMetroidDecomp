@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyFuneNamiheDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyFuneNamiheProgramSelection(rom);
+        Suite(nameof(VerifyFuneNamiheProgramSelection), () => VerifyFuneNamiheProgramSelection(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
         for (int variant = 0; variant < 4; variant++)

@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledShaktoolAngularVelocities(SuperMetroidAddressSpace rom)
     {
-        VerifyShaktoolAngularVelocityAlgorithm(rom);
+        Suite(nameof(VerifyShaktoolAngularVelocityAlgorithm), () => VerifyShaktoolAngularVelocityAlgorithm(rom));
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         var enemies = new RoomEnemySystem();
         var states = (ShaktoolSegmentState?[])typeof(RoomEnemySystem)

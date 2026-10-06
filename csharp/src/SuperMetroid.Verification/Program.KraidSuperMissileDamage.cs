@@ -132,7 +132,7 @@ internal static partial class Program
         ushort nativeCompare=unchecked((ushort)(nextTop-0x8200));
         Console.WriteLine($"native next top={nextTop:X4} clobberedBottom=8200 CMP={nativeCompare:X4} BPL-reject={(nativeCompare&0x8000)==0}");
         if((nativeCompare&0x8000)!=0)throw new InvalidDataException("Native scratch-word rejection is not satisfied by the reproduced coordinates.");
-        VerifyKraidCollisionSlotOrder(bus, runtime, body, state);
+        Suite(nameof(VerifyKraidCollisionSlotOrder), () => VerifyKraidCollisionSlotOrder(bus, runtime, body, state));
         return 0;
     }
 

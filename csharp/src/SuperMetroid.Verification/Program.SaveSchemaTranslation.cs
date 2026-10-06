@@ -36,7 +36,7 @@ internal static partial class Program
         var mirror = new Bank80SystemState(); mirror.LoadPersistentMirror(target);
         AssertEqual(65535, mirror.LoadedItemCount, "native mirror retains translated item count");
 
-        VerifyNamedSaveRuntime(bus, ram);
+        Suite(nameof(VerifyNamedSaveRuntime), () => VerifyNamedSaveRuntime(bus, ram));
 
         // Build a genuine old envelope independently: old named fields override its raw mirror.
         JsonObject legacy = JsonNode.Parse(json)!.AsObject();

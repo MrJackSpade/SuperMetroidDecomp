@@ -8,8 +8,8 @@ internal static partial class Program
 {
     private static void VerifyKronicGateBeamCollision()
     {
-        VerifyGateScanTermination();
-        VerifyHorizontalWaveDoorBands();
+        Suite(nameof(VerifyGateScanTermination), () => VerifyGateScanTermination());
+        Suite(nameof(VerifyHorizontalWaveDoorBands), () => VerifyHorizontalWaveDoorBands());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);

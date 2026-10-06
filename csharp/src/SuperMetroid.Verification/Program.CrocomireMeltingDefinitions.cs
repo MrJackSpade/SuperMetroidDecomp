@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyCrocomireMeltingDefinitions(SuperMetroidAddressSpace rom)
     {
         const int columnTable = 0xa49697;
-        VerifyCrocomireMaskAlgorithm(rom);
+        Suite(nameof(VerifyCrocomireMaskAlgorithm), () => VerifyCrocomireMaskAlgorithm(rom));
         for (int cursor = 0; cursor < CrocomireMeltingDefinitions.ColumnCount; cursor++)
         {
             AssertEqual(rom.ReadByte(columnTable + cursor),
@@ -23,8 +23,8 @@ internal static partial class Program
             () => CrocomireMeltingDefinitions.SelectColumn(49),
             "Crocomire melt cursor after authored table");
 
-        VerifyCrocomireMeltingTransferCatalog(rom);
-        VerifyCrocomireMeltingProductionSequence(rom);
+        Suite(nameof(VerifyCrocomireMeltingTransferCatalog), () => VerifyCrocomireMeltingTransferCatalog(rom));
+        Suite(nameof(VerifyCrocomireMeltingProductionSequence), () => VerifyCrocomireMeltingProductionSequence(rom));
         Console.WriteLine(
             "Crocomire melting definitions: all 49 column selectors, eight masks, " +
             "both native transfer passes, the complete production erase sequence, " +
@@ -45,10 +45,10 @@ internal static partial class Program
 
     private static void VerifyCrocomireMeltingTransferCatalog(SuperMetroidAddressSpace rom)
     {
-        VerifyCrocomireMeltHeaders(rom);
-        VerifyCrocomireMeltCopies(rom);
-        VerifyCrocomireMeltUploads(rom);
-        VerifyCrocomireMeltingGraphicsProduction(rom);
+        Suite(nameof(VerifyCrocomireMeltHeaders), () => VerifyCrocomireMeltHeaders(rom));
+        Suite(nameof(VerifyCrocomireMeltCopies), () => VerifyCrocomireMeltCopies(rom));
+        Suite(nameof(VerifyCrocomireMeltUploads), () => VerifyCrocomireMeltUploads(rom));
+        Suite(nameof(VerifyCrocomireMeltingGraphicsProduction), () => VerifyCrocomireMeltingGraphicsProduction(rom));
     }
 
     private static void VerifyCrocomireMeltHeaders(SuperMetroidAddressSpace rom)

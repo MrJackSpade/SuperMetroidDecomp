@@ -6,7 +6,7 @@ internal static partial class Program
     private static void VerifyCeresFlightActorMetadata(ISnesAddressSpace retail)
     {
         CeresFlightActorDefinition front = CeresFlightActorDefinitions.FrontStars;
-        VerifyActor(retail, front, "front stars");
+        Suite(nameof(VerifyActor), () => VerifyActor(retail, front, "front stars"));
         AssertEqual(ReadWord(retail, 0x8bbe84), front.InitialTimer, "front stars initial timer");
         AssertEqual(ReadWord(retail, 0x8bbe8a), front.X, "front stars X");
         AssertEqual(ReadWord(retail, 0x8bbe90), front.Y, "front stars Y");

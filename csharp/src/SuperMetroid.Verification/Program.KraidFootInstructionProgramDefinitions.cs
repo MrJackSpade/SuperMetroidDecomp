@@ -6,16 +6,16 @@ internal static partial class Program
 {
     private static void VerifyKraidFootInstructionProgramDefinitions()
     {
-        VerifyKraidFootInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyKraidFootInstructionProgramDefinitions), () => VerifyKraidFootInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyKraidFootInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyKraidFootCollisionDefinitions();
-        VerifyKraidFootGeneratedMechanics(rom);
-        VerifyKraidFootGeneratedPresentation(rom);
+        Suite(nameof(VerifyKraidFootCollisionDefinitions), () => VerifyKraidFootCollisionDefinitions());
+        Suite(nameof(VerifyKraidFootGeneratedMechanics), () => VerifyKraidFootGeneratedMechanics(rom));
+        Suite(nameof(VerifyKraidFootGeneratedPresentation), () => VerifyKraidFootGeneratedPresentation(rom));
 
         var guard = new KraidFootInstructionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();

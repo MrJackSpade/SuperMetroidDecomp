@@ -18,8 +18,8 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SnesWorkRam.ReadWord(memory, address),
                 "WRAM helper rejects cartridge, SRAM and peripheral sources");
 
-        VerifyWramCorpseScheduler(memory);
-        VerifyWramProjectileInheritance(memory);
+        Suite(nameof(VerifyWramCorpseScheduler), () => VerifyWramCorpseScheduler(memory));
+        Suite(nameof(VerifyWramProjectileInheritance), () => VerifyWramProjectileInheritance(memory));
         FirefleaRoomFx.Initialize(memory);
         ushort[] shades = [0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1];
         for (int frame = 1; frame <= 144; frame++)

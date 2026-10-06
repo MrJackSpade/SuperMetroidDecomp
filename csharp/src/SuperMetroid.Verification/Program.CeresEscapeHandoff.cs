@@ -12,9 +12,9 @@ internal static partial class Program
     /// </summary>
     static void VerifyCeresEscapeHandoff()
     {
-        VerifyCeresRidleyEjectionHandler();
-        VerifyCeresElevatorShaftRoomMain();
-        VerifyCeresDepartureDispatcherTiming();
+        Suite(nameof(VerifyCeresRidleyEjectionHandler), () => VerifyCeresRidleyEjectionHandler());
+        Suite(nameof(VerifyCeresElevatorShaftRoomMain), () => VerifyCeresElevatorShaftRoomMain());
+        Suite(nameof(VerifyCeresDepartureDispatcherTiming), () => VerifyCeresDepartureDispatcherTiming());
         Console.WriteLine("  Ceres escape handoff: ejection, shaft rotation, trigger, hold, and blackout agree.");
     }
 
@@ -162,7 +162,7 @@ internal static partial class Program
         AssertEqual(0x8043, state.RotationIndex, "shaft encoded reverse phase decrements");
         AssertEqual(0x00fe, state.Transform.MatrixA, "encoded phase maps to record 68");
         AssertEqual(34, state.Transform.MatrixB, "reverse endpoint sine");
-        VerifyCeresShaftCompiledRotation();
+        Suite(nameof(VerifyCeresShaftCompiledRotation), () => VerifyCeresShaftCompiledRotation());
 
         // State $20/$21 still run room main but fail its explicit game-state-eight gate.
         var trigger = new CeresElevatorShaftRoomMainState();

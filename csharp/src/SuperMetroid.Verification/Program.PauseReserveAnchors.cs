@@ -11,8 +11,8 @@ internal static partial class Program
         var document = JsonSerializer.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions)!;
         var stock = PauseReserveTankPresentation.Load(new MemoryStream(bytes));
         AssertEqual(0, stock.StoredAnchorComponentCount, "stock reserve coordinates are calculated");
-        VerifyPauseReserveAnchorField(rom, document, stock, true);
-        VerifyPauseReserveAnchorField(rom, document, stock, false);
+        Suite(nameof(VerifyPauseReserveAnchorField), () => VerifyPauseReserveAnchorField(rom, document, stock, true));
+        Suite(nameof(VerifyPauseReserveAnchorField), () => VerifyPauseReserveAnchorField(rom, document, stock, false));
         foreach (int invalid in new[] { int.MinValue, -1, 6, 256, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => stock.Anchor(invalid), "reserve anchor array boundary preserved");
     }

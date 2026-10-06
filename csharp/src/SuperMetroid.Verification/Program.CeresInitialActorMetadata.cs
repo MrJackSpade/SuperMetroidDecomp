@@ -19,12 +19,12 @@ internal static partial class Program
             if (index != 2)
                 AssertEqual(actor.DefinitionPreInstruction, actor.ActivePreInstruction, "asteroid initializer preserves callback");
         }
-        VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(0),
+        Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(0),
             0x8bbf23, 0x8bbf29, 0x8bbf2f, 0x8bbf3a, 0x8bbf46,
-            "destruction large asteroids");
-        VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(1),
+            "destruction large asteroids"));
+        Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(1),
             0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a,
-            "destruction small asteroids");
+            "destruction small asteroids"));
         CeresDestructionActorDefinition vortex =
             CeresDestructionActorDefinitions.InitialActor(2);
         AssertEqual(ReadWord(retail, 0x8bbfa6), vortex.X, "destruction vortex X");

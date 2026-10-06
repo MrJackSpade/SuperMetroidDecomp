@@ -70,8 +70,8 @@ internal static partial class Program
             samus.Grapple.BeamStartY = 256;
             Check(samus, Clone(samus), Clone(samus));
         }
-        VerifyGrappleFlareActorBinding(bus, stock, edited, body, roomAssets, maps,
-            grappleArtwork);
+        Suite(nameof(VerifyGrappleFlareActorBinding), () => VerifyGrappleFlareActorBinding(bus, stock, edited, body, roomAssets, maps,
+            grappleArtwork));
         Console.WriteLine($"Grapple flare: {cases} phase, position, sentinel, rewind and timer-boundary cases preserve native cadence/OAM and complete Samus state with visual/cadence ROM forbidden; actual actor override/rebind passes.");
 
         void Check(SamusState native, SamusState actual, SamusState changed)

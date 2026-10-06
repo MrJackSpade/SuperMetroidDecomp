@@ -10,7 +10,7 @@ internal static partial class Program
             (byte)SaveStationAnimationDefinitions.SaveAnimationLoops,
             "save-station animation loop count");
 
-        VerifySequentialRoomPlmPopulationLoader();
+        Suite(nameof(VerifySequentialRoomPlmPopulationLoader), () => VerifySequentialRoomPlmPopulationLoader());
 
         Console.WriteLine(
             "Save-station animation definitions: the native 21-loop operand matches the " +

@@ -145,8 +145,8 @@ internal static partial class Program
                 color => edited.CeresRidleyColors.ResolveHealth(row, color),
                 $"Ceres Ridley hit count {count}");
         }
-        VerifyNorfairHealthPalette();
-        VerifyCeresAlarmPalette();
+        Suite(nameof(VerifyNorfairHealthPalette), () => VerifyNorfairHealthPalette());
+        Suite(nameof(VerifyCeresAlarmPalette), () => VerifyCeresAlarmPalette());
         slot.EnemyDefinitionPointer = 0xe13f;
         RidleyEnemyState activeRidley = enemies.Ridley ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");

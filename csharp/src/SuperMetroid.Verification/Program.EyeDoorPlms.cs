@@ -12,9 +12,9 @@ internal static partial class Program
     /// </summary>
     private static void VerifyEyeDoorPlms()
     {
-        VerifyEyeDoorOrientation(EyeDoorOrientation.Right, useSuperMissile: false);
-        VerifyEyeDoorOrientation(EyeDoorOrientation.Left, useSuperMissile: true);
-        VerifyEyeDoorEnemyProjectiles();
+        Suite(nameof(VerifyEyeDoorOrientation), () => VerifyEyeDoorOrientation(EyeDoorOrientation.Right, useSuperMissile: false));
+        Suite(nameof(VerifyEyeDoorOrientation), () => VerifyEyeDoorOrientation(EyeDoorOrientation.Left, useSuperMissile: true));
+        Suite(nameof(VerifyEyeDoorEnemyProjectiles), () => VerifyEyeDoorEnemyProjectiles());
         Console.WriteLine(
             "  Eye doors: mirrored setup, slot order, effects, shot filters, persistence, and blue-door conversion agree.");
     }

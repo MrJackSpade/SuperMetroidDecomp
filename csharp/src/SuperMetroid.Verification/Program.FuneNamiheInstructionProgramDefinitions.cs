@@ -21,14 +21,14 @@ internal static partial class Program
         }
 
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
-        VerifyFuneNamiheInstructionProgramDefinitions(rom);
+        Suite(nameof(VerifyFuneNamiheInstructionProgramDefinitions), () => VerifyFuneNamiheInstructionProgramDefinitions(rom));
     }
 
     private static void VerifyFuneNamiheInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        VerifyFuneNamiheMechanicsMapping(rom);
-        VerifyFuneNamihePresentationAddresses();
+        Suite(nameof(VerifyFuneNamiheMechanicsMapping), () => VerifyFuneNamiheMechanicsMapping(rom));
+        Suite(nameof(VerifyFuneNamihePresentationAddresses), () => VerifyFuneNamihePresentationAddresses());
 
         var guarded = new FuneNamiheInstructionReadGuard(rom);
         FuneNamiheProgramCase[] programs =
@@ -71,7 +71,7 @@ internal static partial class Program
 
         AssertEqual(0, guarded.ObservedPresentationWords.Count,
             "all Fune/Namihe visual selectors are compiled, not reread from cartridge");
-        VerifyFuneNamiheVisualSelectors(rom);
+        Suite(nameof(VerifyFuneNamiheVisualSelectors), () => VerifyFuneNamiheVisualSelectors(rom));
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production execution avoids every compiled Fune/Namihe mechanics byte");
 

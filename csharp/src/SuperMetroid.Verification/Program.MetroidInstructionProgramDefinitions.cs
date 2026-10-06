@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyMetroidInstructionProgramDefinitions()
     {
-        VerifyMetroidInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyMetroidInstructionProgramDefinitions), () => VerifyMetroidInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyMetroidInstructionProgramDefinitions(
@@ -80,7 +80,7 @@ internal static partial class Program
         AssertEqual((ushort?)0x0050, drainingEnemies.LastMetroidSoundEffectLibrary2,
             "Metroid draining callback publishes the native sound");
 
-        VerifyMetroidInstructionInitializer(guard, flags);
+        Suite(nameof(VerifyMetroidInstructionInitializer), () => VerifyMetroidInstructionInitializer(guard, flags));
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "both Metroid loops use compiled visual selectors, not cartridge reads");

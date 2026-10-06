@@ -22,6 +22,6 @@ internal static partial class Program
             () => EnemySpritemapDefinitions.HZoomerFrameAt(
                 HZoomerInstructionProgramDefinitions.AdjacentFunctionCode),
             "HZoomer rejects adjacent callback code as a visual selector");
-        VerifyHZoomerInstructionProgramDefinitions(rom, stock);
+        Suite(nameof(VerifyHZoomerInstructionProgramDefinitions), () => VerifyHZoomerInstructionProgramDefinitions(rom, stock));
     }
 }

@@ -317,6 +317,9 @@ public sealed class SamusBodyTileDefinition
     internal int PayloadLength { get; }
     private readonly int? sourceAddressOverride;
     private readonly ushort? firstSizeOverride;
+    // The body's pointers and frames are fixed once it is bound, so the calculated first
+    // transfer size is resolved at binding instead of rescanning every pose on each read.
+    private readonly ushort? calculatedFirstSize;
     private readonly ushort standaloneSecondSize;
     private readonly SamusBodyArtworkCatalog? body;
     private readonly bool upper;
@@ -357,8 +360,9 @@ public sealed class SamusBodyTileDefinition
         int source = supplied.SourceAddress;
         ushort first = supplied.FirstSize;
         sourceAddressOverride = source == SamusBodyTransferDefinitions.SourceAddress(body, upper, set, position) ? null : source;
-        firstSizeOverride = SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, PayloadLength, pointers, frames, out ushort calculated)
-            && first == calculated ? null : first;
+        if (SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, PayloadLength, pointers, frames, out ushort calculated))
+            calculatedFirstSize = calculated;
+        firstSizeOverride = calculatedFirstSize == first ? null : first;
     }
 
     internal SamusBodyTileDefinition WithTransferGeometry(SamusBodyArtworkCatalog body, bool upper, int set, int position) =>
@@ -369,9 +373,8 @@ public sealed class SamusBodyTileDefinition
         new(this, body, upper, set, position, pointers, frames);
 
     public int SourceAddress => sourceAddressOverride ?? SamusBodyTransferDefinitions.SourceAddress(body!, upper, set, position);
-    public ushort FirstSize => firstSizeOverride ??
-        (SamusBodyTransferDefinitions.TryFirstSize(body!, upper, set, position, PayloadLength, out ushort calculated)
-            ? calculated : throw new InvalidDataException("Installed body composition no longer supplies its transfer row."));
+    public ushort FirstSize => firstSizeOverride ?? calculatedFirstSize ??
+        throw new InvalidDataException("Installed body composition no longer supplies its transfer row.");
     public ushort SecondSize => body is null ? standaloneSecondSize : (ushort)(PayloadLength - FirstSize);
     /// <summary>Canonical planar snapshot; native padding and shared angle patches calculate.</summary>
     public ReadOnlyMemory<byte> Planar

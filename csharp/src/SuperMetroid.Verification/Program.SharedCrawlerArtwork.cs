@@ -37,6 +37,6 @@ internal static partial class Program
             () => EnemySpritemapDefinitions.SharedCrawlerFrameAt(
                 SharedCrawlerInstructionProgramDefinitions.AdjacentInitialSelectorTable),
             "Shared crawler rejects adjacent pointer data as a visual selector");
-        VerifySharedCrawlerInstructionProgramDefinitions(rom, stock);
+        Suite(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions(rom, stock));
     }
 }

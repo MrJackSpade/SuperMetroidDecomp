@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyZoaInstructionProgramDefinitions()
     {
-        VerifyZoaInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyZoaInstructionProgramDefinitions), () => VerifyZoaInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyZoaInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
@@ -16,8 +16,8 @@ internal static partial class Program
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
-        VerifyZoaMechanicsDispatch(rom);
-        VerifyZoaPresentationPositions(rom);
+        Suite(nameof(VerifyZoaMechanicsDispatch), () => VerifyZoaMechanicsDispatch(rom));
+        Suite(nameof(VerifyZoaPresentationPositions), () => VerifyZoaPresentationPositions(rom));
 
         var guard = new ZoaInstructionProgramReadGuard(rom);
         ZoaAnimationSelector[] selectors =

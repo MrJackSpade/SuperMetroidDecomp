@@ -9,9 +9,9 @@ internal static partial class Program
     private static void VerifyIntroBabyActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        VerifyIntroBabyDiscoveryInstructions(retail);
-        VerifyIntroScientistInstructions(retail);
-        VerifyIntroBabyDiscoveryInput(retail);
+        Suite(nameof(VerifyIntroBabyDiscoveryInstructions), () => VerifyIntroBabyDiscoveryInstructions(retail));
+        Suite(nameof(VerifyIntroScientistInstructions), () => VerifyIntroScientistInstructions(retail));
+        Suite(nameof(VerifyIntroBabyDiscoveryInput), () => VerifyIntroBabyDiscoveryInput(retail));
         AssertThrows<InvalidDataException>(() =>
             IntroBabyDiscoveryInputDefinitions.ReadWord(
                 IntroBabyDiscoveryInputDefinitions.ListEnd),

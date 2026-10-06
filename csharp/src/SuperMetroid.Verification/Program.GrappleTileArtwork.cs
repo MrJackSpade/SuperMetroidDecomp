@@ -8,8 +8,8 @@ internal static partial class Program
 {
     private static void VerifyGrappleTileArtwork(SuperMetroidAddressSpace bus)
     {
-        VerifyGrappleSpriteArtwork(bus);
-        VerifyGrappleFlarePlacement(bus);
+        Suite(nameof(VerifyGrappleSpriteArtwork), () => VerifyGrappleSpriteArtwork(bus));
+        Suite(nameof(VerifyGrappleFlarePlacement), () => VerifyGrappleFlarePlacement(bus));
         byte[] png = GrappleTileExtractor.Extract(bus);
         var stock = GrappleTileAtlas.Load(new MemoryStream(png));
         var image = IndexedPng.Read(new MemoryStream(png), GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
@@ -69,7 +69,7 @@ internal static partial class Program
                 BeamStartX = 100, BeamStartY = 100, AnchorX = 200, AnchorY = 60, FlareCounter = 1,
             };
         }
-        VerifyGrappleTileBinding(bus, stock, edited);
+        Suite(nameof(VerifyGrappleTileBinding), () => VerifyGrappleTileBinding(bus, stock, edited));
         using var wrong = new MemoryStream();
         IndexedPng.Write(wrong, 8, 8, new byte[64], SnesGraphics.DiagnosticPalette(16)); wrong.Position = 0;
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(wrong), "Wrong Grapple PNG dimensions rejected");

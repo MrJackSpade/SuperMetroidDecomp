@@ -7,8 +7,8 @@ internal static partial class Program
 {
     private static void VerifyBotwoonInstructionProgramDefinitions()
     {
-        VerifyBotwoonInstructionProgramDefinitions(
-            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        Suite(nameof(VerifyBotwoonInstructionProgramDefinitions), () => VerifyBotwoonInstructionProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     private static void VerifyBotwoonInstructionDefinitions(SuperMetroidAddressSpace rom)
@@ -18,9 +18,9 @@ internal static partial class Program
         ushort Word(int address) =>
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
 
-        VerifyBotwoonHeadMovementSelection(rom);
-        VerifyBotwoonHeadSpitSelection(rom);
-        VerifyBotwoonBodyTailSelection(rom);
+        Suite(nameof(VerifyBotwoonHeadMovementSelection), () => VerifyBotwoonHeadMovementSelection(rom));
+        Suite(nameof(VerifyBotwoonHeadSpitSelection), () => VerifyBotwoonHeadSpitSelection(rom));
+        Suite(nameof(VerifyBotwoonBodyTailSelection), () => VerifyBotwoonBodyTailSelection(rom));
 
         var guarded = new BotwoonInstructionReadGuard(rom);
         var animateHead = typeof(RoomEnemySystem).GetMethod(
@@ -142,9 +142,9 @@ internal static partial class Program
                 $"Botwoon instruction mechanics word $B3:{definition.Address:X4}");
         }
 
-        VerifyBotwoonControlMapping(rom);
-        VerifyBotwoonOperandMapping();
-        VerifyBotwoonVisualMapping(rom);
+        Suite(nameof(VerifyBotwoonControlMapping), () => VerifyBotwoonControlMapping(rom));
+        Suite(nameof(VerifyBotwoonOperandMapping), () => VerifyBotwoonOperandMapping());
+        Suite(nameof(VerifyBotwoonVisualMapping), () => VerifyBotwoonVisualMapping(rom));
         var guard = new BotwoonInstructionReadGuard(rom);
         ushort[] movementPrograms =
         [

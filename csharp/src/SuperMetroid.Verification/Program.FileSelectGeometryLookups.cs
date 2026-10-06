@@ -16,9 +16,9 @@ internal static partial class Program
         FileSelectPresentation presentation = FileSelectPresentation.Load(new MemoryStream(bytes));
         FileSelectPresentationDocument document = JsonSerializer.Deserialize<FileSelectPresentationDocument>(
             bytes, MapPresentationFormat.JsonOptions)!;
-        VerifyFileSelectMainCursorY(rom, presentation);
-        VerifyFileSelectDataCursorY(rom, presentation);
-        VerifyFileSelectHelmetY(rom, document);
+        Suite(nameof(VerifyFileSelectMainCursorY), () => VerifyFileSelectMainCursorY(rom, presentation));
+        Suite(nameof(VerifyFileSelectDataCursorY), () => VerifyFileSelectDataCursorY(rom, presentation));
+        Suite(nameof(VerifyFileSelectHelmetY), () => VerifyFileSelectHelmetY(rom, document));
         Console.WriteLine("File select geometry: six main rows, both four-row data views, three helmet anchors, extracted output and bounds pass.");
     }
 
@@ -32,7 +32,7 @@ internal static partial class Program
             AssertEqual((int)expected, presentation.CursorPosition(true, false, row).Y,
                 $"extracted main cursor Y {row}");
         }
-        VerifyFileSelectGeometryBounds(FileSelectLayout.MainSelectionY, 6);
+        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectLayout.MainSelectionY, 6));
     }
 
     private static void VerifyFileSelectDataCursorY(ISnesAddressSpace rom, FileSelectPresentation presentation)
@@ -46,7 +46,7 @@ internal static partial class Program
             AssertEqual((int)expected, presentation.CursorPosition(false, false, row).Y,
                 $"extracted data cursor {address:X6}/{row}");
         }
-        VerifyFileSelectGeometryBounds(FileSelectLayout.DataSelectionY, 4);
+        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectLayout.DataSelectionY, 4));
     }
 
     private static void VerifyFileSelectHelmetY(ISnesAddressSpace rom, FileSelectPresentationDocument document)
@@ -62,7 +62,7 @@ internal static partial class Program
             AssertEqual(expected, FileSelectLayout.HelmetY(slot), $"helmet Y {slot}");
             AssertEqual((int)expected, document.HelmetAnchors[slot].Y, $"extracted helmet Y {slot}");
         }
-        VerifyFileSelectGeometryBounds(FileSelectLayout.HelmetY, 3);
+        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectLayout.HelmetY, 3));
     }
 
     private static void VerifyFileSelectGeometryBounds(Func<int, ushort> lookup, int count)

@@ -43,7 +43,7 @@ internal static partial class Program
             _ = bus.ReadByte(start);
             _ = bus.ReadByte(start + byteLength - 1);
         }
-        VerifyCompiledEnemyInstructionSelectors(bus);
+        Suite(nameof(VerifyCompiledEnemyInstructionSelectors), () => VerifyCompiledEnemyInstructionSelectors(bus));
 
         Console.WriteLine(
             $"  Enemy ROM data: {fields.Length} named ranges and " +
@@ -82,7 +82,7 @@ internal static partial class Program
         AssertEqual(Word(EnemyRomTablePointers.Torizo.SuperMissileInstructionPointers + 2),
             GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(true),
             "Golden Torizo right reflected-Super list");
-        VerifyWorkRobotInitialSelection(rom);
+        Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
             AssertEqual(Word(EnemyRomTablePointers.TourianStatue.InstructionListWords + parameter),
                 TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(parameter),

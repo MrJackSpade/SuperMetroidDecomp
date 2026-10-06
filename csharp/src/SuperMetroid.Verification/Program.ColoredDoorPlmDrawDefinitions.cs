@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyColoredDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyColoredDoorProgramDefinitions(rom);
+        Suite(nameof(VerifyColoredDoorProgramDefinitions), () => VerifyColoredDoorProgramDefinitions(rom));
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
@@ -31,9 +31,9 @@ internal static partial class Program
             "colored-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(0xa827, 0),
             "stock colored-door visual retains native tile choice");
-        VerifyColoredCapGeometry(rom);
-        VerifyColoredCapCollision(rom);
-        VerifyColoredCapVisuals(rom);
+        Suite(nameof(VerifyColoredCapGeometry), () => VerifyColoredCapGeometry(rom));
+        Suite(nameof(VerifyColoredCapCollision), () => VerifyColoredCapCollision(rom));
+        Suite(nameof(VerifyColoredCapVisuals), () => VerifyColoredCapVisuals(rom));
 
         // A synthetic population selects each real resident header. Only the bank-$8F
         // population is synthetic; setup and first-draw instruction bytes are copied
@@ -172,19 +172,19 @@ internal static partial class Program
                 $"opened colored door ${header:X4} converts without program/draw ROM reads");
         }
         editedFrame.Blocks[0] = originalVisual;
-        VerifyColoredDoorVisualInstallation(rom);
+        Suite(nameof(VerifyColoredDoorVisualInstallation), () => VerifyColoredDoorVisualInstallation(rom));
         Console.WriteLine(
             "  Colored doors: 1164 compiled program bytes, 12 close/hit/open/reload paths, 48 physical draws, and editable visual blocks pass with source reads blocked.");
     }
 
     private static void VerifyColoredDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyColoredProgramControls(rom);
-        VerifyColoredProgramDraws(rom);
-        VerifyColoredProgramTargets(rom);
-        VerifyColoredProgramSounds(rom);
-        VerifyColoredProgramHitCount(rom);
-        VerifyColoredProgramCallback(rom);
+        Suite(nameof(VerifyColoredProgramControls), () => VerifyColoredProgramControls(rom));
+        Suite(nameof(VerifyColoredProgramDraws), () => VerifyColoredProgramDraws(rom));
+        Suite(nameof(VerifyColoredProgramTargets), () => VerifyColoredProgramTargets(rom));
+        Suite(nameof(VerifyColoredProgramSounds), () => VerifyColoredProgramSounds(rom));
+        Suite(nameof(VerifyColoredProgramHitCount), () => VerifyColoredProgramHitCount(rom));
+        Suite(nameof(VerifyColoredProgramCallback), () => VerifyColoredProgramCallback(rom));
     }
 
     private static void VerifyColoredDoorVisualInstallation(SuperMetroidAddressSpace rom)

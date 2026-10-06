@@ -6,8 +6,8 @@ internal static partial class Program
 {
     private static void VerifyKraidMouthHitboxes(SuperMetroidAddressSpace rom)
     {
-        VerifyKraidMouthShapeCases(rom);
-        VerifyKraidLowHalfBoundaryMapping(rom);
+        Suite(nameof(VerifyKraidMouthShapeCases), () => VerifyKraidMouthShapeCases(rom));
+        Suite(nameof(VerifyKraidLowHalfBoundaryMapping), () => VerifyKraidLowHalfBoundaryMapping(rom));
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
         ushort PointerWord(ushort pointer) => (ushort)(
             rom.ReadByte(0xa70000 | pointer) |

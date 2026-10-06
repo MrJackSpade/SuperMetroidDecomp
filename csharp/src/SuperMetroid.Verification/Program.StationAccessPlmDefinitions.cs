@@ -5,14 +5,14 @@ internal static partial class Program
 {
     private static void VerifyStationAccessPlmDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyStationAccessHeaders(rom);
-        VerifyStationAccessInitialLists(rom);
-        VerifyStationAccessRetractedDraws(rom);
-        VerifyStationAccessExtendedDraws(rom);
+        Suite(nameof(VerifyStationAccessHeaders), () => VerifyStationAccessHeaders(rom));
+        Suite(nameof(VerifyStationAccessInitialLists), () => VerifyStationAccessInitialLists(rom));
+        Suite(nameof(VerifyStationAccessRetractedDraws), () => VerifyStationAccessRetractedDraws(rom));
+        Suite(nameof(VerifyStationAccessExtendedDraws), () => VerifyStationAccessExtendedDraws(rom));
 
         // This production fixture activates map and missile access blocks and draws
         // both phases. Its sparse bus intentionally omits all six header+2 words.
-        VerifySequentialRoomPlmPopulationLoader();
+        Suite(nameof(VerifySequentialRoomPlmPopulationLoader), () => VerifySequentialRoomPlmPopulationLoader());
         Console.WriteLine(
             "Station access PLMs: all six native header/list identities and real access animations pass without runtime header reads.");
     }

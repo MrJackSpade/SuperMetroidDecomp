@@ -28,8 +28,8 @@ internal static partial class Program
 
     private static void VerifyCompiledPowerBombShape(SuperMetroidAddressSpace rom)
     {
-        VerifyPowerBombWidthAlgorithm(rom);
-        VerifyPowerBombTopOffsetAlgorithm(rom);
+        Suite(nameof(VerifyPowerBombWidthAlgorithm), () => VerifyPowerBombWidthAlgorithm(rom));
+        Suite(nameof(VerifyPowerBombTopOffsetAlgorithm), () => VerifyPowerBombTopOffsetAlgorithm(rom));
         byte[] widths = new byte[32], tops = new byte[32];
         for (int i = 0; i < 32; i++)
         {

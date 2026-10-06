@@ -9,7 +9,7 @@ internal static partial class Program
 {
     private static void VerifyAttractDemoScene()
     {
-        VerifyStockAttractScenes();
+        Suite(nameof(VerifyStockAttractScenes), () => VerifyStockAttractScenes());
         var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
         WriteRomWord(rom, AttractDemoRomData.RoomSetPointers, 0x9000);
         WriteRomWord(rom, AttractDemoRomData.EquipmentSetPointers, 0xa000);
@@ -94,7 +94,7 @@ internal static partial class Program
         }
         AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(-1, 0), "negative demo set");
         AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(0, -1), "negative demo scene");
-        VerifyAttractCommandDefinitionsAndPlayback(retail, counts);
+        Suite(nameof(VerifyAttractCommandDefinitionsAndPlayback), () => VerifyAttractCommandDefinitionsAndPlayback(retail, counts));
         Console.WriteLine($"Compiled attract scenes: {total} records and four sentinels match cartridge data.");
     }
 

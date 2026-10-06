@@ -31,7 +31,7 @@ internal static partial class Program
         AssertEqual(2, samus.Kinematics.YSpeed, "native bomb-wall next speed");
         AssertEqual(0x8000, samus.Kinematics.YSubspeed, "native bomb-wall next subspeed");
         Console.WriteLine("  Bomb jump: wall-only collision preserves native ascent and handler lifetime.");
-        VerifyCarriedMorphCeiling(bus);
+        Suite(nameof(VerifyCarriedMorphCeiling), () => VerifyCarriedMorphCeiling(bus));
     }
 
     private static void VerifyCarriedMorphCeiling(SuperMetroidAddressSpace bus)

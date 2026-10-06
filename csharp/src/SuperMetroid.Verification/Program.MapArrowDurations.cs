@@ -56,7 +56,7 @@ internal static partial class Program
             AssertEqual(length, visual.StoredDurationCount, "fully authored cycle captured");
             for (int phase = 0; phase < length; phase++) AssertEqual((byte)254, visual.Duration(phase), "custom duration");
         }
-        VerifyMapArrowDurationTicks(rom, stock);
+        Suite(nameof(VerifyMapArrowDurationTicks), () => VerifyMapArrowDurationTicks(rom, stock));
         MapArrowPresentation Load(Dictionary<string, MapArrowEntry> entries)
         {
             using var json = new MemoryStream();

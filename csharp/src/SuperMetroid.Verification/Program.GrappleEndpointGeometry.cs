@@ -43,7 +43,7 @@ internal static partial class Program
             AssertEqual((byte)0x20, oam.LowTable[2], "Native endpoint character");
             AssertEqual((byte)0x3a, oam.LowTable[3], "Native endpoint palette/priority");
         }
-        VerifyGrappleEndpointActor((SuperMetroidAddressSpace)bus);
+        Suite(nameof(VerifyGrappleEndpointActor), () => VerifyGrappleEndpointActor((SuperMetroidAddressSpace)bus));
         Console.WriteLine("Grapple endpoint geometry: 360 pose/camera/wrapped-coordinate cases and actual actor pose handoff match native clipping, borrow and OAM attributes.");
     }
 

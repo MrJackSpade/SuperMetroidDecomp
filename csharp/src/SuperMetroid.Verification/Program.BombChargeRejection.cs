@@ -8,7 +8,7 @@ internal static partial class Program
 {
     private static void VerifyBombChargeRejection()
     {
-        VerifyBombChargeRelease();
+        Suite(nameof(VerifyBombChargeRelease), () => VerifyBombChargeRelease());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = new RoomLevelData(16, 16, new ushort[256], new byte[256], new ushort[256], new byte[8]);
         foreach (ushort charge in new ushort[] { 0, 58, 60 })

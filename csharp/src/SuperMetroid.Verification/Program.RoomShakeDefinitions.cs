@@ -6,9 +6,9 @@ internal static partial class Program
 {
     private static void VerifyRoomShakeDefinitions(SuperMetroidAddressSpace rom)
     {
-        VerifyRoomShakeBg1Algorithm(rom);
-        VerifyRoomShakeBg2Algorithm(rom);
-        VerifyRoomShakeProjectileAlgorithm(rom);
+        Suite(nameof(VerifyRoomShakeBg1Algorithm), () => VerifyRoomShakeBg1Algorithm(rom));
+        Suite(nameof(VerifyRoomShakeBg2Algorithm), () => VerifyRoomShakeBg2Algorithm(rom));
+        Suite(nameof(VerifyRoomShakeProjectileAlgorithm), () => VerifyRoomShakeProjectileAlgorithm(rom));
         const ushort renderedTypeCount = 36;
 
         var guarded = new RoomShakeReadGuard(rom);
@@ -93,16 +93,16 @@ internal static partial class Program
     }
 
     private static void VerifyRoomShakeBg1Algorithm(SuperMetroidAddressSpace rom) =>
-        VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg1ReferenceAddress, 8,
-            definition => (definition.Bg1X, definition.Bg1Y), "BG1");
+        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg1ReferenceAddress, 8,
+            definition => (definition.Bg1X, definition.Bg1Y), "BG1"));
 
     private static void VerifyRoomShakeBg2Algorithm(SuperMetroidAddressSpace rom) =>
-        VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg2ReferenceAddress, 8,
-            definition => (definition.Bg2X, definition.Bg2Y), "BG2");
+        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.Bg2ReferenceAddress, 8,
+            definition => (definition.Bg2X, definition.Bg2Y), "BG2"));
 
     private static void VerifyRoomShakeProjectileAlgorithm(SuperMetroidAddressSpace rom) =>
-        VerifyRoomShakeVector(rom, RoomShakeDefinitions.ProjectileReferenceAddress, 4,
-            definition => (definition.ProjectileX, definition.ProjectileY), "projectile");
+        Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.ProjectileReferenceAddress, 4,
+            definition => (definition.ProjectileX, definition.ProjectileY), "projectile"));
 
     private static void VerifyRoomShakeVector(SuperMetroidAddressSpace rom, int source, int stride,
         Func<RoomShakeDefinition, (short X, short Y)> select, string label)

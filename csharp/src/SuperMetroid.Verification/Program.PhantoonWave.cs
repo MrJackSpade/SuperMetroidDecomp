@@ -50,8 +50,8 @@ internal static partial class Program
         AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name is not ("_wave" or "_blending"))), "legacy migration preserves every prior field identity/order");
         var waveEra = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PhantoonEnemyState), fields, fields.Length - 1);
         AssertTrue(waveEra.SequenceEqual(fields.Where(field => field.Name != "_blending")), "wave-era migration preserves recorded wave history");
-        VerifyPhantoonBlendingLifecycle(boss);
-        VerifyPhantoonFadeColors();
+        Suite(nameof(VerifyPhantoonBlendingLifecycle), () => VerifyPhantoonBlendingLifecycle(boss));
+        Suite(nameof(VerifyPhantoonFadeColors), () => VerifyPhantoonFadeColors());
         Console.WriteLine("  Phantoon wave: original-CPU lifecycle, display latch, debugger round-trip and explicit legacy migration agree.");
     }
 

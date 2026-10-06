@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
     {
-        VerifyProjectileTrailAtlas(bus);
+        Suite(nameof(VerifyProjectileTrailAtlas), () => VerifyProjectileTrailAtlas(bus));
         byte[] json = ProjectileTrailExtractor.Extract(bus);
         var catalog = ProjectileTrailCatalog.Load(new MemoryStream(json));
         var encountered = new HashSet<ushort>();
@@ -63,7 +63,7 @@ internal static partial class Program
         }
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
         AssertThrows<InvalidDataException>(() => ProjectileTrailProgramDefinitions.Read(bus, 0x91b4c9), "Trail program rejects a wrong-bank alias");
-        VerifyTrailMutableAlias();
+        Suite(nameof(VerifyTrailMutableAlias), () => VerifyTrailMutableAlias());
         int draws = 0;
         foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })
@@ -90,7 +90,7 @@ internal static partial class Program
         var part = document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!;
         part["flipX"] = !part["flipX"]!.GetValue<bool>();
         var edited = Load(document);
-        VerifyRuntimeTrailBinding(bus, catalog, edited);
+        Suite(nameof(VerifyRuntimeTrailBinding), () => VerifyRuntimeTrailBinding(bus, catalog, edited));
         AssertEqual((ushort)(catalog.Resolve(first) ^ 0x4000), edited.Resolve(first), "Trail flip edit changes only horizontal-flip bit");
         var animation = new SamusProjectileSystem();
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;

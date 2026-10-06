@@ -35,7 +35,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Assets/SamusBodyDefinitionLayout.cs", "AA031FE0F4ED1119B8D27B9394152B8D6FDE63516D0339C9D97D802D034B3885"),
         new("csharp/src/SuperMetroid.Core/Assets/SamusBodyFrameDefinitions.cs", "412EDD130DBB30876C079CCFA21E7575F34468E72615316C8387456D6B06ACE9"),
         new("csharp/src/SuperMetroid.Core/Assets/SamusBodyPoseDefinitions.cs", "C5FC4C4CCFD7ACFAA8833A33DF0F302CC1A6D5FC367433B05569D64B09C9942B"),
-        new("csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs", "AC86A0DA90E448E7E53329424FA312B647BECEF1A14DCF95A3087A756CB94B90"),
+        new("csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs", "A37060E1A4A6A4DB5C83705B452294953A89C1BC4D3E0CCBFCE49FD9FC4C4FE8"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusBodyPixelDefinitions.cs", "1E9EA019CB38CA024B15EC658037EBABAB24F0CF5D43411760C2FD1EF05F34B5"),
         new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs", "F4575D92F83FAA9E931023B3DBF9BA0B18F400A2D42C8380594B28E0A8DC9A91"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapFrameDefinitions.cs", "45C8A46CB2B4351F5845E2E5A8DD3E9BD216AAE248C6CA92AA824537483DFE8F"),

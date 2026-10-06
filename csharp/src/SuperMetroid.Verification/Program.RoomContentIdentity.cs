@@ -42,8 +42,8 @@ internal static partial class Program
             "room-art edit invalidates aggregate identity");
         AssertTrue(aggregate.GetCompatibilityWarnings(changedIdentity.ToSnapshot(), "test").Single()
             .Contains(first, StringComparison.Ordinal), "room-art drift is explained by its domain");
-        VerifyGameContentIdentityComposition();
-        VerifyControllerInputRecording();
+        Suite(nameof(VerifyGameContentIdentityComposition), () => VerifyGameContentIdentityComposition());
+        Suite(nameof(VerifyControllerInputRecording), () => VerifyControllerInputRecording());
         Console.WriteLine("  Selected room content: six domains, CRE, canonical ordering, isolated edits, " +
             "aggregate drift, immutable snapshots and recording compatibility pass without a ROM.");
     }

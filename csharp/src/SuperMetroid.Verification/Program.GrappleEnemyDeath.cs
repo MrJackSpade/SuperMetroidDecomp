@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyGrappleEnemyDeath()
     {
-        VerifyGrappleDeathCleanupOrdinaryPoses();
+        Suite(nameof(VerifyGrappleDeathCleanupOrdinaryPoses), () => VerifyGrappleDeathCleanupOrdinaryPoses());
         var samus = CreateDropTestSamus();
         samus.Health = 50;
         samus.XPosition = 220;

@@ -12,7 +12,7 @@ internal static partial class Program
     {
         var native = new OamBuffer();
         var installed = new OamBuffer();
-        VerifyMapSpriteNativeCompositions(bus, original.Sprites);
+        Suite(nameof(VerifyMapSpriteNativeCompositions), () => VerifyMapSpriteNativeCompositions(bus, original.Sprites));
         // Independent coordinate oracle: the native carry/sign test parks wrapped
         // Y at $180/$E0, rather than letting it reappear on the opposite screen edge.
         for (int origin = 0; origin < 256; origin++)
@@ -31,7 +31,7 @@ internal static partial class Program
         var vram = new SnesVram(); original.Sprites.LoadArtworkTo(vram, MapSpriteFormat.FileSelectDestination);
         AssertTrue(vram.Bytes.Slice(MapSpriteFormat.FileSelectDestination, MapSpriteFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
-        VerifyInstalledFileSelectMenu(bus, new MapSpriteReadGuard(bus), original, original);
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, new MapSpriteReadGuard(bus), original, original));
 
         Directory.CreateDirectory(overrides);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -44,7 +44,7 @@ internal static partial class Program
         File.WriteAllBytes(path, JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, options));
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "composition changes catalog identity");
-        VerifyRenderedEdit(edited);
+        Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(edited));
         for (int palette = 0; palette < 8; palette++)
         {
             installed.BeginFrame(); edited.Sprites.Draw(9, installed, 100, 100, (ushort)(palette << 9));
@@ -81,7 +81,7 @@ internal static partial class Program
         using (var output = File.Create(pngPath)) IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
         var pngEdit = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(pngEdit.ContentIdentity != original.ContentIdentity, "PNG alone changes selected content identity");
-        VerifyRenderedEdit(pngEdit);
+        Suite(nameof(VerifyRenderedEdit), () => VerifyRenderedEdit(pngEdit));
         File.WriteAllText(pngPath, "invalid PNG");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt sprite PNG override rejected");
         File.WriteAllBytes(pngPath, File.ReadAllBytes(Path.Combine(stock, MapSpriteFormat.PngFile)));

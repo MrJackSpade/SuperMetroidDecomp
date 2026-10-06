@@ -24,7 +24,7 @@ internal static partial class Program
             }
         }
         AssertEqual(3857, bytes, "174 pointer words, 870 four-coordinate records, 28 adjacent observations and the empty-family wrapped byte cover the reachable native region");
-        VerifyCoordinateSpawn(bus);
+        Suite(nameof(VerifyCoordinateSpawn), () => VerifyCoordinateSpawn(bus));
         AssertTrue(ProjectileTrailCoordinateDefinitions.TryReadByte(0x9bffff, out byte boundaryLow),
             "bank-end trail operand has a compiled low byte");
         byte originalBoundaryHigh = ((ISnesMutableMemory)bus).ReadWorkRamByte(0x9c0000);

@@ -58,7 +58,7 @@ internal static partial class Program
             () => YardTurnDefinitions.ForMovement(YardMovementFunction.Airborne, false),
             "Yard airborne state has no surface-turn definition");
 
-        VerifyYardTurnProductionBranches(rom, records);
+        Suite(nameof(VerifyYardTurnProductionBranches), () => VerifyYardTurnProductionBranches(rom, records));
         Console.WriteLine(
             "Yard turn definitions: all 48 native words, four suppression aliases, and " +
             "all 24 real outside/inside crawl branches pass with the complete turn table forbidden.");

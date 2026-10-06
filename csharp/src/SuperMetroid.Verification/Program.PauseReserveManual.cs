@@ -46,7 +46,7 @@ internal static partial class Program
         AssertEqual(0, pause.SelectedItem, "exhaustion returns to mode item");
         pause.Step(0, (ushort)SnesButton.A);
         AssertEqual(1, samus.ReserveTankMode, "A restores AUTO");
-        VerifyManualReserveSoundAndClamp(bus);
+        Suite(nameof(VerifyManualReserveSoundAndClamp), () => VerifyManualReserveSoundAndClamp(bus));
         var fields = typeof(PauseMenuState).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             .Where(field => !field.IsDefined(typeof(NonSerializedAttribute), false))
             .OrderBy(field => field.MetadataToken).ToArray();

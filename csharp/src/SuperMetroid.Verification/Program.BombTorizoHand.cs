@@ -12,8 +12,8 @@ internal static partial class Program
     /// </summary>
     static void VerifyBombTorizoHandPlm(EnemyTileArtworkCatalog? installedArtwork = null)
     {
-        VerifyBombTorizoHandProgramDefinitions();
-        VerifyBombTorizoHandVisualInstallation();
+        Suite(nameof(VerifyBombTorizoHandProgramDefinitions), () => VerifyBombTorizoHandProgramDefinitions());
+        Suite(nameof(VerifyBombTorizoHandVisualInstallation), () => VerifyBombTorizoHandVisualInstallation());
         var bus = new TestAddressSpace();
         const ushort population = 0x9000;
         const int width = 16;
@@ -214,16 +214,16 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Torizo hand oracle revision");
-        VerifyBombTorizoHandDrawGeometry(rom);
-        VerifyBombTorizoHandDrawCollision(rom);
-        VerifyBombTorizoHandDrawVisuals(rom);
-        VerifyHandProgramControls(rom);
-        VerifyHandProgramDraws(rom);
-        VerifyHandProgramCallback(rom);
-        VerifyHandProgramDebrisArguments(rom);
-        VerifyHandProgramTransferSize(rom);
-        VerifyHandProgramTransferSource(rom);
-        VerifyHandProgramTransferDestination(rom);
+        Suite(nameof(VerifyBombTorizoHandDrawGeometry), () => VerifyBombTorizoHandDrawGeometry(rom));
+        Suite(nameof(VerifyBombTorizoHandDrawCollision), () => VerifyBombTorizoHandDrawCollision(rom));
+        Suite(nameof(VerifyBombTorizoHandDrawVisuals), () => VerifyBombTorizoHandDrawVisuals(rom));
+        Suite(nameof(VerifyHandProgramControls), () => VerifyHandProgramControls(rom));
+        Suite(nameof(VerifyHandProgramDraws), () => VerifyHandProgramDraws(rom));
+        Suite(nameof(VerifyHandProgramCallback), () => VerifyHandProgramCallback(rom));
+        Suite(nameof(VerifyHandProgramDebrisArguments), () => VerifyHandProgramDebrisArguments(rom));
+        Suite(nameof(VerifyHandProgramTransferSize), () => VerifyHandProgramTransferSize(rom));
+        Suite(nameof(VerifyHandProgramTransferSource), () => VerifyHandProgramTransferSource(rom));
+        Suite(nameof(VerifyHandProgramTransferDestination), () => VerifyHandProgramTransferDestination(rom));
     }
 
     private sealed class BombTorizoHandProgramReadGuard(ISnesAddressSpace source)

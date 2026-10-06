@@ -57,7 +57,7 @@ internal static partial class Program
             }
         }
         AssertEqual(0, failures, "Projectile initialization must inherit native movement/camera overlapping words");
-        VerifyProjectileInheritanceMovement();
+        Suite(nameof(VerifyProjectileInheritanceMovement), () => VerifyProjectileInheritanceMovement());
         for (ushort weapon = 0; weapon < 3; weapon++) VerifyProjectileInheritanceRuntime(weapon);
         Console.WriteLine("Projectile inheritance: original 50 cases, live movement writes and preceding-frame runtime shot pass.");
     }

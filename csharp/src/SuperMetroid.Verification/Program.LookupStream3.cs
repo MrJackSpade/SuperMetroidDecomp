@@ -6,6 +6,65 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
+    {
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        GameOptionsPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<GameOptionsPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        Dictionary<string, SpriteComposition> Load(GameOptionsPresentationDocument document)
+        {
+            var value = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            return (Dictionary<string, SpriteComposition>)typeof(GameOptionsPresentation).GetField("sprites", flags)!.GetValue(value)!;
+        }
+        void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
+        {
+            var expected = MenuSpriteCompiler.Compile(parts, "independent border oracle");
+            AssertEqual(expected.PartCount, actual.PartCount, "border ordered part count");
+            for (int index = 0; index < expected.PartCount; index++)
+                AssertEqual(expected.Part(index), actual.Part(index), "border exact coordinates, appearance and order");
+        }
+        foreach ((string name, int address, int count) in new[]
+        {
+            ("Heading.Primary", 0x82d24b, 34), ("Heading.Controller", 0x82d2f7, 58), ("Heading.Special", 0x82d41b, 52),
+        })
+        {
+            var original = Read();
+            var stock = Load(original)[name];
+            AssertTrue(typeof(SpriteComposition).GetField("parts", flags)!.GetValue(stock) is MenuBorderParts,
+                "native border stores perimeter inputs instead of full parts");
+            AssertEqual(count, stock.PartCount, "native perimeter count");
+            Confirm(stock, original.Sprites[name]);
+            ushort Word(int location) => (ushort)(rom.ReadByte(location) | rom.ReadByte(location + 1) << 8);
+            AssertEqual((ushort)count, Word(address), "native border header");
+            for (int index = 0; index < count; index++)
+            {
+                int entry = address + 2 + index * 5;
+                var part = stock.Part(index);
+                AssertEqual(Word(entry), part.X.Raw, "native border X/size");
+                AssertEqual(rom.ReadByte(entry + 2), part.Y, "native border Y");
+                AssertEqual((ushort)(Word(entry + 3) & ~0x0e00), part.Attributes.Raw, "native border inherited-palette attributes");
+                AssertTrue(part.InheritPalette, "border palette remains owner supplied");
+                foreach (int field in new[] { 0, 1, 2, 3 })
+                {
+                    var edited = Read();
+                    var source = edited.Sprites[name][index];
+                    edited.Sprites[name][index] = field switch
+                    {
+                        0 => source with { OffsetX = source.OffsetX + 1 },
+                        1 => source with { OffsetY = source.OffsetY + 1 },
+                        2 => source with { TileColumn = source.TileColumn ^ 1 },
+                        _ => source with { Palette = 2, FlipX = !source.FlipX },
+                    };
+                    Confirm(Load(edited)[name], edited.Sprites[name]);
+                }
+            }
+            var reversed = Read();
+            Array.Reverse(reversed.Sprites[name]);
+            Confirm(Load(reversed)[name], reversed.Sprites[name]);
+            var expanded = Read();
+            expanded.Sprites[name] = [.. expanded.Sprites[name], expanded.Sprites[name][0]];
+            Confirm(Load(expanded)[name], expanded.Sprites[name]);
+        }
+    }
     private static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, byte[] imported)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;

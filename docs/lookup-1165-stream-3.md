@@ -1218,3 +1218,9 @@ Root Verification1450warnings/zero errors; dedicated --lookup-stream3-file-selec
 ee6aae2b3 corrects the earlier whole-entry completion claim for ChootPatternDefinitions.Patterns. Semantic selector dispatch remains converted, but the selected loop advances30/28/32 at A2:D974/DA9E/DBC8 (normal also DD42/DF5C) remain required. Native DFCE uses these values to calculate jump height, and E0EB adds them to each loop origin; they are functional trajectory inputs. No complexity, provenance or visual-shape exception applies. The three sampled paths and plateau holds remain separately pending. Inventory560converted/21retained-mixed/547pending.
 
 Root Verification1450warnings/zero errors; --choot-pattern-definitions passes five native selectors/distances,450physical path frames,20initializers,five complete fall loops and source-read guards. Root checked native DFCE and E0EB consumers. This accounting correction preserves behavior.
+
+## Integrated options heading perimeters
+
+c3aa8dbeb applies the existing calculated rectangular perimeter view to Heading.Primary/Controller/Special at82:D24B/D2F7/D41B. It removes full stored coordinate repetition while preserving independently supplied geometry,appearance and drawing order. Dimensions,bounds,six appearance roles,order and pixels remain required. No new exception or aggregate completion;560converted/21retained-mixed/547pending unchanged.
+
+Root Verification1450warnings/zero errors and ResourceAudit0warnings/zero errors. --lookup-stream3-menu-borders passes258native file-select/options parts,1032independent field edits,six reversed orders and six expanded compositions. Audit dependencies now include the shared border helper for both providers.

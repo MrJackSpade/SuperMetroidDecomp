@@ -4,7 +4,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// $82:D00B/D0AD/D177: file-select rectangular borders made from eight-pixel OBJ tiles.
+/// $82:D00B/D0AD/D177 and D24B/D2F7/D41B: file-select/options rectangular borders of eight-pixel OBJ tiles.
 /// Supplied bounds, six appearance roles and draw order remain independent required inputs;
 /// only perimeter coordinates and repeated edge appearances calculate.
 /// </summary>
@@ -27,7 +27,7 @@ internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
 
     internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied)
     {
-        if (name is not ("Border.Main" or "Border.Copy" or "Border.Clear") || supplied.PartCount < 8)
+        if (name is not ("Border.Main" or "Border.Copy" or "Border.Clear" or "Heading.Primary" or "Heading.Controller" or "Heading.Special") || supplied.PartCount < 8)
             return supplied;
         int left = int.MaxValue, right = int.MinValue, top = int.MaxValue, bottom = int.MinValue;
         for (int index = 0; index < supplied.PartCount; index++)

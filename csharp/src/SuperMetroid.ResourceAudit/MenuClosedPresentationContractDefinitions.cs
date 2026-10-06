@@ -9,8 +9,9 @@ internal static class MenuClosedPresentationContractDefinitions
             ["CreatePage", "LoadBackground", "ApplyLanguage", "ApplyControllerLabel", "ApplySpecialToggle",
                 "CursorPosition", "DrawHeading", "DrawCursor"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs",
-                "DF431D08B27F4F9FDB7895838685C4D469E592278F5AA43839E44BF36C0C08AD"),
+                "890A0F9D393A260F6CD016FE5465B9A565FB3BF855726B5CBB19C64977462687"),
              new("csharp/src/SuperMetroid.Core/Assets/MenuCursorParts.cs", "098A65F1E9C940A4FEE39562968A7719BE5F405E46F84E6FA151FF89C6E2C66C"),
+             new("csharp/src/SuperMetroid.Core/Assets/MenuBorderParts.cs", "6B79556FD47098253A8A977E398C98A1908D01A7DD4E9E5916A38634A33E0080"),
              new("csharp/src/SuperMetroid.Core/Frontend/GameOptionsRomData.cs",
                 "6402E8F44472D8FE1481FC111C546ED638FE28A11EB297F6A048318879CE262A")],
             "The private-constructor loader requires all six pages, seven controller labels/anchors, " +

@@ -1207,6 +1207,18 @@ internal static partial class Program
                 Check(owner + " YVelocity", unchecked((ushort)projectile.YVelocity), RidleyMovieMemory.ProjectileYVelocity + index);
                 Check(owner + " Direction", unchecked((ushort)projectile.Direction), RidleyMovieMemory.ProjectileDirection + index);
                 Check(owner + " Instruction", unchecked((ushort)projectile.InstructionPointer), RidleyMovieMemory.ProjectileInstruction + index);
+                ushort callback = projectile.PreInstruction switch
+                {
+                    SamusProjectilePreInstruction.None => RidleyMovieMemory.ProjectileEmptyCallback,
+                    SamusProjectilePreInstruction.NoWaveBeam => SamusBeamPreInstructionCodes.NoWave,
+                    SamusProjectilePreInstruction.WaveBeamThreeFrameTrail => SamusBeamPreInstructionCodes.WaveThreeFrameTrail,
+                    SamusProjectilePreInstruction.WaveBeamFourFrameTrail => SamusBeamPreInstructionCodes.WaveFourFrameTrail,
+                    SamusProjectilePreInstruction.Missile => RidleyMovieMemory.ProjectileMissileCallback,
+                    SamusProjectilePreInstruction.SuperMissile => RidleyMovieMemory.ProjectileSuperMissileCallback,
+                    SamusProjectilePreInstruction.SuperMissileLink => RidleyMovieMemory.ProjectileSuperMissileLinkCallback,
+                    _ => throw new InvalidDataException($"Movie projectile callback {projectile.PreInstruction} needs a native identity mapping"),
+                };
+                Check(owner + " PreInstruction", callback, RidleyMovieMemory.ProjectilePreInstruction + index);
                 Check(owner + " InstructionTimer", unchecked((ushort)projectile.InstructionTimer), RidleyMovieMemory.ProjectileInstructionTimer + index);
                 Check(owner + " Variable", unchecked((ushort)projectile.Variable), RidleyMovieMemory.ProjectileVariable + index);
                 Check(owner + " TrailTimer", unchecked((ushort)projectile.TrailTimer), RidleyMovieMemory.ProjectileTrailTimer + index);

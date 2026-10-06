@@ -60,7 +60,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Samus movement and collision | Positions/fractions, camera, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state and momentum/boost pass | Control-handler ownership, remaining movement flags and secondary motion state |
 | Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication and charge palette/audio words pass | Remaining combat/input ownership and filtered-input state |
 | Enemies and Ridley | Active enemy collision/properties/timers; complete Ridley tail records, shared tail/body controller, wing/grab/damage/health/facing state pass | Remaining actor AI variables and phase-dependent aliases |
-| Ordinary/enemy projectiles | Ordinary active-slot motion/program/art state; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Ordinary pre-instruction identity; remaining enemy-projectile parallel metadata; bombs need live mappings only if a different movie activates them |
+| Ordinary/enemy projectiles | Ordinary active-slot motion/program/art and callback identity; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Remaining enemy-projectile parallel metadata; bombs need live mappings only if a different movie activates them |
 | Persistent world and room effects | Complete boss/event/item/door bitsets; gameplay foreground/BTS; movie grey-door execution, condition and hit state; acid surface/tide phase pass | Loading-boundary mutations, remaining persistence allocations, environmental state, and PLM draw/presentation state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
 
@@ -579,3 +579,19 @@ Release build, --ceres-ridley-projectile-instruction-mechanics and the independe
 10,717-update movie pass (`eproj-family-final-build.log`, `eproj-family-focused.log`,
 `eproj-family-final-replay.log`). Player validation remains pending. Parallel
 projectile collision/drop metadata and other documented coverage gaps remain open.
+
+
+### Ordinary projectile callback identity
+
+Every active ordinary projectile now compares its semantic callback with the
+native $0C68 word at MainGameplay boundaries. The supplied movie reaches Wave
+four-frame-trail flight ($90:B0C3), missile ($AF68), Super Missile ($AFE5), its
+companion/link ($B075), and the empty callback used by impact animations ($B169).
+The mapping also admits the two other ordinary beam flight callbacks; any other
+semantic callback fails explicitly until mapped. This checks dispatch identity
+in addition to previously compared motion, timers and program cursors.
+
+The release build and all 10,717 independent input-only updates pass
+(`projectile-callback-build.log`, `projectile-callback-replay.log`). No production
+change was required. Remaining parallel metadata and presentation/control-state
+gaps in the ledger are still open.

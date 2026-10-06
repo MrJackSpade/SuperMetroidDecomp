@@ -1,6 +1,17 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$0C68: ordinary/bomb projectile pre-instruction words.</summary>
+    public const int ProjectilePreInstruction = 0x0c68;
+    /// <summary>$90:B169: ProjPreInstr_Empty, retained by active impact animations.</summary>
+    public const ushort ProjectileEmptyCallback = 0xb169;
+    /// <summary>$90:AF68: ProjPreInstr_Missile, ordinary missile flight.</summary>
+    public const ushort ProjectileMissileCallback = 0xaf68;
+    /// <summary>$90:AFE5: ProjPreInstr_SuperMissile, main Super Missile flight.</summary>
+    public const ushort ProjectileSuperMissileCallback = 0xafe5;
+    /// <summary>$90:B075: ProjPreInstr_Func1, Super Missile companion/link motion.</summary>
+    public const ushort ProjectileSuperMissileLinkCallback = 0xb075;
+
     /// <summary>$1AFF: enemy-projectile E, interpreted by its active family.</summary>
     public const int EnemyProjectileVariableE = 0x1aff;
     /// <summary>$1B23: enemy-projectile F, interpreted by its active family.</summary>

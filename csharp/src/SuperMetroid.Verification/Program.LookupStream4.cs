@@ -1811,14 +1811,14 @@ internal static partial class Program
             var atlas = BeamTileAtlas.Load(new MemoryStream(png), selection);
             var stored = (Dictionary<int, byte>)typeof(BeamTileAtlas).GetField("pixels",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(atlas)!;
-            int expectedBasis = selection switch { 0 => 224, 2 => 288, 1 or 3 => 400, >= 4 and <= 7 => 211, _ => 307 };
+            int expectedBasis = selection switch { 0 => 224, 2 => 288, 1 or 3 => 400, >= 4 and <= 7 => 181, _ => 299 };
             AssertEqual(expectedBasis, stored.Count, "Beam sheet stores exactly its required pixel basis with no stock derived fallbacks");
             for (int pixel = 0; pixel < 512; pixel++)
             {
                 bool derived = BeamTileAtlasDefinitions.TryDerivedPixelSource(selection, pixel, out int sourcePixel);
                 if (selection is >= 4 and <= 7 && pixel % 64 / 8 is 1 or 2)
-                    AssertEqual(ReadPixel(native, pixel) == 0, derived,
-                        "Spazer diagonal geometry calculates exactly its original transparent exterior and retains every inked pixel");
+                    AssertEqual(pixel is not (9 or 74 or 139 or 140 or 399), derived,
+                        "Spazer diagonal geometry and texture retain exactly five original ink seeds");
                 bool ink = BeamTileAtlasDefinitions.TryStockPlasmaInk(selection, pixel, out byte selectedInk);
                 AssertEqual((selection & 8) != 0 && pixel is 192 or 193 or 195 or 256 or 257, ink,
                     "Only the five independently reviewed original Plasma seed positions have retained pen values");
@@ -1834,7 +1834,7 @@ internal static partial class Program
             AssertEqual(Word(0x90c3b1 + canonical * 2), Word(0x90c3b1 + selection * 2), "Canonical beam family matches original native source-pointer identity");
             var compiledPixels = (Dictionary<int, byte>)typeof(BeamTileAtlas).GetField("pixels",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(compiled[selection])!;
-            int expectedRuntimeBasis = selection switch { 0 => 224, 1 => 272, 2 => 288, 4 => 32, 8 => 307, _ => 0 };
+            int expectedRuntimeBasis = selection switch { 0 => 224, 1 => 272, 2 => 288, 4 => 10, 8 => 299, _ => 0 };
             AssertEqual(expectedRuntimeBasis, compiledPixels.Count, "Runtime catalog stores only independent primary-family artwork pixels");
             runtimeBasisTotal += compiledPixels.Count;
             int sharedSelection = BeamTileAtlasDefinitions.SharedTileSourceSelection(selection);
@@ -1856,7 +1856,7 @@ internal static partial class Program
             AssertTrue(native.AsSpan().SequenceEqual(directVram.Bytes.Slice(0x6300 * 2, 256)), "Actual direct beam upload uses calculated native bytes");
             VerifyQueued(catalog, selection, native);
             var image = IndexedPng.Read(new MemoryStream(png), 64, 8);
-            foreach (int editedPixel in new[] { 0, 7, 16, 24, 32, 40, 192, 193, 195, 256, 257, 320, 296, 303, 304, 311, 312, 511, 96, 127, 289, 295, 160, 164, 8, 9, 466, 467 })
+            foreach (int editedPixel in new[] { 0, 7, 16, 24, 32, 40, 192, 193, 195, 256, 257, 320, 296, 303, 304, 311, 312, 511, 96, 127, 289, 295, 160, 164, 8, 9, 466, 467, 74, 139, 140, 399, 141, 204, 416, 224, 352 })
             {
                 byte[] pixels = image.Pixels.ToArray();
                 pixels[editedPixel] ^= 1;
@@ -1880,11 +1880,11 @@ internal static partial class Program
                 AssertTrue(native.AsSpan().SequenceEqual(atlas.Transfer.Span), "Pixel edits do not mutate original calculated atlas");
             }
         }
-        AssertEqual(1123, runtimeBasisTotal, "Runtime native artwork basis excludes exactly the derived row and tile relationships");
-        AssertEqual(2760, derivedTotal, "Twelve standalone selections derive or retain exactly2760 orientation, row-pattern, blank and approved pen occurrences");
+        AssertEqual(1093, runtimeBasisTotal, "Runtime native artwork basis excludes exactly the derived row and tile relationships");
+        AssertEqual(2912, derivedTotal, "Twelve standalone selections calculate exactly2912 orientation, row-pattern, blank and approved pen occurrences");
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => BeamTileAtlas.Load(new MemoryStream(), invalid), "Beam atlas rejects unsupported selection before decoding PNG");
-        Console.WriteLine("Beam geometry: twelve native256-byte uploads,5016 calculated/shared pixels,5 narrowly retained pen roles and1123 required basis pixels; exact stock storage, independent edits and actual queued NMI drains pass.");
+        Console.WriteLine("Beam geometry: twelve native256-byte uploads,5046 calculated/shared pixels,5 narrowly retained pen roles and1093 required basis pixels; exact stock storage, independent edits and actual queued NMI drains pass.");
 
         void VerifyQueued(BeamTileCatalog selected, int selection, byte[] expected)
         {

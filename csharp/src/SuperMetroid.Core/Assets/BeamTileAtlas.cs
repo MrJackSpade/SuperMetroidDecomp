@@ -111,6 +111,8 @@ public static class BeamTileAtlasDefinitions
     private const int WideRibbonBorderRow = 1;
     /// <summary>$9A:F884/F886/F88A/F88C and second planes: required wide-ribbon side rows repeat a four-pixel pattern.</summary>
     private const int WideRibbonSidePeriod = 4;
+    /// <summary>$9A:F88A/F88C and F89A/F89C: required opposite wide-ribbon edges shift their upper partners by two pixels.</summary>
+    private const int WideRibbonOppositePhase = 2;
     /// <summary>$9A:F888/F898: required wide-ribbon center repeats two selected inks.</summary>
     private const int WideRibbonCenterPeriod = 2;
     /// <summary>$9A:F8E0..F8FF and FAE0..FAFF: final Plasma/Spazer upload tile shares repeated rows.</summary>
@@ -127,6 +129,10 @@ public static class BeamTileAtlasDefinitions
     private const int PlasmaOppositeEdgePhase = 2;
     /// <summary>$9A:FA08/FA18: required lower Spazer ribbon row shifts its FA06/FA16 upper row by one pixel.</summary>
     private const int SpazerLowerRowShift = 1;
+    /// <summary>$9A:FA06/FA16: required horizontal highlight phase places its central white pen at column2.</summary>
+    private const int SpazerHighlightPhase = 2;
+    /// <summary>$9A:FA20..FA5F: required diagonal texture pulse mirrors its first six rows, followed by a repeated tail.</summary>
+    private const int SpazerDiagonalPulseRows = 6;
 
     /// <summary>$9A:F806/07/16/17, tile0 row3 x0: categorical dark-green edge base, palette pen4.</summary>
     private const byte PlasmaEdgeBasePen = 4;
@@ -199,8 +205,24 @@ public static class BeamTileAtlasDefinitions
                 + SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY
                 + SpazerCompositionGeometryDefinitions.DiagonalStripWidth - bandX + y) / Math.Sqrt(2);
             bool outside = Math.Abs(distance) >= SpazerRibbonThickness / 2.0;
-            source = outside ? -1 : 0;
-            return outside;
+            if (outside)
+            {
+                source = -1;
+                return true;
+            }
+            int row = y < SpazerDiagonalPulseRows
+                ? Math.Min(y, SpazerDiagonalPulseRows - 1 - y) : SpazerDiagonalPulseRows;
+            int center = SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX
+                + SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY
+                + SpazerCompositionGeometryDefinitions.DiagonalStripWidth;
+            int relativeX = bandX - y;
+            int sourceX;
+            if (row == SpazerDiagonalPulseRows / 2 - 1)
+                sourceX = row + Math.Min(relativeX, 2 * center - relativeX);
+            else
+                sourceX = (int)Math.Floor(row + center - SpazerRibbonThickness / 2.0 * Math.Sqrt(2)) + 1;
+            source = row * Width + SpazerDiagonalFirstTile * Height + sourceX;
+            return source != pixel;
         }
         // Native Wave impact sheets are centered shapes: two half-turn pairs and
         // one shape reflected across both central axes. Keep their source quadrants required.
@@ -226,7 +248,11 @@ public static class BeamTileAtlasDefinitions
             else if (y == Height / 2)
                 source = y * Width + tile * Height + x % WideRibbonCenterPeriod;
             else if (y > WideRibbonBorderRow)
-                source = y * Width + tile * Height + x % WideRibbonSidePeriod;
+            {
+                int row = y > Height / 2 ? Height - y : y;
+                int phase = y > Height / 2 ? WideRibbonOppositePhase : 0;
+                source = row * Width + tile * Height + (x + phase) % WideRibbonSidePeriod;
+            }
             else
             {
                 source = 0;
@@ -272,7 +298,11 @@ public static class BeamTileAtlasDefinitions
                 return true;
             }
             int upper = -SpazerCompositionGeometryDefinitions.HorizontalStripOriginY - SpazerRibbonThickness / 2;
-            if (y == upper) { source = 0; return false; }
+            if (y == upper)
+            {
+                source = upper * Width + Math.Min(x, (2 * SpazerHighlightPhase - x + Height) % Height);
+                return source != pixel;
+            }
             source = upper * Width + (x + Height - SpazerLowerRowShift * (y - upper)) % Height;
             return true;
         }

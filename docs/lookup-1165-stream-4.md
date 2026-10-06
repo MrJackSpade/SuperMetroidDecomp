@@ -1195,3 +1195,10 @@ Root Verification1446warnings/zero errors; --lookup-stream-4-ending-shake passes
 Diagonal origins(-14,0) remain required under ProjectileSpriteCatalog.frames; horizontal thickness2 remains required under BeamTileAtlas. Neither is inferred from the resulting mask. Interior pens/other artwork remain pending. Independent sprite and PNG edits retain their separate semantics. No new retention or aggregate completion;1123required beam pixels and558converted/21retained-mixed/549pending remain unchanged.
 
 Root Verification1446warnings/zero errors; focused beam geometry passes direct native origin/flip/glyph-order assertions,3072native upload bytes,exact pixel domain/basis,independent edits and348actual NMI drains with readguard/bounds/adjacentVRAM. ResourceAudit0warnings/0errors; all three beam source closures include the shared coordinate dependency.
+## Integrated repeated Spazer and wide-ribbon textures
+
+3bb98b2db and f37e579b7 calculate22repeated/reflected Spazer samples and8opposite-edge wide-ribbon samples. Horizontal Spazer highlights reflect cyclically; diagonal texture mirrors its first six rows with a repeated tail. Wide-ribbon lower side rows derive from upper partners with the selected two-pixel shift. Runtime basis1093required pixels,5046calculated/shared pixels and five previously reviewed Plasma pen assignments.
+
+Highlight phase2,diagonal pulse extent6,ten Spazer seed pens,wide-ribbon opposite phase2,thickness,origin,colors and other art inputs remain required. No new exemption or aggregate completion. Historical worker Batch82 prose understated tile4's then-required basis: it was27samples after37derived pixels, and this batch reduces it to19. Prior storage assertions were correct; this corrects only that report wording.
+
+Root Verification1447warnings/zero errors; --lookup-stream-4-beam-geometry passes3072native bytes,exact1093basis membership,independent edits and456actual queued NMI drains/readguard/bounds/adjacentVRAM. ResourceAudit0warnings/0errors. Inventory unchanged558converted/21retained-mixed/549pending.

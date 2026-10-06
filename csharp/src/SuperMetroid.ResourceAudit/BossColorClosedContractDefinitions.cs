@@ -8,7 +8,7 @@ internal static class BossColorClosedContractDefinitions
         new("SuperMetroid.Core.Assets.BeamPaletteCatalog", "beam-palettes-v1-twelve-selections", ["LoadTo"],
             [new("csharp/src/SuperMetroid.Core/Assets/BeamPaletteCatalog.cs", "37DE1F3097D9299ACC0C00205B3BF1815411B53425FB58393D43EF1726780C79"),
              new("csharp/src/SuperMetroid.Core/Game/SamusEquipmentFlags.cs", "698EB15B595FC4192181AC1CB301F85602A2F3DAA002076CA90A37CB85A8E232"),
-             new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "E3769CAFA1C5AA9BCD6272E38FFB0126204C07F0E948A206EBC7C87D93624E69"),
+             new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "C6FF1C62D59D61DA32F946B3EF98EAF4F3EB7AA2239246EE7F9DADB7408ABEBF"),
              new("csharp/src/SuperMetroid.Core/Assets/SpazerCompositionGeometryDefinitions.cs", "50531F1C89026140C12B131C252FB869BACA5A6EFB931FD619376E20F20C6DCF")],
             "The private-constructor loader requires all twelve named beam selections with sixteen colors each; LoadTo bounds-checks that complete array."),
         new("SuperMetroid.Core.Assets.CeresRidleyColorCatalog", "ceres-ridley-v3-complete-palette-rows",

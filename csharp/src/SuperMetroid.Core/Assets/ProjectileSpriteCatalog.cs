@@ -78,6 +78,16 @@ public sealed class ProjectileSpriteCatalog
                 composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.DiagonalMissileParts(phase, super));
             else if (ProjectileSpriteDefinitions.TrySimpleEffectPose(id, out phase, out bool quad))
                 composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SimpleEffectParts(phase, quad));
+            else if (ProjectileSpriteDefinitions.TryHorizontalChargedWavePhase(id, out phase))
+                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.HorizontalChargedWaveParts(phase));
+            else if (ProjectileSpriteDefinitions.TrySpazerSeedPose(id, out phase))
+                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SpazerSeedParts(phase));
+            else if (ProjectileSpriteDefinitions.TrySpazerDiagonalSpread(id, out int pose, out phase))
+                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SpazerDiagonalSpreadParts(pose, phase));
+            else if (ProjectileSpriteDefinitions.TrySpazerAxialSpread(id, out pose, out phase))
+                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SpazerAxialSpreadParts(pose, phase));
+            else if (ProjectileSpriteDefinitions.TryHorizontalChargedSpazer(id, out phase))
+                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.HorizontalChargedSpazerParts(phase));
             frames.Add(id, composition);
         }
         return new(frames);

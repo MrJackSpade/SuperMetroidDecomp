@@ -733,5 +733,222 @@ public static class ProjectileSpriteDefinitions
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
+    internal static bool TryHorizontalChargedWavePhase(ushort pointer, out int phase) =>
+        TryPhase(pointer, ChargedWavePointer(ChargedWaveStart, 26), 8, 8, out phase) ||
+        TryPhase(pointer, ChargedWavePointer(ChargedIceWaveStart, 26), 8, 8, out phase);
+    /// <summary>$93:B394-B4E3 and BABA-BC09: paired horizontal lobes reuse the four required axial distances and alternating glyphs. The independently chosen left clockwise/right row-order traversal remains REQUIRED artwork policy.</summary>
+    internal readonly struct HorizontalChargedWaveParts(int phase) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => 8;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                int lobe = index / 4, corner = index % 4;
+                bool left = lobe == 0;
+                // The left lobe follows upper-right,lower-right,lower-left,upper-left;
+                // the right lobe follows the native row traversal. Selection of these
+                // two orders is still a required source input, not a derived choice.
+                int column = left ? corner / 2 : corner % 2;
+                int row = left ? 1 - ((corner ^ (corner >> 1)) & 1) : corner / 2;
+                int centerX = (left ? -1 : 1) * UnresolvedWaveDistances[phase / 2];
+                int tile = ChargedBeamTile + 1 - (phase + lobe) % 2;
+                var flips = (column == 0 ? SnesTileFlipFlags.Horizontal : 0) |
+                    (row == 0 ? SnesTileFlipFlags.Vertical : 0);
+                return new(SnesSpritemapXWord.Create(centerX - column * 8, false), unchecked((byte)(-row * 8)),
+                    SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    internal static bool TrySpazerSeedPose(ushort pointer, out int pose)
+    {
+        int offset = pointer - SpazerStart;
+        int diagonalGroupBytes = SpreadGroupBytes(4);
+        if (offset >= 0 && offset < 4 * diagonalGroupBytes && offset % diagonalGroupBytes == 0)
+        {
+            pose = offset / diagonalGroupBytes;
+            return true;
+        }
+        offset -= 4 * diagonalGroupBytes;
+        int axialGroupBytes = SpreadGroupBytes(2);
+        pose = 4 + offset / axialGroupBytes;
+        return offset >= 0 && offset < 4 * axialGroupBytes && offset % axialGroupBytes == 0;
+    }
+    /// <summary>$93:D10E/D25A/D3A6/D4F2/D63E/D6EA/D796/D842: native seed travel directions; chosen footprint lengths/glyphs/priority remain REQUIRED.</summary>
+    private enum SpazerSeedDirection { UpRight, DownRight, DownLeft, UpLeft, Down, Left, Up, Right }
+    /// <summary>$93:D113/D118 and D643/D6EF: selected diagonal32/31,vertical33,horizontal30 atlas cells remain REQUIRED artwork identities.</summary>
+    private const int SpazerDiagonalGlyph = 0x32, SpazerVerticalGlyph = 0x33, SpazerHorizontalGlyph = 0x30;
+    internal readonly struct SpazerSeedParts(int pose) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => pose < 4 ? 4 : 2;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                int size = SpazerCompositionGeometryDefinitions.TileSize;
+                SpazerSeedDirection direction = (SpazerSeedDirection)pose;
+                int x, y, tile;
+                bool flipX, flipY;
+                if (pose < 4)
+                {
+                    x = SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX + (index / 2 + index % 2) * size;
+                    y = SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY - (index / 2) * size;
+                    flipX = direction is SpazerSeedDirection.UpRight or SpazerSeedDirection.DownRight;
+                    flipY = direction is SpazerSeedDirection.DownRight or SpazerSeedDirection.DownLeft;
+                    if (!flipX) x = -size - x;
+                    if (flipY) y = -size - y;
+                    tile = SpazerDiagonalGlyph - index % 2;
+                }
+                else
+                {
+                    bool vertical = direction is SpazerSeedDirection.Up or SpazerSeedDirection.Down;
+                    bool reverse = direction is SpazerSeedDirection.Down or SpazerSeedDirection.Right;
+                    int along = (reverse ? index - 1 : -index) * size;
+                    x = vertical ? -size / 2 : along;
+                    y = vertical ? along : SpazerCompositionGeometryDefinitions.HorizontalStripOriginY;
+                    flipX = direction == SpazerSeedDirection.Right;
+                    flipY = direction == SpazerSeedDirection.Down;
+                    tile = vertical ? SpazerVerticalGlyph : SpazerHorizontalGlyph;
+                }
+                var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
+                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                    SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    internal static bool TrySpazerDiagonalSpread(ushort pointer, out int pose, out int phase)
+    {
+        int offset = pointer - SpazerStart;
+        int groupBytes = SpreadGroupBytes(4);
+        pose = offset / groupBytes;
+        int withinGroup = offset % groupBytes - RecordBytes(4);
+        phase = withinGroup / RecordBytes(12);
+        return offset >= 0 && offset < 4 * groupBytes && withinGroup >= 0 &&
+            withinGroup < 4 * RecordBytes(12) && withinGroup % RecordBytes(12) == 0;
+    }
+    /// <summary>The first four diagonal spreads atD124/D270/D3BC/D508 repeat each seed on center and opposite perpendicular lanes. Distances6/9/11/12 share floor(3*required axial distance/4); spacing/projection and phase-selection inputs remain REQUIRED.</summary>
+    internal readonly struct SpazerDiagonalSpreadParts(int pose, int phase) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => 12;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                var seed = new SpazerSeedParts(pose)[index % 4];
+                int lane = index / 4;
+                int direction = lane == 0 ? 0 : lane == 1 ? -1 : 1;
+                int distance = WaveDiagonalNumerator * UnresolvedWaveDistances[phase] / WaveDiagonalDenominator;
+                int dx = direction * distance * (pose >= 2 ? -1 : 1);
+                int dy = direction * distance * (pose is 1 or 2 ? -1 : 1);
+                return new(SnesSpritemapXWord.Create(seed.X.SignedOffset + dx, seed.X.IsLarge),
+                    unchecked((byte)((sbyte)seed.Y + dy)), seed.Attributes, seed.InheritPalette);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    /// <summary>$93:D64A/D6F6/D7A2/D84E: axial spread records follow their two-cell seeds. D84E's distinct flip/order policy remains required.</summary>
+    internal static bool TrySpazerAxialSpread(ushort pointer, out int pose, out int phase)
+    {
+        int offset = pointer - SpazerStart - 4 * SpreadGroupBytes(4);
+        int groupBytes = SpreadGroupBytes(2);
+        pose = 4 + offset / groupBytes;
+        int withinGroup = offset % groupBytes - RecordBytes(2);
+        phase = withinGroup / RecordBytes(6);
+        return offset >= 0 && offset < 4 * groupBytes && withinGroup >= 0 &&
+            withinGroup < 5 * RecordBytes(6) && withinGroup % RecordBytes(6) == 0 &&
+            !(pose == 7 && phase == 0);
+    }
+    /// <summary>$93:D64A's initial lane distance is an independent REQUIRED spacing input, preceding the shared8/13/15/16 distances.</summary>
+    private const int SpazerInitialAxialSpread = 4;
+    /// <summary>Repeated axial seed lanes. Native vertical, initial-left and later horizontal traversal policies remain REQUIRED composition choices.</summary>
+    internal readonly struct SpazerAxialSpreadParts(int pose, int phase) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => 6;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                int distance = phase == 0 ? SpazerInitialAxialSpread : UnresolvedWaveDistances[phase - 1];
+                bool vertical = pose is 4 or 6;
+                int seedIndex, lane;
+                if (vertical)
+                {
+                    seedIndex = index % 2;
+                    lane = index / 2 == 0 ? 1 : index / 2 == 1 ? -1 : 0;
+                }
+                else if (phase == 0)
+                {
+                    seedIndex = index % 2;
+                    lane = 1 - index / 2;
+                }
+                else
+                {
+                    seedIndex = index / 3;
+                    lane = seedIndex == 0 ? index % 3 - 1 : 1 - index % 3;
+                }
+                var seed = new SpazerSeedParts(pose)[seedIndex];
+                return new(SnesSpritemapXWord.Create(seed.X.SignedOffset + (vertical ? lane * distance : 0), seed.X.IsLarge),
+                    unchecked((byte)((sbyte)seed.Y + (vertical ? 0 : lane * distance))), seed.Attributes, seed.InheritPalette);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    /// <summary>$93:D8EE..DA39: horizontal charged Spazer seed and five spread records, ending before the vertical family.</summary>
+    internal static bool TryHorizontalChargedSpazer(ushort pointer, out int phase)
+    {
+        if (pointer == ChargedSpazerStart) { phase = 0; return true; }
+        if (!TryPhase(pointer, (ushort)(ChargedSpazerStart + RecordBytes(4)), 12, 5, out phase)) return false;
+        phase++;
+        return true;
+    }
+    /// <summary>$93:D8EE: the chosen four-cell length and tile34 artwork remain REQUIRED inputs; cell adjacency and centering calculate.</summary>
+    private const int ChargedSpazerHorizontalCells = 4, ChargedSpazerHorizontalGlyph = 0x34;
+    /// <summary>Horizontal charged Spazer lanes share required spread distances. Center-first initial versus lower-first later ordering remains REQUIRED composition policy.</summary>
+    internal readonly struct HorizontalChargedSpazerParts(int phase) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => ChargedSpazerHorizontalCells * (phase == 0 ? 1 : 3);
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                int lane = index / ChargedSpazerHorizontalCells;
+                int direction = phase <= 1 ? (lane == 0 ? 0 : lane == 1 ? 1 : -1) : 1 - lane;
+                int distance = phase <= 1 ? SpazerInitialAxialSpread : UnresolvedWaveDistances[phase - 2];
+                int size = SpazerCompositionGeometryDefinitions.TileSize;
+                int x = (ChargedSpazerHorizontalCells / 2 - 1 - index % ChargedSpazerHorizontalCells) * size;
+                int y = SpazerCompositionGeometryDefinitions.HorizontalStripOriginY + direction * distance;
+                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                    SnesObjAttributeWord.Create(ChargedSpazerHorizontalGlyph, PowerPalette, PowerPriority, 0), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     public static string Name(ushort pointer) => $"sprite_{pointer:X4}";
 }

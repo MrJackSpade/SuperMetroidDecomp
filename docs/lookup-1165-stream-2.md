@@ -1104,3 +1104,10 @@ Partial chain abd61b470,753ce6da5,c44ec7ea2,4f45daf9c,98d427139 adds twenty calc
 Palette fields derive from actual CGRAM destinations208/224 and sixteen-color OBJ rows, cross-checked against82:E13E-E148 and90:ACDE-ACE8. Colors, glyphs, priorities, diagonal pivots, chosen corner/order policies and other geometry remain required; neither aggregate entry closes.
 
 Root Verification build1446warnings/zero errors. Focused projectile identity/composition check passes417native identities/OAM draws,48startup records,104calculated views,independent tail/quadrant/Wave edits,54flare selectors and bounds. Frame-selection check passes805native operands,282actual handler/edit paths,14bomb handler paths and exact523residual membership. ResourceAudit build0warnings/0errors. Inventory unchanged558converted/21retained-mixed/549pending.
+## Integrated Wave lobes and Spazer composition geometry
+
+574b83b08,bf2311055,afa0d08af,542d3c899,93cb310c0 add65calculated compositions:16horizontal charged-Wave lobes,8Spazer seed poses,16diagonal spreads,19axial spreads and6horizontal charged strips. Shared Spazer coordinates were already integrated from0f569e5c3. Total calculated views169; selectors remain282calculated/523required.
+
+Chosen lobe/corner/lane ordering,spacing4 and8/13/15/16,diagonal ratio3/4,origin(-14,0),strip length4,glyphs,priority,pixels and selected footprint lengths remain required. Initial-right D84E and final irregular diagonal spreads remain supplied and pending. Repeated lanes,adjacent cells and native reflections calculate without claiming these choices are resolved. Both aggregate entries remain pending; inventory558converted/21retained-mixed/549pending unchanged.
+
+Root Verification1447warnings/zero errors. Focused identity/composition check passes417native identities and actual OAM draws,805selector union,48physical startup records,exact169calculated views,independent edits/ownership,54flare selectors and bounds. ResourceAudit0warnings/0errors; projectile and flare closures include the shared coordinate catalog.

@@ -5,6 +5,61 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1EscapeDachoraCadence(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+        for (int index = 0; index < EscapeDachoraInstructionProgramDefinitions.MechanicsWordCount; index++)
+        {
+            var word = EscapeDachoraInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(Word(0xb30000 | word.Address), word.Value, "Every native escape Dachora control/value word");
+        }
+        foreach (int program in new[] { 0, 1, 2 })
+        {
+            var guard = new EscapeDachoraInstructionReadGuard(rom);
+            var enemies = CreateEscapeDachoraProgramSystem(guard, flags);
+            var slot = enemies.Slots[0];
+            slot.CurrentInstruction = program == 0 ? (ushort)0xe964 : program == 1 ? (ushort)0xe9d0 : (ushort)0xea34;
+            object?[] arguments = [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
+            int records = program == 2 ? 19 : 60, expectedX = slot.XPosition, calls = 0;
+            for (int record = 0; record < records; record++)
+            {
+                int address;
+                if (program == 2)
+                {
+                    address = record == 0 ? 0xea34 : 0xea38 + (record - 1) * 6;
+                    if (record > 1) expectedX += Word(0xb3eadf);
+                }
+                else
+                {
+                    int direction = record / 30;
+                    int start = program == 0 ? direction == 0 ? 0xe968 : 0xe99c : direction == 0 ? 0xe9d4 : 0xea04;
+                    address = start + (record % 6) * 6;
+                    if (record != 0) expectedX += (record <= 30 ? -1 : 1) * Word(0xb3eadf);
+                }
+                ushort duration = Word(0xb30000 | address), visual = Word(0xb30000 | (address + 2));
+                AssertEqual(duration, EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Native escape Dachora timing");
+                for (int held = 0; held < duration; held++)
+                {
+                    process.Invoke(enemies, arguments); calls++;
+                    AssertEqual((ushort)(duration - held), slot.InstructionTimer, "Every uninterrupted escape Dachora exposure tick");
+                    AssertEqual(visual, slot.SpritemapPointer, "Native escape Dachora pose order");
+                    AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Escape Dachora exact timed cursor");
+                    AssertEqual(unchecked((ushort)expectedX), slot.XPosition, "Native callback displacement occurs only at pose completion");
+                }
+            }
+            AssertEqual(program == 0 ? 180 : program == 1 ? 120 : 163, calls, "Exact full native pacing/departure duration");
+            process.Invoke(enemies, arguments);
+            expectedX += Word(0xb3eadf);
+            AssertEqual(unchecked((ushort)expectedX), slot.XPosition, "Final movement callback is preserved");
+            ushort next = program == 0 ? (ushort)0xe968 : program == 1 ? (ushort)0xe9d4 : (ushort)0xea80;
+            AssertEqual((ushort)(next + 4), slot.CurrentInstruction, "Pacing reversal/maximum speed loop selects exact native record");
+            AssertEqual(Word(0xb30000 | next), slot.InstructionTimer, "Loop reload keeps native cadence");
+            AssertEqual(0, guard.ForbiddenReadAttempts, "Escape Dachora mechanics avoid cartridge reads");
+        }
+        Console.WriteLine("Escape Dachora cadence:139 native records,463 uninterrupted ticks,two complete pacing round trips and full accelerating departure pass.");
+    }
     private static void VerifyLookupStream1PowampCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

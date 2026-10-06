@@ -38,25 +38,28 @@ internal static class EscapeDachoraInstructionProgramDefinitions
 
     /// <summary>$B3:E968..E98B and corresponding directional runs have six duration/visual/move triples.</summary>
     private const int RunFrames = 6;
-    /// <summary>$B3:E966/E99A/E9D2/EA02: chosen five-lap pacing count remains required under1165.</summary>
+    /// <summary>$B3:E966/E99A/E9D2/EA02: chosen five-lap pacing count is retained as selected NPC movement choreography.</summary>
     private const ushort PacingRepeats = 5;
-    /// <summary>$B3:E968..E9BE: chosen low-tide hold3 remains required under1165.</summary>
+    /// <summary>$B3:E968..E9BE: chosen low-tide hold3 is retained as selected NPC movement choreography.</summary>
     private const ushort LowTideHold = 3;
-    /// <summary>$B3:E9D4..EA26: chosen high-tide hold2 remains required under1165.</summary>
+    /// <summary>$B3:E9D4..EA26: chosen high-tide hold2 is retained as selected NPC movement choreography.</summary>
     private const ushort HighTideHold = 2;
-    /// <summary>$B3:EA34: chosen turn/departure hold30 remains required under1165.</summary>
+    /// <summary>$B3:EA34: chosen turn/departure hold30 is retained as selected NPC movement choreography.</summary>
     private const ushort DepartureTurnHold = 30;
-    /// <summary>$B3:EA38: chosen pre-acceleration hold90 remains required under1165.</summary>
+    /// <summary>$B3:EA38: chosen pre-acceleration hold90 is retained as selected NPC movement choreography.</summary>
     private const ushort DeparturePauseHold = 90;
-    /// <summary>$B3:EA3E/EA44: chosen initial moving hold5 remains required under1165.</summary>
+    /// <summary>$B3:EA3E/EA44: chosen initial moving hold5 is retained as selected NPC movement choreography.</summary>
     private const int AccelerationInitialHold = 5;
-    /// <summary>$B3:EA4A/EA5C/EA6E: chosen one-tick hold reduction remains required under1165.</summary>
+    /// <summary>$B3:EA4A/EA5C/EA6E: chosen one-tick hold reduction is retained as selected NPC movement choreography.</summary>
     private const int AccelerationHoldReduction = 1;
-    /// <summary>$B3:EA38..EA7E: chosen three-frame acceleration group remains required under1165.</summary>
-    private const int AccelerationFramesPerStep = 3;
-    /// <summary>$B3:EA80..EAA2: chosen minimum hold1 remains required under1165.</summary>
+    /// <summary>$B3:EA38..EA7E: selected half-gait acceleration grouping; subdivision is calculated from the six-pose run.</summary>
+    private const int AccelerationFramesPerStep = RunFrames / 2;
+    /// <summary>$B3:EA80..EAA2: selected every-update terminal cadence; one is the instruction scheduler minimum positive hold.</summary>
     private const ushort MaximumSpeedHold = 1;
 
+    // These reviewed script choices determine movement callback and event/acid branch timing.
+    // The half-gait and every-update policies are selected choreography, not consequences of physics.
+    // No independent movement-step, artwork or room-geometry exemption is implied.
     private const int LowDirectionControls = RunFrames * 2 + 8;
     private const int HighDirectionControls = RunFrames * 2 + 6;
     private const int LowTideControls = 2 + 2 * LowDirectionControls;

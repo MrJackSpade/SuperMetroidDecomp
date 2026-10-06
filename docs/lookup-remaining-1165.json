@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 497,
+  "remainingTableDefinitionCount": 496,
   "fileCount": 523,
   "entries": [
     {
@@ -3702,12 +3702,15 @@
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs",
-      "line": 40,
-      "name": "EscapeDachoraInstructionProgramDefinitions.Words",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs",
+    "line":  40,
+    "name":  "EscapeDachoraInstructionProgramDefinitions.Words",
+    "kind":  "stored definition",
+    "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+    "state":  "justified-retained",
+    "implementationCommit":  "17776fe77",
+    "disposition":  "Mixed complete:119 native mechanics words calculate semantic pacing/departure control,addresses,clamped hold reduction and half-gait subdivision. Retain exact NPC choreography:five laps,holds3/2,turn30,pause90,initial5/drop1,half-gait acceleration/every-update terminal policy. Native script has no independent velocity integrator; exact X displacement and event/acid observation timing preserved. Other geometry/artwork/movement-step excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs",
       "line": 163,
@@ -21582,5 +21585,5 @@
     }
   ],
   "convertedSinceSnapshot": 598,
-  "justifiedRetainedSinceSnapshot": 33
+  "justifiedRetainedSinceSnapshot": 34
 }

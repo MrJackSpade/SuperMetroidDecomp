@@ -1115,3 +1115,25 @@ PowampInstructionProgramDefinitions.Words is MIXED COMPLETE. Totals190 wholly co
 - Verification build25 warnings/zero errors (incremental); focused command passes. Subsequent production edits are XML/comments only, executable tokens unchanged. Local Program.cs adds only the focused command. No wider gameplay checks or AI changes.
 
 Root1452 warnings/0 errors;12 native holds,376 uninterrupted scheduler ticks,Goto/Sleep boundaries and native balloon alignment pass. Master598 converted/33 retained-mixed/497 pending.
+
+## Batch 88 checkpoint: exact escape-Dachora choreography confirmation
+
+EscapeDachoraInstructionProgramDefinitions.Words remains unchecked pending coordinator review of its complete nine-parameter choreography packet. No production disposition has changed; totals remain190 converted / thirteen mixed /23 unchecked.
+
+- Exact nativeB3:E964..EA32 uses five six-pose laps in each direction, low-tide hold3/high-tide hold2. Each completed pose callsB3:EAC9/EAD7 to changeX by6, so a direction run travels180pixels. Native mainEB1A returns; there is no separate velocity integrator that supplies this timing.
+- DepartureEA34 holds30 beforeEA38 launch pause90, then5,5,4,4,4,3,3,3,2,2,2 and six1-tick poses loopingEA80. Existing hold calculation is max(1,5-floor(frame/3)), with a semantic launch-pause case. Selected initial cadence, decrement, half-gait subdivision, terminal every-update policy, pauses, pacing tempos and lap count are all explicit review inputs; none is silently exempt or described as visual-only.
+- Complete review packet sent to coordinator, proposing calculated half-gait countRunFrames/2 and minimum scheduler cadence1 while retaining their selected script policies separately. No approval assumed. Native event/acid branch times and actual displacement are consequences that must stay exact.
+- New focused --lookup-stream-1-escape-dachora-cadence independently compares all119 native mechanics words and runs139 timed-record visits/463 actual uninterrupted exposure ticks:180low/120high complete round trips and163departure. Every native sprite/cursor/decrement/X coordinate, both reversal boundaries and maximum-speed reload agree. No forced timer progression. Compiled-mechanics read guard stays zero.
+- Final incremental build25 warnings/zero errors; focused command passes. No ResourceAudit source-hash references found. Only verifier/local command/report change at this checkpoint; production untouched.
+## Batch 89: complete escape-Dachora movement choreography
+
+EscapeDachoraInstructionProgramDefinitions.Words is MIXED COMPLETE. Totals190 wholly converted / fourteen mixed /22 unchecked. This final disposition supersedes the pending review in Batch88.
+
+- Root independently reviewed pinnedB3:E964..EAA6 complete instruction programs andEAA8..EB1A event/acid branches, movement callbacks, initializer and RTL main. Narrow retained choices are five laps; low/high holds3/2; turn30; launch pause90; initial moving hold5; decrement1; the selected half-gait acceleration policy; and every-update terminal cadence. These compose this specific NPC's movement performance; a physics/state relationship does not select the pacing/departure script. No generic animation exemption.
+- Derive AccelerationFramesPerStep=RunFrames/2 instead of storing a duplicate three. The two policies remain explicitly selected choreography, not claimed to be forced by physics. All control ordering, native allocation identities, repeated records, clamped cadence reduction and Goto targets remain calculated.
+- Exact displacement and observation timing remain material: every completed running pose invokes X±6; five laps travel180pixels before reversal. Event/acid tests occur after full gait loops. Departure waits and acceleration control when each displacement occurs. Independent movement-step, geometry and artwork are outside this narrow entry disposition.
+- Batch88 confirmation independently reads all119 native mechanics words and139 timed-record visits, and executes463 uninterrupted scheduler ticks with exact sprite/cursor/timer/X checks, both full pacing round trips and accelerating departure. The final RunFrames/2 change is rechecked with this focused command; no exploratory cases.
+- Final verification: build1,434 warnings/zero errors; the focused119-word/139-record/463-tick confirmation passes after calculating the half-gait subdivision. No ResourceAudit source-hash dependency.
+
+
+Root1452 warnings/0 errors;119 native words,139 record visits,463 uninterrupted scheduler ticks,two complete pacing round trips and full acceleration pass. Master598 converted/34 retained-mixed/496 pending.

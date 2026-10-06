@@ -581,6 +581,8 @@ internal static partial class Program
         runtime.System.LoadEventBytes(memory.AsSpan(RidleyMovieMemory.Events, Bank80SystemState.EventByteCount));
         runtime.System.LoadOpenedDoorBytes(memory.AsSpan(RidleyMovieMemory.OpenedDoors, Bank80SystemState.DoorBitByteCount));
         runtime.LoadCartridgeRoomForDebug(W(RidleyMovieMemory.Room), W(RidleyMovieMemory.CameraX), W(RidleyMovieMemory.CameraY));
+        typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.XSubposition))!.SetValue(runtime.Camera, W(RidleyMovieMemory.CameraXFraction));
+        typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.YSubposition))!.SetValue(runtime.Camera, W(RidleyMovieMemory.CameraYFraction));
         // Preserve the native room's already-mutated doors and item blocks. Rebuilding
         // these from the pristine room header would no longer represent this movie frame.
         RoomLevelData level = runtime.LevelData ?? throw new InvalidDataException(
@@ -707,7 +709,9 @@ internal static partial class Program
                 : runtime.ActiveRoom!.Pointer;
             Check("Selected room", selectedRoom, RidleyMovieMemory.Room);
             Check("Camera X", runtime.Camera!.XPosition, RidleyMovieMemory.CameraX);
+            Check("Camera X fraction", runtime.Camera.XSubposition, RidleyMovieMemory.CameraXFraction);
             Check("Camera Y", runtime.Camera.YPosition, RidleyMovieMemory.CameraY);
+            Check("Camera Y fraction", runtime.Camera.YSubposition, RidleyMovieMemory.CameraYFraction);
             Check("Samus X", samus.XPosition, RidleyMovieMemory.X);
             Check("Samus X fraction", samus.Kinematics.XSubposition, RidleyMovieMemory.XFraction);
             Check("Samus Y", samus.YPosition, RidleyMovieMemory.Y);

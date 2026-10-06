@@ -802,9 +802,11 @@ public sealed partial class SuperMetroidRuntime
         // reach it only through RunNmi, matching the normal shadow-register path.
         DisplayedSamusMode7Transform = initialMode7Transform;
         LevelData = assets.LevelData;
+        ScrollBoundaryCamera? previousCamera = Camera;
         Camera = new ScrollBoundaryCamera(assets.Scrolls);
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
-            Camera.SetDoorTransitionPosition(cameraX, cameraY);
+            Camera.SetDoorTransitionPosition(cameraX, cameraY,
+                previousCamera?.XSubposition ?? 0, previousCamera?.YSubposition ?? 0);
         else
             Camera.SetPosition(cameraX, cameraY);
         BackgroundScroll.Layer2ScrollX = room.State.Layer2ScrollX;

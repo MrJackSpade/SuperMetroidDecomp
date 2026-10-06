@@ -240,9 +240,14 @@ The port omitted this producer, retaining a sleeping turn instruction. Focused
 threshold/roar/facing tests confirm instruction timer/loop reset and unchanged RNG;
 independent replay passes the recorded source4322 instruction transition.
 
-Expanded checked state now matches through update 6570 of 10,717. The next
-mismatch is update6571/source6684: camera Y native270 versus port269.
-This remains under investigation.
+Camera coverage now includes both fractional positions, imported once from the movie
+snapshot. It exposed door setup/loading clearing retained native fractions at update177.
+Door position writes now preserve them, including transfer to the new room scroll grid.
+The independent replay confirms both fractions through update6175. Previously checked
+integer/gameplay state reached6570; the newly compared fraction first differs at
+update6176/source6289, during airborne morph entry (native Y fraction7000 vs port5000).
+Native command seven writes the corrected previous-Y checkpoint; that missing pose
+handoff is the next investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

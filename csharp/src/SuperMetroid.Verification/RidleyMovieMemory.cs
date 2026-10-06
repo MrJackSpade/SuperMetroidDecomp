@@ -1,6 +1,10 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$090F: layer-one X subposition used by horizontal scrolling.</summary>
+    public const int CameraXFraction = 0x090f;
+    /// <summary>$0913: layer-one Y subposition used by vertical scrolling.</summary>
+    public const int CameraYFraction = 0x0913;
     /// <summary>$7E:7800: Ridley independent swoop phase timer.</summary>
     public const int RidleySwoopTimer = 0x7800;
     /// <summary>$09E4: native Moonwalk option preserved by the movie snapshot.</summary>

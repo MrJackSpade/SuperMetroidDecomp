@@ -73,13 +73,18 @@ public sealed class ScrollBoundaryCamera
     /// positions to clamp. Keeping this operation separate from <see cref="SetPosition"/>
     /// prevents ordinary loaders and debug callers from bypassing room-edge validation.
     /// </remarks>
-    public void SetDoorTransitionPosition(ushort x, ushort y)
+    public void SetDoorTransitionPosition(ushort x, ushort y) =>
+        SetDoorTransitionPosition(x, y, XSubposition, YSubposition);
+
+    /// <summary>Transfers the retained native camera fractions when loading a door's new scroll grid.</summary>
+    public void SetDoorTransitionPosition(ushort x, ushort y, ushort xSubposition, ushort ySubposition)
     {
         PreviousSamusPoint = null;
         XPosition = x;
         YPosition = y;
-        XSubposition = 0;
-        YSubposition = 0;
+        // Door IRQ/setup writes integer layer-one positions, leaving both fractions intact.
+        XSubposition = xSubposition;
+        YSubposition = ySubposition;
         IdealXPosition = x;
         IdealYPosition = y;
     }

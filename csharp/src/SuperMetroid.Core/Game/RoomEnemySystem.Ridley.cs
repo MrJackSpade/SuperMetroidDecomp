@@ -331,20 +331,30 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case RidleyAiFunction.NorfairCarryRise:
-                MoveNorfairRidleyToward(slot, state, state.TargetX, 256, 0);
                 if (TickRidleyFunctionTimer(state))
                 {
+                    state.IdealInterSegmentTailAngle = RidleyTailDefinitions.CarryReleaseInterSegmentAngle;
+                    state.TailExtensionSpeed = RidleyTailDefinitions.CarryReleaseExtensionSpeed;
                     ReleaseNorfairRidleyGrab(state, samus);
                     state.Function = RidleyAiFunction.NorfairCarryRelease;
                     state.FunctionTimer = 64;
                 }
+                else
+                    MoveNorfairRidleyToward(slot, state, state.TargetX, 256, 0);
                 return;
 
             case RidleyAiFunction.NorfairCarryRelease:
-                ushort releaseX = RidleyMovementTargets.CarryReleaseX(Math.Min(state.FacingDirection, (ushort)2));
-                MoveNorfairRidleyToward(slot, state, releaseX, 224, 0);
                 if (TickRidleyFunctionTimer(state))
+                {
+                    state.IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle;
+                    state.TailExtensionSpeed = RidleyTailDefinitions.CarryReleaseExtensionSpeed;
                     state.Function = RidleyAiFunction.NorfairSelectAttack;
+                }
+                else
+                {
+                    ushort releaseX = RidleyMovementTargets.CarryReleaseX(Math.Min(state.FacingDirection, (ushort)2));
+                    MoveNorfairRidleyToward(slot, state, releaseX, 224, 0);
+                }
                 return;
 
             case RidleyAiFunction.NorfairReleaseSamus:

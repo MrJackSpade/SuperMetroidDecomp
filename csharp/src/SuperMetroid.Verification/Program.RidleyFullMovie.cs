@@ -42,6 +42,19 @@ internal static partial class Program
         AssertTrue(!samus.InputLocked && !samus.StationaryScriptControlLocked, "native release restores ordinary control");
         bombs.StepFrame(bus, runtime.LevelData!, samus, 0, 0, advancePowerBombHdma: false);
         AssertEqual((ushort)9, bombs.CooldownTimer, "native unlocked alpha resumes cooldown");
+        var dispatch = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        foreach (var function in new[] { RidleyAiFunction.NorfairCarryRise, RidleyAiFunction.NorfairCarryRelease })
+        {
+            state.Function = function; state.FunctionTimer = 0;
+            state.HorizontalVelocity = 0xffca; state.VerticalVelocity = 0xfecb;
+            state.TargetX = 208; body.XPosition = 212; body.YPosition = 142;
+            dispatch.Invoke(runtime.Enemies, [body, state, samus, (ushort)0, runtime.LevelData]);
+            AssertEqual((ushort)0xffca, state.HorizontalVelocity, "native expiry skips X acceleration");
+            AssertEqual((ushort)0xfecb, state.VerticalVelocity, "native expiry skips Y acceleration");
+            AssertEqual(function == RidleyAiFunction.NorfairCarryRise ? RidleyAiFunction.NorfairCarryRelease : RidleyAiFunction.NorfairSelectAttack, state.Function, "native expiry selects next carry phase");
+            AssertEqual((ushort)(function == RidleyAiFunction.NorfairCarryRise ? 8 : 16), state.IdealInterSegmentTailAngle, "native expiry changes ideal tail angle");
+            AssertEqual((ushort)240, state.TailExtensionSpeed, "native expiry restores tail extension speed");
+        }
         Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
     }
 

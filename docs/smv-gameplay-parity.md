@@ -216,9 +216,15 @@ producers while preserving existing projectile updates, matching $90:E713.
 The focused grab fixture confirms cooldown10 stays10 while locked and resumes to9
 after release. The input-only replay passes the formerly mismatched locked interval.
 
-Expanded checked state now matches through update 3810 of 10,717. The next
-mismatch is update3811/source3915: Ridley's X/Y subpositions diverge on the
-carry-release update. This remains under investigation.
+Carry-rise and carry-release now test timer expiry before acceleration, matching
+$A6:BBF1/$BC2E. Expiry preserves velocity and installs native tail angle/extension
+settings. The source3915 velocity fixture failed before the fix; both expiry
+branches now pass their velocity, next-phase and tail-setting checks. Independent
+replay confirms the originally mismatched release and subsequent carry phase.
+
+Expanded checked state now matches through update 4023 of 10,717. The next
+mismatch is update4024/source4132: Ridley AI timer native112 versus port10.
+This remains under investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

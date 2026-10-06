@@ -3,6 +3,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Initial articulated-tail angular geometry from InitializeTailParts at $A6:D2D6.</summary>
 internal static class RidleyTailDefinitions
 {
+    /// <summary>$A6:BC0A sets ideal tail spacing while releasing Samus.</summary>
+    internal const ushort CarryReleaseInterSegmentAngle = 8;
+    /// <summary>$A6:BC11/$BC54 restores tail extension speed on carry phase expiry.</summary>
+    internal const ushort CarryReleaseExtensionSpeed = 240;
     /// <summary>$A6:CB23 -> CBC0, neutral tail.</summary>
     internal const ushort Neutral = 1;
     /// <summary>$A6:CB25 -> CB33, immediate pogo setup.</summary>

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://recomp.fyi/schema/v1.json",
+  "game": "Super Metroid",
+  "system": "SNES",
+  "type": "port",
+  "original": { "region": "USA", "revision": "1.0" },
+  "project": "Super Metroid — C# port",
+  "status": "playable",
+  "targets": ["Windows", "Android"],
+  "toolchain": "C# / .NET 10",
+  "approach": "Hand-written C# port of the game logic, rebuilt from the disassembly with cartridge-exact gameplay and hardware lag removed",
+  "maintainers": [{ "name": "MrJackSpade", "link": "https://github.com/MrJackSpade" }],
+  "links": [
+    { "label": "Discord", "url": "https://discord.gg/N2W9pE7qWM" },
+    { "label": "Releases", "url": "https://github.com/MrJackSpade/SuperMetroidDecomp/releases" }
+  ],
+  "notes": "Fully playable from beginning to end; only minor known glitches remain. Windows x64 and Android ARM64 builds are published on the Releases page."
+}

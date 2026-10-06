@@ -23,6 +23,9 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     internal const int PresentationWordCount = 14;
     internal const int MechanicsWordCount = PresentationWordCount + 2;
 
+    /// <summary>$A9:D046-D07C, reviewed two-tick visual cadence for the fourteen-image flash performance; only the private palette timer consumes it.</summary>
+    private const ushort FlashImageTicks = 2;
+
     /// <summary>$A9:D07E: closing Goto opcode following the timed frames.</summary>
     private const ushort LoopInstruction = FlashStart + PresentationWordCount * 4;
 
@@ -30,7 +33,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return index < PresentationWordCount
-            ? new((ushort)(FlashStart + index * 4), 2)
+            ? new((ushort)(FlashStart + index * 4), FlashImageTicks)
             : new((ushort)(LoopInstruction + (index - PresentationWordCount) * 2),
                 index == PresentationWordCount ? GotoInstruction : FlashStart);
     }
@@ -39,7 +42,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
         (uint)index < PresentationWordCount ? (ushort)(FlashStart + index * 4 + 2) :
             throw new IndexOutOfRangeException();
 
-    /// <summary>Chosen flash strength in thirds for the fourteen events at $A9:D046-$D07C.</summary>
+    /// <summary>Reviewed visual strength sequence in thirds for the fourteen events at $A9:D046-$D07C; each returns a paint image without gameplay callbacks.</summary>
     internal static int FlashStrength(int frame) => frame switch
     {
         1 or 5 or 8 => 1,
@@ -52,7 +55,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - FlashStart;
-        if ((uint)offset < PresentationWordCount * 4 && offset % 4 == 0) return 2;
+        if ((uint)offset < PresentationWordCount * 4 && offset % 4 == 0) return FlashImageTicks;
         if (address == LoopInstruction) return GotoInstruction;
         if (address == LoopInstruction + 2) return FlashStart;
         throw new InvalidDataException(

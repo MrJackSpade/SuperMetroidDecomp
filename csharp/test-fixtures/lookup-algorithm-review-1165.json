@@ -10863,7 +10863,7 @@
 },"motherBrainHealthRoomIntegration":{
   "confirmation": "Verification1439 warnings/zero errors; ResourceAudit zero warnings/errors. Health120 native words/360 independent edits/no stock base or intermediate arrays/sixbody-zeroRear anchors. Recovery196 native words/588 edits/legacy fallback; flash48 actual ticks/native pointer,timer,fullCGRAM/14 operands/1008 edits/ownership and bounds. Three source hashes and static index refreshed.",
   "algorithm": "Health RGB8 sharedbias+1 triangular red tint,quarter/fifth shade ramps,rear half-light and outline tint. Room recovery equal intensity steps; flash highlight thirds and level quarter-dimming; four-byte control strides and two-tick loop.",
-  "scope": "Health rear palette and two room-palette program arrays converted; body mixed six-anchor retention; room recovery/flash partial.",
+  "scope": "Health rear palette and room presentation-address array converted; body mixed six-anchor retention. Room control Words required separate cadence disposition and is corrected to mixed by motherBrainRoomFlashComplete.",
   "implementationCommits": [
     "46538cf23",
     "4fe4d27e7",
@@ -11917,4 +11917,14 @@
     "workerCommit":  "4b998dbfc",
     "state":  "glass mixed-complete; tube converted",
     "algorithm":  "Glass shared room grays/8shade nearest ramp/contour/casing/white-black; tube shared casing twice/room12..23/black,without stock output arrays or duplicated paints."
+},"motherBrainRoomFlashComplete":{
+    "confirmation":  "Root1452warnings/0errors;CLI25/0;Audit0/0;336native colors/mirrors,1008edits,actual16control/14palette pointer-timer-CGRAM loop,read guard,bounds/allocation pass.",
+    "justification":  "Exact5BFF warm flood,13highlight/11dim material split,nearest intensity composition and14event/two-tick visual performance. Root native copy/private timer and independent begin/end gameplay boundaries reviewed,plus native0/3composites/mask. No other clock exception.",
+    "completed":  [
+                      "MotherBrainRoomColorPresentation.flash",
+                      "MotherBrainRoomPaletteProgramDefinitions.Words"
+                  ],
+    "workerCommit":  "43ea3dc0f",
+    "state":  "mixed-complete; Words prior converted claim corrected",
+    "algorithm":  "336colors derive third-step brightening and quarter-step dimming from reviewed final room; named cadence and calculated control addresses/goto/ownership."
 }}

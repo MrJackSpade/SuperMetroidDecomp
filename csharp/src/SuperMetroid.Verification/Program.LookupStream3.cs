@@ -2457,6 +2457,27 @@ internal static partial class Program
         AssertTrue(ReferenceEquals(flash.GetType().GetField("basis", flags)!.GetValue(flash),
             typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", flags)!.GetValue(stock)),
             "stream 3 stock flash reuses final room paint basis");
+        AssertEqual(0, flash.GetType().GetFields(flags).Count(field => field.FieldType == typeof(ushort)),
+            "stream 3 room flash keeps no per-instance selected paint");
+        for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; frame++)
+        {
+            ushort entry = checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart + frame * MotherBrainRoomColorRomData.TimedEntryByteCount));
+            int operand = MotherBrainRoomColorRomData.SourceBank + entry + MotherBrainRoomColorRomData.PaletteOperandByteOffset;
+            int source = MotherBrainRoomColorRomData.SourceBank | rom.ReadByte(operand) | rom.ReadByte(operand + 1) << 8;
+            var actual = new SnesCgram();
+            stock.ApplyFlash(actual, entry);
+            for (int color = 0; color < MotherBrainRoomColorRomData.SliceColors * 2; color++)
+            {
+                int address = source + color * sizeof(ushort);
+                ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                int destination = color < MotherBrainRoomColorRomData.SliceColors
+                    ? MotherBrainRoomColorRomData.FirstColor + color
+                    : MotherBrainRoomColorRomData.SecondColor + color - MotherBrainRoomColorRomData.SliceColors;
+                AssertEqual(native, actual.Colors[destination], "stream 3 all native room-flash colors");
+                if (color >= MotherBrainRoomColorRomData.SliceColors)
+                    AssertEqual(native, actual.Colors[MotherBrainRoomColorRomData.MirroredSecondColor + color - MotherBrainRoomColorRomData.SliceColors], "stream 3 native room-flash mirror");
+            }
+        }
         for (int offset = 0; offset <= ushort.MaxValue; offset++)
         {
             bool mechanics = offset >= 0xd046 && offset < 0xd07e && (offset - 0xd046) % 4 < 2 ||

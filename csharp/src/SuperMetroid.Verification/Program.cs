@@ -26,6 +26,17 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--mother-brain-room-palette-mechanics"])
+{
+    VerifyMotherBrainRoomPaletteProgramDefinitions();
+    return 0;
+}
+if (args is ["--lookup-stream3-room-flash"])
+{
+    VerifyStream3RoomFlash(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    Console.WriteLine("Room flash:336native colors/mirrors,1008independent edits,zero stock arrays/paint scalars pass.");
+    return 0;
+}
 if (args is ["--lookup-stream3-room-entry-palettes"])
 {
     VerifyStream3RoomEntryPalettes(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
@@ -4255,11 +4266,6 @@ if (args is ["--enemy-instruction-owner-coverage"])
 if (args is ["--mother-brain-body-instruction-mechanics"])
 {
     VerifyMotherBrainBodyInstructionPrograms();
-    return 0;
-}
-if (args is ["--mother-brain-room-palette-mechanics"])
-{
-    VerifyMotherBrainRoomPaletteProgramDefinitions();
     return 0;
 }
 if (args is ["--gunship-instruction-mechanics"])

@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 491,
+  "remainingTableDefinitionCount": 490,
   "fileCount": 523,
   "entries": [
     {
@@ -1477,12 +1477,15 @@
       "implementationCommit": "3fc669949"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
-      "line": 10,
-      "name": "MotherBrainRoomColorPresentation.flash",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainRoomColorPresentation.flash. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
+    "line":  10,
+    "name":  "MotherBrainRoomColorPresentation.flash",
+    "kind":  "installed stock table",
+    "note":  "Original/default payload behind MotherBrainRoomColorPresentation.flash. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+    "state":  "justified-retained",
+    "implementationCommit":  "43ea3dc0f",
+    "disposition":  "Mixed complete:336colors calculate from reviewed final-room paints plus selected warm5BFF,highlight13/dim11,third-brighten/quarter-dim nearest RGB5 composition and exact fourteen-event performance. Zero stock rows/paint scalars; all independent edits preserved."
+},
     {
     "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
     "line":  11,
@@ -5215,14 +5218,15 @@
       "implementationCommit": "7966c773e"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs",
-      "line": 23,
-      "name": "MotherBrainRoomPaletteProgramDefinitions.Words",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "converted",
-      "implementationCommit": "c1afaadbf"
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs",
+    "line":  23,
+    "name":  "MotherBrainRoomPaletteProgramDefinitions.Words",
+    "kind":  "stored definition",
+    "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+    "state":  "justified-retained",
+    "implementationCommit":  "43ea3dc0f",
+    "disposition":  "Corrected prior converted claim: mixed complete. Control addresses/strides/goto calculate; exact two-tick cadence is reviewed selected14image visual choreography consumed only by private palette timer. Startup1,tube motion,function timers excluded; valid PresentationWords conversion unchanged."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs",
       "line": 33,
@@ -21599,6 +21603,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 601,
-  "justifiedRetainedSinceSnapshot": 36
+  "convertedSinceSnapshot": 600,
+  "justifiedRetainedSinceSnapshot": 38
 }

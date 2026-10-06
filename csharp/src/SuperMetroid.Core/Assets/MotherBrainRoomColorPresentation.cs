@@ -284,7 +284,6 @@ public sealed class MotherBrainRoomColorPresentation
     private sealed class RoomFlash
     {
         private readonly FinalRoomPalette basis;
-        private readonly ushort highlight;
         private readonly ushort[][]? supplied;
 
         public int FrameCount { get; }
@@ -293,7 +292,6 @@ public sealed class MotherBrainRoomColorPresentation
         {
             FrameCount = rows.Length;
             basis = finalRoom;
-            highlight = rows[3][0];
             for (int frame = 0; frame < rows.Length; frame++)
                 for (int color = 0; color < basis.Length; color++)
                     if (Calculate(frame, color) != rows[frame][color])
@@ -311,9 +309,12 @@ public sealed class MotherBrainRoomColorPresentation
                 int channel = (basis[color] >> shift) & 31;
                 // The first level color joins the background highlight; the remaining
                 // level colors dim by one quarter per strength step, rounding nearest.
-                int value = color <= MotherBrainRoomColorRomData.SliceColors
-                    ? (channel * (3 - strength) + ((highlight >> shift) & 31) * strength + 1) / 3
-                    : (channel * (4 - strength) + 2) / 4;
+                int value = color < MotherBrainRoomFlashPaintDefinitions.HighlightedColorCount
+                    ? (channel * (MotherBrainRoomFlashPaintDefinitions.BrightenIntervals - strength)
+                        + ((MotherBrainRoomFlashPaintDefinitions.WarmFlood >> shift) & 31) * strength
+                        + MotherBrainRoomFlashPaintDefinitions.BrightenIntervals / 2) / MotherBrainRoomFlashPaintDefinitions.BrightenIntervals
+                    : (channel * (MotherBrainRoomFlashPaintDefinitions.DimIntervals - strength)
+                        + MotherBrainRoomFlashPaintDefinitions.DimIntervals / 2) / MotherBrainRoomFlashPaintDefinitions.DimIntervals;
                 result |= value << shift;
             }
             return (ushort)result;

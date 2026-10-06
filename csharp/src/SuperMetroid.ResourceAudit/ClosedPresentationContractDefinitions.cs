@@ -67,16 +67,17 @@ internal static class ClosedPresentationContractDefinitions
             "installed-key set through constants or closed source flow; arbitrary strings remain unresolved."),
         new("SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation", "mother-brain-room-v3-complete-rows",
             ["ApplyFlash", "ApplyFinal", "ApplyPhaseTwoInitial", "ApplyRoomEntry", "ApplyRecoveryLights"],
-            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs", "5391613008D32A3753DDDBBFB592C54AF4C24D5DDDE4DE08166D5115140AE101"),
+            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs", "9858BA667DD808C94E9984AE34F086C5411FE58CA24B9B52CA0E025C0DAD4619"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRoomColorRomData.cs", "8A38E59CBB3FD1EAA6FFEB2CC26906BBD26B60BA284B3D49A8346ED7DB16CC85"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainAttackPaintDefinitions.cs", "6A30A7BD6A6D487987ED6F3372ED19E301AF3F9FF2EAEC4F37CD43D17830610F"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRecoveryPaintDefinitions.cs", "182FCC0906C39FD23DB0C005AA8A25B85D841FB9D7A02ADC0B906C9AA389C928"),
+             new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomFlashPaintDefinitions.cs", "B41FFDAFEDA73C02387816FB9FABD5B5E61983C859ABC3BAFB4511FAC6E6B0F1"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainGlassPaintDefinitions.cs", "5CF9DA83AD5DA53A6D81F35207F55BE6878342439F937D65588E3A1C9C482B1C"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainFinalRoomPaintDefinitions.cs", "E9302C2C9C8733A7BF410543E4CBECCFA6F5806C88C616761274D7C3FC6357E0"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPalettePresentation.cs", "05E148A6572B5F7FC629794FC4F0853D9E73DC2D861C721B4843CBB7FF3169E4"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainHealthPaintDefinitions.cs", "CED903B0B3BD50BFD557B00AF84843408D5E3476F04BAA309BE6C043B101C37D"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRoomPaletteProgramDefinitions.cs",
-                "B7D59A301621835F4C4708765DBF3458C6BF08B429A459F65A978D07EDA92E7A")],
+                "B498159F68527B4428D6AADFCC65881BD4F6820D0C6266AD22830F451D17A39B")],
             "The validated loader installs all fourteen aligned flash rows, seven recovery-light " +
             "rows and the fixed final/phase-two/room-entry arrays before private construction. " +
             "Legacy omissions inherit only from validated stock. Flash alignment/range and recovery " +

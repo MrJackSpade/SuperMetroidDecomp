@@ -5,6 +5,19 @@ pinned J/U main-loop and accepted-NMI controller-read boundaries. WRAM stays pri
 """
 
 
+def classify_timing(kind, upload_active, scroll_before, scroll_after):
+    """Describe observed execution; this classification never drops an input."""
+    if kind == "main-loop":
+        return "main-loop"
+    if kind != "nmi-continuation":
+        raise ValueError(f"Unknown input interval kind: {kind}")
+    if scroll_before != scroll_after:
+        return "door-scroll-continuation"
+    if upload_active:
+        return "apu-upload-continuation"
+    return "other-continuation"
+
+
 def run():
     import argparse
     import csv
@@ -88,6 +101,11 @@ def run():
         update["endSourceFrame"] = updates[index + 1]["sourceFrame"] if index + 1 < len(updates) else frames
     # Validate every private checkpoint, not just the JSON count. The final record
     # is captured after the original movie ends; it is not an early checkpoint.
+    # These are the pinned J/U WRAM owners, not inferred durations. IRQ scrolling
+    # can continue while the CPU uploads data; neither accepted NMI nor an active
+    # APU upload alone proves a gameplay update or a disposable video refresh.
+    apu_uploading, door_scroll_counter = 0x0617, 0x0925
+    boundary_timing = []
     with gzip.open(boundaries_path, "rb") as source:
         for index in range(len(updates) + 1):
             record = source.read(131080)
@@ -95,19 +113,39 @@ def run():
                 raise ValueError(f"Truncated native checkpoint {index}")
             frame, pc = struct.unpack_from("<II", record)
             expected_frame = updates[index]["sourceFrame"] if index < len(updates) else frames
+            boundary_timing.append((
+                struct.unpack_from("<H", record, 8 + apu_uploading)[0],
+                struct.unpack_from("<H", record, 8 + door_scroll_counter)[0]))
             if frame != expected_frame or pc != (read_enter if index < len(updates) else 0):
                 raise ValueError(f"Checkpoint {index} disagrees with its input boundary")
         if source.read(1):
             raise ValueError("Unexpected trailing native checkpoints")
+    for index, update in enumerate(updates):
+        upload, scroll = boundary_timing[index]
+        next_upload, next_scroll = boundary_timing[index + 1]
+        update["timingEvidence"] = {
+            "apuUploadActiveAtInput": upload != 0,
+            "apuUploadActiveAtNextBoundary": next_upload != 0,
+            "doorScrollCounterBefore": scroll,
+            "doorScrollCounterAfter": next_scroll,
+        }
+        update["timingClass"] = classify_timing(update["kind"], upload != 0, scroll, next_scroll)
+    # Keep every input event until replay can preserve the hardware wait's input
+    # latch/counter effects without executing another gameplay frame. Reporting
+    # these separately prevents claiming that accepted NMI == gameplay update.
+    timing_counts = {name: sum(u["timingClass"] == name for u in updates) for name in (
+        "main-loop", "door-scroll-continuation", "apu-upload-continuation", "other-continuation")}
     source_frames = {u["sourceFrame"] for u in updates}
     manifest = {
-        "format": "super-metroid-gameplay-updates-v1",
+        "format": "super-metroid-gameplay-updates-v2",
         "movieSha256": hashlib.sha256(movie).hexdigest().upper(),
         "romSha256": rom_hash,
         "nativeCapture": "Snes9x 1.60 913b75d07c6e8d54e966e2c4a79d7c55428007df; instrumented J/U input boundaries",
         "eventsSha256": digest(events_path), "checkpointsSha256": digest(boundaries_path),
         "sourceFrameCount": frames, "initialInput": inputs[0],
         "updateCount": len(updates),
+        "timingCounts": timing_counts,
+        "hardwareUploadNormalizationComplete": not any(upload for upload, _ in boundary_timing),
         "hardwareLagRefreshesExcluded": frames - len(source_frames),
         "mainLoopUpdates": sum(u["kind"] == "main-loop" for u in updates),
         "continuationUpdates": sum(u["kind"] == "nmi-continuation" for u in updates),

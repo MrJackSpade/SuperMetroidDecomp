@@ -89,7 +89,7 @@ internal static partial class Program
         AssertTrue(Convert.ToHexString(SHA256.HashData(movie)) == "7E12861DC56C5ABED12C2BFA2B00D24BFA418F49F2CE4C027D930CE9A3663F66", "original Ridley movie hash");
         using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "updates.json")));
         var root = manifest.RootElement;
-        AssertEqual("super-metroid-gameplay-updates-v1", root.GetProperty("format").GetString()!, "converted replay format");
+        AssertEqual("super-metroid-gameplay-updates-v2", root.GetProperty("format").GetString()!, "converted replay format");
         AssertEqual(Convert.ToHexString(SHA256.HashData(movie)), root.GetProperty("movieSha256").GetString()!, "converted movie identity");
         AssertEqual(10890, root.GetProperty("sourceFrameCount").GetInt32(), "complete original movie coverage");
         var updates = root.GetProperty("updates").EnumerateArray().ToArray();
@@ -271,9 +271,13 @@ internal static partial class Program
                 throw new InvalidDataException($"Full movie first divergence at update {frame} (SMV source frame {(frame == 0 ? 0 : updates[frame - 1].GetProperty("sourceFrame").GetInt32())}): " + string.Join("; ", mismatches));
             }
             // Only the converted controller event enters production; reference memory is
-            // read-only. Authored NMI continuations remain, hardware stalls are excluded.
+            // read-only. An accepted input read during APU transfer is not another
+            // gameplay update. Until its latch/counter effects are normalized, stop
+            // explicitly instead of replaying hardware upload time as gameplay.
             if (frame < length)
-                {
+            {
+                if (updates[frame].GetProperty("timingClass").GetString() == "apu-upload-continuation")
+                    throw new InvalidDataException($"SMV source frame {updates[frame].GetProperty("sourceFrame").GetInt32()} is an APU upload continuation; hardware-wait input normalization is not implemented.");
                 var output = game.Step((ushort)updates[frame].GetProperty("input").GetInt32());
                 audio.RenderFrame(output.AudioCommands);
                 game.SetAudioAcknowledgements(audio.ReadAcknowledgements());

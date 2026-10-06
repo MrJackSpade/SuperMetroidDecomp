@@ -46,3 +46,12 @@ The port verifier currently compares selected gameplay fields and stops at the
 first mismatch. A successfully converted movie is not proof that the port matches
 it. Capture artifacts remain private, and the converter's manifest records hashes
 rather than embedding WRAM or ROM data.
+
+Manifest v2 also records the checkpoint's APU-upload flag (`$0617`) and door-scroll
+counter (`$0925`) before/after each accepted input interval. APU uploads can accept
+NMI input without executing another main-loop update. These intervals are exposed
+as `apu-upload-continuation`; they are not silently dropped or counted as proven
+intentional waits. Concurrent scroll-counter changes take precedence in the timing
+description. Replay normalization of upload waits remains unfinished; see
+`docs/smv-gameplay-parity.md`. Run `python tests/smv-timing.Tests.py` to confirm the
+classification rules for this identified hardware-wait ambiguity.

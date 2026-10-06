@@ -56,10 +56,26 @@ state and terminal record. Its source movie SHA-256 is
 
 The reusable converter is `tools/convert-smv-updates.py`. Its native capture adapter
 and build instructions are in `tools/smv-native-capture/`. The instrumented complete
-movie produces 10,758 accepted input/update steps: 10,655 outer main-loop updates
-and 103 NMI continuations. It excludes 132 hardware-lag refreshes, retains all
+movie produces 10,758 accepted input intervals: 10,655 outer main-loop dispatches
+and 103 NMI continuations. Accepted input is not by itself a gameplay update.
+Manifest v2 records native APU-upload and door-scroll-counter evidence: 61
+continuations change the scroll counter, 41 occur during APU upload after scrolling
+has stopped, and one completes the scrolling coroutine without a counter change.
+The last group remains explicitly unclassified rather than inferred disposable.
+
+The 41 APU intervals are source frames 294–334. Native `$80:8028` sets the WRAM
+upload flag `$0617` around `SendAPUData`; the door IRQ keeps requesting NMI at
+`$80:9823`, so accepted controller reads continue while the main CPU is uploading.
+These intervals must not become artificial gameplay frames in the port. The
+converter preserves them for now, with `hardwareUploadNormalizationComplete=false`;
+the verifier refuses to execute them as gameplay. Input-latch and counter effects
+still need normalization, including any simultaneous IRQ gameplay. A future
+converter must not simply delete all samples with the upload flag set.
+
+The converter already excludes 132 refreshes without accepted input, retains all
 observed input edges, and verifies every private checkpoint through the original
-movie's terminal state. Original SMV and ROM hashes remain unchanged.
+movie's terminal state. Original SMV and ROM hashes remain unchanged. The earlier
+claim that all 103 continuations were intentional gameplay waits was too broad.
 
 The full-replay diagnostic imports state once and compares Samus position,
 subpixels, movement speeds, animation, health, accepted NMI, RNG, dispatcher state,

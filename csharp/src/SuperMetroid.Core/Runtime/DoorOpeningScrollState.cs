@@ -81,12 +81,12 @@ internal sealed class DoorOpeningScrollState
         ushort destinationX = unchecked((ushort)(door.DestinationScreenX << 8));
         ushort destinationY = unchecked((ushort)(door.DestinationScreenY << 8));
 
-        ushort cameraX = finalCameraX;
-        ushort cameraY = finalCameraY;
+        var setupCamera = GetSetupCamera(door);
+        ushort cameraX = setupCamera.X;
+        ushort cameraY = setupCamera.Y;
         ushort layer2X = finalLayer2X;
         ushort layer2Y = finalLayer2Y;
-        uint samusX = finalSamusXFixed;
-        uint samusY = finalSamusYFixed;
+        (uint samusX, uint samusY) = RebaseSamus(door, sourceSamusXFixed, sourceSamusYFixed);
         int remainingFrames;
 
         switch (direction)
@@ -94,36 +94,24 @@ internal sealed class DoorOpeningScrollState
             case 0: // Right setup calls DoorTransition_Right once before placement.
                 cameraX = unchecked((ushort)(destinationX - 252));
                 layer2X = unchecked((ushort)(finalLayer2X - 252));
-                samusX = ReplaceWholePosition(
-                    unchecked((ushort)(cameraX + (byte)(sourceSamusXFixed >> 16))),
-                    sourceSamusXFixed);
                 remainingFrames = 63;
                 break;
 
             case 1: // Left setup is the exact subtracting mirror.
                 cameraX = unchecked((ushort)(destinationX + 252));
                 layer2X = unchecked((ushort)(finalLayer2X + 252));
-                samusX = ReplaceWholePosition(
-                    unchecked((ushort)(cameraX + (byte)(sourceSamusXFixed >> 16))),
-                    sourceSamusXFixed);
                 remainingFrames = 63;
                 break;
 
             case 2: // Down frame zero only stages the off-screen row.
                 cameraY = unchecked((ushort)(destinationY - 224));
                 layer2Y = unchecked((ushort)(finalLayer2Y - 224));
-                samusY = ReplaceWholePosition(
-                    unchecked((ushort)(cameraY + (byte)(sourceSamusYFixed >> 16))),
-                    sourceSamusYFixed);
                 remainingFrames = 56;
                 break;
 
             case 3: // FixDoorsMovingUp leaves counter one for setup's first moving call.
                 cameraY = unchecked((ushort)(destinationY + 251));
                 layer2Y = unchecked((ushort)(finalLayer2Y + 220));
-                samusY = ReplaceWholePosition(
-                    unchecked((ushort)(cameraY + (byte)(sourceSamusYFixed >> 16))),
-                    sourceSamusYFixed);
                 remainingFrames = 55;
                 break;
 
@@ -149,6 +137,47 @@ internal sealed class DoorOpeningScrollState
             finalSamusYFixed);
     }
 
+    /// <summary>Layer-one origin after the directional setup's initial call.</summary>
+    internal static (ushort X, ushort Y) GetSetupCamera(CartridgeDoorHeader door)
+    {
+        ushort x = unchecked((ushort)(door.DestinationScreenX << 8));
+        ushort y = unchecked((ushort)(door.DestinationScreenY << 8));
+        return (door.Orientation & 3) switch
+        {
+            0 => (unchecked((ushort)(x - 252)), y),
+            1 => (unchecked((ushort)(x + 252)), y),
+            2 => (x, unchecked((ushort)(y - 224))),
+            3 => (x, unchecked((ushort)(y + 251))),
+            _ => throw new InvalidOperationException("Invalid door orientation."),
+        };
+    }
+
+    /// <summary>
+    /// <c>$82:E3C0</c> replaces both whole coordinates with layer one plus the
+    /// low position byte, preserving the fractions and deferring final nudges.
+    /// </summary>
+    internal static (uint X, uint Y) RebaseSamus(CartridgeDoorHeader door, uint setupX, uint setupY)
+    {
+        var camera = GetSetupCamera(door);
+        return (
+            ReplaceWholePosition(unchecked((ushort)(camera.X + (byte)(setupX >> 16))), setupX),
+            ReplaceWholePosition(unchecked((ushort)(camera.Y + (byte)(setupY >> 16))), setupY));
+    }
+
+    /// <summary>One moving IRQ call; downward setup alone omits this displacement.</summary>
+    internal static (uint X, uint Y) AdvanceSamus(CartridgeDoorHeader door, uint x, uint y)
+    {
+        uint step = GetSamusStep(door);
+        return (door.Orientation & 3) switch
+        {
+            0 => (unchecked(x + step), y),
+            1 => (unchecked(x - step), y),
+            2 => (x, unchecked(y + step)),
+            3 => (x, unchecked(y - step)),
+            _ => throw new InvalidOperationException("Invalid door orientation."),
+        };
+    }
+
     /// <summary>Samus's fixed-point displacement for one native door IRQ call.</summary>
     internal static uint GetSamusStep(CartridgeDoorHeader door)
     {
@@ -165,15 +194,7 @@ internal sealed class DoorOpeningScrollState
     internal static (uint X, uint Y) ApplySetupMovement(
         CartridgeDoorHeader door, uint sourceX, uint sourceY)
     {
-        uint step = GetSamusStep(door);
-        return (door.Orientation & 3) switch
-        {
-            0 => (unchecked(sourceX + step), sourceY),
-            1 => (unchecked(sourceX - step), sourceY),
-            2 => (sourceX, sourceY),
-            3 => (sourceX, unchecked(sourceY - step)),
-            _ => throw new InvalidOperationException("Invalid door orientation."),
-        };
+        return (door.Orientation & 3) == 2 ? (sourceX, sourceY) : AdvanceSamus(door, sourceX, sourceY);
     }
 
     /// <summary>Runs one IRQ call and reports the frame that sets completion bit $8000.</summary>

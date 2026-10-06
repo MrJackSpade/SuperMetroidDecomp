@@ -363,6 +363,31 @@ public sealed partial class SuperMetroidRuntime
             door, Samus.Kinematics.XFixed, Samus.Kinematics.YFixed);
         Samus.Kinematics.SetXFixed(position.X);
         Samus.Kinematics.SetYFixed(position.Y);
+        var camera = DoorOpeningScrollState.GetSetupCamera(door);
+        Camera!.SetDoorTransitionPosition(camera.X, camera.Y);
+        BackgroundScroll.Layer1XPosition = camera.X;
+        BackgroundScroll.Layer1YPosition = camera.Y;
+    }
+
+    /// <summary>Rebases Samus and publishes the first moving IRQ during tile loading.</summary>
+    internal void PlaceSamusForDoorTileLoading()
+    {
+        CartridgeDoorHeader door = PendingDoorTransition
+            ?? throw new InvalidOperationException("No pending door destination exists.");
+        if (Samus is null || Camera is null)
+            throw new InvalidOperationException("Door tile loading requires Samus and camera.");
+        var position = DoorOpeningScrollState.RebaseSamus(door, Samus.Kinematics.XFixed, Samus.Kinematics.YFixed);
+        position = DoorOpeningScrollState.AdvanceSamus(door, position.X, position.Y);
+        Samus.Kinematics.SetXFixed(position.X);
+        Samus.Kinematics.SetYFixed(position.Y);
+        var camera = DoorOpeningScrollState.GetSetupCamera(door);
+        int direction = door.Orientation & 3;
+        short delta = direction is 0 or 2 ? (short)4 : (short)-4;
+        if ((direction & 2) == 0) camera.X = unchecked((ushort)(camera.X + delta));
+        else camera.Y = unchecked((ushort)(camera.Y + delta));
+        Camera.SetDoorTransitionPosition(camera.X, camera.Y);
+        BackgroundScroll.Layer1XPosition = camera.X;
+        BackgroundScroll.Layer1YPosition = camera.Y;
     }
 
     /// <summary>
@@ -379,7 +404,8 @@ public sealed partial class SuperMetroidRuntime
     internal void BeginDoorOpeningScroll(
         CartridgeDoorHeader door,
         uint sourceSamusXFixed,
-        uint sourceSamusYFixed)
+        uint sourceSamusYFixed,
+        int completedLoadingIrqSteps = 0)
     {
         if (Camera is null || Samus is null)
             throw new InvalidOperationException("A loaded destination and Samus are required.");
@@ -459,6 +485,10 @@ public sealed partial class SuperMetroidRuntime
         }
         Samus.Kinematics.SetXFixed(_doorOpeningScroll.SamusXFixed);
         Samus.Kinematics.SetYFixed(_doorOpeningScroll.SamusYFixed);
+        // Recreate the VRAM producer requests for IRQ progress already published
+        // before the atomic destination load. Those steps do not consume more input.
+        for (int step = 0; step < completedLoadingIrqSteps; step++)
+            StepDoorOpeningScroll();
     }
 
     /// <summary>

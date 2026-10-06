@@ -79,18 +79,24 @@ internal static partial class Program
             game.Step(0);
             AssertEqual(nativeLoadingRandom[index], runtime.System.RandomNumber, $"native loading RNG update {173 + index}");
             AssertEqual((ushort)(0xa4f1 + index), runtime.NmiFrameCounter, "loading accepts one NMI per update");
+            if (index == 5)
+            {
+                AssertEqual(0x010e9000u, samus.Kinematics.XFixed, "native placement rebases and advances Samus while loading tiles");
+                AssertEqual((ushort)0x00f8, runtime.Camera!.XPosition, "first loading IRQ moves camera four pixels");
+            }
             if (index == 4)
             {
                 AssertEqual(0x00135800u, samus.Kinematics.XFixed, "native scrolling setup moves Samus before destination placement");
                 AssertEqual(yFixed, samus.Kinematics.YFixed, "left scrolling setup preserves perpendicular coordinate");
+                AssertEqual((ushort)0x00fc, runtime.Camera!.XPosition, "native setup camera origin");
             }
         }
         game.Step(0); // The atomic destination loader must use the pre-setup source.
         AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
-        AssertEqual(0x010f5800u, samus.Kinematics.XFixed, "destination rebase incorporates setup movement exactly once");
+        AssertEqual(0x010dc800u, samus.Kinematics.XFixed, "destination load carries both loading IRQ steps without restarting the scroll");
         int scrollCalls = 0;
         while (!runtime.StepDoorOpeningScroll() && ++scrollCalls < 64) { }
-        AssertEqual(62, scrollCalls, "left trajectory completes on its 63rd remaining IRQ call");
+        AssertEqual(60, scrollCalls, "left trajectory completes on its 61st remaining IRQ call");
         AssertEqual(0x00de2000u, samus.Kinematics.XFixed, "native source frame 276 scrolling endpoint");
         runtime.FinishDoorOpeningScroll();
         AssertEqual(0x00d82000u, samus.Kinematics.XFixed, "native final doorway alignment preserves original subposition");

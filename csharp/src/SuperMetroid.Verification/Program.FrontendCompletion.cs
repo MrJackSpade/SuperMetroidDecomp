@@ -213,6 +213,21 @@ static void VerifyDoorOpeningTrajectories()
             finalSamusXFixed: postNudgeX,
             finalSamusYFixed: postNudgeY);
 
+        // $82:E3C0 rebases both axes before the later E6A2 nudge. The
+        // perpendicular axis must not start at the supplied post-nudge endpoint.
+        AssertEqual(direction switch
+        {
+            0 => 0x02aa4000u,
+            1 => 0x04a04000u,
+            _ => 0x03a54000u,
+        }, trajectory.SamusXFixed, $"door direction {direction} rebased initial Samus X");
+        AssertEqual(direction switch
+        {
+            2 => 0x01938000u,
+            3 => 0x036d8000u,
+            _ => 0x02738000u,
+        }, trajectory.SamusYFixed, $"door direction {direction} rebased initial Samus Y");
+
         int expectedFrames = direction switch
         {
             0 or 1 => 63,

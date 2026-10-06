@@ -143,10 +143,13 @@ public sealed class DoorTransitionState
             case DoorTransitionPhase.PlaceSamusAndLoadTiles:
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: false);
+                runtime.PlaceSamusForDoorTileLoading();
                 Phase = DoorTransitionPhase.LoadMoreThingsAndOpenDoor;
                 break;
 
             case DoorTransitionPhase.LoadMoreThingsAndOpenDoor:
+                runtime.RunBlankGameplayFrame(controllerInput);
+                runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: false);
                 // LoadMoreThings initializes enemy graphics/music/projectiles/animtiles,
                 // PLMs, FX, backgrounds, and then yields once per NMI until the IRQ raises
                 // door_transition_flag bit $8000. The host room constructor performs that
@@ -162,7 +165,9 @@ public sealed class DoorTransitionState
                 runtime.BeginDoorOpeningScroll(
                     door ?? throw new InvalidOperationException("Door header was not captured."),
                     sourceSamusXFixed,
-                    sourceSamusYFixed);
+                    sourceSamusYFixed,
+                    completedLoadingIrqSteps: 1);
+                runtime.StepDoorOpeningScroll();
                 if (runtime.IconCancelEnabled && runtime.Samus is { } samus)
                 {
                     // ResetProjectileData checks `$09EA` after clearing all projectile

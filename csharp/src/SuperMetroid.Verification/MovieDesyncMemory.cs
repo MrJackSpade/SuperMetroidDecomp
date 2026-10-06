@@ -41,6 +41,10 @@ internal static class MovieDesyncMemory
     public const int EnemyIdentityOffset = 0x00, EnemyXOffset = 0x02, EnemyXFractionOffset = 0x04,
         EnemyYOffset = 0x06, EnemyYFractionOffset = 0x08, EnemyHealthOffset = 0x14;
 
+    /// <summary>$7E:2020: seven ten-word Ridley tail records; X/Y at +12/+14. The tail deals contact damage.</summary>
+    public const int RidleyTailSegments = 0x2020, RidleyTailSegmentStride = 20,
+        RidleyTailXOffset = 12, RidleyTailYOffset = 14;
+
     /// <summary>$80:9459: accepted-NMI controller-read entry recorded in each checkpoint.</summary>
     public const int ControllerReadBoundary = 0x809459;
 }

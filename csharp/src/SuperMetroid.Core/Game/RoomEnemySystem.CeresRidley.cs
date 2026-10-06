@@ -377,23 +377,7 @@ public sealed partial class RoomEnemySystem
                 break;
 
             case RidleyAiFunction.CeresRetreatDelay:
-                state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
-                if ((short)state.FunctionTimer < 0)
-                {
-                    // $A6:A9A5 spawns the two $E23F wall actors before the following
-                    // dispatcher switches BG mode. They are not decorative bookkeeping:
-                    // Mode 7 has no BG2, so these OBJ strips are what keep the chamber
-                    // visible around the rotating Ridley/Baby image.
-                    SpawnCeresRidleyMode7Walls();
-                    state.HorizontalVelocity = 0;
-                    state.VerticalVelocity = 0;
-                    state.Function = RidleyAiFunction.CeresPublishEscapeHandoff;
-
-                    // $A6:A9E3 replaces colors 1..15 of BG palette five. $A6:AA01 is
-                    // copied to colors 1..8 of BG palette two and OBJ palette seven.
-                    (CeresRidleyColors ?? throw new InvalidOperationException(
-                        "Ceres Ridley retreat requires installed colors.")).ApplyRetreat(_cgram!);
-                }
+                TickCeresRidleyRetreatDelay(state);
                 break;
 
             case RidleyAiFunction.CeresPublishEscapeHandoff:
@@ -432,11 +416,25 @@ public sealed partial class RoomEnemySystem
         {
             IntegrateRidleyMovement(slot, state, ceresWallImpact: true);
             TickRidleyWingAnimation(state);
+            RandomlyUpdateCeresRidleyTailCurliness(state);
             TickRidleyTail(slot, state, samus);
             UpdateCeresRidleyHealthPalette(state);
         }
         if (CeresStatus == 0)
             TickCeresBaby(slot, state);
+    }
+
+    /// <summary>
+    /// <c>RandomlyUpdateRidleyTailCurliness</c> ($A6:A2BD): when the live RNG word is at
+    /// least $FF00 (sampled, not advanced), the ideal inter-segment tail angle becomes its
+    /// low nibble plus seven plus the compare's set carry, so $08..$17.
+    /// </summary>
+    private void RandomlyUpdateCeresRidleyTailCurliness(RidleyEnemyState state)
+    {
+        ushort random = _readRandomNumber!();
+        if (random < 0xff00)
+            return;
+        state.IdealInterSegmentTailAngle = (ushort)((random & 0x000f) + 7 + 1);
     }
 
     /// <summary>
@@ -510,10 +508,12 @@ public sealed partial class RoomEnemySystem
 
         // The other original termination route is Samus energy below 30. A synthetic room
         // fixture may omit Samus, in which case only the shot-counter route is meaningful.
+        // $A6:A706 jumps into the real retreat, so its first acceleration runs this call.
         if (samus is not null && unchecked((short)(samus.Health - 30)) < 0)
         {
             state.FightMode = 0;
             BeginCeresRidleyRetreat(state);
+            TickCeresRidleyRetreat(slot, state);
             return;
         }
 
@@ -771,17 +771,41 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private static void TickCeresRidleyRetreat(RoomEnemySlot slot, RidleyEnemyState state)
+    private void TickCeresRidleyRetreat(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // $A6:A971 accelerates toward the off-screen point ($00C0,$FF80). The signed test
-        // is performed before the common movement pass, so the 64-frame delay begins on
-        // the call after Ridley's integrated origin first crosses Y=-128.
+        // is performed before the common movement pass; once the origin is above Y=-128
+        // the 64-frame delay is installed and $A6:A99D falls through into its first tick.
         AccelerateRidleyToward(slot, state, 192, unchecked((ushort)-128), 1);
         if (unchecked((short)(slot.YPosition + 128)) < 0)
         {
             state.Function = RidleyAiFunction.CeresRetreatDelay;
             state.FunctionTimer = 64;
+            TickCeresRidleyRetreatDelay(state);
         }
+    }
+
+    /// <summary><c>Function_RidleyCeres_RealRetreat_WritePalettesSpawnWalls</c> ($A6:A9A0).</summary>
+    private void TickCeresRidleyRetreatDelay(RidleyEnemyState state)
+    {
+        state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
+        if ((short)state.FunctionTimer >= 0)
+            return;
+
+        // $A6:A9A5 spawns the two $E23F wall actors before the following
+        // dispatcher switches BG mode. They are not decorative bookkeeping:
+        // Mode 7 has no BG2, so these OBJ strips are what keep the chamber
+        // visible around the rotating Ridley/Baby image.
+        SpawnCeresRidleyMode7Walls();
+        state.HorizontalVelocity = 0;
+        state.VerticalVelocity = 0;
+        state.TailFunctionIndex = 0;
+        state.Function = RidleyAiFunction.CeresPublishEscapeHandoff;
+
+        // $A6:A9E3 replaces colors 1..15 of BG palette five. $A6:AA01 is
+        // copied to colors 1..8 of BG palette two and OBJ palette seven.
+        (CeresRidleyColors ?? throw new InvalidOperationException(
+            "Ceres Ridley retreat requires installed colors.")).ApplyRetreat(_cgram!);
     }
 
     private static void AccelerateRidleyToward(
@@ -796,36 +820,65 @@ public sealed partial class RoomEnemySystem
         ushort divisor = RidleyInertiaDefinitions.Divisor(divisorIndex);
 
         state.HorizontalVelocity = AccelerateAxis(
-            state.HorizontalVelocity,
-            unchecked((short)(slot.XPosition - targetX)),
-            divisor);
+            state.HorizontalVelocity, slot.XPosition, targetX, divisor);
         state.VerticalVelocity = AccelerateAxis(
-            state.VerticalVelocity,
-            unchecked((short)(slot.YPosition - targetY)),
-            divisor);
+            state.VerticalVelocity, slot.YPosition, targetY, divisor);
     }
 
-    private static ushort AccelerateAxis(ushort velocityWord, short distance, ushort divisor)
+    /// <summary>
+    /// One axis of <c>$A6:D62F</c> (Y) / <c>$A6:D6A6</c> (X). The SEC/SBC distance test's
+    /// carry feeds the first ADC/SBC of the velocity chain, and each later ADC/SBC consumes
+    /// the previous one's carry, so crossing zero while reversing adds one more unit.
+    /// </summary>
+    private static ushort AccelerateAxis(ushort velocity, ushort position, ushort target, ushort divisor)
     {
-        if (distance == 0)
-            return velocityWord;
+        ushort difference = unchecked((ushort)(position - target));
+        if (difference == 0)
+            return velocity;
+        bool carry = position >= target;
+        bool targetBelow = (difference & 0x8000) != 0;
+        ushort magnitude = targetBelow ? unchecked((ushort)-difference) : difference;
+        // Hardware quotient; a zero quotient is promoted to one.
+        ushort step = (ushort)Math.Max(1, magnitude / divisor);
 
-        int step = Math.Max(1, Math.Abs((int)distance) / divisor);
-        int velocity = unchecked((short)velocityWord);
-        if (distance > 0)
+        if (targetBelow)
         {
-            if (velocity >= 0)
-                velocity -= step * 2;
-            velocity -= step;
+            if ((velocity & 0x8000) != 0)
+            {
+                Add(step);
+                Add(step);
+            }
+            Add(step);
+            // CMP #$0500 : BMI keeps any value whose signed difference is negative.
+            if (unchecked((short)(velocity - 0x0500)) >= 0)
+                velocity = 0x0500;
         }
         else
         {
-            if (velocity < 0)
-                velocity += step * 2;
-            velocity += step;
+            if ((velocity & 0x8000) == 0)
+            {
+                Subtract(step);
+                Subtract(step);
+            }
+            Subtract(step);
+            // CMP #$FB00 : BPL keeps any value whose signed difference is non-negative.
+            if (unchecked((short)(velocity - 0xfb00)) < 0)
+                velocity = 0xfb00;
         }
+        return velocity;
 
-        return unchecked((ushort)Math.Clamp(velocity, -1280, 1280));
+        void Add(ushort operand)
+        {
+            int result = velocity + operand + (carry ? 1 : 0);
+            velocity = unchecked((ushort)result);
+            carry = result > ushort.MaxValue;
+        }
+        void Subtract(ushort operand)
+        {
+            int result = velocity - operand - (carry ? 0 : 1);
+            velocity = unchecked((ushort)result);
+            carry = result >= 0;
+        }
     }
 
     private void IntegrateRidleyMovement(

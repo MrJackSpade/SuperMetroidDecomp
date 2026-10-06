@@ -83,6 +83,14 @@ internal static partial class Program
             $"vs={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4} total={samus.HorizontalSpeed.TotalSpeed:X4}.{samus.HorizontalSpeed.TotalSubspeed:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)}");
         Console.WriteLine($"  native pose={Native(MovieDesyncMemory.SamusPose)} X={Native(MovieDesyncMemory.SamusX)}.{Native(MovieDesyncMemory.SamusXFraction)} Y={Native(MovieDesyncMemory.SamusY)}.{Native(MovieDesyncMemory.SamusYFraction)} " +
             $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)}");
+        if (game.RuntimeForVerification?.Enemies.Ridley is { } ridley)
+        {
+            // $7E:2020: seven ten-word tail records; X/Y at +12/+14.
+            string Port(int index) => $"{ridley.TailSegments[index].XPosition:X4}/{ridley.TailSegments[index].YPosition:X4}";
+            string NativeTail(int index) => $"{Native(0x2020 + index * 20 + 12)}/{Native(0x2020 + index * 20 + 14)}";
+            Console.WriteLine("  tail port   " + string.Join(" ", Enumerable.Range(0, 7).Select(Port)) + $" fn={(ushort)ridley.Function:X4} tailfn={ridley.TailFunctionIndex:X4} v={ridley.HorizontalVelocity:X4}/{ridley.VerticalVelocity:X4}");
+            Console.WriteLine("  tail native " + string.Join(" ", Enumerable.Range(0, 7).Select(NativeTail)) + $" fn={Native(0x0fa8)} tailfn={Native(0x2000)} v={Native(0x0faa)}/{Native(0x0fac)}");
+        }
     }
 
     private static ushort Word(byte[] memory, int address) =>
@@ -140,6 +148,18 @@ internal static partial class Program
         ushort normalizedNmi = unchecked((ushort)(Word(memory, MovieDesyncMemory.NmiCounter) - excludedNmis));
         if (runtime.NmiFrameCounter != normalizedNmi)
             mismatches.Add($"Accepted gameplay NMI: native={normalizedNmi:X4} port={runtime.NmiFrameCounter:X4}");
+        if (runtime.Enemies.Ridley is { } ridley)
+            for (int index = 0; index < ridley.TailSegments.Length; index++)
+            {
+                int tail = MovieDesyncMemory.RidleyTailSegments + index * MovieDesyncMemory.RidleyTailSegmentStride;
+                // Inactive records hold stale words the cartridge never reads.
+                bool nativeActive = (Word(memory, tail) & 0x8000) != 0;
+                if (nativeActive != ridley.TailSegments[index].Active)
+                    mismatches.Add($"Ridley tail {index} active: native={nativeActive} port={ridley.TailSegments[index].Active}");
+                if (!nativeActive && !ridley.TailSegments[index].Active) continue;
+                Check($"Ridley tail {index} X", ridley.TailSegments[index].XPosition, tail + MovieDesyncMemory.RidleyTailXOffset);
+                Check($"Ridley tail {index} Y", ridley.TailSegments[index].YPosition, tail + MovieDesyncMemory.RidleyTailYOffset);
+            }
         foreach (var actor in runtime.Enemies.Slots)
         {
             int address = MovieDesyncMemory.EnemyBase + actor.NativeIndex;

@@ -14,7 +14,7 @@ public sealed class GameplayHudPresentation
     private readonly Dictionary<int, ushort> autoReserveOverrides;
     private readonly Dictionary<int, int> autoAnchors;
     private readonly Dictionary<int, int> energyTankAnchors;
-    private readonly Dictionary<string, CompiledIcon> icons;
+    private readonly CompiledIcon missile, superMissile, powerBomb, grapple, xray;
 
     private GameplayHudPresentation(GameplayHudPresentationDocument document, byte[] source)
     {
@@ -48,18 +48,11 @@ public sealed class GameplayHudPresentation
         if (document.Icons is null || document.Icons.Count != GameplayHudDefinitions.IconNames.Length ||
             GameplayHudDefinitions.IconNames.Any(name => !document.Icons.ContainsKey(name)))
             throw new InvalidDataException("Gameplay HUD requires exactly the five named item icons.");
-        icons = new(StringComparer.Ordinal);
-        for (int item = 0; item < GameplayHudDefinitions.IconNames.Length; item++)
-        {
-            string name = GameplayHudDefinitions.IconName(item);
-            GameplayHudIconDocument icon = document.Icons[name] ??
-                throw new InvalidDataException($"Gameplay HUD icon {name} is null.");
-            int width = item == 0 ? 3 : 2;
-            int height = 2;
-            icons.Add(name, new(ValidateAnchor(icon.Anchor, width, height, $"{name} icon"),
-                width, height, CompileCells(icon.Cells, width * height, $"{name} icon")));
-        }
-
+        missile = new(0, document.Icons["Missile"]);
+        superMissile = new(1, document.Icons["SuperMissile"]);
+        powerBomb = new(2, document.Icons["PowerBomb"]);
+        grapple = new(3, document.Icons["Grapple"]);
+        xray = new(4, document.Icons["XRay"]);
         ValidateDistinctDynamicCells();
         ContentIdentity = Convert.ToHexString(SHA256.HashData(source));
     }
@@ -108,9 +101,9 @@ public sealed class GameplayHudPresentation
         int first = Index(icon.Anchor.X, icon.Anchor.Y);
         if (new SnesBgTilemapWord(tiles[first]).CharacterIndex != new SnesBgTilemapWord(Blank).CharacterIndex)
             return;
-        for (int y = 0; y < icon.Height; y++)
+        for (int y = 0; y < CompiledIcon.Height; y++)
         for (int x = 0; x < icon.Width; x++)
-            tiles[Index(icon.Anchor.X + x, icon.Anchor.Y + y)] = icon.Cells[y * icon.Width + x];
+            tiles[Index(icon.Anchor.X + x, icon.Anchor.Y + y)] = icon.Cell(y * icon.Width + x);
     }
 
     public void ApplyEnergy(Span<ushort> tiles, ushort health, ushort maxHealth)
@@ -158,7 +151,7 @@ public sealed class GameplayHudPresentation
         int itemIndex = selectedItem - 1;
         if ((uint)itemIndex >= GameplayHudDefinitions.IconNames.Length) return;
         CompiledIcon icon = Icon(itemIndex);
-        for (int y = 0; y < icon.Height; y++)
+        for (int y = 0; y < CompiledIcon.Height; y++)
         for (int x = 0; x < icon.Width; x++)
         {
             int destination = Index(icon.Anchor.X + x, icon.Anchor.Y + y);
@@ -218,7 +211,11 @@ public sealed class GameplayHudPresentation
         }
     }
 
-    private CompiledIcon Icon(int itemIndex) => icons[GameplayHudDefinitions.IconName(itemIndex)];
+    private CompiledIcon Icon(int itemIndex) => itemIndex switch
+    {
+        0 => missile, 1 => superMissile, 2 => powerBomb, 3 => grapple, 4 => xray,
+        _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
+    };
 
     private void ValidateDistinctDynamicCells()
     {
@@ -228,9 +225,12 @@ public sealed class GameplayHudPresentation
             if (!owners.TryAdd(cell, owner))
                 throw new InvalidDataException($"Gameplay HUD {owner} overlaps {owners[cell]} at cell {cell}.");
         }
-        foreach ((string name, CompiledIcon icon) in icons)
-        for (int y = 0; y < icon.Height; y++)
-        for (int x = 0; x < icon.Width; x++) Own(Index(icon.Anchor.X + x, icon.Anchor.Y + y), name);
+        for (int item = 0; item < GameplayHudDefinitions.ItemCount; item++)
+        {
+            CompiledIcon icon = Icon(item);
+            for (int y = 0; y < CompiledIcon.Height; y++)
+            for (int x = 0; x < icon.Width; x++) Own(Index(icon.Anchor.X + x, icon.Anchor.Y + y), GameplayHudDefinitions.IconName(item));
+        }
         for (int tank = 0; tank < GameplayHudDefinitions.EnergyTankCount; tank++) Own(EnergyTankCell(tank), "energy tank");
         for (int cell = 0; cell < GameplayHudDefinitions.AutoReserveCellCount; cell++) Own(AutoReserveCell(cell), "AUTO indicator");
         for (int x = 0; x < 2; x++) Own(Index(HealthAnchor.X + x, HealthAnchor.Y), "health digits");
@@ -322,7 +322,33 @@ public sealed class GameplayHudPresentation
             throw new ArgumentException("Gameplay HUD requires exactly 96 mutable cells.", nameof(tiles));
     }
 
-    private sealed record CompiledIcon(MapLabelPoint Anchor, int Width, int Height, ushort[] Cells);
+    private sealed class CompiledIcon
+    {
+        private readonly int item;
+        private readonly MapLabelPoint? anchorOverride;
+        private readonly Dictionary<int, ushort> edits = new();
+        internal int Width => GameplayHudDefinitions.IconWidth(item);
+        internal const int Height = 2;
+        internal MapLabelPoint Anchor => anchorOverride ?? StockAnchor(item);
+        private static MapLabelPoint StockAnchor(int item)
+        {
+            int index = GameplayHudDefinitions.ItemByteOffset(item) / sizeof(ushort);
+            return new(index % GameplayHudDefinitions.Width, index / GameplayHudDefinitions.Width);
+        }
+        internal CompiledIcon(int item, GameplayHudIconDocument? document)
+        {
+            this.item = item;
+            string name = GameplayHudDefinitions.IconName(item);
+            if (document is null) throw new InvalidDataException($"Gameplay HUD icon {name} is null.");
+            MapLabelPoint anchor = ValidateAnchor(document.Anchor, Width, Height, $"{name} icon");
+            anchorOverride = anchor == StockAnchor(item) ? null : anchor;
+            ushort[] cells = CompileCells(document.Cells, Width * Height, $"{name} icon");
+            for (int cell = 0; cell < cells.Length; cell++)
+                if (cells[cell] != GameplayHudDefinitions.IconWord(item, cell)) edits.Add(cell, cells[cell]);
+        }
+        internal ushort Cell(int index) => edits.TryGetValue(index, out ushort edited)
+            ? edited : GameplayHudDefinitions.IconWord(item, index);
+    }
 }
 
 public sealed record GameplayHudPresentationDocument

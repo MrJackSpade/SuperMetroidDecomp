@@ -1,7 +1,7 @@
 
 ## Integrated stream progress
 
-The original snapshot below contains 1128 definitions. As of the first integrated batches, 609 are converted, 125 are justified retained, and 394 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
+The original snapshot below contains 1128 definitions. As of the first integrated batches, 609 are converted, 126 are justified retained, and 393 remain pending. The JSON records exact per-entry state and implementation commit; stream reports provide algorithms, native evidence and focused checks. This does not exempt independent payloads or claim inventory completeness beyond the snapshot.
 # Remaining lookup-table definitions - issue 1165
 
 Remaining: **1128 canonical table definitions in 523 source files**.
@@ -4559,3 +4559,43 @@ Remaining table definitions: **1**.
 - `csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.Generated.cs` **RoomPlmDynamicCollectibleGraphicsDefinitions.Tiles**: dynamicCollectibleArtworkReview: all seventeen original two-frame item drawings (4352 bytes) have a concrete source/consumer/pixel-art disposition; selector fields were independently converted.
 - `csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs` **RoomVisualLayoutCatalog.layouts**: Aggregate identity binding; RoomVisualLayout foreground/background own stock values.
 - `csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs` **XrayRevealVisualCatalog.ContentIdentity**: Content digest, not cartridge lookup data.
+
+## Paused at user request - 2026-10-06
+
+All three workers stopped taking new work and reported no remaining owned build/test processes. Coordinator performs mechanical integration only; workers own implementation, disposition and focused validation. Resume only when requested. Issue1165 remains the active unfinished ticket; stream tickets must not acquire in-progress labels.
+
+Inventory at shutdown:609 converted,126 justified retained/mixed,393 pending (1128 original entries).
+
+### Saved worktrees
+
+- Stream1: work/lookup-1165-stream-1 at5134ff8931c7e8e3c7e38ab91721b29945d46293, explicit WIP body pixels. Build and130464 native bytes/exact basis plus435 metadata/five DMA checks passed. Final nine upper-edit and nine cable-edit/hash confirmation was interrupted for shutdown and is NOT complete. Body-pixel entry remains pending. Resume commands and exact scope are in Stream1 Batch105; regenerate its draft root-integration.patch only after the final focused check passes.
+- Stream2: work/lookup-1165-stream-2 at7851a956f, inactive, preserved.
+- Stream3: work/lookup-1165-stream-3 at8cfa167fb, inactive, preserved.
+- Stream4 worker: work/lookup-1165-stream-4 at057677dbf29728d85b26639c6158817a17092396; HUD icons complete and integrated at shutdown. All original HUD presentation entries complete; other Stream4 entries remain pending.
+- Stream5 worker: work/lookup-1165-stream-5 at9564a2956a8403fc9733904ae3c2e9e2df96a417; four statue color entries complete and integrated at shutdown. Other Stream5 entries remain pending.
+- Every stream worktree retains its pre-existing coordinator manifest copy as its only reported tracked dirty file. Main retains the unrelated Program.Collectibles.cs change and local test-temp artifacts untouched.
+
+### Published batch since the coordinator-only handoff
+
+These are requested lookup conversions, not player-reported bug fixes. The common cause was stored stock mappings where arithmetic, shared material operations or semantic layout could provide the outputs. Exact authored choices remain only with the worker's narrow source-backed disposition. Every listed batch was confirmed by its worker; the coordinator did not repeat tests. No whole-game/player validation is claimed. Earlier batch details remain in the per-stream reports and completion ledger.
+
+| Completed scope | Implementation and retained boundary | Worker confirmation | Main commit |
+| --- | --- | --- | --- |
+| Draygon health | Gold/red ramps and health interpolation; exact material choices |32 native,96 edits,776 copies,96 actual health/hurt calls |7079eeb55 |
+| Wrecked Ship power-on |112 colors from named material rules |112 native,336 edits,hash/bounds |7cb3ea55e |
+| Draygon background |Shared gold and clipped material ramps |16 native,48 edits,98 copies,six hurt calls |93914f904 |
+| Crocomire skeleton transfers |Six calculated pages/rows; exact two atlas allocations |3072 native bytes,six actual uploads,PNG edits/cursor/read guard |fb71234b4 |
+| Draygon sprite |Canonical material alias, no new paint inputs |16 native,48 edits,98 copies,six hurt calls |ffe0fdcc1 |
+| Samus body-frame selectors |2794 aliases and192 calculated components;1586 exact drawing components |4572 native components,100 edits,pose selection,435 metadata/five DMA |f6d6d8ece |
+| Crocomire melting tilemaps, both |Calculated blanks/strips/repeats; exact illustrated silhouette |512 native words,512 edits,both actual BG2 uploads |70c99b3db |
+| Draygon intro |Primary/clear/escape-surface aliases, no new paint inputs |25 native,75 edits,four initializers; affected door/Ridley checks |f45a80567 |
+| Crocomire rumble |Calculated prefix/envelopes; exact authored shake/sound timing |32 native words,537 exact production frames and terminal palette |23b1372d3 |
+| Draygon presentation addresses |250 duplicate addresses derived from timed-record layout |250 ordered identities,actual selectors,524-word/reset/IRQ proof |8fed6a0b1 |
+| Zebetite pulse |Calculated illumination/interpolation; chosen core paint policy |16 native,48 edits,actual CGRAM |be2189962 |
+| HUD AUTO full/empty |Glyph adjacency/reflections/packing; chosen wording/arrows/style |12 native,72 edits,146 actual updates,73 initializers |a19cda94c |
+| HUD top row |Calculated blank area/border span; chosen border composition |32 native,192 edits,193 packed/VRAM uploads |dadb61d6a |
+| HUD initial template |Calculated text/blank/diagram geometry; exact initial composition |96 native,576 edits,577 applies,three initializers |4dddfc341 |
+| Tourian statue palettes, all four |Shared materials/gamma/linear ramps; uniform grey interpolation removes exception |56 native,168 edits,actual CGRAM |585639d56 |
+| HUD item icons |Atlas halves/reflections/anchors; five exact pictogram identities |22 native,132 edits,five custom anchors,three inventory initializers |Shutdown integration commit |
+
+All completed production changes are committed/pushed and their Discord queue is drained at handoff. The body-pixel WIP is intentionally retained in its isolated local commit, not published as a finished conversion. Existing player-validation items remain open; this shutdown does not change their status.

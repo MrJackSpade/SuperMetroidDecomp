@@ -153,6 +153,32 @@ public static class GameplayHudDefinitions
         }
         return BlankWord;
     }
+    /// <summary>
+    /// $80:99A3-99CE selects HUD item pictograms from $9A:B200 characters.
+    /// Missile shaft glyphs $49/$4A precede its tip pair $4B/$4C. The remaining
+    /// four named item halves occupy consecutive two-row pairs $34..3B in HUD
+    /// item order. All right halves reflect the left; missiles have a central shaft.
+    /// These exact selected pictogram identities/compositions are categorical art,
+    /// not generated pixels. Item placement uses the existing native anchor owner.
+    /// </summary>
+    private const int MissileShaftStartGlyph = 0x49, TwoColumnItemStartGlyph = 0x34;
+
+    internal static int IconWidth(int item)
+    {
+        _ = IconName(item);
+        return item == 0 ? 3 : 2;
+    }
+
+    internal static ushort IconWord(int item, int cell)
+    {
+        int width = IconWidth(item);
+        if ((uint)cell >= width * 2) throw new IndexOutOfRangeException();
+        int row = cell / width, column = cell % width;
+        int glyph = item == 0 ? MissileShaftStartGlyph + row + (column == 1 ? 0 : 2)
+            : TwoColumnItemStartGlyph + (item - 1) * 2 + row;
+        int style = (BlankWord & ~0x1fff) | DeselectedPalette << 10;
+        return (ushort)(style | glyph | (column == width - 1 ? 1 << 14 : 0));
+    }
     public static string IconName(int itemIndex) => (uint)itemIndex < IconNames.Length
         ? IconNames[itemIndex]
         : throw new ArgumentOutOfRangeException(nameof(itemIndex));

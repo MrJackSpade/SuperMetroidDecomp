@@ -1205,6 +1205,76 @@ internal static partial class Program
             AssertEqual((ushort)1, Word(0xa20000 | flyFrames[frame].Pointer), "fly native single OAM object");
         }
     }
+    private static void VerifyLookupStream4HudIcons(ISnesAddressSpace rom)
+    {
+        byte[] json=GameplayHudPresentationExtractor.Extract(rom);
+        static ushort Word(GameplayHudCell cell)=>SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,
+            (cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
+        var stock=GameplayHudPresentation.Load(new MemoryStream(json));
+        foreach(string name in new[]{"missile","superMissile","powerBomb","grapple","xray"})
+        {
+            object icon=typeof(GameplayHudPresentation).GetField(name,BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(stock)!;
+            AssertEqual(0,((Dictionary<int,ushort>)icon.GetType().GetField("edits",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(icon)!).Count,"Stock icon has no stored cell overrides");
+            AssertEqual<object?>(null,icon.GetType().GetField("anchorOverride",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(icon),"Stock icon derives anchor");
+        }
+        for(int edit=-1;edit<132;edit++)
+        {
+            var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;
+            if(edit>=0)
+            {
+                int ordinal=edit/6,item=ordinal<6?0:1+(ordinal-6)/4,cellIndex=ordinal<6?ordinal:(ordinal-6)%4;
+                var cells=document.Icons[GameplayHudDefinitions.IconName(item)].Cells;var cell=cells[cellIndex];cells[cellIndex]=(edit%6) switch
+                {0=>cell with{TileColumn=cell.TileColumn^1},1=>cell with{TileRow=cell.TileRow^1},2=>cell with{Palette=cell.Palette^1},3=>cell with{Priority=!cell.Priority},4=>cell with{FlipX=!cell.FlipX},_=>cell with{FlipY=!cell.FlipY}};
+            }
+            using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);byte[] bytes=output.ToArray();var selected=GameplayHudPresentation.Load(new MemoryStream(bytes));
+            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Icon exact document hash");
+            ushort[] tiles=Enumerable.Repeat(selected.Blank,96).ToArray();int nativeIndex=0;
+            for(int item=0;item<5;item++)
+            {
+                var icon=document.Icons[GameplayHudDefinitions.IconName(item)];int width=item==0?3:2;
+                selected.TryApplyIcon(tiles,item);
+                for(int cell=0;cell<width*2;cell++,nativeIndex++)
+                {
+                    AssertEqual((ushort)(rom.ReadByte(0x8099a3+nativeIndex*2)|rom.ReadByte(0x8099a4+nativeIndex*2)<<8),GameplayHudDefinitions.IconWord(item,cell),"Native calculated icon glyph/style");
+                    AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Every independent icon edit");
+                }
+            }
+            if(edit is -1 or 0 or 131)
+            {
+                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(new ProjectileCompositionForbiddenBus(),HudSnapshot.CeresDebug with{EquippedItems=(ushort)(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
+                for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconName(item)];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.Tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
+            }
+            for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,item);
+            for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconName(item)];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Occupied icon guard preserves current cells");}
+        }
+        for(int item=0;item<5;item++)
+        {
+            var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;string name=GameplayHudDefinitions.IconName(item);var icon=document.Icons[name];document.Icons[name]=icon with{Anchor=icon.Anchor with{X=icon.Anchor.X+1}};
+            using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);var selected=GameplayHudPresentation.Load(new MemoryStream(output.ToArray()));ushort[] tiles=Enumerable.Repeat(selected.Blank,96).ToArray();selected.TryApplyIcon(tiles,item);int width=item==0?3:2;
+            for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+1+cell%width],"Independent supplied icon anchor");
+        }
+        foreach(int invalid in new[]{-1,5,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.IconWord(invalid,0),"Icon item domain");
+        for(int item=0;item<5;item++)foreach(int invalid in new[]{-1,GameplayHudDefinitions.IconWidth(item)*2})AssertThrows<IndexOutOfRangeException>(()=>GameplayHudDefinitions.IconWord(item,invalid),"Icon cell domain");
+        const int scale=6,imageWidth=128*scale,imageHeight=16*scale;byte[] pixels=new byte[imageWidth*imageHeight];int sourceIndex=0,startX=0;
+        for(int item=0;item<5;item++)
+        {
+            int width=item==0?3:2;
+            for(int cell=0;cell<width*2;cell++,sourceIndex++)
+            {
+                int word=rom.ReadByte(0x8099a3+sourceIndex*2)|rom.ReadByte(0x8099a4+sourceIndex*2)<<8;
+                for(int y=0;y<8;y++)for(int x=0;x<8;x++)
+                {
+                    int sx=(word&0x4000)!=0?7-x:x,sy=(word&0x8000)!=0?7-y:y,address=HudTileAtlasFormat.SourceAddress+(word&0x3ff)*16+sy*2;
+                    int ink=(rom.ReadByte(address)>>(7-sx)&1)|(rom.ReadByte(address+1)>>(7-sx)&1)<<1;
+                    for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[((cell/width*8+y)*scale+dy)*imageWidth+(startX+cell%width*8+x)*scale+dx]=(byte)ink;
+                }
+            }
+            startX+=(width+1)*8;
+        }
+        string directory=Path.GetFullPath("csharp/test-temp/hud-auto-source");Directory.CreateDirectory(directory);
+        using(var image=File.Create(Path.Combine(directory,"native-icons.png")))IndexedPng.Write(image,imageWidth,imageHeight,pixels,[new Rgba32(40,40,40,255),new Rgba32(255,255,255,255),new Rgba32(130,130,130,255),new Rgba32(0,0,0,255)]);
+        Console.WriteLine("HUD icons:22native/zero cell-anchor overrides,132independent edits/hash/guards,five shifted anchors,three actual inventory initializers/readguard/domains pass;source pictograms exported.");
+    }
     private static void VerifyLookupStream4HudTemplate(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);

@@ -329,7 +329,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 - [x] **SamusBodyArtworkCatalog.frames** ([L32](../csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs#L32)) - installed stock table. Original/default payload behind SamusBodyArtworkCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [x] **SamusBodyArtworkCatalog.top** ([L33](../csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs#L33)) - installed stock table. Top set/position to tile-definition mapping and metadata. The actual planar pixels are owned by SamusBodyTileDefinition.planar; the reverse address dictionary is an alias.
 - [x] **SamusBodyArtworkCatalog.bottom** ([L34](../csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs#L34)) - installed stock table. Bottom set/position to tile-definition mapping and metadata. The actual planar pixels are owned by SamusBodyTileDefinition.planar; the reverse address dictionary is an alias.
-- [ ] **SamusBodyTileDefinition.planar** ([L250](../csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs#L250)) - installed stock table. Original/default payload behind SamusBodyTileDefinition.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **SamusBodyTileDefinition.planar** ([L250](../csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs#L250)) - installed stock table. Original/default payload behind SamusBodyTileDefinition.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs
 
@@ -354,7 +354,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs
 
 - [x] **SamusAnimationDelayDefinitions.PosePointers** ([L20](../csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SamusAnimationDelayDefinitions.DelayStreams** ([L88](../csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs#L88)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusAnimationDelayDefinitions.DelayStreams** ([L88](../csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs#L88)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusArmCannonDefinitions.cs
 
@@ -1532,3 +1532,65 @@ The source-only native composition sheet from Batch103 shows actual selected bod
 - Final confirmation passed after the import adaptation: Verification build 1,434 warnings / zero errors; --lookup-stream-1-body-frame-final confirmed all 4,572 native components, 2,986 calculated/aliased components, exact 1,586-input basis, 100 independent component edits, actual pose selection and original canonical hashes. The separate body-transfer check confirmed all 435 native records, zero stock metadata overrides, independent metadata/empty-OAM edits, canonical hash and five actual split DMA/cross-group selections.
 
 Root integration: Worker build1434warnings/0errors;4572native bytes/exact basis/100independent edits/actual pose/canonical hash passed; separate435metadata and5actualDMA proof passed. Coordinator mechanically integrates without review/retest. Master 607 converted/113 retained-mixed/408 pending.
+
+## Batch 105 - whole body-pixel disposition
+
+This resolves only SamusBodyTileDefinition.planar: the 435 packed native drawings (244 upper /191 lower), 130,464 bytes /4,077 tiles across banks9B..9F. RGB, OAM positions/attributes, frame selection, timing and collision remain their separate owners.
+
+### Calculated picture relationships
+
+- All81 transparent allocation cells calculate zero. The helper identifies their exact named half/set/position/tile domains, including26 cells in the preserved cable allocations. Independent replacement paint in any such cell remains supplied content.
+- 232 tiles share unchanged same-position anatomy across adjacent clockwise/anticlockwise grapple angles. Upright and inverted groups have identical patch topology; six-column clockwise and eight-column anticlockwise packed rows select the unchanged rectangular patches. Arm/redrawn portions remain independent pictures.
+- 77 additional tiles share the exact drained torso images and unchanged torso patches at9C:D2C0..DFC0. Native comments identify E8/E9 rocking and EA/EB standing phases. Different OAM origins and independently selected lower halves provide their motion; shared pixels are not inferred from equal timers.
+- 48 nonblank cable tiles calculate the source-confirmed quartet repetition, paired16-pixel strip exchange and terminal hold at9E:E9C0..F6BF. Entries4/6 copy0/2; entries5/7 exchange the two16-pixel strips of1/3; entries12..15 repeat8..11;11 and16 use9. Blank cells retain their own calculated zero rather than following an independently edited source blank.
+- All eight morph drawings at9C:8000..84FF have the exact diameter16 pixel-centred circular silhouette, excluding48 pixels per image. Large-OBJ drawings pack quadrants0,1,3,4; the native92:BAE3 small-OBJ composition instead orders quadrants4,3,2,1 and independent overlay0. This derives1,536 transparent bitplane bits. The interior seam/material painting remains selected source content. Imported outside-circle paint is independently preserved.
+- Four identical Ep diagnostic cells at9E:AC40/C0A0/C0C0 and9D:B8E0 calculate their E bars and p bowl/stem. The exact tiny font metrics, clipped bowl joins and pen1 are narrowly retained original bitmap-font design. Transport or the unused record's numeric identity cannot determine that particular diagnostic wording/typeface; changing it replaces the selected picture. No unused-data exemption follows.
+
+### Precise remaining drawing content and consumer boundary
+
+The remaining116,320 masked source-byte inputs contain929,024 independently selected source bits. Their exact half/set/position/native-address/value/mask records are csharp/test-temp/samus-body-pixel-basis.csv, SHA25690D2514E531EF5207B6BBAE0C5E91A8C8BC6BD042D74CB05D2A4CBE758182417. All proven blank, circular, repeated-patch and strip-exchange relationships above calculate; the retained mask/value CSV records the exact native sites. These are the particular drawn contours and categorical pen membership, with the selected packed canvas extent of each source drawing:
+
+| Allocation domain | Exact source content |
+| --- | --- |
+| Upper0..2 | Helmet, visor, torso, cannon/arm, crouch, turn, grabbed and jump drawings, including their selected shadow/highlight seams. |
+| Upper3..6 | Remaining angle-specific grapple anatomy and arm/cannon painting after the shared rectangular patches above. |
+| Upper7 | Remaining drained/standing anatomical contours after torso sharing. |
+| Upper8 | Appearance electrical discharge branches and selected painted tips. |
+| Upper9 | Running cannon/torso drawings and their selected arm poses. |
+| UpperA | Morph surface/seam painting inside the calculated circle, its independent overlay, spin/screw character contours and electrical discharge art. |
+| UpperB | Morph transition/bounce anatomical drawings. |
+| UpperC | Crystal-flash/shinespark anatomy and electrical/rupture painting. |
+| Lower0/1/A | Selected leg/boot/hip/turn/airborne contours and material shading. The bounded Ep cell in lower1 calculates separately. |
+| Lower2/4/5/6 | Angle-specific leg/hip silhouette and shading, independently drawn from the upper body. |
+| Lower3 | Seven source curved cable/ribbon drawings0/1/2/3/8/9/A, including their irregular painted flare, highlight and thickness contours; repeated/swapped copies and padding calculate. |
+| Lower7 | Crystal-flash body/energy contours and selected shading. |
+| Lower8 | Forward-facing suit/leg/arrival-energy drawing. |
+| Lower9 | Detailed space-jump/screw body/energy painting and anatomy, distinct from the calculated morph-circle silhouette. |
+
+Pinned bank9B..9F names each source allocation and includes the original planar files; bank92's seven-byte records select the exact first/second row transports. Native80:9376 and managed SamusTileTransferState.ExecuteInstalledDefinition copy those bytes to OBJ VRAM. The renderer interprets the four bitplanes as palette-slot identities; it does not interpret anatomical contours or painted highlights as physical quantities. The source-only samus-body-native-glyphs.png sheet labels all435 drawings, and samus-body-unused-cables.png isolates all17 bounded cable records so their repeated/swapped content is explicit rather than assumed dead. The morph-circle and Ep geometries were separately established from native pixels and actual OAM packing. Lower9 is specifically space-jump/screw rotational body art, as bank9C:EA80 identifies; its native92:C458 first composition places four large parts at(-16,-16),(0,0),(-8,0),(-8,-16), selecting and overlapping drawn body patches rather than supplying a single circular disc. Its painted suit/energy bands remain the specific material drawing; no generalized radial-gradient exemption is claimed. The earlier transfer helper XML mislabeled that allocation as shinespark and is corrected in this batch.
+
+The remaining human anatomy, suit segmentation, irregular electrical strokes and selected material/flare painting cannot be generated from the pose ordinal, DMA destination or a physical game quantity without embedding those same chosen drawings. A numeric decoder for their pen arrangement would merely restate the bitmap, while a different drawing would change the original content. This is the narrow nonsense justification for those exact selected drawing inputs and the named patch/sequence/typography composition choices only. It is not based on file size, runtime performance, nonuniformity, missing tools, or a general assertion that all artwork is exempt.
+
+The earlier transfer report kept pixel payload lengths pending with this owner. They are the actual extent of each selected packed drawing, measured from the supplied image buffer; no separate stock length table is introduced. Existing first-row OAM geometry/packing and complementary second-row calculation remain intact. Selected source canvas extents and their opaque/transparent pixels form this exact picture definition. The bounded unused allocations remain observable in the public catalog/hash and preserved physical definition domain; no larger memory behavior is added.
+
+### Implementation and worker confirmation
+
+SamusBodyPixelDefinitions owns the native domains and geometry. Bound SamusBodyTileDefinition objects store only independent source pixels and actual supplied edits; every shared byte follows an earlier immutable allocation, so dependencies are acyclic. Contour edits are separate from selected interior material bits. Standalone loader objects preserve their supplied buffer until catalog binding. Public Planar remains a canonical snapshot; source identity, row metadata, hash, arbitrary supplied byte edits and bounded physical definition aliases retain their original contracts. PayloadLength measures the immutable input extent without materializing a pixel snapshot merely to obtain its length.
+
+Initial blank/grapple implementation passed all130,464 native bytes, exact source membership, six independent edits and hashes. The circle/drained extension separately passed all native bytes,1,536 contour bits, exact basis and eight independent edits/hashes. The final consolidated command adds Ep/cable relations, nine individual upper edits and nine simultaneous distinct source/target cable edits. Exact production transfer confirmation runs independently. No exploratory gameplay or unreported-defect search is performed.
+
+Integration paths: Assets/SamusBodyArtworkCatalog.cs, SamusBodyTransferDefinitions.cs, new SamusBodyPixelDefinitions.cs; one VerifyLookupStream1BodyPixels method and --lookup-stream-1-body-pixels flag. Refresh the two changed existing source hashes and add the new helper dependency to SamusArtworkClosedContractDefinitions, SamusBodyTransferClosedContractDefinitions and VramDmaSourceContracts. No master inventory, ledger or manifest mutation is included in the worker patch.
+Final Verification build:1,434 warnings /zero errors. The final native/default/exact-input phase passed and emitted the basis CSV above. Independent transfer confirmation passed all435 direct native records, zero stock metadata overrides, independent metadata/empty-OAM edits, canonical hash and five actual split DMA/cross-group selections. Final individual pixel-edit checks remain running at this checkpoint.
+
+Final confirmation (single-thread resume, 2026-10-06): Verification build 0 errors; `--lookup-stream-1-body-pixels` passes all 130,464 native bytes, 2,592 calculated blank and 11,424 shared bytes, the exact 116,320-input basis, nine individual upper edits plus nine simultaneous distinct cable edits, 128 drawn diagnostic bytes, 1,536 circular transparency bits and canonical hashes. `--lookup-stream-1-body-transfers` and `--lookup-stream-1-oam-pointers` pass unchanged. Disposition: mixed. Blank, circular, repeated-patch and strip-exchange relationships calculate; only the selected drawn contours above are retained.
+
+
+## Batch 106 - Samus animation delay programs
+
+Resolves `SamusAnimationDelayDefinitions.DelayStreams` ($91:B20A-$B5D0, 967 bytes). The stored byte stream is removed. `SamusAnimationDelayPrograms` defines the region as 160 contiguous semantic segments, each a run of frame delays ended by one named `SamusAnimationCommand` from the `$90:8324-$84DB` interpreter: Loop ($FF, 19), RepeatFrom ($FE, 44), Transition ($FD, 37), TurnTransition ($F8, 48), ItemAirborneTransition ($F9, 4), ItemTransition ($FC, 2), LoopUnlessLowEnergy ($F6, 2), InstallDrainedFall ($F7, 2), WallJumpSelect ($FB, 1) and Hold ($F0, 1).
+
+Calculated: segment addresses and lengths, every opcode byte, all `$FE` back distances from their target frame (three loops share an earlier loop body: $B27B/$B282 -> $B272, $B381 -> $B378), every transitional pose as a `SamusPoseId`, and the Spring Ball item masks as `SamusEquipmentFlags.SpringBall`. Pinned bank_91 writes the aimed jump transitions $55-$5A as `db $01, $FD,$15, $00`; the interpreter reads one pose byte, so the trailing zero is modelled as the pose's unread word high byte, not a frame. The four zero-delay first frames of unused poses $39/$3A/$3F/$40 are real pointer targets and remain frames.
+
+Retained: the frame delay values only. They are the authored cadence of each drawn pose sequence (turn, landing, breathing, spin, grapple, wall-jump and appearance timing); no physical gameplay quantity determines them, and fitting or reciting them in arithmetic would restate the same choreography. Long uniform runs are written as repeats (e.g. 66 x 8 grapple swing, 89 x 3 appearance). This is the narrow animation-sequencing exception the parent names, limited to delays; commands and operands calculate.
+
+Confirmation: the existing single proof `--lookup-stream-1-animation-pointers` passes all 256 pose pointers and every native byte $91:B010-$B5D0, the mutable $0302 overread and the explicit uncompiled-address failure. It now also asserts the semantic layout: 160 contiguous segments ending at $91:B5D1, with every real pose pointer starting a segment. That assertion first failed at pose $4D, exposing the six word-written pose operands above, and passes after modelling them. `--lookup-stream-1-oam-pointers` and `--lookup-stream-1-body-transfers` also pass. Disposition: mixed (justified-retained delays, calculated control).

@@ -54,7 +54,7 @@ internal static class SamusBodyTransferDefinitions
     private const int Bottom7 = 0x9fe680;
     /// <summary>$9B:EA00, SamusTiles_Bottom_Set8_Entry0, forward-facing lower artwork.</summary>
     private const int Bottom8 = 0x9bea00;
-    /// <summary>$9C:EA80, SamusTiles_Bottom_Set9_Entry0, shinespark lower artwork.</summary>
+    /// <summary>$9C:EA80, SamusTiles_Bottom_Set9_Entry0, space-jump/screw rotational body artwork.</summary>
     private const int Bottom9 = 0x9cea80;
     /// <summary>$9F:EB00, SamusTiles_Bottom_SetA_Entry0, general lower artwork.</summary>
     private const int BottomA = 0x9feb00;
@@ -81,7 +81,7 @@ internal static class SamusBodyTransferDefinitions
             first = Top6ContinuationPosition;
         }
         IReadOnlyList<SamusBodyTileDefinition> group = upper ? body.TopSet(set) : body.BottomSet(set);
-        for (int index = first; index < position; index++) start += group[index].Planar.Length;
+        for (int index = first; index < position; index++) start += group[index].PayloadLength;
         return start;
     }
 

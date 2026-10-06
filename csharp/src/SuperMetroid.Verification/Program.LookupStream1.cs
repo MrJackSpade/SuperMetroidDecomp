@@ -3433,6 +3433,91 @@ internal static partial class Program
         Console.WriteLine($"Samus OAM pointers:2096 native selectors, {aliases} exact aliases/{directPointers} direct calculations/{stored.Count} retained composition inputs,2096 independent edits,empty OAM,actual identity/WRAM selection and domain checks pass.");
     }
 
+    private static void VerifyLookupStream1BodyPixels(ISnesAddressSpace rom)
+    {
+        using var directory = new MapCatalogTestDirectory();
+        SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
+        var body = SamusBodyArtworkFiles.Load(directory.Root, null);
+        var field = typeof(SamusBodyTileDefinition).GetField("pixelInputs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var top = Enumerable.Range(0, 13).Select(set => body.TopSet(set).ToArray()).ToArray();
+        var bottom = Enumerable.Range(0, 11).Select(set => body.BottomSet(set).ToArray()).ToArray();
+        int bytes = 0, blankBytes = 0, sharedBytes = 0, retained = 0, circleBits = 0, diagnosticBytes = 0;
+        var basisRows = new List<string> { "Half,Set,Position,NativeAddress,Byte,Mask" };
+        for (int half = 0; half < 2; half++)
+        {
+            bool upper = half == 0;
+            var groups = upper ? top : bottom;
+            for (int set = 0; set < groups.Length; set++)
+            for (int position = 0; position < groups[set].Length; position++)
+            {
+                var glyph = groups[set][position];
+                var stored = (Dictionary<int, byte>)field.GetValue(glyph)!;
+                byte[] image = glyph.Planar.ToArray();
+                var contour = (Dictionary<int, byte>)typeof(SamusBodyTileDefinition).GetField("contourEdits", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(glyph)!;
+                AssertEqual(0, contour.Count, "Zero stock morph-circle contour overrides");
+                for (int index = 0; index < image.Length; index++)
+                {
+                    byte native = rom.ReadByte(glyph.SourceAddress + index);
+                    AssertEqual(native, image[index], "Every native body pixel byte");
+                    byte mask = SamusBodyPixelDefinitions.ContourMask(upper, set, position, index);
+                    AssertEqual((byte)0, (byte)(native & ~mask), "Exact native circular silhouette");
+                    circleBits += System.Numerics.BitOperations.PopCount((uint)(byte)~mask);
+                    int tile = index / 32;
+                    bool blank = SamusBodyPixelDefinitions.IsBlank(upper, set, position, tile);
+                    bool relation = SamusBodyPixelDefinitions.TrySourceByte(upper, set, position, index, out int sourcePosition, out int sourceIndex);
+                    bool shared = !blank && relation;
+                    bool diagnostic = SamusBodyPixelDefinitions.TryDiagnosticByte(upper, set, position, index, out byte glyphByte);
+                    if (diagnostic) { AssertEqual(native, glyphByte, "Direct native Ep drawing"); diagnosticBytes++; }
+                    else if (blank) { AssertEqual((byte)0, native, "Direct native transparent allocation"); blankBytes++; }
+                    else if (shared) { AssertEqual(rom.ReadByte(groups[set][sourcePosition].SourceAddress + sourceIndex), native, "Direct native shared anatomical patch"); sharedBytes++; }
+                    else
+                    {
+                        retained++;
+                        basisRows.Add($"{half},{set:X},{position:X},{glyph.SourceAddress + index:X6},{native:X2},{mask:X2}");
+                    }
+                    AssertEqual(!diagnostic && !blank && !shared, stored.ContainsKey(index), "Exact pixel basis; no stock defaults survive as overrides");
+                    bytes++;
+                }
+            }
+        }
+        AssertEqual(130464, bytes, "Complete native body planar domain");
+        AssertEqual(81 * 32, blankBytes, "Exact transparent tile domain");
+        AssertEqual(357 * 32, sharedBytes, "Exact grapple/drained anatomy domain");
+        AssertEqual(4 * 32, diagnosticBytes, "Exact bounded diagnostic domain");
+        AssertEqual(1536, circleBits, "Eight morph silhouettes exclude48 pixels each in four planes");
+        Directory.CreateDirectory("csharp/test-temp");
+        File.WriteAllLines("csharp/test-temp/samus-body-pixel-basis.csv", basisRows);
+        SamusBodyArtworkCatalog Create(SamusBodyTileDefinition[][] upper, SamusBodyTileDefinition[][]? lower = null) => new(
+            body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(), body.GraphicsYOffsets.ToArray(), body.Frames.ToArray(),
+            upper, lower ?? bottom, body.Spritemaps, body.Atmosphere, body.DeathPalettes, body.DeathTiles, body.ArmCannon,
+            body.LandingYOffsets.ToArray(), body.PostureYOffsets.ToArray(), body.DrainedYOffsets.ToArray());
+        AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(), body.Frames.ToArray(), top, bottom), body.ContentIdentity, "Original native body hash");
+        foreach (var change in new (int Set, int Position, int Byte)[] { (0, 2, 128), (4, 2, 0), (4, 3, 0), (6, 13, 32), (6, 14, 32), (3, 4, 64), (10, 0, 0), (10, 4, 128), (1, 4, 0) })
+        {
+            var supplied = top.Select(group => group.ToArray()).ToArray();
+            var original = supplied[change.Set][change.Position];
+            byte[] edited = original.Planar.ToArray(); edited[change.Byte] ^= 255;
+            supplied[change.Set][change.Position] = new(original.SourceAddress, original.FirstSize, original.SecondSize, edited);
+            var actual = Create(supplied);
+            for (int set = 0; set < supplied.Length; set++)
+            for (int position = 0; position < supplied[set].Length; position++)
+                AssertTrue(actual.TopSet(set)[position].Planar.Span.SequenceEqual(supplied[set][position].Planar.Span), "Source, derived and padding edits preserve every independently supplied glyph");
+            AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(), body.Frames.ToArray(), supplied, bottom), actual.ContentIdentity, "Exact independent body pixel hash");
+        }
+        var cableEdits = bottom.Select(group => group.ToArray()).ToArray();
+        foreach (int position in new[] { 0, 1, 4, 5, 8, 9, 11, 12, 16 })
+        {
+            var glyph = cableEdits[3][position];
+            byte[] pixels = glyph.Planar.ToArray(); pixels[0] ^= (byte)(1 << (position % 8));
+            cableEdits[3][position] = new(glyph.SourceAddress, glyph.FirstSize, glyph.SecondSize, pixels);
+        }
+        var cableBody = Create(top, cableEdits);
+        for (int set = 0; set < bottom.Length; set++)
+        for (int position = 0; position < bottom[set].Length; position++)
+            AssertTrue(cableEdits[set][position].Planar.Span.SequenceEqual(cableBody.BottomSet(set)[position].Planar.Span), "Independent repeated/swapped cable source and target edits remain exact");
+        AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(), body.Frames.ToArray(), top, cableEdits), cableBody.ContentIdentity, "Exact cable edit hash");
+        Console.WriteLine($"Body pixels: {bytes} native bytes, {blankBytes} blank and {sharedBytes} shared bytes, exact {retained} selected inputs, nine individual upper edits plus nine simultaneous distinct cable edits, {diagnosticBytes} drawn diagnostic bytes, {circleBits} circular transparency bits and canonical hashes pass.");
+    }
     private static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
         using var directory = new MapCatalogTestDirectory();

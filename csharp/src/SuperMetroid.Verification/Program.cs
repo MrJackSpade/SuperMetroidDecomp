@@ -1264,6 +1264,14 @@ if (args is ["--lookup-stream2-pipe-bug-formation"])
     VerifyLookupStream2PipeBugFormation(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--lookup-stream-1-body-pixels"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body pixel oracle revision");
+    VerifyLookupStream1BodyPixels(rom);
+    return 0;
+}
 if (args is ["--lookup-stream5-yapping-maw-offsets"])
 {
     VerifyLookupStream5YappingMawOffsets(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

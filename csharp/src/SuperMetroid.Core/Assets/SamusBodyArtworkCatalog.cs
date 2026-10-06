@@ -311,7 +311,10 @@ public readonly record struct SamusBodyFrameSelection(
 /// <summary>One native seven-byte transfer compiled from palette-indexed PNG tiles.</summary>
 public sealed class SamusBodyTileDefinition
 {
-    private readonly byte[] planar;
+    private readonly byte[]? standalonePlanar;
+    private readonly Dictionary<int, byte>? pixelInputs;
+    private readonly Dictionary<int, byte>? contourEdits;
+    internal int PayloadLength { get; }
     private readonly int? sourceAddressOverride;
     private readonly ushort? firstSizeOverride;
     private readonly ushort standaloneSecondSize;
@@ -327,7 +330,8 @@ public sealed class SamusBodyTileDefinition
         sourceAddressOverride = sourceAddress;
         firstSizeOverride = firstSize;
         standaloneSecondSize = secondSize;
-        this.planar = (byte[])planar.Clone();
+        standalonePlanar = (byte[])planar.Clone();
+        PayloadLength = planar.Length;
     }
 
     private SamusBodyTileDefinition(SamusBodyTileDefinition supplied, SamusBodyArtworkCatalog body,
@@ -337,11 +341,23 @@ public sealed class SamusBodyTileDefinition
         this.upper = upper;
         this.set = set;
         this.position = position;
-        planar = supplied.planar;
+        PayloadLength = supplied.PayloadLength;
+        pixelInputs = [];
+        contourEdits = [];
+        for (int index = 0; index < PayloadLength; index++)
+        {
+            byte value = supplied.ReadPlanarByte(index);
+            byte mask = SamusBodyPixelDefinitions.ContourMask(upper, set, position, index);
+            byte outside = (byte)(value & ~mask);
+            if (outside != 0) contourEdits.Add(index, outside);
+            value &= mask;
+            if (!TryPixelDefault(index, out byte pixel) || value != pixel)
+                pixelInputs.Add(index, value);
+        }
         int source = supplied.SourceAddress;
         ushort first = supplied.FirstSize;
         sourceAddressOverride = source == SamusBodyTransferDefinitions.SourceAddress(body, upper, set, position) ? null : source;
-        firstSizeOverride = SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, planar.Length, pointers, frames, out ushort calculated)
+        firstSizeOverride = SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, PayloadLength, pointers, frames, out ushort calculated)
             && first == calculated ? null : first;
     }
 
@@ -354,8 +370,50 @@ public sealed class SamusBodyTileDefinition
 
     public int SourceAddress => sourceAddressOverride ?? SamusBodyTransferDefinitions.SourceAddress(body!, upper, set, position);
     public ushort FirstSize => firstSizeOverride ??
-        (SamusBodyTransferDefinitions.TryFirstSize(body!, upper, set, position, planar.Length, out ushort calculated)
+        (SamusBodyTransferDefinitions.TryFirstSize(body!, upper, set, position, PayloadLength, out ushort calculated)
             ? calculated : throw new InvalidDataException("Installed body composition no longer supplies its transfer row."));
-    public ushort SecondSize => body is null ? standaloneSecondSize : (ushort)(planar.Length - FirstSize);
-    public ReadOnlyMemory<byte> Planar => planar;
+    public ushort SecondSize => body is null ? standaloneSecondSize : (ushort)(PayloadLength - FirstSize);
+    /// <summary>Canonical planar snapshot; native padding and shared angle patches calculate.</summary>
+    public ReadOnlyMemory<byte> Planar
+    {
+        get
+        {
+            if (standalonePlanar is not null) return standalonePlanar;
+            var result = new byte[PayloadLength];
+            for (int index = 0; index < result.Length; index++) result[index] = ReadPlanarByte(index);
+            return result;
+        }
+    }
+
+    internal byte ReadPlanarByte(int index)
+    {
+        if ((uint)index >= PayloadLength) throw new ArgumentOutOfRangeException(nameof(index));
+        if (standalonePlanar is not null) return standalonePlanar[index];
+        if (pixelInputs!.TryGetValue(index, out byte value))
+            return (byte)((value & SamusBodyPixelDefinitions.ContourMask(upper, set, position, index)) | contourEdits!.GetValueOrDefault(index));
+        return TryPixelDefault(index, out byte calculated) ? calculated
+            : throw new InvalidDataException("Installed body artwork lost an independent pixel input.");
+    }
+
+    private bool TryPixelDefault(int index, out byte value)
+    {
+        if (SamusBodyPixelDefinitions.TryDiagnosticByte(upper, set, position, index, out value)) return true;
+        int tile = index / SamusBodyPixelDefinitions.TileBytes;
+        if (SamusBodyPixelDefinitions.IsBlank(upper, set, position, tile))
+        {
+            value = 0;
+            return true;
+        }
+        if (SamusBodyPixelDefinitions.TrySourceByte(upper, set, position, index, out int sourcePosition, out int sourceIndex))
+        {
+            SamusBodyTileDefinition source = (upper ? body!.TopSet(set) : body!.BottomSet(set))[sourcePosition];
+            if ((uint)sourceIndex < source.PayloadLength)
+            {
+                value = source.ReadPlanarByte(sourceIndex);
+                return true;
+            }
+        }
+        value = 0;
+        return false;
+    }
 }

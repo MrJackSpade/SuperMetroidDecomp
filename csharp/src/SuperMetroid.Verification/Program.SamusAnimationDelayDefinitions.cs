@@ -22,6 +22,24 @@ internal static partial class Program
                 SamusAnimationDelayDefinitions.ReadCompiledByte(source),
                 $"compiled Samus animation definition byte ${source:X6}");
 
+        // Semantic layout: contiguous segments, each ending in one command, and every real
+        // pose pointer selecting a segment start rather than a delay inside one.
+        ReadOnlySpan<SamusAnimationSegment> segments = SamusAnimationDelayPrograms.Segments;
+        AssertEqual(160, segments.Length, "Samus animation segment count");
+        int expectedAddress = SamusAnimationDelayDefinitions.DelayStreamsAddress & ushort.MaxValue;
+        var segmentStarts = new HashSet<int>();
+        foreach (SamusAnimationSegment segment in segments)
+        {
+            AssertEqual(expectedAddress, (int)segment.Address, "Samus animation segments are contiguous");
+            segmentStarts.Add(segment.Address);
+            expectedAddress += segment.Length;
+        }
+        AssertEqual(SamusAnimationDelayDefinitions.DelayStreamsEndExclusive & ushort.MaxValue, expectedAddress,
+            "Samus animation segments end at the running-cadence pointer");
+        for (int pose = 0; pose < 0xFD; pose++)
+            AssertTrue(segmentStarts.Contains(SamusAnimationDelayDefinitions.PointerForPose((byte)pose)),
+                $"pose ${pose:X2} animation pointer starts a segment");
+
         // Poses $FD-$FF intentionally overread the first delay bytes as $0302.
         // The resulting low-bank source is live WRAM, not immutable ROM data.
         var mutableBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(sourceRom);

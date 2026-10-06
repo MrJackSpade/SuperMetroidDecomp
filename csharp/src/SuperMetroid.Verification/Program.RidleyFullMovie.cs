@@ -39,6 +39,20 @@ internal static partial class Program
         AssertEqual((ushort)0, samus.HorizontalSpeed.AccelerationMode, "spring release clears acceleration mode");
         runtime.StepFrame(0);
         AssertEqual(0x004c4000u, samus.Kinematics.XFixed, "released spring ball stays stopped next update");
+        // Original source 1983: stationary Spring Ball keeps command six even
+        // while the hurt mover calculates a fresh fractional base speed.
+        samus.Pose = SamusPoseIds.SpringBallGroundRightPose;
+        samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
+        samus.XPosition = 202; samus.Kinematics.XSubposition = 0x8000;
+        samus.YPosition = 425; samus.Kinematics.YSubposition = ushort.MaxValue;
+        samus.KnockbackActive = true; samus.KnockbackDirection = 2;
+        samus.KnockbackXDirection = 1; samus.KnockbackTimer = 4;
+        samus.InvincibilityTimer = 95;
+        samus.Kinematics.YDirection = 1; samus.Kinematics.YSpeed = 5; samus.Kinematics.YSubspeed = 0;
+        runtime.StepFrame(0);
+        AssertEqual(0x00cb4000u, samus.Kinematics.XFixed, "stationary spring hurt frame preserves native displacement");
+        AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "stationary spring fallback clears hurt mover base speed");
+        AssertEqual(SamusPoseIds.SpringBallGroundRightPose, samus.Pose, "stationary spring hurt fallback keeps pose");
         Console.WriteLine("Spring Ball release: native movie displacement, pose and immediate momentum reset pass.");
     }
 

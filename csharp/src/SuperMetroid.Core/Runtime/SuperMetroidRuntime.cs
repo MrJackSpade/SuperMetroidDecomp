@@ -1752,7 +1752,8 @@ public sealed partial class SuperMetroidRuntime
             // Stationary ball fallback selects command six, even when the special
             // hurt mover temporarily supplies nonzero horizontal speed.
             if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
-                Samus.Pose is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose)
+                Samus.Pose is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose or
+                    SamusPoseIds.SpringBallGroundRightPose or SamusPoseIds.SpringBallGroundLeftPose)
                 ProspectiveSamusFallbackPose = Samus.Pose;
 
             // Neutral standing, spin, turn, hurt, crouch and falling definitions retain their current pose
@@ -3667,7 +3668,8 @@ public sealed partial class SuperMetroidRuntime
                         deceleratingFallbackHasMomentum, Samus.ReadFacingDirection(_addressSpace));
                 }
                 else if (!animationTransitionApplied &&
-                         poseAtFrameStart is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose &&
+                         poseAtFrameStart is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose or
+                             SamusPoseIds.SpringBallGroundRightPose or SamusPoseIds.SpringBallGroundLeftPose &&
                          ProspectiveSamusFallbackPose == poseAtFrameStart)
                 {
                     // $91:EC85 clears base/mode, then cancels extra running momentum.

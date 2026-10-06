@@ -65,8 +65,12 @@ The full-replay diagnostic imports state once and compares Samus position,
 subpixels, movement speeds, animation, health, accepted NMI, RNG, dispatcher state,
 room identity, and active enemies' identities, positions, health and visual cursors.
 That comparison is still under development; conversion success is not port parity.
-Door-entry and source-fade HDMA/RNG/actor omissions were reproduced. The next
-unresolved boundary is door-header loading (update 173, source frame 198).
+Door-entry and source-fade HDMA/RNG/actor omissions were reproduced and fixed,
+along with missing RNG advancement through the outer loading dispatches. The
+current checked gameplay properties match through update 176. The next unresolved
+boundary is the first door-scroll movement (update 177, source frame 211).
+The focused RNG regression independently matches through update 178; that does
+not imply that the complete state matches those later updates.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

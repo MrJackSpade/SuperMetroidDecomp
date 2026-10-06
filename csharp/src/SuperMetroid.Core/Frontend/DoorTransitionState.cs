@@ -100,18 +100,21 @@ public sealed class DoorTransitionState
                 // header was captured by Begin; retaining this separate call preserves the
                 // coroutine boundary and its one accepted NMI.
                 runtime.RunBlankGameplayFrame(controllerInput);
+                runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: true);
                 runtime.BeginDoorTransitionIrqDisplay(sourceCreBitset, destinationCreBitset);
                 Phase = DoorTransitionPhase.AlignSourceCamera;
                 break;
 
             case DoorTransitionPhase.AlignSourceCamera:
                 runtime.RunBlankGameplayFrame(controllerInput);
+                runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: false);
                 if (runtime.AlignPendingDoorCameraOnePixel())
                     Phase = DoorTransitionPhase.FixDoorsMovingUp;
                 break;
 
             case DoorTransitionPhase.FixDoorsMovingUp:
                 runtime.RunBlankGameplayFrame(controllerInput);
+                runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: false);
                 runtime.FixPendingDoorTilesMovingUp();
                 Phase = DoorTransitionPhase.SetupNewRoom;
                 break;
@@ -120,16 +123,19 @@ public sealed class DoorTransitionState
                 // Room/state/FX/level setup is atomic in LoadPendingDoorDestination, but
                 // native exposes this function separately from scrolling and tile upload.
                 runtime.RunBlankGameplayFrame(controllerInput);
+                runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: false);
                 Phase = DoorTransitionPhase.SetupScrolling;
                 break;
 
             case DoorTransitionPhase.SetupScrolling:
                 runtime.RunBlankGameplayFrame(controllerInput);
+                runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: false);
                 Phase = DoorTransitionPhase.PlaceSamusAndLoadTiles;
                 break;
 
             case DoorTransitionPhase.PlaceSamusAndLoadTiles:
                 runtime.RunBlankGameplayFrame(controllerInput);
+                runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: false);
                 Phase = DoorTransitionPhase.LoadMoreThingsAndOpenDoor;
                 break;
 

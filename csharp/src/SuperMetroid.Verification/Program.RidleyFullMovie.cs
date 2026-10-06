@@ -66,7 +66,21 @@ internal static partial class Program
         AssertEqual(RidleyMovieMemory.PipeBugAfterFadeInstruction, actor.CurrentInstruction, "fade advances the native enemy instruction");
         AssertEqual(RidleyMovieMemory.PipeBugAfterFadeSpritemap, actor.SpritemapPointer, "fade changes to the native enemy sprite");
         AssertEqual((ushort)2, actor.InstructionTimer, "fade installs the native visual duration");
-        Console.WriteLine("Ridley movie door entry and source fade: native updates 155–158 RNG/NMI, stationary Samus, and enemy animation agree.");
+        int fadeSteps = 0;
+        while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FadeOutSourcePalette && fadeSteps++ < 32)
+            game.Step(0);
+        AssertEqual(DoorTransitionPhase.LoadDoorHeader, game.DoorTransitionPhaseForVerification, "source palette fade finishes");
+        AssertEqual((ushort)0xe19e, runtime.System.RandomNumber, "native update 172 fade endpoint RNG");
+        // Original native input-boundary records 173..178. The first dispatch
+        // still runs source HDMA; LoadDoorHeader disables it for the following ones.
+        ushort[] nativeLoadingRandom = [0x1b76, 0x8a5f, 0xb4ec, 0x89ad, 0xb172, 0x784b];
+        for (int index = 0; index < nativeLoadingRandom.Length; index++)
+        {
+            game.Step(0);
+            AssertEqual(nativeLoadingRandom[index], runtime.System.RandomNumber, $"native loading RNG update {173 + index}");
+            AssertEqual((ushort)(0xa4f1 + index), runtime.NmiFrameCounter, "loading accepts one NMI per update");
+        }
+        Console.WriteLine("Ridley door entry/fade/loading: native RNG/NMI through update 178, stationary entry, and exact first-fade enemy animation agree.");
     }
 
     private static void VerifyRidleyFullMovie(string directory)
@@ -204,7 +218,16 @@ internal static partial class Program
             }
             Check("Accepted NMI", runtime.NmiFrameCounter, RidleyMovieMemory.NmiCounter);
             Check("Game state", (ushort)game.GameState, RidleyMovieMemory.GameState);
-            Check("Room", runtime.ActiveRoom!.Pointer, RidleyMovieMemory.Room);
+            // Native LoadDoorHeader publishes the destination room pointer before
+            // loading its room/state data. The port keeps that identity in the pending
+            // door while ActiveRoom still owns the source room's loaded data.
+            ushort selectedRoom = game.DoorTransitionPhaseForVerification is
+                DoorTransitionPhase.AlignSourceCamera or DoorTransitionPhase.FixDoorsMovingUp or
+                DoorTransitionPhase.SetupNewRoom or DoorTransitionPhase.SetupScrolling or
+                DoorTransitionPhase.PlaceSamusAndLoadTiles or DoorTransitionPhase.LoadMoreThingsAndOpenDoor
+                ? (runtime.PendingDoorTransition ?? throw new InvalidDataException("Missing selected destination door")).DestinationRoomPointer
+                : runtime.ActiveRoom!.Pointer;
+            Check("Selected room", selectedRoom, RidleyMovieMemory.Room);
             Check("Samus X", samus.XPosition, RidleyMovieMemory.X);
             Check("Samus X fraction", samus.Kinematics.XSubposition, RidleyMovieMemory.XFraction);
             Check("Samus Y", samus.YPosition, RidleyMovieMemory.Y);

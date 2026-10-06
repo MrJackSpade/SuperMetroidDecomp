@@ -93,6 +93,8 @@ public sealed partial class RoomEnemySystem
         }
 
         UpdateRidleyTailDistances(state);
+        if (samus is not null)
+            ResolveRidleyTailSamusContact(samus);
     }
 
     /// <summary>
@@ -638,14 +640,11 @@ public sealed partial class RoomEnemySystem
             originYIsOnScreen: screenY < 0x0100);
     }
 
-    /// <summary>
-    /// Replays $A0:9A5A's extended-spritemap Samus collision walk for either Ridley. The
-    /// shared bank-$A6 tail handler tests the solved tip first; only when that misses does
-    /// bank $A0 dispatch the active body's authored $DF59 rectangles. This ordering is
-    /// important because the tail has encounter-specific damage and must produce at most
-    /// one contact reaction in the frame.
-    /// </summary>
-    public bool ResolveRidleySamusContact(SamusState samus, ushort controllerInput)
+    /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>
+    public bool ResolveRidleySamusContact(SamusState samus, ushort controllerInput) =>
+        ResolveRidleyBodySamusContact(samus, controllerInput) || ResolveRidleyTailSamusContact(samus);
+
+    private bool ResolveRidleyBodySamusContact(SamusState samus, ushort controllerInput)
     {
         ArgumentNullException.ThrowIfNull(samus);
         EnsureLoaded();
@@ -669,28 +668,6 @@ public sealed partial class RoomEnemySystem
                 EnemyProperties.IgnoreSamusCollision))
         {
             return false;
-        }
-
-        if (_ridleyState.MovementAnimationEnabled != 0 &&
-            _ridleyState.TailSegments.Length == 7)
-        {
-            // Ridley_Func_127 at $A6:DFD9 checks a radius-14 rectangle centered on the
-            // solved tail tip before the common extended-body collision pass. Ceres writes
-            // damage $000F and Lower Norfair writes $0078; neither value comes from the
-            // body's enemy header.
-            RidleyTailSegment tip = _ridleyState.TailSegments[6];
-            int xDistance = Math.Abs(unchecked((short)(samus.XPosition - tip.XPosition)));
-            int yDistance = Math.Abs(unchecked((short)(samus.YPosition - tip.YPosition)));
-            if (xDistance < samus.Kinematics.XRadius + 14 &&
-                yDistance < samus.Kinematics.YRadius + 14)
-            {
-                ApplyNormalEnemyTouchDamage(
-                    samus,
-                    controllerInput,
-                    _ridleyState.TailDamage,
-                    tip.XPosition);
-                return true;
-            }
         }
 
         if (!TryFindExtendedHitboxCallback(
@@ -722,6 +699,25 @@ public sealed partial class RoomEnemySystem
             skipDeathAnimation: true);
         if (slot.EnemyDefinitionPointer == NorfairRidleyDefinition)
             ResolveNorfairRidleyShotAfterCommon(slot);
+        return true;
+    }
+
+    private bool ResolveRidleyTailSamusContact(SamusState samus)
+    {
+        RoomEnemySlot body = _slots[0];
+        RidleyEnemyState? state = _ridleyState;
+        // $A6:CAF5 checks the newly solved tail, independently of the earlier
+        // extended-body contact pass, and never damages Samus while carrying her.
+        if (state is null || state.GrabState != 0 || samus.InvincibilityTimer != 0 ||
+            body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) ||
+            state.MovementAnimationEnabled == 0 || state.TailSegments.Length != 7)
+            return false;
+        RidleyTailSegment tip = state.TailSegments[6];
+        int dx = Math.Abs(unchecked((short)(samus.XPosition - tip.XPosition)));
+        int dy = Math.Abs(unchecked((short)(samus.YPosition - tip.YPosition)));
+        if (dx >= samus.Kinematics.XRadius + 14 || dy >= samus.Kinematics.YRadius + 14)
+            return false;
+        ApplyNormalEnemyTouchDamage(samus, 0, state.TailDamage, tip.XPosition);
         return true;
     }
 

@@ -639,6 +639,8 @@ public sealed partial class RoomEnemySystem
                 if (slot.EnemyDefinitionPointer == 0)
                     continue;
                 ResolveOrdinarySamusContact(samus, controllerInput, level, nativeIndex);
+                if (IsRidleyDefinition(slot.EnemyDefinitionPointer))
+                    ResolveRidleyBodySamusContact(samus, controllerInput);
                 if (slot.EnemyDefinitionPointer == 0)
                     continue;
             }

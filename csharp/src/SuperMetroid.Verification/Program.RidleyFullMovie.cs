@@ -12,6 +12,34 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyRidleyContactOrdering()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RidleyMovieMemory.RidleyRoom);
+        runtime.Camera!.SetPosition(0, 158);
+        var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
+        body.XPosition = 139; body.YPosition = 282;
+        body.SpritemapPointer = 0xe9e9; body.Properties = 0x3800;
+        state.FightMode = 1; state.MovementAnimationEnabled = 1; state.FacingDirection = 0;
+        state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = 10;
+        state.HorizontalVelocity = 0xfc00; state.VerticalVelocity = 0x0300;
+        state.TailFunctionIndex = 0;
+        samus.XPosition = 110; samus.YPosition = 300; samus.Pose = 0x69;
+        samus.Health = 399; samus.EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit;
+        samus.InvincibilityTimer = 0; samus.RefreshCollisionRadii(bus);
+        var enemyPhase = typeof(SuperMetroidRuntime).GetMethod("RunEnemyMainPhase", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        enemyPhase.Invoke(runtime, null);
+        AssertEqual((ushort)399, samus.Health, "source4234 body entering overlap cannot damage before next contact pass");
+        AssertTrue(body.XPosition < 139, "fixture advances body into collision boundary");
+        body.SpritemapPointer = 0xe9e9;
+        runtime.Enemies.ResolveRidleySamusContact(samus, 0);
+        AssertEqual((ushort)359, samus.Health, "next pre-AI body overlap remains damaging");
+        Console.WriteLine("Ridley body contact: pre-movement boundary and subsequent damaging overlap pass.");
+    }
+
     private static void VerifyRidleySwoopTimer()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

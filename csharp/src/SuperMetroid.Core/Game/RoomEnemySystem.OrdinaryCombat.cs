@@ -249,9 +249,9 @@ public sealed partial class RoomEnemySystem
             // it suppresses rendering only. Hibashi relies on that distinction: its second
             // slot remains invisible while its instruction stream moves a live hitbox.
             // Both Ridley definitions use a hand-authored extended body plus a separately
-            // solved tail tip. ResolveRidleySamusContact owns that combined ordering; letting
-            // this ordinary pass see either definition would either flatten the body to the
-            // header's dummy 8x8 radius or apply body damage after an earlier tail hit.
+            // solved tail tip. EnemyMain dispatches its body at this same pre-AI seam;
+            // tail processing checks the tip later. Do not flatten either to the header's
+            // dummy 8x8 radius here.
             if (IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
                 !usesTranslatedTouchAi ||
                 slot.Properties.HasAny(EnemyProperties.Deleted))

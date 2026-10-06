@@ -227,9 +227,16 @@ general $0FB2 AI timer. Native $A6:B441-$B594 leaves that general timer intact.
 Focused setup/countdown/phase-transition checks pass; replay now compares both
 timers during swoops and passes the original source4132 mismatch.
 
-Expanded checked state now matches through update 4125 of 10,717. The next
-mismatch is update4126/source4234: the port applies an extra40 damage and hurt
-movement to Samus. This remains under investigation.
+Ridley body contact now runs before AI at EnemyMain's collision seam, while tail
+contact runs after the tail is solved ($A6:CAF5) and is disabled while carrying
+Samus. The old combined post-AI pass caused body damage one update too early.
+The focused real-room boundary fixture fails before the change and passes after:
+movement into overlap is harmless until the subsequent body contact pass, which
+still deals40 damage. Input-only replay confirms the disputed source4234 hit is gone.
+
+Expanded checked state now matches through update 4213 of 10,717. The next
+mismatch is update4214/source4322: Ridley instruction nativeE7BC/timer8 versus
+portE704/timerFFEA. This remains under investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

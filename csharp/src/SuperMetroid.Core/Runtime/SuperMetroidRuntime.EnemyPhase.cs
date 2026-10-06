@@ -146,12 +146,6 @@ public sealed partial class SuperMetroidRuntime
                 Oam,
                 Camera.XPosition,
                 Camera.YPosition);
-            if (Samus is not null && !TimeIsFrozen)
-            {
-                Enemies.ResolveRidleySamusContact(
-                    Samus,
-                    Controller1.Current);
-            }
             if (Samus is not null)
             {
                 Samus.Kinematics.InteractiveEnemies = Enemies.InteractiveCollisionBodies;

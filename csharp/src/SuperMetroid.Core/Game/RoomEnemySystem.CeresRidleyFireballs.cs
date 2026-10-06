@@ -704,12 +704,21 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.CeresRidleyFireball,
             FireballGraphicsIndex);
+        ApplyRidleyProjectileAreaDamage(projectile);
         projectile.XPosition = unchecked((ushort)(ridley.XPosition +
             (state.FacingDirection == 0 ? -25 : 25)));
         projectile.YPosition = unchecked((ushort)(ridley.YPosition - 43));
         projectile.XVelocity = state.FireballXVelocity;
         projectile.YVelocity = state.FireballYVelocity;
         projectile.RemainingAfterburns = spawnAfterburn ? (ushort)3 : (ushort)0;
+    }
+
+    private void ApplyRidleyProjectileAreaDamage(RoomEnemyProjectileSlot projectile)
+    {
+        // EnemyMain binds live Samus before dispatch, including her current room
+        // identity. Standalone fixtures without a room owner retain the default row.
+        AreaId area = _samusForEnemyDrops?.LiquidPhysics.AreaIndex ?? AreaId.Crateria;
+        projectile.Damage = RidleyProjectileDamageDefinitions.ForArea(area);
     }
 
     private RoomEnemyProjectileSlot? AllocateEnemyProjectile()
@@ -2360,6 +2369,7 @@ public sealed partial class RoomEnemySystem
         if (afterburn is null)
             return;
         InitializeEnemyProjectileFromDefinition(afterburn, kind, FireballGraphicsIndex);
+        ApplyRidleyProjectileAreaDamage(afterburn);
         afterburn.XPosition = source.XPosition;
         afterburn.YPosition = source.YPosition;
         afterburn.XVelocity = xVelocity;

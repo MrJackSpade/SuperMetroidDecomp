@@ -183,7 +183,10 @@ It exposed the omitted dust/sound side effects of Ridley's terrain strike at
 source767. Native $A6:B748/B74F now spawns dust variant nine at tip X/Y+12 and
 queues library-two $76 Max6. The real-room focused fixture confirms both, and the
 replay passes that interval. Expanded projectile coverage currently stops at
-update1111/source1212: the first fireball has native damage60 versus port3.
+update1147/source1248: a fireball is removed by terrain earlier than native.
+The prior damage mismatch is fixed: $86:932F selects damage3/60/80 for
+default/Norfair/Tourian on fireballs and directional afterburns. Focused
+production-initializer and Gravity Suit contact checks pass all three rows.
 The existing body/Samus/ordinary-projectile comparison reached the later boundary
 below; the newly added fields have not yet passed it.
 

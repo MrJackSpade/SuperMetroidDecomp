@@ -12,6 +12,35 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyRidleyFireballDamage()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RidleyMovieMemory.RidleyRoom);
+        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnRidleyFireball", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var afterburn = typeof(RoomEnemySystem).GetMethod("SpawnDirectionalAfterburn", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var collide = typeof(RoomEnemySystem).GetMethod("ResolveEnemyProjectileSamusCollision", BindingFlags.Static | BindingFlags.NonPublic)!;
+        int slotIndex = 17;
+        foreach (var sample in new[] { (AreaId.Ceres, (ushort)3), (AreaId.Norfair, (ushort)60), (AreaId.Tourian, (ushort)80) })
+        {
+            var samus = runtime.Samus!;
+            samus.LiquidPhysics.RoomIdentity = new RoomIdentity(sample.Item1, 0);
+            spawn.Invoke(runtime.Enemies, [runtime.Enemies.Slots[0], false]);
+            var fireball = runtime.Enemies.EnemyProjectiles[slotIndex--];
+            AssertEqual(sample.Item2, fireball.Damage, "native area initializer overrides fireball damage");
+            afterburn.Invoke(runtime.Enemies, [fireball, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, (ushort)0x0e00, (ushort)0]);
+            AssertEqual(sample.Item2, runtime.Enemies.EnemyProjectiles[slotIndex--].Damage, "directional afterburn runs the same area initializer");
+            samus.XPosition = fireball.XPosition; samus.YPosition = fireball.YPosition;
+            samus.Health = 700; samus.EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit;
+            samus.RefreshCollisionRadii(bus);
+            collide.Invoke(null, [fireball, samus]);
+            AssertEqual((ushort)(700 - sample.Item2 / 4), samus.Health, "area damage passes through native Gravity reduction");
+        }
+        Console.WriteLine("Ridley fireball damage: default/Norfair/Tourian initializers, directional afterburn and suit reduction pass.");
+    }
+
     private static void VerifyRidleyTailImpact()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

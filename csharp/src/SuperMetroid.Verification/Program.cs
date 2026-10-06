@@ -4999,6 +4999,7 @@ if (args is ["--door-alignment"])
 if (args is ["--spark-crash-alignment"])
 {
     VerifySparkCrashAlignment();
+    VerifyMakeSamusFaceForward();
     return 0;
 }
 if (args is ["--gate-jump-traces"])

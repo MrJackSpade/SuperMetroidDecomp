@@ -168,6 +168,32 @@ public sealed partial class SamusState
         SamusPoseIds.ForwardFacingPowerSuitPose or SamusPoseIds.ForwardFacingSuitedPose;
 
     /// <summary>
+    /// Selects the suit's front-view pose as <c>$91:E3FD-$91:E415</c> and
+    /// <c>$90:F23C-$90:F271</c> do. Gravity bit <c>$0020</c> and Varia bit <c>$0001</c>
+    /// have equal precedence: either selects the shared suited pose <c>$9B</c>.
+    /// </summary>
+    private void SelectForwardFacingPose()
+    {
+        Pose = EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit)
+            ? SamusPoseIds.ForwardFacingSuitedPose
+            : SamusPoseIds.ForwardFacingPowerSuitPose;
+        AnimationFrame = 0;
+    }
+
+    /// <summary>
+    /// Applies the pose part of Samus command 9, <c>SetupSamusForZebesStart</c> at
+    /// <c>$90:F23C</c>: the suit's front-view pose and its initialization. Unlike
+    /// <see cref="ApplyForwardFacingPoseSetup"/> it neither shifts pose history, lifts
+    /// Samus nor clears motion. Callers own the palette object and the special frame.
+    /// </summary>
+    public void ApplyZebesStartPoseSetup(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        SelectForwardFacingPose();
+        InitializeAnimation(bus, initialFrame: 0);
+    }
+
+    /// <summary>
     /// Applies the movement/animation subset of <c>MakeSamusFaceForward</c> at
     /// `$91:E3F6-$91:E4A5`.
     /// </summary>
@@ -175,33 +201,29 @@ public sealed partial class SamusState
     /// The native routine also locks the global current/new-state handlers, kills grapple,
     /// clears beam-flare presentation words, and reloads the suit palette. Those owners do
     /// not live in this state object. This method deliberately covers only the state it can
-    /// own exactly: equipment-selected pose, ROM collision radius/delay list, and all motion
-    /// words cleared by the routine. Runtime/debug callers remain responsible for input lock,
-    /// palette, grapple, and priming the first graphics DMA before their first visible NMI.
+    /// own exactly: equipment-selected pose, its delay list, the radius-dependent lift and
+    /// all motion words cleared by the routine. It does not write the collision radius;
+    /// the next alpha's SetSamusRadius does. Runtime/debug callers remain responsible for
+    /// input lock, palette, grapple, and priming the first graphics DMA before their first
+    /// visible NMI.
     /// </remarks>
     public void ApplyForwardFacingPoseSetup(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-
-        // `$91:E3FD-$91:E415` gives Gravity bit `$0020` and Varia bit `$0001` equal
-        // precedence: either selects the shared suited front-view pose `$9B`; neither
-        // selects power-suit pose `$00`.
-        Pose = EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit)
-            ? SamusPoseIds.ForwardFacingSuitedPose
-            : SamusPoseIds.ForwardFacingPowerSuitPose;
-        AnimationFrame = 0;
-        RefreshCollisionRadii(bus);
+        SelectForwardFacingPose();
         InitializeAnimation(bus, initialFrame: 0);
 
         // This forced owner shifts history even when already facing forward.
         // It does not pass through the ordinary input-transition epilogue.
         CommitPoseHistory(bus);
 
-        // `$91:E438-$91:E44A` adjusts center Y upward three only if the initialized pose
-        // did not produce radius 24. Retail `$00/$9B` both do, but retaining the branch
-        // makes a corrupt/modified pose table observable rather than silently normalizing it.
+        // `$91:E438-$91:E44A` compares the live radius, still the previous pose's, and
+        // lifts both Y words by three unless it is already the front view's 24.
         if (Kinematics.YRadius != 0x18)
+        {
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 3));
+            WritePreviousYPosition(Kinematics.YPosition);
+        }
 
         HorizontalSpeed.ExtraRunSpeed = 0;
         HorizontalSpeed.ExtraRunSubspeed = 0;

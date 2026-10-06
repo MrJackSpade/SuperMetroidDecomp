@@ -206,7 +206,7 @@ public sealed partial class SamusState
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + 5));
             // Command seven publishes the aligned whole Y before scrolling; the
             // posture change itself must not become camera movement.
-            RecordPoseCollisionCameraY(Kinematics.YPosition);
+            WritePreviousYPosition(Kinematics.YPosition);
             InitializeAnimation(bus, initialFrame: 0);
             return true;
         }
@@ -317,7 +317,7 @@ public sealed partial class SamusState
                 Kinematics.YPosition + (alignment.AcceptedDisplacement >> 16)));
             // Command seven ($91:ED0E) replaces the previous whole-Y checkpoint
             // after alignment, so the camera does not count pose displacement as motion.
-            RecordPoseCollisionCameraY(Kinematics.YPosition);
+            WritePreviousYPosition(Kinematics.YPosition);
 
             // `$91:F7D6-$F7E4` deliberately recognizes a spin-jump source and forces mode
             // two so the compact body retains decelerating aerial momentum after morphing.
@@ -355,7 +355,7 @@ public sealed partial class SamusState
 
         Pose = targetPose;
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
-        RecordPoseCollisionCameraY(Kinematics.YPosition);
+        WritePreviousYPosition(Kinematics.YPosition);
         // Unmorph uses the same prospective command seven as morph. Its zero
         // alignment-table entry does not bypass the subsequent bounce cancellation.
         // The prospective collision probes used the target radius, but the live

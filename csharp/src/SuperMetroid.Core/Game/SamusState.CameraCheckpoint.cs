@@ -27,11 +27,11 @@ public sealed partial class SamusState
     }
 
     /// <summary>
-    /// Records the previous-Y word written by bank-$91 changed-pose collision
-    /// correction. The previous fraction is deliberately not changed: native
-    /// writes only $0B14, not the neighboring $0B16 word.
+    /// Records a direct write of SamusPreviousYPosition ($0B14), such as bank-$91
+    /// changed-pose collision correction or MakeSamusFaceForward's lift. The previous
+    /// fraction is deliberately not changed: native writes only $0B14, not $0B16.
     /// </summary>
-    private void RecordPoseCollisionCameraY(ushort correctedY) =>
+    internal void WritePreviousYPosition(ushort correctedY) =>
         _poseCollisionPreviousYPosition = correctedY;
 
     /// <summary>

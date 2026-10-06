@@ -139,7 +139,7 @@ public sealed partial class SuperMetroidRuntime
         // frame two/timer three, a suit-specific bank-$8D palette object, and the 360-call
         // appearance handler before restoring ordinary input.
         Samus.LoadSuitPalette(_addressSpace, Cgram);
-        Samus.ApplyForwardFacingPoseSetup(_addressSpace);
+        Samus.ApplyZebesStartPoseSetup(_addressSpace);
         Samus.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 3);
         Samus.LiquidPhysics.RoomIdentity = room.Identity;
         Samus.PrimeGraphics(_addressSpace);

@@ -69,15 +69,8 @@ public sealed partial class RoomEnemySystem
                 TickRidleyPogoTail(slot, state, samus);
         }
 
-        // Tail function zero suppresses angular *motion* before $A6:A4C5 activates every
-        // segment; it does not suppress the position solver. The seven initial angles and
-        // distances installed by $A6:D2D6 already describe Ridley's resting tail. Leaving
-        // their offsets at zero collapsed every piece onto the hip throughout the body fade,
-        // then made the complete tail appear abruptly when the pre-liftoff timer expired.
-        // Rebuild geometry unconditionally while retaining the native activation boundary.
-        for (int index = 0; index < state.TailSegments.Length; index++)
-            UpdateRidleyTailSegmentOffset(state, index);
-
+        // $CAF5 always composes positions, but only the selected tail controller
+        // updates offsets. Function zero and stagger/stop returns retain them.
         RidleyTailSegment first = state.TailSegments[0];
         first.YPosition = unchecked((ushort)(slot.YPosition + first.YOffset + 16));
         first.XPosition = state.FacingDirection switch
@@ -239,12 +232,18 @@ public sealed partial class RoomEnemySystem
                     int next = segment.Angle - state.TailAngleDelta - 1;
                     if (next < state.TailWhipTargetClockwiseAngle)
                     {
-                        segment.Angle = state.TailWhipTargetClockwiseAngle;
-                        DeactivateRidleyTailSegment(segment);
+                        if (index == 0 || !state.TailSegments[index - 1].Active)
+                        {
+                            segment.Angle = state.TailWhipTargetClockwiseAngle;
+                            DeactivateRidleyTailSegment(segment);
+                            return;
+                        }
+                        segment.MovementDirection = 0;
+                        segment.Angle = state.TailMinimumClockwiseAngle;
                     }
                     else
                     {
-                        segment.Angle = unchecked((ushort)next);
+                        segment.Angle = unchecked((ushort)(next + 1));
                     }
                 }
                 else
@@ -257,7 +256,7 @@ public sealed partial class RoomEnemySystem
                     }
                     else
                     {
-                        segment.Angle = unchecked((ushort)next);
+                        segment.Angle = unchecked((ushort)(next + 1));
                     }
                 }
             }
@@ -270,8 +269,14 @@ public sealed partial class RoomEnemySystem
                     segment.TargetDistance = 0x0c00;
                     if (next >= state.TailWhipTargetCounterClockwiseAngle)
                     {
-                        segment.Angle = state.TailWhipTargetCounterClockwiseAngle;
-                        DeactivateRidleyTailSegment(segment);
+                        if (index == 0 || !state.TailSegments[index - 1].Active)
+                        {
+                            segment.Angle = state.TailWhipTargetCounterClockwiseAngle;
+                            DeactivateRidleyTailSegment(segment);
+                            return;
+                        }
+                        segment.MovementDirection = 0x8000;
+                        segment.Angle = state.TailMaximumCounterClockwiseAngle;
                     }
                     else
                     {
@@ -293,6 +298,7 @@ public sealed partial class RoomEnemySystem
             }
         }
 
+        UpdateRidleyTailSegmentOffset(state, index);
     }
 
     /// <summary>
@@ -307,10 +313,12 @@ public sealed partial class RoomEnemySystem
         if (index != 0)
             angle = unchecked((byte)(angle + state.TailSegments[index - 1].Angle));
         ushort distanceInPixels = unchecked((ushort)(segment.Distance >> 8));
-        segment.XOffset = MultiplyCartridgeSinCos(distanceInPixels, angle);
-        segment.YOffset = MultiplyCartridgeSinCos(
-            distanceInPixels,
-            unchecked((byte)(angle + 64)));
+        // $A9:C46C reads the middle/high bytes of the signed Mode 7 product.
+        // An arithmetic shift preserves its floor for negative fractional pixels.
+        segment.XOffset = unchecked((ushort)(
+            distanceInPixels * EnemyTrigonometryTables.SignedSine(angle) >> 8));
+        segment.YOffset = unchecked((ushort)(
+            distanceInPixels * EnemyTrigonometryTables.SignedSine(unchecked((byte)(angle + 64))) >> 8));
     }
 
     private static void DeactivateRidleyTailSegment(RidleyTailSegment segment)

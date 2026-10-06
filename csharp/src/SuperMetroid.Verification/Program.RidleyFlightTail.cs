@@ -54,8 +54,10 @@ internal static partial class Program
         tail(slot, state, null);
         AssertEqual(RidleyTailDefinitions.Pogo, state.TailFunctionIndex, "all pointed segments finish into normal pogo");
         AssertTrue(state.TailSegments.All(segment => segment.Angle == 0x4000 && !segment.Active), "pogo tail points down and stops");
-        AssertEqual((ushort)160, state.TailSegments[0].XPosition, "pointed root has native facing-left hip X");
-        AssertEqual((ushort)146, state.TailSegments[0].YPosition, "pointed root has native two-pixel Y offset");
+        // $D10E returns on deactivation before recomputing offsets: retain the
+        // previous $F8-angle Mode 7 products (-1,+1), not the new angle's (0,2).
+        AssertEqual((ushort)159, state.TailSegments[0].XPosition, "pointed root retains pre-stop native hip X");
+        AssertEqual((ushort)145, state.TailSegments[0].YPosition, "pointed root retains pre-stop native hip Y");
         state.VerticalVelocity = 0;
         tail(slot, state, null);
         AssertEqual(RidleyTailDefinitions.StabSetup, state.TailFunctionIndex, "descending normal pogo starts stab setup");

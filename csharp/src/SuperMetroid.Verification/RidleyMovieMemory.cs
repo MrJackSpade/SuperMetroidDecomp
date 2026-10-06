@@ -21,6 +21,10 @@ internal static class RidleyMovieMemory
     public const int RidleyFunctionTimer = 0x0fb2;
     /// <summary>$A6:E967: sleep cursor retained while right-facing Ridley already faces room middle.</summary>
     public const ushort RidleyRightFlyingSleep = 0xe967;
+    /// <summary>$20A4: tilemap_stuff[82], solved Ridley tail tip X.</summary>
+    public const int TailTipX = 0x20a4;
+    /// <summary>$20A6: tilemap_stuff[83], solved Ridley tail tip Y.</summary>
+    public const int TailTipY = 0x20a6;
     /// <summary>$079B: room_ptr.</summary>
     public const int Room = 0x079b;
     /// <summary>$0911: layer1_x_pos.</summary>

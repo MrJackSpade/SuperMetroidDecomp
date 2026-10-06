@@ -12,6 +12,46 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyRidleyTailOffsets()
+    {
+        var tick = typeof(RoomEnemySystem).GetMethod("TickRidleyTailSegment", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var state = new RidleyEnemyState
+        {
+            TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment()).ToArray(),
+            IdealInterSegmentTailAngle = 16, TailAngleDelta = 2,
+            TailMinimumClockwiseAngle = 0x3fc0, TailMaximumCounterClockwiseAngle = 0x4010,
+            TailWhipTargetClockwiseAngle = ushort.MaxValue,
+            TailWhipTargetCounterClockwiseAngle = ushort.MaxValue,
+        };
+        var segment = state.TailSegments[0];
+        segment.Active = true; segment.StaggerAngle = 2;
+        segment.XOffset = 7; segment.YOffset = 11;
+        tick.Invoke(null, [state, 0]);
+        AssertEqual((ushort)4, segment.StaggerAngle, "native stagger advances before returning");
+        AssertEqual((ushort)7, segment.XOffset, "stagger retains X offset");
+        AssertEqual((ushort)11, segment.YOffset, "stagger retains Y offset");
+        segment.StaggerAngle = ushort.MaxValue; segment.Angle = 0x4000;
+        segment.MovementDirection = 0x8000; segment.Distance = 0x0200;
+        tick.Invoke(null, [state, 0]);
+        AssertEqual((ushort)0x3ffe, segment.Angle, "native clockwise comparison decrements then restores one before storing");
+        AssertEqual(ushort.MaxValue, segment.XOffset, "signed Mode 7 multiplication floors negative fraction");
+        AssertEqual((ushort)1, segment.YOffset, "signed Mode 7 cosine product");
+        state.TailWhipTargetClockwiseAngle = 0x4000;
+        segment.Angle = 0x4000; segment.XOffset = 7; segment.YOffset = 11;
+        tick.Invoke(null, [state, 0]);
+        AssertTrue(!segment.Active, "root stops at whip target");
+        AssertEqual((ushort)7, segment.XOffset, "stop retains X offset");
+        AssertEqual((ushort)11, segment.YOffset, "stop retains Y offset");
+        var child = state.TailSegments[1];
+        segment.Active = true;
+        child.Active = true; child.StaggerAngle = ushort.MaxValue;
+        child.Angle = 0x4000; child.MovementDirection = 0x8000; child.Distance = 0x0800;
+        tick.Invoke(null, [state, 1]);
+        AssertTrue(child.Active, "moving predecessor prevents child deactivation");
+        AssertEqual((ushort)0x3fc0, child.Angle, "blocked child clamps to native clockwise limit");
+        Console.WriteLine("Ridley tail offsets: stagger/stop retention, clockwise arithmetic, signed multiplication and predecessor gate pass.");
+    }
+
     private static void VerifyRidleyCenterFacing()
     {
         var method = typeof(RoomEnemySystem).GetMethod("SelectNorfairRidleyFacingInstruction",
@@ -407,6 +447,12 @@ internal static partial class Program
             {
                 Check("Ridley AI function", (ushort)ridleyState.Function, RidleyMovieMemory.RidleyFunction);
                 Check("Ridley AI timer", ridleyState.FunctionTimer, RidleyMovieMemory.RidleyFunctionTimer);
+                if (game.GameState == SuperMetroidGameState.MainGameplay)
+                {
+                    // Tail workspace becomes live after its first fade-owned composition.
+                    Check("Ridley tail tip X", ridleyState.TailSegments[6].XPosition, RidleyMovieMemory.TailTipX);
+                    Check("Ridley tail tip Y", ridleyState.TailSegments[6].YPosition, RidleyMovieMemory.TailTipY);
+                }
             }
             if (mismatches.Count != 0)
             {

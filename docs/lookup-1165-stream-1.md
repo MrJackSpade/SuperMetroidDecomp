@@ -200,7 +200,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs
 
-- [ ] **EscapeDachoraInstructionProgramDefinitions.Words** ([L40](../csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EscapeDachoraInstructionProgramDefinitions.Words** ([L40](../csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs#L40)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **EscapeDachoraInstructionProgramDefinitions.PresentationWords** ([L163](../csharp/src/SuperMetroid.Core/Game/EscapeDachoraInstructionProgramDefinitions.cs#L163)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/EscapeEtecoonDefinitions.cs
@@ -280,7 +280,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs
 
-- [ ] **PowampInstructionProgramDefinitions.Words** ([L41](../csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **PowampInstructionProgramDefinitions.Words** ([L41](../csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **PowampInstructionProgramDefinitions.PresentationWords** ([L53](../csharp/src/SuperMetroid.Core/Game/PowampInstructionProgramDefinitions.cs#L53)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/PowampSpikeInstructionProgramDefinitions.cs
@@ -306,7 +306,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs
 
-- [ ] **SamusArmCannonArtworkCatalog.posePointers** ([L11](../csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs#L11)) - installed stock table. Original/default payload behind SamusArmCannonArtworkCatalog.posePointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **SamusArmCannonArtworkCatalog.posePointers** ([L11](../csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs#L11)) - installed stock table. Original/default payload behind SamusArmCannonArtworkCatalog.posePointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **SamusArmCannonArtworkCatalog.drawingData** ([L12](../csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs#L12)) - installed stock table. Original/default payload behind SamusArmCannonArtworkCatalog.drawingData. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [x] **SamusArmCannonArtworkCatalog.attributes** ([L13](../csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs#L13)) - installed stock table. Original/default payload behind SamusArmCannonArtworkCatalog.attributes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [x] **SamusArmCannonArtworkCatalog.tileSources** ([L14](../csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs#L14)) - installed stock table. Original/default payload behind SamusArmCannonArtworkCatalog.tileSources. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
@@ -349,7 +349,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/SamusVisorColorCatalog.cs
 
-- [ ] **SamusVisorColorCatalog.colors** ([L10](../csharp/src/SuperMetroid.Core/Assets/SamusVisorColorCatalog.cs#L10)) - installed stock table. Original/default payload behind SamusVisorColorCatalog.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **SamusVisorColorCatalog.colors** ([L10](../csharp/src/SuperMetroid.Core/Assets/SamusVisorColorCatalog.cs#L10)) - installed stock table. Original/default payload behind SamusVisorColorCatalog.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs
 
@@ -1137,3 +1137,17 @@ EscapeDachoraInstructionProgramDefinitions.Words is MIXED COMPLETE. Totals190 wh
 
 
 Root1452 warnings/0 errors;119 native words,139 record visits,463 uninterrupted scheduler ticks,two complete pacing round trips and full acceleration pass. Master598 converted/34 retained-mixed/496 pending.
+
+## Batch 90: complete six-color visor light composition
+
+SamusVisorColorCatalog.colors is MIXED COMPLETE. Totals190 wholly converted / fifteen mixed /21 unchecked. This supersedes earlier pending FullBeamStart/DarkeningStep dispositions.
+
+- Root independently reviewed native9B:A3C0 six colors,91:D856..D888 room-cycle handler andDCB4..DD1E X-ray handler. Exact six outputs are3BE0,5FF0,7FFF and43FF,2F5A,1AB5. Widening remains nearest-rounded interpolation from normal-suit ink to white; full-beam cycle remains equal-channel linear darkening.
+- Narrow retained painted-light choices are the previously approved normal-suit starting ink3BE0, selected yellow-white full-beam ink43FF RGB5(31,31,16), and five-level per-channel brightness drop. The latter composes the selected visor pulse contrast, not a measured beam quantity. Deriving this specific color appearance from mechanics would require re-embedding the same chosen paint inputs. Only these six original RGB outputs are covered; no generic palette exception.
+- Native91:D86F/DCD3/DD09 and managed SamusVisorPaletteState.Update/SamusXrayState.UpdatePalette publish color4 of sprite palette4 (CGRAM196). Phase/timer and beam state select a color; its channels do not govern beam geometry or timing. FrameDelay5 is a separate timing value despite numerical equality and receives no exemption.
+- Existing focused --lookup-stream-1-visor-colors directly confirms all6 native calculated defaults, exact two-ink/one-step basis, zero stock overrides,6 independent edits and actual guarded room/X-ray color/state/timer cycles. Catalogs remain independently editable.
+- Coordinator source-hash dependency: SamusColorClosedContractDefinitions.cs must refresh SamusVisorColorDefinitions.cs; the catalog itself is unchanged. The isolated older contract lists only the catalog, while root has already included the helper from the original conversion. No shared audit edits here.
+- Final confirmation: build1,434 warnings/zero errors; focused native/basis/edits and actual guarded cycles pass. Helper SHA256: DBA9D1F70C6BE1C14DD26F3921A44D0A4A36FEBFD49C079DB458DBC8A1A1E5AC.
+
+
+Root six-native/basis/zero-overrides/six-independent-edits and guarded room/Xray cycles passed. This checkpoint changes only XML disposition and source hash, not executable behavior; Audit1413existing warnings/0errors. Master600converted/39retained-mixed/489pending.

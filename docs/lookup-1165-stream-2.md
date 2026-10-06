@@ -512,7 +512,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkDefinitions.cs
 
-- [ ] **GoldenTorizoWalkDefinitions.Velocities** ([L7](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkDefinitions.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoWalkDefinitions.Velocities** ([L7](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkDefinitions.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingCollisionDefinitions.cs
 

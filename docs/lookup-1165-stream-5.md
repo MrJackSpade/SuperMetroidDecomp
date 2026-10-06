@@ -193,7 +193,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/CeresDoorInstructionProgramDefinitions.cs
 
 - [x] **CeresDoorInstructionProgramDefinitions.Words** ([L156](../csharp/src/SuperMetroid.Core/Game/CeresDoorInstructionProgramDefinitions.cs#L156)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **CeresDoorInstructionProgramDefinitions.PresentationWords** ([L269](../csharp/src/SuperMetroid.Core/Game/CeresDoorInstructionProgramDefinitions.cs#L269)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresDoorInstructionProgramDefinitions.PresentationWords** ([L269](../csharp/src/SuperMetroid.Core/Game/CeresDoorInstructionProgramDefinitions.cs#L269)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CeresDoorQuakeDefinitions.cs
 

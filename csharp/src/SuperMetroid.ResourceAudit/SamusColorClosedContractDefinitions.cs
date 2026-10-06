@@ -40,7 +40,7 @@ internal static class SamusColorClosedContractDefinitions
         new("SuperMetroid.Core.Assets.SamusVisorColorCatalog", "samus-visor-complete-colors", ["Resolve", "TryResolveByteOffset"],
             [PaletteDefinitions,
              new("csharp/src/SuperMetroid.Core/Assets/SamusVisorColorCatalog.cs", "C7E753201CECB7E718F45B10D66DE7DA81D80CA48C9AD61F5540A47CC683DA50"),
-             new("csharp/src/SuperMetroid.Core/Assets/SamusVisorColorDefinitions.cs", "8C51A950046FD0A2F0054A6A950C5A1D45FA070F6918507CA2339C511C436863")],
+             new("csharp/src/SuperMetroid.Core/Assets/SamusVisorColorDefinitions.cs", "E92F240DA2A5B53C4E93CD60DCC02A0A405686D5D421B316A3799B7991E630D6")],
             "The private-constructor loader requires all six RGB5 colors, calculates widening/darkening phases and stores independently supplied differing words. Resolve guards its index. TryResolveByteOffset is a membership query: unsupported/odd offsets return false, not a missing-resource demand. Caller fallback behavior and X-ray clocks are not certified."),
         new("SuperMetroid.Core.Assets.CrystalFlashColorCatalog", "crystal-flash-complete-color-streams", ["ApplyBody", "ApplyBubble", "ResolveBody", "ResolveBubble"],
             [PaletteDefinitions,

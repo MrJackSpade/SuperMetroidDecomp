@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 490,
+  "remainingTableDefinitionCount": 489,
   "fileCount": 523,
   "entries": [
     {
@@ -2091,12 +2091,15 @@
       "note": "Original/default payload behind SamusSpritemapArtworkCatalog.definitions. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/SamusVisorColorCatalog.cs",
-      "line": 10,
-      "name": "SamusVisorColorCatalog.colors",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind SamusVisorColorCatalog.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Assets/SamusVisorColorCatalog.cs",
+    "line":  10,
+    "name":  "SamusVisorColorCatalog.colors",
+    "kind":  "installed stock table",
+    "note":  "Original/default payload behind SamusVisorColorCatalog.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+    "state":  "justified-retained",
+    "implementationCommit":  "50083066a",
+    "disposition":  "Mixed complete:six RGB5 colors calculate widening interpolation to white and linear full-beam darkening. Retain only previously reviewed3BE0 visor ink,selected43FF yellow-white ink and brightness drop5 as exact visor-light composition. Native CGRAM-only consumers reviewed; FrameDelay5 and beam geometry excluded. Zero stock overrides,independent edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SciserVisualDefinitions.cs",
       "line": 16,
@@ -21604,5 +21607,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 38
+  "justifiedRetainedSinceSnapshot": 39
 }

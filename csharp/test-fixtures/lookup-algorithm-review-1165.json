@@ -11823,4 +11823,11 @@
     "workerCommit":  "6ccb964060fa75b14c4b5652421bed2b16f6901f",
     "state":  "mixed-complete",
     "algorithm":  "Semantic warning selection and arithmetic tile destinations; independent content preserved."
+},"motherBrainToGreyComplete":{
+    "confirmation":  "Root1452warnings/0errors;Audit0/0;168native colors,504drain edits,endpoint storage removal and bidirectional source isolation pass. Root QuantizedPaletteFade unchanged.",
+    "scope":  "All168 drain words, including trailing WRAM017C routing; no new retained content. Scheduler and revival excluded.",
+    "completed":  "MotherBrainRainbowPalettePresentation.toGrey",
+    "workerCommit":  "95c2e398bf8b73ed1436aab25013285ed8f91b69",
+    "state":  "converted",
+    "algorithm":  "Nearest RGB5 endpoint interpolation; exact-match rainbow6 start plus reviewed drained/half-normal rear endpoints and repeated trailing highlight."
 }}

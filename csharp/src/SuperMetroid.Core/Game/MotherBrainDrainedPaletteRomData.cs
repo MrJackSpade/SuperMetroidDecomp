@@ -7,7 +7,7 @@ public static class MotherBrainDrainedPaletteRomData
     public const int ToGreyTable = 0xadef87;
     /// <summary>$AD:ED9C, reversed grey transition pointers followed by zero.</summary>
     public const int FromGreyTable = 0xaded9c;
-    /// <summary>$AD:EF64 copies fifteen colors when draining.</summary>
+    /// <summary>$AD:EF5F selects fifteen colors for the EF62/EF6D drain copies.</summary>
     public const int DrainedColors = 15;
     /// <summary>$AD:EF22 copies thirteen colors when reviving.</summary>
     public const int RevivalColors = 13;
@@ -17,4 +17,8 @@ public static class MotherBrainDrainedPaletteRomData
     public const int BackLegCount = 5;
     /// <summary>$AD:EF44/EF81 writes the trailing source word directly to low WRAM $017C, not CGRAM.</summary>
     public const int TrailingWordWram = 0x7e017c;
+    /// <summary>$AD:EF71 selects rear CGRAM color B4, three inks after $A9:BD39's B1 source.</summary>
+    public const int RearSourceColor = BackLegColor - MotherBrainRainbowPaletteRomData.SecondaryColor;
+    /// <summary>$AD:EF99's final word EFC1 repeats rainbow rear ink E, zero-based nontransparent index13; EF7E-EF81 writes it to WRAM.</summary>
+    public const int TrailingRearSourceColor = 13;
 }

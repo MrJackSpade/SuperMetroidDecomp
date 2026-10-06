@@ -1705,6 +1705,15 @@ internal static partial class Program
             AssertTrue(body.GetType().GetField("tintSource", privateFields)!.GetValue(body) is not null,
                 $"rainbow phase {phase} actually uses exact whole-palette tint");
         }
+        object drainStart = drainFade.GetType().GetField("first", privateFields)!.GetValue(drainFade)!;
+        AssertTrue(ReferenceEquals(drainStart.GetType().GetProperty("Body")!.GetValue(drainStart), RainbowBody(6)),
+            "stream 3 drain body starts from the exact matching rainbow phase-six source");
+        AssertTrue(ReferenceEquals(drainStart.GetType().GetField("rearSource", privateFields)!.GetValue(drainStart), storedRainbow.GetValue(6)),
+            "stream 3 drain rear and trailing start share only matching rainbow content");
+        AssertTrue(drainEnd.GetType().GetField("backLegs", privateFields)!.GetValue(drainEnd) is null,
+            "stream 3 drained rear endpoint calculates from approved normal rear lighting");
+        AssertTrue(drainEnd.GetType().GetField("trailing", privateFields)!.GetValue(drainEnd) is null,
+            "stream 3 drained trailing word reuses its rear highlight without a stored value");
         foreach (object frame in storedRainbow)
             AssertTrue(frame.GetType().GetField("backLegs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                 .GetValue(frame) is null, "stream 3 rainbow shadow tables discarded");
@@ -1717,7 +1726,9 @@ internal static partial class Program
             int index = color % 15;
             PaletteRgb5 original = row[index];
             row[index] = Color((ushort)(Word(original) ^ 1 << (5 * channel)));
-            CheckRainbow(Load(document));
+            var editedPalette = Load(document);
+            CheckRainbow(editedPalette);
+            if (frame == 6) Check(editedPalette);
             row[index] = original;
         }
         foreach (int invalid in new[] { -1, 10, int.MaxValue })
@@ -1746,7 +1757,9 @@ internal static partial class Program
                 else fake[frame][color - 21] = value;
             }
             Set(Color((ushort)(Word(original) ^ 1 << (5 * channel))));
-            Check(Load(document));
+            var editedPalette = Load(document);
+            Check(editedPalette);
+            if (frame == 0 && color < 21) CheckRainbow(editedPalette);
             Set(original);
         }
         foreach (int invalid in new[] { -1, 8, int.MaxValue })

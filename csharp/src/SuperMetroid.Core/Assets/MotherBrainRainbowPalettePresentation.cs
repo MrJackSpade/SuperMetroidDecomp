@@ -40,6 +40,9 @@ public sealed class MotherBrainRainbowPalettePresentation
         rainbow[MotherBrainRainbowPaletteFormat.BlueRaisedPhase].ShareTint(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], 0, 0,
             MotherBrainRainbowPaletteFormat.BlueAddition);
         this.rainbow = rainbow;
+        toGrey[0] = PaletteFrame.ShareDrainStart(toGrey[0],
+            rainbow[MotherBrainRainbowPaletteRomData.DrainedPointerOffset / sizeof(ushort)]);
+        toGrey[^1] = PaletteFrame.ShareDrainEnd(toGrey[^1]);
         this.toGrey = new PaletteFade(toGrey);
         this.fromGrey = new QuantizedPaletteFade(fromGrey);
         this.fakeDeathToGrey = fakeDeathToGrey;
@@ -278,12 +281,15 @@ public sealed class MotherBrainRainbowPalettePresentation
     {
         private readonly ushort[]? backLegs;
         private readonly bool stockRear;
+        private readonly bool drainedRear;
+        private readonly PaletteFrame? rearSource;
+        private readonly ushort? trailing;
 
         public PaletteFrame(ushort[] body, ushort[] legs, ushort? trailingColor)
         {
             Body = new BodyColors(body);
             LegCount = legs.Length;
-            TrailingColor = trailingColor;
+            trailing = trailingColor;
             bool matchesRear = legs.Length == MotherBrainRainbowPaletteRomData.ColorCount;
             for (int color = 0; matchesRear && color < legs.Length; color++)
                 matchesRear = legs[color] == MotherBrainHealthPalettePresentation.StockBaseColor(true, color);
@@ -317,10 +323,41 @@ public sealed class MotherBrainRainbowPalettePresentation
             Body = new BodyColors(source.Body, red, green, blue);
         }
         public int LegCount { get; }
-        public ushort? TrailingColor { get; }
-        public ushort Leg(int color) => stockRear
-            ? MotherBrainHealthPalettePresentation.StockBaseColor(true, color)
+        public ushort? TrailingColor => rearSource is not null
+            ? rearSource.Leg(MotherBrainDrainedPaletteRomData.TrailingRearSourceColor)
+            : drainedRear ? Leg(1) : trailing;
+        public ushort Leg(int color) => rearSource is not null
+            ? rearSource.Leg(color + MotherBrainDrainedPaletteRomData.RearSourceColor)
+            : drainedRear ? HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(true,
+                color + MotherBrainDrainedPaletteRomData.RearSourceColor))
+            : stockRear ? MotherBrainHealthPalettePresentation.StockBaseColor(true, color)
             : backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
+
+        // Only the drain's endpoints acquire these dependencies. Revival keeps its
+        // independently compiled frames and original quantized interpolation.
+        internal static PaletteFrame ShareDrainStart(PaletteFrame drain, PaletteFrame rainbow)
+        {
+            for (int color = 0; color < drain.Body.Length; color++)
+                if (drain.Body[color] != rainbow.Body[color]) return drain;
+            for (int color = 0; color < drain.LegCount; color++)
+                if (drain.Leg(color) != rainbow.Leg(color + MotherBrainDrainedPaletteRomData.RearSourceColor)) return drain;
+            return drain.TrailingColor == rainbow.Leg(MotherBrainDrainedPaletteRomData.TrailingRearSourceColor)
+                ? new PaletteFrame(rainbow, false) : drain;
+        }
+        internal static PaletteFrame ShareDrainEnd(PaletteFrame drain)
+        {
+            for (int color = 0; color < drain.LegCount; color++)
+                if (drain.Leg(color) != HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(true,
+                    color + MotherBrainDrainedPaletteRomData.RearSourceColor))) return drain;
+            return drain.TrailingColor == drain.Leg(1) ? new PaletteFrame(drain, true) : drain;
+        }
+        private PaletteFrame(PaletteFrame source, bool drainedRear)
+        {
+            Body = source.Body;
+            LegCount = MotherBrainDrainedPaletteRomData.BackLegCount;
+            this.drainedRear = drainedRear;
+            rearSource = drainedRear ? null : source;
+        }
 
         private static ushort HalfIntensity(ushort color) => (ushort)(
             ((color & 31) + 1) / 2 | (((color >> 5 & 31) + 1) / 2) << 5

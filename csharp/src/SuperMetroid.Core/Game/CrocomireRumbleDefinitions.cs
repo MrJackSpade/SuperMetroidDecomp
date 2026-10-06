@@ -25,8 +25,9 @@ internal static class CrocomireRumbleDefinitions
     private const int PhaseCount = 7;
 
     /// <summary>
-    /// $A4:98FA: final live cooldown is three frames, differing from the halving
-    /// envelope's four. Its independent choice remains unresolved under issue1165.
+    /// $A4:98FA: selected final repeat counter3 in the shake/sound performance.
+    /// This counts completed oscillations, not elapsed frames. The consumer adds
+    /// one final traversal before loading the next phase.
     /// </summary>
     private const ushort FinalDecayHold = 3;
 
@@ -39,7 +40,7 @@ internal static class CrocomireRumbleDefinitions
 
     /// <summary>
     /// $A4:98D2-98FA: cooldown rises by four from eight, saturates at sixteen for
-    /// two cycles, then halves. The final live hold remains an explicit residual.
+    /// two cycles, then halves. The final selected repeat count belongs to the authored shake cadence.
     /// </summary>
     private static ushort Cooldown(int phase) => phase switch
     {
@@ -55,9 +56,13 @@ internal static class CrocomireRumbleDefinitions
     private static short NegativeTarget(int phase) =>
         (short)-(1 << (phase <= 4 ? phase / 2 : 6 - phase));
 
-    // Native initialization starts at offset4; preserve the two preceding words
-    // only for the existing restored-cursor contract. Their purpose is unresolved.
-    private static readonly short[] PrefixTargets = [4, 1];
+    /// <summary>$A4:98CA: exact copied prefix word4, accepted as a target by the
+    /// preserved restored-cursor domain. Native entry starts at byte offset4;
+    /// this is compatibility content, not a claimed normal-entry amplitude.</summary>
+    private const short CopiedPrefixTarget0 = 4;
+    /// <summary>$A4:98CC: second exact prefix word1. Its original normal-entry
+    /// purpose is not established; preserving it does not invent a physical rule.</summary>
+    private const short CopiedPrefixTarget1 = 1;
 
     /// <summary>
     /// $A4:98CA-9909 stores one-word nonnegative targets and three-word negative
@@ -75,7 +80,7 @@ internal static class CrocomireRumbleDefinitions
             {
                 if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
                 if (index < 2)
-                    return new((ushort)(index * 2), PrefixTargets[index], (ushort)(index * 2 + 2),
+                    return new((ushort)(index * 2), index == 0 ? CopiedPrefixTarget0 : CopiedPrefixTarget1, (ushort)(index * 2 + 2),
                         0, 0, false, false);
                 if (index >= Count - 2)
                     return new((ushort)(4 + PhaseCount * 8 + (index - (Count - 2)) * 2), unchecked((short)EndMarker), CompletedCursor,
@@ -111,3 +116,4 @@ internal static class CrocomireRumbleDefinitions
         throw new InvalidDataException("Crocomire rumble offset $" + tableOffset.ToString("X4") + " is not an authored target word.");
     }
 }
+

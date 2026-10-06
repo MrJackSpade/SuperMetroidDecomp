@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 405,
+  "remainingTableDefinitionCount": 404,
   "fileCount": 523,
   "entries": [
     {
@@ -3514,12 +3514,15 @@
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/CrocomireRumbleDefinitions.cs",
-      "line": 33,
-      "name": "CrocomireRumbleDefinitions.Definitions",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Game/CrocomireRumbleDefinitions.cs",
+  "line": 33,
+  "name": "CrocomireRumbleDefinitions.Definitions",
+  "kind": "stored definition",
+  "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+  "state": "justified-retained",
+  "implementationCommit": "f4dfce289decb121b3050e81bc5965bcb576c676",
+  "disposition": "Prefix array removed; envelopes and cursors calculate. Exact authored scroll-only shake and sound/phase timing, including wall-break scheduling, retained with narrow A4:9859-98C9 and8F:E942-E94F source-backed performance rationale. Final3 is an oscillation counter. Physics and startup wait have no blanket exemption; precise prefix compatibility preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DachoraInstructionProgramDefinitions.cs",
       "line": 60,
@@ -21859,5 +21862,5 @@
     }
   ],
   "convertedSinceSnapshot": 608,
-  "justifiedRetainedSinceSnapshot": 115
+  "justifiedRetainedSinceSnapshot": 116
 }

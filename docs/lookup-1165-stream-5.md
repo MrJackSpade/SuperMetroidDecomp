@@ -327,7 +327,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CrocomireRumbleDefinitions.cs
 
-- [ ] **CrocomireRumbleDefinitions.Definitions** ([L33](../csharp/src/SuperMetroid.Core/Game/CrocomireRumbleDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CrocomireRumbleDefinitions.Definitions** ([L33](../csharp/src/SuperMetroid.Core/Game/CrocomireRumbleDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CrocomireArena.cs
 
@@ -1264,3 +1264,16 @@ Root integration: Worker build25warnings/0errors;3072native bytes, six actual in
 - Final worker build1194 warnings/0 errors; focused512-word/512-edit/production-upload/hash checks passed after the final shared atlas-column reduction.
 
 Root integration: Worker build1194warnings/0errors;512native words/512full-word edits, both actual guarded BG2 uploads and canonical hash passed. Coordinator mechanically integrates without review/retest. Master 607 converted/115 retained-mixed/406 pending.
+
+
+### Complete Crocomire hidden-wall rumble waveform
+
+- Original `CrocomireRumbleDefinitions.Definitions`: mixed complete. Existing calculated seven-phase doubling/halving offset envelope, approach-speed triangular envelope, repeat-count buildup/decay, serialized record offsets and sentinels are preserved. Removed the remaining two-element prefix array in favor of exact named native compatibility words. Corrected the former "three frames" claim: final counter3 counts completed oscillations, not elapsed frames.
+- Exact retained content is the selected hidden-wall shake/sound performance: seven phases, the two-cycle buildup to negative amplitude4 then decay, live approach pattern1/1/2/2/1/1, repeat buildup8/12/16/16 and decay8/3, and two copied leading targets4/1 within the preserved restored-cursor domain. Their exact intensities/repetitions compose the chosen rumble, rather than values calculated from Samus motion, room geometry or Crocomire physics. Substituting a generic damped oscillator would invent a different shake and sound performance. All shared envelope relationships remain calculated; this is not an exemption for independently selected waits elsewhere.
+- Bounded source contract: A4:980E initializes byte cursor4 and9814-9820 initializes offset0/repeat10/delta1 (these separate initialization values are not this entry). A4:9859-98C9 moves only rumblingYOffset toward the selected target; negative-target arrival decrements the repeat counter, revisits the positive target and queues sound2B, then loads the next counter/delta. A4:98CA-9909 is the32-word source. Bank8F:E942-E94F adds this offset only to the BG1 vertical scroll register. The terminal marker advances the death sequence and installs the wall-spike palette; those exact handoff effects remain. This chosen phase duration therefore also schedules the subsequent wall-break episode, which is explicitly preserved rather than described as having no game-visible timing effect.
+- Prefix scope: native normal entry skips the first two words, but the existing restored-cursor API accepts both as target offsets. Keep their exact copied values as part of that native sequence compatibility, without alleging a historical intended prelude or aliasing them to unrelated equal parameters. Their original normal-entry purpose remains unknown; non-use is not the justification. Replacing the accepted prefix target values would invent different restored-sequence output. No source array remains.
+- Focused confirmation uses existing `--lookup-stream5-crocomire-rumble`: all32 native words and every frame of the actual production waveform are compared with the bounded native interpreter, including offset, counter, delta, cursor, phase and terminal installed palette. No gameplay search or wider replay is run.
+
+- Final worker build1434 warnings/0 errors; all32 native words and537 exact production frames pass with the source stream forbidden. No existing ResourceAudit closure references this definition.
+
+Root integration: Worker build1434warnings/0errors;32native words and537 exact production frames/terminal palette with source forbidden passed. Coordinator mechanically integrates without review/retest. Master 608 converted/116 retained-mixed/404 pending.

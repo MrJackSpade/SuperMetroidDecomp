@@ -1065,3 +1065,8 @@ Two descriptor arrays are replaced by named WarningText/Doors and Emergency/Japa
 ### Integrated Crocomire shared paint (3b42ed044)
 
 Native A4:B8BD wall slots2..6 repeat one color;B8FD skeleton slots2..6 repeat7..11 and share body1/7;two17-word initial transfers overlap next palette startsB8DD/B8FD. Thirteen repeated words derive from61required paint inputs with independently supplied differences. Root inspected pinned source and passed74native colors,222independent channel edits,exact61input basis/zero stock overrides,actual five-band CGRAM,original hash framing and bounds. Verification1452warnings/0errors;Audit0/0. All paint choices/group membership remain required;five entries unchecked;master595/21/512 unchanged.
+
+
+### Integrated Phantoon role selectors (3db6e0324)
+
+Removed27BankA7 literal selectors in favor of named body modes,opening/closing eyelids,eight compass gazes,mirrored tentacle cycle and mouth pose dispatch. Shared selector count/enumeration/address dispatch include the calculated family;other families and existing unresolved timing constants are preserved. Root inspected native A7:CC41-CCFB;Verification1452warnings/0errors. Focused instruction check passes58mechanics words,19reachable programs,four callbacks,27native selectors with no presentation reads. Shared catalog confirmation passes5069native identities,sorting and unknown-key rejection. Existing verifier commands also execute their preamble checks;no extra defect search was performed. Pose/timing/art requirements remain open;master595/21/512 unchanged. No direct ResourceAudit dependency.

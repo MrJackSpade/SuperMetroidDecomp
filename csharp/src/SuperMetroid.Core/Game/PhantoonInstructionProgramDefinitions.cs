@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One compiled Phantoon instruction mechanics word at its bank-$A7 address.</summary>
@@ -148,6 +150,49 @@ internal static class PhantoonInstructionProgramDefinitions
         return InitialMouth + 2;
     }
 
+    /// <summary>
+    /// $A7:CC43..CCF9 visual operands select named body modes, opening/retracting
+    /// eyelids, compass gaze, mirrored tentacles and mouth release/recovery poses.
+    /// Independent pose/timing/art choices retain their existing required disposition.
+    /// </summary>
+    internal static ushort PresentationFrame(int index)
+    {
+        _ = PresentationWordAddress(index);
+        if (index < 3) return index switch
+        {
+            0 => PhantoonBg2FrameDefinitions.InvulnerableBody,
+            1 => PhantoonBg2FrameDefinitions.BodyFullHitbox,
+            _ => PhantoonBg2FrameDefinitions.BodyEyeHitboxOnly,
+        };
+        if (index < 6) return PhantoonBg2FrameDefinitions.OpeningEye(index - 3);
+        if (index == 6) return PhantoonBg2FrameDefinitions.ClosedEye;
+        if (index < 11) return PhantoonBg2FrameDefinitions.OpeningEye(2 - (index - 7) % 2);
+        if (index == 11) return PhantoonBg2FrameDefinitions.CenteredEye;
+        if (index < 20) return PhantoonBg2FrameDefinitions.Gaze((PhantoonGazeDirection)(index - 12));
+        if (index < 24) return PhantoonBg2FrameDefinitions.TentaclePose(2 - Math.Abs(index - 22));
+        if (index < 26) return PhantoonBg2FrameDefinitions.MouthPose(26 - index);
+        return PhantoonBg2FrameDefinitions.MouthPose(0);
+    }
+
+    internal static bool IsPresentationWord(ushort address) => PresentationIndex(address) >= 0;
+    internal static ushort FrameAt(ushort address)
+    {
+        int index = PresentationIndex(address);
+        return index >= 0 ? PresentationFrame(index)
+            : throw new InvalidDataException($"Phantoon visual operand $A7:{address:X4} is not compiled.");
+    }
+    private static int PresentationIndex(ushort address)
+    {
+        int low = 0, high = PresentationWordCount - 1;
+        while (low <= high)
+        {
+            int middle = low + (high - low) / 2;
+            ushort candidate = PresentationWordAddress(middle);
+            if (address == candidate) return middle;
+            if (address < candidate) high = middle - 1; else low = middle + 1;
+        }
+        return -1;
+    }
     /// <summary>Returns fixed Phantoon control data or rejects non-mechanics pointers.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {

@@ -34,7 +34,7 @@ internal static partial class CompiledEnemyVisualSelectors
     private static int CalculatedCount => BotwoonProjectileInstructionProgramDefinitions.PresentationWordCount + BotwoonInstructionProgramDefinitions.PresentationWordCount + BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount + BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount + BlueBrinstarFaceBlockInstructionProgramDefinitions.PresentationWordCount + BeetomInstructionProgramDefinitions.PresentationWordCount + PlatformInstructionProgramDefinitions.PresentationWordCount + ElevatorInstructionProgramDefinitions.PresentationWordCount + GrowingShutterInstructionProgramDefinitions.PresentationWordCount + HorizontalShutterInstructionProgramDefinitions.PresentationWordCount + (VerticalShutterInstructionProgramDefinitions.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitions.PresentationWordCount +
         BoulderInstructionProgramDefinitions.PresentationWordCount +
         FakeKraidInstructionProgramDefinitions.PresentationWordCount +
-        KraidNailInstructionProgramDefinitions.PresentationWordCount +
+        KraidNailInstructionProgramDefinitions.PresentationWordCount + PhantoonInstructionProgramDefinitions.PresentationWordCount +
         FuneNamiheInstructionProgramDefinitions.PresentationWordCount + AlcoonInstructionProgramDefinitions.PresentationWordCount + AtomicInstructionProgramDefinitions.PresentationWordCount;
     internal static int Count => Entries.Length + CalculatedCount;
 
@@ -147,6 +147,9 @@ internal static partial class CompiledEnemyVisualSelectors
             return new(0xa70000 | operand, KraidVisualDefinitions.FrameAt(RoomEnemySystem.KraidGoodNailDefinition, operand));
         }
         index -= KraidNailInstructionProgramDefinitions.PresentationWordCount;
+        if (index < PhantoonInstructionProgramDefinitions.PresentationWordCount)
+            return new(0xa70000 | PhantoonInstructionProgramDefinitions.PresentationWordAddress(index), PhantoonInstructionProgramDefinitions.PresentationFrame(index));
+        index -= PhantoonInstructionProgramDefinitions.PresentationWordCount;
         if (index < FuneNamiheInstructionProgramDefinitions.PresentationWordCount)
         {
             ushort operand = FuneNamiheInstructionProgramDefinitions.PresentationWordAddress(index);
@@ -188,7 +191,7 @@ internal static partial class CompiledEnemyVisualSelectors
         0xa3 => ElevatorInstructionProgramDefinitions.IsPresentationWord((ushort)address) || PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             FakeKraidInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        0xa7 => KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        0xa7 => KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address) || PhantoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa8 => BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xb3 => BotwoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
@@ -226,7 +229,8 @@ internal static partial class CompiledEnemyVisualSelectors
                 0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.BoulderFrameAt(operandAddress)
                     : KraidVisualDefinitions.FrameAt(RoomEnemySystem.FakeKraidDefinition, operandAddress),
-                0xa7 => KraidVisualDefinitions.FrameAt(RoomEnemySystem.KraidGoodNailDefinition, operandAddress),
+                0xa7 => PhantoonInstructionProgramDefinitions.IsPresentationWord(operandAddress) ? PhantoonInstructionProgramDefinitions.FrameAt(operandAddress)
+                    : KraidVisualDefinitions.FrameAt(RoomEnemySystem.KraidGoodNailDefinition, operandAddress),
                 0xb3 => BotwoonVisualDefinitions.FrameAt(operandAddress),
                 _ => FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.FuneNamiheFrameAt(operandAddress)

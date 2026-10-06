@@ -159,6 +159,13 @@ internal static partial class Program
                 "Every Phantoon visual operand has an installed selector");
             AssertEqual(ReadPhantoonInstructionWord(rom, address), selected,
                 "Exact native Phantoon visual operand");
+            AssertEqual(ReadPhantoonInstructionWord(rom, address),
+                PhantoonInstructionProgramDefinitions.PresentationFrame(index),
+                "Named Phantoon role selection equals the native operand");
+            AssertEqual(selected, PhantoonInstructionProgramDefinitions.FrameAt(address),
+                "Phantoon address dispatch equals indexed role selection");
+            AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0xa70000 | address),
+                "Phantoon selector belongs to calculated dispatch");
             AssertThrows<InvalidDataException>(
                 () => PhantoonInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Phantoon presentation $A7:{address:X4} is rejected as mechanics");

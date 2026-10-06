@@ -1,5 +1,11 @@
 namespace SuperMetroid.Core.Assets;
 
+/// <summary>Eight mutually exclusive compass gaze directions selected at $A7:CCA7..CCD6.</summary>
+internal enum PhantoonGazeDirection
+{
+    Up, UpRight, Right, DownRight, Down, DownLeft, Left, UpLeft,
+}
+
 /// <summary>
 /// Phantoon's bank-$A7 extended frames selected by the compiled $CC41-$CCFB
 /// instruction programs. These identities select BG2 tilemap writes, not OAM.
@@ -76,6 +82,31 @@ internal static class PhantoonBg2FrameDefinitions
         return new(pointer, name);
     }
 
+    /// <summary>$A7:DEDD, invulnerable body without active collision rectangles.</summary>
+    internal static ushort InvulnerableBody => Frame(0).Pointer;
+    /// <summary>$A7:DEFB, the closed eyelid frame.</summary>
+    internal static ushort ClosedEye => Frame(3).Pointer;
+    /// <summary>$A7:DF23, the centered pupil frame.</summary>
+    internal static ushort CenteredEye => Frame(7).Pointer;
+    /// <summary>$A7:DF05/DF0F/DF19, three progressively opening eyelid frames.</summary>
+    internal static ushort OpeningEye(int phase) => (uint)phase < 3 ? Frame(4 + phase).Pointer : throw new ArgumentOutOfRangeException(nameof(phase));
+    /// <summary>$A7:DF2D..DF73 are named compass pupil placements, selected by CC A7..CC D1 gaze programs.</summary>
+    internal static ushort Gaze(PhantoonGazeDirection direction) => Frame(direction switch
+    {
+        PhantoonGazeDirection.Up => 8,
+        PhantoonGazeDirection.UpRight => 15,
+        PhantoonGazeDirection.Right => 11,
+        PhantoonGazeDirection.DownRight => 13,
+        PhantoonGazeDirection.Down => 9,
+        PhantoonGazeDirection.DownLeft => 12,
+        PhantoonGazeDirection.Left => 10,
+        PhantoonGazeDirection.UpLeft => 14,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction)),
+    }).Pointer;
+    /// <summary>$A7:DFB3/DFC5/DFD7, the three two-component tentacle poses.</summary>
+    internal static ushort TentaclePose(int phase) => (uint)phase < 3 ? Frame(16 + phase).Pointer : throw new ArgumentOutOfRangeException(nameof(phase));
+    /// <summary>$A7:DFE9/DFF3/DFFD, the three mouth poses from rest to flame release.</summary>
+    internal static ushort MouthPose(int phase) => (uint)phase < 3 ? Frame(19 + phase).Pointer : throw new ArgumentOutOfRangeException(nameof(phase));
     internal static bool IsFrame(ushort pointer) => InRun(pointer, BodyEyeStart, 16, 10) ||
         InRun(pointer, Tentacles0, 3, 18) || InRun(pointer, MouthStart, 3, 10);
 

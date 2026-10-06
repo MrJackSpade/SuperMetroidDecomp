@@ -63,7 +63,7 @@ internal static class TesterOptionsAudit
                 Require(samus.Health == 123 && samus.Missiles == 2 && samus.EquippedItems == 0 && samus.EquippedBeams == 0,
                     "grant does not refill or re-equip existing player");
             }
-            var saves = new SuperMetroidSaveRam(bus);
+            var saves = new SuperMetroidSaveRam(bus, new GameInstallation(installationRoot).LoadMaps());
             saves.SaveSlot(0, new SuperMetroidSaveSnapshot());
             runtime.InitializeSavedGame(saves.ReadSlot(0)!);
             Require(runtime.Samus!.MaxHealth == (on ? 1499 : 99), "grant after save restore");

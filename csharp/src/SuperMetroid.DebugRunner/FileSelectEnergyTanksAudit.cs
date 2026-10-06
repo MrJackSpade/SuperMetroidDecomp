@@ -11,10 +11,10 @@ internal static class FileSelectEnergyTanksAudit
     {
         // Fresh arrays only. No persisted save is opened or written by this fixture.
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var saves = new SuperMetroidSaveRam(bus);
+        var maps = new GameInstallation(installationRoot).LoadMaps();
+        var saves = new SuperMetroidSaveRam(bus, maps);
         saves.SaveSlot(0, new SuperMetroidSaveSnapshot { Health = 899, MaxHealth = 1499 });
         saves.SaveSlot(1, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
-        var maps = new GameInstallation(installationRoot).LoadMaps();
         var menu = new FileSelectMenuState(bus, mapPresentation: maps);
         for (int frame = 0; frame < 16; frame++) menu.Step(0);
         Check(false);

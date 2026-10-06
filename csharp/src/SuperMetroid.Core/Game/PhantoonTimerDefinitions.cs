@@ -12,7 +12,7 @@ public static class PhantoonTimerDefinitions
     // Narrow approved nonsense retention: RNG/frame buckets have no temporal or
     // physical ordering. These exact permutations specify the random choice policy;
     // inventing a function for them would only re-encode the same ordering. This does
-    // not exempt the independent duration quantum, scales or tier ratios below.
+    // not exempt the other timer profiles or their independent scales below.
     /// <summary>$A7:CD41, RNG&amp;7 at $A7:D060-D06C selects the vulnerable window.</summary>
     private static readonly DurationChoice[] VulnerableChoices =
         [DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Medium,
@@ -26,11 +26,14 @@ public static class PhantoonTimerDefinitions
         [DurationChoice.Medium, DurationChoice.Long, DurationChoice.Short, DurationChoice.Medium,
          DurationChoice.Short, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Short];
 
-    // REQUIRED: chosen base duration and scaling policy, separate from bucket order.
-    private const int QuantumFrames = 15;
+    /// <summary>$A7:CD45 and D03F-D075/D60D-D65B: selected shortest fifteen-call opportunity to hit the open eye. The waiting state has no movement-derived duration; changing this choice changes the attack opportunity.</summary>
+    private const int ShortestVulnerableExposureFrames = 15;
+    // REQUIRED: the separate EyeClosed/RainHiding scaling policies. Reusing the
+    // exposure quantum does not approve those profiles' duration choices.
     private const int EyeShortScale = 4;
     private const int RainShortScale = 2;
     private const int EyeMediumScale = 6;
+    /// <summary>$A7:CD41: medium/long vulnerable opportunities double each prior tier. This selected exposure policy is independent of the separately timed swoop handoff; other timer profiles remain required.</summary>
     private const int TierDoubling = 2;
 
     public static Schedule VulnerableWindow => new(TimerKind.Vulnerable);
@@ -55,7 +58,7 @@ public static class PhantoonTimerDefinitions
             get
             {
                 DurationChoice choice = Choices[index];
-                int shortest = QuantumFrames * (kind == TimerKind.EyeClosed ? EyeShortScale : kind == TimerKind.RainHiding ? RainShortScale : 1);
+                int shortest = ShortestVulnerableExposureFrames * (kind == TimerKind.EyeClosed ? EyeShortScale : kind == TimerKind.RainHiding ? RainShortScale : 1);
                 int medium = shortest * (kind == TimerKind.EyeClosed ? EyeMediumScale : TierDoubling);
                 return (ushort)(choice switch
                 {

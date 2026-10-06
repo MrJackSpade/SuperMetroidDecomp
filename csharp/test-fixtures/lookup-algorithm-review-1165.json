@@ -12083,4 +12083,13 @@
   "completed": [
     "CeresEscapeOverlayTilemapCatalog.pages"
   ]
+},"phantoonVulnerableWindowWhole":{
+  "completed": [
+    "PhantoonTimerDefinitions.VulnerableWindow"
+  ],
+  "confirmation": "Root build1452 warnings/0 errors. After build completion,24 native words,196608 RNG selector calls,256 initial NMI values and210 actual countdown calls passed,including collision eligibility,no early transition,damage clear and exact hit/no-hit handoffs.",
+  "disposition": [
+    "Medium30/long60 calculate from selected shortest15-call open-eye attack opportunity and doubling tiers. Retain only this chosen vulnerability timing plus previously reviewed random bucket ordering: waiting routine only aims eye and decrements timer,with no trajectory-derived duration. EyeClosed,RainHiding and separately timed swoop remain required."
+  ],
+  "workerCommit": "3d587cccd"
 }}

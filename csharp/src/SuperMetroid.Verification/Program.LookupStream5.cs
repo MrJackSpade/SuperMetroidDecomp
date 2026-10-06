@@ -6,6 +6,61 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5PhantoonExposure(SuperMetroidAddressSpace rom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        int ticks = 0;
+        foreach (int bucket in new[] { 2, 1, 0 })
+        foreach (bool shot in new[] { false, true })
+        {
+            var system = new RoomEnemySystem();
+            var body = system.Slots[0];
+            var eye = system.Slots[1];
+            var tentacles = system.Slots[2];
+            var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = tentacles, Mouth = system.Slots[3] };
+            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(system, (Func<ushort>)(() => (ushort)bucket));
+            var open = typeof(RoomEnemySystem).GetMethod("BeginPhantoonEyeTracking", flags)!.CreateDelegate<Action<PhantoonEnemyState>>(system);
+            var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonEyeTracking", flags)!.CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState, SamusState>>(system);
+            body.XPosition = 128; body.YPosition = 96;
+            open(state);
+            ushort duration = ReadVerificationWord(rom, 0xa7cd41 + bucket * 2);
+            AssertEqual(duration, body.VariableE, "Native selected vulnerability duration");
+            AssertTrue((body.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) == 0, "Eye opening enables collision");
+            tentacles.VariableA = (ushort)(shot ? 1 : 0);
+            tentacles.VariableB = 37;
+            var samus = new SamusState { XPosition = 192, YPosition = 96 };
+            for (int elapsed = 1; elapsed <= duration; elapsed++)
+            {
+                tick(body, state, samus); ticks++;
+                AssertEqual((ushort)128, body.XPosition, "Exposure duration does not advance a spatial trajectory");
+                AssertEqual((ushort)96, body.YPosition, "Exposure body remains at current Y");
+                if (elapsed < duration)
+                {
+                    AssertEqual((ushort)(duration - elapsed), body.VariableE, "One exact countdown decrement per actor call");
+                    AssertEqual((ushort)PhantoonAiFunction.EyeTracksSamus, body.VariableF, "No early exposure transition");
+                    AssertTrue((body.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) == 0, "Exposure remains collidable before expiry");
+                    AssertEqual((ushort)37, tentacles.VariableB, "Round damage remains until expiration");
+                }
+            }
+            AssertEqual((ushort)0, tentacles.VariableB, "Expiration resets accumulated round damage");
+            if (shot)
+            {
+                AssertEqual((ushort)PhantoonAiFunction.BecomeSolidAndSwoop, body.VariableF, "Shot-triggered expiration selects swoop");
+                AssertEqual(ReadVerificationWord(rom, 0xa7d620), body.VariableE, "Separate native swoop setup hold preserved");
+                AssertEqual((ushort)0, tentacles.VariableA, "Expiration consumes swoop request");
+            }
+            else
+            {
+                AssertEqual((ushort)PhantoonAiFunction.NoOperation, body.VariableF, "Unhit expiration hands off to eye close");
+                AssertEqual(PhantoonInstructionProgramDefinitions.InvulnerableBody, body.CurrentInstruction, "Native invulnerable body handoff");
+                AssertEqual(PhantoonInstructionProgramDefinitions.EyeCloseAndPickNewPattern, eye.CurrentInstruction, "Native close/reselect eye handoff");
+                AssertTrue((body.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) != 0, "Expiration removes open-eye collision");
+                AssertEqual((ushort)1, body.Parameter2, "Unhit expiration requests next rain branch");
+            }
+        }
+        AssertEqual(210, ticks, "All three actual exposure lengths and both expiry branches");
+        Console.WriteLine("Phantoon exposure: three native window lengths,210 actual countdown calls, exact collision/shot/close transitions and separate swoop hold pass.");
+    }
     private static void VerifyLookupStream5CeresOverlayWords(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.CeresEscapeOverlayTilemapFiles.Extract(rom);

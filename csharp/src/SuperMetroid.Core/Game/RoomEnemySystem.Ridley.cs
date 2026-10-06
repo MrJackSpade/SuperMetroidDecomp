@@ -826,6 +826,12 @@ public sealed partial class RoomEnemySystem
     {
         if (state.FacingDirection == 1)
             return;
+        // D955 reads the word at Enemy.XPosition-1: its sign is bit 7 of
+        // the low X byte, not the sign of the full coordinate. Keep an inward
+        // facing actor's current animation and timer untouched.
+        bool rightHalf = (slot.XPosition & 0x0080) != 0;
+        if (state.FacingDirection == 0 ? rightHalf : !rightHalf)
+            return;
         SetRidleyInstruction(
             slot,
             state.FacingDirection == 0

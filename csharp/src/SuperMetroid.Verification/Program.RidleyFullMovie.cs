@@ -12,6 +12,33 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyRidleyCenterFacing()
+    {
+        var method = typeof(RoomEnemySystem).GetMethod("SelectNorfairRidleyFacingInstruction",
+            BindingFlags.Static | BindingFlags.NonPublic)!;
+        (ushort X, ushort Facing, bool Turn)[] cases = [
+            (0x004a, 2, false), // Original movie frame 734: already facing inward.
+            (0x00c0, 2, true), (0x004a, 0, true), (0x00c0, 0, false),
+            (0x004a, 1, false), (0x007f, 2, false), (0x0080, 2, true),
+            (0x014a, 2, false), // Native tests the low position byte, not full X >= 128.
+        ];
+        foreach (var sample in cases)
+        {
+            var slot = new RoomEnemySlot(0) { XPosition = sample.X,
+                CurrentInstruction = RidleyMovieMemory.RidleyRightFlyingSleep,
+                InstructionTimer = 7, Timer = 9 };
+            var state = new RidleyEnemyState { FacingDirection = sample.Facing };
+            method.Invoke(null, [slot, state]);
+            ushort expected = !sample.Turn ? RidleyMovieMemory.RidleyRightFlyingSleep
+                : sample.Facing == 0 ? RidleyInstructionProgramDefinitions.TurnFromLeftToRight
+                : RidleyInstructionProgramDefinitions.TurnFromRightToLeft;
+            AssertEqual(expected, slot.CurrentInstruction, $"native center-facing instruction at {sample.X:X4}, facing {sample.Facing}");
+            AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, slot.InstructionTimer, "turn timer changes only when native condition is met");
+            AssertEqual(sample.Turn ? (ushort)0 : (ushort)9, slot.Timer, "loop counter is preserved when no turn is needed");
+        }
+        Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and native low-byte boundary agree.");
+    }
+
     private static void VerifyRidleyDoorEntry()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

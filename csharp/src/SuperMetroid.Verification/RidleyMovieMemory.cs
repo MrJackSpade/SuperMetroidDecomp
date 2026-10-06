@@ -19,6 +19,8 @@ internal static class RidleyMovieMemory
     public const int RidleyFunction = 0x0fa8;
     /// <summary>$0FB2: Ridley's slot-zero var_F, the native function timer.</summary>
     public const int RidleyFunctionTimer = 0x0fb2;
+    /// <summary>$A6:E967: sleep cursor retained while right-facing Ridley already faces room middle.</summary>
+    public const ushort RidleyRightFlyingSleep = 0xe967;
     /// <summary>$079B: room_ptr.</summary>
     public const int Room = 0x079b;
     /// <summary>$0911: layer1_x_pos.</summary>

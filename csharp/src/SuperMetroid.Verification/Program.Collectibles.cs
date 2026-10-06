@@ -16,6 +16,7 @@ internal static partial class Program
     /// </summary>
     static void VerifyPermanentCollectibles()
     {
+        VerifyMorphBallPickupCollision();
         var bus = new TestAddressSpace();
         SeedCollectibleRom(bus);
         // Full-table audit: unused native entries still allocate a deleting PLM,
@@ -223,32 +224,74 @@ internal static partial class Program
             "  Permanent collectibles: 63 ROM headers, all 21 effects, three presentations, SRAM bits, bank-$85 messages, and suit transformations agree.");
     }
 
+    private static void VerifyMorphBallPickupCollision()
+    {
+        var bus = new TestAddressSpace();
+        SeedCollectibleRom(bus);
+        // Retail room $9E9F/$9EB1 places Morph Ball at ($45,$29): block 5317.
+        var fixture = LoadCollectible(bus,
+            (ushort)(RoomPlmHeaders.ExposedEnergyTank + (int)InWorldCollectibleKind.MorphBall * 4),
+            26, precollected: false, width: 128, blockX: 69, blockY: 41, height: 48);
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
+        var movement = new SamusKinematicsState
+        {
+            XPosition = 1124, YPosition = 651, XRadius = 5, YRadius = 14,
+        };
+        SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
+            plms: fixture.Plms, alignToSlopeAfterMovement: false);
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
+        AssertTrue(fixture.System.HasCollectedItemBit(26), "Morph Ball pickup persists");
+        AssertPermanentCollectibleEffect(InWorldCollectibleKind.MorphBall, fixture.Samus);
+        AssertEqual(CollectiblePhase.AwaitingMessage, fixture.Plms.Collectibles[0].Phase,
+            "Morph Ball retains its owner during the synchronous message");
+        AssertEqual(1, fixture.Plms.CollectiblePickupEvents.Count, "Morph Ball publishes one pickup");
+        fixture.Plms.CompleteCollectibleMessage();
+        // Message return resumes gameplay movement before the next PLM handler pass.
+        var next = SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
+            plms: fixture.Plms, alignToSlopeAfterMovement: false);
+        AssertEqual((ushort)1122, movement.XPosition, "message-return horizontal movement advances");
+        AssertTrue(!next.Collided, "message-return Morph Ball block remains passable");
+        AssertEqual(CollectiblePhase.ResumeAfterMessage, fixture.Plms.Collectibles[0].Phase,
+            "repeat contact preserves the pending cleanup continuation");
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
+        AssertEqual(0, fixture.Plms.ActiveCount, "Morph Ball owner deletes after message return");
+        AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).LevelWord,
+            "Morph Ball pickup draws native empty level word");
+        AssertEqual(0, fixture.Plms.CollectiblePickupEvents.Count, "Morph Ball cannot be awarded twice");
+        var cleared = SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
+            plms: fixture.Plms, alignToSlopeAfterMovement: false);
+        AssertTrue(!cleared.Collided, "deleted Morph Ball leaves passable air");
+        AssertEqual((ushort)1121, movement.XPosition, "movement also advances after owner deletion");
+        Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");
+    }
+
     private static CollectibleFixture LoadCollectible(
         TestAddressSpace bus,
         ushort header,
         ushort roomArgument,
         bool precollected,
         bool preopenedChozo = false,
-        RoomLayer3FxState? roomFx = null)
+        RoomLayer3FxState? roomFx = null,
+        int width = 8,
+        int blockX = 3,
+        int blockY = 3,
+        int height = 8)
     {
         const ushort population = 0x9000;
-        const int width = 8;
-        const int blockX = 3;
-        const int blockY = 3;
         int blockIndex = blockY * width + blockX;
         bus.WriteBytes(0x8f0000 | population, [
             unchecked((byte)header), unchecked((byte)(header >> 8)),
-            blockX, blockY,
+            unchecked((byte)blockX), unchecked((byte)blockY),
             unchecked((byte)roomArgument), unchecked((byte)(roomArgument >> 8)),
             0x00, 0x00,
         ]);
 
-        var foreground = new ushort[width * width];
+        var foreground = new ushort[width * height];
         foreground[blockIndex] = 0x0123;
         var definitions = new byte[0x400 * 8];
         RoomLevelData level = CreateRoom(
             width,
-            width,
+            height,
             foreground,
             new byte[foreground.Length],
             blockDefinitions: definitions);

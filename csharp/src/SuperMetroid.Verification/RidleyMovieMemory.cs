@@ -1,6 +1,28 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$0DBC/$0DBE: total horizontal speed after extra momentum and divisor.</summary>
+    public const int TotalHorizontalSpeed = 0x0dbc, TotalHorizontalSubspeed = 0x0dbe;
+    /// <summary>$0A58: installed Samus movement handler.</summary>
+    public const int SamusMovementHandler = 0x0a58;
+    /// <summary>$90:A337: normal movement-type dispatcher.</summary>
+    public const ushort NormalMovementHandler = 0xa337;
+    /// <summary>$90:DF38: knockback movement dispatcher.</summary>
+    public const ushort KnockbackMovementHandler = 0xdf38;
+    /// <summary>$0A42/$0A44: paired alpha/beta control handlers.</summary>
+    public const int SamusAlphaHandler = 0x0a42, SamusBetaHandler = 0x0a44;
+    /// <summary>$90:E695/$90:E725: normal Samus alpha/beta handlers.</summary>
+    public const ushort NormalAlphaHandler = 0xe695, NormalBetaHandler = 0xe725;
+    /// <summary>$90:E713/$90:E8DC: locked Samus alpha/beta handlers.</summary>
+    public const ushort LockedAlphaHandler = 0xe713, LockedBetaHandler = 0xe8dc;
+
+    /// <summary>$0A6C: environment-selected horizontal movement table base.</summary>
+    public const int HorizontalSpeedTable = 0x0a6c;
+    /// <summary>$0B4C: eight-bit horizontal deceleration multiplier.</summary>
+    public const int HorizontalDecelerationMultiplier = 0x0b4c;
+    /// <summary>$0B40: retained Speed Booster echo sound latch.</summary>
+    public const int SpeedEchoSoundLatch = 0x0b40;
+
     /// <summary>$0DFE: held input history published by the draw and main-loop epilogues.</summary>
     public const int SamusFilteredHeld = 0x0dfe;
     /// <summary>$0E00: Samus draw-time PreviousDrawNewInput state.</summary>

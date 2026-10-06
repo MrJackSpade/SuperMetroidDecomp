@@ -187,6 +187,43 @@ internal static partial class Program
         Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
     }
 
+    private static void VerifyRetainedHorizontalSpeed()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var room = CreateRoom(16, 16, new ushort[256], new byte[256]);
+        foreach (int branch in new[] { 0, 1, 2, 3 })
+        {
+            var samus = new SamusState
+            {
+                Pose = branch switch
+                {
+                    0 => SamusPoseIds.NormalJumpForwardRightPose,
+                    2 => SamusPoseIds.SpringBallJumpRightPose,
+                    _ => SamusPoseIds.FallingAimDownRightPose,
+                },
+                XPosition = 128, YPosition = 128,
+            };
+            samus.RefreshCollisionRadii(bus);
+            samus.Kinematics.YDirection = 2;
+            samus.HorizontalSpeed.CalculateTotalSpeed(0x00054321);
+            samus.HorizontalSpeed.BaseSpeed = branch == 3 ? (ushort)0 : (ushort)5;
+            if (branch == 0) SamusAerialMovement.StepNormalJump(bus, room, samus, 0, 0);
+            else if (branch == 1) SamusAerialMovement.StepFalling(bus, room, samus, 0, 0);
+            else if (branch == 2) SamusMorphBallMovement.StepSpringBallInAir(bus, room, samus, 0, 0);
+            else
+            {
+                samus.Grapple.ReleasedMovementActive = true;
+                SamusAerialMovement.StepReleasedFromGrapple(bus, room, samus, 0, 0);
+            }
+            AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed, $"branch {branch} clears base speed");
+            AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSubspeed, $"branch {branch} clears base fraction");
+            AssertEqual((ushort)128, samus.XPosition, $"branch {branch} does not move horizontally");
+            AssertEqual((ushort)5, samus.HorizontalSpeed.TotalSpeed, $"branch {branch} retains total speed");
+            AssertEqual((ushort)0x4321, samus.HorizontalSpeed.TotalSubspeed, $"branch {branch} retains total fraction");
+        }
+        Console.WriteLine("No-direction normal jump, fall, Spring Ball jump and grapple release retain total speed while clearing base motion.");
+    }
+
     private static void VerifyPauseDispatcherRandom()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -740,6 +777,14 @@ internal static partial class Program
         SamusState samus = runtime.Samus ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load Samus.");
         samus.InputLocked = false;
+        typeof(SamusHorizontalSpeedState).GetProperty(nameof(samus.HorizontalSpeed.ActiveSpeedTableBaseAddress))!
+            .SetValue(samus.HorizontalSpeed, W(RidleyMovieMemory.HorizontalSpeedTable));
+        samus.HorizontalSpeed.DecelerationMultiplier = memory[RidleyMovieMemory.HorizontalDecelerationMultiplier];
+        samus.HorizontalSpeed.EchoSoundFlag = W(RidleyMovieMemory.SpeedEchoSoundLatch);
+        typeof(SamusHorizontalSpeedState).GetProperty(nameof(samus.HorizontalSpeed.TotalSpeed))!
+            .SetValue(samus.HorizontalSpeed, W(RidleyMovieMemory.TotalHorizontalSpeed));
+        typeof(SamusHorizontalSpeedState).GetProperty(nameof(samus.HorizontalSpeed.TotalSubspeed))!
+            .SetValue(samus.HorizontalSpeed, W(RidleyMovieMemory.TotalHorizontalSubspeed));
         runtime.Projectiles.GetType().GetProperty("ProjectileCounter")!.SetValue(runtime.Projectiles, W(RidleyMovieMemory.ProjectileCount));
         runtime.Projectiles.GetType().GetProperty("PreviousBeamChargeCounter")!.SetValue(runtime.Projectiles, W(RidleyMovieMemory.PreviousCharge));
         runtime.Projectiles.GetType().GetProperty("ProjectileInvincibilityTimer")!.SetValue(runtime.Projectiles, W(RidleyMovieMemory.ProjectileInteractionImmunity));
@@ -1019,6 +1064,26 @@ internal static partial class Program
             Check("Samus BombJumpDirection", samus.BombJumpDirection, RidleyMovieMemory.BombJumpDirection);
             Check("Samus running momentum", samus.HorizontalSpeed.HasRunningMomentum ? (ushort)1 : (ushort)0, RidleyMovieMemory.Momentum);
             Check("Samus speed boost counter", samus.HorizontalSpeed.SpeedBoostCounter, RidleyMovieMemory.BoostCounter);
+            Check("Samus horizontal speed table", samus.HorizontalSpeed.ActiveSpeedTableBaseAddress, RidleyMovieMemory.HorizontalSpeedTable);
+            AssertEqual(memory[RidleyMovieMemory.HorizontalDecelerationMultiplier], samus.HorizontalSpeed.DecelerationMultiplier,
+                $"update {frame}: Samus horizontal deceleration multiplier");
+            Check("Samus echo sound latch", samus.HorizontalSpeed.EchoSoundFlag, RidleyMovieMemory.SpeedEchoSoundLatch);
+            Check("Samus total horizontal speed", samus.HorizontalSpeed.TotalSpeed, RidleyMovieMemory.TotalHorizontalSpeed);
+            Check("Samus total horizontal fraction", samus.HorizontalSpeed.TotalSubspeed, RidleyMovieMemory.TotalHorizontalSubspeed);
+            Check("Samus movement handler", samus.KnockbackActive
+                ? RidleyMovieMemory.KnockbackMovementHandler : RidleyMovieMemory.NormalMovementHandler,
+                RidleyMovieMemory.SamusMovementHandler);
+            // DoorTransitionState uses InputLocked to suppress host control, while
+            // native door dispatch retains ordinary alpha/beta pointers unused.
+            bool nativeControlLock = samus.InputLocked && game.GameState is not
+                (SuperMetroidGameState.HitDoorBlock or SuperMetroidGameState.LoadingNextRoomA or
+                 SuperMetroidGameState.LoadingNextRoomB);
+            Check("Samus alpha handler", nativeControlLock
+                ? RidleyMovieMemory.LockedAlphaHandler : RidleyMovieMemory.NormalAlphaHandler,
+                RidleyMovieMemory.SamusAlphaHandler);
+            Check("Samus beta handler", nativeControlLock
+                ? RidleyMovieMemory.LockedBetaHandler : RidleyMovieMemory.NormalBetaHandler,
+                RidleyMovieMemory.SamusBetaHandler);
 
             Check("Samus health", samus.Health, RidleyMovieMemory.Health);
             Check("Samus general Samus damage immunity countdown", samus.InvincibilityTimer, RidleyMovieMemory.InvincibilityTimer);

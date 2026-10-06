@@ -259,7 +259,7 @@ public static class SamusMorphBallMovement
             // horizontal direction is held; powered vertical motion continues unchanged.
             speed.BaseSpeed = 0;
             speed.BaseSubspeed = 0;
-            speed.CalculateTotalSpeed(0);
+            // This branch bypasses $90:E4E6; retain the previous total-speed pair.
             requestedHorizontal = 0;
         }
         else

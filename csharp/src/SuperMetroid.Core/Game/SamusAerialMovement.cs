@@ -605,7 +605,7 @@ public static class SamusAerialMovement
             // `$90:94AA-$94B4` clears both persistent base words and the frame displacement.
             speed.BaseSpeed = 0;
             speed.BaseSubspeed = 0;
-            speed.CalculateTotalSpeed(0);
+            // This branch bypasses $90:E4E6; retain the previous total-speed pair.
             horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, 0, plms: plms);
         }
         else
@@ -656,7 +656,7 @@ public static class SamusAerialMovement
             // $90:901E/$90:9185 clear both the DP displacement and persistent base speed.
             speed.BaseSpeed = 0;
             speed.BaseSubspeed = 0;
-            speed.CalculateTotalSpeed(0);
+            // This branch bypasses $90:E4E6; retain the previous total-speed pair.
             return SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, 0, plms: plms);
         }
 

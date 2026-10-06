@@ -114,10 +114,10 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Signed whole-pixel X velocity for departing echo one at WRAM <c>$0AC2</c>.</summary>
     public ushort SecondSpeedEchoXSpeed { get; private set; }
 
-    /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0B48</c>.</summary>
+    /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBC</c>.</summary>
     public ushort TotalSpeed { get; private set; }
 
-    /// <summary>Fractional part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0B46</c>.</summary>
+    /// <summary>Fractional part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBE</c>.</summary>
     public ushort TotalSubspeed { get; private set; }
 
     /// <summary>

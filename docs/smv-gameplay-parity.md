@@ -57,7 +57,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Contract | Current evidence | Remaining work |
 | --- | --- | --- |
 | Source identity, immutable movie, input edges, lag classification, terminal boundary | Converter v3 and complete replay pass | Retain these checks with each coverage expansion |
-| Samus movement and collision | Positions/fractions, camera, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state and momentum/boost pass | Control-handler ownership, remaining movement flags and secondary motion state |
+| Samus movement and collision | Positions/fractions, camera, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state, momentum/boost, environment speed-table selection, deceleration multiplier, echo sound latch, total horizontal speed and normal/knockback plus alpha/beta handler identity pass | Remaining control handlers, movement flags and secondary motion state |
 | Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication, charge palette/audio words, retained held/press samples, auto-jump timer and pose-input handler pass | Remaining combat/input ownership |
 | Enemies and Ridley | Active enemy collision/properties/timers; complete Ridley tail records, shared tail/body controller, wing/grab/damage/health/facing state pass | Remaining actor AI variables and phase-dependent aliases |
 | Ordinary/enemy projectiles | Ordinary active-slot motion/program/art and callback identity; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Final render composition/pixels; bombs need live mappings only if a different movie activates them |
@@ -678,3 +678,32 @@ Release build and all 10,717 updates pass with these comparisons
 (`input-epilogue-build.log`, `input-epilogue-replay.log`). The failing pause sample
 and preserved gameplay-only words are checked directly. The fix awaits player
 validation; remaining handler, presentation and loading coverage remains open.
+
+
+### Horizontal movement inputs, total speed and control handlers
+
+Every retained update now compares the selected environmental horizontal-speed
+table, eight-bit deceleration multiplier, echo sound latch, and both calculated
+total-speed words. Persistent values are imported only at the original snapshot.
+Normal/knockback movement and the paired normal/locked alpha/beta handlers also
+compare. Door transitions use a documented semantic mapping: the port's InputLocked
+also guards door-owned control, while native door dispatch retains normal handler
+pointers. This is not a production defect or an omitted comparison.
+
+Update 779/source 880 reproduced a genuine total-speed discrepancy: native $0005,
+port $0000. Normal jump/falling's no-direction branch ($90:901E/$90:9185) clears
+base speed and temporary displacement but skips $90:E4E6, retaining total speed.
+The port unnecessarily called CalculateTotalSpeed(0). Removed that call from the
+shared ordinary aerial branch and the equivalent Spring Ball jump and grapple
+release ($90:94AA) branches. No new total-speed value is synthesized.
+Corrected the owner's XML WRAM addresses to $0DBC/$0DBE.
+
+All 10,717 updates pass (`retained-speed-replay.log`). Release build has zero
+errors (`retained-speed-final-build.log`). Focused --samus-retained-horizontal-speed
+confirms ordinary jump, fall, Spring Ball jump and grapple release clear base
+motion without horizontal displacement while retaining both total-speed words
+(`retained-speed-final-focused.log`). The first fixture selected a jump-transition
+pose and was corrected to the ordinary airborne pose before this passing result.
+The movie reproduced the shared aerial defect; the two equivalent branches were
+confirmed with focused production-path fixtures and pinned cartridge source.
+Player validation and the remaining full-parity coverage audit remain pending.

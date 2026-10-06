@@ -30,9 +30,6 @@ public sealed class PhantoonColorCatalog
 
     private readonly Dictionary<int, ushort> healthEdits = [];
     private readonly Dictionary<int, ushort> fadeOutEdits = [];
-    // REQUIRED: selected ramp starts/membership, channel step and all other colors.
-    private const int PowerShadeStep = 6;
-    private readonly Dictionary<int, ushort> requiredPowerColors = [];
     private readonly Dictionary<int, ushort> powerEdits = [];
 
     private PhantoonColorCatalog(ushort[][] healthBands, ushort[] fadeOut, ushort[] powerOn)
@@ -44,9 +41,7 @@ public sealed class PhantoonColorCatalog
         for (int color = 0; color < fadeOut.Length; color++)
             if (fadeOut[color] != 0) fadeOutEdits.Add(color, fadeOut[color]);
         for (int color = 0; color < powerOn.Length; color++)
-            if (PowerShadePosition(color) == 0) requiredPowerColors.Add(color, powerOn[color]);
-        for (int color = 0; color < powerOn.Length; color++)
-            if (powerOn[color] != PowerColor(color)) powerEdits.Add(color, powerOn[color]);
+            if (powerOn[color] != WreckedShipPowerPaintDefinitions.Color(color)) powerEdits.Add(color, powerOn[color]);
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -79,41 +74,12 @@ public sealed class PhantoonColorCatalog
             throw new ArgumentOutOfRangeException(nameof(color));
         return fadeOutEdits.GetValueOrDefault(color);
     }
-    /// <summary>
-    /// $A7:CAE1..CB16 contains five three-shade RGB ramps in BG palettes 4/5.
-    /// $A7:DC71..DC8A interpolates all seven BG palettes toward these targets.
-    /// Ramp membership, starts and six-level channel spacing remain required artwork inputs.
-    /// </summary>
+    /// <summary>$A7:CA61-CB40: all seven powered ship material palettes calculate; supplied words remain independently editable.</summary>
     public ushort ResolvePowerOn(int color)
     {
         if ((uint)color >= PhantoonColorRomData.PowerOnCount) throw new ArgumentOutOfRangeException(nameof(color));
-        return powerEdits.TryGetValue(color, out ushort edit) ? edit : PowerColor(color);
+        return powerEdits.TryGetValue(color, out ushort edit) ? edit : WreckedShipPowerPaintDefinitions.Color(color);
     }
-
-    private static int PowerShadePosition(int color)
-    {
-        int palette = color / 16, slot = color % 16;
-        return (palette, slot) switch
-        {
-            (4, >= 1 and <= 3) => slot - 1,
-            (4 or 5, >= 4 and <= 6) => slot - 4,
-            (4 or 5, >= 8 and <= 10) => slot - 8,
-            _ => 0,
-        };
-    }
-
-    private ushort PowerColor(int color)
-    {
-        int shade = PowerShadePosition(color);
-        ushort start = requiredPowerColors[color - shade];
-        if (shade == 0) return start;
-        int decrement = PowerShadeStep * shade;
-        int red = Math.Max(0, (start & 31) - decrement);
-        int green = Math.Max(0, ((start >> 5) & 31) - decrement);
-        int blue = Math.Max(0, (start >> 10) - decrement);
-        return (ushort)(red | green << 5 | blue << 10);
-    }
-
     public static PhantoonColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);

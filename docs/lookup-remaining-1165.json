@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 413,
+  "remainingTableDefinitionCount": 412,
   "fileCount": 523,
   "entries": [
     {
@@ -1839,12 +1839,15 @@
       "implementationCommit": "af8d5bcf0ee991a0dd053f9d1182a215f9d40501"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs",
-      "line": 23,
-      "name": "PhantoonColorCatalog.powerOn",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind PhantoonColorCatalog.powerOn. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs",
+  "line": 23,
+  "name": "PhantoonColorCatalog.powerOn",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind PhantoonColorCatalog.powerOn. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "650fe8f2a88e48079795cf613cdfcfc3f286bd0d",
+  "disposition": "All112words calculate from named material policies with no stock paint dictionary. Exact authored material choices are retained as documented by the worker source-backed material disposition; independent supplied edits are preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/PipeBugVisualDefinitions.cs",
       "line": 18,
@@ -21835,5 +21838,5 @@
     }
   ],
   "convertedSinceSnapshot": 606,
-  "justifiedRetainedSinceSnapshot": 109
+  "justifiedRetainedSinceSnapshot": 110
 }

@@ -14,22 +14,6 @@ namespace SuperMetroid.Core.Game;
 public sealed class EscapeTimer
 {
     /// <summary>
-    /// NTSC centisecond corrections copied from ROM <c>$80:9EEC-$80:9F6B</c>. Over 128
-    /// video frames the timer removes 213 centiseconds: 43 table entries are 1 and 85 are
-    /// 2. This compensates for the NTSC frame rate without using floating-point time.
-    /// </summary>
-    private static ReadOnlySpan<byte> CentisecondDecrements => [
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2,
-    ];
-
-    /// <summary>
     /// Raw state word at WRAM <c>$0943</c>. The dispatch index is only its low byte;
     /// active timers conventionally retain flag bit 15, producing values <c>$8003-$8006</c>.
     /// </summary>
@@ -82,7 +66,7 @@ public sealed class EscapeTimer
     /// fields have reached zero.
     /// </summary>
     /// <param name="nmiFrameCounter">
-    /// Global NMI frame counter. Only its low seven bits index the correction table.
+    /// Global NMI frame counter. Only its low seven bits select the periodic correction schedule.
     /// </param>
     /// <param name="preventEscapeTimeout">Host-only override: countdown continues normally until one second remains.</param>
     public bool Process(ushort nmiFrameCounter, bool preventEscapeTimeout = false)
@@ -243,7 +227,7 @@ public sealed class EscapeTimer
 
     private bool Decrement(ushort nmiFrameCounter)
     {
-        byte correction = CentisecondDecrements[nmiFrameCounter & 0x7f];
+        byte correction = EscapeTimerCadenceDefinitions.Centiseconds(nmiFrameCounter);
         CentisecondsBcd = SubtractPackedBcd(CentisecondsBcd, correction, out bool borrowedCentiseconds);
 
         if (borrowedCentiseconds)

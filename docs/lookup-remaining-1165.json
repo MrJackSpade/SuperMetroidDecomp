@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 508,
+  "remainingTableDefinitionCount": 507,
   "fileCount": 523,
   "entries": [
     {
@@ -3724,12 +3724,15 @@
       "implementationCommit": "218915099"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/EscapeTimer.cs",
-      "line": 21,
-      "name": "EscapeTimer.CentisecondDecrements",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Game/EscapeTimer.cs",
+    "line":  21,
+    "name":  "EscapeTimer.CentisecondDecrements",
+    "kind":  "stored definition",
+    "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+    "state":  "converted",
+    "implementationCommit":  "b43261f9ffb5400adbf9bed5e9ffe62c51449643",
+    "disposition":  "All128 samples replaced by integer countdown quantization: nearest128*100/60 budget, four cumulative quarters, odd-unit-first halves and rational accumulator differences. Exact native phases/mask and corrected124/125 expiration confirmed. No retained lookup inputs."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EtecoonInstructionProgramDefinitions.cs",
       "line": 55,
@@ -21548,6 +21551,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 596,
+  "convertedSinceSnapshot": 597,
   "justifiedRetainedSinceSnapshot": 24
 }

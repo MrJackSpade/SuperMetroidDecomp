@@ -38,6 +38,14 @@ if (args is ["--lookup-stream2-ghost-palette"])
     VerifyLookupStream2GhostPalette(rom);
     return 0;
 }
+if (args is ["--lookup-stream-1-timer-cadence"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Timer cadence oracle revision");
+    VerifyLookupStream1TimerCadence(rom);
+    return 0;
+}
 if (args is ["--lookup-stream-1-timer-glyphs"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

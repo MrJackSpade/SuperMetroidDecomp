@@ -5,6 +5,48 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1TimerCadence(ISnesAddressSpace rom)
+    {
+        var failures = new List<string>();
+        foreach (ushort frame in new ushort[] { 124, 125 })
+        {
+            var timer = new EscapeTimer();
+            typeof(EscapeTimer).GetProperty(nameof(EscapeTimer.RawStatus))!.SetValue(timer, (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace));
+            timer.SetTime(0, 1, 0x50);
+            byte correction = rom.ReadByte(0x809eec + frame);
+            byte expected = correction == 2 ? (byte)0x48 : (byte)0x49;
+            bool expired = timer.Process(frame);
+            if (timer.CentisecondsBcd != expected)
+                failures.Add("NMI " + frame + ": native decrement" + correction + " expects$" + expected.ToString("X2") + ", actual$" + timer.CentisecondsBcd.ToString("X2"));
+            AssertTrue(!expired && timer.SecondsBcd == 1 && timer.MinutesBcd == 0, "Exact cadence fixture preserves non-expiring whole time");
+        }
+        AssertTrue(failures.Count == 0, string.Join("; ", failures));
+        int total = 0;
+        for (int index = 0; index < 128; index++)
+        {
+            byte expected = rom.ReadByte(0x809eec + index);
+            total += expected;
+            AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)index), "Every native rational cadence sample");
+            AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 128)), "Native128-frame wrap");
+            AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 0xff80)), "Native ignores high NMI bits");
+            var timer = new EscapeTimer();
+            typeof(EscapeTimer).GetProperty(nameof(EscapeTimer.RawStatus))!.SetValue(timer, (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace));
+            timer.SetTime(0, 1, 0x50);
+            AssertTrue(!timer.Process((ushort)index), "Calculated cadence stays non-expiring");
+            AssertEqual(expected == 2 ? (byte)0x48 : (byte)0x49, timer.CentisecondsBcd, "Actual Process consumes each native correction");
+        }
+        AssertEqual(213, total, "Native full-period centisecond budget");
+        foreach (ushort frame in new ushort[] { 124, 125 })
+        {
+            var timer = new EscapeTimer();
+            typeof(EscapeTimer).GetProperty(nameof(EscapeTimer.RawStatus))!.SetValue(timer, (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace));
+            timer.SetTime(0, 0, 2);
+            bool expired = timer.Process(frame);
+            AssertEqual(frame == 124, expired, "Corrected native expiration phase");
+            AssertEqual(frame == 124 ? (byte)0 : (byte)1, timer.CentisecondsBcd, "Exact corrected expiration centisecond");
+        }
+        Console.WriteLine("Timer cadence:128 native corrections,384 phase observations,128 actual countdown updates and exact124/125 expiration pass.");
+    }
     private static void VerifyLookupStream1TimerGlyphs(ISnesAddressSpace rom)
     {
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);

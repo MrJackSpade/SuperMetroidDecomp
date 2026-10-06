@@ -214,7 +214,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/EscapeTimer.cs
 
-- [ ] **EscapeTimer.CentisecondDecrements** ([L21](../csharp/src/SuperMetroid.Core/Game/EscapeTimer.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EscapeTimer.CentisecondDecrements** ([L21](../csharp/src/SuperMetroid.Core/Game/EscapeTimer.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/FallingSparkInstructionProgramDefinitions.cs
 
@@ -1037,3 +1037,26 @@ EscapeTimerTileAtlas.transfer is now MIXED COMPLETE. Totals189 wholly converted 
 - Root explicitly approved this complete bounded mixed disposition. Helper names/comments now identify Chosen parameters instead of falsely pending REQUIRED inputs. Independent PNG edits remain supported at every pixel, including calculated/aliased pixels.
 - Final confirmation: Verification build1,434 warnings/zero errors; --lookup-stream-1-timer-glyphs passes624 direct native default-mask positions, zero stock fill overrides, exact275-site/four-edge retained basis, all1,600 independent PNG edits, all800 original planar bytes and actual typed/native two-page queue/VRAM upload. One final XML-only correction clarifies the approved outline width versus excluded RGBs; executable tokens unchanged after build. Root refreshed AreaMap, Cinematic, VramDmaPresentation and VramDmaSource contracts.
 Root integration confirmation:1452warnings/0errors;Audit0/0;all listed timer checks pass. Master596converted/22retained-mixed/510pending.
+
+## Batch 82: exact timer cadence transcription correction
+
+EscapeTimer.CentisecondDecrements remains REQUIRED pending complete cadence disposition; totals unchanged189 converted/nine mixed/28 unchecked. This is a reproduced correction within the owned table, not a lookup completion.
+
+- Pinned80:9F68/9F69 and retail-ROM offsets1F68/1F69 are02/01; managed indices124/125 were01/02. Corrected only these two transposed entries.
+- Exact pre-fix reproduction --lookup-stream-1-timer-cadence starts00:01.50 in RunningInPlace and invokes actual Process at NMI124 and125 independently. It failed:124 expects48 actual49;125 expects49 actual48. The fixture reads expected corrections directly from the SHA-pinned ROM. After correction both pass; whole seconds/minutes and non-expiration are unchanged.
+- Effect: the pair's total decrement remains3 centiseconds, but the earlier frame now removes2 rather than1; at an expiration boundary this restores which exact NMI reaches zero. No gameplay or unrelated test search.
+- Native80:9EAB..9EB4 selects global NMI low byte masked7F, then decimal SBC. The explicit128-frame period totals213 centiseconds (43 one-unit and85 two-unit corrections). A finite source-only comparison against a uniform213/128 accumulator with initial phase0,64,127 differs at60,68,62 positions respectively; this excludes those ordinary floor/nearest/ceil choices only, not all possible constructions. Nonuniformity is not a retention justification. Full native sequence and consumer packet sent to coordinator for independent functional phase review.
+- Verification build1,434 warnings/zero errors; exact two-index focused reproduction now passes. No ResourceAudit source-hash references to EscapeTimer.cs were found. Local Program.cs adds only the focused command; coordinator merges shared wiring.
+
+## Batch 83: complete native countdown quantizer
+
+EscapeTimer.CentisecondDecrements is CONVERTED, with no retained sample/phase exception. Totals190 wholly converted / nine mixed /27 unchecked.
+
+- New domain catalog EscapeTimerCadenceDefinitions replaces all128 stored corrections with hierarchical integer scheduling. Period128 follows native AND7F. Period centiseconds derive by nearest-integer128*100/60=213, with explicit centisecond and nominal-frame-rate units.
+- Cumulative floor distributes213 over four32-frame quarters as53,53,53,54. Splitting each quarter into two16-frame halves, odd unit first, yields budgets27,26,27,26,27,26,27,27. Each half differences consecutive rational-accumulator totals; budget27 uses preload1 and budget26 uses preload4 in the16-unit denominator.
+- These are bounded quantizer parameters with independent meanings: time rate, subdivision, odd-unit ordering and initial fractional accumulator state. There are no frame-index exceptions, sampled positions, polynomial interpolation or replacement lookup arrays. Root independently reviewed and approved conversion, not retention. This proves an exact functional replacement, not the identity of an unknown historical generation tool.
+- Preserves NMI low-seven-bit selection and actual BCD countdown. Incorporates Batch82's independently reproduced correction at indices124/125. At00:00.02, index124 expires and125 leaves00:00.01, matching native2/1.
+- Focused --lookup-stream-1-timer-cadence compares all128 independent native bytes,384 phase/mask observations,128 actual Process updates and the two exact expiration cases. New helper exclusively granted by coordinator; no other field or timer behavior changed.
+- Final confirmation: build1,434 warnings/zero errors; focused cadence command passes all stated native/Process/mask/expiration assertions. No remaining cadence payload or phase obligation; coordinator records the new catalog grant.
+
+Root integration:1452warnings/zero errors; full focused cadence/native/Process/expiry confirmation passed. Master597converted/24retained-mixed/507pending.

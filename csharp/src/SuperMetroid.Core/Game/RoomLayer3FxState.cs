@@ -220,16 +220,19 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Runs the shared-state portion of $88:B3B0 before main-loop RNG generation.
+    /// Runs liquid motion and shared-state writes from $88:B3B0 before main-loop RNG generation.
     /// $88:C3E9 installs the callback on the first HDMA pass; $88:B44A-B44E swaps
     /// the shared RNG bytes on subsequent unfrozen passes, even off screen.
-    /// Visual/VRAM updates remain in <see cref="Step"/> at their existing owner seam.
+    /// Rising/tidal motion also runs during door fades and pause entry. Visual/VRAM
+    /// updates remain in <see cref="Step"/>, which must not advance that motion twice.
     /// </summary>
     public void AdvanceHdmaSharedState(Bank80SystemState system, bool timeIsFrozen)
     {
         ArgumentNullException.ThrowIfNull(system);
         if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
             return;
+        EarthquakeRequest = null;
+        soundRequests.Clear();
         if (!lavaAcidBg3PreInstructionInstalled)
         {
             lavaAcidBg3PreInstructionInstalled = true;
@@ -238,6 +241,7 @@ public sealed class RoomLayer3FxState
         if (!timeIsFrozen)
         {
             ushort random = system.RandomNumber;
+            AdvanceLiquidMotion(random);
             system.SetRandomNumber(unchecked((ushort)((random << 8) | (random >> 8))));
         }
     }
@@ -251,13 +255,17 @@ public sealed class RoomLayer3FxState
         bool timeIsFrozen,
         ushort randomNumber = 0,
         ushort firefleaDarknessLevel = 0,
-        SamusPowerBombExplosionState? powerBomb = null)
+        SamusPowerBombExplosionState? powerBomb = null,
+        bool liquidMotionAlreadyAdvanced = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
         audioPowerBomb = powerBomb;
-        soundRequests.Clear();
-        EarthquakeRequest = null;
+        if (!liquidMotionAlreadyAdvanced)
+        {
+            soundRequests.Clear();
+            EarthquakeRequest = null;
+        }
         if (Type == RoomFxType.Fireflea)
         {
             LayerBlendConfiguration = LayerBlendingConfiguration.Fireflea;
@@ -276,7 +284,7 @@ public sealed class RoomLayer3FxState
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            StepLavaAcid(bus, cameraX, cameraY, randomNumber);
+            StepLavaAcid(bus, cameraX, cameraY, randomNumber, liquidMotionAlreadyAdvanced);
             return;
         }
 
@@ -449,9 +457,7 @@ public sealed class RoomLayer3FxState
         ushort cameraY,
         ushort randomNumber)
     {
-        StepLiquidRise(randomNumber);
-        StepLiquidTide();
-        CurrentYPosition = ComputeTidalYPosition();
+        AdvanceLiquidMotion(randomNumber);
         waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
         HorizontalScroll = unchecked((ushort)(
             cameraX + unchecked((sbyte)(waterHorizontalSubscroll >> 8))));
@@ -484,6 +490,13 @@ public sealed class RoomLayer3FxState
         }
     }
 
+    private void AdvanceLiquidMotion(ushort randomNumber)
+    {
+        StepLiquidRise(randomNumber);
+        StepLiquidTide();
+        CurrentYPosition = ComputeTidalYPosition();
+    }
+
     /// <summary>
     /// Ports the visible outputs of <c>$88:B3B0</c> and <c>$88:B4D5</c>. The liquid
     /// surface and BG3 plane follow the room camera, while one of two sixteen-scanline BG2
@@ -493,11 +506,11 @@ public sealed class RoomLayer3FxState
         ISnesAddressSpace bus,
         ushort cameraX,
         ushort cameraY,
-        ushort randomNumber)
+        ushort randomNumber,
+        bool liquidMotionAlreadyAdvanced)
     {
-        StepLiquidRise(randomNumber);
-        StepLiquidTide();
-        CurrentYPosition = ComputeTidalYPosition();
+        if (!liquidMotionAlreadyAdvanced)
+            AdvanceLiquidMotion(randomNumber);
         waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
         HorizontalScroll = cameraX;
         // Lava/acid $88:B3B0 uses the same surface-relative BG3VOFS equation as water
@@ -675,7 +688,8 @@ public sealed class RoomLayer3FxState
             return;
         }
 
-        short sample = EnemyTrigonometryTables.SignedSine((byte)(tidePhase >> 8));
+        // $88:B2DF/$B316 index the negative-cosine prefix, not the sine origin.
+        short sample = EnemyTrigonometryTables.SignedNegativeCosineWord(tidePhase >> 8);
         tideFixedOffset = sample * scale << 8;
         tidePhase = unchecked((ushort)(
             tidePhase + (sample >= 0 ? positiveDelta : negativeDelta)));

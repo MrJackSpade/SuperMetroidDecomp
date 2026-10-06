@@ -743,6 +743,14 @@ internal static partial class Program
         samus.EquippedBeams = W(RidleyMovieMemory.Beams);
         samus.Health = W(RidleyMovieMemory.Health);
         samus.MaxHealth = W(RidleyMovieMemory.MaxHealth);
+        samus.InvincibilityTimer = W(RidleyMovieMemory.InvincibilityTimer);
+        samus.KnockbackTimer = W(RidleyMovieMemory.KnockbackTimer);
+        samus.KnockbackDirection = W(RidleyMovieMemory.KnockbackDirection);
+        samus.KnockbackXDirection = W(RidleyMovieMemory.KnockbackXDirection);
+        samus.HurtFlashCounter = W(RidleyMovieMemory.HurtFlashCounter);
+        samus.SubunitHealth = W(RidleyMovieMemory.SubunitHealth);
+        samus.SelectedHudItem = W(RidleyMovieMemory.SelectedHudItem);
+        samus.AutoCancelHudItemIndex = W(RidleyMovieMemory.AutoCancelHudItemIndex);
         samus.ReserveTankMode = W(RidleyMovieMemory.ReserveMode);
         samus.MaxReserveEnergy = W(RidleyMovieMemory.MaxReserve);
         samus.ReserveEnergy = W(RidleyMovieMemory.Reserve);
@@ -783,6 +791,12 @@ internal static partial class Program
         // Native frame zero already has the acid BG3 callback installed at $18F0.
         AssertTrue(W(RidleyMovieMemory.AcidHdmaPreInstruction) == RidleyMovieMemory.AcidHdmaCallback, "initial native acid HDMA callback");
         typeof(RoomLayer3FxState).GetField("lavaAcidBg3PreInstructionInstalled", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, true);
+        typeof(RoomLayer3FxState).GetField("tidePhase", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, W(RidleyMovieMemory.TidePhase));
+        typeof(RoomLayer3FxState).GetField("tideFixedOffset", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx,
+            unchecked((int)((uint)W(RidleyMovieMemory.TideOffset) << 16 | W(RidleyMovieMemory.TideOffsetFraction))));
+        typeof(RoomLayer3FxState).GetField("baseYSubposition", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, W(RidleyMovieMemory.LiquidBaseFraction));
+        typeof(RoomLayer3FxState).GetProperty(nameof(RoomLayer3FxState.CurrentYPosition))!.SetValue(runtime.RoomLayer3Fx, W(RidleyMovieMemory.AcidSurface));
+        runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         string[] slotWords = ["EnemyDefinitionPointer", "XPosition", "XSubposition", "YPosition", "YSubposition", "XRadius", "YRadius", "Properties", "ExtraProperties", "AiHandlerBits", "Health", "SpritemapPointer", "Timer", "CurrentInstruction", "InstructionTimer", "PaletteIndex", "VramTilesIndex", "Layer", "FlashTimer", "FrozenTimer", "InvincibilityTimer", "ShakeTimer", "FrameCounter"];
         for (int index = 0; index < runtime.Enemies.Slots.Count; index++)
         {
@@ -858,6 +872,11 @@ internal static partial class Program
             Check("Camera X fraction", runtime.Camera.XSubposition, RidleyMovieMemory.CameraXFraction);
             Check("Camera Y", runtime.Camera.YPosition, RidleyMovieMemory.CameraY);
             Check("Camera Y fraction", runtime.Camera.YSubposition, RidleyMovieMemory.CameraYFraction);
+            if (game.GameState == SuperMetroidGameState.MainGameplay)
+            {
+                Check("Acid damage surface", samus.LiquidPhysics.LavaAcidYPosition, RidleyMovieMemory.AcidSurface);
+                Check("Liquid tide phase", (ushort)typeof(RoomLayer3FxState).GetField("tidePhase", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.RoomLayer3Fx)!, RidleyMovieMemory.TidePhase);
+            }
             Check("Samus X", samus.XPosition, RidleyMovieMemory.X);
             Check("Samus X fraction", samus.Kinematics.XSubposition, RidleyMovieMemory.XFraction);
             Check("Samus Y", samus.YPosition, RidleyMovieMemory.Y);
@@ -877,6 +896,15 @@ internal static partial class Program
             Check("Samus vertical fraction", samus.Kinematics.YSubspeed, RidleyMovieMemory.VerticalFraction);
             Check("Samus vertical direction", samus.Kinematics.YDirection, RidleyMovieMemory.VerticalDirection);
             Check("Samus health", samus.Health, RidleyMovieMemory.Health);
+            Check("Samus general Samus damage immunity countdown", samus.InvincibilityTimer, RidleyMovieMemory.InvincibilityTimer);
+            Check("Samus Samus knockback countdown", samus.KnockbackTimer, RidleyMovieMemory.KnockbackTimer);
+            Check("Samus Samus knockback direction", samus.KnockbackDirection, RidleyMovieMemory.KnockbackDirection);
+            Check("Samus horizontal knockback direction", samus.KnockbackXDirection, RidleyMovieMemory.KnockbackXDirection);
+            Check("Samus hurt palette/audio recovery countdown", samus.HurtFlashCounter, RidleyMovieMemory.HurtFlashCounter);
+            Check("Samus fractional health word", samus.SubunitHealth, RidleyMovieMemory.SubunitHealth);
+            Check("Samus selected HUD weapon", samus.SelectedHudItem, RidleyMovieMemory.SelectedHudItem);
+            Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex, RidleyMovieMemory.AutoCancelHudItemIndex);
+            Check("Samus acceleration mode", samus.HorizontalSpeed.AccelerationMode, RidleyMovieMemory.AccelerationMode);
             Check("Samus maximum health", samus.MaxHealth, RidleyMovieMemory.MaxHealth);
             Check("Samus equipped items", samus.EquippedItems, RidleyMovieMemory.Items);
             Check("Samus collected items", samus.CollectedItems, RidleyMovieMemory.CollectedItems);
@@ -985,6 +1013,7 @@ internal static partial class Program
             {
                 level = runtime.LevelData ?? throw new InvalidDataException("Missing active room collision data.");
                 Console.Error.WriteLine($"Pose history: port={samus.PoseHistory.PreviousPose:X4}/{samus.PoseHistory.PreviousDirectionAndMovement:X4}/{samus.PoseHistory.LastDifferentPose:X4}/{samus.PoseHistory.LastDifferentDirectionAndMovement:X4}, native={W(RidleyMovieMemory.PreviousPose):X4}/{W(RidleyMovieMemory.PreviousDirection):X4}/{W(RidleyMovieMemory.LastDifferentPose):X4}/{W(RidleyMovieMemory.LastDifferentDirection):X4}");
+                Console.Error.WriteLine($"Liquid diagnostic: Y={samus.YPosition:X4}, surface={samus.LiquidPhysics.LavaAcidYPosition:X4}, pose={samus.Pose:X2}, radius={samus.Kinematics.YRadius}");
                 Console.Error.WriteLine($"Shot diagnostic: locked={samus.InputLocked}, HUD={samus.SelectedHudItem}, grappleDebug={runtime.DebugGrappleItemSelected}, charge={runtime.Projectiles.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer}, held={runtime.Controller1.Current:X4}, new={runtime.Controller1.NewlyPressed:X4}, spawn={runtime.Projectiles.LastFiredProjectileSnapshot}");
                 Console.Error.WriteLine($"Room width={level.WidthInBlocks}, Samus radius={samus.Kinematics.XRadius}/{samus.Kinematics.YRadius}, speed={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4}+{samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4}");
                 for (int block = 0; block < level.WidthInBlocks * level.HeightInBlocks; block++)

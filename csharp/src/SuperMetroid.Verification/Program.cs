@@ -3720,6 +3720,12 @@ if (args is ["--lookup-shaktool-orbit"])
     Console.WriteLine("Shaktool orbit: all320 words, rounding intervals,256 displacement pairs and bounds pass.");
     return 0;
 }
+if (args is ["--liquid-tide-phase"])
+{
+    var tideOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyCompiledSignedTrigonometry(tideOracle);
+    return 0;
+}
 if (args is ["--lookup-signed-sine-review"])
 {
     var signedOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

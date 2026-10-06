@@ -436,7 +436,7 @@ internal static partial class Program
                 phaseField.SetValue(tide, (ushort)phase);
                 offsetField.SetValue(tide, 12345);
                 step();
-                short sample = Reference(64 + (phase >> 8));
+                short sample = Reference(phase >> 8);
                 bool small = (option & 0x80) != 0;
                 int scale = option == 0 ? 0 : small ? 8 : 32;
                 int delta = option == 0 ? 0 : small ? (sample >= 0 ? 288 : 192) : (sample >= 0 ? 224 : 128);

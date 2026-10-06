@@ -1,6 +1,16 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$1962: lava_acid_y_pos, the collision/damage surface.</summary>
+    public const int AcidSurface = 0x1962;
+    /// <summary>$1970: fx_y_suboffset, low word of the tidal displacement.</summary>
+    public const int TideOffsetFraction = 0x1970;
+    /// <summary>$1972: fx_y_offset, high word of the tidal displacement.</summary>
+    public const int TideOffset = 0x1972;
+    /// <summary>$1974: tide_phase, advanced by the signed negative-cosine half-cycle.</summary>
+    public const int TidePhase = 0x1974;
+    /// <summary>$1976: fx_base_y_subpos, fraction retained under the tide.</summary>
+    public const int LiquidBaseFraction = 0x1976;
     /// <summary>$090F: layer-one X subposition used by horizontal scrolling.</summary>
     public const int CameraXFraction = 0x090f;
     /// <summary>$0913: layer-one Y subposition used by vertical scrolling.</summary>
@@ -73,6 +83,22 @@ internal static class RidleyMovieMemory
     public const int Health = 0x09c2;
     /// <summary>$09C4: samus_max_health.</summary>
     public const int MaxHealth = 0x09c4;
+    /// <summary>$18A8: general Samus damage immunity countdown.</summary>
+    public const int InvincibilityTimer = 0x18a8;
+    /// <summary>$18AA: Samus knockback countdown.</summary>
+    public const int KnockbackTimer = 0x18aa;
+    /// <summary>$0A52: Samus knockback direction.</summary>
+    public const int KnockbackDirection = 0x0a52;
+    /// <summary>$0A54: horizontal knockback direction.</summary>
+    public const int KnockbackXDirection = 0x0a54;
+    /// <summary>$0A48: hurt palette/audio recovery countdown.</summary>
+    public const int HurtFlashCounter = 0x0a48;
+    /// <summary>$0A4C: fractional health word.</summary>
+    public const int SubunitHealth = 0x0a4c;
+    /// <summary>$09D2: selected HUD weapon.</summary>
+    public const int SelectedHudItem = 0x09d2;
+    /// <summary>$0A04: auto-cancel HUD selection.</summary>
+    public const int AutoCancelHudItemIndex = 0x0a04;
     /// <summary>$09C0: reserve_health_mode, initial reserve policy.</summary>
     public const int ReserveMode = 0x09c0;
     /// <summary>$09D4: samus_max_reserve_health, collected reserve capacity.</summary>

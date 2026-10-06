@@ -40,7 +40,11 @@ public sealed partial class SuperMetroidRuntime
     internal void AdvanceNonGameplayMainLoopRandom(bool hdmaObjectsEnabled)
     {
         if (hdmaObjectsEnabled)
+        {
             RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
+            if (Samus is not null && RoomLayer3Fx.Type is RoomFxType.Lava or RoomFxType.Acid)
+                RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);
+        }
         System.NextRandom();
     }
 }

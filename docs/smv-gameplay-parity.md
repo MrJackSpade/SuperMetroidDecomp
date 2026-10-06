@@ -51,17 +51,17 @@ The converter must:
 
 ### Coverage audit (current)
 
-The complete10,717-update input-only replay passes the currently implemented checks.
+The complete 10,717-update input-only replay passes the currently implemented checks.
 This is an end-to-end baseline, not proof that every gameplay owner is covered.
 
 | Contract | Current evidence | Remaining work |
 | --- | --- | --- |
 | Source identity, immutable movie, input edges, lag classification, terminal boundary | Converter v3 and complete replay pass | Retain these checks with each coverage expansion |
-| Samus position/fractions, camera position/fractions, pose/history, animation, primary speeds | Compared every retained interval | Control handlers, movement flags, combat timers and secondary motion state |
-| Health, reserves, equipment, collected inventory, ammunition and capacities | Complete replay passes all these fields (`inventory-coverage-replay.log`) | HUD selection and combat/input ownership |
+| Samus position/fractions, camera position/fractions, pose/history, animation, primary speeds | Compared every retained interval | Control handlers, remaining movement flags and secondary motion state |
+| Health, reserves, equipment, collected inventory, ammunition and capacities | Complete replay passes these fields, fractional health, hurt/invincibility/knockback timers and directions, HUD selection/cancellation and X acceleration mode (`tide-owner-replay.log`) | Remaining combat/input ownership |
 | Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Full actor properties, timers, AI variables and seven-segment tail state |
 | Ordinary/enemy projectiles | Active identities, positions, radii, damage, shared cooldown and charge checked | Full motion/instruction/pre-instruction state, bombs and explosion owners |
-| Persistent world state and room effects | Initial import and selected room checked | Boss/event/door/item bits, PLM changes, environmental gameplay state |
+| Persistent world state and room effects | Selected room plus acid damage surface/tide phase checked during gameplay | Boss/event/door/item bits, PLM changes, remaining environmental gameplay state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
 
 The history below records earlier divergence boundaries, not current completion.
@@ -338,3 +338,20 @@ The current verifier deliberately requires the original supplied Ridley movie's
 identity. The converter accepts supported one-controller SMVs with the matching
 instrumented J/U trace; additional verifier starting-state importers are separate
 work, not something the converter silently fabricates.
+
+### Acid tide and combat-state coverage
+
+Expanded combat checks reproduced the first fractional-health mismatch at update
+3514/source3618. Native acid height was $01BF while the port used $01B7,
+charging an extra $6000 fractional energy at exit. $88:B2DF/$B316 sample the
+negative-cosine prefix, but the port and its earlier test sampled the sine origin.
+Correcting that lookup also exposed missing tidal updates during door fades.
+Lava/acid motion now belongs to the HDMA prologue, including callback-install and
+frozen-time gates, with no duplicate advancement in the gameplay rendering pass.
+The initial import restores the movie's tide phase/offset, base fraction and surface
+once; subsequent native checkpoints remain comparison-only.
+
+The corrected ROM-backed tide fixture checks all phases for the existing four
+option combinations. The expanded independent replay passes all 10,717 updates,
+including health fractions, combat/HUD fields and gameplay acid surface/tide phase.
+This fixes that demonstrated discrepancy; the coverage audit above remains open.

@@ -45,6 +45,8 @@ internal sealed partial class CeresDestructionCinematicState
     private int fadeCounter = 1;
     private int phaseTimer;
     private int musicQueueTimer = 14;
+    // $8B:C11B's NMI waits completed so far; setup runs after the last one.
+    private int initialNmiWaits;
     private ushort cinematicFrameCounter;
     private int explosionSpawnerFrame;
     private int explosionOffsetIndex;
@@ -67,16 +69,15 @@ internal sealed partial class CeresDestructionCinematicState
         spriteArtwork = new CeresSceneSpritePresentation(
             artwork.CeresFlight.Sprites, artwork.CeresDestruction.Sprites);
         stationExplosion.PresentationColors = fixedColors;
-        // State $25 selects the common cinematic bank and destruction track eight.
-        audio?.QueueMusicDelayed8(MusicCommand.Stop);
-        audio?.QueueMusicDelayed8(
-            MusicCommand.LoadData(CeresDestructionRomData.Music.CeresDataIndex));
-        audio?.QueueMusicDelayed(
-            MusicCommand.SelectTrack(CeresDestructionRomData.Music.CeresTrack),
-            MusicCommandDelay.FromDelayedYArgument(CeresDestructionRomData.Music.DelayArgument));
         ceresTilemaps = LoadCeresTilemaps();
-        SetupCeresDestruction();
     }
+
+    /// <summary>
+    /// True when the next update resumes the initializer after one of its NMI waits, rather
+    /// than entering MainGameLoop.
+    /// </summary>
+    internal bool ResumesAfterNmiWait =>
+        initialNmiWaits is > 0 and <= CeresDestructionRomData.InitialNmiWaits;
 
     /// <summary>Rebinds current host artwork after restoring a cinematic debugger state.</summary>
     internal void BindFixedColors(PowerBombFixedColorCatalog? colors) =>
@@ -105,7 +106,7 @@ internal sealed partial class CeresDestructionCinematicState
             value.CeresFlight.Sprites, value.CeresDestruction.Sprites);
         if (value is null) return;
         ceresTilemaps = LoadCeresTilemaps();
-        if (Phase < CeresDestructionPhase.WaitForZebesMusicQueue)
+        if (Phase <= CeresDestructionPhase.FlyToZebesInitial)
             value.CeresFlight.Palette.LoadTo(cgram);
         if (Phase <= CeresDestructionPhase.FadeOutCeres)
         {
@@ -175,6 +176,35 @@ internal sealed partial class CeresDestructionCinematicState
     /// <summary>Executes one call through the native state-$22 cinematic dispatcher.</summary>
     public void Step()
     {
+        // $8B:C11B waits for nine NMIs within its first dispatch; each wait is one update
+        // that resumes it. After the last it sets up the scene and returns to the state-$22
+        // wrapper, whose object handling and frame-counter tail ($8B:A367) then run once.
+        if (initialNmiWaits < CeresDestructionRomData.InitialNmiWaits)
+        {
+            initialNmiWaits++;
+            return;
+        }
+        if (initialNmiWaits == CeresDestructionRomData.InitialNmiWaits)
+        {
+            initialNmiWaits++;
+            SetupCeresDestruction();
+            // $8B:C2B8-$C2DF queue the cinematic bank and state $22's track last.
+            audio?.QueueMusicDelayed8(MusicCommand.Stop);
+            audio?.QueueMusicDelayed8(
+                MusicCommand.LoadData(CeresDestructionRomData.Music.CeresDataIndex));
+            audio?.QueueMusicDelayed(
+                MusicCommand.SelectTrack(CeresDestructionRomData.Music.CeresTrack),
+                MusicCommandDelay.FromDelayedYArgument(CeresDestructionRomData.Music.DelayArgument));
+        }
+        else
+        {
+            StepPhase();
+        }
+        StepWrapperTail();
+    }
+
+    private void StepPhase()
+    {
         // The global bank-$82 frame dispatcher runs HDMA before the cinematic. A
         // newly spawned blast therefore cannot advance until the following call.
         stationExplosion.StepFrame(bus);
@@ -185,9 +215,10 @@ internal sealed partial class CeresDestructionCinematicState
                     Phase = CeresDestructionPhase.FadeInAndDrift;
                 break;
 
-            case CeresDestructionPhase.WaitForZebesMusicQueue:
-                if (MusicQueueFinished())
-                    Phase = CeresDestructionPhase.FadeInZebes;
+            case CeresDestructionPhase.FlyToZebesInitial:
+                // $8B:C699 sets up the Zebes scene and installs the fade-in ($C79C).
+                SetupZebesReveal();
+                Phase = CeresDestructionPhase.FadeInZebes;
                 break;
 
             case CeresDestructionPhase.FadeInAndDrift:
@@ -241,8 +272,9 @@ internal sealed partial class CeresDestructionCinematicState
                 break;
 
             case CeresDestructionPhase.FadeOutCeres:
+                // $8B:C627 installs $C699 once forced blank is reached; it runs next dispatch.
                 if (StepSlowFadeOut())
-                    SetupZebesReveal();
+                    Phase = CeresDestructionPhase.FlyToZebesInitial;
                 break;
 
             case CeresDestructionPhase.FadeInZebes:
@@ -320,14 +352,18 @@ internal sealed partial class CeresDestructionCinematicState
                 StepZebesActors(slidingAway: true);
                 break;
         }
+    }
 
+    /// <summary>The state-$22 wrapper's work after the cinematic function returns ($8B:A367).</summary>
+    private void StepWrapperTail()
+    {
         if (Phase <= CeresDestructionPhase.FadeOutCeres)
             StepCeresActors();
 
         // GameState_37 runs PaletteFxHandler after cinematic objects, including the
         // frame which spawns the program. Older debugger states lack this owner;
         // resume their visible effect rather than leaving the engines permanently lit.
-        if (Phase >= CeresDestructionPhase.WaitForZebesMusicQueue)
+        if (Phase > CeresDestructionPhase.FlyToZebesInitial)
         {
             if (paletteFx is null)
             {
@@ -444,16 +480,6 @@ internal sealed partial class CeresDestructionCinematicState
         fadeCounter = 1;
         phaseTimer = CeresDestructionRomData.Timing.InitialMosaicRegister;
         usesMode7 = false;
-        // The Ceres/Zebes interstitial at $8B:D6D7 has its own bank-$33 data set and
-        // waits for all three commands before beginning the mosaic fade.
-        audio?.QueueMusicDelayed8(MusicCommand.Stop);
-        audio?.QueueMusicDelayed8(
-            MusicCommand.LoadData(CeresDestructionRomData.Music.ZebesDataIndex));
-        audio?.QueueMusicDelayed(
-            MusicCommand.SelectTrack(CeresDestructionRomData.Music.ZebesTrack),
-            MusicCommandDelay.FromDelayedYArgument(CeresDestructionRomData.Music.DelayArgument));
-        musicQueueTimer = 14;
-        Phase = CeresDestructionPhase.WaitForZebesMusicQueue;
     }
 
     private void SetupZebesMode7Actors()
@@ -571,7 +597,7 @@ internal enum CeresDestructionPhase
     FlyingAwayFromExplosion,
     HoldAfterExplosion,
     FadeOutCeres,
-    WaitForZebesMusicQueue,
+    FlyToZebesInitial,
     FadeInZebes,
     RemoveZebesMosaic,
     PlanetZebesTitle,

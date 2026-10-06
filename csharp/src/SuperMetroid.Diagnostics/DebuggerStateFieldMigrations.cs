@@ -36,6 +36,12 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Older ending state lacks shooting-star records; restarting the native star sequence on the next post-credits step.");
             return current.Where(field => field.Name != "shootingStars").ToArray();
         }
+        if (type.FullName == "SuperMetroid.Core.Frontend.CeresDestructionCinematicState" &&
+            current.Any(field => field.Name == "initialNmiWaits"))
+        {
+            // Older captures set the scene up at construction; restored as already past $8B:C11B.
+            return SelectSerializedFields(type, current.Where(field => field.Name != "initialNmiWaits").ToArray(), count);
+        }
         if (type == typeof(SuperMetroid.Core.Audio.ManagedSpcPlayer) &&
             current.Any(field => field.Name == "soundCommandReads"))
         {
@@ -663,6 +669,10 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Initializes fields omitted by explicitly recognized legacy layouts.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance.GetType().FullName == "SuperMetroid.Core.Frontend.CeresDestructionCinematicState" &&
+            serializedCount < GetCurrentInstanceFieldCount(instance.GetType()))
+            instance.GetType().GetField("initialNmiWaits", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(instance, SuperMetroid.Core.Frontend.CeresDestructionRomData.InitialNmiWaits + 1);
         if (instance is SuperMetroid.Core.Audio.ManagedSpcPlayer player &&
             serializedCount < GetCurrentInstanceFieldCount(typeof(SuperMetroid.Core.Audio.ManagedSpcPlayer)))
             SeedLegacySoundPortPipeline(player);

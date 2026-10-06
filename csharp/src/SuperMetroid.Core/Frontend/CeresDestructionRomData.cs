@@ -5,6 +5,9 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Verified cartridge assets and fixed layout for Ceres destruction and Zebes approach.</summary>
 public static class CeresDestructionRomData
 {
+    /// <summary>$8B:C11B: <c>LDX #8</c> ... <c>DEX : BPL</c> around WaitForNMI, before scene setup.</summary>
+    public const int InitialNmiWaits = 9;
+
     public static class PaletteFx
     {
         /// <summary>$8D:E1A8, PaletteFXObjects_CutsceneGunshipEngineFlicker;
@@ -27,7 +30,8 @@ public static class CeresDestructionRomData
     public static class Music
     {
         public const byte CeresDataIndex = 0x2d;
-        public const byte CeresTrack = 8;
+        /// <summary>$8B:C2D9: state $22's Ceres track (state $25 selects 8 at $8B:C2CE).</summary>
+        public const byte CeresTrack = 7;
         public const byte ZebesDataIndex = 0x33;
         public const byte ZebesTrack = 5;
         public const ushort DelayArgument = 0x000e;

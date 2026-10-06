@@ -76,6 +76,14 @@ static void VerifyCeresDestructionCinematic()
     var state = new CeresDestructionCinematicState(fixtureBus,
         fixedColors: presentation.PowerBombFixedColors, artwork: artwork,
         paletteFxColors: presentation.RoomPaletteFx);
+    // $8B:C11B's first dispatch waits for nine NMIs; the ninth resume sets the scene up.
+    for (int wait = 0; wait < CeresDestructionRomData.InitialNmiWaits; wait++)
+    {
+        state.Step();
+        AssertTrue(state.ResumesAfterNmiWait, "Ceres initializer resumes after each of its NMI waits");
+    }
+    state.Step();
+    AssertTrue(!state.ResumesAfterNmiWait, "Ceres initializer returns to the main loop after setup");
     AssertEqual(CeresDestructionPhase.WaitForMusicQueue, state.Phase,
         "Ceres destruction initial music-queue phase");
     AssertEqual((byte)0x22, state.ReadMode7MapByte(0x0000),

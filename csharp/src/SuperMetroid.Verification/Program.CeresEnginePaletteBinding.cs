@@ -28,10 +28,12 @@ internal static partial class Program
 
         // Enter via the real frontend constructor call, then select exactly the
         // phase reported by the player. No preceding controller playthrough is needed.
-        game.Step(0);
+        // $8B:C11B's nine NMI waits and its setup step precede the selected phase.
+        for (int step = 0; step <= CeresDestructionRomData.InitialNmiWaits; step++)
+            game.Step(0);
         CeresDestructionCinematicState scene = Scene(game);
         typeof(CeresDestructionCinematicState).GetProperty(nameof(scene.Phase))!
-            .SetValue(scene, CeresDestructionPhase.WaitForZebesMusicQueue);
+            .SetValue(scene, CeresDestructionPhase.FlyToZebesInitial);
         for (int frame = 0; frame < 4; frame++)
         {
             game.Step(0);

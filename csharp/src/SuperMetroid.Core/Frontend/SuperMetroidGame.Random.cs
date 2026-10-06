@@ -30,6 +30,7 @@ public sealed partial class SuperMetroidGame
     {
         SuperMetroidGameState.FileSelectMenus => fileSelect?.ResumesAfterNmiWait == true,
         SuperMetroidGameState.SetUpNewGame or SuperMetroidGameState.LoadingGameData => ResumesGameLoadingWait,
+        SuperMetroidGameState.CeresGoesBoom => ceresDestruction?.ResumesAfterNmiWait == true,
         _ => false,
     };
 
@@ -59,6 +60,8 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.FileSelectMenus:
             case SuperMetroidGameState.SetUpNewGame:
             case SuperMetroidGameState.LoadingGameData:
+            // $82:8B0E shares the intro's state-$1E/$22/$25 handler and its prologue call.
+            case SuperMetroidGameState.CeresGoesBoom:
                 if (!NextUpdateResumesNmiWait)
                     FrontendRandomOwner.NextRandom();
                 break;

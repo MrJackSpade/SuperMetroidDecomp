@@ -434,6 +434,11 @@ public sealed class CartridgeAudioState
         }
     }
 
+    /// <summary>Music queue read/write indices, current timer and slot delays ($063B/$0639/$063F/$0629).</summary>
+    internal string MusicQueueForVerification() =>
+        $"{_musicReadPosition:X}/{_musicWritePosition:X} t={_musicTimer:X} d=" +
+        string.Join(",", _musicDelays.Select(delay => delay.Frames.ToString("X")));
+
     /// <summary>Queue start/next indices and dispatcher state of one SFX library ($0643+/$0646+/$0649+).</summary>
     internal (byte Start, byte Next, byte State) SoundQueueForVerification(int queue) =>
         (_soundReadPositions[queue], _soundWritePositions[queue], _soundStates[queue]);

@@ -30,7 +30,7 @@ internal static class CeresEngineGlowAudit
         while (!cinematic.Finished && frames++ < 4000)
         {
             cinematic.Step();
-            if (cinematic.Phase < CeresDestructionPhase.WaitForZebesMusicQueue) continue;
+            if (cinematic.Phase <= CeresDestructionPhase.FlyToZebesInitial) continue;
             age++;
             var packet = cinematic.CaptureRenderSnapshot();
             var actual = SoftwareLayeredSnapshotRenderer.Render(packet);

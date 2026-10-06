@@ -248,6 +248,10 @@ public sealed partial class SuperMetroidGame
     /// </summary>
     internal CartridgeAudioState AudioForVerification => audio;
 
+    internal ushort MenuNmiFrameCounterForVerification => menuNmiFrameCounter;
+
+    internal CeresDestructionCinematicState? CeresDestructionForVerification => ceresDestruction;
+
     /// <summary>Accepted NMIs taken while a door transition's music upload blocks the main loop.</summary>
     public IDoorMusicUploadNmiSource DoorMusicUploadNmis { get; set; } = LagFreeDoorMusicUploadNmis.Instance;
 
@@ -273,6 +277,9 @@ public sealed partial class SuperMetroidGame
         bool doorAudioDispatch = GameState is SuperMetroidGameState.HitDoorBlock or
             SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB;
         DoorTransitionPhase startingDoorPhase = doorTransition.Phase;
+        // An update that resumes a dispatch after its NMI wait never reaches the main loop's
+        // music prologue ($88:84B9) or its sound handler ($82:89EF).
+        bool resumesNmiWait = NextUpdateResumesNmiWait;
         // Music runs in the outer loop prologue; sound handlers run after its
         // coroutine returns. An accepted IRQ/NMI alone runs neither handler.
         bool doorMusicDispatch = doorAudioDispatch &&
@@ -914,6 +921,11 @@ public sealed partial class SuperMetroidGame
                     SaveRamChanged?.Invoke();
                     runtime.Enemies.CeresStatus = 0;
                     runtime.EscapeTimer.Clear();
+                    // $82:83F3-$840B: stop music and silence all three sound libraries.
+                    audio.QueueMusicDelayed8(MusicCommand.Stop);
+                    audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
+                    audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
+                    audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
                     ceresDestruction = new CeresDestructionCinematicState(
                         bus, audio, mapPresentation?.PowerBombFixedColors,
                         introCinematicArt, mapPresentation?.RoomPaletteFx);
@@ -923,6 +935,9 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.CeresGoesBoom:
+                // Each update begins with an accepted NMI. A gameplay owner kept from Ceres
+                // counts $05B5/$05B6 and latches input; without one the frontend counted it.
+                runtime?.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 ceresDestruction ??= new CeresDestructionCinematicState(
                     bus, audio, mapPresentation?.PowerBombFixedColors,
                     introCinematicArt, mapPresentation?.RoomPaletteFx);
@@ -943,8 +958,10 @@ public sealed partial class SuperMetroidGame
                     StepGameLoadingWait(controllerInput);
                     break;
                 }
-                // The `$22` Zebes-landing branch of $82:8000, followed by its NMI waits.
-                runtime!.InitializePostCeresZebesRoom();
+                // The `$22` Zebes-landing branch of $82:8000, followed by its NMI waits. The
+                // dispatch's own accepted NMI counts in the gameplay owner kept from Ceres.
+                runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.InitializePostCeresZebesRoom();
                 BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
                     GameLoadingCompletion.GameplayFadeIn);
                 break;
@@ -1112,9 +1129,9 @@ public sealed partial class SuperMetroidGame
             audio.QueueCancelSoundEffects();
         IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = audio.AdvanceFrame(
             bus, audioAcknowledgements,
-            advanceMusicQueue: !doorAudioDispatch,
-            advanceSoundEffects: !doorAudioDispatch ||
-                startingDoorPhase is not (DoorTransitionPhase.LoadMoreThingsAndOpenDoor or DoorTransitionPhase.WaitForDoorOpeningScroll));
+            advanceMusicQueue: !doorAudioDispatch && !resumesNmiWait,
+            advanceSoundEffects: !resumesNmiWait && (!doorAudioDispatch ||
+                startingDoorPhase is not (DoorTransitionPhase.LoadMoreThingsAndOpenDoor or DoorTransitionPhase.WaitForDoorOpeningScroll)));
         lastAudioCommands = doorMusicCommands.Count == 0 ? trailingAudioCommands
             : [.. doorMusicCommands, .. trailingAudioCommands];
         // $82:8AB0 runs after the pause dispatcher returns, even though Samus's

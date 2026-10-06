@@ -1695,156 +1695,17 @@ public sealed partial class SuperMetroidRuntime
             ProspectiveSamusWallCollisionPose = null;
             LastRanIntoWallProbe = null;
 
-            // Stationary ball fallback selects command six, even when the special
-            // hurt mover temporarily supplies nonzero horizontal speed.
-            if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
-                Samus.Pose is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose or
-                    SamusPoseIds.SpringBallGroundRightPose or SamusPoseIds.SpringBallGroundLeftPose)
-                ProspectiveSamusFallbackPose = Samus.Pose;
-
-            // $91:82D9 publishes the current pose when definition byte two is $FF
-            // or names that same pose. This still selects a transition slot: $91:EB88
-            // must shift history. Use the definition, not a partial pose list, so
-            // Space Jump, Screw Attack and spin landing retain the same contract.
+            // Zero input and an unmatched nonzero table chord both reach `$91:82D9`; a matched
+            // same-pose record does not. Native writes the prospective pose slot in alpha and
+            // commits it after beta movement and animation, so the selection is captured here.
+            // A retained pose still selects a transition slot whose command runs later.
             if (GroundedSamusMovementEnabled && usePoseDefinitionFallback)
             {
-                byte retainedFallback = Samus.ReadNoInputFallbackPose(_addressSpace);
-                if (retainedFallback == SamusMovementRomData.Poses.RetainCurrentPoseFallback || retainedFallback == Samus.Pose)
-                    ProspectiveSamusFallbackPose = Samus.Pose;
-            }
-
-            // Zero input and an unmatched nonzero table chord both reach `$91:82D9` and
-            // consult pose-definition byte two. A matched same-pose record does not. Running
-            // poses `$09-$12` store fallbacks `$01/$02`, but Samus_Pose_Func2 first preserves
-            // the running pose while base speed is nonzero and selects momentum routine one
-            // (deceleration). Capture this before movement, where native alpha does. The
-            // unmatched-input branch is essential for `$0B` + held Shot after Right release.
-            if (GroundedSamusMovementEnabled &&
-                (SamusState.IsRightFacingRunningPose(Samus.Pose) ||
-                 SamusState.IsLeftFacingRunningPose(Samus.Pose)) &&
-                usePoseDefinitionFallback &&
-                ProspectiveSamusPose is null)
-            {
-                ProspectiveSamusFallbackPose = Samus.HorizontalSpeed.BaseFixed != 0
-                    ? Samus.Pose
-                    : Samus.ReadNoInputFallbackPose(_addressSpace);
-            }
-
-            // Grounded Morph Ball ($04) and grounded Spring Ball ($11) both select
-            // momentum command six, regardless of residual speed. Airborne ordinary
-            // Morph Ball ($08), not Spring Ball, selects deceleration command one.
-            if (GroundedSamusMovementEnabled &&
-                (Samus.Pose is SamusPoseIds.MorphBallMovingRightPose or
-                    SamusPoseIds.MorphBallMovingLeftPose or
-                    SamusPoseIds.SpringBallMovingRightPose or
-                    SamusPoseIds.SpringBallMovingLeftPose) &&
-                usePoseDefinitionFallback &&
-                ProspectiveSamusPose is null)
-            {
-                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
-            }
-
-            // On the shared fallback branch, pose-definition byte two returns standing aim `$03-$08` to `$01/$02` and
-            // crouched aim `$71-$74/$85/$86` to `$27/$28`. This path is separate from the
-            // transition table: `$91:81A9` exits before reading a record when the entire
-            // controller word is zero, then `$91:82D9` installs the definition fallback.
-            if (GroundedSamusMovementEnabled &&
-                ((Samus.Pose is
-                      SamusPoseIds.StandingAimUpRightPose or
-                      SamusPoseIds.StandingAimUpLeftPose or
-                      SamusPoseIds.StandingAimDiagonalUpRightPose or
-                      SamusPoseIds.StandingAimDiagonalUpLeftPose or
-                      SamusPoseIds.StandingAimDiagonalDownRightPose or
-                      SamusPoseIds.StandingAimDiagonalDownLeftPose) ||
-                 SamusState.IsAimedCrouchingPose(Samus.Pose)) &&
-                usePoseDefinitionFallback &&
-                ProspectiveSamusPose is null)
-            {
-                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
-            }
-
-            // Movement type `$10` uses prospective command two, not running's deceleration
-            // command one. With the entire controller released, `$91:82D9` therefore reads
-            // definition byte two immediately: `$49/$75/$77 -> $02/$06/$08`, mirrored to
-            // `$01/$05/$07`. The resulting standing body keeps the current X speed words;
-            // the following standing movement frame clears them exactly as native does.
-            if (GroundedSamusMovementEnabled &&
-                SamusState.IsMoonwalkingPose(Samus.Pose) &&
-                usePoseDefinitionFallback &&
-                ProspectiveSamusPose is null)
-            {
-                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
-            }
-
-            // `$CF-$D2` use definition byte two to return to `$89/$8A` when the entire
-            // controller is released. The unaimed pair store `$FF`, meaning “keep pose,”
-            // and therefore never publish a fallback here.
-            if (GroundedSamusMovementEnabled &&
-                SamusState.IsAimedRanIntoWallPose(Samus.Pose) &&
-                usePoseDefinitionFallback &&
-                ProspectiveSamusPose is null)
-            {
-                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
-            }
-
-            // Active aimed jump/fall poses use the same pose-definition fallback
-            // fallback seam: `$15/$69/$6B -> $51`, mirrored left to `$52`, and aimed
-            // falling to `$29/$2A`. Transition poses `$55-$5A` store `$FF` and are left
-            // to their `$FD` animation command instead.
-            if (GroundedSamusMovementEnabled &&
-                SamusState.IsAimedAerialPose(Samus.Pose) &&
-                Samus.Pose is not (
-                    SamusPoseIds.NormalJumpTransitionAimUpRightPose or
-                    SamusPoseIds.NormalJumpTransitionAimUpLeftPose or
-                    SamusPoseIds.NormalJumpTransitionAimDiagonalUpRightPose or
-                    SamusPoseIds.NormalJumpTransitionAimDiagonalUpLeftPose or
-                    SamusPoseIds.NormalJumpTransitionAimDiagonalDownRightPose or
-                    SamusPoseIds.NormalJumpTransitionAimDiagonalDownLeftPose) &&
-                usePoseDefinitionFallback &&
-                ProspectiveSamusPose is null)
-            {
-                byte fallback = Samus.ReadNoInputFallbackPose(_addressSpace);
-                // Compact straight-down `$17/$18/$2D/$2E` store `$FF`, so `$91:82D9`
-                // leaves them unchanged when all input is released. The other admitted
-                // aimed bodies publish real `$29/$2A/$51/$52` fallback poses.
-                if (fallback != 0xff)
-                    ProspectiveSamusFallbackPose = fallback;
-            }
-
-            // Wall-jump records `$83/$84` use definition fallback `$19/$1A` when the
-            // controller is fully released. Like every definition fallback this is sampled
-            // in alpha and committed only after beta movement and animation below.
-            if (GroundedSamusMovementEnabled &&
-                SamusState.IsWallJumpPose(Samus.Pose) &&
-                usePoseDefinitionFallback &&
-                ProspectiveSamusPose is null)
-            {
-                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
-            }
-
-            // Normal jumping shares command one with the airborne ball. Alpha retains
-            // the current pose while base momentum exists; only command two consults
-            // definition byte two. This matters during the gap between Down presses.
-            if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
-                movementTypeAtFrameStart == SamusMovementType.NormalJumping && ProspectiveSamusPose is null)
-            {
-                byte fallback = Samus.ReadNoInputFallbackPose(_addressSpace);
-                ProspectiveSamusFallbackPose = deceleratingFallbackHasMomentum || fallback == SamusMovementRomData.Poses.RetainCurrentPoseFallback
-                    ? Samus.Pose : fallback;
-            }
-
-            // `$BB-$BE/$ED-$F0` store their neutral same-facing pose in definition byte
-            // two. `$BA/$EC` store `$FF`, so a completely released controller keeps them.
-            // This is sampled in alpha even though Draygon's installed movement handler is
-            // RTS and the enemy actor owns world position later in the gameplay frame.
-            if (GroundedSamusMovementEnabled &&
-                SamusState.IsDraygonGrabbedPose(Samus.Pose) &&
-                usePoseDefinitionFallback &&
-                ProspectiveSamusPose is null)
-            {
-                byte fallback = Samus.ReadNoInputFallbackPose(_addressSpace);
-                if (fallback != 0xff)
-                    ProspectiveSamusFallbackPose = fallback;
+                ProspectiveSamusFallbackPose = SamusLookupFailurePose.Resolve(
+                    Samus.ReadMovementType(_addressSpace),
+                    Samus.Pose,
+                    Samus.ReadNoInputFallbackPose(_addressSpace),
+                    deceleratingFallbackHasMomentum).ProspectivePose;
             }
 
             if (GroundedSamusMovementEnabled)
@@ -3579,6 +3440,18 @@ public sealed partial class SuperMetroidRuntime
                     // consumes the cancellation through HandleExtraRunSpeed.
                     Samus.HorizontalSpeed.AccelerationMode = 0;
                     Samus.HorizontalSpeed.CancelRunningMomentum((byte)Samus.ReadFacingDirection(_addressSpace));
+                }
+                else if (!animationTransitionApplied &&
+                         poseAtFrameStart is SamusPoseIds.DamageBoostRightPose or SamusPoseIds.DamageBoostLeftPose &&
+                         ProspectiveSamusFallbackPose is { } boostFallback &&
+                         boostFallback != poseAtFrameStart)
+                {
+                    // Releasing every boost chord reaches definition byte two, `$4D/$4E`:
+                    // the same initializer as the table's held-Jump exit.
+                    SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
+                        _addressSpace,
+                        Samus,
+                        unchecked((byte)boostFallback));
                 }
                 else if (!animationTransitionApplied &&
                          SamusState.IsDraygonGrabbedPose(poseAtFrameStart) &&

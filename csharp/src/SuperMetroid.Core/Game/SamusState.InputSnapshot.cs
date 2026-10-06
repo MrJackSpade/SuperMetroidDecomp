@@ -22,7 +22,7 @@ public sealed partial class SamusState
     /// <summary>WRAM $0AF4: consecutive held-Jump history updated by $90:EAB3.</summary>
     public ushort AutoJumpTimer { get; internal set; }
 
-    /// <summary>Previous held input sampled by the draw-time $90:EAB3 epilogue.</summary>
+    /// <summary>WRAM $0DFE: held input published by $90:EAB3 and main-loop tail $82:8AB0.</summary>
     public ushort PreviousDrawHeldInput { get; internal set; }
 
     /// <summary>PoseInputHandler currently selects the one-shot $90:E926 auto-jump handler.</summary>
@@ -52,6 +52,9 @@ public sealed partial class SamusState
         }
         return newlyPressed;
     }
+
+    /// <summary>$82:8AB0 publishes held input without advancing Samus's draw-time owners.</summary>
+    internal void PublishMainLoopHeldInput(ushort held) => PreviousDrawHeldInput = held;
 
     /// <summary>Native $90:EAB3 increments only when Jump is held in both draw samples.</summary>
     internal void SnapshotDrawInput(ushort held, ushort newlyPressed)

@@ -1,6 +1,22 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$0DFE: held input history published by the draw and main-loop epilogues.</summary>
+    public const int SamusFilteredHeld = 0x0dfe;
+    /// <summary>$0E00: Samus draw-time PreviousDrawNewInput state.</summary>
+    public const int SamusFilteredNew = 0x0e00;
+    /// <summary>$0AF4: Samus draw-time AutoJumpTimer state.</summary>
+    public const int SamusAutoJumpTimer = 0x0af4;
+    /// <summary>$0A12: Samus draw-time PreviousHealthForHurtCheck state.</summary>
+    public const int SamusPreviousHealthForFlash = 0x0a12;
+
+    /// <summary>$0A60: Samus input-handler dispatch word.</summary>
+    public const int SamusInputHandler = 0x0a60;
+    /// <summary>$90:E913: ordinary Samus pose-input handler.</summary>
+    public const ushort SamusNormalInputHandler = 0xe913;
+    /// <summary>$90:E926: one-shot HandleAutoJumpHack input handler.</summary>
+    public const ushort SamusAutoJumpInputHandler = 0xe926;
+
     /// <summary>$0AD4: native AtmosphericTimer liquid/atmospheric owner.</summary>
     public const int AtmosphericTimer = 0x0ad4;
     /// <summary>$0ADC: native AtmosphericX liquid/atmospheric owner.</summary>

@@ -249,6 +249,9 @@ public sealed partial class SuperMetroidGame
         // audio. This also restores its meaning for legacy snapshots without adding
         // another serialized flag that could disagree with the coroutine phase.
         audio.DoorTransitionSoundsDisabled = GameState == SuperMetroidGameState.LoadingNextRoomB;
+        bool pauseInputEpilogue = GameState is SuperMetroidGameState.Pausing or
+            SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
+            SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB;
         bool messageWasActive = runtime?.MessageBox.IsActive == true;
         bool doorAudioDispatch = GameState is SuperMetroidGameState.HitDoorBlock or
             SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB;
@@ -1102,6 +1105,11 @@ public sealed partial class SuperMetroidGame
                 startingDoorPhase is not (DoorTransitionPhase.LoadMoreThingsAndOpenDoor or DoorTransitionPhase.WaitForDoorOpeningScroll));
         lastAudioCommands = doorMusicCommands.Count == 0 ? trailingAudioCommands
             : [.. doorMusicCommands, .. trailingAudioCommands];
+        // $82:8AB0 runs after the pause dispatcher returns, even though Samus's
+        // draw-time epilogue did not run. Preserve its held-only publication;
+        // updating the press edge or auto-jump timer here would invent gameplay.
+        if (pauseInputEpilogue)
+            runtime!.Samus!.PublishMainLoopHeldInput(runtime.Controller1.Current);
         return CurrentFrame;
     }
 

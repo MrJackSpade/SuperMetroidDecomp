@@ -58,7 +58,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | --- | --- | --- |
 | Source identity, immutable movie, input edges, lag classification, terminal boundary | Converter v3 and complete replay pass | Retain these checks with each coverage expansion |
 | Samus movement and collision | Positions/fractions, camera, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state and momentum/boost pass | Control-handler ownership, remaining movement flags and secondary motion state |
-| Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication and charge palette/audio words pass | Remaining combat/input ownership and filtered-input state |
+| Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication, charge palette/audio words, retained held/press samples, auto-jump timer and pose-input handler pass | Remaining combat/input ownership |
 | Enemies and Ridley | Active enemy collision/properties/timers; complete Ridley tail records, shared tail/body controller, wing/grab/damage/health/facing state pass | Remaining actor AI variables and phase-dependent aliases |
 | Ordinary/enemy projectiles | Ordinary active-slot motion/program/art and callback identity; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Final render composition/pixels; bombs need live mappings only if a different movie activates them |
 | Persistent world and room effects | Complete boss/event/item/door bitsets; gameplay foreground/BTS; movie grey-door execution, condition and hit state; acid surface/tide phase pass | Loading-boundary mutations, remaining persistence allocations, environmental state, and PLM draw/presentation state |
@@ -657,3 +657,24 @@ Release build, --samus-atmospheric-effects, and all 10,717 movie updates pass
 `atmosphere-final-replay.log`). Both observed slot properties are verified directly.
 These implemented fixes await player validation; remaining presentation/control/
 loading coverage still prevents a complete-parity claim.
+
+
+### Retained input and pause epilogue
+
+Every retained update now compares Samus's previous held and newly pressed input,
+auto-jump timer, previous health sample and normal/one-shot auto-jump input-handler
+identity. Those owners are imported from the original snapshot once. Special
+pose-input locks require an explicit mapping if a future movie encounters them.
+
+Update 9419/source 9544 reproduced a paused held-input discrepancy: native $0010,
+port $0000. The cartridge's main-loop tail calls $82:8AB0 after the dispatcher;
+$82:8ADD-$8ADF copies current held input to $0DFE even while paused. The port only
+published that word from Samus's draw-time epilogue, which pause does not execute.
+The five pause-only dispatchers now publish held input on return without updating
+the previous press, auto-jump timer or health history. Gameplay continues using
+its existing draw-time publication; coroutine-only NMI waits are unaffected.
+
+Release build and all 10,717 updates pass with these comparisons
+(`input-epilogue-build.log`, `input-epilogue-replay.log`). The failing pause sample
+and preserved gameplay-only words are checked directly. The fix awaits player
+validation; remaining handler, presentation and loading coverage remains open.

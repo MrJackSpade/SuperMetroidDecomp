@@ -750,6 +750,15 @@ internal static partial class Program
         samus.GetType().GetProperty("PoseTransitionShotDirection")!.SetValue(samus, W(RidleyMovieMemory.PoseShotDirection));
         samus.GetType().GetProperty("HyperBeam")!.SetValue(samus, W(RidleyMovieMemory.HyperBeam));
         samus.GetType().GetProperty("ResumeChargingBeamSoundFlag")!.SetValue(samus, W(RidleyMovieMemory.ResumeChargeSound));
+        typeof(SamusState).GetProperty("PreviousDrawHeldInput")!.SetValue(samus, W(RidleyMovieMemory.SamusFilteredHeld));
+        typeof(SamusState).GetProperty("PreviousDrawNewInput")!.SetValue(samus, W(RidleyMovieMemory.SamusFilteredNew));
+        typeof(SamusState).GetProperty("AutoJumpTimer")!.SetValue(samus, W(RidleyMovieMemory.SamusAutoJumpTimer));
+        typeof(SamusState).GetProperty("PreviousHealthForHurtCheck")!.SetValue(samus, W(RidleyMovieMemory.SamusPreviousHealthForFlash));
+        AssertTrue(W(RidleyMovieMemory.SamusInputHandler) is
+            RidleyMovieMemory.SamusNormalInputHandler or RidleyMovieMemory.SamusAutoJumpInputHandler,
+            "initial movie input handler has a verified semantic mapping");
+        typeof(SamusState).GetProperty(nameof(samus.AutoJumpInputPending))!.SetValue(samus,
+            W(RidleyMovieMemory.SamusInputHandler) == RidleyMovieMemory.SamusAutoJumpInputHandler);
         samus.EquippedItems = W(RidleyMovieMemory.Items);
         samus.EquippedBeams = W(RidleyMovieMemory.Beams);
         samus.Health = W(RidleyMovieMemory.Health);
@@ -972,6 +981,16 @@ internal static partial class Program
             Check("Samus Y", samus.YPosition, RidleyMovieMemory.Y);
             Check("Samus Y fraction", samus.Kinematics.YSubposition, RidleyMovieMemory.YFraction);
             Check("Samus pose", samus.Pose, RidleyMovieMemory.Pose);
+            Check("PreviousDrawHeldInput", samus.PreviousDrawHeldInput, RidleyMovieMemory.SamusFilteredHeld);
+            Check("PreviousDrawNewInput", samus.PreviousDrawNewInput, RidleyMovieMemory.SamusFilteredNew);
+            Check("AutoJumpTimer", samus.AutoJumpTimer, RidleyMovieMemory.SamusAutoJumpTimer);
+            Check("PreviousHealthForHurtCheck", samus.PreviousHealthForHurtCheck, RidleyMovieMemory.SamusPreviousHealthForFlash);
+            AssertTrue(!samus.ShinesparkPoseInputLocked && !samus.CrystalFlashPoseInputLocked,
+                "Movie now uses a special pose-input lock; map its handler explicitly");
+            Check("Samus input handler", samus.AutoJumpInputPending
+                ? RidleyMovieMemory.SamusAutoJumpInputHandler : RidleyMovieMemory.SamusNormalInputHandler,
+                RidleyMovieMemory.SamusInputHandler);
+
             Check("Samus previous pose", samus.PoseHistory.PreviousPose, RidleyMovieMemory.PreviousPose);
             Check("Samus previous movement", samus.PoseHistory.PreviousDirectionAndMovement, RidleyMovieMemory.PreviousDirection);
             Check("Samus last different pose", samus.PoseHistory.LastDifferentPose, RidleyMovieMemory.LastDifferentPose);

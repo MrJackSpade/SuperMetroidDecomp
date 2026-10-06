@@ -137,6 +137,37 @@ internal static partial class Program
         Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
     }
 
+    private static void VerifySpinFallbackHistory()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        foreach (byte pose in new[] { SamusPoseIds.SpinJumpRightPose, SamusPoseIds.SpinJumpLeftPose,
+            SamusPoseIds.SpaceJumpRightPose, SamusPoseIds.SpaceJumpLeftPose,
+            SamusPoseIds.ScrewAttackRightPose, SamusPoseIds.ScrewAttackLeftPose })
+        {
+            var runtime = CreateRetailRuntimeFixture(bus);
+            runtime.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+            var samus = runtime.Samus!;
+            samus.InputLocked = false;
+            samus.Pose = pose; samus.XPosition = 512; samus.YPosition = 400;
+            samus.EquippedItems = (ushort)(SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.ScrewAttack);
+            samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
+            samus.PoseHistory.PreviousPose = pose;
+            ushort direction = samus.ReadPoseXDirection(bus);
+            ushort spinMovement = (ushort)(((ushort)SamusMovementType.SpinJumping << 8) | direction);
+            samus.PoseHistory.PreviousDirectionAndMovement = spinMovement;
+            samus.PoseHistory.LastDifferentPose = SamusPoseIds.RunningAimUpRightPose;
+            samus.PoseHistory.LastDifferentDirectionAndMovement = (ushort)(((ushort)SamusMovementType.Running << 8) | direction);
+            runtime.StepFrame(0);
+            AssertEqual((ushort)pose, samus.PoseHistory.PreviousPose, "fallback retains spin pose");
+            AssertEqual((ushort)pose, samus.PoseHistory.LastDifferentPose, "fallback commits same-pose history");
+            AssertEqual(spinMovement, samus.PoseHistory.LastDifferentDirectionAndMovement, "fallback publishes older spin movement");
+            AssertTrue(samus.PoseHistory.AllowsWallJumpProbe, "next update admits native wall observation");
+        }
+        Console.WriteLine("Spin fallback history: ordinary, Space Jump and Screw Attack both facings retain pose and admit wall probe.");
+    }
+
     private static void VerifyMorphCameraCheckpoint()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -752,6 +783,10 @@ internal static partial class Program
             Check("Samus Y", samus.YPosition, RidleyMovieMemory.Y);
             Check("Samus Y fraction", samus.Kinematics.YSubposition, RidleyMovieMemory.YFraction);
             Check("Samus pose", samus.Pose, RidleyMovieMemory.Pose);
+            Check("Samus previous pose", samus.PoseHistory.PreviousPose, RidleyMovieMemory.PreviousPose);
+            Check("Samus previous movement", samus.PoseHistory.PreviousDirectionAndMovement, RidleyMovieMemory.PreviousDirection);
+            Check("Samus last different pose", samus.PoseHistory.LastDifferentPose, RidleyMovieMemory.LastDifferentPose);
+            Check("Samus last different movement", samus.PoseHistory.LastDifferentDirectionAndMovement, RidleyMovieMemory.LastDifferentDirection);
             Check("Samus animation", samus.AnimationFrame, RidleyMovieMemory.Animation);
             Check("Samus animation timer", samus.AnimationFrameTimer, RidleyMovieMemory.AnimationTimer);
             Check("Samus base speed", samus.HorizontalSpeed.BaseSpeed, RidleyMovieMemory.BaseSpeed);
@@ -854,6 +889,8 @@ internal static partial class Program
             }
             if (mismatches.Count != 0)
             {
+                level = runtime.LevelData ?? throw new InvalidDataException("Missing active room collision data.");
+                Console.Error.WriteLine($"Pose history: port={samus.PoseHistory.PreviousPose:X4}/{samus.PoseHistory.PreviousDirectionAndMovement:X4}/{samus.PoseHistory.LastDifferentPose:X4}/{samus.PoseHistory.LastDifferentDirectionAndMovement:X4}, native={W(RidleyMovieMemory.PreviousPose):X4}/{W(RidleyMovieMemory.PreviousDirection):X4}/{W(RidleyMovieMemory.LastDifferentPose):X4}/{W(RidleyMovieMemory.LastDifferentDirection):X4}");
                 Console.Error.WriteLine($"Shot diagnostic: locked={samus.InputLocked}, HUD={samus.SelectedHudItem}, grappleDebug={runtime.DebugGrappleItemSelected}, charge={runtime.Projectiles.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer}, held={runtime.Controller1.Current:X4}, new={runtime.Controller1.NewlyPressed:X4}, spawn={runtime.Projectiles.LastFiredProjectileSnapshot}");
                 Console.Error.WriteLine($"Room width={level.WidthInBlocks}, Samus radius={samus.Kinematics.XRadius}/{samus.Kinematics.YRadius}, speed={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4}+{samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4}");
                 for (int block = 0; block < level.WidthInBlocks * level.HeightInBlocks; block++)

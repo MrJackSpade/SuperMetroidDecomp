@@ -1756,22 +1756,16 @@ public sealed partial class SuperMetroidRuntime
                     SamusPoseIds.SpringBallGroundRightPose or SamusPoseIds.SpringBallGroundLeftPose)
                 ProspectiveSamusFallbackPose = Samus.Pose;
 
-            // Neutral standing, spin, turn, hurt, crouch and falling definitions retain their current pose
-            // through fallback, but this is still a selected transition slot,
-            // not an absence of input work: the final pose-history epilogue must run.
-            // A matched same-pose table record still publishes nothing, as on cartridge.
-            if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
-                Samus.Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose or
-                    SamusPoseIds.FacingRightNormalPose or SamusPoseIds.FacingLeftNormalPose or
-                    SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose or
-                    SamusPoseIds.NeutralJumpTransitionRightPose or SamusPoseIds.NeutralJumpTransitionLeftPose or
-                    SamusPoseIds.TurningRightToLeftPose or SamusPoseIds.TurningLeftToRightPose or
-                    SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose or
-                    SamusPoseIds.CrouchingRightPose or SamusPoseIds.CrouchingLeftPose or
-                    SamusPoseIds.NormalLandingRightPose or SamusPoseIds.NormalLandingLeftPose or
-                    SamusPoseIds.ShinesparkWindupRightPose or SamusPoseIds.ShinesparkWindupLeftPose or
-                    SamusPoseIds.MorphBallFallingRightPose or SamusPoseIds.MorphBallFallingLeftPose)
-                ProspectiveSamusFallbackPose = Samus.Pose;
+            // $91:82D9 publishes the current pose when definition byte two is $FF
+            // or names that same pose. This still selects a transition slot: $91:EB88
+            // must shift history. Use the definition, not a partial pose list, so
+            // Space Jump, Screw Attack and spin landing retain the same contract.
+            if (GroundedSamusMovementEnabled && usePoseDefinitionFallback)
+            {
+                byte retainedFallback = Samus.ReadNoInputFallbackPose(_addressSpace);
+                if (retainedFallback == SamusMovementRomData.Poses.RetainCurrentPoseFallback || retainedFallback == Samus.Pose)
+                    ProspectiveSamusFallbackPose = Samus.Pose;
+            }
 
             // Zero input and an unmatched nonzero table chord both reach `$91:82D9` and
             // consult pose-definition byte two. A matched same-pose record does not. Running
@@ -3805,9 +3799,12 @@ public sealed partial class SuperMetroidRuntime
                     // Install the fallback's pose metadata and native initializer first.
                     // Falling command eight below then clears only the extra component;
                     // it must not be folded into base speed like running deceleration.
-                    Samus.ApplyAerialAimTransition(
-                        _addressSpace,
-                        unchecked((byte)aerialFallback));
+                    // A retained compact pose selects history/momentum work only;
+                    // native pose initialization and animation restart require a change.
+                    if (aerialFallback != Samus.Pose)
+                        Samus.ApplyAerialAimTransition(
+                            _addressSpace,
+                            unchecked((byte)aerialFallback));
                 }
 
                 // Crouching selects command two only on lookup failure. A matched

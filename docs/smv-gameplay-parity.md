@@ -248,9 +248,16 @@ The independent replay confirms the door fraction handoff. Native command seven
 alignment. Restoring that omitted write resolves the source6289 camera fraction
 mismatch. Focused checks cover both facings, current/previous fractions, one-time
 checkpoint consumption, and the zero-offset unmorph entry.
-All currently compared fields now match through update7650/10717. The next difference
-is update7651/source7764: Samus X fraction nativeFFFF vs portA000, and camera X fraction
-native3FFF vs portE000. This new boundary has not yet been diagnosed.
+The source7764 wall-probe discrepancy was caused by stale pose history: a partial
+retained-fallback pose list omitted Space Jump, Screw Attack and spin landing.
+Fallback now uses the compiled definition ($91:82D9), including both $FF and an
+explicit same-pose value. Retained compact aerial poses skip pose reinitialization.
+The verifier now compares all four history words at every boundary; focused production
+checks cover ordinary spin, Space Jump and Screw Attack in both directions. The
+independent replay passes the original wall probe and all checked fields through
+update8280/10717. Next difference: update8281/source8395, during a Ridley carry:
+Ridley Y native0155 vs port015C, Samus Y native0193 vs port019A, plus fractions/tail.
+This new vertical movement boundary has not yet been diagnosed.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

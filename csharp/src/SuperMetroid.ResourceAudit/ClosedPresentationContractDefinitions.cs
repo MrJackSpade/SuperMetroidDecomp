@@ -57,8 +57,8 @@ internal static class ClosedPresentationContractDefinitions
         new("SuperMetroid.Core.Assets.FileSelectPresentation", "file-select-v1-bounded-fields",
             ["LoadBackground", "Slot", "WriteDigit", "WriteSlotLetter", "CursorPosition",
                 "DrawCursor", "DrawHelmet", "DynamicAnchor", "ApplyPatch", "CopyPage", "DrawBorder"],
-            [new("csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs",
-                "6458BAD1DD7D7EA690F6072202EDCF4C064B79305D6DE98F7F16666CF6E4CDE5"),
+            [new("csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs", "5E511AF96B9E4663EBC7B8F394336CFD4A1ED29B4588859DD4734AE6017BB979"),
+             new("csharp/src/SuperMetroid.Core/Assets/MenuBorderParts.cs", "FD14733A8FBEA6BA1ACBC7FA07636F41B123F443F8CF25082F05F4E769127775"),
              new("csharp/src/SuperMetroid.Core/Assets/MenuCursorParts.cs", "098A65F1E9C940A4FEE39562968A7719BE5F405E46F84E6FA151FF89C6E2C66C")],
             "Load is the sole private-constructor path and requires exact page, patch, sprite, " +
             "border and dynamic-anchor sets plus complete digit/letter/slot/cursor arrays. " +

@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 547,
+  "remainingTableDefinitionCount": 546,
   "fileCount": 523,
   "entries": [
     {
@@ -2528,7 +2528,9 @@
       "line": 16,
       "name": "MapScrollControls.Buttons",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.", 
+      "state": "converted",
+      "implementationCommit": "a20ecf5ee3c746f891f2c501c6beba319919ac42"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapStationDiscoveryRules.cs",
@@ -21484,6 +21486,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 560,
+  "convertedSinceSnapshot": 561,
   "justifiedRetainedSinceSnapshot": 21
 }

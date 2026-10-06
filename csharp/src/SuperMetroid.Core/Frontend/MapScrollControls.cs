@@ -9,9 +9,29 @@ internal static class MapScrollControls
     public const int DirectionCount = 4;
 
     /// <summary>
-    /// $81:AF38/AF42/AF4C/AF56: held-button masks for native directions one through four.
-    /// Drawing position and animation fields from those records are not input bindings.
+    /// $81:AF38/AF42/AF4C/AF56 associate each arrow's direction with its matching
+    /// controller direction. Drawing position and animation fields are separate.
     /// </summary>
-    public static ReadOnlySpan<ushort> Buttons =>
-        [(ushort)SnesButton.Left, (ushort)SnesButton.Right, (ushort)SnesButton.Up, (ushort)SnesButton.Down];
+    public static ushort ButtonFor(MapScrollDirection direction) => (ushort)(direction switch
+    {
+        MapScrollDirection.Left => SnesButton.Left,
+        MapScrollDirection.Right => SnesButton.Right,
+        MapScrollDirection.Up => SnesButton.Up,
+        MapScrollDirection.Down => SnesButton.Down,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction)),
+    });
+
+    public static ButtonSequence Buttons => default;
+
+    internal readonly struct ButtonSequence
+    {
+
+        public ushort this[int index] => (uint)index < DirectionCount
+            ? ButtonFor((MapScrollDirection)(index + 1))
+            : throw new ArgumentOutOfRangeException(nameof(index));
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index = 0; index < DirectionCount; index++) yield return this[index];
+        }
+    }
 }

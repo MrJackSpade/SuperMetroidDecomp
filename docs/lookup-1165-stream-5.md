@@ -495,7 +495,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Frontend/MapScrollControls.cs
 
-- [ ] **MapScrollControls.Buttons** ([L16](../csharp/src/SuperMetroid.Core/Frontend/MapScrollControls.cs#L16)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MapScrollControls.Buttons** ([L16](../csharp/src/SuperMetroid.Core/Frontend/MapScrollControls.cs#L16)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Frontend/MapStationDiscoveryRules.cs
 
@@ -991,3 +991,9 @@ The fixture now installs native eye colors before spawning actors and compares a
 Chosen platform/baby positions and glyphs,six wing regions,run origins/extents and isolated glyphs remain required. All seven aggregate entries remain pending; no new exception or completion;560converted/21retained-mixed/547pending unchanged.
 
 Root Verification1450warnings/zero errors; --lookup-stream5-mode7-transfers passes20native descriptors,170source bytes,all seven terminators and exact low-byte-only VRAM effects/order. Existing source-byte/destination/high-byte preservation assertions remain unchanged. No ResourceAudit source-hash reference exists for the changed production file.
+
+## Integrated semantic map-scroll buttons
+
+a20ecf5ee completes MapScrollControls.Buttons: Left/Right/Up/Down dispatch to the matching named controller buttons. The default caller and equivalent native injection store no copied binding array; independently supplied custom bindings retain copied values. Direction iteration preserves native priority.
+
+Root Verification1450warnings/zero errors and ResourceAudit0warnings/zero errors. --lookup-stream5-map-buttons passes four native masks/IDs,index/direction bounds,zero default storage,actual default/custom four-direction pulses,release,sound boundary and simultaneous-input priority. Audit closure includes the new dispatch dependency. One converted entry;561converted/21retained-mixed/546pending. Only1165 is in-progress.

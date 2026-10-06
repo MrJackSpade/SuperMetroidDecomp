@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 421,
+  "remainingTableDefinitionCount": 415,
   "fileCount": 523,
   "entries": [
     {
@@ -448,40 +448,55 @@
       "implementationCommit": "ba5a86594"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
-      "line": 24,
-      "name": "CrocomireColorCatalog.fightBody",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CrocomireColorCatalog.fightBody. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
+  "line": 24,
+  "name": "CrocomireColorCatalog.fightBody",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CrocomireColorCatalog.fightBody. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "9ff83a1b7d09354f42e361129791c4b72d61b580",
+  "disposition": "Five-band aggregate74words calculates gamma/linear ramps,shared channels and material aliases. Retain only exact53named material inputs (45channel parameters plus8RGB anchors) and transparent compatibility payload specified by native source copy/pen roles in worker report. These categorical paint choices define intended visual content; no physics,timing or artwork-pixel exemption. Independent supplied edits preserved."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
-      "line": 25,
-      "name": "CrocomireColorCatalog.initialWall",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CrocomireColorCatalog.initialWall. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
+  "line": 25,
+  "name": "CrocomireColorCatalog.initialWall",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CrocomireColorCatalog.initialWall. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "9ff83a1b7d09354f42e361129791c4b72d61b580",
+  "disposition": "Five-band aggregate74words calculates gamma/linear ramps,shared channels and material aliases. Retain only exact53named material inputs (45channel parameters plus8RGB anchors) and transparent compatibility payload specified by native source copy/pen roles in worker report. These categorical paint choices define intended visual content; no physics,timing or artwork-pixel exemption. Independent supplied edits preserved."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
-      "line": 26,
-      "name": "CrocomireColorCatalog.initialProjectile",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CrocomireColorCatalog.initialProjectile. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
+  "line": 26,
+  "name": "CrocomireColorCatalog.initialProjectile",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CrocomireColorCatalog.initialProjectile. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "9ff83a1b7d09354f42e361129791c4b72d61b580",
+  "disposition": "Five-band aggregate74words calculates gamma/linear ramps,shared channels and material aliases. Retain only exact53named material inputs (45channel parameters plus8RGB anchors) and transparent compatibility payload specified by native source copy/pen roles in worker report. These categorical paint choices define intended visual content; no physics,timing or artwork-pixel exemption. Independent supplied edits preserved."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
-      "line": 27,
-      "name": "CrocomireColorCatalog.skeletonArm",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CrocomireColorCatalog.skeletonArm. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
+  "line": 27,
+  "name": "CrocomireColorCatalog.skeletonArm",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CrocomireColorCatalog.skeletonArm. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "9ff83a1b7d09354f42e361129791c4b72d61b580",
+  "disposition": "Five-band aggregate74words calculates gamma/linear ramps,shared channels and material aliases. Retain only exact53named material inputs (45channel parameters plus8RGB anchors) and transparent compatibility payload specified by native source copy/pen roles in worker report. These categorical paint choices define intended visual content; no physics,timing or artwork-pixel exemption. Independent supplied edits preserved."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
-      "line": 28,
-      "name": "CrocomireColorCatalog.wallSpikes",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CrocomireColorCatalog.wallSpikes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs",
+  "line": 28,
+  "name": "CrocomireColorCatalog.wallSpikes",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CrocomireColorCatalog.wallSpikes. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "9ff83a1b7d09354f42e361129791c4b72d61b580",
+  "disposition": "Five-band aggregate74words calculates gamma/linear ramps,shared channels and material aliases. Retain only exact53named material inputs (45channel parameters plus8RGB anchors) and transparent compatibility payload specified by native source copy/pen roles in worker report. These categorical paint choices define intended visual content; no physics,timing or artwork-pixel exemption. Independent supplied edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireMeltingArtwork.cs",
       "line": 25,
@@ -1667,12 +1682,15 @@
   "disposition": "All32initial outputs calculate through existing reviewed escape-door and Baby material owners, sharing canonical warm/body operations while preserving independent resource edits. Only two exact copied3800clear-slot targets E1CF/E1EF add retained content, represented by sharedblue14 andzeroRG; uniform32word copy makes them observable,transparency does not choose them. No reveal,pixel,timing or other palette exemption."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/NorfairRidleyColorCatalog.cs",
-      "line": 19,
-      "name": "NorfairRidleyColorCatalog.reveal",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind NorfairRidleyColorCatalog.reveal. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/NorfairRidleyColorCatalog.cs",
+  "line": 19,
+  "name": "NorfairRidleyColorCatalog.reveal",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind NorfairRidleyColorCatalog.reveal. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "d0fefdf55714b94fb91cf4eb84bab2f2dd9d1775",
+  "disposition": "All210 outputs calculate via common biased15step fade and two material ramps. Retain only ten precisely named paint magnitudes and slot composition documented with native source/consumer/masks; these are categorical painted content, not generated physical quantities. Fourteen shared room endpoints identified; separate RoomStaticPalette occurrence remains pending. Independent edits preserved; no timing,physics or pixel exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/OwtchStokeVisualDefinitions.cs",
       "line": 15,
@@ -21811,5 +21829,5 @@
     }
   ],
   "convertedSinceSnapshot": 606,
-  "justifiedRetainedSinceSnapshot": 101
+  "justifiedRetainedSinceSnapshot": 107
 }

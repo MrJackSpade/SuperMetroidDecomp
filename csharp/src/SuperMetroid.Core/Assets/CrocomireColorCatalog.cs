@@ -22,8 +22,7 @@ public sealed class CrocomireColorCatalog
     });
 
     private enum Band { FightBody, InitialWall, InitialProjectile, SkeletonArm, WallSpikes }
-    // Remaining paint and selected sharing relationships are REQUIRED source inputs.
-    private readonly Dictionary<(Band Band, int Color), ushort> paint = [];
+    // Only independently supplied differences are stored; every stock ink calculates.
     private readonly Dictionary<(Band Band, int Color), ushort> edits = [];
 
     private CrocomireColorCatalog(ushort[] fightBody, ushort[] initialWall,
@@ -32,33 +31,20 @@ public sealed class CrocomireColorCatalog
         ushort[][] supplied = [fightBody, initialWall, initialProjectile, skeletonArm, wallSpikes];
         for (int band = 0; band < supplied.Length; band++)
             for (int color = 0; color < supplied[band].Length; color++)
-            {
-                var source = SharedSource((Band)band, color);
-                paint.TryAdd(source, supplied[(int)source.Band][source.Color]);
-            }
-        for (int band = 0; band < supplied.Length; band++)
-            for (int color = 0; color < supplied[band].Length; color++)
-                if (supplied[band][color] != paint[SharedSource((Band)band, color)])
+                if (supplied[band][color] != Stock((Band)band, color))
                     edits.Add(((Band)band, color), supplied[band][color]);
     }
 
-    /// <summary>
-    /// $A4:B8BD wall slots2..6 share neutral paint; $B8FD skeleton slots2..6
-    /// repeat slots7..11 and share white/first bone paint with body $B89D.
-    /// Seventeen-word initial transfers overlap the next palette at $B8DD/$B8FD.
-    /// Supplied edits remain independent even across those native source overlaps.
-    /// </summary>
-    private static (Band Band, int Color) SharedSource(Band band, int color) => (band, color) switch
+    /// <summary>Each named material calculates its native paint and transfer overlaps; supplied edits never alias across fields.</summary>
+    private static ushort Stock(Band band, int color) => band switch
     {
-        (Band.InitialWall, 16) => (Band.InitialProjectile, 0),
-        (Band.InitialProjectile, 16) => (Band.SkeletonArm, 0),
-        (Band.InitialWall, >= 3 and <= 6) => (Band.InitialWall, 2),
-        (Band.SkeletonArm, 1) => (Band.FightBody, 1),
-        (Band.SkeletonArm, 2 or 7) => (Band.FightBody, 7),
-        (Band.SkeletonArm, >= 3 and <= 6) => (Band.SkeletonArm, color + 5),
-        _ => (band, color),
+        Band.FightBody => CrocomirePaintDefinitions.FightBody(color),
+        Band.InitialWall => CrocomirePaintDefinitions.InitialWall(color),
+        Band.InitialProjectile => CrocomirePaintDefinitions.InitialProjectile(color),
+        Band.SkeletonArm => CrocomirePaintDefinitions.SkeletonArm(color),
+        Band.WallSpikes => CrocomirePaintDefinitions.WallSpikes(color),
+        _ => throw new ArgumentOutOfRangeException(nameof(band)),
     };
-
     private static int Count(Band band) => band switch
     {
         Band.FightBody => CrocomirePaletteRomData.FightBodyCount,
@@ -142,7 +128,7 @@ public sealed class CrocomireColorCatalog
     private ushort Get(Band band, int index)
     {
         if ((uint)index >= Count(band)) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue((band, index), out ushort edited) ? edited : paint[SharedSource(band, index)];
+        return edits.TryGetValue((band, index), out ushort edited) ? edited : Stock(band, index);
     }
 
     private void Apply(SnesCgram cgram, Band band, int destination)

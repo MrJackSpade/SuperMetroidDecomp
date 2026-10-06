@@ -391,10 +391,10 @@ internal static partial class Program
             }
         }
         CrocomireColorCatalog stock = Check();
-        var paint = (System.Collections.IDictionary)typeof(CrocomireColorCatalog).GetField("paint", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertTrue(typeof(CrocomireColorCatalog).GetField("paint", BindingFlags.Instance | BindingFlags.NonPublic) is null, "Stock palette storage has been removed");
         var edits = (System.Collections.IDictionary)typeof(CrocomireColorCatalog).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        AssertEqual(61, paint.Count, "Only 61 required paint inputs remain after thirteen shared words");
-        AssertEqual(0, edits.Count, "Native sharing needs no unexplained override");
+        AssertTrue(!typeof(CrocomirePaintDefinitions).GetFields(BindingFlags.Static | BindingFlags.NonPublic).Any(field => field.FieldType.IsArray), "Material calculation does not cache an output palette");
+        AssertEqual(0, edits.Count, "All 74 stock inks calculate without overrides");
         for (int band = 0; band < bands.Length; band++)
             for (int color = 0; color < counts[band]; color++)
             {
@@ -407,14 +407,18 @@ internal static partial class Program
                 }
                 bands[band][color] = original;
             }
-        Console.WriteLine("Crocomire shared paint: 74 native colors, 222 independent channel edits, 61 required seeds/zero stock overrides, actual CGRAM, hash and bounds pass.");
+        Console.WriteLine("Crocomire material paint: 74 native colors, 222 independent channel edits, zero stock palette/overrides, actual CGRAM, hash and bounds pass.");
 
         CrocomireColorCatalog Check()
         {
             var document = new CrocomireColorDocument { Version = 1, FightBody = bands[0], InitialWall = bands[1], InitialProjectile = bands[2], SkeletonArm = bands[3], WallSpikes = bands[4] };
             var result = CrocomireColorCatalog.Load(new MemoryStream(CrocomireColorCatalog.Write(document)));
             Func<int, ushort>[] resolve = [result.ResolveFightBody, result.ResolveInitialWall, result.ResolveInitialProjectile, result.ResolveSkeletonArm, result.ResolveWallSpikes];
-            var cgram = new SnesCgram(); result.ApplyInitial(cgram); result.ApplyFightBody(cgram); result.ApplySkeletonArm(cgram); result.ApplyWallSpikes(cgram);
+            var cgram = new SnesCgram(); result.ApplyInitial(cgram);
+            for (int band = 1; band <= 2; band++)
+                for (int ink = 0; ink < counts[band]; ink++)
+                    AssertEqual(resolve[band](ink), cgram.Colors[destinations[band] + ink], "Initial seventeen-word copy preserves its independently supplied overlap");
+            result.ApplyFightBody(cgram); result.ApplySkeletonArm(cgram); result.ApplyWallSpikes(cgram);
             string expectedHash = SelectedPresentationHash.Create("CrocomireColorCatalog-v1", content =>
             {
                 for (int band = 0; band < bands.Length; band++)

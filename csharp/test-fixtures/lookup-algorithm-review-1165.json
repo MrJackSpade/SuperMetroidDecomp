@@ -12469,4 +12469,30 @@
   ],
   "confirmation": "Worker owns validation: full build1444warnings/0errors;32native/30shared material identities,zero stock overrides,96RGB edits/hash,97full copies,three actual initializers with all bus access forbidden,90normal/escape source edits; affected Baby/fade confirmations passed. Shared current-root door proof adjustment and confirmation recorded separately. Worker current-root affected normal/escape confirmation:25warnings/0errors,30native colors,90RGB edits,184actual initializer copies,hashes/bounds and13local+7shared seed ownership pass. Coordinator performs no repeat validation.",
   "workerCommit": "ac7ba143ce87b092f537e02f1c40b30bf194a87b"
+},"norfairRidleyRevealComplete":{
+  "confirmation": "Worker build1444warnings/0errors;210native/14room aliases/zero overrides/630RGB edits/hash/9465full copies/138actual producer calls with readguard,timing,terminator and bounds passed. Coordinator mechanically integrated supplied patch without review/retest.",
+  "disposition": [
+    "All210 outputs calculate via common biased15step fade and two material ramps. Retain only ten precisely named paint magnitudes and slot composition documented with native source/consumer/masks; these are categorical painted content, not generated physical quantities. Fourteen shared room endpoints identified; separate RoomStaticPalette occurrence remains pending. Independent edits preserved; no timing,physics or pixel exemption."
+  ],
+  "workerCommit": "d0fefdf55714b94fb91cf4eb84bab2f2dd9d1775",
+  "completed": [
+    "NorfairRidleyColorCatalog.reveal"
+  ]
+},"crocomireFiveBandPaintComplete":{
+  "workerCommit": "9ff83a1b7d09354f42e361129791c4b72d61b580",
+  "confirmation": "Worker builds1434warnings/0errors then1194/0;74native words,222independent channel edits,zero stock storage/overrides,actual initial overlaps/fiveband CGRAM,hash and bounds passed. Coordinator mechanically integrated worker patch without review/retest.",
+  "completed": [
+    "CrocomireColorCatalog.fightBody",
+    "CrocomireColorCatalog.initialWall",
+    "CrocomireColorCatalog.initialProjectile",
+    "CrocomireColorCatalog.skeletonArm",
+    "CrocomireColorCatalog.wallSpikes"
+  ],
+  "disposition": [
+    "Five-band aggregate74words calculates gamma/linear ramps,shared channels and material aliases. Retain only exact53named material inputs (45channel parameters plus8RGB anchors) and transparent compatibility payload specified by native source copy/pen roles in worker report. These categorical paint choices define intended visual content; no physics,timing or artwork-pixel exemption. Independent supplied edits preserved.",
+    "Five-band aggregate74words calculates gamma/linear ramps,shared channels and material aliases. Retain only exact53named material inputs (45channel parameters plus8RGB anchors) and transparent compatibility payload specified by native source copy/pen roles in worker report. These categorical paint choices define intended visual content; no physics,timing or artwork-pixel exemption. Independent supplied edits preserved.",
+    "Five-band aggregate74words calculates gamma/linear ramps,shared channels and material aliases. Retain only exact53named material inputs (45channel parameters plus8RGB anchors) and transparent compatibility payload specified by native source copy/pen roles in worker report. These categorical paint choices define intended visual content; no physics,timing or artwork-pixel exemption. Independent supplied edits preserved.",
+    "Five-band aggregate74words calculates gamma/linear ramps,shared channels and material aliases. Retain only exact53named material inputs (45channel parameters plus8RGB anchors) and transparent compatibility payload specified by native source copy/pen roles in worker report. These categorical paint choices define intended visual content; no physics,timing or artwork-pixel exemption. Independent supplied edits preserved.",
+    "Five-band aggregate74words calculates gamma/linear ramps,shared channels and material aliases. Retain only exact53named material inputs (45channel parameters plus8RGB anchors) and transparent compatibility payload specified by native source copy/pen roles in worker report. These categorical paint choices define intended visual content; no physics,timing or artwork-pixel exemption. Independent supplied edits preserved."
+  ]
 }}

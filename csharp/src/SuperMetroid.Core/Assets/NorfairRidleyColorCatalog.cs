@@ -14,16 +14,22 @@ public sealed class NorfairRidleyColorCatalog
             Span<ushort> initialWords = stackalloc ushort[NorfairRidleyPaletteRomData.InitialColorCount];
             for (int color = 0; color < initialWords.Length; color++) initialWords[color] = initial.ColorAt(color);
             content.AppendWords("initial", initialWords);
-            content.AppendWordFrames("reveal", reveal);
+            ushort[][] revealWords = new ushort[NorfairRidleyPaletteRomData.RevealRowCount][];
+            for (int row = 0; row < revealWords.Length; row++)
+            {
+                revealWords[row] = new ushort[NorfairRidleyPaletteRomData.RevealColorCount];
+                for (int color = 0; color < revealWords[row].Length; color++) revealWords[row][color] = reveal.ColorAt(row, color);
+            }
+            content.AppendWordFrames("reveal", revealWords);
         });
 
     private readonly NorfairRidleyInitialPaintDefinitions initial;
-    private readonly ushort[][] reveal;
+    private readonly NorfairRidleyRevealPaintDefinitions reveal;
 
     private NorfairRidleyColorCatalog(ushort[] initial, ushort[][] reveal)
     {
         this.initial = new(initial);
-        this.reveal = reveal;
+        this.reveal = new(reveal);
     }
 
     private static readonly JsonSerializerOptions Options = new()
@@ -34,7 +40,7 @@ public sealed class NorfairRidleyColorCatalog
     };
 
     public ushort ResolveInitial(int color) => initial.ColorAt(color);
-    public ushort ResolveReveal(int row, int color) => reveal[row][color];
+    public ushort ResolveReveal(int row, int color) => reveal.ColorAt(row, color);
 
     public void ApplyInitial(SnesCgram cgram)
     {
@@ -43,8 +49,13 @@ public sealed class NorfairRidleyColorCatalog
             cgram.SetColor(NorfairRidleyPaletteRomData.InitialCgramIndex + color, initial.ColorAt(color));
     }
 
-    public void ApplyReveal(SnesCgram cgram, int row) =>
-        Apply(cgram, reveal[row], NorfairRidleyPaletteRomData.RevealCgramIndex);
+    public void ApplyReveal(SnesCgram cgram, int row)
+    {
+        NorfairRidleyRevealPaintDefinitions.ValidateRow(row);
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < NorfairRidleyPaletteRomData.RevealColorCount; color++)
+            cgram.SetColor(NorfairRidleyPaletteRomData.RevealCgramIndex + color, reveal.ColorAt(row, color));
+    }
 
     public static NorfairRidleyColorCatalog Load(Stream json)
     {
@@ -99,13 +110,6 @@ public sealed class NorfairRidleyColorCatalog
             words[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         }
         return words;
-    }
-
-    private static void Apply(SnesCgram cgram, ushort[] colors, int destination)
-    {
-        ArgumentNullException.ThrowIfNull(cgram);
-        for (int color = 0; color < colors.Length; color++)
-            cgram.SetColor(destination + color, colors[color]);
     }
 
     private static void RejectDuplicates(JsonElement value)

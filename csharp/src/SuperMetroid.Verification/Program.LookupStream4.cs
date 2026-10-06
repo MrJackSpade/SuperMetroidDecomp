@@ -2341,6 +2341,143 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(0, 4), "Draygon health color bounds");
         AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new SnesCgram(), 1), "Draygon odd native health selector rejected");
     }
+    private static void VerifyLookupStream4NorfairReveal(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        byte[] json = NorfairRidleyColorExtractor.Extract(rom);
+        var stock = NorfairRidleyColorCatalog.Load(new MemoryStream(json));
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var definition = (NorfairRidleyRevealPaintDefinitions)typeof(NorfairRidleyColorCatalog).GetField("reveal", flags)!.GetValue(stock)!;
+        AssertEqual(0, ((Dictionary<int, ushort>)typeof(NorfairRidleyRevealPaintDefinitions).GetField("edits", flags)!.GetValue(definition)!).Count,
+            "All210 native reveal words calculate without residual samples");
+        byte[] roomPalette = RomDataReader.Decompress(CartridgeImportSource.Require(rom), RoomTilesetDefinitions.Get(9).PaletteAddress);
+        for (int color = 0; color < 14; color++)
+        {
+            ushort expected = Word(0xa6a693 + color * 2);
+            AssertEqual(expected, NorfairRidleyRevealPaintDefinitions.Endpoint(color), "Exact immutable room material endpoint");
+            AssertEqual(expected, (ushort)(roomPalette[(113 + color) * 2] | roomPalette[(113 + color) * 2 + 1] << 8),
+                "Identical room-theme9 occurrence remains separately accounted");
+        }
+        for (int edit = -1; edit < 630; edit++)
+        {
+            var document = JsonSerializer.Deserialize<NorfairRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+            if (edit >= 0)
+            {
+                int word = edit / 3;
+                var rgb = document.Reveal[word / 14][word % 14];
+                document.Reveal[word / 14][word % 14] = (edit % 3) switch
+                { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
+            }
+            var selected = NorfairRidleyColorCatalog.Load(new MemoryStream(NorfairRidleyColorCatalog.Write(document)));
+            string hash = SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
+            {
+                content.AppendWords("initial", document.Initial.Select(Pack).ToArray());
+                content.AppendWordFrames("reveal", document.Reveal.Select(row => row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(hash, selected.ContentIdentity, "Every reveal edit preserves canonical content hash");
+            for (int row = 0; row < 15; row++)
+            {
+                var cgram = new SnesCgram();
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                selected.ApplyReveal(cgram, row);
+                for (int color = 0; color < 256; color++)
+                    AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113]) : (ushort)0x1234,
+                        cgram.Colors[color], "Every independent reveal edit and full CGRAM copy");
+                for (int color = 0; color < 14; color++)
+                {
+                    AssertEqual(Pack(document.Reveal[row][color]), selected.ResolveReveal(row, color), "Direct revealed color equals supplied sample");
+                    AssertEqual(Word(0xa6a50b + (row * 14 + color) * 2), stock.ResolveReveal(row, color), "All native stock rows remain immutable");
+                }
+            }
+            if (edit is -1 or 0 or 629)
+            {
+                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+                    new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), norfairRidleyColors: selected);
+                var enemies = new RoomEnemySystem { TileArtwork = artwork };
+                var cgram = new SnesCgram();
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new ProjectileCompositionForbiddenBus());
+                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+                typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => false));
+                RoomEnemySlot slot = enemies.Slots[0]; slot.EnemyDefinitionPointer = RoomEnemySystem.NorfairRidleyDefinition;
+                typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidley", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
+                RidleyEnemyState state = enemies.Ridley!;
+                state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = 0;
+                var tick = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyArenaReveal", flags)!.CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
+                for (int call = 0; call < 46; call++)
+                {
+                    tick(slot, state);
+                    int row = Math.Min(call / 3, 14);
+                    AssertEqual((ushort)(2 - call % 3), state.FunctionTimer, "Actual three-call producer cadence preserved");
+                    AssertEqual(call < 45 ? (ushort)(row + 1) : (ushort)0, state.FadePaletteOffset, "Actual row and zero terminator progression");
+                    for (int color = 0; color < 256; color++)
+                        AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113])
+                            : color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
+                            : color == 127 || color >= 241 ? (ushort)0 : (ushort)0x1234,
+                            cgram.Colors[color], "Actual producer preserves full CGRAM, held rows and independent source edits");
+                }
+                AssertEqual(RidleyAiFunction.ClearVelocity, state.Function, "Native terminator handoff");
+                AssertEqual(RidleyLiquidRomData.BattleHeight, state.FxTargetYPosition, "Native liquid target handoff");
+                AssertEqual((ushort)8, state.WingAnimationTimer, "Native wing timer handoff");
+                AssertTrue(state.TailSegments.All(segment => segment.Active), "Native tail activation handoff");
+            }
+        }
+        foreach (int row in new[] { -1, 15, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<IndexOutOfRangeException>(() => stock.ResolveReveal(row, 0), "Original reveal row domain");
+            AssertThrows<IndexOutOfRangeException>(() => stock.ApplyReveal(null!, row), "Original row validation precedes null destination");
+        }
+        foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => stock.ResolveReveal(0, color), "Original reveal color domain");
+        AssertThrows<ArgumentNullException>(() => stock.ApplyReveal(null!, 0), "Reveal null destination");
+        Console.WriteLine("Norfair reveal:210 native words/14 shared room endpoints/zero overrides,630 independent RGB edits/hash,9465 full row copies,138 real producer calls/read guard/cadence/terminator and domain checks pass.");
+    }
+    private static void ExportLookupStream4NorfairRevealSource(CartridgeImportAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        int Long(int address) => Word(address) | rom.ReadByte(address + 2) << 16;
+        var theme = RoomTilesetDefinitions.Get(9);
+        byte[] paletteBytes = RomDataReader.Decompress(rom, theme.PaletteAddress);
+        byte[] area = RomDataReader.Decompress(rom, theme.CharacterAddress);
+        byte[] cre = RomDataReader.Decompress(rom, RoomAssetRomData.Tilesets.CreCharactersAddress);
+        byte[] planar = new byte[Math.Max(area.Length, RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset + cre.Length)];
+        area.CopyTo(planar, 0); cre.CopyTo(planar, RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset);
+        byte[] map = RomDataReader.Decompress(rom, Long(0x8fbf34));
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 16, out int width, out _);
+        var colors = Enumerable.Range(0, 128).Select(i => SnesGraphics.DecodeBgr555Color((ushort)(paletteBytes[i * 2] | paletteBytes[i * 2 + 1] << 8))).ToArray();
+        for (int color = 0; color < 14; color++)
+        {
+            ushort endpoint = Word(0xa6a693 + color * 2);
+            ushort roomColor = (ushort)(paletteBytes[(113 + color) * 2] | paletteBytes[(113 + color) * 2 + 1] << 8);
+            Console.WriteLine($"Norfair reveal endpoint slot{color + 1}: {endpoint:X4}; room theme9 {roomColor:X4}.");
+            colors[113 + color] = SnesGraphics.DecodeBgr555Color(endpoint);
+        }
+        Console.WriteLine($"Norfair theme9 chars {theme.CharacterAddress:X6}, palette {theme.PaletteAddress:X6}; BG map {Long(0x8fbf34):X6}, {map.Length} bytes.");
+        var canvas = new byte[256 * 256];
+        for (int cell = 0; cell < 1024; cell++)
+        {
+            int attributes = map[cell * 2] | map[cell * 2 + 1] << 8;
+            int tile = attributes & 0x3ff, palette = attributes >> 10 & 7;
+            for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++)
+            {
+                int sx = (attributes & 0x4000) == 0 ? x : 7 - x;
+                int sy = (attributes & 0x8000) == 0 ? y : 7 - y;
+                byte index = pixels[(tile / 16 * 8 + sy) * width + tile % 16 * 8 + sx];
+                canvas[(cell / 32 * 8 + y) * 256 + cell % 32 * 8 + x] = (byte)(palette * 16 + index);
+            }
+        }
+        string directory = Path.GetFullPath("csharp/test-temp/norfair-reveal-source"); Directory.CreateDirectory(directory);
+        byte[] enlarged = Enumerable.Range(0, 512 * 512).Select(i => canvas[i / 512 / 2 * 256 + i % 512 / 2]).ToArray();
+        using (var output = File.Create(Path.Combine(directory, "native-background.png"))) IndexedPng.Write(output, 512, 512, enlarged, colors);
+        for (int slot = 1; slot <= 14; slot++)
+        {
+            byte[] mask = enlarged.Select(pixel => (byte)(pixel == 112 + slot ? 1 : 0)).ToArray();
+            using var output = File.Create(Path.Combine(directory, $"slot-{slot}.png"));
+            IndexedPng.Write(output, 512, 512, mask, [new Rgba32(35,35,35,255), new Rgba32(255,220,0,255)]);
+            Console.WriteLine($"Norfair native background slot{slot}: {canvas.Count(pixel => pixel == 112 + slot)} pixels.");
+        }
+    }
     private static void VerifyLookupStream4NorfairInitial(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

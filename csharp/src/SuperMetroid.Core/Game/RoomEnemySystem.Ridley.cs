@@ -206,7 +206,7 @@ public sealed partial class RoomEnemySystem
 
             case RidleyAiFunction.NorfairSwoopSetup:
                 state.Function = RidleyAiFunction.NorfairSwoopMoveToStart;
-                state.FunctionTimer = 10;
+                state.SwoopPhaseTimer = 10;
                 state.SwoopAngleAccumulator = 0;
                 TickNorfairRidleySwoopMoveToStart(slot, state);
                 return;
@@ -263,9 +263,9 @@ public sealed partial class RoomEnemySystem
 
             case RidleyAiFunction.NorfairSwoopRecover:
                 UpdateRidleySwoopVelocity(state, 0, short.MinValue, 448);
-                if (state.FunctionTimer != 0)
+                if (state.SwoopPhaseTimer != 0)
                 {
-                    state.FunctionTimer--;
+                    state.SwoopPhaseTimer--;
                     return;
                 }
                 state.Function = SamusMovementUsesRidleyGrab(samus)
@@ -496,7 +496,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.Function = RidleyAiFunction.NorfairSwoopAimDown;
-        state.FunctionTimer = 32;
+        state.SwoopPhaseTimer = 32;
         state.SwoopAngleAccumulator = 0;
     }
 
@@ -509,14 +509,14 @@ public sealed partial class RoomEnemySystem
         ushort nextTimer)
     {
         UpdateRidleySwoopVelocity(state, angleDelta, targetAngle, targetMagnitude);
-        if (state.FunctionTimer != 0)
+        if (state.SwoopPhaseTimer != 0)
         {
-            state.FunctionTimer--;
+            state.SwoopPhaseTimer--;
             return false;
         }
 
         state.Function = nextFunction;
-        state.FunctionTimer = nextTimer;
+        state.SwoopPhaseTimer = nextTimer;
         return true;
     }
 

@@ -150,6 +150,8 @@ public sealed class RidleyEnemyState
     public ushort FireballBaseYPosition { get; internal set; }
     public ushort FireballXVelocity { get; internal set; }
     public ushort FireballYVelocity { get; internal set; }
+    /// <summary>$7E:7800, independent swoop phase countdown used by $A6:B441-$B594.</summary>
+    public ushort SwoopPhaseTimer { get; internal set; }
     public ushort SwoopAngleAccumulator { get; internal set; }
     public ushort SwoopSpeedMagnitude { get; internal set; }
 

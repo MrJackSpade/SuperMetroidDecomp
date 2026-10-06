@@ -222,9 +222,14 @@ settings. The source3915 velocity fixture failed before the fix; both expiry
 branches now pass their velocity, next-phase and tail-setting checks. Independent
 replay confirms the originally mismatched release and subsequent carry phase.
 
-Expanded checked state now matches through update 4023 of 10,717. The next
-mismatch is update4024/source4132: Ridley AI timer native112 versus port10.
-This remains under investigation.
+Swoop phases now own a separate $7E:7800 countdown instead of overwriting the
+general $0FB2 AI timer. Native $A6:B441-$B594 leaves that general timer intact.
+Focused setup/countdown/phase-transition checks pass; replay now compares both
+timers during swoops and passes the original source4132 mismatch.
+
+Expanded checked state now matches through update 4125 of 10,717. The next
+mismatch is update4126/source4234: the port applies an extra40 damage and hurt
+movement to Samus. This remains under investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

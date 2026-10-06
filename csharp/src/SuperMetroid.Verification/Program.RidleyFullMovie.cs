@@ -12,6 +12,30 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyRidleySwoopTimer()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RidleyMovieMemory.RidleyRoom);
+        var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!;
+        state.Function = RidleyAiFunction.NorfairSwoopSetup; state.FunctionTimer = 112;
+        body.XPosition = 212; body.YPosition = 200; state.FacingDirection = 2;
+        var dispatch = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        dispatch.Invoke(runtime.Enemies, [body, state, runtime.Samus, (ushort)0, runtime.LevelData]);
+        AssertEqual((ushort)112, state.FunctionTimer, "native swoop setup retains general AI timer");
+        AssertEqual((ushort)10, state.SwoopPhaseTimer, "native swoop setup initializes independent countdown");
+        state.Function = RidleyAiFunction.NorfairSwoopAimDown; state.SwoopPhaseTimer = 1;
+        dispatch.Invoke(runtime.Enemies, [body, state, runtime.Samus, (ushort)0, runtime.LevelData]);
+        AssertEqual((ushort)0, state.SwoopPhaseTimer, "native swoop decrements its own timer");
+        AssertEqual((ushort)112, state.FunctionTimer, "native swoop countdown retains general timer");
+        dispatch.Invoke(runtime.Enemies, [body, state, runtime.Samus, (ushort)0, runtime.LevelData]);
+        AssertEqual((ushort)20, state.SwoopPhaseTimer, "native next swoop phase installs its own duration");
+        AssertEqual((ushort)112, state.FunctionTimer, "native phase transition retains general timer");
+        Console.WriteLine("Ridley swoop: independent countdown and retained general AI timer pass.");
+    }
+
     private static void VerifyRidleyGrabEntry()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -692,6 +716,10 @@ internal static partial class Program
                     mismatches.Add($"Ridley interaction gate: native={expectedGate}");
                 Check("Ridley AI function", (ushort)ridleyState.Function, RidleyMovieMemory.RidleyFunction);
                 Check("Ridley AI timer", ridleyState.FunctionTimer, RidleyMovieMemory.RidleyFunctionTimer);
+                if (ridleyState.Function is RidleyAiFunction.NorfairSwoopMoveToStart or
+                    RidleyAiFunction.NorfairSwoopAimDown or RidleyAiFunction.NorfairSwoopAimSideways or
+                    RidleyAiFunction.NorfairSwoopAimUp or RidleyAiFunction.NorfairSwoopClimb or RidleyAiFunction.NorfairSwoopRecover)
+                    Check("Ridley swoop timer", ridleyState.SwoopPhaseTimer, RidleyMovieMemory.RidleySwoopTimer);
                 if (game.GameState == SuperMetroidGameState.MainGameplay)
                 {
                     // Tail workspace becomes live after its first fade-owned composition.

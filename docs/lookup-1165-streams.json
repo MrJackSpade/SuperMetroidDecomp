@@ -3247,6 +3247,7 @@
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/CeresDoorAnimationPaintDefinitions.cs","stream":5,"purpose":"Complete beacon material phases and shared normal seeds; exact reviewed blue17/red14 and brightening/fade policy only, cadence/pixels/mechanics excluded"}
 ,{"path":"csharp/src/SuperMetroid.Core/Game/ProjectileWaveEnvelopeDefinitions.cs","stream":1,"purpose":"Single immutable source lobe basis shared by collision and stock art; source offsets remain required under frames, independent edited art never changes physical radii"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/CeresRidleyBodyPaintDefinitions.cs","stream":4,"purpose":"Complete body fade endpoint provider sharing reviewed Golden armor and exact wing membrane paint; common quantizer, independent edits; initial palettes,pixels,timing excluded"}
+,{"path":"csharp/src/SuperMetroid.Core/Assets/IntroInitialNarrationTilemapDefinitions.cs","stream":3,"purpose":"Complete initial narration page from exact reviewed prose/typesetting and calculated wrapping/centering/glyph packing; supplied edits preserved, pixels/timing excluded"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

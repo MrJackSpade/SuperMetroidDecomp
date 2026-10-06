@@ -315,6 +315,11 @@ if (args is ["--lookup-stream3-falling-tube-population-layout"])
     VerifyStream3FallingTubePopulationLayout(rom);
     return 0;
 }
+if (args is ["--lookup-stream3-initial-narration"])
+{
+    VerifyStream3InitialNarrationMap();
+    return 0;
+}
 if (args is ["--lookup-stream3-intro-palette-rows"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

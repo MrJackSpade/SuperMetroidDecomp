@@ -42,7 +42,9 @@ public sealed class IntroCinematicArtworkCatalog
         }
         BackgroundPages = pages;
         PortraitTilemap = RequirePage(portraitTilemap, "portrait");
-        InitialNarrationTilemap = RequirePage(initialNarrationTilemap, "initial narration");
+        ReadOnlyMemory<byte> narration = RequirePage(initialNarrationTilemap, "initial narration");
+        if (!narration.Span.SequenceEqual(IntroInitialNarrationTilemapDefinitions.Compile()))
+            suppliedInitialNarration = narration.ToArray();
         FinalLine = finalLine ?? throw new ArgumentNullException(nameof(finalLine));
         EyeFrames = eyeFrames ?? throw new ArgumentNullException(nameof(eyeFrames));
         CaretSprites = caretSprites ?? throw new ArgumentNullException(nameof(caretSprites));
@@ -77,7 +79,8 @@ public sealed class IntroCinematicArtworkCatalog
     /// <summary>Samus-head portrait BG tilemap uploaded at VRAM byte $9000.</summary>
     public ReadOnlyMemory<byte> PortraitTilemap { get; }
     /// <summary>First, pre-typewriter narration BG3 tilemap uploaded at VRAM byte $9800.</summary>
-    public ReadOnlyMemory<byte> InitialNarrationTilemap { get; }
+    public ReadOnlyMemory<byte> InitialNarrationTilemap => suppliedInitialNarration ?? IntroInitialNarrationTilemapDefinitions.Compile();
+    private readonly byte[]? suppliedInitialNarration;
     /// <summary>Four ornamental BG3 rows placed beneath illustrated-page text.</summary>
     public IntroFinalLineTilemap FinalLine { get; }
     /// <summary>Four editable Samus-portrait eye rectangles, without their blink timing.</summary>

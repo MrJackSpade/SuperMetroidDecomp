@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 452,
+  "remainingTableDefinitionCount": 451,
   "fileCount": 523,
   "entries": [
     {
@@ -1151,12 +1151,15 @@
       "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs",
-      "line": 80,
-      "name": "IntroCinematicArtworkCatalog.InitialNarrationTilemap",
-      "kind": "installed stock table",
-      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs",
+  "line": 80,
+  "name": "IntroCinematicArtworkCatalog.InitialNarrationTilemap",
+  "kind": "installed stock table",
+  "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.",
+  "state": "justified-retained",
+  "implementationCommit": "6a3c0e08de2971054f19b2b565bc91012d64d534",
+  "disposition": "Calculate1024words from exact opening sentence with width22 word wrapping, centered margin(32−22)/2, source-derived upper/lower glyph atlas packing and period placement. Retain only selected English prose, width22/toprow8/leading1/fontstyle choices, which specify narrative/typesetting content rather than numerical simulation. No cached stock page; supplied edits preserved. Glyph pixels,timing,gameplay excluded."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicPalette.cs",
   "line": 10,
@@ -21718,5 +21721,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 76
+  "justifiedRetainedSinceSnapshot": 77
 }

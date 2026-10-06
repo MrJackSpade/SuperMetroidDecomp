@@ -3260,4 +3260,54 @@ internal static partial class Program
             AssertEqual(identity, catalog.ContentIdentity, "Baby initial canonical content identity preserved");
         }
     }
+    private static void VerifyStream3InitialNarrationMap()
+    {
+        string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "initial-narration-" + Guid.NewGuid().ToString("N")));
+        try
+        {
+            string source = Path.GetFullPath("Super Metroid.smc");
+            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(source);
+            byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
+                IntroCinematicRomData.Assets.FirstNarrationTilemap, maximumOutputBytes: 2048);
+            var installation = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(source, root);
+            IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
+            const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var pageConstructor = typeof(RoomBackgroundTilemapAtlas).GetConstructors(flags).Single();
+            RoomBackgroundTilemapAtlas Page(byte[] bytes) => (RoomBackgroundTilemapAtlas)pageConstructor.Invoke([bytes]);
+            RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(stock.BackgroundPages.Slice(index * 2048, 2048).ToArray())).ToArray();
+            IntroCinematicArtworkCatalog Copy(byte[] narration) => new(stock.BackgroundCharacters,
+                stock.IntroObjectCharacters, stock.CinematicObjectCharacters, pages, Page(stock.PortraitTilemap.ToArray()),
+                Page(narration), stock.FinalLine, stock.EyeFrames, stock.CaretSprites, stock.MotherBrainSprites,
+                stock.MotherBrainExplosionSprites, stock.RinkaSprites, stock.EggEffectSprites,
+                stock.DiscoveryActorSprites, stock.ScientistSprites, stock.Palette, stock.CeresFlight, stock.CeresDestruction);
+            AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(native), "all 1024 initial narration words match native");
+            var field = typeof(IntroCinematicArtworkCatalog).GetField("suppliedInitialNarration", flags)!;
+            AssertTrue(field.GetValue(stock) is null, "stock initial narration stores no page array");
+            var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(rom)));
+            var intro = new IntroCinematicState(new TestAddressSpace(), introFont: font, characterArtwork: stock,
+                beamArtwork: installation.LoadProjectiles().BeamTiles);
+            AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+                IntroCinematicRomData.Vram.NarrationTilemapDestinationByte, native.Length).SequenceEqual(native),
+                "actual opening constructor transfers calculated narration to native VRAM destination");
+            string hash = stock.ContentIdentity;
+            for (int word = 0; word < 1024; word++)
+            {
+                byte[] edited = native.ToArray();
+                edited[word * 2] ^= 0xff;
+                edited[word * 2 + 1] ^= 0xff;
+                var selected = Copy(edited);
+                AssertTrue(selected.InitialNarrationTilemap.Span.SequenceEqual(edited), $"independent narration word {word}");
+                if (word == 0) AssertTrue(selected.ContentIdentity != hash, "edited narration changes selected bundle identity");
+                edited[word * 2] ^= 1;
+                AssertTrue(selected.InitialNarrationTilemap.Span[word * 2] != edited[word * 2], "narration owns supplied bytes");
+            }
+            AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(native), "edits do not cross-mutate stock");
+            AssertEqual(hash, Copy(native).ContentIdentity, "equivalent stock bundle preserves canonical identity");
+            byte[] first = stock.InitialNarrationTilemap.ToArray();
+            first[0] ^= 1;
+            AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(native), "calculated page is not a mutable cached table");
+            Console.WriteLine("Initial narration: 1024 native words, 1024 independent word edits, ownership, empty stock storage and canonical bundle identity pass.");
+        }
+        finally { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); }
+    }
 }

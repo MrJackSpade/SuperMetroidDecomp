@@ -121,6 +121,9 @@ public sealed class SamusCeresRidleyEjectionState
 
         if (horizontal.Collided)
         {
+            // MoveSamus_Left/Right end in Kill_SamusXSpeed_IfCollisionDetected ($90:E5CE),
+            // which cancels speed boosting and clears the extra-run words as well.
+            samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
             // `$90:E1FD/$E21C` restore the ordinary handlers, then
             // HandleKnockbackVerticalCollision ($90:DF6E) sees the still-set collision flag,
             // clears the movement words and aligns the feet to the previous pose. The push
@@ -128,9 +131,6 @@ public sealed class SamusCeresRidleyEjectionState
             // hurt pose; `$53/$54` remains for the ordinary movement handler.
             IsActive = false;
             PushDirection = 0;
-            samus.HorizontalSpeed.BaseSpeed = 0;
-            samus.HorizontalSpeed.BaseSubspeed = 0;
-            samus.HorizontalSpeed.AccelerationMode = 0;
             samus.Kinematics.YSpeed = 0;
             samus.Kinematics.YSubspeed = 0;
             samus.Kinematics.YDirection = 0;

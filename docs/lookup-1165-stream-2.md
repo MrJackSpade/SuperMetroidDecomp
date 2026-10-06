@@ -243,7 +243,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/NinjaSpacePirateInstructionProgramDefinitions.cs
 
 - [ ] **NinjaSpacePirateInstructionProgramDefinitions.Words** ([L56](../csharp/src/SuperMetroid.Core/Game/NinjaSpacePirateInstructionProgramDefinitions.cs#L56)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **NinjaSpacePirateInstructionProgramDefinitions.PresentationWords** ([L137](../csharp/src/SuperMetroid.Core/Game/NinjaSpacePirateInstructionProgramDefinitions.cs#L137)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **NinjaSpacePirateInstructionProgramDefinitions.PresentationWords** - CONVERTED: visual operand addresses derive from native command widths and paired action composition; independent timing/spawn/palette choices remain under Words.
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs
 
@@ -1125,3 +1125,8 @@ ab9368cb1,901abfe5b,e2fc8e520,ba20587f7,07f4e9e7,3385ef53e,dee04f273 and cd3b99a
 0c43a7eb7 and efa40ce90 add17composition views: eight Plasma startup cores,four charged diagonal Spazer startup/endcaps and five horizontal PlasmaWave Short strips. Total208calculated compositions. Selected glyphs,footprints,lengths,spacing,lobe order,priority,pixels and remaining irregular geometry remain required. Vertical Short asymmetric offsets were not assumed to reflect the horizontal layout.
 
 Root Verification1450warnings/zero errors; --lookup-stream2-power-direction-bindings passes805native operands,805actual handler/edit paths,preserved timing/control/radius and14bomb paths. --lookup-stream2-projectile-identity-geometry passes417native OAM draws,805selector union,48startup headers,208views,independent edits,54flare bindings and bounds. ResourceAudit0warnings/zero errors with all shared source dependencies refreshed. No new exception or aggregate closure;560converted/21retained-mixed/547pending unchanged.
+
+
+### Integrated Ninja program composition (7173d035b)
+
+Twenty facing-paired action programs calculate308mechanics words and140visual operand addresses through command/pose widths. Right second claw throw retains its distinct sound/first-pose ordering. Root build1452warnings/0errors;308native mechanics,20production programs,claw/palette/sound/function callbacks,140selectors,strict ordering/bounds pass with source reads forbidden. Fixture now supplies exact installed gold-Pirate palette;blank graphics serve only the instruction fixture and imply no rendering validation. PresentationWords complete;Words timing/launch/sound/palette choices remain required. Master596/21/511.

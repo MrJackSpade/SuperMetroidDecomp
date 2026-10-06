@@ -7,6 +7,31 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2NinjaProgramLayout()
+    {
+        AssertEqual(308, NinjaSpacePirateInstructionProgramDefinitions.MechanicsWordCount, "Complete native Ninja mechanics count");
+        AssertEqual(140, NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount, "Complete native Ninja visual count");
+        ushort previous = 0;
+        for (int index = 0; index < 308; index++)
+        {
+            ushort address = NinjaSpacePirateInstructionProgramDefinitions.MechanicsWord(index).Address;
+            AssertTrue(address > previous, "Calculated Ninja controls preserve strict unique native order");
+            previous = address;
+        }
+        previous = 0;
+        for (int index = 0; index < 140; index++)
+        {
+            ushort address = NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(address > previous, "Calculated Ninja selectors preserve strict unique native order");
+            previous = address;
+        }
+        AssertThrows<IndexOutOfRangeException>(() => NinjaSpacePirateInstructionProgramDefinitions.MechanicsWord(-1), "Ninja control lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => NinjaSpacePirateInstructionProgramDefinitions.MechanicsWord(308), "Ninja control upper bound");
+        AssertThrows<IndexOutOfRangeException>(() => NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress(-1), "Ninja selector lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => NinjaSpacePirateInstructionProgramDefinitions.PresentationWordAddress(140), "Ninja selector upper bound");
+        VerifyNinjaSpacePirateInstructionProgramDefinitions();
+    }
+
     private static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
     {
         var expected = new SortedSet<ushort>();

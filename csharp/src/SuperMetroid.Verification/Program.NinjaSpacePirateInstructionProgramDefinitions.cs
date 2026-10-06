@@ -1,5 +1,6 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
@@ -25,6 +26,31 @@ internal static partial class Program
                 $"ninja Pirate mechanics word $B2:{definition.Address:X4}");
         }
 
+        // The initializer requires the installed shared gold-Pirate palette.
+        // Import its exact native colors into this bounded instruction fixture.
+        var colors = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
+        for (int color = 0; color < colors.Length; color++)
+        {
+            ushort word = ReadNinjaPirateWord(rom, NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource + color * 2);
+            colors[color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        }
+        // This instruction-only fixture never renders character graphics, but the
+        // artwork catalog requires a matching tile sheet for its palette key.
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(new byte[RoomCharacterAtlasFormat.BytesPerTile], 4, 1,
+            out int width, out int height);
+        using var tilePng = new MemoryStream();
+        IndexedPng.Write(tilePng, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        tilePng.Position = 0;
+        var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+            new Dictionary<ushort, RoomCharacterAtlas>
+            {
+                [NinjaSpacePiratePaletteDefinitions.SharedGoldPirateDefinition] = RoomCharacterAtlas.Load(tilePng, RoomCharacterAtlasFormat.BytesPerTile),
+            },
+            new Dictionary<ushort, EnemyPaletteSheet>
+            {
+                [NinjaSpacePiratePaletteDefinitions.SharedGoldPirateDefinition] = EnemyPaletteSheet.Load(new MemoryStream(
+                    EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = colors }))),
+            });
         var guard = new NinjaSpacePirateInstructionReadGuard(rom);
         ushort[] programs =
         [
@@ -141,7 +167,7 @@ internal static partial class Program
 
         (RoomEnemySystem Enemies, RoomEnemySlot Slot, SamusState Samus) CreateSystem()
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem { TileArtwork = artwork };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
             typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(

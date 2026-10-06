@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream2-ninja-program-layout"])
+{
+    VerifyLookupStream2NinjaProgramLayout();
+    return 0;
+}
 if (args is ["--lookup-stream5-slope-speeds"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

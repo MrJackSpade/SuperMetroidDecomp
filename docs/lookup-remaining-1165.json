@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 512,
+  "remainingTableDefinitionCount": 511,
   "fileCount": 523,
   "entries": [
     {
@@ -5284,8 +5284,7 @@
       "line": 137,
       "name": "NinjaSpacePirateInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.","state":"converted","implementationCommit":"7173d035b5738a6bbad15f05cfacbcc765206786"},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NintendoLogoFadePaletteFxProgramMechanicsDefinitions.cs",
       "line": 72,
@@ -21548,6 +21547,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 595,
+  "convertedSinceSnapshot": 596,
   "justifiedRetainedSinceSnapshot": 21
 }

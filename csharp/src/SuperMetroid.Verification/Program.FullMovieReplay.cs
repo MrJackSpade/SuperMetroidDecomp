@@ -85,7 +85,8 @@ internal static partial class Program
             $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)}");
         if (game.RuntimeForVerification?.Enemies is { } traceEnemies)
         {
-            Console.WriteLine($"  ceres port={traceEnemies.CeresStatus:X4} native={Native(0x093f)}");
+            Console.WriteLine($"  ceres port={traceEnemies.CeresStatus:X4} native={Native(0x093f)} " +
+                $"nmi port={game.RuntimeForVerification!.NmiFrameCounter:X4} native-raw={Native(0x05b6)}");
             foreach (var actor in traceEnemies.Slots.Where(slot => slot.EnemyDefinitionPointer != 0))
             {
                 // $0F86 properties, $0F92 instruction list pointer, $0F94 instruction timer.

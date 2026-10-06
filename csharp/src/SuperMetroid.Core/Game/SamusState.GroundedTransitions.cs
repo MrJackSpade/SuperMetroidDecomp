@@ -241,15 +241,15 @@ public sealed partial class SamusState
     }
 
     /// <summary>
-    /// Ports the block-backed portion of <c>CheckIfProspectivePoseRunsIntoAWall</c> at
-    /// <c>$91:EADE</c>. Solid-enemy collision is a separate earlier probe and remains an
-    /// explicit boundary until the actor system exists.
+    /// Ports <c>CheckIfProspectivePoseRunsIntoAWall</c> at <c>$91:EADE</c>.
     /// </summary>
     /// <remarks>
     /// A current type-one collision maps the current pose immediately. Otherwise, only a
-    /// prospective type-one pose is interesting: native moves Samus one whole pixel in the
-    /// CURRENT pose direction, retains that move when clear, and maps the prospective pose's
-    /// shot direction when blocked. The retained move is the retail arm-pump bug.
+    /// prospective type-one pose is interesting: native first probes solid enemies one pixel
+    /// ahead in the CURRENT pose direction and maps the prospective pose without moving when
+    /// one is hit. Otherwise it moves Samus that pixel, retains the move when clear, and maps
+    /// the prospective pose's shot direction when a block stops it. The retained move is the
+    /// retail arm-pump bug.
     /// </remarks>
     public byte? CheckProspectiveRunningPoseForWall(
         ISnesAddressSpace bus,
@@ -270,7 +270,22 @@ public sealed partial class SamusState
             ReadMovementKind(bus, target) != SamusMovementType.Running)
             return null;
 
-        int onePixelForward = IsFacingLeft(bus)
+        bool facingLeft = IsFacingLeft(bus);
+        if (Kinematics.InteractiveEnemies.Count != 0)
+        {
+            // $91:EB05-$EB3C: Samus_vs_SolidEnemy_CollisionDetection with $12.$14 = 1.0000
+            // and the facing direction stored as the collision movement direction.
+            SamusCollisionDirection direction = facingLeft
+                ? SamusCollisionDirection.Left
+                : SamusCollisionDirection.Right;
+            SolidEnemyCollisionResult enemyProbe = SamusSolidEnemyCollision.Probe(
+                Kinematics, Kinematics.InteractiveEnemies, direction, distance: 1, distanceSubposition: 0);
+            Kinematics.RecordSolidEnemyCollision(direction, enemyProbe.EnemyIndex);
+            if (enemyProbe.Collided)
+                return SelectRanIntoWallPose(bus, target);
+        }
+
+        int onePixelForward = facingLeft
             ? -0x00010000
             : 0x00010000;
         onePixelProbe = SamusBlockCollision.MoveHorizontal(

@@ -1228,3 +1228,9 @@ Root Verification1450warnings/zero errors; --lookup-stream-4-ceres-fades passes2
 d51e16626 replaces stored program definitions with semantic owner cases and calculates 45 of 48 color words by nearest RGB5 interpolation over seven intervals, reversing phase for fade-out. Three bright endpoints at 8D:C95A/C95C/C95E remain required, together with cadence3, level count8, color count3, palette8 and first color1. Independent supplied edits retain precedence. No retention exception or aggregate completion is claimed; inventory561converted/21retained-mixed/546pending unchanged.
 
 Root Verification1450warnings/zero errors; --lookup-stream-4-planet-text passes38native mechanics words,48native colors,exact three stored endpoints,all48independent edits,both actual installed one-shot fades,enumeration and bounds. No ResourceAudit source-hash references exist for the changed sources.
+
+## Integrated Maridia color rotations
+
+2f26a6ab9 calculates96of112color words from16required first-row colors. Sand-pit bands rotate in groups of four, sand falls reuse the lower band, and waterfall colors rotate in groups of eight. Independent supplied color edits remain independent across source/rotated/shared sites. All16colors and the previously identified timing/layout inputs remain required; no exemption or aggregate closure. Inventory560converted/21retained-mixed/547pending unchanged.
+
+Root Verification1450warnings/zero errors; --lookup-stream-4-maridia-colors passes112native colors,exact16source keys with zero stock fallbacks,112independent edits,unique enumeration,bounds and three actual installed cycles with zero live color reads.

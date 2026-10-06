@@ -9,6 +9,70 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4MaridiaColors(CartridgeImportAddressSpace rom)
+    {
+        ushort Word(int pointer) => (ushort)(rom.ReadByte(0x8D0000 | pointer) | rom.ReadByte(0x8D0000 | (pointer + 1)) << 8);
+        byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
+        var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
+        var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation)
+            .GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var sites = new List<(int Owner, int Frame, int Color, ushort Pointer)>();
+        for (int owner = 0; owner < 3; owner++)
+        {
+            int frames = owner == 2 ? 8 : 4, colors = owner == 1 ? 4 : 8;
+            int first = owner == 0 ? 0xF4EF : owner == 1 ? 0xF547 : 0xF57F;
+            for (int frame = 0; frame < frames; frame++)
+            for (int color = 0; color < colors; color++)
+            {
+                ushort pointer = (ushort)(first + frame * (colors + 2) * 2 + color * 2);
+                sites.Add((owner, frame, color, pointer));
+                AssertTrue(MaridiaEnvironmentalColorDefinitions.TrySourcePointer(pointer, out ushort source), "native rotation domain");
+                AssertEqual(Word(pointer), Word(source), "direct native color rotation relationship");
+                AssertEqual(owner != 1 && frame == 0, stored.ContainsKey(pointer), "exact16 required first-row source keys and zero stock fallbacks");
+                AssertTrue(stock.TryReadColor(pointer, out ushort installed), "installed environmental color resolves");
+                AssertEqual(Word(pointer), installed, "native installed environmental color");
+            }
+        }
+        AssertEqual(112, sites.Count, "native environmental color domain");
+        AssertEqual(16, sites.Count(site => stored.ContainsKey(site.Pointer)), "sixteen required first-row colors");
+        var pointers = stock.ColorPointers.Where(pointer => MaridiaEnvironmentalColorDefinitions.TrySourcePointer(pointer, out _)).ToArray();
+        AssertEqual(112, pointers.Length, "environmental identities remain published");
+        AssertEqual(112, pointers.Distinct().Count(), "environmental identities remain unique");
+        foreach (var edit in sites)
+        {
+            var document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+            var rows = edit.Owner == 0 ? document.MaridiaSandPits : edit.Owner == 1 ? document.MaridiaSandFalls : document.MaridiaBackgroundWaterfalls;
+            rows[edit.Frame][edit.Color] = rows[edit.Frame][edit.Color] with { Red = rows[edit.Frame][edit.Color].Red ^ 1 };
+            var changed = RoomPaletteFxPresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            foreach (var site in sites)
+            {
+                AssertTrue(changed.TryReadColor(site.Pointer, out ushort actual), "edited environmental pointer resolves");
+                AssertEqual((ushort)(Word(site.Pointer) ^ (site.Pointer == edit.Pointer ? 1 : 0)), actual, "independent source/rotated/shared color edit");
+                AssertTrue(stock.TryReadColor(site.Pointer, out ushort original), "stock environmental pointer resolves");
+                AssertEqual(Word(site.Pointer), original, "stock environmental colors remain immutable");
+            }
+        }
+        foreach (var definition in MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+        {
+            var nativeBus = new PaletteFxMechanicsForbiddenBus(rom);
+            var installedBus = new PaletteFxMechanicsForbiddenBus(rom);
+            var native = new RoomPaletteFxSystem(); var installed = new RoomPaletteFxSystem();
+            var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
+            native.SpawnDefinition(nativeBus, definition.DefinitionPointer, 0);
+            installed.SpawnDefinition(installedBus, definition.DefinitionPointer, 0);
+            for (int step = 0; step <= definition.CycleFrames; step++)
+            {
+                native.Step(nativeBus, nativeCgram, new ReferencePaletteFxColorSource(nativeBus), 0, 0, false, false);
+                installed.Step(installedBus, installedCgram, stock, 0, 0, false, false);
+                AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors), "actual installed environmental cycle matches original colors each step");
+            }
+            AssertEqual(0, installedBus.PresentationReadCount, "installed environmental cycle performs zero live color reads");
+            AssertTrue(installed.IsDefinitionActive(definition.DefinitionPointer), "environmental palette retains native loop behavior");
+            foreach (ushort pointer in new[] { definition.ProgramStart, definition.FirstFramePointer, (ushort)(definition.FramePointer(0) + definition.FrameByteCount - 2), definition.LoopInstructionPointer })
+                AssertTrue(!MaridiaEnvironmentalColorDefinitions.TrySourcePointer(pointer, out _), "color rotation excludes mechanics words");
+        }
+        Console.WriteLine("Maridia colors:112 native words,16 required inputs,96 rotated/shared colors,all112 independent edits and three actual installed cycles pass.");
+    }
     private static void VerifyLookupStream4PlanetText(CartridgeImportAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(rom.ReadByte(0x8D0000 | pointer) | rom.ReadByte(0x8D0000 | (pointer + 1)) << 8);

@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream5-slope-speeds"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Slope speed oracle revision");
+    VerifyCompiledSlopeSpeeds(rom);
+    AssertThrows<ArgumentOutOfRangeException>(() => SlopeSpeedDefinitions.HorizontalMultiplier(-1), "Slope family lower bound");
+    AssertThrows<ArgumentOutOfRangeException>(() => SlopeSpeedDefinitions.HorizontalMultiplier(32), "Slope family upper bound");
+    return 0;
+}
 if (args is ["--lookup-stream5-crocomire-paint"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

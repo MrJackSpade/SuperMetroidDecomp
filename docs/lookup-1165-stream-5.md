@@ -1070,3 +1070,8 @@ Native A4:B8BD wall slots2..6 repeat one color;B8FD skeleton slots2..6 repeat7..
 ### Integrated Phantoon role selectors (3db6e0324)
 
 Removed27BankA7 literal selectors in favor of named body modes,opening/closing eyelids,eight compass gazes,mirrored tentacle cycle and mouth pose dispatch. Shared selector count/enumeration/address dispatch include the calculated family;other families and existing unresolved timing constants are preserved. Root inspected native A7:CC41-CCFB;Verification1452warnings/0errors. Focused instruction check passes58mechanics words,19reachable programs,four callbacks,27native selectors with no presentation reads. Shared catalog confirmation passes5069native identities,sorting and unknown-key rejection. Existing verifier commands also execute their preamble checks;no extra defect search was performed. Pose/timing/art requirements remain open;master595/21/512 unchanged. No direct ResourceAudit dependency.
+
+
+### Integrated slope-family speed dispatch (9503b01ec)
+
+Thirty-two stored multipliers now select seven coefficients through the native square/flat,descending stair,unit/half/third/double/triple-rise families. Root cross-checked SlopeHeightDefinitions and native94:8526/8573 consumer. Existing signed multiplication,orientation and airborne admission remain unchanged. Seven chosen coefficients remain REQUIRED;no trigonometric origin or retention exemption claimed. Root1452warnings/0errors;32native multipliers,8388608signed byte-packed operands,26112BTS/airborne cases and shape bounds pass without ROM reads. No direct audit source dependency. Master595/21/512 unchanged.

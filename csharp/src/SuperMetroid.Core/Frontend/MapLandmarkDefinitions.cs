@@ -8,53 +8,97 @@ public readonly record struct MapElevatorLabel(string Id, AreaId Destination);
 /// <summary>Landmark identities, native slot order and eligibility remain application-owned.</summary>
 public static class MapLandmarkDefinitions
 {
-    /// <summary>$82:C83B: three unused boss slots still consume boss-state bits.</summary>
-    private static readonly string?[] crateriaBosses = [null, null, null];
-    /// <summary>$82:C89D: Brinstar's visible boss marker.</summary>
-    private static readonly string?[] brinstarBosses = ["Boss.Kraid"];
-    /// <summary>$82:C90B: Norfair's visible boss marker.</summary>
-    private static readonly string?[] norfairBosses = ["Boss.Ridley"];
-    /// <summary>$82:C981: Wrecked Ship's visible boss marker.</summary>
-    private static readonly string?[] wreckedShipBosses = ["Boss.Phantoon"];
-    /// <summary>$82:C9DB: Maridia's visible boss marker.</summary>
-    private static readonly string?[] maridiaBosses = ["Boss.Draygon"];
-    /// <summary>$82:CA9B: Ceres's boss-list entry; no world-select elevator list exists.</summary>
-    private static readonly string?[] ceresBosses = ["Boss.CeresRidley"];
     /// <summary>$82:C853 first save coordinate is also the unconditional Crateria gunship icon.</summary>
     public const string Gunship = "Crateria.Gunship";
 
-    /// <summary>$82:C759: five Crateria elevator destination labels, native order.</summary>
-    private static readonly MapElevatorLabel[] crateriaElevators =
-    [new("Crateria.Elevator.0", AreaId.Brinstar), new("Crateria.Elevator.1", AreaId.Brinstar),
-     new("Crateria.Elevator.2", AreaId.Brinstar), new("Crateria.Elevator.3", AreaId.WreckedShip), new("Crateria.Elevator.4", AreaId.Maridia)];
-    /// <summary>$82:C779: five Brinstar elevator destination labels.</summary>
-    private static readonly MapElevatorLabel[] brinstarElevators =
-    [new("Brinstar.Elevator.0", AreaId.Crateria), new("Brinstar.Elevator.1", AreaId.Crateria),
-     new("Brinstar.Elevator.2", AreaId.Crateria), new("Brinstar.Elevator.3", AreaId.Maridia), new("Brinstar.Elevator.4", AreaId.Norfair)];
-    /// <summary>$82:C799: Norfair's Brinstar destination label.</summary>
-    private static readonly MapElevatorLabel[] norfairElevators = [new("Norfair.Elevator.0", AreaId.Brinstar)];
-    /// <summary>$82:C7A1: Wrecked Ship's two Crateria destination labels.</summary>
-    private static readonly MapElevatorLabel[] wreckedShipElevators = [new("WreckedShip.Elevator.0", AreaId.Crateria), new("WreckedShip.Elevator.1", AreaId.Crateria)];
-    /// <summary>$82:C7AF: Maridia's Crateria and two Brinstar destination labels.</summary>
-    private static readonly MapElevatorLabel[] maridiaElevators = [new("Maridia.Elevator.0", AreaId.Crateria), new("Maridia.Elevator.1", AreaId.Brinstar), new("Maridia.Elevator.2", AreaId.Brinstar)];
-    /// <summary>$82:C7C3: Tourian's Crateria destination label.</summary>
-    private static readonly MapElevatorLabel[] tourianElevators = [new("Tourian.Elevator.0", AreaId.Crateria)];
-
-    public static ReadOnlySpan<string?> Bosses(AreaId area) => area switch
+    /// <summary>$82:C7CB..C7D7 selects native boss slot lists; Crateria's three FFFE slots still consume bits.</summary>
+    public static BossSequence Bosses(AreaId area) => new(area, area switch
     {
-        AreaId.Crateria => crateriaBosses, AreaId.Brinstar => brinstarBosses,
-        AreaId.Norfair => norfairBosses, AreaId.WreckedShip => wreckedShipBosses,
-        AreaId.Maridia => maridiaBosses, AreaId.Tourian => [], AreaId.Ceres => ceresBosses,
-        _ => throw new ArgumentOutOfRangeException(nameof(area))
-    };
-    public static ReadOnlySpan<MapElevatorLabel> Elevators(AreaId area) => area switch
-    {
-        AreaId.Crateria => crateriaElevators, AreaId.Brinstar => brinstarElevators,
-        AreaId.Norfair => norfairElevators, AreaId.WreckedShip => wreckedShipElevators,
-        AreaId.Maridia => maridiaElevators, AreaId.Tourian => tourianElevators,
-        _ => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have elevator map labels.")
-    };
+        AreaId.Crateria => 3,
+        AreaId.Brinstar or AreaId.Norfair or AreaId.WreckedShip or AreaId.Maridia or AreaId.Ceres => 1,
+        AreaId.Tourian => 0,
+        _ => throw new ArgumentOutOfRangeException(nameof(area)),
+    });
 
+    /// <summary>$82:C74D..C757 selects the six Zebes elevator destination lists; Ceres has no list.</summary>
+    public static ElevatorSequence Elevators(AreaId area) => new(area, area switch
+    {
+        AreaId.Crateria or AreaId.Brinstar => 5,
+        AreaId.Norfair or AreaId.Tourian => 1,
+        AreaId.WreckedShip => 2,
+        AreaId.Maridia => 3,
+        _ => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have elevator map labels."),
+    });
+
+    /// <summary>$82:C83B/C89D/C90B/C981/C9DB/CA9B are Crateria/Kraid/Ridley/Phantoon/Draygon/Ceres boss slots.</summary>
+    public readonly struct BossSequence : IReadOnlyList<string?>
+    {
+        private readonly AreaId area;
+        private readonly int count;
+        internal BossSequence(AreaId area, int count) { this.area = area; this.count = count; }
+        public int Count => count;
+        public int Length => Count;
+        public bool IsEmpty => Count == 0;
+        public string? this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                return area switch
+                {
+                    AreaId.Crateria => null,
+                    AreaId.Brinstar => "Boss.Kraid",
+                    AreaId.Norfair => "Boss.Ridley",
+                    AreaId.WreckedShip => "Boss.Phantoon",
+                    AreaId.Maridia => "Boss.Draygon",
+                    AreaId.Ceres => "Boss.CeresRidley",
+                    _ => throw new ArgumentOutOfRangeException(nameof(area)),
+                };
+            }
+        }
+        public IEnumerator<string?> GetEnumerator()
+        {
+            for (int i = 0; i < Count; i++) yield return this[i];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    /// <summary>
+    /// $82:C759/C779/C799/C7A1/C7AF/C7C3 are area-ordered native destination
+    /// label records. The ordinal names identify independently editable anchors;
+    /// the cases below preserve the physical area connection of each label.
+    /// </summary>
+    public readonly struct ElevatorSequence : IReadOnlyList<MapElevatorLabel>
+    {
+        private readonly AreaId area;
+        private readonly int count;
+        internal ElevatorSequence(AreaId area, int count) { this.area = area; this.count = count; }
+        public int Count => count;
+        public int Length => Count;
+        public bool IsEmpty => Count == 0;
+        public MapElevatorLabel this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                AreaId destination = (area, index) switch
+                {
+                    (AreaId.Crateria, <= 2) or (AreaId.Norfair, 0) or (AreaId.Maridia, 1 or 2) => AreaId.Brinstar,
+                    (AreaId.Crateria, 3) => AreaId.WreckedShip,
+                    (AreaId.Crateria, 4) or (AreaId.Brinstar, 3) => AreaId.Maridia,
+                    (AreaId.Brinstar, 4) => AreaId.Norfair,
+                    (AreaId.Brinstar, <= 2) or (AreaId.WreckedShip, 0 or 1) or (AreaId.Maridia, 0) or (AreaId.Tourian, 0) => AreaId.Crateria,
+                    _ => throw new ArgumentOutOfRangeException(nameof(area)),
+                };
+                return new($"{area}.Elevator.{index}", destination);
+            }
+        }
+        public IEnumerator<MapElevatorLabel> GetEnumerator()
+        {
+            for (int i = 0; i < Count; i++) yield return this[i];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>$82:C759..C7CA use menu spritemaps $59..$5D for Crateria through Maridia labels.</summary>
     public static ushort ElevatorSpritemap(AreaId destination) => destination switch
     {
@@ -67,9 +111,9 @@ public static class MapLandmarkDefinitions
     {
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            foreach (string? id in Bosses(area).ToArray()) if (id is not null) yield return id;
+            foreach (string? id in Bosses(area)) if (id is not null) yield return id;
             if (area != AreaId.Ceres)
-                foreach (var label in Elevators(area).ToArray()) yield return label.Id;
+                foreach (var label in Elevators(area)) yield return label.Id;
         }
         yield return Gunship;
     }

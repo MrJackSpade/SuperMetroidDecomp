@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 533,
+  "remainingTableDefinitionCount": 521,
   "fileCount": 523,
   "entries": [
     {
@@ -2446,84 +2446,108 @@
       "line": 12,
       "name": "MapLandmarkDefinitions.crateriaBosses",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aee36f9a30864d272da9f9729e8a0fdf3d307eec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
       "line": 14,
       "name": "MapLandmarkDefinitions.brinstarBosses",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aee36f9a30864d272da9f9729e8a0fdf3d307eec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
       "line": 16,
       "name": "MapLandmarkDefinitions.norfairBosses",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aee36f9a30864d272da9f9729e8a0fdf3d307eec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
       "line": 18,
       "name": "MapLandmarkDefinitions.wreckedShipBosses",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aee36f9a30864d272da9f9729e8a0fdf3d307eec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
       "line": 20,
       "name": "MapLandmarkDefinitions.maridiaBosses",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aee36f9a30864d272da9f9729e8a0fdf3d307eec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
       "line": 22,
       "name": "MapLandmarkDefinitions.ceresBosses",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aee36f9a30864d272da9f9729e8a0fdf3d307eec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
       "line": 28,
       "name": "MapLandmarkDefinitions.crateriaElevators",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aee36f9a30864d272da9f9729e8a0fdf3d307eec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
       "line": 32,
       "name": "MapLandmarkDefinitions.brinstarElevators",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aee36f9a30864d272da9f9729e8a0fdf3d307eec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
       "line": 35,
       "name": "MapLandmarkDefinitions.norfairElevators",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aee36f9a30864d272da9f9729e8a0fdf3d307eec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
       "line": 37,
       "name": "MapLandmarkDefinitions.wreckedShipElevators",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aee36f9a30864d272da9f9729e8a0fdf3d307eec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
       "line": 39,
       "name": "MapLandmarkDefinitions.maridiaElevators",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aee36f9a30864d272da9f9729e8a0fdf3d307eec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapLandmarkDefinitions.cs",
       "line": 41,
       "name": "MapLandmarkDefinitions.tourianElevators",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "aee36f9a30864d272da9f9729e8a0fdf3d307eec"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/MapScrollControls.cs",
@@ -21512,6 +21536,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 574,
+  "convertedSinceSnapshot": 586,
   "justifiedRetainedSinceSnapshot": 21
 }

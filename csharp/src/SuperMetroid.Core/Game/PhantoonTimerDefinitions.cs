@@ -12,7 +12,7 @@ public static class PhantoonTimerDefinitions
     // Narrow approved nonsense retention: RNG/frame buckets have no temporal or
     // physical ordering. These exact permutations specify the random choice policy;
     // inventing a function for them would only re-encode the same ordering. This does
-    // not exempt the independently required rain-hiding timing below.
+    // not exempt any other combat phase, motion, fade, placement or flame delay.
     /// <summary>$A7:CD41, RNG&amp;7 at $A7:D060-D06C selects the vulnerable window.</summary>
     private static readonly DurationChoice[] VulnerableChoices =
         [DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Medium,
@@ -30,9 +30,9 @@ public static class PhantoonTimerDefinitions
     private const int ShortestVulnerableExposureFrames = 15;
     /// <summary>$A7:CD53 and D5E7-D60C: selected closed-eye moving phase lasts4 exposure units, then6 times that for medium, then doubles for long. Expiry opens the eye at its current position, independently of path completion; these ratios select attack pacing.</summary>
     private const int EyeShortScale = 4, EyeMediumScale = 6;
-    // REQUIRED: rain-hiding duration scale and selected tier relationship.
+    /// <summary>$A7:CD63 and D7D5-D829: selected hidden wait begins only after fading completes. Its shortest duration is two exposure units, with doubled medium/long tiers; the next location is chosen only on expiry, so neither fading nor travel determines this wait.</summary>
     private const int RainShortScale = 2;
-    /// <summary>$A7:CD41: medium/long vulnerable opportunities and the long closed-eye phase double the preceding tier. Those reviewed timing choices are independent of the separately timed swoop handoff; the rain-hiding profile remains required.</summary>
+    /// <summary>$A7:CD41/CD53/CD63: exposure and hidden-wait tiers, plus the long closed-eye phase, double the preceding tier. These selected phase timings do not exempt separately timed swoop, fade, placement or projectile behavior.</summary>
     private const int TierDoubling = 2;
 
     public static Schedule VulnerableWindow => new(TimerKind.Vulnerable);

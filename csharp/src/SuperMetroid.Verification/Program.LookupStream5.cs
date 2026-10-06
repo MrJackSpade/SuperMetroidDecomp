@@ -6,6 +6,64 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5PhantoonRainWait(SuperMetroidAddressSpace rom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        int totalTicks = 0;
+        const int nextPattern = 3;
+        foreach (int bucket in new[] { 2, 0, 1 })
+        {
+            var system = new RoomEnemySystem();
+            var body = system.Slots[0];
+            var eye = system.Slots[1];
+            var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.Slots[2], Mouth = system.Slots[3] };
+            int randomCalls = 0;
+            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(system,
+                (Func<ushort>)(() => (ushort)(++randomCalls == 1 ? bucket : nextPattern)));
+            var fade = typeof(RoomEnemySystem).GetMethod("RunPhantoonFlameRainFadeOut", flags)!
+                .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState, byte>>(system);
+            var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonHiddenFlameRain", flags)!
+                .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(system);
+            body.XPosition = 111; body.YPosition = 99; body.VariableA = 42; body.VariableE = 17;
+            body.VariableF = (ushort)PhantoonAiFunction.FadeOutDuringFlameRain;
+            fade(body, state, 1); // Odd NMI leaves the independent fade incomplete.
+            AssertEqual(0, randomCalls, "Incomplete fade does not choose hidden delay");
+            AssertEqual((ushort)17, body.VariableE, "Incomplete fade preserves prior countdown");
+            eye.VariableF = 1;
+            fade(body, state, 0);
+            ushort duration = ReadVerificationWord(rom, 0xa7cd63 + bucket * 2);
+            AssertEqual(duration, body.VariableE, "Completed fade selects exact native hidden duration");
+            AssertEqual((ushort)PhantoonAiFunction.SpawnFlameRain, body.VariableF, "Completed fade starts hidden waiting phase");
+            for (int elapsed = 1; elapsed <= duration; elapsed++)
+            {
+                tick(body, state); totalTicks++;
+                AssertEqual((ushort)(duration - elapsed), body.VariableE, "Hidden wait decrements exactly once");
+                if (elapsed < duration)
+                {
+                    AssertEqual(1, randomCalls, "Next location is not chosen before delay expires");
+                    AssertEqual((ushort)111, body.XPosition, "Hidden wait does not interpolate X");
+                    AssertEqual((ushort)99, body.YPosition, "Hidden wait does not interpolate Y");
+                    AssertEqual((ushort)42, body.VariableA, "Hidden wait does not advance path cursor");
+                    AssertEqual(0, system.EnemyProjectiles.Count(projectile => projectile.IsActive), "No rain launches before expiry");
+                }
+            }
+            AssertEqual(2, randomCalls, "Expiration consumes one separate placement RNG word");
+            AssertEqual(ReadVerificationWord(rom, 0xa7cdad + nextPattern * 8), body.VariableA, "Exact delayed native path cursor");
+            AssertEqual(ReadVerificationWord(rom, 0xa7cdaf + nextPattern * 8), body.XPosition, "Exact delayed native X");
+            AssertEqual(ReadVerificationWord(rom, 0xa7cdb1 + nextPattern * 8), body.YPosition, "Exact delayed native Y");
+            AssertEqual((ushort)PhantoonAiFunction.BecomeSolidAfterFlameRain, body.VariableF, "Native rain appearance handoff");
+            AssertEqual((ushort)0, eye.VariableC, "Rain handoff clears fade counter");
+            var flames = system.EnemyProjectiles.Where(projectile => projectile.IsActive).ToArray();
+            AssertEqual(8, flames.Length, "Actual hidden expiry launches eight rain projectiles");
+            foreach (var flame in flames)
+            {
+                AssertEqual(RoomEnemyProjectileKind.PhantoonDestroyableFlame, flame.Kind, "Actual rain projectile family");
+                AssertEqual((ushort)40, flame.YPosition, "Actual rain starts at ceiling");
+            }
+        }
+        AssertEqual(210, totalTicks, "Three exact native hidden wait lengths");
+        Console.WriteLine("Phantoon rain wait:30/60/120 holds,210actual countdown calls,fade-gated selection/exact expiry RNG-placement and24real rain spawns pass.");
+    }
     private static void VerifyLookupStream5PhantoonClosedEye(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

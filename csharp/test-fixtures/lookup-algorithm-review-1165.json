@@ -12110,4 +12110,13 @@
   "completed": [
     "PhantoonTimerDefinitions.EyeClosed"
   ]
+},"phantoonRainHidingWhole":{
+  "completed": [
+    "PhantoonTimerDefinitions.RainHiding"
+  ],
+  "disposition": [
+    "Compute30/60/120 from reviewed15-call exposure unit,selected short-scale2 and doubled tiers. Retain only chosen hidden suspense/reposition delay and reviewed RNG order. Native fade completes before duration selection;position RNG happens after expiry,so neither fade nor travel derives this wait. Initial rain,fade denominator,positions/cursors and projectile timing remain required."
+  ],
+  "confirmation": "Root build1452 warnings/0 errors;210 actual rain-wait calls,fade-gated duration selection,no premature RNG/spawns/position changes,exact delayed placement/cursor and24 actual rain projectiles passed,alongside existing timer profiles.",
+  "workerCommit": "15f448005"
 }}

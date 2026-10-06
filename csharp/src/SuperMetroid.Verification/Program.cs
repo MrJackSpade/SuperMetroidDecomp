@@ -365,6 +365,7 @@ if (args is ["--lookup-stream5-phantoon-timers"])
     VerifyCompiledPhantoonTimers(rom);
     VerifyLookupStream5PhantoonExposure(rom);
     VerifyLookupStream5PhantoonClosedEye(rom);
+    VerifyLookupStream5PhantoonRainWait(rom);
     return 0;
 }
 if (args is ["--lookup-stream-1-power-programs"])

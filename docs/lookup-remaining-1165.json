@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 464,
+  "remainingTableDefinitionCount": 463,
   "fileCount": 523,
   "entries": [
     {
@@ -5820,12 +5820,15 @@
   "disposition": "Compute60/360/720 from existing15-call unit and selected closed-eye phase ratios4/6/2. Retain only chosen attack pacing and reviewed RNG/NMI bucket ordering. Native countdown expires independently of movement cursor/position; no path-completion formula selects these durations. Movement,flames,RainHiding and swoop remain separate obligations."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/PhantoonTimerDefinitions.cs",
-      "line": 13,
-      "name": "PhantoonTimerDefinitions.RainHiding",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Game/PhantoonTimerDefinitions.cs",
+  "line": 13,
+  "name": "PhantoonTimerDefinitions.RainHiding",
+  "kind": "stored definition",
+  "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+  "state": "justified-retained",
+  "implementationCommit": "15f448005",
+  "disposition": "Compute30/60/120 from reviewed15-call exposure unit,selected short-scale2 and doubled tiers. Retain only chosen hidden suspense/reposition delay and reviewed RNG order. Native fade completes before duration selection;position RNG happens after expiry,so neither fade nor travel derives this wait. Initial rain,fade denominator,positions/cursors and projectile timing remain required."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PipeBugDefinitions.cs",
       "line": 35,
@@ -21682,5 +21685,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 64
+  "justifiedRetainedSinceSnapshot": 65
 }

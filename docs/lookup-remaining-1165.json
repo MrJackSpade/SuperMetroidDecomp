@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 230,
+  "remainingTableDefinitionCount": 202,
   "fileCount": 523,
   "entries": [
     {
@@ -322,21 +322,30 @@
       "line": 22,
       "name": "ChozoAndTubeColorCatalog.tubeCracks",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ChozoAndTubeColorCatalog.tubeCracks. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ChozoAndTubeColorCatalog.tubeCracks. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "The ramp and repeated half calculate; the eight crack seed colors are authored and do not form a ramp."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ChozoAndTubeColorCatalog.cs",
       "line": 23,
       "name": "ChozoAndTubeColorCatalog.wreckedShip",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ChozoAndTubeColorCatalog.wreckedShip. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ChozoAndTubeColorCatalog.wreckedShip. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "ChozoStatuePaintDefinitions calculates the colors shared with Lower Norfair, the nearest gold ramp and both grey ramps; the skin/gold endpoints and colors 14/15 are authored. Only supplied deviations are stored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ChozoAndTubeColorCatalog.cs",
       "line": 24,
       "name": "ChozoAndTubeColorCatalog.lowerNorfair",
       "kind": "installed stock table",
-      "note": "Original/default payload behind ChozoAndTubeColorCatalog.lowerNorfair. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind ChozoAndTubeColorCatalog.lowerNorfair. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Shared statue colors, the gold ramp and the second half's one-shade-down repeat calculate; the first-half 4..7 paints and colors 7/14/15 are authored. Only supplied deviations are stored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank86.Definitions.cs",
@@ -551,21 +560,30 @@
       "line": 21,
       "name": "DachoraColorCatalog.normal",
       "kind": "installed stock table",
-      "note": "Original/default payload behind DachoraColorCatalog.normal. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind DachoraColorCatalog.normal. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Authored base paint; every speed and shine color calculates from it."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs",
       "line": 22,
       "name": "DachoraColorCatalog.speed",
       "kind": "installed stock table",
-      "note": "Original/default payload behind DachoraColorCatalog.speed. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind DachoraColorCatalog.speed. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Frame k raises blue toward min(blue+16,31), nearest over three steps; the authored first-frame flash backdrop is the single exception. Only supplied deviations are stored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs",
       "line": 23,
       "name": "DachoraColorCatalog.shine",
       "kind": "installed stock table",
-      "note": "Original/default payload behind DachoraColorCatalog.shine. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind DachoraColorCatalog.shine. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Frame k fades each channel by floor(k*(31-c)/5) toward white from the normal colors. Only supplied deviations are stored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/DeadTourianCorpseVisualDefinitions.cs",
@@ -1325,35 +1343,50 @@
       "line": 25,
       "name": "KraidColorCatalog.roomBackdrop",
       "kind": "installed stock table",
-      "note": "Original/default payload behind KraidColorCatalog.roomBackdrop. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind KraidColorCatalog.roomBackdrop. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Stock calculates from KraidPaintDefinitions (shared grey and dark-blue slots); the catalog stores only supplied deviations. The backdrop paints are authored room art with no ramp."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/KraidColorCatalog.cs",
       "line": 26,
       "name": "KraidColorCatalog.initialTarget",
       "kind": "installed stock table",
-      "note": "Original/default payload behind KraidColorCatalog.initialTarget. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind KraidColorCatalog.initialTarget. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Stock calculates from KraidPaintDefinitions (twelve black slots); only the four authored target paints at colors 5..8 remain. They are not a ramp."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/KraidColorCatalog.cs",
       "line": 27,
       "name": "KraidColorCatalog.health",
       "kind": "installed stock table",
-      "note": "Original/default payload behind KraidColorCatalog.health. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind KraidColorCatalog.health. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Flash band, backdrop-blue slots, the first band's eight-color hide ramp (nearest, (26,19,4)->(3,1,0)) and six interior bands calculate; hull/eye/claw paints, the final band's shades and the two authored color-six steps remain. Only supplied deviations are stored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/KraidColorCatalog.cs",
       "line": 28,
       "name": "KraidColorCatalog.secondary",
       "kind": "installed stock table",
-      "note": "Original/default payload behind KraidColorCatalog.secondary. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind KraidColorCatalog.secondary. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "The stock secondary sequence is the health sequence: it shares the calculated health palette, and independent supplied edits are kept as deviations."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/KraidColorCatalog.cs",
       "line": 29,
       "name": "KraidColorCatalog.deathArm",
       "kind": "installed stock table",
-      "note": "Original/default payload behind KraidColorCatalog.deathArm. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind KraidColorCatalog.deathArm. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Calculates as the first health band with the backdrop-blue slot; only the three darkened hull paints are authored. Only supplied deviations are stored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/KraidHeadTilemapAtlas.cs",
@@ -1367,7 +1400,10 @@
       "line": 20,
       "name": "MagdollitePaletteCycle.frames",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MagdollitePaletteCycle.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MagdollitePaletteCycle.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "The four-frame rotation already calculates; the four glow colors (backdrop plus three reds, steps 3 and 4) are authored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MapLandmarkLayout.cs",
@@ -1397,7 +1433,10 @@
       "line": 10,
       "name": "MapPaletteCycle.colors",
       "kind": "installed stock table",
-      "note": "Original/default payload behind MapPaletteCycle.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind MapPaletteCycle.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "The reverse traversal and durations already calculate; the eight phases are hand-eased curves with uneven steps (none of the varying columns is a linear ramp), so they are authored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MapScreenPresentation.cs",
@@ -1922,7 +1961,10 @@
       "line": 18,
       "name": "PowerBombFixedColorCatalog.explosion",
       "kind": "installed stock table",
-      "note": "Original/default payload behind PowerBombFixedColorCatalog.explosion. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind PowerBombFixedColorCatalog.explosion. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Colors 0..20 calculate; the 21..31 decline is authored (red holds at 26 and 18, a three-step drop at 28, green/blue moving independently)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ProjectileFrameBindingCatalog.cs",
@@ -2375,28 +2417,40 @@
       "line": 24,
       "name": "SporeSpawnColorCatalog.health",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SporeSpawnColorCatalog.health. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SporeSpawnColorCatalog.health. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Intermediate rows 1-2 calculate their transparent slot and shell/glow colors 9..15 by nearest interpolation of the healthy and critical rows; the endpoint rows and per-row painted colors 1..8 are authored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs",
       "line": 25,
       "name": "SporeSpawnColorCatalog.deathSprite",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SporeSpawnColorCatalog.deathSprite. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SporeSpawnColorCatalog.deathSprite. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Every intermediate death frame already calculates from the endpoint rows; only the final-frame paints (shared brown ramp copies within the row) are authored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs",
       "line": 26,
       "name": "SporeSpawnColorCatalog.deathLevel",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SporeSpawnColorCatalog.deathLevel. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SporeSpawnColorCatalog.deathLevel. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Every intermediate death frame already calculates from the endpoint rows; only the final-frame paints (shared brown ramp copies within the row) are authored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SporeSpawnColorCatalog.cs",
       "line": 27,
       "name": "SporeSpawnColorCatalog.deathBackground",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SporeSpawnColorCatalog.deathBackground. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SporeSpawnColorCatalog.deathBackground. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Every intermediate death frame already calculates from the endpoint rows; only the final-frame paints (shared brown ramp copies within the row) are authored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/TitleGradientPresentation.cs",
@@ -6928,70 +6982,100 @@
       "line": 273,
       "name": "RoomEnemySystem.LoadTorizoSharedPaletteRows / rowEleven",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Authored Torizo paint now named in the TorizoPaletteDefinitions catalog ($AA:8687..87C6), verified against the cartridge by --torizo-palette-shake. The death and Golden final rows are the cataloged fade targets Normal/Golden. The rows contain no ramps; only repeated fill colors."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
       "line": 278,
       "name": "RoomEnemySystem.LoadTorizoSharedPaletteRows / rowFifteen",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Authored Torizo paint now named in the TorizoPaletteDefinitions catalog ($AA:8687..87C6), verified against the cartridge by --torizo-palette-shake. The death and Golden final rows are the cataloged fade targets Normal/Golden. The rows contain no ramps; only repeated fill colors."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
       "line": 294,
       "name": "RoomEnemySystem.LoadBombTorizoPalette / rowNine",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Authored Torizo paint now named in the TorizoPaletteDefinitions catalog ($AA:8687..87C6), verified against the cartridge by --torizo-palette-shake. The death and Golden final rows are the cataloged fade targets Normal/Golden. The rows contain no ramps; only repeated fill colors."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
       "line": 299,
       "name": "RoomEnemySystem.LoadBombTorizoPalette / rowTen",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Authored Torizo paint now named in the TorizoPaletteDefinitions catalog ($AA:8687..87C6), verified against the cartridge by --torizo-palette-shake. The death and Golden final rows are the cataloged fade targets Normal/Golden. The rows contain no ramps; only repeated fill colors."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
       "line": 316,
       "name": "RoomEnemySystem.LoadGoldenTorizoBasePalette / rowNine",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Authored Torizo paint now named in the TorizoPaletteDefinitions catalog ($AA:8687..87C6), verified against the cartridge by --torizo-palette-shake. The death and Golden final rows are the cataloged fade targets Normal/Golden. The rows contain no ramps; only repeated fill colors."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
       "line": 321,
       "name": "RoomEnemySystem.LoadGoldenTorizoBasePalette / rowTen",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Authored Torizo paint now named in the TorizoPaletteDefinitions catalog ($AA:8687..87C6), verified against the cartridge by --torizo-palette-shake. The death and Golden final rows are the cataloged fade targets Normal/Golden. The rows contain no ramps; only repeated fill colors."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
       "line": 332,
       "name": "RoomEnemySystem.LoadTorizoDeathPalette / rowNine",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Authored Torizo paint now named in the TorizoPaletteDefinitions catalog ($AA:8687..87C6), verified against the cartridge by --torizo-palette-shake. The death and Golden final rows are the cataloged fade targets Normal/Golden. The rows contain no ramps; only repeated fill colors."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
       "line": 337,
       "name": "RoomEnemySystem.LoadTorizoDeathPalette / rowTen",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Authored Torizo paint now named in the TorizoPaletteDefinitions catalog ($AA:8687..87C6), verified against the cartridge by --torizo-palette-shake. The death and Golden final rows are the cataloged fade targets Normal/Golden. The rows contain no ramps; only repeated fill colors."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
       "line": 348,
       "name": "RoomEnemySystem.LoadGoldenTorizoFinalPalette / rowNine",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Authored Torizo paint now named in the TorizoPaletteDefinitions catalog ($AA:8687..87C6), verified against the cartridge by --torizo-palette-shake. The death and Golden final rows are the cataloged fade targets Normal/Golden. The rows contain no ramps; only repeated fill colors."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs",
       "line": 353,
       "name": "RoomEnemySystem.LoadGoldenTorizoFinalPalette / rowTen",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "4b5429a256898558591979c27bdb42eacd7b23b0",
+      "disposition": "Authored Torizo paint now named in the TorizoPaletteDefinitions catalog ($AA:8687..87C6), verified against the cartridge by --torizo-palette-shake. The death and Golden final rows are the cataloged fade targets Normal/Golden. The rows contain no ramps; only repeated fill colors."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Bull.cs",
@@ -22383,6 +22467,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 664,
-  "justifiedRetainedSinceSnapshot": 234
+  "convertedSinceSnapshot": 667,
+  "justifiedRetainedSinceSnapshot": 259
 }

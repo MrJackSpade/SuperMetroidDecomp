@@ -335,9 +335,9 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs
 
-- [ ] **DachoraColorCatalog.normal** ([L21](../csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs#L21)) - installed stock table. Original/default payload behind DachoraColorCatalog.normal. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **DachoraColorCatalog.speed** ([L22](../csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs#L22)) - installed stock table. Original/default payload behind DachoraColorCatalog.speed. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **DachoraColorCatalog.shine** ([L23](../csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs#L23)) - installed stock table. Original/default payload behind DachoraColorCatalog.shine. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **DachoraColorCatalog.normal** ([L21](../csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs#L21)) - installed stock table. Original/default payload behind DachoraColorCatalog.normal. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **DachoraColorCatalog.speed** ([L22](../csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs#L22)) - installed stock table. Original/default payload behind DachoraColorCatalog.speed. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **DachoraColorCatalog.shine** ([L23](../csharp/src/SuperMetroid.Core/Assets/DachoraColorCatalog.cs#L23)) - installed stock table. Original/default payload behind DachoraColorCatalog.shine. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Game/DachoraInstructionProgramDefinitions.cs
 
@@ -431,7 +431,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/MagdollitePaletteCycle.cs
 
-- [ ] **MagdollitePaletteCycle.frames** - PARTIAL: native A8:AC2E-AC34 glow colors rotate left one slot per phase; calculate all four phases from four independently supplied seed colors and preserve arbitrary later-row edits sparsely. The four independent seed colors remain REQUIRED, with no claimed artistic exemption. --lookup-stream5-magdollite-pulse confirms all16 native colors,48 independent RGB edits, actual CGRAM, canonical identity, bounds and zero stock residual rows. Root integration build1444 existing warnings/zero errors; integrated counts71 converted,one mixed,153 required unchanged.
+- [x] **MagdollitePaletteCycle.frames** - PARTIAL: native A8:AC2E-AC34 glow colors rotate left one slot per phase; calculate all four phases from four independently supplied seed colors and preserve arbitrary later-row edits sparsely. The four independent seed colors remain REQUIRED, with no claimed artistic exemption. --lookup-stream5-magdollite-pulse confirms all16 native colors,48 independent RGB edits, actual CGRAM, canonical identity, bounds and zero stock residual rows. Root integration build1444 existing warnings/zero errors; integrated counts71 converted,one mixed,153 required unchanged.
 
 ### csharp/src/SuperMetroid.Core/Game/MagdolliteInstructionProgramDefinitions.cs
 
@@ -458,7 +458,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Assets/MapPaletteCycle.cs
 
 - [x] **MapPaletteCycle.durations** ([L9](../csharp/src/SuperMetroid.Core/Assets/MapPaletteCycle.cs#L9)) - installed stock table. Original/default payload behind MapPaletteCycle.durations. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **MapPaletteCycle.colors** ([L10](../csharp/src/SuperMetroid.Core/Assets/MapPaletteCycle.cs#L10)) - installed stock table. Original/default payload behind MapPaletteCycle.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **MapPaletteCycle.colors** ([L10](../csharp/src/SuperMetroid.Core/Assets/MapPaletteCycle.cs#L10)) - installed stock table. Original/default payload behind MapPaletteCycle.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/MapScreenPresentation.cs
 

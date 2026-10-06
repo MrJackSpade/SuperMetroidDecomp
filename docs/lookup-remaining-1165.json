@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 521,
+  "remainingTableDefinitionCount": 520,
   "fileCount": 523,
   "entries": [
     {
@@ -4995,7 +4995,9 @@
       "line": 28,
       "name": "MotherBrainHandBeamBodyInstructionDefinitions.VisualOperands",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "8134fd9364b421cb07cc4ea3bca1dbd3d89eb6ad"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs",
@@ -21536,6 +21538,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 586,
+  "convertedSinceSnapshot": 587,
   "justifiedRetainedSinceSnapshot": 21
 }

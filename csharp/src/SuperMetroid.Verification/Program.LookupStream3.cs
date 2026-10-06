@@ -6,6 +6,20 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3HandBeamBodyLayout()
+    {
+        ushort[] nativeOperands = [0x9a46, 0x9a4a, 0x9a4e, 0x9a5a, 0x9a66, 0x9a72,
+            0x9a7e, 0x9a8a, 0x9a96, 0x9aa2, 0x9aae, 0x9ab2, 0x9ab8, 0x9abc, 0x9ac0];
+        IReadOnlyList<ushort> calculated = MotherBrainHandBeamBodyInstructionDefinitions.PresentationOperands;
+        AssertEqual(nativeOperands.Length, calculated.Count, "hand-beam body visual operand count");
+        for (int index = 0; index < nativeOperands.Length; index++)
+            AssertEqual(nativeOperands[index], calculated[index], $"hand-beam body native operand {index}");
+        AssertTrue(nativeOperands.SequenceEqual(calculated), "hand-beam body indexed/enumerated order");
+        AssertThrows<IndexOutOfRangeException>(() => _ = calculated[-1], "hand-beam body negative operand index");
+        AssertThrows<IndexOutOfRangeException>(() => _ = calculated[calculated.Count], "hand-beam body upper operand index");
+        VerifyMotherBrainHandBeamBodyInstructionDefinitions();
+        Console.WriteLine("Hand-beam body address layout: fifteen native identities, enumeration and index bounds pass; selected mechanics inputs remain required.");
+    }
     private static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;

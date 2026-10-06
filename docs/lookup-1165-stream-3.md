@@ -495,7 +495,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs
 
-- [ ] **MotherBrainHandBeamBodyInstructionDefinitions.VisualOperands** ([L28](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainHandBeamBodyInstructionDefinitions.VisualOperands** ([L28](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs
 
@@ -1242,3 +1242,9 @@ Root build1450warnings/0errors;90native OAM records,90single-part edits,27appear
 Conversiona5d65b5da completes MotherBrainBabyInstructionProgramDefinitions.PresentationWords with two four-frame loops and the fatal-blow visual operand. Semantic callbacks and address calculations remove stored mechanics rows, but Words remains pending for six chosen hold roles: initial16,drain8/8/5/2,fatal128. Native A9:CFA2/CFB8/CFCE establish each list; CFD4 is adjacent Mother Brain palette code, not Baby movement.
 
 Root build1450warnings/0errors;12native mechanics words,ninevisual addresses,exact bounded rejection,index domains and allocation checks pass. Corrected existing verifier output that overstated production coverage; this check does not execute the three live programs. No timing exemption. Inventory574converted/21retained-mixed/533pending.
+
+## Integrated hand-beam body visual addresses
+
+Conversion8134fd936 completes MotherBrainHandBeamBodyInstructionDefinitions.VisualOperands. An immutable indexed view computes three entry-frame addresses,eight dust-record visual addresses,the pre-emission frame and three post-emission frames from native A9:9A42-9AC6 command widths. No cached address array remains. Selected dust coordinates,parameters and holds remain REQUIRED.
+
+Root build1450warnings/0errors;15native operand identities,index/enumeration bounds and all52mechanics+15visual words through guarded production readers match the pinned ROM with list reads forbidden. This is reader-level confirmation,not a full attack replay. Inventory587converted/21retained-mixed/520pending.

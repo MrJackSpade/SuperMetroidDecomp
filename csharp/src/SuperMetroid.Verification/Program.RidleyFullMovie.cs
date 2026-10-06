@@ -994,6 +994,30 @@ internal static partial class Program
                     mismatches.Add($"Ridley interaction gate: native={expectedGate}");
                 Check("Ridley AI function", (ushort)ridleyState.Function, RidleyMovieMemory.RidleyFunction);
                 Check("Ridley AI timer", ridleyState.FunctionTimer, RidleyMovieMemory.RidleyFunctionTimer);
+                Check("Ridley TailFunctionIndex", ridleyState.TailFunctionIndex, RidleyMovieMemory.RidleyTailFunctionIndex);
+                Check("Ridley IdleTailWhipEnabled", ridleyState.IdleTailWhipEnabled, RidleyMovieMemory.RidleyIdleTailWhipEnabled);
+                Check("Ridley TailWhipRequest", ridleyState.TailWhipRequest, RidleyMovieMemory.RidleyTailWhipRequest);
+                Check("Ridley TailExtensionSpeed", ridleyState.TailExtensionSpeed, RidleyMovieMemory.RidleyTailExtensionSpeed);
+                Check("Ridley TailAngleDelta", ridleyState.TailAngleDelta, RidleyMovieMemory.RidleyTailAngleDelta);
+                Check("Ridley TailMinimumClockwiseAngle", ridleyState.TailMinimumClockwiseAngle, RidleyMovieMemory.RidleyTailMinimumClockwiseAngle);
+                Check("Ridley TailMaximumCounterClockwiseAngle", ridleyState.TailMaximumCounterClockwiseAngle, RidleyMovieMemory.RidleyTailMaximumCounterClockwiseAngle);
+                Check("Ridley TailWhipTargetClockwiseAngle", ridleyState.TailWhipTargetClockwiseAngle, RidleyMovieMemory.RidleyTailWhipTargetClockwiseAngle);
+                Check("Ridley TailWhipTargetCounterClockwiseAngle", ridleyState.TailWhipTargetCounterClockwiseAngle, RidleyMovieMemory.RidleyTailWhipTargetCounterClockwiseAngle);
+                Check("Ridley IdealInterSegmentTailAngle", ridleyState.IdealInterSegmentTailAngle, RidleyMovieMemory.RidleyIdealInterSegmentTailAngle);
+                Check("Ridley HorizontalVelocity", ridleyState.HorizontalVelocity, RidleyMovieMemory.RidleyHorizontalVelocity);
+                Check("Ridley VerticalVelocity", ridleyState.VerticalVelocity, RidleyMovieMemory.RidleyVerticalVelocity);
+                Check("Ridley FightMode", ridleyState.FightMode, RidleyMovieMemory.RidleyFightMode);
+                Check("Ridley MovementAnimationEnabled", ridleyState.MovementAnimationEnabled, RidleyMovieMemory.RidleyMovementAnimationEnabled);
+                Check("Ridley WingFrame", ridleyState.WingFrame, RidleyMovieMemory.RidleyWingFrame);
+                Check("Ridley WingAnimationTimerDelta", ridleyState.WingAnimationTimerDelta, RidleyMovieMemory.RidleyWingAnimationTimerDelta);
+                Check("Ridley WingAnimationTimer", ridleyState.WingAnimationTimer, RidleyMovieMemory.RidleyWingAnimationTimer);
+                Check("Ridley FacingDirection", ridleyState.FacingDirection, RidleyMovieMemory.RidleyFacingDirection);
+                Check("Ridley HealthStage", ridleyState.HealthStage, RidleyMovieMemory.RidleyHealthStage);
+                Check("Ridley GrabXOffset", ridleyState.GrabXOffset, RidleyMovieMemory.RidleyGrabXOffset);
+                Check("Ridley GrabYOffset", ridleyState.GrabYOffset, RidleyMovieMemory.RidleyGrabYOffset);
+                Check("Ridley TailDamage", ridleyState.TailDamage, RidleyMovieMemory.RidleyTailDamage);
+                Check("Ridley FeetDistanceIndex", ridleyState.FeetDistanceIndex, RidleyMovieMemory.RidleyFeetDistanceIndex);
+                Check("Ridley IntangibilityTimer", ridleyState.IntangibilityTimer, RidleyMovieMemory.RidleyIntangibilityTimer);
                 if (ridleyState.Function is RidleyAiFunction.NorfairSwoopMoveToStart or
                     RidleyAiFunction.NorfairSwoopAimDown or RidleyAiFunction.NorfairSwoopAimSideways or
                     RidleyAiFunction.NorfairSwoopAimUp or RidleyAiFunction.NorfairSwoopClimb or RidleyAiFunction.NorfairSwoopRecover)

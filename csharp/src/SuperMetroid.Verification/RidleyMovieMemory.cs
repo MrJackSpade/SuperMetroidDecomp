@@ -1,6 +1,54 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$2000: Ridley TailFunctionIndex, native bank-$A6 controller state.</summary>
+    public const int RidleyTailFunctionIndex = 0x2000;
+    /// <summary>$2002: Ridley IdleTailWhipEnabled, native bank-$A6 controller state.</summary>
+    public const int RidleyIdleTailWhipEnabled = 0x2002;
+    /// <summary>$2004: Ridley TailWhipRequest, native bank-$A6 controller state.</summary>
+    public const int RidleyTailWhipRequest = 0x2004;
+    /// <summary>$2012: Ridley TailExtensionSpeed, native bank-$A6 controller state.</summary>
+    public const int RidleyTailExtensionSpeed = 0x2012;
+    /// <summary>$2014: Ridley TailAngleDelta, native bank-$A6 controller state.</summary>
+    public const int RidleyTailAngleDelta = 0x2014;
+    /// <summary>$2016: Ridley TailMinimumClockwiseAngle, native bank-$A6 controller state.</summary>
+    public const int RidleyTailMinimumClockwiseAngle = 0x2016;
+    /// <summary>$2018: Ridley TailMaximumCounterClockwiseAngle, native bank-$A6 controller state.</summary>
+    public const int RidleyTailMaximumCounterClockwiseAngle = 0x2018;
+    /// <summary>$201A: Ridley TailWhipTargetClockwiseAngle, native bank-$A6 controller state.</summary>
+    public const int RidleyTailWhipTargetClockwiseAngle = 0x201a;
+    /// <summary>$201C: Ridley TailWhipTargetCounterClockwiseAngle, native bank-$A6 controller state.</summary>
+    public const int RidleyTailWhipTargetCounterClockwiseAngle = 0x201c;
+    /// <summary>$201E: Ridley IdealInterSegmentTailAngle, native bank-$A6 controller state.</summary>
+    public const int RidleyIdealInterSegmentTailAngle = 0x201e;
+    /// <summary>$0FAA: Ridley HorizontalVelocity, native bank-$A6 controller state.</summary>
+    public const int RidleyHorizontalVelocity = 0x0faa;
+    /// <summary>$0FAC: Ridley VerticalVelocity, native bank-$A6 controller state.</summary>
+    public const int RidleyVerticalVelocity = 0x0fac;
+    /// <summary>$7802: Ridley FightMode, native bank-$A6 controller state.</summary>
+    public const int RidleyFightMode = 0x7802;
+    /// <summary>$7804: Ridley MovementAnimationEnabled, native bank-$A6 controller state.</summary>
+    public const int RidleyMovementAnimationEnabled = 0x7804;
+    /// <summary>$780E: Ridley WingFrame, native bank-$A6 controller state.</summary>
+    public const int RidleyWingFrame = 0x780e;
+    /// <summary>$7810: Ridley WingAnimationTimerDelta, native bank-$A6 controller state.</summary>
+    public const int RidleyWingAnimationTimerDelta = 0x7810;
+    /// <summary>$7812: Ridley WingAnimationTimer, native bank-$A6 controller state.</summary>
+    public const int RidleyWingAnimationTimer = 0x7812;
+    /// <summary>$7820: Ridley FacingDirection, native bank-$A6 controller state.</summary>
+    public const int RidleyFacingDirection = 0x7820;
+    /// <summary>$7824: Ridley HealthStage, native bank-$A6 controller state.</summary>
+    public const int RidleyHealthStage = 0x7824;
+    /// <summary>$7828: Ridley GrabXOffset, native bank-$A6 controller state.</summary>
+    public const int RidleyGrabXOffset = 0x7828;
+    /// <summary>$782A: Ridley GrabYOffset, native bank-$A6 controller state.</summary>
+    public const int RidleyGrabYOffset = 0x782a;
+    /// <summary>$7838: Ridley TailDamage, native bank-$A6 controller state.</summary>
+    public const int RidleyTailDamage = 0x7838;
+    /// <summary>$783A: Ridley FeetDistanceIndex, native bank-$A6 controller state.</summary>
+    public const int RidleyFeetDistanceIndex = 0x783a;
+    /// <summary>$783C: Ridley IntangibilityTimer, native bank-$A6 controller state.</summary>
+    public const int RidleyIntangibilityTimer = 0x783c;
     /// <summary>$7E:2020: seven Ridley tail segment records, each ten words.</summary>
     public const int TailSegments = 0x2020;
     /// <summary>Native Ridley tail record stride in bytes.</summary>

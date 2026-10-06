@@ -69,8 +69,8 @@ public sealed partial class RoomEnemySystem
             WingAnimationTimerDelta = 0,
             TailFunctionIndex = 0,
             TailAngleDelta = 1,
-            TailMinimumClockwiseAngle = 0x3fc0,
-            TailMaximumCounterClockwiseAngle = 0x4010,
+            TailMinimumClockwiseAngle = RidleyTailDefinitions.InitialMinimumClockwise,
+            TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
             TailWhipTargetClockwiseAngle = 0xffff,
             TailWhipTargetCounterClockwiseAngle = 0xffff,
             TailExtensionSpeed = 0x00f0,
@@ -803,8 +803,12 @@ public sealed partial class RoomEnemySystem
         samus?.SetStationaryScriptControlLock(false);
         state.TailWhipRequest = 1;
         state.TailFunctionIndex = 1;
-        SamusMovementType movement = samus?.ReadMovementType(_bus!) ?? SamusMovementType.Standing;
-        state.IntangibilityTimer = RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement);
+        // $A6:BC8F-BC93 leaves the timer untouched once death owns the fight.
+        if (unchecked((short)state.FightMode) >= 0)
+        {
+            SamusMovementType movement = samus?.ReadMovementType(_bus!) ?? SamusMovementType.Standing;
+            state.IntangibilityTimer = RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement);
+        }
     }
 
     private static void UpdateNorfairRidleyGrabbedSamus(

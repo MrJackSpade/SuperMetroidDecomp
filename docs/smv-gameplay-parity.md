@@ -59,7 +59,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Source identity, immutable movie, input edges, lag classification, terminal boundary | Converter v3 and complete replay pass | Retain these checks with each coverage expansion |
 | Samus position/fractions, camera position/fractions, pose/history, animation, primary speeds | Compared every retained interval | Control handlers, remaining movement flags and secondary motion state |
 | Health, reserves, equipment, collected inventory, ammunition and capacities | Complete replay passes these fields, fractional health, hurt/invincibility/knockback timers and directions, HUD selection/cancellation and X acceleration mode (`tide-owner-replay.log`) | Remaining combat/input ownership |
-| Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Remaining actor AI variables and shared tail controller state |
+| Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Remaining actor AI variables and phase-dependent aliases |
 | Ordinary/enemy projectiles | Ordinary active-slot subpixels, velocities, directions, instruction cursors/timers, spritemaps, trail/auxiliary words also pass the full replay | Ordinary pre-instruction identity, enemy-projectile family variables/properties, bombs and explosion owners |
 | Persistent world state and room effects | Selected room plus acid damage surface/tide phase checked during gameplay | Boss/event/door/item bits, PLM changes, remaining environmental gameplay state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
@@ -413,3 +413,22 @@ native $8000 word. All10,717 updates pass with no production changes
 (`tail-segments-build.log`, `tail-segments-replay.log`). This verifies intermediate
 segments as well as the previously checked tip. Shared tail-controller words and
 remaining actor AI variables are still tracked separately in the coverage audit.
+
+### Ridley shared tail/body controller coverage
+
+The replay now checks tail function, idle-whip enable, whip request, extension
+speed, angular step, both angle limits/targets and ideal segment separation;
+body velocities, fight mode, movement enable, wing frame/timers, facing, health
+stage, grab offsets, tail damage, feet index and intangibility countdown.
+
+This reproduced two controller discrepancies. At update241/source276, Norfair
+initialization prematurely used facing-adjusted bounds3FC0/4010 instead of the
+shared initializer's3FF0/4040 ($A6:D2DD-D2E7). Initialization now uses the native
+bounds, with subsequent live adjustment unchanged. At update10162/source10329,
+death release reset intangibility to10 instead of preserving0: ReleaseSamus skips
+that assignment for negative fight mode ($A6:BC8F-BC93). That guard is now present.
+
+The release build, focused grab-entry/release confirmation, and independent full
+movie pass (`ridley-controller-final-build.log`, `ridley-controller-grab.log`,
+`ridley-controller-final-replay.log`). All10,717 updates agree with the expanded
+fields. Phase-dependent aliases and the remaining audit categories stay open.

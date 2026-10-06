@@ -3,6 +3,11 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Initial articulated-tail angular geometry from InitializeTailParts at $A6:D2D6.</summary>
 internal static class RidleyTailDefinitions
 {
+    /// <summary>$A6:D2DD-D2E0: InitializeTailParts writes this bound independently of facing.</summary>
+    internal const ushort InitialMinimumClockwise = 0x3ff0;
+    /// <summary>$A6:D2E4-D2E7: InitializeTailParts writes this bound before the live tail controller adjusts it.</summary>
+    internal const ushort InitialMaximumCounterClockwise = 0x4040;
+
     /// <summary>$A6:BC0A sets ideal tail spacing while releasing Samus.</summary>
     internal const ushort CarryReleaseInterSegmentAngle = 8;
     /// <summary>$A6:BC11/$BC54 restores tail extension speed on carry phase expiry.</summary>

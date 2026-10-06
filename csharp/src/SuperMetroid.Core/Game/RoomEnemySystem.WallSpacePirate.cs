@@ -249,8 +249,9 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
     {
-        // Native math discards subpixels and rewrites both positions every frame. The jump
-        // ellipse is parameter2 pixels wide and parameter2/4 pixels tall.
+        // Native math rewrites both whole positions every frame ($B2:F0F9/$F113) and leaves
+        // the fractions untouched. The jump ellipse is parameter2 pixels wide and
+        // parameter2/4 pixels tall.
         slot.XPosition = unchecked((ushort)(
             state.WallJumpArcCenterX +
             ReadEightBitNegativeSineProduct(
@@ -259,8 +260,6 @@ public sealed partial class RoomEnemySystem
         slot.YPosition = unchecked((ushort)(
             state.WallJumpArcCenterY -
             ReadEightBitCosineProduct(state.WallJumpArcAngle, (ushort)(slot.Parameter2 >> 2))));
-        slot.XSubposition = 0;
-        slot.YSubposition = 0;
     }
 
     private static bool WallSpacePirateCanAttack(RoomEnemySlot slot, SamusState samus) =>
@@ -274,7 +273,6 @@ public sealed partial class RoomEnemySystem
         slot.XPosition = (slot.XPosition & 0x000f) < 11
             ? unchecked((ushort)(slot.XPosition & 0xfff8))
             : unchecked((ushort)((slot.XPosition & 0xfff0) + 16));
-        slot.XSubposition = 0;
     }
 
     private static void InstallWallSpacePirateInstruction(

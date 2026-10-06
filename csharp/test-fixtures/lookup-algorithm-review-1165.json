@@ -12348,4 +12348,15 @@
   ],
   "confirmation": "Root viewed complete native font and exact37glyph contour list. Build1457warnings/0errors;144tiles/2304native bytes,2304independent edits,4additions/91removals,period alias,instance isolation/zero stock output storage pass. Actual opening constructor font upload plus1024narration words/edits and128subtitle transfer pass. No direct ResourceAudit font hash owner exists; no unrelated closure added.",
   "workerCommit": "c5a4c10c0953195f89bdc5bd639ac07343daa664"
+},"samusBodyTransfersWholeEntries":{
+  "confirmation": "Root reviewed packed artwork and exact50selected layout memberships/cross-group source rules. Build1457warnings/0errors,Audit0/0;435direct native defaults/zero stock overrides,435source/split edits,unchanged pixels,canonical hashes,empty OAM/shortened payload independence and5actual DMA/cross-group selections pass.",
+  "completed": [
+    "SamusBodyArtworkCatalog.top",
+    "SamusBodyArtworkCatalog.bottom"
+  ],
+  "workerCommit": "f2b611f6d0d00994ecc5c2870f97fdd172075284",
+  "disposition": [
+    "Calculate244upper source/split records from named native allocations,payload prefix sums and canonical OAM row footprints. Retain only exact19upper packing memberships (11one/two16x16block,8balanced) and relocated allocation identity as selected artwork layout. Preserve physical cross-group selectors and independent metadata edits. Pixels/payload lengths separately required.",
+    "Calculate191lower source/split records from named allocations,payload prefix sums and canonical OAM footprints. Retain only exact31balanced row packing memberships as selected artwork layout; calculate ceilhalf/remainder. Preserve physical cross-group selectors and independent metadata edits. Pixels/payload lengths separately required."
+  ]
 }}

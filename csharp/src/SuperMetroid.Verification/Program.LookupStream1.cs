@@ -3194,4 +3194,118 @@ internal static partial class Program
         Console.WriteLine($"Cannon placement:135 direct body/tail defaults,608 native bytes/independent edits,zero stock fallbacks,canonical hashes,independent empty/zero/shifted body art and{draws} actual OAM draws pass.");
     }
 
+    private static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
+    {
+        using var directory = new MapCatalogTestDirectory();
+        SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
+        var body = SamusBodyArtworkFiles.Load(directory.Root, null);
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var sourceField = typeof(SamusBodyTileDefinition).GetField("sourceAddressOverride", flags)!;
+        var sizeField = typeof(SamusBodyTileDefinition).GetField("firstSizeOverride", flags)!;
+        var top = Enumerable.Range(0, 13).Select(set => body.TopSet(set).ToArray()).ToArray();
+        var bottom = Enumerable.Range(0, 11).Select(set => body.BottomSet(set).ToArray()).ToArray();
+        var changedTop = top.Select(group => group.ToArray()).ToArray();
+        var changedBottom = bottom.Select(group => group.ToArray()).ToArray();
+        int records = 0;
+        for (int half = 0; half < 2; half++)
+        {
+            bool upper = half == 0;
+            var groups = upper ? top : bottom;
+            for (int set = 0; set < groups.Length; set++)
+            for (int position = 0; position < groups[set].Length; position++)
+            {
+                var value = groups[set][position];
+                int address = 0x920000 | (Word((upper ? 0x92d91e : 0x92d938) + set * 2) + position * 7);
+                int source = Word(address) | rom.ReadByte(address + 2) << 16;
+                ushort first = Word(address + 3), second = Word(address + 5);
+                AssertEqual(source, SamusBodyTransferDefinitions.SourceAddress(body, upper, set, position), "Direct native packed allocation source");
+                AssertTrue(SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, value.Planar.Length, out ushort calculated), "Every native record has a direct row calculation");
+                AssertEqual(first, calculated, $"Direct native row geometry {upper}/{set:X}/{position:X}");
+                AssertEqual(source, value.SourceAddress, "Installed native source");
+                AssertEqual(first, value.FirstSize, "Installed native first row");
+                AssertEqual(second, value.SecondSize, "Installed native remaining row");
+                AssertTrue(sourceField.GetValue(value) is null && sizeField.GetValue(value) is null, "Zero stock metadata overrides");
+                byte[] pixels = value.Planar.ToArray();
+                for (int index = 0; index < pixels.Length; index++) AssertEqual(rom.ReadByte(source + index), pixels[index], "Separate native pixel payload preserved");
+                // Preserve schema-valid non-tile-aligned individual row splits too.
+                ushort editedFirst = (ushort)(second == 0 ? first - 1 : first + 1);
+                var supplied = new SamusBodyTileDefinition(source ^ 0x123456, editedFirst,
+                    (ushort)(pixels.Length - editedFirst), pixels);
+                (upper ? changedTop : changedBottom)[set][position] = supplied;
+                var edited = supplied.WithTransferGeometry(body, upper, set, position);
+                AssertEqual(supplied.SourceAddress, edited.SourceAddress, "Independent source identity edit");
+                AssertEqual(supplied.FirstSize, edited.FirstSize, "Independent row split edit");
+                AssertEqual(supplied.SecondSize, edited.SecondSize, "Edited complementary row");
+                AssertTrue(edited.Planar.Span.SequenceEqual(pixels), "Metadata edit preserves every pixel");
+                records++;
+            }
+        }
+        AssertEqual(435, records, "Complete original metadata domain");
+        SamusBodyArtworkCatalog Create(SamusBodyTileDefinition[][] upper, SamusBodyTileDefinition[][] lower, SamusSpritemapArtworkCatalog maps) => new(
+            body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(), body.GraphicsYOffsets.ToArray(), body.Frames.ToArray(),
+            upper, lower, maps, body.Atmosphere, body.DeathPalettes, body.DeathTiles, body.ArmCannon,
+            body.LandingYOffsets.ToArray(), body.PostureYOffsets.ToArray(), body.DrainedYOffsets.ToArray());
+        var changed = Create(changedTop, changedBottom, body.Spritemaps);
+        AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(), body.Frames.ToArray(), top, bottom),
+            body.ContentIdentity, "Exact canonical stock metadata hash");
+        AssertEqual(CanonicalBodyHash(body, body.TopSetPointers.ToArray(), body.BottomSetPointers.ToArray(), body.PosePointers.ToArray(), body.Frames.ToArray(), changedTop, changedBottom),
+            changed.ContentIdentity, "Exact canonical hash preserves every supplied metadata edit");
+        var emptyMaps = new SamusSpritemapArtworkCatalog(body.Spritemaps.TopBases.ToArray(), body.Spritemaps.BottomBases.ToArray(),
+            body.Spritemaps.Pointers.ToArray(), body.Spritemaps.Definitions.Select(map => new SamusSpritemapDefinition(map.Pointer, [])).ToArray());
+        var empty = Create(top, bottom, emptyMaps);
+        for (int half = 0; half < 2; half++)
+        for (int set = 0; set < (half == 0 ? 13 : 11); set++)
+        {
+            var expected = half == 0 ? top[set] : bottom[set];
+            var actual = half == 0 ? empty.TopSet(set) : empty.BottomSet(set);
+            for (int index = 0; index < expected.Length; index++)
+            {
+                AssertEqual(expected[index].SourceAddress, actual[index].SourceAddress, "Empty independent OAM preserves source metadata");
+                AssertEqual(expected[index].FirstSize, actual[index].FirstSize, "Empty independent OAM preserves first row");
+                AssertEqual(expected[index].SecondSize, actual[index].SecondSize, "Empty independent OAM preserves second row");
+            }
+        }
+        var shorterTop = top.Select(group => group.ToArray()).ToArray();
+        var original = top[0][0];
+        AssertTrue(original.SecondSize >= 32, "Chosen payload edit has a complete removable second-row tile");
+        shorterTop[0][0] = new(original.SourceAddress, original.FirstSize, (ushort)(original.SecondSize - 32), original.Planar.Span[..^32].ToArray());
+        var shorter = Create(shorterTop, bottom, body.Spritemaps);
+        for (int position = 0; position < top[0].Length; position++)
+        {
+            AssertEqual(top[0][position].SourceAddress, shorter.TopSet(0)[position].SourceAddress, "Independent payload-length edit cannot rewrite supplied neighboring source identities");
+            AssertEqual(shorterTop[0][position].FirstSize, shorter.TopSet(0)[position].FirstSize, "Independent payload length preserves supplied row split");
+            AssertEqual(shorterTop[0][position].SecondSize, shorter.TopSet(0)[position].SecondSize, "Exact edited payload remainder");
+        }
+        // These exact native selectors include the known physical cross-group windows.
+        var guard = new FrontendCartridgeReadGuard(rom);
+        int transfers = 0;
+        foreach (var selected in new (byte Pose, ushort Phase)[] { (1, 0), (0x65, 6), (0x65, 7), (0x66, 8), (0xd8, 0) })
+        {
+            var state = new SamusTileTransferState(); state.BindArtwork(body);
+            state.SelectForPoseFrame(guard, selected.Pose, selected.Phase);
+            int frameAddress = 0x920000 | (Word(0x92d94e + selected.Pose * 2) + selected.Phase * 4);
+            int topAddress = 0x920000 | (Word(0x92d91e + rom.ReadByte(frameAddress) * 2) + rom.ReadByte(frameAddress + 1) * 7);
+            AssertEqual(topAddress, state.TopDefinitionAddress, "Native physical upper selection including cross-group position");
+            if (rom.ReadByte(frameAddress + 2) != 255)
+                AssertEqual(0x920000 | (Word(0x92d938 + rom.ReadByte(frameAddress + 2) * 2) + rom.ReadByte(frameAddress + 3) * 7),
+                    state.BottomDefinitionAddress, "Native physical lower selection including cross-group position");
+            var actual = new SnesVram(); var expected = new SnesVram();
+            void Copy(int address, int destination)
+            {
+                int source = Word(address) | rom.ReadByte(address + 2) << 16;
+                int first = Word(address + 3), second = Word(address + 5);
+                expected.LoadBytes(destination * 2, Enumerable.Range(0, first).Select(index => rom.ReadByte(source + index)).ToArray());
+                expected.LoadBytes((destination + 0x100) * 2, Enumerable.Range(0, second).Select(index => rom.ReadByte(source + first + index)).ToArray());
+            }
+            Copy(state.TopDefinitionAddress, 0x6000);
+            if (state.BottomTransferEnabled) Copy(state.BottomDefinitionAddress, 0x6080);
+            state.TransferToVram(guard, actual);
+            AssertTrue(expected.Bytes.SequenceEqual(actual.Bytes), "Actual complete native split DMA and physical cross-group aliases");
+            AssertTrue(state.TopTransferEnabled, "Native NMI preserves transfer flags");
+            transfers++;
+        }
+        Console.WriteLine($"Body transfers:{records} direct native records,zero stock metadata overrides,independent metadata/empty-OAM edits,canonical hash and{transfers} actual split DMA/cross-group selections pass.");
+    }
+
 }

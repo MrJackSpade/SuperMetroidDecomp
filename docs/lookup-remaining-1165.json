@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 436,
+  "remainingTableDefinitionCount": 434,
   "fileCount": 523,
   "entries": [
     {
@@ -2122,19 +2122,25 @@
       "note": "Original/default payload behind SamusBodyArtworkCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
-      "line": 33,
-      "name": "SamusBodyArtworkCatalog.top",
-      "kind": "installed stock table",
-      "note": "Top set/position to tile-definition mapping and metadata. The actual planar pixels are owned by SamusBodyTileDefinition.planar; the reverse address dictionary is an alias."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
+  "line": 33,
+  "name": "SamusBodyArtworkCatalog.top",
+  "kind": "installed stock table",
+  "note": "Top set/position to tile-definition mapping and metadata. The actual planar pixels are owned by SamusBodyTileDefinition.planar; the reverse address dictionary is an alias.",
+  "state": "justified-retained",
+  "implementationCommit": "f2b611f6d0d00994ecc5c2870f97fdd172075284",
+  "disposition": "Calculate244upper source/split records from named native allocations,payload prefix sums and canonical OAM row footprints. Retain only exact19upper packing memberships (11one/two16x16block,8balanced) and relocated allocation identity as selected artwork layout. Preserve physical cross-group selectors and independent metadata edits. Pixels/payload lengths separately required."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
-      "line": 34,
-      "name": "SamusBodyArtworkCatalog.bottom",
-      "kind": "installed stock table",
-      "note": "Bottom set/position to tile-definition mapping and metadata. The actual planar pixels are owned by SamusBodyTileDefinition.planar; the reverse address dictionary is an alias."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
+  "line": 34,
+  "name": "SamusBodyArtworkCatalog.bottom",
+  "kind": "installed stock table",
+  "note": "Bottom set/position to tile-definition mapping and metadata. The actual planar pixels are owned by SamusBodyTileDefinition.planar; the reverse address dictionary is an alias.",
+  "state": "justified-retained",
+  "implementationCommit": "f2b611f6d0d00994ecc5c2870f97fdd172075284",
+  "disposition": "Calculate191lower source/split records from named allocations,payload prefix sums and canonical OAM footprints. Retain only exact31balanced row packing memberships as selected artwork layout; calculate ceilhalf/remainder. Preserve physical cross-group selectors and independent metadata edits. Pixels/payload lengths separately required."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
       "line": 250,
@@ -21766,5 +21772,5 @@
     }
   ],
   "convertedSinceSnapshot": 602,
-  "justifiedRetainedSinceSnapshot": 90
+  "justifiedRetainedSinceSnapshot": 92
 }

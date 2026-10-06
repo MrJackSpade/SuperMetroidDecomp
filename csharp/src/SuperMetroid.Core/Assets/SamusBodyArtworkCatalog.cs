@@ -135,6 +135,18 @@ public sealed partial class SamusBodyArtworkCatalog
         // The contiguous bank image also contains bytes reached only by a frame
         // counter running past its authored list. Validate a selection when it is
         // actually used, not every four-byte word in the backing ROM interval.
+        BindTransfers(true, this.top);
+        BindTransfers(false, this.bottom);
+        definitionsByAddress.Clear();
+        IndexDefinitions(true, this.top);
+        IndexDefinitions(false, this.bottom);
+    }
+
+    private void BindTransfers(bool upper, SamusBodyTileDefinition[][] groups)
+    {
+        for (int set = 0; set < groups.Length; set++)
+        for (int position = 0; position < groups[set].Length; position++)
+            groups[set][position] = groups[set][position].WithTransferGeometry(this, upper, set, position);
     }
 
     /// <summary>SHA-256 of selected body art, all visual selectors and every bundled Samus catalog.</summary>
@@ -294,19 +306,46 @@ public readonly record struct SamusBodyFrameSelection(
 public sealed class SamusBodyTileDefinition
 {
     private readonly byte[] planar;
+    private readonly int? sourceAddressOverride;
+    private readonly ushort? firstSizeOverride;
+    private readonly ushort standaloneSecondSize;
+    private readonly SamusBodyArtworkCatalog? body;
+    private readonly bool upper;
+    private readonly int set;
+    private readonly int position;
 
     public SamusBodyTileDefinition(int sourceAddress, ushort firstSize, ushort secondSize,
         byte[] planar)
     {
         ArgumentNullException.ThrowIfNull(planar);
-        SourceAddress = sourceAddress;
-        FirstSize = firstSize;
-        SecondSize = secondSize;
+        sourceAddressOverride = sourceAddress;
+        firstSizeOverride = firstSize;
+        standaloneSecondSize = secondSize;
         this.planar = (byte[])planar.Clone();
     }
 
-    public int SourceAddress { get; }
-    public ushort FirstSize { get; }
-    public ushort SecondSize { get; }
+    private SamusBodyTileDefinition(SamusBodyTileDefinition supplied, SamusBodyArtworkCatalog body,
+        bool upper, int set, int position)
+    {
+        this.body = body;
+        this.upper = upper;
+        this.set = set;
+        this.position = position;
+        planar = supplied.planar;
+        int source = supplied.SourceAddress;
+        ushort first = supplied.FirstSize;
+        sourceAddressOverride = source == SamusBodyTransferDefinitions.SourceAddress(body, upper, set, position) ? null : source;
+        firstSizeOverride = SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, planar.Length, out ushort calculated)
+            && first == calculated ? null : first;
+    }
+
+    internal SamusBodyTileDefinition WithTransferGeometry(SamusBodyArtworkCatalog body, bool upper, int set, int position) =>
+        new(this, body, upper, set, position);
+
+    public int SourceAddress => sourceAddressOverride ?? SamusBodyTransferDefinitions.SourceAddress(body!, upper, set, position);
+    public ushort FirstSize => firstSizeOverride ??
+        (SamusBodyTransferDefinitions.TryFirstSize(body!, upper, set, position, planar.Length, out ushort calculated)
+            ? calculated : throw new InvalidDataException("Installed body composition no longer supplies its transfer row."));
+    public ushort SecondSize => body is null ? standaloneSecondSize : (ushort)(planar.Length - FirstSize);
     public ReadOnlyMemory<byte> Planar => planar;
 }

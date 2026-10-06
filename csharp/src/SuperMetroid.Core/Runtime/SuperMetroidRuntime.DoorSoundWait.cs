@@ -11,7 +11,7 @@ public sealed partial class SuperMetroidRuntime
         RunNmi(controllerInput, mainLoopRequestedNmi: true);
         // Both state-$09 entry and each $E29E sound-drain dispatch return to
         // MainGameLoop. Its HDMA/RNG prologue still runs while Samus is locked.
-        AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: true);
+        AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
         DrawDoorTransitionActors();
     }
 
@@ -36,8 +36,8 @@ public sealed partial class SuperMetroidRuntime
                 Camera.XPosition, Camera.YPosition, mode7Transform: ActiveSamusMode7Transform);
         Oam.FinalizeFrame();
     }
-    /// <summary>Shared HDMA/RNG prologue of a completed outer door-state dispatch.</summary>
-    internal void AdvanceDoorMainLoopRandom(bool hdmaObjectsEnabled)
+    /// <summary>Shared HDMA/RNG prologue of an outer dispatch without a gameplay frame.</summary>
+    internal void AdvanceNonGameplayMainLoopRandom(bool hdmaObjectsEnabled)
     {
         if (hdmaObjectsEnabled)
             RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);

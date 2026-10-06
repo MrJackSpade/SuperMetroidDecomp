@@ -261,9 +261,16 @@ matching $A6:BB56-$BB5D. The separate ground-attack reversal was already present
 its shared carry entry did not supply this lunge-specific write. The source8395
 focused fixture confirms velocityFC25, immediate carry and countdown31, and the
 independent movie passes the recorded carry positions. All currently compared fields
-now match through update9380/10717. Next difference: update9381/source9502,
-RNG native7266 vs port117D; no other currently compared field differs at that boundary.
-The RNG producer has not yet been diagnosed.
+now pass that grab interval.
+
+Pause-only dispatchers now preserve $82:894F's main-loop RNG advance. Pause entry
+also runs the still-enabled lava HDMA callback first (its byte swap is $88:B44A),
+while later pause dispatches run with HDMA disabled. Gameplay fade states retain
+runtime RNG ownership. Focused checks confirm both pause-entry value7266 and ordinary
+paused value5882 from seed117D, with no duplicate advance in gameplay fades.
+Independent replay matches all currently compared fields through update9571/10717.
+Next difference: update9572/source9697, paused Samus health native0014 vs port0013.
+The one-health-point transfer boundary has not yet been diagnosed.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

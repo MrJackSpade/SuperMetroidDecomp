@@ -152,6 +152,34 @@ internal static partial class Program
         Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
     }
 
+    private static void VerifyPauseDispatcherRandom()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RidleyMovieMemory.RidleyRoom);
+        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
+        // The recorded pause enters an already-running room HDMA callback.
+        runtime.RoomLayer3Fx.AdvanceHdmaSharedState(runtime.System, false);
+        var advance = typeof(SuperMetroidGame).GetMethod("AdvanceMenuRandom", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        foreach (var state in new[] { SuperMetroidGameState.Pausing, SuperMetroidGameState.PausedA,
+            SuperMetroidGameState.PausedB, SuperMetroidGameState.UnpausingA, SuperMetroidGameState.UnpausingB,
+            SuperMetroidGameState.PausingDarkening, SuperMetroidGameState.Unpausing })
+        {
+            runtime.System.SetRandomNumber(0x117d);
+            typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, state);
+            advance.Invoke(game, null);
+            bool gameplayOwnsRandom = state is SuperMetroidGameState.PausingDarkening or SuperMetroidGameState.Unpausing;
+            ushort expected = gameplayOwnsRandom ? (ushort)0x117d :
+                state == SuperMetroidGameState.Pausing ? (ushort)0x7266 : (ushort)0x5882;
+            AssertEqual(expected, runtime.System.RandomNumber,
+                "pause entry runs lava HDMA before RNG; paused dispatches advance once; gameplay fades retain runtime ownership");
+        }
+        Console.WriteLine("Pause RNG: all five pause-only dispatchers advance once; gameplay fades avoid duplicate advances.");
+    }
+
     private static void VerifySpinFallbackHistory()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

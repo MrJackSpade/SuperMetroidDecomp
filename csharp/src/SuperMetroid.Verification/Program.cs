@@ -81,6 +81,7 @@ if (args is ["--ridley-spin-fireball"]) { VerifyRidleySpinFireball(); return 0; 
 if (args is ["--ridley-contact-ordering"]) { VerifyRidleyContactOrdering(); return 0; }
 if (args is ["--ridley-swoop-timer"]) { VerifyRidleySwoopTimer(); return 0; }
 if (args is ["--ridley-grab-entry"]) { VerifyRidleyGrabEntry(); return 0; }
+if (args is ["--pause-dispatch-rng"]) { VerifyPauseDispatcherRandom(); return 0; }
 if (args is ["--spin-fallback-history"]) { VerifySpinFallbackHistory(); return 0; }
 if (args is ["--morph-camera-checkpoint"]) { VerifyMorphCameraCheckpoint(); return 0; }
 if (args is ["--aim-up-landing-animation"]) { VerifyAimUpLandingAnimation(); return 0; }

@@ -4133,7 +4133,9 @@ public sealed partial class SuperMetroidRuntime
             // `$80:9B44` rebuilds live energy/ammo words before appending the HUD transfer.
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
             // Samus during this frame, and those values must enter the next accepted NMI.
-            if (Samus is not null)
+            // Native PLM_Handler has not returned while a pickup message is open.
+            // Its newly granted inventory reaches the HUD only after that return.
+            if (Samus is not null && !Plms.HasPendingCollectibleMessage)
                 Hud.UpdateGameplayCounters(_addressSpace, Samus, TimeIsFrozen,
                     soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
             Hud.QueueUpload(_addressSpace, VramWrites);

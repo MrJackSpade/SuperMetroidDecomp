@@ -65,6 +65,7 @@ internal static partial class Program
                     visibleUpdate.TopRow[0] & 0x03ff,
                     $"{kind} live streamer uses its dynamic PLM character definition");
             }
+            ushort visibleItemWord = fixture.Level.ForegroundEntries.Span[fixture.BlockIndex];
             AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 $"{kind} visible block accepts Samus contact");
             fixture.Plms.Step(
@@ -84,7 +85,12 @@ internal static partial class Program
                 $"{kind} fanfare edge cannot repeat during its synchronous message");
             AssertPermanentCollectibleEffect(kind, fixture.Samus);
 
-            // Acquisition frees the native physical ID. Reuse that same highest slot for
+            AssertEqual(visibleItemWord, fixture.Level.ForegroundEntries.Span[fixture.BlockIndex],
+                $"{kind} retains pickup artwork during its message");
+            fixture.Plms.CompleteCollectibleMessage();
+            fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+
+            // Returning from the message frees the native physical ID. Reuse that same highest slot for
             // a destructible special block, exactly as the block beside Morph Ball does.
             // The new actor must not inherit Item/Triggered and publish the old message.
             AssertTrue(
@@ -146,6 +152,7 @@ internal static partial class Program
         StepFrames(9, _ => orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0));
         AssertEqual(CollectiblePhase.Visible, orb.Plms.Collectibles[0].Phase,
             "Chozo burst exposes the item");
+        ushort orbItemWord = orb.Level.ForegroundEntries.Span[orb.BlockIndex];
         AssertTrue(orb.Plms.TryNotifyCollectibleTouch(orb.BlockIndex),
             "exposed Chozo item accepts touch");
         orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
@@ -153,6 +160,12 @@ internal static partial class Program
             "Chozo item persists its room argument bit");
         AssertTrue((orb.Samus.CollectedItems & (ushort)SamusEquipmentFlags.MorphBall) != 0,
             "Chozo Morph Ball grants equipment");
+
+        AssertEqual(orbItemWord, orb.Level.ForegroundEntries.Span[orb.BlockIndex],
+            "Chozo pickup remains visible throughout message");
+        orb.Plms.CompleteCollectibleMessage();
+        orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
+        AssertEqual(0, orb.Plms.Collectibles.Count, "Chozo pickup deletes after message");
 
         CollectibleFixture reopenedOrb = LoadCollectible(
             bus,
@@ -182,10 +195,16 @@ internal static partial class Program
             _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0),
             maximumFrames: 20,
             context: "shot item reveal");
+        ushort shotItemWord = shot.Level.ForegroundEntries.Span[shot.BlockIndex];
         AssertTrue(shot.Plms.TryNotifyCollectibleTouch(shot.BlockIndex),
             "revealed shot item accepts Samus contact");
         shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0);
         AssertEqual(5, shot.Samus.MaxMissiles, "shot item grants missile capacity");
+        StepFrames(180, _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0));
+        AssertEqual(shotItemWord, shot.Level.ForegroundEntries.Span[shot.BlockIndex],
+            "shot pickup cannot clear or begin respawn countdown during message");
+        shot.Plms.CompleteCollectibleMessage();
+        shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0);
         AssertEqual(CollectiblePhase.CollectedShotBlockEmpty,
             shot.Plms.Collectibles[0].Phase,
             "collected shot item retains empty respawn owner");

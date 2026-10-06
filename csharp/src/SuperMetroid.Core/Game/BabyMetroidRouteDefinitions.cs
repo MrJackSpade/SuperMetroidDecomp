@@ -45,21 +45,22 @@ internal static class BabyMetroidRouteDefinitions
     internal const ushort LatchOntoSamusFunction = 0xca66;
 
     /// <summary>
-    /// Eight native records. For records zero through six, <c>FollowingWord</c> is the
-    /// next record's X target because the cartridge reads one word beyond the record.
-    /// The final value is the adjacent signed <c>$CA66</c> callback word.
+    /// The eight authored waypoints. Each native record is the waypoint, a zero acceleration
+    /// divisor index and the movement callback; the cartridge reads one word beyond each record,
+    /// so its following word is the next waypoint's X, and the last one's is the adjacent
+    /// <c>$CA66</c> callback word. The first five legs use the wrong-way extra-$10 callback and
+    /// the final three the extra-$08 callback.
     /// </summary>
-    private static readonly BabyMetroidRouteRecord[] Records =
-    [
-        new(0x00a0, 0x0078, 0x0000, GradualAccelerationExtraSixteenFunction, 0x0130),
-        new(0x0130, 0x007a, 0x0000, GradualAccelerationExtraSixteenFunction, 0x00c0),
-        new(0x00c0, 0x0040, 0x0000, GradualAccelerationExtraSixteenFunction, 0x00c0),
-        new(0x00c0, 0x0070, 0x0000, GradualAccelerationExtraSixteenFunction, 0x00e0),
-        new(0x00e0, 0x0080, 0x0000, GradualAccelerationExtraSixteenFunction, 0x00cd),
-        new(0x00cd, 0x0090, 0x0000, GradualAccelerationExtraEightFunction, 0x00cc),
-        new(0x00cc, 0x00a0, 0x0000, GradualAccelerationExtraEightFunction, 0x00cb),
-        new(0x00cb, 0x00b0, 0x0000, GradualAccelerationExtraEightFunction, LatchOntoSamusFunction),
-    ];
+    private static ReadOnlySpan<ushort> WaypointX => [0x00a0, 0x0130, 0x00c0, 0x00c0, 0x00e0, 0x00cd, 0x00cc, 0x00cb];
+    private static ReadOnlySpan<ushort> WaypointY => [0x0078, 0x007a, 0x0040, 0x0070, 0x0080, 0x0090, 0x00a0, 0x00b0];
+    private const int FirstExtraEightLeg = 5;
+
+    private static BabyMetroidRouteRecord Record(int index) => new(
+        WaypointX[index],
+        WaypointY[index],
+        0x0000,
+        index < FirstExtraEightLeg ? GradualAccelerationExtraSixteenFunction : GradualAccelerationExtraEightFunction,
+        index + 1 < RecordCount ? WaypointX[index + 1] : LatchOntoSamusFunction);
 
     /// <summary>Returns the exact authored record identified by its native bank-$A9 pointer.</summary>
     internal static BabyMetroidRouteRecord GetRecord(ushort pointer)
@@ -71,7 +72,7 @@ internal static class BabyMetroidRouteDefinitions
         int index = offset / RecordStride;
         if ((uint)index >= RecordCount)
             throw InvalidPointer(pointer);
-        return Records[index];
+        return Record(index);
     }
 
     /// <summary>Resolves a native movement callback to its wrong-way horizontal speed addition.</summary>

@@ -220,7 +220,12 @@ internal static class ProjectileTrailCoordinateDefinitions
     ];
     private readonly record struct Offset(sbyte LeftX, sbyte LeftY, sbyte RightX, sbyte RightY);
 
-    private static readonly FrozenDictionary<int, Offset> Frames = CreateFrames();
+    /// <summary>How a block's right sparkle reflects its left sparkle across the travel axis.</summary>
+    private enum Reflection { AcrossVertical, AcrossHorizontal, AcrossDiagonalDownRight, AcrossDiagonalUpRight, ThroughOrigin }
+
+    private readonly record struct StoredFrame(sbyte LeftX, sbyte LeftY, Reflection Reflection);
+
+    private static readonly FrozenDictionary<int, StoredFrame> Frames = CreateFrames();
 
     /// <summary>
     /// $9B:A4B3-A4F5: the beam-bit dispatch read by $9B:A418/A42A/A43C.
@@ -412,395 +417,142 @@ internal static class ProjectileTrailCoordinateDefinitions
 
     private static Offset Coordinates(int leftX, int leftY, int rightX, int rightY) =>
         new((sbyte)leftX, (sbyte)leftY, (sbyte)rightX, (sbyte)rightY);
-    private static FrozenDictionary<int, Offset> CreateFrames()
+    /// <summary>
+    /// Trail sparkle placements by native record address. Each record pairs a left and a right
+    /// sparkle; the right one is the left reflected across the beam's travel axis (the reflection is
+    /// fixed per direction block). 668 of the 700 right offsets follow it; the 32 drawn
+    /// differently, all in diagonal blocks, are kept in <see cref="DrawnRightOffsets"/>.
+    /// </summary>
+    private static FrozenDictionary<int, StoredFrame> CreateFrames()
     {
-        var result = new Dictionary<int, Offset>();
-        void Add(int address, ReadOnlySpan<Offset> values)
-        { for (int i = 0; i < values.Length; i++) result.Add(address + i * 4, values[i]); }
-        Add(UnchargedBeamTrails_IceSpazer_2,
-        [
-            new(-8, 8, -8, 8), new(-14, 2, -2, 14), new(-20, -4, 2, 20),
-        ]);
-        Add(UnchargedBeamTrails_IceSpazer_4,
-        [
-            new(-8, -8, -8, -8), new(-2, -16, -16, -2), new(4, -20, -20, 4),
-        ]);
-        Add(UnchargedBeamTrails_IceSpazer_5,
-        [
-            new(8, -8, 8, -8), new(14, -2, 2, -14), new(20, 4, -2, -20),
-        ]);
-        Add(UnchargedBeamTrails_IceSpazer_7,
-        [
-            new(8, 8, 8, 8), new(2, 16, 16, 2), new(-4, 20, 20, -4),
-        ]);
-        Add(UnchargedBeamTrails_WaveIceSpazer_1,
-        [
-            new(0, 0, 0, 0), new(-12, 6, -6, 12), new(-14, 2, -2, 14), new(-16, 0, 0, 16),
-            new(-18, -2, 2, 18), new(-20, -4, 2, 20), new(-18, -2, 2, 18), new(-16, 0, 0, 16),
-            new(-14, 2, -2, 14), new(-12, 6, -6, 12),
-        ]);
-        Add(UnchargedBeamTrails_WaveIceSpazer_3,
-        [
-            new(0, 0, 0, 0), new(-12, -6, -6, -12), new(-2, -16, -16, -2), new(-16, 0, 0, -16),
-            new(-18, 2, 2, -18), new(4, -20, -20, 4), new(-18, 2, 2, -18), new(-16, 0, 0, -16),
-            new(-2, -16, -16, -2), new(-12, -6, -6, -12),
-        ]);
-        Add(UnchargedBeamTrails_WaveIceSpazer_5,
-        [
-            new(0, 0, 0, 0), new(2, -14, 14, -2), new(0, -16, 16, 0), new(-2, -18, 18, 2),
-            new(-2, -20, 20, 4), new(-2, -20, 20, 4), new(-2, -20, 20, 4), new(-2, -18, 18, 2),
-            new(0, -16, 16, 0), new(2, -14, 14, -2),
-        ]);
-        Add(UnchargedBeamTrails_WaveIceSpazer_7,
-        [
-            new(0, 0, 0, 0), new(6, 10, 10, 6), new(2, 16, 16, 2), new(0, 16, 16, 0),
-            new(-2, 18, 18, -2), new(-4, 20, 20, -4), new(-2, 18, 18, -2), new(0, 16, 16, 0),
-            new(2, 16, 16, 2), new(6, 10, 10, 6),
-        ]);
-        Add(UnchargedBeamTrails_IcePlasma_0,
-        [
-            new(0, 0, 0, 0), new(0, 16, 0, 16),
-        ]);
-        Add(UnchargedBeamTrails_IcePlasma_1,
-        [
-            new(0, 0, 0, 0), new(-12, 12, -12, 12),
-        ]);
-        Add(UnchargedBeamTrails_IcePlasma_2,
-        [
-            new(0, 0, 0, 0), new(-16, 0, -16, 0),
-        ]);
-        Add(UnchargedBeamTrails_IcePlasma_3,
-        [
-            new(0, 0, 0, 0), new(-12, -12, -12, -12),
-        ]);
-        Add(UnchargedBeamTrails_IcePlasma_4,
-        [
-            new(0, 0, 0, 0), new(0, -16, 0, -16),
-        ]);
-        Add(UnchargedBeamTrails_IcePlasma_5,
-        [
-            new(0, 0, 0, 0), new(12, -12, 12, -12),
-        ]);
-        Add(UnchargedBeamTrails_IcePlasma_6,
-        [
-            new(0, 0, 0, 0), new(16, 0, 16, 0),
-        ]);
-        Add(UnchargedBeamTrails_IcePlasma_7,
-        [
-            new(0, 0, 0, 0), new(12, 12, 12, 12),
-        ]);
-        Add(UnchargedBeamTrails_WaveIcePlasma_0,
-        [
-            new(0, 0, 0, 0), new(0, 16, 0, 16), new(-8, 16, 8, 16), new(-16, 16, 16, 16),
-            new(-16, 16, 16, 16), new(-16, 16, 16, 16), new(-16, 16, 16, 16), new(-16, 16, 16, 16),
-            new(-8, 16, 8, 16),
-        ]);
-        Add(UnchargedBeamTrails_WaveIcePlasma_1,
-        [
-            new(0, 0, 0, 0), new(-12, 12, -12, 12), new(-20, 8, -8, 18), new(-24, 2, -2, 20),
-            new(-24, 0, 0, 24), new(-24, 0, 0, 24), new(-24, 0, 0, 24), new(-24, 2, -2, 20),
-            new(-20, 8, -8, 18),
-        ]);
-        Add(UnchargedBeamTrails_WaveIcePlasma_2,
-        [
-            new(0, 0, 0, 0), new(-16, 0, -16, 0), new(-16, -8, -16, 8), new(-16, -12, -16, 12),
-            new(-16, -16, -16, 16), new(-16, -16, -16, 16), new(-16, -16, -16, 16), new(-16, -12, -16, 12),
-            new(-16, -8, -16, 8),
-        ]);
-        Add(UnchargedBeamTrails_WaveIcePlasma_3,
-        [
-            new(0, 0, 0, 0), new(-12, -12, -12, -12), new(-18, -6, -6, -18), new(-20, -2, -2, -20),
-            new(-24, 0, 0, -24), new(-24, 0, 0, -24), new(-24, 0, 0, -24), new(-20, -2, -2, -20),
-            new(-18, -6, -6, -18),
-        ]);
-        Add(UnchargedBeamTrails_WaveIcePlasma_4,
-        [
-            new(0, 0, 0, 0), new(0, -16, 0, -16), new(-8, -16, 8, -16), new(-16, -16, 16, -16),
-            new(-16, -16, 16, -16), new(-16, -16, 16, -16), new(-16, -16, 16, -16), new(-16, -16, 16, -16),
-            new(-8, -16, 8, -16),
-        ]);
-        Add(UnchargedBeamTrails_WaveIcePlasma_5,
-        [
-            new(0, 0, 0, 0), new(12, -12, 12, -12), new(20, -8, 8, -18), new(24, -2, 2, -20),
-            new(24, 0, 0, -24), new(24, 0, 0, -24), new(24, 0, 0, -24), new(24, -2, 2, -20),
-            new(20, -8, 8, -18),
-        ]);
-        Add(UnchargedBeamTrails_WaveIcePlasma_6,
-        [
-            new(0, 0, 0, 0), new(16, 0, 16, 0), new(16, -8, 16, 8), new(16, -12, 16, 12),
-            new(16, -16, 16, 16), new(16, -16, 16, 16), new(16, -16, 16, 16), new(16, -12, 16, 12),
-            new(16, -8, 16, 8),
-        ]);
-        Add(UnchargedBeamTrails_WaveIcePlasma_7,
-        [
-            new(0, 0, 0, 0), new(12, 12, 12, 12), new(18, 6, 6, 18), new(20, 2, 2, 20),
-            new(24, 0, 0, 24), new(24, 0, 0, 24), new(24, 0, 0, 24), new(20, 2, 2, 20),
-            new(18, 6, 6, 18),
-        ]);
-        Add(ChargedBeamTrails_Wave_WaveIce_2,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-4, -4, 4, 4), new(-4, -4, 4, 4),
-            new(-8, -8, 8, 8), new(-8, -8, 8, 8), new(-8, -8, 8, 8), new(-8, -8, 8, 8),
-            new(-10, -10, 10, 10), new(-10, -10, 10, 10), new(-8, -8, 8, 8), new(-8, -8, 8, 8),
-            new(-8, -8, 8, 8), new(-8, -8, 8, 8), new(-4, -4, 4, 4), new(-4, -4, 4, 4),
-        ]);
-        Add(ChargedBeamTrails_Wave_WaveIce_3,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-4, 4, 4, -4), new(-4, 4, 4, -4),
-            new(-8, 8, 8, -8), new(-8, 8, 8, -8), new(-8, 8, 8, -8), new(-8, 8, 8, -8),
-            new(-10, 10, 10, -10), new(-10, 10, 10, -10), new(-8, 8, 8, -8), new(-8, 8, 8, -8),
-            new(-8, 8, 8, -8), new(-8, 8, 8, -8), new(-4, 4, 4, -4), new(-4, 4, 4, -4),
-        ]);
-        Add(ChargedBeamTrails_IceSpazer_0,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, 8, 0, 8), new(0, 8, 0, 8),
-            new(0, 16, 0, 16), new(0, 16, 0, 16), new(-8, 16, 8, 16), new(-8, 16, 8, 16),
-            new(-16, 16, 16, 16), new(-16, 16, 16, 16),
-        ]);
-        Add(ChargedBeamTrails_IceSpazer_1,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-8, 8, -8, 8), new(-8, 8, -8, 8),
-            new(-12, 12, -12, 12), new(-12, 12, -12, 12), new(-16, 8, -8, 16), new(-16, 8, -8, 16),
-            new(-24, 0, 0, 24), new(-24, 0, 0, 24),
-        ]);
-        Add(ChargedBeamTrails_IceSpazer_2,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-8, 8, -8, 8), new(-8, 8, -8, 8),
-            new(-16, 0, -16, 0), new(-16, 0, -16, 0), new(-16, -8, -16, 8), new(-16, -8, -16, 8),
-            new(-16, -16, -16, 16), new(-16, -16, -16, 16),
-        ]);
-        Add(ChargedBeamTrails_IceSpazer_3,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-8, -8, -8, -8), new(-8, -8, -8, -8),
-            new(-12, -12, -12, -12), new(-12, -12, -12, -12), new(-16, -8, -8, -16), new(-16, -8, -8, -16),
-            new(-24, 0, 0, -24), new(-24, 0, 0, -24),
-        ]);
-        Add(ChargedBeamTrails_IceSpazer_4,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, -8, 0, -8), new(0, -8, 0, -8),
-            new(0, -16, 0, -16), new(0, -16, 0, -16), new(-8, -16, 8, -16), new(-8, -16, 8, -16),
-            new(-16, -16, 16, -16), new(-16, -16, 16, -16),
-        ]);
-        Add(ChargedBeamTrails_IceSpazer_5,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(8, -8, 8, -8), new(8, -8, 8, -8),
-            new(12, -12, 12, -12), new(12, -12, 12, -12), new(16, -8, 8, -16), new(16, -8, 8, -16),
-            new(24, 0, 0, -24), new(24, 0, 0, -24),
-        ]);
-        Add(ChargedBeamTrails_IceSpazer_6,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(8, 0, 8, 0), new(8, 0, 8, 0),
-            new(16, 0, 16, 0), new(16, 0, 16, 0), new(16, -8, 16, 8), new(16, -8, 16, 8),
-            new(16, -16, 16, 16), new(16, -16, 16, 16),
-        ]);
-        Add(ChargedBeamTrails_IceSpazer_7,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(8, 8, 8, 8), new(8, 8, 8, 8),
-            new(12, 12, 12, 12), new(12, 12, 12, 12), new(16, 8, 8, 16), new(16, 8, 8, 16),
-            new(24, 0, 0, 24), new(24, 0, 0, 24),
-        ]);
-        Add(ChargedBeamTrails_WaveIceSpazer_0,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, 8, 0, 8), new(0, 8, 0, 8),
-            new(0, 16, 0, 16), new(0, 16, 0, 16), new(-4, 16, 4, 16), new(-4, 16, 4, 16),
-            new(-8, 16, 8, 16), new(-8, 16, 8, 16), new(-12, 16, 12, 16), new(-12, 16, 12, 16),
-            new(-16, 16, 16, 16), new(-16, 16, 16, 16), new(-16, 16, 16, 16), new(-16, 16, 16, 16),
-            new(-16, 16, 16, 16), new(-16, 16, 16, 16), new(-12, 16, 12, 16), new(-12, 16, 12, 16),
-            new(-8, 16, 8, 16), new(-8, 16, 8, 16), new(-4, 16, 4, 16), new(-4, 16, 4, 16),
-        ]);
-        Add(ChargedBeamTrails_WaveIceSpazer_1,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-8, 8, -8, 8), new(-8, 8, -8, 8),
-            new(-12, 12, -12, 12), new(-12, 12, -12, 12), new(-16, 8, -8, 16), new(-16, 8, -8, 16),
-            new(-16, 8, -8, 16), new(-16, 8, -8, 16), new(-16, 8, -8, 16), new(-16, 8, -8, 16),
-            new(-24, 0, 0, 24), new(-24, 0, 0, 24), new(-24, 0, 0, 24), new(-24, 0, 0, 24),
-            new(-24, 0, 0, 24), new(-24, 0, 0, 24), new(-16, 8, -8, 16), new(-16, 8, -8, 16),
-            new(-16, 8, -8, 16), new(-16, 8, -8, 16), new(-16, 8, -8, 16), new(-16, 8, -8, 16),
-        ]);
-        Add(ChargedBeamTrails_WaveIceSpazer_2,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-8, 0, -8, 0), new(-8, 0, -8, 0),
-            new(-16, 0, -16, 0), new(-16, 0, -16, 0), new(-16, -4, -16, 4), new(-16, -4, -16, 4),
-            new(-16, -8, -16, 8), new(-16, -8, -16, 8), new(-16, -12, -16, 12), new(-16, -12, -16, 12),
-            new(-16, -16, -16, 16), new(-16, -16, -16, 16), new(-16, -16, -16, 16), new(-16, -16, -16, 16),
-            new(-16, -16, -16, 16), new(-16, -16, -16, 16), new(-16, -12, -16, 12), new(-16, -12, -16, 12),
-            new(-16, -8, -16, 8), new(-16, -8, -16, 8), new(-16, -4, -16, 4), new(-16, -4, -16, 4),
-        ]);
-        Add(ChargedBeamTrails_WaveIceSpazer_3,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-8, -8, -8, -8), new(-8, -8, -8, -8),
-            new(-12, -12, -12, -12), new(-12, -12, -12, -12), new(-16, -8, -8, -16), new(-16, -8, -8, -16),
-            new(-16, -8, -8, -16), new(-16, -8, -8, -16), new(-20, -4, -4, -20), new(-20, -4, -4, -20),
-            new(-24, 0, 0, -24), new(-24, 0, 0, -24), new(-24, 0, 0, -24), new(-24, 0, 0, -24),
-            new(-24, 0, 0, -24), new(-24, 0, 0, -24), new(-20, -4, -4, -20), new(-20, -4, -4, -20),
-            new(-16, -8, -8, -16), new(-16, -8, -8, -16), new(-16, -8, -8, -16), new(-16, -8, -8, -16),
-        ]);
-        Add(ChargedBeamTrails_WaveIceSpazer_4,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, -8, 0, -8), new(0, -8, 0, -8),
-            new(0, -16, 0, -16), new(0, -16, 0, -16), new(-4, -16, 4, -16), new(-4, -16, 4, -16),
-            new(-8, -16, 8, -16), new(-8, -16, 8, -16), new(-12, -16, 12, -16), new(-12, -16, 12, -16),
-            new(-16, -16, 16, -16), new(-16, -16, 16, -16), new(-16, -16, 16, -16), new(-16, -16, 16, -16),
-            new(-16, -16, 16, -16), new(-16, -16, 16, -16), new(-12, -16, 12, -16), new(-12, -16, 12, -16),
-            new(-8, -16, 8, -16), new(-8, -16, 8, -16), new(-4, -16, 4, -16), new(-4, -16, 4, -16),
-        ]);
-        Add(ChargedBeamTrails_WaveIceSpazer_5,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(8, -8, 8, -8), new(8, -8, 8, -8),
-            new(12, -12, 12, -12), new(12, -12, 12, -12), new(8, -16, 16, -8), new(8, -16, 16, -8),
-            new(8, -16, 16, -8), new(8, -16, 16, -8), new(4, -20, 20, -4), new(4, -20, 20, -4),
-            new(0, -24, 24, 0), new(0, -24, 24, 0), new(0, -24, 24, 0), new(0, -24, 24, 0),
-            new(0, -24, 24, 0), new(0, -24, 24, 0), new(4, -20, 20, -4), new(4, -20, 20, -4),
-            new(8, -16, 16, -8), new(8, -16, 16, -8), new(8, -16, 16, -8), new(8, -16, 16, -8),
-        ]);
-        Add(ChargedBeamTrails_WaveIceSpazer_6,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(8, 0, 8, 0), new(8, 0, 8, 0),
-            new(16, 0, 16, 0), new(16, 0, 16, 0), new(16, -4, 16, 4), new(16, -4, 16, 4),
-            new(16, -8, 16, 8), new(16, -8, 16, 8), new(16, -12, 16, 12), new(16, -12, 16, 12),
-            new(16, -16, 16, 16), new(16, -16, 16, 16), new(16, -16, 16, 16), new(16, -16, 16, 16),
-            new(16, -16, 16, 16), new(16, -16, 16, 16), new(16, -12, 16, 12), new(16, -12, 16, 12),
-            new(16, -8, 16, 8), new(16, -8, 16, 8), new(16, -4, 16, 4), new(16, -4, 16, 4),
-        ]);
-        Add(ChargedBeamTrails_WaveIceSpazer_7,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(8, 8, 8, 8), new(8, 8, 8, 8),
-            new(12, 12, 12, 12), new(12, 12, 12, 12), new(8, 16, 16, 8), new(8, 16, 16, 8),
-            new(8, 16, 16, 8), new(8, 16, 16, 8), new(4, 20, 20, 4), new(4, 20, 20, 4),
-            new(0, 24, 24, 0), new(0, 24, 24, 0), new(0, 24, 24, 0), new(0, 24, 24, 0),
-            new(0, 24, 24, 0), new(0, 24, 24, 0), new(4, 20, 20, 4), new(4, 20, 20, 4),
-            new(8, 16, 16, 8), new(8, 16, 16, 8), new(8, 16, 16, 8), new(8, 16, 16, 8),
-        ]);
-        Add(ChargedBeamTrails_IcePlasma_0,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, 12, 0, 12), new(0, 12, 0, 12),
-            new(0, 24, 0, 24), new(0, 24, 0, 24), new(0, 28, 0, 28), new(0, 28, 0, 28),
-        ]);
-        Add(ChargedBeamTrails_IcePlasma_1,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-8, 8, -8, 8), new(-8, 8, -8, 8),
-            new(-16, 16, -16, 16), new(-16, 16, -16, 16), new(-24, 24, -24, 24), new(-24, 24, -24, 24),
-        ]);
-        Add(ChargedBeamTrails_IcePlasma_2,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-12, 0, -12, 0), new(-12, 0, -12, 0),
-            new(-24, 0, -24, 0), new(-24, 0, -24, 0), new(-28, 0, -28, 0), new(-28, 0, -28, 0),
-        ]);
-        Add(ChargedBeamTrails_IcePlasma_3,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-8, -8, -8, -8), new(-8, -8, -8, -8),
-            new(-16, -16, -16, -16), new(-16, -16, -16, -16), new(-24, -24, -24, -24), new(-24, -24, -24, -24),
-        ]);
-        Add(ChargedBeamTrails_IcePlasma_4,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, -12, 0, -12), new(0, -12, 0, -12),
-            new(0, -24, 0, -24), new(0, -24, 0, -24), new(0, -28, 0, -28), new(0, -28, 0, -28),
-        ]);
-        Add(ChargedBeamTrails_IcePlasma_5,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(8, -8, 8, -8), new(8, -8, 8, -8),
-            new(16, -16, 16, -16), new(16, -16, 16, -16), new(24, -24, 24, -24), new(24, -24, 24, -24),
-        ]);
-        Add(ChargedBeamTrails_IcePlasma_6,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(12, 0, 12, 0), new(12, 0, 12, 0),
-            new(24, 0, 24, 0), new(24, 0, 24, 0), new(28, 0, 28, 0), new(28, 0, 28, 0),
-        ]);
-        Add(ChargedBeamTrails_IcePlasma_7,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(8, 8, 8, 8), new(8, 8, 8, 8),
-            new(16, 16, 16, 16), new(16, 16, 16, 16), new(24, 24, 24, 24), new(24, 24, 24, 24),
-        ]);
-        Add(ChargedBeamTrails_WaveIcePlasma_0,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, 12, 0, 12), new(0, 12, 0, 12),
-            new(0, 24, 0, 24), new(0, 24, 0, 24), new(0, 28, 0, 28), new(0, 28, 0, 28),
-            new(-8, 28, 8, 28), new(-8, 28, 8, 28), new(-12, 28, 12, 28), new(-12, 28, 12, 28),
-            new(-16, 28, 16, 28), new(-16, 28, 16, 28), new(-16, 28, 16, 28), new(-16, 28, 16, 28),
-            new(-16, 28, 16, 28), new(-16, 28, 16, 28), new(-12, 28, 12, 28), new(-12, 28, 12, 28),
-            new(-8, 28, 8, 28), new(-8, 28, 8, 28),
-        ]);
-        Add(ChargedBeamTrails_WaveIcePlasma_1,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-8, 8, -8, 8), new(-8, 8, -8, 8),
-            new(-16, 16, -16, 16), new(-16, 16, -16, 16), new(-20, 20, -20, 20), new(-20, 20, -20, 20),
-            new(-28, 12, -16, 24), new(-28, 12, -16, 24), new(-32, 12, -12, 28), new(-32, 12, -12, 28),
-            new(-32, 8, -8, 32), new(-32, 8, -8, 32), new(-32, 8, -8, 32), new(-32, 8, -8, 32),
-            new(-32, 8, -8, 32), new(-32, 8, -8, 32), new(-32, 12, -12, 28), new(-32, 12, -12, 28),
-            new(-28, 12, -16, 24), new(-28, 12, -16, 24),
-        ]);
-        Add(ChargedBeamTrails_WaveIcePlasma_2,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-12, 0, -12, 0), new(-12, 0, -12, 0),
-            new(-24, 0, -24, 0), new(-24, 0, -24, 0), new(-28, 0, -28, 0), new(-28, 0, -28, 0),
-            new(-28, -8, -28, 8), new(-28, -8, -28, 8), new(-28, -12, -28, 12), new(-28, -12, -28, 12),
-            new(-28, -16, -28, 16), new(-28, -16, -28, 16), new(-28, -16, -28, 16), new(-28, -16, -28, 16),
-            new(-28, -16, -28, 16), new(-28, -16, -28, 16), new(-28, -12, -28, 12), new(-28, -12, -28, 12),
-            new(-28, -8, -28, 8), new(-28, -8, -28, 8),
-        ]);
-        Add(ChargedBeamTrails_WaveIcePlasma_3,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(-8, -8, -8, -8), new(-8, -8, -8, -8),
-            new(-16, -16, -16, -16), new(-16, -16, -16, -16), new(-20, -20, -20, -20), new(-20, -20, -20, -20),
-            new(-24, -16, -16, -24), new(-24, -16, -16, -24), new(-32, -12, -12, -32), new(-32, -12, -12, -32),
-            new(-32, -8, -8, -32), new(-32, -8, -8, -32), new(-32, -8, -8, -32), new(-32, -8, -8, -32),
-            new(-32, -8, -8, -32), new(-32, -8, -8, -32), new(-32, -12, -12, -32), new(-32, -12, -12, -32),
-            new(-24, -16, -16, -24), new(-24, -16, -16, -24),
-        ]);
-        Add(ChargedBeamTrails_WaveIcePlasma_4,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(0, -12, 0, -12), new(0, -12, 0, -12),
-            new(0, -24, 0, -24), new(0, -24, 0, -24), new(0, -28, 0, -28), new(0, -28, 0, -28),
-            new(-8, -28, 8, -28), new(-8, -28, 8, -28), new(-12, -28, 12, -28), new(-12, -28, 12, -28),
-            new(-16, -28, 16, -28), new(-16, -28, 16, -28), new(-16, -28, 16, -28), new(-16, -28, 16, -28),
-            new(-16, -28, 16, -28), new(-16, -28, 16, -28), new(-12, -28, 12, -28), new(-12, -28, 12, -28),
-            new(-8, -28, 8, -28), new(-8, -28, 8, -28),
-        ]);
-        Add(ChargedBeamTrails_WaveIcePlasma_5,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(8, -8, 8, -8), new(8, -8, 8, -8),
-            new(16, -16, 16, -16), new(16, -16, 16, -16), new(20, -20, 20, -20), new(20, -20, 20, -20),
-            new(28, -12, 16, -24), new(28, -12, 16, -24), new(32, -12, 12, -28), new(32, -12, 12, -28),
-            new(32, -8, 8, -32), new(32, -8, 8, -32), new(32, -8, 8, -32), new(32, -8, 8, -32),
-            new(32, -8, 8, -32), new(32, -8, 8, -32), new(32, -12, 12, -28), new(32, -12, 12, -28),
-            new(28, -12, 16, -24), new(28, -12, 16, -24),
-        ]);
-        Add(ChargedBeamTrails_WaveIcePlasma_6,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(12, 0, 12, 0), new(12, 0, 12, 0),
-            new(24, 0, 24, 0), new(24, 0, 24, 0), new(28, 0, 28, 0), new(28, 0, 28, 0),
-            new(28, -8, 28, 8), new(28, -8, 28, 8), new(28, -12, 28, 12), new(28, -12, 28, 12),
-            new(28, -16, 28, 16), new(28, -16, 28, 16), new(28, -16, 28, 16), new(28, -16, 28, 16),
-            new(28, -16, 28, 16), new(28, -16, 28, 16), new(28, -12, 28, 12), new(28, -12, 28, 12),
-            new(28, -8, 28, 8), new(28, -8, 28, 8),
-        ]);
-        Add(ChargedBeamTrails_WaveIcePlasma_7,
-        [
-            new(0, 0, 0, 0), new(0, 0, 0, 0), new(8, 8, 8, 8), new(8, 8, 8, 8),
-            new(16, 16, 16, 16), new(16, 16, 16, 16), new(20, 20, 20, 20), new(20, 20, 20, 20),
-            new(24, 16, 16, 24), new(24, 16, 16, 24), new(32, 12, 12, 32), new(32, 12, 12, 32),
-            new(32, 8, 8, 32), new(32, 8, 8, 32), new(32, 8, 8, 32), new(32, 8, 8, 32),
-            new(32, 8, 8, 32), new(32, 8, 8, 32), new(32, 12, 12, 32), new(32, 12, 12, 32),
-            new(24, 16, 16, 24), new(24, 16, 16, 24),
-        ]);
-        Add(SpazerSBATrail_WaveSpazer_0,
-        [
-            new(0, 0, 0, 0), new(16, 0, -16, 0), new(0, 0, 0, 0), new(-16, 0, 16, 0),
-        ]);
-        Add(SpazerSBATrail_WaveSpazer_1,
-        [
-            new(0, 0, 0, 0), new(-10, -10, 10, 10), new(0, 0, 0, 0), new(10, 10, -10, -10),
-        ]);
-        Add(SpazerSBATrail_WaveSpazer_2,
-        [
-            new(0, 0, 0, 0), new(0, -16, 0, 16), new(0, 0, 0, 0), new(0, 16, 0, -16),
-        ]);
-        Add(SpazerSBATrail_WaveSpazer_3,
-        [
-            new(0, 0, 0, 0), new(10, -10, -10, 10), new(0, 0, 0, 0), new(-10, 10, 10, -10),
-        ]);
+        var result = new Dictionary<int, StoredFrame>();
+        void Add(int address, Reflection reflection, ReadOnlySpan<(sbyte X, sbyte Y)> left)
+        { for (int i = 0; i < left.Length; i++) result.Add(address + i * 4, new(left[i].X, left[i].Y, reflection)); }
+        Add(UnchargedBeamTrails_IceSpazer_2, Reflection.AcrossDiagonalUpRight, [(-8, 8), (-14, 2), (-20, -4)]);
+        Add(UnchargedBeamTrails_IceSpazer_4, Reflection.AcrossDiagonalDownRight, [(-8, -8), (-2, -16), (4, -20)]);
+        Add(UnchargedBeamTrails_IceSpazer_5, Reflection.AcrossDiagonalUpRight, [(8, -8), (14, -2), (20, 4)]);
+        Add(UnchargedBeamTrails_IceSpazer_7, Reflection.AcrossDiagonalDownRight, [(8, 8), (2, 16), (-4, 20)]);
+        Add(UnchargedBeamTrails_WaveIceSpazer_1, Reflection.AcrossDiagonalUpRight, [(0, 0), (-12, 6), (-14, 2), (-16, 0), (-18, -2), (-20, -4), (-18, -2), (-16, 0), (-14, 2), (-12, 6)]);
+        Add(UnchargedBeamTrails_WaveIceSpazer_3, Reflection.AcrossDiagonalDownRight, [(0, 0), (-12, -6), (-2, -16), (-16, 0), (-18, 2), (4, -20), (-18, 2), (-16, 0), (-2, -16), (-12, -6)]);
+        Add(UnchargedBeamTrails_WaveIceSpazer_5, Reflection.AcrossDiagonalUpRight, [(0, 0), (2, -14), (0, -16), (-2, -18), (-2, -20), (-2, -20), (-2, -20), (-2, -18), (0, -16), (2, -14)]);
+        Add(UnchargedBeamTrails_WaveIceSpazer_7, Reflection.AcrossDiagonalDownRight, [(0, 0), (6, 10), (2, 16), (0, 16), (-2, 18), (-4, 20), (-2, 18), (0, 16), (2, 16), (6, 10)]);
+        Add(UnchargedBeamTrails_IcePlasma_0, Reflection.AcrossVertical, [(0, 0), (0, 16)]);
+        Add(UnchargedBeamTrails_IcePlasma_1, Reflection.AcrossDiagonalUpRight, [(0, 0), (-12, 12)]);
+        Add(UnchargedBeamTrails_IcePlasma_2, Reflection.AcrossHorizontal, [(0, 0), (-16, 0)]);
+        Add(UnchargedBeamTrails_IcePlasma_3, Reflection.AcrossDiagonalDownRight, [(0, 0), (-12, -12)]);
+        Add(UnchargedBeamTrails_IcePlasma_4, Reflection.AcrossVertical, [(0, 0), (0, -16)]);
+        Add(UnchargedBeamTrails_IcePlasma_5, Reflection.AcrossDiagonalUpRight, [(0, 0), (12, -12)]);
+        Add(UnchargedBeamTrails_IcePlasma_6, Reflection.AcrossHorizontal, [(0, 0), (16, 0)]);
+        Add(UnchargedBeamTrails_IcePlasma_7, Reflection.AcrossDiagonalDownRight, [(0, 0), (12, 12)]);
+        Add(UnchargedBeamTrails_WaveIcePlasma_0, Reflection.AcrossVertical, [(0, 0), (0, 16), (-8, 16), (-16, 16), (-16, 16), (-16, 16), (-16, 16), (-16, 16), (-8, 16)]);
+        Add(UnchargedBeamTrails_WaveIcePlasma_1, Reflection.AcrossDiagonalUpRight, [(0, 0), (-12, 12), (-20, 8), (-24, 2), (-24, 0), (-24, 0), (-24, 0), (-24, 2), (-20, 8)]);
+        Add(UnchargedBeamTrails_WaveIcePlasma_2, Reflection.AcrossHorizontal, [(0, 0), (-16, 0), (-16, -8), (-16, -12), (-16, -16), (-16, -16), (-16, -16), (-16, -12), (-16, -8)]);
+        Add(UnchargedBeamTrails_WaveIcePlasma_3, Reflection.AcrossDiagonalDownRight, [(0, 0), (-12, -12), (-18, -6), (-20, -2), (-24, 0), (-24, 0), (-24, 0), (-20, -2), (-18, -6)]);
+        Add(UnchargedBeamTrails_WaveIcePlasma_4, Reflection.AcrossVertical, [(0, 0), (0, -16), (-8, -16), (-16, -16), (-16, -16), (-16, -16), (-16, -16), (-16, -16), (-8, -16)]);
+        Add(UnchargedBeamTrails_WaveIcePlasma_5, Reflection.AcrossDiagonalUpRight, [(0, 0), (12, -12), (20, -8), (24, -2), (24, 0), (24, 0), (24, 0), (24, -2), (20, -8)]);
+        Add(UnchargedBeamTrails_WaveIcePlasma_6, Reflection.AcrossHorizontal, [(0, 0), (16, 0), (16, -8), (16, -12), (16, -16), (16, -16), (16, -16), (16, -12), (16, -8)]);
+        Add(UnchargedBeamTrails_WaveIcePlasma_7, Reflection.AcrossDiagonalDownRight, [(0, 0), (12, 12), (18, 6), (20, 2), (24, 0), (24, 0), (24, 0), (20, 2), (18, 6)]);
+        Add(ChargedBeamTrails_Wave_WaveIce_2, Reflection.AcrossDiagonalUpRight, [(0, 0), (0, 0), (-4, -4), (-4, -4), (-8, -8), (-8, -8), (-8, -8), (-8, -8), (-10, -10), (-10, -10), (-8, -8), (-8, -8), (-8, -8), (-8, -8), (-4, -4), (-4, -4)]);
+        Add(ChargedBeamTrails_Wave_WaveIce_3, Reflection.AcrossDiagonalDownRight, [(0, 0), (0, 0), (-4, 4), (-4, 4), (-8, 8), (-8, 8), (-8, 8), (-8, 8), (-10, 10), (-10, 10), (-8, 8), (-8, 8), (-8, 8), (-8, 8), (-4, 4), (-4, 4)]);
+        Add(ChargedBeamTrails_IceSpazer_0, Reflection.AcrossVertical, [(0, 0), (0, 0), (0, 8), (0, 8), (0, 16), (0, 16), (-8, 16), (-8, 16), (-16, 16), (-16, 16)]);
+        Add(ChargedBeamTrails_IceSpazer_1, Reflection.AcrossDiagonalUpRight, [(0, 0), (0, 0), (-8, 8), (-8, 8), (-12, 12), (-12, 12), (-16, 8), (-16, 8), (-24, 0), (-24, 0)]);
+        Add(ChargedBeamTrails_IceSpazer_2, Reflection.AcrossHorizontal, [(0, 0), (0, 0), (-8, 8), (-8, 8), (-16, 0), (-16, 0), (-16, -8), (-16, -8), (-16, -16), (-16, -16)]);
+        Add(ChargedBeamTrails_IceSpazer_3, Reflection.AcrossDiagonalDownRight, [(0, 0), (0, 0), (-8, -8), (-8, -8), (-12, -12), (-12, -12), (-16, -8), (-16, -8), (-24, 0), (-24, 0)]);
+        Add(ChargedBeamTrails_IceSpazer_4, Reflection.AcrossVertical, [(0, 0), (0, 0), (0, -8), (0, -8), (0, -16), (0, -16), (-8, -16), (-8, -16), (-16, -16), (-16, -16)]);
+        Add(ChargedBeamTrails_IceSpazer_5, Reflection.AcrossDiagonalUpRight, [(0, 0), (0, 0), (8, -8), (8, -8), (12, -12), (12, -12), (16, -8), (16, -8), (24, 0), (24, 0)]);
+        Add(ChargedBeamTrails_IceSpazer_6, Reflection.AcrossHorizontal, [(0, 0), (0, 0), (8, 0), (8, 0), (16, 0), (16, 0), (16, -8), (16, -8), (16, -16), (16, -16)]);
+        Add(ChargedBeamTrails_IceSpazer_7, Reflection.AcrossDiagonalDownRight, [(0, 0), (0, 0), (8, 8), (8, 8), (12, 12), (12, 12), (16, 8), (16, 8), (24, 0), (24, 0)]);
+        Add(ChargedBeamTrails_WaveIceSpazer_0, Reflection.AcrossVertical, [(0, 0), (0, 0), (0, 8), (0, 8), (0, 16), (0, 16), (-4, 16), (-4, 16), (-8, 16), (-8, 16), (-12, 16), (-12, 16), (-16, 16), (-16, 16), (-16, 16), (-16, 16), (-16, 16), (-16, 16), (-12, 16), (-12, 16), (-8, 16), (-8, 16), (-4, 16), (-4, 16)]);
+        Add(ChargedBeamTrails_WaveIceSpazer_1, Reflection.AcrossDiagonalUpRight, [(0, 0), (0, 0), (-8, 8), (-8, 8), (-12, 12), (-12, 12), (-16, 8), (-16, 8), (-16, 8), (-16, 8), (-16, 8), (-16, 8), (-24, 0), (-24, 0), (-24, 0), (-24, 0), (-24, 0), (-24, 0), (-16, 8), (-16, 8), (-16, 8), (-16, 8), (-16, 8), (-16, 8)]);
+        Add(ChargedBeamTrails_WaveIceSpazer_2, Reflection.AcrossHorizontal, [(0, 0), (0, 0), (-8, 0), (-8, 0), (-16, 0), (-16, 0), (-16, -4), (-16, -4), (-16, -8), (-16, -8), (-16, -12), (-16, -12), (-16, -16), (-16, -16), (-16, -16), (-16, -16), (-16, -16), (-16, -16), (-16, -12), (-16, -12), (-16, -8), (-16, -8), (-16, -4), (-16, -4)]);
+        Add(ChargedBeamTrails_WaveIceSpazer_3, Reflection.AcrossDiagonalDownRight, [(0, 0), (0, 0), (-8, -8), (-8, -8), (-12, -12), (-12, -12), (-16, -8), (-16, -8), (-16, -8), (-16, -8), (-20, -4), (-20, -4), (-24, 0), (-24, 0), (-24, 0), (-24, 0), (-24, 0), (-24, 0), (-20, -4), (-20, -4), (-16, -8), (-16, -8), (-16, -8), (-16, -8)]);
+        Add(ChargedBeamTrails_WaveIceSpazer_4, Reflection.AcrossVertical, [(0, 0), (0, 0), (0, -8), (0, -8), (0, -16), (0, -16), (-4, -16), (-4, -16), (-8, -16), (-8, -16), (-12, -16), (-12, -16), (-16, -16), (-16, -16), (-16, -16), (-16, -16), (-16, -16), (-16, -16), (-12, -16), (-12, -16), (-8, -16), (-8, -16), (-4, -16), (-4, -16)]);
+        Add(ChargedBeamTrails_WaveIceSpazer_5, Reflection.AcrossDiagonalUpRight, [(0, 0), (0, 0), (8, -8), (8, -8), (12, -12), (12, -12), (8, -16), (8, -16), (8, -16), (8, -16), (4, -20), (4, -20), (0, -24), (0, -24), (0, -24), (0, -24), (0, -24), (0, -24), (4, -20), (4, -20), (8, -16), (8, -16), (8, -16), (8, -16)]);
+        Add(ChargedBeamTrails_WaveIceSpazer_6, Reflection.AcrossHorizontal, [(0, 0), (0, 0), (8, 0), (8, 0), (16, 0), (16, 0), (16, -4), (16, -4), (16, -8), (16, -8), (16, -12), (16, -12), (16, -16), (16, -16), (16, -16), (16, -16), (16, -16), (16, -16), (16, -12), (16, -12), (16, -8), (16, -8), (16, -4), (16, -4)]);
+        Add(ChargedBeamTrails_WaveIceSpazer_7, Reflection.AcrossDiagonalDownRight, [(0, 0), (0, 0), (8, 8), (8, 8), (12, 12), (12, 12), (8, 16), (8, 16), (8, 16), (8, 16), (4, 20), (4, 20), (0, 24), (0, 24), (0, 24), (0, 24), (0, 24), (0, 24), (4, 20), (4, 20), (8, 16), (8, 16), (8, 16), (8, 16)]);
+        Add(ChargedBeamTrails_IcePlasma_0, Reflection.AcrossVertical, [(0, 0), (0, 0), (0, 12), (0, 12), (0, 24), (0, 24), (0, 28), (0, 28)]);
+        Add(ChargedBeamTrails_IcePlasma_1, Reflection.AcrossDiagonalUpRight, [(0, 0), (0, 0), (-8, 8), (-8, 8), (-16, 16), (-16, 16), (-24, 24), (-24, 24)]);
+        Add(ChargedBeamTrails_IcePlasma_2, Reflection.AcrossHorizontal, [(0, 0), (0, 0), (-12, 0), (-12, 0), (-24, 0), (-24, 0), (-28, 0), (-28, 0)]);
+        Add(ChargedBeamTrails_IcePlasma_3, Reflection.AcrossDiagonalDownRight, [(0, 0), (0, 0), (-8, -8), (-8, -8), (-16, -16), (-16, -16), (-24, -24), (-24, -24)]);
+        Add(ChargedBeamTrails_IcePlasma_4, Reflection.AcrossVertical, [(0, 0), (0, 0), (0, -12), (0, -12), (0, -24), (0, -24), (0, -28), (0, -28)]);
+        Add(ChargedBeamTrails_IcePlasma_5, Reflection.AcrossDiagonalUpRight, [(0, 0), (0, 0), (8, -8), (8, -8), (16, -16), (16, -16), (24, -24), (24, -24)]);
+        Add(ChargedBeamTrails_IcePlasma_6, Reflection.AcrossHorizontal, [(0, 0), (0, 0), (12, 0), (12, 0), (24, 0), (24, 0), (28, 0), (28, 0)]);
+        Add(ChargedBeamTrails_IcePlasma_7, Reflection.AcrossDiagonalDownRight, [(0, 0), (0, 0), (8, 8), (8, 8), (16, 16), (16, 16), (24, 24), (24, 24)]);
+        Add(ChargedBeamTrails_WaveIcePlasma_0, Reflection.AcrossVertical, [(0, 0), (0, 0), (0, 12), (0, 12), (0, 24), (0, 24), (0, 28), (0, 28), (-8, 28), (-8, 28), (-12, 28), (-12, 28), (-16, 28), (-16, 28), (-16, 28), (-16, 28), (-16, 28), (-16, 28), (-12, 28), (-12, 28), (-8, 28), (-8, 28)]);
+        Add(ChargedBeamTrails_WaveIcePlasma_1, Reflection.AcrossDiagonalUpRight, [(0, 0), (0, 0), (-8, 8), (-8, 8), (-16, 16), (-16, 16), (-20, 20), (-20, 20), (-28, 12), (-28, 12), (-32, 12), (-32, 12), (-32, 8), (-32, 8), (-32, 8), (-32, 8), (-32, 8), (-32, 8), (-32, 12), (-32, 12), (-28, 12), (-28, 12)]);
+        Add(ChargedBeamTrails_WaveIcePlasma_2, Reflection.AcrossHorizontal, [(0, 0), (0, 0), (-12, 0), (-12, 0), (-24, 0), (-24, 0), (-28, 0), (-28, 0), (-28, -8), (-28, -8), (-28, -12), (-28, -12), (-28, -16), (-28, -16), (-28, -16), (-28, -16), (-28, -16), (-28, -16), (-28, -12), (-28, -12), (-28, -8), (-28, -8)]);
+        Add(ChargedBeamTrails_WaveIcePlasma_3, Reflection.AcrossDiagonalDownRight, [(0, 0), (0, 0), (-8, -8), (-8, -8), (-16, -16), (-16, -16), (-20, -20), (-20, -20), (-24, -16), (-24, -16), (-32, -12), (-32, -12), (-32, -8), (-32, -8), (-32, -8), (-32, -8), (-32, -8), (-32, -8), (-32, -12), (-32, -12), (-24, -16), (-24, -16)]);
+        Add(ChargedBeamTrails_WaveIcePlasma_4, Reflection.AcrossVertical, [(0, 0), (0, 0), (0, -12), (0, -12), (0, -24), (0, -24), (0, -28), (0, -28), (-8, -28), (-8, -28), (-12, -28), (-12, -28), (-16, -28), (-16, -28), (-16, -28), (-16, -28), (-16, -28), (-16, -28), (-12, -28), (-12, -28), (-8, -28), (-8, -28)]);
+        Add(ChargedBeamTrails_WaveIcePlasma_5, Reflection.AcrossDiagonalUpRight, [(0, 0), (0, 0), (8, -8), (8, -8), (16, -16), (16, -16), (20, -20), (20, -20), (28, -12), (28, -12), (32, -12), (32, -12), (32, -8), (32, -8), (32, -8), (32, -8), (32, -8), (32, -8), (32, -12), (32, -12), (28, -12), (28, -12)]);
+        Add(ChargedBeamTrails_WaveIcePlasma_6, Reflection.AcrossHorizontal, [(0, 0), (0, 0), (12, 0), (12, 0), (24, 0), (24, 0), (28, 0), (28, 0), (28, -8), (28, -8), (28, -12), (28, -12), (28, -16), (28, -16), (28, -16), (28, -16), (28, -16), (28, -16), (28, -12), (28, -12), (28, -8), (28, -8)]);
+        Add(ChargedBeamTrails_WaveIcePlasma_7, Reflection.AcrossDiagonalDownRight, [(0, 0), (0, 0), (8, 8), (8, 8), (16, 16), (16, 16), (20, 20), (20, 20), (24, 16), (24, 16), (32, 12), (32, 12), (32, 8), (32, 8), (32, 8), (32, 8), (32, 8), (32, 8), (32, 12), (32, 12), (24, 16), (24, 16)]);
+        Add(SpazerSBATrail_WaveSpazer_0, Reflection.AcrossVertical, [(0, 0), (16, 0), (0, 0), (-16, 0)]);
+        Add(SpazerSBATrail_WaveSpazer_1, Reflection.AcrossDiagonalUpRight, [(0, 0), (-10, -10), (0, 0), (10, 10)]);
+        Add(SpazerSBATrail_WaveSpazer_2, Reflection.AcrossHorizontal, [(0, 0), (0, -16), (0, 0), (0, 16)]);
+        Add(SpazerSBATrail_WaveSpazer_3, Reflection.AcrossDiagonalDownRight, [(0, 0), (10, -10), (0, 0), (-10, 10)]);
         return result.ToFrozenDictionary();
     }
+
+    /// <summary>The right sparkles drawn off the reflection rule, by native record address.</summary>
+    private static readonly FrozenDictionary<int, (sbyte X, sbyte Y)> DrawnRightOffsets =
+        new Dictionary<int, (sbyte X, sbyte Y)>
+        {
+            [UnchargedBeamTrails_IceSpazer_2 + 2 * 4] = (2, 20),
+            [UnchargedBeamTrails_IceSpazer_5 + 2 * 4] = (-2, -20),
+            [UnchargedBeamTrails_WaveIceSpazer_1 + 5 * 4] = (2, 20),
+            [UnchargedBeamTrails_WaveIceSpazer_5 + 4 * 4] = (20, 4),
+            [UnchargedBeamTrails_WaveIceSpazer_5 + 5 * 4] = (20, 4),
+            [UnchargedBeamTrails_WaveIceSpazer_5 + 6 * 4] = (20, 4),
+            [UnchargedBeamTrails_WaveIcePlasma_1 + 2 * 4] = (-8, 18),
+            [UnchargedBeamTrails_WaveIcePlasma_1 + 3 * 4] = (-2, 20),
+            [UnchargedBeamTrails_WaveIcePlasma_1 + 7 * 4] = (-2, 20),
+            [UnchargedBeamTrails_WaveIcePlasma_1 + 8 * 4] = (-8, 18),
+            [UnchargedBeamTrails_WaveIcePlasma_5 + 2 * 4] = (8, -18),
+            [UnchargedBeamTrails_WaveIcePlasma_5 + 3 * 4] = (2, -20),
+            [UnchargedBeamTrails_WaveIcePlasma_5 + 7 * 4] = (2, -20),
+            [UnchargedBeamTrails_WaveIcePlasma_5 + 8 * 4] = (8, -18),
+            [ChargedBeamTrails_IceSpazer_2 + 2 * 4] = (-8, 8),
+            [ChargedBeamTrails_IceSpazer_2 + 3 * 4] = (-8, 8),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 8 * 4] = (-16, 24),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 9 * 4] = (-16, 24),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 10 * 4] = (-12, 28),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 11 * 4] = (-12, 28),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 18 * 4] = (-12, 28),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 19 * 4] = (-12, 28),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 20 * 4] = (-16, 24),
+            [ChargedBeamTrails_WaveIcePlasma_1 + 21 * 4] = (-16, 24),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 8 * 4] = (16, -24),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 9 * 4] = (16, -24),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 10 * 4] = (12, -28),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 11 * 4] = (12, -28),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 18 * 4] = (12, -28),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 19 * 4] = (12, -28),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 20 * 4] = (16, -24),
+            [ChargedBeamTrails_WaveIcePlasma_5 + 21 * 4] = (16, -24),
+        }.ToFrozenDictionary();
+
+    private static bool TryStoredFrame(int address, out Offset frame)
+    {
+        if (!Frames.TryGetValue(address, out StoredFrame stored))
+        {
+            frame = default;
+            return false;
+        }
+        (sbyte rightX, sbyte rightY) = DrawnRightOffsets.TryGetValue(address, out var drawn)
+            ? drawn : Reflect(stored.Reflection, stored.LeftX, stored.LeftY);
+        frame = new(stored.LeftX, stored.LeftY, rightX, rightY);
+        return true;
+    }
+
+    private static (sbyte X, sbyte Y) Reflect(Reflection reflection, sbyte x, sbyte y) => reflection switch
+    {
+        Reflection.AcrossVertical => ((sbyte)-x, y),
+        Reflection.AcrossHorizontal => (x, (sbyte)-y),
+        Reflection.AcrossDiagonalDownRight => (y, x),
+        Reflection.AcrossDiagonalUpRight => ((sbyte)-y, (sbyte)-x),
+        Reflection.ThroughOrigin => ((sbyte)-x, (sbyte)-y),
+        _ => throw new ArgumentOutOfRangeException(nameof(reflection)),
+    };
 
     internal static bool TryReadByte(int address, out byte value)
     {
@@ -823,7 +575,7 @@ internal static class ProjectileTrailCoordinateDefinitions
         if (TryPointer(pointerAddress, out ushort pointer))
         { value = (byte)(pointer >> ((address - pointerAddress) * 8)); return true; }
         int coordinate = (address - UnchargedBeamTrails_Default_0) & 3;
-        if (TryCalculatedFrame(address - coordinate, out Offset frame) || Frames.TryGetValue(address - coordinate, out frame))
+        if (TryCalculatedFrame(address - coordinate, out Offset frame) || TryStoredFrame(address - coordinate, out frame))
         {
             value = unchecked((byte)(coordinate switch { 0 => frame.LeftX, 1 => frame.LeftY, 2 => frame.RightX, _ => frame.RightY }));
             return true;

@@ -4373,17 +4373,18 @@ public sealed partial class SuperMetroidRuntime
 
         _ceresFallingDebrisTimer = 8;
         ushort random = System.RandomNumber;
-        ReadOnlySpan<ushort> xPositions =
-        [
-            0x0050, 0x0060, 0x0070, 0x0080,
-            0x0090, 0x00a0, 0x00b0, 0x00c0,
-            0x00d0, 0x00e0, 0x00f0, 0x0110,
-            0x0130, 0x0150, 0x0170, 0x0190,
-        ];
         Enemies.SpawnCeresFallingDebris(
-            xPositions[random & 0x000f],
+            CeresFallingDebrisX(random & 0x000f),
             dark: (random & 0x8000) != 0);
     }
+
+    /// <summary>
+    /// $8F:E551: sixteen debris columns, sixteen pixels apart from X $50 through $F0, then
+    /// thirty-two pixels apart through $190.
+    /// </summary>
+    internal static ushort CeresFallingDebrisX(int column) => (uint)column < 16
+        ? (ushort)(column <= 10 ? 0x0050 + 0x10 * column : 0x00f0 + 0x20 * (column - 10))
+        : throw new ArgumentOutOfRangeException(nameof(column));
 
     /// <summary>
     /// Advances `$90:E86A/$92:ED24`'s saved-game appearance owner. The ordinary Samus

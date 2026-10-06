@@ -31,25 +31,25 @@ public static class MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions
     internal const ushort SandPitDefinition = 0xF795;
     /// <summary>$8D:F4E9: native Maridia1 color-index setup, followed contiguously by sand-fall and waterfall programs.</summary>
     internal const ushort SandPitProgram = 0xF4E9;
-    /// <summary>$8D:F4EF/F547: REQUIRED four-color sand rotation group.</summary>
+    /// <summary>$8D:F4EF/F547: four-color sand rotation group.</summary>
     internal const int SandRotationColors = 4;
-    /// <summary>$8D:F4EF: REQUIRED pair of separately rotating sand-pit color bands.</summary>
+    /// <summary>$8D:F4EF: pair of separately rotating sand-pit color bands.</summary>
     internal const int SandPitBandCount = 2;
-    /// <summary>$8D:F57F: REQUIRED eight-color waterfall rotation group.</summary>
+    /// <summary>$8D:F57F: eight-color waterfall rotation group.</summary>
     internal const int WaterfallRotationColors = 8;
-    /// <summary>$8D:F4EB/F543: REQUIRED selected sand background palette slot2.</summary>
+    /// <summary>$8D:F4EB/F543: selected sand background palette slot2.</summary>
     internal const int SandPalette = 2;
-    /// <summary>$8D:F57B: REQUIRED selected waterfall background palette slot3.</summary>
+    /// <summary>$8D:F57B: selected waterfall background palette slot3.</summary>
     internal const int WaterfallPalette = 3;
-    /// <summary>$8D:F4EB: REQUIRED first sand-pit color4 within its palette.</summary>
+    /// <summary>$8D:F4EB: first sand-pit color4 within its palette.</summary>
     internal const int SandPitFirstColor = 4;
-    /// <summary>$8D:F543: REQUIRED first sand-fall color8 within its palette.</summary>
+    /// <summary>$8D:F543: first sand-fall color8 within its palette.</summary>
     internal const int FallingFirstColor = 8;
-    /// <summary>$8D:F57B operand0068: REQUIRED waterfall first color4 in palette3; the native source comment incorrectly labels colors8..F.</summary>
+    /// <summary>$8D:F57B operand0068: waterfall first color4 in palette3; the native source comment incorrectly labels colors8..F.</summary>
     internal const int WaterfallFirstColor = 4;
-    /// <summary>$8D:F4ED/F545: REQUIRED selected ten-frame sand cadence; no authored-timing exception is claimed.</summary>
+    /// <summary>$8D:F4ED/F545: authored ten-frame sand cadence.</summary>
     internal const ushort SandDuration = 10;
-    /// <summary>$8D:F57D: REQUIRED selected two-frame waterfall cadence.</summary>
+    /// <summary>$8D:F57D: selected two-frame waterfall cadence.</summary>
     internal const ushort WaterfallDuration = 2;
 
     /// <summary>The sand-pit, sand-fall, and waterfall programs in native definition order, calculated without cached records.</summary>
@@ -111,7 +111,7 @@ public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
     /// <summary>The terminal goto follows one complete rotation of the selected color group.</summary>
     public ushort LoopInstructionPointer => (ushort)(FirstFramePointer + FrameCount * FrameByteCount);
 
-    /// <summary>Destination byte address from the independently required palette slot and first color.</summary>
+    /// <summary>Destination byte address from the named palette slot and first color.</summary>
     public ushort ColorByteIndex => (ushort)(sizeof(ushort) * (16 *
         (Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
             ? MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.WaterfallPalette
@@ -122,7 +122,7 @@ public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
                 ? MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.WaterfallFirstColor
                 : MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.FallingFirstColor)));
 
-    /// <summary>A one-color cyclic rotation returns after the independently required group size.</summary>
+    /// <summary>A one-color cyclic rotation returns after the named group size.</summary>
     public int FrameCount => Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
         ? MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.WaterfallRotationColors
         : MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.SandRotationColors;
@@ -130,7 +130,7 @@ public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
     /// <summary>Sand pits rotate two groups; sand falls and waterfalls each rotate one group.</summary>
     public int ColorsPerFrame => FrameCount * (Owner == MaridiaEnvironmentalPaletteOwner.SandPits ? MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.SandPitBandCount : 1);
 
-    /// <summary>The independently required selected cadence for sand or waterfall animation.</summary>
+    /// <summary>The authored cadence for sand or waterfall animation.</summary>
     public ushort Duration => Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
         ? MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.WaterfallDuration
         : MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.SandDuration;
@@ -166,7 +166,7 @@ public sealed class MaridiaEnvironmentalPaletteFxProgramDefinition
     /// $F57F + 20*f + 2*c is base[(c+f) mod 8]. All 64 words match
     /// the pinned ROM; f=8 reaches loop control. The
     /// installed presentation view calculates these rotations and the shared sand band
-    /// from16 independently required first-row colors, preserving every supplied edit.
+    /// from 16 authored first-row colors, preserving every supplied edit.
     /// </remarks>
     public ushort ColorPointer(int frame, int color)
     {

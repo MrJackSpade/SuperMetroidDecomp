@@ -79,19 +79,23 @@ public sealed partial class RoomEnemySystem
             PublishCrocomirePlm(
                 blockX, 0x0b, RoomPlmHeaders.ClearCrocomireBridgeBlock);
 
-        ReadOnlySpan<(ushort X, ushort Y)> dustPositions =
-        [
-            (1536, 176),
-            (1552, 192),
-            (1568, 176),
-            (1584, 192),
-            (1600, 192),
-            (1616, 192),
-            (1632, 192),
-        ];
-        foreach ((ushort x, ushort y) in dustPositions)
+        for (int puff = 0; puff < CrocomireBridgeDustCount; puff++)
+        {
+            (ushort x, ushort y) = CrocomireBridgeDustPosition(puff);
             SpawnRoomGraphicsDustExplosion(x, y, animationIndex: 0x0015);
+        }
 
         PublishCrocomirePlm(0x4e, 0x03, RoomPlmHeaders.CreateCrocomireInvisibleWall);
     }
+
+    private const int CrocomireBridgeDustCount = 7;
+
+    /// <summary>
+    /// $A4:8F35-8FC1 (seven unrolled spawns): puffs sixteen pixels apart along the bridge from
+    /// X $600; the first and third rise sixteen pixels above the others' Y $C0.
+    /// </summary>
+    internal static (ushort X, ushort Y) CrocomireBridgeDustPosition(int puff) =>
+        (uint)puff < CrocomireBridgeDustCount
+            ? ((ushort)(0x0600 + 0x10 * puff), (ushort)(puff is 0 or 2 ? 0x00b0 : 0x00c0))
+            : throw new ArgumentOutOfRangeException(nameof(puff));
 }

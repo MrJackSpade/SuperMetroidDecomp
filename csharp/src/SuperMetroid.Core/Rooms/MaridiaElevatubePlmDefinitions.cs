@@ -13,7 +13,7 @@ internal static class MaridiaElevatubePlmDefinitions
     /// <summary><c>$84:B8F6</c>: library-two elevatube sound operand.</summary>
     internal const byte SoundId = 0x15;
 
-    /// <summary>84:9369: solid block 180, shared with Kraid's physical draw. The chosen visual block180 remains required issue-1165 input.</summary>
+    /// <summary>84:9369: solid block 180, shared with Kraid's physical draw. Block 180 is the one named visual scalar.</summary>
     internal const ushort PhysicalWord = 0x8180;
 
     // Temporary artwork DTO only. Gameplay draws the single physical word directly.

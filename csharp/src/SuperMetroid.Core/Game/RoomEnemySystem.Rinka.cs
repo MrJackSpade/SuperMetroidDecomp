@@ -82,20 +82,25 @@ public sealed partial class RoomEnemySystem
     // Japan/USA cartridge words at $A2:B75B, including their unusual even resource tokens.
     // Mother Brain's three parameterized Rinka records compete for these locations and may
     // rewrite their immutable spawn snapshots when the original point is on another screen.
-    private static readonly RinkaSpawnResource[] RinkaSpawnResources =
+    // $A2:B75B: the eleven authored spawn points; each record's extra-RAM selector token is
+    // calculated from its position in the list.
+    private static readonly (ushort X, ushort Y)[] RinkaSpawnPoints =
     [
-        new(0x03e7, 0x0026, 0x0002),
-        new(0x03e7, 0x00a6, 0x0004),
-        new(0x0337, 0x0036, 0x0006),
-        new(0x0337, 0x00a6, 0x0008),
-        new(0x0277, 0x001c, 0x000a),
-        new(0x0277, 0x00b6, 0x000c),
-        new(0x01b7, 0x0036, 0x000e),
-        new(0x01b7, 0x00a6, 0x0010),
-        new(0x00f7, 0x001c, 0x0012),
-        new(0x00f7, 0x00b6, 0x0014),
-        new(0x0080, 0x00a8, 0x0016),
+        (0x03e7, 0x0026),
+        (0x03e7, 0x00a6),
+        (0x0337, 0x0036),
+        (0x0337, 0x00a6),
+        (0x0277, 0x001c),
+        (0x0277, 0x00b6),
+        (0x01b7, 0x0036),
+        (0x01b7, 0x00a6),
+        (0x00f7, 0x001c),
+        (0x00f7, 0x00b6),
+        (0x0080, 0x00a8),
     ];
+
+    private static RinkaSpawnResource RinkaSpawnResourceAt(int index) =>
+        new(RinkaSpawnPoints[index].X, RinkaSpawnPoints[index].Y, (ushort)(2 * (index + 1)));
 
     private readonly RinkaEnemyState?[] _rinkaStates =
         new RinkaEnemyState?[MaximumEnemyCount];
@@ -418,9 +423,9 @@ public sealed partial class RoomEnemySystem
             // off-camera or occupied, native code performs a second pass that ignores the
             // camera but still refuses to steal an occupied resource.
             int selectedIndex = -1;
-            for (int index = 0; index < RinkaSpawnResources.Length; index++)
+            for (int index = 0; index < RinkaSpawnPoints.Length; index++)
             {
-                RinkaSpawnResource candidate = RinkaSpawnResources[index];
+                RinkaSpawnResource candidate = RinkaSpawnResourceAt(index);
                 if (!RinkaSpawnIsOutsideCamera(candidate.XPosition, candidate.YPosition) &&
                     !_rinkaOccupiedSpawnResources[index])
                 {
@@ -430,7 +435,7 @@ public sealed partial class RoomEnemySystem
             }
             if (selectedIndex < 0)
             {
-                for (int index = 0; index < RinkaSpawnResources.Length; index++)
+                for (int index = 0; index < RinkaSpawnPoints.Length; index++)
                 {
                     if (!_rinkaOccupiedSpawnResources[index])
                     {
@@ -446,7 +451,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             mappedIndex = selectedIndex;
-            RinkaSpawnResource selected = RinkaSpawnResources[selectedIndex];
+            RinkaSpawnResource selected = RinkaSpawnResourceAt(selectedIndex);
             RoomEnemyPopulationRecord rewrittenPopulation = slot.Spawn.Population with
             {
                 XPosition = selected.XPosition,
@@ -458,14 +463,14 @@ public sealed partial class RoomEnemySystem
         }
 
         _rinkaOccupiedSpawnResources[mappedIndex] = true;
-        state.SpawnResourceToken = RinkaSpawnResources[mappedIndex].Token;
+        state.SpawnResourceToken = RinkaSpawnResourceAt(mappedIndex).Token;
     }
 
     private static int FindRinkaSpawnResource(ushort xPosition, ushort yPosition)
     {
-        for (int index = 0; index < RinkaSpawnResources.Length; index++)
+        for (int index = 0; index < RinkaSpawnPoints.Length; index++)
         {
-            RinkaSpawnResource resource = RinkaSpawnResources[index];
+            RinkaSpawnResource resource = RinkaSpawnResourceAt(index);
             if (resource.XPosition == xPosition && resource.YPosition == yPosition)
                 return index;
         }
@@ -480,9 +485,9 @@ public sealed partial class RoomEnemySystem
         if (state.SpawnResourceToken == 0)
             return;
 
-        for (int index = 0; index < RinkaSpawnResources.Length; index++)
+        for (int index = 0; index < RinkaSpawnPoints.Length; index++)
         {
-            if (RinkaSpawnResources[index].Token == state.SpawnResourceToken)
+            if (RinkaSpawnResourceAt(index).Token == state.SpawnResourceToken)
             {
                 _rinkaOccupiedSpawnResources[index] = false;
                 break;

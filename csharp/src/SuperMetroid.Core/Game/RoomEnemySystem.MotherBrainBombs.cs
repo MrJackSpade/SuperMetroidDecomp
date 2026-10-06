@@ -6,9 +6,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private static ReadOnlySpan<ushort> MotherBrainBombYAccelerations =>
-        [0x0007, 0x0010, 0x0020, 0x0040, 0x0070, 0x00b0, 0x00f0, 0x0130, 0x0170, 0x0000];
-
     /// <summary>Ports initializer <c>$86:C482-C4C7</c>.</summary>
     private void SpawnMotherBrainBomb(
         MotherBrainEnemyState state,
@@ -62,19 +59,19 @@ public sealed partial class RoomEnemySystem
             if ((slowed & 0x8000) != 0)
                 slowed = 0;
             bomb.XVelocity = movingLeft ? unchecked((ushort)-slowed) : slowed;
-            acceleration = 0x0007;
+            acceleration = MotherBrainBombBounceDefinitions.FallAcceleration;
         }
         else
         {
             int accelerationIndex = bomb.Variable1 >> 1;
-            if ((uint)accelerationIndex >= (uint)MotherBrainBombYAccelerations.Length)
+            if ((uint)accelerationIndex >= MotherBrainBombBounceDefinitions.StageCount)
             {
                 throw new InvalidDataException(
                     $"Mother Brain bomb bounce-table offset ${bomb.Variable1:X4} is outside " +
                     "$86:C550-C563.");
             }
 
-            acceleration = MotherBrainBombYAccelerations[accelerationIndex];
+            acceleration = MotherBrainBombBounceDefinitions.YAcceleration(accelerationIndex);
             if (acceleration == 0)
             {
                 ExpireMotherBrainBomb(bomb, state);

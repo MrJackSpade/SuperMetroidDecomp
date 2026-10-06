@@ -8,7 +8,7 @@ internal static class PlmProgressionClosedContractDefinitions
         "B0121BABA88C41ABFFC02877AF97FC02C30C2F06AA4301A19B2BE00F992D835F");
     private static readonly ReviewedSource ElevatubeDefinition = new(
         "csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs",
-        "BC718B3E5F2C342613E011FCFCE182CABBC54674A41F7F38A70BEBABDEC49A48");
+        "1B9795F3849300D62D7D7C2E7689DAC1E702754CDB0B1C439C859B289C787DB3");
 
     internal static readonly ClosedPresentationContract[] All =
     [

@@ -1304,6 +1304,14 @@ if (args is ["--lookup-enemy-frame-registration"])
     Suite(nameof(VerifyStream3EnemyFrameRegistration), () => VerifyStream3EnemyFrameRegistration(rom));
     return 0;
 }
+if (args is ["--lookup-small-game-tables"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Small game tables oracle revision");
+    Suite(nameof(VerifyLookupSmallGameTables), () => VerifyLookupSmallGameTables(rom));
+    return 0;
+}
 if (args is ["--lookup-dachora-colors"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

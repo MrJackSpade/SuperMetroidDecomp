@@ -6,22 +6,41 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Native Grapple connection, cancellation and dropped-pose mechanics, not visual assets.</summary>
 internal static class GrappleConnectionDefinitions
 {
-    /// <summary>$9B:C43E GrappleBeamSpecialAngles: exact collision-stop angles, poses, offsets and next function words.</summary>
-    private static readonly SpecialConnection[] SpecialAngleRecords =
+    /// <summary>
+    /// $9B:C43E GrappleBeamSpecialAngles stores eight exact collision-stop records. They are four
+    /// authored stops, each immediately followed by its left/right reflection: the angle reflects
+    /// as $0100 - angle, X negates and the pose swaps facing; Y and the next function are shared.
+    /// </summary>
+    private static readonly SpecialConnection[] AuthoredStops =
     [
         new(0xd680, GrappleCrouchingDownRightPose, -30, -24, LockedInPlaceHandler),
-        new(0x2a80, GrappleCrouchingDownLeftPose, 30, -24, LockedInPlaceHandler),
         new(0xb380, GrappleCrouchingDownRightPose, -28, -8, LockedInPlaceHandler),
-        new(0x4d80, GrappleCrouchingDownLeftPose, 28, -8, LockedInPlaceHandler),
         new(0x6a80, GrappleWallContactRightPose, 24, 16, WallGrabHandler),
-        new(0x9680, GrappleWallContactLeftPose, -24, 16, WallGrabHandler),
         new(0x7380, GrappleWallContactLeftPose, -8, 16, WallGrabHandler),
-        new(0x8d80, GrappleWallContactRightPose, 8, 16, WallGrabHandler),
     ];
 
     internal readonly record struct SpecialConnection(ushort Angle, byte Pose, short X, short Y, ushort Function);
 
-    internal static ReadOnlySpan<SpecialConnection> SpecialAngles => SpecialAngleRecords;
+    /// <summary>Number of native special-angle records, in their native order.</summary>
+    internal static int SpecialAngleCount => AuthoredStops.Length * 2;
+
+    /// <summary>The native record at <paramref name="index"/>: an authored stop or the reflection that follows it.</summary>
+    internal static SpecialConnection SpecialAngle(int index)
+    {
+        if ((uint)index >= SpecialAngleCount) throw new IndexOutOfRangeException();
+        SpecialConnection stop = AuthoredStops[index >> 1];
+        return (index & 1) == 0 ? stop : new(unchecked((ushort)(0x0100 - stop.Angle)), MirrorPose(stop.Pose),
+            (short)-stop.X, stop.Y, stop.Function);
+    }
+
+    private static byte MirrorPose(byte pose) => pose switch
+    {
+        GrappleCrouchingDownRightPose => GrappleCrouchingDownLeftPose,
+        GrappleCrouchingDownLeftPose => GrappleCrouchingDownRightPose,
+        GrappleWallContactRightPose => GrappleWallContactLeftPose,
+        GrappleWallContactLeftPose => GrappleWallContactRightPose,
+        _ => throw new ArgumentOutOfRangeException(nameof(pose)),
+    };
     /// <summary>$9B:B8B8 cancellation policy for the 28 movement dispatch identities.</summary>
     internal static bool CancelsFiring(SamusMovementType movement) => movement switch
     {

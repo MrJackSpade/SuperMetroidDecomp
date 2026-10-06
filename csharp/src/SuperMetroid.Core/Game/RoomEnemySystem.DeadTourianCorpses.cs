@@ -22,24 +22,7 @@ public sealed partial class RoomEnemySystem
         RottingFunction: 0xdad0,
         TouchAndShotFunction: 0xdcf8,
         PowerBombFunction: 0xdced,
-        Variants:
-        [
-            new(14, [1184, 1200, 1216],
-            [
-                new(0x0a60, 0x0940, 0x0060),
-                new(0x0c60, 0x09a0, 0x0060),
-            ]),
-            new(14, [1280, 1296, 1312],
-            [
-                new(0x0ac0, 0x0a00, 0x0060),
-                new(0x0cc0, 0x0a60, 0x0060),
-            ]),
-            new(14, [1376, 1392, 1408],
-            [
-                new(0x0b20, 0x0ac0, 0x0060),
-                new(0x0d20, 0x0b20, 0x0060),
-            ]),
-        ]);
+        Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0940, sheetSources: SheetRun(0x0a60, 0x0060, 3)));
 
     private static readonly DeadTourianCorpseProfile DeadRipperProfile = new(
         DeadTourianCorpseSpecies.Ripper,
@@ -49,19 +32,7 @@ public sealed partial class RoomEnemySystem
         RottingFunction: 0xdae6,
         TouchAndShotFunction: 0xdd08,
         PowerBombFunction: 0xdcfd,
-        Variants:
-        [
-            new(14, [1472, 1488, 1504],
-            [
-                new(0x0a00, 0x0b80, 0x0060),
-                new(0x0c00, 0x0be0, 0x0060),
-            ]),
-            new(14, [1568, 1584, 1600],
-            [
-                new(0x0b80, 0x0c40, 0x0060),
-                new(0x0d80, 0x0ca0, 0x0060),
-            ]),
-        ]);
+        Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0b80, sheetSources: SheetRun(0x0a00, 0x0180, 2)));
 
     private static readonly DeadTourianCorpseProfile DeadSkreeProfile = new(
         DeadTourianCorpseSpecies.Skree,
@@ -71,30 +42,43 @@ public sealed partial class RoomEnemySystem
         RottingFunction: 0xdafc,
         TouchAndShotFunction: 0xdd18,
         PowerBombFunction: 0xdd0d,
-        Variants:
-        [
-            new(30, [800, 816],
-            [
-                new(0x02a0, 0x0640, 0x0040),
-                new(0x04a0, 0x0680, 0x0040),
-                new(0x06a0, 0x06c0, 0x0040),
-                new(0x08a0, 0x0700, 0x0040),
-            ]),
-            new(30, [928, 944],
-            [
-                new(0x00e0, 0x0740, 0x0040),
-                new(0x02e0, 0x0780, 0x0040),
-                new(0x04e0, 0x07c0, 0x0040),
-                new(0x06e0, 0x0800, 0x0040),
-            ]),
-            new(30, [1056, 1072],
-            [
-                new(0x01c0, 0x0840, 0x0040),
-                new(0x03c0, 0x0880, 0x0040),
-                new(0x05c0, 0x08c0, 0x0040),
-                new(0x07c0, 0x0900, 0x0040),
-            ]),
-        ]);
+        Variants: CorpseLayout(columns: 2, rows: 4, workBufferOffset: 0x0640, sheetSources: [0x02a0, 0x00e0, 0x01c0]));
+
+    /// <summary>
+    /// Builds a corpse's variants from its tile layout. Each corpse is a block of
+    /// <paramref name="columns"/> by <paramref name="rows"/> 4bpp 8x8 tiles; successive variants
+    /// stack in the dead-monster work buffer from <paramref name="workBufferOffset"/>. Each art
+    /// row copies from the installed tile sheet (one $200-byte sheet row per tile row) at the
+    /// variant's authored sheet position. Column word offsets are the block's tile columns, and
+    /// the rot depth is the block height less two pixels.
+    /// </summary>
+    private static DeadTourianCorpseVariant[] CorpseLayout(
+        int columns, int rows, int workBufferOffset, ReadOnlySpan<int> sheetSources)
+    {
+        const int tileBytes = 32, sheetRowBytes = 0x200, tileWords = tileBytes / 2;
+        var variants = new DeadTourianCorpseVariant[sheetSources.Length];
+        for (int variant = 0; variant < variants.Length; variant++)
+        {
+            int block = workBufferOffset + variant * columns * rows * tileBytes;
+            var columnWords = new ushort[columns];
+            for (int column = 0; column < columns; column++)
+                columnWords[column] = (ushort)(block / 2 + tileWords * column);
+            var copies = new DeadTourianCorpseGraphicsCopy[rows];
+            for (int row = 0; row < rows; row++)
+                copies[row] = new(sheetSources[variant] + sheetRowBytes * row,
+                    block + columns * tileBytes * row, columns * tileBytes);
+            variants[variant] = new((ushort)(8 * rows - 2), columnWords, copies);
+        }
+        return variants;
+    }
+
+    /// <summary>Sheet positions spaced evenly across one tile-sheet row.</summary>
+    private static int[] SheetRun(int first, int step, int count)
+    {
+        var sources = new int[count];
+        for (int index = 0; index < count; index++) sources[index] = first + step * index;
+        return sources;
+    }
 
     private readonly DeadTourianCorpseEnemyState?[] _deadTourianCorpseStates =
         new DeadTourianCorpseEnemyState?[MaximumEnemyCount];

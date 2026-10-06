@@ -24,9 +24,19 @@ public sealed partial class RoomEnemySystem
         (120, 206),
     ];
 
-    private static readonly ushort[] MotherBrainFallingTubeXRadius = [16, 16, 8, 8, 16];
-    private static readonly ushort[] MotherBrainFallingTubeYRadius = [32, 32, 24, 24, 32];
-    private static readonly ushort[] MotherBrainFallingTubeFloor = [0x00f8, 0x00f8, 0x00f0, 0x00f0, 0x00f6];
+    /// <summary>
+    /// $A9:8B5D/8B67/8B71: collision radii and landing floor selected by piece role. The two
+    /// outer and two inner pieces share their values; the main tube has its own floor.
+    /// </summary>
+    private static (ushort XRadius, ushort YRadius, ushort Floor) MotherBrainFallingTubeBody(int tubeIndex) =>
+        tubeIndex switch
+        {
+            0 or 1 => (16, 32, 0x00f8),
+            2 or 3 => (8, 24, 0x00f0),
+            4 => (16, 32, 0x00f6),
+            _ => throw new InvalidDataException($"Mother Brain falling tube index {tubeIndex} is outside its five pieces."),
+        };
+    /// <summary>$A9:8C61: authored smoke puff X offsets cycled while a tube lands.</summary>
     private static readonly int[] MotherBrainFallingTubeSmokeXOffsets = [-8, 2, -4, 6];
 
     private Func<int, RoomScrollState>? _readMotherBrainRoomScrollState;
@@ -507,16 +517,11 @@ public sealed partial class RoomEnemySystem
     private static void InitializeMotherBrainFallingTube(RoomEnemySlot tube)
     {
         int tubeIndex = tube.Parameter1 / 2;
-        if ((uint)tubeIndex >= MotherBrainFallingTubeXRadius.Length)
-        {
-            throw new InvalidDataException(
-                $"Mother Brain falling tube parameter ${tube.Parameter1:X4} is outside table range.");
-        }
-
-        tube.XRadius = MotherBrainFallingTubeXRadius[tubeIndex];
-        tube.YRadius = MotherBrainFallingTubeYRadius[tubeIndex];
+        (ushort xRadius, ushort yRadius, ushort floor) = MotherBrainFallingTubeBody(tubeIndex);
+        tube.XRadius = xRadius;
+        tube.YRadius = yRadius;
         tube.VariableA = tubeIndex == 4 ? (ushort)0x8bcb : (ushort)0x8b88;
-        tube.VariableB = MotherBrainFallingTubeFloor[tubeIndex];
+        tube.VariableB = floor;
         tube.VariableC = 0;
         tube.VariableD = 0;
         tube.VariableE = 0;

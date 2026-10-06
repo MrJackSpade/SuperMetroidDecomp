@@ -106,7 +106,10 @@ internal static partial class Program
             return new GrappleConnectionDefinitions.SpecialConnection(Word(address), (byte)Word(address + 2),
                 unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6)), Word(address + 8));
         }).ToArray();
-        AssertTrue(native.AsSpan().SequenceEqual(GrappleConnectionDefinitions.SpecialAngles), "All 40 native special-angle words");
+        AssertEqual(native.Length, GrappleConnectionDefinitions.SpecialAngleCount, "Native special-angle record count");
+        for (int record = 0; record < native.Length; record++)
+            AssertEqual(native[record], GrappleConnectionDefinitions.SpecialAngle(record), $"Native special-angle record {record}");
+        AssertThrows<IndexOutOfRangeException>(() => GrappleConnectionDefinitions.SpecialAngle(native.Length), "Special-angle bound");
         var samus = new SamusState();
         samus.Grapple.FlarePlacement = SuperMetroid.Core.Assets.ChargeFlarePlacementCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.GrappleFlarePlacementExtractor.Extract(rom)));

@@ -210,18 +210,18 @@ public sealed partial class MotherBrainEnemyProjectileSystem
             slot.XVelocity = movingLeft
                 ? unchecked((ushort)-slowedMagnitude)
                 : slowedMagnitude;
-            acceleration = 0x0007;
+            acceleration = MotherBrainBombBounceDefinitions.FallAcceleration;
         }
         else
         {
             int accelerationIndex = slot.BounceTableOffset >> 1;
-            if ((uint)accelerationIndex >= (uint)BombYAccelerations.Length)
+            if ((uint)accelerationIndex >= MotherBrainBombBounceDefinitions.StageCount)
             {
                 throw new InvalidDataException(
                     $"Mother Brain bomb bounce-table offset ${slot.BounceTableOffset:X4} is outside $C550-$C563.");
             }
 
-            acceleration = BombYAccelerations[accelerationIndex];
+            acceleration = MotherBrainBombBounceDefinitions.YAcceleration(accelerationIndex);
             if (acceleration == 0)
             {
                 // Natural expiry publishes three independent effects. The first uses the

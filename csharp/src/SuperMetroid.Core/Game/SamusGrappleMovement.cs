@@ -881,10 +881,9 @@ public static partial class SamusGrappleMovement
     {
         // Preserve the native reverse scan and exact angle equality, not a tolerance
         // around a wall-grab angle. These records govern collision positioning.
-        var records = GrappleConnectionDefinitions.SpecialAngles;
-        for (int record = records.Length - 1; record >= 0; record--)
+        for (int record = GrappleConnectionDefinitions.SpecialAngleCount - 1; record >= 0; record--)
         {
-            var special = records[record];
+            var special = GrappleConnectionDefinitions.SpecialAngle(record);
             if (special.Angle != grapple.Angle.RawValue)
                 continue;
 

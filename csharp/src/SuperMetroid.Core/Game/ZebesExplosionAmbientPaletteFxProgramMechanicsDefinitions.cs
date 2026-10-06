@@ -33,8 +33,6 @@ public enum ZebesExplosionAmbientPaletteFxProgramOwner
 /// </remarks>
 public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
 {
-    private static readonly ushort[] LavaDurations = [9, 8, 7, 6, 5, 5, 6, 7, 8, 9];
-
     private static readonly ZebesExplosionAmbientPaletteFxProgramDefinition[] Definitions =
     [
         new(
@@ -78,7 +76,9 @@ public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
         ZebesExplosionAmbientPaletteFxProgramOwner owner,
         int frame) => owner == ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow
             ? (ushort)16
-            : LavaDurations[frame];
+            : (uint)frame < 10
+                ? (ushort)(frame <= 4 ? 9 - frame : frame)
+                : throw new ArgumentOutOfRangeException(nameof(frame));
 }
 
 /// <summary>One complete persistent Zebes-explosion ambient palette loop.</summary>

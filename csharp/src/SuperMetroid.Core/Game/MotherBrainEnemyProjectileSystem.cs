@@ -38,12 +38,6 @@ public sealed partial class MotherBrainEnemyProjectileSystem
     /// <summary>Alternate-language “time bomb set” subtitle definition at <c>$86:CBBB</c>.</summary>
     public const ushort TimeBombSetSubtitleDefinition = 0xcbbb;
 
-    private static ReadOnlySpan<ushort> BombYAccelerations =>
-        [0x0007, 0x0010, 0x0020, 0x0040, 0x0070, 0x00b0, 0x00f0, 0x0130, 0x0170, 0x0000];
-    private static readonly short[] EscapeDoorParticleYOffsets =
-        [-0x20, -0x18, -0x10, -0x08, 0x00, 0x08, 0x10, 0x18];
-    private static readonly short[] EscapeDoorParticleYVelocities =
-        [-0x0200, -0x0100, -0x0100, -0x0080, -0x0080, 0x0080, -0x0100, 0x0200];
     private readonly MotherBrainEnemyProjectileSlot[] _slots =
         Enumerable.Range(0, SlotCount)
             .Select(index => new MotherBrainEnemyProjectileSlot(index))
@@ -245,15 +239,13 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         slot.Properties = 0x3000;
         slot.SpawnParameter = request.Parameter;
         slot.GraphicsIndex = 0;
-        slot.XPosition = 0x0010;
-
-        // `$C965` multiplies the parameter by four because the native table interleaves
-        // one X word and one Y word per record. Every X offset is zero and every X velocity
-        // is `$0500`; only the Y offset/velocity vary across the eight fragments.
-        slot.YPosition = unchecked((ushort)(
-            0x0080 + EscapeDoorParticleYOffsets[request.Parameter]));
-        slot.XVelocity = 0x0500;
-        slot.YVelocity = unchecked((ushort)EscapeDoorParticleYVelocities[request.Parameter]);
+        // `$C965` indexes the interleaved fragment records owned by MotherBrainDoorFragmentDefinitions.
+        MotherBrainDoorFragmentDefinition fragment =
+            MotherBrainDoorFragmentDefinitions.ForParameter((ushort)request.Parameter);
+        slot.XPosition = unchecked((ushort)(0x0010 + fragment.XOffset));
+        slot.YPosition = unchecked((ushort)(0x0080 + fragment.YOffset));
+        slot.XVelocity = unchecked((ushort)fragment.XVelocity);
+        slot.YVelocity = unchecked((ushort)fragment.YVelocity);
         slot.Lifetime = 0x0020;
         slot.InstructionPointer =
             EnemyProjectileInstructionMechanicsDefinitions.MotherBrainEscapeDoorFragmentInitial;

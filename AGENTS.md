@@ -95,6 +95,19 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   failures must catch them inside the test harness rather than leaking them from the
   process.
 
+## Recorded-movie acceptance scope
+
+- For requested SMV/movie parity, replay the entire supplied recording through
+  production gameplay without desynchronization, excluding evidenced hardware
+  lag. Initialize once; never inject later native state to repair divergence.
+- A passing end-to-end replay is the requested game-logic check. Do not turn it
+  into an exhaustive internal-state audit, rendering/audio parity campaign, or
+  unrelated whole-game validation. Missing additional coverage is not a blocker.
+- Apply this scope to larger future recordings as well. Diagnose actual replay
+  divergences and finish when the full replay passes; expand scope only when asked.
+- See [the replay contract](docs/smv-gameplay-parity.md) for timing and conversion
+  details. Passing one movie does not establish correctness of every game path.
+
 ## Testing ownership and scope
 
 - The agent is the DEVELOPER, not the TESTER. The user is the project tester.

@@ -5,6 +5,25 @@ hardware lag. The user explicitly chose this policy: the port's smoothness is a
 valued improvement. It applies to future recordings as well as the current
 10,890-frame Ridley movie.
 
+## Acceptance criterion for this and future movies
+
+The user clarified on 2026-10-06: the task is to play the entire supplied movie
+through the port without gameplay desynchronization, excluding hardware lag.
+That end-to-end replay is the game-logic check. This applies equally to larger
+future movies.
+
+Run from one initial state import with the recorded, update-aligned inputs and
+read-only native comparisons through the movie's end. Diagnose and fix actual
+replay divergences. Once the complete replay passes, the requested movie task is
+complete; do not expand it into an exhaustive inventory of internal fields,
+rendering/pixel/OAM/palette/audio parity, unrelated behaviors, or whole-game
+coverage. Those are separate tasks only when requested. Existing additional
+checks may remain, but missing additional coverage is not a completion blocker.
+Do not claim that passing this movie proves every possible gameplay path.
+
+This acceptance criterion supersedes the broader completion gates and open-ended
+coverage proposals in the historical investigation notes below.
+
 ## Units of comparison
 
 An SMV video-frame count is not a gameplay-update count. A native update can span
@@ -43,29 +62,22 @@ The converter must:
 6. Initialize the port once from the movie's starting state, then run production
    gameplay using only the converted input events. Expected native state remains
    read-only comparison data.
-7. Compare all relevant gameplay properties through the recording's end. Record
-   the first divergence with both source video-frame and port-update identifiers.
-   Matching a short interval or a few selected fields is not full-movie parity.
+7. Compare gameplay progression through the recording's end. Record the first
+   divergence with both source video-frame and port-update identifiers. A partial
+   replay is insufficient; exhaustive internal-state coverage is not required.
 
-## Current evidence and remaining work
+## Current result
 
-### Coverage audit (current)
+The complete input-only replay passes all 10,717 retained gameplay updates across
+all 10,890 source frames, with one initial state import and no subsequent native
+state injection. The supplied movie's no-gameplay-desynchronization task is
+complete under the acceptance criterion above.
 
-The complete 10,717-update input-only replay passes the currently implemented checks.
-This is an end-to-end baseline, not proof that every gameplay owner is covered.
+## Historical investigation evidence
 
-| Contract | Current evidence | Remaining work |
-| --- | --- | --- |
-| Source identity, immutable movie, input edges, lag classification, terminal boundary | Converter v3 and complete replay pass | Retain these checks with each coverage expansion |
-| Samus movement and collision | Positions/fractions, camera positions plus gameplay targets/speed/previous-Samus samples, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state, momentum/boost, environment speed-table selection, deceleration multiplier, echo sound latch, total horizontal speed and normal/knockback plus alpha/beta handler identity, slope adjustment and directional solid-enemy contacts pass | Remaining control handlers, movement flags and secondary motion state |
-| Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication, charge palette/audio words, retained held/press samples, auto-jump timer, pose-input handler and directional shot-inheritance movement records pass | Remaining combat/input ownership |
-| Enemies and Ridley | Active enemy collision/properties/timers; complete Ridley tail records, shared tail/body controller, wing/grab/damage/health/facing state pass | Remaining actor AI variables and phase-dependent aliases |
-| Ordinary/enemy projectiles | Ordinary active-slot motion/program/art and callback identity; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Final render composition/pixels; bombs need live mappings only if a different movie activates them |
-| Persistent world and room effects | Complete boss/event/item/door bitsets and save/elevator/map-station allocations; all seven explored-map planes and fifty scroll bytes at gameplay boundaries; gameplay foreground/BTS; movie grey-door execution, condition and hit state; acid surface/tide phase pass | Loading-boundary mutations, remaining persistence allocations, environmental state, and PLM draw/presentation state |
-| Pause, presentation and audio behavior | Recorded gameplay transitions, complete mutable HUD tilemap during gameplay/pause/unpause and prior HUD selection pass | Explicit inventory of remaining state and observable output coverage |
-
-The history below records earlier divergence boundaries, not current completion.
-
+Earlier remaining-coverage lists and statements withholding completion describe
+an overexpanded scope. They are retained as investigation history, not pending
+work or acceptance gates for this or future movies.
 
 The original Ridley movie was played through all 10,890 video frames in Snes9x
 1.60. The local native trace contains 10,891 WRAM records, including the initial

@@ -1234,3 +1234,11 @@ Root Verification1450warnings/zero errors; --lookup-stream-4-planet-text passes3
 2f26a6ab9 calculates96of112color words from16required first-row colors. Sand-pit bands rotate in groups of four, sand falls reuse the lower band, and waterfall colors rotate in groups of eight. Independent supplied color edits remain independent across source/rotated/shared sites. All16colors and the previously identified timing/layout inputs remain required; no exemption or aggregate closure. Inventory560converted/21retained-mixed/547pending unchanged.
 
 Root Verification1450warnings/zero errors; --lookup-stream-4-maridia-colors passes112native colors,exact16source keys with zero stock fallbacks,112independent edits,unique enumeration,bounds and three actual installed cycles with zero live color reads.
+
+## Integrated ending-font spaces and outline subset
+
+78c4badfa,e9d4c5138 and6f4db084a calculate semantic space tiles4F/7F plus eight-neighbor outlines clipped to the native small8x8 and large8x16 letter/digit cells. Combined4339outline/background/space sites derive from2026required footprint positions. Another3875required pixels include35explicit deviations; selected pens1/2 and outline width1 remain required. Shape,ink,width and mismatch inputs have no retention exception. EndingFontAtlas.transfer remains pending;562converted/21retained-mixed/545pending unchanged.
+
+Small deviations are K0A:(3,0)/(7,4),M0C:(4,1),Z19:(7,3). Large deviations are B21:(5,2),(6,3),(7,4),(7,7),(7,8),(7,13),(6,14);D23:(6,3),(7,5),(7,11),(6,13),(5,14);G26:(4,6),(4,10);J29:(0,13),(7,13),(1,14),(6,14);K2A:(5,2),(4,3),(5,8),(6,9),(7,10);Q40:(7,3);R41:(7,10),(7,11);S42:(7,13),(1,14),(6,14);V45:(6,11),(2,14). These predicates identify supplied required sites; they do not emit or exempt their values.
+
+Root viewed the native atlas. Final Verification incremental build25warnings/zero errors after correcting the selectively imported verifier namespace; preceding production compilation had1450warnings. --lookup-stream-4-ending-font-outline passes5120native bytes,direct pixels,exact2026footprints/3875pixel keys/all35deviations,6401independent native-bit edits,immutable stock,native-planar imports and bounds. No direct ResourceAudit source-hash dependency exists. Transfer API and supplied PNG edits remain supported.

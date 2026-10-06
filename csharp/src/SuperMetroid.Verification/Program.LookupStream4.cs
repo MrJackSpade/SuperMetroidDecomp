@@ -9,6 +9,74 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
+    {
+        byte[] decoded = SuperMetroid.Core.Rom.RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom),
+            0x97E7DE, EndingCreditsRomData.Rendering.Mode7Bytes);
+        byte[] native = decoded.AsSpan(0, 160 * 32).ToArray();
+        byte[] png = EndingFontAtlasExtractor.Extract(rom);
+        var image = IndexedPng.Read(new MemoryStream(png), 128, 80);
+        var atlas = EndingFontAtlas.Load(new MemoryStream(png));
+        var stored = (Dictionary<int, byte>)typeof(EndingFontAtlas).GetField("pixels", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(atlas)!;
+        var footprint = (HashSet<int>)typeof(EndingFontAtlas).GetField("glyphFootprint", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(atlas)!;
+        AssertEqual(3875, stored.Count, "ending font stores exactly other artwork plus35 required deviations, without stock outline/space overrides");
+        AssertEqual(2026, footprint.Count, "all2026 small/large-letter and digit footprint positions remain explicitly required");
+        AssertTrue(native.AsSpan().SequenceEqual(atlas.Transfer.Span), "all5120 original ending font bytes match");
+        AssertTrue(native.AsSpan().SequenceEqual(EndingFontAtlas.FromPlanarBytes(native).Transfer.Span), "legacy native import uses same calculated representation");
+        AssertEqual((ushort)0x4F, EndingTextDefinitions.CompileGlyph(' ', EndingTextStyle.ResultSmall), "native small text space selects blank tile4F");
+        AssertEqual((ushort)0x7F, EndingTextDefinitions.CompileGlyph(' ', EndingTextStyle.CopyrightLarge), "native large text space selects blank tile7F");
+        var largeDeviations = new HashSet<(int Tile, int X, int Y)>
+        {
+            (0x21,5,2),(0x21,6,3),(0x21,7,4),(0x21,7,7),(0x21,7,8),(0x21,7,13),(0x21,6,14),
+            (0x23,6,3),(0x23,7,5),(0x23,7,11),(0x23,6,13),(0x23,5,14),
+            (0x26,4,6),(0x26,4,10),(0x29,0,13),(0x29,7,13),(0x29,1,14),(0x29,6,14),
+            (0x2A,5,2),(0x2A,4,3),(0x2A,5,8),(0x2A,6,9),(0x2A,7,10),
+            (0x40,7,3),(0x41,7,10),(0x41,7,11),(0x42,7,13),(0x42,1,14),(0x42,6,14),(0x45,6,11),(0x45,2,14),
+        };
+        AssertEqual(31, largeDeviations.Count, "precise native large-glyph deviation domain");
+        var edits = new List<int> { image.Pixels.Length - 1 };
+        for (int pixel = 0; pixel < image.Pixels.Length; pixel++)
+        {
+            int tile = pixel / 128 / 8 * 16 + pixel % 128 / 8;
+            int x = pixel % 8, y = pixel / 128 % 8;
+            bool space = tile is 0x4F or 0x7F;
+            bool small = tile < 26;
+            bool large = tile is >= 0x20 and <= 0x3F or >= 0x40 and <= 0x49 or >= 0x50 and <= 0x59
+                or >= 0x60 and <= 0x69 or >= 0x70 and <= 0x79;
+            int top = tile & ~0x10, glyphY = y + ((tile & 0x10) != 0 ? 8 : 0);
+            bool largeDeviation = large && largeDeviations.Contains((top, x, glyphY));
+            bool outlined = small || large;
+            bool cutout = (tile, x, y) is (0x0A, 3, 0) or (0x0A, 7, 4) or (0x0C, 4, 1) or (0x19, 7, 3);
+            AssertEqual(space, EndingFontAtlasFormat.IsSpacePixel(pixel), "only the two native semantic blank cells");
+            AssertEqual(small, EndingFontAtlasFormat.IsSmallAlphabetPixel(pixel), "only the native small alphabet cells");
+            AssertEqual(cutout, EndingFontAtlasFormat.IsRequiredSmallGlyphCutout(pixel), "exact four unresolved native cutouts");
+            AssertEqual(largeDeviation, EndingFontAtlasFormat.IsRequiredLargeGlyphDeviation(pixel), "exact31 unresolved native large-glyph sites");
+            AssertEqual(!space && (!outlined || cutout || largeDeviation), stored.ContainsKey(pixel), "exact unresolved source pixel membership");
+            AssertEqual(outlined && image.Pixels[pixel] == 1, footprint.Contains(pixel), "exact independent original glyph footprint positions");
+            bool calculated = EndingFontAtlasFormat.TryCalculatedPixel(pixel, footprint, out byte ink);
+            AssertEqual(space || outlined && !cutout && !largeDeviation, calculated, "exact calculated-domain membership");
+            if (calculated) AssertEqual(image.Pixels[pixel], ink, "direct native outline/blank calculation with no stored fallback");
+            if (space || outlined) edits.Add(pixel);
+        }
+        AssertEqual(6401, edits.Count, "all6272 small/large alphabet and digit sites,128 blank sites and one other required pixel edit");
+        foreach (int pixel in edits)
+        {
+            byte[] changedPixels = image.Pixels.ToArray(); changedPixels[pixel] ^= 1;
+            using var changedPng = new MemoryStream();
+            IndexedPng.Write(changedPng, 128, 80, changedPixels, image.Palette); changedPng.Position = 0;
+            var changed = EndingFontAtlas.Load(changedPng);
+            int x = pixel % 128, y = pixel / 128, tile = y / 8 * 16 + x / 8;
+            byte[] expected = native.ToArray();
+            expected[tile * 32 + y % 8 * 2] ^= (byte)(1 << (7 - x % 8));
+            AssertTrue(expected.AsSpan().SequenceEqual(changed.Transfer.Span), "independent space/source edit changes exactly its native bitplane bit");
+            AssertTrue(expected.AsSpan().SequenceEqual(EndingFontAtlas.FromPlanarBytes(expected).Transfer.Span), "edited legacy import preserves the same native bit");
+            AssertTrue(native.AsSpan().SequenceEqual(atlas.Transfer.Span), "font edit leaves stock immutable");
+        }
+        foreach (int pixel in new[] { -1, 10240, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingFontAtlasFormat.IsSpacePixel(pixel), "font pixel bounds");
+        AssertThrows<InvalidDataException>(() => EndingFontAtlas.FromPlanarBytes(new byte[5119]), "native font byte domain preserved");
+        Console.WriteLine("Ending font:5120 native bytes,2026 required footprint positions,3875 required pixels including35 deviations,4339 derived outline/background/space sites and6401 independent native-bit edits pass.");
+    }
     private static void VerifyLookupStream4MaridiaColors(CartridgeImportAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(rom.ReadByte(0x8D0000 | pointer) | rom.ReadByte(0x8D0000 | (pointer + 1)) << 8);

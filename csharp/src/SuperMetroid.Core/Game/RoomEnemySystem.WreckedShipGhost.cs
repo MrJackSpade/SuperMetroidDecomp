@@ -116,16 +116,6 @@ public sealed partial class RoomEnemySystem
     private const ushort WreckedShipGhostInitialVerticalVelocityWhole = 1;
     private const int WreckedShipGhostVerticalAccelerationFraction = 0x1800;
 
-    // $A8:99AC. This is the target after the initial white flash and again after each
-    // reappearance. Words remain native BGR555 so every component step is auditable.
-    private static readonly ushort[] WreckedShipGhostPalette =
-    [
-        0x3800, 0x57ff, 0x42f7, 0x0929,
-        0x00a5, 0x4f5a, 0x36b5, 0x2610,
-        0x1dce, 0x01df, 0x001f, 0x0018,
-        0x000a, 0x06b9, 0x00ea, 0x0045,
-    ];
-
     private readonly WreckedShipGhostEnemyState?[] _wreckedShipGhostStates =
         new WreckedShipGhostEnemyState?[MaximumEnemyCount];
 
@@ -354,7 +344,8 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.Function = WreckedShipGhostAiFunction.FadingToGhostPalette;
-        WreckedShipGhostPalette.CopyTo(state.MutableTargetPalette);
+        for (int color = 0; color < state.MutableTargetPalette.Length; color++)
+            state.MutableTargetPalette[color] = WreckedShipGhostAppearanceDefinitions.PaletteColor(color);
     }
 
     /// <summary>Ports $A8:9BAD, including the simultaneous flicker and per-component fade.</summary>

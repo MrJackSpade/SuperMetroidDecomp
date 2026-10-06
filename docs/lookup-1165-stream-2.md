@@ -659,7 +659,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 - [x] **RoomEnemySystem.WreckedShipGhostFlickerDurations** ([L123](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs#L123)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **RoomEnemySystem.WreckedShipGhostSpawnOffsets** ([L130](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs#L130)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **RoomEnemySystem.WreckedShipGhostPalette** ([L139](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WreckedShipGhost.cs#L139)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **RoomEnemySystem.WreckedShipGhostPalette** - MIXED COMPLETE: calculated channels plus23 narrowly reviewed categorical paint/transparent-payload inputs; see complete source packet below.
 
 ### csharp/src/SuperMetroid.Core/Game/WreckedShipGhostInstructionProgramDefinitions.cs
 
@@ -1130,3 +1130,58 @@ Root Verification1450warnings/zero errors; --lookup-stream2-power-direction-bind
 ### Integrated Ninja program composition (7173d035b)
 
 Twenty facing-paired action programs calculate308mechanics words and140visual operand addresses through command/pose widths. Right second claw throw retains its distinct sound/first-pose ordering. Root build1452warnings/0errors;308native mechanics,20production programs,claw/palette/sound/function callbacks,140selectors,strict ordering/bounds pass with source reads forbidden. Fixture now supplies exact installed gold-Pirate palette;blank graphics serve only the instruction fixture and imply no rendering validation. PresentationWords complete;Words timing/launch/sound/palette choices remain required. Master596/21/511.
+
+
+## Complete ghost target-palette disposition packet (independent review requested)
+
+Selected original entry: RoomEnemySystem.WreckedShipGhostPalette, now implemented by WreckedShipGhostAppearanceDefinitions.PaletteColor. This packet accounts for every original word/channel and every remaining source input. It proposes a narrowly mixed disposition, not an exemption for palettes generally.
+
+### Exact source and consumers
+
+Supported unheadered ROM SHA256:12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72. Palette_Coven occupies A8:99AC-99CB. All16 words also occur at Palette_Kago A8:AAFE-AB1D; slots0..8 also occur at Palette_YappingMaw A8:9F4F-9F60. These are one shared set of paint choices, not three independent exception requests.
+
+A8:9B9B-9BA9 copies exactly32 bytes to the target palette after the white flash. A8:9E88-9F4E reads each target word and independently increments/decrements each RGB5 component by one until equal;9BAD-9BBB combines the returned change count with the phase timer. No consumer interprets the palette index as light intensity, angle, time, material parameters or a generating seed. The OBJ pixel index directly selects a categorical color. Managed RunWreckedShipGhostBrightening at RoomEnemySystem.WreckedShipGhost.cs347 copies PaletteColor to all16 state.TargetPalette slots; StepWreckedShipGhostPaletteTowardTarget at467-483 preserves every component and count. All target slots remain observable through TargetPalette and CGRAM. No unused slot is discarded.
+
+### Complete word and channel accounting
+
+|Slot|Native word|RGB5|Observed source-art role|Calculated channel dependence|
+|---|---|---|---|---|
+|0|3800|0,0,14|Transparent source index; copied/faded payload only|R=G=0; independent B14|
+|1|57FF|31,31,21|Kago brightest bone/skull highlight; unused by ghost|G=R; independent B21|
+|2|42F7|23,23,16|Ghost/Kago olive highlight|G=R; B=max(0,R-7)|
+|3|0929|9,9,2|Ghost/Kago dark olive contour|G=R; B=max(0,R-7)|
+|4|00A5|5,5,0|Ghost/Kago deepest olive shadow|G=R; B=max(0,R-7)|
+|5|4F5A|26,26,19|Ghost/Kago bright olive highlight|G=R; B=max(0,R-7)|
+|6|36B5|21,21,13|Ghost/Kago intermediate skull/body paint|G=R; independent B13|
+|7|2610|16,16,9|Ghost/Kago intermediate skull/body paint|G=R; B=max(0,R-7)|
+|8|1DCE|14,14,7|Ghost/Kago intermediate skull/body paint|G=R; B=max(0,R-7)|
+|9|01DF|31,14,0|Kago orange cavity highlight|B=0; independent R/G|
+|10|001F|31,0,0|Kago bright red cavity|G=B=0|
+|11|0018|24,0,0|Kago middle red cavity|G=B=0|
+|12|000A|10,0,0|Kago dark red cavity|G=B=0|
+|13|06B9|25,21,1|Kago bug ochre/gold highlight|Independent R/G/B|
+|14|00EA|10,7,0|Kago bug brown shade|G=R-3; B=0|
+|15|0045|5,2,0|Kago bug deeper brown shade|G=R-3; B=0|
+
+The final brown hue dependency removes two stored green levels7/2 in favor of one chosen separation3. Remaining23 scalar inputs are exactly: OliveLevels1..8=[31,23,9,5,26,21,16,14] (8); WarmRed9..15=[31,31,24,10,25,10,5] (7); orange/ochre WarmGreen9/13=[14,21] (2); BackdropBlue14,OliveBlueReduction7,BrightOliveBlue21,MiddleOliveBlue13,OchreBlue1,BrownGreenReduction3 (6). Branch membership itself records the selected color-family assignments and is part of the proposed bounded paint-content disposition. The nine ghost-visible inputs are seven levels2..8,tint7 and slot6blue13; fourteen inputs concern copied slots unused by the ghost. No further functional intensity axis exists in the direct pixel-label consumer; equal numbers in unrelated color families do not establish shared shading inputs.
+
+### Source-art evidence and narrow nonsense rationale
+
+Ghost B1:A600-A9FF contains32 tiles. Native A8:9E46/9E5C/9E72 comprises four16x16 parts, shared upper tiles100/102 and lower pairs104/106,108/10A,10C/10E. Only opaque indices2..8 appear. Frame counts:2=6/6/6,3=170/170/171,4=266/260/256,5=5/5/5,6=31/31/29,7=83/79/87,8=117/123/122. Native Kago B1:AE00-B5FF uses every opaque label1..15; raw tile counts0..15=[1344,38,63,426,918,45,156,237,312,28,75,110,208,36,63,37]. ABDA/ABF0/AC06 composes the olive bone/skull and red/orange cavities. Bug OAM8D:8458/845F/8466 uses tiles128/129/12A; A8:ABD3 calls SpawnEnemyProjectileY_ParameterA_XGraphics, whose86:8030..8036 ORs source palette and VRAM tile bits; managed RoomEnemySystem.KagoBugs.cs74 preserves that inherited selection, providing the gold/brown role for13..15.
+
+Static images reviewed: C:/Users/SERVIC~1/AppData/Local/Temp/lookup1165-ghost-palette.png and lookup1165-kago-palette-tiles.png. These show painted categorical regions and distinguish ghost-unused warm slots from visible ghost colors. The remaining22 visible-source paint inputs and their family assignments specify the content of that artwork: replacing them with an interpolated palette, inferred lighting model or function of slot number would choose different highlight/shadow/hue colors because the consumer supplies only categorical pixel labels. A function encoding the exact label-to-selected-shade choices would merely restate those inputs. This is the requested nonsense boundary for those exact paint choices, after shared channel/tint calculations, not a claim based on size, performance, complexity or missing provenance.
+
+Slot0B14 has a separate proposed disposition. Transparent OBJ pixels never select its visible RGB, so no visual color-generation rule determines14. The exact word nevertheless enters the native16-word copy and independent component fade, and changes the target/CGRAM/change-count state. Generating a replacement value from visible art would invent a payload absent from that art; deleting it would change the copied/faded source contract. Retain only this one chosen transparent payload level under the same bounded data-content rationale, separately from visible paint. No arbitrary unused-memory preservation is requested.
+
+Requested decision: approve these22 categorical paint/tint inputs plus one transparent target-payload level, together with their exact family membership, as narrow nonsense content. Keep all shared channel calculations. The original entry is mixed converted/justified-retained only if this complete packet is approved; until then it remains unchecked. Confirmation covers all16 native/shared words, actual target installation,32 actual component-fade steps including completion counts, every source pixel label and domains. It does not search gameplay or claim player validation.
+
+Packet confirmation: build1,437 existing warnings/zero errors; --lookup-stream2-ghost-palette passes all native/shared targets, actual target copy and32 actual fade steps, exact ghost slot membership and all16 Kago source-pixel counts. No direct ResourceAudit dependency found for WreckedShipGhostAppearanceDefinitions.cs. Pending independent decision; counts unchanged95/131.
+
+Transparent-slot consumer anchor: SnesObjRenderer.cs246 skips colorIndex0 before accessing CGRAM. Native Kago initializer InitAI_EnemyProjectile_KagoBug86:D088 handles position/state; inherited palette selection belongs to the separate native spawner86:8030..8036 invoked atA8:ABD3, not that initializer.
+
+### Ghost target palette complete: approved mixed disposition
+
+Coordinator independently reviewed both diagnostic images, all23 specified inputs/native words, the full component-fade consumer and transparent-index renderer skip. Approved only RoomEnemySystem.WreckedShipGhostPalette as mixed converted/justified-retained:22 material paint/tint choices and exact family membership are categorical artwork content; slot0blue14 is separately retained as exact copied/faded target data with no visual generating rule. All shared-channel calculations remain. This approval does not cover Kago/Yapping palette containers, sprite geometry, or any separate ghost timing/state definitions.
+
+Removed pending wording from the owned palette definition and recorded the bounded rationale beside each input group. Corrected two pre-existing mojibake plus/minus XML phrases in the owned ghost runtime to ASCII; no runtime behavior changed. Confirmation remains the just-passed1,437-warning/zero-error build and focused16-target/shared-source,actual copy,32-step fade/count,pixel-usage/domain checks. Stream2 now96 resolved /130 required; this is one completed mixed entry, not a fully converted palette or an expansion of retained scope.
+Root integration: viewed both native ghost/Kago images,checked native32-byte target copy and component fade plus renderer transparency.1452warnings/0errors;16native/shared words,actual target installation,32component fade steps/counts,pixel-label usage/bounds pass. Runtime preexisting plus/minus XML preserved. Master596/23/509.

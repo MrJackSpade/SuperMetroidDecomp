@@ -1,8 +1,46 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Calculated geometry and visibility timing for Wrecked Ship ghost appearances.</summary>
+/// <summary>Calculated appearance geometry, palette channels and visibility timing for Wrecked Ship ghost appearances.</summary>
 public static class WreckedShipGhostAppearanceDefinitions
 {
+    /// <summary>$A8:99AE-99BC: categorical olive paint levels retained as chosen artwork content; these pixel labels do not encode a brightness scale.</summary>
+    private static readonly byte[] OliveLevels = [31, 23, 9, 5, 26, 21, 16, 14];
+    /// <summary>$A8:99BE-99CA: warm paint selected by shared Kago cavity/bug artwork; retained as categorical color content, not inferred from ghost-unused slots.</summary>
+    private static readonly byte[] WarmRed = [31, 31, 24, 10, 25, 10, 5];
+    /// <summary>$A8:99BE/99C6: chosen orange/ochre paint components retained as categorical artwork content.</summary>
+    private static readonly byte[] WarmGreen = [14, 21];
+    /// <summary>$A8:99AC: transparent slot0 blue14 has no visible color-generating rule, but $9B9B/$9E88 copy and fade this exact target payload.</summary>
+    private const int BackdropBlue = 14;
+    /// <summary>$A8:99AE-99C6: chosen olive tint and highlight/ochre blue components retained as categorical artwork content.</summary>
+    private const int OliveBlueReduction = 7, BrightOliveBlue = 21,
+        MiddleOliveBlue = 13, OchreBlue = 1;
+    /// <summary>$A8:99C8/99CA: both brown bug shades share G=R-3 and B=0; the chosen hue separation is retained as categorical artwork content.</summary>
+    private const int BrownGreenReduction = 3;
+
+    /// <summary>
+    /// $A8:99AC-99CB, Palette_Coven: olive colors share red/green and a clamped
+    /// blue reduction except slots1/6. Warm slots have zero blue except ochre;
+    /// slots10..12 are pure red. The 22 remaining paint/tint inputs and their family
+    /// assignments are chosen artwork content: generating them from numeric pixel
+    /// labels would invent different colors or restate the same choices. Slot0 is
+    /// separately retained as copied/faded target data with no visual generating rule.
+    /// Unused sprite slots are still copied and faded as native target data.
+    /// </summary>
+    public static ushort PaletteColor(int index)
+    {
+        if ((uint)index >= 16) throw new ArgumentOutOfRangeException(nameof(index));
+        if (index == 0) return (ushort)(BackdropBlue << 10);
+        if (index <= OliveLevels.Length)
+        {
+            int level = OliveLevels[index - 1];
+            int blue = index == 1 ? BrightOliveBlue : index == 6 ? MiddleOliveBlue : Math.Max(0, level - OliveBlueReduction);
+            return (ushort)(level | level << 5 | blue << 10);
+        }
+        int warm = index - 9;
+        int green = index == 9 ? WarmGreen[0] : index == 13 ? WarmGreen[1]
+            : index >= 14 ? WarmRed[warm] - BrownGreenReduction : 0;
+        return (ushort)(WarmRed[warm] | green << 5 | (index == 13 ? OchreBlue << 10 : 0));
+    }
     /// <summary>$A8:9AA8 contains the nine row-major positions of a three-by-three spawn grid.</summary>
     public const int SpawnCount = 9;
 

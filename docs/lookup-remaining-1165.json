@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 510,
+  "remainingTableDefinitionCount": 509,
   "fileCount": 523,
   "entries": [
     {
@@ -6771,8 +6771,7 @@
       "line": 139,
       "name": "RoomEnemySystem.WreckedShipGhostPalette",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.","state":"justified-retained","implementationCommit":"5722b8ce726467fc94966246775e5cc29e7f0d36","disposition":"Mixed complete: shared RGB5 channels/tints calculated. Retain22exact categorical skull/cavity/bug paint inputs and family assignments;separately retain transparent slot0blue14 copied/faded as explicit target data. Numeric pixel labels supply no paint generator;exact evidence per slot in stream2 complete ghost packet. No other palette containers or ghost timing exempted."},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.YappingMaw.cs",
       "line": 134,
@@ -21547,5 +21546,5 @@
     }
   ],
   "convertedSinceSnapshot": 596,
-  "justifiedRetainedSinceSnapshot": 22
+  "justifiedRetainedSinceSnapshot": 23
 }

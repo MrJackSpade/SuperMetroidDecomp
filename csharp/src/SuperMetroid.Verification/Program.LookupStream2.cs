@@ -7,6 +7,76 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var enemies = new RoomEnemySystem();
+        var cgram = new SnesCgram();
+        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+        RoomEnemySlot slot = enemies.Slots[0];
+        slot.PaletteIndex = 0;
+        var state = new WreckedShipGhostEnemyState(slot) { PhaseTimer = 2 };
+        var brightening = typeof(RoomEnemySystem).GetMethod("RunWreckedShipGhostBrightening", flags)!
+            .CreateDelegate<Action<RoomEnemySlot, WreckedShipGhostEnemyState>>(enemies);
+        var fade = typeof(RoomEnemySystem).GetMethod("StepWreckedShipGhostPaletteTowardTarget", flags)!
+            .CreateDelegate<Func<RoomEnemySlot, WreckedShipGhostEnemyState, int>>(enemies);
+        var native = new ushort[16];
+        for (int color = 0; color < native.Length; color++)
+        {
+            native[color] = ReadVerificationWord(rom, 0xa899ac + color * 2);
+            AssertEqual(native[color], WreckedShipGhostAppearanceDefinitions.PaletteColor(color), "Calculated ghost channels preserve native target words");
+            AssertEqual(native[color], ReadVerificationWord(rom, 0xa8aafe + color * 2), "Kago shares exactly the same native palette inputs");
+            if (color < 9) AssertEqual(native[color], ReadVerificationWord(rom, 0xa89f4f + color * 2), "Yapping Maw shares olive target inputs");
+            cgram.SetColor(128 + color, 0x7fff);
+        }
+        brightening(slot, state);
+        AssertEqual(WreckedShipGhostAiFunction.FadingToGhostPalette, state.Function, "White flash installs native target palette phase");
+        AssertTrue(state.TargetPalette.Span.SequenceEqual(native), "Actual target buffer includes unused sprite slots");
+        for (int tick = 1; tick <= 32; tick++)
+        {
+            int expectedChanges = 0;
+            for (int color = 0; color < native.Length; color++)
+            for (int shift = 0; shift < 15; shift += 5)
+                if (31 - (tick - 1) > (native[color] >> shift & 31)) expectedChanges++;
+            AssertEqual(expectedChanges, fade(slot, state), "Native component-change count preserves fade completion");
+            for (int color = 0; color < native.Length; color++)
+            {
+                int expected = 0;
+                for (int shift = 0; shift < 15; shift += 5)
+                    expected |= Math.Max(31 - tick, native[color] >> shift & 31) << shift;
+                AssertEqual((ushort)expected, cgram.Colors[128 + color], "Every actual fade step preserves visible and unused target slots");
+            }
+        }
+        var usage = new int[16];
+        for (int tile = 0; tile < 32; tile++)
+        for (int y = 0; y < 8; y++)
+        for (int x = 0; x < 8; x++)
+        {
+            int address = 0xb1a600 + tile * 32 + y * 2, bit = 7 - x;
+            int color = (rom.ReadByte(address) >> bit & 1) | (rom.ReadByte(address + 1) >> bit & 1) << 1 |
+                (rom.ReadByte(address + 16) >> bit & 1) << 2 | (rom.ReadByte(address + 17) >> bit & 1) << 3;
+            usage[color]++;
+        }
+        AssertEqual(0, usage[1], "Ghost source pixels never select unused highlight slot1");
+        for (int color = 9; color < usage.Length; color++) AssertEqual(0, usage[color], "Ghost source pixels never select copied warm-color slots");
+        for (int color = 2; color <= 8; color++) AssertTrue(usage[color] > 0, "Every visible olive shade is used by ghost artwork");
+        int[] expectedKagoUsage = [1344,38,63,426,918,45,156,237,312,28,75,110,208,36,63,37];
+        var kagoUsage = new int[16];
+        for (int tile = 0; tile < 64; tile++)
+        for (int y = 0; y < 8; y++)
+        for (int x = 0; x < 8; x++)
+        {
+            int address = 0xb1ae00 + tile * 32 + y * 2, bit = 7 - x;
+            int color = (rom.ReadByte(address) >> bit & 1) | (rom.ReadByte(address + 1) >> bit & 1) << 1 |
+                (rom.ReadByte(address + 16) >> bit & 1) << 2 | (rom.ReadByte(address + 17) >> bit & 1) << 3;
+            kagoUsage[color]++;
+        }
+        AssertTrue(kagoUsage.SequenceEqual(expectedKagoUsage), "Exact native Kago pixel-label usage supports each shared paint role; slot0 is transparent");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.PaletteColor(-1), "Ghost color lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.PaletteColor(16), "Ghost color upper bound");
+        Console.WriteLine("Ghost palette:16 native targets and shared-source words,actual white-flash target copy,32 full component-fade steps,and native pixel-slot usage pass; calculated channels preserve the specified source paint and transparent payload.");
+    }
+
     private static void VerifyLookupStream2NinjaProgramLayout()
     {
         AssertEqual(308, NinjaSpacePirateInstructionProgramDefinitions.MechanicsWordCount, "Complete native Ninja mechanics count");

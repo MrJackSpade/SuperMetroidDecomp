@@ -2249,10 +2249,12 @@ public sealed partial class RoomEnemySystem
         top.VariableD = 1;
         top.VariableC = 0;
         samus.XPosition = unchecked((ushort)(top.XPosition + 1));
+        samus.WritePreviousXPosition(samus.XPosition);
         pad.InstructionTimer = 1;
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.LandingPadOpened;
+        QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
     }
 
     private void RaisePostCeresSamus(RoomEnemySlot top, SamusState? samus)

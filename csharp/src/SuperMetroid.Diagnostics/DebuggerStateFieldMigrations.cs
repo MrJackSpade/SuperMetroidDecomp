@@ -79,6 +79,13 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Older runtime has no horizontal-spike animation; restarting the selected room's spike loop at frame zero.");
             return SelectSerializedFields(type, current.Where(field => field.Name != "_roomSpikes").ToArray(), count);
         }
+        if (type == typeof(SamusState) && current.Any(field => field.Name == "_previousXPositionWrite"))
+        {
+            // A pending previous-X write exists only within one frame's enemy-to-scroll span;
+            // captures between frames never hold one.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "_previousXPositionWrite").ToArray(), count);
+        }
         if (type == typeof(SamusHorizontalSpeedState) && count == current.Length - 1 &&
             current.Any(field => field.Name == "<EchoSoundFlag>k__BackingField"))
         {

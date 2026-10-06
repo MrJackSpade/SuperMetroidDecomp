@@ -161,6 +161,15 @@ internal static partial class Program
             observedPadOpen |= enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened;
             if (enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened)
             {
+                // $A2:A91E-$A925 place Samus beside the hatch in both X words, so the
+                // following MainScrollingRoutine measures no horizontal movement.
+                var checkpoint = new SamusCameraPoint(0x0480, 0x1234, samus.YPosition, 0);
+                AssertEqual(checkpoint with { XPosition = samus.XPosition },
+                    samus.ApplyPreviousPositionWrites(checkpoint),
+                    "landing writes SamusPreviousXPosition with Samus X");
+                AssertTrue(enemies.SoundRequests.Contains(new EnemySoundRequest(
+                        SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6)),
+                    "landing queues QueueSound_Lib3_Max6($14)");
                 // EnemyMain installs $A5BE, then this same slot's ordinary instruction
                 // phase consumes its first four-byte timed frame before StepFrame returns.
                 AssertEqual(

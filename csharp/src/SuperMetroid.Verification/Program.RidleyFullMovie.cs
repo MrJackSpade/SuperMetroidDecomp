@@ -335,16 +335,16 @@ internal static partial class Program
                 "source6289 airborne morph accepted");
             AssertEqual((ushort)411, samus.YPosition, "native morph center alignment");
             AssertEqual((ushort)0x97ff, samus.Kinematics.YSubposition, "morph preserves current fraction");
-            AssertEqual(previous with { YPosition = 411 }, samus.ApplyPoseCollisionCameraCheckpoint(previous),
+            AssertEqual(previous with { YPosition = 411 }, samus.ApplyPreviousPositionWrites(previous),
                 "command seven replaces previous whole Y and retains previous fraction");
-            AssertEqual(previous, samus.ApplyPoseCollisionCameraCheckpoint(previous), "checkpoint consumed once");
+            AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous), "checkpoint consumed once");
 
             samus.Pose = left ? SamusPoseIds.MorphBallFallingLeftPose : SamusPoseIds.MorphBallFallingRightPose;
             samus.RefreshCollisionRadii(bus);
             AssertTrue(samus.TryApplyMorphTransition(bus, level,
                 left ? SamusPoseIds.UnmorphingTransitionLeftPose : SamusPoseIds.UnmorphingTransitionRightPose, 0),
                 "unmorph command seven accepted");
-            AssertEqual(previous with { YPosition = samus.YPosition }, samus.ApplyPoseCollisionCameraCheckpoint(previous),
+            AssertEqual(previous with { YPosition = samus.YPosition }, samus.ApplyPreviousPositionWrites(previous),
                 "zero alignment entry still replaces previous whole Y");
         }
         Console.WriteLine("Morph camera checkpoint: both facings, alignment, fractions, one-time consumption and unmorph pass.");

@@ -135,15 +135,15 @@ internal static partial class Program
         AssertEqual(21, samus.Kinematics.YRadius, "next alpha publishes landing radius");
         AssertEqual(475, samus.YPosition, "alpha does not repeat landing correction");
         var previous = new SamusCameraPoint(120, 0x1234, 477, 0xabcd);
-        AssertEqual(previous with { YPosition = 475 }, samus.ApplyPoseCollisionCameraCheckpoint(previous),
+        AssertEqual(previous with { YPosition = 475 }, samus.ApplyPreviousPositionWrites(previous),
             "Native pose correction changes only previous Y, preserving both X words and previous Y fraction");
-        AssertEqual(previous, samus.ApplyPoseCollisionCameraCheckpoint(previous),
+        AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous),
             "Checkpoint event is consumed once before normal scrolling replaces it");
         var unobstructed = new SamusState { Pose = 0x29, XPosition = 128, YPosition = 400 };
         unobstructed.RefreshCollisionRadii(bus);
         AssertTrue(unobstructed.TryApplyAerialLanding(bus, level, false, 0, 0),
             "Unobstructed pose expansion takes the no-correction branch");
-        AssertEqual(previous, unobstructed.ApplyPoseCollisionCameraCheckpoint(previous),
+        AssertEqual(previous, unobstructed.ApplyPreviousPositionWrites(previous),
             "No-collision pose expansion leaves the existing camera checkpoint untouched");
     }
 }

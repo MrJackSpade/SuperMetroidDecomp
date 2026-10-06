@@ -41,7 +41,11 @@ internal static partial class Program
 
         var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusState)])!;
-        FieldInfo[] legacy = fields.Where(field => field.Name is not
+        // Every published layout predates the frame-local previous-X write.
+        FieldInfo[] published = fields.Where(field => field.Name != "_previousXPositionWrite").ToArray();
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, published.Length)
+            .SequenceEqual(published), "layout before the previous-X write omits only that field");
+        FieldInfo[] legacy = published.Where(field => field.Name is not
             "<PreviousHealthForHurtCheck>k__BackingField" and not
             "<StationaryScriptControlLocked>k__BackingField" and not
             "_poseCollisionPreviousYPosition" and not "_poseAlignmentPreviousYDelta").ToArray();
@@ -54,7 +58,7 @@ internal static partial class Program
             and not "<AutoJumpInputPending>k__BackingField" and not "<BombJumpPoseInputLocked>k__BackingField").ToArray();
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields,
             preBombLockFields.Length).SequenceEqual(preBombLockFields), "b944f1b5 Samus layout retains the saved draw-input latch");
-        FieldInfo[] earlyPlayerFields = fields.Where(field => field.Name is not
+        FieldInfo[] earlyPlayerFields = published.Where(field => field.Name is not
             "<PreviousHealthForHurtCheck>k__BackingField" and not
             "_poseCollisionPreviousYPosition" and not "_poseAlignmentPreviousYDelta" and not
             "<BombJumpPoseInputLocked>k__BackingField" and not "_healthWarning" and not

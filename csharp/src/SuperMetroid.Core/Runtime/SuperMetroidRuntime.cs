@@ -1789,9 +1789,9 @@ public sealed partial class SuperMetroidRuntime
                     : Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
-            // Grounded Morph Ball is movement type four: its fallback selects command
-            // six regardless of residual speed. Spring Ball's type eight instead uses
-            // command one and retains its moving pose until base speed becomes zero.
+            // Grounded Morph Ball ($04) and grounded Spring Ball ($11) both select
+            // momentum command six, regardless of residual speed. Airborne ordinary
+            // Morph Ball ($08), not Spring Ball, selects deceleration command one.
             if (GroundedSamusMovementEnabled &&
                 (Samus.Pose is SamusPoseIds.MorphBallMovingRightPose or
                     SamusPoseIds.MorphBallMovingLeftPose or
@@ -1800,11 +1800,7 @@ public sealed partial class SuperMetroidRuntime
                 usePoseDefinitionFallback &&
                 ProspectiveSamusPose is null)
             {
-                ProspectiveSamusFallbackPose =
-                    Samus.Pose is SamusPoseIds.SpringBallMovingRightPose or SamusPoseIds.SpringBallMovingLeftPose &&
-                    Samus.HorizontalSpeed.BaseFixed != 0
-                    ? Samus.Pose
-                    : Samus.ReadNoInputFallbackPose(_addressSpace);
+                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
             // On the shared fallback branch, pose-definition byte two returns standing aim `$03-$08` to `$01/$02` and
@@ -3700,12 +3696,9 @@ public sealed partial class SuperMetroidRuntime
                              SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose or
                              SamusPoseIds.SpringBallGroundRightPose or SamusPoseIds.SpringBallGroundLeftPose)
                 {
-                    // Morph Ball command six clears base and extra momentum after the
-                    // current movement frame; Spring Ball command two only resets mode.
-                    if (poseAtFrameStart is SamusPoseIds.MorphBallMovingRightPose or SamusPoseIds.MorphBallMovingLeftPose)
-                        Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
-                    else
-                        Samus.HorizontalSpeed.AccelerationMode = 0;
+                    // $91:EC85 command six clears base and extra momentum after the
+                    // current movement frame for both grounded ball movement types.
+                    Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
                     Samus.ApplyMorphBallPoseChange(
                         _addressSpace,
                         unchecked((byte)ProspectiveSamusFallbackPose.Value));

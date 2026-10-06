@@ -12,6 +12,36 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifySpringBallRelease()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RidleyMovieMemory.RidleyRoom);
+        runtime.InitializeDebugGroundedSamus(79, 425, 16);
+        var samus = runtime.Samus!;
+        samus.InputLocked = false;
+        samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
+        samus.Pose = SamusPoseIds.SpringBallMovingLeftPose;
+        samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
+        samus.SetAnimationFrameFromSpecialHandler(5, 3);
+        samus.XPosition = 79; samus.Kinematics.XSubposition = 0x8000;
+        samus.YPosition = 425; samus.Kinematics.YSubposition = ushort.MaxValue;
+        samus.HorizontalSpeed.BaseSpeed = 3; samus.HorizontalSpeed.BaseSubspeed = 0xc000;
+        samus.HorizontalSpeed.AccelerationMode = 0;
+        runtime.Controller1.Latch(0x0200);
+        // Original movie source 1616 -> 1617: release Left while rolling.
+        runtime.StepFrame(0);
+        AssertEqual(0x004c4000u, samus.Kinematics.XFixed, "spring release retains native final displacement");
+        AssertEqual(SamusPoseIds.SpringBallGroundLeftPose, samus.Pose, "spring release selects stationary pose immediately");
+        AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "spring release clears base momentum after movement");
+        AssertEqual((ushort)0, samus.HorizontalSpeed.AccelerationMode, "spring release clears acceleration mode");
+        runtime.StepFrame(0);
+        AssertEqual(0x004c4000u, samus.Kinematics.XFixed, "released spring ball stays stopped next update");
+        Console.WriteLine("Spring Ball release: native movie displacement, pose and immediate momentum reset pass.");
+    }
+
     private static void VerifyRidleyTailOffsets()
     {
         var tick = typeof(RoomEnemySystem).GetMethod("TickRidleyTailSegment", BindingFlags.Static | BindingFlags.NonPublic)!;

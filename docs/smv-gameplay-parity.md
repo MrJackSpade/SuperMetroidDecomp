@@ -194,9 +194,13 @@ blocking the whole tile, matching $86:85C2/$8676. A real-room source1248 fixture
 failed before the fix and now matches native X/Y and subpositions. Occupied-quarter
 horizontal/vertical checks also confirm the eight-pixel collision clamp.
 
-Expanded checked state now matches through update 3212 of 10,717. The next
-mismatch is update3213/source3317: native Moonwalk pose $49 versus port turn $26.
-This boundary remains under investigation.
+The one-time movie importer now preserves the recorded Moonwalk option ($09E4).
+Its omission caused a false turn-versus-moonwalk mismatch at source3317. No
+production behavior changed for that importer correction.
+
+Expanded checked state now matches through update 3499 of 10,717. The next
+mismatch is update3500/source3604: native Samus animation frame1/timer2 versus
+port frame0/timer5. This boundary remains under investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

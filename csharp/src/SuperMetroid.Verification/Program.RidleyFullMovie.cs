@@ -425,6 +425,7 @@ internal static partial class Program
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.MoonwalkEnabled = W(RidleyMovieMemory.MoonwalkOption) != 0;
         runtime.System.LoadCollectedItemBytes(memory.AsSpan(RidleyMovieMemory.CollectedItemBits, Bank80SystemState.ItemBitByteCount));
         runtime.System.LoadBossBytes(memory.AsSpan(RidleyMovieMemory.BossBits, Bank80SystemState.AreaCount));
         runtime.System.LoadEventBytes(memory.AsSpan(RidleyMovieMemory.Events, Bank80SystemState.EventByteCount));

@@ -1,6 +1,8 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$09E4: native Moonwalk option preserved by the movie snapshot.</summary>
+    public const int MoonwalkOption = 0x09e4;
     /// <summary>$099C: bank-$82 door-transition dispatcher, used to align completed loading owners.</summary>
     public const int DoorFunction = 0x099c;
     /// <summary>$82:E3C0: PlaceSamusLoadTiles; decompression overlaps IRQ movement.</summary>

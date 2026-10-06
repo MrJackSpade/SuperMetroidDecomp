@@ -1,4 +1,5 @@
 using System.Text.Json;
+using RedOriginLayout = SuperMetroid.Core.Assets.MotherBrainRainbowPaletteFormat.RedOriginLayout;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -19,6 +20,25 @@ public sealed class MotherBrainRainbowPalettePresentation
         PaletteFrame[] fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
         ushort beamInitial, ushort[] beamCycle)
     {
+        rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase].ReduceRedOrigin();
+        rainbow[MotherBrainRainbowPaletteFormat.FirstGreenRisePhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.FirstGreenRise, true, false, true);
+        rainbow[MotherBrainRainbowPaletteFormat.RedReductionSourcePhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.SecondGreenRise, true, false, true);
+        rainbow[MotherBrainRainbowPaletteFormat.RedReducedPhase].ShareTint(
+            rainbow[MotherBrainRainbowPaletteFormat.RedReductionSourcePhase],
+            -MotherBrainRainbowPaletteFormat.RedReduction, 0, 0);
+        rainbow[MotherBrainRainbowPaletteFormat.BlueGreenShiftPhase].ShareTint(
+            rainbow[MotherBrainRainbowPaletteFormat.RedReducedPhase], 0,
+            -MotherBrainRainbowPaletteFormat.BlueGreenShift, MotherBrainRainbowPaletteFormat.BlueGreenShift);
+        rainbow[MotherBrainRainbowPaletteFormat.MixedShiftPhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.MixedBlue, true, true, false,
+            -MotherBrainRainbowPaletteFormat.RedReduction, MotherBrainRainbowPaletteFormat.GreenAddition);
+        rainbow[MotherBrainRainbowPaletteFormat.BlueMaximumPhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.MaximumBlue, true, true, false,
+            -MotherBrainRainbowPaletteFormat.RedReduction);
+        rainbow[MotherBrainRainbowPaletteFormat.RedRecoveryPhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.BlueMaximumPhase], MotherBrainRainbowShadeProfile.RecoveringGreen, true, false, true,
+            MotherBrainRainbowPaletteFormat.RedRecoveryAddition);
+        rainbow[MotherBrainRainbowPaletteFormat.RedRestoredPhase].ShareTint(rainbow[MotherBrainRainbowPaletteFormat.BlueMaximumPhase],
+            MotherBrainRainbowPaletteFormat.RedReduction, 0, 0);
+        rainbow[MotherBrainRainbowPaletteFormat.BlueRaisedPhase].ShareTint(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], 0, 0,
+            MotherBrainRainbowPaletteFormat.BlueAddition);
         this.rainbow = rainbow;
         this.toGrey = new PaletteFade(toGrey);
         this.fromGrey = new QuantizedPaletteFade(fromGrey);
@@ -277,7 +297,25 @@ public sealed class MotherBrainRainbowPalettePresentation
                 { backLegs = legs; return; }
         }
 
-        public BodyColors Body { get; }
+        public BodyColors Body { get; private set; }
+        internal void ReduceRedOrigin()
+        {
+            RedOriginColors? selected = RedOriginColors.TryCreate(Body);
+            if (selected is not null) Body = new BodyColors(selected);
+        }
+        internal void ShareChannels(PaletteFrame source, MotherBrainRainbowShadeProfile profile, bool red, bool green, bool blue, int redAddition = 0, int greenAddition = 0)
+        {
+            if (Body.Length != source.Body.Length) return;
+            var sharing = SharedBodyChannels.TryCreate(source.Body, Body, profile, red, green, blue, redAddition, greenAddition);
+            if (sharing is not null) Body = new BodyColors(sharing);
+        }
+        internal void ShareTint(PaletteFrame source, int red, int green, int blue)
+        {
+            if (Body.Length != source.Body.Length) return;
+            for (int color = 0; color < Body.Length; color++)
+                if (Body[color] != BodyColors.Tinted(source.Body[color], red, green, blue)) return;
+            Body = new BodyColors(source.Body, red, green, blue);
+        }
         public int LegCount { get; }
         public ushort? TrailingColor { get; }
         public ushort Leg(int color) => stockRear
@@ -289,10 +327,131 @@ public sealed class MotherBrainRainbowPalettePresentation
             | (((color >> 10 & 31) + 1) / 2) << 10);
     }
 
+    /// <summary>Exact red-origin shading from the narrowly reviewed temporal material paints; calculated shades are not retained rows.</summary>
+    private sealed class RedOriginColors
+    {
+        private readonly ushort[] inputs;
+        private RedOriginColors(BodyColors colors)
+        {
+            inputs = [colors[0], (ushort)(colors[RedOriginLayout.DarkHead] & 0x7fe0), colors[RedOriginLayout.PlateStart], colors[RedOriginLayout.PlateEnd], colors[RedOriginLayout.TissueStart], colors[RedOriginLayout.TissueEnd],
+                (ushort)(colors[RedOriginLayout.TissueStart + 1] & 0x3e0), (ushort)(colors[RedOriginLayout.TissueStart + 2] & 0x3e0), (ushort)(colors[RedOriginLayout.TissueStart + 3] & 0x3e0), colors[RedOriginLayout.TailStart], colors[RedOriginLayout.TailStart + 1]];
+        }
+        internal static RedOriginColors? TryCreate(BodyColors colors)
+        {
+            if (colors.Length != MotherBrainRainbowPaletteRomData.ColorCount ||
+                (colors[0] & 31) < (RedOriginLayout.PlateStart - 1) * MotherBrainRainbowPaletteFormat.HeadRedStep) return null;
+            var selected = new RedOriginColors(colors);
+            for (int color = 0; color < colors.Length; color++)
+                if (selected[color] != colors[color]) return null;
+            return selected;
+        }
+        internal ushort this[int color]
+        {
+            get
+            {
+                if (color < RedOriginLayout.PlateStart)
+                {
+                    int red = (inputs[0] & 31) - color * MotherBrainRainbowPaletteFormat.HeadRedStep;
+                    int greenBlue = color < RedOriginLayout.DarkHead ? inputs[0] & 0x7fe0 : inputs[1];
+                    return (ushort)(red | greenBlue);
+                }
+                if (color < RedOriginLayout.TissueStart)
+                {
+                    int result = 0, shade = color - RedOriginLayout.PlateStart;
+                    for (int shift = 0; shift < 15; shift += 5)
+                        result |= (((inputs[2] >> shift & 31) * (RedOriginLayout.PlateIntervals - shade) +
+                            (inputs[3] >> shift & 31) * shade + RedOriginLayout.PlateIntervals - 1) / RedOriginLayout.PlateIntervals) << shift;
+                    return (ushort)result;
+                }
+                if (color < RedOriginLayout.TailStart)
+                {
+                    int shade = color - RedOriginLayout.TissueStart;
+                    int red = ((inputs[4] & 31) * (RedOriginLayout.TissueIntervals - shade) + (inputs[5] & 31) * shade + RedOriginLayout.TissueIntervals / 2) / RedOriginLayout.TissueIntervals;
+                    int blue = ((inputs[4] >> 10) * (RedOriginLayout.TissueIntervals - shade) + (inputs[5] >> 10) * shade) / RedOriginLayout.TissueIntervals;
+                    int green = shade == 0 ? inputs[4] & 0x3e0 : shade == RedOriginLayout.TissueIntervals ? inputs[5] & 0x3e0 : inputs[5 + shade];
+                    return (ushort)(red | green | blue << 10);
+                }
+                return inputs[color - RedOriginLayout.TailStart + 9];
+            }
+        }
+    }
+    /// <summary>Exact shared channels with all unexplained RGB5 samples retained independently.</summary>
+    private sealed class SharedBodyChannels
+    {
+        private readonly BodyColors source;
+        private readonly bool red, green, blue;
+        private readonly int redAddition, greenAddition, independentCount;
+        private readonly MotherBrainRainbowShadeChannel independent;
+        internal int Length => source.Length;
+        private SharedBodyChannels(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, bool red, bool green, bool blue, int redAddition, int greenAddition)
+        {
+            this.source = source; this.red = red; this.green = green; this.blue = blue; this.redAddition = redAddition; this.greenAddition = greenAddition;
+            independentCount = (red ? 0 : 1) + (green ? 0 : 1) + (blue ? 0 : 1);
+            if (independentCount != 1) throw new InvalidOperationException("A rainbow shade profile requires one independently supplied channel.");
+            var samples = new byte[Length];
+            int index = 0;
+            for (int color = 0; color < Length; color++)
+            {
+                ushort word = selected[color];
+                if (!red) samples[index++] = (byte)(word & 31);
+                if (!green) samples[index++] = (byte)(word >> 5 & 31);
+                if (!blue) samples[index++] = (byte)(word >> 10 & 31);
+            }
+            independent = new MotherBrainRainbowShadeChannel(samples, profile, color => (source[color] >> 5) & 31);
+        }
+        internal static SharedBodyChannels? TryCreate(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, bool red, bool green, bool blue, int redAddition, int greenAddition)
+        {
+            for (int color = 0; color < source.Length; color++)
+            {
+                ushort from = source[color], to = selected[color];
+                if (red && (from & 31) + redAddition != (to & 31) ||
+                    green && (from >> 5 & 31) + greenAddition != (to >> 5 & 31) ||
+                    blue && (from >> 10 & 31) != (to >> 10 & 31)) return null;
+            }
+            return new(source, selected, profile, red, green, blue, redAddition, greenAddition);
+        }
+        internal ushort this[int color]
+        {
+            get
+            {
+                ushort from = source[color];
+                int index = color * independentCount;
+                int r = red ? (from & 31) + redAddition : independent[index++];
+                int g = green ? (from >> 5 & 31) + greenAddition : independent[index++];
+                int b = blue ? from >> 10 & 31 : independent[index];
+                return (ushort)(r | g << 5 | b << 10);
+            }
+        }
+    }
     /// <summary>Recognizes normal and drained body paint without repeated palette rows.</summary>
     private sealed class BodyColors
     {
         private readonly ushort[]? supplied;
+        private readonly RedOriginColors? redOrigin;
+        internal BodyColors(RedOriginColors colors)
+        {
+            redOrigin = colors;
+            Length = MotherBrainRainbowPaletteRomData.ColorCount;
+        }
+        private readonly SharedBodyChannels? sharedChannels;
+        internal BodyColors(SharedBodyChannels channels)
+        {
+            sharedChannels = channels;
+            Length = channels.Length;
+        }
+        private readonly BodyColors? tintSource;
+        private readonly int redTint, greenTint, blueTint;
+        internal BodyColors(BodyColors source, int red, int green, int blue)
+        {
+            tintSource = source;
+            redTint = red; greenTint = green; blueTint = blue;
+            Length = source.Length;
+        }
+        internal static int Tinted(ushort word, int red, int green, int blue)
+        {
+            int r = (word & 31) + red, g = (word >> 5 & 31) + green, b = (word >> 10 & 31) + blue;
+            return (uint)r > 31 || (uint)g > 31 || (uint)b > 31 ? -1 : r | g << 5 | b << 10;
+        }
         private readonly DrainedBodyColors? drained;
         public int Length { get; }
         public BodyColors(ushort[] colors)
@@ -305,7 +464,10 @@ public sealed class MotherBrainRainbowPalettePresentation
             drained = new DrainedBodyColors(colors);
             if (!drained.Calculated) { drained = null; supplied = colors; }
         }
-        public ushort this[int color] => supplied is not null ? supplied[color]
+        public ushort this[int color] => redOrigin is not null ? redOrigin[color]
+            : sharedChannels is not null ? sharedChannels[color]
+            : tintSource is not null ? (ushort)Tinted(tintSource[color], redTint, greenTint, blueTint)
+            : supplied is not null ? supplied[color]
             : drained is not null ? drained[color]
             : MotherBrainHealthPalettePresentation.StockBaseColor(false, color);
     }
@@ -534,6 +696,49 @@ public sealed record MotherBrainRainbowPaletteFrameDocument
 
 public static class MotherBrainRainbowPaletteFormat
 {
+    internal static class RedOriginLayout
+    {
+        /// <summary>$AD:E44E: darker head pair begins at body color index2.</summary>
+        internal const int DarkHead = 2;
+        /// <summary>$AD:E452-E459: four plate inks at body indices4..7.</summary>
+        internal const int PlateStart = 4, PlateEnd = 7;
+        internal const int PlateIntervals = PlateEnd - PlateStart;
+        /// <summary>$AD:E45A-E463: five tissue inks at body indices8..12.</summary>
+        internal const int TissueStart = 8, TissueEnd = 12;
+        internal const int TissueIntervals = TissueEnd - TissueStart;
+        /// <summary>$AD:E464-E467: two remaining independent body inks at indices13..14.</summary>
+        internal const int TailStart = 13;
+    }
+    /// <summary>$AD:E44A-E451: first four head/outline inks have red31/25/19/13; chosen decrement6 and paired other-channel policy are chosen paint-animation content.</summary>
+    internal const int HeadRedStep = 6;
+    /// <summary>$AD:E44A: original red phase, supplying shared channels; selected phase role is chosen paint-animation content.</summary>
+    internal const int RedOriginPhase = 0;
+    /// <summary>$AD:E486: first green rise shares original red/blue; its independent green inputs are chosen paint-animation content.</summary>
+    internal const int FirstGreenRisePhase = 1;
+    /// <summary>$AD:E576: phase5 retains original red minus10/green plus5; its independent blue inputs and tint choices are chosen paint-animation content.</summary>
+    internal const int MixedShiftPhase = 5;
+    /// <summary>$AD:E5B2: phase6 retains original green and reduced red; its independent blue inputs are chosen paint-animation content.</summary>
+    internal const int BlueMaximumPhase = 6;
+    /// <summary>$AD:E5EE: phase7 retains phase6 blue and increases red; its independent green inputs are chosen paint-animation content.</summary>
+    internal const int RedRecoveryPhase = 7;
+    /// <summary>$AD:E62A: phase8 is phase6 with restored red plus10; selected phase mapping/tint are chosen paint-animation content.</summary>
+    internal const int RedRestoredPhase = 8;
+    /// <summary>$AD:E576 versusE44A: selected green addition5 across all15 inks; independent of red/blue additions5 and chosen paint-animation content.</summary>
+    internal const int GreenAddition = 5;
+    /// <summary>$AD:E5EE versusE5B2: selected red recovery addition5; magnitude is chosen paint-animation content independently of blue tint5.</summary>
+    internal const int RedRecoveryAddition = 5;
+    /// <summary>$AD:E4C2/E4FE: phase3 copies phase2 with a selected red reduction; phase mapping is chosen paint-animation content.</summary>
+    internal const int RedReductionSourcePhase = 2, RedReducedPhase = 3;
+    /// <summary>$AD:E4FE: all15 body inks reduce red by10; chosen magnitude is chosen paint-animation content.</summary>
+    internal const int RedReduction = 10;
+    /// <summary>$AD:E53A: phase4 shifts phase3 from green toward blue; phase mapping is chosen paint-animation content.</summary>
+    internal const int BlueGreenShiftPhase = 4;
+    /// <summary>$AD:E53A: all15 body inks subtract2 green/add2 blue; selected amount is chosen paint-animation content.</summary>
+    internal const int BlueGreenShift = 2;
+    /// <summary>$AD:E666: phase9 copies phase0 with increased blue; selected mapping is chosen paint-animation content.</summary>
+    internal const int BlueRaisedPhase = 9;
+    /// <summary>$AD:E666 versusE44A: all15 body inks add5 blue; selected magnitude is chosen paint-animation content.</summary>
+    internal const int BlueAddition = 5;
     public const string FileName = "mother-brain-rainbow-palette.json";
     public const int Version = 3;
     public const int PreFakeDeathVersion = 2;

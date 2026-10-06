@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 507,
+  "remainingTableDefinitionCount": 506,
   "fileCount": 523,
   "entries": [
     {
@@ -1426,12 +1426,15 @@
       "implementationCommit": "312bed324"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs",
-      "line": 10,
-      "name": "MotherBrainRainbowPalettePresentation.rainbow",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainRainbowPalettePresentation.rainbow. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs",
+    "line":  10,
+    "name":  "MotherBrainRainbowPalettePresentation.rainbow",
+    "kind":  "installed stock table",
+    "note":  "Original/default payload behind MotherBrainRainbowPalettePresentation.rainbow. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+    "state":  "justified-retained",
+    "implementationCommit":  "e9b9039a0a85c2ecc2e1f75696819da6820d3fda",
+    "disposition":  "Mixed complete: shared RGB channels, material interpolation, uniform tints and half-intensity rear calculated. Retain54independent RGB5 components and exact material/phase,step,pairing,rounding choices that specify the selected cortex/plate/tissue/glint/exposed-head painted animation. Full source and pixel-role evidence in stream3 batches153-155. Other palette fields,cadence and geometry excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs",
       "line": 11,
@@ -21552,5 +21555,5 @@
     }
   ],
   "convertedSinceSnapshot": 597,
-  "justifiedRetainedSinceSnapshot": 24
+  "justifiedRetainedSinceSnapshot": 25
 }

@@ -1679,6 +1679,32 @@ internal static partial class Program
             "stream 3 normal rear palette calculates from shared health lighting without a stored row");
         var storedRainbow = (Array)typeof(MotherBrainRainbowPalettePresentation).GetField("rainbow",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
+        object RainbowBody(int phase)
+        {
+            object selected = storedRainbow.GetValue(phase)!;
+            return selected.GetType().GetProperty("Body")!.GetValue(selected)!;
+        }
+        object redBody = RainbowBody(0);
+        object redBasis = redBody.GetType().GetField("redOrigin", privateFields)!.GetValue(redBody)!;
+        AssertTrue(redBasis is not null, "native rainbow actually selects calculated red-origin shades");
+        AssertEqual(11, ((ushort[])redBasis!.GetType().GetField("inputs", privateFields)!.GetValue(redBasis)!).Length,
+            "red-origin basis retains eleven packed independent words");
+        int independentChannels = 0;
+        foreach (int phase in new[] { 1, 2, 5, 6, 7 })
+        {
+            object body = RainbowBody(phase);
+            object sharing = body.GetType().GetField("sharedChannels", privateFields)!.GetValue(body)!;
+            AssertTrue(sharing is not null, $"rainbow phase {phase} actually uses shared channels");
+            object channel = sharing!.GetType().GetField("independent", privateFields)!.GetValue(sharing)!;
+            independentChannels += (int)channel.GetType().GetProperty("IndependentCount", privateFields)!.GetValue(channel)!;
+        }
+        AssertEqual(28, independentChannels, "remaining independently supplied channels outside red-origin basis");
+        foreach (int phase in new[] { 3, 4, 8, 9 })
+        {
+            object body = RainbowBody(phase);
+            AssertTrue(body.GetType().GetField("tintSource", privateFields)!.GetValue(body) is not null,
+                $"rainbow phase {phase} actually uses exact whole-palette tint");
+        }
         foreach (object frame in storedRainbow)
             AssertTrue(frame.GetType().GetField("backLegs", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                 .GetValue(frame) is null, "stream 3 rainbow shadow tables discarded");

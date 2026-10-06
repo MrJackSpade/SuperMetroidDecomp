@@ -3211,6 +3211,8 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     while (ridleyEnemies.CeresStatus != 1 && retreatFrames < 1024)
     {
         ridleyEnemies.StepFrame(0, 0, timeIsFrozen: false, auditSamus);
+        // Room main follows enemy AI, so the handoff frame also takes getaway step zero.
+        ridleyEnemies.RunCeresRidleyGetawayRoomMain(auditSamus, (ushort)retreatFrames);
         retreatFrames++;
     }
     if (ridleyEnemies.CeresStatus != 1 ||
@@ -3242,18 +3244,17 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     int mode7Frames = 0;
     while (ridleyState.Mode7Active && mode7Frames < 512)
     {
-        // Room-main requests ejection after the player phase. Admit that request
-        // on the following frame, as the runtime does, without simulating movement here.
-        auditSamus.CeresRidleyEjection.BeginFrame(auditSamus);
         ridleyEnemies.StepFrame(0, 0, timeIsFrozen: false, auditSamus);
         ridleyEnemies.StepEnemyProjectiles(retailRidleyLevel, auditSamus);
+        ridleyEnemies.RunCeresRidleyGetawayRoomMain(auditSamus, (ushort)mode7Frames);
         sawRotatedMatrix |= ridleyState.Mode7MatrixB != 0 &&
             ridleyState.Mode7MatrixC != 0;
         sawSamusPushOwnership |= auditSamus.CeresRidleyEjection.IsActive;
-        if (mode7Frames == 104 && (!auditSamus.CeresRidleyEjection.IsPending || auditSamus.CeresRidleyEjection.IsActive))
-            throw new InvalidDataException("Ceres ejection did not remain pending on the request frame.");
-        if (mode7Frames == 105 && (auditSamus.CeresRidleyEjection.IsPending || !auditSamus.CeresRidleyEjection.IsActive || auditSamus.InputLocked))
-            throw new InvalidDataException("Ceres ejection admission altered the native next-frame ownership boundary.");
+        // Getaway byte index $D0 is consumed by this loop's 104th room-main call.
+        if (mode7Frames == 102 && auditSamus.CeresRidleyEjection.IsActive)
+            throw new InvalidDataException("Ceres ejection was installed before getaway index $D0.");
+        if (mode7Frames == 103 && (!auditSamus.CeresRidleyEjection.IsActive || auditSamus.InputLocked))
+            throw new InvalidDataException("Getaway index $D0 did not install the ejection handler alone.");
         sawAnimatedMode7Map |= !ridleyVram.Bytes.SequenceEqual(vramBeforeMode7Animation);
         if (!sawVisibleMode7Getaway)
         {

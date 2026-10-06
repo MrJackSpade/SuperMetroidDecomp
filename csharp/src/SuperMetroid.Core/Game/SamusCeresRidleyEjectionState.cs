@@ -9,17 +9,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 /// <remarks>
 /// The native request is made from room-main code, after Samus has already moved for that
-/// frame. <see cref="Request"/> therefore publishes a pending handler and
-/// <see cref="BeginFrame"/> promotes it on the following gameplay frame. This explicit
-/// seam is important in the current runtime because Ridley's translated visual owner runs
-/// during EnemyMain; immediately changing pose or input there would be one frame early.
+/// frame, so the installed handler first runs on the following gameplay frame.
 /// </remarks>
 public sealed class SamusCeresRidleyEjectionState
 {
     private const ushort TerminalDownwardSpeed = 5;
-
-    /// <summary>True between `$A6:AAF8`'s request and the following handler frame.</summary>
-    public bool IsPending { get; private set; }
 
     /// <summary>True while `$90:E12E/$E1C8` owns Samus movement.</summary>
     public bool IsActive { get; private set; }
@@ -32,23 +26,13 @@ public sealed class SamusCeresRidleyEjectionState
     /// </summary>
     public ushort PushDirection { get; private set; }
 
-    /// <summary>Publishes `$90:E119` without executing its next-frame gamma handler early.</summary>
-    public void Request()
-    {
-        if (!IsActive)
-            IsPending = true;
-    }
-
     /// <summary>
-    /// Promotes a room-main request at the beginning of the following gameplay call.
+    /// <c>SetSamusToBePushedOutOfCeresRidleysWay</c> ($90:E119): installs the handlers
+    /// that the following gameplay frame executes.
     /// </summary>
-    public void BeginFrame(SamusState samus)
+    public void Request(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        if (!IsPending)
-            return;
-
-        IsPending = false;
         IsActive = true;
         InitializationPending = true;
 

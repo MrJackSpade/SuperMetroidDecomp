@@ -1458,14 +1458,7 @@ public sealed partial class SuperMetroidRuntime
 
         CeresHaze.Step();
 
-        // Ridley's `$90:E119` request is issued by room main after Samus movement in the
         MessageBoxSelectionSoundRequestedThisFrame = false;
-
-        // cartridge. The translated Ridley visual currently publishes it during EnemyMain,
-        // so promote that pending request only at the next frame boundary. This preserves
-        // both the first `$90:E12E` gamma call and the prior frame's ordinary pose input.
-        if (Samus is { } frameSamus)
-            frameSamus.CeresRidleyEjection.BeginFrame(frameSamus);
 
         // HDMA object pre-instructions run once near the start of each ordinary gameplay
         // pass. A transformation spawned when the preceding message returned therefore
@@ -4220,6 +4213,8 @@ public sealed partial class SuperMetroidRuntime
 
         RunCeresFallingDebrisRoomMain();
         RunCrocomireComebackRoomMain();
+        if (ActiveRoom?.State.MainCallback == RoomMainCallback.HandleCeresRidleyGetawayCutscene)
+            Enemies.RunCeresRidleyGetawayRoomMain(Samus, NmiFrameCounter);
 
         // HandleSamusOutOfHealthAndGameTile advances the four-word gameplay clock after
         // room main and before shaking. Message-box frames returned above, exactly as the

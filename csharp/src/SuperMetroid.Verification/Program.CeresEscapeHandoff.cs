@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -13,9 +15,56 @@ internal static partial class Program
     static void VerifyCeresEscapeHandoff()
     {
         VerifyCeresRidleyEjectionHandler();
+        VerifyLegacyCeresRidleyEjectionSnapshots();
         VerifyCeresElevatorShaftRoomMain();
         VerifyCeresDepartureDispatcherTiming();
         Console.WriteLine("  Ceres escape handoff: ejection, shaft rotation, trigger, hold, and blackout agree.");
+    }
+
+    /// <summary>
+    /// Snapshots from before the getaway moved to room main carry a retired pending flag.
+    /// An idle request restores; one captured mid-deferral has no current equivalent.
+    /// </summary>
+    private static void VerifyLegacyCeresRidleyEjectionSnapshots()
+    {
+        var idle = new SamusCeresRidleyEjectionState();
+        var restored = RestoreLegacyEjection(idle, pending: false);
+        AssertTrue(!restored.IsActive && !restored.InitializationPending,
+            "idle legacy ejection snapshot restores without the retired pending flag");
+        AssertThrows<InvalidDataException>(() => RestoreLegacyEjection(idle, pending: true),
+            "legacy snapshot captured mid-deferral fails loudly");
+
+        static SamusCeresRidleyEjectionState RestoreLegacyEjection(SamusCeresRidleyEjectionState state, bool pending)
+        {
+            // The prior field envelope: every current field plus `<IsPending>k__BackingField`,
+            // with primitive values written by the production codec.
+            const byte newObjectMarker = 2, fieldPayloadKind = 5;
+            Type type = typeof(SamusCeresRidleyEjectionState);
+            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(field => !field.IsDefined(typeof(NonSerializedAttribute))).ToArray();
+            using var data = new MemoryStream();
+            using (var writer = new BinaryWriter(data, Encoding.UTF8, leaveOpen: true))
+            {
+                writer.Write(newObjectMarker);
+                writer.Write(1);
+                writer.Write(SuperMetroid.Desktop.DebuggerStateTypeIdentity.GetSerializedName(type));
+                writer.Write(fieldPayloadKind);
+                writer.Write(fields.Length + 1);
+                writer.Write(SuperMetroid.Desktop.DebuggerStateTypeIdentity.GetSerializedName(type));
+                writer.Write("<IsPending>k__BackingField");
+                writer.Flush();
+                SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(data, pending);
+                foreach (FieldInfo field in fields)
+                {
+                    writer.Write(SuperMetroid.Desktop.DebuggerStateTypeIdentity.GetSerializedName(field.DeclaringType!));
+                    writer.Write(field.Name);
+                    writer.Flush();
+                    SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(data, field.GetValue(state)!);
+                }
+            }
+            data.Position = 0;
+            return SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SamusCeresRidleyEjectionState>(data);
+        }
     }
 
     private static void VerifyCeresRidleyEjectionHandler()
@@ -56,20 +105,16 @@ internal static partial class Program
         samus.InitializeAnimation(bus);
         RoomLevelData emptyRoom = CreateEmptyRoom(32, 32);
 
-        samus.CeresRidleyEjection.Request();
         samus.PoseHistory.PreviousPose = SamusPoseIds.FacingRightNormalPose;
         samus.PoseHistory.PreviousDirectionAndMovement = 8;
         samus.PoseHistory.LastDifferentPose = SamusPoseIds.SpinJumpLeftPose;
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
-        AssertTrue(samus.CeresRidleyEjection.IsPending, "Ridley ejection request is pending");
-        AssertTrue(!samus.CeresRidleyEjection.IsActive, "request does not execute gamma early");
-        AssertTrue(!samus.InputLocked, "request frame retains ordinary Samus input handler");
-
-        samus.CeresRidleyEjection.BeginFrame(samus);
+        samus.CeresRidleyEjection.Request(samus);
         AssertEqual(SamusPoseIds.SpinJumpLeftPose, samus.PoseHistory.LastDifferentPose,
-            "promoting ejection request does not publish pose history early");
-        AssertTrue(samus.CeresRidleyEjection.IsActive, "next frame promotes Ridley ejection");
-        AssertTrue(!samus.InputLocked, "promoted ejection replaces movement but not pose input");
+            "installing the ejection handler does not publish pose history early");
+        AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.Pose, "request does not execute gamma early");
+        AssertTrue(samus.CeresRidleyEjection.IsActive, "room-main request installs Ridley ejection");
+        AssertTrue(!samus.InputLocked, "installed ejection replaces movement but not pose input");
 
         CeresRidleyEjectionResult initialized = samus.CeresRidleyEjection.Step(
             bus,

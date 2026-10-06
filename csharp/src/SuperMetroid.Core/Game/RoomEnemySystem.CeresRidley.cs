@@ -392,8 +392,7 @@ public sealed partial class RoomEnemySystem
                 break;
 
             case RidleyAiFunction.CeresInactive:
-                if (CeresStatus == 1 && state.Mode7Active)
-                    TickCeresRidleyMode7Getaway(state, samus, slot.FrameCounter);
+                // $A6:AA4F is an RTS; room main owns the getaway.
                 return;
 
             case RidleyAiFunction.CeresActivateSelfDestruct:

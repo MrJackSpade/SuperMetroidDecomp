@@ -6595,6 +6595,11 @@ if (args is ["--ceres-ridley-room-entry"])
     VerifyCeresRidleyRoomEntry();
     return 0;
 }
+if (args is ["--ceres-escape-handoff"])
+{
+    VerifyCeresEscapeHandoff();
+    return 0;
+}
 if (args is ["--mother-brain"])
 {
     VerifyMotherBrainHandBeamBodyInstructionDefinitions();

@@ -291,7 +291,6 @@ internal static class InputReplayAudit
                 samus?.Health,
                 ceresStatus,
                 ejection,
-                samus?.CeresRidleyEjection.IsPending ?? false,
                 samus?.InputLocked ?? false,
                 samus?.KnockbackActive ?? false,
                 samus?.KnockbackTimer ?? 0,
@@ -433,7 +432,6 @@ internal static class InputReplayAudit
         ushort? Health,
         ushort CeresStatus,
         bool EjectionActive,
-        bool EjectionPending,
         bool InputLocked,
         bool KnockbackActive,
         ushort KnockbackTimer,
@@ -459,7 +457,7 @@ internal static class InputReplayAudit
                 ? $"{elevatorStatus}/{ElevatorEvent}"
                 : "--/--") +
             $" hp={Health?.ToString() ?? "-"} ceres=${CeresStatus:X4}" +
-            $" eject={EjectionActive}/{EjectionPending} lock={InputLocked}" +
+            $" eject={EjectionActive} lock={InputLocked}" +
             $" kb={KnockbackActive}/${KnockbackTimer}/${KnockbackDirection}/{KnockbackXDirection} ridley=" +
             (RidleyFunction is { } function ? $"${(ushort)function:X4}" : "----") +
             $" m7={Mode7Active} door={PendingDoor}";

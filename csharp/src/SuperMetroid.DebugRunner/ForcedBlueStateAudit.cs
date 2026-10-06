@@ -67,8 +67,7 @@ internal static class ForcedBlueStateAudit
     private static ForcedBlueSnapshot RunCeres(ISnesAddressSpace bus)
     {
         SamusState samus = CreateActiveHorizontalSpark(bus);
-        samus.CeresRidleyEjection.Request();
-        samus.CeresRidleyEjection.BeginFrame(samus);
+        samus.CeresRidleyEjection.Request(samus);
         return Snapshot(samus, ForcedBlueAuditDefinitions.RtsMovementOrInputHandler);
     }
 

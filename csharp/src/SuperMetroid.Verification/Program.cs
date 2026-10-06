@@ -26,6 +26,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream5-ceres-source-pages"])
+{
+    var ceresPageOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(ceresPageOracle.Rom)), "Ceres source-page oracle revision");
+    VerifyLookupStream5CeresSourcePages();
+    VerifyCeresEscapeVramTransferDefinitions(ceresPageOracle);
+    return 0;
+}
 if (args is ["--lookup-stream-1-body-facing"] or ["--lookup-stream-1-xray-frames"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

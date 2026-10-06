@@ -6,6 +6,31 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5CeresSourcePages()
+    {
+        CeresEscapeTileSheetDefinition[] tilePages = [new(0xb7da00, 0x900, "ceres-escape-warning-tiles.png"), new(0xb0ba00, 0x600, "ceres-escape-door-tiles.png")];
+        AssertTrue(tilePages.SequenceEqual(CeresEscapeTileArtworkDefinitions.All), "Original named character page order/source/extent/file");
+        foreach (var page in tilePages)
+        {
+            AssertTrue(CeresEscapeTileArtworkDefinitions.Contains(page.SourceAddress, page.ByteCount), "Whole page admitted");
+            AssertTrue(CeresEscapeTileArtworkDefinitions.Contains(page.SourceAddress + page.ByteCount - 1, 1), "Last byte admitted");
+            AssertTrue(!CeresEscapeTileArtworkDefinitions.Contains(page.SourceAddress - 1, 1) && !CeresEscapeTileArtworkDefinitions.Contains(page.SourceAddress + page.ByteCount, 1), "Outside page rejected");
+            AssertTrue(!CeresEscapeTileArtworkDefinitions.Contains(page.SourceAddress, 0), "Zero byte page rejected");
+        }
+        CeresEscapeOverlayTilemapDefinition[] overlays = [new("emergency", 0xa6c164, 9), new("japanese_0", 0xa6c3f4, 12), new("japanese_1", 0xa6c40c, 12), new("japanese_2", 0xa6c424, 11), new("japanese_3", 0xa6c43a, 11)];
+        AssertTrue(overlays.SequenceEqual(CeresEscapeOverlayTilemapDefinitions.All), "Original named overlay order/source/extent");
+        foreach (var page in overlays)
+        {
+            AssertTrue(CeresEscapeOverlayTilemapDefinitions.IsSource(page.SourceAddress, page.WordCount * 2), "Exact overlay extent admitted");
+            AssertTrue(!CeresEscapeOverlayTilemapDefinitions.IsSource(page.SourceAddress, page.WordCount * 2 - 1), "Partial overlay extent rejected");
+            AssertTrue(CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(page.SourceAddress) && CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(page.SourceAddress + page.WordCount * 2 - 1), "Overlay byte endpoints admitted");
+        }
+        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[-1], "Tile page lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeTileArtworkDefinitions.All[2], "Tile page upper bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[-1], "Overlay lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[5], "Overlay upper bound");
+        Console.WriteLine("Ceres source page cases: two character sheets/five overlays preserve exact identities, order, extents, enumeration and range domains.");
+    }
     private static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.MapLandmarkExtractor.Extract(rom);

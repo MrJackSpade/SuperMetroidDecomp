@@ -153,12 +153,12 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs
 
-- [ ] **CeresEscapeOverlayTilemapDefinitions.Definitions** ([L41](../csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs#L41)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresEscapeOverlayTilemapDefinitions.Definitions** - CONVERTED: named source-page cases preserve addresses, ranges, names and order. Independent pixels and overlay words remain required.
 - [ ] **CeresEscapeOverlayTilemapCatalog.pages** ([L78](../csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs#L78)) - installed stock table. Original/default payload behind CeresEscapeOverlayTilemapCatalog.pages. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileArtwork.cs
 
-- [ ] **CeresEscapeTileArtworkDefinitions.Pages** ([L21](../csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileArtwork.cs#L21)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CeresEscapeTileArtworkDefinitions.Pages** - CONVERTED: named source-page cases preserve addresses, ranges, names and order. Independent pixels and overlay words remain required.
 
 ### csharp/src/SuperMetroid.Core/Assets/CeresFlightActorLayout.cs
 
@@ -1055,3 +1055,8 @@ Root build1450warnings/0errors;256native colors,768independent channel edits,exa
 Conversionaee36f9a3 completes six boss-slot and six elevator-destination arrays via named area/boss/connection cases and generated stable anchor IDs. Crateria retains three empty boss slots; Tourian has no boss slots and Ceres has no elevator list. Native82:C759-C7CA destination records and C83B/C89D/C90B/C981/C9DB/CA9B boss lists establish exact ordering. Coordinates,glyphs and artwork remain independent required payloads.
 
 Root build1450warnings/0errors;8native boss slots,17destinations,extraction/schema,23ordered identities,bounds/enumeration and56actual stock/edited ordered OAM/state cases pass. Inventory586converted/21retained-mixed/521pending. No artwork or coordinate exception.
+
+
+### Integrated Ceres source catalog cases (d1cef8ec3)
+
+Two descriptor arrays are replaced by named WarningText/Doors and Emergency/JapaneseFirst/Second/Third/Fourth cases. Root confirmed exact identities, ordered enumeration, range admission and bounds; the existing native DMA check passes 19 records, three terminators, both timer lists and Japanese overlay with descriptor reads blocked. Verification build 1452 warnings/0 errors, corrected command wiring incremental build 25/0; ResourceAudit 0/0. An initial missing CLI branch fell through to the unrelated default suite and is not confirmation evidence. Overlay words and character pixels remain required; no new retention. Master 595 converted /21 retained-mixed /512 pending.

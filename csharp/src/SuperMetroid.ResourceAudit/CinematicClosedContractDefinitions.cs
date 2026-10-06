@@ -46,7 +46,7 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/EscapeTimerTileAtlas.cs", "A27811EFCBD8940CD241D7C3498E5DDD8EC39B3906CC523E93BFC4248DA58F9E")],
             "Private construction requires Label, all ten decimal digit compositions and four anchors. Draw validates packed BCD before deriving only those loaded digit names. External Core access to mutable AnchorNames revokes this proof. Countdown logic, placement and actual glyph appearance are not certified."),
         new("SuperMetroid.Core.Assets.CeresEscapeOverlayTilemapCatalog", "ceres-overlay-complete-owned-membership-query", ["TryResolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "221707D460C05818CC9C71A2C57936F1F69FBAA7ABF9B03E0B4BF4C334D9227A")],
+            [new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "31CB45E0AEBA78CC1A60B7442EEBB1FEC865CE5138AC2EB24977C02C2BB75337")],
             "Private construction requires all five named warning pages with their exact separate lengths and compiles independent bytes. TryResolve checks source and length; unsupported requests validly return false and do not demand new art. This proves owned-set membership only, not DMA caller source selection or warning timing."),
     ];
 }

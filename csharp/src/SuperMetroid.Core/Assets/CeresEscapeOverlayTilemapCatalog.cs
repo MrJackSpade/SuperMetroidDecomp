@@ -37,14 +37,31 @@ internal static class CeresEscapeOverlayTilemapDefinitions
     internal static readonly CeresEscapeOverlayTilemapDefinition JapaneseFourth =
         new("japanese_3", 0xa6c43a, 11);
 
-    private static readonly CeresEscapeOverlayTilemapDefinition[] Definitions =
-        [Emergency, JapaneseFirst, JapaneseSecond, JapaneseThird, JapaneseFourth];
+    internal static PageSequence All => default;
 
-    internal static ReadOnlySpan<CeresEscapeOverlayTilemapDefinition> All => Definitions;
+    internal readonly struct PageSequence : IReadOnlyList<CeresEscapeOverlayTilemapDefinition>
+    {
+        public int Count => 5;
+        public int Length => Count;
+        public CeresEscapeOverlayTilemapDefinition this[int index] => index switch
+        {
+            0 => Emergency,
+            1 => JapaneseFirst,
+            2 => JapaneseSecond,
+            3 => JapaneseThird,
+            4 => JapaneseFourth,
+            _ => throw new IndexOutOfRangeException(),
+        };
+        public IEnumerator<CeresEscapeOverlayTilemapDefinition> GetEnumerator()
+        {
+            for (int i = 0; i < Count; i++) yield return this[i];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 
     internal static bool IsSource(int sourceAddress, int byteCount)
     {
-        foreach (CeresEscapeOverlayTilemapDefinition page in Definitions)
+        foreach (CeresEscapeOverlayTilemapDefinition page in All)
             if (page.SourceAddress == sourceAddress &&
                 page.WordCount * sizeof(ushort) == byteCount)
                 return true;
@@ -53,7 +70,7 @@ internal static class CeresEscapeOverlayTilemapDefinitions
 
     internal static bool ContainsByteAddress(int address)
     {
-        foreach (CeresEscapeOverlayTilemapDefinition page in Definitions)
+        foreach (CeresEscapeOverlayTilemapDefinition page in All)
             if (address >= page.SourceAddress &&
                 address < page.SourceAddress + page.WordCount * sizeof(ushort))
                 return true;

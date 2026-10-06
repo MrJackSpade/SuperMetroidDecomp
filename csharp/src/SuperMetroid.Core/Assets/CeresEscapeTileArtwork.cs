@@ -17,14 +17,28 @@ internal static class CeresEscapeTileArtworkDefinitions
         new(CeresEscapeTileRomData.DoorSource,
             CeresEscapeTileRomData.DoorByteCount, "ceres-escape-door-tiles.png");
 
-    private static readonly CeresEscapeTileSheetDefinition[] Pages =
-        [WarningText, Doors];
+    internal static PageSequence All => default;
 
-    internal static ReadOnlySpan<CeresEscapeTileSheetDefinition> All => Pages;
+    internal readonly struct PageSequence : IReadOnlyList<CeresEscapeTileSheetDefinition>
+    {
+        public int Count => 2;
+        public int Length => Count;
+        public CeresEscapeTileSheetDefinition this[int index] => index switch
+        {
+            0 => WarningText,
+            1 => Doors,
+            _ => throw new IndexOutOfRangeException(),
+        };
+        public IEnumerator<CeresEscapeTileSheetDefinition> GetEnumerator()
+        {
+            for (int i = 0; i < Count; i++) yield return this[i];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 
     internal static bool Contains(int sourceAddress, int byteCount)
     {
-        foreach (CeresEscapeTileSheetDefinition page in Pages)
+        foreach (CeresEscapeTileSheetDefinition page in All)
         {
             int offset = sourceAddress - page.SourceAddress;
             if (offset >= 0 && byteCount > 0 && offset <= page.ByteCount - byteCount)

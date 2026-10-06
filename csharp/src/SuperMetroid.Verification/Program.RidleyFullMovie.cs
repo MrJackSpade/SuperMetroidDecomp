@@ -612,6 +612,40 @@ internal static partial class Program
         Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and native low-byte boundary agree.");
     }
 
+    private static void VerifyRidleyPausePageTiming()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var samus = new SamusState { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = 1 };
+        var menu = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Norfair, 0, 0,
+            mapPresentation: RetailPresentationFixture());
+        T Get<T>(string field) => (T)typeof(PauseMenuState).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(menu)!;
+        for (int direction = 0; direction < 2; direction++)
+        {
+            int source = direction, destination = 1 - direction;
+            menu.Step((ushort)(direction == 0 ? SnesButton.R : SnesButton.L), 0);
+            AssertEqual(source, menu.ScreenMode, "page-switch request retains source page");
+            for (int update = 1; update <= 15; update++)
+            {
+                menu.Step(0, 0);
+                AssertEqual(source, menu.ScreenMode, "source page remains through fade-out");
+                AssertEqual(15 - update, Get<int>("transitionBrightness"), "native zero-delay fade-out brightness");
+            }
+            AssertEqual(direction == 0 ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad,
+                Get<PauseMenuTransition>("transition"), "black frame returns into separate load dispatcher");
+            menu.Step(0, 0);
+            AssertEqual(destination, menu.ScreenMode, "separate load dispatch installs destination");
+            AssertEqual(0, Get<int>("transitionBrightness"), "load dispatch remains black");
+            for (int update = 1; update <= 30; update++)
+            {
+                menu.Step(0, 0);
+                AssertEqual(update / 2, Get<int>("transitionBrightness"), "native delay-one fade-in brightness");
+                AssertEqual(update == 30, Get<PauseMenuTransition>("transition") == PauseMenuTransition.None,
+                    "input returns only after the thirtieth fade-in update");
+            }
+        }
+        Console.WriteLine("Both pause-page directions preserve 15 fade-out, one load and 30 fade-in updates.");
+    }
+
     private static void VerifyRidleyPaletteSelection()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

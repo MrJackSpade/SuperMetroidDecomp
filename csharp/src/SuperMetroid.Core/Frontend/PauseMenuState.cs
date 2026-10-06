@@ -36,6 +36,7 @@ internal sealed partial class PauseMenuState
     private readonly byte[] equipmentTilemap;
     private readonly byte[] pauseButtonTilemap;
     private PauseMenuTransition transition;
+    private int transitionFadeCounter;
     private int transitionBrightness = 15;
     private int selectedCategory;
     private int selectedItem;
@@ -441,7 +442,14 @@ internal sealed partial class PauseMenuState
                 if (transitionBrightness > 0)
                     return;
 
-                if (transition == PauseMenuTransition.MapToEquipmentFadeOut)
+                // $82:9156/$9186 returns at black before the separate load dispatch.
+                transition = transition == PauseMenuTransition.MapToEquipmentFadeOut
+                    ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad;
+                return;
+
+            case PauseMenuTransition.MapToEquipmentLoad:
+            case PauseMenuTransition.EquipmentToMapLoad:
+                if (transition == PauseMenuTransition.MapToEquipmentLoad)
                 {
                     ScreenMode = 1;
                     // $82:AB47 resets the selector on each equipment-page entry.
@@ -460,10 +468,15 @@ internal sealed partial class PauseMenuState
                     transition = PauseMenuTransition.EquipmentToMapFadeIn;
                 }
                 transitionBrightness = 0;
+                transitionFadeCounter = PauseFadeTiming.CounterReload;
                 return;
 
             case PauseMenuTransition.MapToEquipmentFadeIn:
             case PauseMenuTransition.EquipmentToMapFadeIn:
+                // Load dispatches set delay/counter to one; $80:894D spends a
+                // counter-only update between brightness writes.
+                if (transitionFadeCounter-- > 0) return;
+                transitionFadeCounter = PauseFadeTiming.CounterReload;
                 transitionBrightness++;
                 if (transitionBrightness >= 15)
                 {
@@ -848,4 +861,6 @@ internal enum PauseMenuTransition
     MapToEquipmentFadeIn,
     EquipmentToMapFadeOut,
     EquipmentToMapFadeIn,
+    MapToEquipmentLoad,
+    EquipmentToMapLoad,
 }

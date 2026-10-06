@@ -915,3 +915,35 @@ colors 102/107 during map-to-equipment transition (`palette-pause-timing-replay.
 native $0156/$039E versus port $039E/$0156. That divergence is still under
 investigation; the expanded full replay is NOT passing yet. Other rendering,
 control and loading audit gaps remain open. No full-parity completion claim.
+
+### Pause page-transition dispatch and cadence
+
+Update 9455/source 9580's reserve-arrow difference was an early equipment input
+update. The port combined fade-out completion with page loading and used one
+update per fade-in brightness step. Native $82:9156/$9186 returns at black into a
+separate $82:91AB/$91D7 load dispatch; those load dispatches set fade delay and
+counter to one. $80:894D then requires 30 updates to reach full brightness.
+
+Both page directions now preserve 15 fade-out updates, one separate load update,
+and 30 fade-in updates before accepting destination-page input. New enum members
+were appended so existing debugger-state transition identities retain their values.
+The focused `--ridley-pause-page-timing` fixture asserts source/destination ownership,
+load dispatch, every brightness step, and input-release boundary in both directions.
+It passes; final build has zero errors (`pause-page-focused.log`,
+`pause-page-final-build.log`). The movie passes the original mismatch and reaches
+update 9471/source 9596 (`pause-page-timing-replay.log`). The transition fix awaits
+player validation.
+
+The next mismatch is animated reserve-arrow colors on the first interactive
+equipment update. Native uses $05B5, whose phase differs from the port. Trace
+inspection found its first discontinuity at source 212 -> 214: byte counter 65 -> 0
+while the word counter advances normally. Pinned assembly identifies the missing
+side effect: door IRQ end-drawing routines $80:97BA/$9823 perform a sixteen-bit
+STZ on NMI_Request ($05B4), clearing the adjacent $05B5 counter, followed by INC.
+This is a door IRQ write, not the music-upload routine. The port currently increments
+the byte counter without this reset. That behavior still needs implementation and
+confirmation at the correct IRQ/accepted-NMI boundary. Do not waive the arrow
+mismatch as merely a removed-upload phase or inject checkpoint counters.
+
+The expanded full replay is still failing at that next mismatch; neither full
+palette parity nor the overall goal is complete. Earlier open audit gaps remain.

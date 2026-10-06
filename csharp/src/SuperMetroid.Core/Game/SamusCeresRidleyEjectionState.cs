@@ -92,7 +92,6 @@ public sealed class SamusCeresRidleyEjectionState
                 : (ushort)2;
             samus.Kinematics.YSpeed = TerminalDownwardSpeed;
             samus.Kinematics.YSubspeed = 0;
-            samus.KnockbackXDirection = PushDirection == 1 ? (ushort)0 : (ushort)1;
 
             // `$90:E12E` initializes only handler state on this call. `$90:E1C8` does not
             // perform the first collision/movement pass until the following frame.
@@ -122,13 +121,11 @@ public sealed class SamusCeresRidleyEjectionState
 
         if (horizontal.Collided)
         {
-            // `$90:E1FD/$E21C` restore the ordinary handler, then Samus_ClearMoveVars sees
-            // the still-set collision flag and clears every movement word. The subsequent
-            // `$90:DDE9` hit-interruption pass observes a completed type-$0A reaction and
-            // routes through `$90:DE20-$DE73` / `$91:F31D`: `$53/$54` becomes ordinary
-            // falling `$29/$2A`, with its shorter radius aligned to the same feet. Calling
-            // that shared owner here is the host equivalent of the native same-frame tail;
-            // selecting standing directly would skip real fall/ground collision behavior.
+            // `$90:E1FD/$E21C` restore the ordinary handlers, then
+            // HandleKnockbackVerticalCollision ($90:DF6E) sees the still-set collision flag,
+            // clears the movement words and aligns the feet to the previous pose. The push
+            // never sets knockback direction `$0A52`, so `$90:DDE9` does not convert the
+            // hurt pose; `$53/$54` remains for the ordinary movement handler.
             IsActive = false;
             PushDirection = 0;
             samus.HorizontalSpeed.BaseSpeed = 0;
@@ -137,7 +134,9 @@ public sealed class SamusCeresRidleyEjectionState
             samus.Kinematics.YSpeed = 0;
             samus.Kinematics.YSubspeed = 0;
             samus.Kinematics.YDirection = 0;
-            SamusKnockbackMovement.FinishHumanoidToFalling(bus, samus);
+            samus.AlignBottomAfterPoseChange(
+                SamusState.ReadPoseYRadius(bus, (byte)samus.PoseHistory.PreviousPose),
+                SamusState.ReadPoseYRadius(bus, samus.Pose));
             return new CeresRidleyEjectionResult(
                 Initialized: false,
                 Horizontal: horizontal,

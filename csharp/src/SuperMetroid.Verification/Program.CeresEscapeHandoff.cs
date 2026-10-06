@@ -153,16 +153,16 @@ internal static partial class Program
         AssertTrue(wallCollision.Ended, "room-wall contact terminates Ceres ejection");
         AssertTrue(!samus.CeresRidleyEjection.IsActive, "wall contact restores normal movement");
         AssertTrue(!samus.InputLocked, "wall contact leaves ordinary pose input available");
-        AssertEqual(SamusPoseIds.FallingRightPose, samus.Pose,
-            "neutral wall handoff consumes ordinary knockback-finished pose");
-        AssertEqual(0, samus.KnockbackDirection,
-            "shared knockback finish clears direction");
-        AssertTrue(!samus.KnockbackActive,
-            "shared knockback finish leaves no special movement owner");
-        AssertEqual(2, samus.Kinematics.YDirection,
-            "shared knockback finish publishes downward falling direction");
-        AssertEqual(102, samus.Kinematics.YPosition,
-            "falling radius keeps the scripted body's feet aligned");
+        // The push never sets knockback direction `$0A52`, so `$90:DDE9` has no knockback
+        // to finish: the hurt pose remains for the ordinary movement handler (retail 100%
+        // movie: `$53` on the wall frame, then landing `$A4`).
+        AssertEqual(SamusPoseIds.KnockbackRightPose, samus.Pose,
+            "wall handoff keeps the hurt pose for ordinary movement");
+        AssertEqual(0, samus.KnockbackDirection, "Ceres push never publishes knockback direction");
+        AssertEqual(0, samus.Kinematics.YSpeed, "$90:DF85 clears Y speed");
+        AssertEqual(0, samus.Kinematics.YDirection, "$90:DF88 clears Y direction");
+        AssertEqual(100, samus.Kinematics.YPosition,
+            "bottom alignment against the previous hurt pose leaves Y unchanged");
     }
 
     private static void VerifyCeresElevatorShaftRoomMain()

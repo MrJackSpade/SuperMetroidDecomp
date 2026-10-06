@@ -11934,4 +11934,15 @@
     "workerCommit":  "50083066a",
     "state":  "mixed-complete",
     "algorithm":  "Nearest widening interpolation from normal-suit ink to white; full-beam equal-channel darkening; zero stock overrides."
+},"samusAtmosphericAttributesComplete":{
+  "confirmation": "Verification1452existing warnings/0errors;Audit0/0;eight native defaults/edits/identities,zero stock overrides and16 actual type-frame OAM plus mutable-WRAM boundary pass.",
+  "completed": [
+    "SamusAtmosphericArtworkCatalog.typeOne",
+    "SamusAtmosphericArtworkCatalog.sharedTypeFour"
+  ],
+  "disposition": [
+    "Mixed complete: eight OBJ words calculate tile progression, zero flips and palette from existing CGRAM208 destination. Retain only selected priority2 for exact atmospheric/background layer composition; deriving that chosen composition from geometry would invent a different image. Pixels, RGB and timing are outside the original eight-word schema and receive no exemption.",
+    "Mixed complete: eight OBJ words calculate tile progression, zero flips and palette from existing CGRAM208 destination. Retain only selected priority2 for exact atmospheric/background layer composition; deriving that chosen composition from geometry would invent a different image. Pixels, RGB and timing are outside the original eight-word schema and receive no exemption."
+  ],
+  "workerCommit": "1dc0570ed"
 }}

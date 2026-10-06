@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 489,
+  "remainingTableDefinitionCount": 487,
   "fileCount": 523,
   "entries": [
     {
@@ -1939,19 +1939,25 @@
       "implementationCommit": "408ba8de3707fbcb8070ec13283b9e8675949e82"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/SamusAtmosphericArtworkCatalog.cs",
-      "line": 12,
-      "name": "SamusAtmosphericArtworkCatalog.typeOne",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind SamusAtmosphericArtworkCatalog.typeOne. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/SamusAtmosphericArtworkCatalog.cs",
+  "line": 12,
+  "name": "SamusAtmosphericArtworkCatalog.typeOne",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind SamusAtmosphericArtworkCatalog.typeOne. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "1dc0570ed",
+  "disposition": "Mixed complete: eight OBJ words calculate tile progression, zero flips and palette from existing CGRAM208 destination. Retain only selected priority2 for exact atmospheric/background layer composition; deriving that chosen composition from geometry would invent a different image. Pixels, RGB and timing are outside the original eight-word schema and receive no exemption."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/SamusAtmosphericArtworkCatalog.cs",
-      "line": 13,
-      "name": "SamusAtmosphericArtworkCatalog.sharedTypeFour",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind SamusAtmosphericArtworkCatalog.sharedTypeFour. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/SamusAtmosphericArtworkCatalog.cs",
+  "line": 13,
+  "name": "SamusAtmosphericArtworkCatalog.sharedTypeFour",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind SamusAtmosphericArtworkCatalog.sharedTypeFour. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "1dc0570ed",
+  "disposition": "Mixed complete: eight OBJ words calculate tile progression, zero flips and palette from existing CGRAM208 destination. Retain only selected priority2 for exact atmospheric/background layer composition; deriving that chosen composition from geometry would invent a different image. Pixels, RGB and timing are outside the original eight-word schema and receive no exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
       "line": 25,
@@ -21607,5 +21613,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 39
+  "justifiedRetainedSinceSnapshot": 41
 }

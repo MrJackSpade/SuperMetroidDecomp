@@ -314,8 +314,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/SamusAtmosphericArtworkCatalog.cs
 
-- [ ] **SamusAtmosphericArtworkCatalog.typeOne** ([L12](../csharp/src/SuperMetroid.Core/Assets/SamusAtmosphericArtworkCatalog.cs#L12)) - installed stock table. Original/default payload behind SamusAtmosphericArtworkCatalog.typeOne. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **SamusAtmosphericArtworkCatalog.sharedTypeFour** ([L13](../csharp/src/SuperMetroid.Core/Assets/SamusAtmosphericArtworkCatalog.cs#L13)) - installed stock table. Original/default payload behind SamusAtmosphericArtworkCatalog.sharedTypeFour. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **SamusAtmosphericArtworkCatalog.typeOne** ([L12](../csharp/src/SuperMetroid.Core/Assets/SamusAtmosphericArtworkCatalog.cs#L12)) - installed stock table. Original/default payload behind SamusAtmosphericArtworkCatalog.typeOne. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **SamusAtmosphericArtworkCatalog.sharedTypeFour** ([L13](../csharp/src/SuperMetroid.Core/Assets/SamusAtmosphericArtworkCatalog.cs#L13)) - installed stock table. Original/default payload behind SamusAtmosphericArtworkCatalog.sharedTypeFour. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs
 
@@ -968,7 +968,7 @@ Partial conversion from2d31d7a,5bea8d416 and ab9d94a8c:130 descriptor direction/
 Exactly238 independent coordinate bytes remain required; drawingData stays unchecked. This is no artwork or timing exemption. Root Verification build1230 warnings/zero errors; --lookup-stream-1-cannon-drawing passes608 native outputs, exact basis/override membership,608 isolated edits, bounds and the253-pose canonical-hash checks. ResourceAudit build0/0. Inventory remains558 converted/20 retained-mixed/550 pending.
 ## Integrated atmospheric OBJ identity progression
 
-Partial conversion4328cc579: both four-frame small-OBJ lists calculate consecutive tile identities using the native nine-bit OBJ format. Read-only views and independent full-word overrides preserve supplied artwork and canonical hashes. Palette5, priority2 and pixel artwork remain required; neither aggregate is marked complete.
+Partial conversion4328cc579: both four-frame small-OBJ lists calculate consecutive tile identities using the native nine-bit OBJ format. Read-only views and independent full-word overrides preserve supplied artwork and canonical hashes. At that checkpoint palette routing and priority remained unresolved. The original entries contain only eight attribute words; pixel artwork is outside their schema. Batch91 below completes both entries.
 
 Root Verification build1445 warnings/zero errors; --lookup-stream-1-atmospheric-attributes passes eight native words, zero stock overrides, eight arbitrary full-word edits, hashes and input isolation, plus16 actual authored OAM frames and the type2 live-WRAM boundary. ResourceAudit0/0. Inventory unchanged558 converted/20 retained-mixed/550 pending.
 ## Integrated escape warning program selection and layout
@@ -1151,3 +1151,16 @@ SamusVisorColorCatalog.colors is MIXED COMPLETE. Totals190 wholly converted / fi
 
 
 Root six-native/basis/zero-overrides/six-independent-edits and guarded room/Xray cycles passed. This checkpoint changes only XML disposition and source hash, not executable behavior; Audit1413existing warnings/0errors. Master600converted/39retained-mixed/489pending.
+
+
+## Batch 91: complete direct atmospheric OBJ attributes
+
+SamusAtmosphericArtworkCatalog.typeOne and sharedTypeFour are MIXED COMPLETE. Totals190 wholly converted / seventeen mixed /19 unchecked.
+
+- Scope correction: the original catalog/schema accepts two ushort[4] lists of OBJ attributes only. Earlier Batch47 language about pending independent tile artwork within these entries was overbroad. Pixel art, RGB payload and timing remain separate obligations and receive no exemption here.
+- Native90:8C0F..8C16 contains2A2C..2A2F;90:8C17..8C1E contains2A48..2A4B. Existing named base+frame calculations retain tile identity, zero flips and hardware nine-bit packing. Palette now derives from the existing enemy-projectile CGRAM destination208, upper-half OBJ base128 and sixteen-color row size. RoomLoadingRomData.InitialEnemyProjectilePaletteCgramIndex shares GameplayBasePaletteFormat.EnemyProjectileInitialColor, so no duplicate palette5 input remains.
+- Root reviewed actual catalog scope, native90:8AFC..8B06 raw OAM publication and room palette installation. Narrow retained priority2 composes the exact drawing layer for these eight attribute words. It materially determines visibility relative to backgrounds; this is not consequence-free or an exemption for motion/other artwork. Changing priority would select a different visual composition rather than derive the selected one from effect geometry.
+- Existing focused --lookup-stream-1-atmospheric-attributes confirms all8 direct native defaults, zero stock overrides, every independent full-word edit, canonical content identity/bounds and actual OAM publication through VerifySamusAtmosphereArtworkBoundary. Mutable-WRAM type2 remains separate and unchanged.
+- Coordinator dependency packet: SamusArtworkClosedContractDefinitions.cs refreshes the helper hash and must include its new transitive numeric owners Assets/GameplayBasePaletteCatalog.cs, Hardware/SnesCgram.cs and Hardware/SnesPpuLayout.cs. Catalog itself is unchanged; Runtime/RoomLoadingRomData.cs documents the identical destination but is not an executable helper dependency. No other current-main helper hash references found. Shared audit files remain coordinator-owned.- Final confirmation: build1,434 warnings/zero errors; eight native defaults/edits/identities and actual16type-frame OAM plus mutable-WRAM boundary checks pass. Helper SHA256: A21FFA403E0D1A22CEA3DF840B8A176C2FA1F117B5D031DAAAB6631F4A7404DF.
+
+Root integration: Verification1452existing warnings/0errors;Audit0/0;eight native defaults/edits/identities,zero stock overrides and16 actual type-frame OAM plus mutable-WRAM boundary pass. Master 600 converted/41 retained-mixed/487 pending.

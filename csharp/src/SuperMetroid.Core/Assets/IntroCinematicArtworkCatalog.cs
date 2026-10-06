@@ -40,7 +40,8 @@ public sealed class IntroCinematicArtworkCatalog
             page.Transfer.Span.CopyTo(pages.AsSpan(index * IntroCinematicArtworkFormat.BackgroundPageByteCount,
                 IntroCinematicArtworkFormat.BackgroundPageByteCount));
         }
-        BackgroundPages = pages;
+        if (!pages.AsSpan().SequenceEqual(IntroBackgroundTilemapDefinitions.Compile()))
+            suppliedBackgroundPages = pages;
         ReadOnlyMemory<byte> portrait = RequirePage(portraitTilemap, "portrait");
         if (!portrait.Span.SequenceEqual(IntroPortraitTilemapDefinitions.Compile()))
             suppliedPortrait = portrait.ToArray();
@@ -77,7 +78,8 @@ public sealed class IntroCinematicArtworkCatalog
     /// <summary>Decompressed cinematic OBJ characters uploaded to VRAM byte $DC00.</summary>
     public RoomCharacterAtlas CinematicObjectCharacters { get; }
     /// <summary>Four ordered 32x32 BG tilemap pages uploaded at VRAM byte $A000.</summary>
-    public ReadOnlyMemory<byte> BackgroundPages { get; }
+    public ReadOnlyMemory<byte> BackgroundPages => suppliedBackgroundPages ?? IntroBackgroundTilemapDefinitions.Compile();
+    private readonly byte[]? suppliedBackgroundPages;
     /// <summary>Samus-head portrait BG tilemap uploaded at VRAM byte $9000.</summary>
     public ReadOnlyMemory<byte> PortraitTilemap => suppliedPortrait ?? IntroPortraitTilemapDefinitions.Compile();
     private readonly byte[]? suppliedPortrait;

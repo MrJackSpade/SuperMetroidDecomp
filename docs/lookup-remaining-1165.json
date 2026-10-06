@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 432,
+  "remainingTableDefinitionCount": 431,
   "fileCount": 523,
   "entries": [
     {
@@ -1170,12 +1170,15 @@
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
     ,"state":"converted","implementationCommit":"e944e8857"},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs",
-      "line": 76,
-      "name": "IntroCinematicArtworkCatalog.BackgroundPages",
-      "kind": "installed stock table",
-      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs",
+  "line": 76,
+  "name": "IntroCinematicArtworkCatalog.BackgroundPages",
+  "kind": "installed stock table",
+  "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.",
+  "state": "justified-retained",
+  "implementationCommit": "a5fdebb8a6e1ad7d8619aa7ec5a1d9519238281b",
+  "disposition": "Four scene drawing programs calculate4096words through rectangles, atlas strides, repeated motifs and reflections. Retain only independently reviewed exact tank/cave/delivery/laboratory fragment anchors, placements, dimensions, silhouette and palette/priority/reflection styles including copied blank attributes. These define selected illustrations; replacing the residual composition would redraw the scenes. Pixels, RGB, timing and collision excluded; independent edits preserved."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs",
   "line": 78,
@@ -21778,5 +21781,5 @@
     }
   ],
   "convertedSinceSnapshot": 602,
-  "justifiedRetainedSinceSnapshot": 94
+  "justifiedRetainedSinceSnapshot": 95
 }

@@ -546,13 +546,19 @@ public static partial class SamusBlockCollision
                             break;
                         }
 
+                        // $94:86FE selects its floor or ceiling test from bit 0 of
+                        // CollisionMovementDirection, not the distance's sign. The changed-
+                        // pose probe's direction $F therefore tests both ways as a floor.
                         (acceptedDisplacement, collided) = ClipVerticalToNonSquareSlope(
                             bus,
                             state,
                             block,
                             blockX,
                             acceptedDisplacement,
-                            targetCenter);
+                            targetCenter,
+                            reactsDownward: blockReactionDirection is { } reactionDirection
+                                ? ((ushort)reactionDirection & 1) != 0
+                                : acceptedDisplacement >= 0);
                         if (collided)
                             collisionBlock = block;
                         break;
@@ -823,9 +829,10 @@ public static partial class SamusBlockCollision
         RoomCollisionBlock block,
         int blockX,
         int displacement,
-        ushort targetCenter)
+        ushort targetCenter,
+        bool reactsDownward)
     {
-        bool movingDown = displacement >= 0;
+        bool movingDown = reactsDownward;
 
         // Non-square slopes react vertically only under Samus's center column. The broader
         // X-radius scan still visits neighboring blocks, but $94:86FE rejects them here.

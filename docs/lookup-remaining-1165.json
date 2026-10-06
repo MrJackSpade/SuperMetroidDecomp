@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 283,
+  "remainingTableDefinitionCount": 230,
   "fileCount": 523,
   "entries": [
     {
@@ -3281,7 +3281,10 @@
       "line": 38,
       "name": "CeresSteamCollisionDefinitions.Lists",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "List addresses derive from one contiguous run from $A6:F25A; per-direction plume rectangles are fitted to each drawing and are not rotations of one another."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresSteamDefinitions.cs",
@@ -3516,14 +3519,20 @@
       "line": 24,
       "name": "CrocomireBodyCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Frame pointers derive from four contiguous record runs (CollisionRecordRuns); jaw, leg and body-band placements are authored per drawing; no mirrored facing."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CrocomireBodyCollisionDefinitions.cs",
       "line": 78,
       "name": "CrocomireBodyCollisionDefinitions.HitboxLists",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Explicit list switch; rectangles fitted to the drawings."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CrocomireBridgeFragmentDefinitions.cs",
@@ -3858,14 +3867,20 @@
       "line": 35,
       "name": "DraygonCollisionDefinitions.FirstBodyHitboxes",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Four authored body rectangles; the second facing is drawn differently (not a mirror)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Bg2.cs",
       "line": 47,
       "name": "DraygonCollisionDefinitions.SecondBodyHitboxes",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Four authored body rectangles; not a mirror of the first facing."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DraygonCollisionDefinitions.Oam.cs",
@@ -4304,56 +4319,80 @@
       "line": 22,
       "name": "GoldenTorizoAwakeningCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningCollisionDefinitions.cs",
       "line": 33,
       "name": "GoldenTorizoAwakeningCollisionDefinitions.SeatedLow",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningCollisionDefinitions.cs",
       "line": 35,
       "name": "GoldenTorizoAwakeningCollisionDefinitions.SeatedMid",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningCollisionDefinitions.cs",
       "line": 37,
       "name": "GoldenTorizoAwakeningCollisionDefinitions.SeatedHigh",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningCollisionDefinitions.cs",
       "line": 39,
       "name": "GoldenTorizoAwakeningCollisionDefinitions.Initial",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningCollisionDefinitions.cs",
       "line": 41,
       "name": "GoldenTorizoAwakeningCollisionDefinitions.Rising",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningCollisionDefinitions.cs",
       "line": 43,
       "name": "GoldenTorizoAwakeningCollisionDefinitions.StandingMid",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningCollisionDefinitions.cs",
       "line": 45,
       "name": "GoldenTorizoAwakeningCollisionDefinitions.StandingHigh",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningInstructionProgramDefinitions.cs",
@@ -4444,7 +4483,10 @@
       "line": 14,
       "name": "GoldenTorizoLeftFootOrbCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftFootOrbInstructionProgramDefinitions.cs",
@@ -4471,14 +4513,20 @@
       "line": 13,
       "name": "GoldenTorizoLeftOrbCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftOrbCollisionDefinitions.cs",
       "line": 29,
       "name": "GoldenTorizoLeftOrbCollisionDefinitions.Body",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftOrbInstructionProgramDefinitions.cs",
@@ -4525,14 +4573,20 @@
       "line": 13,
       "name": "GoldenTorizoRightOrbCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightOrbCollisionDefinitions.cs",
       "line": 23,
       "name": "GoldenTorizoRightOrbCollisionDefinitions.Body",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightOrbInstructionProgramDefinitions.cs",
@@ -4559,14 +4613,20 @@
       "line": 13,
       "name": "GoldenTorizoRightSonicCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightSonicCollisionDefinitions.cs",
       "line": 38,
       "name": "GoldenTorizoRightSonicCollisionDefinitions.Body",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightSonicInstructionProgramDefinitions.cs",
@@ -4593,21 +4653,30 @@
       "line": 13,
       "name": "GoldenTorizoRightwardCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardCollisionDefinitions.cs",
       "line": 28,
       "name": "GoldenTorizoRightwardCollisionDefinitions.StandingBody",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardCollisionDefinitions.cs",
       "line": 30,
       "name": "GoldenTorizoRightwardCollisionDefinitions.SteppingBody",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardInstructionProgramDefinitions.cs",
@@ -4674,21 +4743,30 @@
       "line": 14,
       "name": "GoldenTorizoWalkingCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingCollisionDefinitions.cs",
       "line": 28,
       "name": "GoldenTorizoWalkingCollisionDefinitions.StandingBody",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingCollisionDefinitions.cs",
       "line": 30,
       "name": "GoldenTorizoWalkingCollisionDefinitions.SteppingBody",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingInstructionProgramDefinitions.cs",
@@ -4956,77 +5034,110 @@
       "line": 13,
       "name": "KraidArmCollisionDefinitions.Phase0",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Authored arm articulation pose (component positions); frame pointers and callbacks are already calculated."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
       "line": 16,
       "name": "KraidArmCollisionDefinitions.Phase1",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Authored arm articulation pose (component positions); frame pointers and callbacks are already calculated."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
       "line": 19,
       "name": "KraidArmCollisionDefinitions.Phase2",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Authored arm articulation pose (component positions); frame pointers and callbacks are already calculated."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
       "line": 22,
       "name": "KraidArmCollisionDefinitions.Phase3",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Authored arm articulation pose (component positions); frame pointers and callbacks are already calculated."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
       "line": 25,
       "name": "KraidArmCollisionDefinitions.Phase4",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Authored arm articulation pose (component positions); frame pointers and callbacks are already calculated."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
       "line": 28,
       "name": "KraidArmCollisionDefinitions.Phase5",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Authored arm articulation pose (component positions); frame pointers and callbacks are already calculated."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
       "line": 31,
       "name": "KraidArmCollisionDefinitions.Phase6",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Authored arm articulation pose (component positions); frame pointers and callbacks are already calculated."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
       "line": 34,
       "name": "KraidArmCollisionDefinitions.Phase7",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Authored arm articulation pose (component positions); frame pointers and callbacks are already calculated."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
       "line": 37,
       "name": "KraidArmCollisionDefinitions.Phase8",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Authored arm articulation pose (component positions); frame pointers and callbacks are already calculated."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
       "line": 40,
       "name": "KraidArmCollisionDefinitions.Phase9",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Authored arm articulation pose (component positions); frame pointers and callbacks are already calculated."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
       "line": 64,
       "name": "KraidArmCollisionDefinitions.Geometry",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Twenty-four rectangles fitted to the arm drawings; touch/shot callbacks are calculated by range."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KzanInstructionProgramDefinitions.cs",
@@ -5159,7 +5270,10 @@
       "line": 42,
       "name": "MaridiaLargeSnailCollisionDefinitions.Lists",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "List addresses derive from one contiguous run from $A2:D034 (HitboxListAt is PointerAt(frame index)); rectangles fitted to the drawings."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailInstructionDefinitions.cs",
@@ -6109,7 +6223,10 @@
       "line": 40,
       "name": "PhantoonCollisionDefinitions.FullBodyHitboxes",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Rectangles are calculated by pixel-centered reflection; only the authored silhouette extents and vertical bounds are stored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs",
@@ -6497,7 +6614,10 @@
       "line": 36,
       "name": "RidleyCollisionDefinitions.LeftBase",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Four authored component origins (legs, hand, torso, head); right-facing frames negate X by calculation."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs",
@@ -6513,14 +6633,20 @@
       "line": 43,
       "name": "RidleyCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Frame pointers are calculated from the side-frame record size and components by ComponentAt (facing, mouth and leg state); no frame roster is stored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RidleyCollisionDefinitions.cs",
       "line": 58,
       "name": "RidleyCollisionDefinitions.Lists",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "List addresses derive from two contiguous runs ($A6:EAE1 left, $A6:EB91 forward plus right); rectangles fitted per facing, not mirrored."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs",
@@ -8748,14 +8874,20 @@
       "line": 15,
       "name": "SpacePirateCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Frame addresses derive from eight contiguous record runs; component placements authored per drawing."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SpacePirateCollisionDefinitions.cs",
       "line": 150,
       "name": "SpacePirateCollisionDefinitions.Lists",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "List addresses derive from 22 contiguous runs; no list is a facing mirror of another; the 105 repeated rectangle sets are separate native records at their own addresses."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SpacePirateProjectileInstructionProgramDefinitions.cs",
@@ -8818,7 +8950,10 @@
       "line": 67,
       "name": "SporeSpawnCollisionDefinitions.Lists",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Explicit switch over named list identities; closed/open heads share calculated geometry differing only in touch AI and the shared inner point is calculated; shell bands are fitted to each drawing."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SporeSpawnInstructionProgramDefinitions.cs",
@@ -8973,14 +9108,20 @@
       "line": 13,
       "name": "TorizoCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Frame pointers derive from four contiguous record runs and right-facing frames are calculated mirrors; the 49 left-facing placements and six jump-back frames (facings drawn differently) are authored per drawing."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoCollisionDefinitions.cs",
       "line": 124,
       "name": "TorizoCollisionDefinitions.Hitboxes",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Explicit list switch; rectangles are fitted per facing to the drawings and are not mirrors of each other."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs",
@@ -9024,14 +9165,20 @@
       "line": 13,
       "name": "TorizoFallingLeftCollisionDefinitions.Components",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoFallingLeftCollisionDefinitions.cs",
       "line": 20,
       "name": "TorizoFallingLeftCollisionDefinitions.Body",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoFallingLeftInstructionProgramDefinitions.cs",
@@ -9125,14 +9272,20 @@
       "line": 13,
       "name": "TorizoJumpBackCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoJumpBackCollisionDefinitions.cs",
       "line": 20,
       "name": "TorizoJumpBackCollisionDefinitions.Body",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoJumpBackInstructionProgramDefinitions.cs",
@@ -9159,14 +9312,20 @@
       "line": 13,
       "name": "TorizoJumpBackLeftCollisionDefinitions.Frames",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoJumpBackLeftCollisionDefinitions.cs",
       "line": 20,
       "name": "TorizoJumpBackLeftCollisionDefinitions.Body",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "62b97348ba049c09e630156f281f7fdf0a4e18b2",
+      "disposition": "Duplicate per-program copy deleted; served by the single TorizoCollisionDefinitions owner, whose pointers derive from four contiguous runs and whose 49 right-facing frames are calculated X mirrors of the left-facing frames (verified by --enemy-definition-boundary)."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoJumpBackLeftInstructionProgramDefinitions.cs",
@@ -22224,6 +22383,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 636,
-  "justifiedRetainedSinceSnapshot": 209
+  "convertedSinceSnapshot": 664,
+  "justifiedRetainedSinceSnapshot": 234
 }

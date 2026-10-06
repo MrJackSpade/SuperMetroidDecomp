@@ -362,7 +362,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusAtmosphericAnimationDefinitions.cs
 
-- [ ] **SamusAtmosphericAnimationDefinitions.FrameTimers** ([L24](../csharp/src/SuperMetroid.Core/Game/SamusAtmosphericAnimationDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SamusAtmosphericAnimationDefinitions.FrameTimers** ([L24](../csharp/src/SuperMetroid.Core/Game/SamusAtmosphericAnimationDefinitions.cs#L24)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs
 
@@ -1074,3 +1074,17 @@ EscapeTypewriterPresentation.programs is MIXED COMPLETE. Totals190 wholly conver
 - Final confirmation: Verification build1,434 warnings/zero errors; --lookup-stream-1-escape-text passes all five native lines, zero stock overrides, independent content/line-count edits and271 actual native-oracle calls.
 
 Root five-line/zero-override/edit/271-call confirmation passed. This checkpoint changes only XML documentation and accounting, with unchanged executable code. Master597converted/26retained-mixed/505pending.
+
+## Batch 85: complete atmospheric exposure choreography
+
+SamusAtmosphericAnimationDefinitions.FrameTimers is MIXED COMPLETE. Totals190 wholly converted / eleven mixed /25 unchecked.
+
+- Preserve semantic uniform holds for footstep types1/2(3),lava-spray4(2),bubbles5(5), and dust6/7 progression3+frame. Narrow retained scalar choices are those three rates plus dust start3/increment1. Exact diving holds at90:8BB5..8BC5 are2,2,3,3,3,5,5,6,7. No failed numeric fit is a retention rationale.
+- Root independently reviewed native90:8A65..8AAC reload-before-advance,90:8B93..8BEF domains, managed movement/admission consumers and the source-only nine-frame strip csharp/test-temp/atmospheric-diving-native-nine.png. Source render uses92:83AB..83BB OAM identities, standard OBJ tiles9A:D200+tile*32/native82:8305..831E transfer, original part size/flip/order and initial sprite palette (not captured room CGRAM).
+- Diving OAM identities92:D858,D869,D87A,D895,D8B0,D8D5,D8F0,D906,D912 draw ripple, rising/breaking jets and falling remnants. Geometry is discrete animation art; no fluid or damage equation generates its selected exposures. Narrow nonsense disposition covers only these exact five exposure parameters and nine-frame timing choreography. Uniform/progressive calculations remain; frame counts,geometry,damage,other timers/art are excluded.
+- SamusAtmosphericEffectsState.UpdateAndDraw94..163 decrements/reloads OLD frame, advances/deletes, pins divingY to live water surface and moves spray/dust slots. Final diving7 remains reloaded into the deleted slot's stale timer; delayed-start reads remain exact. DrawSamusTableSpritemap211..239 emits the selected artwork.
+- Consequences are explicitly preserved: SamusLiquidPhysicsState.TrySpawnAirBubbles658..681 gates slot2 plus NMI128-boundary and consumes sound RNG on admission; TrySpawnLavaSurfaceSpray683..710 gates occupied spray and replenishes it. SpawnWaterSplash636..656 initializes splash slots. Independent damage uses SamusLiquidDamageDefinitions at346..347 and AccumulatePeriodicDamage627. No claim that animation timing is consequence-free.
+- Existing direct-native comparison covers all37 holds/seven domains and rejection bounds;74 actual UpdateAndDraw expiry/delayed-start cases verify old-frame reload, terminal deletion and delay behavior. New local command --lookup-stream-1-atmospheric-cadence runs only this confirmation, not broader damage/gameplay checks.
+- Final confirmation: build1,434 warnings/zero errors; focused atmospheric command passes all37 native holds, seven domains,74 actual expiry/delayed-start cases and rejection contracts. No ResourceAudit source-hash references to SamusAtmosphericAnimationDefinitions.cs were found. Local Program.cs wiring is one focused command for coordinator merge.
+
+Root1452warnings/zero errors;focused37native holds/seven domains/74actual expiry-delayed-start cases passed. Master598converted/28retained-mixed/502pending.

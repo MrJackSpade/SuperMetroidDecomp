@@ -5,6 +5,26 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1AtmosphericCadence(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (byte type = 1; type <= 7; type++)
+        {
+            int pointer = 0x900000 | Word(0x908b93 + type * 2);
+            byte count = (byte)Word(0x908bef + type * 2);
+            AssertEqual(count, SamusAtmosphericAnimationDefinitions.FrameCount(type), "Named atmospheric frame domain matches native source");
+            for (byte frame = 0; frame < count; frame++)
+                AssertEqual(Word(pointer + frame * 2), SamusAtmosphericAnimationDefinitions.FrameTimer(type, frame), "Calculated atmospheric cadence preserves every native duration");
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameTimer(type, count), "Atmospheric first out-of-range frame still rejects");
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameTimer(type, byte.MaxValue), "Atmospheric byte-max frame still rejects");
+        }
+        foreach (byte invalid in new byte[] { 0, 8, byte.MaxValue })
+        {
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameCount(invalid), "Inactive/out-of-domain atmospheric type rejects");
+            AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameTimer(invalid, 0), "Invalid atmospheric type fails before frame selection");
+        }
+        VerifyProductionAtmosphericCadence(new SamusAtmosphericAnimationReadGuard(rom));
+    }
     private static void VerifyLookupStream1TimerCadence(ISnesAddressSpace rom)
     {
         var failures = new List<string>();

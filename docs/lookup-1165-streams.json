@@ -3221,6 +3221,7 @@
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/PhantoonBg2FrameDefinitions.cs","stream":5,"purpose":"Named Phantoon frame-role/compass operations for27selectors only; preserve independent art and timing requirements"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowShadeChannel.cs","stream":3,"purpose":"Exact rainbow material channel calculations with narrowly reviewed paint inputs; independent edits preserved; other palette fields excluded"}
 ,{"path":"csharp/src/SuperMetroid.Core/Game/EscapeTimerCadenceDefinitions.cs","stream":1,"purpose":"Complete native countdown cadence via bounded rational scheduling; exact native phase and expiry confirmation"}
+,{"path":"csharp/src/SuperMetroid.Core/Assets/ChozoStrideGeometryDefinitions.cs","stream":2,"purpose":"Shared immutable Chozo stock foot geometry and calculated EnemySpritemapParts recognition; root-based loader candidate coordinated with Stream3; carry stride derives same basis, no duplicate anchors or artwork exemption"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

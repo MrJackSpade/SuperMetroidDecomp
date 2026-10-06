@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 503,
+  "remainingTableDefinitionCount": 502,
   "fileCount": 523,
   "entries": [
     {
@@ -6848,12 +6848,15 @@
       "implementationCommit": "29646cda96da60f9838ee68f4a14377d9c97a154"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/SamusAtmosphericAnimationDefinitions.cs",
-      "line": 24,
-      "name": "SamusAtmosphericAnimationDefinitions.FrameTimers",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Game/SamusAtmosphericAnimationDefinitions.cs",
+    "line":  24,
+    "name":  "SamusAtmosphericAnimationDefinitions.FrameTimers",
+    "kind":  "stored definition",
+    "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+    "state":  "justified-retained",
+    "implementationCommit":  "e7544770a426467099e030081c726701ad2e973d",
+    "disposition":  "Mixed complete: semantic uniform footstep/lava/bubble holds and progressive dust timing calculated. Retain exactly five exposure scalars and nine diving holds as selected discrete splash/dust/bubble animation choreography. Source art/movement/admission evidence establishes scope; old-frame reload,stale final7,slot/sound-RNG consequences preserved. Geometry,damage and other timers excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusAtmosphericEffectDefinitions.cs",
       "line": 30,
@@ -21564,5 +21567,5 @@
     }
   ],
   "convertedSinceSnapshot": 598,
-  "justifiedRetainedSinceSnapshot": 27
+  "justifiedRetainedSinceSnapshot": 28
 }

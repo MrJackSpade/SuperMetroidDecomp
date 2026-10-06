@@ -116,6 +116,15 @@ internal static partial class Program
             Console.WriteLine($"  cinematic port={boom.Phase} native={Native(0x1f51)}");
         Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.NmiFrameCounter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
         Console.WriteLine("  aerial port  " + game.RuntimeForVerification?.LastAerialSamusMovement);
+        if (game.RuntimeForVerification is { } projectileRuntime)
+        {
+            Console.WriteLine("  sproj port   " + string.Join(" ", projectileRuntime.Projectiles.Slots
+                .Where(slot => slot.Type != 0)
+                .Select(slot => $"{slot.SlotIndex}:{slot.Type:X4}@{slot.XPosition:X4}.{slot.XSubposition:X4}/{slot.YPosition:X4} r{slot.XRadius:X}/{slot.YRadius:X} v{slot.XVelocity:X4} d{slot.Direction:X}")));
+            Console.WriteLine("  sproj native " + string.Join(" ", Enumerable.Range(0, 5)
+                .Where(slot => Native(0x0c18 + 2 * slot) != "0000")
+                .Select(slot => $"{slot}:{Native(0x0c18 + 2 * slot)}@{Native(0x0b64 + 2 * slot)}.{Native(0x0b8c + 2 * slot)}/{Native(0x0b78 + 2 * slot)} r{Native(0x0bb4 + 2 * slot)}/{Native(0x0bc8 + 2 * slot)} v{Native(0x0bf0 + 2 * slot)} d{Native(0x0c04 + 2 * slot)}")));
+        }
         Console.WriteLine("  music port   " + game.AudioForVerification.MusicQueueForVerification());
         Console.WriteLine($"  music native {Word(memory, 0x063b) / 2:X}/{Word(memory, 0x0639) / 2:X} t={Word(memory, 0x063f):X} d=" +
             string.Join(",", Enumerable.Range(0, 8).Select(slot => Word(memory, 0x0629 + 2 * slot).ToString("X"))));

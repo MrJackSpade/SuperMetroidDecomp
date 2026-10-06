@@ -131,6 +131,7 @@ public sealed partial class RoomPlmSystem
                     _soundRequests.Add(CreateSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, MaximumQueued: 6));
                 door.HasPendingHit = false;
                 door.PendingProjectileType = default;
+                slot.LoopTimer = 0;
                 return true;
             }
 

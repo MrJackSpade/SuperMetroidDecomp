@@ -451,3 +451,23 @@ with these checks enabled; no production change was needed (`room-collision-buil
 not merely sampled movement outcomes. Partially decompressed loading boundaries
 are not compared by this new check; PLM execution state and those transition-owned
 mutations remain separate audit items.
+
+### PLM execution and rejected grey-door shots
+
+At MainGameplay boundaries the replay now compares all forty PLM headers and
+active slots' block indices, room arguments, shared loop/shot timers, execution
+cursors and callbacks. Grey-door semantic phases map to their native program
+cursor, condition callback and wake-up link. Executing instruction timers are
+compared; locked doors omit the dormant Sleep countdown because the cartridge
+resets it before waking the list. Generic retained link words and family-specific
+variables remain explicit coverage gaps.
+
+This reproduced update 5126/source 5239: a locked grey door retained shot status
+$9019 after rejecting a hit, while native $84:BDD0 cleared it. The port already
+consumed the pending-hit flag but omitted the shared word clear. It now clears
+both. This confirms state fidelity; no additional visible defect is inferred
+solely from the retained word.
+
+The release build has zero errors and the independent input-only replay passes
+all 10,717 updates (`plm-clear-build.log`, `plm-clear-replay.log`). No subsequent
+native checkpoint state is injected. The remaining coverage audit stays open.

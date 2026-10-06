@@ -1061,6 +1061,42 @@ internal static partial class Program
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
+                var plmSlots = runtime.Plms.PopulationSlots.ToDictionary(slot => slot.NativeSlotIndex);
+                for (int slotIndex = 0; slotIndex < initialPlms.Length; slotIndex++)
+                {
+                    int offset = slotIndex * 2;
+                    bool active = plmSlots.TryGetValue(slotIndex, out var slot);
+                    Check($"PLM {slotIndex} header", active ? slot.HeaderPointer : (ushort)0, RidleyMovieMemory.PlmHeaders + offset);
+                    if (!active || W(RidleyMovieMemory.PlmHeaders + offset) == 0) continue;
+                    ushort instruction = slot.InstructionPointer;
+                    ushort preInstruction = slot.PreInstruction == 0 ? RidleyMovieMemory.PlmDefaultPreInstruction : slot.PreInstruction;
+                    var greyDoor = runtime.Plms.GreyDoors.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.BlockIndex == slot.BlockIndex);
+                    if (greyDoor.Header != 0 && greyDoor.Phase != GreyDoorPhase.Closing)
+                    {
+                        ushort NativeProgramWord(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+                        ushort activation = NativeProgramWord(RidleyMovieMemory.PlmProgramBank | (greyDoor.InitialList + 6));
+                        ushort link = NativeProgramWord(RidleyMovieMemory.PlmProgramBank | (activation + 2));
+                        if (greyDoor.Phase == GreyDoorPhase.Locked)
+                        {
+                            instruction = unchecked((ushort)(greyDoor.InitialList + 14));
+                            preInstruction = NativeProgramWord(RidleyMovieMemory.GreyDoorConditionTable + (int)greyDoor.Condition * 2);
+                            link = activation;
+                        }
+                        else if (greyDoor.Phase == GreyDoorPhase.Flashing)
+                            preInstruction = NativeProgramWord(RidleyMovieMemory.PlmProgramBank | (activation + 6));
+                        Check($"PLM {slotIndex} semantic grey-door link", link, RidleyMovieMemory.PlmLinkInstruction + offset);
+                    }
+                    Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(slot.BlockIndex * 2)), RidleyMovieMemory.PlmBlockIndex + offset);
+                    Check($"PLM {slotIndex} PreInstruction", preInstruction, RidleyMovieMemory.PlmPreInstruction + offset);
+                    Check($"PLM {slotIndex} InstructionPointer", instruction, RidleyMovieMemory.PlmInstructionPointer + offset);
+                    Check($"PLM {slotIndex} LoopTimer", slot.LoopTimer, RidleyMovieMemory.PlmLoopTimer + offset);
+                    Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument, RidleyMovieMemory.PlmRoomArgument + offset);
+                    // Locked semantic doors omit Sleep's unconsumed countdown; the
+                    // condition callback resets it to one before waking the native list.
+                    if (greyDoor.Header == 0 || greyDoor.Phase != GreyDoorPhase.Locked)
+                        Check($"PLM {slotIndex} InstructionTimer", slot.InstructionTimer, RidleyMovieMemory.PlmInstructionTimer + offset);
+                    // Generic retained link words are not compared until their live consumer is mapped.
+                }
                 var activeLevel = runtime.LevelData ?? throw new InvalidDataException("Missing active collision data.");
                 for (int block = 0; block < activeLevel.WidthInBlocks * activeLevel.HeightInBlocks; block++)
                 {

@@ -1,6 +1,27 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$84:84E6: RTS installed as the default PLM pre-instruction.</summary>
+    public const ushort PlmDefaultPreInstruction = 0x84e6;
+    /// <summary>$84:BE4B: grey-door condition pre-instruction dispatch table.</summary>
+    public const int GreyDoorConditionTable = 0x84be4b;
+    /// <summary>Bank $84 contains PLM programs and callback identities.</summary>
+    public const int PlmProgramBank = 0x840000;
+
+    /// <summary>$1C87: PLM BlockIndex, word-strided across forty physical slots.</summary>
+    public const int PlmBlockIndex = 0x1c87;
+    /// <summary>$1CD7: PLM PreInstruction, word-strided across forty physical slots.</summary>
+    public const int PlmPreInstruction = 0x1cd7;
+    /// <summary>$1D27: PLM InstructionPointer, word-strided across forty physical slots.</summary>
+    public const int PlmInstructionPointer = 0x1d27;
+    /// <summary>$1D77: PLM LoopTimer, word-strided across forty physical slots.</summary>
+    public const int PlmLoopTimer = 0x1d77;
+    /// <summary>$1DC7: PLM RoomArgument, word-strided across forty physical slots.</summary>
+    public const int PlmRoomArgument = 0x1dc7;
+    /// <summary>$DE1C: PLM InstructionTimer, word-strided across forty physical slots.</summary>
+    public const int PlmInstructionTimer = 0xde1c;
+    /// <summary>$DEBC: PLM LinkInstruction, word-strided across forty physical slots.</summary>
+    public const int PlmLinkInstruction = 0xdebc;
     /// <summary>$2000: Ridley TailFunctionIndex, native bank-$A6 controller state.</summary>
     public const int RidleyTailFunctionIndex = 0x2000;
     /// <summary>$2002: Ridley IdleTailWhipEnabled, native bank-$A6 controller state.</summary>

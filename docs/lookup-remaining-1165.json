@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 403,
+  "remainingTableDefinitionCount": 402,
   "fileCount": 523,
   "entries": [
     {
@@ -2535,12 +2535,15 @@
   "disposition": "Stored38entry/name mappings replaced by named instruction-boundary cases for crawling,turning,hiding and airborne roles. Exact112operand grouping and104unique frame identities/order preserved; no retained exception or art/timing/movement claim."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/ZebetiteColorCatalog.cs",
-      "line": 16,
-      "name": "ZebetiteColorCatalog.frames",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind ZebetiteColorCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/ZebetiteColorCatalog.cs",
+  "line": 16,
+  "name": "ZebetiteColorCatalog.frames",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind ZebetiteColorCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "8c8d83ef7bc0b2d8ce1e598400dcffb70127a030",
+  "disposition": "All16colors calculate using selected three-quarter red shade, half warm-green bias, saturated peak and symmetric interpolation. A6:FD5E-86 copy-only C/D pulse plus native Rinka-sheet Zebetite pose and81/105pixel masks establish exact bright/dark core facets. Only authored illumination choices remain; no stored samples; independent edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs",
       "line": 14,
@@ -21865,5 +21868,5 @@
     }
   ],
   "convertedSinceSnapshot": 609,
-  "justifiedRetainedSinceSnapshot": 116
+  "justifiedRetainedSinceSnapshot": 117
 }

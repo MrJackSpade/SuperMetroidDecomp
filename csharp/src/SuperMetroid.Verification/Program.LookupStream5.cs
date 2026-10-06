@@ -1101,9 +1101,9 @@ internal static partial class Program
             PaletteRgb5 before = rows[frame][color];
             rows[frame][color] = channel switch
             {
-                0 => before with { Red = before.Red ^ 1 },
-                1 => before with { Green = before.Green ^ 1 },
-                _ => before with { Blue = before.Blue ^ 1 },
+                0 => before with { Red = before.Red ^ 31 },
+                1 => before with { Green = before.Green ^ 31 },
+                _ => before with { Blue = before.Blue ^ 31 },
             };
             Check(native with { Frames = rows });
         }
@@ -1111,7 +1111,7 @@ internal static partial class Program
             "Zebetite pulse lower frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.Apply(new SnesCgram(), 8, 0),
             "Zebetite pulse upper frame bound");
-        Console.WriteLine("Zebetite pulse:16 native colors,48 independent RGB edits, actual CGRAM, canonical identity and frame bounds pass; endpoint color choices remain pending.");
+        Console.WriteLine("Zebetite pulse:16 native colors,48 independent RGB edits, actual CGRAM, canonical identity and frame bounds pass; selected barrier-core paint disposition complete.");
 
         static ZebetiteColorCatalog Check(ZebetiteColorDocument expected)
         {
@@ -1133,7 +1133,6 @@ internal static partial class Program
             return actual;
         }
     }
-
     private static void VerifyLookupStream5YappingMawOffsets(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

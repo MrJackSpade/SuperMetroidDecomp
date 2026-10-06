@@ -23,19 +23,8 @@ public sealed class ZebetiteColorCatalog
 
     private ZebetiteColorCatalog(Dictionary<int, ushort> edits) => this.edits = edits;
 
-    /// <summary>
-    /// $A6:FD87-FDA6: the eight-frame pulse advances four linear RGB5 steps then
-    /// reverses. Each component truncates toward zero independently. The chosen
-    /// endpoint colors (31,2,0), (23,1,0) and shared peak (31,0,0) remain an
-    /// unresolved independent color-design payload under issue1165.
-    /// </summary>
-    private static ushort NativeColor(int frame, int color)
-    {
-        int phase = Math.Min(frame, ZebetiteColorFormat.FrameCount - frame);
-        int red = color == 0 ? 31 : 23 + phase * 2;
-        int green = (4 - phase) / (color == 0 ? 2 : 4);
-        return (ushort)(red | green << 5);
-    }
+    /// <summary>Calculated symmetric pulse of the two selected barrier-core paints.</summary>
+    private static ushort NativeColor(int frame, int color) => ZebetitePulsePaintDefinitions.Color(frame, color);
 
     private ushort Resolve(int frame, int color) =>
         edits.TryGetValue(frame * ZebetiteColorFormat.ColorsPerFrame + color, out ushort edited)

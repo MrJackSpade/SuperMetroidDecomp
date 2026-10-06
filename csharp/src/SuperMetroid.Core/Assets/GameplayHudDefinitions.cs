@@ -107,6 +107,52 @@ public static class GameplayHudDefinitions
         int glyph = MinimapTopRightCapGlyph + (column == Width - 1 ? 0 : 1);
         return (ushort)((BlankWord & ~0x3ff) | glyph);
     }
+    /// <summary>
+    /// $80:994D-9953 ENERGY label: three adjacent fragments $0B..0D followed by
+    /// selected suffix $32, using $9A:B200 HUD characters. This spelling and its
+    /// lower-left placement are selected typography, not generated glyph pixels.
+    /// </summary>
+    private const int EnergyLabelStartGlyph = 0x0b, EnergyLabelSuffixGlyph = 0x32;
+    /// <summary>
+    /// $80:98FF-9987 initial minimap picture: empty cell $12 precedes the four
+    /// row-major slope quadrants $13..16. Connector strip $22..24 is horizontal,
+    /// vertical, then end cap. This fixed initialization picture is copied by
+    /// $80:9AA3; live $90:A91B map drawing independently replaces its five-by-three
+    /// interior. Exact diagram topology and explored-style membership are selected
+    /// initial presentation content, not a claim about any current room geometry.
+    /// </summary>
+    private const int MinimapEmptyGlyph = 0x12, MinimapConnectorStartGlyph = 0x22;
+
+    internal static ushort TemplateWord(int index)
+    {
+        if ((uint)index >= CellCount) throw new IndexOutOfRangeException();
+        int row = index / Width, column = index % Width;
+        int firstMapColumn = Width - MinimapVisibleColumns - 1;
+        if (column >= firstMapColumn)
+        {
+            int x = column - firstMapColumn;
+            int style = BlankWord & ~0x3ff;
+            if (x == MinimapVisibleColumns)
+                return (ushort)(style | MinimapTopRightCapGlyph + 2);
+            int glyph = MinimapEmptyGlyph;
+            if (x == 2)
+            {
+                glyph = MinimapConnectorStartGlyph + (row == Height - 1 ? 2 : 1);
+                if (row == Height - 1) style |= 1 << 15;
+            }
+            else if (row == 1 && x < 2) glyph = MinimapConnectorStartGlyph;
+            else if (row > 0 && x > 2) glyph = MinimapEmptyGlyph + 1 + (row - 1) * 2 + x - 3;
+            if ((row == 1 && x < 2) || (row > 0 && x is 2 or 3)) style &= ~(1 << 10);
+            return (ushort)(style | glyph);
+        }
+        if (row == Height - 1)
+        {
+            if (column is >= 1 and <= 4)
+                return (ushort)((BlankWord & ~0x3ff) | (column == 4 ? EnergyLabelSuffixGlyph : EnergyLabelStartGlyph + column - 1));
+            if (column == 6) return DigitWord(0);
+        }
+        return BlankWord;
+    }
     public static string IconName(int itemIndex) => (uint)itemIndex < IconNames.Length
         ? IconNames[itemIndex]
         : throw new ArgumentOutOfRangeException(nameof(itemIndex));

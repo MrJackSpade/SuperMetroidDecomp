@@ -46,9 +46,9 @@ internal static class ClosedPresentationContractDefinitions
             ["ApplyTemplate", "TryApplyIcon", "ApplyEnergy", "ApplyAmmo", "ApplyAutoReserve",
                 "ClearAutoReserve", "ToggleItemHighlight", "MinimapCellIndex"],
             [new("csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
-                "AFC1D54A5EE1D1B2ABA83EBA718BEFC660743E5E23461A03F7CAB85A002F6136"),
+                "8109F94586A032968A097BA19ED5B3251742392A0ADFFE034D6DD937157930A0"),
              new("csharp/src/SuperMetroid.Core/Assets/GameplayHudDefinitions.cs",
-                "05F123C7E9583E304E149B590E2B9B156FFD06F4890021B65965CD654B47869B")],
+                "5C3FAE36660EFAD98085EA0F445AD3C1DF5CF522F25DC93D5888B0CA8C5C21E8")],
             "The sole private constructor compiles every HUD field: two ten-digit arrays, " +
             "all five named icons, fourteen tank anchors, six AUTO cells and the fixed template. " +
             "These operations select only that validated domain; digit arithmetic is modulo ten, " +

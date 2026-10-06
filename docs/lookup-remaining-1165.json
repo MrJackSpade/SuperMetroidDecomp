@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 399,
+  "remainingTableDefinitionCount": 398,
   "fileCount": 523,
   "entries": [
     {
@@ -991,12 +991,15 @@
       "implementationCommit": "4fbd943c0e62d478abf6831fc05f9081a25f146e"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
-      "line": 10,
-      "name": "GameplayHudPresentation.template",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind GameplayHudPresentation.template. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
+  "line": 10,
+  "name": "GameplayHudPresentation.template",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind GameplayHudPresentation.template. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "cc2419afb283fd8fcf4605652bc2d48822b6270f",
+  "disposition": "All96words calculate through shared blank/digit/border, atlas runs and connector/slope geometry. Retain exact authored ENERGY spelling/placement and fixed initial minimap diagram/style, established from native source image. Arbitrary replacement would change the selected text/diagram. Pixels/RGB/live room map not exempted; independent edits preserved."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/GameplayHudPresentation.cs",
   "line": 11,
@@ -21877,5 +21880,5 @@
     }
   ],
   "convertedSinceSnapshot": 609,
-  "justifiedRetainedSinceSnapshot": 120
+  "justifiedRetainedSinceSnapshot": 121
 }

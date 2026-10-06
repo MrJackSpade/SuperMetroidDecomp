@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable three-row gameplay-HUD tilemap, visual patches and layout anchors.</summary>
 public sealed class GameplayHudPresentation
 {
-    private readonly ushort[] template;
+    private readonly Dictionary<int, ushort> templateOverrides;
     private readonly Dictionary<int, ushort> topRowOverrides;
     private readonly Dictionary<int, ushort> healthDigits;
     private readonly Dictionary<int, ushort> ammoDigits;
@@ -23,7 +23,10 @@ public sealed class GameplayHudPresentation
         topRowOverrides = new();
         for (int index = 0; index < topRow.Length; index++)
             if (topRow[index] != GameplayHudDefinitions.TopRowWord(index)) topRowOverrides.Add(index, topRow[index]);
-        template = CompileCells(document.Template, GameplayHudDefinitions.CellCount, "HUD template");
+        ushort[] template = CompileCells(document.Template, GameplayHudDefinitions.CellCount, "HUD template");
+        templateOverrides = new();
+        for (int index = 0; index < template.Length; index++)
+            if (template[index] != GameplayHudDefinitions.TemplateWord(index)) templateOverrides.Add(index, template[index]);
         Blank = CompileCell(document.Blank, "HUD blank");
         FilledEnergyTank = CompileCell(document.EnergyTanks.Filled, "filled energy tank");
         EmptyEnergyTank = CompileCell(document.EnergyTanks.Empty, "empty energy tank");
@@ -93,7 +96,9 @@ public sealed class GameplayHudPresentation
     public void ApplyTemplate(Span<ushort> tiles)
     {
         ValidateTilemap(tiles);
-        template.CopyTo(tiles);
+        for (int index = 0; index < GameplayHudDefinitions.CellCount; index++)
+            tiles[index] = templateOverrides.TryGetValue(index, out ushort edited)
+                ? edited : GameplayHudDefinitions.TemplateWord(index);
     }
 
     public void TryApplyIcon(Span<ushort> tiles, int itemIndex)

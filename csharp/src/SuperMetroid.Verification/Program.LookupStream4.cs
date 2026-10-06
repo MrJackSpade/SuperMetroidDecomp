@@ -1205,6 +1205,58 @@ internal static partial class Program
             AssertEqual((ushort)1, Word(0xa20000 | flyFrames[frame].Pointer), "fly native single OAM object");
         }
     }
+    private static void VerifyLookupStream4HudTemplate(ISnesAddressSpace rom)
+    {
+        byte[] json=GameplayHudPresentationExtractor.Extract(rom);
+        var stock=GameplayHudPresentation.Load(new MemoryStream(json));
+        AssertEqual(0,((Dictionary<int,ushort>)typeof(GameplayHudPresentation).GetField("templateOverrides",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(stock)!).Count,"HUD template zero native overrides");
+        for(int edit=-1;edit<576;edit++)
+        {
+            var document=JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,MapPresentationFormat.JsonOptions)!;
+            if(edit>=0)
+            {
+                int index=edit/6;GameplayHudCell cell=document.Template[index];document.Template[index]=(edit%6) switch
+                {0=>cell with{TileColumn=cell.TileColumn^1},1=>cell with{TileRow=cell.TileRow^1},2=>cell with{Palette=cell.Palette^1},3=>cell with{Priority=!cell.Priority},4=>cell with{FlipX=!cell.FlipX},_=>cell with{FlipY=!cell.FlipY}};
+            }
+            using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);byte[] bytes=output.ToArray();
+            var selected=GameplayHudPresentation.Load(new MemoryStream(bytes));
+            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Template exact document hash");
+            ushort[] tiles=new ushort[96];selected.ApplyTemplate(tiles);
+            for(int index=0;index<96;index++)
+            {
+                var cell=document.Template[index];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
+                AssertEqual(expected,tiles[index],"Independent template cell and all untouched neighbors");
+                AssertEqual((ushort)(rom.ReadByte(0x8098cb+index*2)|rom.ReadByte(0x8098cc+index*2)<<8),GameplayHudDefinitions.TemplateWord(index),"Exact native template word");
+            }
+            AssertTrue(selected.TopRowTransfer.Span.SequenceEqual(stock.TopRowTransfer.Span),"Template edits leave immutable top row independent");
+            if(edit is -1 or 390 or 570)
+            {
+                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(new ProjectileCompositionForbiddenBus(),HudSnapshot.CeresDebug);
+                for(int row=0;row<3;row++)for(int x=26;x<32;x++)AssertEqual(tiles[row*32+x],hud.Tiles[row*32+x],"Actual initializer preserves selected initial minimap and border");
+                for(int x=1;x<=4;x++)AssertEqual(tiles[64+x],hud.Tiles[64+x],"Actual initializer preserves selected ENERGY typography");
+            }
+        }
+        foreach(int invalid in new[]{-1,96,int.MinValue,int.MaxValue})AssertThrows<IndexOutOfRangeException>(()=>GameplayHudDefinitions.TemplateWord(invalid),"Template index domain");
+        Console.WriteLine("HUD template:96native words/zero overrides,576independent edits/hash/577full applications,three actual initializers/readguard/top-row independence/bounds pass.");
+    }
+    private static void ExportLookupStream4HudTemplateSource(ISnesAddressSpace rom)
+    {
+        const int scale=4,width=256*scale,height=32*scale;byte[] pixels=new byte[width*height];
+        var palette=new Rgba32[32];for(int color=0;color<32;color++){int word=rom.ReadByte(0x9a8000+color*2)|rom.ReadByte(0x9a8001+color*2)<<8;palette[color]=(color%4) switch { 0=>new Rgba32(40,40,40,255),1=>new Rgba32(255,255,255,255),2=>new Rgba32(130,130,130,255),_=>new Rgba32(0,0,0,255) };}
+        for(int cell=0;cell<128;cell++)
+        {
+            int address=0x80988b+cell*2,word=rom.ReadByte(address)|rom.ReadByte(address+1)<<8,tile=word&0x3ff;
+            for(int y=0;y<8;y++)for(int x=0;x<8;x++)
+            {
+                int sy=(word&0x8000)!=0?7-y:y,sx=(word&0x4000)!=0?7-x:x,row=HudTileAtlasFormat.SourceAddress+tile*16+sy*2;
+                int ink=(rom.ReadByte(row)>>(7-sx)&1)|(rom.ReadByte(row+1)>>(7-sx)&1)<<1;
+                for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[((cell/32*8+y)*scale+dy)*width+(cell%32*8+x)*scale+dx]=(byte)((word>>10&7)*4+ink);
+            }
+        }
+        string directory=Path.GetFullPath("csharp/test-temp/hud-auto-source");Directory.CreateDirectory(directory);
+        using var image=File.Create(Path.Combine(directory,"native-template.png"));IndexedPng.Write(image,width,height,pixels,palette);
+        Console.WriteLine("Native HUD initial four rows exported with diagnostic index colors; initial CGRAM is uniformly grey.");
+    }
     private static void VerifyLookupStream4HudTopRow(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);

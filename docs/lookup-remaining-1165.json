@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 393,
+  "remainingTableDefinitionCount": 391,
   "fileCount": 523,
   "entries": [
     {
@@ -2224,7 +2224,10 @@
       "line": 250,
       "name": "SamusBodyTileDefinition.planar",
       "kind": "installed stock table",
-      "note": "Original/default payload behind SamusBodyTileDefinition.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind SamusBodyTileDefinition.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "justified-retained",
+      "implementationCommit": "aa27ce68c4636e14f20db0d6e56a6a2899031de3",
+      "disposition": "Mixed: 2,592 blank, 11,424 shared grapple/drained/cable bytes, 1,536 morph-circle contour bits and the Ep diagnostic cell calculate in SamusBodyPixelDefinitions. Only the 116,320 selected drawn-contour source bytes (anatomy, suit segmentation, electrical strokes, material painting) are retained as particular drawing content; independent edits preserved."
     },
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs",
@@ -7152,7 +7155,10 @@
       "line": 88,
       "name": "SamusAnimationDelayDefinitions.DelayStreams",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "aa27ce68c4636e14f20db0d6e56a6a2899031de3",
+      "disposition": "Mixed: stored byte stream removed. 160 semantic segments; opcodes, FE back distances, transitional poses, Spring Ball masks and word-written FD poses calculate. Only frame delay values retained as authored animation cadence (parent's animation-sequencing exception), with uniform runs as repeats."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusArmCannonDefinitions.cs",
@@ -21895,5 +21901,5 @@
     }
   ],
   "convertedSinceSnapshot": 609,
-  "justifiedRetainedSinceSnapshot": 126
+  "justifiedRetainedSinceSnapshot": 128
 }

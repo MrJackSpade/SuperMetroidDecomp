@@ -12,6 +12,36 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyRidleyFireballSquareSlope()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RidleyMovieMemory.RidleyRoom);
+        var projectile = runtime.Enemies.EnemyProjectiles[16];
+        projectile.XPosition = 0x49; projectile.XSubposition = 0x8c00;
+        projectile.YPosition = 0x54; projectile.YSubposition = 0xd900;
+        projectile.XVelocity = 0xfb64; projectile.YVelocity = 0xfe1b;
+        projectile.XRadius = 6; projectile.YRadius = 6;
+        var move = typeof(RoomEnemySystem).GetMethod("MoveProjectileAxis", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        AssertTrue(!(bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, true])!, "source1248 fireball crosses empty square-slope quadrant horizontally");
+        AssertTrue(!(bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, false])!, "source1248 fireball clears terrain vertically");
+        AssertEqual((ushort)0x44, projectile.XPosition, "native source1249 fireball X");
+        AssertEqual((ushort)0xf000, projectile.XSubposition, "native source1249 fireball X fraction");
+        AssertEqual((ushort)0x52, projectile.YPosition, "native source1249 fireball Y");
+        AssertEqual((ushort)0xf400, projectile.YSubposition, "native source1249 fireball Y fraction");
+        projectile.XPosition = 60; projectile.XSubposition = 0;
+        projectile.YPosition = 84; projectile.XVelocity = 0xff00;
+        AssertTrue((bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, true])!, "occupied top-left quarter stops horizontal motion");
+        AssertEqual((ushort)62, projectile.XPosition, "native square reaction snaps to eight-pixel edge even when initially embedded");
+        projectile.XPosition = 52; projectile.YPosition = 94;
+        projectile.YSubposition = 0; projectile.YVelocity = 0xff00;
+        AssertTrue((bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, false])!, "occupied top-left quarter stops vertical motion");
+        AssertEqual((ushort)94, projectile.YPosition, "native square reaction snaps below occupied quarter");
+        Console.WriteLine("Ridley fireball square slope: native source1248 trajectory and occupied horizontal/vertical quadrants pass.");
+    }
+
     private static void VerifyRidleyFireballDamage()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

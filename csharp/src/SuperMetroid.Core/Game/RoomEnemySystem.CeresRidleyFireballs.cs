@@ -1251,9 +1251,9 @@ public sealed partial class RoomEnemySystem
                 ushort snappedPosition = slopeAlignedPosition ?? (velocity < 0
                     ? unchecked((ushort)((movementEdge | 0x000f) + movementRadius + 1))
                     : unchecked((ushort)((movementEdge & 0xfff0) - movementRadius)));
-                bool snapDoesNotMoveBackwards = velocity < 0
+                bool snapDoesNotMoveBackwards = slopeAlignedPosition.HasValue || (velocity < 0
                     ? snappedPosition <= position
-                    : snappedPosition >= position;
+                    : snappedPosition >= position);
 
                 if (horizontal)
                 {
@@ -1310,6 +1310,36 @@ public sealed partial class RoomEnemySystem
 
         RoomCollisionBlock collisionBlock = level.GetCollisionBlockByIndex(blockIndex);
         RoomCollisionType type = collisionBlock.CollisionType;
+        if (type == RoomCollisionType.Slope && !collisionBlock.Bts.IsNonSquareSlope)
+        {
+            // Bank $86 tests only occupied eight-pixel quadrants touched by the
+            // leading edge. Empty halves of square slopes are not solid walls.
+            int perpendicularPosition = horizontal ? projectile.YPosition : projectile.XPosition;
+            int perpendicularRadius = horizontal ? projectile.YRadius : projectile.XRadius;
+            int blockStart = (horizontal ? blockY : blockX) << 4;
+            int firstPixel = Math.Max(blockStart, perpendicularPosition - perpendicularRadius);
+            int lastPixel = Math.Min(blockStart + 15, perpendicularPosition + perpendicularRadius - 1);
+            for (int half = firstPixel >> 3; half <= lastPixel >> 3; half++)
+            {
+                int quadrant = horizontal
+                    ? ((targetEdge & 8) >> 3) | ((half & 1) << 1)
+                    : ((targetEdge & 8) >> 2) | (half & 1);
+                int tableIndex = 4 * collisionBlock.Bts.SlopeShape +
+                    (quadrant ^ collisionBlock.Bts.SlopeOrientation);
+                if ((SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) == 0)
+                    continue;
+
+                // The square-slope reaction places the projectile at an eight-pixel
+                // boundary before the caller's full-block clamp.
+                int radius = horizontal ? projectile.XRadius : projectile.YRadius;
+                slopeAlignedPosition = movingNegative
+                    ? unchecked((ushort)((targetEdge | 7) + radius + 1))
+                    : unchecked((ushort)((targetEdge & 0xfff8) - radius));
+                return true;
+            }
+            return false;
+        }
+
         if (type == RoomCollisionType.Slope && collisionBlock.Bts.IsNonSquareSlope)
         {
             // Horizontal bank-$86 motion ignores non-square slopes; the following

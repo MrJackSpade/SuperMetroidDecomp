@@ -182,18 +182,21 @@ Enemy-projectile comparison now also covers identities, X/Y, radii and damage.
 It exposed the omitted dust/sound side effects of Ridley's terrain strike at
 source767. Native $A6:B748/B74F now spawns dust variant nine at tip X/Y+12 and
 queues library-two $76 Max6. The real-room focused fixture confirms both, and the
-replay passes that interval. Expanded projectile coverage currently stops at
-update1147/source1248: a fireball is removed by terrain earlier than native.
-The prior damage mismatch is fixed: $86:932F selects damage3/60/80 for
-default/Norfair/Tourian on fireballs and directional afterburns. Focused
-production-initializer and Gravity Suit contact checks pass all three rows.
-The existing body/Samus/ordinary-projectile comparison reached the later boundary
-below; the newly added fields have not yet passed it.
+replay passes that interval.
 
-Checked state now matches through update 3036 of 10,717. The next divergence is
-update 3037 (original source frame 3140): Samus health native `$0235` versus port
-`$0244` (15 extra damage on the cartridge). This damage boundary remains under
-investigation.
+The fireball area initializer now applies native $86:932F damage3/60/80 for
+default/Norfair/Tourian to fireballs and directional afterburns. Focused production
+initializer and Gravity Suit contact checks pass all three rows. The independent
+replay also passes the former update3037 missing-15-damage boundary.
+
+Enemy-projectile square slopes now test occupied eight-pixel quadrants rather than
+blocking the whole tile, matching $86:85C2/$8676. A real-room source1248 fixture
+failed before the fix and now matches native X/Y and subpositions. Occupied-quarter
+horizontal/vertical checks also confirm the eight-pixel collision clamp.
+
+Expanded checked state now matches through update 3212 of 10,717. The next
+mismatch is update3213/source3317: native Moonwalk pose $49 versus port turn $26.
+This boundary remains under investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

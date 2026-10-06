@@ -27,17 +27,38 @@ internal static class PhantoonCollisionDefinitions
     /// <summary>$A7:DD9B, Phantoon's active shot callback.</summary>
     internal const ushort ShotAi = 0xdd9b;
 
-    // REQUIRED: independent full-body silhouette bounds. Sharing the eye rectangle
-    // and active callbacks does not resolve these five chosen collision shapes.
-    private static readonly (short Left, short Top, short Right, short Bottom)[] RequiredBodyBounds =
-    [
-        (-33, -40, 32, 56),
-        (-9, 22, 8, 39),
-        (-23, 52, -16, 71),
-        (15, 53, 22, 70),
-        (-12, 53, 11, 69),
-    ];
+    // REQUIRED: chosen half widths, tentacle near/far extent and all Y bounds.
+    // Native pixel-centered reflection supplies opposite X edges; it does not
+    // explain the selected silhouette extents or vertical positions.
+    private const short BodyHalfWidth = 33;
+    private const short EyeHalfWidth = 9;
+    private const short CenterTentacleHalfWidth = 12;
+    private const short SideTentacleInnerExtent = 16;
+    private const short SideTentacleOuterExtent = 23;
+    private static readonly (short Top, short Bottom)[] RequiredVerticalBounds =
+        [(-40, 56), (22, 39), (52, 71), (53, 70), (53, 69)];
 
+    /// <summary>
+    /// $A7:E02E body/eye/left/right/center rectangles. Centered intervals have
+    /// left=-right-1; side tentacle intervals reflect exactly around that same
+    /// pixel-centered axis, while their chosen vertical bounds remain independent.
+    /// </summary>
+    private static PhantoonCollisionHitbox BodyHitbox(int index)
+    {
+        var vertical = RequiredVerticalBounds[index];
+        (short left, short right) = index switch
+        {
+            0 => Centered(BodyHalfWidth),
+            1 => Centered(EyeHalfWidth),
+            2 => ((short)-SideTentacleOuterExtent, (short)-SideTentacleInnerExtent),
+            3 => ((short)(SideTentacleInnerExtent - 1), (short)(SideTentacleOuterExtent - 1)),
+            4 => Centered(CenterTentacleHalfWidth),
+            _ => throw new IndexOutOfRangeException(),
+        };
+        return new(left, vertical.Top, right, vertical.Bottom, TouchAi, ShotAi);
+
+        static (short Left, short Right) Centered(short halfWidth) => ((short)-halfWidth, (short)(halfWidth - 1));
+    }
     internal static ComponentSequence ComponentsAt(ushort pointer)
     {
         if (!PhantoonBg2FrameDefinitions.IsFrame(pointer))
@@ -76,7 +97,7 @@ internal static class PhantoonCollisionDefinitions
     /// <summary>$A7:E06C repeats the full body's eye rectangle at $A7:E03C; hidden lists use a no-op point.</summary>
     internal readonly struct HitboxSequence(ushort list) : IReadOnlyList<PhantoonCollisionHitbox>
     {
-        public int Count => list == FullBodyList ? RequiredBodyBounds.Length : 1;
+        public int Count => list == FullBodyList ? RequiredVerticalBounds.Length : 1;
         public int Length => Count;
         public PhantoonCollisionHitbox this[int index]
         {
@@ -84,8 +105,7 @@ internal static class PhantoonCollisionDefinitions
             {
                 if ((uint)index >= Count) throw new IndexOutOfRangeException();
                 if (list == PointList) return new(0, 0, 0, 0, EnemyAiCodePointers.BankA0.NoOp, EnemyAiCodePointers.BankA0.NoOp);
-                var bounds = RequiredBodyBounds[list == EyeOnlyList ? 1 : index];
-                return new(bounds.Left, bounds.Top, bounds.Right, bounds.Bottom, TouchAi, ShotAi);
+                return BodyHitbox(list == EyeOnlyList ? 1 : index);
             }
         }
         public IEnumerator<PhantoonCollisionHitbox> GetEnumerator()

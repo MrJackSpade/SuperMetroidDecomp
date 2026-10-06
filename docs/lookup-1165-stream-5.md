@@ -1037,3 +1037,9 @@ Partial color conversion550706e4f,c31b70f91,72cb71cf7: sixteen healthy green cha
 Partial timer conversion2b3803c2c separates shared duration scales from the exact CD41/CD53/CD63 random-bucket order. Only that opaque selection order has the previously reviewed nonsense justification; quantum15,scales4/2/6 and doubling2 remain REQUIRED. All three timer aggregates stay unchecked.
 
 Root build1,450warnings/0errors;144 native color words,432 independent channel edits,exact residual membership,zero stock overrides,hashes and bounds pass. Timer confirmation compares24native words,196608 actual RNG selections and256 NMI values,including timer writes,phase handoffs and RNG consumption without a cartridge bus. ResourceAudit0/0. Inventory unchanged570converted/21retained-mixed/537pending.
+
+## Integrated Phantoon collision reflection
+
+Partial147760ba0 derives centered body/eye/center X edges as left=-right-1 and reflects the side-tentacle interval around the same pixel center. Five horizontal extents and ten vertical edges remain REQUIRED. Root identified this remaining exact relationship during exception review; no collision-shape exception is granted and FullBodyHitboxes remains unchecked.
+
+Root build1450warnings/0errors;22native frames,25components,seven rectangles/callbacks,actual full-body/eye selection and bounds pass. Inventory573converted/21retained-mixed/534pending unchanged.

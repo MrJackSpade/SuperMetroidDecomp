@@ -799,3 +799,31 @@ Release build has zero errors and all10,717updates pass (`hud-pause-build.log`,
 source tilemap output for the recorded sequence; final VRAM/display timing and
 rendered pixels remain explicit presentation gaps, alongside the other open audit
 items. No native state is injected after the initial snapshot.
+
+### Samus body records and arm-cannon state
+
+The initial snapshot now seeds the retained top/bottom spritemap indices
+($0AC8/$0ACA), screen origin ($0B04/$0B06), and cannon flags/frame/selection
+latch/drawing mode ($0AA6-$0AAD). Subsequent gameplay checkpoints compare the
+four cannon words directly. Body records compare when both native and normalized
+updates draw Samus; every hidden port update must retain its preceding records.
+The visibility assertion independently applies the native $90:85E2 condition
+with the normalized NMI clock. Hurt timers are observed before the final
+$A0:9169 decrement, including the last knockback/invincibility update.
+
+Raw cached sprite records are not always directly comparable after removing
+hardware waits. At update 777 (source 878), native NMI $A776 is even while the
+normalized count $A74D is odd: native publishes origin $00C2/$0084 while the port
+hides the body and retains $00BD/$008F. That is expected flicker-phase behavior,
+not an extra movement or graphics-offset mismatch. Update 1059 also established
+why the end-of-update zero knockback timer cannot stand in for its draw-time one.
+Neither observation required changing production behavior.
+
+The final Release build has zero errors and all 10,717 updates pass
+(`samus-draw-final-build.log`, `samus-draw-final-replay.log`). There are 7,996
+paired visible body comparisons, 1,997 phase-shifted updates and 995 hidden
+record-retention checks. This comparison
+still does not establish composed OAM/pixels, cannon DMA/display output, or body
+selection on updates where the two NMI phases disagree. Those remain explicit
+presentation coverage gaps; full-parity completion is not claimed. No native
+state is injected after initialization.

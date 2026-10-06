@@ -842,6 +842,23 @@ internal static partial class Program
         SamusState samus = runtime.Samus ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load Samus.");
         samus.InputLocked = false;
+        foreach (var (property, address) in new[]
+        {
+            (nameof(SamusState.TopSpritemapIndex), RidleyMovieMemory.SamusTopSpritemap),
+            (nameof(SamusState.BottomSpritemapIndex), RidleyMovieMemory.SamusBottomSpritemap),
+            (nameof(SamusState.SpritemapXPosition), RidleyMovieMemory.SamusSpriteX),
+            (nameof(SamusState.SpritemapYPosition), RidleyMovieMemory.SamusSpriteY),
+        }) typeof(SamusState).GetProperty(property)!.SetValue(samus, W(address));
+        foreach (var (property, address) in new[]
+        {
+            (nameof(SamusArmCannonState.Frame), RidleyMovieMemory.CannonFrame),
+            (nameof(SamusArmCannonState.ToggleFlag), RidleyMovieMemory.CannonToggle),
+            (nameof(SamusArmCannonState.DrawingMode), RidleyMovieMemory.CannonDrawingMode),
+        }) typeof(SamusArmCannonState).GetProperty(property)!.SetValue(samus.ArmCannon, W(address));
+        typeof(SamusArmCannonState).GetProperty(nameof(SamusArmCannonState.OpenFlag))!
+            .SetValue(samus.ArmCannon, memory[RidleyMovieMemory.CannonFlags]);
+        typeof(SamusArmCannonState).GetProperty(nameof(SamusArmCannonState.CloseFlag))!
+            .SetValue(samus.ArmCannon, memory[RidleyMovieMemory.CannonFlags + 1]);
         for (int address = RidleyMovieMemory.ProjectileInheritancePrefix;
              address < RidleyMovieMemory.SamusSlopeAdjusted; address++)
             bus.WriteByte(address, memory[address]);
@@ -887,6 +904,8 @@ internal static partial class Program
         samus.HurtFlashCounter = W(RidleyMovieMemory.HurtFlashCounter);
         samus.SubunitHealth = W(RidleyMovieMemory.SubunitHealth);
         samus.SelectedHudItem = W(RidleyMovieMemory.SelectedHudItem);
+        typeof(SamusArmCannonState).GetField("_previousSelectedHudItem", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .SetValue(samus.ArmCannon, samus.SelectedHudItem);
         samus.AutoCancelHudItemIndex = W(RidleyMovieMemory.AutoCancelHudItemIndex);
         samus.ReserveTankMode = W(RidleyMovieMemory.ReserveMode);
         samus.MaxReserveEnergy = W(RidleyMovieMemory.MaxReserve);
@@ -1030,8 +1049,15 @@ internal static partial class Program
                     actor.CurrentInstruction, actor.InstructionTimer]);
             return words.ToArray();
         }
+        int pairedBodyDraws = 0, phaseShiftedBodyDraws = 0, retainedHiddenBodyRecords = 0;
+        (ushort Top, ushort Bottom, ushort X, ushort Y) BodyRecord() =>
+            (samus.TopSpritemapIndex, samus.BottomSpritemapIndex,
+                samus.SpritemapXPosition, samus.SpritemapYPosition);
+        var previousBodyRecord = BodyRecord();
         for (int frame = 0; frame <= length; frame++)
         {
+            ushort previousKnockbackTimer = W(RidleyMovieMemory.KnockbackTimer);
+            ushort previousInvincibilityTimer = W(RidleyMovieMemory.InvincibilityTimer);
             if (frame != 0) memory = ReadFrame(frame);
             var mismatches = new List<string>();
             void Check(string name, ushort actual, int address)
@@ -1064,6 +1090,44 @@ internal static partial class Program
                 runtime.System.GetMapStationByteRaw, RidleyMovieMemory.MapStationMarkers);
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
+                // $82:8B44 draws before $A0:9169 ages hurt timers. A final one
+                // therefore still affects this update's draw although the checkpoint
+                // stores zero. This movie has no debug invincibility/timer-reset path.
+                bool knockbackAtDraw = W(RidleyMovieMemory.KnockbackTimer) != 0 ||
+                    (frame != 0 && previousKnockbackTimer == 1);
+                bool invincibleAtDraw = W(RidleyMovieMemory.InvincibilityTimer) != 0 ||
+                    (frame != 0 && previousInvincibilityTimer == 1);
+                bool forcedBodyVisible = knockbackAtDraw || !invincibleAtDraw ||
+                    W(RidleyMovieMemory.SamusShineTimer) != 0;
+                bool nativeBodyVisible = forcedBodyVisible || (W(RidleyMovieMemory.NmiCounter) & 1) == 0;
+                bool normalizedBodyVisible = forcedBodyVisible || (runtime.NmiFrameCounter & 1) == 0;
+                if (frame != 0)
+                {
+                    AssertEqual(normalizedBodyVisible, runtime.LastSamusBodyDrawn,
+                        $"update {frame}: body visibility uses lag-free NMI phase");
+                    if (nativeBodyVisible && normalizedBodyVisible) pairedBodyDraws++;
+                    if (nativeBodyVisible != normalizedBodyVisible) phaseShiftedBodyDraws++;
+                    if (!normalizedBodyVisible)
+                    {
+                        AssertEqual(previousBodyRecord, BodyRecord(),
+                            $"update {frame}: hidden body retains prior sprite records");
+                        retainedHiddenBodyRecords++;
+                    }
+                }
+                // Flicker deliberately follows the retained NMI clock. Removed hardware
+                // waits can change its parity, and hidden frames retain the last visible
+                // origin/indices. Compare newly published records when both draws execute.
+                if (frame == 0 || (nativeBodyVisible && normalizedBodyVisible))
+                {
+                    Check("Samus top spritemap", samus.TopSpritemapIndex, RidleyMovieMemory.SamusTopSpritemap);
+                    Check("Samus bottom spritemap", samus.BottomSpritemapIndex, RidleyMovieMemory.SamusBottomSpritemap);
+                    Check("Samus sprite X", samus.SpritemapXPosition, RidleyMovieMemory.SamusSpriteX);
+                    Check("Samus sprite Y", samus.SpritemapYPosition, RidleyMovieMemory.SamusSpriteY);
+                }
+                Check("Cannon flags", (ushort)(samus.ArmCannon.OpenFlag | samus.ArmCannon.CloseFlag << 8), RidleyMovieMemory.CannonFlags);
+                Check("Cannon frame", samus.ArmCannon.Frame, RidleyMovieMemory.CannonFrame);
+                Check("Cannon toggle", samus.ArmCannon.ToggleFlag, RidleyMovieMemory.CannonToggle);
+                Check("Cannon drawing mode", samus.ArmCannon.DrawingMode, RidleyMovieMemory.CannonDrawingMode);
                 Check("Minimap disabled", runtime.Hud.MinimapDisabled ? (ushort)1 : (ushort)0, RidleyMovieMemory.MinimapDisabled);
                 CheckBytes("Room scroll storage", RoomScrollGrid.StorageByteCount,
                     runtime.Camera!.Scrolls.ReadStorage, RidleyMovieMemory.ScrollStorage);
@@ -1603,6 +1667,7 @@ internal static partial class Program
             {
                 if (updates[frame].GetProperty("timingClass").GetString() == "apu-upload-continuation")
                     throw new InvalidDataException($"SMV source frame {updates[frame].GetProperty("sourceFrame").GetInt32()} is an APU upload continuation; hardware-wait input normalization is not implemented.");
+                previousBodyRecord = BodyRecord();
                 var output = game.Step((ushort)updates[frame].GetProperty("input").GetInt32());
                 audio.RenderFrame(output.AudioCommands);
                 game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
@@ -1610,6 +1675,7 @@ internal static partial class Program
         }
         AssertTrue(pendingLoadedOwners is null, "no deferred loading comparison remains at movie end");
         AssertTrue(trace.ReadByte() == -1, "trace ends after movie terminal frame");
+        Console.WriteLine($"Samus body records: {pairedBodyDraws} paired visible updates, {phaseShiftedBodyDraws} hardware-phase-shifted updates, {retainedHiddenBodyRecords} hidden-record retention checks.");
         Console.WriteLine($"Full movie input replay: {length} updates across all 10890 source frames match the currently instrumented fields.");
     }
 }

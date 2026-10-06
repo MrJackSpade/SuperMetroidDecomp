@@ -1,6 +1,18 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$0A68: shared shine timer bypassing ordinary invincibility flicker.</summary>
+    public const int SamusShineTimer = 0x0a68;
+
+    /// <summary>$0AC8/$0ACA: last selected top/bottom Samus spritemaps.</summary>
+    public const int SamusTopSpritemap = 0x0ac8, SamusBottomSpritemap = 0x0aca;
+    /// <summary>$0B04/$0B06: last screen-space Samus sprite origin.</summary>
+    public const int SamusSpriteX = 0x0b04, SamusSpriteY = 0x0b06;
+    /// <summary>$0AA6: packed arm-cannon open and transition flags.</summary>
+    public const int CannonFlags = 0x0aa6;
+    /// <summary>$0AA8/$0AAA/$0AAC: cannon frame, item-change latch and draw mode.</summary>
+    public const int CannonFrame = 0x0aa8, CannonToggle = 0x0aaa, CannonDrawingMode = 0x0aac;
+
     /// <summary>$C608-$C6C7: three mutable HUD tilemap rows.</summary>
     public const int HudTilemap = 0xc608;
     /// <summary>$0A0E: previously highlighted HUD item.</summary>

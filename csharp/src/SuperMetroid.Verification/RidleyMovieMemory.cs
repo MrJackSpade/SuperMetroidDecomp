@@ -1,6 +1,18 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$90:C3C9: equipped-beam palette pointer table used by $90:ACCD.</summary>
+    public const int BeamPalettePointers = 0x90c3c9;
+
+    /// <summary>$1E7D/$1E8D/$1EAD/$1EBD/$1ECD/$1EDD: eight palette FX slot arrays.</summary>
+    public const int PaletteFxId = 0x1e7d, PaletteFxColor = 0x1e8d, PaletteFxPreInstruction = 0x1ead,
+        PaletteFxInstruction = 0x1ebd, PaletteFxInstructionTimer = 0x1ecd, PaletteFxTimer = 0x1edd;
+    /// <summary>$1EED/$1EEF: current and consumed Samus-in-heat palette phases.</summary>
+    public const int HeatPalettePhase = 0x1eed, PreviousHeatPalettePhase = 0x1eef;
+
+    /// <summary>$C000: current 256-word native palette buffer submitted to CGRAM.</summary>
+    public const int PaletteBuffer = 0xc000;
+
     /// <summary>$90:C7DF: per-pose arm-cannon drawing-record pointers.</summary>
     public const int CannonPosePointers = 0x90c7df;
     /// <summary>$90:C791: ten directional arm-cannon OBJ attribute words.</summary>

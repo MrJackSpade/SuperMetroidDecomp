@@ -283,14 +283,16 @@ internal sealed partial class PauseMenuState
     /// (for example, a debugger watch or PNG capture). The dispatcher calls this exactly
     /// once per emulated frame so inspection cannot change cartridge-visible timing.
     /// </remarks>
-    public void AdvanceAnimations(byte nmiFrameCounter8 = 0, bool fadingOut = false)
+    public void AdvanceAnimations(byte nmiFrameCounter8 = 0, bool fadingOut = false, bool advancePalette = true)
     {
         // $82:9156 and $82:9353 emit destination labels before map icons during fade-out.
         mapLabelsBeforeIcons = fadingOut || transition == PauseMenuTransition.MapToEquipmentFadeOut;
         // Only stable map dispatch calls $82:B934. Fade paths retain counters but hide arrows.
         mapArrows?.StepArrows(_ => false);
         pauseNmiFrameCounter8 = nmiFrameCounter8;
-        if (paletteAnimation.Step(cgram))
+        // $82:90E8 calls the palette handler after stable pause dispatch. The
+        // outer pause/unpause fades draw sprites without advancing this owner.
+        if (advancePalette && paletteAnimation.Step(cgram))
             audio?.QueueSound(SoundEffectLibrary3Sounds.MapPaletteLoop, maximumQueued: 6);
         if (ScreenMode == 0)
             StepMapIndicatorAnimation();

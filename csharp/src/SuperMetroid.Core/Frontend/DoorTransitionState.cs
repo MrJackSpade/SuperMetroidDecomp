@@ -167,6 +167,9 @@ public sealed class DoorTransitionState
                 runtime.Enemies.EnemyDoorTransitionActive = true;
                 ushort[] destinationTarget = runtime.Cgram.Colors.ToArray();
                 RestorePalette(runtime.Cgram, fadedSourcePalette);
+                // UpdateBeamTilesAndPalette writes live colors during loading, unlike
+                // the destination room/enemy/suit target palettes used by the fade.
+                DoorTransitionPaletteDefinitions.RestoreLoadedBeamPalette(runtime.Cgram, destinationTarget);
                 runtime.BeginDoorOpeningScroll(
                     door ?? throw new InvalidOperationException("Door header was not captured."),
                     sourceSamusXFixed,
@@ -198,6 +201,7 @@ public sealed class DoorTransitionState
                     // scrolling update, before the NMI that precedes destination fade-in.
                     // Setup lists can alter visible room state here; deferring them to the
                     // first ordinary gameplay frame exposes their pre-PLM state.
+                    DoorTransitionPaletteDefinitions.PublishCompletedScrollVisor(runtime.Cgram);
                     runtime.RunDoorTransitionPlmHandler();
                     Phase = DoorTransitionPhase.FinishDoorLoading;
                 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Reflection;
@@ -611,6 +612,60 @@ internal static partial class Program
         Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and native low-byte boundary agree.");
     }
 
+    private static void VerifyRidleyPaletteSelection()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+        var samus = runtime.Samus!;
+        samus.InputLocked = false;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.InitializeAnimation(bus);
+        samus.RefreshCollisionRadii(bus);
+        samus.XPosition = 512; samus.YPosition = 400;
+        samus.EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit;
+        samus.SelectedHudItem = 1; samus.SuperMissiles = 5;
+        samus.LoadSuitPalette(bus, runtime.Cgram);
+        ushort[] expected = runtime.Cgram.Colors.Slice(192, 16).ToArray();
+        for (int color = 192; color < 208; color++) runtime.Cgram.SetColor(color, 0x1234);
+        runtime.StepFrame((ushort)SnesButton.Select);
+        AssertEqual((ushort)2, samus.SelectedHudItem, "selection enters Super Missiles without charge");
+        AssertTrue(runtime.Cgram.Colors.Slice(192, 16).SequenceEqual(expected),
+            "HUD handler restores all suit colors even when charge was zero");
+        Console.WriteLine("HUD selection restores the complete suit palette without an active charge.");
+        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
+        var stateProperty = typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!;
+        stateProperty.SetValue(game, SuperMetroidGameState.Pausing);
+        game.Step(0);
+        var menu = typeof(SuperMetroidGame).GetField("pauseMenu", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
+        var menuPalette = (SnesCgram)typeof(PauseMenuState).GetField("cgram", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(menu)!;
+        ushort[] initial = menuPalette.Colors.ToArray();
+        int fadeFrames = 0;
+        while (game.GameState == SuperMetroidGameState.PausedA && fadeFrames++ < 32)
+        {
+            game.Step(0);
+            AssertTrue(menuPalette.Colors.SequenceEqual(initial), "pause fade-in retains all palette colors");
+        }
+        AssertEqual(SuperMetroidGameState.PausedB, game.GameState, "pause fade-in completes");
+        game.Step(0);
+        AssertTrue(!menuPalette.Colors.SequenceEqual(initial), "stable pause starts palette animation");
+        ushort[] animated = menuPalette.Colors.ToArray();
+        stateProperty.SetValue(game, SuperMetroidGameState.UnpausingA);
+        typeof(SuperMetroidGame).GetMethod("BeginPauseFade", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(game, [(byte)15]);
+        fadeFrames = 0;
+        while (game.GameState == SuperMetroidGameState.UnpausingA && fadeFrames++ < 32)
+        {
+            game.Step(0);
+            AssertTrue(menuPalette.Colors.SequenceEqual(animated), "unpause fade-out retains the last palette phase");
+        }
+        AssertEqual(SuperMetroidGameState.UnpausingB, game.GameState, "unpause fade-out completes");
+        Console.WriteLine("Pause palette advances only in stable pause, remaining latched through both outer fades.");
+    }
+
     private static void VerifyRidleyDoorEntry()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -693,6 +748,15 @@ internal static partial class Program
         game.Step(0); // The atomic destination loader must use the pre-setup source.
         AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
         AssertEqual(0x010dc800u, samus.Kinematics.XFixed, "destination load carries both loading IRQ steps without restarting the scroll");
+        ushort palettePointer = (ushort)(bus.ReadByte(RidleyMovieMemory.BeamPalettePointers + (samus.EquippedBeams & 0x0fff) * 2) |
+            bus.ReadByte(RidleyMovieMemory.BeamPalettePointers + (samus.EquippedBeams & 0x0fff) * 2 + 1) << 8);
+        for (int color = 0; color < 16; color++)
+        {
+            int address = RidleyMovieMemory.CannonDefinitionBank | (palettePointer + color * 2);
+            ushort expected = (ushort)((bus.ReadByte(address) | bus.ReadByte(address + 1) << 8) & 0x7fff);
+            AssertEqual(expected, runtime.Cgram.Colors[224 + color], "beam palette is live during door scrolling");
+        }
+        AssertEqual((ushort)0, runtime.Cgram.Colors[196], "visor remains faded before scroll completes");
         int scrollCalls = 0;
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForDoorOpeningScroll && scrollCalls < 64)
         {
@@ -701,6 +765,7 @@ internal static partial class Program
         }
         AssertEqual(61, scrollCalls, "left trajectory completes on its 61st remaining IRQ call");
         AssertEqual(DoorTransitionPhase.FinishDoorLoading, game.DoorTransitionPhaseForVerification, "post-scroll NMI remains inside the loading coroutine");
+        AssertEqual((ushort)0x3be0, runtime.Cgram.Colors[196], "final scrolling update publishes native visor green before PLMs");
         AssertEqual(0x00de2000u, samus.Kinematics.XFixed, "native source frame 276 scrolling endpoint");
         game.Step(0);
         AssertEqual(DoorTransitionPhase.HandleAnimatedTiles, game.DoorTransitionPhaseForVerification, "loading alignment precedes music wait");
@@ -817,6 +882,25 @@ internal static partial class Program
             level.SetBehavior(index, memory[RidleyMovieMemory.Bts + index]);
         }
 
+        runtime.Cgram.LoadBytes(memory.AsSpan(RidleyMovieMemory.PaletteBuffer, SnesCgram.ByteCount));
+        var initialPaletteSlots = (Array)typeof(RoomPaletteFxSystem)
+            .GetField("slots", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.RoomPaletteFx)!;
+        for (int slot = 0; slot < initialPaletteSlots.Length; slot++)
+        {
+            object paletteSlot = initialPaletteSlots.GetValue(slot)!;
+            foreach (var (property, address) in new[]
+            {
+                ("Id", RidleyMovieMemory.PaletteFxId), ("ColorByteIndex", RidleyMovieMemory.PaletteFxColor),
+                ("PreInstruction", RidleyMovieMemory.PaletteFxPreInstruction), ("InstructionPointer", RidleyMovieMemory.PaletteFxInstruction),
+                ("InstructionTimer", RidleyMovieMemory.PaletteFxInstructionTimer), ("Timer", RidleyMovieMemory.PaletteFxTimer),
+            }) paletteSlot.GetType().GetProperty(property)!.SetValue(paletteSlot, W(address + slot * 2));
+        }
+        foreach (var (field, address) in new[]
+        {
+            ("samusInHeatPaletteIndex", RidleyMovieMemory.HeatPalettePhase),
+            ("previousSamusInHeatPaletteIndex", RidleyMovieMemory.PreviousHeatPalettePhase),
+        }) typeof(RoomPaletteFxSystem).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!
+            .SetValue(runtime.RoomPaletteFx, W(address));
         ushort[] initialHud = (ushort[])typeof(HudState)
             .GetField("_tiles", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.Hud)!;
         for (int index = 0; index < initialHud.Length; index++)
@@ -1043,6 +1127,11 @@ internal static partial class Program
         ushort[] CaptureLoadedOwners()
         {
             var words = new List<ushort> { runtime.System.RandomNumber };
+            // The final scrolling IRQ publishes the visor before the deferred
+            // loading owners reach their shared completion boundary. Check it there.
+            for (int color = 0; color < SnesCgram.ColorCount; color++)
+                if (color != DoorTransitionPaletteDefinitions.VisorColorIndex)
+                    words.Add(runtime.Cgram.Colors[color]);
             foreach (var actor in runtime.Enemies.Slots)
                 words.AddRange([actor.EnemyDefinitionPointer, actor.XPosition, actor.XSubposition,
                     actor.YPosition, actor.YSubposition, actor.Health, actor.SpritemapPointer,
@@ -1335,11 +1424,30 @@ internal static partial class Program
             bool portWaitingForScroll = game.DoorTransitionPhaseForVerification is
                 DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading;
             bool deferLoadingOwners = nativeLoading && portWaitingForScroll;
+            SnesCgram comparedPalette = runtime.Cgram;
+            if (game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
+                SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB)
+            {
+                object menu = typeof(SuperMetroidGame).GetField("pauseMenu", BindingFlags.Instance | BindingFlags.NonPublic)!
+                    .GetValue(game) ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
+                comparedPalette = (SnesCgram)typeof(PauseMenuState).GetField("cgram", BindingFlags.Instance | BindingFlags.NonPublic)!
+                    .GetValue(menu)!;
+            }
+            if (!deferLoadingOwners)
+            for (int color = 0; color < SnesCgram.ColorCount; color++)
+            {
+                ushort nativeColor = (ushort)(W(RidleyMovieMemory.PaletteBuffer + color * 2) & 0x7fff);
+                if (comparedPalette.Colors[color] != nativeColor)
+                    mismatches.Add($"Palette {color}: native={nativeColor:X4} port={comparedPalette.Colors[color]:X4}");
+            }
             if (deferLoadingOwners)
             {
+                if (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FinishDoorLoading)
+                    Check("Completed-scroll visor", runtime.Cgram.Colors[DoorTransitionPaletteDefinitions.VisorColorIndex],
+                        RidleyMovieMemory.PaletteBuffer + DoorTransitionPaletteDefinitions.VisorColorIndex * 2);
                 ushort[] owners = CaptureLoadedOwners();
                 if (pendingLoadedOwners is not null && !owners.AsSpan().SequenceEqual(pendingLoadedOwners))
-                    throw new InvalidDataException("Destination RNG/enemy owners advanced while native hardware loading was still pending.");
+                    throw new InvalidDataException("Destination RNG/palette/enemy owners advanced while native hardware loading was still pending.");
                 pendingLoadedOwners ??= owners;
                 loadingIntervals++;
             }
@@ -1690,7 +1798,7 @@ internal static partial class Program
             }
             if (!deferLoadingOwners && pendingLoadedOwners is not null)
             {
-                Console.WriteLine($"Completed-loading RNG/enemy owners match after {loadingIntervals} IRQ intervals; movement/input checked throughout.");
+                Console.WriteLine($"Completed-loading RNG/palette/enemy owners match after {loadingIntervals} IRQ intervals; movement/input checked throughout.");
                 pendingLoadedOwners = null;
             }
             // Only the converted controller event enters production; reference memory is

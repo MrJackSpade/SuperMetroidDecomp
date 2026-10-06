@@ -94,6 +94,7 @@ if (args is ["--ridley-screen-gate"]) { VerifyRidleyScreenGate(); return 0; }
 if (args is ["--spring-ball-release"]) { VerifySpringBallRelease(); return 0; }
 if (args is ["--ridley-tail-offsets"]) { VerifyRidleyTailOffsets(); return 0; }
 if (args is ["--ridley-center-facing"]) { VerifyRidleyCenterFacing(); return 0; }
+if (args is ["--ridley-palette-selection"]) { VerifyRidleyPaletteSelection(); return 0; }
 if (args is ["--ridley-door-entry"]) { VerifyRidleyDoorEntry(); return 0; }
 if (args is ["--ridley-full-movie", var traceDirectory]) { VerifyRidleyFullMovie(traceDirectory); return 0; }
 if (args is ["--ridley-player-opening"]) { VerifyRidleyPlayerOpening(); return 0; }

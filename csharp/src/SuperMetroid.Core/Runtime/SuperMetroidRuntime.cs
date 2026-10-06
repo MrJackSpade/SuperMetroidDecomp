@@ -1935,6 +1935,11 @@ public sealed partial class SuperMetroidRuntime
                     {
                         Projectiles.CancelChargeForHudSelection();
                         Samus.ProjectileFlareCounter = 0;
+                        // Accepted HUD handlers restore suit colors even without a
+                        // charged beam. An already-active grapple is the native exception.
+                        if (Samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem ||
+                            Samus.Grapple.Phase == GrapplePhase.Inactive)
+                            Samus.LoadSuitPalette(_addressSpace, Cgram);
                     }
 
                     // The selected scope uses held Run, not Fire. Setup installs its

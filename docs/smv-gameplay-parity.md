@@ -873,3 +873,45 @@ Release build has zero errors; all 10,717 updates pass
 required. The previous cannon draw-output/source-transfer gap is closed for the
 recorded gameplay updates; complete rendering and the other documented audit
 areas remain open. Original movie and initial-only state import are unchanged.
+
+### Full current-palette comparison and three corrected palette contracts
+
+The initial state now imports the 256 current palette words, all eight palette-FX
+slot records and the two heat-phase handoff words once. This is required because
+five palette animations are already running when the supplied movie begins.
+The verifier compares all 256 BGR555 colors, using the pause menu's separate
+CGRAM owner while that menu is active. Native bit 15 is ignored like hardware.
+Partial CPU room-loading writes are deferred with the existing completed-loading
+boundary: the port palette must remain stable over those IRQ intervals except
+for the separately checked final-scroll visor write. No later native state is
+injected.
+
+The comparison reproduced and corrected three production defects:
+
+- At update 241/source 276, completed loading had black beam/visor colors in the
+  port. Native $90:ACCD writes beam colors to the live palette during loading;
+  $82:E52B-E52E publishes visor green before the final PLM call. Restoring the
+  entire faded source palette discarded the beam row, and the visor write was
+  missing. Door loading now preserves the loaded beam row and publishes the visor
+  at scroll completion. The real-room `--ridley-door-entry` fixture checks all
+  sixteen beam colors during scrolling and the exact visor timing; it passes
+  (`palette-door-focused.log`). Movie comparison passes this boundary and the fade.
+- At update 5700/source 5813, selecting Super Missiles retained a heat tint.
+  Native accepted HUD handlers call $91:DEBA even when charge is zero; the port
+  cleared charge but omitted the palette restore. Selection now restores normal
+  suit colors, respecting the active-grapple exception. The focused
+  `--ridley-palette-selection` case checks all sixteen colors through the real
+  runtime with zero charge; movie comparison passes the original divergence.
+- At update 9382/source 9507, pause fade-in advanced the palette highlight early.
+  Native $82:90C8/$934B draws fade sprites without $82:A92B; that palette handler
+  belongs to $82:90E8. The outer pause/unpause fades now freeze palette animation
+  while continuing their sprite animation. Focused checks cover both fades and
+  the first stable-pause palette update (`palette-confirm-focused.log`).
+
+Final build has zero errors (`palette-confirm-build.log`). These three fixes are
+implemented and await player validation. The expanded full replay currently
+passes through update 9454, then fails at update 9455/source 9580 on reserve-arrow
+colors 102/107 during map-to-equipment transition (`palette-pause-timing-replay.log`):
+native $0156/$039E versus port $039E/$0156. That divergence is still under
+investigation; the expanded full replay is NOT passing yet. Other rendering,
+control and loading audit gaps remain open. No full-parity completion claim.

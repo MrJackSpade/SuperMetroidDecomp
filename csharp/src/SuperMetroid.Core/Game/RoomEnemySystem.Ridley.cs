@@ -839,14 +839,16 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Ports the shared tail half of $A6:D3F9. A facing instruction reflects every polar
-    /// angle around $8000 and flips its movement direction; failing to mirror this state is
-    /// the classic cause of Ridley's tail appearing several frames late after a turn.
+    /// Ports $A6:D3F9. A facing instruction restores the seven rest distances before
+    /// reflecting angles around $8000 and setting clockwise movement. The offset words
+    /// remain untouched until the following tail controller update.
     /// </summary>
     private static void MirrorRidleyTail(RidleyEnemyState state)
     {
-        foreach (RidleyTailSegment segment in state.TailSegments)
+        for (int index = 0; index < state.TailSegments.Length; index++)
         {
+            RidleyTailSegment segment = state.TailSegments[index];
+            segment.Distance = RidleyTailDefinitions.RestDistance(index);
             segment.Angle = unchecked((ushort)(0x8000 - segment.Angle));
             segment.MovementDirection |= 0x8000;
         }

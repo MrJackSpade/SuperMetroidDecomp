@@ -79,6 +79,23 @@ internal static partial class Program
         tick.Invoke(null, [state, 1]);
         AssertTrue(child.Active, "moving predecessor prevents child deactivation");
         AssertEqual((ushort)0x3fc0, child.Angle, "blocked child clamps to native clockwise limit");
+        var flip = typeof(RoomEnemySystem).GetMethod("MirrorRidleyTail", BindingFlags.Static | BindingFlags.NonPublic)!;
+        foreach (var part in state.TailSegments)
+        {
+            part.Distance = 0x1200; part.TargetDistance = 0x0c00;
+            part.Angle = 0x3ff8; part.XOffset = 0xfffd; part.YOffset = 13;
+        }
+        flip.Invoke(null, [state]);
+        ushort[] nativeRest = [0x0200, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0500];
+        for (int i = 0; i < state.TailSegments.Length; i++)
+        {
+            var part = state.TailSegments[i];
+            AssertEqual(nativeRest[i], part.Distance, "native flip restores each authored rest distance");
+            AssertEqual((ushort)0x4008, part.Angle, "native flip reflects angle");
+            AssertEqual((ushort)0x0c00, part.TargetDistance, "native flip preserves extension target");
+            AssertEqual((ushort)0xfffd, part.XOffset, "native flip preserves current X offset");
+            AssertEqual((ushort)13, part.YOffset, "native flip preserves current Y offset");
+        }
         Console.WriteLine("Ridley tail offsets: stagger/stop retention, clockwise arithmetic, signed multiplication and predecessor gate pass.");
     }
 

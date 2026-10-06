@@ -86,7 +86,7 @@ room identity, and active enemies' identities, positions, health and visual curs
 That comparison is still under development; conversion success is not port parity.
 Door-entry and source-fade HDMA/RNG/actor omissions were reproduced and fixed,
 along with missing RNG advancement through the outer loading dispatches. The
-current checked properties match through update 1763, with loading-owner alignment
+current checked properties match through update 1881, with loading-owner alignment
 and upload normalization as described here. Setup now applies
 Samus's first displacement before destination rebasing; the atomic loader retains
 the pre-setup source coordinates so it does not count that movement twice. A
@@ -157,10 +157,13 @@ $91:8304/$EC85. It previously used the airborne ordinary ball's deceleration rul
 The native source-1616 release fixture confirms final X `$004C.4000`, stationary
 pose `$7A`, zero base momentum that update, and no movement on the next update.
 
-Checked state now matches through update 1763 of 10,717. The next divergence is
-update 1764 (original source frame 1865): Ridley tail tip native `$0067/$0149`
-versus port `$0068/$0158` after a facing turn. This geometry transition remains
-under investigation.
+Ridley's turn now restores all seven rest distances before mirroring tail angles,
+matching $A6:D3F9. The focused fixture confirms reset lengths and preserved targets/
+offsets; the independent movie passes the formerly mismatched turn geometry.
+
+Checked state now matches through update 1881 of 10,717. The next divergence is
+update 1882 (original source frame 1983): stationary Spring Ball retains a base
+fraction `$C000` during knockback where native command six clears it.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

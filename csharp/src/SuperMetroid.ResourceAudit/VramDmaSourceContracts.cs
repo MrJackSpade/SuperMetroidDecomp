@@ -62,7 +62,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Game/TourianStatueAnimatedTileMechanicsDefinitions.cs", "6DDB90542C61C0DFD432AD47D81EF39360A79DDDDFA0B0F66631B892DA3A6339"),
         new("csharp/src/SuperMetroid.Core/Game/WreckedShipTreadmillMechanicsDefinitions.cs", "5F106D9E3636EE059AA5C223A00CE6332B8C9E122B8587CB4218265759291E79"),
         new("csharp/src/SuperMetroid.Core/Game/ScrollingSkyChunkPointerDefinitions.cs", "87123714C3784F69DCB36F3320C1E7B923F902D641336E07A7855A1D098B7D43"),
-        new("csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs", "3EB47A67CAEDAD19C2BCBFD46DB9CEE6C6611FAFAB3B77DAD8B5E51DA5A86B7B"),
+        new("csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs", "8AFA8DF23DFB092874E789F0D12681F1F039A675EA880CC790647459ACA3D4C6"),
         new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "EEAAAAE46BA3D0FC53EDD5A4F9E429D21FE361CA22B375636936519EA4E98A21"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomHeaderDefinitions.cs", "1257C0FAE1E000F33BEE1E8CFCC9212401AC10752FE428013585B9D4D305C8CA"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs", "FD0E9AA1573C75DA565AA453B3FDF3C89BE9B0E5680322A539279308467C62F3"),

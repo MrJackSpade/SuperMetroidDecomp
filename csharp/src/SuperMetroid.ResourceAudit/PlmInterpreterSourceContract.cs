@@ -36,7 +36,8 @@ internal static class PlmInterpreterSourceContract
         // #1255 suspends before the existing Empty draw/delete continuation; no new program reads or operand widths.
         ["TryStepCollectible/7"] = "CCE0A9AFC876F1D775959C8D9D418E537261E046F1A582174F6098D47D1106B7",
         ["TryStepColoredDoor/7"] = "14CD1F847751E3E06E51CB8F2FC0FC374F56A36CDBFCFDCFF6D241D95637FE50",
-        ["TryStepGreyDoor/9"] = "40FD469CE189BF180E15F624F62F3DC19CE66FEFBBC137D79E5504FF1661A79E",
+        // #1266 resets LoopTimer for a rejected shot; no program reads or operand widths change.
+        ["TryStepGreyDoor/9"] = "1D39DE376A24C293CBCEA04F7BD7B26563277F20143E268129C5F7067D86BCD8",
         ["TryStepScrollPlm/3"] = "3E7FD154C88BC9644F274C7B75B77C61B7F1CFC8452913C988415733FB168E2D",
         ["TryStepStation/7"] = "52FC8240C22253BA5ED3AF6A7DC19EB44EC2F4078475181A4C43586C19DE1E1E",
         ["TryStepWreckedShipTreadmill/3"] = "ED6CDE07E6C1DEF7DB2187EA0DD41010CFAA5FB9961A34EB61C57893E8486420",

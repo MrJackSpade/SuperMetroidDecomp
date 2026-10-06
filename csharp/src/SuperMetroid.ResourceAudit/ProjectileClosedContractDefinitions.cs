@@ -6,10 +6,10 @@ internal static class ProjectileClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.BeamTileCatalog", "beam-complete-sheet-selection", ["Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs", "F1ECEE3ECFD650E9203E9C2A7C8CCAC6E86A47196EFCE839603C3E94A68DC161"),
+            [new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs", "50424F1949ED3D0DD46BD79E4B6840E688E5C92696CBD5E3B0B732E4F24F1D87"),
              new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "2390C3A34C6DDA0D97FBFA05608C93A2EE1B7F08F35455F2F31A4C2E7C033C7F"),
-             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "C6D723F06DDDF98828CA5D05D6E07D8E227C5942FA683412B020DE9A6F8AAA6B")],
-            "Both constructor paths require all twelve ordinary beam sheets and the separate Chainsaw sheet; the precompiled path rejects nulls and clones its input array. Resolve guards the contiguous ordinary beam asset range and admits only the appended Chainsaw ID beyond it. Optional palette providers, transfer timing and selected beam physics are not certified."),
+             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "73DCE6788B0BB9B1549CF04466AE14CB8AABA3AD9FCC2738E188ABBA2F2F8D44")],
+            "Both constructor paths require all twelve ordinary beam sheets and the separate Chainsaw and SpaceTime sheets; the precompiled path rejects nulls and clones its input array. Resolve guards the contiguous ordinary beam asset range and admits only the appended Chainsaw and SpaceTime IDs beyond it. Optional palette providers, transfer timing and selected beam physics are not certified."),
         new("SuperMetroid.Core.Assets.ChargeFlarePlacementCatalog", "flare-complete-standing-running-offsets", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementCatalog.cs", "561687A6F026FB59D25DE33CB0121ACE45CB6CC00F3FA0DFCBD479E66B653459"),
              new("csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementDefinitions.cs", "4B2475E4CF89A5499187BDE56759F80624226C8F51FCB766829B46AFEA483F6D")],

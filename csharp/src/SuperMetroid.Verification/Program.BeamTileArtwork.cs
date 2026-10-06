@@ -14,7 +14,7 @@ internal static partial class Program
         var catalog = BeamTileCatalog.Load(files, palettes);
         VerifyBeamPaletteArtwork(bus, catalog);
         VerifyRuntimeBeamArtwork(bus, files, catalog);
-        AssertEqual(13, files.Count, "Every legal beam combination and bounded Chainsaw upload has editable artwork");
+        AssertEqual(14, files.Count, "Every legal beam combination and both bounded invalid uploads have editable artwork");
         for (ushort selection = 0; selection < 12; selection++)
         {
             byte[] png = files[BeamTileAtlasDefinitions.FileName(selection)];

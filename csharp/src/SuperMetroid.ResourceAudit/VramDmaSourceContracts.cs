@@ -21,7 +21,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs", "F52A359EFB79D9FEA24B7D4569A4AD1467DD8A94B90CDA79CE3A7BE4654B9C74"),
         new("csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlas.cs", "BC5746B3F1D6426D890E40033CDD392EA94AD807FB81115659071386094FB18B"),
         new("csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlasDefinitions.cs", "9E44730047C8A47B51636EA8B4598B186B2AAC2EB90A5E6CD7DDFD7FCA7CFB9B"),
-        new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs", "F1ECEE3ECFD650E9203E9C2A7C8CCAC6E86A47196EFCE839603C3E94A68DC161"),
+        new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs", "50424F1949ED3D0DD46BD79E4B6840E688E5C92696CBD5E3B0B732E4F24F1D87"),
         new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "34E006862F2AE7C443B04F645C377CF1EE2839235887BF72DBEADD9807C239C6"),
         new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "5FC3060A58A9FB345A62521ED7A0DD505D7672A4EBBC8C8A0AFDED67A6268210"),
         new("csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs", "59020E84573C1A0470BD5B40E681B91570931F8E3DD1382B7C2934DED1694476"),
@@ -44,15 +44,15 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Rooms/RoomStateSelectionDefinitions.cs", "0DEDA3C701DFF8D19280C9EB64558D8A31C55C9CE55D40B1DF541C41005D2481"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomScrollDefinitions.cs", "A1E977737280B7E3B4DD59F9AF02CFD3EB61FD8E973C9C125B4BB5C6CEB2E28B"),
         new("csharp/src/SuperMetroid.Core/Rooms/LandingSiteEntryState.cs", "2D5613F90CD952A22FEB9336C094D7C2DEAF29BB504ACC249D424205A2628569"),
-        new("csharp/src/SuperMetroid.AssetExtraction/ProjectilePresentationFiles.cs", "B34766AA17F9A24034728BE3F63B7CD359BDB0E4E0A4F7B94ABA77B43C216390"),
+        new("csharp/src/SuperMetroid.AssetExtraction/ProjectilePresentationFiles.cs", "BF72B46431E7D0854E2AA1D05EC8091130F6454219418BA8D57EED9F899ADD96"),
         new("csharp/src/SuperMetroid.AssetExtraction/MapPresentationExtractor.cs", "20A8D4F32A61B9ED2DB8B07EB8F2407E3DC57182D2DC7B999A6C662B8EB5B07A"),
         new("csharp/src/SuperMetroid.AssetExtraction/RoomFxAnimatedTileAtlasExtractor.cs", "5A65977F4E08C5B95340BCCD841AFD9B2160B1603F14DC95C77525518420046E"),
         new("csharp/src/SuperMetroid.AssetExtraction/SamusBodyArtworkFiles.cs", "50DC6D9B4B8A54918E936BF4069ECDB6931B0B45D8B9985C45140731279ED185"),
         new("csharp/src/SuperMetroid.AssetExtraction/RoomSkyTilemapArtworkFiles.cs", "E42511E668408ED254DFDD028B263C2E5397BE960830DC47F0B241B639A75CDC"),
         new("csharp/src/SuperMetroid.AssetExtraction/GameAssetInstaller.cs", "13F664C4B4EB794EF8D79EEB2CC811F6F06BCC4BAAA1A19B2E4F192F05B65404"),
         new("csharp/src/SuperMetroid.AssetExtraction/GameAssetInstaller.Validation.cs", "89AB35FBE763ABD4D9EBE802A7C6A8B3C1777F68E6D281F136411DEF1B290E11"),
-        // Format 84 also requires the bounded Chainsaw beam sheet.
-        new("csharp/src/SuperMetroid.AssetExtraction/GameInstallation.cs", "B56F57A56453FDBC346B48B6568B16FDD855CF4A984B75F3DC5FAB708E34646B"),
+        // Format 85 requires both bounded invalid-selection beam sheets.
+        new("csharp/src/SuperMetroid.AssetExtraction/GameInstallation.cs", "76FA1E22C388FA04012A4EB77F281A10F81CE7EB2C34B272F932E8A86A9A3DE3"),
     ];
     internal static void Verify(string root, VramDmaReport report)
     {

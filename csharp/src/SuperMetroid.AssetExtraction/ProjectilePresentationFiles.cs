@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 public static class ProjectilePresentationFiles
 {
     public const string ManifestFileName = "projectile-manifest.json";
-    public const int Version = 14;
+    public const int Version = 15;
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

@@ -145,6 +145,8 @@ public sealed partial class SamusProjectileSystem
     {
         if (selection == ChainsawBeamGraphicsDefinitions.Selection)
             ChainsawBeamGraphicsDefinitions.LoadPalette(bus, cgram);
+        else if (selection == SpacetimeBeamGraphicsDefinitions.Selection)
+            SpacetimeBeamGraphicsDefinitions.LoadPalette(bus, cgram);
         else
             (palettes ?? throw new InvalidOperationException("Beam palette requires installed artwork.")).LoadTo(cgram, selection);
     }

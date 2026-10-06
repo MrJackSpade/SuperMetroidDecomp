@@ -323,7 +323,7 @@ public static class GameInstallationLayout
     public const string RoomPlmDynamicCollectibleArtDirectoryName = "room-plm-collectible-tiles";
     public const string XrayRevealVisualDirectoryName = "xray-reveals";
     public const string ReceiptFileName = "installation.json";
-    public const int FormatVersion = 84;
+    public const int FormatVersion = 85;
     internal const string PreviousDirectoryName = ".game.previous";
     internal const string StagingPrefix = ".game.install-";
     internal const string LockFileName = ".game-install.lock";

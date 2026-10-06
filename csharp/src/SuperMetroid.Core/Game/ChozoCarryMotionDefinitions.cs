@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Statue movement and Samus joint offsets for Wrecked Ship and Lower Norfair.</summary>
@@ -7,12 +9,26 @@ public static class ChozoCarryMotionDefinitions
     /// <remarks>
     /// All 32 signed words match the pinned NTSC J/U v1.0 ROM. The nonzero
     /// first-half words are negative; the second half is their positive mirror.
-    /// Each half holds four zero frames, repeats the authored
+    /// Each half holds four stationary poses, repeats the stride
     /// <c>0200,0300,0E00,0800</c> burst twice, then holds four more zeros.
-    /// Their independent derivation remains required under issue #1165.
+    /// Adjacent stock foot origins derive planted-foot displacement. Transfer advance2
+    /// and final plant slide1 specify the authored pose-transition trajectory: changing
+    /// them changes the foot-transfer advance and final planted-foot shift. They are not
+    /// continuous physical rates. No independent planted3/14/7 magnitude is retained.
     /// Investigation: #625 / #665.
     /// </remarks>
-    private static ReadOnlySpan<short> Magnitudes => [0,0,0,0,0x200,0x300,0xe00,0x800,0x200,0x300,0xe00,0x800,0,0,0,0];
+    private const int FootTransferAdvance = 2, FinalPlantSlide = 1;
+
+    private static short Magnitude(int local)
+    {
+        if (local is < 4 or >= 12) return 0;
+        int phase = local % 4;
+        int pixels = phase == 0 ? FootTransferAdvance :
+            ChozoStrideGeometryDefinitions.SupportFootX(phase) -
+            ChozoStrideGeometryDefinitions.SupportFootX(phase - 1) +
+            (phase == 3 ? FinalPlantSlide : 0);
+        return (short)(pixels << 8);
+    }
     /// <summary>
     /// $AA:E6B0: Samus's vertical hand offset, shared by both facing halves.
     /// The two acquisition/release poses place Samus32 and25 pixels above the statue.
@@ -48,6 +64,6 @@ public static class ChozoCarryMotionDefinitions
         int local = index & 15;
         int sign = index < 16 ? -1 : 1;
         int x = local == 0 ? 28 : local == 1 ? 30 : 32;
-        return ((short)(sign * Magnitudes[local]), (short)(sign * x), SamusYOffset(local));
+        return ((short)(sign * Magnitude(local)), (short)(sign * x), SamusYOffset(local));
     }
 }

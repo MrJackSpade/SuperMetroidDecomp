@@ -11858,4 +11858,11 @@
     "workerCommit":  "463fe3bee9f75fcdf7008d188fa50e6933771bbf",
     "state":  "mixed-complete",
     "algorithm":  "Named pulse stages; three rests share beat16 and peak10 derives beat minus brightening6."
+},"chozoStrideMagnitudesComplete":{
+  "completed": "ChozoCarryMotionDefinitions.Magnitudes",
+  "confirmation": "Root1452warnings/0errors;Audit0/0;174native parts,8views,16foot edits,hash/order,39Torizo windows,96Chozo words,52actual movement/carry calls pass.",
+  "workerCommit": "55178c0fe5c398c74254dbd92cf30fc18645591e",
+  "state": "mixed-complete",
+  "justification": "Only foot transfer2/final planted slide1 are selected pose-transition trajectory, not continuous physics-rate exemption. Four origins remain explicitly required under Stream3.frames.",
+  "algorithm": "Shared immutable support-foot origins drive calculated OAM views and planted stride differences; repeated/stationary/signed mapping calculated."
 }}

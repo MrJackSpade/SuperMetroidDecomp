@@ -7,6 +7,87 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2ChozoFootGeometry(SuperMetroidAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        int[] nativeIdentities = [0xaae943, 0xaae9ae, 0xaaea1e, 0xaaea8e, 0xaaeafe, 0xaaeb69, 0xaaebd9, 0xaaec49];
+        var definitions = EnemySpritemapDefinitions.Frames.ToArray();
+        var document = new EnemySpritemapDocument
+        {
+            Version = EnemySpritemapDefinitions.Version,
+            Frames = definitions.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal),
+            DisplayFrames = definitions.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
+        };
+        var selected = definitions.Where(frame => nativeIdentities.Contains((frame.Bank << 16) | frame.Pointer)).ToArray();
+        AssertEqual(8, selected.Length, "Eight native Chozo stride composition identities");
+        for (int pose = 0; pose < nativeIdentities.Length; pose++)
+            AssertEqual(nativeIdentities[pose], ChozoStrideGeometryDefinitions.NativePoseIdentity(pose), "Chozo counted-record identity geometry");
+        foreach (var frame in selected)
+        {
+            int source = (frame.Bank << 16) | frame.Pointer;
+            document.Frames[frame.Name] = Enumerable.Range(0, Word(source)).Select(index =>
+            {
+                int entry = source + 2 + index * 5;
+                var x = new SnesSpritemapXWord(Word(entry));
+                var attributes = new SnesObjAttributeWord(Word(entry + 3));
+                return new SpriteVisualPart
+                {
+                    OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
+                    TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
+                    Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                    FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
+                };
+            }).ToArray();
+        }
+        EnemySpritemapCatalog Load() => EnemySpritemapCatalog.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        void Check(EnemySpritemapCatalog catalog)
+        {
+            foreach (var frame in selected)
+            {
+                AssertTrue(catalog.TryGetDisplay(frame.Bank, frame.Pointer, out var parts), "Chozo actual installed display binding");
+                AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name)),
+                    "Chozo source/supplied part ordering and every visual field remain exact");
+            }
+            string expected = SelectedPresentationHash.Create("enemy-oam-v1", content =>
+            {
+                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                {
+                    content.Append("frame", (frame.Bank << 16) | frame.Pointer);
+                    content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name));
+                }
+                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                {
+                    content.Append("native-binding", (frame.Bank << 16) | frame.Pointer);
+                    content.Append("selected-binding", (frame.Bank << 16) | frame.Pointer);
+                }
+            });
+            AssertEqual(expected, catalog.ContentIdentity, "Chozo calculated foot fields retain canonical presentation hash");
+        }
+        var stock = Load();
+        Check(stock);
+        foreach (var frame in selected)
+        {
+            AssertTrue(stock.TryGet(frame.Bank, frame.Pointer, out var parts), "Chozo stock frame exists");
+            AssertEqual("FootParts", parts.GetType().Name, "Chozo stock foot coordinates use shared calculated owner");
+            var visual = document.Frames[frame.Name];
+            for (int index = 0; index < visual.Length; index++)
+            {
+                var original = visual[index];
+                if (original.TileRow * 16 + original.TileColumn is not (0x170 or 0x171)) continue;
+                visual[index] = original with { OffsetX = original.OffsetX + 1 };
+                Check(Load());
+                visual[index] = original;
+                // Gameplay geometry must not follow an independently edited display anchor.
+                AssertEqual(ChozoCarryMotionDefinitions.Read(10).Velocity, (short)-0x300, "Chozo edited art does not move carry mechanics");
+                AssertEqual(ChozoCarryMotionDefinitions.Read(12).Velocity, (short)-0xe00, "Chozo edited art does not alter late support displacement");
+            }
+        }
+        VerifyCompiledStatueWalking(rom);
+        AssertThrows<ArgumentOutOfRangeException>(() => ChozoStrideGeometryDefinitions.SupportFootX(4), "Chozo support-phase upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => ChozoStrideGeometryDefinitions.NativePoseIdentity(-1), "Chozo pose lower bound");
+        Console.WriteLine("Chozo shared geometry:174 native parts,eight stock views,16 independent foot-X edits,hash/display order and existing96-word/actual carry checks pass; shape and two movement-policy inputs remain documented.");
+    }
     private static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

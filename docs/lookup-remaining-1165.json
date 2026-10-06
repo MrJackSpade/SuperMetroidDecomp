@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 500,
+  "remainingTableDefinitionCount": 499,
   "fileCount": 523,
   "entries": [
     {
@@ -3098,12 +3098,15 @@
       "reopeningReason": "Selector dispatch is converted, but loop Y advances30/28/32 remain unresolved functional trajectory inputs; no accepted exception."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/ChozoCarryMotionDefinitions.cs",
-      "line": 15,
-      "name": "ChozoCarryMotionDefinitions.Magnitudes",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Game/ChozoCarryMotionDefinitions.cs",
+  "line": 15,
+  "name": "ChozoCarryMotionDefinitions.Magnitudes",
+  "kind": "stored definition",
+  "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+  "state": "justified-retained",
+  "implementationCommit": "55178c0fe5c398c74254dbd92cf30fc18645591e",
+  "disposition": "Mixed complete: stationary/repeated/signed strides calculate; planted3/14 and final delta7 derive shared immutable stock foot geometry. Retain only transfer advance2/final slide1 as selected pose-transition trajectory. Four canonical foot origins remain required under EnemySpritemapCatalog.frames; independent art edits cannot alter carry mechanics."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ChozoCarryMotionDefinitions.cs",
       "line": 26,
@@ -21573,5 +21576,5 @@
     }
   ],
   "convertedSinceSnapshot": 598,
-  "justifiedRetainedSinceSnapshot": 30
+  "justifiedRetainedSinceSnapshot": 31
 }

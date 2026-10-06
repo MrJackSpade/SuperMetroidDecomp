@@ -6,7 +6,8 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.EnemySpritemapCatalog", "installed-simple-enemy-display-frames", ["TryGetDisplay"],
-            [new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs", "800014FD75D8E75E5FF2560680DD5E03C691E4115B99CB865F71B6D132277DC8"),
+            [new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs", "D4F0083F8127697DA56094E987E2A0B0F8F39B5FDFEC609FFFE6413190265B8A"),
+             new("csharp/src/SuperMetroid.Core/Assets/ChozoStrideGeometryDefinitions.cs", "D186B43BBC1233DF6F089B9F7E80BE140D878EC22B4B5FEF7CCA37F4075A1D31"),
              new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidSpriteParts.cs", "6A49C1C4442414B8CF0C1E95E45DE684B6054C335920AA2D9E15B27ED227610D"),
              new("csharp/src/SuperMetroid.Core/Hardware/EnemySpritemapParts.cs", "A4314E73E8BB50CE1CE52EA245F79EAF39C90489C7677FEE5A774B8204193502"),
              new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs", "2021CB5537EFD9A98077D0C3350A015C0B59CFF730AC265C931D96E419736A8F")],
@@ -17,7 +18,8 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameSequence.cs", "4FEF795EE481DA31C310082D30D7425BF127AEFD74CA1BC09C652F00BC4E94FB"),
              new("csharp/src/SuperMetroid.Core/Assets/BossOamFrameDefinitions.cs", "E406FF3323E0D9BD239376294BC30C5EFD13AECFC4DDCFF20C8E63D567660DC5"),
              new("csharp/src/SuperMetroid.Core/Assets/PirateArtworkNameDefinitions.cs", "83D8AAFF4A60C7C24263F7705BF52169EA3369B01F54121B320F3A110667F4F4"),
-             new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs", "800014FD75D8E75E5FF2560680DD5E03C691E4115B99CB865F71B6D132277DC8"),
+             new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs", "D4F0083F8127697DA56094E987E2A0B0F8F39B5FDFEC609FFFE6413190265B8A"),
+             new("csharp/src/SuperMetroid.Core/Assets/ChozoStrideGeometryDefinitions.cs", "D186B43BBC1233DF6F089B9F7E80BE140D878EC22B4B5FEF7CCA37F4075A1D31"),
              new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidSpriteParts.cs", "6A49C1C4442414B8CF0C1E95E45DE684B6054C335920AA2D9E15B27ED227610D"),
              new("csharp/src/SuperMetroid.Core/Hardware/EnemySpritemapParts.cs", "A4314E73E8BB50CE1CE52EA245F79EAF39C90489C7677FEE5A774B8204193502"),
              new("csharp/src/SuperMetroid.Core/Game/CommonEnemyEmptyExtendedFrameDefinitions.cs", "FDA923F284D3E91EA136F923E9C66D4B1C264306F149450AFAABA76E5DA3ACC0")],

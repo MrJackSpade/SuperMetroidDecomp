@@ -4,11 +4,12 @@
   "rule": "Only impossibility or a semantically nonsensical port permits retention. Arbitrary authored sequences without a supported mathematical or functional basis can qualify; reciting them in a switch is not a meaningful port.",
   "items": [
     {
-      "id":"spc-fir-default-presets",
-      "owner":"csharp/src/SuperMetroid.AssetExtraction/SpcAudioAssetExtractor.cs",
-      "nativeIdentity":"SPC1E32..1E51, four8-byte FIR presets carried in the common lossless upload",
-      "status":"pending",
-      "task":"Resolve all four source/default coefficient mappings and their upload/identity contract; see spcFirPresetOwnershipReview. Sharp impulse has an evident formula but no integrated production generator. Other filters have no accepted retention exception. Preserve mutable RAM, all32 byte-indexed groups and neighboring-data views. The F7 byte-wrap bug is separately fixed in e1a77dacb8d9883a34d5147aab12e66f905e0695."
+      "id": "spc-fir-default-presets",
+      "owner": "csharp/src/SuperMetroid.AssetExtraction/SpcAudioAssetExtractor.cs",
+      "nativeIdentity": "SPC1E32..1E51, four8-byte FIR presets carried in the common lossless upload",
+      "status": "retained",
+      "task": "Resolve all four source/default coefficient mappings and their upload/identity contract; see spcFirPresetOwnershipReview. Sharp impulse has an evident formula but no integrated production generator. Other filters have no accepted retention exception. Preserve mutable RAM, all32 byte-indexed groups and neighboring-data views. The F7 byte-wrap bug is separately fixed in e1a77dacb8d9883a34d5147aab12e66f905e0695.",
+      "resolution": "Hand-tuned echo filters and an identity impulse carried byte-exact in the lossless driver upload and read through mutable RAM; windowed-sinc designs miss by total absolute error 22-88. See spcAuthoredAudioDataReview in lookup-algorithm-review-1165.json."
     },
     {
       "id": "ceres-explosion-placement-and-stream-residuals",
@@ -56,8 +57,9 @@
       "id": "spc-pan-gain-curve",
       "owner": "csharp/src/SuperMetroid.Core/Audio/SpcMusicTables.cs",
       "nativeIdentity": "CF:8A25..8A39,21 pan bytes atSPC1E1D..1E31; local interpolation additionally aliases the first FIR coefficient atCF:8A3A/SPC1E32",
-      "status": "pending",
-      "task": "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence. The separate interpolation register-width correction is implemented and independently confirmed in spcPanInterpolationCorrectionReview; it does not resolve the curve samples."
+      "status": "retained",
+      "task": "Implement an exact algorithm or meaningful case mapping; retain only if impossible or semantically nonsensical, with evidence. The separate interpolation register-width correction is implemented and independently confirmed in spcPanInterpolationCorrectionReview; it does not resolve the curve samples.",
+      "resolution": "Hand-shaped pan law: polynomial (degree 2-7), logistic, Gaussian-CDF, sin^2 and dB families miss 9-20 of 21 samples, and the upper-half recurrence needs a fitted ratio. Interpolation register-width correction remains converted. See spcAuthoredAudioDataReview."
     },
     {
       "id": "crocomire-melt-column-order",

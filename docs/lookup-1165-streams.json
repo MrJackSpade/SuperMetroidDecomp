@@ -3258,6 +3258,7 @@
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/IntroFontGlyphDefinitions.cs","stream":3,"purpose":"Complete144fonttiles via authored one-bit strokes,exact4/91contour choices and calculated dilation/packing/blanks/aliases; independent edits,pixels outside this font/prose/timing excluded"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/SamusBodyTransferDefinitions.cs","stream":1,"purpose":"Complete435body DMA metadata records via named packed allocations,canonical OAM row footprint and50exact reviewed packing memberships; independent edits,cross-group selectors,pixels/payload lengths separately owned"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/IntroPortraitTilemapDefinitions.cs","stream":3,"purpose":"Complete portrait tilemap via reviewed silhouette/fragment composition and calculated atlas strides, centering, fills and runs; independent edits preserved"}
+,{"path":"csharp/src/SuperMetroid.Core/Assets/BotwoonHealthPaintDefinitions.cs","stream":4,"purpose":"Complete128healthwords via reviewed material paints/copied metadata and calculated ramps/interpolation; independent edits, thresholds/pixels/timing excluded"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

@@ -2324,32 +2324,79 @@ internal static partial class Program
     }
     private static void VerifyLookupStream4BotwoonColors(ISnesAddressSpace rom)
     {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         byte[] original = BotwoonColorExtractor.Extract(rom);
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var stock = BotwoonColorCatalog.Load(new MemoryStream(original));
-        int stored = ((System.Collections.IDictionary)typeof(BotwoonColorCatalog)
-            .GetField("health", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!).Count;
-        AssertEqual(34, stored, "Botwoon only32 endpoint words and2 nonmatching words remain stored");
-        for (int variation = -1; variation < 3; variation++)
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var paint = (BotwoonHealthPaintDefinitions)typeof(BotwoonColorCatalog).GetField("health", flags)!.GetValue(stock)!;
+        int stored = ((System.Collections.IDictionary)typeof(BotwoonHealthPaintDefinitions).GetField("edits", flags)!.GetValue(paint)!).Count;
+        AssertEqual(0, stored, "Botwoon all stock channels calculate with zero overrides");
+        for (int color = 0; color < 16; color++)
+            AssertEqual(Word(0xb39319 + color * 2), stock.HealthColor(0, color), "native initial/header alias remains exact");
+        for (int edit = -1; edit < 384; edit++)
         {
             var document = JsonSerializer.Deserialize<BotwoonColorDocument>(original, options)!;
-            if (variation >= 0)
-                document.Health[variation == 0 ? 0 : variation == 1 ? 3 : 1][variation == 2 ? 0 : 7]
-                    = new PaletteRgb5 { Red = 3, Green = 11, Blue = 21 };
+            if (edit >= 0)
+            {
+                int word = edit / 3, channel = edit % 3;
+                var rgb = document.Health[word / 16][word % 16];
+                document.Health[word / 16][word % 16] = channel switch
+                {
+                    0 => rgb with { Red = rgb.Red ^ 1 },
+                    1 => rgb with { Green = rgb.Green ^ 1 },
+                    _ => rgb with { Blue = rgb.Blue ^ 1 },
+                };
+            }
             var catalog = BotwoonColorCatalog.Load(new MemoryStream(BotwoonColorCatalog.Write(document)));
+            ushort Expected(int band, int color) => (ushort)(Word(0xb3971b + (band * 16 + color) * 2)
+                ^ (edit >= 0 && band * 16 + color == edit / 3 ? 1 << (edit % 3 * 5) : 0));
             ushort Native(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
             string identity = SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
                 content.AppendWordFrames("health", document.Health.Select(row => row.Select(Native).ToArray()).ToArray()));
-            AssertEqual(identity, catalog.ContentIdentity, "Botwoon calculated palette preserves selected identity");
-            for (int band = 0; band < 8; band++)
-            for (int color = 0; color < 16; color++)
-                AssertEqual(Native(document.Health[band][color]), catalog.HealthColor(band, color),
-                    "Botwoon native/edited colors preserve independent endpoint/middle/exception values");
+            AssertEqual(identity, catalog.ContentIdentity, "Botwoon selected identity preserves every independently edited channel");
+            for (int band = 0; band < 8; band++) for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(Expected(band, color), catalog.HealthColor(band, color), "native/edited endpoint, intermediate and copied metadata channels");
+                AssertEqual(Word(0xb3971b + (band * 16 + color) * 2), stock.HealthColor(band, color), "stock owner remains immutable");
+            }
+            if (edit is -1 or 0 or 383)
+            {
+                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+                    new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), botwoonColors: catalog);
+                var enemies = new RoomEnemySystem { TileArtwork = artwork };
+                var cgram = new SnesCgram();
+                var guard = new BotwoonColorReadGuard(rom);
+                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+                var update = typeof(RoomEnemySystem).GetMethod("UpdateBotwoonHealthPalette", flags)!
+                    .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>(enemies);
+                RoomEnemySlot head = enemies.Slots[0];
+                var state = new BotwoonEnemyState(head) { PaletteDestinationByteOffset = 0x1e0 };
+                for (int band = 0; band < 8; band++)
+                {
+                    for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                    state.PalettePhaseByteOffset = (ushort)(band * 2);
+                    head.Health = Word(0xb3981b + band * 2);
+                    update(head, state);
+                    AssertEqual((ushort)(band * 2), state.PalettePhaseByteOffset, "exact threshold does not advance");
+                    for (int color = 0; color < 256; color++) AssertEqual((ushort)0x1234, cgram.Colors[color], "exact threshold preserves CGRAM");
+                    head.Health--;
+                    update(head, state);
+                    AssertEqual((ushort)(band * 2 + 2), state.PalettePhaseByteOffset, "below threshold advances exactly one band");
+                    for (int color = 0; color < 256; color++)
+                        AssertEqual(color < 240 ? (ushort)0x1234 : Expected(band, color - 240), cgram.Colors[color], "actual producer copies all16 including transparent metadata and preserves neighbors");
+                }
+                ushort[] completed = cgram.Colors.ToArray(); update(head, state);
+                for (int color = 0; color < 256; color++) AssertEqual(completed[color], cgram.Colors[color], "completed palette remains unchanged");
+                AssertEqual(0, guard.ForbiddenReadAttempts, "actual palette producer performs no native palette reads");
+            }
         }
-        foreach (int invalid in new[] { -1, 8, int.MaxValue })
+        foreach (int invalid in new[] { -1, 8, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(invalid, 0), "Botwoon health band domain");
-        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+        foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.HealthColor(0, invalid), "Botwoon health color domain");
+        Console.WriteLine("Botwoon complete paint:128 native outputs,16 initial aliases,zero stock overrides,384 RGB edits/hash identities,51 actual threshold/copy/completed calls and native-read guard pass.");
     }
     private static void VerifyLookupStream4OumListLayout(ISnesAddressSpace rom)
     {

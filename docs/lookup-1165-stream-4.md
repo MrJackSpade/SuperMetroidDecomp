@@ -146,7 +146,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/BotwoonColorCatalog.cs
 
-- [ ] **BotwoonColorCatalog.health** ([L16](../csharp/src/SuperMetroid.Core/Assets/BotwoonColorCatalog.cs#L16)) - installed stock table. Original/default payload behind BotwoonColorCatalog.health. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **BotwoonColorCatalog.health** ([L16](../csharp/src/SuperMetroid.Core/Assets/BotwoonColorCatalog.cs#L16)) - installed stock table. Original/default payload behind BotwoonColorCatalog.health. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Game/BotwoonMovementSampleData.cs
 
@@ -1413,3 +1413,20 @@ Confirmation: build 1441 warnings/zero errors reached terminal exit before --loo
 Integration: refresh the existing CeresRidleyAlarmColorDefinitions.cs LF-normalized source hash in ResourceAudit/BossColorClosedContractDefinitions.cs. No catalog API or additional production dependency changed. Dedicated early flag --lookup-stream-4-ceres-alarm already exists; preserve its focused method/export wiring. CeresRidleyColorCatalog now has all original owned fields resolved; that does not close separate enemy/header palette or sprite artwork entries.
 
 Root integration: Root viewed native EMERGENCY endpoints and read actual three-color copy consumer. Build1457warnings/0errors,Audit0/0;48native colors,zero stock overrides,144RGB edits,2320row applications,192real gated producer calls,legacy/bounds/null pass. All original CeresRidleyColorCatalog fields accounted; separate header/artwork/timing excluded. Master 602 converted/89 retained-mixed/437 pending.
+
+
+## Completed Botwoon health paint
+
+BotwoonColorCatalog.health is mixed complete. All128 native words at B3:971B-981A calculate, with no stored stock endpoint/sample words or fallback residuals. New granted Assets/BotwoonHealthPaintDefinitions.cs owns the reviewed material composition and sparse independent supplied edits. The eight bands retain exact nearest-seventh RGB5 interpolation; both endpoint/channel relationships and all96 intermediate words (including slot0) now have explicit dispositions.
+
+The exact42 material magnitude/policy packet is: healthy eye R=B9/6/5/3, lower G19 with step7 and highlight Gmax; healthy jaw B floor-interpolates15 to4 across3 shades, R=B+13-shade, Gbright=R/Gdark=B with middle20/shade11; healthy skin first4 R=max-floor(9s/2), G18-4s, B2, with outline R12/G1/B2; healthy glint R=G29/Bmax and outline R5/G0/B3. Damaged eye R24/21/17/11, Gmax/24/18/Rdark, B7/3/3/1; damaged jaw R floor-interpolates30 to23, B10 to5, G=max(0,12-floor(9s/2)); damaged skin Rmax/28/23/20/15, G=max(1,healthyG/2), B6; damaged glint R=Gmax/B17 and outline R11/G=B0. These precise selected eye/jaw/skin/glint/outline paints and shade/grouping policies were independently reviewed by the coordinator; replacing the categorical paint choices invents different material content. Shared channels, ramps, RGB5 bounds and inter-band values calculate; no blanket palette exemption.
+
+Source evidence: native B7:E300-FAFF (0x1800 bytes) atlas and B3:E335 head composition show green eye slots1..4, cream jaw5..8, orange skin9..13, tooth/glint14 and dark outline15. All15 slots occur in the native head and atlas; source images/masks under csharp/test-temp/botwoon-health-source include both head/atlas endpoints and every slot. The initial16 colors equal native header Palette_Botwoon B3:9319-9338 exactly, confirmed independently; this alias does not close the separate initial enemy palette inventory or install a coupling between independently edited resources.
+
+Slot0 is separately bounded copied target metadata: exact2003 only in bands1/2 (B3:973B/975B), otherwise zero. B3:9850-9868 uniformly copies all16 words, including this datum, into CGRAM240..255. Sprite index0 transparency does not determine the copied word or its band membership; those observed target values cannot be generated from visible material paint. Coordinator approved precisely this metadata and membership, not a broad unused-data or invisibility exemption. No health threshold, timing or pixel entry is closed by this palette work.
+
+Confirmation: build1441 warnings/zero errors reached terminal exit before --lookup-stream-4-botwoon-health. Exact128 native words,16 initial/header aliases,zero stock overrides,all384 independently supplied RGB edits and selected ContentIdentity hashes pass. Across stock/first/last edited resources,51 actual UpdateBotwoonHealthPalette calls confirm all eight exact-threshold nonadvances, below-threshold single advances, full16-word copies including slot0, completed-state preservation, untouched neighbors and zero forbidden palette ROM reads. Invalid band/color extremes remain checked. Native source export uses the guarded verifier boundary, not gameplay discovery.
+
+Integration: refresh BotwoonColorCatalog.cs and add BotwoonHealthPaintDefinitions.cs to ResourceAudit/RemainingEnemyColorClosedContractDefinitions.cs's existing Botwoon dependency closure; hashes use LF-normalized UTF8. New dedicated early flag --lookup-stream-4-botwoon-health invokes only this focused proof and source export. No shared catalog or other worker file changed.
+
+Root integration: Root Verification build1457warnings/0errors and ResourceAudit0/0. Focused check passed128nativewords,16headeraliases,zero stock overrides,384RGB edits/hash identities and51actual threshold/copy/completed calls with native palette-read guard. Master 602 converted/94 retained-mixed/432 pending.

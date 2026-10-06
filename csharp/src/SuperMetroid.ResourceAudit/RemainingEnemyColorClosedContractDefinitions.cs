@@ -6,9 +6,10 @@ internal static class RemainingEnemyColorClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.BotwoonColorCatalog", "botwoon-complete-health-colors", ["HealthColor"],
-            [new("csharp/src/SuperMetroid.Core/Assets/BotwoonColorCatalog.cs", "849F9F333F01D3349173EC4B239B49C00590A501A67616B2488AEE4A3664D31A"),
+            [new("csharp/src/SuperMetroid.Core/Assets/BotwoonColorCatalog.cs", "1E7F9E75D76B8B98E5CFEEC3969DB71D0A5D49E71196342630CB87016BF12A47"),
+             new("csharp/src/SuperMetroid.Core/Assets/BotwoonHealthPaintDefinitions.cs", "A9F3C07DF5F9958E04F3628353EB6DB943602DE860C404786C0A02F30D3E89D4"),
              new("csharp/src/SuperMetroid.Core/Game/BotwoonHealthPaletteDefinitions.cs", "DD4DC9B57ABB2B15C9C1CFF83AFDC87B420BEACFD70417B21F2E24B8FE829C2B")],
-            "The sole private-constructor loader requires eight sixteen-color health bands and compiles independent arrays. HealthColor guards band/color bounds. Health thresholds and their signed comparison are not executed or certified."),
+            "The sole private-constructor loader requires eight sixteen-color health bands and compiles calculated material palettes with independent sparse edits. HealthColor guards band/color bounds. Health thresholds and their signed comparison are not executed or certified."),
         new("SuperMetroid.Core.Assets.BabyMetroidCutsceneColorCatalog", "cutscene-baby-complete-color-images", ["InitialColor", "FadeColor"],
             [new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs", "C1629A22AAD83AC79E504BE648C7C9C8C3D3A3382E127763732ADEF6DFD964A9"),
              new("csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneColorRomData.cs", "D7A5B4CC5EA9D211E9CC652E38C20194D510A786A472AC693364C06CF12B40E0"),

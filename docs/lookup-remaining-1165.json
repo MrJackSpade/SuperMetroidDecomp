@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 433,
+  "remainingTableDefinitionCount": 432,
   "fileCount": 523,
   "entries": [
     {
@@ -54,12 +54,15 @@
       "note": "Original/default payload behind BeamTileAtlas.tiles. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/BotwoonColorCatalog.cs",
-      "line": 16,
-      "name": "BotwoonColorCatalog.health",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind BotwoonColorCatalog.health. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/BotwoonColorCatalog.cs",
+  "line": 16,
+  "name": "BotwoonColorCatalog.health",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind BotwoonColorCatalog.health. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "740b9bd4a38fc9c5d594a06a26e2dd2773136264",
+  "disposition": "All128 outputs calculate from reviewed eye/jaw/skin/glint/outline material endpoints, channel sharing, ramps and nearest-seventh interpolation. Retain only exact42 material magnitude/policy packet and copied slot0 target2003 membership in bands1/2: these are selected paint/target content, and inventing a functional replacement would change that content. No threshold, timing or pixel exemption; independent edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresDestructionActorLayout.cs",
       "line": 12,
@@ -21775,5 +21778,5 @@
     }
   ],
   "convertedSinceSnapshot": 602,
-  "justifiedRetainedSinceSnapshot": 93
+  "justifiedRetainedSinceSnapshot": 94
 }

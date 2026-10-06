@@ -5,8 +5,26 @@ using SuperMetroid.Desktop;
 
 internal static class LegacyOptionsMigrationVerification
 {
+    /// <summary>Frontend captures predating the door music-upload NMI source restore the lag-free policy.</summary>
+    private static void VerifyDoorMusicUploadNmisMigration()
+    {
+        Type type = typeof(SuperMetroidGame);
+        FieldInfo[] current = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Where(field => !field.IsDefined(typeof(NonSerializedAttribute), false) && field.Name != "SaveRamChanged")
+            .ToArray();
+        FieldInfo[] selected = DebuggerStateFieldMigrations.SelectSerializedFields(type, current, current.Length - 1);
+        if (!current.Except(selected).Select(field => field.Name).SequenceEqual(["<DoorMusicUploadNmis>k__BackingField"]))
+            throw new InvalidDataException("Legacy frontend migration omitted fields other than the upload NMI source.");
+        var restored = (SuperMetroidGame)RuntimeHelpers.GetUninitializedObject(type);
+        DebuggerStateFieldMigrations.InitializeMissingFields(restored, current.Length - 1);
+        if (!ReferenceEquals(restored.DoorMusicUploadNmis, LagFreeDoorMusicUploadNmis.Instance))
+            throw new InvalidDataException("Legacy frontend did not restore the lag-free upload NMI policy.");
+        Console.WriteLine("Legacy frontend: only the upload NMI source omitted; restored with the lag-free policy.");
+    }
+
     public static int Run()
     {
+        VerifyDoorMusicUploadNmisMigration();
         VerifyMode7RegisterMigration();
         var subType = typeof(SuperMetroid.Core.Rendering.BgSubscreenAddRenderLayer);
         var subFields = subType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);

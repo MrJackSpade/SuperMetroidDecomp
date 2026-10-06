@@ -203,7 +203,13 @@ internal static partial class Program
             "legacy PLM slot preserves active header, instructions, timers, and block owner fields");
         var gameFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [gameType])!;
-        string[] loadingDispatchFields = ["menuNmiFrameCounter", "menuNmiFrameCounter8", "gameLoadingCompletion"];
+        const string uploadNmiField = "<DoorMusicUploadNmis>k__BackingField";
+        FieldInfo[] preUploadNmiFields = gameFields.Where(field => field.Name != uploadNmiField).ToArray();
+        AssertEqual(gameFields.Length - 1, preUploadNmiFields.Length, "upload NMI source is one current frontend field");
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(gameType, gameFields, preUploadNmiFields.Length)
+                .SequenceEqual(preUploadNmiFields),
+            "pre-upload-NMI frontend preserves every prior saved field in order");
+        string[] loadingDispatchFields = ["menuNmiFrameCounter", "menuNmiFrameCounter8", "gameLoadingCompletion", uploadNmiField];
         AssertTrue(gameFields.Any(field => field.Name == "gameLoadingWaitsRemaining"),
             "renamed loading-wait counter remains a current frontend field");
         FieldInfo[] preLoadingDispatchFields = gameFields.Where(field =>

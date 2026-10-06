@@ -43,6 +43,14 @@ internal static class DebuggerStateFieldMigrations
                 and not "<GrantAllEquipmentEnabled>k__BackingField"
                 and not "<UnlockTourianEnabled>k__BackingField").ToArray();
         }
+        if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
+            current.Any(field => field.Name == "<DoorMusicUploadNmis>k__BackingField"))
+        {
+            // The door music-upload NMI source is host policy; older captures predate it and
+            // restore with the lag-free normal-play policy.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<DoorMusicUploadNmis>k__BackingField").ToArray(), count);
+        }
         if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
             current.Any(field => field.Name == "_roomSpikes"))
         {
@@ -639,6 +647,9 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Initializes fields omitted by explicitly recognized legacy layouts.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance is SuperMetroid.Core.Frontend.SuperMetroidGame game &&
+            serializedCount < GetCurrentInstanceFieldCount(typeof(SuperMetroid.Core.Frontend.SuperMetroidGame)))
+            game.DoorMusicUploadNmis = SuperMetroid.Core.Frontend.LagFreeDoorMusicUploadNmis.Instance;
         if (instance is SuperMetroidGameOptions && serializedCount < 15)
             typeof(SuperMetroidGameOptions).GetField("<DoorTransitionAutosave>k__BackingField",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(instance, true);

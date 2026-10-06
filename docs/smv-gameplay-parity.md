@@ -86,7 +86,7 @@ room identity, and active enemies' identities, positions, health and visual curs
 That comparison is still under development; conversion success is not port parity.
 Door-entry and source-fade HDMA/RNG/actor omissions were reproduced and fixed,
 along with missing RNG advancement through the outer loading dispatches. The
-current checked properties match through update 881, with loading-owner alignment
+current checked properties match through update 1514, with loading-owner alignment
 and upload normalization as described here. Setup now applies
 Samus's first displacement before destination rebasing; the atomic loader retains
 the pre-setup source coordinates so it does not count that movement twice. A
@@ -148,9 +148,14 @@ and Mode 7 signed products floor negative fractions. The replay now also compare
 tail-tip X/Y during gameplay and confirms Samus takes the native 30 damage.
 Focused offset checks and the corrected native pointed-tail stop fixture pass.
 
-The next divergence is normalized update 882 (original source frame 983): the
-native Ridley AI timer wraps to `$FFFF`, while the port retains zero. Other checked
-properties match through update 881. This timer transition remains under investigation.
+The hover timer now follows $A6:B3F8: decrement first, then leave on a negative
+result. It wraps from zero to `$FFFF` before selecting an attack. The focused
+boundary check and independent replay pass the former update-882 mismatch.
+
+Checked state now matches through update 1514 of 10,717. The next divergence is
+update 1515 (original source frame 1616): native Samus pose `$007A` versus port
+`$007C`, with native base speed zero versus port 3.25. This movement/pose transition
+remains under investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

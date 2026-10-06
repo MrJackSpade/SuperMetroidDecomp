@@ -76,6 +76,11 @@ internal static partial class Program
             AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, slot.InstructionTimer, "turn timer changes only when native condition is met");
             AssertEqual(sample.Turn ? (ushort)0 : (ushort)9, slot.Timer, "loop counter is preserved when no turn is needed");
         }
+        var hover = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyHover", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var hoverState = new RidleyEnemyState { FunctionTimer = 0, Function = RidleyAiFunction.NorfairHover };
+        hover.Invoke(new RoomEnemySystem(), [new RoomEnemySlot(0), hoverState]);
+        AssertEqual(ushort.MaxValue, hoverState.FunctionTimer, "native hover decrements zero before selecting next attack");
+        AssertEqual(RidleyAiFunction.NorfairSelectAttack, hoverState.Function, "negative hover timer exits before movement");
         Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and native low-byte boundary agree.");
     }
 

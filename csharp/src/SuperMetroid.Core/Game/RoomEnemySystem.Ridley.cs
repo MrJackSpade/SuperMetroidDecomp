@@ -458,9 +458,7 @@ public sealed partial class RoomEnemySystem
 
     private void TickNorfairRidleyHover(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        if (state.FunctionTimer != 0)
-            state.FunctionTimer--;
-        else
+        if (TickRidleyFunctionTimer(state))
         {
             state.Function = RidleyAiFunction.NorfairSelectAttack;
             return;

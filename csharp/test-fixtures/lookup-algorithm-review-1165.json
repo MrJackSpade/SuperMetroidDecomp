@@ -12128,4 +12128,13 @@
   ],
   "confirmation": "Root build1452 warnings/0 errors;ResourceAudit1212 warnings/0 errors after XML/dependency refresh. All393 native colors,1179 independent RGB edits,zero stock endpoint/corpse arrays,canonical identities,bounds and standalone target isolation passed. Obsolete helper comments updated to distinguish supplied fallback from completed stock calculation.",
   "workerCommit": "3fd1c7bf2"
+},"motherBrainExplodedDoorWhole":{
+  "workerCommit": "1ee27fec3",
+  "confirmation": "Root build1452 warnings/0 errors;ResourceAudit0/0. All14 native colors,42 independent RGB edits,null stock array,canonical identities,bounds and instance isolation passed; existing death-fade outputs preserved. Coordinator gamma2 derivation removes red22/14 as inputs.",
+  "disposition": [
+    "All14 opaque colors calculate:gamma2 intensity interpolation31→8 derives violet middle reds22/14,hue floor/ceil scales from8/19;yellow floor interpolation uses lightblue17/darkred18/green9;five neutral shades derive existing reviewed room metal20→4,pluswhite. Retain only six categorical chromatic roles and stated material/gamma/rounding policy. Installed inks1..8 have unidentified pixel roles here;absence is not rationale. No geometry,timing,trajectory or other death-palette exemption."
+  ],
+  "completed": [
+    "MotherBrainDeathColorCatalog.explodedDoor"
+  ]
 }}

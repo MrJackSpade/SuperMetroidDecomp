@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 462,
+  "remainingTableDefinitionCount": 461,
   "fileCount": 523,
   "entries": [
     {
@@ -1394,12 +1394,15 @@
       "implementationCommit": "317f87990"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs",
-      "line": 22,
-      "name": "MotherBrainDeathColorCatalog.explodedDoor",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainDeathColorCatalog.explodedDoor. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainDeathColorCatalog.cs",
+  "line": 22,
+  "name": "MotherBrainDeathColorCatalog.explodedDoor",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind MotherBrainDeathColorCatalog.explodedDoor. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "1ee27fec3",
+  "disposition": "All14 opaque colors calculate:gamma2 intensity interpolation31→8 derives violet middle reds22/14,hue floor/ceil scales from8/19;yellow floor interpolation uses lightblue17/darkred18/green9;five neutral shades derive existing reviewed room metal20→4,pluswhite. Retain only six categorical chromatic roles and stated material/gamma/rounding policy. Installed inks1..8 have unidentified pixel roles here;absence is not rationale. No geometry,timing,trajectory or other death-palette exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainEscapeTextArtworkDefinitions.cs",
       "line": 17,
@@ -21688,5 +21691,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 66
+  "justifiedRetainedSinceSnapshot": 67
 }

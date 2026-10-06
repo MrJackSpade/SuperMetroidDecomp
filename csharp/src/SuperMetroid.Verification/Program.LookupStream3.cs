@@ -2006,6 +2006,19 @@ internal static partial class Program
         var stock = Load();
         Check(stock);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        AssertTrue(typeof(MotherBrainDeathColorCatalog).GetField("explodedDoor", fields)!.GetValue(stock) is null,
+            "stream 3 exploded-door stock paint keeps no stored word array");
+        for (int color = 0; color < door.Length; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            ushort original = door[color];
+            door[color] ^= (ushort)(1 << (5 * channel));
+            Check(Load());
+            door[color] = original;
+        }
+        Check(stock);
+        foreach (int invalid in new[] { -1, 14, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ExplodedDoorColor(invalid), "stream 3 exploded-door color bounds");
         foreach (string name in new[] { "bodyFade", "legFade", "corpseFade" })
         {
             object fade = typeof(MotherBrainDeathColorCatalog).GetField(name, fields)!.GetValue(stock)!;

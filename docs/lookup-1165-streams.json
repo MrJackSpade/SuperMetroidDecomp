@@ -3239,6 +3239,7 @@
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/GoldenTorizoHealthPaintDefinitions.cs","stream":3,"purpose":"Complete reviewed auxiliary material paint/channel operations; preserve independent edits and exclude mechanics,timing,health thresholds and pixels"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/FaceBlockGlowPaintDefinitions.cs","stream":3,"purpose":"Complete reviewed auxiliary material paint/channel operations; preserve independent edits and exclude mechanics,timing,health thresholds and pixels"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/SidehopperDrainPaintDefinitions.cs","stream":3,"purpose":"Complete reviewed auxiliary material paint/channel operations; preserve independent edits and exclude mechanics,timing,health thresholds and pixels"}
+,{"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainExplodedDoorPaintDefinitions.cs","stream":3,"purpose":"Complete14-word exploded-door paint using reviewed hue/gamma policy and shared room neutrals; no other palette,mechanics or artwork exemption"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

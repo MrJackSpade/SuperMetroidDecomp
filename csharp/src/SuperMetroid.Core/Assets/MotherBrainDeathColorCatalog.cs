@@ -10,7 +10,9 @@ public sealed class MotherBrainDeathColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("MotherBrainDeathColorCatalog-v1", content =>
         {
-            content.AppendWords("explodedDoor", explodedDoor);
+            Span<ushort> door = stackalloc ushort[MotherBrainExplodedDoorPaintDefinitions.ColorCount];
+            for (int color = 0; color < door.Length; color++) door[color] = ExplodedDoorColor(color);
+            content.AppendWords("explodedDoor", door);
             bodyFade.AppendIdentity(content, "bodyFade");
             legFade.AppendIdentity(content, "legFade");
             corpseFade.AppendIdentity(content, "corpseFade");
@@ -19,7 +21,7 @@ public sealed class MotherBrainDeathColorCatalog
     private readonly ColorFade bodyFade;
     private readonly ColorFade legFade;
     private readonly ColorFade corpseFade;
-    private readonly ushort[] explodedDoor;
+    private readonly ushort[]? explodedDoor;
 
     private MotherBrainDeathColorCatalog(ushort[][] bodyFade, ushort[][] legFade,
         ushort[][] corpseFade, ushort[] explodedDoor)
@@ -27,7 +29,7 @@ public sealed class MotherBrainDeathColorCatalog
         this.bodyFade = new(bodyFade, toBlack: true);
         this.legFade = new(legFade, toBlack: true, backLeg: true);
         this.corpseFade = new(corpseFade, toBlack: false);
-        this.explodedDoor = explodedDoor;
+        this.explodedDoor = MotherBrainExplodedDoorPaintDefinitions.Matches(explodedDoor) ? null : explodedDoor;
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -47,7 +49,8 @@ public sealed class MotherBrainDeathColorCatalog
         Resolve(corpseFade, frame, color, nameof(CorpseColor));
 
     public ushort ExplodedDoorColor(int color) =>
-        (uint)color < explodedDoor.Length ? explodedDoor[color] :
+        (uint)color < MotherBrainExplodedDoorPaintDefinitions.ColorCount
+            ? explodedDoor is null ? MotherBrainExplodedDoorPaintDefinitions.Color(color) : explodedDoor[color] :
             throw new ArgumentOutOfRangeException(nameof(color));
 
     public static MotherBrainDeathColorCatalog Load(Stream json)

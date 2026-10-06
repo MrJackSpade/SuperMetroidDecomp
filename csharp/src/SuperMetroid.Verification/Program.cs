@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream3-exploded-door-paints"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Exploded door palette oracle revision");
+    VerifyStream3MotherBrainFades(rom);
+    Console.WriteLine("Exploded door:14 native colors,42 independent channel edits,no stock array,hashes,bounds and instance isolation pass; other death fades preserved.");
+    return 0;
+}
 if (args is ["--lookup-stream3-auxiliary-complete"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

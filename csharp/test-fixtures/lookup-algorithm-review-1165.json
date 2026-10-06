@@ -12359,4 +12359,13 @@
     "Calculate244upper source/split records from named native allocations,payload prefix sums and canonical OAM row footprints. Retain only exact19upper packing memberships (11one/two16x16block,8balanced) and relocated allocation identity as selected artwork layout. Preserve physical cross-group selectors and independent metadata edits. Pixels/payload lengths separately required.",
     "Calculate191lower source/split records from named allocations,payload prefix sums and canonical OAM footprints. Retain only exact31balanced row packing memberships as selected artwork layout; calculate ceilhalf/remainder. Preserve physical cross-group selectors and independent metadata edits. Pixels/payload lengths separately required."
   ]
+},"introPortraitTilemapComplete":{
+  "confirmation": "Root build1457 warnings/0errors; focused portrait flag confirms1024nativewords,1024independent full-word edits, owned fallback, canonical hash and actual2048-byte VRAM upload.",
+  "workerCommit": "562b5aa6289de0d832e70fa707a7b75ce7ebb2b6",
+  "completed": [
+    "IntroCinematicArtworkCatalog.PortraitTilemap"
+  ],
+  "disposition": [
+    "Calculated1024mapwords from centered16-column atlas, shared silhouette rows, blank fill and edge/chin runs. Retain only reviewed selected portrait silhouette, fragment atlas starts/placements/counts, top5 and palette3/plain blank3FE composition; these specify authored illustration and inventing a functional replacement would redraw it. Pixels, colors and timing excluded; independent edits preserved."
+  ]
 }}

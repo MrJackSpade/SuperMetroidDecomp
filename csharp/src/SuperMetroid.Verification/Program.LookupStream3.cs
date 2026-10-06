@@ -3514,4 +3514,53 @@ internal static partial class Program
         Console.WriteLine("Intro font: 144 native tiles/2304 bytes, 2304 independent edits, four outline additions/91 removals, exact period alias and no stock output storage pass.");
     }
 
+    private static void VerifyStream3PortraitMap()
+    {
+        string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "portrait-map-" + Guid.NewGuid().ToString("N")));
+        try
+        {
+            string source = Path.GetFullPath("Super Metroid.smc");
+            var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(source);
+            byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
+                IntroCinematicRomData.Assets.SamusHeadTilemap, maximumOutputBytes: 2048);
+            var installation = SuperMetroid.AssetExtraction.GameAssetInstaller.Install(source, root);
+            IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
+            const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var pageConstructor = typeof(RoomBackgroundTilemapAtlas).GetConstructors(flags).Single();
+            RoomBackgroundTilemapAtlas Page(byte[] bytes) => (RoomBackgroundTilemapAtlas)pageConstructor.Invoke([bytes]);
+            RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(stock.BackgroundPages.Slice(index * 2048, 2048).ToArray())).ToArray();
+            IntroCinematicArtworkCatalog Copy(byte[] portrait) => new(stock.BackgroundCharacters,
+                stock.IntroObjectCharacters, stock.CinematicObjectCharacters, pages, Page(portrait),
+                Page(stock.InitialNarrationTilemap.ToArray()), stock.FinalLine, stock.EyeFrames, stock.CaretSprites,
+                stock.MotherBrainSprites, stock.MotherBrainExplosionSprites, stock.RinkaSprites,
+                stock.EggEffectSprites, stock.DiscoveryActorSprites, stock.ScientistSprites, stock.Palette,
+                stock.CeresFlight, stock.CeresDestruction);
+            AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(native), "all 1024 calculated portrait words match native");
+            AssertTrue(typeof(IntroCinematicArtworkCatalog).GetField("suppliedPortrait", flags)!.GetValue(stock) is null,
+                "native portrait stores no output word array");
+            string hash = stock.ContentIdentity;
+            for (int word = 0; word < 1024; word++)
+            {
+                byte[] edit = native.ToArray();
+                edit[word * 2] ^= 0xff;
+                edit[word * 2 + 1] ^= 0xff;
+                var selected = Copy(edit);
+                AssertTrue(selected.PortraitTilemap.Span.SequenceEqual(edit), "independent portrait word preserves identity/style/position edit");
+                if (word == 0) AssertTrue(hash != selected.ContentIdentity, "portrait edit changes content identity");
+                edit[word * 2] ^= 1;
+                AssertTrue(selected.PortraitTilemap.Span[word * 2] != edit[word * 2], "portrait owns supplied data");
+            }
+            AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(native), "portrait edits do not cross-mutate stock");
+            AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
+            var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(rom)));
+            var intro = new IntroCinematicState(new TestAddressSpace(), introFont: font, characterArtwork: stock,
+                beamArtwork: installation.LoadProjectiles().BeamTiles);
+            AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+                IntroCinematicRomData.Vram.SamusHeadTilemapDestinationByte, native.Length).SequenceEqual(native),
+                "actual opening constructor uploads calculated portrait map");
+            Console.WriteLine("Portrait map: 1024 native words, 1024 independent edits, owned fallback, canonical hash and actual VRAM upload pass.");
+        }
+        finally { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); }
+    }
+
 }

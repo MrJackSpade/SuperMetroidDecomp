@@ -344,6 +344,11 @@ if (args is ["--lookup-stream3-options-sprites"])
     return 0;
 }
 if (args is ["--lookup-stream3-intro-font"]){ VerifyStream3IntroFont(); return 0; }
+if (args is ["--lookup-stream3-portrait-map"])
+{
+    VerifyStream3PortraitMap();
+    return 0;
+}
 if (args is ["--lookup-stream3-initial-narration"])
 {
     VerifyStream3InitialNarrationMap();

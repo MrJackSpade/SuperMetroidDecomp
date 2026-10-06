@@ -41,7 +41,9 @@ public sealed class IntroCinematicArtworkCatalog
                 IntroCinematicArtworkFormat.BackgroundPageByteCount));
         }
         BackgroundPages = pages;
-        PortraitTilemap = RequirePage(portraitTilemap, "portrait");
+        ReadOnlyMemory<byte> portrait = RequirePage(portraitTilemap, "portrait");
+        if (!portrait.Span.SequenceEqual(IntroPortraitTilemapDefinitions.Compile()))
+            suppliedPortrait = portrait.ToArray();
         ReadOnlyMemory<byte> narration = RequirePage(initialNarrationTilemap, "initial narration");
         if (!narration.Span.SequenceEqual(IntroInitialNarrationTilemapDefinitions.Compile()))
             suppliedInitialNarration = narration.ToArray();
@@ -77,7 +79,8 @@ public sealed class IntroCinematicArtworkCatalog
     /// <summary>Four ordered 32x32 BG tilemap pages uploaded at VRAM byte $A000.</summary>
     public ReadOnlyMemory<byte> BackgroundPages { get; }
     /// <summary>Samus-head portrait BG tilemap uploaded at VRAM byte $9000.</summary>
-    public ReadOnlyMemory<byte> PortraitTilemap { get; }
+    public ReadOnlyMemory<byte> PortraitTilemap => suppliedPortrait ?? IntroPortraitTilemapDefinitions.Compile();
+    private readonly byte[]? suppliedPortrait;
     /// <summary>First, pre-typewriter narration BG3 tilemap uploaded at VRAM byte $9800.</summary>
     public ReadOnlyMemory<byte> InitialNarrationTilemap => suppliedInitialNarration ?? IntroInitialNarrationTilemapDefinitions.Compile();
     private readonly byte[]? suppliedInitialNarration;

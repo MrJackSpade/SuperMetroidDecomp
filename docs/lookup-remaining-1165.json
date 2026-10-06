@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 434,
+  "remainingTableDefinitionCount": 433,
   "fileCount": 523,
   "entries": [
     {
@@ -1174,12 +1174,15 @@
       "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs",
-      "line": 78,
-      "name": "IntroCinematicArtworkCatalog.PortraitTilemap",
-      "kind": "installed stock table",
-      "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs",
+  "line": 78,
+  "name": "IntroCinematicArtworkCatalog.PortraitTilemap",
+  "kind": "installed stock table",
+  "note": "Original stock tile/pixel/word payload stored through an auto-property. Property/constructor/serialized-document copies are one source definition.",
+  "state": "justified-retained",
+  "implementationCommit": "562b5aa6289de0d832e70fa707a7b75ce7ebb2b6",
+  "disposition": "Calculated1024mapwords from centered16-column atlas, shared silhouette rows, blank fill and edge/chin runs. Retain only reviewed selected portrait silhouette, fragment atlas starts/placements/counts, top5 and palette3/plain blank3FE composition; these specify authored illustration and inventing a functional replacement would redraw it. Pixels, colors and timing excluded; independent edits preserved."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs",
   "line": 80,
@@ -21772,5 +21775,5 @@
     }
   ],
   "convertedSinceSnapshot": 602,
-  "justifiedRetainedSinceSnapshot": 92
+  "justifiedRetainedSinceSnapshot": 93
 }

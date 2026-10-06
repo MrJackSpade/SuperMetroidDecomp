@@ -632,14 +632,14 @@ internal static partial class Program
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         var landingBasis = (Dictionary<int, ushort>)typeof(SamusBodyArtworkCatalog).GetField("landingYOffsets", flags)!.GetValue(stock)!;
         var postureBasis = (Dictionary<int, sbyte>)typeof(SamusBodyArtworkCatalog).GetField("postureYOffsets", flags)!.GetValue(stock)!;
-        AssertEqual(9, landingBasis.Count, "Landing retains eight first-facing coordinates and adjacent byte only");
+        AssertEqual(0, landingBasis.Count, "Landing stock stores no coordinate or instruction-byte overrides");
         AssertEqual(12, postureBasis.Count, "Posture retains twelve first-facing coordinates only");
         for (int index = 0; index < landing.Length; index++)
         {
             int source = index is >= 4 and < 8 or >= 12 and < 16 ? index - 4 : index;
             AssertEqual(source, SamusBodyPlacementDefinitions.LandingSourceIndex(index), "Native normal/spin facing row alias");
             AssertEqual(landing[index], landing[source], "Direct native landing facing equality");
-            AssertEqual(source == index, landingBasis.ContainsKey(index), "Exact required landing basis domain");
+            AssertEqual(landing[index], (ushort)SamusBodyPlacementDefinitions.DefaultLandingByte(index), "Direct native semantic landing default including adjacent PLB");
         }
         for (int index = 0; index < posture.Length; index++)
         {
@@ -664,6 +664,19 @@ internal static partial class Program
             }
         }
         Check(stock, landing, posture);
+        for (int index = 0; index < 16; index++)
+        {
+            var samus = new SamusState
+            {
+                Pose = (byte)(0xa4 + index / 4), AnimationFrame = (ushort)(index % 4),
+                XPosition = 128, YPosition = 128,
+            };
+            samus.TileTransfers.BindArtwork(stock);
+            samus.Draw(rom, new OamBuffer(), layer1X: 0, layer1Y: 0);
+            ushort nativeWord = (ushort)(landing[index] | landing[index + 1] << 8);
+            AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.SpritemapYPosition, "Actual rendering preserves every bounded native landing word");
+            AssertEqual((ushort)128, samus.YPosition, "Visual landing correction does not change physical position");
+        }
         string identity = stock.ContentIdentity;
         for (int edit = 0; edit < 41; edit++)
         {
@@ -679,8 +692,8 @@ internal static partial class Program
             AssertTrue(!stock.TryLandingYOffset(index, out _), "Landing reader original word bounds");
         foreach (int index in new[] { -1, 24, int.MaxValue })
             AssertTrue(!stock.TryPostureYOffset(index, out _), "Posture reader original bounds");
-        AssertEqual((ushort)0xab, landing[16], "Adjacent native PLB byte remains a required input");
-        Console.WriteLine("Body facing offsets:41 native bytes, exact9/12 required bases,20 calculated aliases,41 independent edits, unaligned reads and content identities pass.");
+        AssertEqual((ushort)0xab, landing[16], "Adjacent native PLB byte is the exact retained instruction observation");
+        Console.WriteLine("Body facing offsets:17 direct landing defaults with zero overrides,24 posture bytes,41 independent edits,16 unaligned windows and content identities pass.");
     }
 
     private static void VerifyLookupStream1BodyOamBases(ISnesAddressSpace rom)

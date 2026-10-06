@@ -99,8 +99,9 @@ public sealed partial class SamusBodyArtworkCatalog
         if (landingYOffsets.Any(value => value > byte.MaxValue))
             throw new InvalidDataException("Samus landing visual bytes must fit in one byte.");
         this.landingYOffsets = Enumerable.Range(0, landingYOffsets.Length)
-            .Where(index => SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index ||
-                landingYOffsets[index] != landingYOffsets[SamusBodyPlacementDefinitions.LandingSourceIndex(index)])
+            .Where(index => landingYOffsets[index] != (SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index
+                ? SamusBodyPlacementDefinitions.DefaultLandingByte(index)
+                : landingYOffsets[SamusBodyPlacementDefinitions.LandingSourceIndex(index)]))
             .ToDictionary(index => index, index => landingYOffsets[index]);
         this.postureYOffsets = Enumerable.Range(0, postureYOffsets.Length)
             .Where(index => SamusBodyPlacementDefinitions.PostureSourceIndex(index) == index ||
@@ -144,7 +145,8 @@ public sealed partial class SamusBodyArtworkCatalog
     public ReadOnlySpan<sbyte> PostureYOffsets => Enumerable.Range(0, SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount).Select(PostureByte).ToArray();
     public ReadOnlySpan<sbyte> DrainedYOffsets => drainedYOffsets;
     private ushort LandingByte(int index) => landingYOffsets.TryGetValue(index, out ushort value)
-        ? value : landingYOffsets[SamusBodyPlacementDefinitions.LandingSourceIndex(index)];
+        ? value : SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index
+            ? SamusBodyPlacementDefinitions.DefaultLandingByte(index) : LandingByte(SamusBodyPlacementDefinitions.LandingSourceIndex(index));
     private sbyte PostureByte(int index) => postureYOffsets.TryGetValue(index, out sbyte value)
         ? value : postureYOffsets[SamusBodyPlacementDefinitions.PostureSourceIndex(index)];
 

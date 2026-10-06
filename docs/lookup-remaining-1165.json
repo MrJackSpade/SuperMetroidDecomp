@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 487,
+  "remainingTableDefinitionCount": 486,
   "fileCount": 523,
   "entries": [
     {
@@ -1995,12 +1995,15 @@
       "implementationCommit": "44b30f26cfe139363c6813bab4473b7f1a80c9c4"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
-      "line": 29,
-      "name": "SamusBodyArtworkCatalog.landingYOffsets",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind SamusBodyArtworkCatalog.landingYOffsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
+  "line": 29,
+  "name": "SamusBodyArtworkCatalog.landingYOffsets",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind SamusBodyArtworkCatalog.landingYOffsets. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "759f16603",
+  "disposition": "Mixed complete: landing compression and recovery coordinates derive named real-pose graphics origins, with facing aliases and inactive padding. Retain only90:8D38 PLB opcode AB observed by final unaligned word; deriving unrelated native instruction content from geometry would be nonsense. Exact17-byte boundary, independent edits and wrapped rendering observations preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs",
       "line": 30,
@@ -21613,5 +21616,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 41
+  "justifiedRetainedSinceSnapshot": 42
 }

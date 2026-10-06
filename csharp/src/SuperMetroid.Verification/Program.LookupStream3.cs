@@ -1821,16 +1821,40 @@ internal static partial class Program
         var stock = Load();
         Check(stock);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object selectedInitial = typeof(BabyMetroidCutsceneColorCatalog).GetField("initial", fields)!.GetValue(stock)!;
+        AssertTrue(selectedInitial.GetType().GetField("supplied", fields)!.GetValue(selectedInitial) is null,
+            "stream 3 Baby initial calculates from reviewed paints without a stock color array");
+        for (int color = 0; color < initial.Length; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            ushort original = initial[color];
+            initial[color] ^= (ushort)(1 << (5 * channel));
+            Check(Load());
+            initial[color] = original;
+        }
         object selectedFade = typeof(BabyMetroidCutsceneColorCatalog).GetField("fade", fields)!.GetValue(stock)!;
         AssertTrue(selectedFade.GetType().GetField("supplied", fields)!.GetValue(selectedFade) is null,
             "stream 3 original Baby fade discards its stored frame table");
-        uint[] endpoints = (uint[])selectedFade.GetType().GetField("endpointColors", fields)!.GetValue(selectedFade)!;
-        for (int color = 0; color < endpoints.Length; color++)
+        AssertEqual(0, selectedFade.GetType().GetFields(fields).Count(field => field.FieldType == typeof(ushort) || field.FieldType == typeof(ushort[])), "stream 3 Baby fade keeps no stock endpoint payload");
+        static ushort ScaleHealth(ushort value, int remaining)
         {
-            uint value = endpoints[color];
-            ushort rgb5 = (ushort)(((value & 255) >> 3) | (((value >> 8 & 255) >> 3) << 5) | (((value >> 16 & 255) >> 3) << 10));
-            AssertEqual(Read(0xade8f0 + 2 * color), rgb5,
-                "stream 3 compatible RGB8 endpoint also matches original undisplayed RGB5 palette");
+            int result = 0;
+            for (int channel = 0; channel < 3; channel++)
+                result |= (((value >> (5 * channel) & 31) * remaining / 7) << (5 * channel));
+            return (ushort)result;
+        }
+        var endpointMethod = selectedFade.GetType().GetMethod("Endpoint", fields | System.Reflection.BindingFlags.Static)!;
+        for (int color = 0; color < 14; color++)
+        {
+            AssertEqual(Read(0xade8f0 + 2 * color), ScaleHealth((ushort)endpointMethod.Invoke(null, [color])!, 6),
+                "stream 3 reviewed final-health endpoint reproduces original undisplayed fade step");
+            int healthAddress = color < 4 ? 0xade870 + 2 * color :
+                color < 9 ? 0xade8d8 + 2 * (color - 4) : 0xade878 + 2 * (color - 9);
+            ushort nativeHealth = Read(healthAddress);
+            AssertEqual(nativeHealth, (ushort)endpointMethod.Invoke(null, [color])!, "stream 3 exact native final-health endpoint");
+            for (int frame = 0; frame < fade.Length; frame++)
+                AssertEqual(fade[frame][color], ScaleHealth(nativeHealth, 5 - frame),
+                    "stream 3 native final health colors produce the exact seven-part fade");
         }
         for (int frame = 0; frame < fade.Length; frame++)
         for (int color = 0; color < fade[frame].Length; color++)
@@ -3083,6 +3107,64 @@ internal static partial class Program
                 AssertEqual(Word(expected.InitialGlassShard![color]), entry.Colors[0xb1 + color], "room glass exact native/edited shade");
                 AssertEqual(Word(expected.InitialTubeProjectile![color]), entry.Colors[0xf1 + color], "room tube exact native/edited shade");
             }
+        }
+    }
+    private static void VerifyStream3BabyInitialPaints(ISnesAddressSpace rom)
+    {
+        var babyDocument = System.Text.Json.Nodes.JsonNode.Parse(SuperMetroid.AssetExtraction.BabyMetroidCutsceneColorExtractor.Extract(rom))!;
+        var liveDocument = System.Text.Json.Nodes.JsonNode.Parse(SuperMetroid.AssetExtraction.ShitroidColorExtractor.Extract(rom))!;
+        var stock = LoadBaby(babyDocument);
+        var liveStock = LoadLive(liveDocument);
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object initial = typeof(BabyMetroidCutsceneColorCatalog).GetField("initial", fields)!.GetValue(stock)!;
+        AssertTrue(initial.GetType().GetField("supplied", fields)!.GetValue(initial) is null, "Baby stock initial has no stored color array");
+        AssertEqual(0, initial.GetType().GetFields(fields).Count(field => field.FieldType == typeof(ushort)), "Baby initial paint choices reside only in dedicated catalog");
+        for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
+        {
+            int address = BabyMetroidCutsceneColorRomData.InitialSource + color * sizeof(ushort);
+            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(native, stock.InitialColor(color), "Baby initial exact native color");
+            AssertEqual(native, liveStock.TargetColor(ShitroidColorTarget.Shitroid, color + 1), "Baby live initial alias");
+        }
+        Check(stock, babyDocument);
+        for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
+        foreach (string component in new[] { "red", "green", "blue" })
+        {
+            var editedBabyDocument = babyDocument.DeepClone();
+            var rgb = editedBabyDocument["initial"]![color]!;
+            rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+            Check(LoadBaby(editedBabyDocument), editedBabyDocument);
+            var editedLiveDocument = liveDocument.DeepClone();
+            rgb = editedLiveDocument["shitroid"]![color + 1]!;
+            rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+            var editedLive = LoadLive(editedLiveDocument);
+            for (int index = 0; index < BabyMetroidCutsceneColorRomData.InitialColorCount; index++)
+            {
+                AssertEqual(Word(editedLiveDocument["shitroid"]![index + 1]!), editedLive.TargetColor(ShitroidColorTarget.Shitroid, index + 1), "independent live alias edit");
+                AssertEqual(Word(babyDocument["initial"]![index]!), stock.InitialColor(index), "live edit cannot mutate Baby instance");
+                AssertEqual(Word(liveDocument["shitroid"]![index + 1]!), liveStock.TargetColor(ShitroidColorTarget.Shitroid, index + 1), "Baby edit cannot mutate live instance");
+            }
+        }
+        Check(stock, babyDocument);
+        foreach (int invalid in new[] { -1, BabyMetroidCutsceneColorRomData.InitialColorCount, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.InitialColor(invalid), "Baby initial index domain preserved");
+        static BabyMetroidCutsceneColorCatalog LoadBaby(System.Text.Json.Nodes.JsonNode document) =>
+            BabyMetroidCutsceneColorCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+        static ShitroidColorCatalog LoadLive(System.Text.Json.Nodes.JsonNode document) =>
+            ShitroidColorCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+        static ushort Word(System.Text.Json.Nodes.JsonNode rgb) => (ushort)(rgb["red"]!.GetValue<int>() |
+            rgb["green"]!.GetValue<int>() << 5 | rgb["blue"]!.GetValue<int>() << 10);
+        static void Check(BabyMetroidCutsceneColorCatalog catalog, System.Text.Json.Nodes.JsonNode document)
+        {
+            ushort[] colors = document["initial"]!.AsArray().Select(rgb => Word(rgb!)).ToArray();
+            ushort[][] fade = document["fade"]!.AsArray().Select(row => row!.AsArray().Select(rgb => Word(rgb!)).ToArray()).ToArray();
+            for (int color = 0; color < colors.Length; color++) AssertEqual(colors[color], catalog.InitialColor(color), "Baby independently edited initial colors");
+            string identity = SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
+            {
+                content.AppendWords("initial", colors);
+                content.AppendWordFrames("fade", fade);
+            });
+            AssertEqual(identity, catalog.ContentIdentity, "Baby initial canonical content identity preserved");
         }
     }
 }

@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 483,
+  "remainingTableDefinitionCount": 481,
   "fileCount": 523,
   "entries": [
     {
@@ -20,19 +20,25 @@
       "note": "Original area-map station bitplanes; AreaMapCartridgeData.StationRevealMaskBytes and installed station masks are views of the same source mapping. Discoverability and reveal-above are calculated from map cells, not separate source tables."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs",
-      "line": 17,
-      "name": "BabyMetroidCutsceneColorCatalog.initial",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind BabyMetroidCutsceneColorCatalog.initial. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs",
+  "line": 17,
+  "name": "BabyMetroidCutsceneColorCatalog.initial",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind BabyMetroidCutsceneColorCatalog.initial. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "fb843e142",
+  "disposition": "Mixed complete: all15 colors calculate from nine specifically reviewed dome/organ/fang paints,standard innard smoothstep,dependent green/blue,floor fang midpoint,saturated glint17 and white/black. Retain only these exact paints and material/easing/rounding composition after native image/consumer review. No background,timing,health,pulse or geometry exemption; independent supplied edits preserved."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs",
-      "line": 18,
-      "name": "BabyMetroidCutsceneColorCatalog.fade",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind BabyMetroidCutsceneColorCatalog.fade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs",
+  "line": 18,
+  "name": "BabyMetroidCutsceneColorCatalog.fade",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind BabyMetroidCutsceneColorCatalog.fade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "fb843e142",
+  "disposition": "Mixed complete:84displayed RGB5 values calculate floor(final-health endpoint*(5-frame)/7),using nine reviewed final-health paints and shared initial-paint dependencies. Five endpoint colors derive smoothstep,linear shades,half-glint,fang midpoint and three-quarter contour. Retain only exact endpoint/material/rounding policies; no other health rows,Ygate,timer or completion exemption. No inverse RGB8 search or stock endpoint array; independent edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/BeamPaletteCatalog.cs",
       "line": 11,
@@ -21625,5 +21631,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 45
+  "justifiedRetainedSinceSnapshot": 47
 }

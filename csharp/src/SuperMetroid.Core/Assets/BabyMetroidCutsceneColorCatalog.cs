@@ -10,16 +10,16 @@ public sealed class BabyMetroidCutsceneColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
         {
-            content.AppendWords("initial", initial);
+            initial.AppendIdentity(content);
             fade.AppendIdentity(content);
         });
 
-    private readonly ushort[] initial;
+    private readonly BabyMetroidInitialPalette initial;
     private readonly ColorFade fade;
 
     private BabyMetroidCutsceneColorCatalog(ushort[] initial, ushort[][] fade)
     {
-        this.initial = initial;
+        this.initial = new(initial);
         this.fade = new(fade);
     }
 
@@ -30,9 +30,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
         WriteIndented = true,
     };
 
-    public ushort InitialColor(int color) =>
-        (uint)color < initial.Length ? initial[color] :
-            throw new ArgumentOutOfRangeException(nameof(color));
+    public ushort InitialColor(int color) => initial.Resolve(color);
 
     public ushort FadeColor(int paletteIndex, int color) =>
         paletteIndex is >= 1 and <= BabyMetroidCutsceneColorRomData.FadeFrameCount &&
@@ -41,60 +39,36 @@ public sealed class BabyMetroidCutsceneColorCatalog
             : throw new ArgumentOutOfRangeException(nameof(paletteIndex),
                 $"Cutscene Baby fade index {paletteIndex}, color {color} is outside the authored images.");
 
-    /// <summary>
-    /// $AD:E90C-$E9B3 displays six RGB5 steps of a linear RGB8 fade to black.
-    /// Recover a compatible endpoint interval from each channel's quantization
-    /// bounds, choosing its midpoint. Endpoints are not unique; every supplied
-    /// step must match exactly before its frame table can be discarded.
-    /// </summary>
+    /// <summary>$AD:E90C-E9B3 displays the separately identified final-health paints
+    /// at five-sevenths down to zero intensity. Supplied edits remain independent;
+    /// no latent RGB8 endpoint reconstruction or stored stock sample is needed.</summary>
     private sealed class ColorFade
     {
-        private const int FadeDivisor = 8 * BabyMetroidCutsceneColorRomData.FadeFrameCount;
-        private readonly uint[]? endpointColors;
         private readonly ushort[][]? supplied;
 
         internal ColorFade(ushort[][] frames)
         {
-            var endpoints = new uint[BabyMetroidCutsceneColorRomData.FadeColorCount];
-            for (int color = 0; color < endpoints.Length; color++)
-            for (int channel = 0; channel < 3; channel++)
-            {
-                int low = 0, high = 255;
-                for (int frame = 0; frame < frames.Length; frame++)
+            for (int frame = 0; frame < frames.Length; frame++)
+            for (int color = 0; color < frames[frame].Length; color++)
+                if (Calculate(frame, color) != frames[frame][color])
                 {
-                    int value = (frames[frame][color] >> (channel * 5)) & 31;
-                    int remaining = frames.Length - 1 - frame;
-                    if (remaining == 0)
-                    {
-                        if (value != 0)
-                            high = -1;
-                        break;
-                    }
-                    // value <= endpoint*remaining/48 < value+1, with integer RGB8 endpoints.
-                    low = Math.Max(low, (value * FadeDivisor + remaining - 1) / remaining);
-                    high = Math.Min(high, ((value + 1) * FadeDivisor + remaining - 1) / remaining - 1);
-                }
-                if (low > high)
-                {
-                    supplied = frames;
+                    supplied = frames.Select(row => row.ToArray()).ToArray();
                     return;
                 }
-                endpoints[color] |= (uint)((low + high) / 2) << (channel * 8);
-            }
-            endpointColors = endpoints;
         }
 
-        internal ushort Resolve(int frame, int color)
+        internal ushort Resolve(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+
+        private static ushort Endpoint(int color) => BabyMetroidFinalHealthPaintDefinitions.Color(color);
+
+        private static ushort Calculate(int frame, int color)
         {
-            if (endpointColors is null)
-                return supplied![frame][color];
-            int result = 0;
+            ushort endpoint = Endpoint(color);
             int remaining = BabyMetroidCutsceneColorRomData.FadeFrameCount - 1 - frame;
-            for (int channel = 0; channel < 3; channel++)
-            {
-                int endpoint = (int)((endpointColors[color] >> (channel * 8)) & 255);
-                result |= (endpoint * remaining / FadeDivisor) << (channel * 5);
-            }
+            int intervals = BabyMetroidCutsceneColorRomData.FadeFrameCount + 1;
+            int result = 0;
+            for (int shift = 0; shift < 15; shift += 5)
+                result |= (((endpoint >> shift & 31) * remaining / intervals) << shift);
             return (ushort)result;
         }
 
@@ -104,8 +78,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
             Span<ushort> row = stackalloc ushort[BabyMetroidCutsceneColorRomData.FadeColorCount];
             for (int frame = 0; frame < BabyMetroidCutsceneColorRomData.FadeFrameCount; frame++)
             {
-                for (int color = 0; color < row.Length; color++)
-                    row[color] = Resolve(frame, color);
+                for (int color = 0; color < row.Length; color++) row[color] = Resolve(frame, color);
                 content.AppendWords("row", row);
             }
         }

@@ -3226,6 +3226,10 @@
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/GoldenTorizoStrideGeometryDefinitions.cs","stream":2,"purpose":"Shared immutable planted-foot geometry and exact20walking-word derivation; seven canonical artwork origins remain required under Stream3.frames; narrow extended Parts binding coordinated with root"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainFinalRoomPaintDefinitions.cs","stream":3,"purpose":"Exact reviewed categorical final-room paints and named shade policies; calculated ramps and independent edits; amber pixel role explicitly unknown, not an absence-based exemption"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomFlashPaintDefinitions.cs","stream":3,"purpose":"Exact reviewed warm flood5BFF,highlight13/dim11 material split and third-brighten/quarter-dim nearest RGB5 policy only; preserve independently supplied edits and separate gameplay clocks"}
+,
+{"path":"csharp/src/SuperMetroid.Core/Assets/BabyMetroidInitialPaintDefinitions.cs","purpose":"Complete reviewed initial/final-health categorical paints and calculated shade/fade relationships; independent edits; no other health,geometry or timing exemption","stream":3},
+{"path":"csharp/src/SuperMetroid.Core/Assets/BabyMetroidInitialPalette.cs","purpose":"Complete reviewed initial/final-health categorical paints and calculated shade/fade relationships; independent edits; no other health,geometry or timing exemption","stream":3},
+{"path":"csharp/src/SuperMetroid.Core/Assets/BabyMetroidFinalHealthPaintDefinitions.cs","purpose":"Complete reviewed initial/final-health categorical paints and calculated shade/fade relationships; independent edits; no other health,geometry or timing exemption","stream":3}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

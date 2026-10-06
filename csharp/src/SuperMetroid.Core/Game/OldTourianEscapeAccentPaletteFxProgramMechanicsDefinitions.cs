@@ -39,8 +39,12 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
     /// <summary>Both complete loops last 64 frames.</summary>
     public const int CycleFrames = 64;
 
-    private static readonly ushort[] Durations =
-        [16, 1, 1, 2, 1, 2, 1, 1, 1, 1, 32, 2, 1, 1, 1];
+    /// <summary>One authored flicker pass: neutral hold and optional tint phase held for an extra native tick.</summary>
+    private readonly record struct FlickerPass(ushort NeutralHold, int? ExtendedTintPhase);
+    /// <summary>$8D:FBC5-FC59/FC63-FCF7: exact neutral holds16/2/32 and extra-tick phases3/none/1 are authored animation choreography. Identical colors receive different holds; regenerating these choices would invent a different rhythm.</summary>
+    private static readonly FlickerPass[] AuthoredCadence = [new(16, 3), new(2, null), new(32, 1)];
+    /// <summary>Each pass contains the neutral palette followed by four tint stages.</summary>
+    private const int TintPhases = 5;
 
     /// <summary>$8D:FBC1 selects $00D2: palette-six/color-nine railings.</summary>
     private const ushort RailingsColorByteIndex = (6 * 16 + 9) * sizeof(ushort);
@@ -81,7 +85,13 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
         return false;
     }
 
-    internal static ushort Duration(int frame) => Durations[frame];
+    internal static ushort Duration(int frame)
+    {
+        if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
+        FlickerPass pass = AuthoredCadence[frame / TintPhases];
+        int tint = frame % TintPhases;
+        return tint == 0 ? pass.NeutralHold : (ushort)(tint == pass.ExtendedTintPhase ? 2 : 1);
+    }
 }
 
 /// <summary>One complete old-Tourian escape accent control program.</summary>

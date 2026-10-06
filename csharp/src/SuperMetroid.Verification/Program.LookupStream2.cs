@@ -77,6 +77,44 @@ internal static partial class Program
         Console.WriteLine("Ghost palette:16 native targets and shared-source words,actual white-flash target copy,32 full component-fade steps,and native pixel-slot usage pass; calculated channels preserve the specified source paint and transparent payload.");
     }
 
+    private static void VerifyLookupStream2TourianAccentCadence(CartridgeImportAddressSpace rom)
+    {
+        VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom);
+        foreach (var definition in OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All)
+        {
+            ushort[] nativeDurations = new ushort[15];
+            int cycle = 0;
+            for (int frame = 0; frame < 15; frame++)
+            {
+                nativeDurations[frame] = ReadVerificationWord(rom, 0x8d0000 | definition.FramePointer(frame));
+                AssertEqual(nativeDurations[frame], OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Duration(frame), "Exact native authored pass dwell");
+                cycle += nativeDurations[frame];
+                for (int color = 0; color < 3; color++)
+                    AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frame % 5, color)),
+                        ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frame, color)), "Three sweeps select identical RGB stages despite distinct cadence");
+            }
+            AssertEqual(64, cycle, "Native pass cadence sums to its exact loop period");
+            var guarded = new PaletteFxMechanicsForbiddenBus(rom);
+            var actual = new RoomPaletteFxSystem();
+            actual.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            var cgram = new SnesCgram();
+            var colors = new ReferencePaletteFxColorSource(guarded);
+            int frameIndex = 0, elapsed = 0;
+            for (int tick = 0; tick <= cycle; tick++)
+            {
+                if (elapsed == nativeDurations[frameIndex]) { frameIndex = (frameIndex + 1) % 15; elapsed = 0; }
+                actual.Step(guarded, cgram, colors, 0, 0, false, false);
+                for (int color = 0; color < 3; color++)
+                    AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frameIndex, color)),
+                        cgram.Colors[definition.ColorByteIndex / 2 + color], "Actual CGRAM follows each exact native hold and loop boundary");
+                elapsed++;
+            }
+            AssertEqual(0, guarded.ForbiddenReadAttempts, "Cadence execution avoids native mechanics reads");
+        }
+        AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Duration(-1), "Accent duration lower domain");
+        AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Duration(15), "Accent duration upper domain");
+        Console.WriteLine("Old Tourian accent cadence:30 native durations,90 repeated color words,68 mechanics words and130 actual per-tick CGRAM/loop states pass with mechanics reads blocked.");
+    }
     private static void VerifyLookupStream2NinjaProgramLayout()
     {
         AssertEqual(308, NinjaSpacePirateInstructionProgramDefinitions.MechanicsWordCount, "Complete native Ninja mechanics count");

@@ -271,7 +271,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs
 
-- [ ] **OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Durations** ([L43](../csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Durations** ([L43](../csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs#L43)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Definitions** ([L46](../csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs#L46)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs
@@ -1185,3 +1185,30 @@ Coordinator independently reviewed both diagnostic images, all23 specified input
 
 Removed pending wording from the owned palette definition and recorded the bounded rationale beside each input group. Corrected two pre-existing mojibake plus/minus XML phrases in the owned ghost runtime to ASCII; no runtime behavior changed. Confirmation remains the just-passed1,437-warning/zero-error build and focused16-target/shared-source,actual copy,32-step fade/count,pixel-usage/domain checks. Stream2 now96 resolved /130 required; this is one completed mixed entry, not a fully converted palette or an expansion of retained scope.
 Root integration: viewed both native ghost/Kago images,checked native32-byte target copy and component fade plus renderer transparency.1452warnings/0errors;16native/shared words,actual target installation,32component fade steps/counts,pixel-label usage/bounds pass. Runtime preexisting plus/minus XML preserved. Master596/23/509.
+
+## Complete old-Tourian accent duration disposition packet (review requested)
+
+Selected entry: OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Durations only. Native orange-railings program8D:FBC1-FC5E and yellow-panel programFC5F-FCFC have identical15record timing. DefinitionFFDD/FFE1 uses no-op initial functionC685; each program has one color-index setup, fifteen timed three-color records each endingDone, and an unconditionalGoto to its first record. There is no conditional event, random sample or palette-value-dependent branch in these two loops.
+
+Each program repeats its same five three-color tuples three times. Orange tuples are35AD/1CE7/0C63,29D0/150A/0885,1E14/114D/08A7,0E37/096F/04A8,025A/0192/00CA. Yellow tuples are28C8/2484/1C61,398E/296B/1549,4A74/2E52/1230,5739/3318/0B18,67FF/43FF/03FF. These demonstrate neutral-to-tint sweeps; this timing packet does not request retention of their color content.
+
+|Pass|Frames|Exact native holds|Neutral hold|Extra tick on tint phase|
+|---|---|---|---|---|
+|First|0..4|16,1,1,2,1|16|3|
+|Second|5..9|2,1,1,1,1|2|None|
+|Third|10..14|32,2,1,1,1|32|1|
+
+All thirty duration operands (fifteen in each program) are accounted for by this table. The implementation directly selects the pass/tint phase from frame/5 and frame%5. It stores three authored pass descriptors (NeutralHold,ExtendedTintPhase) and returns the neutral hold, two native ticks for the selected extended tint, otherwise one native tick. It does not construct/cache a replacement fifteen-value lookup. The authored three-pass structure, holds16/2/32 and selected extra-tick locations3/none/1 remain explicitly pending until this complete disposition is approved; this is a decomposition of content, not proof those choices were mathematically generated.
+
+Native consumer8D:C552 decrements the instruction timer each tick;C56A installs the next positive duration;C571-C591 writes colors and stores the next record pointer;C595 terminates that record; the program'sGoto restarts it. Managed RoomPaletteFxSystem.Step185-190,ExecuteProgram374-376 and WritePaletteRecord preserve this contract. Equal native RGB tuples are held16,2 and32ticks at the neutral phase, and the same tint tuples receive1 or2ticks on different passes. Thus RGB/color phase alone does not determine duration. No program input distinguishes these occurrences except their authored place in the flicker sequence. A function encoding pass-specific numeric holds and exceptions would restate this same chosen cadence; deriving different holds from brightness/interpolation would change its visible rhythm. This is a bounded authored flicker-content rationale, not a blanket timing exemption or an argument from sequence size/complexity.
+
+Requested narrow mixed disposition: preserve this exact three-pass cadence (neutral holds and extra-tick placements) as nonsense-to-regenerate authored animation content, while calculating the common five-phase record structure and single/double-tick repeats. The 64tick period is the sum of these exact native holds. This does not exempt any separate color palette, other escape flash duration sequence, room event or gameplay timer.
+
+Build:1,437 existing warnings, zero errors. New guarded --lookup-stream2-tourian-accent-cadence confirms all30 native durations,90 repeated color words,existing68mechanics words and130actual per-tick CGRAM states including both loop handoffs with mechanics ROM reads blocked. Original duration lower/upper IndexOutOfRange domains are preserved. No gameplay probing. Counts remain96resolved/130required until independent approval.
+
+### Old-Tourian accent durations complete: approved mixed disposition
+
+Coordinator independently read native FBC1-FCFC and C54A-C596 and reviewed the real-tick confirmation. Approved only the exact three authored flicker passes, neutral holds16/2/32 and extra-tick tint phases3/none/1 as animation choreography: the repeated identical palette states have independent temporal choices, so generation without those choices would invent a different rhythm. Common five-phase record structure and single/double-tick repeats remain calculated. No palette-color or other timer exemption follows.
+
+Renamed RequiredCadence to AuthoredCadence and replaced pending code comments with the exact bounded source rationale. Prior passing build/focused confirmation applies to unchanged behavior; this final change is field naming and disposition documentation. Stream2 now97 resolved /129 required. Durations is mixed complete, not wholly derived.
+Coordinator confirmation: integrated build1452 warnings/zero errors; focused30 native durations,90 repeated colors,68 controls and130 actual tick/CGRAM states passed. Master596 converted/24 retained-mixed/508 pending.

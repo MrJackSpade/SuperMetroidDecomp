@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 509,
+  "remainingTableDefinitionCount": 508,
   "fileCount": 523,
   "entries": [
     {
@@ -5477,12 +5477,15 @@
       "implementationCommit": "db912ab30"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs",
-      "line": 43,
-      "name": "OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Durations",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs",
+    "line":  43,
+    "name":  "OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Durations",
+    "kind":  "stored definition",
+    "note":  "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+    "state":  "justified-retained",
+    "implementationCommit":  "56560a4539636c7ecc0a988cdb0aef348f703d77",
+    "disposition":  "Mixed complete: common five-stage timing calculated; retain only three authored flicker passes with neutral holds16/2/32 and extended tint phases3/none/1. Identical repeated RGB states do not determine these temporal choices; replacing them invents different animation rhythm. Native8D:FBC1-FCFC/C54A-C596 and actual tick confirmation establish bounded content scope. Other colors/timers excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs",
       "line": 46,
@@ -21546,5 +21549,5 @@
     }
   ],
   "convertedSinceSnapshot": 596,
-  "justifiedRetainedSinceSnapshot": 23
+  "justifiedRetainedSinceSnapshot": 24
 }

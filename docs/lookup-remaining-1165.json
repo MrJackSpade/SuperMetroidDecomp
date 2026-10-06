@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 495,
+  "remainingTableDefinitionCount": 494,
   "fileCount": 523,
   "entries": [
     {
@@ -1484,12 +1484,15 @@
       "note": "Original/default payload behind MotherBrainRoomColorPresentation.flash. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
-      "line": 11,
-      "name": "MotherBrainRoomColorPresentation.finalRoom",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainRoomColorPresentation.finalRoom. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
+    "line":  11,
+    "name":  "MotherBrainRoomColorPresentation.finalRoom",
+    "kind":  "installed stock table",
+    "note":  "Original/default payload behind MotherBrainRoomColorPresentation.finalRoom. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+    "state":  "justified-retained",
+    "implementationCommit":  "6c1123270",
+    "disposition":  "Mixed complete:24 colors calculate ramps,neutral/primary compositions,shared shades and repeated slots. Retain exact ten categorical room paint anchors and quarter-shadow/half-contour/lens-drop7/channel-rounding/slot-composition policies. Native CGRAM-only consumer and source artwork reviewed; amber BGpalette3 inkE pixel role unknown, retained for its selected paint role rather than absent pixels. No stock array/scalar paint fields; edits isolated."
+},
     {
     "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
     "line":  12,
@@ -21588,5 +21591,5 @@
     }
   ],
   "convertedSinceSnapshot": 599,
-  "justifiedRetainedSinceSnapshot": 34
+  "justifiedRetainedSinceSnapshot": 35
 }

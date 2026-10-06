@@ -2902,4 +2902,68 @@ internal static partial class Program
             }
         }
     }
+    private static void VerifyStream3FinalRoomPaints(ISnesAddressSpace rom)
+    {
+        byte[] imported = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        var document = System.Text.Json.JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(imported, MapPresentationFormat.JsonOptions)!;
+        MotherBrainRoomColorPresentation Load() => MotherBrainRoomColorPresentation.Load(new MemoryStream(
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+        var stock = Load();
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object finalRoom = typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", fields)!.GetValue(stock)!;
+        AssertTrue(finalRoom.GetType().GetField("supplied", fields)!.GetValue(finalRoom) is null, "final-room stock has no supplied output array");
+        AssertEqual(0, finalRoom.GetType().GetFields(fields).Count(field => field.FieldType == typeof(ushort)), "final-room paint choices live only in reviewed catalog");
+        for (int color = 0; color < document.FinalRoom.Length; color++)
+        {
+            int address = MotherBrainRoomColorRomData.SourceBank + MotherBrainRoomPaletteProgramDefinitions.FinalPalette + color * sizeof(ushort);
+            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(native, Word(document.FinalRoom[color]), "final-room direct native word");
+        }
+        Confirm(stock);
+        for (int color = 0; color < document.FinalRoom.Length; color++)
+        for (int component = 0; component < 3; component++)
+        {
+            var original = document.FinalRoom[color];
+            document.FinalRoom[color] = component switch
+            {
+                0 => original with { Red = original.Red ^ 1 },
+                1 => original with { Green = original.Green ^ 1 },
+                _ => original with { Blue = original.Blue ^ 1 },
+            };
+            Confirm(Load());
+            document.FinalRoom[color] = original;
+        }
+        Confirm(stock);
+        static ushort Word(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        void Confirm(MotherBrainRoomColorPresentation palette)
+        {
+            var colors = new SnesCgram();
+            palette.ApplyFinal(colors);
+            for (int color = 0; color < document.FinalRoom.Length; color++)
+            {
+                int destination = color < 12 ? 0x34 + color : 0x53 + color - 12;
+                AssertEqual(Word(document.FinalRoom[color]), colors.Colors[destination], "final-room exact supplied paint/shade");
+                if (color >= 12) AssertEqual(Word(document.FinalRoom[color]), colors.Colors[0x73 + color - 12], "final-room mirrored colors");
+            }
+            palette.ApplyRoomEntry(colors);
+            for (int color = 0; color < 15; color++)
+            {
+                AssertEqual(Word(document.InitialGlassShard![color]), colors.Colors[0xb1 + color], "final-room edit cannot alter supplied glass");
+                AssertEqual(Word(document.InitialTubeProjectile![color]), colors.Colors[0xf1 + color], "final-room edit cannot alter supplied tube");
+            }
+            for (int frame = 0; frame < document.RecoveryLights!.Length; frame++)
+            {
+                palette.ApplyRecoveryLights(colors, frame);
+                for (int color = 0; color < 28; color++)
+                    AssertEqual(Word(document.RecoveryLights[frame][color]), colors.Colors[color < 14 ? 0x31 + color : 0x51 + color - 14], "final-room edit cannot alter supplied recovery");
+            }
+            for (int frame = 0; frame < document.Flash.Length; frame++)
+            {
+                palette.ApplyFlash(colors, checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart + frame * 4)));
+                for (int color = 0; color < 24; color++)
+                    AssertEqual(Word(document.Flash[frame][color]), colors.Colors[color < 12 ? 0x34 + color : 0x53 + color - 12], "final-room edit cannot alter supplied flash");
+            }
+        }
+    }
+
 }

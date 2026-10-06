@@ -26,6 +26,13 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream3-final-room-paints"])
+{
+    var native = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyStream3FinalRoomPaints(native);
+    Console.WriteLine("Final room:24native colors,72independent channel edits and dependent-palette isolation pass.");
+    return 0;
+}
 if (args is ["--lookup-stream2-golden-torizo-strides"])
 {
     VerifyLookupStream2GoldenTorizoFootGeometry(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

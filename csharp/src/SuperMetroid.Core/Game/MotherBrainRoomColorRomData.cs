@@ -72,4 +72,26 @@ public static class MotherBrainRoomColorRomData
         (uint)index < RecoveryLightsFrames
             ? RecoveryLightsFirstSource - index * RecoveryLightsByteStride
             : throw new ArgumentOutOfRangeException(nameof(index));
+    /// <summary>$A9:D09A final-room foreground outline, repeated at $94F8 and glass ramp end$9528.</summary>
+    public const int RoomOutlineColor = 12;
+    /// <summary>$A9:D09C-D0A0 final-room gray shades, repeated by glass slots0..2.</summary>
+    public const int RoomGrayFirst = 13;
+    /// <summary>$A9:D0A2 final-room darkest gray, repeated by glass slot11.</summary>
+    public const int RoomDarkGrayColor = 16;
+    /// <summary>$A9:D082-D088, final-room four-color wall ramp.</summary>
+    public const int RoomWallFirst = 0, RoomWallCount = 4;
+    /// <summary>$A9:D08A-D090, final-room four-color darker wall ramp.</summary>
+    public const int RoomShadowFirst = 4, RoomShadowCount = 4;
+    /// <summary>$A9:D096, final-room BG palette3 inkE amber between black slots at D092/D094/D098; its pixel role remains unresolved.</summary>
+    public const int RoomAmberColor = 10;
+    /// <summary>$A9:D09C-D0A0, three neutral shades from intensity20 to8; middle14 interpolates.</summary>
+    public const int RoomGrayCount = 3;
+    /// <summary>$A9:D0A4-D0AA, red and blue indicator pairs sharing an active-channel shade decrease.</summary>
+    public const int RoomRedFirst = 17, RoomBlueFirst = 19;
+    /// <summary>$A9:D0AC repeats darkest room gray at D0A2.</summary>
+    public const int RoomRepeatedDarkGrayColor = 21;
+    /// <summary>$A9:D0AE, final-room warm accent.</summary>
+    public const int RoomGlowColor = 22;
+    /// <summary>$A9:D0B0, final-room white neutral.</summary>
+    public const int RoomWhiteColor = 23;
 }

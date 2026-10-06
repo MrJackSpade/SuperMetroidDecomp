@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class MotherBrainRoomColorPresentation
 {
     private readonly RoomFlash flash;
-    private readonly ushort[] finalRoom;
+    private readonly FinalRoomPalette finalRoom;
     private readonly AttackPalette phaseTwoAttack;
     private readonly ushort[]? phaseTwoRearLeg;
     private readonly ushort[] initialGlassShard;
@@ -20,7 +20,7 @@ public sealed class MotherBrainRoomColorPresentation
         .Select(index => checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart +
             index * MotherBrainRoomColorRomData.TimedEntryByteCount)));
 
-    private MotherBrainRoomColorPresentation(ushort[][] flash, ushort[] finalRoom,
+    private MotherBrainRoomColorPresentation(ushort[][] flash, FinalRoomPalette finalRoom,
         ushort[] phaseTwoAttack, ushort[] phaseTwoRearLeg,
         ushort[] initialGlassShard, ushort[] initialTubeProjectile,
         RecoveryLightFade recoveryLights)
@@ -99,7 +99,7 @@ public sealed class MotherBrainRoomColorPresentation
         }
     }
 
-    private static void ApplyRoom(SnesCgram cgram, ushort[] colors)
+    private static void ApplyRoom(SnesCgram cgram, FinalRoomPalette colors)
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.SliceColors; index++)
@@ -127,7 +127,7 @@ public sealed class MotherBrainRoomColorPresentation
         for (int index = 0; index < flash.Length; index++)
             flash[index] = Compile(document.Flash[index], MotherBrainRoomColorRomData.SliceColors * 2,
                 $"flash row {index}");
-        ushort[] finalRoom = Compile(document.FinalRoom, MotherBrainRoomColorRomData.SliceColors * 2, "final room");
+        var finalRoom = new FinalRoomPalette(Compile(document.FinalRoom, MotherBrainRoomColorRomData.SliceColors * 2, "final room"));
         return new(flash, finalRoom,
             Compile(document.PhaseTwoAttack, MotherBrainRoomColorRomData.PhaseTwoColors,
                 "phase-two attack"),
@@ -146,6 +146,58 @@ public sealed class MotherBrainRoomColorPresentation
                 : new RecoveryLightFade(CompileRecoveryLights(document.RecoveryLights), finalRoom));
     }
 
+    private sealed class FinalRoomPalette
+    {
+        private readonly ushort[]? supplied;
+        public int Length { get; }
+        public FinalRoomPalette(ushort[] colors)
+        {
+            Length = colors.Length;
+            for (int color = 0; color < colors.Length; color++)
+                if (Calculate(color) != colors[color]) { supplied = colors; return; }
+        }
+        public ushort this[int color] => (uint)color < Length
+            ? supplied is null ? Calculate(color) : supplied[color] : throw new IndexOutOfRangeException();
+        private static ushort Calculate(int color)
+        {
+            if (color < MotherBrainRoomColorRomData.RoomShadowFirst)
+                return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.WallLight, MotherBrainFinalRoomPaintDefinitions.WallDark, color - MotherBrainRoomColorRomData.RoomWallFirst,
+                    MotherBrainRoomColorRomData.RoomWallCount - 1);
+            // Native shadow red is5,4,3,1: ceiling interpolation. Green7,5,4,2
+            // and blue8,6,4,2 use nearest interpolation. This is an exact sequence
+            // relationship, not a claim about a historical palette tool.
+            if (color < MotherBrainRoomColorRomData.RoomShadowFirst + MotherBrainRoomColorRomData.RoomShadowCount)
+                return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.RecessedLight, 0,
+                    MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor - 1,
+                    MotherBrainFinalRoomPaintDefinitions.RecessedShadowDivisor), color - MotherBrainRoomColorRomData.RoomShadowFirst,
+                    MotherBrainRoomColorRomData.RoomShadowCount - 1, ceilingRed: MotherBrainFinalRoomPaintDefinitions.RecessedRedCeiling);
+            if (color < MotherBrainRoomColorRomData.RoomOutlineColor)
+                return color == MotherBrainRoomColorRomData.RoomAmberColor ? MotherBrainFinalRoomPaintDefinitions.Amber : (ushort)0;
+            if (color == MotherBrainRoomColorRomData.RoomOutlineColor) return MotherBrainFinalRoomPaintDefinitions.PanelField;
+            if (color < MotherBrainRoomColorRomData.RoomDarkGrayColor)
+                return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLight, MotherBrainFinalRoomPaintDefinitions.MetalLow, color - MotherBrainRoomColorRomData.RoomGrayFirst,
+                    MotherBrainRoomColorRomData.RoomGrayCount - 1);
+            return color switch
+            {
+                // Metal contour shadow is half the low gray surface intensity.
+                MotherBrainRoomColorRomData.RoomDarkGrayColor or MotherBrainRoomColorRomData.RoomRepeatedDarkGrayColor =>
+                    InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLow, 0, MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor - 1, MotherBrainFinalRoomPaintDefinitions.MetalContourDivisor),
+                MotherBrainRoomColorRomData.RoomRedFirst => MotherBrainFinalRoomPaintDefinitions.RedLens,
+                MotherBrainRoomColorRomData.RoomRedFirst + 1 => (ushort)Math.Max(0, (MotherBrainFinalRoomPaintDefinitions.RedLens & 31) - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop),
+                MotherBrainRoomColorRomData.RoomBlueFirst => MotherBrainFinalRoomPaintDefinitions.BlueLens,
+                MotherBrainRoomColorRomData.RoomBlueFirst + 1 => (ushort)(Math.Max(0, (MotherBrainFinalRoomPaintDefinitions.BlueLens >> 10 & 31) - MotherBrainFinalRoomPaintDefinitions.LensShadeDrop) << 10),
+                MotherBrainRoomColorRomData.RoomGlowColor => MotherBrainFinalRoomPaintDefinitions.WarmAccent,
+                _ => MotherBrainHealthPalettePresentation.StockBaseColor(false, MotherBrainRoomColorRomData.WhiteColor),
+            };
+        }
+    }
+    private static ushort InterpolateRgb5(ushort start, ushort end, int step, int intervals, bool ceilingRed = false)
+    {
+        int result = 0;
+        for (int shift = 0; shift < 15; shift += 5)
+            result |= (((start >> shift & 31) * (intervals - step) + (end >> shift & 31) * step + (ceilingRed && shift == 0 ? intervals - 1 : intervals / 2)) / intervals) << shift;
+        return (ushort)result;
+    }
     // Shared shades use their definitions only after the installed output matches.
     // The shared recovery highlight is reviewed paint; supplied edits remain independent.
     private sealed class AttackPalette
@@ -189,13 +241,13 @@ public sealed class MotherBrainRoomColorPresentation
     /// <summary>Background highlight interpolation paired with darkening level colors.</summary>
     private sealed class RoomFlash
     {
-        private readonly ushort[] basis;
+        private readonly FinalRoomPalette basis;
         private readonly ushort highlight;
         private readonly ushort[][]? supplied;
 
         public int FrameCount { get; }
 
-        public RoomFlash(ushort[][] rows, ushort[] finalRoom)
+        public RoomFlash(ushort[][] rows, FinalRoomPalette finalRoom)
         {
             FrameCount = rows.Length;
             basis = finalRoom;
@@ -228,14 +280,14 @@ public sealed class MotherBrainRoomColorPresentation
     /// <summary>Seven equal RGB5 intensity steps with shared room-palette endpoints.</summary>
     private sealed class RecoveryLightFade
     {
-        private readonly ushort[] finalRoom;
+        private readonly FinalRoomPalette finalRoom;
         private readonly ushort backgroundLight;
         private readonly ushort backgroundMiddle;
         private readonly ushort backgroundDark;
         private readonly ushort neutralHighlight;
         private readonly ushort[][]? supplied;
 
-        public RecoveryLightFade(ushort[][] rows, ushort[] finalRoom)
+        public RecoveryLightFade(ushort[][] rows, FinalRoomPalette finalRoom)
         {
             this.finalRoom = finalRoom;
             ushort[] full = rows[^1];

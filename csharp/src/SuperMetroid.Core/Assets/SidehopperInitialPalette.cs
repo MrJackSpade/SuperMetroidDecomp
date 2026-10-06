@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>
 /// $A9:EBCC-EBEA and $F8C6-F8E4 share the initial Sidehopper palette. The drain
 /// imports its first15 words; the live target imports16. White slots1/9 and
-/// repeated slots14=11/15=12 and the body/detail/claw shades calculate. The standalone16-color target uses reviewed paints; the shifted15-color auxiliary retains its own unresolved inputs.
+/// repeated slots14=11/15=12 and the body/detail/claw shades calculate. The standalone16-color target uses reviewed paints; the shifted15-color stock auxiliary has a separate calculated paint owner.
 /// Each instance owns its supplied content; edits never couple separate catalogs.
 /// </summary>
 internal sealed class SidehopperInitialPalette
@@ -76,7 +76,7 @@ internal sealed class SidehopperInitialPalette
         return (ushort)result;
     }
     /// <summary>$A9:EBE2/$F8DC: yellow claw shade0237 is the ceiling-channel midpoint of039C/00D1.
-    /// The light/dark paint endpoints remain independent unresolved inputs.</summary>
+    /// Independently supplied light/dark endpoints remain editable.</summary>
     internal static ushort ClawMidpoint(ushort light, ushort dark)
     {
         int result = 0;

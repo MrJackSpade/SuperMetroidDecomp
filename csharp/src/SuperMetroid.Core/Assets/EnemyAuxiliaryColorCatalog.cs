@@ -32,7 +32,7 @@ public sealed class EnemyAuxiliaryColorCatalog
         faceBlock = new(frames[EnemyAuxiliaryPalette.FaceBlock], healthGradient: false, faceGlow: true);
         deadSidehopper = new(frames[EnemyAuxiliaryPalette.DeadSidehopper], healthGradient: false, sidehopperDrain: true);
         torizoBody = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBody], healthGradient: true);
-        torizoBelly = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBelly], healthGradient: true);
+        torizoBelly = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBelly], healthGradient: true, rearTorizo: true);
     }
 
     private PaletteRows RowsFor(EnemyAuxiliaryPalette palette) => palette switch
@@ -66,15 +66,28 @@ public sealed class EnemyAuxiliaryColorCatalog
         private readonly ushort[] last;
         private readonly ushort[][]? supplied;
         private readonly bool faceGlow;
+        private readonly bool stockTorizo, rearTorizo, stockSidehopperDrain, stockFaceGlow;
         private readonly ushort glowAccentStart;
         private readonly ushort[]? corpse;
 
         internal int FrameCount { get; }
         internal int ColorCount { get; }
-        internal PaletteRows(ushort[][] rows, bool healthGradient, bool faceGlow = false, bool sidehopperDrain = false)
+        internal PaletteRows(ushort[][] rows, bool healthGradient, bool faceGlow = false, bool sidehopperDrain = false, bool rearTorizo = false)
         {
             FrameCount = rows.Length;
             ColorCount = rows[0].Length;
+            if (healthGradient && GoldenTorizoHealthPaintDefinitions.Matches(rows, rearTorizo))
+            {
+                stockTorizo = true; this.rearTorizo = rearTorizo; first = []; last = []; return;
+            }
+            if (faceGlow && FaceBlockGlowPaintDefinitions.Matches(rows))
+            {
+                stockFaceGlow = true; first = []; last = []; return;
+            }
+            if (sidehopperDrain && SidehopperDrainPaintDefinitions.Matches(rows))
+            {
+                stockSidehopperDrain = true; first = []; last = []; return;
+            }
             first = rows[0];
             last = rows[faceGlow ? 3 : sidehopperDrain ? rows.Length - 2 : rows.Length - 1];
             corpse = sidehopperDrain ? rows[^1] : null;
@@ -89,6 +102,9 @@ public sealed class EnemyAuxiliaryColorCatalog
         internal ushort Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
         private ushort Calculate(int frame, int color)
         {
+            if (stockTorizo) return GoldenTorizoHealthPaintDefinitions.Color(frame, color, rearTorizo);
+            if (stockFaceGlow) return FaceBlockGlowPaintDefinitions.Color(frame, color);
+            if (stockSidehopperDrain) return SidehopperDrainPaintDefinitions.Color(frame, color);
             if (corpse is not null && frame == FrameCount - 1) return corpse[color];
             int steps = faceGlow ? 3 : FrameCount - (corpse is null ? 1 : 2);
             if (faceGlow) frame = Math.Min(frame, FrameCount - 1 - frame);

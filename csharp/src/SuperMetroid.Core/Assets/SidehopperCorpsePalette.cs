@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>
 /// $A9:F8A6-F8C4 and $EC8C-ECAA share corpse paint. Slot5 is white; slots8..15
 /// interpolate RGB5 endpoints to nearest over seven intervals. The auxiliary
-/// import includes only slots0..14 and retains nine unresolved inputs. The standalone16-word target uses separately reviewed paints and material composition.
+/// import includes only slots0..14; its stock paint has a separate calculated owner. This helper preserves independently supplied15-color content. The standalone16-word target uses reviewed paints and material composition.
 /// </summary>
 internal sealed class SidehopperCorpsePalette
 {

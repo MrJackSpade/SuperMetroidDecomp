@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 463,
+  "remainingTableDefinitionCount": 462,
   "fileCount": 523,
   "entries": [
     {
@@ -616,12 +616,15 @@
       "implementationCommit": "9fdad56a7df404d60039705d0e57c114a5e51442"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorCatalog.cs",
-      "line": 19,
-      "name": "EnemyAuxiliaryColorCatalog.frames",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind EnemyAuxiliaryColorCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorCatalog.cs",
+  "line": 19,
+  "name": "EnemyAuxiliaryColorCatalog.frames",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind EnemyAuxiliaryColorCatalog.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "3fd1c7bf2",
+  "disposition": "Entire393-word aggregate calculates:105 shifted Sidehopper colors from reviewed prefix paints,three final paints,red offsets7/4 and interpolation;32 FaceBlock colors from six named glow inputs;256 Torizo colors from reviewed armor/core/eye paint channels,shared shade/clipped progression/rear-lighting rules and seven-interval interpolation. Retain exact categorical paint/material policies,visible3800 application,one low rear blue3 choice and transparent1000/front-final0 compatibility only. High rear green26 derives via5. No timers,health thresholds,mechanics,geometry,pixels or other palette exceptions."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorDefinitions.cs",
       "line": 29,
@@ -21685,5 +21688,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 65
+  "justifiedRetainedSinceSnapshot": 66
 }

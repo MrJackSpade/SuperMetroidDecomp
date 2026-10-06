@@ -2773,6 +2773,11 @@ internal static partial class Program
             object palette = typeof(EnemyAuxiliaryColorCatalog).GetField(name, fields)!.GetValue(stock)!;
             AssertTrue(palette.GetType().GetField("supplied", fields)!.GetValue(palette) is null,
                 "stream 3 calculated auxiliary cycles have no stored frame rows");
+            foreach (string endpoint in new[] { "first", "last" })
+                AssertEqual(0, ((ushort[])palette.GetType().GetField(endpoint, fields)!.GetValue(palette)!).Length,
+                    "stream 3 complete auxiliary palette keeps no stock endpoint arrays");
+            AssertTrue(palette.GetType().GetField("corpse", fields)!.GetValue(palette) is null,
+                "stream 3 complete auxiliary palette keeps no stock corpse array");
         }
         foreach (var palette in definitions.Select(definition => definition.Id))
         for (int frame = 0; frame < words[palette].Length; frame++)
@@ -2784,6 +2789,7 @@ internal static partial class Program
             Check(Load());
             words[palette][frame][color] = original;
         }
+        Check(stock); // Loading independent edits must not mutate the already installed stock instance.
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, invalid, 0), "stream 3 Torizo band bounds");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })

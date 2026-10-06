@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream3-auxiliary-complete"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Auxiliary palette oracle revision");
+    VerifyStream3AuxiliaryPalettes(rom);
+    VerifyStream3ShitroidPulse(rom);
+    Console.WriteLine("Auxiliary palettes:393 native colors,1179 independent RGB edits,zero stock endpoint/corpse arrays,identities,bounds and standalone target isolation pass.");
+    return 0;
+}
 if (args is ["--lookup-stream5-ceres-platform"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

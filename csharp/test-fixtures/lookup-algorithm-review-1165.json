@@ -12119,4 +12119,13 @@
   ],
   "confirmation": "Root build1452 warnings/0 errors;210 actual rain-wait calls,fade-gated duration selection,no premature RNG/spawns/position changes,exact delayed placement/cursor and24 actual rain projectiles passed,alongside existing timer profiles.",
   "workerCommit": "15f448005"
+},"auxiliaryPalettesWhole":{
+  "disposition": [
+    "Entire393-word aggregate calculates:105 shifted Sidehopper colors from reviewed prefix paints,three final paints,red offsets7/4 and interpolation;32 FaceBlock colors from six named glow inputs;256 Torizo colors from reviewed armor/core/eye paint channels,shared shade/clipped progression/rear-lighting rules and seven-interval interpolation. Retain exact categorical paint/material policies,visible3800 application,one low rear blue3 choice and transparent1000/front-final0 compatibility only. High rear green26 derives via5. No timers,health thresholds,mechanics,geometry,pixels or other palette exceptions."
+  ],
+  "completed": [
+    "EnemyAuxiliaryColorCatalog.frames"
+  ],
+  "confirmation": "Root build1452 warnings/0 errors;ResourceAudit1212 warnings/0 errors after XML/dependency refresh. All393 native colors,1179 independent RGB edits,zero stock endpoint/corpse arrays,canonical identities,bounds and standalone target isolation passed. Obsolete helper comments updated to distinguish supplied fallback from completed stock calculation.",
+  "workerCommit": "3fd1c7bf2"
 }}

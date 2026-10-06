@@ -1,6 +1,11 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$0592: bank-$88 power-bomb explosion activation status.</summary>
+    public const int PowerBombExplosionStatus = 0x0592;
+    /// <summary>$0CEE: armed power-bomb flag, negative from placement through cleanup.</summary>
+    public const int PowerBombArmedFlag = 0x0cee;
+
     /// <summary>$0CCE: native ProjectileCounter firing owner.</summary>
     public const int ProjectileCount = 0x0cce;
     /// <summary>$0DC2: native PreviousBeamChargeCounter firing owner.</summary>

@@ -57,11 +57,11 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Contract | Current evidence | Remaining work |
 | --- | --- | --- |
 | Source identity, immutable movie, input edges, lag classification, terminal boundary | Converter v3 and complete replay pass | Retain these checks with each coverage expansion |
-| Samus position/fractions, camera position/fractions, pose/history, animation, primary speeds | Compared every retained interval | Control handlers, remaining movement flags and secondary motion state |
-| Health, reserves, equipment, collected inventory, ammunition and capacities | Complete replay passes these fields, fractional health, hurt/invincibility/knockback timers and directions, HUD selection/cancellation and X acceleration mode (`tide-owner-replay.log`) | Remaining combat/input ownership |
-| Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Remaining actor AI variables and phase-dependent aliases |
-| Ordinary/enemy projectiles | Ordinary active-slot subpixels, velocities, directions, instruction cursors/timers, spritemaps, trail/auxiliary words also pass the full replay | Ordinary pre-instruction identity, enemy-projectile family variables/properties, bombs and explosion owners |
-| Persistent world state and room effects | Selected room plus acid damage surface/tide phase checked during gameplay | PLM execution state, loading-boundary room mutations, remaining persistence allocations and environmental gameplay state |
+| Samus movement and collision | Positions/fractions, camera, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state and momentum/boost pass | Control-handler ownership, remaining movement flags and secondary motion state |
+| Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication and charge palette/audio words pass | Remaining combat/input ownership and filtered-input state |
+| Enemies and Ridley | Active enemy collision/properties/timers; complete Ridley tail records, shared tail/body controller, wing/grab/damage/health/facing state pass | Remaining actor AI variables and phase-dependent aliases |
+| Ordinary/enemy projectiles | Ordinary active-slot motion/program/art state; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Ordinary pre-instruction identity; enemy-projectile family variables/properties; bombs need live mappings only if a different movie activates them |
+| Persistent world and room effects | Complete boss/event/item/door bitsets; gameplay foreground/BTS; movie grey-door execution, condition and hit state; acid surface/tide phase pass | Loading-boundary mutations, remaining persistence allocations, environmental state, and PLM draw/presentation state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
 
 The history below records earlier divergence boundaries, not current completion.
@@ -540,3 +540,19 @@ All 10,717 updates pass with the expanded checks (`firing-publication-build.log`
 --space-screw-fixture (`firing-final-build.log`, `firing-final-focused.log`). No
 new native state is injected after initial import. Player confirmation and the
 remaining coverage audit are still pending.
+
+
+### Bomb and power-bomb ownership coverage
+
+The native recording never activates any of the five bomb projectile slots or
+the power-bomb armed/explosion status words. The replay now compares each slot's
+type and both activation words at every MainGameplay boundary, independently of
+the already-compared bomb counter. Explicit assertions require a live-state
+mapping if a future movie activates one of these owners; there is no silent
+active-bomb coverage omission.
+
+Release build and all 10,717 input-only updates pass with these checks
+(`bomb-ownership-build.log`, `bomb-ownership-replay.log`). No production change
+was required. This establishes inactivity for this supplied recording, not
+explosion behavior for recordings that use bombs. The summary ledger above now
+reflects the prior completed coverage expansions and their remaining gaps.

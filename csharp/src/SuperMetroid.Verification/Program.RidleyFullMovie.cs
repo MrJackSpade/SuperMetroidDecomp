@@ -1167,6 +1167,22 @@ internal static partial class Program
                 Check("ChargedShotGlowTimer", runtime.Projectiles.ChargedShotGlowTimer, RidleyMovieMemory.ChargedShotGlow);
                 Check("SamusChargePaletteIndex", runtime.Projectiles.SamusChargePaletteIndex, RidleyMovieMemory.ChargePaletteIndex);
                 Check("BombCounter", runtime.BombProjectiles.BombCounter, RidleyMovieMemory.BombCount);
+                // This movie never places a bomb. Check every physical bomb slot and
+                // both activation owners so that absence is verified, not assumed from
+                // the aggregate counter or from ordinary beam/missile comparisons.
+                foreach (var bomb in runtime.BombProjectiles.Slots)
+                {
+                    int address = RidleyMovieMemory.ProjectileType + (bomb.Index + 5) * 2;
+                    Check($"Bomb {bomb.Index} type", bomb.Type, address);
+                    AssertTrue(W(address) == 0,
+                        "Movie now activates a bomb slot; add its full live-state mapping");
+                }
+                var explosion = runtime.BombProjectiles.PowerBombExplosion;
+                Check("Power-bomb armed flag", explosion.Flag, RidleyMovieMemory.PowerBombArmedFlag);
+                Check("Power-bomb explosion status", explosion.Status, RidleyMovieMemory.PowerBombExplosionStatus);
+                AssertTrue(W(RidleyMovieMemory.PowerBombArmedFlag) == 0 &&
+                    W(RidleyMovieMemory.PowerBombExplosionStatus) == 0,
+                    "Movie now activates a power bomb; add its full live-state mapping");
                 Check("BombSpreadChargeTimeoutCounter", samus.BombSpreadChargeTimeoutCounter, RidleyMovieMemory.BombSpreadChargeTimeout);
                 Check("PoseTransitionShotDirection", samus.PoseTransitionShotDirection, RidleyMovieMemory.PoseShotDirection);
                 Check("HyperBeam", samus.HyperBeam, RidleyMovieMemory.HyperBeam);

@@ -1209,3 +1209,10 @@ Root Verification1447warnings/zero errors; --lookup-stream-4-beam-geometry passe
 Selected sand/waterfall cadence10/2,rotation group sizes4/8,sand-pit band count2,palette slots2/3 and starting colors4/8/4 remain required inputs. Actual waterfall operand0068 means palette3/color4; a conflicting pinned-source comment is not used as the behavioral oracle. Color payloads remain separately pending. No exception or aggregate closure; inventory558converted/21retained-mixed/549pending unchanged.
 
 Root Verification1447warnings/zero errors; --lookup-stream-4-maridia-palette passes supported ROM revision,three native programs,44mechanics words,112color identities,all three complete production loops,index bounds and cartridge-read guards. No ResourceAudit source-hash reference exists for this source. Only1165 remains in-progress.
+## Integrated Ceres alarm return reflection
+
+93a5260f6 calculates the seven return rows of nativeA6:C1DF-C23E from rows7..1, replacing21duplicate words. Nine forward rows retain27required color inputs. Independently supplied source or return edits remain independent; legacy documents share the immutable validated alarm data.
+
+Root Verification1448warnings/zero errors; --lookup-stream-4-ceres-alarm passes48native colors,direct reflection,exact27stored keys with no stock return overrides,all48independent edits,784actual CGRAM row writes,adjacent colors,both legacy versions and bounds. ResourceAudit0warnings/0errors; closure includes the new helper and updated bounds/installed-data description.
+
+Alarm colors,other fades and all independent palette choices remain required. No new retention or aggregate closure; inventory558converted/21retained-mixed/549pending unchanged.

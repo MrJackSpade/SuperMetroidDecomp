@@ -3198,6 +3198,8 @@
     ,{"path":"csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs","stream":4,"purpose":"Only fast/slow shake delta/count bindings; preserve native update order and masks"}
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/SpazerCompositionGeometryDefinitions.cs","stream":2,"purpose":"Shared native Spazer origin inputs and derived tile geometry; Stream4 may consume isolated dependency; unresolved origins remain required"}
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/GrappleBeamTilePatterns.cs","stream":3,"purpose":"Native grapple primitive geometry and transposes with independent edited fallback; unexplained pixels remain required"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Assets/CeresRidleyAlarmColorDefinitions.cs","stream":4,"purpose":"Exact alarm return reflection with all27forward colors required and independent edits preserved"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Assets/CeresRidleyFadeColorDefinitions.cs","stream":4,"purpose":"Exact floor-scaled fade subset; all14endpoints and21deviations explicitly required, separate from supplied edit fallbacks"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

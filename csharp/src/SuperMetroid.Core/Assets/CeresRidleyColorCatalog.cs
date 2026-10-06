@@ -12,13 +12,13 @@ public sealed class CeresRidleyColorCatalog
     private readonly ushort[][] eyeFade;
     private readonly ushort[][] bodyFade;
     private readonly ushort[][] health;
-    private readonly ushort[][] alarm;
+    private readonly CeresRidleyAlarmColorDefinitions alarm;
     private readonly ushort[] retreatBg;
     private readonly ushort[] retreatShared;
     private readonly ushort[][] baby;
 
     private CeresRidleyColorCatalog(ushort[] start, ushort[][] eyeFade,
-        ushort[][] bodyFade, ushort[][] health, ushort[][] alarm,
+        ushort[][] bodyFade, ushort[][] health, CeresRidleyAlarmColorDefinitions alarm,
         ushort[] retreatBg, ushort[] retreatShared,
         ushort[][] baby)
     {
@@ -43,7 +43,7 @@ public sealed class CeresRidleyColorCatalog
     public ushort ResolveEyeFade(int row, int color) => Get(eyeFade, row, color);
     public ushort ResolveBodyFade(int row, int color) => Get(bodyFade, row, color);
     public ushort ResolveHealth(int row, int color) => Get(health, row, color);
-    public ushort ResolveAlarm(int row, int color) => Get(alarm, row, color);
+    public ushort ResolveAlarm(int row, int color) => alarm.Resolve(row, color);
     public ushort ResolveRetreatBg(int color) => Get(retreatBg, color);
     public ushort ResolveRetreatShared(int color) => Get(retreatShared, color);
     public ushort ResolveBaby(int row, int color) => Get(baby, row, color);
@@ -64,8 +64,13 @@ public sealed class CeresRidleyColorCatalog
     public void ApplyHealth(SnesCgram cgram, int row) =>
         Apply(cgram, Get(health, row), CeresRidleyPaletteRomData.HealthCgramIndex);
 
-    public void ApplyAlarm(SnesCgram cgram, int row) =>
-        Apply(cgram, Get(alarm, row), CeresRidleyPaletteRomData.AlarmCgramIndex);
+    public void ApplyAlarm(SnesCgram cgram, int row)
+    {
+        _ = CeresRidleyAlarmColorDefinitions.SourceRow(row);
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < CeresRidleyPaletteRomData.AlarmColorCount; color++)
+            cgram.SetColor(CeresRidleyPaletteRomData.AlarmCgramIndex + color, alarm.Resolve(row, color));
+    }
 
     public void ApplyRetreat(SnesCgram cgram)
     {
@@ -107,8 +112,8 @@ public sealed class CeresRidleyColorCatalog
                 CeresRidleyPaletteRomData.HealthColorCount, "health"),
             document.Version < CeresRidleyColorFormat.Version
                 ? stockForLegacyOverride!.alarm
-                : CompileRows(document.Alarm, CeresRidleyPaletteRomData.AlarmRowCount,
-                    CeresRidleyPaletteRomData.AlarmColorCount, "alarm"),
+                : new CeresRidleyAlarmColorDefinitions(CompileRows(document.Alarm, CeresRidleyPaletteRomData.AlarmRowCount,
+                    CeresRidleyPaletteRomData.AlarmColorCount, "alarm")),
             Compile(document.RetreatBg, CeresRidleyPaletteRomData.RetreatBgColorCount, "retreat BG"),
             Compile(document.RetreatShared, CeresRidleyPaletteRomData.RetreatSharedColorCount,
                 "retreat shared"),

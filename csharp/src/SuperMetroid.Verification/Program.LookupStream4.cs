@@ -9,6 +9,68 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4CeresAlarm(ISnesAddressSpace rom)
+    {
+        ushort Native(int row, int color)
+        {
+            int address = 0xA6C1DF + (row * 3 + color) * 2;
+            return (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        }
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var definition = (CeresRidleyAlarmColorDefinitions)typeof(CeresRidleyColorCatalog)
+            .GetField("alarm", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var inputs = (Dictionary<int, ushort>)typeof(CeresRidleyAlarmColorDefinitions)
+            .GetField("inputs", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
+        AssertEqual(27, inputs.Count, "alarm stores exactly its required forward basis with zero stock reflected overrides");
+        for (int row = 0; row < 16; row++)
+        for (int color = 0; color < 3; color++)
+        {
+            AssertEqual(Native(row, color), Native(CeresRidleyAlarmColorDefinitions.SourceRow(row), color), "direct reflected/native relationship");
+            AssertEqual(row <= 8, inputs.ContainsKey(row * 3 + color), "exact required source membership");
+            AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "installed native alarm color");
+        }
+        for (int edit = -1; edit < 48; edit++)
+        {
+            var selected = stock;
+            if (edit >= 0)
+            {
+                var rows = document.Alarm!.Select(row => row.ToArray()).ToArray();
+                rows[edit / 3][edit % 3] = rows[edit / 3][edit % 3] with { Red = rows[edit / 3][edit % 3].Red ^ 1 };
+                selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Alarm = rows })));
+            }
+            for (int row = 0; row < 16; row++)
+            {
+                var cgram = new SnesCgram();
+                cgram.SetColor(96, 0x1234); cgram.SetColor(100, 0x2345);
+                selected.ApplyAlarm(cgram, row);
+                for (int color = 0; color < 3; color++)
+                {
+                    ushort expected = (ushort)(Native(row, color) ^ (row * 3 + color == edit ? 1 : 0));
+                    AssertEqual(expected, selected.ResolveAlarm(row, color), "independent alarm source/derived edit");
+                    AssertEqual(expected, cgram.Colors[97 + color], "actual alarm CGRAM write");
+                    AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "stock alarm remains immutable");
+                }
+                AssertEqual((ushort)0x1234, cgram.Colors[96], "alarm preceding CGRAM unchanged");
+                AssertEqual((ushort)0x2345, cgram.Colors[100], "alarm following CGRAM unchanged");
+            }
+        }
+        foreach (int version in new[] { 1, 2 })
+        {
+            byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(document with { Version = version, Alarm = null }, MapPresentationFormat.JsonOptions);
+            var legacy = CeresRidleyColorCatalog.Load(new MemoryStream(legacyJson), stock);
+            for (int row = 0; row < 16; row++)
+            for (int color = 0; color < 3; color++)
+                AssertEqual(Native(row, color), legacy.ResolveAlarm(row, color), "legacy alarm fallback preserves immutable calculated source");
+        }
+        foreach (int row in new[] { -1, 16, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(row, 0), "alarm row bounds");
+        foreach (int color in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveAlarm(0, color), "alarm color bounds");
+        AssertThrows<ArgumentNullException>(() => stock.ApplyAlarm(null!, 0), "alarm null CGRAM");
+        Console.WriteLine("Ceres alarm:48 native colors, exact27-word required basis, all48 independent edits,784 actual row writes, legacy fallback and bounds pass.");
+    }
     private static void VerifyLookupStream4MaridiaPaletteDefinitions(CartridgeImportAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(rom.ReadByte(0x8D0000 | pointer) | rom.ReadByte(0x8D0000 | (pointer + 1)) << 8);

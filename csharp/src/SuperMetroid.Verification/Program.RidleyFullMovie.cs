@@ -817,6 +817,13 @@ internal static partial class Program
             level.SetBehavior(index, memory[RidleyMovieMemory.Bts + index]);
         }
 
+        ushort[] initialHud = (ushort[])typeof(HudState)
+            .GetField("_tiles", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.Hud)!;
+        for (int index = 0; index < initialHud.Length; index++)
+            initialHud[index] = W(RidleyMovieMemory.HudTilemap + index * 2);
+        var previousHudSelection = typeof(HudState)
+            .GetField("_previousSelectedItem", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        previousHudSelection.SetValue(runtime.Hud, W(RidleyMovieMemory.PreviousHudSelection));
         byte[] initialScrolls = (byte[])typeof(RoomScrollGrid)
             .GetField("_cells", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.Camera.Scrolls)!;
         memory.AsSpan(RidleyMovieMemory.ScrollStorage, RoomScrollGrid.StorageByteCount).CopyTo(initialScrolls);
@@ -1046,6 +1053,11 @@ internal static partial class Program
             CheckBytes("Event bits", Bank80SystemState.EventByteCount, runtime.System.GetEventByteRaw, RidleyMovieMemory.Events);
             CheckBytes("Collected item bits", Bank80SystemState.ItemBitByteCount, runtime.System.GetCollectedItemByteRaw, RidleyMovieMemory.CollectedItemBits);
             CheckBytes("Opened door bits", Bank80SystemState.DoorBitByteCount, runtime.System.GetOpenedDoorByteRaw, RidleyMovieMemory.OpenedDoors);
+            if (game.GameState is not (SuperMetroidGameState.HitDoorBlock or
+                SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB))
+                for (int tile = 0; tile < HudState.MutableTileCount; tile++)
+                    Check($"HUD tile {tile}", runtime.Hud.Tiles[tile], RidleyMovieMemory.HudTilemap + tile * 2);
+            Check("Previous HUD selection", (ushort)previousHudSelection.GetValue(runtime.Hud)!, RidleyMovieMemory.PreviousHudSelection);
             CheckBytes("Save/elevator markers", Bank80SystemState.UsedSaveStationByteCount,
                 runtime.System.GetUsedSaveStationByteRaw, RidleyMovieMemory.SaveElevatorMarkers);
             CheckBytes("Map-station markers", Bank80SystemState.MapStationByteCount,

@@ -62,7 +62,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Enemies and Ridley | Active enemy collision/properties/timers; complete Ridley tail records, shared tail/body controller, wing/grab/damage/health/facing state pass | Remaining actor AI variables and phase-dependent aliases |
 | Ordinary/enemy projectiles | Ordinary active-slot motion/program/art and callback identity; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Final render composition/pixels; bombs need live mappings only if a different movie activates them |
 | Persistent world and room effects | Complete boss/event/item/door bitsets and save/elevator/map-station allocations; all seven explored-map planes and fifty scroll bytes at gameplay boundaries; gameplay foreground/BTS; movie grey-door execution, condition and hit state; acid surface/tide phase pass | Loading-boundary mutations, remaining persistence allocations, environmental state, and PLM draw/presentation state |
-| Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
+| Pause, presentation and audio behavior | Recorded gameplay transitions, complete mutable HUD tilemap during gameplay/pause/unpause and prior HUD selection pass | Explicit inventory of remaining state and observable output coverage |
 
 The history below records earlier divergence boundaries, not current completion.
 
@@ -782,3 +782,20 @@ Focused --ridley-map-initialization checks both explored cells, every blank HUD
 cell, the defeated gate and door reset (`ridley-map-focused.log`). The fix awaits
 player validation. Other documented rendering/control/loading coverage remains
 open; this evidence does not establish complete full-movie parity.
+
+
+### Complete mutable HUD tilemap
+
+The initial snapshot now seeds the exact three-row HUD tilemap ($C608-$C6C7)
+and prior selected-item word ($0A0E). Every subsequent selection word is compared
+at every retained boundary. All96HUD tile words compare throughout gameplay,
+pause entry/fades, paused menus and unpause; partially loaded door states remain
+outside this presentation comparison. These checks include the actual energy,
+ammunition, reserve indicator, selected-icon attributes and minimap tile words,
+not merely their inventory inputs.
+
+Release build has zero errors and all10,717updates pass (`hud-pause-build.log`,
+`hud-pause-replay.log`). No production changes were needed. This establishes HUD
+source tilemap output for the recorded sequence; final VRAM/display timing and
+rendered pixels remain explicit presentation gaps, alongside the other open audit
+items. No native state is injected after the initial snapshot.

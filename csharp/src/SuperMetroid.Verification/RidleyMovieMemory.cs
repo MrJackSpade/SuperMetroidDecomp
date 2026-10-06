@@ -1,6 +1,11 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$C608-$C6C7: three mutable HUD tilemap rows.</summary>
+    public const int HudTilemap = 0xc608;
+    /// <summary>$0A0E: previously highlighted HUD item.</summary>
+    public const int PreviousHudSelection = 0x0a0e;
+
     /// <summary>$05F7: boss-owned minimap suppression flag.</summary>
     public const int MinimapDisabled = 0x05f7;
 

@@ -1,6 +1,13 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$7E:2020: seven Ridley tail segment records, each ten words.</summary>
+    public const int TailSegments = 0x2020;
+    /// <summary>Native Ridley tail record stride in bytes.</summary>
+    public const int TailSegmentStride = 20;
+    /// <summary>$A6:CC1E tail activation uses the high bit of each record's first word.</summary>
+    public const ushort TailSegmentActive = 0x8000;
+
     /// <summary>$19BB: enemy projectile Graphics, word-strided per slot.</summary>
     public const int EnemyProjectileGraphics = 0x19bb;
     /// <summary>$19DF: enemy projectile Timer, word-strided per slot.</summary>

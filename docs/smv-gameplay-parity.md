@@ -59,7 +59,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Source identity, immutable movie, input edges, lag classification, terminal boundary | Converter v3 and complete replay pass | Retain these checks with each coverage expansion |
 | Samus position/fractions, camera position/fractions, pose/history, animation, primary speeds | Compared every retained interval | Control handlers, remaining movement flags and secondary motion state |
 | Health, reserves, equipment, collected inventory, ammunition and capacities | Complete replay passes these fields, fractional health, hurt/invincibility/knockback timers and directions, HUD selection/cancellation and X acceleration mode (`tide-owner-replay.log`) | Remaining combat/input ownership |
-| Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Remaining actor AI variables and seven-segment tail state |
+| Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Remaining actor AI variables and shared tail controller state |
 | Ordinary/enemy projectiles | Ordinary active-slot subpixels, velocities, directions, instruction cursors/timers, spritemaps, trail/auxiliary words also pass the full replay | Ordinary pre-instruction identity, enemy-projectile family variables/properties, bombs and explosion owners |
 | Persistent world state and room effects | Selected room plus acid damage surface/tide phase checked during gameplay | Boss/event/door/item bits, PLM changes, remaining environmental gameplay state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
@@ -403,3 +403,13 @@ already imported once at the initial boundary. All10,717 updates pass without a
 production change (`enemy-properties-build.log`, `enemy-properties-replay.log`).
 Remaining actor-specific AI/tail state and the other audit categories above still
 require coverage before full functional parity can be claimed.
+
+### Complete Ridley tail segment coverage
+
+Every retained gameplay boundary with live Ridley now compares all ten words of
+all seven tail records: activation, stagger, movement direction, distance, extension
+target, angle, X/Y position and X/Y offset. The Boolean activation maps to the
+native $8000 word. All10,717 updates pass with no production changes
+(`tail-segments-build.log`, `tail-segments-replay.log`). This verifies intermediate
+segments as well as the previously checked tip. Shared tail-controller words and
+remaining actor AI variables are still tracked separately in the coverage audit.

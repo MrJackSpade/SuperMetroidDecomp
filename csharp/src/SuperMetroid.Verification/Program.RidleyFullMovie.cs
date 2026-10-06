@@ -1003,6 +1003,22 @@ internal static partial class Program
                     // Tail workspace becomes live after its first fade-owned composition.
                     Check("Ridley tail tip X", ridleyState.TailSegments[6].XPosition, RidleyMovieMemory.TailTipX);
                     Check("Ridley tail tip Y", ridleyState.TailSegments[6].YPosition, RidleyMovieMemory.TailTipY);
+                    for (int tailIndex = 0; tailIndex < ridleyState.TailSegments.Length; tailIndex++)
+                    {
+                        var segment = ridleyState.TailSegments[tailIndex];
+                        int tailAddress = RidleyMovieMemory.TailSegments + tailIndex * RidleyMovieMemory.TailSegmentStride;
+                        string tailOwner = $"Ridley tail {tailIndex}";
+                        Check(tailOwner + " active", segment.Active ? RidleyMovieMemory.TailSegmentActive : (ushort)0, tailAddress);
+                        Check(tailOwner + " StaggerAngle", segment.StaggerAngle, tailAddress + 2);
+                        Check(tailOwner + " MovementDirection", segment.MovementDirection, tailAddress + 4);
+                        Check(tailOwner + " Distance", segment.Distance, tailAddress + 6);
+                        Check(tailOwner + " TargetDistance", segment.TargetDistance, tailAddress + 8);
+                        Check(tailOwner + " Angle", segment.Angle, tailAddress + 10);
+                        Check(tailOwner + " XPosition", segment.XPosition, tailAddress + 12);
+                        Check(tailOwner + " YPosition", segment.YPosition, tailAddress + 14);
+                        Check(tailOwner + " XOffset", segment.XOffset, tailAddress + 16);
+                        Check(tailOwner + " YOffset", segment.YOffset, tailAddress + 18);
+                    }
                 }
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)

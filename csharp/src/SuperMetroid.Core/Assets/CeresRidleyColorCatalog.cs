@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Ceres Ridley, shared Norfair Ridley health, and private Baby draw colors.</summary>
 public sealed class CeresRidleyColorCatalog
 {
-    private readonly ushort[] start;
+    private readonly CeresRidleyStartColorDefinitions start;
     private readonly CeresRidleyFadeColorDefinitions eyeFade;
     private readonly CeresRidleyFadeColorDefinitions bodyFade;
     private readonly ushort[][] health;
@@ -22,7 +22,7 @@ public sealed class CeresRidleyColorCatalog
         ushort[] retreatBg, ushort[] retreatShared,
         ushort[][] baby)
     {
-        this.start = start;
+        this.start = new(start, baby[0]);
         this.eyeFade = eyeFade;
         this.bodyFade = bodyFade;
         this.health = health;
@@ -39,7 +39,7 @@ public sealed class CeresRidleyColorCatalog
         WriteIndented = true,
     };
 
-    public ushort ResolveStart(int color) => Get(start, color);
+    public ushort ResolveStart(int color) => start.Resolve(color);
     public ushort ResolveEyeFade(int row, int color) => eyeFade.Resolve(row, color);
     public ushort ResolveBodyFade(int row, int color) => bodyFade.Resolve(row, color);
     public ushort ResolveHealth(int row, int color) => Get(health, row, color);
@@ -48,8 +48,12 @@ public sealed class CeresRidleyColorCatalog
     public ushort ResolveRetreatShared(int color) => Get(retreatShared, color);
     public ushort ResolveBaby(int row, int color) => Get(baby, row, color);
 
-    public void ApplyStart(SnesCgram cgram) =>
-        Apply(cgram, start, CeresRidleyPaletteRomData.StartCgramIndex);
+    public void ApplyStart(SnesCgram cgram)
+    {
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < CeresRidleyPaletteRomData.StartColorCount; color++)
+            cgram.SetColor(CeresRidleyPaletteRomData.StartCgramIndex + color, start.Resolve(color));
+    }
 
     public void ApplyEyeFade(SnesCgram cgram, int row)
     {

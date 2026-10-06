@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 450,
+  "remainingTableDefinitionCount": 449,
   "fileCount": 523,
   "entries": [
     {
@@ -195,12 +195,15 @@
       "implementationCommit": "ff4f55119"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
-      "line": 11,
-      "name": "CeresRidleyColorCatalog.start",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CeresRidleyColorCatalog.start. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
+  "line": 11,
+  "name": "CeresRidleyColorCatalog.start",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CeresRidleyColorCatalog.start. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "6cfee66fcc7d0e9f9147dbe9d2fff1d330197e8d",
+  "disposition": "Calculate32startup words using identical reviewed normal-door material provider and existing catalog Baby initial row, with sparse independent discrepancies. Retain only exact existing normal material occurrence and two selected copied clear-black metadata words; transparency does not mathematically force zero. Baby paint remains source-owned and required in baby entry. No pixels,timing or other palette exemption."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
   "line": 12,
@@ -21724,5 +21727,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 78
+  "justifiedRetainedSinceSnapshot": 79
 }

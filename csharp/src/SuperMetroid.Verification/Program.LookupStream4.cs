@@ -2539,4 +2539,60 @@ internal static partial class Program
             return (byte)result;
         }
     }
+    private static void VerifyLookupStream4CeresStart(ISnesAddressSpace rom)
+    {
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        ushort Native(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        for (int color = 0; color < 32; color++)
+            AssertEqual(Native(0xA6E16F + color * 2), stock.ResolveStart(color), "Complete native additional palette");
+        for (int color = 0; color < 16; color++)
+            AssertEqual(Native(0xA6F4EC + color * 2), stock.ResolveStart(color), "Native normal door material occurrence");
+        for (int color = 0; color < 15; color++)
+            AssertEqual(Native(0xA6E1F1 + color * 2), stock.ResolveStart(17 + color), "Native Baby initial identity");
+        var definition = (CeresRidleyStartColorDefinitions)typeof(CeresRidleyColorCatalog)
+            .GetField("start", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var edits = (Dictionary<int, ushort>)typeof(CeresRidleyStartColorDefinitions)
+            .GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
+        AssertEqual(0, edits.Count, "No native start residuals hidden as edits");
+        for (int channel = 0; channel < 3; channel++)
+        for (int edit = -1; edit < 47; edit++)
+        {
+            var starts = document.Start.ToArray();
+            var babies = document.Baby!.Select(row => row.ToArray()).ToArray();
+            if (edit >= 0)
+            {
+                PaletteRgb5 source = edit < 32 ? starts[edit] : babies[0][edit - 32];
+                PaletteRgb5 changed = channel switch
+                {
+                    0 => source with { Red = source.Red ^ 1 },
+                    1 => source with { Green = source.Green ^ 1 },
+                    _ => source with { Blue = source.Blue ^ 1 },
+                };
+                if (edit < 32) starts[edit] = changed; else babies[0][edit - 32] = changed;
+            }
+            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Start = starts, Baby = babies })));
+            var cgram = new SnesCgram();
+            for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+            selected.ApplyStart(cgram);
+            for (int color = 0; color < 256; color++)
+            {
+                ushort expected = color is >= 160 and < 192
+                    ? (ushort)(Native(0xA6E16F + (color - 160) * 2) ^ (edit == color - 160 ? 1 << (channel * 5) : 0))
+                    : (ushort)0x1234;
+                AssertEqual(expected, cgram.Colors[color], "Exact full start copy and untouched neighbors");
+                if (color is >= 160 and < 192)
+                    AssertEqual(expected, selected.ResolveStart(color - 160), "Independent supplied start word");
+            }
+            selected.ApplyBaby(cgram, 0);
+            for (int color = 0; color < 15; color++)
+                AssertEqual((ushort)(Native(0xA6E1F1 + color * 2) ^ (edit == color + 32 ? 1 << (channel * 5) : 0)),
+                    cgram.Colors[CeresRidleyPaletteRomData.BabyCgramIndex + color], "Baby source edits remain independent from start");
+        }
+        foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveStart(color), "Start domain");
+        AssertThrows<ArgumentNullException>(() => stock.ApplyStart(null!), "Start null CGRAM");
+        Console.WriteLine("Ceres start:32 native words,16 door/15 Baby aliases,zero native overrides,141 independent RGB edits,144 full start and Baby copies,bounds/null pass; Baby paint remains required.");
+    }
 }

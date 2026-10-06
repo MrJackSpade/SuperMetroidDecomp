@@ -3207,6 +3207,9 @@
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.CeresRidleyGetawayDefinitions.cs","stream":5,"purpose":"Mode7 calculated descriptor view binding only; preserve source-byte/VRAM comparisons and run only focused Mode7 confirmation"}
     ,{"path":"csharp/src/SuperMetroid.Core/Frontend/FileSelectMapScroll.cs","stream":5,"purpose":"Semantic default direction-button dispatch without copied default array; preserve independent injected bindings, priority and step behavior"}
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.EnemyTileArtwork.PhantoonBg2Frames.cs","stream":5,"purpose":"Binding-only Phantoon component/hitbox readonly view adaptation; preserve native and state/callback assertions; rectangle shapes remain required"}
+    ,{"path":"csharp/src/SuperMetroid.Verification/Program.SpacePirateCollisionDefinitions.cs","stream":5,"purpose":"Repair reproduced obsolete reference-only runtime ROM fallback with independent native decoding and signed overlap; preserve compiled walker/callback/boundary/wrap guards"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Assets/SamusBodyPlacementDefinitions.cs","stream":1,"purpose":"Named exact facing-coordinate aliases; first-facing inputs and adjacent opcode byte remain required"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.ContentIdentity.cs","stream":1,"purpose":"Binding-only canonical hashing of calculated coordinate snapshots; preserve independent edits and content identity"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

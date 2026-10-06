@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 545,
+  "remainingTableDefinitionCount": 544,
   "fileCount": 523,
   "entries": [
     {
@@ -1678,7 +1678,9 @@
       "line": 22,
       "name": "PhantoonColorCatalog.fadeOut",
       "kind": "installed stock table",
-      "note": "Original/default payload behind PhantoonColorCatalog.fadeOut. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
+      "note": "Original/default payload behind PhantoonColorCatalog.fadeOut. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+      "state": "converted",
+      "implementationCommit": "af8d5bcf0ee991a0dd053f9d1182a215f9d40501"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs",
@@ -21488,6 +21490,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 562,
+  "convertedSinceSnapshot": 563,
   "justifiedRetainedSinceSnapshot": 21
 }

@@ -538,7 +538,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs
 
 - [ ] **PhantoonColorCatalog.healthBands** ([L21](../csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs#L21)) - installed stock table. Original/default payload behind PhantoonColorCatalog.healthBands. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **PhantoonColorCatalog.fadeOut** ([L22](../csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs#L22)) - installed stock table. Original/default payload behind PhantoonColorCatalog.fadeOut. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **PhantoonColorCatalog.fadeOut** ([L22](../csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs#L22)) - installed stock table. Original/default payload behind PhantoonColorCatalog.fadeOut. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **PhantoonColorCatalog.powerOn** ([L23](../csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs#L23)) - installed stock table. Original/default payload behind PhantoonColorCatalog.powerOn. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Game/PhantoonCasualFlameDefinitions.cs
@@ -1003,3 +1003,11 @@ Root Verification1450warnings/zero errors and ResourceAudit0warnings/zero errors
 79225b8f4 completes SharedCrawlerInstructionProgramDefinitions.PresentationWords: four surface programs derive their visual operand addresses from setup,timed-record and loop widths. Function dispatch,self-loop targets and repeated mechanics layout calculate. Words remains pending for selected pose count5 and hold3; no timing or artwork exception.
 
 Root Verification1450warnings/zero errors; existing --shared-crawler-instruction-program-definitions passes36native words,four enemy families across four surface loops,20visual selections,function/loop publication,source-read guards and allocation checks. No direct ResourceAudit source-hash dependency exists. One converted entry;562converted/21retained-mixed/545pending.
+
+## Integrated Phantoon black target and matched health tint
+
+af8d5bcf0 completes PhantoonColorCatalog.fadeOut: native A7:CA41-CA60 targets RGB zero, consumed by DBB1-DBCA as the destination of its fade interpolation. Stock now stores no fade target values; independently supplied targets remain sparse overrides. Root inspected the native target and consumer.
+
+073dd50cd calculates104non-endpoint health words by RGB5 interpolation toward saturated red with weight(band+8)/15. Sixteen healthy endpoint words,eight deviations and tint range8/15 remain required, separate from independent supplied edits. Deviations are (band,color)=(5,6),(6,6),(3,7),(5,8),(6,8),(6,9),(0,10),(0,11). No rounding exemption or health aggregate closure; power-on colors remain required.
+
+Root Verification1450warnings/zero errors; --lookup-stream5-phantoon-fade passes16native fade targets,128health colors,exact8deviations,zero stock overrides,432independent channel edits,unchanged power colors,canonical hashes and bounds. ResourceAudit0warnings/zero errors; dependency hash and provider description updated. One converted entry;563converted/21retained-mixed/544pending.

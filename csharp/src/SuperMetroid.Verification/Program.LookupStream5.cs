@@ -6,6 +6,78 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5PhantoonFade(SuperMetroidAddressSpace rom)
+    {
+        byte[] bytes = SuperMetroid.AssetExtraction.PhantoonColorExtractor.Extract(rom);
+        PhantoonColorDocument document = System.Text.Json.JsonSerializer.Deserialize<PhantoonColorDocument>(bytes,
+            new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase })!;
+        PhantoonColorCatalog stock = Check(document);
+        var edits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("fadeOutEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, edits.Count, "Stock fade stores no target table");
+        for (int color = 0; color < PhantoonColorRomData.FadeOutCount; color++)
+        {
+            AssertEqual(ReadVerificationWord(rom, PhantoonColorRomData.FadeOutSource + color * 2), stock.ResolveFadeOut(color), "Native black fade endpoint");
+            for (int channel = 0; channel < 3; channel++)
+            {
+                document.FadeOut[color] = new PaletteRgb5 { Red = channel == 0 ? 31 : 0, Green = channel == 1 ? 31 : 0, Blue = channel == 2 ? 31 : 0 };
+                _ = Check(document);
+            }
+            document.FadeOut[color] = new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 };
+        }
+        var required = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("requiredHealthColors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var healthEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("healthEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(8, required.Count, "Exactly eight native health deviations remain required");
+        AssertEqual(0, healthEdits.Count, "Matched native tint subset has no unexplained overrides");
+        for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
+        for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
+        {
+            bool isRequired = (band, color) is (5, 6) or (6, 6) or (3, 7) or (5, 8) or (6, 8) or (6, 9) or (0, 10) or (0, 11);
+            AssertEqual(isRequired, required.Contains(band * 16 + color), "Exact required target membership");
+            AssertEqual(ReadVerificationWord(rom, PhantoonColorRomData.HealthBandsSource + (band * 16 + color) * 2), stock.ResolveHealth(band, color), "Native health RGB equality");
+            PaletteRgb5 original = document.HealthBands[band][color];
+            for (int channel = 0; channel < 3; channel++)
+            {
+                document.HealthBands[band][color] = new PaletteRgb5
+                {
+                    Red = channel == 0 ? original.Red ^ 1 : original.Red,
+                    Green = channel == 1 ? original.Green ^ 1 : original.Green,
+                    Blue = channel == 2 ? original.Blue ^ 1 : original.Blue,
+                };
+                _ = Check(document);
+            }
+            document.HealthBands[band][color] = original;
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(-1, 0), "Health band lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(8, 0), "Health band upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, -1), "Health color lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, 16), "Health color upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(-1), "Fade lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(16), "Fade upper bound");
+        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, exact eight required deviations, zero stock overrides, 432 independent channel edits, hashes and bounds pass.");
+
+        static PhantoonColorCatalog Check(PhantoonColorDocument source)
+        {
+            PhantoonColorCatalog result = PhantoonColorCatalog.Load(new MemoryStream(PhantoonColorCatalog.Write(source), writable: false));
+            ushort[] Pack(PaletteRgb5[] colors) => colors.Select(c => (ushort)(c.Red | c.Green << 5 | c.Blue << 10)).ToArray();
+            ushort[] fade = Pack(source.FadeOut);
+            for (int color = 0; color < fade.Length; color++) AssertEqual(fade[color], result.ResolveFadeOut(color), "Independent fade input");
+            for (int band = 0; band < source.HealthBands.Length; band++)
+            {
+                ushort[] values = Pack(source.HealthBands[band]);
+                for (int color = 0; color < values.Length; color++) AssertEqual(values[color], result.ResolveHealth(band, color), "Independent health channels and unaffected targets");
+            }
+            ushort[] power = Pack(source.PowerOn);
+            for (int color = 0; color < power.Length; color++) AssertEqual(power[color], result.ResolvePowerOn(color), "Power paint preserved");
+            string hash = SelectedPresentationHash.Create("PhantoonColorCatalog-v1", content =>
+            {
+                content.AppendWords("fadeOut", fade);
+                content.AppendWords("powerOn", Pack(source.PowerOn));
+                content.AppendWordFrames("healthBands", source.HealthBands.Select(Pack).ToArray());
+            });
+            AssertEqual(hash, result.ContentIdentity, "Original canonical hash framing");
+            return result;
+        }
+    }
     private static void VerifyLookupStream5MapButtons(SuperMetroidAddressSpace rom)
     {
         var native = new ushort[4];

@@ -5,6 +5,9 @@ internal static partial class Program
     private static void VerifyCpuOperandOpenBus()
     {
         var bus = new OperandReadWitness();
+        AssertEqual((ushort)0, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, 0, 0x68ad), "palette overrun expansion read retains zero operand bus value");
+        AssertEqual((ushort)0x6060, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, 0x6000, 0x08ad), "same palette address retains a different operand bus value");
+        AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x7e, 0, 0x68ad), "palette expansion address remains ordinary WRAM in bank7E");
         foreach (byte bank in new byte[] { 0, 0x3f, 0x80, 0x9b, 0xbf })
         {
             AssertEqual((ushort)0, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0, 0x21db), "absolute zero operand drives zero on reserved bus");

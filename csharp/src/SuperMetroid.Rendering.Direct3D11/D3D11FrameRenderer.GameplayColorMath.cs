@@ -29,7 +29,9 @@ public sealed partial class D3D11FrameRenderer
         if (layer.SubscreenUsesBg2) data[15] = (uint)D3D11GameplaySubscreenKind.GameplayBg2;
         if (layer.Subscreen is { } sub)
         {
-            data[15] = (uint)D3D11GameplaySubscreenKind.CapturedBg3;
+            data[15] = (uint)(layer.SubscreenUsesBg2
+                ? D3D11GameplaySubscreenKind.GameplayBg2AndCapturedBg3
+                : D3D11GameplaySubscreenKind.CapturedBg3);
             data[18] = sub.TilemapWord; data[19] = sub.CharacterWord;
             data[20] = (uint)sub.MapHeightTiles; data[21] = (uint)sub.FirstScanline;
         }
@@ -40,6 +42,13 @@ public sealed partial class D3D11FrameRenderer
             ushort verticalScroll = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.Gameplay.VerticalScrolls[line];
             data[offset + 1] = unchecked((ushort)(verticalScroll + SnesPpuLayout.FirstVisibleBackgroundScanline));
             data[offset + 2] = (uint)(layer.Lines[y].Left | layer.Lines[y].Right << 8);
+            // The high half carries the main-screen enable register for this line;
+            // the low half retains the independent color-window edges.
+            var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty
+                ? r.MainScreenLayers : (SnesMainScreenLayers)layer.Gameplay.MainScreenLayersByLine[line];
+            // Draygon's TM HDMA still suppresses repeated BG2 art while X-Ray owns color math.
+            if (y < r.Bg2FirstScanline || y >= r.Bg2EndScanline) mainScreen &= ~SnesMainScreenLayers.Bg2;
+            data[offset + 2] |= (uint)mainScreen << 16;
             if (layer.Subscreen is { } bg3)
                 data[offset + 3] = (uint)(bg3.Scrolls[y].X | bg3.Scrolls[y].Y << 16);
         }

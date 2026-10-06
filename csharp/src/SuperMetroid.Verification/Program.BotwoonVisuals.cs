@@ -53,10 +53,13 @@ internal static partial class Program
         byte[] current = EnemySpritemapFiles.Extract(rom);
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             current, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        HashSet<string> newNames = BotwoonVisualDefinitions.Frames()
+        // Version 59 ends before Botwoon; removing only Botwoon from today's
+        // catalog incorrectly retains every family added in subsequent versions.
+        HashSet<string> previousNames = EnemySpritemapDefinitions.Frames
+            .ToArray().Take(EnemySpritemapDefinitions.PreBotwoonFrameCount)
             .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
         var previousFrames = document.Frames
-            .Where(pair => !newNames.Contains(pair.Key))
+            .Where(pair => previousNames.Contains(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var previousBindings = document.DisplayFrames!
             .Where(pair => previousFrames.ContainsKey(pair.Key))

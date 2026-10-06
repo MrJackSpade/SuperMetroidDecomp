@@ -39,6 +39,29 @@ public sealed class ScrollBoundaryCamera
     /// <summary>Publishes the native previous-position checkpoint after both axes and the scrolling hook.</summary>
     public void FinishSamusScrolling(SamusCameraPoint current) => PreviousSamusPoint = current;
 
+    /// <summary>Door room replacement retains the global scrolling history and targets.</summary>
+    internal void InheritTrackingState(ScrollBoundaryCamera previous)
+    {
+        IdealXPosition = previous.IdealXPosition;
+        IdealYPosition = previous.IdealYPosition;
+        CameraXSpeed = previous.CameraXSpeed;
+        CameraXSubspeed = previous.CameraXSubspeed;
+        CameraYSpeed = previous.CameraYSpeed;
+        CameraYSubspeed = previous.CameraYSubspeed;
+        PreviousSamusPoint = previous.PreviousSamusPoint;
+    }
+
+    /// <summary>Door placement/IRQ writes whole previous-position words, retaining fractions.</summary>
+    internal void PublishDoorSamusPosition(ushort? x, ushort? y)
+    {
+        SamusCameraPoint previous = PreviousSamusPoint ?? default;
+        PreviousSamusPoint = previous with
+        {
+            XPosition = x ?? previous.XPosition,
+            YPosition = y ?? previous.YPosition,
+        };
+    }
+
     /// <summary>The mutable 50-byte scroll table consulted by this camera.</summary>
     public RoomScrollGrid Scrolls => _scrolls;
 
@@ -73,15 +96,17 @@ public sealed class ScrollBoundaryCamera
     /// positions to clamp. Keeping this operation separate from <see cref="SetPosition"/>
     /// prevents ordinary loaders and debug callers from bypassing room-edge validation.
     /// </remarks>
-    public void SetDoorTransitionPosition(ushort x, ushort y)
+    public void SetDoorTransitionPosition(ushort x, ushort y) =>
+        SetDoorTransitionPosition(x, y, XSubposition, YSubposition);
+
+    /// <summary>Transfers the retained native camera fractions when loading a door's new scroll grid.</summary>
+    public void SetDoorTransitionPosition(ushort x, ushort y, ushort xSubposition, ushort ySubposition)
     {
-        PreviousSamusPoint = null;
         XPosition = x;
         YPosition = y;
-        XSubposition = 0;
-        YSubposition = 0;
-        IdealXPosition = x;
-        IdealYPosition = y;
+        // Door IRQ/setup writes integer layer-one positions, leaving both fractions intact.
+        XSubposition = xSubposition;
+        YSubposition = ySubposition;
     }
 
     /// <summary>

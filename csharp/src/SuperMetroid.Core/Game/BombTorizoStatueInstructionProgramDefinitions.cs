@@ -7,8 +7,7 @@ internal readonly record struct BombTorizoStatueInstructionMechanicsWord(
 /// <summary>
 /// Compiled control for the sixteen Bomb Torizo statue-fragment programs at
 /// $86:A4C3-$A5D3. Their thirty-two interleaved spritemap operands use extracted
-/// presentation art. The packed sound-ID byte remains outside mechanics-word ownership;
-/// the projectile interpreter advances past audio commands without reading that byte.
+/// presentation art. The packed sound-ID byte has its own typed sound decoder.
 /// </summary>
 internal static class BombTorizoStatueInstructionProgramDefinitions
 {
@@ -20,6 +19,14 @@ internal static class BombTorizoStatueInstructionProgramDefinitions
     internal const ushort ProgramStride = 0x0011;
     /// <summary>Number of authored fragment programs selected by even parameters $00-$1E.</summary>
     internal const int ProgramCount = 16;
+
+    /// <summary>$86:A4C7 and each subsequent fragment program's +4 command: library 2, sound $0C, Max6, immediately before falling starts.</summary>
+    internal static EnemySoundRequest ReleaseSound(ushort commandAddress)
+    {
+        if (!TryDecodeProgramOffset(commandAddress, out _, out int offset) || offset != 4)
+            throw new InvalidDataException($"Invalid statue-fragment sound command $86:{commandAddress:X4}.");
+        return new(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0c), 6);
+    }
 
     // Fragment release delays decrease by eight ticks, with a sixty-four-tick floor.
     private static ushort InitialDuration(int programIndex) => (ushort)Math.Max(64, 128 - 8 * programIndex);

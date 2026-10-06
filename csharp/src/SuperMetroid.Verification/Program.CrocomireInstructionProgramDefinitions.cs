@@ -32,7 +32,10 @@ internal static partial class Program
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             rom,
             CrocomireInstructionAuditRoom);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(rom, room);
+        var installation = runtimeFixtureInstallation.Value;
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(rom, room,
+            installation.LoadRoomCharacters(), installation.LoadRoomPalettes(),
+            installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
@@ -45,10 +48,11 @@ internal static partial class Program
             XPosition = 0x0440,
             YPosition = 0x0078,
         };
+        PrepareRetailSamusFixture(samus);
         samus.RefreshCollisionRadii(rom);
         samus.InitializeAnimation(rom);
 
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem { TileArtwork = installation.LoadEnemyTiles() };
         enemies.Load(
             guard,
             room.State.EnemyPopulationPointer,
@@ -73,8 +77,9 @@ internal static partial class Program
             [body, samus, assets.LevelData, (ushort)0x0400, (ushort)0, (ushort)0, (byte)0];
 
         // Each presentation operand follows a compiled duration. Entering at that duration
-        // forces the real interpreter to obtain control from the catalog and artwork from
-        // the cartridge without executing unrelated callbacks between frames.
+        // runs the real interpreter without executing unrelated callbacks between frames.
+        // Compare the selected sprite against the independent cartridge operand.
+        var executedOperands = new HashSet<ushort>();
         for (int index = 0;
              index < CrocomireInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -84,12 +89,15 @@ internal static partial class Program
             body.CurrentInstruction = unchecked((ushort)(presentation - 2));
             body.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
+            VerifyExecutedEnemySelector(rom, body, executedOperands);
             AssertEqual(presentation, unchecked((ushort)(body.CurrentInstruction - 2)),
                 $"Crocomire presentation handoff $A4:{presentation:X4}");
         }
 
-        AssertEqual(236, guard.ObservedPresentationWords.Count,
-            "all live Crocomire body/skeleton spritemap operands remain cartridge reads");
+        AssertEqual(236, executedOperands.Count,
+            "all executed Crocomire body/skeleton selectors match cartridge operands");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "compiled Crocomire visual selectors require no runtime ROM reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Crocomire mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -114,8 +122,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Crocomire instruction mechanics: 434 compiled words across fight, reaction, " +
-            "melting, bridge and skeleton programs; 236 live presentation reads pass " +
-            "with mechanics bytes forbidden.");
+            "melting, bridge and skeleton programs; 236 executed selectors match the cartridge " +
+            "with runtime reads forbidden.");
     }
 
     private static int ProbeCrocomireInstructionMechanicsAllocation()

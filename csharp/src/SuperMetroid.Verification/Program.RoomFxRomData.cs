@@ -131,7 +131,13 @@ internal static partial class Program
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        var state = new RoomLayer3FxState();
+        var presentation = RetailPresentationFixture();
+        var state = new RoomLayer3FxState
+        {
+            Layer3Tilemaps = presentation.RoomFxLayer3Tilemaps,
+            PaletteBlendColors = presentation.RoomFxPaletteBlends,
+            AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
+        };
         const ushort record = 0x9400;
         int recordAddress = RoomFxRomData.Banks.RoomDefinitions | record;
         WriteTestWord(bus, recordAddress + RoomFxRomData.Record.DoorPointerOffset, 0);
@@ -149,7 +155,7 @@ internal static partial class Program
         foreach (RoomFxType type in nonLayer3Types)
         {
             bus.WriteByte(recordAddress + RoomFxRomData.Record.TypeOffset, (byte)type);
-            state.Load(bus, vram, cgram, record, doorPointer: 0, randomNumber: 0);
+            LoadSyntheticRoomFx(state, bus, vram, cgram, record);
             AssertEqual(type, state.Type, $"{type} FX record type");
             AssertEqual(
                 LayerBlendingConfiguration.NormalGameplay,
@@ -173,13 +179,6 @@ internal static partial class Program
         ushort record,
         RoomFxType type)
     {
-        const ushort tilemapPointer = 0x9800;
-        SeedRoomFxAnimatedTileObject(bus, type);
-        int typeIndex = ((byte)type) >> 1;
-        WriteTestWord(
-            bus,
-            RoomFxRomData.Tables.Layer3TilemapPointers + typeIndex * sizeof(ushort),
-            tilemapPointer);
         bus.WriteByte(
             RoomFxRomData.Banks.RoomDefinitions |
                 unchecked((ushort)(record + RoomFxRomData.Record.TypeOffset)),
@@ -199,7 +198,7 @@ internal static partial class Program
                     RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset)),
             (byte)layerBlend);
 
-        state.Load(bus, vram, cgram, record, doorPointer: 0, randomNumber: 0);
+        LoadSyntheticRoomFx(state, bus, vram, cgram, record);
         VerifyRoomFxSharedRandomState(bus, vram, cgram, state, record, type);
         AssertEqual(RoomFxRomData.Layer3.ClearTilemapWord,
             vram.ReadWord(RoomFxRomData.Layer3.ClearDestinationWord),
@@ -218,7 +217,7 @@ internal static partial class Program
                 RoomFxRomData.Banks.RoomDefinitions |
                     unchecked((ushort)(record + RoomFxRomData.Record.BaseYPositionOffset)),
                 surfaceY);
-            state.Load(bus, vram, cgram, record, doorPointer: 0, randomNumber: 0);
+            LoadSyntheticRoomFx(state, bus, vram, cgram, record);
             state.PrimeViewport(cameraX: 0x0100, cameraY: 0);
         }
         AssertEqual(type, state.Type, $"{type} layer-three type");
@@ -388,41 +387,16 @@ internal static partial class Program
             $"{type} rejects another FX type's layer-blending route");
     }
 
-    /// <summary>
-    /// Supplies the smallest faithful bank-$87 loop required by the constructed FX record.
-    /// Retail object headers are audited separately against the private ROM; this fixture
-    /// keeps the unit test focused on the production interpreter and its VRAM transfer.
-    /// </summary>
-    private static void SeedRoomFxAnimatedTileObject(TestAddressSpace bus, RoomFxType type)
+    // Decode the fixture's literal sixteen-byte record independently of the compiled
+    // retail catalog, then exercise the same production initialization and rendering.
+    private static void LoadSyntheticRoomFx(RoomLayer3FxState state, TestAddressSpace bus,
+        SnesVram vram, SnesCgram cgram, ushort pointer)
     {
-        ushort objectPointer = type switch
-        {
-            RoomFxType.Lava => AnimatedTileObjectPointers.Lava,
-            RoomFxType.Acid => AnimatedTileObjectPointers.Acid,
-            RoomFxType.Rain => AnimatedTileObjectPointers.Rain,
-            _ => 0,
-        };
-        if (objectPointer == 0)
-            return;
-
-        AssertTrue(RoomFxAnimatedTileMechanicsDefinitions.TryResolve(
-                objectPointer, out RoomFxAnimatedTileObjectDefinition definition),
-            $"{type} resolves compiled animated-tile mechanics");
-        for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)
-        {
-            RoomFxAnimatedTileFrameDefinition frame = definition.Frames[frameIndex];
-            ushort sourcePointer = unchecked((ushort)(0x9c00 + (ushort)type * 0x100 +
-                frameIndex * definition.TransferByteCount));
-            WriteTestWord(
-                bus,
-                RoomFxRomData.Banks.AnimatedTiles | frame.SourceOperandPointer,
-                sourcePointer);
-            for (int byteIndex = 0; byteIndex < definition.TransferByteCount; byteIndex++)
-            {
-                bus.WriteByte(
-                    RoomFxRomData.Banks.AnimatedTiles | sourcePointer + byteIndex,
-                    0xff);
-            }
-        }
+        int address = 0x830000 | pointer;
+        byte Byte(int offset) => bus.ReadByte(address + offset);
+        ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
+        state.LoadDefinition(bus, vram, cgram, new RoomFxRecordDefinition(pointer,
+            Word(0), Word(2), Word(4), Word(6), Byte(8), Byte(9), Byte(10), Byte(11),
+            Byte(12), Byte(13), Byte(14), Byte(15)), randomNumber: 0);
     }
 }

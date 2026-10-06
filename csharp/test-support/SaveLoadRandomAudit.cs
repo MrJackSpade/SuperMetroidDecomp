@@ -3,19 +3,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Desktop;
-using SuperMetroid.AssetExtraction;
-using SuperMetroid.Core.Assets;
 
 /// <summary>#441: real frontend loading from identical in-memory SRAM, with varied file-map waits.</summary>
 internal static class SaveLoadRandomAudit
 {
-    public static int Run(string rom)
+    public static int Run(string rom, Action<SuperMetroidGame> bindPresentation)
     {
-        string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "save-load-rng-assets-" + Guid.NewGuid().ToString("N")));
-        MapPresentationExtractor.Extract(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom),
-            Path.Combine(root, "game", "maps"), "test-provenance");
-        AreaMapPresentationCatalog presentation = new GameInstallation(root).LoadMaps();
         foreach (int wait in new[] { 0, 1, 2 })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
@@ -28,9 +21,9 @@ internal static class SaveLoadRandomAudit
                 PowerBombs = 5, MaxPowerBombs = 5,
                 Missiles = 10, MaxMissiles = 10, SuperMissiles = 10, MaxSuperMissiles = 10,
             };
-            new SuperMetroidSaveRam(bus, presentation).SaveSlot(0, save);
+            new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(0, save);
             var game = new SuperMetroidGame(bus);
-            game.BindMapPresentation(presentation);
+            bindPresentation(game);
             bool insertedWait = false;
             long sequence = 0;
             for (int tick = 0; tick < 2000 && game.RuntimeForVerification is null; tick++)
@@ -47,7 +40,7 @@ internal static class SaveLoadRandomAudit
                         DebuggerObjectGraphSerializer.Serialize(graph, game);
                         graph.Position = 0;
                         game = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(graph);
-                        game.BindMapPresentation(presentation);
+                        bindPresentation(game);
                     }
                 }
                 game.StepCaptured(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0, ++sequence, 1);

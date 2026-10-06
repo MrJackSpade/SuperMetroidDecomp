@@ -54,7 +54,7 @@ public sealed class CeresFlightPalette
     }
 
     /// <summary>$8C:E6AB-E6BA and E7AB-E7BA: eight colors interpolate RGB5 endpoints with nearest-integer rounding.</summary>
-    private static bool IsRampInterior(int index) => index is > 0x61 and < 0x68;
+    private static bool IsRampInterior(int index) => index is > 0x61 and < 0x68; // magic-number-audit: allow(SramOffset) - CGRAM interpolation slots, not SRAM offsets.
 
     private ushort Calculate(int index)
     {

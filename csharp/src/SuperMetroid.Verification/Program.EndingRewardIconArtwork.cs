@@ -26,8 +26,8 @@ internal static partial class Program
         var installedBus = new EndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var nativeScene = new EndingCreditsState(nativeBus, nativeAudio, 3, 0);
-        var installedScene = new EndingCreditsState(installedBus, installedAudio, 3, 0);
+        var nativeScene = CreateRetailEndingFixture(nativeBus, nativeAudio, 3, 0);
+        var installedScene = CreateRetailEndingFixture(installedBus, installedAudio, 3, 0);
         nativeScene.BindStaffCredits(credits);
         installedScene.BindStaffCredits(credits);
         installedScene.BindMode7Artwork(stock);
@@ -117,7 +117,7 @@ internal static partial class Program
                     $"{name} partial upload never reads compressed ROM icon art");
                 var sceneBus = new EndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
                 var sceneAudio = new CartridgeAudioState();
-                var scene = new EndingCreditsState(sceneBus, sceneAudio, 3, 0);
+                var scene = CreateRetailEndingFixture(sceneBus, sceneAudio, 3, 0);
                 scene.BindStaffCredits(credits);
                 scene.BindMode7Artwork(stock);
                 for (int frame = 0; frame < 60_000 &&

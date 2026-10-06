@@ -20,6 +20,22 @@ public sealed class HudState
     private ushort _previousSelectedItem;
     [NonSerialized] private GameplayHudPresentation? presentation;
 
+    /// <summary>Native $05F7: suppress minimap updates after a boss initializer.</summary>
+    public bool MinimapDisabled { get; private set; }
+
+    /// <summary>$90:A7E2 blanks the fifteen minimap cells and disables updates.</summary>
+    internal void DisableMinimapForBoss()
+    {
+        MinimapDisabled = true;
+        for (int y = 0; y < 3; y++)
+        for (int x = 0; x < 5; x++)
+            _tiles[presentation?.MinimapCellIndex(x, y) ?? NativeMinimapCellIndex(x, y)] =
+                (ushort)MapTileWords.HudBlank;
+    }
+
+    /// <summary>$82:E1B7 restores minimap updates when leaving the room.</summary>
+    internal void EnableMinimapAfterDoorEntry() => MinimapDisabled = false;
+
     /// <summary>Native SNES tilemap words for debugger inspection.</summary>
     public ReadOnlySpan<ushort> Tiles => _tiles;
 
@@ -31,6 +47,13 @@ public sealed class HudState
     /// The frontend consumes it after the runtime frame has completed.
     /// </summary>
     public bool SelectionSoundRequestedThisFrame { get; private set; }
+    /// <summary>Transfers the pending HUD sound once, including across frontend frame boundaries.</summary>
+    public bool ConsumeSelectionSoundRequest()
+    {
+        bool requested = SelectionSoundRequestedThisFrame;
+        SelectionSoundRequestedThisFrame = false;
+        return requested;
+    }
 
     /// <summary>
     /// Native queue suppression captured when the HUD requests its sound, rather than
@@ -208,7 +231,7 @@ public sealed class HudState
 
         // $90:A91B returns rather than indexing unrelated map memory if Samus is outside
         // the active room. The 16-pixel comparison consumes the same positions as collision.
-        if ((samusX >> 4) >= roomWidthInBlocks || (samusY >> 4) >= roomHeightInBlocks)
+        if (MinimapDisabled || (samusX >> 4) >= roomWidthInBlocks || (samusY >> 4) >= roomHeightInBlocks)
             return;
 
         // One area-map tile represents one 256x256 room screen. The native Y formula has

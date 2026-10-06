@@ -28,6 +28,7 @@ internal static partial class Program
                 Pose = SamusPoseIds.FacingRightNormalPose,
                 SelectedHudItem = selectedHudItem,
             };
+            PrepareRetailSamusFixture(samus);
             samus.ArmCannon.Artwork = artwork;
             var guarded = new ArmCannonPolicyReadGuard(rom);
 

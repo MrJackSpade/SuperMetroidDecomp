@@ -436,7 +436,7 @@ internal static partial class Program
                 var screw = new SamusHorizontalSpeedState { SpecialPaletteFrame = (ushort)(phase * 2) };
                 var cgram = new SnesCgram();
                 AssertTrue(screw.UpdateSpeedBoosterPalette(guard, cgram,
-                        SamusMovementType.SpinJumping, 0x1b,
+                        SamusMovementType.SpinJumping, 1,
                         (ushort)(items | (ushort)SamusEquipmentFlags.ScrewAttack),
                         cycleColors: edited.SamusFullBodyCycleColors),
                     "Screw Attack reaches installed color source");

@@ -60,11 +60,9 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
-
         var compiled = new RoomEnemySystem();
-
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(compiled, denied);
-
+        var nativeSlot = new RoomEnemySlot(0);
         RoomEnemySlot compiledSlot = compiled.Slots[0];
         compiledSlot.Definition =
             default(RoomEnemyDefinition) with { Bank = CeresSteamCollisionDefinitions.Bank };

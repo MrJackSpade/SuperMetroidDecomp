@@ -116,6 +116,8 @@ internal static partial class Program
                 $"production execution selects Eye Door presentation $86:{address:X4}");
         }
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "projectile visuals do not read cartridge bytes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Eye Door projectile mechanics byte");
         AssertThrows<InvalidDataException>(

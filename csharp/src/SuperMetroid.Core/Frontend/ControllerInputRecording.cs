@@ -69,6 +69,8 @@ public sealed record ControllerInputRecording
                 : 0) |
             (GameOptions.Invincibility ? ControllerInputRecordingFormat.Invincibility : 0) |
             (GameOptions.InfiniteAmmo ? ControllerInputRecordingFormat.InfiniteAmmo : 0) |
+            (GameOptions.GrantAllEquipment ? ControllerInputRecordingFormat.GrantAllEquipment : 0) |
+            (GameOptions.UnlockTourian ? ControllerInputRecordingFormat.UnlockTourian : 0) |
             (GameOptions.PreventEscapeTimeout ? ControllerInputRecordingFormat.PreventEscapeTimeout : 0) |
             ((byte)GameOptions.MapReveal << ControllerInputRecordingFormat.MapRevealShift));
         RomSha256.CopyTo(header[
@@ -245,6 +247,8 @@ public sealed record ControllerInputRecording
                 MapReveal = mapReveal,
                 EndingTimeOverrideMinutes = encodedEndingMinutes == 0 ? null : (ushort)(encodedEndingMinutes - 1),
                 PreventEscapeTimeout = (optionFlags & ControllerInputRecordingFormat.PreventEscapeTimeout) != 0,
+                GrantAllEquipment = (optionFlags & ControllerInputRecordingFormat.GrantAllEquipment) != 0,
+                UnlockTourian = (optionFlags & ControllerInputRecordingFormat.UnlockTourian) != 0,
             },
             ControllerInputs = inputs,
         };

@@ -21,6 +21,47 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SuperMetroidGameOptions) && current.Length == 15 && count is 9 or 11 or 13 or 14)
+            return SelectSerializedFields(type, current.Where(field => field.Name !=
+                "<DoorTransitionAutosave>k__BackingField").ToArray(), count);
+        if (type == typeof(TorizoEnemyState) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "<PaletteTransition>k__BackingField"))
+        {
+            Console.Error.WriteLine("WARNING: Older Torizo state lacks fade targets/progress; retaining current colors until the next palette target instruction. The old snapshot cannot recover an already-running fade.");
+            return current.Where(field => field.Name != "<PaletteTransition>k__BackingField").ToArray();
+        }
+        if (type.FullName == "SuperMetroid.Core.Frontend.EndingCreditsState" && count == current.Length - 1 &&
+            current.Any(field => field.Name == "shootingStars"))
+        {
+            Console.Error.WriteLine("WARNING: Older ending state lacks shooting-star records; restarting the native star sequence on the next post-credits step.");
+            return current.Where(field => field.Name != "shootingStars").ToArray();
+        }
+        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) && count == 111 && current.Length == 114)
+        {
+            Console.Error.WriteLine("WARNING: Older runtime predates inventory/Tourian tester policy; restoring disabled options and no inventory recipient.");
+            return current.Where(field => field.Name is not "testerInventoryRecipient"
+                and not "<GrantAllEquipmentEnabled>k__BackingField"
+                and not "<UnlockTourianEnabled>k__BackingField").ToArray();
+        }
+        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
+            current.Any(field => field.Name == "_roomSpikes"))
+        {
+            Console.Error.WriteLine("WARNING: Older runtime has no horizontal-spike animation; restarting the selected room's spike loop at frame zero.");
+            return SelectSerializedFields(type, current.Where(field => field.Name != "_roomSpikes").ToArray(), count);
+        }
+        if (type == typeof(SamusHorizontalSpeedState) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "<EchoSoundFlag>k__BackingField"))
+        {
+            Console.Error.WriteLine("WARNING: Older speed state lacks the echo-sound flag; inferring it from the saved active boost stage. A previously stopped, stale audio loop cannot be inferred from movement state.");
+            return current.Where(field => field.Name != "<EchoSoundFlag>k__BackingField").ToArray();
+        }
+        if (type == typeof(SamusState) &&
+            current.Any(field => field.Name == "<PreviousHealthForHurtCheck>k__BackingField"))
+        {
+            Console.Error.WriteLine("WARNING: Older Samus state lacks draw-time health history; initializing it from saved health without inventing a hurt event.");
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<PreviousHealthForHurtCheck>k__BackingField").ToArray(), count);
+        }
         if (type == typeof(SamusPowerBombExplosionState) && count == current.Length - 1 &&
             current.Any(field => field.Name == "_crystalFlashAfterglowStepsRemaining"))
         {
@@ -344,6 +385,18 @@ internal static class DebuggerStateFieldMigrations
             return SelectSerializedFields(type, current.Where(field => field.Name != "_healthWarning").ToArray(), count);
         }
         if (type.FullName == "SuperMetroid.Core.Frontend.PauseMenuState" &&
+            current.Any(field => field.Name == "mapLabelsBeforeIcons") && count >= current.Length - 4 && count < current.Length)
+        {
+            Console.Error.WriteLine("WARNING: Legacy pause state lacks destination-label draw order; order refreshes on the next pause frame.");
+            return SelectSerializedFields(type, current.Where(field => field.Name != "mapLabelsBeforeIcons").ToArray(), count);
+        }
+        if (type.FullName == "SuperMetroid.Core.Frontend.PauseMenuState" &&
+            current.Any(field => field.Name == "mapArrows") && count >= current.Length - 3 && count < current.Length)
+        {
+            Console.Error.WriteLine("WARNING: Legacy pause state lacks map arrows; counters initialize on artwork rebind and visibility on the next stable map frame.");
+            return SelectSerializedFields(type, current.Where(field => field.Name != "mapArrows").ToArray(), count);
+        }
+        if (type.FullName == "SuperMetroid.Core.Frontend.PauseMenuState" &&
             current.Any(field => field.Name == "pauseNmiFrameCounter8") &&
             (count == current.Length - 1 || count == current.Length - 2))
         {
@@ -476,6 +529,18 @@ internal static class DebuggerStateFieldMigrations
                 and not "<RoomTreadmills>k__BackingField" &&
                 (count == 106 || field.Name != "<CeresHaze>k__BackingField")).ToArray();
         }
+        if (type == typeof(SuperMetroidGameOptions) && count is 9 or 11 or 13 && current.Length == 14)
+        {
+            Console.Error.WriteLine("WARNING: Older debugger options predate boss-reset-on-load; leaving it disabled.");
+            return SelectSerializedFields(type, current.Where(field => field.Name !=
+                "<ResetBossesOnLoad>k__BackingField").ToArray(), count);
+        }
+        if (type == typeof(SuperMetroidGameOptions) && count is 9 or 11 && current.Length == 13)
+        {
+            Console.Error.WriteLine("WARNING: Older debugger options predate full-inventory and Tourian tester settings; leaving both disabled.");
+            return SelectSerializedFields(type, current.Where(field => field.Name is not
+                "<GrantAllEquipment>k__BackingField" and not "<UnlockTourian>k__BackingField").ToArray(), count);
+        }
         if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGameOptions) && count == 9 && current.Length == 11)
         {
             // Both fields were added after the original nine-option host layout.
@@ -490,13 +555,18 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Older debugger state predates the statue sequence; it initializes on room entry.");
             return current.Where(field => field.Name != "_tourianStatues").ToArray();
         }
-        if (type == typeof(FileSelectMenuState) && count == current.Length - 1 &&
+        if (type == typeof(FileSelectMenuState) && count == current.Length - 1)
+        {
+            Console.Error.WriteLine("WARNING: Older file-select state lacks Copy arrow palette timing; restarting its initial delay.");
+            return current.Where(field => field.Name != "copyArrowPaletteTimer").ToArray();
+        }
+        if (type == typeof(FileSelectMenuState) && count == current.Length - 2 &&
             current.Any(field => field.Name == "currentPresentationPage"))
         {
             Console.Error.WriteLine(
                 "WARNING: Older file-select state lacks its installed-presentation page; " +
                 "reconstructing it from the captured menu phase.");
-            return current.Where(field => field.Name != "currentPresentationPage").ToArray();
+            return current.Where(field => field.Name is not ("currentPresentationPage" or "copyArrowPaletteTimer")).ToArray();
         }
         if (type == typeof(SuperMetroidSaveSlot) && count == current.Length - 1 &&
             current.Any(field => field.Name == "<LoadingGameState>k__BackingField"))
@@ -554,6 +624,15 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Initializes fields omitted by explicitly recognized legacy layouts.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance is SuperMetroidGameOptions && serializedCount < 15)
+            typeof(SuperMetroidGameOptions).GetField("<DoorTransitionAutosave>k__BackingField",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(instance, true);
+        if (instance is SamusHorizontalSpeedState speed && serializedCount ==
+            GetCurrentInstanceFieldCount(typeof(SamusHorizontalSpeedState)) - 1)
+            speed.EchoSoundFlag = (speed.SpeedBoostCounter & SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage) != 0
+                ? (ushort)1 : (ushort)0;
+        if (instance is SamusState samus && serializedCount < GetCurrentInstanceFieldCount(typeof(SamusState)))
+            samus.PreviousHealthForHurtCheck = samus.Health;
         if (instance is SamusPowerBombExplosionState explosion && serializedCount ==
             GetCurrentInstanceFieldCount(typeof(SamusPowerBombExplosionState)) - 1)
         {
@@ -631,10 +710,13 @@ internal static class DebuggerStateFieldMigrations
         {
             system.LoadSavedLoadingGameState(SaveLoadingGameStates.MainGame);
         }
-        if (instance is FileSelectMenuState fileSelect && serializedCount ==
-            GetCurrentInstanceFieldCount(typeof(FileSelectMenuState)) - 1)
+        if (instance is FileSelectMenuState fileSelect && serializedCount <
+            GetCurrentInstanceFieldCount(typeof(FileSelectMenuState)))
         {
-            RestoreLegacyFileSelectPresentationPage(fileSelect);
+            typeof(FileSelectMenuState).GetField("copyArrowPaletteTimer", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(fileSelect, FileCopyArrowDefinitions.InitialPaletteDelay);
+            if (serializedCount == GetCurrentInstanceFieldCount(typeof(FileSelectMenuState)) - 2)
+                RestoreLegacyFileSelectPresentationPage(fileSelect);
         }
         if (instance is SuperMetroidSaveSlot saveSlot && serializedCount ==
             GetCurrentInstanceFieldCount(typeof(SuperMetroidSaveSlot)) - 1)

@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -56,5 +58,13 @@ public sealed partial class SuperMetroidRuntime
         registers.WriteByte(
             GameplayWindowRegisterAddresses.MainScreen,
             (byte)mainScreen);
+        if (DoorTransitionMainScreenLayers is null &&
+            RoomLayer3Fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
+        {
+            registers.WriteByte(GameplayWindowRegisterAddresses.MainScreen,
+                (byte)WaterfallRoomDisplayRules.MainScreen);
+            registers.WriteByte(GameplayWindowRegisterAddresses.Subscreen,
+                (byte)WaterfallRoomDisplayRules.Subscreen);
+        }
     }
 }

@@ -16,6 +16,17 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SpacetimeBeamCopyDefinitions.LastSourceAddress - SpacetimeBeamCopyDefinitions.FirstSourceAddress + 1,
+            SpacetimeBeamCopyDefinitions.SourceBytes.Length, "bounded native copy definition size");
+        for (int offset = 0; offset < SpacetimeBeamCopyDefinitions.SourceBytes.Length; offset++)
+            AssertEqual(bus.ReadCartridgeByte(SpacetimeBeamCopyDefinitions.FirstSourceAddress + offset),
+                SpacetimeBeamCopyDefinitions.ReadCartridgeByte(SpacetimeBeamCopyDefinitions.FirstSourceAddress + offset),
+                "SpaceTime copy source agrees with supported cartridge");
+        AssertThrows<InvalidOperationException>(() => SpacetimeBeamCopyDefinitions.ReadCartridgeByte(0x009130),
+            "adjacent instruction before bounded source is not admitted");
+        AssertThrows<InvalidOperationException>(() => SpacetimeBeamCopyDefinitions.ReadCartridgeByte(0x010000),
+            "word carry must return to the mutable-memory owner");
+        var gameplayBus = new SpacetimeMutableOnlyBus(bus);
         var level = new RoomLevelData(
             16,
             16,
@@ -32,7 +43,7 @@ internal static partial class Program
             CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
         };
-        var selection = new PauseMenuState(
+        var selection = CreateRetailPauseFixture(
             bus,
             samus,
             new Bank80SystemState(),
@@ -47,6 +58,8 @@ internal static partial class Program
         selection.Step(0, (ushort)(SnesButton.Left | SnesButton.A));
         AssertEqual((ushort)0x100e, samus.EquippedBeams,
             "same-frame Boots Left+A creates the SpaceTime beam word");
+
+        VerifySpacetimeBeamGraphics();
 
         samus.Pose = 1;
         samus.XPosition = 128;
@@ -83,8 +96,8 @@ internal static partial class Program
         system.LoadMapStationBytes(a5Maps);
         system.LoadSavedLoadingGameState(SaveLoadingGameStates.OpeningCinematic);
 
-        var shared = new SamusBombProjectileSystem();
-        var projectiles = new SamusProjectileSystem();
+        var shared = CreateBombFixture();
+        var projectiles = CreateProjectileFixture();
         system.WritePersistentMirror(bus);
         for (int index = 0; index < SaveRamLayout.ProgressionPaddingByteCount; index++)
         {
@@ -93,7 +106,7 @@ internal static partial class Program
                 0xa5);
         }
         SamusProjectileFrameResult held = projectiles.StepFrame(
-            bus,
+            gameplayBus,
             level,
             samus,
             (ushort)SnesButton.X,
@@ -111,7 +124,7 @@ internal static partial class Program
 
         system.WritePersistentMirror(bus);
         SamusProjectileFrameResult released = projectiles.StepFrame(
-            bus,
+            gameplayBus,
             level,
             samus,
             0,
@@ -232,7 +245,7 @@ internal static partial class Program
             var restartSaves = new SuperMetroidSaveRam(restartBus, RetailPresentationFixture());
             restartSaves.SaveSlot(0, CreateResetSnapshot());
             restartSaves.SelectSlot(0);
-            var game = new SuperMetroidGame(
+            var game = CreateRetailGameFixture(
                 restartBus,
                 new SuperMetroidGameOptions { SkipOpeningCinematic = skipOpening },
                 renderGameplayFrames: false);
@@ -293,5 +306,47 @@ internal static partial class Program
                 step();
             AssertTrue(predicate(), context);
         }
+    }
+    private static void VerifySpacetimeBeamGraphics()
+    {
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var gameplayBus = new SpacetimeMutableOnlyBus(bus);
+        var artwork = projectileFixtureArt.Value.BeamTiles;
+        AssertEqual(SpacetimeBeamGraphicsDefinitions.TileSource & 0xffff,
+            bus.ReadCartridgeByte(0x90c3cd) | bus.ReadCartridgeByte(0x90c3ce) << 8,
+            "SpaceTime tile pointer comes from adjacent native palette table");
+        AssertEqual(SpacetimeBeamGraphicsDefinitions.PalettePointer,
+            bus.ReadCartridgeByte(0x90c3e5) | bus.ReadCartridgeByte(0x90c3e6) << 8,
+            "SpaceTime palette pointer comes from the native color word");
+        AssertTrue(artwork.TryResolve(SpacetimeBeamGraphicsDefinitions.TileSource, 256, out _),
+            "legacy SpaceTime graphics queue resolves through installed artwork");
+        foreach (bool queued in new[] { false, true })
+        {
+            // The palette aliases current enemy-projectile WRAM; changing it must be observable.
+            for (int i = 0; i < 32; i++) bus.WriteByte(0x7e19ff + i, (byte)(i * 7 + (queued ? 19 : 5)));
+            var vram = new SnesVram(); var cgram = new SnesCgram();
+            if (queued)
+            {
+                var writes = new VramWriteQueue();
+                SamusProjectileSystem.QueueBeamTilesAndLoadPalette(gameplayBus, writes, cgram, 0x100e, artwork);
+                AssertEqual(1, writes.Entries.Count, "unpausing SpaceTime queues one beam upload");
+                writes.DrainTo(vram, gameplayBus, artwork);
+            }
+            else SamusProjectileSystem.LoadBeamTilesAndPalette(gameplayBus, vram, cgram, 0x100e, artwork);
+            for (int i = 0; i < 256; i++) AssertEqual(bus.ReadCartridgeByte(0x9ac401 + i),
+                vram.ReadByte(0xc600 + i), "SpaceTime native tile bytes");
+            for (int i = 0; i < 16; i++) AssertEqual((bus.ReadByte(0x7e19ff + i * 2) |
+                bus.ReadByte(0x7e1a00 + i * 2) << 8) & 0x7fff, cgram.Colors[0xe0 + i],
+                "SpaceTime colors retain current mutable memory rather than a frozen palette");
+        }
+    }
+    // No import/cartridge capability is available while the production projectile path executes.
+    private sealed class SpacetimeMutableOnlyBus(SuperMetroidAddressSpace source) :
+        ISnesAddressSpace, ISnesMutableMemory, ISnesCpuPeripheralSource
+    {
+        public byte ReadWorkRamByte(int address) => ((ISnesMutableMemory)source).ReadWorkRamByte(address);
+        public byte ReadSaveRamByte(int address) => ((ISnesMutableMemory)source).ReadSaveRamByte(address);
+        public byte ReadPeripheralByte(int address) => ((ISnesCpuPeripheralSource)source).ReadPeripheralByte(address);
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

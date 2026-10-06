@@ -183,6 +183,8 @@ public sealed partial class RoomEnemySystem
         VramWriteQueue? vramWriteQueue)
     {
         KraidEnemyState state = RequireKraidState(body);
+        if (samus is not null)
+            ResolveKraidBodyContact(body, state, samus);
         // `$A7:AC21` makes BG2 follow Kraid rather than the room. X radius is the native
         // body's right-edge origin adjustment; 152 is the authored vertical anchor.
         state.Bg2HorizontalScroll = unchecked((ushort)(

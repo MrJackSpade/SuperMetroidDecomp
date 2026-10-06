@@ -9,7 +9,7 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Strict deterministic conversion between named JSON saves and cartridge SRAM.</summary>
-public static class GameSaveJsonCodec
+public static partial class GameSaveJsonCodec
 {
     private static readonly SamusEquipmentFlags AllEquipmentFlags =
         Enum.GetValues<SamusEquipmentFlags>().Aggregate((left, right) => left | right);
@@ -18,7 +18,7 @@ public static class GameSaveJsonCodec
     private static readonly BossBits AllBossFlags =
         Enum.GetValues<BossBits>().Aggregate((left, right) => left | right);
 
-    /// <summary>Captures every valid named slot plus a lossless untranslated-byte image.</summary>
+    /// <summary>Captures all meaningful persistent state without a duplicate native-memory image.</summary>
     public static GameSaveJsonDocument Capture(SuperMetroidAddressSpace addressSpace, AreaMapPresentationCatalog maps)
     {
         ArgumentNullException.ThrowIfNull(addressSpace);
@@ -34,7 +34,7 @@ public static class GameSaveJsonCodec
         {
             SelectedSlot = saveRam.ReadSelectedSlot(),
             Slots = slots,
-            PreservedUntranslatedSram = CaptureNativePages(addressSpace.SaveRam),
+            GameCompleted = saveRam.HasCompletedGame,
         };
     }
 
@@ -52,12 +52,13 @@ public static class GameSaveJsonCodec
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceName);
         try
         {
+            json = UpgradeLegacyJson(json, out int sourceSchemaVersion);
             GameSaveJsonDocument document = JsonSerializer.Deserialize<GameSaveJsonDocument>(
                 json,
                 CreateOptions()) ?? throw new InvalidDataException(
                     $"Game save '{sourceName}' contains JSON null instead of an object.");
             Validate(document);
-            return document;
+            return document with { SourceSchemaVersion = sourceSchemaVersion };
         }
         catch (JsonException exception)
         {
@@ -75,7 +76,7 @@ public static class GameSaveJsonCodec
     }
 
     /// <summary>
-    /// Restores the preservation image, overlays every named slot field, and rebuilds the
+    /// Rebuilds native SRAM from named persistent state, including the
     /// cartridge checksum directories. Missing JSON slots are cleared explicitly.
     /// </summary>
     public static void Apply(
@@ -84,7 +85,7 @@ public static class GameSaveJsonCodec
     {
         ArgumentNullException.ThrowIfNull(addressSpace);
         Validate(document);
-        DecodeNativePages(document.PreservedUntranslatedSram).CopyTo(addressSpace.SaveRam);
+        addressSpace.SaveRam.Clear();
         var saveRam = new SuperMetroidSaveRam(addressSpace, maps);
         for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
         {
@@ -92,9 +93,10 @@ public static class GameSaveJsonCodec
             if (slot is null)
                 saveRam.ClearSlot(slotIndex);
             else
-                saveRam.SaveSlotPreservingUntranslatedBytes(slotIndex, ToSnapshot(slot));
+                saveRam.SaveSlot(slotIndex, ToSnapshot(slot));
         }
         saveRam.SelectSlot(document.SelectedSlot);
+        saveRam.SetGameCompleted(document.GameCompleted);
     }
 
     private static GameSaveSlotJsonDocument CaptureSlot(SuperMetroidSaveSlot slot) => new()
@@ -113,7 +115,8 @@ public static class GameSaveJsonCodec
             slot.PowerBombs,
             slot.MaxPowerBombs,
             slot.ReserveEnergy,
-            slot.MaxReserveEnergy),
+            slot.MaxReserveEnergy,
+            slot.ReserveMissiles),
         Inventory = new SaveInventoryJsonDocument(
             (SamusEquipmentFlags)slot.CollectedItems,
             (SamusEquipmentFlags)slot.EquippedItems,
@@ -136,6 +139,8 @@ public static class GameSaveJsonCodec
         HudItem = slot.HudItem,
         MoonwalkEnabled = slot.MoonwalkEnabled,
         IconCancelEnabled = slot.IconCancelEnabled,
+        JapaneseText = slot.JapaneseText,
+        LoadedItemCount = slot.LoadedItemCount,
         CartridgeDebugFlag = slot.DebugFlag,
         NewFileMarker = slot.NewFileMarker,
         LoadingGameState = slot.LoadingGameState,
@@ -169,6 +174,8 @@ public static class GameSaveJsonCodec
             ControllerBindings = bindings,
             MoonwalkEnabled = slot.MoonwalkEnabled,
             IconCancelEnabled = slot.IconCancelEnabled,
+            JapaneseText = slot.JapaneseText,
+            LoadedItemCount = slot.LoadedItemCount,
             DebugFlag = slot.CartridgeDebugFlag,
             NewFileMarker = slot.NewFileMarker,
             LoadingGameState = slot.LoadingGameState,
@@ -188,6 +195,7 @@ public static class GameSaveJsonCodec
             HudItem = slot.HudItem,
             MaxReserveEnergy = slot.Resources.MaxReserveEnergy,
             ReserveEnergy = slot.Resources.ReserveEnergy,
+            ReserveMissiles = slot.Resources.ReserveMissiles,
             GameTimeFrames = slot.GameTime.Frames,
             GameTimeSeconds = slot.GameTime.Seconds,
             GameTimeMinutes = slot.GameTime.Minutes,
@@ -233,9 +241,7 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException("selectedSlot must be 0, 1, or 2");
         if (document.Slots is null || document.Slots.Length != SuperMetroidSaveRam.SlotCount)
             throw new InvalidDataException("slots must contain exactly three entries");
-        if (document.PreservedUntranslatedSram is null)
-            throw new InvalidDataException("preservedUntranslatedSram is required");
-        _ = DecodeNativePages(document.PreservedUntranslatedSram);
+
         for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
         {
             if (document.Slots[slotIndex] is { } slot)
@@ -314,56 +320,6 @@ public static class GameSaveJsonCodec
         };
         options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: false));
         return options;
-    }
-
-    private static NativeSramPageJsonDocument[] CaptureNativePages(ReadOnlySpan<byte> sram)
-    {
-        int pageCount = sram.Length / GameSaveJsonFormat.PreservationPageByteCount;
-        var pages = new NativeSramPageJsonDocument[pageCount];
-        for (int page = 0; page < pages.Length; page++)
-        {
-            int offset = page * GameSaveJsonFormat.PreservationPageByteCount;
-            pages[page] = new NativeSramPageJsonDocument(
-                $"0x{offset:X4}",
-                Convert.ToHexString(sram.Slice(offset, GameSaveJsonFormat.PreservationPageByteCount)));
-        }
-        return pages;
-    }
-
-    private static byte[] DecodeNativePages(NativeSramPageJsonDocument[] pages)
-    {
-        int expectedPages = SuperMetroidAddressSpace.SaveRamByteCount /
-            GameSaveJsonFormat.PreservationPageByteCount;
-        if (pages.Length != expectedPages)
-            throw new InvalidDataException($"preservedUntranslatedSram must contain {expectedPages} pages");
-        var bytes = new byte[SuperMetroidAddressSpace.SaveRamByteCount];
-        for (int page = 0; page < pages.Length; page++)
-        {
-            NativeSramPageJsonDocument entry = pages[page] ?? throw new InvalidDataException(
-                $"preservedUntranslatedSram[{page}] is null");
-            int offset = page * GameSaveJsonFormat.PreservationPageByteCount;
-            string expectedOffset = $"0x{offset:X4}";
-            if (!entry.Offset.Equals(expectedOffset, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException(
-                    $"preservedUntranslatedSram[{page}].offset must be {expectedOffset}");
-            byte[] pageBytes;
-            try
-            {
-                pageBytes = Convert.FromHexString(entry.Bytes);
-            }
-            catch (FormatException exception)
-            {
-                throw new InvalidDataException(
-                    $"preservedUntranslatedSram[{page}].bytes is not hexadecimal",
-                    exception);
-            }
-            if (pageBytes.Length != GameSaveJsonFormat.PreservationPageByteCount)
-                throw new InvalidDataException(
-                    $"preservedUntranslatedSram[{page}].bytes must decode to " +
-                    $"{GameSaveJsonFormat.PreservationPageByteCount} bytes");
-            pageBytes.CopyTo(bytes, offset);
-        }
-        return bytes;
     }
 
     private static string[] CaptureEvents(ReadOnlySpan<byte> bytes) =>

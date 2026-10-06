@@ -35,7 +35,7 @@ public sealed class TourianStatueSequence
         Enabled = runtime.ActiveRoom?.State.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations;
         if (!Enabled) return;
         SpawnAnimatedObjects();
-        if (runtime.System.HasEvent(EventNumber.TourianUnlocked))
+        if (runtime.UnlockTourianEnabled || runtime.System.HasEvent(EventNumber.TourianUnlocked))
         {
             descent = TourianStatueRomData.DescentDistance << 16;
             runtime.Enemies.TourianEntranceStatueVerticalOffset = VerticalOffset;
@@ -76,6 +76,7 @@ public sealed class TourianStatueSequence
     public void StepTiles(SuperMetroidRuntime runtime)
     {
         if (!Enabled) return;
+        if (runtime.UnlockTourianEnabled) return;
         var bus = runtime.AddressSpace;
         foreach (TileObject tile in objects)
         {
@@ -168,7 +169,7 @@ public sealed class TourianStatueSequence
     {
         if (!Enabled) return;
         runtime.Enemies.TourianStatueWaterY = runtime.RoomLayer3Fx.CurrentYPosition;
-        if (runtime.System.HasEvent(EventNumber.TourianUnlocked)) { EnableScrolling(runtime); return; }
+        if (runtime.UnlockTourianEnabled || runtime.System.HasEvent(EventNumber.TourianUnlocked)) { EnableScrolling(runtime); return; }
         if (delay == -2)
         {
             if (!runtime.System.HasEvent(EventNumber.PhantoonStatueGrey) || !runtime.System.HasEvent(EventNumber.RidleyStatueGrey)

@@ -63,6 +63,7 @@ public sealed class SamusProjectileSlot
             SamusProjectileFamily.Bomb) &&
         PackedType.FamilyValue < (ushort)SamusProjectileFamily.BeamExplosion;
 
+    /// <summary>Clears the words owned by $90:ADB7; trail and auxiliary words survive reuse.</summary>
     internal void ClearFields()
     {
         Damage = 0;
@@ -80,10 +81,16 @@ public sealed class SamusProjectileSlot
         InstructionTimer = 0;
         SpritemapPointer = 0;
         AnimationFrame = 0;
-        TrailTimer = 0;
         Variable = 0;
-        AuxiliaryPhase = 0;
         PreInstruction = SamusProjectilePreInstruction.None;
+    }
+
+    /// <summary>Full pool initialization also clears the words retained by individual deletion.</summary>
+    internal void Reset()
+    {
+        ClearFields();
+        TrailTimer = 0;
+        AuxiliaryPhase = 0;
     }
 }
 

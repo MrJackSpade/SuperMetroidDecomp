@@ -127,7 +127,7 @@ public sealed class OamBuffer
         // A zero entry in the installed pointer table is not an empty picture: the
         // native bank-local dereference lands in the WRAM mirror at $92:0000.
         // Read that mutable state explicitly. No cartridge address is reachable here.
-        const int spritemapAddress = 0x920000;
+        const int spritemapAddress = Game.SamusRenderingRomData.Banks.GraphicsDefinitions;
         ushort ReadWorkRamWord(int address) => (ushort)(memory.ReadWorkRamByte(address) |
             (memory.ReadWorkRamByte(AddWithinBank(address, 1)) << 8));
         ushort entryCount = ReadWorkRamWord(spritemapAddress);

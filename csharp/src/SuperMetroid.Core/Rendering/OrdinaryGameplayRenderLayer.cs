@@ -22,22 +22,27 @@ public sealed record OrdinaryGameplayRenderLayer : RenderLayer
 {
     private readonly ushort[] horizontalScrolls;
     private readonly ushort[] verticalScrolls;
+    private readonly ushort[] mainScreenLayersByLine;
     public OrdinaryGameplayRegisters Registers { get; }
     public ReadOnlySpan<ushort> HorizontalScrolls => horizontalScrolls;
     public ReadOnlySpan<ushort> VerticalScrolls => verticalScrolls;
+    public ReadOnlySpan<ushort> MainScreenLayersByLine => mainScreenLayersByLine;
 
     public OrdinaryGameplayRenderLayer(OrdinaryGameplayRegisters registers,
-        ReadOnlySpan<ushort> horizontalScrolls = default, ReadOnlySpan<ushort> verticalScrolls = default)
+        ReadOnlySpan<ushort> horizontalScrolls = default, ReadOnlySpan<ushort> verticalScrolls = default,
+        ReadOnlySpan<ushort> mainScreenLayersByLine = default)
     {
         if (registers.Bg2WidthTiles is not (32 or 64) || registers.Bg2HeightTiles is not (32 or 64)
             || registers.Bg2WidthTiles * registers.Bg2HeightTiles is not (1024 or 2048 or 4096))
             throw new ArgumentException("Gameplay BG2 requires 32 or 64 tiles on each axis.", nameof(registers));
         int lines = SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels;
         if ((!horizontalScrolls.IsEmpty && horizontalScrolls.Length != lines)
-            || (!verticalScrolls.IsEmpty && verticalScrolls.Length != lines))
+            || (!verticalScrolls.IsEmpty && verticalScrolls.Length != lines)
+            || (!mainScreenLayersByLine.IsEmpty && mainScreenLayersByLine.Length != lines))
             throw new ArgumentException("Gameplay HDMA tables must contain exactly 192 register values.");
         Registers = registers;
         this.horizontalScrolls = horizontalScrolls.ToArray();
         this.verticalScrolls = verticalScrolls.ToArray();
+        this.mainScreenLayersByLine = mainScreenLayersByLine.ToArray();
     }
 }

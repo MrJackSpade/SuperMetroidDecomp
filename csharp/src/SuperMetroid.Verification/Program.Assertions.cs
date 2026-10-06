@@ -37,6 +37,8 @@ sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
 {
     private readonly Dictionary<int, byte> _bytes = [];
 
+    internal bool HasSeededByte(int address) => _bytes.ContainsKey(address);
+
     public byte ReadByte(int address)
     {
         if ((uint)address > 0x00ff_ffff)

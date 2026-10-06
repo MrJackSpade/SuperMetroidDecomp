@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -17,6 +18,9 @@ internal static partial class Program
         VerifyCrocomireProjectileMechanicsDispatch(rom);
         VerifyCrocomireProjectilePresentationPositions(rom);
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new CrocomireProjectileInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -103,19 +107,20 @@ internal static partial class Program
         AssertTrue(!bridge.IsActive,
             "Crocomire bridge shot reaction reaches the compiled shared delete program");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "CrocomireProjectile execution performs no live spritemap operand reads");
         AssertEqual(CrocomireProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Crocomire projectile spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < CrocomireProjectileInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+            executedOperands.Count, "CrocomireProjectile executes every native visual operand");
+        for (int index = 0; index < CrocomireProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address = CrocomireProjectileInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Crocomire projectile presentation $86:{address:X4}");
+            ushort address = CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"CrocomireProjectile executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "CrocomireProjectile has a compiled visual selector");
+            AssertEqual(ReadCrocomireProjectileInstructionWord(rom, address), selector,
+                "CrocomireProjectile compiled selector matches the cartridge");
         }
-
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids Crocomire and shared-delete mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -135,7 +140,7 @@ internal static partial class Program
         Console.WriteLine(
             "Crocomire projectile instruction mechanics: twenty-two compiled words, " +
             "the real mouth/bridge/spike producers, complete mouth and shot loops, " +
-            "shared deletion, and thirteen live spritemap reads pass.");
+            "shared deletion, and thirteen live sprite frames match native OAM without live operand reads.");
 
         RoomEnemySystem NewSystem()
         {
@@ -159,6 +164,7 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }
     }

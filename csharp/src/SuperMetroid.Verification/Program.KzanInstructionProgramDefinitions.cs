@@ -42,13 +42,13 @@ internal static partial class Program
         object?[] arguments =
             [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
         process.Invoke(enemies, arguments);
+        AssertEqual(ReadKzanInstructionWord(rom, 0xa60000 |
+                KzanInstructionProgramDefinitions.PresentationWord), slot.SpritemapPointer,
+            "Kzan selects its exact native frame without cartridge reads");
         process.Invoke(enemies, arguments);
         AssertEqual(unchecked((ushort)(KzanInstructionProgramDefinitions.Idle + 4)),
             slot.CurrentInstruction,
             "Kzan reaches terminal native sleep");
-        AssertEqual(KzanInstructionProgramDefinitions.PresentationWord,
-            guard.ObservedPresentationWord,
-            "Kzan spritemap operand remains a cartridge read");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Kzan mechanics bytes");
 
@@ -69,7 +69,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Kzan instruction mechanics: two compiled words, the complete production " +
-            "program and one live spritemap read pass with mechanics bytes forbidden.");
+            "program and exact frame selection pass with instruction bytes forbidden.");
     }
 
     private static int ProbeKzanInstructionMechanicsAllocation()
@@ -90,7 +90,6 @@ internal static partial class Program
     private sealed class KzanInstructionProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
-        internal ushort? ObservedPresentationWord { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);
@@ -107,8 +106,7 @@ internal static partial class Program
             int presentation = 0xa60000 | KzanInstructionProgramDefinitions.PresentationWord;
             if (address == presentation || address == presentation + 1)
             {
-                ObservedPresentationWord =
-                    KzanInstructionProgramDefinitions.PresentationWord;
+                throw new InvalidOperationException("Production read the compiled Kzan visual operand.");
             }
 
             return source.ReadByte(address);

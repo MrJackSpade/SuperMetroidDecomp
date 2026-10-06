@@ -254,6 +254,7 @@ public sealed partial class RoomEnemySystem
                 : (ushort)PhantoonAiFunction.DyingFadeInOut;
         state.Eye!.VariableC = 0;
         state.Eye.VariableF = 0;
+        state.Wave.InitializeDeathScroll(state.Bg2HorizontalScroll);
         state.SemiTransparencyLayerFlags |= 0x4000;
         state.Mouth!.Parameter2 = 1;
     }

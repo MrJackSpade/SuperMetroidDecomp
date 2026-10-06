@@ -18,6 +18,7 @@ internal static partial class Program
         VerifyKraidArmGeneratedPresentation(rom);
 
         var guard = new KraidArmInstructionReadGuard(rom);
+        var executedOperands = new HashSet<ushort>();
         RoomEnemySystem enemies = CreateKraidArmInstructionSystem(guard);
         RoomEnemySlot body = enemies.Slots[0];
         RoomEnemySlot arm = enemies.Slots[1];
@@ -26,26 +27,26 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.NonPublic)!;
 
         body.Health = 100;
-        RunKraidArmProgram(process, enemies, arm,
+        RunKraidArmProgram(rom, executedOperands, process, enemies, arm,
             KraidArmInstructionProgramDefinitions.Normal, calls: 19);
         AssertEqual(unchecked((ushort)(KraidArmInstructionProgramDefinitions.Normal + 4)),
             arm.CurrentInstruction,
             "healthy Kraid arm completes its normal loop");
 
-        RunKraidArmProgram(process, enemies, arm,
+        RunKraidArmProgram(rom, executedOperands, process, enemies, arm,
             KraidArmInstructionProgramDefinitions.Slow, calls: 19);
         AssertEqual(unchecked((ushort)(KraidArmInstructionProgramDefinitions.Slow + 4)),
             arm.CurrentInstruction,
             "low-health Kraid arm completes its slow loop");
 
-        RunKraidArmProgram(process, enemies, arm,
+        RunKraidArmProgram(rom, executedOperands, process, enemies, arm,
             KraidArmInstructionProgramDefinitions.RisingOrSinking, calls: 19);
         AssertEqual(unchecked((ushort)(
                 KraidArmInstructionProgramDefinitions.RisingOrSinking + 4)),
             arm.CurrentInstruction,
             "Kraid arm completes its rising/sinking loop");
 
-        RunKraidArmProgram(process, enemies, arm,
+        RunKraidArmProgram(rom, executedOperands, process, enemies, arm,
             KraidArmInstructionProgramDefinitions.DyingOrPreparingToLunge, calls: 4);
         AssertEqual((ushort)0x8afc,
             arm.CurrentInstruction,
@@ -54,13 +55,15 @@ internal static partial class Program
         body.Health = 51;
         arm.CurrentInstruction = 0x8a3b;
         arm.InstructionTimer = 1;
-        InvokeKraidArmInstructionProcessor(process, enemies, arm);
+        InvokeKraidArmInstructionProcessor(rom, executedOperands, process, enemies, arm);
         AssertEqual(unchecked((ushort)(KraidArmInstructionProgramDefinitions.Slow + 4)),
             arm.CurrentInstruction,
             "below-half-health callback enters slow arm program");
 
-        AssertEqual(57, guard.ObservedPresentationWords.Count,
-            "all Kraid arm extended-spritemap operands remain cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Enemy presentation performs zero live cartridge reads");
+        AssertEqual(KraidArmInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "Every native visual operand executes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid arm execution avoids compiled mechanics bytes");
         for (int index = 0;
@@ -69,8 +72,8 @@ internal static partial class Program
         {
             ushort address =
                 KraidArmInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Kraid arm presentation $A7:{address:X4}");
+            AssertTrue(executedOperands.Contains(address),
+                $"production execution selects Kraid arm presentation $A7:{address:X4}");
             AssertThrows<InvalidDataException>(
                 () => KraidArmInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Kraid arm presentation $A7:{address:X4} is rejected as mechanics");
@@ -89,7 +92,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Kraid arm instruction mechanics: 66 compiled words, all four programs, " +
-            "the half-health handoff, and 57 live presentation reads pass.");
+            "the half-health handoff, and 57 native sprite selections pass with zero live reads.");
     }
 
     private static RoomEnemySystem CreateKraidArmInstructionSystem(
@@ -114,6 +117,7 @@ internal static partial class Program
     }
 
     private static void RunKraidArmProgram(
+        ISnesAddressSpace rom, HashSet<ushort> executedOperands,
         MethodInfo process,
         RoomEnemySystem enemies,
         RoomEnemySlot arm,
@@ -125,17 +129,21 @@ internal static partial class Program
         for (int call = 0; call < calls; call++)
         {
             arm.InstructionTimer = 1;
-            InvokeKraidArmInstructionProcessor(process, enemies, arm);
+            InvokeKraidArmInstructionProcessor(rom, executedOperands, process, enemies, arm);
         }
     }
 
     private static void InvokeKraidArmInstructionProcessor(
+        ISnesAddressSpace rom, HashSet<ushort> executedOperands,
         MethodInfo process,
         RoomEnemySystem enemies,
-        RoomEnemySlot arm) =>
+        RoomEnemySlot arm)
+    {
         process.Invoke(
             enemies,
             [arm, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+        VerifyExecutedEnemySelector(rom, arm, executedOperands);
+    }
 
     private static int ProbeKraidArmInstructionAllocation()
     {

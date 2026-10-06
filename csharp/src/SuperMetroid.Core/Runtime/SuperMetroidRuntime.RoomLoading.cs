@@ -9,6 +9,7 @@ public sealed partial class SuperMetroidRuntime
 {
     // The IRQ owns these coordinates while state $0B waits inside LoadMoreThings. Keep
     // that ownership explicit instead of reducing the native scroll to a frontend timer.
+    private bool _doorScrollingIrqRequestsNmi;
     private DoorOpeningScrollState? _doorOpeningScroll;
     private DoorOpeningPpuScroll? _pendingDoorOpeningPpuScroll;
 
@@ -80,7 +81,7 @@ public sealed partial class SuperMetroidRuntime
     /// replaying guessed timing. Room selection, coordinates, inventory, progression bits,
     /// enemies, PLMs, graphics, beam upload, and camera all remain cartridge driven.
     /// </remarks>
-    public InitialViewportResult InitializeSavedGame(SuperMetroidSaveSlot slot)
+    public InitialViewportResult InitializeSavedGame(SuperMetroidSaveSlot slot, bool resetBossesOnLoad = false)
     {
         ArgumentNullException.ThrowIfNull(slot);
         if (slot.Area > byte.MaxValue || slot.SaveStation > byte.MaxValue)
@@ -111,7 +112,7 @@ public sealed partial class SuperMetroidRuntime
         // boss/event/item bytes synchronously, while room-state selection and beam graphics
         // depend on those same words. In particular, loading a post-Morph-Ball save must not
         // accidentally construct the untouched new-game version of Blue Brinstar.
-        RestoreSavedPlayerState(slot);
+        RestoreSavedPlayerState(slot, resetBossesOnLoad);
         Samus!.XPosition = station.SamusX;
         Samus.YPosition = station.SamusY;
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
@@ -165,7 +166,7 @@ public sealed partial class SuperMetroidRuntime
     /// cinematic. A Ceres-destruction checkpoint has no playable Ceres room to load;
     /// its inventory must nevertheless survive into the Zebes landing sequence.
     /// </summary>
-    internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot)
+    internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot, bool resetBossesOnLoad = false)
     {
         ArgumentNullException.ThrowIfNull(slot);
         Samus = new SamusState
@@ -175,6 +176,8 @@ public sealed partial class SuperMetroidRuntime
         };
         BindSamusPalettePresentation();
         slot.ApplyTo(Samus, System);
+        if (resetBossesOnLoad) ResetSavedEncounters();
+        ApplyTesterInventory();
         // $91:E00D clears both persisted HUD selection words after mirror restore.
         // Otherwise the arm-cannon cover can leak into the front-facing load pose.
         Samus.SelectedHudItem = 0;
@@ -344,7 +347,67 @@ public sealed partial class SuperMetroidRuntime
     {
         if (DoorTransitionMainScreenLayers is null)
             throw new InvalidOperationException("Door-transition IRQ display is not active.");
+        // The final door scanout still uses the installed end-drawing command;
+        // the new gameplay IRQ takes ownership on the following frame.
+        PublishDoorScrollingIrqNmiRequest();
         DoorTransitionMainScreenLayers = null;
+        _doorScrollingIrqRequestsNmi = false;
+    }
+
+    /// <summary>
+    /// $80:97BA/$9823 ends a door scanout with a sixteen-bit STZ/INC at $05B4.
+    /// Its high byte is the adjacent eight-bit NMI counter, so the next accepted
+    /// NMI observes zero there while the independent $05B6 word keeps advancing.
+    /// </summary>
+    private void PublishDoorScrollingIrqNmiRequest()
+    {
+        if (_doorScrollingIrqRequestsNmi) NmiFrameCounter8 = 0;
+    }
+
+    /// <summary>
+    /// Publishes setup's Samus displacement before destination-coordinate rebasing.
+    /// The later atomic room constructor uses the captured pre-setup coordinates.
+    /// </summary>
+    internal void ApplyDoorScrollingSetupMovement()
+    {
+        CartridgeDoorHeader door = PendingDoorTransition
+            ?? throw new InvalidOperationException("No pending door destination exists.");
+        if (Samus is null)
+            throw new InvalidOperationException("Door scrolling requires Samus.");
+        var position = DoorOpeningScrollState.ApplySetupMovement(
+            door, Samus.Kinematics.XFixed, Samus.Kinematics.YFixed);
+        Samus.Kinematics.SetXFixed(position.X);
+        Samus.Kinematics.SetYFixed(position.Y);
+        var camera = DoorOpeningScrollState.GetSetupCamera(door);
+        Camera!.SetDoorTransitionPosition(camera.X, camera.Y);
+        BackgroundScroll.Layer1XPosition = camera.X;
+        BackgroundScroll.Layer1YPosition = camera.Y;
+    }
+
+    /// <summary>Rebases Samus and publishes the first moving IRQ during tile loading.</summary>
+    internal void PlaceSamusForDoorTileLoading()
+    {
+        CartridgeDoorHeader door = PendingDoorTransition
+            ?? throw new InvalidOperationException("No pending door destination exists.");
+        if (Samus is null || Camera is null)
+            throw new InvalidOperationException("Door tile loading requires Samus and camera.");
+        var position = DoorOpeningScrollState.RebaseSamus(door, Samus.Kinematics.XFixed, Samus.Kinematics.YFixed);
+        Camera.PublishDoorSamusPosition((ushort)(position.X >> 16), (ushort)(position.Y >> 16));
+        position = DoorOpeningScrollState.AdvanceSamus(door, position.X, position.Y);
+        Samus.Kinematics.SetXFixed(position.X);
+        Samus.Kinematics.SetYFixed(position.Y);
+        var camera = DoorOpeningScrollState.GetSetupCamera(door);
+        int direction = door.Orientation & 3;
+        short delta = direction is 0 or 2 ? (short)4 : (short)-4;
+        if ((direction & 2) == 0) camera.X = unchecked((ushort)(camera.X + delta));
+        else camera.Y = unchecked((ushort)(camera.Y + delta));
+        Camera.SetDoorTransitionPosition(camera.X, camera.Y);
+        Camera.PublishDoorSamusPosition((direction & 2) == 0 ? Samus.XPosition : null,
+            (direction & 2) != 0 ? Samus.YPosition : null);
+        BackgroundScroll.Layer1XPosition = camera.X;
+        BackgroundScroll.Layer1YPosition = camera.Y;
+        _doorScrollingIrqRequestsNmi = true;
+        PublishDoorScrollingIrqNmiRequest();
     }
 
     /// <summary>
@@ -361,7 +424,8 @@ public sealed partial class SuperMetroidRuntime
     internal void BeginDoorOpeningScroll(
         CartridgeDoorHeader door,
         uint sourceSamusXFixed,
-        uint sourceSamusYFixed)
+        uint sourceSamusYFixed,
+        int completedLoadingIrqSteps = 0)
     {
         if (Camera is null || Samus is null)
             throw new InvalidOperationException("A loaded destination and Samus are required.");
@@ -441,6 +505,11 @@ public sealed partial class SuperMetroidRuntime
         }
         Samus.Kinematics.SetXFixed(_doorOpeningScroll.SamusXFixed);
         Samus.Kinematics.SetYFixed(_doorOpeningScroll.SamusYFixed);
+        Camera.PublishDoorSamusPosition(Samus.XPosition, Samus.YPosition);
+        // Recreate the VRAM producer requests for IRQ progress already published
+        // before the atomic destination load. Those steps do not consume more input.
+        for (int step = 0; step < completedLoadingIrqSteps; step++)
+            StepDoorOpeningScroll();
     }
 
     /// <summary>
@@ -484,7 +553,25 @@ public sealed partial class SuperMetroidRuntime
         }
         Samus.Kinematics.SetXFixed(state.SamusXFixed);
         Samus.Kinematics.SetYFixed(state.SamusYFixed);
+        Camera.PublishDoorSamusPosition((state.Direction & 2) == 0 ? Samus.XPosition : null,
+            (state.Direction & 2) != 0 ? Samus.YPosition : null);
         return completed;
+    }
+
+    /// <summary>
+    /// Applies <c>$82:E544</c>'s horizontal eight-pixel alignment after the
+    /// post-scroll NMI, before the music wait and the later narrow-door nudges.
+    /// </summary>
+    internal void AlignSamusAfterDoorLoading()
+    {
+        DoorOpeningScrollState state = _doorOpeningScroll
+            ?? throw new InvalidOperationException("No door-opening scroll is active.");
+        if (state.RemainingFrames != 0 || Samus is null)
+            throw new InvalidOperationException("Door loading has not finished scrolling.");
+        if (state.Direction == 0)
+            Samus.XPosition |= 7;
+        else if (state.Direction == 1)
+            Samus.XPosition &= 0xfff8;
     }
 
     /// <summary>
@@ -515,14 +602,15 @@ public sealed partial class SuperMetroidRuntime
     /// Loads state $0B's destination without destroying the source-room VRAM ring. The
     /// following door IRQ replaces that ring incrementally while the screen slides.
     /// </summary>
-    internal InitialViewportResult LoadPendingDoorDestinationForTransition()
+    internal InitialViewportResult LoadPendingDoorDestinationForTransition(uint sourceSamusXFixed, uint sourceSamusYFixed)
     {
         CartridgeDoorHeader door = PendingDoorTransition
             ?? throw new InvalidOperationException("No pending door destination exists.");
-        return LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor);
+        return LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor, (sourceSamusXFixed, sourceSamusYFixed));
     }
 
-    private InitialViewportResult LoadPendingDoorDestination(RoomViewportLoadMode viewportLoadMode)
+    private InitialViewportResult LoadPendingDoorDestination(
+        RoomViewportLoadMode viewportLoadMode, (uint X, uint Y)? sourcePosition = null)
     {
         if (LevelData is null || Samus is null)
             throw new InvalidOperationException("A live room and Samus are required for a door transition.");
@@ -536,7 +624,8 @@ public sealed partial class SuperMetroidRuntime
                 $"Elevator pseudo-door $83:{door.Pointer:X4} cannot enter the normal room loader.");
         }
 
-        DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, Samus);
+        var placementSource = sourcePosition ?? (Samus.Kinematics.XFixed, Samus.Kinematics.YFixed);
+        DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, placementSource.Item1, placementSource.Item2);
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
 
         // Native transition teardown deletes direct G-Mode's stranded X-Ray HDMA object,
@@ -736,9 +825,14 @@ public sealed partial class SuperMetroidRuntime
         // reach it only through RunNmi, matching the normal shadow-register path.
         DisplayedSamusMode7Transform = initialMode7Transform;
         LevelData = assets.LevelData;
+        ScrollBoundaryCamera? previousCamera = Camera;
         Camera = new ScrollBoundaryCamera(assets.Scrolls);
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
-            Camera.SetDoorTransitionPosition(cameraX, cameraY);
+        {
+            if (previousCamera is not null) Camera.InheritTrackingState(previousCamera);
+            Camera.SetDoorTransitionPosition(cameraX, cameraY,
+                previousCamera?.XSubposition ?? 0, previousCamera?.YSubposition ?? 0);
+        }
         else
             Camera.SetPosition(cameraX, cameraY);
         BackgroundScroll.Layer2ScrollX = room.State.Layer2ScrollX;
@@ -757,24 +851,18 @@ public sealed partial class SuperMetroidRuntime
             BackgroundScroll.Layer1YPosition = cameraY;
         }
 
-        // The selected room-state main pointer, rather than the room or entry door, owns
-        // the BG2 producer. `$8F:C116` calls the land-sky routine at `$88:AF8D`; `$8F:C120`
-        // calls that same routine before its escape-quake work. The ocean wrapper selects
-        // its own source chunk table but shares this geometry and HDMA. All set BG2SC=$4A and use
-        // a 32x64 circular map at $4800. Ordinary gameplay instead uses BG2SC=$49 and keeps
-        // its second 32x32 screen horizontally adjacent at $4C00.
-        //
-        // This distinction must be established in the shared loader. The older dedicated
-        // Landing Site cinematic path already did so, but loading station 0 from SRAM came
-        // through this method and therefore interpreted the vertical sky page at $4C00 as
-        // the right half of a 64x32 map. Depending on BG2HOFS, that stale neighboring page
-        // appeared as a broad vertical band of repeating purple tiles.
-        bool usesScrollingSky =
-            ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback);
+        // The main callback streams offscreen tilemap rows even in Crateria's rock room.
+        // Horizontal motion and BG2SC=$4A belong to the separately spawned sky HDMA object
+        // ($88:A7D8 / $88:ADC2), not to the tilemap callback ($88:AFA3).
+        ushort selectedFx = RoomFxRecordDefinitions.Select(room.State.FxPointer, door.Pointer);
+        bool skyHdmaConfigured =
+            (selectedFx != 0 && RoomFxRecordDefinitions.Get(selectedFx).Type == (byte)RoomFxType.ScrollingSky) ||
+            room.State.SetupCallback is RoomSetupCallback.ScrollingSkyLand or
+                RoomSetupCallback.ScrollingSkyOcean or RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape;
         BackgroundStreamer = LevelData.CreateBackgroundStreamer(
-            sizeOfBg2: usesScrollingSky ? (ushort)0 : (ushort)0x0800);
-        ScrollingSky = usesScrollingSky
-            ? new ScrollingSkyState()
+            sizeOfBg2: skyHdmaConfigured ? (ushort)0 : (ushort)0x0800);
+        ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback)
+            ? new ScrollingSkyState(skyHdmaConfigured)
             : null;
         LandingSiteEntry = null;
         assets.LoadGraphics(Vram, Cgram);
@@ -803,6 +891,8 @@ public sealed partial class SuperMetroidRuntime
             System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
         SandAnimatedTiles.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer,
+            room.AreaIndex);
+        RoomSpikes.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer,
             room.AreaIndex);
         RoomTreadmills.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer,
             room.AreaIndex);
@@ -903,6 +993,12 @@ public sealed partial class SuperMetroidRuntime
             Plms.TrySpawnDoorClosingPlm(_addressSpace, LevelData, door, System);
         }
 
+        // $82:E4CC updates the entering beam before $82:E4D8 initializes enemies.
+        // Golden Torizo's code mutates equipment during initialization; its grant must
+        // not retroactively select the artwork uploaded for this room transition.
+        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
+            _addressSpace, VramWrites, Cgram, Samus?.EquippedBeams ?? 0, BeamArtwork);
+
         Enemies.Load(
             _addressSpace,
             room.State.EnemyPopulationPointer,
@@ -932,7 +1028,13 @@ public sealed partial class SuperMetroidRuntime
                 System.HasAnyBossBits(room.AreaIndex, BossBits.AreaTorizo),
             setAreaTorizoDefeated: () =>
                 System.SetBossBits(room.AreaIndex, BossBits.AreaTorizo),
-            setSamusControlsEnabled: enabled => GroundedSamusMovementEnabled = enabled,
+            setSamusControlsEnabled: enabled =>
+            {
+                SamusState samus = Samus ?? throw new InvalidOperationException(
+                    "Chozo control command requires an active Samus actor.");
+                samus.SetStationaryScriptControlLock(!enabled);
+                GroundedSamusMovementEnabled = enabled;
+            },
             setRoomScrollState: Camera.Scrolls.SetStorage,
             incrementMotherBrainGlassRoomArgument: Plms.IncrementMotherBrainGlassRoomArgument,
             readRoomScrollState: Camera.Scrolls.ReadState,
@@ -943,6 +1045,15 @@ public sealed partial class SuperMetroidRuntime
                     BackgroundScroll.SetBg2ScrollRegisters(horizontal, vertical),
             isRoomPlmPresent: Plms.HasActiveHeader,
             gunshipLoadScenario: gunshipLoadScenario);
+        // The shared Ridley initializer calls $90:A7E2 only for a live boss.
+        // Ceres also disables the HUD map, but has no matching exploration list.
+        if (Enemies.Ridley is not null)
+        {
+            Hud.DisableMinimapForBoss();
+            if (Enemies.BossId == RidleyMapDefinitions.NorfairBossId)
+                for (int row = 0; row < RidleyMapDefinitions.ArenaScreenRows; row++)
+                    System.MarkExploredMapTile(room.AreaIndex, room.MapX, room.MapY + row + 1);
+        }
         SetupEscapeRoomEffects(room.State.SetupCallback);
         // Gate setup runs while the room PLM population is constructed, but Enemies.Load
         // subsequently clears the shared bank-$86 projectile pool. Consume those setup
@@ -958,19 +1069,6 @@ public sealed partial class SuperMetroidRuntime
         ApplyPendingChozoStatuePlms();
         TourianStatues.Load(this);
         Enemies.QueueGraphicsUploads(VramWrites);
-
-        // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay
-        // setup. Power-beam spritemaps address VRAM words $6300-$637F; without this final
-        // $0100-byte transfer, fresh Ceres leaves that range containing the overlapping
-        // standard OBJ sheet. Input and projectile physics still work, but the first shot
-        // appears as a small patch of unrelated pixels—the desktop corruption that made
-        // Shoot look unwired. The starting-room call has no Samus yet and therefore selects
-        // power beam zero; door calls preserve the live equipment combination.
-        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
-            _addressSpace,
-            VramWrites,
-            Cgram,
-            Samus?.EquippedBeams ?? 0, BeamArtwork);
 
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {
@@ -1182,6 +1280,8 @@ public sealed partial class SuperMetroidRuntime
         {
             foreach (ushort definition in death.EscapePaletteFxRequests)
                 RoomPaletteFx.SpawnDefinition(_addressSpace, definition, Samus!.EquippedItems);
+            if (death.TimerHandlingEnableRequested)
+                Samus!.Drained.RelinquishTimerHackHandler();
             if (death.MotherBrainEscapeTimerStartRequested)
                 EscapeTimer.RequestMotherBrainStart(); // The runtime already owns per-frame timer processing/drawing.
             if (death.MotherBrainBossBitRequested)
@@ -1261,18 +1361,16 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     private static DoorTransitionPlacement CalculateDoorTransitionPlacement(
         CartridgeDoorHeader door,
-        SamusState samus)
+        uint sourceXFixed,
+        uint sourceYFixed)
     {
         int direction = door.Orientation & 3;
-        int distance = unchecked((short)door.SamusDistance);
-        if (distance < 0)
-            distance = (direction & 2) != 0 ? 384 : 200;
-        uint step = unchecked((uint)(distance << 8));
+        uint step = DoorOpeningScrollState.GetSamusStep(door);
 
         ushort destinationX = unchecked((ushort)(door.DestinationScreenX << 8));
         ushort destinationY = unchecked((ushort)(door.DestinationScreenY << 8));
-        uint xFixed = samus.Kinematics.XFixed;
-        uint yFixed = samus.Kinematics.YFixed;
+        uint xFixed = sourceXFixed;
+        uint yFixed = sourceYFixed;
 
         switch (direction)
         {
@@ -1316,13 +1414,13 @@ public sealed partial class SuperMetroidRuntime
         if ((direction & 2) == 0)
         {
             yFixed = ReplaceWholePosition(
-                unchecked((ushort)(destinationY + (byte)(samus.YPosition))),
+                unchecked((ushort)(destinationY + (byte)(sourceYFixed >> 16))),
                 yFixed);
         }
         else
         {
             xFixed = ReplaceWholePosition(
-                unchecked((ushort)(destinationX + (byte)(samus.XPosition))),
+                unchecked((ushort)(destinationX + (byte)(sourceXFixed >> 16))),
                 xFixed);
         }
 
@@ -1375,6 +1473,7 @@ public sealed partial class SuperMetroidRuntime
         };
         BindSamusPalettePresentation();
         SamusState.LoadPowerSuitPalette(_addressSpace, Cgram, mapPresentation?.SamusSuitColors);
+        ApplyTesterInventory();
 
         // Fresh-game loading has one deliberately non-general palette write after copying
         // every target color into the live palette: `$82:8190` clears color $DF (CGRAM

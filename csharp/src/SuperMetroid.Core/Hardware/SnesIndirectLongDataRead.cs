@@ -9,23 +9,28 @@ namespace SuperMetroid.Core.Hardware;
 /// </remarks>
 public static class SnesIndirectLongDataRead
 {
-    public static ushort ReadWord(ISnesAddressSpace bus, byte pointerBank, ushort pointer, ushort y)
+    public static ushort ReadWord(ISnesAddressSpace bus, byte pointerBank, ushort pointer, ushort y,
+        ReadOnlySpan<byte> cartridgeDefinition = default, int definitionAddress = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         int address = ((pointerBank << 16) + pointer + y) & SnesCpuAddressLayout.AddressMask;
-        byte low = ReadDataByte(bus, address, pointerBank);
-        byte high = ReadDataByte(bus, (address + 1) & SnesCpuAddressLayout.AddressMask, low);
+        byte low = ReadDataByte(bus, address, pointerBank, cartridgeDefinition, definitionAddress);
+        byte high = ReadDataByte(bus, (address + 1) & SnesCpuAddressLayout.AddressMask, low, cartridgeDefinition, definitionAddress);
         return (ushort)(low | high << 8);
     }
 
-    private static byte ReadDataByte(ISnesAddressSpace bus, int address, byte busLatch)
+    private static byte ReadDataByte(ISnesAddressSpace bus, int address, byte busLatch,
+        ReadOnlySpan<byte> cartridgeDefinition, int definitionAddress)
     {
         int bank = address >> 16;
         int offset = address & 0xffff;
         if ((bank & LoRomExpansionReadMap.MirrorBankMask) < LoRomExpansionReadMap.SystemBankLimit &&
             offset >= LoRomExpansionReadMap.ExpansionStart && offset < LoRomExpansionReadMap.RomStart)
             return busLatch;
-        return SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
+        var kind = SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address));
+        if (kind == SnesDmaSourceKind.Cartridge && (uint)(address - definitionAddress) < cartridgeDefinition.Length)
+            return cartridgeDefinition[address - definitionAddress];
+        return kind switch
         {
             SnesDmaSourceKind.WorkRam => (bus as ISnesMutableMemory ??
                 throw new InvalidOperationException("Indirect operand requires WRAM."))

@@ -46,7 +46,7 @@ internal static partial class Program
     private static void VerifyIntroScenePoseHistory()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var intro = new IntroCinematicState(bus);
+        var intro = CreateRetailIntroFixture(bus);
         T? ReadOwner<T>(string name) where T : class =>
             (T?)typeof(IntroCinematicState).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(intro);
         var failures = new List<string>();

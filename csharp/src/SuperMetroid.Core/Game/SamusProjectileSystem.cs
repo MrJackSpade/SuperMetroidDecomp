@@ -86,7 +86,7 @@ public sealed partial class SamusProjectileSystem
     public ushort SamusChargePaletteIndex { get; private set; }
 
     /// <summary>
-    /// WRAM <c>$0BD0</c>; humanoid shots temporarily suppress Samus/projectile
+    /// WRAM <c>$18AC</c>; humanoid shots temporarily suppress Samus/projectile
     /// interaction, including bomb jumps. Decremented by the shared gameplay tail.
     /// </summary>
     public ushort ProjectileInvincibilityTimer { get; private set; }
@@ -137,11 +137,19 @@ public sealed partial class SamusProjectileSystem
         int beamType = equippedBeams & 0x0fff;
         LoadBeamTiles(bus, vram, equippedBeams, artwork);
 
-        (artwork?.Palettes ?? throw new InvalidOperationException(
-            "Beam palette requires installed artwork."))
-            .LoadTo(cgram, beamType);
+        LoadSelectedBeamPalette(bus, cgram, beamType, artwork?.Palettes);
     }
 
+    private static void LoadSelectedBeamPalette(ISnesAddressSpace bus, SnesCgram cgram,
+        int selection, Assets.BeamPaletteCatalog? palettes)
+    {
+        if (selection == ChainsawBeamGraphicsDefinitions.Selection)
+            ChainsawBeamGraphicsDefinitions.LoadPalette(bus, cgram);
+        else if (selection == SpacetimeBeamGraphicsDefinitions.Selection)
+            SpacetimeBeamGraphicsDefinitions.LoadPalette(bus, cgram);
+        else
+            (palettes ?? throw new InvalidOperationException("Beam palette requires installed artwork.")).LoadTo(cgram, selection);
+    }
     /// <summary>Replays the tile-only half of $90:AC8D after external OBJ artwork is rebound.</summary>
     public static void LoadBeamTiles(ISnesAddressSpace bus, SnesVram vram,
         ushort equippedBeams, Assets.BeamTileCatalog? artwork = null)
@@ -180,8 +188,7 @@ public sealed partial class SamusProjectileSystem
             Assets.BeamTileAtlasDefinitions.ByteCount, Assets.BeamTileAtlasDefinitions.DestinationWord);
 
         palettes ??= artwork?.Palettes;
-        (palettes ?? throw new InvalidOperationException("Beam palette requires installed artwork."))
-            .LoadTo(cgram, beamType);
+        LoadSelectedBeamPalette(bus, cgram, beamType, palettes);
     }
 
     /// <summary>
@@ -430,7 +437,8 @@ public sealed partial class SamusProjectileSystem
                     level,
                     samus,
                     controllerInput,
-                    controllerNewInput,
+                    // FireUnchargedBeam tests both current and prior new-input latches.
+                    unchecked((ushort)(controllerNewInput | controllerPreviousNewInput)),
                     sharedProjectiles,
                     roomPlms);
             }
@@ -813,7 +821,7 @@ public sealed partial class SamusProjectileSystem
         }
         ComboState = 0;
         foreach (SamusProjectileSlot slot in _slots)
-            slot.ClearFields();
+            slot.Reset();
         foreach (SamusProjectileTrailSlot trail in _trailSlots)
             trail.ClearFields();
         ProjectileCounter = 0;

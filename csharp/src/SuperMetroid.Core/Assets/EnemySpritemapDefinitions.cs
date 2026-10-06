@@ -11,6 +11,12 @@ internal readonly record struct EnemySpritemapDefinition(byte Bank, ushort Point
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
+    /// <summary>Schema before Ridley's eight ordinary breakup body compositions.</summary>
+    internal const int PreRidleyBreakupVersion = 68;
+    internal const int PreRidleyBreakupFrameCount = 1404;
+    /// <summary>Schema before the single-frame Kzan and Polyp compositions were installed.</summary>
+    internal const int PreSingleFrameVersion = 67;
+    internal const int PreSingleFrameFrameCount = 1402;
     /// <summary>Schema before Puromi/Nuclear Waffle's eight head frames were installed.</summary>
     internal const int PreNuclearWaffleVersion = 66;
     internal const int PreNuclearWaffleFrameCount = 1394;
@@ -45,7 +51,7 @@ internal static class EnemySpritemapDefinitions
     internal const int PreDeadTourianCorpseFrameCount = 1009;
     internal const int PreDeadTorizoStationaryVersion = 53;
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    internal const int Version = 67;
+    internal const int Version = 69;
     internal const int PreRinkaVersion = 52;
     internal const int PreRinkaFrameCount = 1003;
     internal const int PreViolaVersion = 51;
@@ -1570,6 +1576,12 @@ internal static class EnemySpritemapDefinitions
             yield return frame;
         foreach (var frame in NuclearWaffleVisualDefinitions.Frames())
             yield return frame;
+        yield return SingleFrameEnemyVisualDefinitions.Kzan;
+        yield return SingleFrameEnemyVisualDefinitions.Polyp;
+        foreach (var frame in RidleyBreakupVisualDefinitions.Legs) yield return frame;
+        foreach (var frame in RidleyBreakupVisualDefinitions.Torso) yield return frame;
+        foreach (var frame in RidleyBreakupVisualDefinitions.Head) yield return frame;
+        foreach (var frame in RidleyBreakupVisualDefinitions.Claw) yield return frame;
     }
 
     internal static FrameList Frames { get; } = new();

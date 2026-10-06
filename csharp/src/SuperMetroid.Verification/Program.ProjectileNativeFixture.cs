@@ -39,17 +39,20 @@ internal static partial class Program
                 entry += 8;
             }
         }
+        // Complete the installed visual-binding domain before applying synthetic art.
+        foreach (ushort record in SuperMetroid.Core.Game.SamusProjectileRadiusDefinitions.TimedRecordPointers)
+            WriteTestWord(bus, 0x930000 | (record + 2), Word(0x930000 | (record + 2)));
         foreach (int table in new[] { 0x9383c1, 0x9383d9 })
         for (int beam = 0; beam < 12; beam++)
         for (int direction = 0; direction < 10; direction++)
-            Art(Word(0x930000 | (Word(table + beam * 2) + 2 + direction * 2)), 0xf700);
+            Art(Word(0x930000 | (Word(table + beam * 2) + 2 + direction * 2)), 0xa24d);
         for (int direction = 0; direction < 10; direction++)
         {
-            Art(Word(0x938643 + direction * 2), 0xf720);
-            Art(Word(0x938659 + direction * 2), 0xf730);
+            Art(Word(0x938643 + direction * 2), 0xa25b);
+            Art(Word(0x938659 + direction * 2), 0xa262);
         }
-        Art(Word(0x93866f), 0xf740);
-        foreach (int pointer in new[] { 0x93867b, 0x93867f, 0x938693 }) Art(Word(pointer), 0xf710);
+        Art(Word(0x93866f), 0xa117);
+        foreach (int pointer in new[] { 0x93867b, 0x93867f, 0x938693 }) Art(Word(pointer), 0xa254);
         return rom;
     }
 }

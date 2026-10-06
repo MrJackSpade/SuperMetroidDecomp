@@ -17,6 +17,21 @@ internal static partial class Program
             if ((int)decimal.Floor(262144 * GaussianRaw(i) / globalSum + 0.5m) != native[i]) globalMismatches++;
         }
         Equal(23, globalMismatches, "global normalization is not phase normalization");
+        for (int phase = 0; phase < 256; phase++)
+        {
+            var taps = SnesDspTables.GaussianCoefficients(phase);
+            Equal(native[255 - phase], (int)taps.Tap0, $"DSP phase {phase} tap0");
+            Equal(native[511 - phase], (int)taps.Tap1, $"DSP phase {phase} tap1");
+            Equal(native[256 + phase], (int)taps.Tap2, $"DSP phase {phase} tap2");
+            Equal(native[phase], (int)taps.Tap3, $"DSP phase {phase} tap3");
+        }
+        foreach (int phase in new[] { int.MinValue, -1, 256, int.MaxValue })
+        {
+            bool rejected = false;
+            try { SnesDspTables.GaussianCoefficients(phase); }
+            catch (IndexOutOfRangeException) { rejected = true; }
+            Equal(true, rejected, $"DSP phase bound {phase}");
+        }
         CheckBounds(Gaussian, 511);
         foreach (int index in new[] { int.MinValue, -1, 512, int.MaxValue })
         {

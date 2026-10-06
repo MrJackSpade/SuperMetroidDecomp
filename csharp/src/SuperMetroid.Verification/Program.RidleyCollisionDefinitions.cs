@@ -17,11 +17,13 @@ internal static partial class Program
             "ExtendedSpritemapOverlapsRectangle", BindingFlags.Static | BindingFlags.NonPublic)!;
         var compiled = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(compiled, denied);
+        var nativeSlot = new RoomEnemySlot(0);
         RoomEnemySlot compiledSlot = compiled.Slots[0];
         compiledSlot.Definition =
             default(RoomEnemyDefinition) with { Bank = RidleyCollisionDefinitions.Bank };
-        // The independent reference below reads original native records directly.
-        // The actual owner uses only the installed Ridley collision view.
+        // The reference slot is read by the independent test-side cartridge
+        // walker. The installed definition selects the new compiled Ridley branch.
+        nativeSlot.EnemyDefinitionPointer = 0xffff;
         compiledSlot.EnemyDefinitionPointer = RoomEnemySystem.NorfairRidleyDefinition;
         AssertEqual(11, RidleyCollisionDefinitions.FramePointers.Length,
             "all Ceres/Norfair Ridley body frames have fixed collision");
@@ -99,8 +101,7 @@ internal static partial class Program
                         object?[] compiledArguments =
                         [compiledSlot, xs[xi], ys[yi], radiusX, radiusY,
                             shot != 0, (ushort)0];
-                        bool nativeHit = NativeCallback(frame, originX, originY, xs[xi], ys[yi],
-                            radiusX, radiusY, shot != 0, out ushort nativeCallback);
+                        bool nativeHit = NativeCallback(frame, originX, originY, xs[xi], ys[yi], radiusX, radiusY, shot != 0, out ushort nativeCallback);
                         bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
                         AssertEqual(nativeHit, compiledHit,
                             $"Ridley $A6:{frame:X4} overlap {xi},{yi}, shot={shot}");

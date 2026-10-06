@@ -7,7 +7,7 @@ public static class SnesWorkRam
     public static ushort ReadWord(ISnesMutableMemory memory, int address)
     {
         ArgumentNullException.ThrowIfNull(memory);
-        int highAddress = (address & 0xff0000) | ((address + 1) & 0xffff);
+        int highAddress = SnesAddressMath.AddWithinBank(address, 1);
         return (ushort)(memory.ReadWorkRamByte(address) | memory.ReadWorkRamByte(highAddress) << 8);
     }
 }

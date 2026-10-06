@@ -11,7 +11,7 @@ internal static partial class Program
         foreach (bool left in new[] { false, true })
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var runtime = new SuperMetroidRuntime(bus);
+            var runtime = CreateRetailRuntimeFixture(bus);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
             runtime.InitializeCeresStartSamus();
@@ -46,8 +46,8 @@ internal static partial class Program
             var samus = new SamusState { XPosition = (ushort)(left ? 32 : 992), YPosition = 128,
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 EquippedBeams = (ushort)SamusBeamFlags.Wave };
-            var shots = new SamusProjectileSystem();
-            var bombs = new SamusBombProjectileSystem();
+            var shots = CreateProjectileFixture();
+            var bombs = CreateBombFixture();
             var plms = new RoomPlmSystem();
             ushort health = enemy.Health;
             for (int frame = 0; frame <= (left ? 3 : 4); frame++)

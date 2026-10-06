@@ -7,15 +7,12 @@ namespace SuperMetroid.Core.Frontend;
 public sealed record GameSaveJsonDocument
 {
     public int SchemaVersion { get; init; } = GameSaveJsonFormat.SchemaVersion;
+    internal int SourceSchemaVersion { get; init; } = GameSaveJsonFormat.SchemaVersion;
     public required int SelectedSlot { get; init; }
     public required GameSaveSlotJsonDocument?[] Slots { get; init; }
 
-    /// <summary>
-    /// Offset-labelled copy of the complete SRAM image used solely to preserve bytes not yet
-    /// represented by named properties. On load, every named property below is authoritative
-    /// and is overlaid onto this image before cartridge checksums are rebuilt.
-    /// </summary>
-    public required NativeSramPageJsonDocument[] PreservedUntranslatedSram { get; init; }
+    /// <summary>Global completion marker that unlocks the fourth attract-demo set.</summary>
+    public required bool GameCompleted { get; init; }
 }
 
 /// <summary>One valid cartridge slot expressed as named gameplay domains.</summary>
@@ -32,6 +29,8 @@ public sealed record GameSaveSlotJsonDocument
     public required ushort HudItem { get; init; }
     public required bool MoonwalkEnabled { get; init; }
     public required bool IconCancelEnabled { get; init; }
+    public required bool JapaneseText { get; init; }
+    public required ushort LoadedItemCount { get; init; }
     public required ushort CartridgeDebugFlag { get; init; }
     public required ushort NewFileMarker { get; init; }
     /// <summary>
@@ -55,7 +54,8 @@ public sealed record SaveResourcesJsonDocument(
     ushort PowerBombs,
     ushort MaxPowerBombs,
     ushort ReserveEnergy,
-    ushort MaxReserveEnergy);
+    ushort MaxReserveEnergy,
+    ushort ReserveMissiles);
 
 public sealed record SaveInventoryJsonDocument(
     SamusEquipmentFlags CollectedItems,
@@ -96,7 +96,3 @@ public sealed record ExploredAreaJsonDocument(
     MapCoordinateJsonDocument[] Tiles);
 
 public sealed record MapCoordinateJsonDocument(int X, int Y);
-
-public sealed record NativeSramPageJsonDocument(
-    string Offset,
-    string Bytes);

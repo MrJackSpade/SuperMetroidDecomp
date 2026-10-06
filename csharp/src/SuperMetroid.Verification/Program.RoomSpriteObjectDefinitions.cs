@@ -8,6 +8,7 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = new RoomSpriteObjectDefinitionReadGuard(rom);
+        var executedOperands = new HashSet<ushort>();
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnRoomSpriteObject", flags)!
             .CreateDelegate<Func<RoomEnemySystem, ushort, ushort, RoomSpriteObjectKind,
                 ushort, RoomSpriteObjectSlot?>>();
@@ -51,12 +52,14 @@ internal static partial class Program
             AssertEqual(kind, slot.Kind,
                 $"production room sprite object ${objectNumber:X2} identity");
 
+            VerifySelectedFrame(slot);
             var observedStates = new HashSet<(ushort Pointer, ushort Timer)>();
             for (int frame = 0; frame < 8192 && slot.IsActive; frame++)
             {
                 if (!observedStates.Add((slot.InstructionPointer, slot.InstructionTimer)))
                     break;
                 step(enemies);
+                VerifySelectedFrame(slot);
                 if (slot.InstructionTimer == 0x7fff)
                     break;
             }
@@ -65,20 +68,22 @@ internal static partial class Program
                 $"room sprite object ${objectNumber:X2} terminates or reaches its authored loop");
         }
 
+        AssertEqual(0, guarded.ObservedPresentationWords.Count,
+            "room sprite-object visuals require no runtime cartridge reads");
         AssertEqual(0, guarded.ForbiddenMechanicsReadAttempts,
             "room sprite-object execution avoids compiled mechanics bytes");
         AssertEqual(
             RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount,
-            guarded.ObservedPresentationWords.Count,
-            "every room sprite-object spritemap operand remains a live presentation read");
+            executedOperands.Count,
+            "every executed room sprite-object selector matches the cartridge");
         for (int index = 0;
              index < RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 RoomSpriteObjectInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guarded.ObservedPresentationWords.Contains(address),
-                $"production execution reads room sprite-object presentation $B4:{address:X4}");
+            AssertTrue(executedOperands.Contains(address),
+                $"production execution covers room sprite-object presentation $B4:{address:X4}");
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
@@ -108,8 +113,18 @@ internal static partial class Program
             "Room sprite object definitions: all 62 native selectors and complete " +
             $"production programs pass with {RoomSpriteObjectInstructionProgramDefinitions.MechanicsWordCount} " +
             "compiled mechanics words, " +
-            $"{RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount} live " +
-            "spritemap reads, strict rejection, and allocation-free lookup.");
+            $"{RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount} executed " +
+            "cartridge-matching selectors, strict rejection, and allocation-free lookup.");
+        void VerifySelectedFrame(RoomSpriteObjectSlot selected)
+        {
+            if (!selected.IsActive || (selected.InstructionTimer & 0x8000) != 0)
+                return;
+            ushort operand = unchecked((ushort)(selected.InstructionPointer + 2));
+            AssertEqual(ReadRoomSpriteObjectWord(rom, 0xb40000 | operand),
+                selected.SpritemapPointer,
+                $"executed room sprite-object selector $B4:{operand:X4}");
+            executedOperands.Add(operand);
+        }
     }
 
     private static int ProbeRoomSpriteObjectInstructionAllocation()

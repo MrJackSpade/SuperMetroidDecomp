@@ -19,9 +19,9 @@ internal static partial class Program
             var bus = new BeamSpeedRowAddressSpace(retail);
             var samus = new SamusState { Pose = AimPose(direction), XPosition = 128, YPosition = 128,
                 EquippedBeams = combination };
-            var projectiles = new SamusProjectileSystem();
+            var projectiles = CreateProjectileFixture();
             var result = projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
-                (ushort)SnesButton.X, 0, 0, new SamusBombProjectileSystem());
+                (ushort)SnesButton.X, 0, 0, CreateBombFixture());
             AssertEqual((int?)0, result.FiredSlot, "speed-row fixture allocates projectile");
             var shot = projectiles.LastFiredProjectileSnapshot!.Value;
             int speed = direction is 1 or 3 or 6 or 8 ? 0x02ab : 0x0400;
@@ -62,8 +62,8 @@ internal static partial class Program
             var bus = new BeamSpeedRowAddressSpace(retail);
             var samus = new SamusState { Pose = AimPose(direction), XPosition = 128, YPosition = 128,
                 SelectedHudItem = weapon, Missiles = 10, SuperMissiles = 10 };
-            var projectiles = new SamusProjectileSystem();
-            var bombs = new SamusBombProjectileSystem();
+            var projectiles = CreateProjectileFixture();
+            var bombs = CreateBombFixture();
             int vx = direction is 1 or 2 or 3 ? 0x100 : direction is 6 or 7 or 8 ? -0x100 : 0;
             int vy = direction is 0 or 1 or 8 or 9 ? -0x100 : direction is 3 or 4 or 5 or 6 ? 0x100 : 0;
             uint x = 0, y = 0;

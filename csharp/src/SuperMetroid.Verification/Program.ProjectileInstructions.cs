@@ -124,8 +124,8 @@ internal static partial class Program
                 "Unknown trail-frame owner address fails instead of reading mixed cartridge data");
         }
 
-        var system = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var system = CreateProjectileFixture();
+        var bombs = CreateBombFixture();
         var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler", BindingFlags.Instance | BindingFlags.NonPublic)!;
         int frames = 0;
         foreach (ushort entry in entries)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -27,6 +28,7 @@ internal static partial class Program
                 $"Ridley mechanics word $A6:{definition.Address:X4}");
         }
 
+        var executedOperands = new HashSet<ushort>();
         var guard = new RidleyInstructionReadGuard(rom);
         ushort[] programs =
         [
@@ -41,35 +43,38 @@ internal static partial class Program
         ];
         foreach (ushort program in programs)
         {
-            RunProgram(guard, program, facingDirection: 0, ceresRidleyDefinition);
-            RunProgram(guard, program, facingDirection: 2, ceresRidleyDefinition);
+            RunProgram(rom, executedOperands, guard, program, facingDirection: 0, ceresRidleyDefinition);
+            RunProgram(rom, executedOperands, guard, program, facingDirection: 2, ceresRidleyDefinition);
         }
 
-        RunProgram(
-            guard,
+        RunProgram(rom, executedOperands, guard,
             RidleyInstructionProgramDefinitions.TransitionToFlying,
             facingDirection: 0,
             ceresRidleyDefinition);
-        RunProgram(
-            guard,
+        RunProgram(rom, executedOperands, guard,
             RidleyInstructionProgramDefinitions.TransitionToFlying,
             facingDirection: 2,
             RoomEnemySystem.NorfairRidleyDefinition);
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Ridley execution avoids compiled mechanics bytes");
-        AssertEqual(
-            RidleyInstructionProgramDefinitions.PresentationWordCount,
+        AssertEqual(0,
             guard.ObservedPresentationWords.Count,
-            "all Ridley extended-spritemap operands remain live cartridge reads");
+            "Ridley extended-spritemap selection performs zero live cartridge reads");
+        AssertEqual(RidleyInstructionProgramDefinitions.PresentationWordCount, executedOperands.Count,
+            "Ridley programs execute every native visual operand");
         for (int index = 0;
              index < RidleyInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 RidleyInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Ridley presentation $A6:{address:X4}");
+            AssertTrue(executedOperands.Contains(address),
+                $"production execution selects Ridley presentation $A6:{address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa6, address, out ushort selector),
+                "Ridley presentation has a compiled selector");
+            AssertEqual(ReadRidleyWord(rom, 0xa60000 | address), selector,
+                "Ridley compiled selector matches the cartridge");
         }
 
         AssertThrows<InvalidDataException>(
@@ -90,18 +95,24 @@ internal static partial class Program
             $"Ridley instruction mechanics: " +
             $"{RidleyInstructionProgramDefinitions.MechanicsWordCount} compiled words, " +
             "nine production entry programs, both facing paths, and " +
-            $"{RidleyInstructionProgramDefinitions.PresentationWordCount} live " +
-            "extended-spritemap reads pass with mechanics bytes forbidden.");
+            $"{RidleyInstructionProgramDefinitions.PresentationWordCount} native " +
+            "extended-sprite selections pass with zero live operand reads.");
     }
 
     private static void RunProgram(
+        SuperMetroidAddressSpace rom,
+        HashSet<ushort> executedOperands,
         RidleyInstructionReadGuard guard,
         ushort program,
         ushort facingDirection,
         ushort enemyDefinition)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem
+        {
+            TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles(),
+            CeresRidleyColors = RetailPresentationFixture().CeresRidleyColors,
+        };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
 
@@ -125,6 +136,13 @@ internal static partial class Program
         for (int frame = 0; frame < 1000; frame++)
         {
             process.Invoke(enemies, arguments);
+            if (slot.InstructionTimer != 0)
+            {
+                ushort operand = unchecked((ushort)(slot.CurrentInstruction - 2));
+                executedOperands.Add(operand);
+                AssertEqual(ReadRidleyWord(rom, 0xa60000 | operand), slot.SpritemapPointer,
+                    $"executed Ridley frame $A6:{operand:X4} matches the native extended sprite selector");
+            }
             if (slot.InstructionTimer == 0 &&
                 RidleyInstructionProgramDefinitions.ReadMechanicsWord(
                     slot.CurrentInstruction) == CommonEnemyInstructionCodes.Sleep)

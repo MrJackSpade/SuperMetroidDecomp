@@ -10,14 +10,15 @@ internal static partial class Program
     private static void VerifyEndingRenderSnapshots()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
+        var rewardArt = runtimeFixtureInstallation.Value.LoadEndingObjectArt().RewardSprites;
         int samples = 0;
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
             var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
             var otherBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
             var audio = new CartridgeAudioState(); var otherAudio = new CartridgeAudioState();
-            var legacy = new EndingCreditsState(bus, audio, hours, 59);
-            var captured = new EndingCreditsState(otherBus, otherAudio, hours, 59);
+            var legacy = CreateRetailEndingFixture(bus, audio, hours, 59);
+            var captured = CreateRetailEndingFixture(otherBus, otherAudio, hours, 59);
             var credits = CreditsPresentation.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus)));
             legacy.BindStaffCredits(credits);
@@ -138,13 +139,24 @@ internal static partial class Program
                     if (firstPhaseFrame)
                         referenceJump = new EndingRewardJump(bus, legacy.EndingReward, _ => { });
                     else
-                        referenceJump!.Step();
+                        referenceJump!.Step(pointer => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8b0000 | pointer));
                     var jumpFrame = legacy.CaptureRenderSnapshot();
-                    var expectedOam = referenceJump!.Draw();
+                    var expectedOam = referenceJump!.Draw(rewardArt);
                     AssertEqual(referenceJump.ObjectSelection, jumpFrame.ObjectSelection,
                         "live reward switches OBJ sheet on the same native flight frame");
-                    AssertTrue(expectedOam.LowTable.SequenceEqual(jumpFrame.Memory.Oam[..expectedOam.LowTable.Length]),
+                    // The live ending also appends the restored shooting stars.
+                    // Compare the reference jump actors, including packed X/size bits,
+                    // without treating those additional actors as uninitialized OAM.
+                    int actorBytes = expectedOam.LastFinalizedSpriteCount * 4;
+                    AssertTrue(expectedOam.LowTable[..actorBytes].SequenceEqual(jumpFrame.Memory.Oam[..actorBytes]),
                         "live reward preserves native actor positions, tile indices and palettes on every jump frame");
+                    for (int actor = 0; actor < expectedOam.LastFinalizedSpriteCount; actor++)
+                    {
+                        int shift = (actor % 4) * 2;
+                        AssertEqual((expectedOam.HighTable[actor / 4] >> shift) & 3,
+                            (jumpFrame.Memory.Oam[OamBuffer.LowTableByteCount + actor / 4] >> shift) & 3,
+                            "live reward preserves native actor X-high and size bits");
+                    }
                     AssertTrue(jumpFrame.Layers.ToArray().All(layer => layer is ObjRenderLayer),
                         "reward flight and landing keep BG disabled during icon graphics replacement");
                 }
@@ -274,8 +286,22 @@ internal static partial class Program
                             "explosion actors delete before operation text, leaving only text OBJ palettes");
                 }
                 if (legacy.Phase >= EndingCreditsPhase.ItemPercentage)
-                    AssertEqual(0, legacy.CaptureRenderSnapshot().Memory.ModeledSpriteCount,
-                        "native E58A clears cinematic sprites before final percentage text");
+                {
+                    // E58A clears cinematic actors; the independent star field survives.
+                    var stars = (EndingShootingStars?)typeof(EndingCreditsState)
+                        .GetField("shootingStars", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                        .GetValue(legacy);
+                    var starOnlyOam = new OamBuffer();
+                    starOnlyOam.BeginFrame();
+                    stars?.Draw(starOnlyOam);
+                    starOnlyOam.FinalizeFrame();
+                    var actual = legacy.CaptureRenderSnapshot().Memory;
+                    AssertEqual(starOnlyOam.LastFinalizedSpriteCount, actual.ModeledSpriteCount,
+                        "native E58A leaves only the independent shooting stars before final percentage text");
+                    AssertTrue(starOnlyOam.LowTable.SequenceEqual(actual.Oam[..OamBuffer.LowTableByteCount]) &&
+                        starOnlyOam.HighTable.SequenceEqual(actual.Oam[OamBuffer.LowTableByteCount..]),
+                        "final percentage OAM contains the star field with no retained cinematic actors");
+                }
                 if (legacy.Phase == EndingCreditsPhase.PlanetEscapeFast && sample)
                 {
                     var memory = legacy.CaptureRenderSnapshot().Memory;

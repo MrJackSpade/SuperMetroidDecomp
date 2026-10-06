@@ -42,7 +42,7 @@ internal static class VramDmaOwnership
         if (asset == VramAssetId.StandardHudTiles) return count == HudTileAtlasFormat.TransferByteCount;
         if (asset == VramAssetId.EscapeTimerFirstTiles) return count == EscapeTimerTileAtlasFormat.FirstByteCount;
         if (asset == VramAssetId.EscapeTimerSecondTiles) return count == EscapeTimerTileAtlasFormat.SecondByteCount;
-        if (asset is >= VramAssetId.BeamPowerTiles and <= VramAssetId.BeamPlasmaIceWaveTiles)
+        if (asset is >= VramAssetId.BeamPowerTiles and <= VramAssetId.BeamPlasmaIceWaveTiles or VramAssetId.BeamChainsawTiles or VramAssetId.BeamSpacetimeTiles)
             return count == BeamTileAtlasDefinitions.ByteCount;
         if (asset == VramAssetId.ProjectileIceWaveTrailTiles) return count == ProjectileTrailAtlasDefinitions.IceWaveByteCount;
         if (asset == VramAssetId.ProjectileMissileTrailTiles) return count == ProjectileTrailAtlasDefinitions.MissileByteCount;

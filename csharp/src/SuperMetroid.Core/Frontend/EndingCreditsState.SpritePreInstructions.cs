@@ -7,6 +7,15 @@ internal sealed partial class EndingCreditsState
         IntroDiscoverySprite sprite = wrapper.Sprite;
         switch (wrapper.Role)
         {
+            case EndingSpriteRole.AnimalEscape:
+                uint y = ((uint)sprite.YPosition << 16) | sprite.YSubPosition;
+                y += EndingAnimalEscapeDefinitions.YFractionVelocity;
+                sprite.YPosition = (ushort)(y >> 16);
+                sprite.YSubPosition = (ushort)y;
+                sprite.XPosition += EndingAnimalEscapeDefinitions.XVelocity;
+                if (sprite.XPosition >= EndingAnimalEscapeDefinitions.DeleteX)
+                    sprite.Delete();
+                break;
             case EndingSpriteRole.ExplosionGlow:
             case EndingSpriteRole.ExplosionStars:
             case EndingSpriteRole.ExplosionLava:

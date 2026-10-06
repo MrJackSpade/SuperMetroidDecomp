@@ -6,12 +6,13 @@ internal static class ProjectileClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.BeamTileCatalog", "beam-complete-sheet-selection", ["Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs", "9B35F18FC97E62025B31678D018B5AC542FFEC0672421C67347B7799A966E5AD"),
+            [new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs", "5772BCE58E4D673C2D2847858318E08064A5E8D7842E7D2039F3F069DCA7A985"),
              new("csharp/src/SuperMetroid.Core/Game/SamusEquipmentFlags.cs", "698EB15B595FC4192181AC1CB301F85602A2F3DAA002076CA90A37CB85A8E232"),
-             new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "C6FF1C62D59D61DA32F946B3EF98EAF4F3EB7AA2239246EE7F9DADB7408ABEBF"),
+             new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlas.cs", "DF3E7AFF5CC7410410E8005BBE78C10C41566C0DFC4ACFFA4FD104ED2A8D091E"),
+             new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlasDefinitions.cs", "E04B3B0C46A207140CFE3419E8DBF84CFCDC67316536E87C56262DF3BC9ACF39"),
              new("csharp/src/SuperMetroid.Core/Assets/SpazerCompositionGeometryDefinitions.cs", "50531F1C89026140C12B131C252FB869BACA5A6EFB931FD619376E20F20C6DCF"),
-             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "D60B0DED6A14D23F5962FD93DA6AF5B48D83524D344A3ABB31548334EA2492E4")],
-            "Both constructor paths require all twelve beam sheets; the precompiled path rejects nulls and clones its input array. Resolve guards the contiguous beam-only asset range. Optional palette providers, transfer timing and selected beam physics are not certified."),
+             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "73DCE6788B0BB9B1549CF04466AE14CB8AABA3AD9FCC2738E188ABBA2F2F8D44")],
+            "Both constructor paths require all fourteen beam sheets; the precompiled path rejects nulls and clones its input array. Resolve guards twelve ordinary identities plus the bounded Chainsaw and SpaceTime identities. Only the ordinary sheets share calculated pixel relationships; the two adjacent-table sheets retain all supplied pixels. Optional palette providers, transfer timing and selected beam physics are not certified."),
         new("SuperMetroid.Core.Assets.ChargeFlarePlacementCatalog", "flare-complete-standing-running-offsets", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementCatalog.cs", "B11ADB379F1206CFAD11EC23B31BDB694562FF5906BAF5374A0E48EE7DF32FDA"),
              new("csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementDefinitions.cs", "66320AB18859506BBCEC4E05260457BC5EC8D626B33A6BD0B68FA721278301F1"),

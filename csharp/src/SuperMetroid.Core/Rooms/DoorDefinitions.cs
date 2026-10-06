@@ -25,7 +25,7 @@ public static class DoorDefinitions
     public const int DoorListCount = 262;
 
     /// <summary>Number of door references addressable by retail room BTS indexes.</summary>
-    public const int RoomDoorReferenceCount = 603;
+    public const int RoomDoorReferenceCount = 606;
 
     /// <summary>Selects the connection configuration for a physical or shared elevator door.</summary>
     /// <remarks>The597 physical records occupy twelve-byte strides in bank83,
@@ -40,6 +40,9 @@ public static class DoorDefinitions
         DoorHeaderRomData.ElevatorPseudoDoorPointer =>
             new(DoorHeaderRomData.ElevatorPseudoDoorPointer, 0x0000, 0xF8, 0x91,
                 0x00, 0x03, 0x00, 0x00, 0x0004, 0x8000),
+        DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer =>
+            new(DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer, 0x0000, 0xFE, 0x93,
+                0x40, 0x05, 0x7E, 0x16, 0x0107, 0x8000),
         0x88FE => new(0x88FE, 0x91F8, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0x8000, 0x0000),
         0x890A => new(0x890A, 0x91F8, 0x00, 0x03, 0x00, 0x00, 0x04, 0x02, 0x8000, 0x0000),
         0x8916 => new(0x8916, 0x92FD, 0x00, 0x05, 0x4E, 0x06, 0x04, 0x00, 0x8000, 0x0000),
@@ -662,7 +665,9 @@ public static class DoorDefinitions
     {
         if ((uint)index >= (uint)layout.Count)
             throw new InvalidDataException($"Door index {index} is outside the {layout.Count}-entry list $8F:{listPointer:X4}.");
-        if (index == layout.ElevatorIndex) return DoorHeaderRomData.ElevatorPseudoDoorPointer;
+        if (index == layout.ElevatorIndex) return listPointer is 0xD332 or 0xDAD5
+            ? DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer
+            : DoorHeaderRomData.ElevatorPseudoDoorPointer;
         int physicalIndex = index - (layout.ElevatorIndex >= 0 && index > layout.ElevatorIndex ? 1 : 0);
         return checked((ushort)(layout.First + layout.Stride * physicalIndex));
     }
@@ -670,10 +675,10 @@ public static class DoorDefinitions
     private readonly record struct DoorListLayout(ushort First, int Count, int Stride = 12, int ElevatorIndex = -1);
 
     /// <summary>Each room selects its first physical header, bounded list length and optional elevator slot.</summary>
-    /// <remarks>Independently reviewed against all603 native bank-$8F words for #1165.
+    /// <remarks>Independently reviewed against all606 native bank-$8F words for #1165.
     /// Physical headers occupy twelve-byte records in bank $83. Crab Maze and
     /// Forgotten Highway Elbow alternate records, so their stride is24; all other
-    /// physical lists use12. Twelve lists insert shared pseudo-door $88FC without
+    /// physical lists use12. Twelve lists insert $88FC and two insert $A18A without
     /// consuming a physical record, including interior insertions. No stored door
     /// reference array or generated cache remains. Unknown list identities reject.</remarks>
     private static DoorListLayout ListLayout(ushort doorListPointer) => doorListPointer switch
@@ -878,7 +883,7 @@ public static class DoorDefinitions
         0xD2A5 => new(0xA540, 2),
         0xD2D1 => new(0xA558, 1),
         0xD300 => new(0xA564, 2),
-        0xD332 => new(0xA57C, 3),
+        0xD332 => new(0xA57C, 4, ElevatorIndex: 3),
         0xD367 => new(0xA5A0, 4),
         0xD3AE => new(0xA5D0, 2),
         0xD3DD => new(0xA5E8, 1),
@@ -915,7 +920,7 @@ public static class DoorDefinitions
         0xDA25 => new(0xA93C, 2),
         0xDA52 => new(0xA954, 2),
         0xDAA6 => new(0xA96C, 2),
-        0xDAD5 => new(0xA984, 2),
+        0xDAD5 => new(0xA984, 4, ElevatorIndex: 2),
         0xDB27 => new(0xA9A8, 2),
         0xDB77 => new(0xA9C0, 2),
         0xDBC3 => new(0xA9D8, 2),

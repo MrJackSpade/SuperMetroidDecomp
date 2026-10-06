@@ -204,6 +204,9 @@ public sealed partial class SamusState
             // radius 16, then moves center Y down five. Old radius 21 and new radius 16
             // therefore share exactly the same bottom collision boundary.
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + 5));
+            // Command seven publishes the aligned whole Y before scrolling; the
+            // posture change itself must not become camera movement.
+            RecordPoseCollisionCameraY(Kinematics.YPosition);
             InitializeAnimation(bus, initialFrame: 0);
             return true;
         }
@@ -312,6 +315,9 @@ public sealed partial class SamusState
                 (nmiFrameCounter & 1) == 0, plms, includeSolidEnemies: false);
             Kinematics.YPosition = unchecked((ushort)(
                 Kinematics.YPosition + (alignment.AcceptedDisplacement >> 16)));
+            // Command seven ($91:ED0E) replaces the previous whole-Y checkpoint
+            // after alignment, so the camera does not count pose displacement as motion.
+            RecordPoseCollisionCameraY(Kinematics.YPosition);
 
             // `$91:F7D6-$F7E4` deliberately recognizes a spin-jump source and forces mode
             // two so the compact body retains decelerating aerial momentum after morphing.
@@ -349,6 +355,7 @@ public sealed partial class SamusState
 
         Pose = targetPose;
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        RecordPoseCollisionCameraY(Kinematics.YPosition);
         // Unmorph uses the same prospective command seven as morph. Its zero
         // alignment-table entry does not bypass the subsequent bounce cancellation.
         // The prospective collision probes used the target radius, but the live
@@ -737,7 +744,8 @@ public sealed partial class SamusState
         ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        bool leavingScrewAttack = IsScrewAttackPose(Pose);
+        byte sourcePose = Pose;
+        bool leavingScrewAttack = IsScrewAttackPose(sourcePose);
         byte targetPose = SelectAerialLandingPose(bus, wasSpinning, controllerInput);
 
         ushort oldRadius = Kinematics.YRadius;
@@ -750,7 +758,7 @@ public sealed partial class SamusState
         }
 
         ApplyAerialLandingCollisionCommand(leavingScrewAttack);
-        InitializeAnimation(bus, initialFrame: 0);
+        InitializeAnimation(bus, initialFrame: StandingPoseInitialFrame(bus, sourcePose, targetPose));
     }
 
     /// <summary>
@@ -788,7 +796,7 @@ public sealed partial class SamusState
             // Correct the center now, but retain the movement frame's live radius
             // until alpha, including when landing on a frozen enemy.
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
-            InitializeAnimation(bus, initialFrame: 0);
+            InitializeAnimation(bus, initialFrame: StandingPoseInitialFrame(bus, sourcePose, targetPose));
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
@@ -807,6 +815,15 @@ public sealed partial class SamusState
             // Palette restoration belongs to F433, before the command carry gate.
             HorizontalSpeed.RequestNormalSuitPaletteRestore();
         return collision == LargerPoseCollisionOutcome.Allowed;
+    }
+
+    private static ushort StandingPoseInitialFrame(ISnesAddressSpace bus, byte sourcePose, byte targetPose)
+    {
+        // $91:F4DC keeps the gun raised when both the old and new standing
+        // initializer's poses aim straight up, including landing and its completion.
+        return ReadMovementType(bus, targetPose) == SamusMovementType.Standing &&
+            ReadShotDirection(bus, sourcePose) is 0 or 9 &&
+            ReadShotDirection(bus, targetPose) is 0 or 9 ? (ushort)1 : (ushort)0;
     }
 
     /// <summary>Chooses <c>$91:E95D</c>'s prospective landing pose.</summary>
@@ -1067,7 +1084,8 @@ public sealed partial class SamusState
             // the turn finish before base speed reached zero. Do not clear that speed.
             if (ReadMovementType(bus, installedPose) is SamusMovementType.NormalJumping or SamusMovementType.Falling)
                 InitializeOrdinaryAerialAcceleration();
-            ApplySimpleGroundedPoseChange(bus, sourcePose, installedPose, "Animation command");
+            ApplySimpleGroundedPoseChange(bus, sourcePose, installedPose, "Animation command",
+                refreshRadius: !IsAerialTurnPose(sourcePose));
         }
         if (sourcePose is SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose or
             SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose)
@@ -1093,7 +1111,8 @@ public sealed partial class SamusState
         ISnesAddressSpace bus,
         byte expectedPose,
         byte targetPose,
-        string transitionName)
+        string transitionName,
+        bool refreshRadius = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if (Pose != expectedPose)
@@ -1103,12 +1122,15 @@ public sealed partial class SamusState
         }
 
         Pose = targetPose;
-        RefreshCollisionRadii(bus);
+        // Aerial turn completion runs F433 without SetRadius; its source body
+        // remains active until next alpha, including compact down-aim targets.
+        if (refreshRadius)
+            RefreshCollisionRadii(bus);
         // $91:FB64-$FB67 retains the frame/timer when the ordinary pose is
         // unchanged. A prospective run rejected by the wall probe can resolve
         // back to the current wall-stop pose on every held-input frame.
         if (expectedPose != targetPose)
-            InitializeAnimation(bus, initialFrame: 0);
+            InitializeAnimation(bus, initialFrame: StandingPoseInitialFrame(bus, expectedPose, targetPose));
     }
 
 }

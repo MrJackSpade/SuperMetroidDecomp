@@ -113,10 +113,12 @@ public sealed partial class SamusLiquidPhysicsState
     /// <summary>Nonzero boss ID suppresses ordinary footstep audio.</summary>
     public ushort BossId { get; set; }
 
-    /// <summary>Configures the exact room-FX words for an ordinary water surface.</summary>
-    public void ConfigureWater(ushort surfaceY, ushort liquidOptions = 0)
+    /// <summary>Configures water words while preserving the ordinary or statue room's native FX identity.</summary>
+    public void ConfigureWater(ushort surfaceY, ushort liquidOptions = 0, RoomFxType type = RoomFxType.Water)
     {
-        FxType = RoomFxType.Water;
+        if (!RoomFxTypes.UsesWater(type))
+            throw new ArgumentOutOfRangeException(nameof(type), type, "A water configuration requires a water FX dispatcher.");
+        FxType = type;
         FxYPosition = surfaceY;
         LavaAcidYPosition = ushort.MaxValue;
         LiquidOptions = liquidOptions;
@@ -138,7 +140,7 @@ public sealed partial class SamusLiquidPhysicsState
     /// </summary>
     public void ConfigureNonLiquidRoomFx(RoomFxType type)
     {
-        if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
+        if (type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
             throw new ArgumentOutOfRangeException(nameof(type), type, "Use the liquid-specific configuration method.");
         Clear();
         FxType = type;
@@ -171,7 +173,7 @@ public sealed partial class SamusLiquidPhysicsState
         {
             RoomFxType.Lava or RoomFxType.Acid
                 when IsBelowSurface(LavaAcidYPosition, bottom) => LavaAcid,
-            RoomFxType.Water when WaterAffectsBoundary(bottom) => Water,
+            RoomFxType.Water or RoomFxType.TourianEntranceStatue when WaterAffectsBoundary(bottom) => Water,
             _ => Air,
         };
     }
@@ -185,7 +187,10 @@ public sealed partial class SamusLiquidPhysicsState
         ArgumentNullException.ThrowIfNull(samus);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
             return Air;
-        return DetermineRawMediumAtBoundary(samus.Kinematics.BottomPixel);
+        // Samus_GetBottom_R18 samples the current pose definition, even before the next
+        // movement pass publishes its radius to the live collision state.
+        ushort bottom = unchecked((ushort)(samus.YPosition + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
+        return DetermineRawMediumAtBoundary(bottom);
     }
 
     /// <summary>
@@ -248,7 +253,7 @@ public sealed partial class SamusLiquidPhysicsState
             return samus.XSpeedDivisor;
 
         ushort bottomMinusOne = unchecked((ushort)(
-            samus.Kinematics.YPosition + samus.Kinematics.YRadius - 1));
+            samus.YPosition + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
         return DetermineRawMediumAtBoundary(bottomMinusOne) switch
         {
             Water => 3,
@@ -290,7 +295,7 @@ public sealed partial class SamusLiquidPhysicsState
         RoomFxType fxKind = FxType;
         bool gravitySuit = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
 
-        if (fxKind == RoomFxType.Water && WaterAffectsBoundary(bottom))
+        if (RoomFxTypes.UsesWater(fxKind) && WaterAffectsBoundary(bottom))
         {
             // `$90:80B8` publishes delay three before testing the remembered medium. A
             // transition into water queues sound $0D and creates either a diving splash or
@@ -530,7 +535,10 @@ public sealed partial class SamusLiquidPhysicsState
 
     private void SpawnLandingPairUnlessSubmerged(SamusState samus, byte type)
     {
-        ushort bottom = samus.Kinematics.BottomBoundary;
+        // GetBottom_R18 uses the current pose definition and includes the last
+        // occupied pixel; the live collision radius can still belong to the old pose.
+        ushort bottom = unchecked((ushort)(samus.YPosition +
+            SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
 
         // Both `$91:F116` and `$91:F166` suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. `DetermineRawMedium...`

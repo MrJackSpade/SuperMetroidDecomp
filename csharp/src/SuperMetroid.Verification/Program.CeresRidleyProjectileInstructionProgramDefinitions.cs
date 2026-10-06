@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -27,6 +28,9 @@ internal static partial class Program
                 $"Ceres Ridley projectile mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new CeresRidleyProjectileInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", instanceFlags)!;
@@ -148,7 +152,14 @@ internal static partial class Program
         beginFinal.Invoke(null, [final]);
         AssertEqual(CeresRidleyProjectileInstructionProgramDefinitions.AfterburnFinal,
             final.InstructionPointer, "production collision handoff selects final impact");
-        RunForcedTicks(finalSystem, final, 6);
+        AssertTrue(final.CanDamageSamus, "terrain impact preserves final-afterburn contact damage");
+        for (int frame = 0; frame < 5; frame++)
+        {
+            RunForcedTick(finalSystem, final);
+            AssertTrue(final.IsActive && final.CanDamageSamus,
+                $"final afterburn visual frame {frame} remains damaging");
+        }
+        RunForcedTick(finalSystem, final);
         AssertTrue(!final.IsActive,
             "final afterburn impact completes all five frames and deletes");
 
@@ -169,17 +180,19 @@ internal static partial class Program
         AssertTrue(!sharedDelete.IsActive,
             "Ceres Ridley projectile shot reaction reaches shared compiled deletion");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "CeresRidleyProjectile execution performs no live spritemap operand reads");
         AssertEqual(CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Ceres Ridley projectile spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+            executedOperands.Count, "CeresRidleyProjectile executes every native visual operand");
+        for (int index = 0; index < CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address = CeresRidleyProjectileInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads Ceres Ridley presentation $86:{address:X4}");
+            ushort address = CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"CeresRidleyProjectile executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "CeresRidleyProjectile has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "CeresRidleyProjectile compiled selector matches the cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared Ceres Ridley mechanics bytes");
@@ -199,8 +212,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Ceres Ridley projectile instruction mechanics: forty-two compiled words, " +
-            "all seven owners, callback handoffs, deletion paths, and twenty-six live " +
-            "spritemap reads pass.");
+            "all seven owners, callback handoffs, deletion paths, and twenty-six installed " +
+            "sprite frames match native OAM without operand reads.");
 
         RoomEnemySystem NewSystem()
         {
@@ -215,6 +228,7 @@ internal static partial class Program
         {
             projectile.InstructionTimer = 1;
             process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
 
         void RunForcedTicks(

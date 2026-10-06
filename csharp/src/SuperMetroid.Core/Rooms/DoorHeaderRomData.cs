@@ -16,6 +16,12 @@ public static class DoorHeaderRomData
     /// </summary>
     public const ushort ElevatorPseudoDoorPointer = 0x88fc;
 
+    /// <summary>
+    /// <c>Door_MaridiaElev_3_TourianFirst_2</c> at $83:A18A. This second zero-destination
+    /// elevator sentinel overlaps Door_BowlingAlley_0; it is a list entry, not a terminator.
+    /// </summary>
+    public const ushort MaridiaTourianElevatorPseudoDoorPointer = 0xa18a;
+
     /// <summary>First Crateria door, <c>Door_LandingSite_LandingCutscene</c>.</summary>
     public const ushort PreFxBlockStart = 0x88fe;
 

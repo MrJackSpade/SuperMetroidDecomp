@@ -217,6 +217,7 @@ static void VerifySamusMorphBallMovement()
         YPosition = 32,
     };
     boostedRoll.RefreshCollisionRadii(bus);
+    boostedRoll.HorizontalSpeed.HasRunningMomentum = true;
     boostedRoll.HorizontalSpeed.ExtraRunSpeed = 1;
     boostedRoll.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
     SamusMorphBallMovement.StepGrounded(bus, empty, boostedRoll, nmiFrameCounter: 0);
@@ -808,7 +809,7 @@ static void VerifySamusMorphBallMovement()
         YPosition = 57,
     };
     noBombItemSamus.RefreshCollisionRadii(bus);
-    var noBombItemSystem = new SamusBombProjectileSystem();
+    var noBombItemSystem = CreateBombFixture();
     BombProjectileFrameResult rejectedBomb = noBombItemSystem.StepFrame(
         bus,
         floor,
@@ -825,7 +826,7 @@ static void VerifySamusMorphBallMovement()
         YPosition = 57,
     };
     bombProjectileSamus.RefreshCollisionRadii(bus);
-    var bombs = new SamusBombProjectileSystem();
+    var bombs = CreateBombFixture();
     BombProjectileFrameResult placement = bombs.StepFrame(
         bus,
         floor,
@@ -868,7 +869,7 @@ static void VerifySamusMorphBallMovement()
             YPosition = 57,
         };
         fixtureSamus.RefreshCollisionRadii(fixtureBus);
-        var fixtureSystem = new SamusBombProjectileSystem();
+        var fixtureSystem = CreateBombFixture();
         fixtureSystem.StepFrame(
             fixtureBus,
             fixtureFloor,
@@ -957,7 +958,7 @@ static void VerifySamusMorphBallMovement()
         ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
     };
     spreadSamus.RefreshCollisionRadii(bus);
-    var spreadBombs = new SamusBombProjectileSystem();
+    var spreadBombs = CreateBombFixture();
     BombProjectileFrameResult spreadHeld = spreadBombs.StepFrame(
         bus,
         empty,
@@ -1012,7 +1013,7 @@ static void VerifySamusMorphBallMovement()
         ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
     };
     selectedPowerBombSpreadSamus.RefreshCollisionRadii(bus);
-    var selectedPowerBombSpreadBombs = new SamusBombProjectileSystem();
+    var selectedPowerBombSpreadBombs = CreateBombFixture();
     BombProjectileFrameResult selectedPowerBombHeld =
         selectedPowerBombSpreadBombs.StepFrame(
             bus,
@@ -1084,7 +1085,7 @@ static void VerifySamusMorphBallMovement()
         BombSpreadChargeTimeoutCounter = 0x00bf,
     };
     timeoutSamus.RefreshCollisionRadii(bus);
-    var timeoutBombs = new SamusBombProjectileSystem();
+    var timeoutBombs = CreateBombFixture();
     BombProjectileFrameResult timeoutLastWait = timeoutBombs.StepFrame(
         bus, empty, timeoutSamus, (ushort)(SnesButton.X | SnesButton.Down), 0);
     AssertTrue(!timeoutLastWait.BombSpreadStarted,
@@ -1105,7 +1106,7 @@ static void VerifySamusMorphBallMovement()
         EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
     };
-    var cancelledSpreadBombs = new SamusBombProjectileSystem();
+    var cancelledSpreadBombs = CreateBombFixture();
     BombProjectileFrameResult cancelledSpread = cancelledSpreadBombs.StepFrame(
         bus, empty, cancelledSpreadSamus, 0, 0);
     AssertTrue(cancelledSpread.BeamChargeConsumed,
@@ -1126,7 +1127,7 @@ static void VerifySamusMorphBallMovement()
         YPosition = 48,
     };
     powerBombSamus.RefreshCollisionRadii(bus);
-    var powerBombs = new SamusBombProjectileSystem();
+    var powerBombs = CreateBombFixture();
     BombProjectileFrameResult powerBombPlacement = powerBombs.StepFrame(
         bus,
         floor,
@@ -1172,7 +1173,7 @@ static void VerifySamusMorphBallMovement()
         "power-bomb timer fifteen enters retail fast list");
     var armedPowerBombOam = new OamBuffer();
     armedPowerBombOam.BeginFrame();
-    powerBombs.Draw(bus, armedPowerBombOam, layer1X: 0, layer1Y: 0);
+    powerBombs.Draw(bus, armedPowerBombOam, layer1X: 0, layer1Y: 0, compositions: projectileFixtureArt.Value.Catalog);
     AssertTrue(armedPowerBombOam.NextByteOffset > 0,
         "armed Power Bomb draws its fast-list spritemap before detonation");
 
@@ -1196,7 +1197,7 @@ static void VerifySamusMorphBallMovement()
         "power-bomb spawn queues cartridge library-one explosion sound");
     var detonatedPowerBombOam = new OamBuffer();
     detonatedPowerBombOam.BeginFrame();
-    powerBombs.Draw(bus, detonatedPowerBombOam, layer1X: 0, layer1Y: 0);
+    powerBombs.Draw(bus, detonatedPowerBombOam, layer1X: 0, layer1Y: 0, compositions: projectileFixtureArt.Value.Catalog);
     AssertEqual(0, detonatedPowerBombOam.NextByteOffset,
         "detonation-frame zero variable suppresses the placed Power Bomb sprite");
 
@@ -1318,7 +1319,7 @@ static void VerifySamusMorphBallMovement()
         reactionDefinitions);
     BackgroundTilemapStreamer reactionStreamer = reactionLevel.CreateBackgroundStreamer();
     var reactionPlms = new RoomPlmSystem();
-    var reactionBombs = new SamusBombProjectileSystem();
+    var reactionBombs = CreateBombFixture();
     var reactionSamus = new SamusState
     {
         Pose = SamusPoseIds.MorphBallGroundRightPose,
@@ -1407,7 +1408,7 @@ static void VerifySamusMorphBallMovement()
     BackgroundTilemapStreamer integratedRevealStreamer =
         integratedRevealLevel.CreateBackgroundStreamer();
     var integratedRevealPlms = new RoomPlmSystem();
-    var integratedRevealBombs = new SamusBombProjectileSystem();
+    var integratedRevealBombs = CreateBombFixture();
     var integratedRevealSamus = new SamusState
     {
         Pose = SamusPoseIds.MorphBallGroundRightPose,
@@ -1471,7 +1472,7 @@ static void VerifySamusMorphBallMovement()
         new ushort[bombDoorWords.Length],
         reactionDefinitions);
     var bombDoorPlms = new RoomPlmSystem();
-    var bombDoorBombs = new SamusBombProjectileSystem();
+    var bombDoorBombs = CreateBombFixture();
     var bombDoorSamus = new SamusState
     {
         Pose = SamusPoseIds.MorphBallGroundRightPose,
@@ -1629,7 +1630,7 @@ static void VerifySamusMorphBallMovement()
     BackgroundTilemapStreamer integratedPowerBombStreamer =
         integratedPowerBombLevel.CreateBackgroundStreamer();
     var integratedPowerBombPlms = new RoomPlmSystem();
-    var integratedPowerBombs = new SamusBombProjectileSystem();
+    var integratedPowerBombs = CreateBombFixture();
     var integratedPowerBombSamus = new SamusState
     {
         Pose = SamusPoseIds.MorphBallGroundRightPose,
@@ -2098,7 +2099,7 @@ private static BombProjectileFrameResult RunPowerBombToInitialBoundary(
         YPosition = yPosition,
     };
     samus.RefreshCollisionRadii(bus);
-    var bombs = new SamusBombProjectileSystem();
+    var bombs = CreateBombFixture();
     bombs.StepFrame(
         bus,
         level,

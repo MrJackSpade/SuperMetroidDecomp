@@ -103,6 +103,8 @@ internal static partial class Program
         EnemyProjectileSpritemapDefinitions.PreGenericEnemyDeathVersion => EnemyProjectilePresentationFrameDefinitions.PreGenericEnemyDeath.ToArray(),
         EnemyProjectileSpritemapDefinitions.PreEnvironmentAndAttackVersion => EnemyProjectilePresentationFrameDefinitions.PreEnvironmentAndAttack.ToArray(),
         EnemyProjectileSpritemapDefinitions.PreMotherBrainAndStatueVersion => EnemyProjectilePresentationFrameDefinitions.PreMotherBrainAndStatue.ToArray(),
+        EnemyProjectileSpritemapDefinitions.PreWorkRobotVersion => EnemyProjectilePresentationFrameDefinitions.PreWorkRobot.ToArray(),
+        EnemyProjectileSpritemapDefinitions.PrePolypRockVersion => EnemyProjectilePresentationFrameDefinitions.PrePolypRock.ToArray(),
         EnemyProjectileSpritemapDefinitions.Version => EnemyProjectilePresentationFrameDefinitions.All.ToArray(),
         _ => throw new InvalidOperationException($"Projectile fixture has no historical schema {version}."),
     };

@@ -33,12 +33,12 @@ internal static partial class Program
             EquippedBeams = 0x1007,
             SelectedHudItem = 0,
         };
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = CreateProjectileFixture();
+        var shared = CreateBombFixture();
 
         HoldCharge(bus, level, samus, projectiles, shared);
 
-        var pause = new PauseMenuState(
+        var pause = CreateRetailPauseFixture(
             bus,
             samus,
             new Bank80SystemState(),
@@ -215,8 +215,8 @@ internal static partial class Program
             EquippedBeams = 0x1007,
             SelectedHudItem = 0,
         };
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = CreateProjectileFixture();
+        var shared = CreateBombFixture();
         HoldCharge(bus, level, samus, projectiles, shared);
         samus.EquippedBeams = 0x100f;
         AssertThrows<NotSupportedException>(() =>
@@ -238,8 +238,8 @@ internal static partial class Program
             EquippedBeams = 0x100f,
             Missiles = 5,
         };
-        var projectiles = new SamusProjectileSystem();
-        var shared = new SamusBombProjectileSystem();
+        var projectiles = CreateProjectileFixture();
+        var shared = CreateBombFixture();
         ushort select = (ushort)SnesButton.Select;
         ushort cancel = (ushort)SnesButton.Y;
         AssertTrue(samus.HandleHudSelection(
@@ -286,7 +286,7 @@ internal static partial class Program
             YPosition = 128,
             EquippedBeams = 0x100f,
         };
-        AssertThrows<NotSupportedException>(() => new SamusProjectileSystem().StepFrame(
+        AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(
             bus,
             level,
             samus,
@@ -294,7 +294,7 @@ internal static partial class Program
             (ushort)SnesButton.X,
             0,
             0,
-            new SamusBombProjectileSystem()),
+            CreateBombFixture()),
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");
     }
 }

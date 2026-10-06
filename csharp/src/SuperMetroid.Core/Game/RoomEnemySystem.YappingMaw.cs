@@ -449,12 +449,13 @@ public sealed partial class RoomEnemySystem
         YappingMawEnemyState state,
         SamusState samus)
     {
-        // Samus code three cancels any non-inactive grapple and otherwise normalizes only
+        // Samus command three ($90:F152) drops any active grapple via $9B:C8C5;
+        // its transitional pose must be committed before the Maw releases input. It normalizes
         // spin-jump/wall-jump bodies. The input handler itself was already replaced by the
         // touch callback; do not force unrelated falling/running poses to standing.
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
         {
-            samus.Grapple.Phase = GrapplePhase.CancelPending;
+            samus.Grapple.Phase = GrapplePhase.Dropped;
         }
         else
         {

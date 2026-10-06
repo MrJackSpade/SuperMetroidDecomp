@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Core.Game;
 
@@ -18,6 +19,9 @@ public sealed class TorizoEnemyState
 
     public RoomEnemySlot Slot { get; }
     public bool IsGolden { get; }
+
+    /// <summary>Persistent target colors and numerator shared by awakening and death fades.</summary>
+    internal CartridgePaletteTransition? PaletteTransition { get; set; }
 
     /// <summary>Native <c>toriz_var_00</c>: instruction-list return/landing target.</summary>
     public ushort ReturnInstruction { get; internal set; }
@@ -221,7 +225,7 @@ public sealed partial class RoomEnemySystem
     /// the concrete definition here is equivalent and prevents an unrelated host area enum
     /// from becoming a second authority for actor identity.
     /// </summary>
-    private void InitializeBombTorizo(RoomEnemySlot torizo)
+    private void InitializeBombTorizo(RoomEnemySlot torizo, SamusState? samus, ushort controllerInput)
     {
         bool isGolden = torizo.EnemyDefinitionPointer == GoldenTorizoDefinition;
         var state = new TorizoEnemyState(torizo, isGolden);
@@ -262,7 +266,23 @@ public sealed partial class RoomEnemySystem
         // so install those final visible rows directly at their native palette indexes.
         LoadTorizoSharedPaletteRows();
         if (isGolden)
+        {
             LoadGoldenTorizoBasePalette();
+            if (controllerInput == GoldenTorizoCodeDefinitions.ControllerChord)
+            {
+                if (samus is null)
+                    throw new InvalidOperationException("The Golden Torizo code requires the live Samus owner.");
+                // Native initialization overwrites both inventory words, even if
+                // this reduces capacity or equips normally incompatible beams.
+                samus.Health = samus.MaxHealth = GoldenTorizoCodeDefinitions.Energy;
+                samus.ReserveEnergy = samus.MaxReserveEnergy = GoldenTorizoCodeDefinitions.ReserveEnergy;
+                samus.Missiles = samus.MaxMissiles = GoldenTorizoCodeDefinitions.Missiles;
+                samus.SuperMissiles = samus.MaxSuperMissiles = GoldenTorizoCodeDefinitions.SuperMissiles;
+                samus.PowerBombs = samus.MaxPowerBombs = GoldenTorizoCodeDefinitions.PowerBombs;
+                samus.EquippedItems = samus.CollectedItems = GoldenTorizoCodeDefinitions.Items;
+                samus.EquippedBeams = samus.CollectedBeams = GoldenTorizoCodeDefinitions.Beams;
+            }
+        }
         else
             LoadBombTorizoPalette();
     }
@@ -325,38 +345,19 @@ public sealed partial class RoomEnemySystem
         LoadTorizoBodyPalette(rowNine, rowTen);
     }
 
-    private void LoadTorizoDeathPalette()
-    {
-        // Torizo_C268 is shared by the late death bytecode for both encounters.
-        ReadOnlySpan<ushort> rowNine =
-        [
-            0x3800, 0x56ba, 0x41b2, 0x1447, 0x0403, 0x4e15, 0x3570, 0x24cb,
-            0x1868, 0x6f7f, 0x51f8, 0x410e, 0x031f, 0x01da, 0x00f5, 0x0c63,
-        ];
-        ReadOnlySpan<ushort> rowTen =
-        [
-            0x3800, 0x4215, 0x2d0d, 0x0002, 0x0000, 0x3970, 0x20cb, 0x0c26,
-            0x0403, 0x463a, 0x28b3, 0x1809, 0x6f7f, 0x51fd, 0x4113, 0x0c63,
-        ];
-        LoadTorizoBodyPalette(rowNine, rowTen);
-    }
+    private void LoadTorizoDeathPalette() =>
+        LoadTorizoBodyPalette(TorizoPaletteDefinitions.Normal[..16], TorizoPaletteDefinitions.Normal[16..]);
 
-    private void LoadGoldenTorizoFinalPalette()
-    {
-        // Torizo_C298 is selected by Golden Torizo's late encounter instruction $CADE.
-        ReadOnlySpan<ushort> rowNine =
-        [
-            0x3800, 0x4bbe, 0x06b9, 0x00a8, 0x0000, 0x173a, 0x0276, 0x01f2,
-            0x014d, 0x73e0, 0x4f20, 0x2a20, 0x7fe0, 0x5aa0, 0x5920, 0x0043,
-        ];
-        ReadOnlySpan<ushort> rowTen =
-        [
-            0x3800, 0x3719, 0x0214, 0x0003, 0x0000, 0x0295, 0x01d1, 0x014d,
-            0x00a8, 0x4b40, 0x25e0, 0x00e0, 0x6b40, 0x4600, 0x4480, 0x0000,
-        ];
-        LoadTorizoBodyPalette(rowNine, rowTen);
-    }
+    private CartridgePaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
+        state.PaletteTransition ??= new CartridgePaletteTransition(
+            _cgram!.Colors, TorizoPaletteDefinitions.FadeDenominator);
 
+    private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<ushort> colors)
+    {
+        var transition = GetTorizoPaletteTransition(state);
+        for (int color = 0; color < colors.Length; color++)
+            transition.SetTargetColor(TorizoPaletteDefinitions.FirstBodyColor + color, colors[color]);
+    }
     private void LoadGoldenTorizoHealthPalette(ushort health)
     {
         // $84:8000 selects one of eight 16-color rows using bits 11..14 of health, clamping
@@ -389,15 +390,6 @@ public sealed partial class RoomEnemySystem
         {
             _cgram!.SetColor(144 + color, rowNine[color]);
             _cgram.SetColor(160 + color, rowTen[color]);
-        }
-    }
-
-    private void BlackOutBombTorizoPalette()
-    {
-        for (int color = 0; color < 16; color++)
-        {
-            _cgram!.SetColor(144 + color, 0);
-            _cgram.SetColor(160 + color, 0);
         }
     }
 

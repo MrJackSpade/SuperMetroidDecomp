@@ -10,7 +10,7 @@ internal sealed partial class EndingCreditsState
     /// <summary>Projects the current cartridge-backed PPU image into the desktop raster.</summary>
     public Rgba32[] Render()
     {
-        if (AtmosphericMapWraps || UsesFlyawayMode7Priority || UsesExplosionFinaleDisplay || postShot is not null || endingLogo is not null || Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
+        if (AtmosphericMapWraps || UsesFlyawayMode7Priority || UsesExplosionFinaleDisplay || postShot is not null || endingLogo is not null || Phase >= EndingCreditsPhase.PostCreditsBlank)
             return SoftwareLayeredSnapshotRenderer.Render(CaptureRenderSnapshot());
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
 
@@ -81,7 +81,8 @@ internal sealed partial class EndingCreditsState
         or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
     // Func120 selects Mode 7: priority-zero OBJ is behind BG1, the ship itself.
     private bool UsesFlyawayMode7Priority => Phase >= EndingCreditsPhase.PlanetEscapeFast && Phase < EndingCreditsPhase.Credits;
-    private bool EndingObjectsEnabled => !ExplosionWhiteout && Phase != EndingCreditsPhase.PostCreditsCopyright;
+    private bool EndingObjectsEnabled => !ExplosionWhiteout && Phase is not
+        (EndingCreditsPhase.PostCreditsCopyright or EndingCreditsPhase.PostCreditsWaitingSamus or EndingCreditsPhase.PostCreditsBlank);
 
     private short CurrentMode7CenterX => Phase < EndingCreditsPhase.PlanetEscapeFast
         ? EndingCreditsRomData.Rendering.AtmosphericMode7Center : EndingCreditsRomData.Rendering.Mode7CenterX;
@@ -120,6 +121,7 @@ internal sealed partial class EndingCreditsState
     // E1D2 turns BG1 off when reward actors spawn. The armored reward uses OBJ only;
     // faster rewards return to BG2 for the waiting-Samus dissolve.
     private bool PostCreditsBackgroundEnabled => Phase != EndingCreditsPhase.PostCreditsBlank
+        && Phase != EndingCreditsPhase.PostCreditsFadeIn
         && Phase != EndingCreditsPhase.PostCreditsGesture
         && Phase != EndingCreditsPhase.PostCreditsJump
         && !(Phase == EndingCreditsPhase.PostCreditsReward && EndingReward == EndingReward.Armored);
@@ -127,6 +129,7 @@ internal sealed partial class EndingCreditsState
         || Phase == EndingCreditsPhase.PostCreditsReward;
     // E1D2/E2DD: TM=BG2, TS=OBJ, CGADSUB=$22 adds OBJ to BG2 and backdrop.
     private bool RewardSubscreenAddition => ExplosionCrossfadeActive
+        || Phase == EndingCreditsPhase.PostCreditsShootingStars
         || (Phase == EndingCreditsPhase.PostCreditsReward && EndingReward != EndingReward.Armored);
 
     private ushort CurrentPostCreditsTilemapWord => UsesWaitingBackground
@@ -138,24 +141,30 @@ internal sealed partial class EndingCreditsState
     // immutable packet consumer nor repeated rendering may advance sprite state.
     private OamBuffer PrepareSprites()
     {
-        if (rewardGesture is not null) return rewardGesture.Draw(objectArtwork?.RewardSprites);
-        if (rewardJump is not null) return rewardJump.Draw(objectArtwork?.RewardSprites);
         var oam = new OamBuffer();
         oam.BeginFrame();
-        foreach (EndingSprite wrapper in sprites.OrderByDescending(actor => actor.NativeSlot))
+        if (endingLogo is not null) endingLogo.Draw(objectArtwork?.LogoSprites, oam);
+        else if (rewardGesture is not null) rewardGesture.Draw(objectArtwork?.RewardSprites, oam);
+        else if (rewardJump is not null) rewardJump.Draw(objectArtwork?.RewardSprites, oam);
+        else
         {
-            IIntroCinematicSpritePresentation? spriteArt = wrapper.Role switch
+            foreach (EndingSprite wrapper in sprites.OrderByDescending(actor => actor.NativeSlot))
             {
-                <= EndingSpriteRole.CloudBottomB => objectArtwork?.CloudSprites,
-                >= EndingSpriteRole.ExplodingZebes and
-                    <= EndingSpriteRole.ExplosionAfterglow => objectArtwork?.ExplosionSprites,
-                >= EndingSpriteRole.OperationWasText and
-                    <= EndingSpriteRole.ClearTimeDigit => objectArtwork?.CompletionTextSprites,
-                EndingSpriteRole.RewardSamus => objectArtwork?.RewardSprites,
-                _ => null,
-            };
-            wrapper.Sprite.Draw(bus, oam, installedArt: spriteArt);
+                IIntroCinematicSpritePresentation? spriteArt = wrapper.Role switch
+                {
+                    <= EndingSpriteRole.CloudBottomB => objectArtwork?.CloudSprites,
+                    >= EndingSpriteRole.ExplodingZebes and
+                        <= EndingSpriteRole.ExplosionAfterglow => objectArtwork?.ExplosionSprites,
+                    >= EndingSpriteRole.OperationWasText and
+                        <= EndingSpriteRole.ClearTimeDigit => objectArtwork?.CompletionTextSprites,
+                    EndingSpriteRole.RewardSamus => objectArtwork?.RewardSprites,
+                    EndingSpriteRole.AnimalEscape => EndingAnimalEscapeDefinitions.Presentation,
+                    _ => null,
+                };
+                wrapper.Sprite.Draw(bus, oam, installedArt: spriteArt);
+            }
         }
+        if (Phase >= EndingCreditsPhase.PostCreditsBlank) shootingStars?.Draw(oam);
         oam.FinalizeFrame();
         return oam;
     }

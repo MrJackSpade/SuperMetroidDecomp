@@ -11,6 +11,8 @@ internal sealed partial class PauseMenuState
         AreaMapPresentationCatalog? previousCatalog = mapPresentation;
         mapPresentation = catalog ?? throw new InvalidOperationException(
             "Pause menu requires installed map presentation assets.");
+        mapArrows ??= new FileSelectMapAnimations(bus, catalog.Arrows);
+        mapArrows.BindPresentation(catalog.Arrows);
         paletteAnimation.Bind(catalog.HighlightCycle);
         catalog.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
         catalog.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);

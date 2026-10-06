@@ -316,6 +316,7 @@ public sealed partial class RoomEnemySystem
         ResetShitroidRoomState();
         ResetShutterRoomState(cameraX, cameraY);
         ResetElevatorRoomActors();
+        EnemyDoorTransitionActive = false;
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastHibashiActivityFrameIndex = null;
@@ -638,6 +639,8 @@ public sealed partial class RoomEnemySystem
                 if (slot.EnemyDefinitionPointer == 0)
                     continue;
                 ResolveOrdinarySamusContact(samus, controllerInput, level, nativeIndex);
+                if (IsRidleyDefinition(slot.EnemyDefinitionPointer))
+                    ResolveRidleyBodySamusContact(samus, controllerInput);
                 if (slot.EnemyDefinitionPointer == 0)
                     continue;
             }
@@ -683,7 +686,7 @@ public sealed partial class RoomEnemySystem
                         samus,
                         controllerInput,
                         level,
-                        samusProjectiles);
+                        samusProjectiles, cameraX, cameraY);
                     ranActorAi = true;
                 }
                 if (!ranActorAi &&
@@ -883,6 +886,11 @@ public sealed partial class RoomEnemySystem
             foreach (ushort nativeIndex in _drawQueues[layer])
             {
                 RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
+                // Power-bomb damage runs after queue construction and can clear a
+                // queued actor or replace it with the inert respawn reservation.
+                // Neither lifecycle state owns a display composition.
+                if (slot.EnemyDefinitionPointer is 0 or EnemyLifecycleDefinitions.RespawnPlaceholder)
+                    continue;
 
                 // Enemy spawn-point offsets are zero for ordinary room-population entries.
                 // WriteEnemyOams nevertheless performs the additions before subtracting
@@ -1461,7 +1469,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.InitAI_Torizo
                 when slot.EnemyDefinitionPointer is
                 BombTorizoDefinition or GoldenTorizoDefinition:
-                InitializeBombTorizo(slot);
+                InitializeBombTorizo(slot, samus, controllerInput);
                 return;
             case EnemyAiCodePointers.InitAI_Kraid when slot.EnemyDefinitionPointer == KraidDefinition:
                 InitializeKraidBody(slot);
@@ -1835,7 +1843,7 @@ public sealed partial class RoomEnemySystem
                     samus,
                     controllerInput,
                     level,
-                    samusProjectiles);
+                    samusProjectiles, cameraX, cameraY);
                 return;
             case EnemyAiCodePointers.MainAI_RidleyExplosion when slot.EnemyDefinitionPointer == RidleyExplosionDefinitions.EnemyDefinition:
                 RunNorfairRidleyExplosionMain(slot);
@@ -2333,6 +2341,7 @@ public sealed partial class RoomEnemySystem
             pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
             top.VariableA = 144;
             LastGunshipEvent = GunshipFrameEvent.EntryStarted;
+            QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
         }
     }
 
@@ -3949,6 +3958,8 @@ public sealed partial class RoomEnemySystem
 
         if (IsRidleyDefinition(slot.EnemyDefinitionPointer))
             return RidleyInstructionProgramDefinitions.ReadMechanicsWord(address);
+        if (slot.EnemyDefinitionPointer == RidleyExplosionDefinitions.EnemyDefinition)
+            return RidleyExplosionInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (IsDraygonDefinition(slot.EnemyDefinitionPointer))
             return DraygonInstructionProgramDefinitions.ReadMechanicsWord(address);

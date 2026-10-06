@@ -173,9 +173,9 @@ internal static partial class Program
 
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
         AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(
-                guard, cgram, SamusMovementType.SpinJumping, animationFrame: 1,
+                guard, cgram, SamusMovementType.SpinJumping, animationFrame: 0x1b,
                 samus.EquippedItems, suitColors: edited.SamusSuitColors),
-            "early Screw Attack frame restores the normal suit");
+            "Screw Attack recovery frame restores the normal suit");
         AssertEqual(edited.SamusSuitColors.Resolve(2, 1),
             cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
             "Screw Attack recovery preserves edited Varia color");

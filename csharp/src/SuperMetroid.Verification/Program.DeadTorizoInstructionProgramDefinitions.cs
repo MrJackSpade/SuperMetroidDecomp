@@ -26,7 +26,7 @@ internal static partial class Program
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = new DeadTorizoInstructionReadGuard(rom);
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
         var initialize = type.GetMethod("InitializeDeadTorizo", flags)!

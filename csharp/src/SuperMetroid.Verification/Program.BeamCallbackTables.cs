@@ -45,8 +45,8 @@ internal static partial class Program
                 YPosition = 128,
                 EquippedBeams = unchecked((ushort)(beamType | (charged ? 0x1000 : 0))),
             };
-            var projectiles = new SamusProjectileSystem();
-            var shared = new SamusBombProjectileSystem();
+            var projectiles = CreateProjectileFixture();
+            var shared = CreateBombFixture();
             if (initializeOnly)
             {
                 typeof(SamusProjectileSystem).GetMethod("TryFireBeam",

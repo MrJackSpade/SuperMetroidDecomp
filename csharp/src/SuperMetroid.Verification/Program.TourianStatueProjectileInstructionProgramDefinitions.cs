@@ -1,5 +1,5 @@
-using System.Reflection;
 using SuperMetroid.Core.Assets;
+using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -27,15 +27,11 @@ internal static partial class Program
                 $"Tourian statue projectile mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new TourianStatueProjectileInstructionReadGuard(rom);
-        using var paletteStream = new MemoryStream(
-            SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom), writable: false);
-        var enemies = new RoomEnemySystem
-        {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(),
-                tourianStatueColors: TourianStatueColorCatalog.Load(paletteStream)),
-        };
+        var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
@@ -126,14 +122,18 @@ internal static partial class Program
             "Phantoon statue loop remains stable");
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
-            "all Tourian statue projectile visuals use installed selectors without ROM reads");
+            "TourianStatueProjectile execution performs no live spritemap operand reads");
+        AssertEqual(TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "TourianStatueProjectile executes every native visual operand");
         for (int index = 0; index < TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
         {
             ushort address = TourianStatueProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"TourianStatueProjectile executes native presentation operand {address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
-                "Tourian visual operand has an installed selector");
+                "TourianStatueProjectile has a compiled visual selector");
             AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
-                "Tourian installed visual selector matches exact native operand");
+                "TourianStatueProjectile compiled selector matches the cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Tourian statue mechanics byte");
@@ -152,8 +152,8 @@ internal static partial class Program
             "warmed Tourian statue mechanics lookups allocate no storage");
 
         Console.WriteLine(
-            "Tourian statue projectile instruction mechanics: fifty-seven compiled words, " +
-            "all eight real actor families, and twenty-eight native installed selectors with zero live reads pass " +
+            "Tourian statue projectile instruction mechanics: fifty-eight compiled words, " +
+            "all eight real actor families, and twenty-eight installed sprite frames match native OAM " +
             "with mechanics bytes forbidden.");
 
         RoomEnemyProjectileSlot Single(RoomEnemyProjectileKind kind) =>
@@ -171,6 +171,7 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+                VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }
     }

@@ -17,6 +17,7 @@ internal static partial class Program
                 Pose = left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose,
                 XPosition = 512, YPosition = 512,
             };
+            PrepareRetailSamusFixture(samus);
             SamusGrappleMovement.BeginFiring(bus, samus);
             for (int frame = 1; frame < changeFrame; frame++)
                 SamusGrappleMovement.StepFiring(bus, level, samus, (ushort)SnesButton.X);

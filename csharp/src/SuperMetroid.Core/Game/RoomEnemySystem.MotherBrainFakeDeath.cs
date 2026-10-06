@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -562,13 +563,10 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        if (tube.YPosition < 0x00f4)
-        {
-            SpawnMotherBrainTubeSmoke(tube);
-            return;
-        }
-
-        tube.Properties = tube.Properties.With(EnemyProperties.Invisible);
+        // Hiding the tube and moving the brain are independent native branches.
+        // The brain follows the tube throughout its descent, including before hiding.
+        if (tube.YPosition >= 0x00f4)
+            tube.Properties = tube.Properties.With(EnemyProperties.Invisible);
         MotherBrainEnemyState state = _motherBrain ??
             throw new InvalidOperationException("A falling main tube has no Mother Brain encounter state.");
         ushort headY = unchecked((ushort)(tube.YPosition - 56));
@@ -655,5 +653,13 @@ public sealed partial class RoomEnemySystem
             .ApplyPhaseTwoInitial(_cgram!);
         state.EnableUnpauseHook = true;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentSetupPhase2Brain;
+        // The native transition now requests the prepared enemy image, replacing the
+        // room's pipe background before the articulated body becomes visible.
+        var words = new ushort[state.EnemyBg2TilemapSize / 2];
+        for (int index = 0; index < words.Length; index++)
+            words[index] = SnesWorkRam.ReadWord(EnemyWorkMemory,
+                MotherBrainBg2Definitions.WorkAddress + index * 2);
+        _vram!.ExecuteWordTransfer(words, EnemyBg2FrameLayout.VramBase, wordIncrement: 1);
+        state.EnemyBg2TilemapTransferRequested = true;
     }
 }

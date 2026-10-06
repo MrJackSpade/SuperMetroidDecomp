@@ -68,7 +68,7 @@ public static class SamusInsideBlockReactions
                     var speed = samus.HorizontalSpeed;
                     speed.HasRunningMomentum = false;
                     speed.SpeedBoostCounter = 0;
-                    speed.EchoSoundRequested = false;
+                    speed.EchoSoundFlag = 0;
                     speed.ExtraRunSpeed = speed.ExtraRunSubspeed = speed.BaseSpeed = 0;
                     speed.BaseSubspeed &= 0x7fff;
                     if (!bottomPoint) return;

@@ -15,10 +15,10 @@ public sealed partial class RoomEnemySystem
         body.VariableF = 180;
         state.Parts[0].NextFunction = KraidAiFunction.GrowReleaseCamera;
 
-        ushort nextTilemap = KraidHeadInstructionDefinitions.ResolveFrameTilemap(
+        ushort selectionWord = KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(
             _bus!, body.VariableB);
         KraidHeadResumeDefinition resume =
-            KraidHeadInstructionDefinitions.GrowthResume(nextTilemap);
+            KraidHeadInstructionDefinitions.GrowthResume(selectionWord);
         body.VariableB = resume.Pointer;
         body.VariableC = resume.Timer;
         EarthquakeType = 4;

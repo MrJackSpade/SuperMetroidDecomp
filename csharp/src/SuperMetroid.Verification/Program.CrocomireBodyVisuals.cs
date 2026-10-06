@@ -105,7 +105,7 @@ internal static partial class Program
             guard.BlockFrame(CrocomireBodyVisualDefinitions.Bank, pointer);
             foreach (bool newFrame in new[] { false, true })
             {
-                (OamBuffer nativeOam, byte[] nativeVram) = Draw(null, rom, pointer,
+                (OamBuffer nativeOam, byte[] nativeVram) = DrawNative(pointer,
                     newFrame);
                 (OamBuffer installedOam, byte[] installedVram) = Draw(stock, guard,
                     pointer, newFrame);
@@ -205,7 +205,10 @@ internal static partial class Program
         ushort ReadWord(int address) => unchecked((ushort)(rom.ReadByte(address) |
             rom.ReadByte((address & 0xff0000) | unchecked((ushort)(address + 1))) << 8));
 
-        static (OamBuffer Oam, byte[] Vram) Draw(EnemyTileArtworkCatalog? art,
+        (OamBuffer Oam, byte[] Vram) DrawNative(ushort pointer, bool newFrame) =>
+            (DrawReferenceExtendedFrame(rom, 0xa4, pointer, 0x0080, 0x0080),
+                ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newFrame));
+        static (OamBuffer Oam, byte[] Vram) Draw(EnemyTileArtworkCatalog art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

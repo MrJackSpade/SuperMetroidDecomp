@@ -31,6 +31,7 @@ internal static partial class Program
                 $"Dachora mechanics word $A7:{definition.Address:X4}");
         }
 
+        var executedOperands = new HashSet<ushort>();
         var guard = new DachoraInstructionReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeDachora", flags)!;
         (ushort Parameter, ushort Expected)[] initializerCases =
@@ -66,7 +67,7 @@ internal static partial class Program
             slot.EnemyDefinitionPointer = RoomEnemySystem.DachoraDefinition;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
             slot.CurrentInstruction = program.Entry;
-            ExecuteDachoraProgram(
+            ExecuteDachoraProgram(rom, executedOperands,
                 enemies,
                 process,
                 slot,
@@ -91,17 +92,19 @@ internal static partial class Program
             "Dachora right second speed-up preserves native in-place cursor offset");
 
         AssertEqual(DachoraInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Dachora spritemap operands remain cartridge reads");
+            executedOperands.Count,
+            "all executed visual selectors match the cartridge");
         for (int index = 0;
              index < DachoraInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 DachoraInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Dachora presentation word $A7:{address:X4}");
+            AssertTrue(executedOperands.Contains(address),
+                $"production execution covers Dachora presentation word $A7:{address:X4}");
         }
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "compiled visual selectors require no runtime cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Dachora mechanics byte");
 
@@ -123,11 +126,13 @@ internal static partial class Program
 
         Console.WriteLine(
             "Dachora instruction mechanics: 110 compiled words, all fifteen body/echo " +
-            "programs and speed tiers, and 81 live spritemap reads pass with mechanics " +
-            "bytes forbidden.");
+            "programs and speed tiers, and 81 executed selectors match cartridge data with runtime " +
+            "ROM reads forbidden.");
     }
 
     private static void ExecuteDachoraProgram(
+        ISnesAddressSpace rom,
+        HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
         MethodInfo process,
         RoomEnemySlot slot,
@@ -139,6 +144,7 @@ internal static partial class Program
         {
             slot.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
+            VerifyExecutedEnemySelector(rom, slot, executedOperands);
         }
     }
 

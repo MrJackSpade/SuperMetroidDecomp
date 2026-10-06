@@ -213,7 +213,8 @@ public static partial class SnesGameplayFrameRenderer
         int bg2FirstScanline = 32, int bg2EndScanline = 224,
         SnesWindowRegisters windowRegisters = default,
         SnesMainScreenLayers mainScreenWindowMask = SnesMainScreenLayers.None,
-        BackgroundMosaicSampling bg2Mosaic = default)
+        BackgroundMosaicSampling bg2Mosaic = default,
+        ReadOnlySpan<ushort> mainScreenLayersByLine = default)
     {
         Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
         Span<SnesMainScreenLayers> windowMasks = stackalloc SnesMainScreenLayers[Width];
@@ -262,7 +263,8 @@ public static partial class SnesGameplayFrameRenderer
                 bg2TilemapWidthInTiles,
                 bg2TilemapHeightInTiles,
                 bg2TilemapBaseWord,
-                mainScreenLayers, bg2FirstScanline, bg2EndScanline, windowMasks, bg2Mosaic);
+                mainScreenLayers, bg2FirstScanline, bg2EndScanline, windowMasks, bg2Mosaic,
+                mainScreenLayersByLine);
         }
         finally
         {
@@ -311,7 +313,8 @@ public static partial class SnesGameplayFrameRenderer
         ushort bg2TilemapBaseWord,
         SnesMainScreenLayers mainScreenLayers,
         int bg2FirstScanline, int bg2EndScanline,
-        ReadOnlySpan<SnesMainScreenLayers> windowMasks, BackgroundMosaicSampling bg2Mosaic)
+        ReadOnlySpan<SnesMainScreenLayers> windowMasks, BackgroundMosaicSampling bg2Mosaic,
+        ReadOnlySpan<ushort> mainScreenLayersByLine)
     {
         if (objectPixels.Length != output.Length ||
             objectPriorities.Length != output.Length)
@@ -355,15 +358,19 @@ public static partial class SnesGameplayFrameRenderer
         ReadOnlySpan<byte> vramBytes = vram.Bytes;
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         ExpandCgram(cgram, palette);
-        bool bg1Enabled = (mainScreenLayers & SnesMainScreenLayers.Bg1) != 0;
-        bool bg2LayerEnabled = (mainScreenLayers & SnesMainScreenLayers.Bg2) != 0;
-        bool objEnabled = (mainScreenLayers & SnesMainScreenLayers.Obj) != 0;
+        if (!mainScreenLayersByLine.IsEmpty && mainScreenLayersByLine.Length != Height - HudHeight)
+            throw new ArgumentException("Main-screen HDMA must cover exactly 192 gameplay lines.", nameof(mainScreenLayersByLine));
 
         int bg2XMask = bg2TilemapWidthInTiles * 8 - 1;
         int bg2YMask = bg2TilemapHeightInTiles * 8 - 1;
         int bg2ScreensPerRow = bg2TilemapWidthInTiles >> 5;
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
+            SnesMainScreenLayers activeLayers = mainScreenLayersByLine.IsEmpty ? mainScreenLayers
+                : (SnesMainScreenLayers)mainScreenLayersByLine[screenY - HudHeight];
+            bool bg1Enabled = (activeLayers & SnesMainScreenLayers.Bg1) != 0;
+            bool bg2LayerEnabled = (activeLayers & SnesMainScreenLayers.Bg2) != 0;
+            bool objEnabled = (activeLayers & SnesMainScreenLayers.Obj) != 0;
             bool bg2Enabled = bg2LayerEnabled && screenY >= bg2FirstScanline && screenY < bg2EndScanline;
             // Output rows are zero-based, while Mode-1 BG sampling starts on
             // physical scanline one. OBJ's preceding-line evaluation is separate.
@@ -482,8 +489,12 @@ public static partial class SnesGameplayFrameRenderer
                             $"Resolved OBJ priority {objPriority} is outside zero through three."),
                     };
                     if (objRank > winnerRank)
+                    {
                         winner = objectPixels[destination];
+                        winnerRank = objRank;
+                    }
                 }
+
 
                 output[destination] = winner;
             }
@@ -994,13 +1005,13 @@ public static partial class SnesGameplayFrameRenderer
         LayerBlendingConfiguration expectedConfiguration = fx.Type switch
         {
             RoomFxType.Lava or RoomFxType.Acid => LayerBlendingConfiguration.LavaAcidAdditive,
-            RoomFxType.Water => fx.LayerBlendConfiguration,
+            RoomFxType.Water or RoomFxType.TourianEntranceStatue => fx.LayerBlendConfiguration,
             RoomFxType.Rain => LayerBlendingConfiguration.Rain,
             RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
             _ => throw new NotSupportedException(
                 $"Room FX type {(ushort)fx.Type:X2} has no BG3 compositor."),
         };
-        if (fx.Type == RoomFxType.Water && fx.LayerBlendConfiguration is not (
+        if (RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is not (
                 LayerBlendingConfiguration.WaterSubtractive or
                 LayerBlendingConfiguration.WaterfallSubtractive or
                 LayerBlendingConfiguration.LiquidOrFogAdditive))
@@ -1021,7 +1032,7 @@ public static partial class SnesGameplayFrameRenderer
         // Many heated Norfair rooms deliberately retain type $02, its palette objects,
         // and BG2 shimmer while using $FFFF to mean that no liquid surface exists. A
         // signed -1 must therefore suppress BG3 rather than compare as a line above zero.
-        if (fx.Type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid &&
+        if (fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid &&
             unchecked((short)fx.CurrentYPosition) < 0)
         {
             return;
@@ -1032,7 +1043,7 @@ public static partial class SnesGameplayFrameRenderer
         // subtractive routes ($14/$16). Compositing the already-resolved scene with the
         // nontransparent BG3 pixel reproduces that final PPU equation without flattening
         // the cartridge's animated surface into a host-authored rectangle.
-        bool liquid = fx.Type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid;
+        bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
         bool fullScreenAtmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog;
         ushort tilemapBaseWord = fullScreenAtmosphere
             ? RoomFxRomData.Layer3.FullScreenAtmosphereTilemapBaseWord
@@ -1054,7 +1065,7 @@ public static partial class SnesGameplayFrameRenderer
             int scrolledY = unchecked(verticalScroll + screenY) & verticalCoordinateMask;
             int tileY = scrolledY >> 3;
             int pixelY = scrolledY & 7;
-            int waveDisplacement = fx.Type == RoomFxType.Water &&
+            int waveDisplacement = RoomFxTypes.UsesWater(fx.Type) &&
                 screenY > fx.WaterSurfaceScreenY
                 ? RoomFxRomData.Water.WaveDisplacement(
                     (screenY - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
@@ -1083,7 +1094,7 @@ public static partial class SnesGameplayFrameRenderer
                 Rgba32 overlay = cgram.GetRgba(entry.PaletteIndex * 4 + color);
                 int destination = screenY * Width + screenX;
                 Rgba32 source = frame[destination];
-                bool subtract = fx.Type == RoomFxType.Water &&
+                bool subtract = RoomFxTypes.UsesWater(fx.Type) &&
                     fx.LayerBlendConfiguration is
                         LayerBlendingConfiguration.WaterSubtractive or
                         LayerBlendingConfiguration.WaterfallSubtractive;
@@ -1248,17 +1259,12 @@ public static partial class SnesGameplayFrameRenderer
             return -1;
         }
 
-        if (renderedPhase == PowerBombExplosionPhase.Afterglow)
-        {
-            // The final `$9E46` table has expanded beyond the 256-pixel viewport. Stage
-            // five stops updating HDMA data and fades the already full-screen fixed color.
-            return Width;
-        }
-
         ushort shapePointer = explosion.RenderedShapeDefinitionPointer;
         if ((renderedPhase is PowerBombExplosionPhase.PreExplosionYellow or
-             PowerBombExplosionPhase.ExplosionWhite) && shapePointer != 0)
+             PowerBombExplosionPhase.ExplosionWhite or PowerBombExplosionPhase.Afterglow) && shapePointer != 0)
         {
+            // $88:8B98 only fades COLDATA: the final white window remains installed.
+            // It can still leave visible corners outside the oval near screen edges.
             // Each 192-byte record is a half-profile, not a 192-line top-to-bottom
             // bitmap. Byte zero is the widest center line; increasing indices travel
             // away from the center until the first zero terminates the native copier.

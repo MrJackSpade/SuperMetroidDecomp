@@ -10,6 +10,7 @@ internal static class AndroidSettingDefinitions
 {
     internal static readonly AndroidSettingDefinition[] All =
     [
+        new("Door-transition autosaves", "Game", "DoorTransitionAutosave", ["true", "false"], o => o.DoorTransitionAutosave.ToString().ToLowerInvariant()),
         new("Ending time override (minutes)", "Game", "EndingTimeOverrideMinutes", ["None", "0", "180", "600"], o => o.EndingTimeOverrideMinutes?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "None"),
         new("Escape countdown (minimum 1 second)", "Game", "PreventEscapeTimeout", ["false", "true"], o => o.PreventEscapeTimeout.ToString().ToLowerInvariant()),
         new("Invincibility (minimum 1 energy)", "Game", "Invincibility", ["false", "true"], o => o.Invincibility.ToString().ToLowerInvariant()),

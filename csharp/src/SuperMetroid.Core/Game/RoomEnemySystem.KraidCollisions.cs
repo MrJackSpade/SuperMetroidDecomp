@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Kraid's body and mouth versus the five ordinary Samus-projectile slots. His visible body
+/// Kraid's body and mouth versus the native counter-indexed projectile slots. His visible body
 /// is BG2, so the generic radius/extended-spritemap walker cannot represent these hitboxes;
 /// bank `$A7:AFAA-$B267` explicitly consumes pointers from the active head tilemap entry.
 /// </summary>
@@ -24,12 +25,13 @@ public sealed partial class RoomEnemySystem
             ? (ushort)0x001d
             : (ushort)0x0006;
         SpawnRoomGraphicsDustExplosion(xPosition, yPosition, animationIndex);
-        LastEnemyProjectileDudSoundEffect = 0x003d;
+        QueueEnemySound(SoundEffectLibrary1Sounds.DudShot, maximumQueued: 6);
     }
 
     /// <summary>
-    /// Resolves one enemy-main collision pass. The vulnerable inner mouth is tested first;
-    /// remaining shots are absorbed by the outer mouth/body contour without damaging HP.
+    /// Resolves the native mouth pass followed by the independent outer mouth/body pass.
+    /// Each pass retains its three scratch words across calls and defers projectile removal
+    /// to the projectile pre-instruction, as at <c>$A7:AFAA-$B267</c>.
     /// </summary>
     public int ResolveKraidProjectileHits(
         ISnesAddressSpace bus,
@@ -45,67 +47,138 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = _slots[0];
         KraidEnemyState state = _kraidState;
         if (body.Properties.HasAny(EnemyProperties.Deleted) ||
-            unchecked((short)(body.VariableA + 0x3ac9)) >= 0)
+            unchecked((short)(body.VariableA - (ushort)KraidAiFunction.DeathSink)) >= 0)
         {
             return 0;
         }
 
-        int hitCount = 0;
-        foreach (SamusProjectileSlot shot in projectiles.Slots.Reverse())
-        {
-            if (!shot.HasEnemyCollisionPayload)
-                continue;
+        int lastSlot = projectiles.ProjectileCounter;
+        if (lastSlot > SamusProjectileSystem.SlotCount)
+            throw new InvalidDataException($"Kraid projectile counter {lastSlot} exceeds the bounded native slot domain.");
 
-            ushort projectileType = shot.Type;
-            SamusProjectileTypeWord packedProjectileType = shot.PackedType;
-            ushort projectileDamage = shot.Damage;
-            bool damagingFamily = packedProjectileType.Family != SamusProjectileFamily.Beam ||
-                packedProjectileType.IsChargedBeam;
-            if (damagingFamily && state.InvulnerableMouthHitbox != ushort.MaxValue &&
-                KraidMouthHitboxOverlapsShot(body, state.InvulnerableMouthHitbox, shot))
+        // The cartridge starts at the count itself, not count - 1, and does not inspect
+        // active-slot sentinels. Count five therefore includes the first physical bomb.
+        KraidCollisionShot ReadShot(int index)
+        {
+            if (index < SamusProjectileSystem.SlotCount)
             {
-                if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, shot.SlotIndex))
+                SamusProjectileSlot shot = projectiles.Slots[index];
+                return new(shot.XPosition, shot.YPosition, shot.XRadius, shot.YRadius, shot.Type, shot.Damage);
+            }
+            SamusBombProjectileSlot bomb = sharedProjectiles.Slots[0];
+            return new(bomb.XPosition, bomb.YPosition, bomb.XRadius, bomb.YRadius, bomb.Type, bomb.Damage);
+        }
+
+        void MarkCollision(int index)
+        {
+            if (index < SamusProjectileSystem.SlotCount)
+            {
+                SamusProjectileSlot shot = projectiles.Slots[index];
+                shot.Direction = shot.PackedDirection.WithCollisionLifecycleState();
+            }
+            else
+            {
+                SamusBombProjectileSlot bomb = sharedProjectiles.Slots[0];
+                bomb.Direction = new SamusProjectileDirectionWord(bomb.Direction).WithCollisionLifecycleState();
+            }
+        }
+
+        int mouthHits = 0;
+        ushort innerMouth = lastSlot == 0 ? ushort.MaxValue :
+            KraidHeadInstructionDefinitions.ReadCollisionHitbox(bus, body.VariableB, innerMouth: true);
+        if (lastSlot != 0 && innerMouth != ushort.MaxValue)
+        {
+            KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, innerMouth);
+            for (int index = lastSlot; index >= 0; index--)
+            {
+                KraidCollisionShot shot = ReadShot(index);
+                SamusProjectileTypeWord type = new(shot.Type);
+                if (!scratch.OverlapsMouth(shot) ||
+                    (type.Family == SamusProjectileFamily.Beam && !type.IsChargedBeam))
                     continue;
 
-                if (packedProjectileType.IsChargedBeam)
+                if (type.Family == SamusProjectileFamily.Beam)
                     state.MouthFlags |= 1;
-                byte vulnerability = ReadProjectileVulnerability(body, projectileType);
-                int damage = (projectileDamage >> 1) * (vulnerability & 0x7f);
+                // The common shot callback reuses DP $12/$14 for type/vulnerability.
+                // In particular, $8200 left by a Super Missile changes the next shot's
+                // signed CMP; rebuilding a clean rectangle here doubles close-range damage.
+                scratch.Bottom = shot.Type;
+                scratch.Top = body.Definition.VulnerabilityPointer != 0
+                    ? body.Definition.VulnerabilityPointer : EnemyVulnerabilityDefinitions.DefaultPointer;
+                int multiplier = type.Family switch
+                {
+                    SamusProjectileFamily.Beam => EnemyVulnerabilityDefinitions.Read(
+                        scratch.Top, EnemyVulnerabilityDefinitions.ChargedBeamOffset) & 0x0f,
+                    SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile or
+                    SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb =>
+                        ReadProjectileVulnerability(body, type) & 0x7f,
+                    _ => 0,
+                };
+                int damage = unchecked((ushort)((shot.Damage >> 1) * multiplier));
                 if (damage != 0)
                 {
                     body.Health = damage >= body.Health
                         ? (ushort)0
                         : unchecked((ushort)(body.Health - damage));
-                    body.FlashTimer = 12;
+                    body.FlashTimer = unchecked((ushort)((body.HurtAiTime == 0 ? 4 : body.HurtAiTime) + 8));
                     body.AiHandlerBits = unchecked((ushort)(body.AiHandlerBits | 2));
+                    if ((shot.Type & 8) != 0)
+                        body.InvincibilityTimer = 16;
                 }
-                state.HurtFrame = 6;
-                state.HurtFrameTimer = 2;
-                if ((state.MouthFlags & 2) != 0)
-                    state.MouthFlags |= 4;
-                if (body.Health == 0 && unchecked((short)(body.VariableA + 0x3ca0)) < 0)
-                    BeginKraidDeath(body, state);
-                hitCount++;
-                continue;
+                else
+                {
+                    RoomSpriteObjectSlot? dud = SpawnRoomSpriteObject(
+                        shot.X, shot.Y, RoomSpriteObjectKind.EnemyProjectileDud, graphicsIndex: 0);
+                    // Create_Sprite_Object returns its native index in $12 only on success.
+                    scratch.Bottom = dud?.NativeIndex ?? shot.X;
+                    scratch.Top = shot.Y;
+                    scratch.Left = (ushort)RoomSpriteObjectKind.EnemyProjectileDud;
+                    QueueEnemySound(SoundEffectLibrary1Sounds.DudShot, maximumQueued: 3);
+                }
+                MarkCollision(index);
+                mouthHits++;
             }
-
-            if (!KraidOuterBodyOverlapsShot(body, state, shot) ||
-                !projectiles.TryStartEnemyImpact(bus, sharedProjectiles, shot.SlotIndex))
-            {
-                continue;
-            }
-            if ((projectileType & 0x0010) != 0)
-                state.MouthFlags |= 1;
-            hitCount++;
         }
 
-        if (hitCount != 0 && body.VariableA == (ushort)KraidAiFunction.MainloopThinking)
+        if (mouthHits != 0)
+        {
+            state.HurtFrame = 6;
+            state.HurtFrameTimer = 2;
+            if ((state.MouthFlags & 2) != 0)
+                state.MouthFlags |= 4;
+            if (unchecked((short)(body.Health - 1)) < 0 &&
+                unchecked((short)(body.VariableA - (ushort)KraidAiFunction.DeathInitialize)) < 0)
+                BeginKraidDeath(body, state);
+        }
+
+        state.MouthFlags &= 0xfffe;
+        int bodyHits = 0;
+        if (lastSlot != 0)
+        {
+            ushort outerMouth = KraidHeadInstructionDefinitions.ReadCollisionHitbox(bus, body.VariableB, innerMouth: false);
+            KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, outerMouth);
+            for (int index = lastSlot; index >= 0; index--)
+            {
+                KraidCollisionShot shot = ReadShot(index);
+                if (!scratch.OverlapsBody(body, shot))
+                    continue;
+                SpawnKraidArmShotExplosion(shot.Type, shot.X, shot.Y);
+                scratch.Bottom = shot.X;
+                scratch.Top = shot.Y;
+                MarkCollision(index);
+                if ((shot.Type & 0x0010) != 0)
+                    state.MouthFlags |= 1;
+                bodyHits++;
+            }
+        }
+
+        if (bodyHits != 0 && body.VariableA == (ushort)KraidAiFunction.MainloopThinking)
         {
             body.VariableA = (ushort)KraidAiFunction.InitializeEyeGlow;
             if ((state.MouthFlags & 1) != 0)
                 state.MouthFlags |= 0x0302;
         }
-        return hitCount;
+        return mouthHits + bodyHits;
     }
 
     private bool KraidMouthHitboxOverlapsShot(
@@ -113,29 +186,47 @@ public sealed partial class RoomEnemySystem
         ushort hitboxPointer,
         SamusProjectileSlot shot)
     {
-        (short left, short top, short bottom) =
-            KraidMouthHitboxes.ResolveCollision(_bus!, hitboxPointer);
-        int leftBoundary = body.XPosition + left;
-        int topBoundary = body.YPosition + top;
-        int bottomBoundary = body.YPosition + bottom;
-        return shot.YPosition - shot.YRadius - 1 < bottomBoundary &&
-            shot.YPosition + shot.YRadius >= topBoundary &&
-            shot.XPosition + shot.XRadius >= leftBoundary;
+        return LoadKraidCollisionScratch(body, hitboxPointer).OverlapsMouth(
+            new(shot.XPosition, shot.YPosition, shot.XRadius, shot.YRadius, shot.Type, shot.Damage));
     }
 
-    private bool KraidOuterBodyOverlapsShot(
-        RoomEnemySlot body,
-        KraidEnemyState state,
-        SamusProjectileSlot shot)
+    private KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, ushort pointer)
     {
-        if (state.VulnerableMouthHitbox != 0 &&
-            KraidMouthHitboxOverlapsShot(body, state.VulnerableMouthHitbox, shot))
+        (short left, short top, short bottom) = KraidMouthHitboxes.ResolveCollision(_bus!, pointer);
+        return new()
         {
-            return true;
-        }
+            Left = unchecked((ushort)(body.XPosition + left)),
+            Top = unchecked((ushort)(body.YPosition + top)),
+            Bottom = unchecked((ushort)(body.YPosition + bottom)),
+        };
+    }
 
-        short relativeY = unchecked((short)(shot.YPosition - body.YPosition));
-        return shot.XPosition + shot.XRadius > body.XPosition + KraidBodyContour.LeftEdge(relativeY);
+    private readonly record struct KraidCollisionShot(ushort X, ushort Y, ushort XRadius,
+        ushort YRadius, ushort Type, ushort Damage);
+
+    // These are the bounded DP $12/$14/$16 words local to a native collision pass.
+    // Compare the wrapped subtraction's sign, not an unbounded host integer ordering.
+    private struct KraidCollisionScratch
+    {
+        public ushort Bottom;
+        public ushort Top;
+        public ushort Left;
+
+        public readonly bool OverlapsMouth(KraidCollisionShot shot) =>
+            unchecked((short)(shot.Y - shot.YRadius - 1 - Bottom)) < 0 &&
+            unchecked((short)(shot.Y + shot.YRadius - Top)) >= 0 &&
+            unchecked((short)(shot.X + shot.XRadius - Left)) >= 0;
+
+        public bool OverlapsBody(RoomEnemySlot body, KraidCollisionShot shot)
+        {
+            if (unchecked((short)(shot.Y - shot.YRadius - 1 - Bottom)) < 0)
+                return unchecked((short)(shot.Y + shot.YRadius - Top)) >= 0 &&
+                    unchecked((short)(shot.X + shot.XRadius - Left)) >= 0;
+
+            Bottom = unchecked((ushort)(shot.X + shot.XRadius));
+            short relativeY = unchecked((short)(shot.Y - body.YPosition));
+            return unchecked((short)(body.XPosition + KraidBodyContour.LeftEdge(relativeY) - Bottom)) < 0;
+        }
     }
 
     private void BeginKraidDeath(RoomEnemySlot body, KraidEnemyState state)

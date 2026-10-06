@@ -16,6 +16,7 @@ internal static partial class Program
     /// </summary>
     static void VerifyPermanentCollectibles()
     {
+        VerifyMorphBallPickupCollision();
         var bus = new TestAddressSpace();
         SeedCollectibleRom(bus);
         // Full-table audit: unused native entries still allocate a deleting PLM,
@@ -65,6 +66,7 @@ internal static partial class Program
                     visibleUpdate.TopRow[0] & 0x03ff,
                     $"{kind} live streamer uses its dynamic PLM character definition");
             }
+            ushort visibleItemWord = fixture.Level.ForegroundEntries.Span[fixture.BlockIndex];
             AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 $"{kind} visible block accepts Samus contact");
             fixture.Plms.Step(
@@ -84,7 +86,12 @@ internal static partial class Program
                 $"{kind} fanfare edge cannot repeat during its synchronous message");
             AssertPermanentCollectibleEffect(kind, fixture.Samus);
 
-            // Acquisition frees the native physical ID. Reuse that same highest slot for
+            AssertEqual(visibleItemWord, fixture.Level.ForegroundEntries.Span[fixture.BlockIndex],
+                $"{kind} retains pickup artwork during its message");
+            fixture.Plms.CompleteCollectibleMessage();
+            fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+
+            // Returning from the message frees the native physical ID. Reuse that same highest slot for
             // a destructible special block, exactly as the block beside Morph Ball does.
             // The new actor must not inherit Item/Triggered and publish the old message.
             AssertTrue(
@@ -146,6 +153,7 @@ internal static partial class Program
         StepFrames(9, _ => orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0));
         AssertEqual(CollectiblePhase.Visible, orb.Plms.Collectibles[0].Phase,
             "Chozo burst exposes the item");
+        ushort orbItemWord = orb.Level.ForegroundEntries.Span[orb.BlockIndex];
         AssertTrue(orb.Plms.TryNotifyCollectibleTouch(orb.BlockIndex),
             "exposed Chozo item accepts touch");
         orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
@@ -153,6 +161,12 @@ internal static partial class Program
             "Chozo item persists its room argument bit");
         AssertTrue((orb.Samus.CollectedItems & (ushort)SamusEquipmentFlags.MorphBall) != 0,
             "Chozo Morph Ball grants equipment");
+
+        AssertEqual(orbItemWord, orb.Level.ForegroundEntries.Span[orb.BlockIndex],
+            "Chozo pickup remains visible throughout message");
+        orb.Plms.CompleteCollectibleMessage();
+        orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
+        AssertEqual(0, orb.Plms.Collectibles.Count, "Chozo pickup deletes after message");
 
         CollectibleFixture reopenedOrb = LoadCollectible(
             bus,
@@ -182,10 +196,16 @@ internal static partial class Program
             _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0),
             maximumFrames: 20,
             context: "shot item reveal");
+        ushort shotItemWord = shot.Level.ForegroundEntries.Span[shot.BlockIndex];
         AssertTrue(shot.Plms.TryNotifyCollectibleTouch(shot.BlockIndex),
             "revealed shot item accepts Samus contact");
         shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0);
         AssertEqual(5, shot.Samus.MaxMissiles, "shot item grants missile capacity");
+        StepFrames(180, _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0));
+        AssertEqual(shotItemWord, shot.Level.ForegroundEntries.Span[shot.BlockIndex],
+            "shot pickup cannot clear or begin respawn countdown during message");
+        shot.Plms.CompleteCollectibleMessage();
+        shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0);
         AssertEqual(CollectiblePhase.CollectedShotBlockEmpty,
             shot.Plms.Collectibles[0].Phase,
             "collected shot item retains empty respawn owner");
@@ -204,31 +224,74 @@ internal static partial class Program
             "  Permanent collectibles: 63 ROM headers, all 21 effects, three presentations, SRAM bits, bank-$85 messages, and suit transformations agree.");
     }
 
+    private static void VerifyMorphBallPickupCollision()
+    {
+        var bus = new TestAddressSpace();
+        SeedCollectibleRom(bus);
+        // Retail room $9E9F/$9EB1 places Morph Ball at ($45,$29): block 5317.
+        var fixture = LoadCollectible(bus,
+            (ushort)(RoomPlmHeaders.ExposedEnergyTank + (int)InWorldCollectibleKind.MorphBall * 4),
+            26, precollected: false, width: 128, blockX: 69, blockY: 41, height: 48);
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
+        var movement = new SamusKinematicsState
+        {
+            XPosition = 1124, YPosition = 651, XRadius = 5, YRadius = 14,
+        };
+        SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
+            plms: fixture.Plms, alignToSlopeAfterMovement: false);
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
+        AssertTrue(fixture.System.HasCollectedItemBit(26), "Morph Ball pickup persists");
+        AssertPermanentCollectibleEffect(InWorldCollectibleKind.MorphBall, fixture.Samus);
+        AssertEqual(CollectiblePhase.AwaitingMessage, fixture.Plms.Collectibles[0].Phase,
+            "Morph Ball retains its owner during the synchronous message");
+        AssertEqual(1, fixture.Plms.CollectiblePickupEvents.Count, "Morph Ball publishes one pickup");
+        fixture.Plms.CompleteCollectibleMessage();
+        // Message return resumes gameplay movement before the next PLM handler pass.
+        var next = SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
+            plms: fixture.Plms, alignToSlopeAfterMovement: false);
+        AssertEqual((ushort)1122, movement.XPosition, "message-return horizontal movement advances");
+        AssertTrue(!next.Collided, "message-return Morph Ball block remains passable");
+        AssertEqual(CollectiblePhase.ResumeAfterMessage, fixture.Plms.Collectibles[0].Phase,
+            "repeat contact preserves the pending cleanup continuation");
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
+        AssertEqual(0, fixture.Plms.ActiveCount, "Morph Ball owner deletes after message return");
+        AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).LevelWord,
+            "Morph Ball pickup draws native empty level word");
+        AssertEqual(0, fixture.Plms.CollectiblePickupEvents.Count, "Morph Ball cannot be awarded twice");
+        var cleared = SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
+            plms: fixture.Plms, alignToSlopeAfterMovement: false);
+        AssertTrue(!cleared.Collided, "deleted Morph Ball leaves passable air");
+        AssertEqual((ushort)1121, movement.XPosition, "movement also advances after owner deletion");
+        Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");
+    }
+
     private static CollectibleFixture LoadCollectible(
         TestAddressSpace bus,
         ushort header,
         ushort roomArgument,
         bool precollected,
-        bool preopenedChozo = false)
+        bool preopenedChozo = false,
+        RoomLayer3FxState? roomFx = null,
+        int width = 8,
+        int blockX = 3,
+        int blockY = 3,
+        int height = 8)
     {
         const ushort population = 0x9000;
-        const int width = 8;
-        const int blockX = 3;
-        const int blockY = 3;
         int blockIndex = blockY * width + blockX;
         bus.WriteBytes(0x8f0000 | population, [
             unchecked((byte)header), unchecked((byte)(header >> 8)),
-            blockX, blockY,
+            unchecked((byte)blockX), unchecked((byte)blockY),
             unchecked((byte)roomArgument), unchecked((byte)(roomArgument >> 8)),
             0x00, 0x00,
         ]);
 
-        var foreground = new ushort[width * width];
+        var foreground = new ushort[width * height];
         foreground[blockIndex] = 0x0123;
         var definitions = new byte[0x400 * 8];
         RoomLevelData level = CreateRoom(
             width,
-            width,
+            height,
             foreground,
             new byte[foreground.Length],
             blockDefinitions: definitions);
@@ -253,7 +316,8 @@ internal static partial class Program
             system,
             areaIndex: AreaId.Crateria,
             getSamus: () => samus,
-            isAreaTorizoDefeated: () => false);
+            isAreaTorizoDefeated: () => false,
+            roomFx: roomFx);
         AssertEqual(1, loaded, "one-item room population load count");
         return new CollectibleFixture(plms, level, streamer, system, samus, blockIndex);
     }
@@ -429,15 +493,18 @@ internal static partial class Program
     private static void VerifyPermanentItemMessageBox()
     {
         var bus = new TestAddressSpace();
-        SeedPermanentItemMessageBoxRom(bus);
-        var message = new GameplayMessageBoxState();
+        var message = CreatePermanentMessageFixture();
 
         message.Begin(bus, GameplayMessageIds.EnergyTank);
         AssertEqual(GameplayMessageBoxPhase.Opening, message.Phase,
             "item message enters shared opening coroutine");
         AssertEqual(3, message.TilemapRowCount, "small item message has border/content/border");
-        AssertEqual((ushort)0x3801, message.Tilemap[0], "small item message reads ROM border");
-        AssertEqual((ushort)0x3801, message.Tilemap[32], "small item message reads ROM content");
+        AssertEqual((ushort)0x3801, message.Tilemap[0], "small item message uses custom installed border");
+        AssertEqual(GameplayMessageTitleDefinitions.TransparentWord, message.Tilemap[32],
+            "small item message preserves transparent outer columns");
+        ushort[] expectedTitle = [0x38f3, 0x38e4, 0x38f2, 0x38f3];
+        AssertTrue(message.Tilemap.Slice(45, 4).SequenceEqual(expectedTitle),
+            "small item message centers the installed TEST title with palette six");
 
         for (int openingFrame = 0; openingFrame < 13; openingFrame++)
         {
@@ -507,7 +574,7 @@ internal static partial class Program
         // small-border drawing routine but delimits three complete content rows. This
         // verifies the native variable-length copy instead of inferring height from the
         // border routine's name, and exercises that shape through the compositor too.
-        message = new GameplayMessageBoxState();
+        message = CreatePermanentMessageFixture();
         message.Begin(bus, GameplayMessageIds.MapDataAccessCompleted);
         AssertEqual(5, message.TilemapRowCount,
             "map-station message accepts three rows inside the small border");
@@ -551,7 +618,7 @@ internal static partial class Program
             var retailBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(File.ReadAllBytes(romPath));
             for (byte messageId = 1; messageId <= 26; messageId++)
             {
-                var retailMessage = new GameplayMessageBoxState();
+                var retailMessage = CreateGameplayMessageFixture();
                 retailMessage.Begin(
                     retailBus,
                     GameplayMessageIds.FromCartridge(messageId, "retail definition-table audit"));
@@ -584,7 +651,9 @@ internal static partial class Program
         WriteWord(bus, 0x9b9400, 0x001f);
         WriteWord(bus, 0x9b9520, 0x03e0);
         WriteWord(bus, 0x9b9800, 0x7c00);
-        VerifySuitPickupHistory(bus);
+        SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
+            new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+        VerifySuitPickupHistory(bus, suitColors);
         var cgram = new SnesCgram();
         var samus = new SamusState
         {
@@ -595,8 +664,6 @@ internal static partial class Program
             EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit,
             CollectedItems = (ushort)SamusEquipmentFlags.VariaSuit,
         };
-        SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
-            new MemoryStream(SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
         samus.SuitColors = suitColors;
         SamusState.LoadPowerSuitPalette(bus, cgram, suitColors);
 
@@ -665,7 +732,7 @@ internal static partial class Program
             "normal suit palette loader gives Gravity priority over Varia");
     }
 
-    private static void VerifySuitPickupHistory(TestAddressSpace bus)
+    private static void VerifySuitPickupHistory(TestAddressSpace bus, SamusSuitColorCatalog suitColors)
     {
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         foreach (bool otherSuit in new[] { false, true })
@@ -673,6 +740,7 @@ internal static partial class Program
             var samus = new SamusState { EquippedItems = otherSuit
                 ? (ushort)(kind == SamusSuitPickupKind.Varia ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit)
                 : (ushort)0 };
+            samus.SuitColors = suitColors;
             var history = samus.PoseHistory;
             history.PreviousPose = SamusPoseIds.SpinJumpRightPose;
             history.PreviousDirectionAndMovement = 0x0308;
@@ -696,23 +764,6 @@ internal static partial class Program
             AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
                 history.PreviousDirectionAndMovement, "suit reveal commits suited metadata");
             AssertTrue(!history.AllowsWallJumpProbe, "suit reveal clears pre-acquisition spin eligibility");
-        }
-    }
-
-    private static void SeedPermanentItemMessageBoxRom(TestAddressSpace bus)
-    {
-        for (int word = 0; word < 32; word++)
-        {
-            WriteWord(bus, 0x858000 + word * 2, 0x3801);
-            WriteWord(bus, 0x858040 + word * 2, 0x3801);
-            WriteWord(bus, 0x85877f + word * 2, 0x3801);
-        }
-        for (int word = 0; word < 128; word++)
-            WriteWord(bus, 0x8587bf + word * 2, 0x3801);
-        for (int row = 0; row < 3; row++)
-        {
-            for (int word = 0; word < 32; word++)
-                WriteWord(bus, 0x85917f + (row * 32 + word) * 2, (ushort)(0x3820 + row));
         }
     }
 

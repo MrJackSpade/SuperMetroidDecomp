@@ -519,6 +519,280 @@ if (args is ["--lookup-stream-1-body-facing"] or ["--lookup-stream-1-xray-frames
     VerifyLookupStream1XrayBodyFrames(rom);
     return 0;
 }
+if (args is ["--morph-ball-pickup-collision"])
+{
+    VerifyMorphBallPickupCollision();
+    return 0;
+}
+if (args is ["--save-load-rng-fixture"]) { return SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), retailGameFixtureBindings.Value); }
+if (args is ["--frontend-fixtures"]) { VerifyIntroPoseHistory(); VerifyFrontendRenderCapture(); VerifyGameplayCaptureIntegration(); VerifyAttractCapture(); return 0; }
+if (args is ["--menu-fixtures"]) { VerifyFileMenuRenderSnapshots(); VerifyFileMapSnapshots(); VerifyControllerBindingsAndOptionsSubmenus(); VerifyMessageSnapshots(); VerifyGameplayMessageDefinitions(); return 0; }
+if (args is ["--cinematic-fixtures"]) { VerifyCinematicRenderSnapshots(); VerifyEndingRenderSnapshots(); VerifyEndingCreditsState(); return 0; }
+if (args is ["--projectile-fixtures"]) {
+VerifyMotherBrainBombProjectiles();
+VerifyWrapShotTrace("csharp/test-fixtures/movement-release/wrap-shot-409.csv");
+VerifyWrapShotEnemySeparation();
+VerifyWrapShotWidths("csharp/test-fixtures/movement-release/wrap-width-409.csv");
+VerifyKronicGateBeamCollision();
+VerifyRightFacingGateGlitches();
+VerifyGModeGateGlitch();
+VerifyFrogSpeedwayPoolCollision();
+VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv");
+VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv");
+VerifyBeamSpeedRows();
+VerifyBeamCallbackTables();
+VerifySamusMorphBallMovement();
+VerifyBombChargeRejection();
+VerifyGroundedBombSpread();
+return 0; }
+if (args is ["--file-map-fixtures"]) { VerifyFileSelectMapWindow(); return 0; }
+if (args is ["--map-icons-fixture"]) { VerifyFileSelectMapIcons(); return 0; }
+if (args is ["--map-animation-fixture"]) { VerifyFileSelectMapAnimations(); return 0; }
+if (args is ["--saved-map-fixture"]) { VerifySavedGameMapFrontend(); return 0; }
+if (args is ["--map-cancel-fixture"]) { VerifyMapCancelPresentation(); return 0; }
+if (args is ["--station-marker-fixture"]) { VerifyFileSelectStationMarker(); return 0; }
+if (args is ["--inventory-fixture"]) { VerifyInvalidBeamSelection(); return 0; }
+if (args is ["--space-screw-fixture"]) { VerifySamusSpaceJumpAndScrewAttack(); return 0; }
+if (args is ["--arm-cannon-fixture"]) { VerifySamusArmCannon(); return 0; }
+if (args is ["--game-over-fixture"]) { VerifyGameOverRomData(); return 0; }
+if (args is ["--enemy-pointer-fixture"]) { VerifyEnemyRomTablePointerCatalog(); return 0; }
+if (args is ["--draygon-prebattle-xray"]) { VerifyDraygonPrebattleXray(); return 0; }
+if (args is ["--kihunter-spit-audio"]) { VerifyKiHunterSpitAudio(); return 0; }
+if (args is ["--samus-liquid-physics"]) { VerifySamusLiquidPhysics(); return 0; }
+if (args is ["--shallow-water-jump"]) { VerifyShallowWaterJump(); return 0; }
+if (args is ["--export-shallow-water-jump"]) { VerifyShallowWaterJump(exportOnly: true); return 0; }
+if (args is ["--yapping-maw-grapple-release"]) { VerifyYappingMawGrappleRelease(); return 0; }
+if (args is ["--ridley-acceleration-carry"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyCompiledRidleyInertia(rom);
+    VerifyRidleyDeathAcceleration(rom);
+    return 0;
+}
+if (args is ["--ridley-fireball-damage"]) { VerifyRidleyFireballDamage(); return 0; }
+if (args is ["--ridley-spin-fireball"]) { VerifyRidleySpinFireball(); return 0; }
+if (args is ["--ridley-contact-ordering"]) { VerifyRidleyContactOrdering(); return 0; }
+if (args is ["--ridley-swoop-timer"]) { VerifyRidleySwoopTimer(); return 0; }
+if (args is ["--ridley-death-finish"]) { VerifyRidleyDeathFinish(); return 0; }
+if (args is ["--ridley-grab-entry"]) { VerifyRidleyGrabEntry(); return 0; }
+if (args is ["--ridley-map-initialization"]) { VerifyRidleyMapInitialization(); return 0; }
+if (args is ["--samus-retained-horizontal-speed"]) { VerifyRetainedHorizontalSpeed(); return 0; }
+if (args is ["--pause-dispatch-rng"]) { VerifyPauseDispatcherRandom(); return 0; }
+if (args is ["--spin-fallback-history"]) { VerifySpinFallbackHistory(); return 0; }
+if (args is ["--morph-camera-checkpoint"]) { VerifyMorphCameraCheckpoint(); return 0; }
+if (args is ["--aim-up-landing-animation"]) { VerifyAimUpLandingAnimation(); return 0; }
+if (args is ["--ridley-fireball-square-slope"]) { VerifyRidleyFireballSquareSlope(); return 0; }
+if (args is ["--ridley-tail-impact"]) { VerifyRidleyTailImpact(); return 0; }
+if (args is ["--ridley-screen-gate"]) { VerifyRidleyScreenGate(); return 0; }
+if (args is ["--spring-ball-release"]) { VerifySpringBallRelease(); return 0; }
+if (args is ["--ridley-tail-offsets"]) { VerifyRidleyTailOffsets(); return 0; }
+if (args is ["--ridley-center-facing"]) { VerifyRidleyCenterFacing(); return 0; }
+if (args is ["--ridley-pause-page-timing"]) { VerifyRidleyPausePageTiming(); return 0; }
+if (args is ["--ridley-palette-selection"]) { VerifyRidleyPaletteSelection(); return 0; }
+if (args is ["--ridley-door-entry"]) { VerifyRidleyDoorEntry(); return 0; }
+if (args is ["--ridley-full-movie", var traceDirectory]) { VerifyRidleyFullMovie(traceDirectory); return 0; }
+if (args is ["--ridley-player-opening"]) { VerifyRidleyPlayerOpening(); return 0; }
+if (args is ["--door-autosave"]) { VerifyDoorTransitionAutosave(); return 0; }
+if (args is ["--door-music-timing"]) { VerifyDoorMusicTiming(); return 0; }
+if (args is ["--collectible-message-timing"]) { VerifyCollectibleMessageTiming(); return 0; }
+if (args is ["--permanent-collectibles-fixture"]) { VerifyPermanentCollectibles(); return 0; }
+if (args is ["--enemy-art-fixtures"]) { VerifyGrappleGreenGateVisibility(); VerifyGrappleEnemyDeath(); VerifyDraygonTilemapProduction(); return 0; }
+if (args is ["--xray-overlay-fixtures"]) { VerifyXrayOverlays(); VerifyXraySetupBuffers(); return 0; }
+if (args is ["--grapple-sound-refire-fixtures"]) { VerifyGrappleSounds(); VerifyGrapplePoseRefire(); return 0; }
+if (args is ["--attract-input-fixtures"]) { VerifyAttractDemoScene(); VerifyGrappleDemoTrajectory(); return 0; }
+if (args is ["--mother-brain-beam-fixture"]) { VerifyMotherBrainBeamWindow(); return 0; }
+if (args is ["--death-sequence-fixture"]) { VerifySamusDeathSequence(); return 0; }
+if (args is ["--special-palette-fixtures"]) { VerifySamusCrystalFlash(); VerifySamusXray(); return 0; }
+if (args is ["--samus-palette-fixtures"]) { VerifySamusVisorPalette(); VerifySamusHurtFlashPalette(); VerifySamusVisorColors(); return 0; }
+if (args is ["--power-bomb-fixtures"]) { VerifyPowerBombFuse(); VerifyPowerBombColorMathWindow(); return 0; }
+if (args is ["--horizontal-speed-fixture"]) { VerifySamusHorizontalSpeed(); return 0; }
+if (args is ["--demo-input-fixture"]) { VerifyDemoInputObject(); return 0; }
+if (args is ["--cacatac-fixture"]) { VerifyCacatacProjectileInstructionProgramDefinitions(); return 0; }
+if (args is ["--color-window-fixture"]) { VerifyColorWindowSnapshots(); return 0; }
+if (args is ["--title-fixtures"]) { VerifyTitleRenderSnapshots(); VerifyTitleSequenceRomData(); return 0; }
+if (args is ["--mutable-memory-boundary"]) { VerifySuperMetroidAddressSpace(); return 0; }
+if (args is ["--pause-fixtures"])
+{
+    VerifyPauseRenderSnapshots();
+    VerifyPauseBossMarkers();
+    VerifyPausePaletteSound();
+    VerifyPauseReserveManual();
+    VerifyPauseReserveArrow();
+    VerifyPauseReserveTanks();
+    VerifyPauseReserveHud();
+    return 0;
+}
+if (args is ["--chozo-power-bomb"]) { VerifyChozoGrabAnimation(powerBomb: true); return 0; }
+if (args is ["--golden-torizo-code-entry"]) { VerifyGoldenTorizoCodeEntry(); return 0; }
+if (args is ["--mockball-boost-contact"]) { VerifyMockballBoostContact(); return 0; }
+if (args is ["--game-save-json"])
+{
+    VerifyGameSaveJsonPersistence();
+    VerifySaveSchemaTranslation();
+    return 0;
+}
+if (args is ["--torizo-palette-shake"]) return VerifyTorizoPaletteShake();
+if (args is ["--gunship-escape-timer"]) return VerifyGunshipEscapeTimer();
+if (args is ["--baby-metroid-theme"]) return VerifyBabyMetroidTheme();
+if (args is ["--baby-metroid-death-cry"]) return VerifyBabyMetroidDeathCry();
+if (args is ["--mother-brain-plasma-impact"]) return VerifyMotherBrainPlasmaImpact();
+if (args is ["--mother-brain-later-contact"]) return VerifyMotherBrainLaterContact();
+if (args is ["--mother-brain-ascent-capture"]) return VerifyMotherBrainTankBackground(ascentMaskOnly: true);
+if (args is ["--mother-brain-tube-descent"]) return VerifyMotherBrainTubeDescent();
+if (args is ["--mother-brain-tank-background"]) return VerifyMotherBrainTankBackground();
+if (args is ["--dead-torizo-collision"]) return VerifyDeadTorizoCollision();
+if (args is ["--frozen-metroid-shell"]) return VerifyFrozenMetroidShell();
+if (args is ["--tourian-statue-water"]) return VerifyTourianStatueWater();
+if (args is ["--crocomire-spike-animation"]) return VerifyCrocomirePresentation(true);
+if (args is ["--crocomire-comeback-rumble"]) return VerifyCrocomirePresentation(false);
+if (args is ["--kraid-reported-collisions"]) return VerifyKraidSuperMissileDamage(collisionReport: true);
+if (args is ["--kraid-super-missile-damage"])
+{
+    return VerifyKraidSuperMissileDamage();
+}
+if (args is ["--phantoon-intro-flame-sound"])
+{
+    VerifyPhantoonIntroFlameSound();
+    return 0;
+}
+if (args is ["--phantoon-death-wave-initialization"])
+{
+    VerifyPhantoonDeathWaveInitialization();
+    return 0;
+}
+if (args is ["--speed-booster-echo-stop"])
+{
+    VerifySpeedBoosterEchoStop();
+    return 0;
+}
+if (args is ["--grapple-hurt-feedback"])
+{
+    VerifyGrappleHurtFeedback();
+    return 0;
+}
+if (args is ["--pause-door-shinespark"])
+{
+    VerifyPauseDoorShinespark();
+    return 0;
+}
+if (args is ["--overlapping-enemy-shots"])
+{
+    VerifyOverlappingEnemyShots();
+    return 0;
+}
+if (args is ["--gameplay-grapple-palette"])
+{
+    VerifyGameplayGrapplePalette();
+    return 0;
+}
+if (args is ["--xray-no-fx-darkening"])
+{
+    VerifyXrayNoFxDarkening();
+    return 0;
+}
+if (args is ["--chozo-grab-animation"])
+{
+    VerifyChozoGrabAnimation();
+    return 0;
+}
+if (args is ["--etecoon-door-fanfare"])
+{
+    VerifyEtecoonFanfareAfterDoor();
+    return 0;
+}
+if (args is ["--waterfall-rooms"])
+{
+    VerifyWaterfallRooms();
+    return 0;
+}
+if (args is ["--gunship-entry-sound"])
+{
+    VerifyPostCeresGunshipLanding(entrySoundOnly: true);
+    return 0;
+}
+if (args is ["--speed-booster-pickup"])
+{
+    VerifySpeedBoosterPickupContinuation();
+    return 0;
+}
+if (args is ["--escape-running-footsteps"])
+{
+    VerifyEscapeRunningFootsteps();
+    return 0;
+}
+if (args is ["--tourian-elevator-doors"])
+{
+    VerifyTourianElevatorDoors();
+    return 0;
+}
+if (args is ["--phantoon-flame-sound"])
+{
+    VerifyPhantoonFlameSound();
+    return 0;
+}
+if (args is ["--evir-death-frame"])
+{
+    VerifyEvirDeathFrame();
+    return 0;
+}
+if (args is ["--recharge-station-admission"])
+{
+    VerifyRechargeStationAdmission();
+    return 0;
+}
+if (args is ["--ridley-missed-lunge"])
+{
+    VerifyRidleyMissedLunge();
+    return 0;
+}
+if (args is ["--crocomire-cutscene-camera"])
+{
+    VerifyCrocomireCutsceneCamera();
+    return 0;
+}
+if (args is ["--crocomire-corpse-collision"])
+{
+    VerifyCrocomireCorpseCollision();
+    return 0;
+}
+if (args is ["--ridley-flight-tail"])
+{
+    VerifyRidleyFlightTail();
+    return 0;
+}
+if (args is ["--ridley-breakup-programs"])
+{
+    VerifyRidleyBreakupPrograms();
+    return 0;
+}
+if (args is ["--attract-runtime-bindings"])
+{
+    VerifyAttractRuntimeBindings();
+    return 0;
+}
+if (args is ["--golden-torizo-code"])
+{
+    VerifyGoldenTorizoCode();
+    return 0;
+}
+if (args is ["--kraid-growth-command-cursor"])
+{
+    VerifyKraidGrowthCommandCursor();
+    return 0;
+}
+if (args is ["--power-bomb-death-drawing"])
+{
+    VerifyPowerBombDeathDrawing();
+    return 0;
+}
+if (args is ["--single-frame-enemy-visuals"])
+{
+    VerifyKzanInstructionProgramDefinitions();
+    VerifyPolypInstructionProgramDefinitions();
+    VerifyPolypRockInstructionProgramDefinitions();
+    VerifySingleFrameEnemyVisuals();
+    return 0;
+}
 if (args is ["--lookup-stream-1-body-oam-bases"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -2872,6 +3146,11 @@ if (args is ["--draygon-cannon-plm-program"])
     VerifyDraygonCannonPlmProgram();
     return 0;
 }
+if (args is ["--draygon-cannon-plms"])
+{
+    VerifyDraygonCannonPlms();
+    return 0;
+}
 if (args is ["--mother-brain-glass-instruction-mechanics"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -4028,6 +4307,12 @@ if (args is ["--lookup-shaktool-orbit"])
     Console.WriteLine("Shaktool orbit: all320 words, rounding intervals,256 displacement pairs and bounds pass.");
     return 0;
 }
+if (args is ["--liquid-tide-phase"])
+{
+    var tideOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyCompiledSignedTrigonometry(tideOracle);
+    return 0;
+}
 if (args is ["--lookup-signed-sine-review"])
 {
     var signedOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -4643,6 +4928,21 @@ if (args is ["--torizo-sonic-boom-instruction-mechanics"])
     VerifyTorizoSonicBoomInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--spring-ball-equipment-jump"])
+{
+    VerifySpringBallEquipmentJump();
+    return 0;
+}
+if (args is ["--power-bomb-afterglow-shape"])
+{
+    VerifyPowerBombAfterglowShape();
+    return 0;
+}
+if (args is ["--file-copy-arrow"])
+{
+    VerifyFileCopyArrow();
+    return 0;
+}
 if (args is ["--bomb-torizo-statue-instruction-mechanics"])
 {
     VerifyBombTorizoStatueInstructionProgramDefinitions();
@@ -4823,6 +5123,11 @@ if (args is ["--ceres-debris-instruction-mechanics"])
     VerifyCeresFallingDebrisInstructionProgramDefinitions();
     return 0;
 }
+if (args is ["--ceres-debris-fixture"])
+{
+    VerifyCeresFallingDebrisInstructionProgramDefinitions();
+    return 0;
+}
 if (args is ["--save-station-electricity-instruction-mechanics"])
 {
     VerifySaveStationElectricityInstructionProgramDefinitions();
@@ -4866,6 +5171,21 @@ if (args is ["--space-pirate-projectile-instruction-mechanics"])
 if (args is ["--eye-door-plms"])
 {
     VerifyEyeDoorPlms();
+    return 0;
+}
+if (args is ["--hud-state"])
+{
+    VerifyHudStateAndBg3Rendering();
+    return 0;
+}
+if (args is ["--area-map-assets"])
+{
+    VerifyAreaMapAssets();
+    return 0;
+}
+if (args is ["--file-select-fresh-save"])
+{
+    VerifyFileSelectFreshSaveTilemap();
     return 0;
 }
 if (args is ["--cacatac-instruction-mechanics"])
@@ -5035,6 +5355,72 @@ if (args is ["--sbug-instruction-mechanics"])
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--projectile-radius-instruction-fixtures"])
+{
+    var projectileFixtureRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc"));
+    VerifyProjectileRadii(projectileFixtureRom);
+    VerifyProjectileInstructions(projectileFixtureRom);
+    return 0;
+}
+if (args is ["--beam-tile-artwork-fixture"])
+{
+    VerifyBeamTileArtwork(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--projectile-trail-artwork-fixture"])
+{
+    VerifyProjectileTrailArtwork(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--charge-flare-placement-fixture"])
+{
+    VerifyChargeFlarePlacement(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--projectile-compositions-fixture"])
+{
+    VerifyProjectileCompositions(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--ridley-movement-target-fixture"])
+{
+    VerifyRidleyMovementTargets(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--kraid-contour-head-fixtures"])
+{
+    var kraidFixtureRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc"));
+    VerifyKraidBodyContour(kraidFixtureRom);
+    VerifyKraidHeadInstructionDefinitions(kraidFixtureRom);
+    return 0;
+}
+if (args is ["--power-bomb-shape-fixture"])
+{
+    VerifyCompiledPowerBombShape(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--absolute-tangent-runtime"])
+{
+    VerifyCompiledAbsoluteTangent(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--enemy-callback-definitions"])
+{
+    var callbackRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc"));
+    VerifyPowerBombCallbackDefinitions(callbackRom);
+    VerifyShotCallbackDefinitions(callbackRom);
+    return 0;
+}
 if (args is ["--spark-instruction-mechanics"])
 {
     VerifySparkMovementDefinitions(
@@ -5182,6 +5568,7 @@ if (args is ["--demo-input-object"])
 }
 if (args is ["--door-alignment"])
 {
+    VerifyDoorOpeningTrajectories();
     VerifyDoorAlignmentParity();
     return 0;
 }
@@ -5444,6 +5831,18 @@ if (args is ["--bomb-block-programs"])
 if (args is ["--contact-crumble-programs"])
 {
     VerifyContactCrumblePrograms();
+    return 0;
+}
+if (args is ["--grapple-firing-definitions"])
+{
+    VerifyGrappleFiringDefinitions(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--mother-brain-baby-metroid-definitions"])
+{
+    VerifyMotherBrainBabyMetroidDefinitions(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
 if (args is ["--arm-cannon-definitions"])
@@ -5873,6 +6272,12 @@ if (args is ["--mama-turtle-enemy-definitions"])
     VerifyMamaTurtleEnemyDefinitions();
     return 0;
 }
+if (args is ["--pose-projectile-origins"])
+{
+    VerifyPoseProjectileOrigin(
+        SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--pose-dispatch-definitions"])
 {
     var poseRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -6076,6 +6481,11 @@ if (args is ["--oam-source-routing"])
     VerifyOamSpritemapPacking();
     return 0;
 }
+if (args is ["--room-enemy-loading"])
+{
+    VerifyRoomEnemyLoading();
+    return 0;
+}
 if (args is ["--enemy-tile-artwork"])
 {
     VerifyEnemyTileArtwork();
@@ -6152,6 +6562,40 @@ if (args is ["--projectile-frame-bindings"])
 {
     VerifyProjectileFrameBindings(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--boss-reset-on-load"])
+{
+    VerifyBossResetOnLoad();
+    return 0;
+}
+if (args is ["--speed-palette-overrun"]){
+    VerifySpeedPaletteOverrun();
+    return 0;
+}
+if (args is ["--pause-map-position"]){
+    VerifyPauseMapPosition();
+    VerifyPauseHudLocation();
+    return 0;
+}
+if (args is ["--pause-map-area-labels"])
+{
+    VerifyPauseMapAreaLabels();
+    return 0;
+}
+if (args is ["--pause-map-arrows"])
+{
+    VerifyPauseMapArrows();
+    return 0;
+}
+if (args is ["--pause-equipment-interaction-fixture"])
+{
+    VerifyPauseMenuEquipmentInteraction();
+    return 0;
+}
+if (args is ["--intro-artwork-components-fixture"])
+{
+    VerifyIntroCinematicArtwork(Path.GetFullPath("Super Metroid.smc"), presentationOnly: true);
     return 0;
 }
 if (args is ["--intro-cinematic-artwork", var introBackgroundRom])
@@ -6422,6 +6866,11 @@ if (args is ["--ripper-enemy"])
     VerifyRipperEnemy();
     return 0;
 }
+if (args is ["--ceres-elevator-platform"])
+{
+    VerifyCeresElevatorPlatformAnimation();
+    return 0;
+}
 if (args is ["--ceres-door-boss"])
 {
     VerifyCeresDoorBossBranch();
@@ -6662,6 +7111,16 @@ if (args is ["--ceres-flight-actor-definitions"])
     VerifyCeresFlightActorDefinitions();
     return 0;
 }
+if (args is ["--room-fx-fixture"])
+{
+    VerifyRoomFxRomData();
+    return 0;
+}
+if (args is ["--ceres-destruction"])
+{
+    VerifyCeresDestructionCinematic();
+    return 0;
+}
 if (args is ["--ceres-destruction-actor-definitions"])
 {
     VerifyCeresDestructionActorDefinitions();
@@ -6728,6 +7187,11 @@ if (args is ["--mother-brain"])
     VerifyMiscDustProjectiles();
     VerifyMotherBrainEscapeDoorParticles();
     VerifyBabyMetroidCutsceneEntrance();
+    return 0;
+}
+if (args is ["--mother-brain-death-handoff"])
+{
+    VerifyMotherBrainDeathHandoff();
     return 0;
 }
 if (args is ["--mother-brain-transfer-sources"])
@@ -6832,11 +7296,6 @@ if (args is ["--shutter-embedding"])
 if (args is ["--xray-input"])
 {
     VerifyXrayInput();
-    return 0;
-}
-if (args is ["--mutable-memory-boundary"])
-{
-    VerifySuperMetroidAddressSpace();
     return 0;
 }
 if (args is ["--xray-setup"])
@@ -6966,7 +7425,7 @@ if (args.Length == 1)
 }
 
 VerifyRandomNumberGeneratorExhaustively();
-SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"));
+SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), retailGameFixtureBindings.Value);
         VerifySandAnimatedTiles();
         VerifyQuicksand();
         VerifyTreadmillPhysics();
@@ -6995,6 +7454,7 @@ VerifyPauseReserveManual();
 VerifyPauseReserveArrow();
 VerifyPauseReserveTanks();
 VerifyPauseReserveHud();
+VerifyDoorMusicTiming();
 VerifyDoorAlignmentParity();
 VerifyDoorOpeningTrajectories();
 VerifyCreditsObjectInterpreter();
@@ -7059,6 +7519,7 @@ VerifyRetailFallingSpeedRecurrence();
 VerifyCrampedAerialLandingPoseCollision();
 VerifySamusSpaceJumpAndScrewAttack();
 VerifySamusLiquidPhysics();
+VerifyShallowWaterJump();
 VerifySamusAtmosphericEffects();
 VerifySamusAerialTurnsAndWallJump();
 VerifySamusPoseHistory();
@@ -7066,6 +7527,8 @@ VerifyWallJumpDust();
 VerifyCeresHazeLifecycle();
 VerifyCeresRidleyWallImpact();
 VerifySamusKnockbackAndDamageBoost();
+VerifyYappingMawGrappleRelease();
+VerifyKiHunterSpitAudio();
 VerifySamusGrappleSwingAndRelease();
 VerifyGrappleBlueDoors();
 VerifyGrappleSounds();
@@ -7075,6 +7538,7 @@ VerifyGrappleGreenGateVisibility();
 VerifyGrappleEnemyDeath();
 VerifyShutterRiding();
 VerifyXrayInput();
+VerifyDraygonPrebattleXray();
 VerifyXrayWindowGeometry();
 VerifyXraySetupBuffers();
 VerifyFirefleaFx();
@@ -7088,6 +7552,7 @@ VerifyBreakableGrapplePlms();
 VerifyBombBlockPrograms();
 VerifyContactCrumblePrograms();
 VerifyStationAnimationProgramDefinitions();
+VerifyCollectibleMessageTiming();
 VerifyPermanentCollectibles();
 VerifyCollectibleVisuals();
 VerifyEnemyDrops();
@@ -7177,6 +7642,10 @@ VerifyEyeDoorPlms();
 VerifyDraygonCannonPlms();
 VerifyBombTorizoHandPlm();
 VerifyPauseMenuEquipmentInteraction();
+VerifyPauseMapArrows();
+VerifyPauseMapAreaLabels();
+VerifyPauseMapPosition();
+VerifySpeedPaletteOverrun();
 VerifyInvalidBeamSelection();
 VerifyInvalidBeamGraphics();
 VerifyMovedSamusCameraTracking();
@@ -7213,6 +7682,7 @@ VerifyGameSaveJsonPersistence();
 VerifyFileSelectFreshSaveTilemap();
 VerifyFileSelectMapWindow();
 VerifySavedGameLoadAppearance();
+VerifyBossResetOnLoad();
 VerifyIntroCinematicRomData();
 VerifyIntroCinematicArtwork(Path.GetFullPath("Super Metroid.smc"));
 VerifyIntroGameplayFlashbackVerticalScroll();

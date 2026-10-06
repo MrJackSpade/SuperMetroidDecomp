@@ -54,6 +54,12 @@ internal sealed class ControllerInputRecorder : IDisposable
     /// <summary>Absolute destination of the current reset's recording.</summary>
     public string Path { get; }
 
+    /// <summary>Number of controller words already recorded, including a failing frame.</summary>
+    public int FrameCount
+    {
+        get { lock (gate) return inputs.Count; }
+    }
+
     /// <summary>
     /// Starts an installed-game journal from the installer-verified source identity without
     /// opening the private cartridge file.

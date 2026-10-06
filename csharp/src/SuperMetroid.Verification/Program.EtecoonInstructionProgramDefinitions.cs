@@ -67,6 +67,7 @@ internal static partial class Program
         ];
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var executedOperands = new HashSet<ushort>();
         var guard = new EtecoonInstructionReadGuard(rom);
         foreach (var program in programs)
         {
@@ -84,7 +85,7 @@ internal static partial class Program
                 etecoon.CurrentInstruction,
                 $"real Etecoon initializer before {program.Name}");
 
-            ExecuteEtecoonProgram(
+            ExecuteEtecoonProgram(rom, executedOperands,
                 enemies, process, etecoon, program.Program, program.Calls);
             AssertEqual(program.Terminal, etecoon.CurrentInstruction,
                 $"Etecoon {program.Name} terminal instruction");
@@ -93,8 +94,13 @@ internal static partial class Program
         }
 
         AssertEqual(EtecoonInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Etecoon spritemap operands remain cartridge reads");
+            executedOperands.Count,
+            "all executed visual selectors match the cartridge");
+        for (int operandIndex = 0; operandIndex < EtecoonInstructionProgramDefinitions.PresentationWordCount; operandIndex++)
+            AssertTrue(executedOperands.Contains(EtecoonInstructionProgramDefinitions.PresentationWordAddress(operandIndex)),
+                "execution covers each authored presentation operand");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "compiled visual selectors require no runtime cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Etecoon mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -116,11 +122,13 @@ internal static partial class Program
         Console.WriteLine(
             $"Etecoon instruction mechanics: " +
             $"{EtecoonInstructionProgramDefinitions.MechanicsWordCount} compiled words, " +
-            "all overlapping entries and the four-cycle flex program, and forty-five live " +
-            "spritemap reads pass with mechanics bytes forbidden.");
+            "all overlapping entries and the four-cycle flex program, and forty-five executed " +
+            "spritemap selectors match cartridge data with runtime reads forbidden.");
     }
 
     private static void ExecuteEtecoonProgram(
+        ISnesAddressSpace rom,
+        HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
         MethodInfo process,
         RoomEnemySlot etecoon,
@@ -134,6 +142,7 @@ internal static partial class Program
         {
             etecoon.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
+            VerifyExecutedEnemySelector(rom, etecoon, executedOperands);
         }
     }
 

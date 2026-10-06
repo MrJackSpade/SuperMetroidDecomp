@@ -228,6 +228,12 @@ public sealed partial class RoomEnemySystem
         if (state.DeathSequenceIndex == 0)
         {
             HandleCrocomireBridgeThreshold(state);
+            // The native word write runs even on the frame that starts bridge collapse.
+            // Later death phases retain these zones until the skeleton enters the river.
+            RequireSetRoomScrollState(CrocomireCameraDefinitions.BridgeLeftScreen,
+                samus is not null && unchecked((short)(samus.XPosition - CrocomireCameraDefinitions.BridgeVisibleSamusX)) >= 0
+                    ? RoomScrollState.RedBoundary : RoomScrollState.Blue);
+            RequireSetRoomScrollState(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.Blue);
             // Main state zero always finishes through $A4:8B5B, including the frame in
             // which $8D5E changes the death index to two.
             UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);

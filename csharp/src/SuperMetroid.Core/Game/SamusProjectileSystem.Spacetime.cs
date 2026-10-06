@@ -65,6 +65,7 @@ public sealed partial class SamusProjectileSystem
             SnesDmaSourceKind.WorkRam => (bus as ISnesMutableMemory ??
                 throw new InvalidOperationException("SpaceTime source requires WRAM."))
                 .ReadWorkRamByte(address),
+            SnesDmaSourceKind.Cartridge => SpacetimeBeamCopyDefinitions.ReadCartridgeByte(address),
             SnesDmaSourceKind.SaveRam => (bus as ISnesMutableMemory ??
                 throw new InvalidOperationException("SpaceTime source requires SRAM."))
                 .ReadSaveRamByte(address),

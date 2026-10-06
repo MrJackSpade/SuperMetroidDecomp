@@ -37,13 +37,13 @@ internal sealed class EndingRewardGesture
         actors.RemoveAll(actor => !actor.IsActive);
     }
 
-    public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null)
+    public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
-        var oam = new OamBuffer();
-        oam.BeginFrame();
+        var oam = destination ?? new OamBuffer();
+        if (destination is null) oam.BeginFrame();
         foreach (IntroDiscoverySprite actor in actors)
             actor.Draw(bus, oam, installedArt: installedArt);
-        oam.FinalizeFrame();
+        if (destination is null) oam.FinalizeFrame();
         return oam;
     }
 

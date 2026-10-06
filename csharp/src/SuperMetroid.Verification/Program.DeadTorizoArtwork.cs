@@ -17,17 +17,19 @@ internal static partial class Program
         // work by reading the cartridge despite a bound installed catalog.
         var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
-        RoomEnemySystem native = InitializeDeadTorizoArtwork(nativeBus, null);
+        ReferenceDeadTorizoCorpseGraphics(nativeBus);
         RoomEnemySystem installed = InitializeDeadTorizoArtwork(installedBus, stock);
         AssertDeadTorizoBufferParity(nativeBus, installedBus, 0x7e2000, 0x1000,
             "installed dead-Torizo initial corpse sheet matches cartridge WRAM");
 
-        CopyDeadTorizoSandLine(native, 0);
+        ReferenceDeadTorizoSandLine(nativeBus, 0);
         CopyDeadTorizoSandLine(installed, 0);
         AssertDeadTorizoBufferParity(nativeBus, installedBus, 0x7e9500, 0x200,
             "installed dead-Torizo sand line matches cartridge WRAM");
 
-        OamBuffer nativeCorpse = DrawDeadTorizoCorpseFrame(null, nativeBus, 0, 0);
+        var nativeCorpse = new OamBuffer();
+        // $A9:D39A draws the fixed corpse map at world (296, 187).
+        DrawImportedEnemySpritemap(nativeBus, nativeCorpse, 0xa9, 0xd761, 296, 187, 0, 0);
         OamBuffer installedCorpse = DrawDeadTorizoCorpseFrame(stock, installedBus, 0, 0);
         AssertTrue(nativeCorpse.LowTable.SequenceEqual(installedCorpse.LowTable) &&
                    nativeCorpse.HighTable.SequenceEqual(installedCorpse.HighTable) &&
@@ -145,24 +147,28 @@ internal static partial class Program
                 $"Dead Torizo phase {phase} native zero terminator");
         }
 
-        var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
         var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc");
-        RoomEnemySystem native = InitializeDeadTorizoArtwork(nativeBus, null);
         RoomEnemySystem installed = InitializeDeadTorizoArtwork(installedBus, stock);
+        var nativeTransfers = new List<VramWriteEntry>();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             installed, new FrontendCartridgeReadGuard(installedBus));
         MethodInfo build = typeof(RoomEnemySystem)
             .GetMethod("BuildDeadTorizoVramTransfers", flags)!;
-        Action<DeadTorizoEnemyState> buildNative =
-            build.CreateDelegate<Action<DeadTorizoEnemyState>>(native);
+
         Action<DeadTorizoEnemyState> buildInstalled =
             build.CreateDelegate<Action<DeadTorizoEnemyState>>(installed);
         for (int phase = 0; phase < 2; phase++)
         {
-            buildNative(native.DeadTorizo!);
+            // $A9:D4CF increments the phase before selecting the raw descriptor table.
+            int address = phase == 0 ? 0xa9d583 : 0xa9d549;
+            for (int index = 0; index < 7; index++, address += 8)
+                nativeTransfers.Add(new VramWriteEntry(ReadWord(address),
+                    ((ReadWord(address + 2) & 0xff00) << 8) | ReadWord(address + 4),
+                    ReadWord(address + 6)));
+            AssertEqual((ushort)0, ReadWord(address), "native corpse queue terminates after seven entries");
             buildInstalled(installed.DeadTorizo!);
-            AssertTrue(native.LastDeadTorizoVramTransfers.SequenceEqual(
+            AssertTrue(nativeTransfers.SequenceEqual(
                     installed.LastDeadTorizoVramTransfers),
                 $"Dead Torizo phase {phase} installed queue matches live native descriptors");
             AssertEqual((phase + 1) * 7, installed.LastDeadTorizoVramTransfers.Count,
@@ -174,14 +180,47 @@ internal static partial class Program
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
     }
 
+    // Independent transcription of Torizo_CorpseRottingInitFunc ($A9:DE18)
+    // from the pinned sm_a9.c. Do not derive expected copies from runtime definitions.
+    private static void ReferenceDeadTorizoCorpseGraphics(SuperMetroidAddressSpace bus)
+    {
+        for (int offset = 0; offset < 0x1000; offset++)
+            bus.WriteByte(0x7e2000 + offset, 0);
+        (int Source, int Destination, int Length)[] copies =
+        [
+            (288, 0x060, 0xc0), (800, 0x1a0, 0xc0),
+            (1280, 0x2c0, 0x100), (1792, 0x400, 0x100),
+            (2304, 0x540, 0x100), (2816, 0x680, 0x100),
+            (3328, 0x7c0, 0x100), (3840, 0x900, 0x100),
+            (4352, 0xa40, 0x100), (4832, 0xb60, 0x120),
+            (5312, 0xc80, 0x140), (5824, 0xdc0, 0x140),
+        ];
+        foreach (var copy in copies)
+            for (int offset = 0; offset < copy.Length; offset++)
+                bus.WriteByte(0x7e2000 + copy.Destination + offset,
+                    bus.ReadByte(0xb7a800 + copy.Source + offset));
+    }
+
+    // $A9:D5EA copies eighteen words selected by the two cartridge offset tables.
+    private static void ReferenceDeadTorizoSandLine(SuperMetroidAddressSpace bus, ushort line)
+    {
+        int destination = ReadWord(0xa9d67c + line * 2);
+        int source = ReadWord(0xa9d69c + line * 2);
+        for (int row = 0; row < 18; row++)
+            for (int part = 0; part < 2; part++)
+                bus.WriteByte(0x7e9500 + destination + row * 16 + part,
+                    bus.ReadByte(0xb7a800 + source + row * 16 + part));
+
+        ushort ReadWord(int address) =>
+            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+    }
+
     private static RoomEnemySystem InitializeDeadTorizoArtwork(
-        SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog? artwork)
+        SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        ISnesAddressSpace source = artwork is null
-            ? bus
-            : new DeadTorizoArtworkReadGuard(bus);
+        ISnesAddressSpace source = new DeadTorizoArtworkReadGuard(bus);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
         typeof(RoomEnemySystem).GetMethod("InitializeDeadTorizo", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies)(enemies.Slots[0]);
@@ -196,14 +235,13 @@ internal static partial class Program
     }
 
     private static OamBuffer DrawDeadTorizoCorpseFrame(
-        EnemyTileArtworkCatalog? artwork, SuperMetroidAddressSpace bus,
+        EnemyTileArtworkCatalog artwork, SuperMetroidAddressSpace bus,
         ushort cameraX, ushort cameraY)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         RoomEnemySystem enemies = InitializeDeadTorizoArtwork(bus, artwork);
-        if (artwork is not null)
-            typeof(RoomEnemySystem).GetField("_bus", flags)!
-                .SetValue(enemies, new DeadTorizoOamReadGuard(bus));
+        typeof(RoomEnemySystem).GetField("_bus", flags)!
+            .SetValue(enemies, new DeadTorizoOamReadGuard(bus));
         var oam = new OamBuffer();
         typeof(RoomEnemySystem).GetMethod("DrawDeadTorizoHook", flags)!
             .CreateDelegate<Action<OamBuffer, ushort, ushort>>(enemies)(

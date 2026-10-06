@@ -27,7 +27,7 @@ internal sealed class CartridgePaletteTransition
     /// no-op, number denominator+1 reaches the exact target, and the following call returns
     /// complete while resetting the native counter.
     /// </summary>
-    public bool Step(SnesCgram cgram)
+    public bool Step(SnesCgram cgram, ushort paletteMask = ushort.MaxValue)
     {
         ArgumentNullException.ThrowIfNull(cgram);
         if (transitionNumber > denominator + 1)
@@ -38,6 +38,8 @@ internal sealed class CartridgePaletteTransition
 
         for (int color = 0; color < SnesCgram.ColorCount; color++)
         {
+            if ((paletteMask & (1 << (color / 16))) == 0)
+                continue;
             ushort current = cgram.Colors[color];
             if (current != target[color])
                 cgram.SetColor(color, CalculateColor(transitionNumber, current, target[color]));

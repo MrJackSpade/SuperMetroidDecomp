@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -39,7 +40,9 @@ internal static partial class Program
                 $"generic enemy-death mechanics word $86:{definition.Address:X4}");
         }
 
-        var observedInstalledOperands = new HashSet<ushort>();
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new EnemyDeathInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -105,17 +108,19 @@ internal static partial class Program
                 $"death variant {program.Variant} executes the compiled respawn/delete tail");
         }
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "EnemyDeath execution performs no live spritemap operand reads");
         AssertEqual(EnemyDeathInstructionProgramDefinitions.PresentationWordCount,
-            observedInstalledOperands.Count,
-            "all generic enemy-death operands select installed artwork");
-        for (int index = 0;
-             index < EnemyDeathInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+            executedOperands.Count, "EnemyDeath executes every native visual operand");
+        for (int index = 0; index < EnemyDeathInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address =
-                EnemyDeathInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(observedInstalledOperands.Contains(address),
-                $"production selects installed generic enemy-death presentation $86:{address:X4}");
+            ushort address = EnemyDeathInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"EnemyDeath executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "EnemyDeath has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "EnemyDeath compiled selector matches the cartridge");
         }
         AssertEqual(0, guard.ObservedPresentationWords.Count, "generic enemy-death presentation needs no live cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -136,20 +141,13 @@ internal static partial class Program
 
         Console.WriteLine(
             "Generic enemy-death instruction mechanics: all five real death variants, " +
-            "the shared respawn tail, 66 calculated words, and 31 installed visual selectors pass " +
-            "without runtime instruction-source reads.");
+            "the shared respawn tail, 66 compiled words, and 31 installed sprite frames match native OAM " +
+            "with mechanics bytes forbidden.");
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
             process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
-            if (!projectile.IsActive) return;
-            ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));
-            AssertEqual(operand, projectile.PresentationOperandAddress, "generic death native frame operand after control flow");
-            AssertTrue(EnemyProjectilePresentationFrameDefinitions.Contains(operand), "generic death operand owns installed art");
-            int durationAddress = EnemyProjectileCodePointers.BankBase | unchecked((ushort)(operand - 2));
-            ushort duration = (ushort)(rom.ReadByte(durationAddress) | rom.ReadByte(durationAddress + 1) << 8);
-            AssertEqual(duration, projectile.InstructionTimer, "generic death native frame duration");
-            observedInstalledOperands.Add(operand);
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
     }
 

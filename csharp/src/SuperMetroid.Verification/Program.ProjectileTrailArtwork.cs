@@ -35,7 +35,7 @@ internal static partial class Program
             {
                 var nativeOam = new OamBuffer(); var authoredOam = new OamBuffer();
                 bool frozenFrame = frame % 5 == 0;
-                nativeSystem.HandleTrailsAndDraw(bus, nativeOam, 0, 0, frozenFrame);
+                DrawNativeTrailFrame(bus, nativeSystem.TrailSlots[0], nativeOam, frozenFrame);
                 authoredSystem.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authoredOam, 0, 0, frozenFrame, catalog);
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
                 foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
@@ -98,7 +98,7 @@ internal static partial class Program
         var frozen = new OamBuffer();
         animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), frozen, 0, 0, true, edited);
         AssertEqual(0, frozen.GetEntry(0).TileNumber, "New frozen trail retains native uninitialized tile rather than starting artwork early");
-        animation.HandleTrailsAndDraw(bus, new OamBuffer(), 0, 0, false);
+        animation.HandleTrailsAndDraw(bus, new OamBuffer(), 0, 0, false, catalog);
         var original = new OamBuffer(); var changed = new OamBuffer();
         animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), original, 0, 0, true, catalog);
         animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), changed, 0, 0, true, edited);
@@ -116,9 +116,50 @@ internal static partial class Program
         static ProjectileTrailCatalog Load(JsonNode document) => ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
     }
 
+    private static void DrawNativeTrailFrame(ISnesAddressSpace rom,
+        SamusProjectileTrailSlot pair, OamBuffer oam, bool frozen)
+    {
+        ushort Word(ushort pointer) => (ushort)(rom.ReadByte(0x900000 | pointer) |
+            rom.ReadByte(0x900000 | unchecked((ushort)(pointer + 1))) << 8);
+        foreach (SamusProjectileTrailSide side in new[] { pair.Left, pair.Right })
+        {
+            if (side.InstructionTimer == 0) continue;
+            if (!frozen && --side.InstructionTimer == 0)
+            {
+                ushort cursor = side.InstructionPointer;
+                for (int operations = 0; ; operations++)
+                {
+                    AssertTrue(operations < 16, "native trail reaches a timed frame or terminator");
+                    ushort command = Word(cursor);
+                    if (command < 0x8000)
+                    {
+                        side.InstructionTimer = command;
+                        if (command != 0)
+                        {
+                            side.TileNumberAttributes = Word(unchecked((ushort)(cursor + 2)));
+                            side.InstructionPointer = unchecked((ushort)(cursor + 4));
+                        }
+                        break;
+                    }
+                    cursor += 2;
+                    switch (command)
+                    {
+                        case 0xb525: pair.Left.YPosition++; break;
+                        case 0xb587: pair.Right.YPosition++; break;
+                        case 0xb5b3: pair.Left.YPosition--; break;
+                        default: throw new InvalidDataException($"Unknown native trail command ${command:X4}.");
+                    }
+                }
+                if (side.InstructionTimer == 0) continue;
+            }
+            if (side.XPosition < 256 && side.YPosition < 256)
+                oam.AddProjectileTrailSprite((byte)side.XPosition, (byte)side.YPosition,
+                    side.TileNumberAttributes);
+        }
+    }
     private static void VerifyRuntimeTrailBinding(ISnesAddressSpace bus, ProjectileTrailCatalog stock, ProjectileTrailCatalog edited)
     {
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.GameplayTimeFrozen = true;
@@ -126,7 +167,7 @@ internal static partial class Program
         side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
         side.InstructionTimer = 3; side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
         side.XPosition = (ushort)(runtime.Camera!.XPosition + 100); side.YPosition = (ushort)(runtime.Camera.YPosition + 100);
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus);
+        var game = CreateRetailGameFixture(bus);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var runtimeField = game.GetType().GetField("runtime", flags)!;
         runtimeField.SetValue(game, runtime);
@@ -152,6 +193,7 @@ internal static partial class Program
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)runtimeField.GetValue(restored)!;
         AssertTrue(restoredRuntime.TrailArtwork is null, "Restored trail catalog requires host rebind");
+        runtimeFixtureBindings.Value(restoredRuntime);
         restored.BindTrailArtwork(edited); game.BindTrailArtwork(edited);
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Old state draws current selected trail appearance after rebind");
         AssertEqual(3, restoredRuntime.Projectiles.TrailSlots[0].Left.InstructionTimer, "Trail rebind preserves saved timing");

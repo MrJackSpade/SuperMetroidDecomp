@@ -16,8 +16,8 @@ internal static partial class Program
         var guard = new IntroArtworkSourceReadGuard(installedBus);
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var native = new EndingCreditsState(nativeBus, nativeAudio, 0, 0);
-        var installed = new EndingCreditsState(guard, installedAudio, 0, 0);
+        var native = CreateRetailEndingFixture(nativeBus, nativeAudio, 0, 0);
+        var installed = CreateRetailEndingFixture(guard, installedAudio, 0, 0);
         installed.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
         int uploadedFrames = 0;
         for (int frame = 0; frame < 10000 &&
@@ -69,7 +69,7 @@ internal static partial class Program
         var rebindBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         var rebindGuard = new IntroArtworkSourceReadGuard(rebindBus);
         var rebindAudio = new CartridgeAudioState();
-        var restored = new EndingCreditsState(rebindGuard, rebindAudio, 0, 0);
+        var restored = CreateRetailEndingFixture(rebindGuard, rebindAudio, 0, 0);
         restored.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
         for (int frame = 0; frame < 10000 &&
             restored.Phase != EndingCreditsPhase.ZebesExplosionTileUpload; frame++)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -25,6 +26,9 @@ internal static partial class Program
                 $"Nuclear Waffle projectile mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new NuclearWaffleProjectileInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -68,21 +72,20 @@ internal static partial class Program
         AssertTrue(!projectiles[0].IsActive,
             "Nuclear Waffle projectile reaches the compiled shared delete program");
 
-        AssertEqual(
-            NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordCount,
-            installed.Count,
-            "all twelve installed Nuclear Waffle body operands execute");
-        AssertEqual(0, guard.ObservedPresentationWords.Count, "Nuclear Waffle body installed selectors avoid live reads");
-        for (int index = 0;
-             index < NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "NuclearWaffleProjectile execution performs no live spritemap operand reads");
+        AssertEqual(NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "NuclearWaffleProjectile executes every native visual operand");
+        for (int index = 0; index < NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address = NuclearWaffleProjectileInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(installed.Contains(address),
-                $"production execution selects Nuclear Waffle projectile presentation $86:{address:X4}");
+            ushort address = NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"NuclearWaffleProjectile executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "NuclearWaffleProjectile has a compiled visual selector");
+            AssertEqual(ReadNuclearWaffleProjectileInstructionWord(rom, address), selector,
+                "NuclearWaffleProjectile compiled selector matches the cartridge");
         }
-
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Nuclear Waffle projectile and shared-delete mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -103,7 +106,7 @@ internal static partial class Program
         Console.WriteLine(
             "Nuclear Waffle projectile instruction mechanics: fourteen compiled words, " +
             "four real articulated links, complete twelve-frame loops, shared deletion, " +
-            "and all twelve installed native operands pass with mechanics bytes forbidden.");
+            "and all twelve installed sprite frames pass with mechanics and visual operand ROM reads forbidden.");
 
         void RunForcedTicks(RoomEnemyProjectileSlot projectile, int count)
         {
@@ -111,6 +114,7 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
                 if (projectile.IsActive)
                 {
                     AssertEqual((ushort)(NuclearWaffleProjectileInstructionProgramDefinitions.Initial + 2 + tick % 12 * 4),

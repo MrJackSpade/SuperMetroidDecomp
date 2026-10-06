@@ -21,7 +21,7 @@ internal static partial class Program
                 actual.SetColor(i, (ushort)(i * 31));
             }
             var nativeQueue = new VramWriteQueue(); var queue = new VramWriteQueue();
-            SamusProjectileSystem.QueueBeamTilesAndLoadPalette(bus, nativeQueue, expected, selection);
+            LoadNativeBeamFixture(bus, null, expected, nativeQueue, selection);
             SamusProjectileSystem.QueueBeamTilesAndLoadPalette(new ProjectileCompositionForbiddenBus(), queue, actual, selection, tiles, catalog);
             AssertTrue(expected.Colors.SequenceEqual(actual.Colors), "Extracted beam palette matches native full CGRAM including untouched neighbors");
             AssertEqual(nativeQueue.TailInBytes, queue.TailInBytes, "Palette selection retains tile queue timing");
@@ -59,7 +59,7 @@ internal static partial class Program
     private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, BeamPaletteCatalog palettes)
     {
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), palettes);
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -91,12 +91,12 @@ internal static partial class Program
 
         // Debug grapple selection uses the same palette index as native firing, but
         // installed artwork must win over the cartridge pointer table after binding.
-        var nativeRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        var nativeRuntime = CreateRetailRuntimeFixture(bus);
         nativeRuntime.LoadDebugGrapplePalette();
         var grappleExpected = new SnesCgram();
         palettes.LoadTo(grappleExpected, 2);
         AssertTrue(nativeRuntime.Cgram.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
-            "Unbound debug grapple selection matches native beam palette index two");
+            "Stock debug grapple selection matches native beam palette index two");
 
         var editedDocument = JsonNode.Parse(BeamPaletteExtractor.Extract(bus))!;
         var editedColor = editedDocument["palettes"]![BeamPaletteDefinitions.Key(2)]![3]!;

@@ -31,6 +31,9 @@ internal static partial class Program
                 $"n00b-tube mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new NoobTubeProjectileInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -90,7 +93,9 @@ internal static partial class Program
             "n00b-tube shot reaction reaches shared compiled deletion");
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
-            "n00b-tube sprite operands require no runtime cartridge reads");
+            "Projectile presentation performs zero live cartridge reads");
+        AssertEqual(NoobTubeProjectileInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "Every native visual operand executes");
         AssertEqual(90,
             NoobTubeProjectileInstructionProgramDefinitions.PresentationWordCount,
             "n00b-tube catalog retains all ninety presentation operands");
@@ -100,6 +105,8 @@ internal static partial class Program
         {
             ushort address = NoobTubeProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"production executes n00b-tube presentation $86:{address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86,address,out ushort selector),
                 $"n00b-tube presentation $86:{address:X4} is compiled");
             AssertEqual(ReadVerificationWord(rom,0x860000 | address),selector,
@@ -124,7 +131,7 @@ internal static partial class Program
         Console.WriteLine(
             "N00b-tube projectile instruction mechanics: 207 compiled words, all seventeen " +
             "real burst producers, complete crack/shard/bubble lifecycles, shared deletion, " +
-            "and ninety native compiled sprite selectors pass.");
+            "and ninety executed native sprite compositions pass with zero live operand reads.");
 
         RoomEnemySystem NewSystem()
         {
@@ -171,8 +178,25 @@ internal static partial class Program
                 $"N00b-tube projectile {projectile.Kind} exceeded {maximumTicks} forced ticks.");
         }
 
-        void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile) =>
+        void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
+        {
             process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            ushort? expectedOperand = null;
+            if (projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard)
+            {
+                // Native reflected flicker selects the first or second operand by
+                // frame parity, then advances past both rather than one timed frame.
+                ushort commandAddress = unchecked((ushort)(projectile.InstructionPointer - 6));
+                ushort command = (ushort)(rom.ReadByte(0x860000 | commandAddress) |
+                    rom.ReadByte(0x860000 | unchecked((ushort)(commandAddress + 1))) << 8);
+                if (command == EnemyProjectileCodePointers.Instruction_NoobTubeShardReflectFlicker)
+                {
+                    bool oddFrame = ((byte)projectileFrame.GetValue(system)! & 1) != 0;
+                    expectedOperand = unchecked((ushort)(projectile.InstructionPointer - (oddFrame ? 4 : 2)));
+                }
+            }
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands, expectedOperand);
+        }
     }
 
     private static int ProbeNoobTubeProjectileInstructionMechanicsAllocation()

@@ -14,7 +14,7 @@ internal static partial class Program
         {
             var navigationSamus = new SamusState { CollectedItems = ushort.MaxValue, CollectedBeams = 0x100f,
                 EquippedBeams = 4, EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots };
-            var navigation = new PauseMenuState(bus, navigationSamus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
+            var navigation = CreateRetailPauseFixture(bus, navigationSamus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
             navigation.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
             for (int frame = 0; frame < 32; frame++) navigation.Step(0, 0);
             navigation.Step(0, (ushort)SnesButton.Right);
@@ -33,7 +33,7 @@ internal static partial class Program
         // private cursor setter and isolates the Boots-handler Left+A ordering.
         var samus = new SamusState { CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots };
-        var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
+        var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
         AssertEqual(3, pause.SelectedCategory, "fixture starts on Boots");
         samus.CollectedBeams = 0x100f;
         samus.EquippedBeams = 4;
@@ -63,7 +63,9 @@ internal static partial class Program
             for (int word = 0; word < 5; word++)
             {
                 int offset = 0x6000 + 0x4c8 + word * 2;
-                ushort oldWord = BinaryPrimitives.ReadUInt16LittleEndian(expectedVram.AsSpan(offset));
+                // $82:C092 selects Spazer artwork; disabling rewrites glyphs, not just palette bits.
+                int source = 0x820000 | (bus.ReadByte(0x82c092) | bus.ReadByte(0x82c093) << 8);
+                ushort oldWord = (ushort)(bus.ReadByte(source + word * 2) | bus.ReadByte(source + word * 2 + 1) << 8);
                 BinaryPrimitives.WriteUInt16LittleEndian(expectedVram.AsSpan(offset), (ushort)((oldWord & 0xe3ff) | 0x0c00));
             }
         // The native shared tail refreshes the wireframe independently of label edits.
@@ -75,6 +77,10 @@ internal static partial class Program
         var expectedMemory = new PpuMemorySnapshot(expectedVram, after.Memory.Cgram, after.Memory.Oam, after.Memory.ModeledSpriteCount);
         var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, after.Layers, after.ObjectSelection, after.Brightness));
         var actualPixels = pause.Render();
+        if (!expectedPixels.AsSpan().SequenceEqual(actualPixels))
+            for (int offset = 0x6000; offset < 0x6800; offset += 2)
+                if (!expectedVram.AsSpan(offset, 2).SequenceEqual(after.Memory.Vram.Slice(offset, 2)))
+                    Console.WriteLine($"tile mismatch {offset:X4}: expected {Convert.ToHexString(expectedVram.AsSpan(offset, 2))}, actual {Convert.ToHexString(after.Memory.Vram.Slice(offset, 2))}");
         AssertTrue(expectedPixels.AsSpan().SequenceEqual(actualPixels), $"native rendered VAR/adjacent-frame label, scenario {scenario}");
         Directory.CreateDirectory("csharp/test-temp/issue-395-inventory");
         SuperMetroid.Core.Assets.PngWriter.WriteRgba($"csharp/test-temp/issue-395-inventory/scenario-{scenario}.png", 256, 224, actualPixels);

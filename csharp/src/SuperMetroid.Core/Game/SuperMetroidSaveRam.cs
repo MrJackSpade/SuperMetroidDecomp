@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Game;
 /// <remarks>
 /// <c>$81:8000-$81:812A</c> stores one contiguous WRAM mirror ($D7C0-$DE1B), then writes
 /// both a checksum and its complement into two redundant SRAM directories. Keeping that
-/// physical layout remains the in-memory cartridge ABI and the lossless source for legacy
-/// emulator-save migration, even though the desktop now persists a named JSON projection.
+/// physical layout remains the in-memory cartridge ABI for legacy emulator-save imports;
+/// durable JSON stores meaningful state and rebuilds padding and checksum directories.
 /// </remarks>
 public sealed class SuperMetroidSaveRam
 {
@@ -115,6 +115,9 @@ public sealed class SuperMetroidSaveRam
             DebugFlag = ReadSramWord(slotOffset + SaveRamLayout.DebugFlagOffset),
             NewFileMarker = ReadSramWord(slotOffset + SaveRamLayout.NewFileMarkerOffset),
             IconCancelEnabled = ReadSramWord(slotOffset + SaveRamLayout.IconCancelOffset) != 0,
+            ReserveMissiles = ReadSramWord(slotOffset + SaveRamLayout.ReserveMissilesOffset),
+            JapaneseText = ReadSramWord(slotOffset + SaveRamLayout.JapaneseTextOffset) != 0,
+            LoadedItemCount = ReadSramWord(slotOffset + SaveRamLayout.LoadedItemCountOffset),
         };
     }
 
@@ -123,26 +126,10 @@ public sealed class SuperMetroidSaveRam
     /// The slot payload and four directory words are byte-for-byte cartridge structures.
     /// </summary>
     public void SaveSlot(int slot, SuperMetroidSaveSnapshot snapshot)
-        => SaveSlot(slot, snapshot, preserveUntranslatedBytes: false);
-
-    /// <summary>
-    /// Writes every translated field while retaining bytes that are not yet represented by
-    /// <see cref="SuperMetroidSaveSnapshot"/>. JSON migration uses this path after restoring
-    /// its preservation image; ordinary cartridge-created saves continue using a clean slot.
-    /// </summary>
-    public void SaveSlotPreservingUntranslatedBytes(int slot, SuperMetroidSaveSnapshot snapshot)
-        => SaveSlot(slot, snapshot, preserveUntranslatedBytes: true);
-
-    private void SaveSlot(
-        int slot,
-        SuperMetroidSaveSnapshot snapshot,
-        bool preserveUntranslatedBytes)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         int slotOffset = GetSlotOffset(slot);
-        byte[] payload = preserveUntranslatedBytes
-            ? ReadSramBytes(slotOffset, SlotByteCount)
-            : new byte[SlotByteCount];
+        byte[] payload = new byte[SlotByteCount];
 
         WriteWord(payload, SaveRamLayout.EquippedItemsOffset, snapshot.EquippedItems);
         WriteWord(payload, SaveRamLayout.CollectedItemsOffset, snapshot.CollectedItems);
@@ -182,6 +169,9 @@ public sealed class SuperMetroidSaveRam
         WriteWord(payload, SaveRamLayout.HudItemOffset, snapshot.HudItem);
         WriteWord(payload, SaveRamLayout.MaxReserveEnergyOffset, snapshot.MaxReserveEnergy);
         WriteWord(payload, SaveRamLayout.ReserveEnergyOffset, snapshot.ReserveEnergy);
+        WriteWord(payload, SaveRamLayout.ReserveMissilesOffset, snapshot.ReserveMissiles);
+        WriteWord(payload, SaveRamLayout.JapaneseTextOffset, snapshot.JapaneseText ? (ushort)1 : (ushort)0);
+        WriteWord(payload, SaveRamLayout.LoadedItemCountOffset, snapshot.LoadedItemCount);
         WriteWord(payload, SaveRamLayout.GameTimeFramesOffset, snapshot.GameTimeFrames);
         WriteWord(payload, SaveRamLayout.GameTimeSecondsOffset, snapshot.GameTimeSeconds);
         WriteWord(payload, SaveRamLayout.GameTimeMinutesOffset, snapshot.GameTimeMinutes);
@@ -239,6 +229,18 @@ public sealed class SuperMetroidSaveRam
         WriteSramWord(SaveRamLayout.PrimaryComplementOffset + slot * 2, complement);
         WriteSramWord(SaveRamLayout.BackupChecksumOffset + slot * 2, checksum);
         WriteSramWord(SaveRamLayout.BackupComplementOffset + slot * 2, complement);
+    }
+
+    /// <summary>True for the native completed-game signature, independent of slot checksums.</summary>
+    public bool HasCompletedGame => ReadSramBytes(SaveRamLayout.CompletionMarkerOffset,
+        SaveRamLayout.CompletionMarker.Length).AsSpan().SequenceEqual(SaveRamLayout.CompletionMarker);
+
+    /// <summary>Encodes named completion state without retaining arbitrary signature bytes.</summary>
+    public void SetGameCompleted(bool completed)
+    {
+        for (int index = 0; index < SaveRamLayout.CompletionMarker.Length; index++)
+            WriteSramByte(SaveRamLayout.CompletionMarkerOffset + index,
+                completed ? SaveRamLayout.CompletionMarker[index] : (byte)0);
     }
 
     /// <summary>Stores the menu's selected-slot word and complement at $1FEC/$1FEE.</summary>
@@ -456,6 +458,9 @@ public sealed record SuperMetroidSaveSlot(
 
     /// <summary>Saved nonzero WRAM word <c>$09EA</c>.</summary>
     public bool IconCancelEnabled { get; init; }
+    public ushort ReserveMissiles { get; init; }
+    public bool JapaneseText { get; init; }
+    public ushort LoadedItemCount { get; init; }
 
     /// <summary>Creates the complete translated snapshot accepted by the SRAM encoder.</summary>
     public SuperMetroidSaveSnapshot ToSnapshot() => new()
@@ -465,6 +470,9 @@ public sealed record SuperMetroidSaveSlot(
         DebugFlag = DebugFlag,
         NewFileMarker = NewFileMarker,
         IconCancelEnabled = IconCancelEnabled,
+        ReserveMissiles = ReserveMissiles,
+        JapaneseText = JapaneseText,
+        LoadedItemCount = LoadedItemCount,
         EquippedItems = EquippedItems,
         CollectedItems = CollectedItems,
         EquippedBeams = EquippedBeams,
@@ -508,6 +516,7 @@ public sealed record SuperMetroidSaveSlot(
         samus.CollectedBeams = CollectedBeams;
         samus.ReserveTankMode = ReserveMode;
         samus.Health = Health;
+        samus.PreviousHealthForHurtCheck = Health;
         samus.MaxHealth = MaxHealth;
         samus.Missiles = Missiles;
         samus.MaxMissiles = MaxMissiles;
@@ -518,6 +527,7 @@ public sealed record SuperMetroidSaveSlot(
         samus.SelectedHudItem = HudItem;
         samus.MaxReserveEnergy = MaxReserveEnergy;
         samus.ReserveEnergy = ReserveEnergy;
+        samus.ReserveMissiles = ReserveMissiles;
     }
 
     /// <summary>Restores player inventory and all progression bytes represented in SRAM.</summary>
@@ -534,6 +544,7 @@ public sealed record SuperMetroidSaveSlot(
         system.LoadMapStationBytes(MapStationBytes);
         system.LoadExploredMapBytes(ExploredMapBytes);
         system.LoadSavedLoadingGameState(LoadingGameState);
+        system.LoadedItemCount = LoadedItemCount;
     }
 }
 
@@ -547,6 +558,9 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>Checksummed new-file marker at WRAM <c>$09E8</c>.</summary>
     public ushort NewFileMarker { get; init; } = 1;
     public bool IconCancelEnabled { get; init; }
+    public ushort ReserveMissiles { get; init; }
+    public bool JapaneseText { get; init; }
+    public ushort LoadedItemCount { get; init; }
     public ushort EquippedItems { get; init; }
     public ushort CollectedItems { get; init; }
     public ushort EquippedBeams { get; init; }
@@ -594,7 +608,8 @@ public sealed record SuperMetroidSaveSnapshot
         GameTimeState? gameTime = null,
         ControllerBindings? controllerBindings = null,
         bool moonwalkEnabled = false,
-        bool iconCancelEnabled = false)
+        bool iconCancelEnabled = false,
+        bool japaneseText = false)
     {
         ArgumentNullException.ThrowIfNull(samus);
         ArgumentNullException.ThrowIfNull(system);
@@ -654,6 +669,9 @@ public sealed record SuperMetroidSaveSnapshot
             HudItem = samus.SelectedHudItem,
             MaxReserveEnergy = samus.MaxReserveEnergy,
             ReserveEnergy = samus.ReserveEnergy,
+            ReserveMissiles = samus.ReserveMissiles,
+            JapaneseText = japaneseText,
+            LoadedItemCount = system.LoadedItemCount,
             GameTimeFrames = gameTime?.Frames ?? 0,
             GameTimeSeconds = gameTime?.Seconds ?? 0,
             GameTimeMinutes = gameTime?.Minutes ?? 0,

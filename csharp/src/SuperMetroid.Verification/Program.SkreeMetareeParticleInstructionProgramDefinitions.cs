@@ -48,6 +48,7 @@ internal static partial class Program
             PaletteIndex = 0x0c00,
         };
         var samus = new SamusState();
+        var selectedCompositions = new HashSet<ushort>();
 
         spawnSkreeBurst(source);
         RoomEnemyProjectileSlot[] skree = enemies.EnemyProjectiles
@@ -89,18 +90,20 @@ internal static partial class Program
 
         AssertEqual(
             SkreeMetareeParticleInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "diagnostic fallback reads both Skree/Metaree particle spritemap operands");
+            selectedCompositions.Count,
+            "production selects both installed Skree/Metaree particle compositions");
         for (int index = 0;
              index < SkreeMetareeParticleInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = SkreeMetareeParticleInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads particle presentation $86:{address:X4}");
+            AssertTrue(selectedCompositions.Contains(ReadSkreeMetareeParticleInstructionWord(rom, address)),
+                $"production execution selects native particle composition from $86:{address:X4}");
         }
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "production particle frames do not read presentation operands from ROM");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled particle and shared-delete mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -120,7 +123,7 @@ internal static partial class Program
         Console.WriteLine(
             "Skree/Metaree particle instruction mechanics: six compiled words, all " +
             "eight real burst owners, two complete loops, shared shot deletion, and " +
-            "both diagnostic spritemap reads pass with mechanics bytes forbidden.");
+            "both installed compositions pass without instruction ROM reads.");
 
         void RunCompleteLoops(
             IEnumerable<RoomEnemyProjectileSlot> projectiles,
@@ -128,8 +131,16 @@ internal static partial class Program
         {
             foreach (RoomEnemyProjectileSlot projectile in projectiles)
             {
-                RunForcedTick(projectile);
-                RunForcedTick(projectile);
+                for (int loop = 0; loop < 2; loop++)
+                {
+                    RunForcedTick(projectile);
+                    ushort operand = (ushort)(expectedInitial + 2);
+                    AssertEqual(ReadSkreeMetareeParticleInstructionWord(rom, operand), projectile.SpritemapPointer,
+                        "particle loop selects the exact native installed composition");
+                    AssertEqual(ReadSkreeMetareeParticleInstructionWord(rom, expectedInitial),
+                        projectile.InstructionTimer, "particle frame retains native duration");
+                    selectedCompositions.Add(projectile.SpritemapPointer);
+                }
                 AssertTrue(projectile.IsActive,
                     $"{projectile.Kind} remains active after its complete animation loop");
                 AssertEqual(

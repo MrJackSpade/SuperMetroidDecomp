@@ -78,14 +78,14 @@ public sealed class FileSelectMapAnimations
         }
     }
 
-    public void DrawArrows(OamBuffer oam, MapSpriteCatalog? sprites = null)
+    public void DrawArrows(OamBuffer oam, MapSpriteCatalog? sprites = null, int verticalOffset = 0)
     {
         MapSpriteCatalog installed = sprites ?? throw new InvalidOperationException(
             "Map arrows require installed sprite definitions.");
         foreach (Arrow arrow in arrows)
         {
             if (!arrow.Visible) continue;
-            installed.Draw(arrow.Spritemap, oam, arrow.X, arrow.Y, SnesObjPalettes.Index3.PaletteBits);
+            installed.Draw(arrow.Spritemap, oam, arrow.X, unchecked((ushort)(arrow.Y + verticalOffset)), SnesObjPalettes.Index3.PaletteBits);
         }
     }
 

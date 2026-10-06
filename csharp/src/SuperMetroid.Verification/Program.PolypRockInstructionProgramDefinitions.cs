@@ -51,9 +51,12 @@ internal static partial class Program
             "real Polyp-rock producer selects the named single-frame program");
 
         RunForcedTick(rock);
-        AssertEqual(ReadPolypRockInstructionWord(rom,
-                PolypRockInstructionProgramDefinitions.PresentationWord), rock.SpritemapPointer,
-            "actual Polyp rock installs the native sprite selector");
+        AssertEqual(PolypRockInstructionProgramDefinitions.PresentationWord,
+            rock.PresentationOperandAddress,
+            "Polyp rock selects its installed presentation binding without cartridge reads");
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidOperationException("Polyp rock fixture requires installed projectile artwork.");
+        VerifyExecutedProjectileFrame(rom, rock, spriteArtwork, new HashSet<ushort>());
         AssertEqual(PolypRockInstructionProgramDefinitions.Sleep,
             rock.InstructionPointer,
             "Polyp rock reaches its terminal sleep after the authored frame");
@@ -71,8 +74,6 @@ internal static partial class Program
         AssertTrue(!rock.IsActive,
             "Polyp-rock shot reaction reaches the compiled shared delete program");
 
-        AssertTrue(!guard.ObservedPresentationWord,
-            "production uses the installed Polyp-rock selector without ROM reads");
         AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86,
                 PolypRockInstructionProgramDefinitions.PresentationWord, out ushort selector),
             "Polyp-rock selector is compiled");
@@ -98,7 +99,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Polyp-rock instruction mechanics: two compiled words, the real producer, " +
-            "terminal sleep, shared shot deletion, and the native installed selector pass with " +
+            "terminal sleep, shared shot deletion, and installed frame selection pass with " +
             "mechanics bytes forbidden.");
 
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
@@ -133,7 +134,6 @@ internal static partial class Program
     private sealed class PolypRockInstructionReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
-        internal bool ObservedPresentationWord { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);
@@ -151,7 +151,7 @@ internal static partial class Program
             int presentation = EnemyProjectileCodePointers.BankBase |
                 PolypRockInstructionProgramDefinitions.PresentationWord;
             if (address == presentation || address == presentation + 1)
-                ObservedPresentationWord = true;
+                throw new InvalidOperationException("Production read the compiled Polyp-rock visual operand.");
 
             return source.ReadByte(address);
         }

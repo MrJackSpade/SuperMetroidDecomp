@@ -15,9 +15,9 @@ internal static partial class Program
         var guard = new CompiledRoomDefinitionReadGuard(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath), forbidden);
 
-        var expected = new SuperMetroidRuntime(
+        var expected = CreateRetailRuntimeFixture(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath));
-        var actual = new SuperMetroidRuntime(guard);
+        var actual = CreateRetailRuntimeFixture(guard);
         InitialViewportResult expectedViewport = InitializePostCeresLanding(expected);
         InitialViewportResult actualViewport = InitializePostCeresLanding(actual);
 

@@ -69,8 +69,8 @@ public sealed partial class RoomEnemySystem
             WingAnimationTimerDelta = 0,
             TailFunctionIndex = 0,
             TailAngleDelta = 1,
-            TailMinimumClockwiseAngle = 0x3fc0,
-            TailMaximumCounterClockwiseAngle = 0x4010,
+            TailMinimumClockwiseAngle = RidleyTailDefinitions.InitialMinimumClockwise,
+            TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
             TailWhipTargetClockwiseAngle = 0xffff,
             TailWhipTargetCounterClockwiseAngle = 0xffff,
             TailExtensionSpeed = 0x00f0,
@@ -100,19 +100,19 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         ushort controllerInput,
         RoomLevelData? level = null,
-        SamusProjectileSystem? samusProjectiles = null)
+        SamusProjectileSystem? samusProjectiles = null,
+        ushort cameraX = 0,
+        ushort cameraY = 0)
     {
         RidleyEnemyState state = RequireNorfairRidley(slot);
         state.HurtMovementClamp = unchecked((ushort)Math.Max(
             0,
             unchecked((short)state.HurtMovementClamp) - 4));
 
+        UpdateNorfairRidleyIntangibility(slot, state, cameraX, cameraY);
         PrepareNorfairRidleyCombatFrame(slot, state);
 
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
-
-        if (state.GrabState != 0 && samus is not null)
-            UpdateNorfairRidleyGrabbedSamus(slot, state, samus);
 
         if (state.MovementAnimationEnabled != 0)
         {
@@ -122,6 +122,9 @@ public sealed partial class RoomEnemySystem
             TickRidleyTail(slot, state, samus);
             if (samusProjectiles is not null)
                 ResolveRidleyTailProjectileHits(slot, state, samusProjectiles);
+            // Native Main places carried Samus after body/tail movement.
+            if (state.GrabState != 0 && samus is not null)
+                UpdateNorfairRidleyGrabbedSamus(slot, state, samus);
         }
 
         UpdateNorfairRidleyHealthPalette(slot, state);
@@ -137,6 +140,8 @@ public sealed partial class RoomEnemySystem
         switch (state.Function)
         {
             case RidleyAiFunction.WaitForDoorTransition:
+                if (EnemyDoorTransitionActive)
+                    return;
                 state.Function = RidleyAiFunction.InitialDelay;
                 state.FunctionTimer = 170;
                 TickCeresRidleyInitialDelay(state);
@@ -201,7 +206,7 @@ public sealed partial class RoomEnemySystem
 
             case RidleyAiFunction.NorfairSwoopSetup:
                 state.Function = RidleyAiFunction.NorfairSwoopMoveToStart;
-                state.FunctionTimer = 10;
+                state.SwoopPhaseTimer = 10;
                 state.SwoopAngleAccumulator = 0;
                 TickNorfairRidleySwoopMoveToStart(slot, state);
                 return;
@@ -258,9 +263,9 @@ public sealed partial class RoomEnemySystem
 
             case RidleyAiFunction.NorfairSwoopRecover:
                 UpdateRidleySwoopVelocity(state, 0, short.MinValue, 448);
-                if (state.FunctionTimer != 0)
+                if (state.SwoopPhaseTimer != 0)
                 {
-                    state.FunctionTimer--;
+                    state.SwoopPhaseTimer--;
                     return;
                 }
                 state.Function = SamusMovementUsesRidleyGrab(samus)
@@ -269,6 +274,8 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case RidleyAiFunction.NorfairPogoSetup:
+                state.IdealInterSegmentTailAngle = 11;
+                state.TailExtensionSpeed = 0x180;
                 state.Function = RidleyAiFunction.NorfairPogoDescending;
                 state.FunctionTimer = unchecked((ushort)((RequireRandomNumber() & 0x1f) + 32));
                 TickNorfairRidleyPogo(slot, state, samus, descending: true);
@@ -287,11 +294,11 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case RidleyAiFunction.NorfairFireballMoveToSide:
-                TickNorfairRidleyGroundAttackMoveToSide(slot, state);
+                TickNorfairRidleyGroundAttackMoveToSide(slot, state, samus);
                 return;
 
             case RidleyAiFunction.NorfairFireballMoveToHeight:
-                TickNorfairRidleyGroundAttackMoveToHeight(slot, state);
+                TickNorfairRidleyGroundAttackMoveToHeight(slot, state, samus);
                 return;
 
             case RidleyAiFunction.NorfairFireballAttack:
@@ -304,6 +311,10 @@ public sealed partial class RoomEnemySystem
 
             case RidleyAiFunction.NorfairGrabApproach:
                 TickNorfairRidleyGrabApproach(slot, state, samus);
+                return;
+
+            case RidleyAiFunction.NorfairReturnToArena:
+                TickNorfairRidleyPowerBombDodge(slot, state);
                 return;
 
             case RidleyAiFunction.NorfairCarrySetup:
@@ -320,20 +331,30 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case RidleyAiFunction.NorfairCarryRise:
-                MoveNorfairRidleyToward(slot, state, state.TargetX, 256, 0);
                 if (TickRidleyFunctionTimer(state))
                 {
+                    state.IdealInterSegmentTailAngle = RidleyTailDefinitions.CarryReleaseInterSegmentAngle;
+                    state.TailExtensionSpeed = RidleyTailDefinitions.CarryReleaseExtensionSpeed;
                     ReleaseNorfairRidleyGrab(state, samus);
                     state.Function = RidleyAiFunction.NorfairCarryRelease;
                     state.FunctionTimer = 64;
                 }
+                else
+                    MoveNorfairRidleyToward(slot, state, state.TargetX, 256, 0);
                 return;
 
             case RidleyAiFunction.NorfairCarryRelease:
-                ushort releaseX = RidleyMovementTargets.CarryReleaseX(Math.Min(state.FacingDirection, (ushort)2));
-                MoveNorfairRidleyToward(slot, state, releaseX, 224, 0);
                 if (TickRidleyFunctionTimer(state))
+                {
+                    state.IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle;
+                    state.TailExtensionSpeed = RidleyTailDefinitions.CarryReleaseExtensionSpeed;
                     state.Function = RidleyAiFunction.NorfairSelectAttack;
+                }
+                else
+                {
+                    ushort releaseX = RidleyMovementTargets.CarryReleaseX(Math.Min(state.FacingDirection, (ushort)2));
+                    MoveNorfairRidleyToward(slot, state, releaseX, 224, 0);
+                }
                 return;
 
             case RidleyAiFunction.NorfairReleaseSamus:
@@ -362,6 +383,9 @@ public sealed partial class RoomEnemySystem
 
             case RidleyAiFunction.NorfairDeathFinish:
                 TickNorfairRidleyDeathFinish(slot, state);
+                return;
+
+            case RidleyAiFunction.NorfairDeathComplete:
                 return;
 
             default:
@@ -450,9 +474,7 @@ public sealed partial class RoomEnemySystem
 
     private void TickNorfairRidleyHover(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        if (state.FunctionTimer != 0)
-            state.FunctionTimer--;
-        else
+        if (TickRidleyFunctionTimer(state))
         {
             state.Function = RidleyAiFunction.NorfairSelectAttack;
             return;
@@ -477,7 +499,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.Function = RidleyAiFunction.NorfairSwoopAimDown;
-        state.FunctionTimer = 32;
+        state.SwoopPhaseTimer = 32;
         state.SwoopAngleAccumulator = 0;
     }
 
@@ -490,14 +512,14 @@ public sealed partial class RoomEnemySystem
         ushort nextTimer)
     {
         UpdateRidleySwoopVelocity(state, angleDelta, targetAngle, targetMagnitude);
-        if (state.FunctionTimer != 0)
+        if (state.SwoopPhaseTimer != 0)
         {
-            state.FunctionTimer--;
+            state.SwoopPhaseTimer--;
             return false;
         }
 
         state.Function = nextFunction;
-        state.FunctionTimer = nextTimer;
+        state.SwoopPhaseTimer = nextTimer;
         return true;
     }
 
@@ -529,6 +551,10 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
+        // $A6:B669 uses the existing RNG byte; it does not advance the generator.
+        if ((RequireRandomNumber() & 0xff) >= 0x80 && !state.Roaring && state.FacingDirection != 1)
+            SetRidleyInstruction(slot, RidleyInstructionProgramDefinitions.Fireballing);
+
         if (!TickRidleyFunctionTimer(state))
             return;
 
@@ -541,19 +567,23 @@ public sealed partial class RoomEnemySystem
 
     private static void BeginNorfairRidleyGroundAttack(RidleyEnemyState state)
     {
+        state.TailExtensionSpeed = 0xf0;
+        state.IdealInterSegmentTailAngle = 16;
+        state.TailFunctionIndex = RidleyTailDefinitions.Neutral;
         state.Function = RidleyAiFunction.NorfairFireballMoveToSide;
     }
 
     private void TickNorfairRidleyGroundAttackMoveToSide(
         RoomEnemySlot slot,
-        RidleyEnemyState state)
+        RidleyEnemyState state,
+        SamusState? samus)
     {
         if (unchecked((short)(slot.YPosition - 288)) < 0)
         {
             SelectNorfairRidleyFacingInstruction(slot, state);
             state.Function = RidleyAiFunction.NorfairFireballMoveToHeight;
             state.FunctionTimer = 32;
-            TickNorfairRidleyGroundAttackMoveToHeight(slot, state);
+            TickNorfairRidleyGroundAttackMoveToHeight(slot, state, samus);
             return;
         }
 
@@ -563,12 +593,15 @@ public sealed partial class RoomEnemySystem
 
     private void TickNorfairRidleyGroundAttackMoveToHeight(
         RoomEnemySlot slot,
-        RidleyEnemyState state)
+        RidleyEnemyState state,
+        SamusState? samus)
     {
         MoveNorfairRidleyToward(slot, state, slot.XPosition, 288, divisorIndex: 0);
         if (!TickRidleyFunctionTimer(state))
             return;
 
+        state.TailFunctionIndex = RidleyTailDefinitions.PogoSetup;
+        TickRidleyPogoTail(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         state.Function = RidleyAiFunction.NorfairFireballAttack;
         state.FunctionTimer = unchecked((ushort)((RequireRandomNumber() & 0x3f) + 128));
@@ -586,6 +619,8 @@ public sealed partial class RoomEnemySystem
             state.VerticalVelocity = unchecked((ushort)-Math.Max(
                 512,
                 Math.Abs((int)unchecked((short)state.VerticalVelocity))));
+            state.TailFunctionIndex = RidleyTailDefinitions.Neutral;
+            state.TailAngleDelta = 1;
             BeginNorfairRidleyGrab(slot, state, samus);
             return;
         }
@@ -597,9 +632,19 @@ public sealed partial class RoomEnemySystem
         if (!RidleyTailTouchesTerrain(state, level))
             return;
 
+        RidleyTailSegment tip = state.TailSegments[6];
+        SpawnRidleyDust(tip.XPosition, unchecked((ushort)(tip.YPosition + 12)), variant: 9);
+        QueueEnemySound(SoundEffectLibrary2Sounds.RidleyTailTerrainImpact, maximumQueued: 6);
         EarthquakeType = 13;
         EarthquakeTimer = 4;
+        SetRidleyPogoHorizontalDirection(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
+        for (int index = 0; index < state.TailSegments.Length; index++)
+        {
+            state.TailSegments[index].Distance = RidleyTailDefinitions.RestDistance(index);
+            state.TailSegments[index].TargetDistance = RidleyTailDefinitions.BounceDistance;
+        }
+        state.TailFunctionIndex = RidleyTailDefinitions.Pogo;
         state.PogoBounceCount = unchecked((ushort)(state.PogoBounceCount + 1));
         if (state.PogoBounceCount >= 2)
         {
@@ -616,7 +661,8 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null || samus.YPosition < 352 || TickRidleyFunctionTimer(state))
         {
-            state.TailWhipRequest = 0;
+            state.TailFunctionIndex = RidleyTailDefinitions.Neutral;
+            state.TailAngleDelta = 1;
             state.Function = RidleyAiFunction.NorfairSelectAttack;
             return;
         }
@@ -682,7 +728,19 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null || !SamusMovementUsesRidleyGrab(samus))
         {
-            state.Function = RidleyAiFunction.NorfairHoverSetup;
+            HandleNorfairRidleyMissedLunge(slot, state);
+            return;
+        }
+
+        // The native lunge is a passing attack, not indefinite pursuit. Test the
+        // previous movement's boundary result before applying another acceleration.
+        short deltaX = unchecked((short)(slot.XPosition - samus.XPosition));
+        bool passedSamus = state.FacingDirection == 2 ? deltaX >= 0 : deltaX < 0;
+        if (state.HitRoomBoundary ||
+            (passedSamus && unchecked((short)(Math.Abs((int)deltaX) - RidleyLungeDefinitions.PassDistance)) >= 0) ||
+            unchecked((short)(slot.YPosition + RidleyLungeDefinitions.ClawHeight - samus.YPosition)) >= 0)
+        {
+            HandleNorfairRidleyMissedLunge(slot, state);
             return;
         }
 
@@ -697,7 +755,11 @@ public sealed partial class RoomEnemySystem
             divisorIndex);
 
         if (RidleyClawOverlapsSamus(slot, state, samus, radiusX: 8, radiusY: 12))
+        {
+            // $A6:BB56-$BB5D reverses the lunge before the carry setup accelerates.
+            state.VerticalVelocity = unchecked((ushort)-state.VerticalVelocity);
             BeginNorfairRidleyGrab(slot, state, samus);
+        }
     }
 
     private static void BeginNorfairRidleyGrab(
@@ -710,13 +772,17 @@ public sealed partial class RoomEnemySystem
         state.GrabXOffset = unchecked((ushort)(samus.XPosition - clawX));
         state.GrabYOffset = unchecked((ushort)(samus.YPosition - clawY));
         state.GrabState = 1;
+        samus.SetStationaryScriptControlLock(true);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
         if (slot.Health == 0)
         {
             StartNorfairRidleyDeathSequence(slot, state);
+            // $A6:BB8C tail-jumps to $C538 on the same successful zero-health grab.
+            TickNorfairRidleyMoveToDeathSpot(slot, state);
             return;
         }
-        state.Function = RidleyAiFunction.NorfairCarrySetup;
+        // $BB8F falls through $BBC4 on the grabbing update.
+        BeginNorfairRidleyCarry(slot, state);
     }
 
     private static void BeginNorfairRidleyCarry(RoomEnemySlot slot, RidleyEnemyState state)
@@ -728,15 +794,21 @@ public sealed partial class RoomEnemySystem
         state.Function = RidleyAiFunction.NorfairCarryMoveToAnchor;
         state.FunctionTimer = 32;
         MoveNorfairRidleyToward(slot, state, state.TargetX, state.TargetY, 0);
+        TickRidleyFunctionTimer(state);
     }
 
     private void ReleaseNorfairRidleyGrab(RidleyEnemyState state, SamusState? samus)
     {
         state.GrabState = 0;
+        samus?.SetStationaryScriptControlLock(false);
         state.TailWhipRequest = 1;
         state.TailFunctionIndex = 1;
-        SamusMovementType movement = samus?.ReadMovementType(_bus!) ?? SamusMovementType.Standing;
-        state.IntangibilityTimer = RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement);
+        // $A6:BC8F-BC93 leaves the timer untouched once death owns the fight.
+        if (unchecked((short)state.FightMode) >= 0)
+        {
+            SamusMovementType movement = samus?.ReadMovementType(_bus!) ?? SamusMovementType.Standing;
+            state.IntangibilityTimer = RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement);
+        }
     }
 
     private static void UpdateNorfairRidleyGrabbedSamus(
@@ -789,6 +861,12 @@ public sealed partial class RoomEnemySystem
     {
         if (state.FacingDirection == 1)
             return;
+        // D955 reads the word at Enemy.XPosition-1: its sign is bit 7 of
+        // the low X byte, not the sign of the full coordinate. Keep an inward
+        // facing actor's current animation and timer untouched.
+        bool rightHalf = (slot.XPosition & 0x0080) != 0;
+        if (state.FacingDirection == 0 ? rightHalf : !rightHalf)
+            return;
         SetRidleyInstruction(
             slot,
             state.FacingDirection == 0
@@ -798,14 +876,16 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Ports the shared tail half of $A6:D3F9. A facing instruction reflects every polar
-    /// angle around $8000 and flips its movement direction; failing to mirror this state is
-    /// the classic cause of Ridley's tail appearing several frames late after a turn.
+    /// Ports $A6:D3F9. A facing instruction restores the seven rest distances before
+    /// reflecting angles around $8000 and setting clockwise movement. The offset words
+    /// remain untouched until the following tail controller update.
     /// </summary>
     private static void MirrorRidleyTail(RidleyEnemyState state)
     {
-        foreach (RidleyTailSegment segment in state.TailSegments)
+        for (int index = 0; index < state.TailSegments.Length; index++)
         {
+            RidleyTailSegment segment = state.TailSegments[index];
+            segment.Distance = RidleyTailDefinitions.RestDistance(index);
             segment.Angle = unchecked((ushort)(0x8000 - segment.Angle));
             segment.MovementDirection |= 0x8000;
         }
@@ -836,41 +916,72 @@ public sealed partial class RoomEnemySystem
 
         state.HorizontalVelocity = AccelerateNorfairRidleyAxis(
             state.HorizontalVelocity,
-            unchecked((short)(slot.XPosition - targetX)),
+            slot.XPosition, targetX,
             divisor,
             reversalBoost);
         state.VerticalVelocity = AccelerateNorfairRidleyAxis(
             state.VerticalVelocity,
-            unchecked((short)(slot.YPosition - targetY)),
+            slot.YPosition, targetY,
             divisor,
             reversalBoost);
     }
 
     private static ushort AccelerateNorfairRidleyAxis(
         ushort velocityWord,
-        short distance,
+        ushort position,
+        ushort target,
         ushort divisor,
         ushort reversalBoost)
     {
-        if (distance == 0)
-            return velocityWord;
+        short distance = unchecked((short)(position - target));
+        if (distance == 0) return velocityWord;
+        ushort step = (ushort)Math.Max(1, Math.Abs((int)distance) / divisor);
+        bool carry = position >= target;
+        ushort velocity = velocityWord;
 
-        int step = Math.Max(1, Math.Abs((int)distance) / divisor);
-        int velocity = unchecked((short)velocityWord);
+        // $A6:D559..D5A5 and D5CF..D61B retain carry/borrow across the chained
+        // ADC/SBC instructions. Crossing zero can add one more acceleration unit;
+        // combining these operations into integer arithmetic changes the trajectory.
         if (distance > 0)
         {
-            if (velocity >= 0)
-                velocity -= reversalBoost + 8 + step;
-            velocity -= step;
+            if ((short)velocity >= 0)
+            {
+                carry = true;
+                Subtract(reversalBoost);
+                carry = true;
+                Subtract(RidleyInertiaDefinitions.ReversalAcceleration);
+                Subtract(step);
+            }
+            Subtract(step);
+            if (unchecked((short)(velocity - RidleyInertiaDefinitions.MinimumVelocity)) < 0) velocity = RidleyInertiaDefinitions.MinimumVelocity;
         }
         else
         {
-            if (velocity < 0)
-                velocity += reversalBoost + 8 + step;
-            velocity += step;
+            if ((short)velocity < 0)
+            {
+                carry = false;
+                Add(reversalBoost);
+                carry = false;
+                Add(RidleyInertiaDefinitions.ReversalAcceleration);
+                Add(step);
+            }
+            Add(step);
+            if (unchecked((short)(velocity - RidleyInertiaDefinitions.MaximumVelocity)) >= 0) velocity = RidleyInertiaDefinitions.MaximumVelocity;
         }
+        return velocity;
 
-        return unchecked((ushort)Math.Clamp(velocity, -1280, 1280));
+        void Add(ushort operand)
+        {
+            int result = velocity + operand + (carry ? 1 : 0);
+            velocity = unchecked((ushort)result);
+            carry = result > ushort.MaxValue;
+        }
+        void Subtract(ushort operand)
+        {
+            int result = velocity - operand - (carry ? 0 : 1);
+            velocity = unchecked((ushort)result);
+            carry = result >= 0;
+        }
     }
 
     private void UpdateNorfairRidleyHealthPalette(RoomEnemySlot slot, RidleyEnemyState state)

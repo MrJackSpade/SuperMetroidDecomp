@@ -20,10 +20,11 @@ internal static partial class Program
     private static void VerifyDoorHeaderIdentities()
     {
         // Original physical record regions are independently documented in bank83;
-        // only the separate88FC overlap is also a supported door identity.
+        // the separate88FC and A18A overlaps are also supported door identities.
         var original = EnumerateRetailDoorPointers().ToHashSet();
         AssertEqual(597, original.Count, "Original physical header domain");
         original.Add(0x88fc);
+        original.Add(0xa18a);
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
@@ -48,7 +49,7 @@ internal static partial class Program
     private static void VerifyDoorHeaderField(SuperMetroidAddressSpace rom, int offset, int width,
         Func<CartridgeDoorHeader, int> field)
     {
-        foreach (ushort pointer in EnumerateRetailDoorPointers().Prepend((ushort)0x88fc))
+        foreach (ushort pointer in EnumerateRetailDoorPointers().Prepend((ushort)0x88fc).Prepend((ushort)0xa18a))
         {
             int address = (0x830000 | pointer) + offset;
             int expected = rom.ReadByte(address);

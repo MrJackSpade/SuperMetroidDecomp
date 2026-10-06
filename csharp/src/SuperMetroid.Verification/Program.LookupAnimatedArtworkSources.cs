@@ -29,7 +29,7 @@ internal static partial class Program
                         "Non-frame cursor rejects including odd/source/loop words");
             }
         }
-        AssertEqual(26, total, "Complete original simple artwork source domain");
+        AssertEqual(30, total, "Complete original simple artwork source domain");
         AssertThrows<ArgumentNullException>(() => RoomFxAnimatedTileArtworkDefinitions.SourceAddress(null!, 0),
             "Null descriptor rejects");
         var unknown = new RoomFxAnimatedTileObjectDefinition(0, 0x8000, 32, 0, 1, 10);

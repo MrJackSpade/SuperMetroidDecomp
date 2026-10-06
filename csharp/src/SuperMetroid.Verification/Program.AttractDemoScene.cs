@@ -40,14 +40,14 @@ internal static partial class Program
             throw new InvalidDataException("Demo offsets lost their native X-center/Y-top interpretation.");
         if (SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 1) is not null)
             throw new InvalidDataException("Demo room sentinel did not terminate the set.");
-        var input = new AttractDemoInput(bus, expected);
+        var input = new ReferenceAttractInput(bus, expected);
         input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
         if (input.Script.Held != (ushort)SnesButton.Left || input.Script.InstructionTimer != 5)
             throw new InvalidDataException("Title demo did not publish its first timed input record.");
         input.Step(bus, SuperMetroidGameState.TransitionFromDemoB, SamusMovementType.Standing);
         if (input.Script.InstructionPointer != 0 || input.Script.Held != 0)
             throw new InvalidDataException("Title demo departure did not delete input in the same handler call.");
-        input = new AttractDemoInput(bus, expected);
+        input = new ReferenceAttractInput(bus, expected);
         input.Script.Redirect(DemoInputRomData.Attract.ShinesparkPreInstruction, 0xc000);
         input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.DraygonHeld);
         if (input.Script.Held != (ushort)SnesButton.Left)
@@ -58,6 +58,7 @@ internal static partial class Program
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
         var frontend = new SuperMetroidGame(bus);
+        frontend.BindMapPresentation(RetailPresentationFixture());
         if (frontend.AvailableDemoSetCount() != 3)
             throw new InvalidDataException("An empty save must expose only the three ordinary demo sets.");
         for (int index = 0; index < AttractDemoRomData.CompletionMarker.Length; index++)
@@ -195,43 +196,18 @@ internal static partial class Program
         // pre-instruction branches and cancellation before/during/after timed records.
         foreach (int leaveFrame in new[] { -1, 0, 19, (int)scene.Duration })
         {
-            var reference = new DemoInputState();
-            reference.LoadObject(bus, scene.InputObject, scene.InputObject, definitionWord: ReadNativeWord);
-            reference.Enable();
+            var reference = new ReferenceAttractInput(bus, scene);
             var compiled = new AttractDemoInput(scene);
             for (int frame = 0; frame < 6000; frame++)
             {
                 var gameState = frame == leaveFrame
                     ? SuperMetroidGameState.TransitionFromDemoB : SuperMetroidGameState.PlayingDemo;
                 var movement = frame < 200 ? SamusMovementType.DraygonHeld : SamusMovementType.Standing;
-                reference.Step(bus, (state, pointer) =>
-                {
-                    // Native $91:8A9B cancels only on $2C. $91:8AB0 returns for
-                    // movement type $1A and redirects to $9346 for every other type.
-                    if (pointer == DemoInputRomData.Attract.CheckLeave)
-                    {
-                        if (gameState == SuperMetroidGameState.TransitionFromDemoB)
-                            state.Redirect(pointer, DemoInputRomData.Attract.DeleteList);
-                    }
-                    else if (pointer == DemoInputRomData.Attract.ShinesparkPreInstruction)
-                    {
-                        if (movement != SamusMovementType.DraygonHeld)
-                            state.Redirect(DemoInputRomData.Attract.CheckLeave,
-                                DemoInputRomData.Attract.ShinesparkContinuation);
-                    }
-                    else
-                        throw new InvalidDataException($"Unexpected native attract pre-instruction ${pointer:X4}.");
-                }, instructionWord: ReadNativeWord);
+                reference.Step(bus, gameState, movement);
                 compiled.StepStock(gameState, movement);
-                AssertEqual(Snapshot(reference), Snapshot(compiled.Script),
+                AssertEqual(Snapshot(reference.Script), Snapshot(compiled.Script),
                     $"compiled attract ${scene.InputObject:X4}, leave {leaveFrame}, frame {frame}");
             }
-        }
-
-        ushort ReadNativeWord(ushort pointer)
-        {
-            int address = DemoInputRomData.BankBase | pointer;
-            return (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
         }
 
         static string Snapshot(DemoInputState state) =>

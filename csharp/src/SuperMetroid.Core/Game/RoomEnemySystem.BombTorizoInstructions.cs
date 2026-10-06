@@ -84,7 +84,7 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_SetupPaletteTransitionToBlack:
-                BlackOutBombTorizoPalette();
+                SetTorizoPaletteTarget(state, new ushort[32]);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -94,13 +94,12 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_AdvanceGradualColorChange:
-                EarthquakeType = 4;
-                EarthquakeTimer = 32;
+                GetTorizoPaletteTransition(state).Step(_cgram!, TorizoPaletteDefinitions.BodyPaletteMask);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_SetupPaletteTransitionToNormalTorizo:
-                LoadTorizoDeathPalette();
+                SetTorizoPaletteTarget(state, TorizoPaletteDefinitions.Normal);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -324,7 +323,7 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_LoadGoldenTorizoPalettes:
-                LoadGoldenTorizoFinalPalette();
+                SetTorizoPaletteTarget(state, TorizoPaletteDefinitions.Golden);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 

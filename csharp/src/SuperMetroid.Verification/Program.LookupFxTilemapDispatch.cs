@@ -25,6 +25,8 @@ internal static partial class Program
         RoomFxLayer3TilemapCatalog Load() => RoomFxLayer3TilemapCatalog.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document)));
         var edited = Load();
+        native.Add(RoomFxType.TourianEntranceStatue, native[RoomFxType.Water]);
+        markers.Add(RoomFxType.TourianEntranceStatue, markers[RoomFxType.Water]);
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             var type = (RoomFxType)value;

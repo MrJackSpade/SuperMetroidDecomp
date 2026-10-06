@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -515,6 +516,10 @@ public sealed partial class RoomEnemySystem
         outerBody.GraphicsIndex = MetroidFrozenSpritePalette;
         outerBody.DisableFlags = 1;
         outerBody.InstructionPointer = frozenInstructionList;
+        // Native drawing reads the selected record even while animation is disabled.
+        // Refresh the cached visual without resetting the retained instruction timer.
+        outerBody.SpritemapPointer = RoomSpriteObjectVisualDefinitions.FrameAt(
+            unchecked((ushort)(frozenInstructionList + 2)));
     }
 
     private static void SetMetroidInstructionList(RoomEnemySlot slot, ushort instructionList)

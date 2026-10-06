@@ -45,6 +45,7 @@ public sealed partial class RoomEnemySystem
     {
         _soundRequests.Clear();
         _musicRequests.Clear();
+        LastKiHunterSoundEffect = null;
 
         // The oldest boss translations exposed nullable debugger fields instead of the
         // append-only queue above. Clear those fields at EnemyMain's frame boundary just
@@ -99,7 +100,8 @@ public sealed partial class RoomEnemySystem
         QueueLegacySound(LastMamaTurtleSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastCacatacSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastBoulderSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
-        QueueLegacySound(LastEtecoonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastEtecoonSoundEffect, library: SoundEffectLibrary.Library2,
+            maximumQueued: LastEtecoonSoundEffect == EtecoonWakeSound ? (byte)15 : (byte)6);
         QueueLegacySound(LastDachoraSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastEvirSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastMorphBallEyeSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
@@ -121,7 +123,6 @@ public sealed partial class RoomEnemySystem
         QueueLegacySound(LastLowerNorfairRioSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastMaridiaLargeSnailSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastDragonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
-        QueueLegacySound(LastKiHunterSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastMagdolliteSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastShutterSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
 

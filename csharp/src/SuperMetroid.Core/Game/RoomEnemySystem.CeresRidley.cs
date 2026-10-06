@@ -149,8 +149,8 @@ public sealed partial class RoomEnemySystem
             WingAnimationTimerDelta = 0,
             TailFunctionIndex = 0,
             TailAngleDelta = 1,
-            TailMinimumClockwiseAngle = 0x3ff0,
-            TailMaximumCounterClockwiseAngle = 0x4040,
+            TailMinimumClockwiseAngle = RidleyTailDefinitions.InitialMinimumClockwise,
+            TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
             TailWhipTargetClockwiseAngle = 0xffff,
             TailWhipTargetCounterClockwiseAngle = 0xffff,
             TailWhipRequest = 0,
@@ -196,8 +196,9 @@ public sealed partial class RoomEnemySystem
         switch (state.Function)
         {
             case RidleyAiFunction.WaitForDoorTransition:
-                // Enemy AI cannot run until the runtime has completed room loading, so the
-                // native door_transition_flag_enemies test is necessarily clear here.
+                // A35B waits even though enemy visual instructions run during fade.
+                if (EnemyDoorTransitionActive)
+                    break;
                 state.Function = RidleyAiFunction.InitialDelay;
                 state.FunctionTimer = 512;
                 TickCeresRidleyInitialDelay(state);
@@ -654,26 +655,16 @@ public sealed partial class RoomEnemySystem
             magnitude = Math.Max(targetMagnitude, magnitude - 32);
         state.SwoopSpeedMagnitude = unchecked((ushort)magnitude);
 
-        int angle = unchecked((short)state.SwoopAngleAccumulator);
-        angle = angleDelta < 0
-            ? Math.Max(targetAngle, angle + angleDelta)
-            : Math.Min(targetAngle, angle + angleDelta);
-        state.SwoopAngleAccumulator = unchecked((ushort)angle);
-
-        // Math_MultBySin/Cos uses the signed 8-bit sine table with the high byte of the
-        // 16-bit angle accumulator. Rounding to the nearest signed table byte reproduces
-        // the table's integer amplitude before its magnitude multiply/truncate.
-        int phase = unchecked((byte)(state.SwoopAngleAccumulator >> 8));
-        state.HorizontalVelocity = unchecked((ushort)MultiplyBySineTable(magnitude, phase));
-        state.VerticalVelocity = unchecked((ushort)MultiplyBySineTable(magnitude, phase + 64));
-    }
-
-    private static short MultiplyBySineTable(int magnitude, int phase)
-    {
-        int sine = (int)Math.Round(
-            Math.Sin((phase & 0xff) * (Math.PI * 2 / 256)) * 127,
-            MidpointRounding.AwayFromZero);
-        return unchecked((short)(Math.Sign(sine) * (magnitude * Math.Abs(sine) >> 8)));
+        ushort angle = unchecked((ushort)(state.SwoopAngleAccumulator + angleDelta));
+        // Native CMP branches on N, not signed less-than (N xor V). Preserve word
+        // wrapping, particularly the $8000 recovery target after a rightward swoop.
+        bool negativeDifference = unchecked((short)(angle - targetAngle)) < 0;
+        if (angleDelta < 0 ? negativeDifference : !negativeDifference)
+            angle = unchecked((ushort)targetAngle);
+        state.SwoopAngleAccumulator = angle;
+        byte phase = (byte)(angle >> 8);
+        state.HorizontalVelocity = EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, phase);
+        state.VerticalVelocity = EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, unchecked((byte)(phase + 64)));
     }
 
     private static void BeginCeresRidleyRetreat(RidleyEnemyState state)
@@ -844,6 +835,11 @@ public sealed partial class RoomEnemySystem
         // left bound, before zeroing X velocity. Vertical speed can meet its threshold
         // even when horizontal motion is slow; the right and vertical clamps do not call it.
         var proposedX = IntegrateUnclampedAxis(slot.XPosition, slot.XSubposition, state.HorizontalVelocity);
+        var proposedY = IntegrateUnclampedAxis(slot.YPosition, slot.YSubposition, state.VerticalVelocity);
+        state.HitRoomBoundary = unchecked((short)(proposedX.Position - state.MinimumX)) < 0 ||
+            unchecked((short)(proposedX.Position - state.MaximumX)) >= 0 ||
+            unchecked((short)(proposedY.Position - state.MinimumY)) < 0 ||
+            unchecked((short)(proposedY.Position - state.MaximumY)) >= 0;
         if (ceresWallImpact && unchecked((short)(proposedX.Position - state.MinimumX)) < 0 &&
             Math.Max(Math.Abs((int)unchecked((short)state.HorizontalVelocity)),
                 Math.Abs((int)unchecked((short)state.VerticalVelocity))) >= RidleyWallImpactDefinitions.MinimumSpeed)
@@ -905,8 +901,10 @@ public sealed partial class RoomEnemySystem
         ushort centerY,
         ushort radiusX,
         ushort radiusY) =>
-        Math.Abs(unchecked((short)(slot.XPosition - centerX))) < radiusX &&
-            Math.Abs(unchecked((short)(slot.YPosition - centerY))) < radiusY;
+        // $A9:EF06 tests overlap with the actor's rectangle, including its boundary.
+        // A center-only test delays flight and attack handoffs until Ridley gets too close.
+        Math.Abs(unchecked((short)(slot.XPosition - centerX))) < unchecked((ushort)(slot.XRadius + radiusX + 1)) &&
+            Math.Abs(unchecked((short)(slot.YPosition - centerY))) < unchecked((ushort)(slot.YRadius + radiusY + 1));
 
     private static RidleyTailSegment[] CreateInitialRidleyTailSegments()
     {

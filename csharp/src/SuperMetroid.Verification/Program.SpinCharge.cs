@@ -5,7 +5,8 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     /// <summary>Regression for #473: spin HUD dispatch preserves charge on Shoot release.</summary>
-    private static void VerifySpinChargePreservation(TestAddressSpace bus, RoomLevelData air)
+    private static void VerifySpinChargePreservation(TestAddressSpace bus, RoomLevelData air,
+        SuperMetroid.Core.Assets.ProjectileFrameBindingCatalog frames)
     {
         foreach (byte pose in new[] { SamusPoseIds.SpinJumpRightPose, SamusPoseIds.SpinJumpLeftPose,
             SamusPoseIds.WallJumpRightPose, SamusPoseIds.WallJumpLeftPose })
@@ -15,8 +16,8 @@ internal static partial class Program
             WritePoseDefinition(bus, pose, [8, (byte)movement, 0, 2, 0, 0, 0, 0]);
             var samus = new SamusState { Pose = 1, XPosition = 128, YPosition = 96,
                 EquippedBeams = (ushort)SamusBeamFlags.Charge };
-            var projectiles = new SamusProjectileSystem();
-            var bombs = new SamusBombProjectileSystem();
+            var projectiles = new SamusProjectileSystem { FrameBindings = frames };
+            var bombs = new SamusBombProjectileSystem { FrameBindings = frames };
             for (int frame = 0; frame < 60; frame++)
                 projectiles.StepFrame(bus, air, samus, (ushort)SnesButton.X, 0, 0, 0, bombs);
             AssertEqual(60, projectiles.FlareCounter, "spin charge fixture armed through real producer");

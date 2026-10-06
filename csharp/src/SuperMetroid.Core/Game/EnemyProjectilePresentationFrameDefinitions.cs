@@ -19,6 +19,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         PreEnvironmentAndAttack,
         PreMotherBrainAndStatue,
         PreWorkRobot,
+        PrePolypRock,
         Current,
     }
 
@@ -38,8 +39,12 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         Build(CatalogGeneration.PreWorkRobot);
     private static readonly EnemyProjectilePresentationFrameDefinition[] Frames =
         Build(CatalogGeneration.Current);
+    private static readonly EnemyProjectilePresentationFrameDefinition[] PrePolypRockFrames =
+        Build(CatalogGeneration.PrePolypRock);
 
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> All => Frames;
+    internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PrePolypRock =>
+        PrePolypRockFrames;
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizo =>
         PreGoldenTorizoFrames;
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizoEgg =>
@@ -219,12 +224,14 @@ internal static class EnemyProjectilePresentationFrameDefinitions
                 MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount,
                 MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress);
         }
-        if (generation >= CatalogGeneration.Current)
+        if (generation >= CatalogGeneration.PrePolypRock)
         {
             Add(frames, "work_robot_laser",
                 WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount,
                 WorkRobotLaserInstructionProgramDefinitions.PresentationWordAddress);
         }
+        if (generation >= CatalogGeneration.Current)
+            frames.Add(PolypRockInstructionProgramDefinitions.PresentationWord, "polyp_rock_00");
 
         return frames.OrderBy(entry => entry.Key)
             .Select(entry => new EnemyProjectilePresentationFrameDefinition(entry.Key, entry.Value))

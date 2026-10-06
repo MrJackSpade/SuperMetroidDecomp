@@ -35,7 +35,7 @@ public sealed record GameplayColorMathRenderLayer : RenderLayer
     public byte FixedGreen { get; }
     public byte FixedBlue { get; }
     public Bg2BppColorMathRenderLayer? Subscreen { get; }
-    /// <summary>Select the gameplay BG2 plane as the color-math operand instead of a BG3 plane.</summary>
+    /// <summary>Admit gameplay BG2 to the subscreen, competing with any captured BG3 by Mode-1 priority.</summary>
     public bool SubscreenUsesBg2 { get; }
 
     public GameplayColorMathRenderLayer(OrdinaryGameplayRenderLayer gameplay, ReadOnlySpan<XrayWindowLine> lines,
@@ -44,8 +44,8 @@ public sealed record GameplayColorMathRenderLayer : RenderLayer
         bool subscreenUsesBg2 = false)
     {
         ArgumentNullException.ThrowIfNull(gameplay);
-        if (subscreenUsesBg2 && (subscreen is not null || !addSubscreen))
-            throw new ArgumentException("BG2 subscreen requires subscreen arithmetic and cannot also select BG3.", nameof(subscreenUsesBg2));
+        if (subscreenUsesBg2 && !addSubscreen)
+            throw new ArgumentException("BG2 subscreen requires subscreen arithmetic.", nameof(subscreenUsesBg2));
         if (lines.Length != SnesPpuLayout.ScreenHeightPixels)
             throw new ArgumentException("Gameplay color math requires one interval for each physical scanline.", nameof(lines));
         if (fixedRed > 31 || fixedGreen > 31 || fixedBlue > 31)

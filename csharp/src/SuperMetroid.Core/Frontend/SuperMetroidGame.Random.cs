@@ -37,6 +37,10 @@ public sealed partial class SuperMetroidGame
                 menuRandom.NextRandom();
                 runtime?.System.SetRandomNumber(menuRandom.RandomNumber);
                 break;
+            case SuperMetroidGameState.Pausing:
+                // HDMA runs before $0D disables it; lava swaps the live RNG bytes.
+                runtime!.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
+                break;
             case SuperMetroidGameState.OpeningCinematic:
             case SuperMetroidGameState.GameOptionsMenu:
             case SuperMetroidGameState.FileSelectMenus:
@@ -44,6 +48,12 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.IntroCinematic:
             case SuperMetroidGameState.SetUpNewGame:
             case SuperMetroidGameState.GameOverMenu:
+            // $82:894F runs once before each pause-only dispatcher as well.
+            // Fade states $0C/$12 run StepFrame and retain its own RNG call.
+            case SuperMetroidGameState.PausedA:
+            case SuperMetroidGameState.PausedB:
+            case SuperMetroidGameState.UnpausingA:
+            case SuperMetroidGameState.UnpausingB:
                 FrontendRandomOwner.NextRandom();
                 break;
         }

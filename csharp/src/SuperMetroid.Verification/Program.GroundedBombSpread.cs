@@ -19,7 +19,7 @@ internal static partial class Program
             samus.RefreshCollisionRadii(bus);
             samus.Kinematics.YAcceleration = 0;
             samus.Kinematics.YSubacceleration = 0x1c00;
-            var bombs = new SamusBombProjectileSystem();
+            var bombs = CreateBombFixture();
             ushort shootDown = (ushort)(SnesButton.X | SnesButton.Down);
             for (int tick = 0; tick < hold; tick++)
             {

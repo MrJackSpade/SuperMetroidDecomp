@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -16,20 +17,27 @@ internal static partial class Program
         // Give both one-entry spritemaps conspicuous source attributes. With native
         // graphics index zero, AddEnemyProjectileSpritemap must preserve bytes $34/$A5.
         // A leaked enemy graphics word would add a base tile and OR another OBJ palette.
-        byte[] spritemap =
-        [
-            0x01, 0x00, // One component.
-            0x00, 0x00, // X offset zero, small OBJ.
-            0x00,       // Y offset zero.
-            0x34, 0xa5, // Complete ROM-authored tile/attribute word.
-        ];
-        memory.WriteBytes(0x8db1ba, spritemap);
-        memory.WriteBytes(0x8db1d0, spritemap);
-        memory.WriteBytes(0x8d846d, spritemap);
+        var part = new SpriteVisualPart
+        {
+            OffsetX = 0, OffsetY = 0, TileColumn = 4, TileRow = 19,
+            Size = 8, Priority = 2, Palette = 2, FlipX = false, FlipY = true,
+        };
+        var document = new EnemyProjectileSpritemapDocument
+        {
+            Version = EnemyProjectileSpritemapDefinitions.Version,
+            Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(
+                frame => frame.Name,
+                frame => frame.Pointer is 0xb1ba or 0xb1d0 or 0x846d
+                    ? new[] { part } : Array.Empty<SpriteVisualPart>()),
+            ProgramFrames = EnemyProjectilePresentationFrameDefinitions.All.ToArray().ToDictionary(
+                frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()),
+        };
+        var artwork = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
+            EnemyProjectileSpritemapCatalog.Write(document)));
         var bus = new CeresArrivalDefinitionReadGuard(memory);
 
         var samus = new SamusState { XPosition = 0x0080, YPosition = 0x0000 };
-        var arrival = new CeresElevatorArrivalState(bus, samus);
+        var arrival = new CeresElevatorArrivalState(bus, samus, artwork);
         arrival.Step(samus);
 
         var oam = new OamBuffer();

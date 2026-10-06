@@ -364,8 +364,23 @@ internal static partial class Program
             "Botwoon adds sixteen distinct visible head compositions");
         AssertEqual(EnemySpritemapDefinitions.PreGunshipFrameCount +
                 GunshipVisualDefinitions.FrameCount,
-            EnemySpritemapDefinitions.Frames.Length,
+            EnemySpritemapDefinitions.PreMamaTurtleFrameCount,
             "Gunship adds two hull and eleven entrance-pad compositions");
+        AssertEqual(EnemySpritemapDefinitions.PreMamaTurtleFrameCount +
+                MamaTurtleVisualDefinitions.FrameCount + ZeroVisualDefinitions.FrameCount +
+                FriendlyAnimalVisualDefinitions.EtecoonFrameCount +
+                FriendlyAnimalVisualDefinitions.DachoraFrameCount +
+                FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount +
+                FriendlyAnimalVisualDefinitions.EscapeDachoraFrameCount +
+                HibashiVisualDefinitions.FrameCount + ZebetiteVisualDefinitions.FrameCount +
+                WreckedShipGhostVisualDefinitions.FrameCount + PowampVisualDefinitions.FrameCount +
+                SparkVisualDefinitions.FrameCount + ShitroidVisualDefinitions.FrameCount +
+                KraidLintVisualDefinitions.FrameCount + NuclearWaffleVisualDefinitions.FrameCount +
+                2 + // Single-frame Kzan and Polyp.
+                RidleyBreakupVisualDefinitions.Legs.Length + RidleyBreakupVisualDefinitions.Torso.Length +
+                RidleyBreakupVisualDefinitions.Head.Length + RidleyBreakupVisualDefinitions.Claw.Length,
+            EnemySpritemapDefinitions.Frames.Length,
+            "post-Gunship installed composition groups account for the complete current catalog");
         HashSet<ushort> installedHunterPointers = EnemySpritemapDefinitions.Frames
             .ToArray()
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
@@ -1175,7 +1190,7 @@ internal static partial class Program
                                                                     ? CeresDoorInstructionProgramDefinitions.EnemyDefinitionPointer
                                                                 : frame.Name.StartsWith("magdollite_", StringComparison.Ordinal)
                                                                                                 ? RoomEnemySystem.MagdolliteDefinition
-                                : RoomEnemySystem.AtomicDefinition);
+                                : RoomEnemySystem.AtomicDefinition, spritemapBank: frame.Bank);
             var nativeRoom = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeRoom, frame.Bank, frame.Pointer,
                 0x0040, 0x0080, 0, 0);
@@ -1198,13 +1213,13 @@ internal static partial class Program
 
         EnemySpritemapDocument document = JsonSerializer.Deserialize<EnemySpritemapDocument>(
             original, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        HashSet<string> yardNames = YardVisualDefinitions.Frames()
-            .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
-        HashSet<string> botwoonNames = BotwoonVisualDefinitions.Frames()
+        // Construct the historical version boundary, not today's catalog minus
+        // a few known families. Every older fixture below derives from this set.
+        HashSet<string> preYardNames = EnemySpritemapDefinitions.Frames.ToArray()
+            .Take(EnemySpritemapDefinitions.PreYardFrameCount)
             .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
         var preYardFrames = document.Frames
-            .Where(pair => !yardNames.Contains(pair.Key) &&
-                           !botwoonNames.Contains(pair.Key))
+            .Where(pair => preYardNames.Contains(pair.Key))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         var preYardBindings = document.DisplayFrames!
             .Where(pair => preYardFrames.ContainsKey(pair.Key))
@@ -2400,24 +2415,12 @@ internal static partial class Program
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Spritemaps!.TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
+        // Preserve the edited values while selecting exactly the pre-Dragon schema.
+        HashSet<string> historicalNames = EnemySpritemapDefinitions.Frames.ToArray()
+            .Take(EnemySpritemapDefinitions.PreDragonFrameCount)
+            .Select(frame => frame.Name).ToHashSet(StringComparer.Ordinal);
         IEnumerable<KeyValuePair<string, SpriteVisualPart[]>> HistoricalFrames() =>
-            document.Frames.Where(pair =>
-                !pair.Key.StartsWith("botwoon_head_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("yard_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("work_robot_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("evir_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("mochtroid_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("dead_zoomer_corpse_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("dead_ripper_corpse_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("dead_skree_corpse_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("dead_sidehopper_", StringComparison.Ordinal) &&
-                pair.Key != "dead_torizo_stationary_a9_d6e2" &&
-                !pair.Key.StartsWith("dragon_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("multiviola_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("norfair_lava_jumper_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("chozo_statue_aa_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("viola_spin_", StringComparison.Ordinal) &&
-                !pair.Key.StartsWith("rinka_spin_", StringComparison.Ordinal));
+            document.Frames.Where(pair => historicalNames.Contains(pair.Key));
         var preMetroidFrames = HistoricalFrames()
             .Where(pair => !pair.Key.StartsWith("metroid_body_", StringComparison.Ordinal) &&
                 !pair.Key.StartsWith("shaktool_", StringComparison.Ordinal) &&
@@ -3582,7 +3585,7 @@ internal static partial class Program
 
         static OamBuffer DrawEnemy(EnemyTileArtworkCatalog art,
             ISnesAddressSpace guard, ushort pointer, ushort definition,
-            Action<RoomEnemySlot>? inspect = null)
+            Action<RoomEnemySlot>? inspect = null, byte? spritemapBank = null)
         {
             var enemies = new RoomEnemySystem { TileArtwork = art };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -3694,6 +3697,10 @@ internal static partial class Program
                           definition == RoomEnemySystem.SkreeDefinition
                             ? EnemySpritemapDefinitions.SkulteraBank
                         : EnemySpritemapDefinitions.BoyonBank };
+            // The catalog-wide composition check includes families newer than the
+            // fixture's actor-name mapping. Its frame identity owns the actual bank.
+            if (spritemapBank is byte bank)
+                slot.Definition = slot.Definition with { Bank = bank };
             slot.SpritemapPointer = pointer;
             slot.InstructionTimer = 7;
             slot.Timer = 9;

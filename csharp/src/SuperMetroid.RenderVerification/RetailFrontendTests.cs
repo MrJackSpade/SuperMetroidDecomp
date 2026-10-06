@@ -12,7 +12,7 @@ internal static class RetailFrontendTests
         // spaces; no player save files are loaded or modified.
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         StartupReferenceTests.Run(device, renderer, rom);
-        var title = new TitleSequenceState(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+        var title = RenderRetailFixture.CreateTitle(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
         var phases = new HashSet<TitleSequencePhase>();
         int titleCount = 0;
         for (int tick = 0; tick < 2500 && !title.FileSelectRequested; tick++)
@@ -37,8 +37,8 @@ internal static class RetailFrontendTests
         if (!title.FileSelectRequested || !phases.Contains(TitleSequencePhase.SceneThreeZoom))
             throw new InvalidOperationException("Retail title did not cover natural zoom and reach file select.");
 
-        var legacy = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
-        var captured = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+        var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+        var captured = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
         var states = new HashSet<SuperMetroidGameState>();
         for (int tick = 0; tick < 500; tick++)
         {

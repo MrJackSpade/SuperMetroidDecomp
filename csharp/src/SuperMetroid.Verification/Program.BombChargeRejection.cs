@@ -27,7 +27,7 @@ internal static partial class Program
                 ProjectileFlareCounter = charge,
             };
             samus.RefreshCollisionRadii(bus);
-            var bombs = new SamusBombProjectileSystem();
+            var bombs = CreateBombFixture();
             // Down postpones a valid full-charge spread. The no-edge rejection below
             // therefore belongs only to the ordinary-bomb/Power-Bomb helper, not to
             // releasing a spread. Equipment guards that skip that helper preserve charge.
@@ -56,7 +56,7 @@ internal static partial class Program
                 EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
                 SelectedHudItem = selection, PowerBombs = 2, ProjectileFlareCounter = charge,
                 XPosition = 80, YPosition = 80 };
-            var bombs = new SamusBombProjectileSystem();
+            var bombs = CreateBombFixture();
             var result = bombs.StepFrame(bus, level, samus, (ushort)SnesButton.Down, 0);
             string context = $"Shoot released, charge {charge}, HUD selection {selection}";
             AssertEqual(charge != 0, result.BeamChargeConsumed, $"outer native cancellation command: {context}");

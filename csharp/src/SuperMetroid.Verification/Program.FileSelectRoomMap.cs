@@ -30,7 +30,7 @@ internal static partial class Program
             for (int x = 0; x < 64; x++)
                 if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, x, y);
             if (downloaded) system.SetAreaMapAcquired(area);
-            var graphics = new FileSelectRoomMapGraphics(bus, system, area);
+            var graphics = new FileSelectRoomMapGraphics(bus, system, area, mapPresentation: RetailPresentationFixture());
             byte[] pause = AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank);
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
@@ -67,6 +67,9 @@ internal static partial class Program
             AssertEqual(256 * 224, pixels.Length, "room map visible viewport");
             AssertTrue(pixels.All(pixel => pixel.A == 255), "room map has opaque backdrop");
             var retailIcons = new FileSelectMapIcons(system, area);
+            retailIcons.BindStations(RetailPresentationFixture().Stations);
+            retailIcons.BindLandmarks(RetailPresentationFixture().Landmarks);
+            retailIcons.BindSprites(RetailPresentationFixture().Sprites);
             var retailOam = new OamBuffer();
             retailOam.BeginFrame();
             retailIcons.DrawBeforeMarker(retailOam, 0, 0);
@@ -88,8 +91,8 @@ internal static partial class Program
         snapshot.UsedSaveStationBytes[8] = 1;
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0)!;
-        var cancel = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0);
-        var control = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0);
+        var cancel = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture());
+        var control = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture());
         foreach (var menu in new[] { cancel, control })
         {
             for (int i = 0; i < 48; i++) menu.Step(0);
@@ -104,8 +107,11 @@ internal static partial class Program
             "room cancel must retain the map/icons drawn before input until next coroutine call");
         var system = new Bank80SystemState();
         system.LoadMapStationBytes(slot.MapStationBytes);
-        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(bus, system, AreaId.Maridia).RenderFrameOnly();
-        Rgba32[] area = new FileSelectAreaMapGraphics(bus, 4).Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
+        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(bus, system, AreaId.Maridia, mapPresentation: RetailPresentationFixture()).RenderFrameOnly();
+        var maps = RetailPresentationFixture();
+        var areaGraphics = new FileSelectAreaMapGraphics(bus, 4, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites);
+        areaGraphics.BindLabels(maps.Labels);
+        Rgba32[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
         for (int tick = 1; tick <= 4; tick++)
         {
             cancel.Step(0);
@@ -119,40 +125,53 @@ internal static partial class Program
                 setup[y * 256 + x], "return setup temporarily exposes native centered entry window");
         cancel.Step(0);
         AssertTrue(cancel.Render().SequenceEqual(FileSelectMapWindowCompositor.Composite(area, roomFrame,
-                FileSelectMapWindow.CreateReturn(bus, 4))),
+                FileSelectMapWindow.CreateReturn(bus, 4, maps.Labels))),
             "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
     private static void VerifyFileSelectMapAnimations()
     {
         var bus = new TestAddressSpace();
-        for (int arrow = 0; arrow < 4; arrow++)
+        var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
+        var arrows = new Dictionary<string, MapArrowEntry>();
+        foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
+            arrows[direction.ToString()] = new() { X = 32 + ((int)direction - 1) * 24, Y = 79, DurationTicks = [3, 2] };
+        using var arrowJson = new MemoryStream();
+        MapArrowPresentation.Write(arrowJson, new() { Version = 1, Arrows = arrows });
+        arrowJson.Position = 0;
+        var animations = new FileSelectMapAnimations(bus, MapArrowPresentation.Load(arrowJson));
+        var paletteFrames = Enumerable.Range(0, 2).Select(frame => new MapPaletteCycleFrame
         {
-            int record = FileSelectMapRomData.ScrollArrows + arrow * 10;
-            WriteTestWord(bus, record, (ushort)(32 + arrow * 24));
-            WriteTestWord(bus, record + 2, 80);
-            WriteTestWord(bus, record + 4, (ushort)(arrow + 1));
-            WriteTestWord(bus, MapAnimationRomData.SpritePrograms + arrow * 2, 0x9000);
-            WriteTestWord(bus, MapAnimationRomData.SpriteBases + arrow * 2, 0x9100);
-        }
-        WriteTestWord(bus, 0x829100, 0x10);
-        bus.WriteByte(0x829000, 3); bus.WriteByte(0x829002, 0);
-        bus.WriteByte(0x829003, 2); bus.WriteByte(0x829005, 1);
-        bus.WriteByte(0x829006, 0xff);
-        for (ushort id = 0x10; id <= 0x11; id++)
+            DurationTicks = frame == 0 ? 3 : 2,
+            Colors = Enumerable.Range(0, 16).Select(color => new PaletteRgb5
+            {
+                Red = (100 + frame * 16 + color) & 31,
+                Green = ((100 + frame * 16 + color) >> 5) & 31, Blue = 0,
+            }).ToArray(),
+        }).ToArray();
+        using var paletteJson = new MemoryStream();
+        MapPaletteCycle.Write(paletteJson, new() { Version = 1, Frames = paletteFrames });
+        paletteJson.Position = 0;
+        animations.BindPalette(MapPaletteCycle.Load(paletteJson));
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(retail);
+        var spriteDocument = System.Text.Json.JsonSerializer.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options)!;
+        foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
-            ushort pointer = (ushort)(0xa000 + id * 8);
-            WriteTestWord(bus, 0x82c569 + id * 2, pointer);
-            WriteTestWord(bus, 0x820000 | pointer, 1);
-            WriteTestWord(bus, 0x820000 | (pointer + 2), 0);
-            WriteTestWord(bus, 0x820000 | (pointer + 5), (ushort)(0x3000 | id));
+            ushort id = MapArrowDefinitions.SpriteBase(direction);
+            string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == id).Name;
+            spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
+                TileColumn = 0, TileRow = 1, Size = 8, Priority = 3, Palette = null, FlipX = false, FlipY = false }];
         }
-        bus.WriteByte(MapAnimationRomData.PaletteTiming, 3);
-        bus.WriteByte(MapAnimationRomData.PaletteTiming + 3, 2);
-        bus.WriteByte(MapAnimationRomData.PaletteTiming + 6, 0xff);
-        for (int color = 0; color < 32; color++)
-            WriteTestWord(bus, MapAnimationRomData.PaletteColors + color * 2, (ushort)(100 + color));
-        var animations = new FileSelectMapAnimations(bus);
+        var sprites = MapSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(spriteDocument, options)),
+            new MemoryStream(artwork[MapSpriteFormat.PngFile]));
+        int ArrowPhase(int index)
+        {
+            const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var states = (Array)typeof(FileSelectMapAnimations).GetField("arrows", fields)!.GetValue(animations)!;
+            object state = states.GetValue(index)!;
+            return (int)state.GetType().GetField("Frame")!.GetValue(state)!;
+        }
         var cgram = new SnesCgram();
         cgram.SetColor(175, 77); cgram.SetColor(192, 88);
         AssertTrue(!animations.StepPalette(cgram), "initial map palette tick advances to frame one without loop sound");
@@ -167,47 +186,62 @@ internal static partial class Program
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
         OamBuffer Draw()
         {
-            var oam = new OamBuffer(); oam.BeginFrame(); animations.DrawArrows(oam); oam.FinalizeFrame(); return oam;
+            var oam = new OamBuffer(); oam.BeginFrame(); animations.DrawArrows(oam, sprites); oam.FinalizeFrame(); return oam;
         }
         OamBuffer first = Draw();
         AssertEqual(1, first.LastFinalizedSpriteCount, "only available arrows draw");
         AssertEqual(32, first.LowTable[0], "arrow uses cartridge X");
         AssertEqual(79, first.LowTable[1], "arrow subtracts native one-pixel Y offset");
-        AssertEqual(0x11, first.LowTable[2], "zero-initialized arrow timer advances before drawing");
+        AssertEqual(1, ArrowPhase(0), "zero-initialized arrow timer advances before drawing");
+        AssertEqual(0x10, first.LowTable[2], "installed arrow shape reaches OAM");
         AssertTrue(first.LowTable.ToArray().SequenceEqual(Draw().LowTable.ToArray()), "repaint does not advance arrow animation");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
-        AssertEqual(0x11, Draw().LowTable[2], "arrow holds its full two-tick delay");
+        AssertEqual(1, ArrowPhase(0), "arrow holds its full two-tick delay");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
-        AssertEqual(0x10, Draw().LowTable[2], "arrow sentinel wraps to frame zero");
+        AssertEqual(0, ArrowPhase(0), "arrow sentinel wraps to frame zero");
         for (int i = 0; i < 10; i++) animations.StepArrows(_ => false);
         AssertEqual(0, Draw().LastFinalizedSpriteCount, "unavailable arrows disappear");
         animations.StepArrows(direction => direction is MapScrollDirection.Left or MapScrollDirection.Right);
         OamBuffer resumed = Draw();
-        AssertEqual(0x10, resumed.LowTable[2], "hidden arrow timer pauses");
-        AssertEqual(0x11, resumed.LowTable[6], "newly visible arrow owns an independent timer");
+        AssertEqual(0, ArrowPhase(0), "hidden arrow timer pauses");
+        AssertEqual(1, ArrowPhase(1), "newly visible arrow owns an independent timer");
+        AssertEqual(2, resumed.LastFinalizedSpriteCount, "both available direction shapes draw");
     }
 
     private static void VerifyFileSelectMapIcons()
     {
-        var bus = new TestAddressSpace();
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var system = new Bank80SystemState();
-        WriteTestWord(bus, FileSelectMapIconRomData.BossLists + 2, 0x9000);
-        WriteTestWord(bus, FileSelectMapIconRomData.MissileLists + 2, 0x9100);
-        WriteTestWord(bus, FileSelectMapIconRomData.ElevatorLists + 2, 0x9200);
-        WriteTestWord(bus, 0x829000, 32); WriteTestWord(bus, 0x829002, 40); WriteTestWord(bus, 0x829004, 0xffff);
-        WriteTestWord(bus, 0x829100, 64); WriteTestWord(bus, 0x829102, 80); WriteTestWord(bus, 0x829104, 0xffff);
-        WriteTestWord(bus, 0x829200, 96); WriteTestWord(bus, 0x829202, 112);
-        WriteTestWord(bus, 0x829204, 0x50); WriteTestWord(bus, 0x829206, 0xffff);
-        foreach (ushort id in new ushort[] { 9, 0x62, 0x0b, 0x50 })
+        var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
+        var landmarks = MapLandmarkDefinitions.AllIds().ToDictionary(id => id, _ => new MapLabelPoint(511, 255));
+        landmarks[MapLandmarkDefinitions.Bosses(AreaId.Brinstar).ToArray().First(id => id is not null)!] = new(32, 40);
+        var destination = MapLandmarkDefinitions.Elevators(AreaId.Brinstar).ToArray().First(label =>
+            label.Destination == AreaId.Crateria);
+        landmarks[destination.Id] = new(96, 112);
+        using var landmarkJson = new MemoryStream();
+        MapLandmarkLayout.Write(landmarkJson, new() { Version = 1, Markers = landmarks });
+        landmarkJson.Position = 0;
+        var stations = MapStationDiscoveryRules.All.ToArray().ToDictionary(rule => rule.Id, _ => new MapLabelPoint(511, 255));
+        var station = MapStationDiscoveryRules.Get(AreaId.Brinstar, MapStationKind.Missile).First();
+        stations[station.Id] = new(64, 80);
+        using var stationJson = new MemoryStream();
+        MapStationLayout.Write(stationJson, new() { Version = 1, Markers = stations });
+        stationJson.Position = 0;
+        var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(bus);
+        var document = System.Text.Json.JsonSerializer.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options)!;
+        foreach (ushort id in new ushort[] { 9, 0x62, 0x0b, 0x59, 0x5b, 0x5d })
         {
-            ushort pointer = (ushort)(0xa000 + id * 8);
-            WriteTestWord(bus, 0x82c569 + id * 2, pointer);
-            WriteTestWord(bus, 0x820000 | pointer, 1);
-            WriteTestWord(bus, 0x820000 | (pointer + 2), 0);
-            bus.WriteByte(0x820000 | (pointer + 4), 0);
-            WriteTestWord(bus, 0x820000 | (pointer + 5), (ushort)(0x3000 | id));
+            string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == id).Name;
+            document.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
+                TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Priority = 3,
+                Palette = null, FlipX = false, FlipY = false }];
         }
+        var sprites = MapSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
+            new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         var icons = new FileSelectMapIcons(system, AreaId.Brinstar);
+        icons.BindLandmarks(MapLandmarkLayout.Load(landmarkJson));
+        icons.BindStations(MapStationLayout.Load(stationJson));
+        icons.BindSprites(sprites);
         OamBuffer Draw()
         {
             var oam = new OamBuffer();
@@ -220,21 +254,21 @@ internal static partial class Program
         AssertEqual(0, Draw().LastFinalizedSpriteCount, "unexplored map hides station, live boss and destination icons");
         system.SetAreaMapAcquired(AreaId.Brinstar);
         OamBuffer downloaded = Draw();
-        AssertEqual(2, downloaded.LastFinalizedSpriteCount, "download reveals boss and destination but not unvisited refill");
+        AssertEqual(6, downloaded.LastFinalizedSpriteCount, "download emits one boss and all five Brinstar destinations, without unvisited refill");
         AssertEqual(9, downloaded.LowTable[2], "live boss uses native marker");
-        AssertEqual(0x50, downloaded.LowTable[6], "destination reads its own ROM spritemap");
+        AssertEqual(0x50, downloaded.LowTable[6], "destination selects its authored spritemap");
         AssertEqual(88, downloaded.LowTable[4], "destination subtracts map X scroll");
         AssertEqual(96, downloaded.LowTable[5], "destination subtracts map Y scroll");
         AssertEqual(0x30, downloaded.LowTable[7], "destination uses palette zero and retained priority");
-        system.MarkExploredMapTile(AreaId.Brinstar, 8, 10);
+        system.MarkExploredMapTile(AreaId.Brinstar, station.CellX, station.CellY);
         OamBuffer explored = Draw();
-        AssertEqual(3, explored.LastFinalizedSpriteCount, "visited refill adds one icon");
+        AssertEqual(7, explored.LastFinalizedSpriteCount, "visited refill adds one icon to the boss and five destinations");
         AssertEqual(0x0b, explored.LowTable[6], "refill draws between boss and destination");
         AssertEqual(56, explored.LowTable[4], "refill exact scrolled X");
         AssertEqual(64, explored.LowTable[5], "refill exact scrolled Y");
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss);
         OamBuffer defeated = Draw();
-        AssertEqual(4, defeated.LastFinalizedSpriteCount, "defeated boss emits overlay and dim marker");
+        AssertEqual(8, defeated.LastFinalizedSpriteCount, "defeated boss adds its overlay ahead of the dim marker, refill and five destinations");
         AssertEqual(0x62, defeated.LowTable[2], "defeated overlay precedes boss marker");
         AssertEqual(9, defeated.LowTable[6], "defeated boss retains marker identity");
         AssertEqual(0x3c, defeated.LowTable[7], "defeated boss changes to palette six");
@@ -250,7 +284,8 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
-        var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99 };
+        var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99,
+            LoadingGameState = savedArea == 6 ? SaveLoadingGameStates.CeresElevatorArrival : SaveLoadingGameStates.MainGame };
         snapshot.UsedSaveStationBytes[savedArea * 2] = 1;
         if (savedArea < 6)
         {
@@ -262,7 +297,7 @@ internal static partial class Program
         }
         saves.SaveSlot(0, snapshot);
         saves.SelectSlot(0);
-        var game = new SuperMetroidGame(bus, gameOptions: null, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(bus, gameOptions: null, renderGameplayFrames: false);
         game.BindMapPresentation(RetailPresentationFixture());
         FrontendFrame frame = game.Step(0);
         int expansionFrames = 0, returnFrames = 0;
@@ -332,6 +367,7 @@ internal static partial class Program
         foreach (ushort confirm in new ushort[] { 0x1000, 0x0080 })
         {
             var navigation = new FileSelectMapNavigation(bus, 4, confirm);
+            navigation.BindLabels(RetailPresentationFixture().Labels);
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase,
                 "options confirmation carried into map must not immediately confirm the area");
@@ -355,6 +391,7 @@ internal static partial class Program
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "load request remains pending until frontend handles it");
         }
         var cancel = new FileSelectMapNavigation(bus, 4);
+        cancel.BindLabels(RetailPresentationFixture().Labels);
         cancel.Step(0x9180);
         AssertEqual(FileSelectMapNavigationPhase.Area, cancel.Phase,
             "native non-debug direction branch suppresses simultaneous cancel and confirm");
@@ -362,6 +399,7 @@ internal static partial class Program
         cancel.Step(0x9080);
         AssertEqual(FileSelectMapNavigationPhase.OptionsRequested, cancel.Phase, "B takes precedence over confirm on area map");
         var back = new FileSelectMapNavigation(bus, 4);
+        back.BindLabels(RetailPresentationFixture().Labels);
         back.Step(0x1000);
         for (int frame = 0; frame < 54; frame++) back.Step(0);
         back.Step(0x8000);
@@ -417,23 +455,28 @@ internal static partial class Program
 
     private static void VerifyFileSelectStationMarker()
     {
-        var bus = new TestAddressSpace();
-        WriteTestWord(bus, FileSelectMapRomData.SavePointMapPointers, 0x9000);
-        WriteTestWord(bus, 0x829000, 100);
-        WriteTestWord(bus, 0x829002, 80);
-        WriteTestWord(bus, 0x829004, 0xfffe);
-        WriteTestWord(bus, 0x829008, 0xffff);
-        // Single-cell spritemaps with a visible (-2,-3) offset. Assert production OAM
-        // coordinates, palette and draw order rather than merely the marker's getters.
+        var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
+        var positions = System.Text.Json.JsonSerializer.Deserialize<MapSaveMarkerDocument>(
+            SuperMetroid.AssetExtraction.MapSaveMarkerExtractor.Extract(bus), options)!;
+        positions.Markers[MapSaveMarkerDefinitions.Id(AreaId.Crateria, 0)] = new(100, 80);
+        using var positionJson = new MemoryStream();
+        MapSaveMarkerLayout.Write(positionJson, positions);
+        positionJson.Position = 0;
+        var layout = MapSaveMarkerLayout.Load(positionJson);
+        var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(bus);
+        var document = System.Text.Json.JsonSerializer.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options)!;
+        // Preserve the original fixture's one-part (-2,-3) sprite and priority three.
         foreach (ushort id in new ushort[] { 0x12, 0x5f, 0x60, 0x61 })
         {
-            WriteTestWord(bus, 0x82c569 + id * 2, 0x9100);
+            string name = MapSpriteDefinitions.Frames.ToArray().Single(frame => frame.NativeId == id).Name;
+            document.Frames[name] = [new SpriteVisualPart { OffsetX = -2, OffsetY = -3,
+                TileColumn = 1, TileRow = 0, Size = 8, Priority = 3, Palette = null,
+                FlipX = false, FlipY = false }];
         }
-        WriteTestWord(bus, 0x829100, 1);
-        WriteTestWord(bus, 0x829102, 0x01fe);
-        bus.WriteByte(0x829104, 0xfd);
-        WriteTestWord(bus, 0x829105, 0x3001);
-        var marker = new FileSelectStationMarker(bus, AreaId.Crateria, 0);
+        var sprites = MapSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
+            new MemoryStream(artwork[MapSpriteFormat.PngFile]));
+        var marker = new FileSelectStationMarker(bus, AreaId.Crateria, 0, layout);
         int[] expectedFrames = [0x60, 0x61, 0x60, 0x5f, 0x60, 0x61, 0x60, 0x5f];
         int[] durations = [4, 8, 4, 8, 4, 8, 4, 8];
         for (int phase = 0; phase < durations.Length; phase++)
@@ -445,7 +488,7 @@ internal static partial class Program
             AssertEqual(backing, marker.ShowBacking, "station marker alternates backing at loop boundary");
             var oam = new OamBuffer();
             oam.BeginFrame();
-            marker.Draw(bus, oam, 24, 16);
+            marker.Draw(bus, oam, 24, 16, sprites);
             oam.FinalizeFrame();
             AssertEqual(backing ? 2 : 1, oam.LastFinalizedSpriteCount, "marker backing OAM emission");
             AssertEqual(74, oam.LowTable[0], "marker subtracts horizontal scroll and sprite offset");
@@ -453,13 +496,14 @@ internal static partial class Program
             AssertEqual(0x3e, oam.LowTable[3], "marker retains sprite priority with palette seven");
             byte[] first = oam.LowTable.ToArray();
             oam.BeginFrame();
-            marker.Draw(bus, oam, 24, 16);
+            marker.Draw(bus, oam, 24, 16, sprites);
             oam.FinalizeFrame();
             AssertTrue(first.SequenceEqual(oam.LowTable.ToArray()), "repainting station marker does not advance animation");
         }
-        AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(bus, AreaId.Crateria, 1),
+        int unused = Enumerable.Range(0, 16).First(index => !MapSaveMarkerDefinitions.IsUsable(AreaId.Crateria, index));
+        AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(bus, AreaId.Crateria, unused, layout),
             "unused station map entry rejected");
-        AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(bus, AreaId.Crateria, 3),
-            "station lookup cannot cross list terminator");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(bus, AreaId.Crateria, 16, layout),
+            "station lookup cannot cross the sixteen-slot domain");
     }
 }

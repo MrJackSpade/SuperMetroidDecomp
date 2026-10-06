@@ -46,7 +46,7 @@ public sealed partial class RoomEnemySystem
     /// retaining that documented anomaly is why the tail curls and rotates at the same
     /// rate as the cartridge.
     /// </summary>
-    private static void TickRidleyTail(
+    private void TickRidleyTail(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus)
@@ -54,35 +54,23 @@ public sealed partial class RoomEnemySystem
         if (state.TailSegments.Length != 7)
             throw new InvalidDataException("Ceres Ridley requires seven native tail segments.");
 
-        if (state.TailFunctionIndex == 1)
+        if (state.TailFunctionIndex != 0)
         {
-            state.TailMinimumClockwiseAngle = state.FacingDirection == 2
-                ? (ushort)0x3fc0
-                : (ushort)0x3ff0;
-            state.TailMaximumCounterClockwiseAngle = state.FacingDirection == 2
-                ? (ushort)0x4010
-                : (ushort)0x4040;
+            state.TailMinimumClockwiseAngle = RidleyTailDefinitions.MinimumClockwise(state.FacingDirection);
+            state.TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.MaximumCounterClockwise(state.FacingDirection);
 
-            HandleCeresRidleyNeutralTailControl(slot, state, samus);
-
-            for (int index = 0; index < state.TailSegments.Length; index++)
-                TickRidleyTailSegment(state, index);
-        }
-        else if (state.TailFunctionIndex != 0)
-        {
-            throw new InvalidDataException(
-                $"Ceres Ridley tail function {state.TailFunctionIndex} is not translated.");
+            if (state.TailFunctionIndex == RidleyTailDefinitions.Neutral)
+            {
+                HandleCeresRidleyNeutralTailControl(slot, state, samus);
+                for (int index = 0; index < state.TailSegments.Length; index++)
+                    TickRidleyTailSegment(state, index);
+            }
+            else
+                TickRidleyPogoTail(slot, state, samus);
         }
 
-        // Tail function zero suppresses angular *motion* before $A6:A4C5 activates every
-        // segment; it does not suppress the position solver. The seven initial angles and
-        // distances installed by $A6:D2D6 already describe Ridley's resting tail. Leaving
-        // their offsets at zero collapsed every piece onto the hip throughout the body fade,
-        // then made the complete tail appear abruptly when the pre-liftoff timer expired.
-        // Rebuild geometry unconditionally while retaining the native activation boundary.
-        for (int index = 0; index < state.TailSegments.Length; index++)
-            UpdateRidleyTailSegmentOffset(state, index);
-
+        // $CAF5 always composes positions, but only the selected tail controller
+        // updates offsets. Function zero and stagger/stop returns retain them.
         RidleyTailSegment first = state.TailSegments[0];
         first.YPosition = unchecked((ushort)(slot.YPosition + first.YOffset + 16));
         first.XPosition = state.FacingDirection switch
@@ -105,6 +93,8 @@ public sealed partial class RoomEnemySystem
         }
 
         UpdateRidleyTailDistances(state);
+        if (samus is not null)
+            ResolveRidleyTailSamusContact(samus);
     }
 
     /// <summary>
@@ -112,7 +102,7 @@ public sealed partial class RoomEnemySystem
     /// disables random/proximity flings only during the swoop, then sets a one-shot request
     /// at its lowest point so the tail snaps toward Samus as Ridley charges back upward.
     /// </summary>
-    private static void HandleCeresRidleyNeutralTailControl(
+    private void HandleCeresRidleyNeutralTailControl(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus)
@@ -123,25 +113,17 @@ public sealed partial class RoomEnemySystem
             bool targetsIdle =
                 (state.TailWhipTargetClockwiseAngle & 0x8000) != 0 &&
                 (state.TailWhipTargetCounterClockwiseAngle & 0x8000) != 0;
-            if (targetsIdle)
+            if (state.TailWhipRequest != 0 && targetsIdle)
             {
-                if (state.TailWhipRequest != 0)
-                {
-                    AimCeresRidleyTailWhip(
-                        state,
-                        samus,
-                        unchecked((byte)(state.TailWhipRequest - 1)));
-                }
-                else if (state.IdleTailWhipEnabled != 0 && samus is not null &&
-                         Math.Abs(unchecked((short)(samus.XPosition - slot.XPosition))) < 128)
-                {
-                    // The other native admission is a low-byte RNG value >= $F0. The
-                    // runtime's random delegate advances per call rather than exposing the
-                    // cartridge's once-per-frame seed, so consuming it here would alter the
-                    // attack selector. Proximity is the deterministic retail branch and is
-                    // the one reached during Ceres lunges.
+                AimCeresRidleyTailWhip(state, samus, unchecked((byte)(state.TailWhipRequest - 1)));
+            }
+            else if (state.IdleTailWhipEnabled != 0)
+            {
+                // Read the existing seed; this branch never advances the cartridge RNG.
+                if ((RequireRandomNumber() & 0xff) >= 0xf0)
+                    AimCeresRidleyTailWhip(state, samus, unchecked((byte)(state.TailWhipRequest - 1)));
+                else if (samus is not null && Math.Abs((short)(samus.XPosition - slot.XPosition)) < 128)
                     AimCeresRidleyTailWhip(state, samus, additionalAngle: 0);
-                }
             }
 
             state.TailWhipRequest = 0;
@@ -161,7 +143,7 @@ public sealed partial class RoomEnemySystem
             : (ushort)2;
     }
 
-    private static void AimCeresRidleyTailWhip(
+    private void AimCeresRidleyTailWhip(
         RidleyEnemyState state,
         SamusState? samus,
         byte additionalAngle)
@@ -173,9 +155,25 @@ public sealed partial class RoomEnemySystem
             return;
 
         RidleyTailSegment root = state.TailSegments[0];
+        ushort targetX = samus.XPosition;
+        ushort targetY = unchecked((ushort)(samus.YPosition + 24));
+        // $D242 scans only the five ordinary projectile slots, first match wins.
+        if (_samusProjectilesForEnemyFrame is { ProjectileCounter: > 0 } projectiles)
+        {
+            RidleyTailSegment tip = state.TailSegments[6];
+            foreach (var projectile in projectiles.Slots.Take(5))
+            {
+                if (projectile.PackedType.Family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)) continue;
+                if (Math.Abs((short)(projectile.XPosition - tip.XPosition)) - projectile.XRadius >= 64 ||
+                    Math.Abs((short)(projectile.YPosition - tip.YPosition)) - projectile.YRadius >= 64) continue;
+                targetX = projectile.XPosition;
+                targetY = projectile.YPosition;
+                break;
+            }
+        }
         byte cartridgeAngle = CalculateCartridgeAngle(
-            unchecked((short)(samus.XPosition - root.XPosition)),
-            unchecked((short)(samus.YPosition + 24 - root.YPosition)));
+            unchecked((short)(targetX - root.XPosition)),
+            unchecked((short)(targetY - root.YPosition)));
         byte targetByte = unchecked((byte)-(cartridgeAngle - 0x80));
         ushort additional = unchecked((ushort)(additionalAngle << 8));
 
@@ -236,12 +234,18 @@ public sealed partial class RoomEnemySystem
                     int next = segment.Angle - state.TailAngleDelta - 1;
                     if (next < state.TailWhipTargetClockwiseAngle)
                     {
-                        segment.Angle = state.TailWhipTargetClockwiseAngle;
-                        DeactivateRidleyTailSegment(segment);
+                        if (index == 0 || !state.TailSegments[index - 1].Active)
+                        {
+                            segment.Angle = state.TailWhipTargetClockwiseAngle;
+                            DeactivateRidleyTailSegment(segment);
+                            return;
+                        }
+                        segment.MovementDirection = 0;
+                        segment.Angle = state.TailMinimumClockwiseAngle;
                     }
                     else
                     {
-                        segment.Angle = unchecked((ushort)next);
+                        segment.Angle = unchecked((ushort)(next + 1));
                     }
                 }
                 else
@@ -254,7 +258,7 @@ public sealed partial class RoomEnemySystem
                     }
                     else
                     {
-                        segment.Angle = unchecked((ushort)next);
+                        segment.Angle = unchecked((ushort)(next + 1));
                     }
                 }
             }
@@ -267,8 +271,14 @@ public sealed partial class RoomEnemySystem
                     segment.TargetDistance = 0x0c00;
                     if (next >= state.TailWhipTargetCounterClockwiseAngle)
                     {
-                        segment.Angle = state.TailWhipTargetCounterClockwiseAngle;
-                        DeactivateRidleyTailSegment(segment);
+                        if (index == 0 || !state.TailSegments[index - 1].Active)
+                        {
+                            segment.Angle = state.TailWhipTargetCounterClockwiseAngle;
+                            DeactivateRidleyTailSegment(segment);
+                            return;
+                        }
+                        segment.MovementDirection = 0x8000;
+                        segment.Angle = state.TailMaximumCounterClockwiseAngle;
                     }
                     else
                     {
@@ -290,6 +300,7 @@ public sealed partial class RoomEnemySystem
             }
         }
 
+        UpdateRidleyTailSegmentOffset(state, index);
     }
 
     /// <summary>
@@ -304,10 +315,12 @@ public sealed partial class RoomEnemySystem
         if (index != 0)
             angle = unchecked((byte)(angle + state.TailSegments[index - 1].Angle));
         ushort distanceInPixels = unchecked((ushort)(segment.Distance >> 8));
-        segment.XOffset = MultiplyCartridgeSinCos(distanceInPixels, angle);
-        segment.YOffset = MultiplyCartridgeSinCos(
-            distanceInPixels,
-            unchecked((byte)(angle + 64)));
+        // $A9:C46C reads the middle/high bytes of the signed Mode 7 product.
+        // An arithmetic shift preserves its floor for negative fractional pixels.
+        segment.XOffset = unchecked((ushort)(
+            distanceInPixels * EnemyTrigonometryTables.SignedSine(angle) >> 8));
+        segment.YOffset = unchecked((ushort)(
+            distanceInPixels * EnemyTrigonometryTables.SignedSine(unchecked((byte)(angle + 64))) >> 8));
     }
 
     private static void DeactivateRidleyTailSegment(RidleyTailSegment segment)
@@ -627,14 +640,11 @@ public sealed partial class RoomEnemySystem
             originYIsOnScreen: screenY < 0x0100);
     }
 
-    /// <summary>
-    /// Replays $A0:9A5A's extended-spritemap Samus collision walk for either Ridley. The
-    /// shared bank-$A6 tail handler tests the solved tip first; only when that misses does
-    /// bank $A0 dispatch the active body's authored $DF59 rectangles. This ordering is
-    /// important because the tail has encounter-specific damage and must produce at most
-    /// one contact reaction in the frame.
-    /// </summary>
-    public bool ResolveRidleySamusContact(SamusState samus, ushort controllerInput)
+    /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>
+    public bool ResolveRidleySamusContact(SamusState samus, ushort controllerInput) =>
+        ResolveRidleyBodySamusContact(samus, controllerInput) || ResolveRidleyTailSamusContact(samus);
+
+    private bool ResolveRidleyBodySamusContact(SamusState samus, ushort controllerInput)
     {
         ArgumentNullException.ThrowIfNull(samus);
         EnsureLoaded();
@@ -658,28 +668,6 @@ public sealed partial class RoomEnemySystem
                 EnemyProperties.IgnoreSamusCollision))
         {
             return false;
-        }
-
-        if (_ridleyState.MovementAnimationEnabled != 0 &&
-            _ridleyState.TailSegments.Length == 7)
-        {
-            // Ridley_Func_127 at $A6:DFD9 checks a radius-14 rectangle centered on the
-            // solved tail tip before the common extended-body collision pass. Ceres writes
-            // damage $000F and Lower Norfair writes $0078; neither value comes from the
-            // body's enemy header.
-            RidleyTailSegment tip = _ridleyState.TailSegments[6];
-            int xDistance = Math.Abs(unchecked((short)(samus.XPosition - tip.XPosition)));
-            int yDistance = Math.Abs(unchecked((short)(samus.YPosition - tip.YPosition)));
-            if (xDistance < samus.Kinematics.XRadius + 14 &&
-                yDistance < samus.Kinematics.YRadius + 14)
-            {
-                ApplyNormalEnemyTouchDamage(
-                    samus,
-                    controllerInput,
-                    _ridleyState.TailDamage,
-                    tip.XPosition);
-                return true;
-            }
         }
 
         if (!TryFindExtendedHitboxCallback(
@@ -711,6 +699,25 @@ public sealed partial class RoomEnemySystem
             skipDeathAnimation: true);
         if (slot.EnemyDefinitionPointer == NorfairRidleyDefinition)
             ResolveNorfairRidleyShotAfterCommon(slot);
+        return true;
+    }
+
+    private bool ResolveRidleyTailSamusContact(SamusState samus)
+    {
+        RoomEnemySlot body = _slots[0];
+        RidleyEnemyState? state = _ridleyState;
+        // $A6:CAF5 checks the newly solved tail, independently of the earlier
+        // extended-body contact pass, and never damages Samus while carrying her.
+        if (state is null || state.GrabState != 0 || samus.InvincibilityTimer != 0 ||
+            body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) ||
+            state.MovementAnimationEnabled == 0 || state.TailSegments.Length != 7)
+            return false;
+        RidleyTailSegment tip = state.TailSegments[6];
+        int dx = Math.Abs(unchecked((short)(samus.XPosition - tip.XPosition)));
+        int dy = Math.Abs(unchecked((short)(samus.YPosition - tip.YPosition)));
+        if (dx >= samus.Kinematics.XRadius + 14 || dy >= samus.Kinematics.YRadius + 14)
+            return false;
+        ApplyNormalEnemyTouchDamage(samus, 0, state.TailDamage, tip.XPosition);
         return true;
     }
 

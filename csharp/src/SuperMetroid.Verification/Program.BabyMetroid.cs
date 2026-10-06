@@ -756,7 +756,16 @@ static void VerifyBabyMetroidCutsceneEntrance()
     // Drive a separate healthy phase-three actor into zero health through the public generic-
     // damage boundary. The combat function only installs `$AEE1`; it must not perform any of
     // the death function's property writes or movement on that same AI call.
-    var death = new MotherBrainRainbowBeamAttackSequence
+    byte[] corpsePlanar = Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.ByteCount)
+        .Select(offset => bus.ReadByte(MotherBrainCorpseArtworkDefinitions.SourceAddress + offset)).ToArray();
+    byte[] corpsePixels = SnesGraphics.DecodePlanarTiles(corpsePlanar, 4,
+        RoomCharacterAtlasFormat.TileColumns, out int corpseWidth, out int corpseHeight);
+    using var corpsePng = new MemoryStream();
+    IndexedPng.Write(corpsePng, corpseWidth, corpseHeight, corpsePixels,
+        SnesGraphics.DiagnosticPalette(16));
+    corpsePng.Position = 0;
+    var corpseArtwork = RoomCharacterAtlas.Load(corpsePng, corpsePlanar.Length);
+    var death = new MotherBrainRainbowBeamAttackSequence(corpseArtwork)
     {
         BrainXPosition = 0x0050,
         BrainYPosition = 0x0060,

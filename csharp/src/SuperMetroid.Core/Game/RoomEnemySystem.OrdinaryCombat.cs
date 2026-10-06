@@ -183,6 +183,11 @@ public sealed partial class RoomEnemySystem
                 slot.Definition.TouchAiPointer == MotherBrainHeadTouchAi;
             bool isKraidArm = slot.EnemyDefinitionPointer == KraidArmDefinition &&
                 slot.Definition.TouchAiPointer == KraidArmTouchAi;
+            bool isKraidNail =
+                slot.EnemyDefinitionPointer == KraidGoodNailDefinition &&
+                slot.Definition.TouchAiPointer == EnemyAiCodePointers.BankA7.KraidNailTouch ||
+                slot.EnemyDefinitionPointer == KraidBadNailDefinition &&
+                slot.Definition.TouchAiPointer == EnemyAiCodePointers.BankA7.KraidBadNailTouch;
             bool isDeadTorizo = slot.EnemyDefinitionPointer == DeadTorizoDefinition &&
                 slot.Definition.TouchAiPointer == DeadTorizoTouchAndShotAi;
             bool isDeadSidehopper =
@@ -229,6 +234,7 @@ public sealed partial class RoomEnemySystem
                 isDraygonBody ||
                 isMotherBrainHead ||
                 isKraidArm ||
+                isKraidNail ||
                 isDeadTorizo ||
                 isDeadSidehopper ||
                 isDeadTourianCorpse ||
@@ -243,9 +249,9 @@ public sealed partial class RoomEnemySystem
             // it suppresses rendering only. Hibashi relies on that distinction: its second
             // slot remains invisible while its instruction stream moves a live hitbox.
             // Both Ridley definitions use a hand-authored extended body plus a separately
-            // solved tail tip. ResolveRidleySamusContact owns that combined ordering; letting
-            // this ordinary pass see either definition would either flatten the body to the
-            // header's dummy 8x8 radius or apply body damage after an earlier tail hit.
+            // solved tail tip. EnemyMain dispatches its body at this same pre-AI seam;
+            // tail processing checks the tip later. Do not flatten either to the header's
+            // dummy 8x8 radius here.
             if (IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
                 !usesTranslatedTouchAi ||
                 slot.Properties.HasAny(EnemyProperties.Deleted))
@@ -282,6 +288,16 @@ public sealed partial class RoomEnemySystem
             if (!overlapsSamus)
             {
                 continue;
+            }
+
+            if (isKraidNail)
+            {
+                ResolveNormalEnemyTouch(slot, samus, controllerInput);
+                // The callback passes the common routine's remaining-health accumulator
+                // to EnemyDeath; its bounded animation selector normalizes values >= 5.
+                if (slot.EnemyDefinitionPointer != 0)
+                    StartGenericEnemyDeath(slot, slot.Health);
+                return true;
             }
 
             if (isKraidArm)
@@ -1461,8 +1477,8 @@ public sealed partial class RoomEnemySystem
                     // Super Missiles must retain their handler so it also clears their
                     // collision links. Terrain conversion strands a live link that can
                     // damage the enemy again after its flash timer expires.
-                    if (projectile.PackedDirection.HasLowByteLifecycleState)
-                        continue;
+                    // $A0:A184 and $A0:9C39 do not reject the removal marker: later
+                    // overlapping enemies in this pass still receive the live payload.
                     projectiles.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
                         enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
@@ -1566,6 +1582,12 @@ public sealed partial class RoomEnemySystem
                 }
 
                 int damage = (projectileDamage >> 1) * shotVulnerability.Multiplier;
+                if (damage == 0)
+                {
+                    // $A0:A75B enters the dud branch even for Plasma: immunity removes
+                    // the projectile instead of letting its ordinary piercing rule win.
+                    CreateEnemyProjectileDudShot(projectile);
+                }
                 if (damage != 0)
                 {
                     ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;

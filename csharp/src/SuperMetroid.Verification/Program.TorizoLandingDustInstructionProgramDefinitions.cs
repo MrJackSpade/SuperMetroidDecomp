@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -26,6 +27,9 @@ internal static partial class Program
                 $"Torizo landing-dust mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new TorizoLandingDustInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -65,9 +69,20 @@ internal static partial class Program
         AssertTrue(!right.IsActive && !left.IsActive,
             "both landing-dust programs delete after their fourth pose");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "TorizoLandingDust execution performs no live spritemap operand reads");
         AssertEqual(TorizoLandingDustInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Torizo landing-dust spritemaps remain cartridge reads");
+            executedOperands.Count, "TorizoLandingDust executes every native visual operand");
+        for (int index = 0; index < TorizoLandingDustInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = TorizoLandingDustInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"TorizoLandingDust executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "TorizoLandingDust has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "TorizoLandingDust compiled selector matches the cartridge");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Torizo landing-dust mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -86,8 +101,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Torizo landing-dust instruction mechanics: sixteen compiled words, both " +
-            "real foot producers, exact twelve-pixel rise/deletion, and eight live " +
-            "spritemap reads pass with mechanics bytes forbidden.");
+            "real foot producers, exact twelve-pixel rise/deletion, and eight installed " +
+            "sprite frames match native OAM with zero live operand reads.");
 
         void Run(RoomEnemyProjectileSlot projectile, int steps)
         {
@@ -95,6 +110,7 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+                VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }
     }

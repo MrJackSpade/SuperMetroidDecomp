@@ -19,16 +19,14 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
-        var native = new RoomEnemySystem();
         var compiled = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(native, rom);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(compiled, denied);
-        RoomEnemySlot nativeSlot = native.Slots[0];
+        var nativeSlot = new RoomEnemySlot(0);
         RoomEnemySlot compiledSlot = compiled.Slots[0];
         nativeSlot.Definition = compiledSlot.Definition =
             default(RoomEnemyDefinition) with
             { Bank = CrocomireBodyCollisionDefinitions.Bank };
-        // The native side deliberately takes the generic ROM walker. The
+        // The native side uses the independent test-side ROM walker. The
         // installed side selects Crocomire's compiled physical data.
         nativeSlot.EnemyDefinitionPointer = 0xffff;
         compiledSlot.EnemyDefinitionPointer = RoomEnemySystem.CrocomireDefinition;
@@ -72,7 +70,7 @@ internal static partial class Program
                     [nativeSlot, x, y, (ushort)8, (ushort)8, shot, (ushort)0];
                 object?[] compiledArguments =
                     [compiledSlot, x, y, (ushort)8, (ushort)8, shot, (ushort)0];
-                bool nativeHit = (bool)walker.Invoke(native, nativeArguments)!;
+                bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
                 bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
                 AssertEqual(nativeHit, compiledHit,
                     $"Crocomire $A4:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");

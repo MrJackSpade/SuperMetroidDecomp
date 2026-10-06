@@ -19,6 +19,9 @@ internal static class WaveOutAudioPolicy
     /// </summary>
     public const int ManagedQueueCapacityFrames = 24;
 
+    /// <summary>Bounded retry cadence while Windows has no usable output endpoint.</summary>
+    public const int DeviceReopenIntervalMilliseconds = 1_000;
+
     /// <summary>Maximum time a functioning waveOut endpoint may retain every native buffer.</summary>
     public const int BufferReturnTimeoutMilliseconds = 2_000;
 }

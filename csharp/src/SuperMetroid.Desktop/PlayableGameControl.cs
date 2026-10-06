@@ -39,7 +39,7 @@ public sealed partial class PlayableGameControl : UserControl
     private readonly string? installedAudioDirectory;
     private readonly string playerDataDirectory;
     private GameContentIdentity? installedContentIdentity;
-    private WaveOutAudioDevice? audioDevice;
+    private RecoveringAudioOutput? audioDevice;
     private ControllerInputRecorder? inputRecorder;
     private DebuggerSaveStateStore stateStore = null!;
     private int replayFrameIndex;
@@ -100,12 +100,13 @@ public sealed partial class PlayableGameControl : UserControl
         var stateSlot = new ToolStripComboBox
         {
             AutoSize = false,
-            Width = 48,
+            Width = 60,
             DropDownStyle = ComboBoxStyle.DropDownList,
-            ToolTipText = "Debugger save-state slot (0-9)",
+            ToolTipText = "Debugger state: manual slots 0-9 or automatic door recovery",
         };
         for (int slot = 0; slot < 10; slot++)
             stateSlot.Items.Add(slot.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        stateSlot.Items.Add("auto");
         stateSlot.SelectedIndex = 0;
         var saveStateButton = new ToolStripButton("Save State")
         {
@@ -162,6 +163,8 @@ public sealed partial class PlayableGameControl : UserControl
             SaveDebuggerState(stateSlot.SelectedIndex);
             canvas.Focus();
         };
+        stateSlot.SelectedIndexChanged += (_, _) =>
+            saveStateButton.Enabled = replay is null && stateSlot.SelectedIndex != DebuggerStateFormat.AutomaticSlot;
         loadStateButton.Click += async (_, _) =>
         {
             await LoadDebuggerState(stateSlot.SelectedIndex);
@@ -243,11 +246,11 @@ public sealed partial class PlayableGameControl : UserControl
             audioEngine = new SpcAudioEngine(
                 selectedAudioAssets,
                 new ManagedSpcPlayer());
-            audioDevice = new WaveOutAudioDevice(
+            audioDevice = new RecoveringAudioOutput(() => new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,
                 SpcAudioEngine.ChannelCount,
                 SpcAudioEngine.StereoFramesPerVideoFrame * SpcAudioEngine.ChannelCount,
-                gameOptions.MasterVolumePercent);
+                gameOptions.MasterVolumePercent));
         }
         if (replay is null)
             LoadSaveRamFromDisk();
@@ -433,24 +436,27 @@ public sealed partial class PlayableGameControl : UserControl
         if (replay is not null)
             throw new InvalidOperationException("Debugger states are disabled during an input replay.");
 
-        // Probe the slot before stopping playback or disposing the current recorder/audio
-        // graph. An empty slot is a normal ten-slot UI state, not a runtime failure, and the
-        // live game must remain fully usable after the informational message is dismissed.
-        if (!stateStore.TryLoad(slot, out DebuggerSaveStateLoadResult loaded))
+        // Decode and check compatibility before changing the live game or its audio.
+        DebuggerSaveStateLoadResult loaded;
+        try
         {
-            statusLabel.Text = $"state slot {slot} is empty";
-            MessageBox.Show(
-                this,
-                $"Debugger save-state slot {slot} is empty.",
-                "Load State",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            if (!stateStore.TryLoad(slot, out loaded))
+            {
+                statusLabel.Text = $"state slot {DebuggerSaveStateStore.SlotName(slot)} is empty";
+                Console.Error.WriteLine($"Debugger save-state slot {DebuggerSaveStateStore.SlotName(slot)} is empty: {stateStore.GetSlotPath(slot)}");
+                canvas.Focus();
+                return;
+            }
+            if (gpuWorker is not null && loaded.Game.GetRetainedDisplay(displaySequence + 1, displayGeneration + 1) is null)
+                throw new NotSupportedException("This debugger state contains legacy pixels, not a captured scene. Load it with Renderer=Software.");
+        }
+        catch (Exception exception)
+        {
+            statusLabel.Text = $"state slot {DebuggerSaveStateStore.SlotName(slot)} could not load: {exception.Message}";
+            Console.Error.WriteLine(exception.ToString());
             canvas.Focus();
             return;
         }
-
-        if (gpuWorker is not null && loaded.Game.GetRetainedDisplay(displaySequence + 1, displayGeneration + 1) is null)
-            throw new NotSupportedException("This debugger state contains legacy pixels, not a captured scene. Load it with Renderer=Software.");
 
         bool resumePlayback = playbackTimer.Enabled;
         SetPlaying(playing: false);
@@ -536,11 +542,11 @@ public sealed partial class PlayableGameControl : UserControl
             audioEngine = new SpcAudioEngine(
                 LoadAudioAssets(),
                 restoredAudio);
-            audioDevice = new WaveOutAudioDevice(
+            audioDevice = new RecoveringAudioOutput(() => new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,
                 SpcAudioEngine.ChannelCount,
                 SpcAudioEngine.StereoFramesPerVideoFrame * SpcAudioEngine.ChannelCount,
-                gameOptions.MasterVolumePercent);
+                gameOptions.MasterVolumePercent));
         }
 
         // Begin a new crash recorder at the restored boundary. The debugger state itself
@@ -557,7 +563,7 @@ public sealed partial class PlayableGameControl : UserControl
         RefreshFrame(pendingDisplay is not null ? game.CurrentFrameMetadata : game.CurrentFrame);
         statusLabel.Text =
             (loaded.Warnings.Count != 0 ? "WARNING: state compatibility differs | " : "") +
-            $"loaded state {slot} | frame {loaded.Metadata.FrameNumber} | " +
+            $"loaded state {DebuggerSaveStateStore.SlotName(slot)} | frame {loaded.Metadata.FrameNumber} | " +
             FormatStateRoom(loaded.Metadata.RoomPointer, loaded.Metadata.RoomStatePointer);
         SetPlaying(resumePlayback);
     }
@@ -647,6 +653,8 @@ public sealed partial class PlayableGameControl : UserControl
         GameSaveFileStore.WriteAtomic(addressSpace, saveFilePath,
             mapPresentation ?? throw new InvalidOperationException("Save persistence requires installed maps."));
 
+    private bool CanAdvanceAudioFrame() => audioEngine is null || audioDevice is null || audioDevice.CanAcceptFrame;
+
     private void StepFrame(ushort? forcedInput = null)
     {
         FrontendFrame? frame = AdvanceOneFrame(forcedInput);
@@ -656,10 +664,11 @@ public sealed partial class PlayableGameControl : UserControl
 
     /// <summary>
     /// Selects exactly one live or replay word, records it before execution, and advances
-    /// the translated dispatcher. Null means an exhausted replay and never means input zero.
+    /// the translated dispatcher. Null means exhausted replay or deferred audio capacity, never input zero.
     /// </summary>
     private FrontendFrame? AdvanceOneFrame(ushort? forcedInput = null)
     {
+        if (!CanAdvanceAudioFrame()) return null;
         ushort input;
         if (replay is not null)
         {
@@ -675,6 +684,8 @@ public sealed partial class PlayableGameControl : UserControl
             input = forcedInput ?? BuildControllerWord();
             inputRecorder?.RecordFrame(input);
         }
+        string beforeFrameContext = game.CaptureGameplayFailureContext();
+        var previousGameState = game.GameState;
         try
         {
             long frameStarted = Stopwatch.GetTimestamp();
@@ -690,8 +701,8 @@ public sealed partial class PlayableGameControl : UserControl
                 audioFrameRecovery.Run(() =>
                 {
                     ReadOnlySpan<short> samples = audioEngine.RenderFrame(frame.AudioCommands);
-                    audioDevice.Submit(samples);
                     game.SetAudioAcknowledgements(audioEngine.ReadAcknowledgements());
+                    audioDevice.Submit(samples);
                 }, exception =>
                 {
                     lastRecoverableError = errorReporter?.Report(exception, new GitHubErrorContext(
@@ -706,6 +717,8 @@ public sealed partial class PlayableGameControl : UserControl
                         InputRecordingPath: inputRecorder?.Path)) ?? "audio failure (see console; GitHub reporting disabled)";
                 });
             }
+            DoorTransitionAutosave.TrySave(gameOptions.DoorTransitionAutosave, replay is not null,
+                previousGameState, stateStore, addressSpace, game, audioEngine?.Player);
             frameTimings.RecordEmulatedFrame(Stopwatch.GetTimestamp() - frameStarted);
             PublishGpuDisplay();
             return frame;
@@ -731,6 +744,24 @@ public sealed partial class PlayableGameControl : UserControl
                     recorderException);
             }
 
+            string frameDiagnostics = GameplayFrameFailureDiagnostics.Format(
+                beforeFrameContext, game.CaptureGameplayFailureContext(), input,
+                replay is not null ? "in-memory replay (path unavailable)" : inputRecorder?.Path,
+                replay is not null ? replayFrameIndex - 1 : inputRecorder?.FrameCount - 1);
+            // Printed before either fatal rethrow or recoverable reporting. The session
+            // log/ZIP captures stderr even when GitHub reporting is disabled.
+            try
+            {
+                Console.Error.WriteLine(frameDiagnostics);
+                Console.Error.Flush();
+            }
+            catch (Exception diagnosticException)
+            {
+                frameException = new AggregateException(
+                    "The emulated frame and diagnostic console write both failed.",
+                    frameException, diagnosticException);
+            }
+
             if (errorReporter is null)
             {
                 ExceptionDispatchInfo.Capture(frameException).Throw();
@@ -753,7 +784,8 @@ public sealed partial class PlayableGameControl : UserControl
                     RoomPointer: game.GameplayActiveRoomPointer,
                     RoomStatePointer: game.GameplayActiveRoomStatePointer,
                     DoorPointer: game.GameplayActiveDoorPointer,
-                    InputRecordingPath: inputRecorder?.Path));
+                    InputRecordingPath: inputRecorder?.Path,
+                    FrameDiagnostics: frameDiagnostics));
             return game.CurrentFrame;
         }
     }
@@ -783,8 +815,10 @@ public sealed partial class PlayableGameControl : UserControl
             return;
 
         var batch = PlaybackFrameBatch.Run(
-            framesToRun, BuildControllerWord, input => AdvanceOneFrame(input));
+            framesToRun, BuildControllerWord, input => AdvanceOneFrame(input), CanAdvanceAudioFrame);
         pendingPlaybackFrames -= batch.CompletedFrames;
+        // A stalled endpoint must not accumulate an unbounded catch-up debt.
+        pendingPlaybackFrames = Math.Min(pendingPlaybackFrames, MaximumCatchUpFrames);
         if (batch.LastFrame is { } frame)
             RefreshFrame(frame);
     }
@@ -875,8 +909,8 @@ public sealed partial class PlayableGameControl : UserControl
             ?? throw new InvalidOperationException(
                 $"Room $8F:{pointer:X4} has no logical room identity.");
         host.Text =
-            $"Super Metroid C# — {name} [$8F:{pointer:X4}, state $8F:{state:X4}, " +
-            $"room {identity}]";
+            $"Super Metroid C# — RoomId: {identity} — {name} " +
+            $"[$8F:{pointer:X4}, state $8F:{state:X4}]";
     }
 
     /// <summary>

@@ -36,15 +36,21 @@ internal static partial class Program
         {
             PropertyInfo? countProperty = type.GetProperty(
                 "PresentationWordCount", staticFlags);
+            FieldInfo? countField = type.GetField("PresentationWordCount", staticFlags);
+            object? countValue = countProperty?.GetValue(null) ??
+                (countField is { IsLiteral: true } ? countField.GetRawConstantValue() : null);
             MethodInfo? addressMethod = type.GetMethod(
                 "PresentationWordAddress", staticFlags);
             MethodInfo? mechanicsMethod = type.GetMethod("MechanicsWord", staticFlags);
             MethodInfo? checkMethod = type.GetMethod(
                 "IsCompiledMechanicsByte", staticFlags);
-            if (addressMethod is null)
+            // One-frame programs expose a constant instead of an indexed list.
+            // Ignoring that shape omitted Kzan's live operand (#1166).
+            FieldInfo? singleWord = type.GetField("PresentationWord", staticFlags);
+            if (addressMethod is null && singleWord is not { IsLiteral: true })
                 continue;
             discovered++;
-            if (countProperty is null)
+            if (addressMethod is not null && countValue is null)
             {
                 unresolved.Add($"{type.Name}: no presentation-word count");
                 continue;
@@ -82,13 +88,14 @@ internal static partial class Program
                 unresolved.Add($"{type.Name}: {banks.Length} matching banks");
                 continue;
             }
-            int count = Convert.ToInt32(countProperty.GetValue(null));
+            int count = addressMethod is null ? 1 : Convert.ToInt32(countValue);
             int familyOrdinary = 0;
             int familySpecial = 0;
             for (int index = 0; index < count; index++)
             {
-                ushort address = Convert.ToUInt16(
-                    addressMethod.Invoke(null, [index]));
+                ushort address = Convert.ToUInt16(addressMethod is null
+                    ? singleWord!.GetRawConstantValue()
+                    : addressMethod.Invoke(null, [index]));
                 int source = (banks[0] << 16) | address;
                 ushort pointer = ReadWord(rom, source);
                 if (keyed.TryGetValue(source, out ushort previous) &&
@@ -162,9 +169,9 @@ internal static partial class Program
                     Console.WriteLine($"CATALOG-ONLY ${entry.Address:X6} -> ${entry.Pointer:X4}");
             }
         }
-        AssertEqual(153, discovered, "instruction catalogs with visual operands");
-        AssertEqual(5214, operands, "counted native sprite-selector occurrences");
-        AssertEqual(5069, keyed.Count, "distinct native sprite-selector addresses");
+        AssertEqual(158, discovered, "instruction catalogs with visual operands");
+        AssertEqual(5247, operands, "counted native sprite-selector occurrences");
+        AssertEqual(5102, keyed.Count, "distinct native sprite-selector addresses");
         if (generateCatalog)
             GenerateCompiledEnemyVisualSelectorCatalog(keyed);
         else
@@ -200,7 +207,7 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(5069, CompiledEnemyVisualSelectors.Count,
+        AssertEqual(5102, CompiledEnemyVisualSelectors.Count,
             "generated fixed visual-selector count");
         foreach (int index in new[] { int.MinValue, -1, CompiledEnemyVisualSelectors.Count, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CompiledEnemyVisualSelectors.At(index),

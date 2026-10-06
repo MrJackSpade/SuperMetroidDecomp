@@ -10,6 +10,7 @@ internal static partial class Program
             .Select(pointer => pointer!.Value).Distinct().Order().ToArray();
         var physical = EnumerateRetailDoorPointers().ToHashSet();
         physical.Add(0x88fc);
+        physical.Add(0xa18a);
         var originalLists = new HashSet<ushort>();
         var referenced = new HashSet<ushort>();
         int total = 0, elevatorReferences = 0;
@@ -28,7 +29,7 @@ internal static partial class Program
                 if (!physical.Contains(target)) break;
                 original.Add(target);
                 referenced.Add(target);
-                if (target == 0x88fc) elevatorReferences++;
+                if (target is 0x88fc or 0xa18a) elevatorReferences++;
             }
             DoorListDefinition actual = DoorDefinitions.GetList(pointer);
             AssertEqual(pointer, actual.Pointer, "Materialized door list preserves source identity");
@@ -48,9 +49,9 @@ internal static partial class Program
             total += original.Count;
         }
         AssertEqual(262, originalLists.Count, "All original retail door lists");
-        AssertEqual(603, total, "All original room-door references");
-        AssertEqual(12, elevatorReferences, "All original shared elevator insertions");
-        AssertEqual(592, referenced.Count, "All unique physical targets plus shared elevator");
+        AssertEqual(606, total, "All original room-door references");
+        AssertEqual(14, elevatorReferences, "All original shared elevator insertions");
+        AssertEqual(594, referenced.Count, "All unique physical targets plus shared elevator");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
@@ -58,6 +59,6 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitions.GetList(pointer), "Unknown list rejects materialization");
             AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitions.Resolve(pointer, 0), "Unknown list rejects resolution");
         }
-        Console.WriteLine("Retail door lists: 262 identities, 603 original references, 12 elevator insertions, all256 BTS values and every unknown list identity pass.");
+        Console.WriteLine("Retail door lists: 262 identities, 606 original references, 14 elevator insertions, all256 BTS values and every unknown list identity pass.");
     }
 }

@@ -38,6 +38,9 @@ internal static partial class Program
         new(0x87a7e4, 0x0030, true),
         new(0x87a814, 0x0030, true),
         new(0x87a844, 0x0030, true),
+        new(0x879d84, 0x0080, true),
+        new(0x879e04, 0x0080, true),
+        new(0x879e84, 0x0080, true),
     ];
 
     private static void VerifyRoomFxAtlasSegmentSources(SuperMetroid.Core.Hardware.ISnesAddressSpace rom)
@@ -45,7 +48,7 @@ internal static partial class Program
         var expected = OriginalRoomFxAtlasSegments();
         var actual = RoomFxAnimatedTileAtlasFormat.Segments.ToArray();
         AssertEqual(expected.Length, actual.Length, "Atlas original segment count");
-        var bytes = Enumerable.Range(0, 3232).Select(index => (byte)(index * 37 + index / 256)).ToArray();
+        var bytes = Enumerable.Range(0, 3616).Select(index => (byte)(index * 37 + index / 256)).ToArray();
         var constructor = typeof(RoomFxAnimatedTileAtlas).GetConstructor(
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
             null, [typeof(byte[])], null)!;
@@ -86,7 +89,7 @@ internal static partial class Program
         var actual = RoomFxAnimatedTileAtlasFormat.Segments.ToArray();
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index].ByteCount, actual[index].ByteCount, "Atlas segment length");
-        AssertEqual(3232, actual.Sum(segment => segment.ByteCount), "Complete original PNG byte geometry");
+        AssertEqual(3616, actual.Sum(segment => segment.ByteCount), "Complete original PNG byte geometry");
     }
 
     private static void VerifyRoomFxAtlasSegmentRoles()

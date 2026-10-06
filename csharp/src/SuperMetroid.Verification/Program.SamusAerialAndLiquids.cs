@@ -575,8 +575,11 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Fire body expansion fits empty room");
     AssertEqual(SamusPoseIds.NormalJumpGunExtendedRightPose, spinFire.Pose,
         "spin Fire selects gun-extended normal jump");
+    AssertEqual(12, spinFire.Kinematics.YRadius,
+        "spin Fire retains source radius for the transition update");
+    spinFire.RefreshCollisionRadii(bus);
     AssertEqual(19, spinFire.Kinematics.YRadius,
-        "spin Fire expands to normal-jump radius");
+        "next alpha publishes normal-jump radius");
     AssertEqual(3, spinFire.Kinematics.YSpeed,
         "spin Fire preserves whole vertical speed");
     AssertEqual(0x4567, spinFire.Kinematics.YSubspeed,
@@ -653,8 +656,11 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Down body contraction fits empty room");
     AssertEqual(SamusPoseIds.NormalJumpAimDownLeftPose, spinAimDown.Pose,
         "spin Down selects compact left normal jump");
+    AssertEqual(12, spinAimDown.Kinematics.YRadius,
+        "spin Down retains source radius for the transition update");
+    spinAimDown.RefreshCollisionRadii(bus);
     AssertEqual(10, spinAimDown.Kinematics.YRadius,
-        "spin Down contracts to straight-down radius");
+        "next alpha publishes straight-down radius");
     AssertEqual(128, spinAimDown.YPosition,
         "spin Down contraction does not move the body center");
     AssertEqual(2, spinAimDown.Kinematics.YSpeed,
@@ -804,16 +810,20 @@ static void VerifySamusSpaceJumpAndScrewAttack()
             unchecked((ushort)(0x1200 + shade)));
     }
 
+    var suitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+    var cycleColors = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(bus)));
     var palettes = new SamusHorizontalSpeedState();
     var cgram = new SnesCgram();
     AssertTrue(palettes.UpdateSpeedBoosterPalette(
-        bus, cgram, movementType: SamusMovementType.SpinJumping, animationFrame: 1, equippedItems: 0x0008),
-        "early Screw frame copies normal suit palette");
-    AssertEqual(0x0111, cgram.Colors[192], "early Screw frame normal palette");
+        bus, cgram, movementType: SamusMovementType.SpinJumping, animationFrame: 0x1b, equippedItems: 0x0008, suitColors: suitColors, cycleColors: cycleColors),
+        "ending Screw frame copies normal suit palette");
+    AssertEqual(0x0111, cgram.Colors[192], "ending Screw frame normal palette");
     for (int frame = 0; frame < 6; frame++)
     {
         AssertTrue(palettes.UpdateSpeedBoosterPalette(
-            bus, cgram, movementType: SamusMovementType.SpinJumping, animationFrame: 0x1b, equippedItems: 0x0008),
+            bus, cgram, movementType: SamusMovementType.SpinJumping, animationFrame: 1, equippedItems: 0x0008, suitColors: suitColors, cycleColors: cycleColors),
             $"Screw palette frame {frame} copies");
         AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), cgram.Colors[192],
             $"Screw palette frame {frame} ROM color");
@@ -856,7 +866,7 @@ static void VerifySamusLiquidPhysics()
         WriteTestWord(bus, 0x909ea7 + medium * 2, 0);
     }
 
-    var sample = new SamusState { XPosition = 64, YPosition = 100 };
+    var sample = new SamusState { Pose = SamusPoseIds.SpinJumpRightPose, XPosition = 64, YPosition = 100 };
     sample.Kinematics.YRadius = 12; // top 88, exclusive bottom 112, occupied bottom pixel 111
     sample.LiquidPhysics.ConfigureWater(surfaceY: 110);
     AssertEqual(SamusLiquidPhysicsState.Water,
@@ -1349,8 +1359,8 @@ static void VerifySamusAtmosphericEffects()
         "landing dust right X offset");
     AssertEqual(92, landing.LiquidPhysics.AtmosphericEffects.Slots[3].XPosition,
         "landing dust left X offset");
-    AssertEqual(112, landing.LiquidPhysics.AtmosphericEffects.Slots[2].YPosition,
-        "landing dust uses current bottom boundary");
+    AssertEqual(111, landing.LiquidPhysics.AtmosphericEffects.Slots[2].YPosition,
+        "landing dust uses pose-defined inclusive bottom pixel");
 
     // Whole speed five changes only the impact sound to hard `$04`; Screw Attack changes
     // only the preceding library-one termination to `$34`. A cinematic suppresses both
@@ -1376,11 +1386,18 @@ static void VerifySamusAtmosphericEffects()
         "Norfair cinematic still dispatches landing dust");
     landing.LiquidPhysics.CinematicFunctionActive = false;
 
+    landing.LiquidPhysics.ConfigureWater(surfaceY: 111);
+    landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+        bus, landing, previousMovementType: SamusMovementType.Falling, previousPose: 0x29,
+        landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
+    AssertEqual(6, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+        "liquid exactly at the inclusive bottom does not suppress landing dust");
+
     // Active liquid returns without touching the landing slots. This is intentionally not
     // deletion: seed an unrelated type-seven record and prove its packed word survives.
     landing.LiquidPhysics.AtmosphericEffects.SetSlot(
         2, type: 7, animationFrame: 2, animationTimer: 9, worldX: 77, worldY: 88);
-    landing.LiquidPhysics.ConfigureWater(surfaceY: 111);
+    landing.LiquidPhysics.ConfigureWater(surfaceY: 110);
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         bus, landing, previousMovementType: SamusMovementType.Falling, previousPose: 0x29,
@@ -1430,7 +1447,7 @@ static void VerifySamusAtmosphericEffects()
         "landing splash right X offset");
     AssertEqual(97, landing.LiquidPhysics.AtmosphericEffects.Slots[3].XPosition,
         "landing splash left X offset");
-    AssertEqual(108, landing.LiquidPhysics.AtmosphericEffects.Slots[2].YPosition,
+    AssertEqual(107, landing.LiquidPhysics.AtmosphericEffects.Slots[2].YPosition,
         "landing splash rises four pixels above feet");
 
     Console.WriteLine(

@@ -18,9 +18,9 @@ public static class AttractDemoRomData
     /// <summary>$80:8261 enables three sets before the completed-game SRAM marker.</summary>
     public const int DefaultSetCount = 3;
     /// <summary>$70:1FE0, completion marker checked by VerifySRAM to unlock set four.</summary>
-    public const int CompletionMarkerAddress = 0x701fe0;
-    /// <summary>VerifySRAM compares twelve bytes, including the trailing NUL.</summary>
-    public static ReadOnlySpan<byte> CompletionMarker => "supermetroid\0"u8;
+    public const int CompletionMarkerAddress = (SuperMetroid.Core.Game.SaveRamLayout.SramBank << 16) | SuperMetroid.Core.Game.SaveRamLayout.CompletionMarkerOffset;
+    /// <summary>VerifySRAM compares the twelve letters without a terminator; the selected-slot word follows.</summary>
+    public static ReadOnlySpan<byte> CompletionMarker => SuperMetroid.Core.Game.SaveRamLayout.CompletionMarker;
     /// <summary>Literal state writes in the demo setup routines.</summary>
     public static class SetupValues
     {

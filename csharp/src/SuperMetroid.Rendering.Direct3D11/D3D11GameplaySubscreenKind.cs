@@ -6,4 +6,5 @@ internal enum D3D11GameplaySubscreenKind : uint
     None,
     CapturedBg3,
     GameplayBg2,
+    GameplayBg2AndCapturedBg3,
 }

@@ -1,8 +1,14 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Fixed physical spawn definitions for Mother Brain's cutscene Baby Metroid.</summary>
+/// <summary>Spawn and music identities for Mother Brain's cutscene Baby Metroid.</summary>
 internal static class MotherBrainBabyMetroidDefinitions
 {
+    /// <summary>$A9:CC65, Function_BabyMetroidCutscene_PlaySamusTheme: data command $FF48 loads the Theme of Samus.</summary>
+    internal const byte SamusThemeMusicData = 0x48;
+
+    /// <summary>$A9:CC6C, Function_BabyMetroidCutscene_PlaySamusTheme: track $0005 follows the theme data upload.</summary>
+    internal const byte SamusThemeMusicTrack = 5;
+
     /// <summary>The cutscene Baby Metroid enemy header at <c>$A0:ECBF</c>.</summary>
     internal const ushort EnemyDefinition = 0xecbf;
 

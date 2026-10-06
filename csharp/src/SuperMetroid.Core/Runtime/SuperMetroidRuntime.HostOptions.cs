@@ -11,6 +11,12 @@ public sealed partial class SuperMetroidRuntime
             throw new ArgumentOutOfRangeException(nameof(options), "Unknown map reveal mode.");
         PlayerInvincibilityEnabled = options.Invincibility;
         InfiniteAmmoEnabled = options.InfiniteAmmo;
+        if (!GrantAllEquipmentEnabled && options.GrantAllEquipment) testerInventoryRecipient = null;
+        GrantAllEquipmentEnabled = options.GrantAllEquipment;
+        bool openingTourian = !UnlockTourianEnabled && options.UnlockTourian;
+        UnlockTourianEnabled = options.UnlockTourian;
+        ApplyTesterInventory();
+        if (openingTourian && TourianStatues.Enabled) TourianStatues.Load(this);
         PreventEscapeTimeout = options.PreventEscapeTimeout;
         MapRevealMode = options.MapReveal;
     }

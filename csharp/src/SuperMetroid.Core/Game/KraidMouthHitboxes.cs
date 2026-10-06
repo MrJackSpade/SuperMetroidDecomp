@@ -84,18 +84,9 @@ internal static class KraidMouthHitboxes
     /// </summary>
     public const int LowHalfBoundaryLength = 7;
 
-    /// <summary>$A0:9F6D, GrappleAI_SwitchEnemyAIToMainAI, target of $A7:8000's JSL.</summary>
-    private const int ResumeMainAiTarget = 0xa09f6d;
-    /// <summary>$A0:9F7D, GrappleAI_SamusLatchesOnWithGrapple, target of $A7:8005's JSL.</summary>
-    private const int GrappleLatchTarget = 0xa09f7d;
-    /// <summary>65816 JSL long-address opcode at $A7:8000 and $A7:8005.</summary>
-    private const byte LongCallOpcode = 0x22;
-    /// <summary>65816 RTL opcode at $A7:8004, ending the no-interaction grapple stub.</summary>
-    private const byte LongReturnOpcode = 0x6b;
-
     /// <summary>Returns one of the seven bounded native instruction bytes visible to low-half aliases.</summary>
     /// <remarks>
-    /// The pinned bank_A7 stubs are JSL ResumeMainAiTarget; RTL; JSL GrappleLatchTarget.
+    /// The pinned bank_A7 stubs are JSL KraidMouthHitboxBoundaryDefinitions.ResumeMainAiTarget; RTL; JSL KraidMouthHitboxBoundaryDefinitions.GrappleLatchTarget.
     /// Decode by opcode/operand role, extracting the long call target little-endian.
     /// Only the second call's low operand byte is reachable. This models bounded
     /// compatibility data without a stored byte lookup or runtime cartridge read.
@@ -103,10 +94,10 @@ internal static class KraidMouthHitboxes
     public static byte LowHalfBoundaryByte(int index)
     {
         if ((uint)index >= LowHalfBoundaryLength) throw new IndexOutOfRangeException();
-        if (index == 4) return LongReturnOpcode;
+        if (index == 4) return KraidMouthHitboxBoundaryDefinitions.LongReturnOpcode;
         int callOffset = index % 5;
-        if (callOffset == 0) return LongCallOpcode;
-        int target = index < 5 ? ResumeMainAiTarget : GrappleLatchTarget;
+        if (callOffset == 0) return KraidMouthHitboxBoundaryDefinitions.LongCallOpcode;
+        int target = index < 5 ? KraidMouthHitboxBoundaryDefinitions.ResumeMainAiTarget : KraidMouthHitboxBoundaryDefinitions.GrappleLatchTarget;
         return (byte)(target >> (8 * (callOffset - 1)));
     }
 

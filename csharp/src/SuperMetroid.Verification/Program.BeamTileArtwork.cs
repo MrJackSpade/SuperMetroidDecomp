@@ -10,16 +10,17 @@ internal static partial class Program
         VerifyProjectileTrailDefinitions(bus);
         VerifyProjectileTrailArtwork(bus);
         var files = BeamTileExtractor.Extract(bus);
-        var catalog = BeamTileCatalog.Load(files);
+        var palettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
+        var catalog = BeamTileCatalog.Load(files, palettes);
         VerifyBeamPaletteArtwork(bus, catalog);
         VerifyRuntimeBeamArtwork(bus, files, catalog);
-        AssertEqual(12, files.Count, "Every legal beam combination has editable artwork");
+        AssertEqual(14, files.Count, "Every legal beam combination and both bounded invalid uploads have editable artwork");
         for (ushort selection = 0; selection < 12; selection++)
         {
             byte[] png = files[BeamTileAtlasDefinitions.FileName(selection)];
             var atlas = BeamTileAtlas.Load(new MemoryStream(png), selection);
             var native = new SnesVram(); var extracted = new SnesVram();
-            SamusProjectileSystem.LoadBeamTilesAndPalette(bus, native, new SnesCgram(), selection);
+            LoadNativeBeamFixture(bus, native, new SnesCgram(), null, selection);
             atlas.LoadTo(extracted);
             AssertTrue(native.Bytes.SequenceEqual(extracted.Bytes), "PNG matches production beam upload across complete VRAM");
             var image = IndexedPng.Read(new MemoryStream(png), 64, 8);
@@ -37,8 +38,13 @@ internal static partial class Program
             var queue = new VramWriteQueue();
             var actualPalette = new SnesCgram(); var expectedPalette = new SnesCgram();
             var nativeQueue = new VramWriteQueue();
-            SamusProjectileSystem.QueueBeamTilesAndLoadPalette(bus, nativeQueue, expectedPalette, selection);
+            LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
             SamusProjectileSystem.QueueBeamTilesAndLoadPalette(new BeamArtworkReadGuard(bus), queue, actualPalette, selection, catalog);
+            var legacyVram = new SnesVram();
+            nativeQueue.DrainTo(legacyVram, ReferenceMutableMemory.From(new ProjectileCompositionForbiddenBus()), catalog);
+            AssertTrue(legacyVram.Bytes.SequenceEqual(native.Bytes), "Legacy beam source resolves exact native pixels without ROM DMA");
+            // Recreate the consumed reference queue for the native record-layout assertions.
+            LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
             AssertEqual(nativeQueue.TailInBytes, queue.TailInBytes, "Beam PNG keeps native seven-byte queue size");
             AssertEqual(nativeQueue.Entries[0].SizeInBytes, queue.Entries[0].SizeInBytes, "Queued beam transfer retains byte count");
             AssertEqual(nativeQueue.Entries[0].EncodedVramDestination, queue.Entries[0].EncodedVramDestination, "Queued beam retains destination");
@@ -71,6 +77,24 @@ internal static partial class Program
         Console.WriteLine("Beam PNG artwork: twelve production VRAM uploads, exact edited-pixel isolation and malformed resource rejection pass.");
     }
 
+    private static void LoadNativeBeamFixture(ISnesAddressSpace bus, SnesVram? vram,
+        SnesCgram cgram, VramWriteQueue? queue, ushort selection)
+    {
+        ushort Word(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        int tileSource = SamusProjectileRomData.Banks.CharacterData |
+            Word(SamusProjectileRomData.Beams.TilePointers + selection * 2);
+        if (vram is not null)
+        {
+            var bytes = new byte[BeamTileAtlasDefinitions.ByteCount];
+            for (int i = 0; i < bytes.Length; i++) bytes[i] = bus.ReadByte(tileSource + i);
+            vram.LoadBytes(BeamTileAtlasDefinitions.DestinationWord * 2, bytes);
+        }
+        queue?.Enqueue(BeamTileAtlasDefinitions.ByteCount, tileSource, BeamTileAtlasDefinitions.DestinationWord);
+        int colors = SamusProjectileRomData.Banks.Movement |
+            Word(SamusProjectileRomData.Beams.PalettePointers + selection * 2);
+        for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
+            cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Word(colors + i * 2));
+    }
     private sealed class BeamArtworkReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
@@ -98,15 +122,15 @@ internal static partial class Program
         using var png = new MemoryStream();
         IndexedPng.Write(png, 64, 8, image.Pixels, image.Palette);
         var changed = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(0)] = png.ToArray() };
-        var edited = BeamTileCatalog.Load(changed);
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        var edited = BeamTileCatalog.Load(changed, stock.Palettes);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
         runtime.RunNmi(0, true);
         byte[] previous = runtime.Vram.Bytes.ToArray();
         // Simulate an old snapshot with a queued ROM beam upload before host rebind.
-        runtime.QueueGameplayBeamTilesAndLoadPalette(0);
+        LoadNativeBeamFixture(bus, null, runtime.Cgram, runtime.VramWrites, 0);
         runtime.BeamArtwork = edited;
         AssertTrue(previous.AsSpan().SequenceEqual(runtime.Vram.Bytes), "Binding beam PNG leaves retained VRAM unchanged");
         runtime.RunNmi(0, false);
@@ -122,6 +146,7 @@ internal static partial class Program
         saved.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
         AssertTrue(restored.BeamArtwork is null, "Beam artwork is not embedded in runtime state");
+        runtimeFixtureBindings.Value(restored);
         restored.Samus!.EquippedBeams = 1;
         restored.BeamArtwork = stock;
         restored.RunNmi(0, true);

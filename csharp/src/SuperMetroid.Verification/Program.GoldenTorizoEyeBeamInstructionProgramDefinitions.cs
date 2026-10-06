@@ -1,5 +1,5 @@
-using System.Reflection;
 using SuperMetroid.Core.Assets;
+using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -28,6 +28,9 @@ internal static partial class Program
                 $"Golden Torizo eye-beam mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new GoldenTorizoEyeBeamInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -61,7 +64,7 @@ internal static partial class Program
 
             for (int frame = 1; frame <= 6; frame++)
             {
-                process.Invoke(enemies, [beam, null, (ushort)0, (ushort)0]);
+                Process(enemies, beam, null);
                 AssertTrue(beam.IsActive,
                     $"Golden Torizo {facingRight} eye beam normal frame {frame}");
             }
@@ -106,13 +109,13 @@ internal static partial class Program
             "Golden Torizo eye beam wall impact is immediately armed");
         for (int frame = 1; frame <= 20; frame++)
         {
-            process.Invoke(wallEnemies, [wallBeam, null, (ushort)0, (ushort)0]);
+            Process(wallEnemies, wallBeam, null);
             AssertTrue(wallBeam.IsActive,
                 $"Golden Torizo eye beam wall impact frame {frame}");
             AssertEqual(EnemyProjectileCodePointers.RTS_868170, wallBeam.PreInstruction,
                 $"Golden Torizo eye beam wall impact clears movement frame {frame}");
         }
-        process.Invoke(wallEnemies, [wallBeam, null, (ushort)0, (ushort)0]);
+        Process(wallEnemies, wallBeam, null);
         AssertTrue(!wallBeam.IsActive,
             "Golden Torizo eye beam wall impact deletes after five four-frame poses");
 
@@ -138,7 +141,7 @@ internal static partial class Program
         CollideWithFloor(disabledEnemies, disabledBeam);
         for (int frame = 1; frame <= 9; frame++)
         {
-            process.Invoke(disabledEnemies, [disabledBeam, null, (ushort)0, (ushort)0]);
+            Process(disabledEnemies, disabledBeam, null);
             AssertTrue(disabledBeam.IsActive,
                 $"disabled Golden Torizo eye-beam floor loop frame {frame}");
         }
@@ -159,7 +162,7 @@ internal static partial class Program
         CollideWithFloor(enabledEnemies, enabledBeam);
         for (int frame = 1; frame <= 8; frame++)
         {
-            process.Invoke(enabledEnemies, [enabledBeam, null, (ushort)0, (ushort)0]);
+            Process(enabledEnemies, enabledBeam, null);
             AssertTrue(enabledBeam.IsActive,
                 $"enabled Golden Torizo eye-beam blank floor frame {frame}");
             AssertTrue(!enabledBeam.CanDamageSamus,
@@ -167,7 +170,7 @@ internal static partial class Program
         }
         for (int frame = 1; frame <= 39; frame++)
         {
-            process.Invoke(enabledEnemies, [enabledBeam, null, (ushort)0, (ushort)0]);
+            Process(enabledEnemies, enabledBeam, null);
             AssertTrue(enabledBeam.IsActive,
                 $"enabled Golden Torizo eye-beam explosion frame {frame}");
             AssertEqual(EnemyProjectileCodePointers.RTS_868170, enabledBeam.PreInstruction,
@@ -175,19 +178,23 @@ internal static partial class Program
             AssertEqual(frame >= 10, enabledBeam.CanDamageSamus,
                 $"enabled Golden Torizo eye-beam collision transition frame {frame}");
         }
-        process.Invoke(enabledEnemies, [enabledBeam, null, (ushort)0, (ushort)0]);
+        Process(enabledEnemies, enabledBeam, null);
         AssertTrue(!enabledBeam.IsActive,
             "enabled Golden Torizo eye-beam floor impact deletes after exact lifetime");
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
-            "Golden Torizo eye-beam visuals use installed selectors without live reads");
+            "GoldenTorizoEyeBeam execution performs no live spritemap operand reads");
+        AssertEqual(GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "GoldenTorizoEyeBeam executes every native visual operand");
         for (int index = 0; index < GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount; index++)
         {
             ushort address = GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"GoldenTorizoEyeBeam executes native presentation operand {address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
-                "Golden Torizo eye-beam operand has an installed visual selector");
+                "GoldenTorizoEyeBeam has a compiled visual selector");
             AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
-                "Golden Torizo eye-beam installed selector matches native operand");
+                "GoldenTorizoEyeBeam compiled selector matches the cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Golden Torizo eye-beam mechanics byte");
@@ -240,6 +247,11 @@ internal static partial class Program
                 "Golden Torizo eye beam floor impact uses native low-nibble alignment");
         }
 
+        void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile, SamusState? samus)
+        {
+            process.Invoke(system, [projectile, samus, (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
+        }
         RoomEnemySystem CreateSystem(
             ISnesAddressSpace bus,
             Queue<ushort> random,

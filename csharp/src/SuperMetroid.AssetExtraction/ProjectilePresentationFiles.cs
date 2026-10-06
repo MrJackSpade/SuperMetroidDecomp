@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 public static class ProjectilePresentationFiles
 {
     public const string ManifestFileName = "projectile-manifest.json";
-    public const int Version = 13;
+    public const int Version = 15;
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -70,16 +70,16 @@ public static class ProjectilePresentationFiles
         _ = stock.Compile(ProjectileSpriteCatalog.Load);
         ProjectileFile stockFrameBindings = Stock(ProjectileFrameBindingFormat.FileName, manifest.FrameBindingsSha256);
         _ = stockFrameBindings.Compile(ProjectileFrameBindingCatalog.Load);
-        if (manifest.BeamHashes is null || manifest.BeamHashes.Count != BeamTileAtlasDefinitions.SelectionCount)
+        if (manifest.BeamHashes is null || manifest.BeamHashes.Count != BeamTileAtlasDefinitions.ArtworkCount)
             throw new InvalidDataException($"Projectile manifest {manifestPath} must identify every beam PNG.");
         var stockBeams = new Dictionary<string, ProjectileFile>();
-        for (int i = 0; i < BeamTileAtlasDefinitions.SelectionCount; i++)
+        for (int i = 0; i < BeamTileAtlasDefinitions.ArtworkCount; i++)
         {
-            string name = BeamTileAtlasDefinitions.FileName(i);
+            string name = BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(i));
             if (!manifest.BeamHashes.TryGetValue(name, out string? expected))
                 throw new InvalidDataException($"Projectile manifest {manifestPath} is missing beam {name}.");
             ProjectileFile file = Stock(name, expected);
-            _ = file.Compile(stream => BeamTileAtlas.Load(stream, i));
+            _ = file.Compile(stream => BeamTileAtlas.Load(stream, BeamTileAtlasDefinitions.SelectionAt(i)));
             stockBeams.Add(name, file);
         }
         ProjectileFile stockPalettes = Stock(BeamPaletteDefinitions.FileName, manifest.PaletteSha256);
@@ -119,8 +119,8 @@ public static class ProjectilePresentationFiles
         ProjectileFile selectedGrappleSwing = Select(stockGrappleSwing);
         return new(selected.Compile(ProjectileSpriteCatalog.Load),
             Identity(stock, stockBeams, stockPalettes, stockHyperBeamFxColors, stockTrails, stockTrailTiles, stockFlarePlacement, stockFlareCompositions, stockGrappleTiles, stockGrappleSprites, stockGrappleFlare, stockGrappleSwing, stockFrameBindings), Identity(selected, selectedBeams, selectedPalettes, selectedHyperBeamFxColors, selectedTrails, selectedTrailTiles, selectedFlarePlacement, selectedFlareCompositions, selectedGrappleTiles, selectedGrappleSprites, selectedGrappleFlare, selectedGrappleSwing, selectedFrameBindings),
-            BeamTileCatalog.FromAtlases(Enumerable.Range(0, BeamTileAtlasDefinitions.SelectionCount)
-                .Select(index => selectedBeams[BeamTileAtlasDefinitions.FileName(index)].Compile(stream => BeamTileAtlas.Load(stream, index))).ToArray(),
+            BeamTileCatalog.FromAtlases(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount)
+                .Select(index => selectedBeams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(index))].Compile(stream => BeamTileAtlas.Load(stream, BeamTileAtlasDefinitions.SelectionAt(index)))).ToArray(),
                 selectedPalettes.Compile(BeamPaletteCatalog.Load), selectedHyperBeamFxColors.Compile(HyperBeamFxColorCatalog.Load)),
             selectedTrails.Compile(stream => ProjectileTrailCatalog.Load(stream, selectedTrailTiles.Compile(ProjectileTrailAtlas.Load))),
             selectedFlarePlacement.Compile(ChargeFlarePlacementCatalog.Load),
@@ -165,8 +165,8 @@ public static class ProjectilePresentationFiles
     {
         // Fixed-size component hashes in fixed selection order prevent ambiguous concatenation.
         string hashes = Hash(composition.Bytes);
-        for (int i = 0; i < BeamTileAtlasDefinitions.SelectionCount; i++)
-            hashes += Hash(beams[BeamTileAtlasDefinitions.FileName(i)].Bytes);
+        for (int i = 0; i < BeamTileAtlasDefinitions.ArtworkCount; i++)
+            hashes += Hash(beams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(i))].Bytes);
         return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(palettes.Bytes) + Hash(hyperBeamFxColors.Bytes) + Hash(trails.Bytes) + Hash(trailTiles.Bytes) + Hash(flarePlacement.Bytes) + Hash(flareCompositions.Bytes) + Hash(grappleTiles.Bytes) + Hash(grappleSprites.Bytes) + Hash(grappleFlare.Bytes) + Hash(grappleSwing.Bytes) + Hash(frameBindings.Bytes)));
     }
     private sealed record Manifest(int Version, string RomSha256, string ContentSha256, Dictionary<string, string> BeamHashes, string PaletteSha256, string HyperBeamFxColorsSha256, string TrailSha256, string TrailTilesSha256, string FlarePlacementSha256, string FlareCompositionsSha256, string GrappleTilesSha256, string GrappleSpritesSha256, string GrappleFlareSha256, string GrappleSwingSha256, string FrameBindingsSha256);

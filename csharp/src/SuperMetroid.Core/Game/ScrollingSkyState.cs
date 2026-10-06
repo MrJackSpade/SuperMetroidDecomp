@@ -10,8 +10,11 @@ namespace SuperMetroid.Core.Game;
 /// materializes an indirect HDMA byte table; this model retains the same 23 fixed-point
 /// data slots and exposes their final per-gameplay-scanline BG2HOFS values directly.
 /// </remarks>
-public sealed class ScrollingSkyState
+public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
 {
+    /// <summary>Only the sky FX/setup spawns the horizontal HDMA object; the room-main callback alone does not.</summary>
+    public bool HorizontalHdmaConfigured { get; } = horizontalHdmaConfigured;
+
     private readonly uint[] _fixedHorizontalScrolls =
         new uint[RoomFxRomData.ScrollingSky.DataSlotCount];
     /// <summary>
@@ -23,7 +26,7 @@ public sealed class ScrollingSkyState
         callback is RoomMainCallback.ScrollingSkyLand or
             RoomMainCallback.ScrollingSkyLandZebesTimebombSet;
 
-    /// <summary>Both sky wrappers share BG2 geometry, HDMA and row streaming; only their source table differs.</summary>
+    /// <summary>Identifies room-main tilemap streaming; HDMA setup is a separate decision.</summary>
     public static bool IsScrollingSkyRoomMain(RoomMainCallback callback) =>
         IsLandRoomMain(callback) || callback == RoomMainCallback.ScrollingSkyOcean;
 
@@ -31,7 +34,7 @@ public sealed class ScrollingSkyState
     public ushort VerticalScroll { get; private set; }
 
     /// <summary>Whether the indirect table has not been terminated by a frozen frame.</summary>
-    public bool HdmaEnabled { get; private set; } = true;
+    public bool HdmaEnabled { get; private set; } = horizontalHdmaConfigured;
 
     /// <summary>Integer HDMA data words, indexed like the 23 four-byte slots at $7E:9F80.</summary>
     public ushort GetDataSlotPosition(int slot)
@@ -57,8 +60,8 @@ public sealed class ScrollingSkyState
             return;
         }
 
-        HdmaEnabled = true;
-        AdvanceHorizontalScrolls();
+        HdmaEnabled = HorizontalHdmaConfigured;
+        if (HorizontalHdmaConfigured) AdvanceHorizontalScrolls();
         VerticalScroll = layer1YPosition;
         QueueTilemapRows(layer1YPosition, writes, roomMainCallback == RoomMainCallback.ScrollingSkyOcean
             ? RoomFxRomData.ScrollingSky.OceanChunkPointerTableAddress

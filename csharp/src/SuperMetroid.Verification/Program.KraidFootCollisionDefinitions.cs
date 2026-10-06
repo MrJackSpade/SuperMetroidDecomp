@@ -12,16 +12,12 @@ internal static partial class Program
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = new KraidFootCollisionNoReadBus();
-        var native = new RoomEnemySystem();
         var installed = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(native, rom);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installed, denied);
 
-        RoomEnemySlot nativeFoot = native.Slots[0];
         RoomEnemySlot installedFoot = installed.Slots[0];
-        nativeFoot.Definition = installedFoot.Definition =
+        installedFoot.Definition =
             default(RoomEnemyDefinition) with { Bank = 0xa7 };
-        nativeFoot.EnemyDefinitionPointer = 0xffff; // Force the cartridge reference walker.
         installedFoot.EnemyDefinitionPointer = RoomEnemySystem.KraidFootDefinition;
         AssertEqual(35, KraidFootCollisionDefinitions.FrameCount,
             "Kraid foot walking extended-frame count");
@@ -59,9 +55,9 @@ internal static partial class Program
                      (0x0100, 0x0100), (0x0004, 0x0006), (0xfffc, 0xfffa),
                  })
         {
-            nativeFoot.SpritemapPointer = installedFoot.SpritemapPointer = frame;
-            nativeFoot.XPosition = installedFoot.XPosition = originX;
-            nativeFoot.YPosition = installedFoot.YPosition = originY;
+            installedFoot.SpritemapPointer = frame;
+            installedFoot.XPosition = originX;
+            installedFoot.YPosition = originY;
             KraidFootCollisionDefinitions.TryGetComponents(frame, out var components);
             foreach (KraidFootCollisionComponent component in components)
             {
@@ -71,15 +67,13 @@ internal static partial class Program
                 foreach (ushort y in BoundaryPoints(componentY, box.Top, box.Bottom))
                 for (int shot = 0; shot <= 1; shot++)
                 {
-                    object?[] nativeArguments =
-                        [nativeFoot, x, y, (ushort)0, (ushort)0, shot != 0, (ushort)0];
                     object?[] installedArguments =
                         [installedFoot, x, y, (ushort)0, (ushort)0, shot != 0, (ushort)0];
-                    bool nativeHit = (bool)walker.Invoke(native, nativeArguments)!;
+                    bool nativeHit = NativeHit(frame, originX, originY, x, y, shot != 0, out ushort nativeCallback);
                     bool installedHit = (bool)walker.Invoke(installed, installedArguments)!;
                     AssertEqual(nativeHit, installedHit,
                         $"Kraid foot $A7:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
-                    AssertEqual((ushort)nativeArguments[^1]!,
+                    AssertEqual(nativeCallback,
                         (ushort)installedArguments[^1]!,
                         $"Kraid foot $A7:{frame:X4} callback {x:X4},{y:X4}, shot={shot}");
                     probes++;
@@ -102,6 +96,37 @@ internal static partial class Program
             rom.ReadByte(0xa70000 | address) |
             rom.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
+        bool NativeHit(ushort frame, ushort originX, ushort originY,
+            ushort x, ushort y, bool shot, out ushort callback)
+        {
+            // Import-only decoder: components are eight bytes; hitboxes are twelve.
+            // Native $A0:9A5A and $9B7F differ at their rectangle boundaries.
+            callback = 0;
+            for (int part = 0; part < ReadWord(frame); part++)
+            {
+                ushort component = unchecked((ushort)(frame + 2 + part * 8));
+                ushort cx = unchecked((ushort)(originX + ReadWord(component)));
+                ushort cy = unchecked((ushort)(originY + ReadWord((ushort)(component + 2))));
+                ushort list = ReadWord((ushort)(component + 6));
+                for (int boxIndex = 0; boxIndex < ReadWord(list); boxIndex++)
+                {
+                    ushort rectangle = unchecked((ushort)(list + 2 + boxIndex * 12));
+                    ushort left = unchecked((ushort)(cx + ReadWord(rectangle)));
+                    ushort top = unchecked((ushort)(cy + ReadWord((ushort)(rectangle + 2))));
+                    ushort right = unchecked((ushort)(cx + ReadWord((ushort)(rectangle + 4))));
+                    ushort bottom = unchecked((ushort)(cy + ReadWord((ushort)(rectangle + 6))));
+                    bool hit = shot
+                        ? unchecked((short)(x - left)) >= 0 && unchecked((short)(x - right)) < 0 &&
+                          unchecked((short)(y - top)) >= 0 && unchecked((short)(y - bottom)) < 0
+                        : unchecked((short)(left - x)) < 0 && unchecked((short)(right - x)) >= 0 &&
+                          unchecked((short)(top - y)) < 0 && unchecked((short)(bottom - y)) >= 0;
+                    if (!hit) continue;
+                    callback = ReadWord((ushort)(rectangle + (shot ? 10 : 8)));
+                    return true;
+                }
+            }
+            return false;
+        }
         static ushort[] BoundaryPoints(ushort origin, short low, short high) =>
         [
             unchecked((ushort)(origin + low - 1)),

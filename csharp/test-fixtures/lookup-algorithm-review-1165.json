@@ -1130,11 +1130,11 @@
                                            "domain":  "Direct array index0..511; offset=(PitchCounter\u003e\u003e4)\u0026255 generates255-offset,511-offset,256+offset,offset. No out-of-bounds compatibility domain.",
                                            "interpretation":  "Unsigned coefficients times signed decoded samples, product shift10; signed16 wrap after first three taps, fourth added, signed16 saturation, final shift1.",
                                            "implementationCommit":  "dsp-gaussian-algorithm",
-                                           "disposition":  "Remove 512 stored coefficients and the array-length initializer. Evaluate a Blackman-windowed sinc, normalize each four-tap phase, and round at scale 2048 using deterministic decimal arithmetic.",
+                                           "disposition":  "Remove 512 stored coefficients and the array-length initializer. Evaluate a Blackman-windowed sinc with double-precision Math.Sin/Math.Cos, share normalization across all four taps, and round at scale 2048. Issue #1222 replaces per-tap decimal Taylor evaluation after CPU sampling identified it as the frame bottleneck.",
                                            "rationale":  "The established analytic construction exactly explains all native hardware coefficients. Phase normalization is essential; global normalization differs at 23 entries. No generated sample cache or ordinary-entry corrections.",
                                            "reviewedEvidence":  "Pinned upstream-sm 578f90b3cc49557bb70060ad033bb90b8cf8ac50 src/snes/dsp.c gaussValues and interpolation; every current ManagedSnesDsp tap/index transform. Original integer coefficients supply the independent oracle; existing analytic proof certifies rounding intervals.",
                                            "proofTest":  "LookupTableResearch.VerifyGaussian (existing proof)",
-                                           "confirmation":  "All 512 original coefficients, independent analytic rounding intervals and invalid production index bounds. Research/Core build passes; no audio sweep."
+                                           "confirmation":  "All 512 original coefficients, all four taps at every one of 256 phases, independent decimal analytic rounding intervals, and invalid production index/phase bounds. Focused 180-frame PCM/acknowledgement comparison matches the native translation exactly. No audio sweep."
                                        }
                                    ]
                     },

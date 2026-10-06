@@ -4,13 +4,13 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static readonly ushort[] OriginalSimpleAnimationObjects =
-        [0x8287, 0x828d, 0x82ab, 0x82c9, 0x82e7, 0x82fd];
+        [0x8257, 0x8287, 0x828d, 0x82ab, 0x82c9, 0x82e7, 0x82fd];
 
     private static void VerifySimpleAnimationObjectDomain()
     {
         AssertTrue(OriginalSimpleAnimationObjects.SequenceEqual(
             RoomFxAnimatedTileMechanicsDefinitions.All.Select(x => x.ObjectPointer)),
-            "Original six-object enumeration order");
+            "Original seven-object enumeration order");
         var original = OriginalSimpleAnimationObjects.ToHashSet();
         for (int value = 0; value <= ushort.MaxValue; value++)
         {

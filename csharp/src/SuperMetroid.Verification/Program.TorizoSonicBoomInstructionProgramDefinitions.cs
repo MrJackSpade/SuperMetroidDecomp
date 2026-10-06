@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -27,6 +28,9 @@ internal static partial class Program
                 $"Torizo sonic-boom mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new TorizoSonicBoomInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -63,6 +67,7 @@ internal static partial class Program
             for (int frame = 1; frame <= 93; frame++)
             {
                 process.Invoke(enemies, [boom, null, (ushort)0, (ushort)0]);
+                VerifyExecutedProjectileFrame(rom, boom, spriteArtwork, executedOperands);
                 AssertTrue(boom.IsActive,
                     $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} sonic-boom frame {frame}");
             }
@@ -124,6 +129,7 @@ internal static partial class Program
         for (int frame = 1; frame <= 60; frame++)
         {
             process.Invoke(impactEnemies, [impact, null, (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, impact, spriteArtwork, executedOperands);
             AssertTrue(impact.IsActive, $"Torizo sonic-boom impact frame {frame}");
             AssertEqual(EnemyProjectileCodePointers.RTS_868170, impact.PreInstruction,
                 $"Torizo sonic-boom impact clears movement on frame {frame}");
@@ -145,14 +151,26 @@ internal static partial class Program
             }
         }
         process.Invoke(impactEnemies, [impact, null, (ushort)0, (ushort)0]);
+        VerifyExecutedProjectileFrame(rom, impact, spriteArtwork, executedOperands);
         AssertTrue(!impact.IsActive,
             "Torizo sonic-boom impact deletes after five exact twelve-frame cycles");
         AssertEqual(0, impactRandom.Count,
             "Torizo sonic-boom launch and five jitter cycles consume exact RNG words");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "TorizoSonicBoom execution performs no live spritemap operand reads");
         AssertEqual(TorizoSonicBoomInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all Torizo sonic-boom spritemaps remain cartridge reads");
+            executedOperands.Count, "TorizoSonicBoom executes every native visual operand");
+        for (int index = 0; index < TorizoSonicBoomInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = TorizoSonicBoomInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"TorizoSonicBoom executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "TorizoSonicBoom has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "TorizoSonicBoom compiled selector matches the cartridge");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Torizo sonic-boom mechanics byte");
         AssertThrows<InvalidDataException>(

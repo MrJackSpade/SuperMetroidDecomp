@@ -36,12 +36,15 @@ internal sealed partial class PauseMenuState
     private readonly byte[] equipmentTilemap;
     private readonly byte[] pauseButtonTilemap;
     private PauseMenuTransition transition;
+    private int transitionFadeCounter;
     private int transitionBrightness = 15;
     private int selectedCategory;
     private int selectedItem;
     private ushort mapHorizontalScroll;
     private ushort mapVerticalScroll;
     private PauseMapScroll mapScroll = null!;
+    private FileSelectMapAnimations? mapArrows;
+    private bool mapLabelsBeforeIcons;
     private int mapIndicatorAnimationFrame;
     private int mapIndicatorAnimationTimer;
     private int itemSelectorAnimationFrame;
@@ -69,6 +72,7 @@ internal sealed partial class PauseMenuState
         this.samus = samus ?? throw new ArgumentNullException(nameof(samus));
         this.system = system ?? throw new ArgumentNullException(nameof(system));
         this.audio = audio;
+        mapArrows = new FileSelectMapAnimations(bus, mapPresentation.Arrows);
         paletteAnimation = new MapPaletteAnimation(bus);
         paletteAnimation.Bind(mapPresentation.HighlightCycle);
         area = areaIndex;
@@ -215,6 +219,8 @@ internal sealed partial class PauseMenuState
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
         AdvanceAnimations(nmiFrameCounter8);
+        if (ScreenMode == 0 && transition == PauseMenuTransition.None)
+            mapArrows!.StepArrows(direction => mapScroll.CanScroll(direction, mapHorizontalScroll, mapVerticalScroll));
         SnesButton delayedPressed = (SnesButton)delayedHeldInput;
         SnesButton newlyPressed = (SnesButton)newlyPressedInput;
         if (transition != PauseMenuTransition.None)
@@ -278,10 +284,16 @@ internal sealed partial class PauseMenuState
     /// (for example, a debugger watch or PNG capture). The dispatcher calls this exactly
     /// once per emulated frame so inspection cannot change cartridge-visible timing.
     /// </remarks>
-    public void AdvanceAnimations(byte nmiFrameCounter8 = 0)
+    public void AdvanceAnimations(byte nmiFrameCounter8 = 0, bool fadingOut = false, bool advancePalette = true)
     {
+        // $82:9156 and $82:9353 emit destination labels before map icons during fade-out.
+        mapLabelsBeforeIcons = fadingOut || transition == PauseMenuTransition.MapToEquipmentFadeOut;
+        // Only stable map dispatch calls $82:B934. Fade paths retain counters but hide arrows.
+        mapArrows?.StepArrows(_ => false);
         pauseNmiFrameCounter8 = nmiFrameCounter8;
-        if (paletteAnimation.Step(cgram))
+        // $82:90E8 calls the palette handler after stable pause dispatch. The
+        // outer pause/unpause fades draw sprites without advancing this owner.
+        if (advancePalette && paletteAnimation.Step(cgram))
             audio?.QueueSound(SoundEffectLibrary3Sounds.MapPaletteLoop, maximumQueued: 6);
         if (ScreenMode == 0)
             StepMapIndicatorAnimation();
@@ -352,13 +364,16 @@ internal sealed partial class PauseMenuState
         oam.BeginFrame();
         if (ScreenMode == 0)
         {
-            DrawMapPositionIndicator();
-            // Native pause draws the same boss lists and defeated overlays as
-            // file select, after the player marker. Use the live progression owner.
             var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(mapPresentation?.Landmarks);
             icons.BindSprites(mapPresentation?.Sprites);
+            if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(oam, mapHorizontalScroll, mapVerticalScroll);
+            mapArrows?.DrawArrows(oam, mapPresentation?.Sprites, PauseMapScrollLayout.ArrowVerticalOffset);
+            DrawMapPositionIndicator();
+            // Native pause shares the boss lists, defeated overlays and downloaded
+            // destination lettering with file select. Preserve their per-phase OAM order.
             icons.DrawBossMarkers(oam, mapHorizontalScroll, mapVerticalScroll);
+            if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(oam, mapHorizontalScroll, mapVerticalScroll);
         }
         else
         {
@@ -427,9 +442,18 @@ internal sealed partial class PauseMenuState
                 if (transitionBrightness > 0)
                     return;
 
-                if (transition == PauseMenuTransition.MapToEquipmentFadeOut)
+                // $82:9156/$9186 returns at black before the separate load dispatch.
+                transition = transition == PauseMenuTransition.MapToEquipmentFadeOut
+                    ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad;
+                return;
+
+            case PauseMenuTransition.MapToEquipmentLoad:
+            case PauseMenuTransition.EquipmentToMapLoad:
+                if (transition == PauseMenuTransition.MapToEquipmentLoad)
                 {
                     ScreenMode = 1;
+                    // $82:AB47 resets the selector on each equipment-page entry.
+                    SelectFirstCollectedEquipment();
                     // Equipment setup lights the arrow when reserves are nonempty;
                     // subsequent tank dispatches own animation and selection changes.
                     if (samus.ReserveEnergy != 0) SetReserveArrow(enabled: true);
@@ -444,10 +468,15 @@ internal sealed partial class PauseMenuState
                     transition = PauseMenuTransition.EquipmentToMapFadeIn;
                 }
                 transitionBrightness = 0;
+                transitionFadeCounter = PauseFadeTiming.CounterReload;
                 return;
 
             case PauseMenuTransition.MapToEquipmentFadeIn:
             case PauseMenuTransition.EquipmentToMapFadeIn:
+                // Load dispatches set delay/counter to one; $80:894D spends a
+                // counter-only update between brightness writes.
+                if (transitionFadeCounter-- > 0) return;
+                transitionFadeCounter = PauseFadeTiming.CounterReload;
                 transitionBrightness++;
                 if (transitionBrightness >= 15)
                 {
@@ -463,6 +492,14 @@ internal sealed partial class PauseMenuState
 
     private void SelectFirstCollectedEquipment()
     {
+        // $82:ABAD-$ABB5 selects the tank mode control whenever reserve capacity exists,
+        // including empty tanks. The first beam is only the no-reserve fallback.
+        if (samus.MaxReserveEnergy != 0)
+        {
+            selectedCategory = PauseEquipmentCategories.Reserves;
+            selectedItem = PauseReserveTransferRomData.ModeItem;
+            return;
+        }
         for (int categoryIndex = 1; categoryIndex <= 3; categoryIndex++)
         {
             PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Get(categoryIndex);
@@ -824,4 +861,6 @@ internal enum PauseMenuTransition
     MapToEquipmentFadeIn,
     EquipmentToMapFadeOut,
     EquipmentToMapFadeIn,
+    MapToEquipmentLoad,
+    EquipmentToMapLoad,
 }

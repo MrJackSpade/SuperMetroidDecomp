@@ -47,6 +47,14 @@ internal static partial class Program
                 "// instructionPointer = 0x9438;\nstring text = \"0x8f8000\";").Count,
             "magic-number audit ignores comments and strings");
 
+        AssertEqual(0, ProductionMagicNumberAudit.AuditText("SamusPoseId.cs", "UnusedPose20 = 0x20,").Count,
+            "exclusive pose enum owns its native identifiers");
+
+        AssertEqual(0, ProductionMagicNumberAudit.AuditText("RoomPlmPopulationDefinitions.Generated.cs", UnsafeSource).Count,
+            "generated partial definition catalogs retain the existing catalog exemption");
+        AssertEqual(findings.Count, ProductionMagicNumberAudit.AuditText("FunctionalState.Generated.cs", UnsafeSource).Count,
+            "generated functional code retains all domain classifiers");
+
         MagicNumberAuditResult repositoryAudit = ProductionMagicNumberAudit.Run(
             ProductionMagicNumberAudit.FindRepositoryRoot());
         if (!repositoryAudit.Passed)

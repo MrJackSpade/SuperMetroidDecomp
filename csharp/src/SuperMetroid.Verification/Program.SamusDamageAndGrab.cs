@@ -76,7 +76,7 @@ static void VerifySamusDrainedController()
     // controller-zero/command-$17 restoration rather than retaining rainbow colors.
     for (ushort palette = 0; palette < 10; palette++)
     {
-        ushort pointer = unchecked((ushort)(0xa000 + palette * 0x20));
+        ushort pointer = unchecked((ushort)SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(palette));
         WriteTestWord(bus, 0x91d99e + palette * 2, pointer);
         for (ushort color = 0; color < 16; color++)
         {
@@ -113,6 +113,12 @@ static void VerifySamusDrainedController()
     }
     WriteTestWord(bus, 0x8dd9cc, 0xc61e);
     WriteTestWord(bus, 0x8dd9ce, 0xd904);
+    var suitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.SamusSuitColorExtractor.Extract(bus)));
+    var rainbowColors = SamusHyperBeamColorCatalog.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.SamusHyperBeamColorExtractor.Extract(bus)));
+    var projectileColors = HyperBeamFxColorCatalog.Load(new MemoryStream(
+        SuperMetroid.AssetExtraction.HyperBeamFxColorExtractor.Extract(bus)));
     var drainedCgram = new SnesCgram();
 
     const int width = 8;
@@ -145,7 +151,7 @@ static void VerifySamusDrainedController()
     AssertEqual(2, right.AnimationFrame, "drained fall begins at byte index two");
     AssertEqual(0, right.Kinematics.YSpeed, "drained fall clears whole Y speed");
     AssertEqual(2, right.Kinematics.YDirection, "drained fall selects down direction");
-    AssertTrue(right.Drained.UpdatePalette(bus, drainedCgram, right.EquippedItems),
+    AssertTrue(right.Drained.UpdatePalette(bus, drainedCgram, right.EquippedItems, suitColors),
         "drained controller zero restores selected suit palette");
     AssertEqual(0x300f, drainedCgram.Colors[207],
         "drained controller zero copies all sixteen suit colors");
@@ -248,7 +254,7 @@ static void VerifySamusDrainedController()
     for (int call = 0; call < 21; call++)
     {
         HyperBeamPaletteFxStepResult paletteFx =
-            left.Drained.HyperBeamPaletteFx.Step(hyperBeamGuard, drainedCgram);
+            left.Drained.HyperBeamPaletteFx.Step(hyperBeamGuard, drainedCgram, projectileColors);
         int expectedFrame = (call / 2) % HyperBeamPaletteFxState.FrameCount;
         AssertEqual(expectedFrame, paletteFx.FrameIndex,
             $"Hyper Beam palette-FX call {call + 1} frame index");
@@ -327,32 +333,33 @@ static void VerifySamusDrainedController()
     // Command `$16` starts negative-super-special palette zero with one-call cadence. After
     // the Baby raises its delay to two, index two must remain visible for two calls before
     // advancing. Each call loads before decrementing, matching `$91:D96F-$D997` ordering.
+    unable.Drained.PresentationColors = rainbowColors;
     unable.Drained.EnableRainbow(unable);
-    AssertTrue(unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems),
+    AssertTrue(unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors),
         "rainbow handler owns palette dispatcher");
     AssertEqual(0x1000, drainedCgram.Colors[192],
         "rainbow first call loads Hyper Beam palette zero");
     AssertEqual(1, unable.Drained.ChargePaletteIndex,
         "one-call rainbow cadence advances immediately");
     unable.Drained.IncrementRainbowPaletteFrame(maximumFrame: 10);
-    unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems);
+    unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors);
     AssertEqual(2, unable.Drained.CommonPaletteTimer,
         "Baby-raised rainbow delay reloads two");
     AssertEqual(2, unable.Drained.ChargePaletteIndex,
         "rainbow second palette advances into delayed index");
-    unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems);
+    unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors);
     AssertEqual(0x1040, drainedCgram.Colors[192],
         "rainbow delayed index loads before timer decrement");
     AssertEqual(2, unable.Drained.ChargePaletteIndex,
         "rainbow delay holds palette index for first call");
-    unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems);
+    unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors);
     AssertEqual(3, unable.Drained.ChargePaletteIndex,
         "rainbow delay advances on second call");
 
     unable.Drained.DisableRainbowAndStartStandingAnimation(unable);
     AssertEqual(13, unable.AnimationFrame, "command $17 resumes standing animation at frame thirteen");
     AssertEqual(1, unable.AnimationFrameTimer, "command $17 resume timer");
-    AssertTrue(unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems),
+    AssertTrue(unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors),
         "command $17 restores selected suit palette");
     AssertEqual(0x3000, drainedCgram.Colors[192],
         "command $17 replaces rainbow palette immediately");

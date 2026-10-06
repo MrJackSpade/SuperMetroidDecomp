@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction;
 
 namespace SuperMetroid.Desktop;
 
-/// <summary>Host-independent ten-slot debugger states with warning-only build identity checks.</summary>
+/// <summary>Host-independent debugger states with ten manual slots and one automatic slot with warning-only build identity checks.</summary>
 internal sealed class DebuggerSaveStateStore
 {
 
@@ -83,10 +83,16 @@ internal sealed class DebuggerSaveStateStore
 
     public string DirectoryPath => directory;
 
+    public static string SlotName(int slot)
+    {
+        ValidateSlot(slot);
+        return slot == DebuggerStateFormat.AutomaticSlot ? "auto" : slot.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
     public string GetSlotPath(int slot)
     {
         ValidateSlot(slot);
-        return Path.Combine(directory, $"SuperMetroid-debug-slot-{slot}.smstate");
+        return Path.Combine(directory, $"SuperMetroid-debug-slot-{SlotName(slot)}.smstate");
     }
 
     public DebuggerSaveStateMetadata Save(
@@ -139,12 +145,15 @@ internal sealed class DebuggerSaveStateStore
                 WriteNullableWord(writer, metadata.RoomStatePointer);
                 writer.Flush();
 
-                using var compressed = new GZipStream(stream, CompressionLevel.SmallestSize, leaveOpen: true);
-                DebuggerObjectGraphSerializer.Serialize(
-                    compressed,
-                    new DebuggerSaveStateRoot(addressSpace, game, audioPlayer));
+                using (var compressed = new GZipStream(stream, CompressionLevel.SmallestSize, leaveOpen: true))
+                    DebuggerObjectGraphSerializer.Serialize(
+                        compressed, new DebuggerSaveStateRoot(addressSpace, game, audioPlayer));
+                stream.Flush(flushToDisk: true);
             }
-            File.Move(temporary, destination, overwrite: true);
+            if (File.Exists(destination))
+                File.Replace(temporary, destination, destinationBackupFileName: null);
+            else
+                File.Move(temporary, destination);
             return metadata;
         }
         catch
@@ -160,7 +169,7 @@ internal sealed class DebuggerSaveStateStore
         ValidateSlot(slot);
         string path = GetSlotPath(slot);
         if (!File.Exists(path))
-            throw new FileNotFoundException($"Debugger save-state slot {slot} does not exist.", path);
+            throw new FileNotFoundException($"Debugger save-state slot {SlotName(slot)} does not exist.", path);
 
         using var stream = new FileStream(
             path,
@@ -344,8 +353,8 @@ internal sealed class DebuggerSaveStateStore
 
     private static void ValidateSlot(int slot)
     {
-        if ((uint)slot >= DebuggerStateFormat.SlotCount)
-            throw new ArgumentOutOfRangeException(nameof(slot), slot, "Debugger state slot must be 0-9.");
+        if ((uint)slot > DebuggerStateFormat.AutomaticSlot)
+            throw new ArgumentOutOfRangeException(nameof(slot), slot, "Debugger state slot must be 0-9 or auto.");
     }
 
     private sealed class DebuggerSaveStateRoot(

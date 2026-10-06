@@ -36,6 +36,12 @@ public static partial class GameplayDisplayCapture
                         throw new NotSupportedException("Spore FX requires an ordinary Mode-1 gameplay base.");
                     layers[0] = SnesGameplayFrameRenderer.CaptureSpores(ordinary, fx);
                 }
+                else if (fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
+                {
+                    if (layers[0] is not OrdinaryGameplayRenderLayer ordinary)
+                        throw new NotSupportedException("Waterfall FX requires an ordinary Mode-1 gameplay base.");
+                    layers[0] = SnesGameplayFrameRenderer.CaptureWaterfall(ordinary, fx);
+                }
                 else AddLayer(SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx));
             }
             if (runtime.CeresHaze.Enabled)
@@ -83,8 +89,8 @@ public static partial class GameplayDisplayCapture
             bg2Y = unchecked((ushort)(ppu.Layer1YPosition + runtime.TourianStatues.DisplayedVerticalOffset));
         RoomLayer3FxRenderSnapshot? fx = runtime.DisplayedRoomLayer3Fx;
         ScrollingSkyState? sky = runtime.ScrollingSky;
-        ushort[]? skyX = sky?.BuildGameplayHorizontalScrolls(runtime.Camera?.YPosition
-            ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera."));
+        ushort[]? skyX = sky is { HorizontalHdmaConfigured: true } ? sky.BuildGameplayHorizontalScrolls(runtime.Camera?.YPosition
+            ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")) : null;
         if (skyX is not null)
             for (int line = 0; line < skyX.Length; line++) skyX[line] = Add(skyX[line], shake.Bg2X);
 
@@ -111,8 +117,8 @@ public static partial class GameplayDisplayCapture
             kraidBg ? Add(kraid!.Bg2VerticalScroll, shake.Bg2Y)
                 : crocomireBg ? Add(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2Y)
                 : sky is not null ? Add(sky.VerticalScroll, shake.Bg2Y) : bg2Y,
-            kraidBg ? KraidBackgroundRomData.TilemapWidthInTiles : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32 : sky is null && !verticalStatueMap ? 64 : 32,
-            kraidBg ? KraidBackgroundRomData.TilemapHeightInTiles : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32 : sky is null && !verticalStatueMap ? 32 : 64,
+            kraidBg ? KraidBackgroundRomData.TilemapWidthInTiles : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32 : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? 64 : 32,
+            kraidBg ? KraidBackgroundRomData.TilemapHeightInTiles : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32 : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? 32 : 64,
             kraidBg ? KraidBackgroundRomData.LiveBg2TilemapWord : SnesPpuLayout.GameplayBg2TilemapWord,
             character, character, runtime.GameplayHudCharacterBaseWord,
             runtime.DoorTransitionMainScreenLayers ??
@@ -131,7 +137,9 @@ public static partial class GameplayDisplayCapture
             VisibleLines(crocomireBg
                 ? runtime.Enemies.CrocomireDeath is { MeltingHdmaActive: true } melting
                     ? melting.Bg2ScrollByScanline : null
-                : lavaY));
+                : lavaY),
+            runtime.DoorTransitionMainScreenLayers is null && runtime.Enemies.MotherBrain?.RisingHdmaActive == true
+                ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default);
         return new(PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedOam),
             new RenderLayer[] { layer }, GameplayRenderDefinitions.ObjectSelection,
             SnesPpuLayout.MaximumMasterBrightness);

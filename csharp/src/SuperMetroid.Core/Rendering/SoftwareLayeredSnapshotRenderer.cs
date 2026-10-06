@@ -52,18 +52,10 @@ public static class SoftwareLayeredSnapshotRenderer
                     }
                     break;
                 case BgSubscreenAddRenderLayer sub:
-                    Rgba32[] subscreen = sub.FourBpp
-                        ? SnesBgTilemapRenderer.Render4BppViewport(memory.Vram, memory.Cgram,
-                            sub.TilemapWord, sub.CharacterWord, 0, sub.VerticalScroll, 256, 224, 32, 32)
-                        : SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
-                            sub.TilemapWord, sub.CharacterWord, rowCount: 28, transparentColorZero: true);
+                    Rgba32[] subscreen = SampleSubscreen(memory, sub, null);
                     if (sub.IncludeObjects)
                     {
-                        Rgba32[] high = sub.FourBpp
-                            ? SnesBgTilemapRenderer.Render4BppViewport(memory.Vram, memory.Cgram,
-                                sub.TilemapWord, sub.CharacterWord, 0, sub.VerticalScroll, 256, 224, 32, 32, priority: true)
-                            : SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
-                                sub.TilemapWord, sub.CharacterWord, rowCount: 28, transparentColorZero: true, priority: true);
+                        Rgba32[] high = SampleSubscreen(memory, sub, true);
                         for (int i = 0; i < subscreen.Length; i++)
                             if (objects.Pixels[i].A != 0 && (subscreen[i].A == 0
                                 || objects.Priorities[i] >= (high[i].A != 0 ? 3 : 2)))
@@ -118,7 +110,8 @@ public static class SoftwareLayeredSnapshotRenderer
                         r.Bg2WidthTiles, r.Bg2HeightTiles, r.Bg2TilemapWord,
                         r.Bg1CharacterWord, r.Bg2CharacterWord, r.HudCharacterWord,
                         snapshot.ObjectSelection, r.MainScreenLayers, gameplayOutputBuffer,
-                        r.Bg2FirstScanline, r.Bg2EndScanline, r.Windows, r.MainScreenWindowMask, r.Bg2Mosaic);
+                        r.Bg2FirstScanline, r.Bg2EndScanline, r.Windows, r.MainScreenWindowMask, r.Bg2Mosaic,
+                        gameplay.MainScreenLayersByLine);
                     break;
                 case Bg2BppViewportRenderLayer bg:
                     Rgba32[] plane = SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
@@ -224,6 +217,25 @@ public static class SoftwareLayeredSnapshotRenderer
         return output;
     }
 
+    private static Rgba32[] SampleSubscreen(SoftwarePpuSnapshotMemory memory,
+        BgSubscreenAddRenderLayer layer, bool? priority)
+    {
+        bool perLine = !layer.Scrolls.IsEmpty;
+        Rgba32[] source = layer.FourBpp
+            ? SnesBgTilemapRenderer.Render4BppViewport(memory.Vram, memory.Cgram,
+                layer.TilemapWord, layer.CharacterWord, 0, perLine ? (ushort)0 : layer.VerticalScroll,
+                256, perLine ? 256 : 224, 32, 32, priority: priority)
+            : SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
+                layer.TilemapWord, layer.CharacterWord, rowCount: perLine ? 32 : 28,
+                transparentColorZero: true, priority: priority);
+        if (!perLine) return source;
+        var result = new Rgba32[256 * 224];
+        for (int y = 0; y < 224; y++)
+        for (int x = 0; x < 256; x++)
+            result[y * 256 + x] = source[((y + layer.Scrolls[y].Y) & 255) * 256 +
+                ((x + layer.Scrolls[y].X) & 255)];
+        return result;
+    }
     private static byte AddFixed(byte component, byte addend)
     {
         int reduced = (component * 31 + 127) / 255;

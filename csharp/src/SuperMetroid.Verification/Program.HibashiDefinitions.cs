@@ -67,6 +67,7 @@ internal static partial class Program
                 $"Hibashi instruction mechanics word $A6:{definition.Address:X4}");
         }
 
+        var executedOperands = new HashSet<ushort>();
         var programGuard = new HibashiProgramReadGuard(rom);
         var programSystem = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
@@ -101,23 +102,32 @@ internal static partial class Program
         // proves both actors remain parked on their terminal sleep commands afterward.
         for (int frame = 0; frame < 70; frame++)
         {
+            ushort previousGraphicsSprite = programGraphics.SpritemapPointer;
             process.Invoke(programSystem, graphicsArguments);
+            if (programGraphics.CurrentInstruction == 0x8da7)
+                AssertEqual(previousGraphicsSprite, programGraphics.SpritemapPointer,
+                    "Hibashi terminal callback retains the last graphics sprite");
+            else
+                VerifyExecutedEnemySelector(rom, programGraphics, executedOperands);
             process.Invoke(programSystem, hitboxArguments);
+            VerifyExecutedEnemySelector(rom, programHitbox, executedOperands);
         }
 
         AssertEqual(
             HibashiInstructionProgramDefinitions.PresentationWordCount,
-            programGuard.ObservedPresentationWords.Count,
-            "all live Hibashi spritemap words remain cartridge reads");
+            executedOperands.Count,
+            "all Hibashi selectors execute and match cartridge operands");
         for (int index = 0;
              index < HibashiInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 HibashiInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(programGuard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Hibashi presentation word $A6:{address:X4}");
+            AssertTrue(executedOperands.Contains(address),
+                $"production execution covers Hibashi presentation word $A6:{address:X4}");
         }
+        AssertEqual(0, programGuard.ObservedPresentationWords.Count,
+            "compiled presentation selectors require no runtime ROM reads");
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids every compiled Hibashi mechanics byte");
         AssertEqual(HibashiDefinitions.EruptionSoundEffect,
@@ -158,7 +168,7 @@ internal static partial class Program
         Console.WriteLine(
             "Hibashi definitions: 44 physical words, all 22 real activity-frame " +
             "hitboxes, 50 compiled instruction words, and both production programs " +
-            "pass with mechanics reads forbidden; 24 spritemap words remain live.");
+            "pass with runtime ROM reads forbidden; 24 executed selectors match the cartridge.");
     }
 
     private static int ProbeHibashiInstructionMechanicsAllocation()

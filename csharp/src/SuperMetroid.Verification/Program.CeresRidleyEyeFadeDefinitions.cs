@@ -34,7 +34,7 @@ internal static partial class Program
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = new CeresRidleyEyeFadeReadGuard(rom);
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem { CeresRidleyColors = RetailPresentationFixture().CeresRidleyColors };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         var cgram = new SnesCgram();
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);

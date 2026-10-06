@@ -39,7 +39,7 @@ internal static class BackgroundTransferClosedContractDefinitions
             "Public construction requires and independently copies all four nonnull explosion fragments of the exact native transfer length. Fragment bounds-checks the four exclusive IDs. This does not certify other ending properties, clocks, scene ordering, transparency, upload destinations or pixels."),
         new("SuperMetroid.Core.Assets.GunshipLiftoffArtworkCatalog", "gunship-complete-five-takeoff-transfers", ["Resolve", "TryResolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/GunshipLiftoffArtworkCatalog.cs", "A5D9226FD3EE4FBADE070DA138D29A685CB3462920CAD725301E01936AE0D8AB"),
-             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "D60B0DED6A14D23F5962FD93DA6AF5B48D83524D344A3ABB31548334EA2492E4")],
+             new("csharp/src/SuperMetroid.Core/Hardware/IVramAssetProvider.cs", "73DCE6788B0BB9B1549CF04466AE14CB8AABA3AD9FCC2738E188ABBA2F2F8D44")],
             "Construction requires all five 1024-byte takeoff atlases and clones the frame array. Typed Resolve selects only those five asset IDs; legacy TryResolve validates the exact byte count for owned sources and returns false for others. Caller handoff, destinations, takeoff motion and pixels are not certified."),
     ];
 

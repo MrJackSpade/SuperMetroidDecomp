@@ -6,10 +6,10 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.ResourceAudit;
 
-internal readonly record struct ProviderIndexDomain(int First, int Count, int Stride = 1)
+internal readonly record struct ProviderIndexDomain(int First, int Count, int Stride = 1, int? Additional = null, int? AdditionalMaximum = null)
 {
-    internal bool Contains(int value) => value >= First && (value - First) % Stride == 0 && (value - First) / Stride < Count;
-    internal string Description => $"{First}..{First + (Count - 1) * Stride}, stride {Stride}";
+    internal bool Contains(int value) => (Additional is int extra && value >= extra && value <= (AdditionalMaximum ?? extra)) || value >= First && (value - First) % Stride == 0 && (value - First) / Stride < Count;
+    internal string Description => $"{First}..{First + (Count - 1) * Stride}, stride {Stride}" + (Additional is int extra ? $" or {extra}..{AdditionalMaximum ?? extra}" : "");
 }
 
 /// <summary>Finite index domains from the source-reviewed loader/selector contracts.</summary>
@@ -117,7 +117,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("IntroEyeTilemapPresentation", "FrameWords", "index") => new(0, IntroEyeTilemapFormat.FrameCount),
         ("CeresDoorVisualCatalog", "LoadAnimationColors", "row") => new(0, CeresDoorVisualRomData.AnimationRowCount),
         ("CeresDoorVisualCatalog", "LoadMode7DoorFrame", "frame") => new(0, CeresDoorVisualRomData.Mode7FrameCount),
-        ("BeamTileCatalog", "Resolve", "asset") => new((int)VramAssetId.BeamPowerTiles, BeamTileAtlasDefinitions.SelectionCount),
+        ("BeamTileCatalog", "Resolve", "asset") => new((int)VramAssetId.BeamPowerTiles, BeamTileAtlasDefinitions.SelectionCount, Additional: (int)VramAssetId.BeamChainsawTiles, AdditionalMaximum: (int)VramAssetId.BeamSpacetimeTiles),
         ("ChargeFlarePlacementCatalog", "Resolve", "direction") => new(0, ChargeFlarePlacementDefinitions.DirectionCount),
         ("ChargeFlareSpriteCatalog", "Draw", "selector") => new(0, ChargeFlareSpriteDefinitions.Selectors.Length),
         ("GrappleSpriteCatalog", "Segment", "frame") => new(0, GrappleSpriteDefinitions.SegmentAttributeAddresses.Length),

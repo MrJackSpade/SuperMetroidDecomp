@@ -15,6 +15,7 @@ internal static partial class Program
             new byte[256], new ushort[256], new byte[8]);
         var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 128, YPosition = 128 };
         samus.RefreshCollisionRadii(bus);
+        PrepareRetailSamusFixture(samus);
         SamusGrappleMovement.BeginFiring(bus, samus);
         AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 5), 1),
             samus.LiquidPhysics.SoundRequests.Single(), "grapple firing starts native library-one sound five once");

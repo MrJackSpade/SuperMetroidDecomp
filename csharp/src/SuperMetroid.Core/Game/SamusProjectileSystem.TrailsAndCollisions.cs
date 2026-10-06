@@ -549,7 +549,7 @@ public sealed partial class SamusProjectileSystem
         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
         {
             RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
-            if (!RunShotReaction(level, slot, block, roomPlms, out bool endSpan))
+            if (!RunShotReaction(level, slot, block, roomPlms, out bool endSpan, horizontalMovement: false))
                 everyBlockSolid = false;
             if (endSpan) return true;
         }
@@ -561,7 +561,8 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         RoomCollisionBlock block,
         RoomPlmSystem? roomPlms,
-        out bool endSpan)
+        out bool endSpan,
+        bool horizontalMovement = true)
     {
         endSpan = false;
         // `$94:9411/$9447` are shared by shot, bomb, grapple, collision, and inside
@@ -573,6 +574,24 @@ public sealed partial class SamusProjectileSystem
         if (resolvedBlock is null)
             return false;
         block = resolvedBlock.Value;
+        if (block.CollisionType == RoomCollisionType.Slope && block.Bts.SlopeShape >= 5)
+        {
+            // $94:A147/A15E dispatch non-square slopes through the projectile's
+            // perpendicular center block, not every row/column touched by its radius.
+            int centerBlock = horizontalMovement ? slot.YPosition >> 4 : slot.XPosition >> 4;
+            int slopeBlock = horizontalMovement ? block.Index / level.WidthInBlocks : block.Index % level.WidthInBlocks;
+            if (centerBlock != slopeBlock) return false;
+
+            int x = slot.XPosition & 15;
+            int y = slot.YPosition & 15;
+            if (block.Bts.SlopeFlipsHorizontally) x ^= 15;
+            if (block.Bts.SlopeFlipsVertically) y ^= 15;
+            bool hit = SlopeHeightDefinitions.Read(block.Bts.SlopeShape, x) <= y;
+            // $94:A5DC/A5DE clears both scan counters on a surface hit. This overrides
+            // earlier air rows and ends the span; Wave still discards collision carry.
+            endSpan = hit;
+            return hit;
+        }
 
         // Chozo orbs and concealed item blocks are type-$C/BTS-$45. Their special
         // reaction does not use the ordinary BTS 0..F shot-block table: header $EED3

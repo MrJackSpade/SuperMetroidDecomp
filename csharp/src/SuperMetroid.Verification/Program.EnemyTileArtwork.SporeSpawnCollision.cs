@@ -20,6 +20,7 @@ internal static partial class Program
 
         var installed = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installed,
             new FrontendCartridgeReadGuard(rom));
         var walker = typeof(RoomEnemySystem).GetMethod(
@@ -30,6 +31,7 @@ internal static partial class Program
             {
                 Bank = DraygonBg2FrameDefinitions.Bank,
             };
+        // The test-only cartridge walker supplies an independent reference.
         installedSlot.EnemyDefinitionPointer = RoomEnemySystem.SporeSpawnDefinition;
         installedSlot.XPosition = 0x100;
         installedSlot.YPosition = 0x100;

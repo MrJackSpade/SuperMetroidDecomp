@@ -23,4 +23,10 @@
   <Target Name="AuditQueuedVramDma" AfterTargets="Build" Condition="'$(RunQueuedVramDmaAudit)' == 'true'">
     <Exec Command="dotnet &quot;$(TargetPath)&quot; --vram-dma-audit --root &quot;$(MSBuildProjectDirectory)/../../..&quot;" />
   </Target>
+  <Target Name="AuditEnemyVisualPrograms" AfterTargets="Build" Condition="'$(RunEnemyVisualProgramAudit)' == 'true'">
+    <Exec Command="dotnet &quot;$(TargetPath)&quot; --enemy-visual-program-audit &quot;$(MSBuildProjectDirectory)/../../..&quot; &quot;$(MSBuildProjectDirectory)/../../../out/enemy-visual-program-audit.json&quot;" />
+  </Target>
+  <Target Name="AuditDoorCatalog" AfterTargets="Build" Condition="'$(RunDoorCatalogAudit)' == 'true'">
+    <Exec Command="dotnet &quot;$(TargetPath)&quot; --door-catalog-audit &quot;$(MSBuildProjectDirectory)/../../..&quot; &quot;$(MSBuildProjectDirectory)/../../../out/door-catalog-audit.json&quot;" />
+  </Target>
 </Project>

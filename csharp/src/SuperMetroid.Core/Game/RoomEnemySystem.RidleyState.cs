@@ -60,6 +60,7 @@ public enum RidleyAiFunction : ushort
     NorfairCarryMoveToAnchor = 0xbbc4,
     NorfairCarryRise = 0xbbf1,
     NorfairCarryRelease = 0xbc2e,
+    /// <summary>$A6:BD4E, Function_Ridley_DodgingPowerBomb: recover from a lunge while a bomb is armed.</summary>
     NorfairReturnToArena = 0xbd4e,
 
     // The following functions are shared with Ceres's Baby retrieval route but are only
@@ -76,6 +77,8 @@ public enum RidleyAiFunction : ushort
     NorfairDeathImpact = 0xc5a8,
     NorfairDeathWait = 0xc5c8,
     NorfairDeathFinish = 0xc5da,
+    /// <summary>$A6:C600: terminal RTS selected by $C5FD after drops, music and deletion.</summary>
+    NorfairDeathComplete = 0xc600,
 }
 
 /// <summary>
@@ -125,6 +128,8 @@ public sealed class RidleyEnemyState
     public ushort MaximumY { get; internal set; }
     public ushort MinimumX { get; internal set; }
     public ushort MaximumX { get; internal set; }
+    /// <summary>Nonzero predicate of $A6:D86B's hitARoomBoundary, consumed by $A6:BABC.</summary>
+    public bool HitRoomBoundary { get; internal set; }
     public ushort HorizontalVelocity { get; internal set; }
     public ushort VerticalVelocity { get; internal set; }
     public ushort WingFrame { get; internal set; }
@@ -147,6 +152,8 @@ public sealed class RidleyEnemyState
     public ushort FireballBaseYPosition { get; internal set; }
     public ushort FireballXVelocity { get; internal set; }
     public ushort FireballYVelocity { get; internal set; }
+    /// <summary>$7E:7800, independent swoop phase countdown used by $A6:B441-$B594.</summary>
+    public ushort SwoopPhaseTimer { get; internal set; }
     public ushort SwoopAngleAccumulator { get; internal set; }
     public ushort SwoopSpeedMagnitude { get; internal set; }
 

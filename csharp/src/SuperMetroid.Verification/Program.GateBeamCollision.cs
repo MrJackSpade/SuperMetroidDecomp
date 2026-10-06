@@ -11,7 +11,7 @@ internal static partial class Program
         VerifyGateScanTermination();
         VerifyHorizontalWaveDoorBands();
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -21,8 +21,8 @@ internal static partial class Program
         var level = runtime.LevelData!;
         var plms = runtime.Plms;
         for (int warm = 0; warm < 2; warm++) plms.Step(bus, level, runtime.BackgroundStreamer!, 0, 224, 0);
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = CreateProjectileFixture();
+        var bombs = CreateBombFixture();
         ushort input = (ushort)SnesButton.X;
         bombs.StepFrame(bus, level, samus, input, input);
         shots.StepFrame(bus, level, samus, input, input, 0, 224, bombs, roomPlms: plms);

@@ -45,7 +45,7 @@ internal static partial class Program
 
         foreach (KraidPaletteConsumer consumer in Enum.GetValues<KraidPaletteConsumer>())
         {
-            ushort[] expected = CaptureKraidPaletteConsumer(rom, null, consumer);
+            ushort[] expected = ReferenceKraidPaletteConsumer(rom, consumer);
             var guard = new KraidPaletteSourceGuard(rom);
             ushort[] actual = CaptureKraidPaletteConsumer(guard, stock, consumer);
             AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -87,7 +87,7 @@ internal static partial class Program
             (KraidPaletteConsumer.DeathArm, 112),
         })
         {
-            ushort[] baseline = CaptureKraidPaletteConsumer(rom, null, consumer);
+            ushort[] baseline = ReferenceKraidPaletteConsumer(rom, consumer);
             var guard = new KraidPaletteSourceGuard(rom);
             ushort[] changed = CaptureKraidPaletteConsumer(guard, edited, consumer);
             AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -116,8 +116,60 @@ internal static partial class Program
             "Kraid RGB5 channels outside native precision are rejected");
     }
 
+    // Independent palette writes from pinned sm_a7.c. This fixture's zero health
+    // thresholds select band eight at 1000 HP; odd hurt frames select the flash band.
+    private static ushort[] ReferenceKraidPaletteConsumer(
+        ISnesAddressSpace rom, KraidPaletteConsumer consumer)
+    {
+        var colors = new ushort[SnesCgram.ColorCount];
+        switch (consumer)
+        {
+            case KraidPaletteConsumer.BackdropLoad:
+            case KraidPaletteConsumer.BackdropFade:
+                // Fade step thirteen assigns the target exactly.
+                Copy(0xa786c7, 96);
+                break;
+            case KraidPaletteConsumer.InitialTargetLoad:
+                Copy(0xa7aaa6, 176);
+                break;
+            case KraidPaletteConsumer.HealthNormal:
+            case KraidPaletteConsumer.HealthFlash:
+                int offset = consumer == KraidPaletteConsumer.HealthNormal ? 256 : 0;
+                Copy(0xa7b3d3 + offset, 112);
+                Copy(0xa7b513 + offset, 240);
+                break;
+            case KraidPaletteConsumer.EyeUnglow:
+                // Start with the glow's raised red/green channels so this is a valid
+                // contraction step, rather than subtracting from a black synthetic eye.
+                for (int eye = 0; eye < 3; eye++)
+                {
+                    ushort target = Word(0xa7b3d3 + 256 + (eye + 1) * 2);
+                    ushort current = 0x03ff;
+                    if ((current & 31) != (target & 31)) current--;
+                    if ((current & 0x03e0) != (target & 0x03e0)) current -= 32;
+                    colors[113 + eye] = current;
+                }
+                break;
+            case KraidPaletteConsumer.DeathArm:
+                Copy(0xa7b4f3, 112);
+                break;
+            default:
+                throw new InvalidDataException($"Unknown Kraid reference consumer {consumer}.");
+        }
+        return colors;
+
+        ushort Word(int address) =>
+            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+
+        void Copy(int source, int destination)
+        {
+            for (int color = 0; color < 16; color++)
+                colors[destination + color] = Word(source + color * 2);
+        }
+    }
+
     private static ushort[] CaptureKraidPaletteConsumer(
-        ISnesAddressSpace bus, EnemyTileArtworkCatalog? artwork,
+        ISnesAddressSpace bus, EnemyTileArtworkCatalog artwork,
         KraidPaletteConsumer consumer)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -152,6 +204,8 @@ internal static partial class Program
                     .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies)(body, state);
                 break;
             case KraidPaletteConsumer.EyeUnglow:
+                for (int eye = 0; eye < 3; eye++)
+                    cgram.SetColor(113 + eye, 0x03ff);
                 typeof(RoomEnemySystem).GetMethod("UnglowKraidEye", flags)!
                     .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies)(body, state);
                 break;

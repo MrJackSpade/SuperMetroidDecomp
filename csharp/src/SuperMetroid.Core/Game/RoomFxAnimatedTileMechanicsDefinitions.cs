@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Game;
 public static class RoomFxAnimatedTileMechanicsDefinitions
 {
     /// <summary>Direct object-to-header dispatch; unknown bank87 identities return null.</summary>
-    /// <remarks>Six named sand/liquid/weather objects select native instruction starts,
+    /// <remarks>Seven named spike/sand/liquid/weather objects select native instruction starts,
     /// transfer sizes and encoded VRAM destinations. Each field and the full ushort
     /// identity domain are independently verified against NTSC J/U v1.0 and pinned
     /// bank_87.asm (362be646929cf8e483f692b73a6561cfc2dc1d0d).
@@ -21,6 +21,11 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
     /// nor frames are retained in a generated table.</remarks>
     private static RoomFxAnimatedTileObjectDefinition? SelectObject(ushort objectPointer) => objectPointer switch
     {
+        AnimatedTileObjectPointers.HorizontalSpikes => new(AnimatedTileObjectPointers.HorizontalSpikes,
+            instructionPointer: 0x817e,
+            transferByteCount: 0x0080,
+            encodedVramDestination: 0x3d60,
+            frameCount: 4, frameDuration: 8),
         AnimatedTileObjectPointers.MaridiaSandCeiling => new(AnimatedTileObjectPointers.MaridiaSandCeiling,
             instructionPointer: 0x8221,
             transferByteCount: 0x0040,
@@ -54,11 +59,12 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
         _ => null,
     };
 
-    /// <summary>Enumerates the six supported objects in their original order without stored headers.</summary>
+    /// <summary>Enumerates the seven supported objects without stored headers.</summary>
     public static IEnumerable<RoomFxAnimatedTileObjectDefinition> All
     {
         get
         {
+            yield return SelectObject(AnimatedTileObjectPointers.HorizontalSpikes)!;
             yield return SelectObject(AnimatedTileObjectPointers.MaridiaSandCeiling)!;
             yield return SelectObject(AnimatedTileObjectPointers.MaridiaSandFalling)!;
             yield return SelectObject(AnimatedTileObjectPointers.Lava)!;
@@ -99,8 +105,8 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     }
 
     /// <summary>Bounded four-byte frame cursors with one native duration per object.</summary>
-    /// <remarks>The six simple native loops at $87:8221,8235,8293,82B1,82CF,82ED
-    /// have counts4,4,5,5,5,3. Lava waits13 ticks; all others wait10.
+    /// <remarks>The seven simple native loops at $87:817E,8221,8235,8293,82B1,82CF,82ED
+    /// have counts4,4,4,5,5,5,3. Spikes wait8 ticks, lava13, and all others10.
     /// Native timed entries consist of duration then artwork-source operand; goto
     /// follows the last entry. Both cursor and duration mappings are independently
     /// verified against NTSC J/U v1.0 and pinned bank_87.asm

@@ -211,6 +211,12 @@ public sealed partial class FileSelectMenuState
                     : 0;
                 mapPresentation.FileSelect.DrawHelmet(oam, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), slot);
             }
+            if (Phase == FileSelectPhase.CopyConfirm)
+            {
+                (int shape, ushort y) = FileCopyArrowDefinitions.Select(operationSourceSlot, operationDestinationSlot);
+                foreach (CompiledSpritePart part in FileCopyArrowDefinitions.Parts(shape))
+                    oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes, FileCopyArrowDefinitions.OriginX, y);
+            }
             oam.FinalizeFrame();
             return;
         }

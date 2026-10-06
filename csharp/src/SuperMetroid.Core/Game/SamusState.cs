@@ -133,6 +133,12 @@ public sealed partial class SamusState
     public ushort Health { get; set; } = 99;
 
     /// <summary>
+    /// WRAM $0A12, PreviousEnergyHurtCheck: initialized from Energy by $91:E164,
+    /// then compared and refreshed after Samus/projectile drawing by $90:EAD7-EAFD.
+    /// </summary>
+    public ushort PreviousHealthForHurtCheck { get; set; } = 99;
+
+    /// <summary>
     /// Fractional energy word consumed by `$90:E9CE` before the whole-energy subtraction.
     /// Ordinary HUD/debug output shows only <see cref="Health"/>, but lava/acid damage uses
     /// this word's borrow so sub-energy cannot be rounded independently on every frame.

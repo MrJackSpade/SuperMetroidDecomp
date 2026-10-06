@@ -6,6 +6,7 @@ static const uint XrayGameplayHudMapWord = 22528;
 // D3D11GameplaySubscreenKind header contract.
 static const uint SubscreenCapturedBg3 = 1;
 static const uint SubscreenGameplayBg2 = 2;
+static const uint SubscreenGameplayBg2AndCapturedBg3 = 3;
 uint2 XrayBackground(uint map, uint chars, uint2 size, uint2 position, bool fourBit, bool opaqueZero)
 {
     position &= size * 8 - 1;
@@ -39,22 +40,23 @@ uint XrayGameplay(uint2 screen)
     else
     {
     uint4 scan = ScanlineParameters[screen.y];
+    uint mainScreen = scan.z >> 16;
     uint2 bg2Screen = screen;
     if (Reserved27 > 1) bg2Screen -= bg2Screen % Reserved27;
     bool inside = screen.x >= (scan.z & 255) && screen.x <= ((scan.z >> 8) & 255);
     uint source = 32;
     int rank = -1;
-    if ((TransparentZero == 0 || inside) && (PriorityFilter & 2) != 0)
+    if ((TransparentZero == 0 || inside) && (mainScreen & 2) != 0)
     {
         uint2 bg = XrayBackground((uint)MatrixA, CharacterWord, uint2(MapWidth,MapHeight), bg2Screen + scan.xy, true, false);
         XrayInsert(bg, bg.y != 0 ? 5 : 2, 2, winner, rank, source);
     }
-    if ((TransparentZero == 0 || !inside) && (PriorityFilter & 1) != 0)
+    if ((TransparentZero == 0 || !inside) && (mainScreen & 1) != 0)
     {
         uint2 bg = XrayBackground(XrayGameplayBg1MapWord, TilemapWord, uint2(64,32), screen + uint2(HorizontalScroll,VerticalScroll), true, false);
         XrayInsert(bg, bg.y != 0 ? 6 : 3, 1, winner, rank, source);
     }
-    if ((PriorityFilter & 16) != 0)
+    if ((mainScreen & 16) != 0)
     {
         uint palette;
         uint2 obj = ResolveObjectWithPalette(screen, palette);
@@ -64,11 +66,14 @@ uint XrayGameplay(uint2 screen)
     if (!inside && (Level & source) != 0)
     {
         uint sub = 0;
-        if (OffsetX != 0 && Reserved3 == SubscreenGameplayBg2)
+        if (OffsetX != 0 && (Reserved3 == SubscreenGameplayBg2 || Reserved3 == SubscreenGameplayBg2AndCapturedBg3))
             sub = XrayBackground((uint)MatrixA, CharacterWord, uint2(MapWidth,MapHeight), bg2Screen + scan.xy, true, false).x;
-        if (OffsetX != 0 && Reserved3 == SubscreenCapturedBg3 && screen.y >= (uint)CenterY)
-            sub = XrayBackground((uint)MatrixC, (uint)MatrixD, uint2(32,(uint)CenterX),
-                screen + uint2(scan.w & 65535, scan.w >> 16), false, false).x;
+        if (OffsetX != 0 && (Reserved3 == SubscreenCapturedBg3 || Reserved3 == SubscreenGameplayBg2AndCapturedBg3) && screen.y >= (uint)CenterY)
+        {
+            uint2 bg3 = XrayBackground((uint)MatrixC, (uint)MatrixD, uint2(32,(uint)CenterX),
+                screen + uint2(scan.w & 65535, scan.w >> 16), false, false);
+            if ((bg3.x >> 24) != 0 && (bg3.y != 0 || (sub >> 24) == 0)) sub = bg3.x;
+        }
         bool useSub = OffsetX != 0 && (sub >> 24) != 0;
         int3 other = useSub ? int3(Unpack(sub) >> 3) : int3(AddR,AddG,AddB);
         int3 value = int3(Unpack(winner) >> 3);

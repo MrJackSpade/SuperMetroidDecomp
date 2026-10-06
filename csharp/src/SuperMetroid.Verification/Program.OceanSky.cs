@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifyOceanSky()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -34,7 +34,7 @@ internal static partial class Program
         for (ushort cameraY = 0; cameraY <= 768; cameraY += 8)
         {
             runtime.ScrollingSky!.ProcessFrame(cameraY, false, writes, runtime.ActiveRoom.State.MainCallback);
-            writes.DrainTo(runtime.Vram, ReferenceMutableMemory.From(bus));
+            writes.DrainTo(runtime.Vram, ReferenceMutableMemory.From(bus), runtime);
             if (cameraY < 256) continue;
             for (int line = 32; line < 224; line += 8)
             {

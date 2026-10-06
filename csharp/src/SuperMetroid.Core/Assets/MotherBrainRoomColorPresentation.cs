@@ -82,6 +82,18 @@ public sealed class MotherBrainRoomColorPresentation
         }
     }
 
+    /// <summary>$AD:F209, FadeOutBackgroundForBabyMetroidDeathSequence: immediately blacks
+    /// out colors 1..E of BG palettes 3 and 5, the same slices later restored by $AD:F24B.</summary>
+    public static void ApplyBabyMetroidDeathBlackout(SnesCgram cgram)
+    {
+        Ensure.NotNull(cgram);
+        for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination; index++)
+        {
+            cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsFirstColor + index, 0);
+            cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsSecondColor + index, 0);
+        }
+    }
+
     /// <summary>Applies one room-light image after the Baby Metroid cutscene.</summary>
     public void ApplyRecoveryLights(SnesCgram cgram, int frame)
     {

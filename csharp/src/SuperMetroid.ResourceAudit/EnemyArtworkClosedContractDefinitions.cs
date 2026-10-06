@@ -6,7 +6,8 @@ internal static class EnemyArtworkClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.EnemyTileArtworkCatalog", "installed-enemy-sheets-palettes-and-dma", ["LoadTo", "LoadPaletteTo", "TryResolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.cs", "C8732928315EFF3F122E428031E46692C64B2B63F324818273B2CBC6A3A8D83A"),
+            // #1172: reviewed schema 68 -> 69 bump; provider and DMA routing are unchanged.
+            [new("csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.cs", "EAC49F6D93853D57533C08DA6D0011D482C2B3BF58812000C7D8EAA35E57776F"),
              new("csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.Construction.cs", "01CDA4CA13BE7A3CA179F92B2A27FB4250BDFF5F632D6428F6C25C041C927F83"),
              new("csharp/src/SuperMetroid.Core/Assets/EnemyTileSourceDefinitions.cs", "4169C1F970535F5D03B6BBCCEAB32C50C41FB9CDB660F12672E7CB1AE4CA4DBE"),
              new("csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.cs", "CEF2D6749BB7759E33E6E6C97954FD0BDD89E42686EF681160A7D114CD01D536"),
@@ -19,7 +20,7 @@ internal static class EnemyArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileArtwork.cs", "EEDA9FFC087B4CFDB12BF640D8AEE275DCD02E18309A69B6ADB67693B96EEADE"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeTileRomData.cs", "DF8836E127366B910D5649CE661AFA7F33554113B28D4A126745013489B664CA"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresEscapeOverlayTilemapCatalog.cs", "5F76BC5D3BACA269E5BC4AAD2F21848CDF4D9E8380D3DB4199A8D1795E79C052"),
-             new("csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs", "99CD362BA2DEA1F590B56029809F41259DA65AAB98F7ACABA9DDD467FDC9A2D2"),
+             new("csharp/src/SuperMetroid.Core/Assets/TorizoInstructionVramArtwork.cs", "E713CC6BBF734DD700CBE4397EF8D81ABEDF19299DB65A359453DFC1AEB43FBC"),
              new("csharp/src/SuperMetroid.Core/Assets/TorizoInstructionTileRomData.cs", "10F23555CAF58BB4A559874B08847132683CB1EB1487B3BF51C6B381F93286F1"),
              new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs", "22089C1DDF1302D2F523E73799DBA8E522CD1E932B9AA5E19B81C85A47837AE3"),
              new("csharp/src/SuperMetroid.Core/Game/CeresRidleyPaletteRomData.cs", "20CB1E292CC94F8BB30D9F237F148789E3E165F58BD116D5259990370C9E17CE")],

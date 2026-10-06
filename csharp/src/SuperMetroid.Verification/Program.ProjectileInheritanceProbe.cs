@@ -102,7 +102,7 @@ internal static partial class Program
     private static void VerifyProjectileInheritanceRuntime(ushort weapon)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -137,6 +137,8 @@ internal static partial class Program
         DebuggerObjectGraphSerializer.Serialize(stateStream, runtime);
         stateStream.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(stateStream);
+        // The host rebinds nonserialized presentation assets after debugger restore.
+        runtimeFixtureBindings.Value(restored);
         runtime.StepFrame((ushort)((ushort)SnesButton.Right | runtime.ControllerBindings.Shoot));
         restored.StepFrame((ushort)((ushort)SnesButton.Right | restored.ControllerBindings.Shoot));
         var shot = runtime.Projectiles!.Slots.First(slot => slot.IsActive);

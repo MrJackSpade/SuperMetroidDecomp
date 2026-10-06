@@ -52,8 +52,8 @@ internal static class PauseMenuLayout
     public const int DisabledEquipmentPaletteIndex = 3;
     /// <summary>OBSEL value installed by the pause-screen PPU setup.</summary>
     public const byte ObjectSelection = 0x01;
-    /// <summary>$82:C100 default caller palette for the pause-map marker, independently overridable by authored sprite parts.</summary>
-    public const ushort MapMarkerPaletteBits = 0x0600;
+    /// <summary>$82:B9C8 selects OBJ palette 7 for the Samus position indicator, independently overridable by authored sprite parts.</summary>
+    public const ushort MapMarkerPaletteBits = 0x0e00;
     /// <summary>
     /// Byte offset of the reserve-supply hundreds digit in the mutable equipment tilemap,
     /// matching <c>EquipmentScreenBG1Tilemap+$310</c> at $82:8FCE.

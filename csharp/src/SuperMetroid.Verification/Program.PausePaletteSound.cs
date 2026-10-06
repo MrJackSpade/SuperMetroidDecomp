@@ -11,7 +11,7 @@ internal static partial class Program
         if (!File.Exists(rom)) throw new FileNotFoundException("Pause palette integration requires the private ROM.", rom);
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(rom);
         var audio = new CartridgeAudioState();
-        var pause = new PauseMenuState(bus, new SamusState(), new Bank80SystemState(), AreaId.Crateria, 0, 0, audio);
+        var pause = CreateRetailPauseFixture(bus, new SamusState(), new Bank80SystemState(), AreaId.Crateria, 0, 0, audio);
         var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
         var player = new ManagedSpcPlayer();
         player.Upload(assets.GetUpload(AudioUploadAddresses.SpcEngine).Span);

@@ -39,8 +39,19 @@ internal static partial class Program
         // while still materializing a backing object on every access under a particular
         // compiler/runtime combination, so guard the actual production API rather than
         // assuming its source declaration is allocation-free.
-        long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
-        int checksum = 0;
+        _ = MeasurePoseDispatchAllocation(forbidden, out _);
+        long allocated = MeasurePoseDispatchAllocation(forbidden, out int checksum);
+        AssertTrue(checksum != 0, "Pose-dispatch allocation probe consumes live table values");
+        AssertEqual(0L, allocated,
+            "Warmed pose-dispatch lookups allocate no per-frame table storage");
+
+        Console.WriteLine("Pose dispatch: all 256 facing/movement/fallback/aim byte indexes match native with all ROM reads forbidden, including three adjacent-code records; warmed production lookups allocate nothing.");
+    }
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    private static long MeasurePoseDispatchAllocation(ISnesAddressSpace forbidden, out int checksum)
+    {
+        checksum = 0;
+        long before = GC.GetAllocatedBytesForCurrentThread();
         for (int index = 0; index < 65536; index++)
         {
             byte pose = unchecked((byte)(index % 253));
@@ -48,11 +59,6 @@ internal static partial class Program
             checksum += (byte)SamusState.ReadMovementType(forbidden, pose);
             checksum += SamusPoseDispatchDefinitions.ReadNoInputPose(pose);
         }
-        long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
-        AssertTrue(checksum != 0, "Pose-dispatch allocation probe consumes live table values");
-        AssertEqual(0L, allocated,
-            "Warmed pose-dispatch lookups allocate no per-frame table storage");
-
-        Console.WriteLine("Pose dispatch: all 256 facing/movement/fallback/aim byte indexes match native with all ROM reads forbidden, including three adjacent-code records; warmed production lookups allocate nothing.");
+        return GC.GetAllocatedBytesForCurrentThread() - before;
     }
 }

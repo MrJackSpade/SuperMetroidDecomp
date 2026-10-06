@@ -33,13 +33,9 @@ internal static partial class Program
             AssertEqual(expected[index], KraidHeadInstructionDefinitions.All[index], "Head command index");
             AssertEqual(expected[index], KraidHeadInstructionDefinitions.Resolve(expected[index].Pointer),
                 "Head exact-address resolution");
-            if (actual.Kind == KraidHeadInstructionKind.Frame)
-                AssertEqual(expected[index].Tilemap,
-                    KraidHeadInstructionDefinitions.ResolveFrameTilemap(rom, actual.Pointer), "Head frame tilemap");
-            else
-                AssertThrows<InvalidDataException>(
-                    () => KraidHeadInstructionDefinitions.ResolveFrameTilemap(rom, actual.Pointer),
-                    "Sound/terminal commands are not timed frames");
+            AssertEqual(Word(actual.Pointer + 2),
+                KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(rom, actual.Pointer),
+                "Growth selection reads the native raw word for frame, sound and terminal cursors");
             index++;
         }
         AssertEqual(expected.Count, index, "Head enumeration ends at native stream boundary");

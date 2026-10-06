@@ -259,7 +259,8 @@ public sealed partial class RoomEnemySystem
             return true;
         }
 
-        if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
+        if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex,
+                blocksPlasmaBeam: head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam)))
             return false;
 
         // The native callback tail-calls common no-death shot damage. In particular,
@@ -284,6 +285,10 @@ public sealed partial class RoomEnemySystem
         ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
         head.FlashTimer = unchecked((ushort)(hurtTime + 8));
         head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | 0x0002));
+        // The shared native no-death tail still grants Plasma's hit immunity.
+        // A surviving penetrating beam cannot damage this head again every frame.
+        if ((projectileType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) != 0)
+            head.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
         head.Health = damage >= head.Health
             ? (ushort)0
             : unchecked((ushort)(head.Health - damage));

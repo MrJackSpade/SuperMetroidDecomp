@@ -41,10 +41,14 @@ public sealed partial class SuperMetroidRuntime
         bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None,
         bool preventEscapeTimeout = false,
-        GameplayBasePaletteCatalog? initialPaletteArt = null)
+        GameplayBasePaletteCatalog? initialPaletteArt = null,
+        bool grantAllEquipment = false,
+        bool unlockTourian = false)
     {
         _addressSpace = addressSpace ?? throw new ArgumentNullException(nameof(addressSpace));
         InitialPaletteArt = initialPaletteArt;
+        GrantAllEquipmentEnabled = grantAllEquipment;
+        UnlockTourianEnabled = unlockTourian;
         PlayerInvincibilityEnabled = playerInvincibilityEnabled;
         InfiniteAmmoEnabled = infiniteAmmoEnabled;
         PreventEscapeTimeout = preventEscapeTimeout;
@@ -418,6 +422,24 @@ public sealed partial class SuperMetroidRuntime
 
     /// <summary>Ceiling and falling-sand character animation selected by the current room FX record.</summary>
     public RoomSandAnimatedTilesState SandAnimatedTiles { get; } = new();
+
+    private RoomSpikeAnimatedTilesState? _roomSpikes;
+
+    /// <summary>FX-selected horizontal spikes; older debugger states restart the absent owner at frame zero.</summary>
+    public RoomSpikeAnimatedTilesState RoomSpikes
+    {
+        get
+        {
+            if (_roomSpikes is null)
+            {
+                _roomSpikes = new();
+                if (ActiveRoom is { } room)
+                    _roomSpikes.LoadRoom(_addressSpace, room.State.FxPointer,
+                        ActiveDoor?.Pointer ?? 0, room.AreaIndex);
+            }
+            return _roomSpikes;
+        }
+    }
 
     /// <summary>Room-main owner for Maridia elevatube routine $8F:E2B6.</summary>
     public MaridiaElevatubeRoomMainState MaridiaElevatube { get; } = new();
@@ -1081,15 +1103,15 @@ public sealed partial class SuperMetroidRuntime
         LoadDebugGrapplePalette();
     }
 
-    internal void LoadDebugGrapplePalette()
+    internal void LoadDebugGrapplePalette() => LoadGrapplePalette();
+
+    private void LoadGrapplePalette()
     {
-        // Firing initialization selects beam-palette index two. Installed sessions use
-        // the same editable colors as ordinary gameplay; an unbound reference runner
-        // retains the native pointer-table lookup for cartridge comparison.
+        // Both ordinary HUD firing and debug entry select the installed native palette.
         (beamArtwork?.Palettes ?? throw new InvalidOperationException(
-            "Debug grapple palette requires installed beam artwork."))
-            .LoadTo(Cgram, 2);
-        Cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex - 1, 32657);
+            "Grapple palette requires installed beam artwork."))
+            .LoadTo(Cgram, SamusGrappleRomData.Palettes.FiringSelection);
+        Cgram.SetColor(SamusGrappleRomData.Palettes.FlareColorIndex, SamusGrappleRomData.Palettes.FlareColor);
     }
 
     /// <summary>
@@ -1220,6 +1242,7 @@ public sealed partial class SuperMetroidRuntime
         RunNmi(controllerInput, mainLoopRequestedNmi: true);
         Oam.BeginFrame();
         Oam.FinalizeFrame();
+        PublishDoorScrollingIrqNmiRequest();
     }
 
     /// <summary>
@@ -1351,6 +1374,7 @@ public sealed partial class SuperMetroidRuntime
         Func<ushort>? queueEchoSound = null,
         Action? checkLowHealth = null)
     {
+        ApplyTesterInventory();
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard =
             HostInfiniteAmmoFrameGuard.Begin(InfiniteAmmoEnabled, Samus);
         try
@@ -1406,6 +1430,11 @@ public sealed partial class SuperMetroidRuntime
         // message-box NMI wait does not execute that outer-loop HDMA pass.
         if (Camera is not null && !MessageBox.IsActive)
             RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
+
+        // Blast HDMA belongs to the outer frame, not Samus alpha. A statue carry
+        // replaces her handlers while the already-spawned blast continues normally.
+        if (Samus is { } hdmaSamus && !MessageBox.IsActive)
+            BombProjectiles.AdvancePowerBombHdma(_addressSpace, hdmaSamus, Controller1.Current);
 
         // The bank-$82 main loop calls GenerateRandomNumber at $82:894F on every accepted
         // main-loop pass, immediately after the bank-$88 HDMA-object handler and before it
@@ -1506,6 +1535,8 @@ public sealed partial class SuperMetroidRuntime
                 _pendingSaveStationCompletion = null;
             }
 
+            Plms.CompleteCollectibleMessage();
+
             // The final zero-radius close NMI returns directly to the suspended item-PLM
             // instruction list. Varia/Gravity immediately call their shared setup routine;
             // all other items simply continue the rest of this gameplay pass.
@@ -1547,7 +1578,8 @@ public sealed partial class SuperMetroidRuntime
                 TimeIsFrozen,
                 System.RandomNumber,
                 Enemies.FirefleaDarknessLevel,
-                powerBomb: BombProjectiles.PowerBombExplosion);
+                powerBomb: BombProjectiles.PowerBombExplosion,
+                liquidMotionAlreadyAdvanced: RoomLayer3Fx.Type is RoomFxType.Lava or RoomFxType.Acid);
             TourianStatues.StepDescent(this);
             if (RoomLayer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {
@@ -1559,7 +1591,7 @@ public sealed partial class SuperMetroidRuntime
                     Enemies.EarthquakeTimer | roomFxEarthquake.TimerBits));
             }
             if (Samus is not null && RoomLayer3Fx.Type is
-                    RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
+                    RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
                 RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);
         }
 
@@ -1584,7 +1616,10 @@ public sealed partial class SuperMetroidRuntime
         // therefore occupies its highest slots; Hyper Beam later takes the next free slot.
         // Running the room owner before the specialized Hyper Beam owner preserves that
         // ordering until both are consolidated behind one allocator.
-        if (Samus?.Xray.ArePaletteFxSuspended != true)
+        // Door destination drawing borrows this frame path, but native state $0B
+        // ($82:E737) does not call the palette-FX handler. Its colors must remain
+        // owned by the gradual room fade until the door transition releases them.
+        if (!Enemies.ElevatorDoorTransitionActive && Samus?.Xray.ArePaletteFxSuspended != true)
         {
             RoomPaletteFx.Step(
                 _addressSpace,
@@ -1614,7 +1649,6 @@ public sealed partial class SuperMetroidRuntime
         LastGrappleDrawingHandlerActive = false;
         LastGrappleBeamSpecificDrawingPath = false;
         LastGrappleFlareDrawn = false;
-        bool escapeTimerExpired = EscapeTimer.Process(NmiFrameCounter, PreventEscapeTimeout);
 
         PrepareEnemyFrame();
         // Host-disabled Samus movement has no alpha phase to wait for. Otherwise
@@ -1658,7 +1692,7 @@ public sealed partial class SuperMetroidRuntime
                 Samus.RefreshCollisionRadii(_addressSpace);
             // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
             // affects the next beta, not the animation already owned this frame.
-            bool stationaryScriptControlAtFrameStart = Samus.StationaryScriptControlLocked;
+            bool stationaryScriptControlLocked = Samus.StationaryScriptControlLocked;
             // Suit command $15 installs an empty beta, not just locked pose input.
             // Preserve the suspended movement pointer and all of its timers so command
             // $0B can resume it after the HDMA transformation (including Blue Suit).
@@ -1720,25 +1754,20 @@ public sealed partial class SuperMetroidRuntime
             // Stationary ball fallback selects command six, even when the special
             // hurt mover temporarily supplies nonzero horizontal speed.
             if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
-                Samus.Pose is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose)
+                Samus.Pose is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose or
+                    SamusPoseIds.SpringBallGroundRightPose or SamusPoseIds.SpringBallGroundLeftPose)
                 ProspectiveSamusFallbackPose = Samus.Pose;
 
-            // Neutral standing, spin, turn, hurt, crouch and falling definitions retain their current pose
-            // through fallback, but this is still a selected transition slot,
-            // not an absence of input work: the final pose-history epilogue must run.
-            // A matched same-pose table record still publishes nothing, as on cartridge.
-            if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
-                Samus.Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose or
-                    SamusPoseIds.FacingRightNormalPose or SamusPoseIds.FacingLeftNormalPose or
-                    SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose or
-                    SamusPoseIds.NeutralJumpTransitionRightPose or SamusPoseIds.NeutralJumpTransitionLeftPose or
-                    SamusPoseIds.TurningRightToLeftPose or SamusPoseIds.TurningLeftToRightPose or
-                    SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose or
-                    SamusPoseIds.CrouchingRightPose or SamusPoseIds.CrouchingLeftPose or
-                    SamusPoseIds.NormalLandingRightPose or SamusPoseIds.NormalLandingLeftPose or
-                    SamusPoseIds.ShinesparkWindupRightPose or SamusPoseIds.ShinesparkWindupLeftPose or
-                    SamusPoseIds.MorphBallFallingRightPose or SamusPoseIds.MorphBallFallingLeftPose)
-                ProspectiveSamusFallbackPose = Samus.Pose;
+            // $91:82D9 publishes the current pose when definition byte two is $FF
+            // or names that same pose. This still selects a transition slot: $91:EB88
+            // must shift history. Use the definition, not a partial pose list, so
+            // Space Jump, Screw Attack and spin landing retain the same contract.
+            if (GroundedSamusMovementEnabled && usePoseDefinitionFallback)
+            {
+                byte retainedFallback = Samus.ReadNoInputFallbackPose(_addressSpace);
+                if (retainedFallback == SamusMovementRomData.Poses.RetainCurrentPoseFallback || retainedFallback == Samus.Pose)
+                    ProspectiveSamusFallbackPose = Samus.Pose;
+            }
 
             // Zero input and an unmatched nonzero table chord both reach `$91:82D9` and
             // consult pose-definition byte two. A matched same-pose record does not. Running
@@ -1757,9 +1786,9 @@ public sealed partial class SuperMetroidRuntime
                     : Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
-            // Grounded Morph Ball is movement type four: its fallback selects command
-            // six regardless of residual speed. Spring Ball's type eight instead uses
-            // command one and retains its moving pose until base speed becomes zero.
+            // Grounded Morph Ball ($04) and grounded Spring Ball ($11) both select
+            // momentum command six, regardless of residual speed. Airborne ordinary
+            // Morph Ball ($08), not Spring Ball, selects deceleration command one.
             if (GroundedSamusMovementEnabled &&
                 (Samus.Pose is SamusPoseIds.MorphBallMovingRightPose or
                     SamusPoseIds.MorphBallMovingLeftPose or
@@ -1768,11 +1797,7 @@ public sealed partial class SuperMetroidRuntime
                 usePoseDefinitionFallback &&
                 ProspectiveSamusPose is null)
             {
-                ProspectiveSamusFallbackPose =
-                    Samus.Pose is SamusPoseIds.SpringBallMovingRightPose or SamusPoseIds.SpringBallMovingLeftPose &&
-                    Samus.HorizontalSpeed.BaseFixed != 0
-                    ? Samus.Pose
-                    : Samus.ReadNoInputFallbackPose(_addressSpace);
+                ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
             // On the shared fallback branch, pose-definition byte two returns standing aim `$03-$08` to `$01/$02` and
@@ -1911,6 +1936,11 @@ public sealed partial class SuperMetroidRuntime
                     {
                         Projectiles.CancelChargeForHudSelection();
                         Samus.ProjectileFlareCounter = 0;
+                        // Accepted HUD handlers restore suit colors even without a
+                        // charged beam. An already-active grapple is the native exception.
+                        if (Samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem ||
+                            Samus.Grapple.Phase == GrapplePhase.Inactive)
+                            Samus.LoadSuitPalette(_addressSpace, Cgram);
                     }
 
                     // The selected scope uses held Run, not Fire. Setup installs its
@@ -1936,7 +1966,8 @@ public sealed partial class SuperMetroidRuntime
                         Controller1.Current,
                         Controller1.NewlyPressed,
                         Plms,
-                        deferSamusOverlap: true);
+                        deferSamusOverlap: true,
+                        advancePowerBombHdma: false);
 
                     if (bombFrame.BeamChargeConsumed)
                     {
@@ -1995,6 +2026,8 @@ public sealed partial class SuperMetroidRuntime
                     ? movementBeforeXrayAdmission : Samus.ReadMovementType(_addressSpace);
                 if (!enemyMainAlreadyRan)
                     RunEnemyMainPhase();
+                // Actor commands replace beta before its dispatch in this same update.
+                stationaryScriptControlLocked = Samus.StationaryScriptControlLocked;
                 if (!TimeIsFrozen && !deathOwnsSamus)
                     ResolveUpdatedBeamHits();
 
@@ -2086,6 +2119,17 @@ public sealed partial class SuperMetroidRuntime
                         OwnsMovement: false);
                 }
 
+                if (LastGrappleMovement is { Fired: true })
+                    LoadGrapplePalette();
+                else if (LastGrappleMovement is { Phase: GrapplePhase.Inactive })
+                {
+                    // Native cancellation, drop, wall-jump and swing-release tails all
+                    // reload the equipped beam palette before returning to inactive.
+                    (beamArtwork?.Palettes ?? throw new InvalidOperationException(
+                        "Grapple cleanup requires installed beam artwork."))
+                        .LoadTo(Cgram, Samus.EquippedBeams & SamusGrappleRomData.Palettes.EquippedSelectionMask);
+                }
+
                 // `$9B:C4B1-$C4EA` runs after every grapple function, including inactive.
                 // Swing calculations above therefore consumed last frame's bit; this write
                 // publishes the current bottom-boundary result for the next frame exactly
@@ -2139,7 +2183,7 @@ public sealed partial class SuperMetroidRuntime
                 // movement pointer that was active beforehand. Automatic Reserve can
                 // therefore freeze an in-progress hurt launch; special owners such as
                 // `$90:DF38` must not outrank this explicitly installed handler.
-                else if (stationaryScriptControlAtFrameStart)
+                else if (stationaryScriptControlLocked)
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
@@ -2761,9 +2805,9 @@ public sealed partial class SuperMetroidRuntime
 
             // Every ordinary downward collision calls `$91:F046` inside movement, before
             // the timer hack, liquid animation, prospective-pose selection, and velocity
-            // cleanup. Ordinary-air, Morph/Spring, knockback, and drained special movement
-            // all publish `Landed`; the latter two also carry the magnitude they clear
-            // immediately after collision so hard/soft sound selection remains exact.
+            // cleanup. Knockback clears its live vertical speed in DF6E before this
+            // consumer; do not restore its diagnostic pre-impact magnitude for effects.
+            // Drained movement retains its separately modeled impact publication.
             bool ordinaryOrBallLanded =
                 LastAerialSamusMovement is { Landed: true } ||
                 LastMorphBallMovement is { Landed: true };
@@ -2771,16 +2815,12 @@ public sealed partial class SuperMetroidRuntime
             bool drainedLanded = LastDrainedSamusMovement is { Landed: true };
             if (!deathOwnsSamus && (ordinaryOrBallLanded || knockbackLanded || drainedLanded))
             {
-                ushort impactYSpeed = knockbackLanded
-                    ? LastKnockbackMovement!.Value.ImpactYSpeed
-                    : drainedLanded
-                        ? LastDrainedSamusMovement!.Value.ImpactYSpeed
-                        : Samus.Kinematics.YSpeed;
-                ushort impactYSubspeed = knockbackLanded
-                    ? LastKnockbackMovement!.Value.ImpactYSubspeed
-                    : drainedLanded
-                        ? LastDrainedSamusMovement!.Value.ImpactYSubspeed
-                        : Samus.Kinematics.YSubspeed;
+                ushort impactYSpeed = drainedLanded
+                    ? LastDrainedSamusMovement!.Value.ImpactYSpeed
+                    : Samus.Kinematics.YSpeed;
+                ushort impactYSubspeed = drainedLanded
+                    ? LastDrainedSamusMovement!.Value.ImpactYSubspeed
+                    : Samus.Kinematics.YSubspeed;
                 Samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
                     _addressSpace,
                     Samus,
@@ -2829,7 +2869,7 @@ public sealed partial class SuperMetroidRuntime
                     VramWrites,
                     SamusBodyArt?.DeathPalettes);
             }
-            else if (!stationaryScriptControlAtFrameStart && !suitOwnsSamus)
+            else if (!stationaryScriptControlLocked && !suitOwnsSamus)
             {
                 Samus.AnimateNoFx(
                     _addressSpace,
@@ -2845,7 +2885,7 @@ public sealed partial class SuperMetroidRuntime
 
 
             if (GroundedSamusMovementEnabled && !deathOwnsSamus && !suitOwnsSamus &&
-                !stationaryScriptControlAtFrameStart)
+                !stationaryScriptControlLocked)
             {
                 // Hit interruption observes the old movement type before UpdateSamusPose.
                 // Its carry-clear bomb rejection still occurs when an animation transition
@@ -3627,7 +3667,8 @@ public sealed partial class SuperMetroidRuntime
                         deceleratingFallbackHasMomentum, Samus.ReadFacingDirection(_addressSpace));
                 }
                 else if (!animationTransitionApplied &&
-                         poseAtFrameStart is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose &&
+                         poseAtFrameStart is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose or
+                             SamusPoseIds.SpringBallGroundRightPose or SamusPoseIds.SpringBallGroundLeftPose &&
                          ProspectiveSamusFallbackPose == poseAtFrameStart)
                 {
                     // $91:EC85 clears base/mode, then cancels extra running momentum.
@@ -3656,12 +3697,9 @@ public sealed partial class SuperMetroidRuntime
                              SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose or
                              SamusPoseIds.SpringBallGroundRightPose or SamusPoseIds.SpringBallGroundLeftPose)
                 {
-                    // Morph Ball command six clears base and extra momentum after the
-                    // current movement frame; Spring Ball command two only resets mode.
-                    if (poseAtFrameStart is SamusPoseIds.MorphBallMovingRightPose or SamusPoseIds.MorphBallMovingLeftPose)
-                        Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
-                    else
-                        Samus.HorizontalSpeed.AccelerationMode = 0;
+                    // $91:EC85 command six clears base and extra momentum after the
+                    // current movement frame for both grounded ball movement types.
+                    Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
                     Samus.ApplyMorphBallPoseChange(
                         _addressSpace,
                         unchecked((byte)ProspectiveSamusFallbackPose.Value));
@@ -3764,9 +3802,12 @@ public sealed partial class SuperMetroidRuntime
                     // Install the fallback's pose metadata and native initializer first.
                     // Falling command eight below then clears only the extra component;
                     // it must not be folded into base speed like running deceleration.
-                    Samus.ApplyAerialAimTransition(
-                        _addressSpace,
-                        unchecked((byte)aerialFallback));
+                    // A retained compact pose selects history/momentum work only;
+                    // native pose initialization and animation restart require a change.
+                    if (aerialFallback != Samus.Pose)
+                        Samus.ApplyAerialAimTransition(
+                            _addressSpace,
+                            unchecked((byte)aerialFallback));
                 }
 
                 // Crouching selects command two only on lookup failure. A matched
@@ -3795,6 +3836,12 @@ public sealed partial class SuperMetroidRuntime
                     movementTypeAtFrameStart == SamusMovementType.Falling &&
                     Samus.ReadMovementType(_addressSpace) == SamusMovementType.Falling)
                     Samus.ApplyFallingInputFallback(_addressSpace);
+
+                // F433's normal-jump initializer publishes the fresh Shoot direction
+                // for every accepted route, including aim changes within a jump. The
+                // earlier projectile epilogue cleared the previous update's handoff.
+                if (Samus.Pose != Samus.PoseHistory.PreviousPose)
+                    Samus.PublishNormalJumpPoseShotDirection(_addressSpace, Controller1.NewlyPressed);
 
                 // $91:EB88 shifts history after consuming any transition slot,
                 // including a self-transition. A frame with no selected transition
@@ -4061,9 +4108,16 @@ public sealed partial class SuperMetroidRuntime
                 // Command zero's `$90:E8DC` beta handler does not dispatch bank-$91
                 // palette effects. In particular, automatic Reserve recovery freezes a
                 // stored shine instead of consuming it while Samus is stationary.
-                advanceSamusPalette: !suitOwnsSamus && !stationaryScriptControlAtFrameStart);
+                advanceSamusPalette: !suitOwnsSamus && !stationaryScriptControlLocked);
         }
-        if (EscapeTimer.IsActive)
+        // EnemyMain can install the gunship's $90:E902 beta handler on this frame.
+        // It omits the normal $90:E738 timer-hack call: neither countdown nor OAM
+        // survives boarding, even though timer status stays active. Decide after the
+        // actor transition, before liftoff can repurpose the timer's OBJ tiles as dust.
+        bool runEscapeTimerHandler = !Enemies.HasGunshipHealthHandler;
+        bool escapeTimerExpired = runEscapeTimerHandler &&
+            EscapeTimer.Process(NmiFrameCounter, PreventEscapeTimeout);
+        if (runEscapeTimerHandler && EscapeTimer.IsActive)
             EscapeTimerRenderer.Draw(EscapeTimer, Oam,
                 (MapPresentation ?? throw new InvalidOperationException(
                     "Escape timer requires installed presentation assets.")).EscapeTimer);
@@ -4082,7 +4136,9 @@ public sealed partial class SuperMetroidRuntime
             // `$80:9B44` rebuilds live energy/ammo words before appending the HUD transfer.
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
             // Samus during this frame, and those values must enter the next accepted NMI.
-            if (Samus is not null)
+            // Native PLM_Handler has not returned while a pickup message is open.
+            // Its newly granted inventory reaches the HUD only after that return.
+            if (Samus is not null && !Plms.HasPendingCollectibleMessage)
                 Hud.UpdateGameplayCounters(_addressSpace, Samus, TimeIsFrozen,
                     soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
             Hud.QueueUpload(_addressSpace, VramWrites);
@@ -4102,6 +4158,7 @@ public sealed partial class SuperMetroidRuntime
         if (Samus?.Xray.AreAnimatedTilesSuspended != true)
         {
             SandAnimatedTiles.Step(_addressSpace, Vram, VramWrites);
+            RoomSpikes.Step(_addressSpace, Vram, VramWrites);
             if (ActiveRoom is not null)
                 RoomTreadmills.Step(_addressSpace,
                     System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss), VramWrites);
@@ -4149,6 +4206,7 @@ public sealed partial class SuperMetroidRuntime
             ActiveSamusMode7Transform = LastCeresElevatorShaftRoomMain.Transform;
 
         RunCeresFallingDebrisRoomMain();
+        RunCrocomireComebackRoomMain();
 
         // HandleSamusOutOfHealthAndGameTile advances the four-word gameplay clock after
         // room main and before shaking. Message-box frames returned above, exactly as the

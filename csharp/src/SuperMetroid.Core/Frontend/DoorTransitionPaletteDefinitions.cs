@@ -1,8 +1,26 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Named color-copy operations of GameState_A_LoadingNextRoom, $82:E1F1-$E264.</summary>
 public static class DoorTransitionPaletteDefinitions
 {
+    /// <summary>$90:ACCD writes the sixteen beam colors directly to live sprite palette six.</summary>
+    private const int BeamPaletteStart = 224, BeamPaletteCount = 16;
+    /// <summary>$82:E52E writes Palettes_SpriteP4C4 when door IRQ scrolling completes.</summary>
+    public const int VisorColorIndex = 196;
+    /// <summary>$82:E52B loads the ordinary green visor color before the final loading PLM call.</summary>
+    private const ushort DoorCompletionVisorGreen = 0x3be0;
+
+    public static void RestoreLoadedBeamPalette(SnesCgram current, ReadOnlySpan<ushort> loaded)
+    {
+        for (int index = BeamPaletteStart; index < BeamPaletteStart + BeamPaletteCount; index++)
+            current.SetColor(index, loaded[index]);
+    }
+
+    public static void PublishCompletedScrollVisor(SnesCgram current) =>
+        current.SetColor(VisorColorIndex, DoorCompletionVisorGreen);
+
     /// <summary>$82:E1F1: Palettes_BG3P2MinimapExplored; CGRAM slot copied unchanged during the source fade.</summary>
     private const int MinimapExplored = 9;
 

@@ -47,6 +47,16 @@ public static class SaveRamLayout
     public const int HudItemOffset = 0x0030;
     public const int MaxReserveEnergyOffset = 0x0032;
     public const int ReserveEnergyOffset = 0x0034;
+    /// <summary>$09D8, persistent excess missile accumulator.</summary>
+    public const int ReserveMissilesOffset = 0x0036;
+    /// <summary>$09E2, saved alternate/Japanese text setting.</summary>
+    public const int JapaneseTextOffset = 0x0040;
+    /// <summary>$7E:D91A, cumulative item-PLM setup count, not item percentage.</summary>
+    public const int LoadedItemCountOffset = 0x015a;
+    /// <summary>$70:1FE0-$1FEB, global completed-game signature used by $80:8261.</summary>
+    public const int CompletionMarkerOffset = 0x1fe0;
+    /// <summary>$80:824F writes these twelve bytes after the ending.</summary>
+    public static ReadOnlySpan<byte> CompletionMarker => "supermetroid"u8;
     public const int GameTimeFramesOffset = 0x0038;
     public const int GameTimeSecondsOffset = 0x003a;
     public const int GameTimeMinutesOffset = 0x003c;

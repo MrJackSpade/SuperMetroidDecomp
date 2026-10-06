@@ -35,8 +35,9 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
         catch (InvalidDataException) when (stockForLegacyOverride is not null && png.CanSeek)
         {
             // Preserve previous user-edited PNGs from before the treadmill,
-            // statue or spores extension; inherit only the newly introduced tail.
-            return TryLegacy(RoomFxAnimatedTileAtlasFormat.PreSporesWidth)
+            // statue, spores or spike extension; inherit only the newly introduced tail.
+            return TryLegacy(RoomFxAnimatedTileAtlasFormat.PreSpikesWidth)
+                ?? TryLegacy(RoomFxAnimatedTileAtlasFormat.PreSporesWidth)
                 ?? TryLegacy(RoomFxAnimatedTileAtlasFormat.PreStatueWidth)
                 ?? TryLegacy(RoomFxAnimatedTileAtlasFormat.LegacyWidth)
                 ?? throw new InvalidDataException("Room-FX PNG matches neither current nor supported legacy sheet geometry.");
@@ -121,17 +122,20 @@ public static class RoomFxAnimatedTileAtlasFormat
     public const int StatueTileCount = TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount / 16;
     public const int PreSporesTileCount = PreStatueTileCount + StatueTileCount;
     public const int SporesTileCount = 9;
-    public const int TileCount = PreSporesTileCount + SporesTileCount;
+    public const int PreSpikesTileCount = PreSporesTileCount + SporesTileCount;
+    public const int SpikeTileCount = 24;
+    public const int TileCount = PreSpikesTileCount + SpikeTileCount;
     public const int LegacyWidth = LegacyTileCount * 8;
     public const int PreStatueWidth = PreStatueTileCount * 8;
     public const int PreSporesWidth = PreSporesTileCount * 8;
+    public const int PreSpikesWidth = PreSpikesTileCount * 8;
     public const int Width = TileCount * 8;
     public const int Height = 8;
     public const int TotalByteCount = TileCount * 16;
 
     /// <summary>
     /// Stable PNG strip order shared by importer and runtime: existing simple frames,
-    /// treadmills, the statue strip, then the new spores tail. Never insert new frames
+    /// treadmills, the statue strip, spores, then spikes. Never insert new frames
     /// into the historical prefix or older replacements would shift unrelated art.
     /// </summary>
     public static IEnumerable<RoomFxAtlasSegment> Segments => EnumerateSegments();
@@ -140,7 +144,7 @@ public static class RoomFxAnimatedTileAtlasFormat
     {
         int total = 0;
         foreach (RoomFxAnimatedTileObjectDefinition definition in RoomFxAnimatedTileMechanicsDefinitions.All)
-            if (definition.ObjectPointer != AnimatedTileObjectPointers.Spores)
+            if (definition.ObjectPointer is not (AnimatedTileObjectPointers.Spores or AnimatedTileObjectPointers.HorizontalSpikes))
                 foreach (var segment in Frames(definition))
                 {
                     total += segment.ByteCount;
@@ -161,14 +165,25 @@ public static class RoomFxAnimatedTileAtlasFormat
             total += segment.ByteCount;
             yield return segment;
         }
+        RoomFxAnimatedTileMechanicsDefinitions.TryResolve(AnimatedTileObjectPointers.HorizontalSpikes, out var spikes);
+        foreach (var segment in Frames(spikes))
+        {
+            total += segment.ByteCount;
+            yield return segment;
+        }
         if (total != TotalByteCount)
             throw new InvalidOperationException("Compiled room-FX atlas segments do not match the PNG geometry.");
 
         static IEnumerable<RoomFxAtlasSegment> Frames(RoomFxAnimatedTileObjectDefinition definition)
         {
             foreach (RoomFxAnimatedTileFrameDefinition frame in definition.Frames)
+            {
+                // The last spike step reuses image 1, already present in the strip.
+                if (definition.ObjectPointer == AnimatedTileObjectPointers.HorizontalSpikes &&
+                    frame.InstructionPointer == definition.Frames[3].InstructionPointer) continue;
                 yield return new(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer),
                     definition.TransferByteCount, true);
+            }
         }
     }
 }

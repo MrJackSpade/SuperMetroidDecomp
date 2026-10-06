@@ -56,8 +56,8 @@ internal static partial class Program
 
         var guarded = new IntroArtworkSourceReadGuard(bus,
             blockIntroScientistSprites: true);
-        var stockState = new IntroCinematicState(guarded, characterArtwork: stock);
-        var editedState = new IntroCinematicState(guarded, characterArtwork: edited);
+        var stockState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
+        var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
@@ -97,7 +97,8 @@ internal static partial class Program
         installedExamination.FinalizeFrame();
         var nativeExamination = new OamBuffer();
         nativeExamination.BeginFrame();
-        examination.Draw(bus, nativeExamination);
+        DrawImportedCinematicActor(bus, nativeExamination, (IntroDiscoverySprite)typeof(IntroScientistCutsceneState)
+            .GetField("baby", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(examination)!);
         nativeExamination.FinalizeFrame();
         AssertTrue(installedExamination.LowTable.SequenceEqual(nativeExamination.LowTable) &&
                 installedExamination.HighTable.SequenceEqual(nativeExamination.HighTable),

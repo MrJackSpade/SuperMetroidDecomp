@@ -459,10 +459,12 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidGoIntoLowPowerMode:
                 // The brain slot independently advances the one-way neck raises. The body
-                // must wait for both indices and its walk pose to return to zero.
-                if ((LowerNeckMovementIndex | UpperNeckMovementIndex) == 0 && Body.Pose == 0)
+                // clears drool once both indices reach zero, before waiting for its pose.
+                if ((LowerNeckMovementIndex | UpperNeckMovementIndex) == 0)
                 {
                     DroolGenerationEnabled = false;
+                    if (Body.Pose != 0)
+                        break;
                     Body.SetInstructionList(BodyCrouchingFastInstructionList);
                     bodyPostureRequested = true;
                     Phase = MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidPrepareTransitionToGrey;

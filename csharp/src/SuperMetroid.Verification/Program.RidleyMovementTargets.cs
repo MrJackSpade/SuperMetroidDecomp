@@ -34,7 +34,7 @@ internal static partial class Program
         var pogo = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyPogo", instance)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, bool>>(enemies);
         var moveSide = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttackMoveToSide", instance)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
+            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
         var run = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", instance)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?>>(enemies);
         var slot = enemies.Slots[0];
@@ -81,7 +81,7 @@ internal static partial class Program
                 AssertEqual(Expected(x, target, hover[health]), state.HorizontalVelocity, "Pogo side target and health divisor reach motion");
             }
             state.HorizontalVelocity = state.VerticalVelocity = 0;
-            moveSide(slot, state);
+            moveSide(slot, state, null);
             AssertEqual(Expected(x, ground[Math.Min(facing, (ushort)2)], 0), state.HorizontalVelocity, "Ground side target reaches motion");
             state.HorizontalVelocity = state.VerticalVelocity = 0;
             state.Function = RidleyAiFunction.NorfairCarryRelease;
@@ -94,19 +94,22 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, new RidleyGrabDivisorReadGuard(rom));
         var approach = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGrabApproach", instance)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
-        var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 1000, YPosition = 256 };
+        var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 256, YPosition = 256 };
         for (int health = 0; health <= ushort.MaxValue; health++)
         {
             state.HealthStage = (ushort)health;
             state.FacingDirection = (ushort)(health % 3);
             state.HorizontalVelocity = state.VerticalVelocity = 0;
-            slot.XPosition = 128;
-            slot.YPosition = 352;
+            // Start ahead of the lunge stopping boundary for each facing.
+            ushort startX = state.FacingDirection == 2 ? (ushort)128 : (ushort)384;
+            slot.XPosition = startX;
+            slot.YPosition = 128;
+            state.HitRoomBoundary = false;
             approach(slot, state, samus);
-            ushort targetX = (ushort)(state.FacingDirection == 0 ? 984 : 1016);
+            ushort targetX = (ushort)(state.FacingDirection == 0 ? 240 : 272);
             int divisor = grab[Math.Min(health, 3)];
-            AssertEqual(Expected(128, targetX, divisor), state.HorizontalVelocity, "Actual grab health divisor drives X acceleration");
-            AssertEqual(Expected(352, 252, divisor), state.VerticalVelocity, "Actual grab health divisor drives Y acceleration");
+            AssertEqual(Expected(startX, targetX, divisor), state.HorizontalVelocity, "Actual grab health divisor drives X acceleration");
+            AssertEqual(Expected(128, 252, divisor), state.VerticalVelocity, "Actual grab health divisor drives Y acceleration");
         }
         Console.WriteLine("Ridley targets: 23 native words, 65536 carry/health cases, 192 side-target motions and 65536 grab approaches pass with migrated reads forbidden.");
     }

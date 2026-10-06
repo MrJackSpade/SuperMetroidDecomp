@@ -63,7 +63,7 @@ internal static partial class Program
             var visualGuard = new ExtendedVisualReadGuard(rom);
             visualGuard.BlockFrame(bank,
                 CommonEnemyEmptyExtendedFrameDefinitions.Frame);
-            OamBuffer native = DrawExtendedForBank(null, rom, bank,
+            OamBuffer native = DrawReferenceExtendedFrame(rom, bank,
                 CommonEnemyEmptyExtendedFrameDefinitions.Frame, 0x0080, 0x0080);
             OamBuffer installed = DrawExtendedForBank(stock, visualGuard, bank,
                 CommonEnemyEmptyExtendedFrameDefinitions.Frame, 0x0080, 0x0080);

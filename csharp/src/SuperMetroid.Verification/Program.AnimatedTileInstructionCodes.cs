@@ -6,14 +6,14 @@ using SuperMetroid.Core.Rom;
 internal static partial class Program
 {
     /// <summary>
-    /// Verifies the proven bank-$87 vocabulary and executes both real treadmill streams.
-    /// A constructed unknown-command stream proves that the interpreter cannot silently
-    /// reinterpret a new animated-tile callback as frame data.
+    /// Verifies the bank-$87 vocabulary and executes both compiled retail treadmill streams.
+    /// Constructed non-retail streams prove that the loader cannot silently
+    /// accept unsupported object definitions as compiled mechanics.
     /// </summary>
     static void VerifyAnimatedTileInstructionCodeCatalog()
     {
         AssertAnimatedTileCatalog(typeof(AnimatedTileInstructionCodes), 14);
-        AssertAnimatedTileCatalog(typeof(AnimatedTileObjectPointers), 7);
+        AssertAnimatedTileCatalog(typeof(AnimatedTileObjectPointers), 19);
         AssertAnimatedTileCatalog(typeof(AnimatedTileInstructionListPointers), 4);
         VerifyConstructedAnimatedTileStreams();
 
@@ -48,70 +48,42 @@ internal static partial class Program
             ]);
 
         Console.WriteLine(
-            "  Animated tiles: 25 named bank-$87 pointers, constructed fail-loud " +
+            "  Animated tiles: 37 named bank-$87 pointers, constructed fail-loud " +
             "dispatch, and both retail treadmill streams agree.");
     }
 
     private static void VerifyConstructedAnimatedTileStreams()
     {
-        var bus = new TestAddressSpace();
-        WriteTestWords(
-            bus,
-            0x878f00,
-            0x9000,
-            WreckedShipTreadmillRomData.TransferByteCount,
-            WreckedShipTreadmillRomData.EncodedVramDestination);
-        WriteTestWords(
-            bus,
-            0x879000,
-            AnimatedTileInstructionCodes.WaitUntilAreaBossIsDead,
-            1,
-            0x9100,
-            AnimatedTileInstructionCodes.Goto,
-            0x9002);
-
-        var state = new WreckedShipTreadmillAnimatedTilesState();
-        var writes = new VramWriteQueue();
-        state.StartDefinition(bus, WreckedShipTreadmillDirection.Rightwards, 0x8f00);
-        state.Step(bus, areaBossDefeated: false, writes);
-        AssertEqual(0, writes.Entries.Count, "animated-tile boss wait suppresses transfer");
-        state.Step(bus, areaBossDefeated: true, writes);
-        AssertEqual(1, writes.Entries.Count, "animated-tile timed frame queues transfer");
-        AssertEqual(0x879100, writes.Entries[0].SourceAddress,
-            "animated-tile frame source retains bank 87");
-
-        var unknownBus = new TestAddressSpace();
-        WriteTestWords(
-            unknownBus,
-            0x878f00,
-            0x9200,
-            WreckedShipTreadmillRomData.TransferByteCount,
-            WreckedShipTreadmillRomData.EncodedVramDestination);
-        WriteTestWord(unknownBus, 0x879200, 0xdead);
-        var unknown = new WreckedShipTreadmillAnimatedTilesState();
-        unknown.StartDefinition(
-            unknownBus,
-            WreckedShipTreadmillDirection.Rightwards,
-            0x8f00);
-        AssertThrows<NotSupportedException>(
-            () => unknown.Step(unknownBus, areaBossDefeated: true, new VramWriteQueue()),
-            "unknown animated-tile callback fails loudly");
-
-        var zeroBus = new TestAddressSpace();
-        WriteTestWords(
-            zeroBus,
-            0x878f00,
-            0x9300,
-            WreckedShipTreadmillRomData.TransferByteCount,
-            WreckedShipTreadmillRomData.EncodedVramDestination);
-        WriteTestWord(zeroBus, 0x879300, 0);
-        var zero = new WreckedShipTreadmillAnimatedTilesState();
-        zero.StartDefinition(zeroBus, WreckedShipTreadmillDirection.Rightwards, 0x8f00);
-        AssertThrows<InvalidDataException>(
-            () => zero.Step(zeroBus, areaBossDefeated: true, new VramWriteQueue()),
-            "zero-duration animated-tile frame fails loudly");
+        // Generic ROM dispatch was removed when treadmill mechanics became compiled.
+        // Even a well-formed foreign program must now fail at object admission, before
+        // an unknown opcode or zero duration could be interpreted as a valid frame.
+        ushort[][] programs =
+        [
+            [AnimatedTileInstructionCodes.WaitUntilAreaBossIsDead, 1, 0x9100,
+                AnimatedTileInstructionCodes.Goto, 0x9002],
+            [0xdead],
+            [0],
+        ];
+        foreach (ushort[] program in programs)
+        {
+            var bus = new TestAddressSpace();
+            WriteTestWords(bus, 0x878f00, 0x9000,
+                WreckedShipTreadmillRomData.TransferByteCount,
+                WreckedShipTreadmillRomData.EncodedVramDestination);
+            WriteTestWords(bus, 0x879000, program);
+            var state = new WreckedShipTreadmillAnimatedTilesState();
+            var error = AssertThrows<InvalidDataException>(() => state.StartDefinition(
+                bus, WreckedShipTreadmillDirection.Rightwards, 0x8f00),
+                "non-retail animated-tile object rejects before interpreting its program");
+            AssertTrue(error.Message.Contains("$87:8F00", StringComparison.Ordinal),
+                "unsupported animated-tile error identifies the rejected object");
+        }
+        var mismatched = new WreckedShipTreadmillAnimatedTilesState();
+        AssertThrows<InvalidDataException>(() => mismatched.StartDefinition(
+            new TestAddressSpace(), WreckedShipTreadmillDirection.Leftwards,
+            AnimatedTileObjectPointers.WreckedShipTreadmillRightwards),
+            "compiled treadmill definition rejects the opposite direction");
     }
-
     private static void VerifyRetailTreadmillStream(
         ISnesAddressSpace bus,
         WreckedShipTreadmillDirection direction,

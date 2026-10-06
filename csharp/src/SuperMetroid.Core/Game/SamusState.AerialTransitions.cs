@@ -87,7 +87,8 @@ public sealed partial class SamusState
             return false;
 
         Pose = targetPose;
-        RefreshCollisionRadii(bus);
+        // F404/F543 keep the source collision radius for the rest of this update.
+        // Alpha's SetRadius publishes the new pose radius on the next update.
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
 
         // Aim may cancel the spin into a pose that consumes stored shine. Run that
@@ -110,7 +111,7 @@ public sealed partial class SamusState
         // $91:F5CF publishes the newly installed pose's shot direction on the exact Fire
         // edge that selected this record. The projectile producer consumes it in alpha.
         if ((controllerNewInput & (ushort)SnesButton.X) != 0)
-            PoseTransitionShotDirection = unchecked((ushort)(0x8000 | ReadShotDirection(bus)));
+            PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.NormalJumpPoseHandoffTag | ReadShotDirection(bus)));
 
         InitializeAnimation(bus, initialFrame: 0);
         return true;
@@ -224,7 +225,7 @@ public sealed partial class SamusState
         // A crouch substitution never reaches the aerial-turn momentum initializer.
         FoldExtraRunSpeedIntoBaseAndStartTurn();
         Pose = selectedTurnPose;
-        RefreshCollisionRadii(bus);
+        // The changed-pose handler preserves the source radius until next alpha.
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
         InitializeAnimation(bus, initialFrame: 0);
         return true;
@@ -671,7 +672,7 @@ public sealed partial class SamusState
             // `$91:F5CF-$F5E6` runs only in the normal-jumping initializer. It reads the
             // newly installed pose's direction byte and adds `$8000`; spin-jump's separate
             // initializer never publishes this bridge even when Shoot and Jump share a frame.
-            PoseTransitionShotDirection = unchecked((ushort)(0x8000 | ReadShotDirection(bus)));
+            PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.NormalJumpPoseHandoffTag | ReadShotDirection(bus)));
         }
     }
 
@@ -681,5 +682,13 @@ public sealed partial class SamusState
     /// it is deliberately not retained until some later shot succeeds.
     /// </summary>
     public void ClearPoseTransitionShotDirection() => PoseTransitionShotDirection = 0;
+
+    /// <summary>Publishes $91:F5CF-F5E6 after an accepted normal-jump pose initializer.</summary>
+    internal void PublishNormalJumpPoseShotDirection(ISnesAddressSpace bus, ushort controllerNewInput)
+    {
+        if (ReadMovementType(bus) == SamusMovementType.NormalJumping &&
+            (controllerNewInput & (ushort)SnesButton.X) != 0)
+            PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.NormalJumpPoseHandoffTag | ReadShotDirection(bus)));
+    }
 
 }

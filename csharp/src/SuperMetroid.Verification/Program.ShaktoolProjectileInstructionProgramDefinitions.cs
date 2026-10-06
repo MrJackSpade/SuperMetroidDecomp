@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -26,7 +27,9 @@ internal static partial class Program
                 $"Shaktool attack-circle mechanics word $86:{definition.Address:X4}");
         }
 
-        var observedInstalledOperands = new HashSet<ushort>();
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new ShaktoolProjectileInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -87,10 +90,20 @@ internal static partial class Program
         AssertEqual((ushort)0xbd98, back.InstructionPointer,
             "back circle branch displays the held pose in the same tick");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "ShaktoolProjectile execution performs no live spritemap operand reads");
         AssertEqual(ShaktoolProjectileInstructionProgramDefinitions.PresentationWordCount,
-            observedInstalledOperands.Count,
-            "all eight native Shaktool attack-circle operands select installed artwork");
-        AssertEqual(0, guard.ObservedPresentationWords.Count, "Shaktool attack-circle presentation requires zero live reads");
+            executedOperands.Count, "ShaktoolProjectile executes every native visual operand");
+        for (int index = 0; index < ShaktoolProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
+        {
+            ushort address = ShaktoolProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"ShaktoolProjectile executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "ShaktoolProjectile has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "ShaktoolProjectile compiled selector matches the cartridge");
+        }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Shaktool attack-circle mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -131,14 +144,7 @@ internal static partial class Program
                 }
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
-                ushort operand = (ushort)(cursor + 2);
-                AssertEqual(operand, projectile.PresentationOperandAddress,
-                    "Shaktool circle selects exact native operand after control flow");
-                AssertTrue(EnemyProjectilePresentationFrameDefinitions.Contains(operand),
-                    "Shaktool circle operand belongs to installed artwork");
-                AssertEqual(NativeWord(cursor), projectile.InstructionTimer,
-                    "Shaktool circle installs the exact native duration word");
-                observedInstalledOperands.Add(operand);
+                VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }
     }

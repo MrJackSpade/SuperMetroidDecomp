@@ -19,6 +19,7 @@ internal static partial class Program
         VerifyKraidLintPresentationMapping();
 
         var guard = new KraidLintInstructionReadGuard(rom);
+        var executedOperands = new HashSet<ushort>();
         ushort[] definitions =
         [
             RoomEnemySystem.KraidTopLintDefinition,
@@ -47,19 +48,21 @@ internal static partial class Program
                 process.Invoke(
                     enemies,
                     [lint, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0]);
+                VerifyExecutedEnemySelector(rom, lint, executedOperands);
                 AssertEqual((ushort)0x7fff, lint.InstructionTimer,
                     $"Kraid lint ${definition:X4}/${program:X4} installs native duration");
                 AssertEqual(unchecked((ushort)(program + 4)), lint.CurrentInstruction,
                     $"Kraid lint ${definition:X4}/${program:X4} advances to sleep");
                 AssertEqual(ReadKraidLintInstructionWord(rom, 0xa70000 | program + 2),
                     lint.SpritemapPointer,
-                    $"Kraid lint ${definition:X4}/${program:X4} keeps live spritemap");
+                    $"Kraid lint ${definition:X4}/${program:X4} keeps native spritemap");
             }
         }
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Enemy presentation performs zero live cartridge reads");
         AssertEqual(KraidLintInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "both Kraid lint spritemaps remain cartridge reads");
+            executedOperands.Count, "Every native visual operand executes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Kraid lint mechanics byte");
         for (int index = 0;
@@ -68,8 +71,8 @@ internal static partial class Program
         {
             ushort address =
                 KraidLintInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Kraid lint presentation word $A7:{address:X4}");
+            AssertTrue(executedOperands.Contains(address),
+                $"production execution selects Kraid lint presentation word $A7:{address:X4}");
             AssertThrows<InvalidDataException>(
                 () => KraidLintInstructionProgramDefinitions.ReadMechanicsWord(address),
                 $"Kraid lint spritemap $A7:{address:X4} is rejected as mechanics");
@@ -88,7 +91,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Kraid lint instruction mechanics: four compiled words, both programs, all " +
-            "three lint definitions and two live spritemap reads pass with mechanics " +
+            "three lint definitions and two native sprite selections pass with mechanics " +
             "bytes forbidden.");
     }
 

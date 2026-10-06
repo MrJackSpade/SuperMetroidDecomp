@@ -238,10 +238,9 @@ internal static partial class Program
     private static Dictionary<ushort, List<RoomEnemyPopulationRecord>>
         ReadRetailEnemyPopulationRecords(ISnesAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
-        CartridgeRoomState[] states = (CartridgeRoomState[])typeof(RoomStateDefinitions)
-            .GetField("definitions", flags)!
-            .GetValue(null)!;
+        CartridgeRoomState[] states = RoomStateDefinitions.All.ToArray();
+        AssertEqual(RoomStateDefinitions.RetailStateCount, states.Length,
+            "owner fixture enumerates every retail room state");
         var records = new Dictionary<ushort, List<RoomEnemyPopulationRecord>>();
 
         foreach (ushort populationPointer in states

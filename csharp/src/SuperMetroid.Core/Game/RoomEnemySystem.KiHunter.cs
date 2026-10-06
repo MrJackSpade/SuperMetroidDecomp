@@ -792,7 +792,8 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnKiHunterAcidFromInstruction(RoomEnemySlot body, bool movingRight)
     {
-        LastKiHunterSoundEffect = 0x004c;
+        LastKiHunterSoundEffect = SoundEffectLibrary2Sounds.KiHunterAcidSpit.Value;
+        QueueEnemySound(SoundEffectLibrary2Sounds.KiHunterAcidSpit, maximumQueued: 6);
         SpawnKiHunterAcidSpit(body, movingRight);
         RequireKiHunterState(body).WaitTimer = KiHunterSpitWaitFrames;
     }

@@ -44,6 +44,18 @@ public sealed record SuperMetroidGameOptions
     /// </remarks>
     public bool InfiniteAmmo { get; init; }
 
+    /// <summary>Grants and fills the complete collectible inventory on player initialization; normal saves retain it.</summary>
+    public bool GrantAllEquipment { get; init; }
+
+    /// <summary>Opens the Tourian statue passage without changing boss defeat flags.</summary>
+    public bool UnlockTourian { get; init; }
+
+    /// <summary>Resets bosses and persistent enemy encounters outside Tourian when loading a regular save.</summary>
+    public bool ResetBossesOnLoad { get; init; }
+
+    /// <summary>Preserves a separate recovery state after each completed door transition.</summary>
+    public bool DoorTransitionAutosave { get; init; } = true;
+
     /// <summary>Lets Ceres and Zebes escape countdowns run normally, but holds them at 00:01.00 instead of expiring.</summary>
     public bool PreventEscapeTimeout { get; init; }
 
@@ -109,6 +121,10 @@ public static partial class SuperMetroidGameOptionsIni
         bool? skipOpeningCinematic = null;
         bool? invincibility = null;
         bool? infiniteAmmo = null;
+        bool? grantAllEquipment = null;
+        bool? unlockTourian = null;
+        bool? resetBossesOnLoad = null;
+        bool? doorTransitionAutosave = null;
         bool? preventEscapeTimeout = null;
         ushort? endingTimeOverrideMinutes = null;
         bool endingTimeOverrideSeen = false;
@@ -195,6 +211,34 @@ public static partial class SuperMetroidGameOptionsIni
                     continue;
                 }
 
+                if (key.Equals(nameof(SuperMetroidGameOptions.GrantAllEquipment), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (grantAllEquipment.HasValue)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    grantAllEquipment = ParseBoolean(sourceName, lineNumber, key, value);
+                    continue;
+                }
+                if (key.Equals(nameof(SuperMetroidGameOptions.DoorTransitionAutosave), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (doorTransitionAutosave.HasValue)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    doorTransitionAutosave = ParseBoolean(sourceName, lineNumber, key, value);
+                    continue;
+                }
+                if (key.Equals(nameof(SuperMetroidGameOptions.ResetBossesOnLoad), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (resetBossesOnLoad.HasValue)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    resetBossesOnLoad = ParseBoolean(sourceName, lineNumber, key, value);
+                    continue;
+                }
+                if (key.Equals(nameof(SuperMetroidGameOptions.UnlockTourian), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (unlockTourian.HasValue)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    unlockTourian = ParseBoolean(sourceName, lineNumber, key, value);
+                    continue;
+                }
                 if (key.Equals(nameof(SuperMetroidGameOptions.PreventEscapeTimeout), StringComparison.OrdinalIgnoreCase))
                 {
                     if (preventEscapeTimeout.HasValue)
@@ -294,6 +338,10 @@ public static partial class SuperMetroidGameOptionsIni
             SkipOpeningCinematic = skipOpeningCinematic ?? false,
             Invincibility = invincibility ?? false,
             InfiniteAmmo = infiniteAmmo ?? false,
+            GrantAllEquipment = grantAllEquipment ?? false,
+            UnlockTourian = unlockTourian ?? false,
+            ResetBossesOnLoad = resetBossesOnLoad ?? false,
+            DoorTransitionAutosave = doorTransitionAutosave ?? true,
             PreventEscapeTimeout = preventEscapeTimeout ?? false,
             EndingTimeOverrideMinutes = endingTimeOverrideMinutes,
             MapReveal = mapReveal ?? MapRevealMode.None,

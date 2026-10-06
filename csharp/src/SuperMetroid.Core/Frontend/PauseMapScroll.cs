@@ -5,6 +5,9 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Pause-specific bounds from Handle_MapScrollArrows ($82:B934).</summary>
 internal static class PauseMapScrollLayout
 {
+    /// <summary>$82:B9A0-B9BE pause arrow anchors are 24 pixels below the matching $81:AF32 file-select records.</summary>
+    public const int ArrowVerticalOffset = 24;
+
     /// <summary>$82:B942: leftmost visible map margin.</summary>
     public const int LeftMargin = 24;
     /// <summary>$82:B954–B958: rightmost visible map coordinate, 256 minus 24.</summary>
@@ -24,12 +27,21 @@ internal sealed class PauseMapScroll(ushort minimumX, ushort maximumX, ushort mi
     private MapScrollDirection direction;
     private int tick;
 
+    public bool CanScroll(MapScrollDirection candidate, ushort horizontal, ushort vertical) => candidate switch
+    {
+        MapScrollDirection.Left => Signed(minimumX - PauseMapScrollLayout.LeftMargin - horizontal) < 0,
+        MapScrollDirection.Right => Signed(maximumX - PauseMapScrollLayout.RightMargin - horizontal) >= 0,
+        MapScrollDirection.Up => Signed(minimumY - PauseMapScrollLayout.TopMargin - vertical) < 0,
+        MapScrollDirection.Down => Signed(maximumY - PauseMapScrollLayout.BottomMargin - vertical) >= 0,
+        _ => false,
+    };
+
     public bool Step(ushort heldInput, ref ushort horizontal, ref ushort vertical)
     {
-        bool left = Signed(minimumX - PauseMapScrollLayout.LeftMargin - horizontal) < 0;
-        bool right = Signed(maximumX - PauseMapScrollLayout.RightMargin - horizontal) >= 0;
-        bool up = Signed(minimumY - PauseMapScrollLayout.TopMargin - vertical) < 0;
-        bool down = Signed(maximumY - PauseMapScrollLayout.BottomMargin - vertical) >= 0;
+        bool left = CanScroll(MapScrollDirection.Left, horizontal, vertical);
+        bool right = CanScroll(MapScrollDirection.Right, horizontal, vertical);
+        bool up = CanScroll(MapScrollDirection.Up, horizontal, vertical);
+        bool down = CanScroll(MapScrollDirection.Down, horizontal, vertical);
         SnesButton held = (SnesButton)heldInput;
         if (direction == MapScrollDirection.None)
         {

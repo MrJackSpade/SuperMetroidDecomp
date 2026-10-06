@@ -19,6 +19,7 @@ public static partial class RenderFrameSnapshotCodec
         writer.Write(w.BackgroundLogic); writer.Write(w.ObjectColorLogic);
         writer.Write((byte)r.MainScreenWindowMask);
         writer.Write((byte)r.Bg2Mosaic.Size);
+        WriteScrolls(writer, layer.MainScreenLayersByLine);
     }
 
     private static OrdinaryGameplayRenderLayer ReadGameplayLayer(BinaryReader reader, ushort version)
@@ -39,7 +40,8 @@ public static partial class RenderFrameSnapshotCodec
         }
         if (version >= RenderPacketFormat.GameplayMosaicVersion)
             registers = registers with { Bg2Mosaic = new(reader.ReadByte()) };
-        return new(registers, horizontal, vertical);
+        ushort[] mainScreen = version >= RenderPacketFormat.GameplayMainScreenHdmaVersion ? ReadScrolls(reader) : [];
+        return new(registers, horizontal, vertical, mainScreen);
     }
 
     private static void WriteScrolls(BinaryWriter writer, ReadOnlySpan<ushort> values)

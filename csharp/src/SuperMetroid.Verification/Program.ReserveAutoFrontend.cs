@@ -14,7 +14,7 @@ internal static partial class Program
     private static void VerifyReserveAutoFrontend()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -131,10 +131,10 @@ internal static partial class Program
             AssertEqual(expected, runtime.Vram.ReadWord(HudState.VramDestination + index),
                 "completed automatic refill publishes the native empty AUTO indicator");
         }
-        var fields = typeof(SamusState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).OrderBy(f => f.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, fields.Length - 2);
-        AssertTrue(legacy.SequenceEqual(fields.Where(f => f.Name is not "_healthWarning" and not "<StationaryScriptControlLocked>k__BackingField")),
-            "pre-warning Samus layout omits warning and later stationary-command ownership");
+        var fields = typeof(SamusState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(f => !f.IsDefined(typeof(NonSerializedAttribute), false)).OrderBy(f => f.MetadataToken).ToArray();
+        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, fields.Length - 3);
+        AssertTrue(legacy.SequenceEqual(fields.Where(f => f.Name is not "_healthWarning" and not "<StationaryScriptControlLocked>k__BackingField" and not "<PreviousHealthForHurtCheck>k__BackingField")),
+            "pre-warning Samus layout omits warning, later stationary-command ownership and draw-time health history");
         samus.HealthWarning.Update(30, audio);
         using var saved = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(saved, samus); saved.Position = 0;

@@ -162,14 +162,15 @@ internal static partial class Program
     private static void VerifyCrocomireMeltingGraphicsProduction(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var artwork = runtimeFixtureInstallation.Value.LoadEnemyTiles();
         foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
         {
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem { TileArtwork = artwork };
             var state = new CrocomireEnemyState(enemies.Slots[0]);
             var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
             var vram = new SnesVram();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies, new CrocomireMeltingDefinitionReadGuard(rom));
+                enemies, new CrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
             typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
             typeof(RoomEnemySystem).GetField("_crocomireDeath", flags)!.SetValue(enemies, death);
             var initialize = typeof(RoomEnemySystem).GetMethod(

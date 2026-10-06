@@ -26,10 +26,10 @@ internal static partial class Program
             () => KraidHeadInstructionDefinitions.Resolve(0x9788),
             "Kraid head catalog rejects following mouth geometry");
         AssertThrows<InvalidDataException>(
-            () => KraidHeadInstructionDefinitions.ResolveFrameTilemap(rom, 0x8000),
+            () => KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(rom, 0x8000),
             "Kraid head tilemap resolver rejects unrelated upper-ROM code");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => KraidHeadInstructionDefinitions.ResolveFrameTilemap(rom, 0x3ffe),
+            () => KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(rom, 0x3ffe),
             "Kraid head low-half alias rejects unmapped expansion space");
 
         Console.WriteLine(
@@ -43,7 +43,7 @@ internal static partial class Program
             KraidHeadInstructionDefinitions.All)
         {
             var guard = new KraidHeadProgramReadGuard(rom);
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, new SnesVram());
             var execute = typeof(RoomEnemySystem)
@@ -98,7 +98,7 @@ internal static partial class Program
 
     private static void VerifyTimerAndGrowthConsumers(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem();
+        var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
         var state = new KraidEnemyState();
         var guard = new KraidHeadProgramReadGuard(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

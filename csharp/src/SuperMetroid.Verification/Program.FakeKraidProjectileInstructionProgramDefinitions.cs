@@ -18,6 +18,7 @@ internal static partial class Program
         VerifyFakeKraidProjectilePresentationAddresses();
 
         var guard = new FakeKraidProjectileInstructionReadGuard(rom);
+        var selectedPresentationWords = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -87,18 +88,20 @@ internal static partial class Program
 
         AssertEqual(
             FakeKraidProjectileInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Fake Kraid projectile spritemap operands remain cartridge reads");
+            selectedPresentationWords.Count,
+            "all live Fake Kraid projectile frames select installed operands");
         for (int index = 0;
              index < FakeKraidProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = FakeKraidProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Fake Kraid presentation $86:{address:X4}");
+            AssertTrue(selectedPresentationWords.Contains(address),
+                $"production execution selects Fake Kraid presentation $86:{address:X4}");
         }
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Fake Kraid frames never read presentation operands from ROM");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Fake Kraid and shared-delete mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -118,12 +121,21 @@ internal static partial class Program
         Console.WriteLine(
             "Fake Kraid projectile instruction mechanics: six compiled words, all three " +
             "real spit/spike producers, three terminal sleeps, shared shot deletion, and " +
-            "three live spritemap reads pass with mechanics bytes forbidden.");
+            "three installed frame selectors pass without instruction ROM reads.");
 
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
             process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            if (projectile.IsActive && projectile.InstructionTimer != 0)
+            {
+                ushort operand = (ushort)(projectile.InstructionPointer - 2);
+                AssertEqual(operand, projectile.PresentationOperandAddress,
+                    "Fake Kraid selects the just-executed native frame operand");
+                AssertEqual(ReadFakeKraidProjectileInstructionWord(rom, (ushort)(operand - 2)),
+                    projectile.InstructionTimer, "Fake Kraid frame retains the native duration");
+                selectedPresentationWords.Add(projectile.PresentationOperandAddress);
+            }
         }
     }
 

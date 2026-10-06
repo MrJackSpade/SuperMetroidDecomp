@@ -9,6 +9,16 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    private static void DrawImportedCinematicActor(ISnesAddressSpace bus, OamBuffer oam, IntroDiscoverySprite actor)
+    {
+        if (!actor.IsActive || actor.SpriteMapPointer == 0) return;
+        ushort y = actor.YPosition;
+        if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >= CinematicSpriteDrawDefinitions.BiasedOriginYLimit) return;
+        DrawImportedSpritemap(bus, oam,
+            IntroCinematicRomData.Banks.Spritemaps << 16 | actor.SpriteMapPointer,
+            actor.XPosition, y, actor.PaletteBits,
+            originIsOnScreen: (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0);
+    }
     private static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
@@ -66,7 +76,9 @@ internal static partial class Program
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();
-        rinkas.Draw(bus, nativeLiveOam);
+        foreach (var actor in (IEnumerable<IntroDiscoverySprite>)typeof(IntroRinkaSystem)
+            .GetField("rinkas", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(rinkas)!)
+            DrawImportedCinematicActor(bus, nativeLiveOam, actor);
         nativeLiveOam.FinalizeFrame();
         AssertTrue(stockOam.LowTable.SequenceEqual(nativeLiveOam.LowTable) &&
                 stockOam.HighTable.SequenceEqual(nativeLiveOam.HighTable),
@@ -84,8 +96,8 @@ internal static partial class Program
                 $"intro Rinka palette edit preserves native part {part} X/Y");
 
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var stockState = new IntroCinematicState(guarded, characterArtwork: stock);
-        var editedState = new IntroCinematicState(guarded, characterArtwork: edited);
+        var stockState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
+        var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
             typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!

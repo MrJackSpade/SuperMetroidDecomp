@@ -39,12 +39,6 @@ public static class SoftwareGameplayColorMathRenderer
     {
         var r = layer.Gameplay.Registers;
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
-        // Registers and backdrop are invariant for this immutable packet. Resolve
-        // their flags once rather than repeating Enum.HasFlag in the pixel loop;
-        // runtime optimization of that API differs between desktop JIT and Mono AOT.
-        bool showBg1 = (r.MainScreenLayers & SnesMainScreenLayers.Bg1) != 0;
-        bool showBg2 = (r.MainScreenLayers & SnesMainScreenLayers.Bg2) != 0;
-        bool showObjects = (r.MainScreenLayers & SnesMainScreenLayers.Obj) != 0;
         bool halfEnabled = (layer.ColorMath & SnesColorMathControl.Half) != 0;
         bool subtract = (layer.ColorMath & SnesColorMathControl.Subtract) != 0;
         Rgba32 backdrop = memory.Cgram.GetRgba(0);
@@ -68,6 +62,12 @@ public static class SoftwareGameplayColorMathRenderer
         for (int x = 0; x < width; x++)
         {
             int i = y * width + x, lineIndex = y - SnesPpuLayout.GameplayHudHeightPixels;
+            var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty ? r.MainScreenLayers
+                : (SnesMainScreenLayers)layer.Gameplay.MainScreenLayersByLine[lineIndex];
+            bool showBg1 = (mainScreen & SnesMainScreenLayers.Bg1) != 0;
+            bool showBg2 = (mainScreen & SnesMainScreenLayers.Bg2) != 0 &&
+                y >= r.Bg2FirstScanline && y < r.Bg2EndScanline;
+            bool showObjects = (mainScreen & SnesMainScreenLayers.Obj) != 0;
             XrayWindowLine window = layer.Lines[y];
             bool inside = x >= window.Left && x <= window.Right;
             var winner = backdrop;
@@ -106,7 +106,12 @@ public static class SoftwareGameplayColorMathRenderer
                 if (layer.AddSubscreen && layer.Subscreen is { } bg3 && y >= bg3.FirstScanline)
                 {
                     BackgroundLineScroll scroll = bg3.Scrolls[y];
-                    sub = subSampler!.Sample(x + scroll.X, y + scroll.Y).Color;
+                    var pixel = subSampler!.Sample(x + scroll.X, y + scroll.Y);
+                    // Gameplay uses Mode 1 with BG3 priority: high BG3 beats both
+                    // BG2 priorities; low BG3 is behind both. Transparent pixels
+                    // never replace an opaque operand on the same subscreen.
+                    if (pixel.Color.A != 0 && (pixel.High || sub.A == 0))
+                        sub = pixel.Color;
                 }
                 bool useSub = layer.AddSubscreen && sub.A != 0;
                 // A transparent subscreen falls back to COLDATA but disables halving.

@@ -1,5 +1,5 @@
-using System.Reflection;
 using SuperMetroid.Core.Assets;
+using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -23,6 +23,9 @@ internal static partial class Program
                 $"Phantoon projectile mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new PhantoonProjectileInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -105,21 +108,20 @@ internal static partial class Program
         AssertEqual(1, shotSystem.PhantoonFlameDropRequests.Count,
             "Phantoon shot callback publishes exactly one drop request");
 
-        AssertEqual(0,
-            guard.ObservedPresentationWords.Count,
-            "all Phantoon flame spritemap selectors are compiled");
-        for (int index = 0;
-             index < PhantoonProjectileInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "PhantoonProjectile execution performs no live spritemap operand reads");
+        AssertEqual(PhantoonProjectileInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "PhantoonProjectile executes every native visual operand");
+        for (int index = 0; index < PhantoonProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address = PhantoonProjectileInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selected),
-                "Every Phantoon flame operand has a compiled selector");
-            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selected,
-                "Exact native Phantoon flame visual operand");
+            ushort address = PhantoonProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"PhantoonProjectile executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "PhantoonProjectile has a compiled visual selector");
+            AssertEqual(ReadWord(rom, address), selector,
+                "PhantoonProjectile compiled selector matches the cartridge");
         }
-
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids Phantoon mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -138,8 +140,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Phantoon projectile instruction mechanics: fifty-eight compiled words, " +
-            "both real producers, every flame program, callbacks, and thirty-one exact native " +
-            "compiled selectors pass with zero live reads.");
+            "both real producers, every flame program, callbacks, and thirty-one installed " +
+            "sprite frames match native OAM without live operand reads.");
 
         RoomEnemySystem NewSystem()
         {
@@ -179,6 +181,7 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }
 

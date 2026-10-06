@@ -188,7 +188,8 @@ static void VerifyBgPriorityPlaneRendering()
 
 static void VerifyFileSelectFreshSaveTilemap()
 {
-    var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
+    var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace
+        .LoadRetailRom(Path.GetFullPath("Super Metroid.smc")).Rom.ToArray();
 
     // FileSelectMenuState also loads the labels surrounding NO DATA. Empty streams are
     // sufficient for this focused fixture, but each one still needs the native $FFFF
@@ -265,7 +266,14 @@ static void VerifyFileSelectFreshSaveTilemap()
     mapStations[0] = 0xff;
 
     var addressSpace = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-    var menu = new FileSelectMenuState(addressSpace);
+    string overrideRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
+        "file-select-label-fixture-" + Guid.NewGuid().ToString("N")));
+    Directory.CreateDirectory(overrideRoot);
+    File.WriteAllBytes(Path.Combine(overrideRoot, FileSelectPresentationDefinitions.FileName),
+        SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(addressSpace));
+    var fixturePresentation = AreaMapPresentationCatalog.Load(
+        runtimeFixtureInstallation.Value.MapDirectory, overrideRoot);
+    var menu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
     ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap;
 
     // Native empty-slot origins are energy-field X plus one $40-byte row: rows 6, 11,
@@ -324,7 +332,7 @@ static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(0x80, saved.ExploredMapBytes[0x07], "unpacked explored-map first exported byte");
     AssertEqual(0x04, saved.ExploredMapBytes[0x84], "unpacked explored-map sparse byte");
 
-    var savedMenu = new FileSelectMenuState(addressSpace);
+    var savedMenu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
     ReadOnlySpan<ushort> savedTilemap = savedMenu.BackgroundTilemap;
     AssertEqual(0x209d, savedTilemap[0x15c / 2], "saved slot ENERGY first tile");
     AssertEqual(0x2069, savedTilemap[(0x15c + 0x42) / 2], "saved slot energy tens");
@@ -339,7 +347,7 @@ static void VerifyFileSelectFreshSaveTilemap()
 
     // Drive the real newly-pressed latch and fade states into COPY. Slot zero is the only
     // nonempty source, destination one is the first native choice, and YES is the default.
-    var copyMenu = new FileSelectMenuState(addressSpace);
+    var copyMenu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
     AdvanceFileSelectToMain(copyMenu);
     PulseFileSelect(copyMenu, SnesButton.Down);
     PulseFileSelect(copyMenu, SnesButton.Down);
@@ -365,7 +373,7 @@ static void VerifyFileSelectFreshSaveTilemap()
     // Re-enter the main screen from the copied SRAM image and clear slot A. This exercises
     // the actual confirmation default and the native four-directory invalidation, not a
     // host-only hidden flag.
-    var clearMenu = new FileSelectMenuState(addressSpace);
+    var clearMenu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
     AdvanceFileSelectToMain(clearMenu);
     for (int move = 0; move < 4; move++)
         PulseFileSelect(clearMenu, SnesButton.Down);
@@ -450,7 +458,7 @@ static void VerifySavedGameLoadAppearance()
     SuperMetroidSaveSlot slot = saveRam.ReadSlot(0)
         ?? throw new InvalidOperationException("Synthetic Crateria save did not validate.");
 
-    var runtime = new SuperMetroidRuntime(bus);
+    var runtime = CreateRetailRuntimeFixture(bus);
     runtime.InitializeHud(new HudSnapshot(
         slot.Health,
         slot.MaxHealth,
@@ -603,7 +611,7 @@ static void VerifyDemoInputObject()
     var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     demo.Clear();
     demo.Enable();
-    demo.LoadObject(bus, DemoInputRomData.IntroMotherBrain.Object);
+    demo.LoadObject(bus, DemoInputRomData.IntroMotherBrain.Object, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
 
     int[] boundaries = [90, 1, 40, 1, 29, 70];
     ushort[] held =
@@ -616,7 +624,7 @@ static void VerifyDemoInputObject()
     {
         for (int frame = 0; frame < boundaries[record]; frame++)
         {
-            demo.Step(bus);
+            demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
             AssertEqual(held[record], demo.Held, $"demo record {record} held frame {frame}");
             AssertEqual(newlyPressed[record], demo.NewlyPressed,
                 $"demo record {record} new frame {frame}");
@@ -638,9 +646,9 @@ static void VerifyDemoInputObject()
         var retailDemo = new DemoInputState();
         var retailBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(File.ReadAllBytes(retailPath));
         retailDemo.Enable();
-        retailDemo.LoadObject(retailBus, DemoInputRomData.IntroMotherBrain.Object);
+        retailDemo.LoadObject(retailBus, DemoInputRomData.IntroMotherBrain.Object, definitionWord: pointer => ReadDemoFixtureWord(retailBus, pointer));
         for (int frame = 0; frame < elapsed; frame++)
-            retailDemo.Step(retailBus);
+            retailDemo.Step(retailBus, instructionWord: pointer => ReadDemoFixtureWord(retailBus, pointer));
         AssertEqual(demo.InstructionPointer, retailDemo.InstructionPointer,
             "retail old-Mother-Brain stream reaches catalogued record boundary");
         AssertEqual(demo.Held, retailDemo.Held,
@@ -667,14 +675,14 @@ static void VerifyDemoInputObject()
     bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     demo.Clear();
     demo.Enable();
-    demo.LoadObject(bus, 0x8720);
-    demo.Step(bus);
+    demo.LoadObject(bus, 0x8720, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
+    demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
     AssertEqual(fixtureHeld, demo.Held, "demo opcode fixture first held word");
     AssertEqual(2, demo.Timer, "demo set-timer opcode");
-    demo.Step(bus);
+    demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
     AssertEqual(1, demo.Timer, "demo decrement/goto loops while nonzero");
     AssertEqual(fixtureHeld, demo.Held, "demo loop replays input record");
-    demo.Step(bus);
+    demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
     AssertEqual(0, demo.Timer, "demo decrement/goto falls through at zero");
     AssertEqual(0, demo.InstructionPointer, "demo delete clears list pointer");
     AssertEqual(0, demo.Held, "demo delete clears held input");
@@ -691,9 +699,9 @@ static void VerifyDemoInputObject()
     bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
     demo.Clear();
     demo.Enable();
-    demo.LoadObject(bus, 0x8730);
+    demo.LoadObject(bus, 0x8730, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
     int specialInstructionCalls = 0;
-    demo.Step(bus, specialInstruction: (state, instruction, argumentPointer) =>
+    demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer), specialInstruction: (state, instruction, argumentPointer) =>
     {
         AssertEqual(0x8739, instruction, "demo special instruction pointer");
         specialInstructionCalls++;
@@ -707,6 +715,9 @@ static void VerifyDemoInputObject()
     Console.WriteLine("  Demo input: records, edges, shared opcodes, special dispatch, and deletion agree.");
 }
 
+static ushort ReadDemoFixtureWord(ISnesAddressSpace bus, ushort pointer) =>
+    (ushort)(bus.ReadByte(DemoInputRomData.BankBase | pointer) |
+        bus.ReadByte(DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1))) << 8);
 static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);

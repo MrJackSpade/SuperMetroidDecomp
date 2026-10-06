@@ -26,7 +26,8 @@ public static class SnesCpuOperandRead
         // ROM/WRAM banks with the same low offset must not be treated as open bus.
         if ((bank & 0x40) == 0 &&
             ((offset >= SnesCpuOpenBusWindows.ReservedBBusStart && offset <= SnesCpuOpenBusWindows.ReservedBBusEnd) ||
-             (offset >= SnesCpuOpenBusWindows.UnpopulatedExpansionStart && offset <= SnesCpuOpenBusWindows.UnpopulatedExpansionEnd)))
+             (offset >= SnesCpuOpenBusWindows.UnpopulatedExpansionStart && offset <= SnesCpuOpenBusWindows.UnpopulatedExpansionEnd) ||
+             (offset >= LoRomExpansionReadMap.ExpansionStart && offset < LoRomExpansionReadMap.RomStart)))
             return memoryDataRegister;
         return SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {

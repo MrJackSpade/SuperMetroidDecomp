@@ -53,11 +53,16 @@ internal static partial class Program
             projectile.InstructionPointer,
             "Falling Spark definition selects the named falling program");
 
+        var observedOperands = new HashSet<ushort>();
         object?[] arguments = [projectile, null, (ushort)0, (ushort)0];
         for (int frame = 0; frame < 4; frame++)
         {
             projectile.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
+            AssertEqual((ushort)(FallingSparkInstructionProgramDefinitions.Falling + 2 + (frame % 3) * 4),
+                projectile.PresentationOperandAddress, "falling spark frame order and loop restart");
+            AssertEqual((ushort)3, projectile.InstructionTimer, "falling spark frame duration");
+            observedOperands.Add(projectile.PresentationOperandAddress);
         }
         AssertEqual(
             unchecked((ushort)(FallingSparkInstructionProgramDefinitions.Falling + 4)),
@@ -73,6 +78,10 @@ internal static partial class Program
         {
             projectile.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
+            AssertEqual((ushort)(FallingSparkInstructionProgramDefinitions.HitFloor + 2 + frame * 4),
+                projectile.PresentationOperandAddress, "falling spark impact blink frame order");
+            AssertEqual((ushort)1, projectile.InstructionTimer, "falling spark impact frame duration");
+            observedOperands.Add(projectile.PresentationOperandAddress);
         }
         AssertEqual(
             FallingSparkInstructionProgramDefinitions.HitFloorTerminalDelete,
@@ -85,8 +94,8 @@ internal static partial class Program
 
         AssertEqual(
             FallingSparkInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Falling Spark spritemap operands remain cartridge reads");
+            observedOperands.Count,
+            "all Falling Spark installed visual operands are selected");
         for (int index = 0;
              index < FallingSparkInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -94,9 +103,11 @@ internal static partial class Program
             ushort address =
                 FallingSparkInstructionProgramDefinitions.PresentationWordAddress(index);
             AssertTrue(
-                guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Falling Spark presentation $86:{address:X4}");
+                observedOperands.Contains(address),
+                $"production execution selects Falling Spark presentation $86:{address:X4}");
         }
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Falling Spark presentation does not read cartridge bytes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Falling Spark mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -115,7 +126,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Falling Spark instruction mechanics: seventeen compiled words, complete " +
-            "falling/floor-impact execution, and fourteen live spritemap reads pass " +
+            "falling/floor-impact execution, and fourteen installed visual operands pass " +
             "with mechanics bytes forbidden.");
     }
 

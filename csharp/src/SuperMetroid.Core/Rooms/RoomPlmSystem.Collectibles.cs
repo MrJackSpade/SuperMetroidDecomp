@@ -25,6 +25,34 @@ public sealed partial class RoomPlmSystem
     private int _nextCollectibleGraphicsSlot;
     private CollectiblePickupEvent? _lastCollectiblePickup;
     private bool _collectibleFanfareRequested;
+    private bool _pendingSpeedBoosterPickupContinuation;
+
+    /// <summary>Whether the PLM handler is waiting for its synchronous pickup message.</summary>
+    internal bool HasPendingCollectibleMessage
+    {
+        get
+        {
+            foreach (PlmSlot slot in _slots)
+                if (slot.Active && slot.Item?.Phase == CollectiblePhase.AwaitingMessage)
+                    return true;
+            return false;
+        }
+    }
+
+    /// <summary>Resumes the item's synchronous bank-$85 message return continuation.</summary>
+    internal void CompleteCollectibleMessage()
+    {
+        foreach (PlmSlot slot in _slots)
+            if (slot.Active && slot.Item?.Phase == CollectiblePhase.AwaitingMessage)
+                slot.Item.Phase = CollectiblePhase.ResumeAfterMessage;
+        if (!_pendingSpeedBoosterPickupContinuation)
+            return;
+        RoomLayer3FxState fx = _speedBoosterEscapeFx
+            ?? throw new InvalidOperationException("Speed Booster pickup has no room-FX owner.");
+        fx.ApplyCartridgeMotionWrites(
+            packedYVelocity: SpeedBoosterPickupDefinitions.LavaRiseVelocity);
+        _pendingSpeedBoosterPickupContinuation = false;
+    }
 
     /// <summary>Pickup publications produced during the most recent PLM handler pass.</summary>
     public IReadOnlyList<CollectiblePickupEvent> CollectiblePickupEvents =>
@@ -72,6 +100,13 @@ public sealed partial class RoomPlmSystem
         {
             if (!slot.Active || slot.BlockIndex != blockIndex || slot.Item is null)
                 continue;
+            // The pickup message retains both the visible block and its physical owner.
+            // On message return, movement can touch that block before PLM_Handler runs
+            // the pending empty draw/delete. Native $EEAB matches the block index without
+            // filtering the instruction phase; acknowledge this owner without collecting
+            // again or disturbing its message-return continuation.
+            if (slot.Item.Phase is CollectiblePhase.AwaitingMessage or CollectiblePhase.ResumeAfterMessage)
+                return true;
             if (slot.Item.Phase is not (
                     CollectiblePhase.Visible or CollectiblePhase.ShotBlockVisible))
                 return false;
@@ -118,6 +153,7 @@ public sealed partial class RoomPlmSystem
         _nextCollectibleGraphicsSlot = 0;
         _lastCollectiblePickup = null;
         _collectibleFanfareRequested = false;
+        _pendingSpeedBoosterPickupContinuation = false;
     }
 
     /// <summary>
@@ -166,6 +202,8 @@ public sealed partial class RoomPlmSystem
                 CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,
                 _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
             };
+        // Both native item setup paths increment the saved load counter, even for collected items.
+        system.LoadedItemCount = unchecked((ushort)(system.LoadedItemCount + 1));
         slot.Item = new CollectiblePlmState(kind, presentation, graphicsSlot, phase);
     }
 
@@ -292,6 +330,14 @@ public sealed partial class RoomPlmSystem
 
         switch (item.Phase)
         {
+            case CollectiblePhase.AwaitingMessage:
+                return true;
+
+            case CollectiblePhase.ResumeAfterMessage:
+                FinishCollectiblePickup(bus, level, streamer, slot,
+                    layer1XPosition, layer1YPosition, bg1XOffset);
+                return true;
+
             case CollectiblePhase.CollectedEmpty:
                 DrawCollectible(
                     bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty,
@@ -303,8 +349,7 @@ public sealed partial class RoomPlmSystem
             case CollectiblePhase.Visible:
                 if (item.Triggered)
                 {
-                    AcquireCollectible(bus, level, streamer, slot,
-                        layer1XPosition, layer1YPosition, bg1XOffset);
+                    AcquireCollectible(slot);
                     return true;
                 }
                 DrawCollectible(
@@ -318,8 +363,7 @@ public sealed partial class RoomPlmSystem
             case CollectiblePhase.ShotBlockVisible:
                 if (item.Triggered)
                 {
-                    AcquireCollectible(bus, level, streamer, slot,
-                        layer1XPosition, layer1YPosition, bg1XOffset);
+                    AcquireCollectible(slot);
                     return true;
                 }
                 DrawCollectible(
@@ -503,14 +547,7 @@ public sealed partial class RoomPlmSystem
             layer1YPosition,
             bg1XOffset);
 
-    private void AcquireCollectible(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        PlmSlot slot,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
-        ushort bg1XOffset)
+    private void AcquireCollectible(PlmSlot slot)
     {
         CollectiblePlmState item = slot.Item
             ?? throw new InvalidOperationException("A non-item PLM attempted acquisition.");
@@ -534,7 +571,29 @@ public sealed partial class RoomPlmSystem
         _collectiblePickupEvents.Add(pickup);
         _lastCollectiblePickup = pickup;
         _collectibleFanfareRequested = true;
+        _pendingSpeedBoosterPickupContinuation =
+            item.Kind == InWorldCollectibleKind.SpeedBooster &&
+            item.Presentation == CollectiblePresentation.ChozoOrb;
 
+        // The item instruction grants inventory before DisplayMessageBox, but its
+        // following draw/delete instructions cannot run until that synchronous call
+        // returns. Keep the existing tile and physical slot throughout the fanfare.
+        item.Triggered = false;
+        item.Timer = 0;
+        item.Phase = CollectiblePhase.AwaitingMessage;
+    }
+
+    private void FinishCollectiblePickup(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        PlmSlot slot,
+        ushort layer1XPosition,
+        ushort layer1YPosition,
+        ushort bg1XOffset)
+    {
+        CollectiblePlmState item = slot.Item
+            ?? throw new InvalidOperationException("A non-item PLM resumed a pickup message.");
         if (item.Presentation == CollectiblePresentation.ShotBlock)
         {
             // After the message, the shot-block list draws empty for 22 eight-frame
@@ -734,6 +793,8 @@ public enum CollectiblePhase : byte
     CollectedShotBlock,
     CollectedShotBlockEmpty,
     CollectedShotBlockRespawn,
+    AwaitingMessage,
+    ResumeAfterMessage,
 }
 
 /// <summary>Stable debugger view of one occupied permanent-item PLM slot.</summary>

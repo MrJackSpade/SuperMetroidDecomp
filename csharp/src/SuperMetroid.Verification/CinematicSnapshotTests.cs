@@ -13,7 +13,7 @@ internal static partial class Program
         VerifyZebesDoesNotWrapDuringDescent();
         VerifyIntroDisplayCapture();
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var flight = new IntroCeresFlightState(bus);
+        var flight = new IntroCeresFlightState(bus, runtimeFixtureInstallation.Value.LoadIntroCinematicArt().CeresFlight);
         var flightPhases = new HashSet<IntroCeresFlightPhase>();
         int flightSamples = 0;
         bool coloredRearView = false;
@@ -36,7 +36,7 @@ internal static partial class Program
         AssertTrue(flight.Finished && coloredRearView, "flight fixture completes and exercises nonzero fixed color");
         AssertTrue(flightPhases.Contains(IntroCeresFlightPhase.SpaceColonyTitle), "flight caption captured");
         Console.WriteLine($"  Ceres flight snapshots: {flightSamples} samples across {flightPhases.Count} phases match, including fixed-color rear view.");
-        var destruction = new CeresDestructionCinematicState(bus);
+        var destruction = CreateRetailDestructionFixture(bus);
         var phases = new HashSet<CeresDestructionPhase>();
         int samples = 0;
         bool mode1 = false, mode7 = false, explosionWindow = false, explosionCoversTop = false;
@@ -72,7 +72,7 @@ internal static partial class Program
         foreach (bool chooseNo in new[] { false, true })
         {
             var audio = new CartridgeAudioState();
-            var menu = new GameOverMenuState(bus, audio);
+            var menu = new GameOverMenuState(bus, audio, RetailPresentationFixture());
             bool toggled = false, released = false;
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
             {
@@ -110,8 +110,8 @@ internal static partial class Program
     private static void VerifyIntroDisplayCapture()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
-        var legacy = new IntroCinematicState(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
-        var captured = new IntroCinematicState(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+        var legacy = CreateRetailIntroFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+        var captured = CreateRetailIntroFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
         var phases = new HashSet<IntroCinematicPhase>();
         int samples = 0;
         for (int tick = 0; tick < 20000 && !legacy.CeresFlightFinished; tick++)

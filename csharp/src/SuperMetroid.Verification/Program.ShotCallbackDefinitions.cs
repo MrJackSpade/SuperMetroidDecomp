@@ -11,7 +11,8 @@ internal static partial class Program
         var shotCallbacks = new HashSet<int>();
         var touchCallbacks = new HashSet<int>();
         int headers = 0, lists = 0, boxes = 0;
-        foreach (string line in File.ReadLines("upstream-disassembly/src/bank_A0.asm"))
+        string disassemblySource = FindCallbackDisassemblySource();
+        foreach (string line in File.ReadLines(Path.Combine(disassemblySource, "bank_A0.asm")))
         {
             Match match = Regex.Match(line, @"^EnemyHeaders_\w+:\s*;([0-9A-F]{6});");
             if (!match.Success) continue;
@@ -21,7 +22,7 @@ internal static partial class Program
             shotCallbacks.Add(bank | Word(address + 50));
             headers++;
         }
-        foreach (string file in Directory.EnumerateFiles("upstream-disassembly/src", "bank_*.asm"))
+        foreach (string file in Directory.EnumerateFiles(disassemblySource, "bank_*.asm"))
         {
             bool pending = false;
             foreach (string line in File.ReadLines(file))

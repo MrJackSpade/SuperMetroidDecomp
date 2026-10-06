@@ -24,6 +24,13 @@ public static class SamusPostDrawAudio
         }
 
         SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(samus, controllerInput);
+        var speed = samus.HorizontalSpeed;
+        if (speed.EchoSoundFlag != 0 &&
+            (speed.SpeedBoostCounter & SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage) == 0)
+        {
+            speed.EchoSoundFlag = 0;
+            samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary3Sounds.StopSpeedBoosterEcho, maximumQueued: 15);
+        }
         if (previousMovement is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) ||
             samus.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
             return;

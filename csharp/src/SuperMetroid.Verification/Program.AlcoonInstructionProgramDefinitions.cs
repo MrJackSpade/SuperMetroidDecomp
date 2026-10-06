@@ -124,12 +124,15 @@ internal static partial class Program
 
         var guard = new AlcoonInstructionReadGuard(rom, forbidPresentation: true);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(rom, AlcoonInstructionAuditRoom);
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(rom, room);
+        var installation = runtimeFixtureInstallation.Value;
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(rom, room,
+            installation.LoadRoomCharacters(), installation.LoadRoomPalettes(),
+            installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem { TileArtwork = installedArt };
+        var enemies = new RoomEnemySystem { TileArtwork = installedArt ?? installation.LoadEnemyTiles() };
         enemies.Load(
             guard,
             room.State.EnemyPopulationPointer,

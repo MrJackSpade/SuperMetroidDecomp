@@ -88,7 +88,7 @@ internal static partial class Program
         ushort ceresPointer = LoadStationDefinitions.Get(AreaId.Ceres, 0).RoomPointer;
         CartridgeRoomHeader ceres = CartridgeRoomHeader.LoadUsingCompiledSelection(
             ceresPointer);
-        var guardedCeres = new SuperMetroidRuntime(new RoomScrollSourceReadGuard(
+        var guardedCeres = CreateRetailRuntimeFixture(new RoomScrollSourceReadGuard(
             bus, ceres.State.ScrollPointer));
         guardedCeres.InitializeStartingCeresRoom();
         var expectedCeres = new byte[RoomScrollGrid.StorageByteCount];
@@ -109,7 +109,7 @@ internal static partial class Program
 
         CartridgeRoomState landingState = RoomStateDefinitions.Get(
             RoomStateSelectionDefinitions.Select(RoomHeaderPointers.LandingSite, default));
-        var guardedLanding = new SuperMetroidRuntime(new RoomScrollSourceReadGuard(
+        var guardedLanding = CreateRetailRuntimeFixture(new RoomScrollSourceReadGuard(
             bus, landingState.ScrollPointer));
         guardedLanding.InitializeLandingSiteCamera();
         AssertTrue(RoomScrollDefinitions.Get(landingState.ScrollPointer).Storage.Span

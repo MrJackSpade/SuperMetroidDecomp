@@ -34,7 +34,16 @@ internal static partial class Program
                 stock.Palette.ColorAt(index), "installed Ceres palette preserves every native color");
 
         var guard = new IntroArtworkSourceReadGuard(bus, blockCeresFlightSprites: true);
-        var native = new IntroCeresFlightState(bus);
+        var referenceFiles = CeresFlightArtworkExtractor.Extract(bus);
+        using var referenceCharacters = new MemoryStream(referenceFiles[CeresFlightArtworkFormat.Mode7FileName]);
+        using var referenceMaps = new MemoryStream(referenceFiles[CeresFlightArtworkFormat.MapFileName]);
+        using var referenceObjects = new MemoryStream(referenceFiles[CeresFlightArtworkFormat.ObjectFileName]);
+        using var referencePalette = new MemoryStream(referenceFiles[CeresFlightPaletteFormat.FileName]);
+        using var referenceSprites = new MemoryStream(referenceFiles[CeresFlightSpriteFormat.FileName]);
+        using var referenceActors = new MemoryStream(referenceFiles[CeresFlightActorLayoutFormat.FileName]);
+        var native = new IntroCeresFlightState(bus, CeresFlightArtworkCatalog.Load(
+            referenceCharacters, referenceMaps, referenceObjects, referencePalette,
+            referenceSprites, referenceActors));
         var installed = new IntroCeresFlightState(guard, stock);
         var phases = new HashSet<IntroCeresFlightPhase>();
         for (int tick = 0; tick < 4000 && !native.Finished; tick++)
@@ -115,7 +124,7 @@ internal static partial class Program
                 "restored Ceres fixture reaches the rear-view map handoff");
             // The desktop/Android restore path rebinds the parent cinematic, not
             // this nested flight directly. Exercise that real handoff here.
-            var parent = new IntroCinematicState(guard,
+            var parent = CreateRetailIntroFixture(guard,
                 characterArtwork: IntroCinematicArtworkFiles.Load(
                     installation.IntroCinematicDirectory, null));
             typeof(IntroCinematicState).GetField("ceresFlight",

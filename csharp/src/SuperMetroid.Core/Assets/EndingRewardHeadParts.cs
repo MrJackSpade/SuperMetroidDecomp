@@ -38,7 +38,7 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
             if (pose is >= Pose.SamusHeadFromEndingFrame1 and <= Pose.SamusHeadFromEndingFrame4)
             {
                 x = -8; y = index == 0 ? -8 : -16; large = true;
-                tile = index == 0 ? 0x188 + 2 * (pose - Pose.SamusHeadFromEndingFrame1) : 0x178;
+                tile = index == 0 ? 0x188 + 2 * (pose - Pose.SamusHeadFromEndingFrame1) : 0x178; // magic-number-audit: allow(PoseOrMovement) - tile atlas indices and strides for cinematic sprite composition.
             }
             else if (pose == Pose.SamusHeadWithHelmetFromEnding)
             {

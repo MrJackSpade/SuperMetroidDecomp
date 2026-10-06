@@ -370,6 +370,7 @@ public sealed partial class SuperMetroidRuntime
             // particular, Fire can first cancel a spin and then start Grapple without
             // requiring another physical press after the prospective pose is applied.
             Samus.SnapshotDrawInput(Controller1.Current, Controller1.NewlyPressed);
+            Samus.UpdateHurtFlashFromHealthLoss();
             // $91:F1EC never replaces the demo input handler with auto-jump.
             if (IsAttractDemo) Samus.AutoJumpInputPending = false;
 

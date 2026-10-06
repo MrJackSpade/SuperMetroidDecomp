@@ -10,36 +10,47 @@ public sealed partial class D3D11FrameRenderer
         OrdinaryGameplayRegisters r = layer.Registers;
         // Preserve the Mode-1 priority ladder. Resolving OAM before these passes
         // prevents a hidden higher-index sprite from reappearing at another rank.
-        Objects(0); Objects(1); Background2(false); Background1(false);
-        Objects(2); Background2(true); Background1(true); Objects(3);
+        int first = SnesPpuLayout.GameplayHudHeightPixels, end;
+        SnesMainScreenLayers activeLayers;
+        while (first < SnesPpuLayout.ScreenHeightPixels)
+        {
+            activeLayers = layer.MainScreenLayersByLine.IsEmpty ? r.MainScreenLayers
+                : (SnesMainScreenLayers)layer.MainScreenLayersByLine[first - SnesPpuLayout.GameplayHudHeightPixels];
+            end = first + 1;
+            while (end < SnesPpuLayout.ScreenHeightPixels && (layer.MainScreenLayersByLine.IsEmpty ||
+                layer.MainScreenLayersByLine[end - SnesPpuLayout.GameplayHudHeightPixels] == (ushort)activeLayers)) end++;
+            Objects(0); Objects(1); Background2(false); Background1(false);
+            Objects(2); Background2(true); Background1(true); Objects(3);
+            first = end;
+        }
         DispatchTile(D3D11TileOperation.Bg2, SnesPpuLayout.GameplayHudTilemapWord,
             r.HudCharacterWord, transparentZero: 0, endScanline: SnesPpuLayout.GameplayHudHeightPixels,
             windows: r.Windows, windowMask: r.MainScreenWindowMask, windowTarget: SnesWindowTarget.Bg3);
 
         void Objects(uint priority)
         {
-            if ((r.MainScreenLayers & SnesMainScreenLayers.Obj) != 0)
+            if ((activeLayers & SnesMainScreenLayers.Obj) != 0)
                 DispatchTile(D3D11TileOperation.InsertObj, priority: priority + 1,
-                    firstScanline: SnesPpuLayout.GameplayHudHeightPixels,
+                    firstScanline: (uint)first, endScanline: (uint)end,
                     windows: r.Windows, windowMask: r.MainScreenWindowMask, windowTarget: SnesWindowTarget.Obj);
         }
         void Background1(bool high)
         {
-            if ((r.MainScreenLayers & SnesMainScreenLayers.Bg1) != 0)
+            if ((activeLayers & SnesMainScreenLayers.Bg1) != 0)
                 DispatchTile(D3D11TileOperation.Bg4, SnesPpuLayout.GameplayBg1TilemapWord,
                     r.Bg1CharacterWord, r.Bg1X,
                     unchecked((ushort)(r.Bg1Y + SnesPpuLayout.FirstVisibleBackgroundScanline)),
                     64, 32, Priority(high),
-                    firstScanline: SnesPpuLayout.GameplayHudHeightPixels,
+                    firstScanline: (uint)first, endScanline: (uint)end,
                     windows: r.Windows, windowMask: r.MainScreenWindowMask, windowTarget: SnesWindowTarget.Bg1);
         }
         void Background2(bool high)
         {
-            if ((r.MainScreenLayers & SnesMainScreenLayers.Bg2) != 0) DispatchGameplayBg2(layer, high);
+            if ((activeLayers & SnesMainScreenLayers.Bg2) != 0) DispatchGameplayBg2(layer, high, first, end);
         }
     }
 
-    private unsafe void DispatchGameplayBg2(OrdinaryGameplayRenderLayer layer, bool high)
+    private unsafe void DispatchGameplayBg2(OrdinaryGameplayRenderLayer layer, bool high, int first, int end)
     {
         var r = layer.Registers;
         var data = ClearUploadConstants();
@@ -47,7 +58,7 @@ public sealed partial class D3D11FrameRenderer
         data[1] = r.Bg2TilemapWord; data[2] = r.Bg2CharacterWord;
         data[5] = (uint)r.Bg2WidthTiles; data[6] = (uint)r.Bg2HeightTiles;
         data[7] = Priority(high); data[8] = 1; data[15] = 1;
-        data[25] = (uint)r.Bg2FirstScanline; data[26] = (uint)r.Bg2EndScanline;
+        data[25] = (uint)Math.Max(r.Bg2FirstScanline, first); data[26] = (uint)Math.Min(r.Bg2EndScanline, end);
         // Header word 27 is the BG4 gameplay mosaic width (zero elsewhere).
         data[27] = (uint)r.Bg2Mosaic.Size;
         SetWindowConstants(data, r.Windows, r.MainScreenWindowMask, SnesWindowTarget.Bg2);

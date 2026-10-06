@@ -29,6 +29,9 @@ internal static partial class Program
                 $"downward-gate projectile mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new DownwardGateProjectileInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -105,13 +108,18 @@ internal static partial class Program
         AssertTrue(!shot.IsActive,
             "downward-gate shot reaction reaches shared compiled deletion");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled visual operands require no cartridge reads");
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Projectile presentation performs zero live cartridge reads");
+        AssertEqual(DownwardGateProjectileInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "Every native visual operand executes");
         for (int index = 0;
              index < DownwardGateProjectileInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = DownwardGateProjectileInstructionProgramDefinitions
                 .PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"production executes downward-gate presentation $86:{address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
                 $"compiled visual selector exists at $86:{address:X4}");
             AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
@@ -136,7 +144,7 @@ internal static partial class Program
         Console.WriteLine(
             "Downward-gate projectile instruction mechanics: twenty-eight compiled words, " +
             "both real producers, four-stage close/open lifecycles, shared deletion, and " +
-            "nine compiled spritemap operands pass.");
+            "nine executed native sprite compositions pass with zero live operand reads.");
 
         RoomEnemySystem NewSystem()
         {
@@ -161,6 +169,7 @@ internal static partial class Program
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
             process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
 
         void RunMovementFrames(

@@ -312,6 +312,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, new SnesVram());
         return enemies;
     }
 

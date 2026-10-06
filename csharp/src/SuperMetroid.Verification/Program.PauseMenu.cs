@@ -8,10 +8,10 @@ using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
     /// <summary>
-    /// Exercises pause-page transitions and live equipment mutation against a deliberately
-    /// tiny synthetic ROM table. The private-ROM route separately proves the same table
-    /// interpreter against retail assets; this fixture makes input/bit semantics part of
-    /// the always-runnable suite without bundling copyrighted graphics.
+    /// Exercises pause transitions and live equipment changes with constructed
+    /// map, palette and sprite assets. Immutable selection rules remain retail;
+    /// the tiny visual fixture makes layer priority, OAM placement and unpause
+    /// transfers observable without depending on retail pixel colors.
     /// </summary>
     static void VerifyPauseMenuEquipmentInteraction()
     {
@@ -62,70 +62,6 @@ internal static partial class Program
             WriteRomByte(rom, 0xb68000 + 2 * 32 + row * 2 + 1, 0xff);
         }
 
-        // Both pause indicators are ordinary bank-$82 menu spritemaps. One harmless
-        // single-entry record lets this synthetic test inspect OAM placement without
-        // embedding any retail graphics. The private-ROM route below exercises the real
-        // records and pixels.
-        WriteRomWord(rom, 0x82c569 + 0x5f * 2, 0x8100);
-        WriteRomWord(rom, 0x82c569 + 0x10 * 2, 0x8100);
-        WriteRomWord(rom, 0x828100, 1);
-        WriteRomWord(rom, 0x82c100, 0x0e00);
-
-        // DrawPauseScreenSpriteAnim(3) reads an eight-bit category from WRAM $0755,
-        // then uses the category to select the base ID at $82:C202. Populate several
-        // identical animation records because the 32-frame page fade advances the timer.
-        WriteRomWord(rom, 0x82c0da, 0x0755);
-        WriteRomWord(rom, 0x82c0ec, 0x8200);
-        for (int frame = 0; frame < 8; frame++)
-        {
-            WriteRomByte(rom, 0x828200 + frame * 3, 8);
-            WriteRomByte(rom, 0x828202 + frame * 3, 0);
-        }
-        WriteRomByte(rom, 0x828200 + 8 * 3, 0xff);
-        WriteRomWord(rom, 0x82c1e8, 0xc300);
-        WriteRomWord(rom, 0x82c300 + 2 * 2, 0x0010);
-        WriteRomWord(rom, 0x82c18e + 2 * 2, 0xc400);
-        WriteRomWord(rom, 0x82c400 + 2 * 4, 0x0091);
-        WriteRomWord(rom, 0x82c402 + 2 * 4, 0x0071);
-        WriteRomWord(rom, 0x82c400 + 3 * 4, 0x00a1);
-        WriteRomWord(rom, 0x82c402 + 3 * 4, 0x0081);
-
-        // Four wireframe comparison entries cover no suit, Varia, Gravity, and both.
-        ushort[] wireframeComparisons = [0x0000, 0x0001, 0x0100, 0x0101];
-        for (int index = 0; index < wireframeComparisons.Length; index++)
-        {
-            WriteRomWord(rom, 0x82b257 + index * 2, wireframeComparisons[index]);
-            WriteRomWord(rom, 0x82b25f + index * 2, 0x8000);
-        }
-
-        // The real tables contain WRAM byte destinations, bank-$82 source pointers, and
-        // inventory masks. Give every synthetic label a disjoint valid destination while
-        // retaining the real category counts and early-game Morph/Bombs masks.
-        PopulateEquipmentCategory(
-            rom,
-            offsetTable: 0x82c06c,
-            tilemapPointerTable: 0x82c08c,
-            bitmaskTable: 0x82c04c,
-            destinationStart: 0x3800,
-            masks: [0x1000, 0x0002, 0x0001, 0x0004, 0x0008],
-            labelWords: 5);
-        PopulateEquipmentCategory(
-            rom,
-            offsetTable: 0x82c076,
-            tilemapPointerTable: 0x82c096,
-            bitmaskTable: 0x82c056,
-            destinationStart: 0x3900,
-            masks: [0x0001, 0x0020, 0x0004, 0x1000, 0x0002, 0x0008],
-            labelWords: 9);
-        PopulateEquipmentCategory(
-            rom,
-            offsetTable: 0x82c082,
-            tilemapPointerTable: 0x82c0a2,
-            bitmaskTable: 0x82c062,
-            destinationStart: 0x3a00,
-            masks: [0x0100, 0x0200, 0x2000],
-            labelWords: 9);
-
         // Pause keeps the existing BG3 HUD tilemap but replaces its character sheet with
         // $9A:B200. Give character one one visible pixel and palette color one a white
         // value, then publish that character in the retained gameplay VRAM image.
@@ -138,26 +74,10 @@ internal static partial class Program
         WriteRomWord(rom, 0xb6f002, 0x7fff);
         WriteRomWord(rom, 0xb6f004, 0x03e0);
 
-        // Give Wave Beam its own unmistakable character bytes and palette. This is the
-        // PPU state that unpause must rebuild from the live word after an equipment toggle;
-        // no room load participates in the regression.
-        WriteRomWord(rom, SamusProjectileRomData.Beams.TilePointers + 2, 0x9000);
-        WriteRomWord(rom, SamusProjectileRomData.Beams.PalettePointers + 2, 0x9100);
-        for (int index = 0; index < 0x0100; index++)
-            WriteRomByte(rom, 0x9a9000 + index, unchecked((byte)(0x40 + index)));
-        for (int color = 0; color < SamusProjectileRomData.Palettes.ColorCount; color++)
-            WriteRomWord(rom, 0x909100 + color * 2, unchecked((ushort)(0x3200 + color)));
-
         var gameplayVram = new SnesVram();
-        // Reserve capacity below now exercises native label loading as well as
-        // supply digits. Supply valid table destinations and harmless synthetic
-        // sources; the dedicated retail label test verifies the actual glyphs.
-        WriteRomWord(rom, PauseReserveLabelRomData.DestinationTable, 0x3a88);
-        WriteRomWord(rom, PauseReserveLabelRomData.DestinationTable + 2, 0x3ac8);
-        WriteRomWord(rom, PauseReserveLabelRomData.SourceTable, 0x8000);
-        WriteRomWord(rom, PauseReserveLabelRomData.SourceTable + 2, 0x8000);
         gameplayVram.ExecuteWordTransfer([0x0001], 0x5800, 1);
         var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
+        var presentation = CreateConstructedPausePresentation(bus);
         var samus = new SamusState
         {
             CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
@@ -177,7 +97,7 @@ internal static partial class Program
             areaIndex: AreaId.Crateria,
             roomMapX: 28,
             roomMapY: 1,
-            gameplayVram: gameplayVram);
+            gameplayVram: gameplayVram, mapPresentation: presentation);
 
         AssertEqual(0, pause.ScreenMode, "pause begins on map page");
         AssertEqual(0x0804, pause.ReadReserveSupplyDigit(0).Raw,
@@ -198,7 +118,8 @@ internal static partial class Program
         AssertEqual(116, pause.LastIndicatorOriginX, "pause map marker X origin");
         AssertEqual(64, pause.LastIndicatorOriginY, "pause map marker Y origin");
         AssertEqual(0x5f, pause.LastIndicatorSpritemapId, "pause map marker initial frame");
-        AssertEqual(1, pause.LastRenderedSpriteCount, "pause map marker OAM count");
+        // The fixture retains the five retail Crateria destination labels (22 OBJ parts).
+        AssertEqual(23, pause.LastRenderedSpriteCount, "pause marker plus downloaded destination labels OAM count");
         AssertEqual(0x1400, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
             "pause map label bright palette reached BG2");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(822) & 0x1c00,
@@ -210,7 +131,7 @@ internal static partial class Program
         AssertEqual(2, pause.SelectedCategory, "pause selects suits/misc category");
         AssertEqual(2, pause.SelectedItem, "pause selects first collected Morph Ball item");
         pause.Render();
-        AssertEqual(0x10, pause.LastIndicatorSpritemapId, "pause selector category base ID");
+        AssertEqual((int)PauseSelectorDefinitions.NativeSpriteId(2), pause.LastIndicatorSpritemapId, "pause selector category base ID");
         AssertEqual(0x90, pause.LastIndicatorOriginX, "pause Morph selector X origin");
         AssertEqual(0x70, pause.LastIndicatorOriginY, "pause Morph selector Y origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
@@ -261,7 +182,7 @@ internal static partial class Program
             areaIndex: AreaId.Crateria,
             roomMapX: 28,
             roomMapY: 1,
-            gameplayVram: gameplayVram);
+            gameplayVram: gameplayVram, mapPresentation: presentation);
         beamPause.Step((ushort)SnesButton.R, 0);
         for (int frame = 0; frame < 32; frame++)
             beamPause.Step(0, 0);
@@ -271,7 +192,23 @@ internal static partial class Program
         AssertEqual((ushort)SamusBeamFlags.Wave, samus.EquippedBeams,
             "pause toggle immediately mutates live Wave equipment word");
 
-        var resumeRuntime = new SuperMetroidRuntime(bus);
+        var resumeRuntime = CreateRetailRuntimeFixture(bus);
+        // Keep the fixture's distinctive Wave sheet and palette through the real
+        // installed transfer queue; no synthetic native DMA fallback is involved.
+        var beamFiles = SuperMetroid.AssetExtraction.BeamTileExtractor.Extract(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom("Super Metroid.smc"));
+        byte[] wavePlanar = Enumerable.Range(0, 256).Select(index => unchecked((byte)(0x40 + index))).ToArray();
+        byte[] wavePixels = SnesGraphics.DecodePlanarTiles(wavePlanar, 4,
+            BeamTileAtlasDefinitions.Width / 8, out int waveWidth, out int waveHeight);
+        using var wavePng = new MemoryStream();
+        IndexedPng.Write(wavePng, waveWidth, waveHeight, wavePixels, SnesGraphics.DiagnosticPalette(16));
+        beamFiles[BeamTileAtlasDefinitions.FileName(1)] = wavePng.ToArray();
+        var colors = Enumerable.Range(0, 12).Select(_ => new ushort[16]).ToArray();
+        colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
+        var beamPalettes = (BeamPaletteCatalog)typeof(BeamPaletteCatalog)
+            .GetConstructors(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+            .Single().Invoke([colors]);
+        resumeRuntime.BeamArtwork = BeamTileCatalog.Load(beamFiles, beamPalettes);
         resumeRuntime.QueueGameplayBeamTilesAndLoadPalette(samus.EquippedBeams);
         resumeRuntime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         AssertEqual(0x40, resumeRuntime.Vram.ReadByte(0x6300 * 2),
@@ -294,7 +231,7 @@ internal static partial class Program
             areaIndex: AreaId.Crateria,
             roomMapX: 28,
             roomMapY: 1,
-            gameplayVram: gameplayVram);
+            gameplayVram: gameplayVram, mapPresentation: presentation);
         Rgba32[] blankMapFrame = blankMapPause.Render();
         AssertEqual(new Rgba32(0, 0, 0, 255), blankMapFrame[40 * 256],
             "pause clears unused BG3 rows instead of tiling character zero over empty map space");
@@ -316,7 +253,7 @@ internal static partial class Program
             roomMapX: 4,
             roomMapY: 3,
             gameplayVram: gameplayVram,
-            mapRevealMode: mode);
+            mapRevealMode: mode, mapPresentation: presentation);
 
         PauseMenuState nonePause = CreateRevealPause(MapRevealMode.None);
         AssertEqual(MapTileWords.PauseBlank, nonePause.ReadDisplayedMapTile(publicMapX, revealTestMapY),
@@ -362,7 +299,7 @@ internal static partial class Program
             roomMapX: 4,
             roomMapY: 3,
             gameplayVram: gameplayVram,
-            mapRevealMode: MapRevealMode.None);
+            mapRevealMode: MapRevealMode.None, mapPresentation: presentation);
         AssertTrue(!restoredRevealSystem.HasAreaMap(AreaId.Crateria),
             "map reveal mode does not persist a map-station flag through SRAM snapshot");
         AssertEqual(MapTileWords.PauseBlank,
@@ -373,25 +310,7 @@ internal static partial class Program
             "SRAM round trip preserves legitimately explored secret cell");
 
         Console.WriteLine(
-            "  Pause menu: ROM tables, map reveal modes, native centering, OAM indicators, page transition, Bomb toggle, and Start agree.");
-    }
-
-    private static void PopulateEquipmentCategory(
-        byte[] rom,
-        int offsetTable,
-        int tilemapPointerTable,
-        int bitmaskTable,
-        ushort destinationStart,
-        ReadOnlySpan<ushort> masks,
-        int labelWords)
-    {
-        for (int item = 0; item < masks.Length; item++)
-        {
-            WriteRomWord(rom, offsetTable + item * 2,
-                unchecked((ushort)(destinationStart + item * labelWords * 2)));
-            WriteRomWord(rom, tilemapPointerTable + item * 2, 0x8000);
-            WriteRomWord(rom, bitmaskTable + item * 2, masks[item]);
-        }
+            "  Pause menu: constructed assets, map reveal modes, native centering, OAM indicators, equipment toggles, unpause transfers, and Start agree.");
     }
 
     private static void WriteRomLong(byte[] rom, int snesAddress, int value)

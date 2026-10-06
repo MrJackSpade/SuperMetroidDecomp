@@ -105,7 +105,7 @@ public sealed partial class RoomEnemySystem
             // The second record is not a second creature. Its nonzero parameter selects the
             // arms role, which always reads facing and position from the immediately prior
             // body record. Retail gives it layer four so the two maps compose correctly.
-            PositionEvirArms(slot, state);
+            PositionEvirArms(slot, state, initializing: true);
             slot.Layer = 4;
         }
         else
@@ -146,7 +146,7 @@ public sealed partial class RoomEnemySystem
         _evirStates[slot.SlotIndex] = state;
         InstallEvirInstruction(slot, state);
 
-        RoomEnemySlot body = RequireEvirRelativeSlot(slot, -2, EvirDefinition, "projectile body");
+        RoomEnemySlot body = RequireEvirRelativeSlot(slot, -2, EvirDefinition, "projectile body", initializing: true);
         // The projectile definition has no graphics-set entry of its own. Native copies the
         // body's resolved palette/tile indexes so the projectile map addresses the Evir art.
         slot.PaletteIndex = body.PaletteIndex;
@@ -266,9 +266,9 @@ public sealed partial class RoomEnemySystem
                 : EvirInstructionProgramDefinitions.BodyFacingRight);
     }
 
-    private void PositionEvirArms(RoomEnemySlot arms, EvirEnemyState state)
+    private void PositionEvirArms(RoomEnemySlot arms, EvirEnemyState state, bool initializing = false)
     {
-        RoomEnemySlot body = RequireEvirRelativeSlot(arms, -1, EvirDefinition, "arms body");
+        RoomEnemySlot body = RequireEvirRelativeSlot(arms, -1, EvirDefinition, "arms body", initializing);
         EvirEnemyState bodyState = RequireEvirState(body);
         state.FacingDirection = bodyState.FacingDirection;
         arms.XPosition = unchecked((ushort)(
@@ -470,11 +470,17 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot owner,
         int relativeSlot,
         ushort expectedDefinition,
-        string relationship)
+        string relationship,
+        bool initializing = false)
     {
         int targetIndex = owner.SlotIndex + relativeSlot;
+        // Native links are physical offsets, not live-header references. Contact can
+        // clear the body after the active list was built; its deleted arms and spit
+        // still execute once and read the cleared common words. Validate authored
+        // identities at initialization, then retain the established physical alias.
         if ((uint)targetIndex >= _slots.Length ||
-            _slots[targetIndex].EnemyDefinitionPointer != expectedDefinition)
+            (_slots[targetIndex].EnemyDefinitionPointer != expectedDefinition &&
+                (initializing || _evirStates[targetIndex] is null)))
         {
             throw new InvalidDataException(
                 $"Evir {relationship} expected definition ${expectedDefinition:X4} " +

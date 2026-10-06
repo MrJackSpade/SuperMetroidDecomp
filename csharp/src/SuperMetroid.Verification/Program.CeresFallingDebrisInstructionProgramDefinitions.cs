@@ -27,6 +27,9 @@ internal static partial class Program
                 $"Ceres falling-debris mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new CeresFallingDebrisInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -63,14 +66,18 @@ internal static partial class Program
         }
 
         AssertEqual(0, guard.ObservedPresentationWords.Count,
-            "Ceres FallingDebris production uses compiled visual selectors without ROM reads");
+            "CeresFallingDebris execution performs no live spritemap operand reads");
+        AssertEqual(CeresFallingDebrisInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "CeresFallingDebris executes every native visual operand");
         for (int index = 0; index < CeresFallingDebrisInstructionProgramDefinitions.PresentationWordCount; index++)
         {
             ushort address = CeresFallingDebrisInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"CeresFallingDebris executes native presentation operand {address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
-                "Ceres FallingDebris visual operand has a compiled selector");
-            AssertEqual(ReadVerificationWord(rom, (0x86 << 16) | address), selector,
-                "Ceres FallingDebris compiled visual selector matches original operand");
+                "CeresFallingDebris has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "CeresFallingDebris compiled selector matches the cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared-delete debris mechanics bytes");
@@ -90,7 +97,7 @@ internal static partial class Program
 
         Console.WriteLine(
             "Ceres falling-debris instruction mechanics: four compiled words, both real " +
-            "producers, terminal sleeps, shared deletion, and two original visual selectors pass without ROM reads.");
+            "producers, terminal sleeps, shared deletion, and two installed sprite frames match native OAM.");
 
         RoomEnemySystem NewSystem()
         {
@@ -103,6 +110,7 @@ internal static partial class Program
         {
             projectile.InstructionTimer = 1;
             process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
     }
 

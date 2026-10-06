@@ -77,5 +77,9 @@ public enum VramAssetId
     /// <summary>Fourth editable gunship takeoff character chunk.</summary>
     GunshipLiftoffFourthTiles,
     /// <summary>Fifth editable gunship takeoff character chunk.</summary>
-    GunshipLiftoffFifthTiles
+    GunshipLiftoffFifthTiles,
+    /// <summary>$9A:C421..C520, the bounded Chainsaw selection $0D tile upload.</summary>
+    BeamChainsawTiles,
+    /// <summary>$9A:C401..C500, the bounded SpaceTime selection $0E tile upload.</summary>
+    BeamSpacetimeTiles
 }

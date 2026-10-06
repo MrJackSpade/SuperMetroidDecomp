@@ -6,7 +6,7 @@ internal readonly record struct KzanInstructionMechanicsWord(
 
 /// <summary>
 /// Compiled engine-control words for the Kzan spike-platform animation program.
-/// Its interleaved spritemap operand remains live cartridge presentation data.
+/// Its interleaved spritemap operand is resolved by the compiled visual catalog.
 /// </summary>
 internal static class KzanInstructionProgramDefinitions
 {

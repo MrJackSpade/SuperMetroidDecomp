@@ -9,6 +9,15 @@ public sealed partial class SuperMetroidRuntime
     {
         Plms.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
         RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        // Both state-$09 entry and each $E29E sound-drain dispatch return to
+        // MainGameLoop. Its HDMA/RNG prologue still runs while Samus is locked.
+        AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
+        DrawDoorTransitionActors();
+    }
+
+    /// <summary>Native enemy/instruction and draw pass shared by source-door waits and fading.</summary>
+    internal void DrawDoorTransitionActors()
+    {
         Oam.BeginFrame();
         LastSamusBodyDrawn = false;
         LastShinesparkCrashDrawingHandlerActive = false;
@@ -26,5 +35,16 @@ public sealed partial class SuperMetroidRuntime
             LastSamusBodyDrawn = Samus.Draw(_addressSpace, Oam,
                 Camera.XPosition, Camera.YPosition, mode7Transform: ActiveSamusMode7Transform);
         Oam.FinalizeFrame();
+    }
+    /// <summary>Shared HDMA/RNG prologue of an outer dispatch without a gameplay frame.</summary>
+    internal void AdvanceNonGameplayMainLoopRandom(bool hdmaObjectsEnabled)
+    {
+        if (hdmaObjectsEnabled)
+        {
+            RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
+            if (Samus is not null && RoomLayer3Fx.Type is RoomFxType.Lava or RoomFxType.Acid)
+                RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);
+        }
+        System.NextRandom();
     }
 }

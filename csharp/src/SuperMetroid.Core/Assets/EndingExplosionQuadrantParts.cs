@@ -36,9 +36,9 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
     {
         int atlasOrigin = pose switch
         {
-            Pose.Glow => 0x80,
-            Pose.SupernovaFirst => 0x83,
-            Pose.SupernovaSecond => 0x86,
+            Pose.Glow => 0x80, // magic-number-audit: allow(PoseOrMovement) - tile atlas indices and strides for cinematic sprite composition.
+            Pose.SupernovaFirst => 0x83, // magic-number-audit: allow(PoseOrMovement) - tile atlas indices and strides for cinematic sprite composition.
+            Pose.SupernovaSecond => 0x86, // magic-number-audit: allow(PoseOrMovement) - tile atlas indices and strides for cinematic sprite composition.
             _ => throw new ArgumentOutOfRangeException(nameof(pose)),
         };
         if ((uint)index >= (pose == Pose.Glow ? 3 : 5)) throw new ArgumentOutOfRangeException(nameof(index));

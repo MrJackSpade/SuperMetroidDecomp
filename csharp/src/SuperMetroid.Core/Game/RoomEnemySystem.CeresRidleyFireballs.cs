@@ -237,8 +237,9 @@ public sealed class RoomEnemyProjectileSlot
     internal void Clear()
     {
         Kind = RoomEnemyProjectileKind.None;
-        XPosition = XSubposition = YPosition = YSubposition = 0;
-        XVelocity = YVelocity = 0;
+        // $86:8016/8154 release identity only. SpawnEprojInner clears fractions,
+        // but leaves whole coordinates and velocities for the family initializer.
+        XSubposition = YSubposition = 0;
         InstructionPointer = InstructionTimer = SpritemapPointer = PreInstruction = 0;
         PresentationOperandAddress = 0;
         GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = GeneralTimer = 0;
@@ -704,12 +705,21 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.CeresRidleyFireball,
             FireballGraphicsIndex);
+        ApplyRidleyProjectileAreaDamage(projectile);
         projectile.XPosition = unchecked((ushort)(ridley.XPosition +
             (state.FacingDirection == 0 ? -25 : 25)));
         projectile.YPosition = unchecked((ushort)(ridley.YPosition - 43));
         projectile.XVelocity = state.FireballXVelocity;
         projectile.YVelocity = state.FireballYVelocity;
         projectile.RemainingAfterburns = spawnAfterburn ? (ushort)3 : (ushort)0;
+    }
+
+    private void ApplyRidleyProjectileAreaDamage(RoomEnemyProjectileSlot projectile)
+    {
+        // EnemyMain binds live Samus before dispatch, including her current room
+        // identity. Standalone fixtures without a room owner retain the default row.
+        AreaId area = _samusForEnemyDrops?.LiquidPhysics.AreaIndex ?? AreaId.Crateria;
+        projectile.Damage = RidleyProjectileDamageDefinitions.ForArea(area);
     }
 
     private RoomEnemyProjectileSlot? AllocateEnemyProjectile()
@@ -1242,9 +1252,9 @@ public sealed partial class RoomEnemySystem
                 ushort snappedPosition = slopeAlignedPosition ?? (velocity < 0
                     ? unchecked((ushort)((movementEdge | 0x000f) + movementRadius + 1))
                     : unchecked((ushort)((movementEdge & 0xfff0) - movementRadius)));
-                bool snapDoesNotMoveBackwards = velocity < 0
+                bool snapDoesNotMoveBackwards = slopeAlignedPosition.HasValue || (velocity < 0
                     ? snappedPosition <= position
-                    : snappedPosition >= position;
+                    : snappedPosition >= position);
 
                 if (horizontal)
                 {
@@ -1301,6 +1311,36 @@ public sealed partial class RoomEnemySystem
 
         RoomCollisionBlock collisionBlock = level.GetCollisionBlockByIndex(blockIndex);
         RoomCollisionType type = collisionBlock.CollisionType;
+        if (type == RoomCollisionType.Slope && !collisionBlock.Bts.IsNonSquareSlope)
+        {
+            // Bank $86 tests only occupied eight-pixel quadrants touched by the
+            // leading edge. Empty halves of square slopes are not solid walls.
+            int perpendicularPosition = horizontal ? projectile.YPosition : projectile.XPosition;
+            int perpendicularRadius = horizontal ? projectile.YRadius : projectile.XRadius;
+            int blockStart = (horizontal ? blockY : blockX) << 4;
+            int firstPixel = Math.Max(blockStart, perpendicularPosition - perpendicularRadius);
+            int lastPixel = Math.Min(blockStart + 15, perpendicularPosition + perpendicularRadius - 1);
+            for (int half = firstPixel >> 3; half <= lastPixel >> 3; half++)
+            {
+                int quadrant = horizontal
+                    ? ((targetEdge & 8) >> 3) | ((half & 1) << 1)
+                    : ((targetEdge & 8) >> 2) | (half & 1);
+                int tableIndex = 4 * collisionBlock.Bts.SlopeShape +
+                    (quadrant ^ collisionBlock.Bts.SlopeOrientation);
+                if ((SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) == 0)
+                    continue;
+
+                // The square-slope reaction places the projectile at an eight-pixel
+                // boundary before the caller's full-block clamp.
+                int radius = horizontal ? projectile.XRadius : projectile.YRadius;
+                slopeAlignedPosition = movingNegative
+                    ? unchecked((ushort)((targetEdge | 7) + radius + 1))
+                    : unchecked((ushort)((targetEdge & 0xfff8) - radius));
+                return true;
+            }
+            return false;
+        }
+
         if (type == RoomCollisionType.Slope && collisionBlock.Bts.IsNonSquareSlope)
         {
             // Horizontal bank-$86 motion ignores non-square slopes; the following
@@ -1552,6 +1592,14 @@ public sealed partial class RoomEnemySystem
                     projectile.YRadius = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6
+                    when projectile.Kind == RoomEnemyProjectileKind.BombTorizoStatueBreaking:
+                {
+                    EnemySoundRequest sound = BombTorizoStatueInstructionProgramDefinitions.ReleaseSound(cursor);
+                    QueueEnemySound(sound.SoundEffect, sound.MaximumQueued);
+                    cursor = unchecked((ushort)(cursor + 3));
+                    break;
+                }
                 case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProjectile_QueueMusicTrackInY:
                 case EnemyProjectileCodePointers.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max6_868309:
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6:
@@ -2325,6 +2373,9 @@ public sealed partial class RoomEnemySystem
         InitializeEnemyProjectileFromDefinition(center, kind, FireballGraphicsIndex);
         center.XPosition = x;
         center.YPosition = y;
+        // $86:9499/$949C explicitly stop the center; allocation retains prior velocities.
+        center.XVelocity = 0;
+        center.YVelocity = 0;
         center.RemainingAfterburns = remaining;
     }
 
@@ -2352,6 +2403,7 @@ public sealed partial class RoomEnemySystem
         if (afterburn is null)
             return;
         InitializeEnemyProjectileFromDefinition(afterburn, kind, FireballGraphicsIndex);
+        ApplyRidleyProjectileAreaDamage(afterburn);
         afterburn.XPosition = source.XPosition;
         afterburn.YPosition = source.YPosition;
         afterburn.XVelocity = xVelocity;
@@ -2378,9 +2430,9 @@ public sealed partial class RoomEnemySystem
         projectile.InstructionPointer =
             CeresRidleyProjectileInstructionProgramDefinitions.AfterburnFinal;
         projectile.InstructionTimer = 1;
-        projectile.XVelocity = 0;
-        projectile.YVelocity = 0;
-        projectile.CanDamageSamus = false;
+        // $86:950D/$9522 replace the list; its clear-pre-instruction stops motion.
+        // Velocity words and contact properties remain unchanged. The final list
+        // clears movement, draws five frames, then deletes; it never disables damage.
     }
 
     /// <summary>Spawns the four bank-$86 particles emitted by a dying/burrowing Skree.</summary>

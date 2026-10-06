@@ -1,5 +1,5 @@
-using System.Reflection;
 using SuperMetroid.Core.Assets;
+using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -27,6 +27,9 @@ internal static partial class Program
                 $"Space Pirate projectile mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new SpacePirateProjectileInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -122,19 +125,19 @@ internal static partial class Program
         AssertTrue(!deleting.IsActive,
             "Space Pirate projectile shot reaction reaches shared compiled deletion");
 
-        AssertEqual(0,
-            guard.ObservedPresentationWords.Count,
-            "all Space Pirate projectile spritemap selectors are compiled");
-        for (int index = 0;
-             index < SpacePirateProjectileInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "SpacePirateProjectile execution performs no live spritemap operand reads");
+        AssertEqual(SpacePirateProjectileInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count, "SpacePirateProjectile executes every native visual operand");
+        for (int index = 0; index < SpacePirateProjectileInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address = SpacePirateProjectileInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selected),
-                "Every Pirate projectile operand has a compiled selector");
-            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selected,
-                "Exact native Pirate projectile visual operand");
+            ushort address = SpacePirateProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"SpacePirateProjectile executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "SpacePirateProjectile has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "SpacePirateProjectile compiled selector matches the cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared Space Pirate mechanics bytes");
@@ -155,7 +158,7 @@ internal static partial class Program
         Console.WriteLine(
             "Space Pirate projectile instruction mechanics: fifty-eight compiled words, " +
             "both real producers/facings, immediate laser motion, claw loops, shared " +
-            "deletion, and forty-two exact native compiled selectors pass with zero presentation reads.");
+            "deletion, and forty-two installed sprite frames match native OAM without operand reads.");
 
         RoomEnemySystem NewSystem()
         {
@@ -170,6 +173,7 @@ internal static partial class Program
         {
             projectile.InstructionTimer = 1;
             process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
 
         void RunForcedTicks(

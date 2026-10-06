@@ -114,24 +114,50 @@ internal static class KraidHeadInstructionDefinitions
     }
 
     /// <summary>
-    /// Resolves the tilemap word at offset two of a timed frame. Authored upper-ROM
-    /// records use the compiled catalog. A restored low-half pointer still aliases live
+    /// $A7:AFB7-AFBF / B19C-B1A4: collision reads the hitbox word four or two
+    /// bytes before the live next-instruction cursor, even when no frame ran yet.
+    /// </summary>
+    public static ushort ReadCollisionHitbox(ISnesAddressSpace bus, ushort nextInstruction, bool innerMouth)
+    {
+        ushort address = unchecked((ushort)(nextInstruction - (innerMouth ? 2 : 4)));
+        foreach (KraidHeadInstructionDefinition frame in All)
+        {
+            if (frame.Kind != KraidHeadInstructionKind.Frame)
+                continue;
+            if (address == frame.Pointer + 4) return frame.VulnerableHitbox;
+            if (address == frame.Pointer + 6) return frame.InvulnerableHitbox;
+        }
+        if (address < 0x8000)
+            return (ushort)(ReadLiveByte(bus, address) |
+                ReadLiveByte(bus, unchecked((ushort)(address + 1))) << 8);
+        throw new InvalidDataException($"Kraid collision selector $A7:{address:X4} is outside the compiled head frames.");
+    }
+
+    /// <summary>
+    /// Reads the word at cursor + 2 used by HandleKraidPhase1 at $A7:C026.
+    /// This is a tilemap only for timed frames; sound/terminal cursors read the next
+    /// record's first word without executing it. Authored upper-ROM records use the
+    /// compiled catalog. A restored low-half pointer still aliases live
     /// SNES memory exactly as the cartridge does; the three possible bytes where that
     /// low-half record crosses $7FFF are retained from the bank-$A7 LoROM boundary.
     /// </summary>
-    public static ushort ResolveFrameTilemap(ISnesAddressSpace bus, ushort pointer)
+    public static ushort ReadGrowthSelectionWord(ISnesAddressSpace bus, ushort pointer)
     {
         ArgumentNullException.ThrowIfNull(bus);
         foreach (KraidHeadInstructionDefinition definition in All)
         {
             if (definition.Pointer != pointer)
                 continue;
-            if (definition.Kind != KraidHeadInstructionKind.Frame)
-            {
-                throw new InvalidDataException(
-                    $"Kraid head instruction $A7:{pointer:X4} is not a timed frame.");
-            }
-            return definition.Tilemap;
+            if (definition.Kind == KraidHeadInstructionKind.Frame)
+                return definition.Tilemap;
+
+            // The final terminator borders the mouth geometry; all other sound
+            // and terminal records border a timed frame. Preserve the raw read,
+            // including the duration which triggers the native quick-kill delay.
+            ushort following = unchecked((ushort)(pointer + 2));
+            return KraidMouthHitboxes.IsDefined(following)
+                ? unchecked((ushort)KraidMouthHitboxes.Resolve(following).Left)
+                : Resolve(following).Duration;
         }
 
         if (pointer >= 0x8000)
@@ -148,18 +174,12 @@ internal static class KraidHeadInstructionDefinitions
     }
 
     /// <summary>
-    /// Ports $A7:C005's tilemap-dependent resume selection used when Kraid crosses the
+    /// Ports $A7:C029-$C04F's raw-word-dependent resume selection when Kraid crosses the
     /// seven-eighths-health growth boundary. The returned cursor names the next command,
     /// while the timer retains the current displayed head frame.
     /// </summary>
-    /// <remarks>
-    /// Independently checked for #1165 against $C029..C04F's LDY/CMP/ADC/LDA operands
-    /// and all ushort tilemaps. The native offsets select the command after the
-    /// current closing frame and the timer from that frame; the default preserves
-    /// the 64-tick open-mouth delay, including the native quick-kill behavior.
-    /// </remarks>
-    public static KraidHeadResumeDefinition GrowthResume(ushort currentTilemap) =>
-        currentTilemap switch
+    public static KraidHeadResumeDefinition GrowthResume(ushort selectionWord) =>
+        selectionWord switch
         {
             0x97c8 => new(0x970c, RoarEntryTimer),
             0x9ac8 => new(0x9704, RoarEntryTimer),

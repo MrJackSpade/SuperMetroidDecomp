@@ -54,7 +54,7 @@ internal static partial class Program
         var explosion = new SamusPowerBombExplosionState();
         void Set(string property, object value) => typeof(SamusPowerBombExplosionState).GetProperty(property)!.SetValue(explosion, value);
         var read = typeof(SnesGameplayFrameRenderer).GetMethod("ReadPowerBombHalfWidth", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<ISnesAddressSpace, SamusPowerBombExplosionState, int, int>>();
+            .CreateDelegate<Func<SamusPowerBombExplosionState, int, int>>();
         var forbidden = new PowerBombShapeReadGuard();
         foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite, PowerBombExplosionPhase.ExplosionYellow })
         {
@@ -65,7 +65,7 @@ internal static partial class Program
                 Set(nameof(explosion.RenderedExplosionRadius), (ushort)((radius << 8) | 234));
                 int[] expected = Profile(radius);
                 for (int y = -192; y <= 192; y++)
-                    AssertEqual(expected[Math.Abs(y)], read(forbidden, explosion, y), "Power Bomb complete signed band profile without bus");
+                    AssertEqual(expected[Math.Abs(y)], read(explosion, y), "Power Bomb complete signed band profile without bus");
             }
         }
         int frames = 0;

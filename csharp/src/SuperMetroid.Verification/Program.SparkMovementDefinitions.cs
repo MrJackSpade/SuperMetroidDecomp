@@ -64,6 +64,7 @@ internal static partial class Program
                 $"Spark mechanics word $A8:{definition.Address:X4}");
         }
 
+        var executedOperands = new HashSet<ushort>();
         var programGuard = new SparkProgramReadGuard(rom);
         (ushort Entry, int Frames)[] programs =
         [
@@ -91,7 +92,15 @@ internal static partial class Program
                 [programSlot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
 
             for (int frame = 0; frame < frames; frame++)
+            {
+                ushort previousSprite = programSlot.SpritemapPointer;
                 process.Invoke(programSystem, arguments);
+                if (programSlot.CurrentInstruction == 0xe607)
+                    AssertEqual(previousSprite, programSlot.SpritemapPointer,
+                        "Spark terminal callback retains the last sprite");
+                else
+                    VerifyExecutedEnemySelector(rom, programSlot, executedOperands);
+            }
 
             if (entry == SparkInstructionProgramDefinitions.FlickerOn)
             {
@@ -109,16 +118,21 @@ internal static partial class Program
             }
         }
 
-        AssertEqual(0, programGuard.ObservedPresentationWords.Count,
-            "Spark presentation execution uses installed selectors without live cartridge reads");
-        for (int index = 0; index < SparkInstructionProgramDefinitions.PresentationWordCount; index++)
+        AssertEqual(
+            SparkInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count,
+            "all Spark selectors execute and match cartridge operands");
+        for (int index = 0;
+             index < SparkInstructionProgramDefinitions.PresentationWordCount;
+             index++)
         {
-            ushort address = SparkInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet(SparkVisualDefinitions.Bank, address, out ushort selector),
-                $"Spark installed visual operand $A8:{address:X4}");
-            AssertEqual(ReadSparkProgramWord(rom, address), selector,
-                $"Spark exact native visual identity $A8:{address:X4}");
+            ushort address =
+                SparkInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"production execution covers Spark presentation word $A8:{address:X4}");
         }
+        AssertEqual(0, programGuard.ObservedPresentationWords.Count,
+            "compiled presentation selectors require no runtime ROM reads");
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids every compiled Spark mechanics byte");
 
@@ -140,7 +154,7 @@ internal static partial class Program
         Console.WriteLine(
             "Spark movement definitions: three authored pairs, both selector-three " +
             "overreads, 33 compiled instruction words, and four production programs " +
-            "pass with mechanics and presentation reads forbidden; 26 native visual identities match.");
+            "pass with runtime ROM reads forbidden; 26 executed selectors match the cartridge.");
     }
 
     private static int ProbeSparkInstructionMechanicsAllocation()

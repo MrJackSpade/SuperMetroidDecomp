@@ -29,7 +29,7 @@ internal static partial class Program
         for (int soulValue = 0; soulValue < 2; soulValue++)
         {
             bool soul = soulValue != 0;
-            var enemies = new RoomEnemySystem();
+            var enemies = new RoomEnemySystem { TileArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles() };
             busField.SetValue(enemies, guarded);
             cgramField.SetValue(enemies, new SnesCgram());
             enemies.SpawnTourianUnlockEffect(parameter, soul);
@@ -111,7 +111,7 @@ internal static partial class Program
             "Tourian statue live presentation-source word count");
 
         var guarded = new TourianStatueMechanicsForbiddenBus(rom);
-        var runtime = new SuperMetroidRuntime(guarded, playerInvincibilityEnabled: true);
+        var runtime = CreateRetailRuntimeFixture(guarded, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -120,15 +120,14 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(0xa66a);
         AssertTrue(runtime.TourianStatues.Enabled,
             "retail Tourian statue room enables the production sequence");
-        var provider = new RoomFxArtworkTestProvider(artwork);
-        runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), provider);
+        runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), runtime);
         guarded.ForbidArtworkReads = true;
 
         int steps = 0;
         for (; steps < 3000 && !TourianStatueGreyEventsAreSet(runtime); steps++)
         {
             runtime.TourianStatues.StepTiles(runtime);
-            runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), provider);
+            runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), runtime);
         }
 
         AssertTrue(TourianStatueGreyEventsAreSet(runtime),

@@ -71,6 +71,10 @@ internal static class ControllerInputRecordingFormat
     public const byte MapRevealMask = 0b0001_1000;
 
     /// <summary>Every option bit currently understood by the recording reader.</summary>
+    public const byte GrantAllEquipment = 1 << 6;
+    /// <summary>Host option bit preserving the boss-independent Tourian entrance.</summary>
+    public const byte UnlockTourian = 1 << 7;
+    /// <summary>Every option bit currently understood by the recording reader.</summary>
     public const byte KnownOptionMask = SkipOpeningCinematic | Invincibility | InfiniteAmmo |
-        MapRevealMask | PreventEscapeTimeout;
+        MapRevealMask | PreventEscapeTimeout | GrantAllEquipment | UnlockTourian;
 }

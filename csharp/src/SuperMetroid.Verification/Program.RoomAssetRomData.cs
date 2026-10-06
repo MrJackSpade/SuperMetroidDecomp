@@ -125,12 +125,17 @@ internal static partial class Program
 
         // Both ordinary and Ceres rooms must exercise the real loader with the whole
         // source table forbidden, including the overlapping Ceres character transfers.
+        var installation = runtimeFixtureInstallation.Value;
+        var characters = installation.LoadRoomCharacters();
+        var palettes = installation.LoadRoomPalettes();
+        var metatiles = installation.LoadRoomMetatiles();
+        var layouts = installation.LoadRoomVisualLayouts();
         var guardedBus = new TilesetDefinitionReadGuard(bus);
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             CartridgeRoomHeader header = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, header);
-            CartridgeRoomAssets guarded = CartridgeRoomAssets.Load(guardedBus, header);
+            CartridgeRoomAssets native = CartridgeRoomAssets.Load(bus, header, characters, palettes, metatiles, layouts);
+            CartridgeRoomAssets guarded = CartridgeRoomAssets.Load(guardedBus, header, characters, palettes, metatiles, layouts);
             AssertEqual(native.Tileset, guarded.Tileset,
                 $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
             AssertTrue(native.CreCharacters.AsSpan().SequenceEqual(guarded.CreCharacters) &&

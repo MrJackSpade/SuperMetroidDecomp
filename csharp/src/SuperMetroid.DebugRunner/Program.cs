@@ -22,6 +22,40 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--file-select-energy-tanks-audit", var tanksInstallation])
+        return FileSelectEnergyTanksAudit.Run(tanksInstallation);
+    if (args is ["--rescued-animals-ship-audit", var animalsInstallation])
+        return RescuedAnimalsShipAudit.Run(animalsInstallation);
+    if (args is ["--mother-brain-drool-timing-audit", var droolInstallation])
+        return MotherBrainDroolTimingAudit.Run(droolInstallation);
+    if (args is ["--screw-attack-palette-audit", var screwInstallation])
+        return ScrewAttackPaletteAudit.Run(screwInstallation);
+    if (args is ["--statue-release-sound-audit", var statueInstallation])
+        return StatueReleaseSoundAudit.Run(statueInstallation);
+    if (args is ["--immune-plasma-hit-audit", var plasmaInstallation])
+        return ImmunePlasmaHitAudit.Run(plasmaInstallation);
+    if (args is ["--colosseum-sand-fade-audit", var sandInstallation])
+        return ColosseumSandFadeAudit.Run(sandInstallation);
+    if (args is ["--pause-map-cursor-audit", var cursorInstallation])
+        return PauseMapCursorAudit.Run(cursorInstallation);
+    if (args is ["--hud-select-sound-audit", var selectInstallation])
+        return HudSelectSoundAudit.Run(selectInstallation);
+    if (args is ["--captured-ground-shot-audit", var groundState, var groundInstallation, var groundOutput])
+        return CapturedGroundShotAudit.Run(groundState, groundInstallation, groundOutput);
+    if (args is ["--pause-suit-appearance-audit", var suitInstallation])
+        return PauseSuitAppearanceAudit.Run(suitInstallation);
+    if (args is ["--fireflea-contact-death-audit", var firefleaInstallation])
+        return FirefleaContactDeathAudit.Run(firefleaInstallation);
+    if (args is ["--crateria-acid-background-audit", var acidInstallation])
+        return CrateriaAcidBackgroundAudit.Run(acidInstallation);
+    if (args is ["--tester-options-audit", var testerInstallation])
+        return TesterOptionsAudit.Run(testerInstallation);
+    if (args is ["--reported-running-footsteps", var runningRecording, var runningInstallation, var runningTrace])
+    {
+        var recordedInputs = ControllerInputRecording.Read(runningRecording);
+        int last = recordedInputs.ControllerInputs.Length - 1;
+        return InstalledInputReplay.Run(runningRecording, runningInstallation, Math.Max(0, last - 300), last, runningTrace);
+    }
     if (args is ["--confirm-reported-morph-block", var morphRecording, var morphInstallation, var morphTrace])
         return ReportedMorphBlockConfirmation.Run(morphRecording, morphInstallation, morphTrace);
     if (args is ["--confirm-reported-shaft-door", var doorRecording, var doorInstallation, var doorTrace])
@@ -1271,7 +1305,12 @@ if (args.Length == 3 && args[0] == "--metroid-power-bomb-farming-capture")
 if (args.Length == 3 && args[0] == "--metroid-farming-compare")
     return MetroidFarmingComparison.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--save-load-rng-audit")
-    return SaveLoadRandomAudit.Run(args[1]);
+{
+    string rngFixtureRoot = Path.GetFullPath("csharp/test-temp/save-load-rng-installed-content");
+    var rngFixtureInstallation = SuperMetroid.AssetExtraction.GameAssetInstaller.EnsureInstalled(rngFixtureRoot) ??
+        SuperMetroid.AssetExtraction.GameAssetInstaller.Install(args[1], rngFixtureRoot);
+    return SaveLoadRandomAudit.Run(args[1], game => InstalledInputReplay.Bind(game, rngFixtureInstallation));
+}
 if (args.Length >= 2 && args[0] == "--metroid-audit")
 {
     string metroidRomPath = string.Join(' ', args[1..]).Trim('"');

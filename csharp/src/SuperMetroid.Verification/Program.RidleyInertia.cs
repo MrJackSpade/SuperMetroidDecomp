@@ -33,8 +33,8 @@ internal static partial class Program
                 state.HorizontalVelocity = state.VerticalVelocity = velocity;
                 ushort boost = (ushort)(raw % 3 * 16);
                 norfair(slot, state, 0xff00, 0x100, index, boost);
-                AssertEqual(Expected(velocity, distance, divisor, false, boost), state.HorizontalVelocity, "Norfair actual X acceleration");
-                AssertEqual(Expected(velocity, yDistance, divisor, false, boost), state.VerticalVelocity, "Norfair actual wrapped Y acceleration");
+                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.XPosition, 0xff00, divisor, boost), state.HorizontalVelocity, "Norfair actual X acceleration");
+                AssertEqual(ExpectedRidleyNativeAcceleration(velocity, slot.YPosition, 0x100, divisor, boost), state.VerticalVelocity, "Norfair actual wrapped Y acceleration");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() => RidleyInertiaDefinitions.Divisor(-1), "Negative inertia index");
@@ -53,4 +53,36 @@ internal static partial class Program
             return unchecked((ushort)Math.Clamp(velocity + direction * change, -1280, 1280));
         }
     }
+    // Model the native word arithmetic independently as wide intermediate values
+    // and explicit carry terms. The movie-derived regression supplies independent
+    // expected motion; this existing numeric contract covers wrapped inputs too.
+    private static ushort ExpectedRidleyNativeAcceleration(ushort initial, ushort position, ushort target, int divisor, int boost)
+    {
+        short distance = unchecked((short)(position - target));
+        if (distance == 0) return initial;
+        int q = Math.Max(1, Math.Abs((int)distance) / divisor);
+        int value;
+        if (distance > 0)
+        {
+            if ((short)initial >= 0)
+            {
+                int a = unchecked((ushort)(initial - boost)) - 8;
+                int b = unchecked((ushort)a) - q - (a < 0 ? 1 : 0);
+                value = unchecked((ushort)b) - q - (b < 0 ? 1 : 0);
+            }
+            else value = initial - q - (position < target ? 1 : 0);
+            ushort word = unchecked((ushort)value);
+            return unchecked((short)(word - 0xfb00)) < 0 ? (ushort)0xfb00 : word;
+        }
+        if ((short)initial < 0)
+        {
+            int a = unchecked((ushort)(initial + boost)) + 8;
+            int b = unchecked((ushort)a) + q + (a >> 16);
+            value = unchecked((ushort)b) + q + (b >> 16);
+        }
+        else value = initial + q + (position >= target ? 1 : 0);
+        ushort result = unchecked((ushort)value);
+        return unchecked((short)(result - 0x0500)) >= 0 ? (ushort)0x0500 : result;
+    }
+
 }

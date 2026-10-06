@@ -39,22 +39,22 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, usho
     internal LoadingPaletteInputView(Dictionary<ushort, ushort> colors)
     {
         this.colors = colors;
-        powerDim1 = new(colors[0xdc7e], Expected(0xdc7e));
-        powerDim2 = new(colors[0xdc80], Expected(0xdc80));
-        powerBright9 = new(colors[0xdba1], Expected(0xdba1));
-        powerDim12 = new(colors[0xdc94], Expected(0xdc94));
-        variaBright10 = new(colors[0xdd09], Expected(0xdd09));
-        variaBright11 = new(colors[0xdd0b], Expected(0xdd0b));
-        variaDim12 = new(colors[0xddfa], Expected(0xddfa));
-        gravityDim2 = new(colors[0xdf4c], Expected(0xdf4c));
-        colors.Remove(0xdc7e);
-        colors.Remove(0xdc80);
-        colors.Remove(0xdba1);
-        colors.Remove(0xdc94);
-        colors.Remove(0xdd09);
-        colors.Remove(0xdd0b);
-        colors.Remove(0xddfa);
-        colors.Remove(0xdf4c);
+        powerDim1 = new(colors[LoadingSuitColorPointers.PowerDim1], Expected(LoadingSuitColorPointers.PowerDim1));
+        powerDim2 = new(colors[LoadingSuitColorPointers.PowerDim2], Expected(LoadingSuitColorPointers.PowerDim2));
+        powerBright9 = new(colors[LoadingSuitColorPointers.PowerBright9], Expected(LoadingSuitColorPointers.PowerBright9));
+        powerDim12 = new(colors[LoadingSuitColorPointers.PowerDim12], Expected(LoadingSuitColorPointers.PowerDim12));
+        variaBright10 = new(colors[LoadingSuitColorPointers.VariaBright10], Expected(LoadingSuitColorPointers.VariaBright10));
+        variaBright11 = new(colors[LoadingSuitColorPointers.VariaBright11], Expected(LoadingSuitColorPointers.VariaBright11));
+        variaDim12 = new(colors[LoadingSuitColorPointers.VariaDim12], Expected(LoadingSuitColorPointers.VariaDim12));
+        gravityDim2 = new(colors[LoadingSuitColorPointers.GravityDim2], Expected(LoadingSuitColorPointers.GravityDim2));
+        colors.Remove(LoadingSuitColorPointers.PowerDim1);
+        colors.Remove(LoadingSuitColorPointers.PowerDim2);
+        colors.Remove(LoadingSuitColorPointers.PowerBright9);
+        colors.Remove(LoadingSuitColorPointers.PowerDim12);
+        colors.Remove(LoadingSuitColorPointers.VariaBright10);
+        colors.Remove(LoadingSuitColorPointers.VariaBright11);
+        colors.Remove(LoadingSuitColorPointers.VariaDim12);
+        colors.Remove(LoadingSuitColorPointers.GravityDim2);
     }
 
     private ushort Normal(ushort pointer) =>
@@ -63,15 +63,15 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, usho
 
     private ushort Expected(ushort pointer) => pointer switch
     {
-        0xdc7e => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb6d), 2),
-        0xdc80 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb6f), 2),
-        0xdba1 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb7d), 0),
-        0xdc94 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb83), 2),
-        0xdd09 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce5), 0),
-        0xdd0b => (ushort)((LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce7), 0) & 0x03ff) |
-            (variaBright10.Apply(Expected(0xdd09)) & 0x7c00)),
-        0xddfa => LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce9), 2),
-        0xdf4c => LoadingPaletteColorDefinitions.TintColor(Normal(0xde3b), 2),
+        LoadingSuitColorPointers.PowerDim1 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb6d), 2),
+        LoadingSuitColorPointers.PowerDim2 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb6f), 2),
+        LoadingSuitColorPointers.PowerBright9 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb7d), 0),
+        LoadingSuitColorPointers.PowerDim12 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb83), 2),
+        LoadingSuitColorPointers.VariaBright10 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce5), 0),
+        LoadingSuitColorPointers.VariaBright11 => (ushort)((LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce7), 0) & 0x03ff) |
+            (variaBright10.Apply(Expected(LoadingSuitColorPointers.VariaBright10)) & 0x7c00)),
+        LoadingSuitColorPointers.VariaDim12 => LoadingPaletteColorDefinitions.VariaTintColor(Normal(0xdce9), 2),
+        LoadingSuitColorPointers.GravityDim2 => LoadingPaletteColorDefinitions.TintColor(Normal(0xde3b), 2),
         _ => throw new ArgumentOutOfRangeException(nameof(pointer)),
     };
 
@@ -95,14 +95,14 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, usho
     {
         switch (pointer)
         {
-            case 0xdc7e: value = powerDim1.Apply(Expected(pointer)); return true;
-            case 0xdc80: value = powerDim2.Apply(Expected(pointer)); return true;
-            case 0xdba1: value = powerBright9.Apply(Expected(pointer)); return true;
-            case 0xdc94: value = powerDim12.Apply(Expected(pointer)); return true;
-            case 0xdd09: value = variaBright10.Apply(Expected(pointer)); return true;
-            case 0xdd0b: value = variaBright11.Apply(Expected(pointer)); return true;
-            case 0xddfa: value = variaDim12.Apply(Expected(pointer)); return true;
-            case 0xdf4c: value = gravityDim2.Apply(Expected(pointer)); return true;
+            case LoadingSuitColorPointers.PowerDim1: value = powerDim1.Apply(Expected(pointer)); return true;
+            case LoadingSuitColorPointers.PowerDim2: value = powerDim2.Apply(Expected(pointer)); return true;
+            case LoadingSuitColorPointers.PowerBright9: value = powerBright9.Apply(Expected(pointer)); return true;
+            case LoadingSuitColorPointers.PowerDim12: value = powerDim12.Apply(Expected(pointer)); return true;
+            case LoadingSuitColorPointers.VariaBright10: value = variaBright10.Apply(Expected(pointer)); return true;
+            case LoadingSuitColorPointers.VariaBright11: value = variaBright11.Apply(Expected(pointer)); return true;
+            case LoadingSuitColorPointers.VariaDim12: value = variaDim12.Apply(Expected(pointer)); return true;
+            case LoadingSuitColorPointers.GravityDim2: value = gravityDim2.Apply(Expected(pointer)); return true;
             default: return colors.TryGetValue(pointer, out value);
         }
     }
@@ -114,8 +114,8 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, usho
         get
         {
             foreach (ushort key in colors.Keys) yield return key;
-            yield return 0xdc7e; yield return 0xdc80; yield return 0xdba1; yield return 0xdc94;
-            yield return 0xdd09; yield return 0xdd0b; yield return 0xddfa; yield return 0xdf4c;
+            yield return LoadingSuitColorPointers.PowerDim1; yield return LoadingSuitColorPointers.PowerDim2; yield return LoadingSuitColorPointers.PowerBright9; yield return LoadingSuitColorPointers.PowerDim12;
+            yield return LoadingSuitColorPointers.VariaBright10; yield return LoadingSuitColorPointers.VariaBright11; yield return LoadingSuitColorPointers.VariaDim12; yield return LoadingSuitColorPointers.GravityDim2;
         }
     }
     public IEnumerable<ushort> Values => Keys.Select(key => this[key]);

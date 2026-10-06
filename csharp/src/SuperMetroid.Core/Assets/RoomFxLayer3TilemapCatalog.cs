@@ -81,13 +81,13 @@ public sealed class RoomFxLayer3TilemapCatalog
     /// even identities $02..0C match the original $83:ABF2..ABFC page dispatch;
     /// Arbitrary edited payloads are compiled from the supplied document. Exact
     /// stock liquid pages use their layout formulas and retain no generated cache.
-    /// Other ushort type identities throw InvalidDataException.
+    /// The statue effect aliases the water page; other ushort types are rejected.
     /// </summary>
     public ReadOnlyMemory<byte> Resolve(RoomFxType type) => type switch
     {
         RoomFxType.Lava => lava ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
         RoomFxType.Acid => acid ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
-        RoomFxType.Water => water ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(type),
+        RoomFxType.Water or RoomFxType.TourianEntranceStatue => water ?? RoomFxLiquidTilemapDefinitions.CreateTransfer(RoomFxType.Water),
         RoomFxType.Spores => spores.CreateTransfer(),
         RoomFxType.Rain => rain.CreateTransfer(),
         RoomFxType.Fog => fog.CreateTransfer(),
@@ -146,10 +146,11 @@ public static class RoomFxLayer3TilemapFormat
     /// <summary>
     /// Returns $8A:8000 + (type/2-1)*$840 for the six even types $02..0C.
     /// The original pointers at $83:ABF2..ABFC select consecutive 32x33 word pages.
-    /// Every other ushort type remains unsupported, including the separate statue alias.
+    /// The statue effect aliases water; every other ushort type remains unsupported.
     /// </summary>
     public static int SourceAddress(RoomFxType type)
     {
+        if (RoomFxTypes.UsesWater(type)) type = RoomFxType.Water;
         int value = (ushort)type;
         if (value is < 2 or > 12 || (value & 1) != 0)
             throw new InvalidDataException($"Room-FX type {type} has no BG3 tilemap page.");

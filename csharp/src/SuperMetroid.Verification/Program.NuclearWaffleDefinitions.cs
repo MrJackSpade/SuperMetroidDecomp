@@ -85,6 +85,7 @@ internal static partial class Program
                 $"Nuclear Waffle mechanics word $A6:{definition.Address:X4}");
         }
 
+        var executedOperands = new HashSet<ushort>();
         var programGuard = new NuclearWaffleProgramReadGuard(rom);
         var programSystem = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
@@ -105,6 +106,7 @@ internal static partial class Program
         for (int frame = 0; frame < 40; frame++)
         {
             process.Invoke(programSystem, arguments);
+            VerifyExecutedEnemySelector(rom, programSlot, executedOperands);
             ushort operand = unchecked((ushort)(programSlot.CurrentInstruction - 2));
             AssertEqual(ReadNuclearWaffleWord(rom, 0xa60000 | operand), programSlot.SpritemapPointer,
                 "actual installed Nuclear Waffle native visual selector");
@@ -113,18 +115,19 @@ internal static partial class Program
 
         AssertEqual(
             NuclearWaffleInstructionProgramDefinitions.PresentationWordCount,
-            installed.Count,
-            "all twelve native Nuclear Waffle selectors execute");
-        AssertEqual(0, programGuard.ObservedPresentationWords.Count, "Nuclear Waffle installed selectors avoid live reads");
+            executedOperands.Count,
+            "all Nuclear Waffle selectors execute and match cartridge operands");
         for (int index = 0;
              index < NuclearWaffleInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(installed.Contains(address),
-                $"production execution selects Nuclear Waffle presentation operand $A6:{address:X4}");
+            AssertTrue(executedOperands.Contains(address),
+                $"production execution covers Nuclear Waffle presentation word $A6:{address:X4}");
         }
+        AssertEqual(0, programGuard.ObservedPresentationWords.Count,
+            "compiled presentation selectors require no runtime ROM reads");
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids every compiled Nuclear Waffle mechanics byte");
 
@@ -146,7 +149,7 @@ internal static partial class Program
         Console.WriteLine(
             "Nuclear Waffle definitions: twelve geometry words, both complete production " +
             "initializers, 14 compiled instruction words, and the full body loop pass with " +
-            "mechanics reads forbidden; 12 installed selectors match native operands.");
+            "runtime ROM reads forbidden; 12 executed selectors match the cartridge.");
     }
 
     private static int ProbeNuclearWaffleInstructionMechanicsAllocation()

@@ -22,6 +22,7 @@ internal static partial class Program
     {
         var original = OriginalFxTilemapTypes.ToDictionary(type => type,
             type => 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type));
+        original.Add(RoomFxType.TourianEntranceStatue, 0x8a0000 | ReadVerificationWord(rom, 0x83ac16));
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             var type = (RoomFxType)value;
@@ -29,7 +30,7 @@ internal static partial class Program
                 AssertEqual(expected, RoomFxLayer3TilemapFormat.SourceAddress(type), "Original page pointer");
             else
                 AssertThrows<InvalidDataException>(() => RoomFxLayer3TilemapFormat.SourceAddress(type),
-                    "All unsupported ushort identities reject, including odd types and statue alias");
+                    "All unsupported ushort identities reject, including odd types");
         }
     }
 }

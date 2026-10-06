@@ -79,7 +79,7 @@ internal static partial class Program
         VerifyCompiledEscapeDoorProgram(guarded, motherBrain, samus);
         VerifyCompiledSubtitleProgram(guarded, motherBrain, samus);
         VerifyCompiledMiscDustPrograms(guarded, motherBrain, samus);
-        VerifyCompiledRoomSharedPrograms(guarded, samus);
+        VerifyCompiledRoomSharedPrograms(guarded, samus, rom);
 
         var invalid = new MotherBrainEnemyProjectileSystem();
         int invalidSlotIndex = invalid.SpawnTimeBombSetSubtitle() ??
@@ -146,7 +146,8 @@ internal static partial class Program
     /// </summary>
     private static void VerifyCompiledRoomSharedPrograms(
         ISnesAddressSpace bus,
-        SamusState samus)
+        SamusState samus,
+        SuperMetroidAddressSpace nativeReference)
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo processMethod = typeof(RoomEnemySystem).GetMethod(
@@ -344,10 +345,37 @@ internal static partial class Program
         RoomEnemyProjectileSlot handBeam = handBeamEnemies.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.MotherBrainHandBeamCharging);
+        ushort referenceCursor = MotherBrainHandBeamInstructionProgramDefinitions.Initial;
+        ushort referenceOperand = 0;
+        int referenceTimer = 1;
+        var observedHandBeamOperands = new HashSet<ushort>();
         for (int frame = 0; frame < 39; frame++)
         {
-            Process(handBeamEnemies, handBeam, handBeamTarget);
+            if (--referenceTimer == 0)
+            {
+                ushort word = ReadEnemyProjectileMechanicsWord(nativeReference, 0x860000 | referenceCursor);
+                if (word >= 0x8000)
+                {
+                    AssertEqual(EnemyProjectileCodePointers.Instruction_EnemyProjectile_CallExternalFunctionInY,
+                        word, "hand-beam native stage transition calls the child-spawn callback");
+                    referenceCursor += 5;
+                    word = ReadEnemyProjectileMechanicsWord(nativeReference, 0x860000 | referenceCursor);
+                }
+                referenceTimer = word;
+                referenceOperand = (ushort)(referenceCursor + 2);
+                referenceCursor += 4;
+            }
+            processMethod.Invoke(
+                handBeamEnemies,
+                [handBeam, handBeamTarget, (ushort)0, (ushort)0]);
+            AssertEqual(referenceOperand, handBeam.PresentationOperandAddress,
+                $"hand-beam frame {frame} selects the native visual operand");
+            AssertEqual((ushort)referenceTimer, handBeam.InstructionTimer,
+                $"hand-beam frame {frame} preserves the native remaining duration");
+            observedHandBeamOperands.Add(handBeam.PresentationOperandAddress);
         }
+        AssertEqual(MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordCount,
+            observedHandBeamOperands.Count, "hand-beam selects all 21 installed visual operands");
         AssertTrue(handBeam.IsActive,
             "hand-beam charge survives all three exact 13-frame stages");
         AssertEqual(3, handBeamEnemies.EnemyProjectiles.Count(

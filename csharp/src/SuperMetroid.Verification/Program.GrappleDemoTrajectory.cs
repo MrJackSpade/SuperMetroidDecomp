@@ -13,7 +13,7 @@ internal static partial class Program
         var scene = SuperMetroid.AssetExtraction.AttractDemoSceneImporter.Read(bus, 0, 4)!;
         AssertEqual(AttractDemoRomData.InputObjects.GrappleBeam, scene.InputObject,
             "retail basic grapple demo identity");
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeAttractDemo(scene);
         var samus = runtime.Samus!;
         var level = runtime.LevelData!;
@@ -24,7 +24,7 @@ internal static partial class Program
                     expectedColumns.Add(x);
         AssertTrue(expectedColumns.Count > 0, "demo room supplies grapple ceiling terrain");
         var connectedColumns = new List<int>();
-        var input = new AttractDemoInput(bus, scene);
+        var input = new ReferenceAttractInput(bus, scene);
         int scriptedShots = 0;
         GrapplePhase previousPhase = GrapplePhase.Inactive;
         for (int frame = 0; frame < scene.Duration; frame++)

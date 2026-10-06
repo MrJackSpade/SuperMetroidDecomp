@@ -27,6 +27,7 @@ internal static partial class Program
         }
 
         var guard = new PowampSpikeInstructionReadGuard(rom);
+        var selectedPresentationWords = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -76,18 +77,20 @@ internal static partial class Program
             "Powamp spike private delete list clears the projectile");
 
         AssertEqual(PowampSpikeInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all live Powamp-spike spritemap operands remain cartridge reads");
+            selectedPresentationWords.Count,
+            "all live Powamp-spike frames select installed operands");
         for (int index = 0;
              index < PowampSpikeInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address = PowampSpikeInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production execution reads Powamp-spike presentation $86:{address:X4}");
+            AssertTrue(selectedPresentationWords.Contains(address),
+                $"production execution selects Powamp-spike presentation $86:{address:X4}");
         }
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "Powamp-spike frames never read presentation operands from ROM");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Powamp-spike mechanics byte");
         AssertThrows<InvalidDataException>(
@@ -107,7 +110,7 @@ internal static partial class Program
         Console.WriteLine(
             "Powamp-spike instruction mechanics: six compiled words, all eight real burst " +
             "directions, complete loops, private collision deletion, and three live " +
-            "spritemap reads pass with mechanics bytes forbidden.");
+            "installed frame selectors pass without instruction ROM reads.");
 
         void RunForcedTicks(RoomEnemyProjectileSlot projectile, int count)
         {
@@ -115,6 +118,15 @@ internal static partial class Program
             {
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+                if (projectile.IsActive && projectile.InstructionTimer != 0)
+                {
+                    ushort operand = (ushort)(projectile.InstructionPointer - 2);
+                    AssertEqual(operand, projectile.PresentationOperandAddress,
+                        "Powamp spike selects the just-executed native frame operand");
+                    AssertEqual(ReadPowampSpikeInstructionWord(rom, (ushort)(operand - 2)),
+                        projectile.InstructionTimer, "Powamp spike retains the native frame duration");
+                    selectedPresentationWords.Add(projectile.PresentationOperandAddress);
+                }
             }
         }
     }

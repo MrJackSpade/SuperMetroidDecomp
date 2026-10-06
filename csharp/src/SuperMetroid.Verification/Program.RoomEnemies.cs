@@ -84,7 +84,42 @@ static void VerifyRoomEnemyLoading()
     WriteWord(bus, populationAddress + 16, 0xffff);
     bus.WriteByte(populationAddress + 18, 1);
 
-    var enemies = new RoomEnemySystem();
+    // Import the explicitly seeded fixture art before exercising the installed-only loader.
+    var stockSheets = new Dictionary<ushort, RoomCharacterAtlas>();
+    var stockColors = new Dictionary<ushort, EnemyPaletteSheet>();
+    foreach ((ushort pointer, int source, int byteCount, int paletteSource) in new[]
+             {
+                 (primaryDefinitionPointer, 0xa29100, 0x40, 0xa29000),
+                 (specialDefinitionPointer, 0xa39320, 0x20, 0xa39300),
+             })
+    {
+        byte[] planar = Enumerable.Range(0, byteCount)
+            .Select(index => bus.ReadByte(source + index)).ToArray();
+        int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, tiles,
+            out int width, out int height);
+        using var png = new MemoryStream();
+        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        stockSheets.Add(pointer, RoomCharacterAtlas.Load(new MemoryStream(png.ToArray()), byteCount));
+        var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
+        for (int color = 0; color < palette.Length; color++)
+        {
+            ushort word = (ushort)(bus.ReadByte(paletteSource + color * 2) |
+                bus.ReadByte(paletteSource + color * 2 + 1) << 8);
+            palette[color] = new PaletteRgb5
+            {
+                Red = word & 31,
+                Green = word >> 5 & 31,
+                Blue = word >> 10 & 31,
+            };
+        }
+        stockColors.Add(pointer, EnemyPaletteSheet.Load(new MemoryStream(
+            EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
+    }
+    var enemies = new RoomEnemySystem
+    {
+        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(stockSheets, stockColors),
+    };
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x9999);
 
     AssertEqual(1, enemies.EnemyCount, "enemy population count");
@@ -143,40 +178,9 @@ static void VerifyRoomEnemyLoading()
         "definition vulnerability pointer offset $3C");
     AssertEqual(0x9200, definition.NamePointer, "definition name pointer offset $3E");
 
-    // The installed-art path must consume exactly the same VRAM geometry while the
+    // Repeating the installed-art load must preserve the same VRAM geometry while the
     // cartridge tile sources are forbidden. The second definition exercises the native
     // high-bit staging branch, so a single hard-coded destination cannot pass.
-    var stockSheets = new Dictionary<ushort, RoomCharacterAtlas>();
-    var stockColors = new Dictionary<ushort, EnemyPaletteSheet>();
-    foreach ((ushort pointer, int source, int byteCount, int paletteSource) in new[]
-             {
-                 (primaryDefinitionPointer, 0xa29100, 0x40, 0xa29000),
-                 (specialDefinitionPointer, 0xa39320, 0x20, 0xa39300),
-             })
-    {
-        byte[] planar = Enumerable.Range(0, byteCount)
-            .Select(index => bus.ReadByte(source + index)).ToArray();
-        int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, tiles,
-            out int width, out int height);
-        using var png = new MemoryStream();
-        IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
-        stockSheets.Add(pointer, RoomCharacterAtlas.Load(new MemoryStream(png.ToArray()), byteCount));
-        var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
-        for (int color = 0; color < palette.Length; color++)
-        {
-            ushort word = (ushort)(bus.ReadByte(paletteSource + color * 2) |
-                bus.ReadByte(paletteSource + color * 2 + 1) << 8);
-            palette[color] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
-        }
-        stockColors.Add(pointer, EnemyPaletteSheet.Load(new MemoryStream(
-            EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
-    }
     var installedEnemies = new RoomEnemySystem
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(stockSheets, stockColors),
@@ -235,6 +239,9 @@ private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
 {
     public RoomEnemyDefinition ReadEnemyDefinition(ushort pointer) =>
         source.ReadEnemyDefinition(pointer);
+
+    public RoomEnemySpawnNameWords ReadEnemySpawnNameWords(ushort pointer) =>
+        source.ReadEnemySpawnNameWords(pointer);
 
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer) =>
         source.ReadEnemyPopulation(pointer);
@@ -393,7 +400,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     WriteEnemyDefinition(
         bus,
         definitionPointer,
-        tileDataSize: 0,
+        tileDataSize: 32,
         palettePointer: 0xe457,
         bank: 0xa2,
         tileDataAddress: 0xa28000,
@@ -459,7 +466,30 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         new ushort[foreground.Length],
         new byte[8]);
 
-    var enemies = new RoomEnemySystem();
+    var paletteDocument = new EnemyPaletteSheetDocument
+    {
+        Version = 1,
+        Colors = Enumerable.Range(0, EnemyPaletteSheet.ColorCount).Select(_ =>
+            new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
+    };
+    using var paletteJson = new MemoryStream(EnemyPaletteSheet.Write(paletteDocument));
+    var palettes = new Dictionary<ushort, EnemyPaletteSheet>
+    {
+        [definitionPointer] = EnemyPaletteSheet.Load(paletteJson),
+    };
+    // Installed artwork requires complete tiles; one blank tile replaces the old omitted art.
+    using var tilePng = new MemoryStream();
+    IndexedPng.Write(tilePng, 8, 8, new byte[64], SnesGraphics.DiagnosticPalette(16));
+    tilePng.Position = 0;
+    var sheets = new Dictionary<ushort, RoomCharacterAtlas>
+    {
+        [definitionPointer] = RoomCharacterAtlas.Load(tilePng, 32),
+    };
+    var enemies = new RoomEnemySystem
+    {
+        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+            sheets, palettes),
+    };
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0);
     RoomEnemySlot ripper = enemies.Slots[0];
     if (verifyXrayTimers)
@@ -540,10 +570,24 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     // WriteEnemyOAM `$A0:947B` applies enemy shake to the shared ordinary-spritemap
     // origin. One synthetic one-entry map makes both signs and the timer consumption
     // observable without borrowing the production displacement calculation.
-    WriteWord(bus, 0xa2e527, 1);
-    WriteWord(bus, 0xa2e529, 0);
-    bus.WriteByte(0xa2e52b, 0);
-    WriteWord(bus, 0xa2e52c, 0);
+    var frames = EnemySpritemapDefinitions.Frames.ToArray();
+    var spriteDocument = new EnemySpritemapDocument
+    {
+        Version = EnemySpritemapDefinitions.Version,
+        Frames = frames.ToDictionary(frame => frame.Name, frame =>
+            frame.Bank == 0xa2 && frame.Pointer == 0xe527
+                ? new[] { new SpriteVisualPart { OffsetX = 0, OffsetY = 0, Size = 8,
+                    TileColumn = 0, TileRow = 0, Palette = 0, Priority = 0,
+                    FlipX = false, FlipY = false } }
+                : Array.Empty<SpriteVisualPart>()),
+        DisplayFrames = frames.ToDictionary(frame => frame.Name, frame => frame.Name),
+    };
+    using var spriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
+        spriteDocument, new System.Text.Json.JsonSerializerOptions
+        { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+    enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+        sheets, palettes,
+        spritemaps: EnemySpritemapCatalog.Load(spriteJson));
     var shakenOam = new OamBuffer();
     ripper.FrameCounter = 0;
     ripper.ShakeTimer = 2;
@@ -585,8 +629,8 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     AssertEqual(1, samus.KnockbackXDirection, "contact publishes source-side word for later interruption");
     if (verifyDeferredContact) return;
 
-    var projectiles = new SamusProjectileSystem();
-    var sharedProjectiles = new SamusBombProjectileSystem();
+    var projectiles = CreateProjectileFixture();
+    var sharedProjectiles = CreateBombFixture();
     WriteWord(bus, 0x93867b, 0x9100);
     WriteWord(bus, 0x93867f, 0x9200);
 
@@ -655,6 +699,19 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     Console.WriteLine(
         "  Ripper: ROM load, animation, 16.16 movement, wall reversal, contact, " +
         "vulnerabilities, freeze, damage, and death agree.");
+}
+
+private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddressSpace bus)
+{
+    string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp",
+        "ceres-door-fixture-" + Guid.NewGuid().ToString("N")));
+    SuperMetroid.AssetExtraction.CeresDoorVisualFiles.Extract(bus, directory);
+    var visuals = SuperMetroid.AssetExtraction.CeresDoorVisualFiles.Load(
+        File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.TilesFileName)),
+        File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName)));
+    return EnemyTileArtworkCatalog.FromArtworkForVerification(
+        new Dictionary<ushort, RoomCharacterAtlas>(),
+        new Dictionary<ushort, EnemyPaletteSheet>(), ceresDoorVisual: visuals);
 }
 
 /// <summary>
@@ -728,7 +785,7 @@ static void VerifyCeresElevatorPlatformAnimation()
     for (int color = 0; color < 6; color++)
         WriteWord(bus, 0xa6f871 + color * 2, unchecked((ushort)(0x4400 + color)));
 
-    var enemies = new RoomEnemySystem();
+    var enemies = new RoomEnemySystem { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0);
     enemies.StepFrame(0, 0, timeIsFrozen: false);
     for (int index = 0; index < 4; index++)
@@ -792,12 +849,12 @@ static void VerifyCeresDoorBossBranch()
     // loops at `$F55E` while the boss lives; after defeat it clears the Ridley-drawn flag
     // and enters the ordinary closed-door loop at `$F598`. A nearby Samus then drives the
     // native opening frames to `$F68B`, whose intangible side effect is under test. Frame
-    // spritemap operands remain presentation reads; their zero values are harmless here.
+    // selectors use compiled mechanics; this fixture does not draw the door sprite.
 
     bool areaBossDefeated = false;
     int areaBossReads = 0;
     var samus = new SamusState { XPosition = 0x0008, YPosition = 0x007f };
-    var enemies = new RoomEnemySystem();
+    var enemies = new RoomEnemySystem { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
     enemies.Load(
         bus,
         populationPointer,
@@ -1064,7 +1121,59 @@ static void VerifyCeresRidleyRoomEntry()
     WriteWord(bus, 0x939108, 0x822f);
     WriteWord(bus, 0x90c28f, 0x000b);
 
-    var enemies = new RoomEnemySystem();
+    var fixturePalette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
+    for (int color = 0; color < fixturePalette.Length; color++)
+    {
+        ushort word = (ushort)(bus.ReadByte(0xa6e14f + color * 2) |
+            bus.ReadByte(0xa6e150 + color * 2) << 8);
+        fixturePalette[color] = new PaletteRgb5
+        {
+            Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31,
+        };
+    }
+    byte[] fixturePlanar = Enumerable.Range(0, 0x20)
+        .Select(offset => bus.ReadByte(0xa69000 + offset)).ToArray();
+    byte[] fixturePixels = SnesGraphics.DecodePlanarTiles(fixturePlanar, 4, 1,
+        out int fixtureWidth, out int fixtureHeight);
+    using var fixtureTilePng = new MemoryStream();
+    IndexedPng.Write(fixtureTilePng, fixtureWidth, fixtureHeight, fixturePixels,
+        SnesGraphics.DiagnosticPalette(16));
+    var fixtureSpriteFrames = EnemySpritemapDefinitions.Frames.ToArray();
+    var fixtureSprites = new EnemySpritemapDocument
+    {
+        Version = EnemySpritemapDefinitions.Version,
+        Frames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, frame =>
+            frame.Bank == 0xa6 && frame.Pointer == 0xa329
+                ? new[] { new SpriteVisualPart { OffsetX = 0, OffsetY = 0, Size = 8,
+                    TileColumn = 0, TileRow = 0, Palette = 0, Priority = 0,
+                    FlipX = false, FlipY = false } }
+                : Array.Empty<SpriteVisualPart>()),
+        DisplayFrames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, frame => frame.Name),
+    };
+    using var fixtureSpriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
+        fixtureSprites, new System.Text.Json.JsonSerializerOptions
+        { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+    var enemies = new RoomEnemySystem
+    {
+        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+            new Dictionary<ushort, RoomCharacterAtlas>
+            {
+                [definitionPointer] = RoomCharacterAtlas.Load(
+                    new MemoryStream(fixtureTilePng.ToArray()), 0x20),
+            },
+            new Dictionary<ushort, EnemyPaletteSheet>
+            {
+                [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
+                    EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
+            }, spritemaps: EnemySpritemapCatalog.Load(fixtureSpriteJson),
+            ceresDoorVisual: CreateCeresDoorFixtureArtwork(bus).CeresDoorVisual,
+            ceresEscapeTiles: runtimeFixtureInstallation.Value.LoadEnemyTiles().CeresEscapeTiles,
+            ceresEscapeOverlayTilemaps: runtimeFixtureInstallation.Value.LoadEnemyTiles().CeresEscapeOverlayTilemaps),
+        CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.CeresRidleyColorExtractor.Extract(bus))),
+        CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(
+            SuperMetroid.AssetExtraction.CeresRidleyMode7ColorExtractor.Extract(bus))),
+    };
     using (var escapeText = new MemoryStream(
         SuperMetroid.AssetExtraction.EscapeTypewriterExtractor.Extract(bus), writable: false))
         enemies.EscapeTypewriterPresentation = EscapeTypewriterPresentation.Load(escapeText);
@@ -1072,7 +1181,8 @@ static void VerifyCeresRidleyRoomEntry()
          address < 0xa6c4cb;
          address++)
         bus.WriteByte(address, 0);
-    enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x1234);
+    enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x1234,
+        readRandomNumber: () => 0x1234);
 
     RoomEnemySlot ridley = enemies.Slots[0];
     RidleyEnemyState state = enemies.CeresRidley
@@ -1130,7 +1240,11 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual((ushort)RidleyAiFunction.InitialDelay, (ushort)state.Function,
         "Ceres Ridley door-clear transition");
     AssertEqual(511, state.FunctionTimer, "Ceres Ridley first delay decrement");
-    AssertEqual(0x9000, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
+    var nativeRidleyRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc"));
+    ushort initialRidleyMap = (ushort)(nativeRidleyRom.ReadByte(0xa6e53e) |
+        nativeRidleyRom.ReadByte(0xa6e53f) << 8);
+    AssertEqual(initialRidleyMap, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
     AssertEqual(0xe540, ridley.CurrentInstruction, "Ceres Ridley initial list sleeps");
 
     for (int frame = 0; frame < 512; frame++)
@@ -1228,8 +1342,8 @@ static void VerifyCeresRidleyRoomEntry()
         new byte[roomWidth * roomHeight],
         new ushort[roomWidth * roomHeight],
         new byte[8]);
-    var sharedProjectiles = new SamusBombProjectileSystem();
-    var projectiles = new SamusProjectileSystem();
+    var sharedProjectiles = CreateBombFixture();
+    var projectiles = CreateProjectileFixture();
 
     bool observedNormalRidleyPalette = false;
     bool observedFlashRidleyPalette = false;
@@ -1238,14 +1352,13 @@ static void VerifyCeresRidleyRoomEntry()
     WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable, SamusBeamPreInstructionCodes.NoWave);
     for (int hit = 0; hit < 100; hit++)
     {
-        // The synthetic instruction stream covers phase transitions, not every
-        // hovering-frame art list. Reinstall its authored extended frame for each
-        // isolated shot; the separately stepped enemy AI can otherwise leave zero.
-        ridley.SpritemapPointer = 0x9000;
+        // Hold the independently read native initial frame for each isolated shot.
+        // Its body component spans X=0..28, beyond the header radius of eight.
+        ridley.SpritemapPointer = initialRidleyMap;
         // Place Samus relative to the active component, then retain native muzzle offset
         // and first-frame motion. The public producer exercises allocation/type/radii
         // before this focused extended-hitbox/shot-AI test resolves the impact.
-        samus.XPosition = unchecked((ushort)(ridley.XPosition + 32));
+        samus.XPosition = unchecked((ushort)(ridley.XPosition + 8));
         samus.YPosition = ridley.YPosition;
         sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
         SamusProjectileFrameResult fired = projectiles.StepFrame(
@@ -1259,6 +1372,8 @@ static void VerifyCeresRidleyRoomEntry()
             sharedProjectiles);
         AssertEqual((int?)0, fired.FiredSlot,
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
+        AssertTrue(projectiles.Slots[0].XPosition - projectiles.Slots[0].XRadius > ridley.XPosition + 8,
+            $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
         AssertEqual(1, enemies.ResolveCeresRidleyProjectileHits(
             bus, projectiles, sharedProjectiles),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
@@ -1364,32 +1479,66 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0, escapeWrites.Entries.Count,
         "Mode-7 terminator does not run the new actor function in the same enemy frame");
 
-    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
-    AssertEqual(1, escapeWrites.Entries.Count,
-        "Ceres self-destruct queues only one first-list record per enemy frame");
-    AssertEqual(2, state.FunctionTimer,
-        "Ceres self-destruct remains in first transfer phase while records remain");
-
-    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
-    AssertEqual(3, escapeWrites.Entries.Count,
-        "Ceres self-destruct final first-list record falls through to one second-list record");
+    List<VramWriteEntry> ReadNativeTransfers(int pointer)
+    {
+        ushort Word(int address) => (ushort)(nativeRidleyRom.ReadByte(address) |
+            nativeRidleyRom.ReadByte(address + 1) << 8);
+        var records = new List<VramWriteEntry>();
+        for (int record = 0; record < 32; record++, pointer += 7)
+        {
+            ushort size = Word(pointer);
+            if (size == 0) return records;
+            records.Add(new VramWriteEntry(size,
+                Word(pointer + 2) | nativeRidleyRom.ReadByte(pointer + 4) << 16,
+                Word(pointer + 5)));
+        }
+        throw new InvalidDataException("Native Ceres transfer fixture lacks a terminator.");
+    }
+    var spriteTransfers = ReadNativeTransfers(0xa6c4cb);
+    var backgroundTransfers = ReadNativeTransfers(0xa6c4fe);
+    AssertEqual(7, spriteTransfers.Count, "native Ceres sprite transfer count");
+    AssertEqual(8, backgroundTransfers.Count, "native Ceres background transfer count");
+    for (int record = 0; record < spriteTransfers.Count; record++)
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        bool finalSprite = record == spriteTransfers.Count - 1;
+        AssertEqual(record + 1 + (finalSprite ? 1 : 0), escapeWrites.Entries.Count,
+            "Ceres sprite transfers yield one per frame and fall through on the final record");
+        AssertEqual(finalSprite ? 4 : 2, state.FunctionTimer, "Ceres sprite/background phase handoff");
+    }
+    for (int record = 1; record < backgroundTransfers.Count; record++)
+    {
+        enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        bool finalBackground = record == backgroundTransfers.Count - 1;
+        AssertEqual(spriteTransfers.Count + record + 1 + (finalBackground ? 1 : 0),
+            escapeWrites.Entries.Count, "Ceres background transfers yield and append EMERGENCY on the final frame");
+        AssertEqual(finalBackground ? 6 : 4, state.FunctionTimer, "Ceres background/hold phase handoff");
+    }
+    var nativeTransfers = spriteTransfers.Concat(backgroundTransfers).ToArray();
+    for (int index = 0; index < nativeTransfers.Length; index++)
+    {
+        VramWriteEntry expected = nativeTransfers[index];
+        VramWriteEntry actual = escapeWrites.Entries[index];
+        AssertEqual(expected.SizeInBytes, actual.SizeInBytes, $"Ceres transfer {index} native size");
+        if (index < 2)
+        {
+            AssertEqual(0xb0c000 + index * 0x200, expected.SourceAddress,
+                $"Ceres timer {index} native source mapped to installed asset");
+            AssertEqual(index == 0 ? VramAssetId.EscapeTimerFirstTiles : VramAssetId.EscapeTimerSecondTiles,
+                actual.AssetId, $"Ceres timer {index} installed source identity");
+        }
+        else
+            AssertEqual(expected.SourceAddress, actual.SourceAddress, $"Ceres transfer {index} native source");
+        AssertEqual(expected.EncodedVramDestination, actual.EncodedVramDestination,
+            $"Ceres transfer {index} native destination");
+    }
     AssertEqual(VramAssetId.EscapeTimerFirstTiles, escapeWrites.Entries[0].AssetId,
         "Ceres first timer record selects installed artwork");
     AssertEqual(VramAssetId.EscapeTimerSecondTiles, escapeWrites.Entries[1].AssetId,
         "Ceres second timer record selects installed artwork");
-    AssertEqual(0xb09204, escapeWrites.Entries[2].SourceAddress,
-        "Ceres first non-timer warning transfer retains cartridge source");
-    AssertEqual(0x7802, escapeWrites.Entries[2].EncodedVramDestination,
-        "Ceres second warning transfer destination");
-    AssertEqual(4, state.FunctionTimer,
-        "Ceres self-destruct remains in second transfer phase while records remain");
-
-    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
-    AssertEqual(5, escapeWrites.Entries.Count,
-        "Ceres self-destruct queues the final second-list record and emergency tilemap");
-    AssertEqual(0xa6c164, escapeWrites.Entries[4].SourceAddress,
+    AssertEqual(0xa6c164, escapeWrites.Entries[^1].SourceAddress,
         "Ceres EMERGENCY text uses the cartridge tilemap words");
-    AssertEqual(0x50cb, escapeWrites.Entries[4].EncodedVramDestination,
+    AssertEqual(0x50cb, escapeWrites.Entries[^1].EncodedVramDestination,
         "Ceres EMERGENCY text targets BG1 row six");
     AssertEqual(6, state.FunctionTimer,
         "Ceres self-destruct reaches the native 128-frame English hold");

@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static IEnumerable<(ushort Object, ushort First, ushort End)> OriginalSimpleAnimationLoops(SuperMetroidAddressSpace rom)
     {
-        foreach (ushort header in new ushort[] { 0x8287, 0x828d, 0x82ab, 0x82c9, 0x82e7, 0x82fd })
+        foreach (ushort header in new ushort[] { 0x8257, 0x8287, 0x828d, 0x82ab, 0x82c9, 0x82e7, 0x82fd })
         {
             ushort first = ReadVerificationWord(rom, 0x870000 | header);
             ushort cursor = first;
@@ -47,7 +47,7 @@ internal static partial class Program
             foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => { _ = definition.Frames[invalid]; }, "Original read-only frame bounds");
         }
-        AssertEqual(26, total, "Complete original timed-frame domain");
+        AssertEqual(30, total, "Complete original timed-frame domain");
     }
 
     private static void VerifySimpleAnimationFrameDurations(SuperMetroidAddressSpace rom)

@@ -60,6 +60,12 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public bool EchoSoundRequested { get; set; }
 
+    /// <summary>
+    /// WRAM $0B40, SamusEchoesSFXFlag: set by $90:859D before the start request,
+    /// consumed by $90:F591 after boost ends, or cleared silently by quicksand $84:B40E.
+    /// </summary>
+    public ushort EchoSoundFlag { get; set; }
+
     /// <summary>Consumes speed stage four's native <c>QueueSfx3_Max6($03)</c> call.</summary>
     public bool ConsumeEchoSoundRequest()
     {
@@ -108,10 +114,10 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Signed whole-pixel X velocity for departing echo one at WRAM <c>$0AC2</c>.</summary>
     public ushort SecondSpeedEchoXSpeed { get; private set; }
 
-    /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0B48</c>.</summary>
+    /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBC</c>.</summary>
     public ushort TotalSpeed { get; private set; }
 
-    /// <summary>Fractional part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0B46</c>.</summary>
+    /// <summary>Fractional part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBE</c>.</summary>
     public ushort TotalSubspeed { get; private set; }
 
     /// <summary>
@@ -286,6 +292,7 @@ public sealed class SamusHorizontalSpeedState
             tableSelection = stagedCounter;
             if ((stagedCounter & 0x0400) != 0)
             {
+                EchoSoundFlag = 1;
                 if (queueEchoSound is null)
                     EchoSoundRequested = true;
                 else
@@ -367,17 +374,17 @@ public sealed class SamusHorizontalSpeedState
         {
             if (animationFrame == 0)
             {
-                // `$91:D9F8` resets only the palette-list byte offset. Frame zero retains
+                // `$91:DA43` resets only the palette-list byte offset. Frame zero retains
                 // the already loaded normal suit colors; it does not emit a Screw palette.
                 SpecialPaletteFrame = 0;
                 return paletteCopied;
             }
 
-            if (animationFrame < 0x1b)
+            if (unchecked((short)(animationFrame - 0x1b)) >= 0)
             {
-                // Returning zero at `$91:D9EC` asks the outer palette dispatcher to copy
-                // the normal suit palette for Screw frames 1..26. Perform that copy here
-                // because CGRAM is the desktop runtime's directly visible palette buffer.
+                // Carry clear at `$91:DA48` asks the outer palette dispatcher to copy
+                // the normal suit palette for frames 27 onward. Frames 1..26 cycle below.
+                // CGRAM is the desktop runtime's directly visible palette buffer.
                 LoadNormalSuitPalette(bus, cgram, equippedItems, suitColors);
                 return true;
             }
@@ -417,12 +424,10 @@ public sealed class SamusHorizontalSpeedState
 
         ushort palettePointer = SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(
             suitTableOffset, SpecialPaletteFrame);
-        (cycleColors ?? throw new InvalidOperationException(
-            "Speed Booster palette requires installed Samus full-body cycle colors."))
-            .Apply(cgram, palettePointer);
+        SamusSpeedBoosterPalette.Apply(bus, cgram, palettePointer, cycleColors);
 
-        // Native advances offsets 0,2,4,6 and then pins six. No out-of-range lookup occurs
-        // in reachable play because initialization and cancellation both reset the word.
+        // The native clamp is AFTER the copy. Screw Attack can leave phase eight or ten
+        // in this shared word; retain that one bounded overrun before pinning phase six.
         SpecialPaletteFrame = SpecialPaletteFrame >= 6
             ? (ushort)6
             : unchecked((ushort)(SpecialPaletteFrame + 2));

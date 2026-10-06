@@ -75,24 +75,15 @@ public sealed class SamusBombProjectileSystem
     public bool SoundSuppressedBeforeProjectileHandling { get; private set; }
 
     /// <summary>
-    /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the bank-$A0
-    /// overlap pass that the main gameplay loop invokes before movement-handler beta.
+    /// Advances bank-$88 blast HDMA independently of Samus's alpha/input handler.
+    /// Scripted carries suppress alpha but do not stop the outer HDMA object pass.
     /// </summary>
-    public BombProjectileFrameResult StepFrame(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        SamusState samus,
-        ushort controllerInput,
-        ushort controllerNewInput,
-        RoomPlmSystem? roomPlms = null,
-        bool deferSamusOverlap = false)
+    public void AdvancePowerBombHdma(ISnesAddressSpace bus, SamusState samus, ushort controllerInput)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
-
         // RunOneFrameOfGame invokes HdmaObjectHandler before GameState_8 reaches Samus's
-        // frame handler. A power bomb spawned later in this method consequently receives
+        // frame handler. A power bomb spawned later by alpha consequently receives
         // its first radius update on the next frame, not on its fuse-expiration frame.
         bool crystalFlashWindowWasActive = PowerBombExplosion.Phase is
             PowerBombExplosionPhase.CrystalFlashExplosion or
@@ -116,19 +107,43 @@ public sealed class SamusBombProjectileSystem
         }
 
         SoundSuppressedBeforeProjectileHandling = PowerBombExplosion.IsActive;
+    }
+
+    /// <summary>
+    /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the bank-$A0
+    /// overlap pass that the main gameplay loop invokes before movement-handler beta.
+    /// </summary>
+    public BombProjectileFrameResult StepFrame(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusState samus,
+        ushort controllerInput,
+        ushort controllerNewInput,
+        RoomPlmSystem? roomPlms = null,
+        bool deferSamusOverlap = false,
+        bool advancePowerBombHdma = true)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(samus);
+
+        if (advancePowerBombHdma)
+            AdvancePowerBombHdma(bus, samus, controllerInput);
 
         // $90:AC1C runs before the movement-type-specific HUD handler. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.
         // The forward-facing branch at $90:DCE3/$90:DCE8 skips this call as well
         // as the HUD producer, but must still run the existing projectile slots below.
-        if (!SamusState.IsForwardFacingPose(samus.Pose))
+        // Command-zero alpha calls HandleProjectile directly, skipping the HUD
+        // dispatcher that owns cooldown and new bomb placement.
+        if (!samus.StationaryScriptControlLocked && !SamusState.IsForwardFacingPose(samus.Pose))
             StepCooldown();
 
         int? placedSlot = null;
         bool bombSpreadStarted = false;
         bool beamChargeConsumed = false;
         var soundRequests = new List<SamusSoundRequest>();
-        if (SamusState.IsStableBallPose(samus.Pose))
+        if (!samus.StationaryScriptControlLocked && SamusState.IsStableBallPose(samus.Pose))
         {
             BombSpreadAdmission spread = HandleBombSpreadInput(bus, samus, controllerInput);
             bombSpreadStarted = spread == BombSpreadAdmission.Spawned;

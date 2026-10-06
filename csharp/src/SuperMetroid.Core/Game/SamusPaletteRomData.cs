@@ -244,13 +244,19 @@ public static class SamusPaletteRomData
         /// <summary>
         /// Reads a word from the complete compiled three-suit active Speed Booster
         /// pointer allocation, including bounded adjacent-list and odd-byte reads.
+        /// Gravity phases eight and ten additionally retain the instruction-data
+        /// overruns inherited from the shared Screw Attack phase word.
         /// </summary>
         public static ushort ReadActiveSpeedBoosterPalettePointer(
             ushort suitByteOffset, ushort phaseByteOffset) =>
-            ReadCompiledListWord(suitByteOffset, phaseByteOffset,
-                firstListAddress: SpeedBoosterFirstList, phaseCount: 4,
-                firstPalette: SpeedBoosterFirstPalette,
-                pingPong: false);
+            (suitByteOffset, phaseByteOffset) switch
+            {
+                (4, 8) => SpeedBoosterPaletteOverrunDefinitions.ExpansionPointer,
+                (4, 10) => SpeedBoosterPaletteOverrunDefinitions.GrappleCodePointer,
+                _ => ReadCompiledListWord(suitByteOffset, phaseByteOffset,
+                    firstListAddress: SpeedBoosterFirstList, phaseCount: 4,
+                    firstPalette: SpeedBoosterFirstPalette, pingPong: false),
+            };
         /// <summary><c>$91:DB10</c>, suit-indexed stored-shine palette lists.</summary>
         /// <remarks>
         /// Issue #879 / #625: the pinned NTSC J/U v1.0 ROM's three

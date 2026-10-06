@@ -19,6 +19,9 @@ internal static partial class Program
         var edited = Load(document);
         VerifyRuntimeFlarePlacement(bus, stock, edited);
         var system = new SamusProjectileSystem();
+        var sprites = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
+        var drawMetadata = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponentWithMetadata", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .CreateDelegate<FlareMetadataDraw>(system);
         var draw = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponent", BindingFlags.Instance | BindingFlags.NonPublic)!
             .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, ushort, ushort, int, SamusMode7Transform?, ChargeFlarePlacementCatalog?, ChargeFlareSpriteCatalog?>>(system);
         int cases = 0;
@@ -28,21 +31,33 @@ internal static partial class Program
         foreach (SamusMode7Transform? transform in new SamusMode7Transform?[] { null, new(240, 16, 65520, 128, 112) })
         for (int component = 0; component < 3; component++)
         {
-            // Non-authored metadata makes the deliberate overread directions testable
-            // without rewriting an authored pose's immutable aiming rules.
-            var samus = new SamusState { Pose = 0xfd, XPosition = coordinate, YPosition = coordinate };
+            // Exercise all original low-nibble operands at the renderer's metadata
+            // boundary; compiled pose rules cannot be overridden by fake ROM bytes.
+            var samus = new SamusState { Pose = pose, XPosition = coordinate, YPosition = coordinate };
+            int record = SamusMovementRomData.Poses.Definitions + pose * 8;
+            bool running = bus.ReadByte(record + 1) == (byte)SamusMovementType.Running;
+            bool facingLeft = bus.ReadByte(record) == 4;
+            byte yOffset = bus.ReadByte(record + 4);
             var native = new OamBuffer(); var actual = new OamBuffer();
-            draw(new FlarePlacementGuard(bus, pose, direction, false), native, samus, 0, 0, component, transform, null, null);
-            draw(new FlarePlacementGuard(bus, pose, direction, true), actual, samus, 0, 0, component, transform, stock, null);
+            int xTable = running ? SamusProjectileRomData.Origins.FlareRunningX : SamusProjectileRomData.Origins.FlareDefaultX;
+            int yTable = running ? SamusProjectileRomData.Origins.FlareRunningY : SamusProjectileRomData.Origins.FlareDefaultY;
+            short Word(int address) => unchecked((short)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+            var point = transform is { } selectedTransform ? selectedTransform.Transform(coordinate, coordinate) : new SamusMode7Point(coordinate, coordinate);
+            ushort x = unchecked((ushort)(point.X + Word(xTable + direction * 2)));
+            ushort y = unchecked((ushort)(point.Y + Word(yTable + direction * 2) - yOffset));
+            ushort selector = (ushort)(component == 0 ? 0 : facingLeft ? (component == 1 ? 42 : 48) : (component == 1 ? 30 : 36));
+            if ((y & 0xff00) == 0) DrawImportedFlareSpritemap(bus, native, selector, x, y);
+            drawMetadata(actual, samus, 0, 0, component, transform, stock, sprites, direction, running, yOffset, facingLeft);
             AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "Flare placement stock preserves native OAM/culling for running, facing, overread directions and Mode7");
             AssertEqual(native.NextByteOffset, actual.NextByteOffset, "Flare placement preserves OAM admission");
             cases++;
         }
         var subject = new SamusState { Pose = 1, XPosition = 100, YPosition = 100 };
+        PrepareRetailSamusFixture(subject);
         byte[] beforeSamus = Save(subject), beforeSystem = Save(system);
         var original = new OamBuffer(); var changed = new OamBuffer();
-        draw(bus, original, subject, 0, 0, 0, null, stock, null);
-        draw(bus, changed, subject, 0, 0, 0, null, edited, null);
+        draw(bus, original, subject, 0, 0, 0, null, stock, sprites);
+        draw(bus, changed, subject, 0, 0, 0, null, edited, sprites);
         AssertTrue(original.NextByteOffset > 0, "Edited flare placement fixture draws visible sprites");
         AssertEqual(original.NextByteOffset, changed.NextByteOffset, "Visual shift retains sprite count");
         for (int i = 0; i < original.NextByteOffset / 4; i++)
@@ -63,8 +78,8 @@ internal static partial class Program
             subject.HyperBeam = hyper;
             original = new OamBuffer(); changed = new OamBuffer();
             var guarded = new FlarePlacementGuard(bus, subject.Pose, 2, true);
-            originalSystem.HandleChargeFlareAndDraw(guarded, original, subject, 0, 0, placement: stock);
-            editedSystem.HandleChargeFlareAndDraw(guarded, changed, subject, 0, 0, placement: edited);
+            originalSystem.HandleChargeFlareAndDraw(guarded, original, subject, 0, 0, placement: stock, compositions: sprites);
+            editedSystem.HandleChargeFlareAndDraw(guarded, changed, subject, 0, 0, placement: edited, compositions: sprites);
             AssertTrue(original.NextByteOffset > 0, "Public normal/Hyper flare producer emits visible components");
             AssertEqual(original.NextByteOffset, changed.NextByteOffset, "Public flare placement preserves component admission");
             for (int i = 0; i < original.NextByteOffset / 4; i++)
@@ -88,6 +103,11 @@ internal static partial class Program
             return stream.ToArray();
         }
     }
+    private delegate void FlareMetadataDraw(OamBuffer oam, SamusState samus,
+        ushort layer1X, ushort layer1Y, int component, SamusMode7Transform? transform,
+        ChargeFlarePlacementCatalog? placement, ChargeFlareSpriteCatalog? sprites,
+        byte direction, bool running, byte poseYOffset, bool facingLeft);
+
     private sealed class FlarePlacementGuard(ISnesAddressSpace source, byte pose, byte direction, bool forbid) : ISnesAddressSpace, IImportCartridgeSource
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
@@ -107,7 +127,7 @@ internal static partial class Program
 
     private static void VerifyRuntimeFlarePlacement(SuperMetroidAddressSpace bus, ChargeFlarePlacementCatalog stock, ChargeFlarePlacementCatalog edited)
     {
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.Samus!.Pose = 1;
@@ -117,7 +137,7 @@ internal static partial class Program
         typeof(SamusProjectileSystem).GetProperty("FlareCounter")!.SetValue(runtime.Projectiles, (ushort)30);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Array.Fill((ushort[])typeof(SamusProjectileSystem).GetField("_flareTimers", flags)!.GetValue(runtime.Projectiles)!, (ushort)100);
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus);
+        var game = CreateRetailGameFixture(bus);
         var field = game.GetType().GetField("runtime", flags)!;
         field.SetValue(game, runtime);
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
@@ -142,6 +162,7 @@ internal static partial class Program
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)field.GetValue(restored)!;
         AssertTrue(restoredRuntime.ChargeFlarePlacement is null, "Restored flare catalog requires host rebind");
+        runtimeFixtureBindings.Value(restoredRuntime);
         game.BindChargeFlarePlacement(edited); restored.BindChargeFlarePlacement(edited);
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored runtime emits current flare content at the saved animation state");
     }

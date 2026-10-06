@@ -48,7 +48,10 @@ internal static partial class Program
             _ = EyeBeamWindowBuilder.Build(guard, 100, 100, angle, 0);
             _ = EyeBeamWindowBuilder.Build(guard, -16, 100, angle, 1);
         }
-        var beam = new MotherBrainRainbowBeamHdmaState();
+        var beam = new MotherBrainRainbowBeamHdmaState
+        {
+            PresentationColors = RetailPresentationFixture().MotherBrainRainbowPalette,
+        };
         foreach (byte angle in new byte[] { 0, 32, 64, 96, 128, 160, 192, 224 })
             beam.Step(guard, true, 100, 95, SnesAngle.FromTableIndex(angle), 512);
         AssertThrows<ArgumentOutOfRangeException>(() => AbsoluteTangentDefinitions.Sample(129), "Tangent beyond native endpoint rejected");

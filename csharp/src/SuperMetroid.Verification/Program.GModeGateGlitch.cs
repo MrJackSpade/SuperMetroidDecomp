@@ -42,7 +42,7 @@ internal static partial class Program
         int expectedOpenFrame)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
@@ -78,8 +78,8 @@ internal static partial class Program
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        var shots = new SamusProjectileSystem();
-        var bombs = new SamusBombProjectileSystem();
+        var shots = CreateProjectileFixture();
+        var bombs = CreateBombFixture();
         int openedFrame = -1;
         int passedGateFrame = -1;
         for (int frame = 0; frame < 20; frame++)
@@ -135,7 +135,7 @@ internal static partial class Program
     private static void VerifyIndirectGModeOmitsGateActor()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = CreateRetailRuntimeFixture(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();

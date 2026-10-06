@@ -51,7 +51,7 @@ internal static partial class Program
                 ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (list + record * 4 + 2));
                 var system = new Bank80SystemState();
                 system.SetAreaMapAcquired(area);
-                var pause = new PauseMenuState(bus, new SamusState(), system, (AreaId)area, 0, 0);
+                var pause = CreateRetailPauseFixture(bus, new SamusState(), system, (AreaId)area, 0, 0);
                 // Center the marker under test without changing its authored position.
                 typeof(PauseMenuState).GetField("mapHorizontalScroll", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                     .SetValue(pause, unchecked((ushort)(x - 128)));
@@ -94,17 +94,18 @@ internal static partial class Program
                     "JSON/SRAM reload preserves the complete defeated pause image");
                 // The existing-save menu creates its own progression owner from the
                 // slot. Compare that actual constructor path with the live source.
-                var savedMenu = new FileSelectMapMenuState(restored, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0);
+                var savedMenu = new FileSelectMapMenuState(restored, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0,
+                    RetailPresentationFixture());
                 var savedGraphics = (FileSelectRoomMapGraphics)typeof(FileSelectMapMenuState)
                     .GetField("roomGraphics", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                     .GetValue(savedMenu)!;
-                var liveGraphics = new FileSelectRoomMapGraphics(bus, system, (AreaId)area);
-                var marker = new FileSelectStationMarker(bus, (AreaId)area, 0);
+                var liveGraphics = new FileSelectRoomMapGraphics(bus, system, (AreaId)area, mapPresentation: RetailPresentationFixture());
+                var marker = new FileSelectStationMarker(bus, (AreaId)area, 0, RetailPresentationFixture().SaveMarkers);
                 ushort scrollX = unchecked((ushort)(x - 128)), scrollY = unchecked((ushort)(y - 112));
                 AssertTrue(liveGraphics.Render(scrollX, scrollY, marker).SequenceEqual(
                     savedGraphics.Render(scrollX, scrollY, marker)),
                     "existing-save menu restores exact boss-marker pixels with its slot-owned progression");
-                var runtime = new SuperMetroidRuntime(restored);
+                var runtime = CreateRetailRuntimeFixture(restored);
                 runtime.InitializeHud(HudSnapshot.CeresDebug);
                 runtime.RunNmi(0, true);
                 runtime.InitializeStartingCeresRoom();
@@ -120,7 +121,7 @@ internal static partial class Program
 
                 PauseMenuState CenteredPause(ISnesAddressSpace addressSpace, Bank80SystemState state)
                 {
-                    var reopened = new PauseMenuState(addressSpace, new SamusState(), state, (AreaId)area, 0, 0);
+                    var reopened = CreateRetailPauseFixture(addressSpace, new SamusState(), state, (AreaId)area, 0, 0);
                     typeof(PauseMenuState).GetField("mapHorizontalScroll", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                         .SetValue(reopened, unchecked((ushort)(x - 128)));
                     typeof(PauseMenuState).GetField("mapVerticalScroll", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!

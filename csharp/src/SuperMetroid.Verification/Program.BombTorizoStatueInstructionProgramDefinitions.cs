@@ -61,6 +61,12 @@ internal static partial class Program
             for (int frame = 1; frame <= visibleFrames; frame++)
             {
                 process.Invoke(enemies, [fragment, null, (ushort)0, (ushort)0]);
+                AssertEqual(frame <= initialDuration ? 0 : 1, enemies.SoundRequests.Count,
+                    "shell sound occurs once at release, never during the initial wait or again while falling");
+                if (frame == initialDuration + 1)
+                    AssertEqual(new EnemySoundRequest(SoundEffectId.FromCartridge(
+                            SoundEffectLibrary.Library2, rom.ReadByte(0x860000 | (program + 6))), 6),
+                        enemies.SoundRequests[0], "shell release uses the cartridge sound byte and Max6 queue");
                 AssertEqual((ushort)(program + (frame <= initialDuration ? 2 : 13)), fragment.PresentationOperandAddress,
                     "statue fragment presents the native operand on the exact delay/falling tick" );
                 AssertTrue(fragment.IsActive,

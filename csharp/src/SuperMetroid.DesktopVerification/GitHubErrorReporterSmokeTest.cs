@@ -1,3 +1,11 @@
+using System.Reflection;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+
 namespace SuperMetroid.Desktop;
 
 /// <summary>Deterministic audit of stable fingerprints and both deduplication layers.</summary>
@@ -6,6 +14,7 @@ public static class GitHubErrorReporterSmokeTest
     public static GitHubErrorReporterSmokeTestResult Run()
     {
         VerifyAudioRecovery();
+        string frameDiagnostics = VerifyFrameFailureSnapshot();
         var client = new RecordingIssueClient();
         Exception repeated = CaptureFixtureException("door callback $8F:B9A2 is untranslated");
         Exception existing = CaptureFixtureException("PLM instruction $84:BA6F is untranslated");
@@ -22,7 +31,11 @@ public static class GitHubErrorReporterSmokeTest
                 ControllerInput: 0x0080,
                 RoomPointer: 0x96BA,
                 DoorPointer: 0x8BB6,
-                InputRecordingPath: "fixture.smrec");
+                InputRecordingPath: "fixture.smrec",
+                FrameDiagnostics: frameDiagnostics);
+            Require(GitHubErrorReporter.CreateFingerprint(repeated, context) ==
+                GitHubErrorReporter.CreateFingerprint(repeated, context with { FrameDiagnostics = "different frame and handler" }),
+                "Diagnostic state changes must not split error fingerprints.");
             client.ExistingFingerprints.Add(GitHubErrorReporter.CreateFingerprint(existing, context));
             repeatedFingerprint = reporter.Report(repeated, context);
             duplicateFingerprint = reporter.Report(repeated, context);
@@ -65,11 +78,47 @@ public static class GitHubErrorReporterSmokeTest
                 created.Body.Contains("$83:8BB6", StringComparison.Ordinal) &&
                 created.Body.Contains(repeated.ToString(), StringComparison.Ordinal),
             "Created issue omitted frame context or the complete exception.");
+        Require(created.Body.Contains(frameDiagnostics, StringComparison.Ordinal),
+            "Created issue omitted the exact before/failed-frame diagnostic payload.");
 
         return new GitHubErrorReporterSmokeTestResult(
             repeatedFingerprint,
             client.FindCalls.Count,
             client.CreatedIssues.Count);
+    }
+
+    private static string VerifyFrameFailureSnapshot()
+    {
+        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        var colors = GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(
+            new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
+                Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
+                Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));
+        var runtime = new SuperMetroidRuntime(bus, initialPaletteArt: colors);
+        var samus = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose, XPosition = 100, YPosition = 200 };
+        typeof(SuperMetroidRuntime).GetProperty(nameof(runtime.Samus))!.SetValue(runtime, samus);
+        typeof(SamusDrainedState).GetProperty(nameof(samus.Drained.GetUpHandler))!
+            .SetValue(samus.Drained, DrainedGetUpHandler.UnableToStand);
+        samus.SetAnimationFrameFromSpecialHandler(8, 1);
+        samus.LiquidPhysics.FxType = RoomFxType.Acid;
+        samus.LiquidPhysics.LavaAcidYPosition = 100;
+        var game = new SuperMetroidGame(bus);
+        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
+        string before = game.CaptureGameplayFailureContext();
+        samus.SetAnimationFrameFromSpecialHandler(18, 1);
+        string after = game.CaptureGameplayFailureContext();
+        Require(before.Contains("animationFrame=8;") && !before.Contains("animationFrame=18;"),
+            "Before-frame snapshot changed with mutable Samus state.");
+        Require(after.Contains("animationFrame=18;") && after.Contains("animationTimer=1;") &&
+            after.Contains("drainedHandler=UnableToStand;") && after.Contains("pose=$09;") && after.Contains("fx=Acid;"),
+            "Failed-frame snapshot omitted the reported invalid animation and its installed handler.");
+        string diagnostics = GameplayFrameFailureDiagnostics.Format(before, after, 0x0880, "fixture.smrec", 70000);
+        Require(diagnostics.Contains("Build:") && diagnostics.Contains("Core build ID:") &&
+            diagnostics.Contains("Host build ID:") && diagnostics.Contains("Attempted input: $0880") &&
+            diagnostics.Contains("zero-based): 70000") && diagnostics.Contains("fixture.smrec") &&
+            diagnostics.Contains("Before frame:") && diagnostics.Contains("may be partially mutated"),
+            "Failure diagnostic omitted build/replay provenance or snapshot ordering.");
+        return diagnostics;
     }
 
     private static void VerifyAudioRecovery()

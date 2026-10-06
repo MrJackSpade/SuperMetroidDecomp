@@ -20,7 +20,7 @@ internal static partial class Program
             CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
         };
-        var pause = new PauseMenuState(
+        var pause = CreateRetailPauseFixture(
             bus,
             samus,
             new Bank80SystemState(),
@@ -39,8 +39,8 @@ internal static partial class Program
         samus.XPosition = 128;
         samus.YPosition = 128;
         samus.SelectedHudItem = 0;
-        var shared = new SamusBombProjectileSystem();
-        var projectiles = new SamusProjectileSystem();
+        var shared = CreateBombFixture();
+        var projectiles = CreateProjectileFixture();
         var result = projectiles.StepFrame(bus, level, samus,
             (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, shared);
 
@@ -76,7 +76,7 @@ internal static partial class Program
             EquippedBeams = 0x000d,
             SelectedHudItem = 0,
         };
-        AssertThrows<InvalidOperationException>(() => new SamusProjectileSystem().StepFrame(
+        AssertThrows<InvalidOperationException>(() => CreateProjectileFixture().StepFrame(
             bus,
             reactiveLevel,
             reactiveSamus,
@@ -84,7 +84,7 @@ internal static partial class Program
             (ushort)SnesButton.X,
             0,
             0,
-            new SamusBombProjectileSystem()), "cleared Chainsaw still reaches Power Bomb boundary reactions");
+            CreateBombFixture()), "cleared Chainsaw still reaches Power Bomb boundary reactions");
 
         // Wave collision scans do not kill their owner, but they still run every touched
         // block's shot reaction before the B0AC callback deletes the no-Power-Bomb shot.
@@ -111,7 +111,7 @@ internal static partial class Program
             SelectedHudItem = 0,
         };
         var doorPlms = new RoomPlmSystem();
-        var doorProjectiles = new SamusProjectileSystem();
+        var doorProjectiles = CreateProjectileFixture();
         SamusProjectileFrameResult doorFrame = doorProjectiles.StepFrame(
             bus,
             doorLevel,
@@ -120,7 +120,7 @@ internal static partial class Program
             (ushort)SnesButton.X,
             0,
             0,
-            new SamusBombProjectileSystem(),
+            CreateBombFixture(),
             roomPlms: doorPlms);
         AssertEqual(1, doorPlms.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
         AssertEqual(RoomCollisionType.SolidBlock,
@@ -131,9 +131,9 @@ internal static partial class Program
         AssertEqual(0, doorProjectiles.ProjectileCounter,
             "door-opening no-Power-Bomb Chainsaw still deletes in B0AC callback");
 
-        var activeShared = new SamusBombProjectileSystem();
+        var activeShared = CreateBombFixture();
         activeShared.PowerBombExplosion.Arm();
-        var activeProjectiles = new SamusProjectileSystem();
+        var activeProjectiles = CreateProjectileFixture();
         ushort[] nextLists = [0x902f, 0x9037, 0x903f, 0x9047, 0x904f, 0x9057, 0x905f, 0x9067];
         ushort[] spritemaps = [0xaf4c, 0xaf62, 0xaf78, 0xafa2, 0xafcc, 0xaff6, 0xb020, 0xb04a];
         ushort[] yRadii = [12, 12, 16, 16, 20, 20, 23, 23];
@@ -167,9 +167,9 @@ internal static partial class Program
         // Resolve a real production overlap through that compiled record. Native common
         // damage halves the slot's 150 damage word before applying the multiplier,
         // producing a 150-point hit.
-        var combatShared = new SamusBombProjectileSystem();
+        var combatShared = CreateBombFixture();
         combatShared.PowerBombExplosion.Arm();
-        var combatProjectiles = new SamusProjectileSystem();
+        var combatProjectiles = CreateProjectileFixture();
         combatProjectiles.StepFrame(bus, level, samus,
             (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, combatShared);
         var combat = CreateEnemyDropFixture(samus, [1]);
@@ -245,6 +245,16 @@ internal static partial class Program
             new ushort[25],
             new byte[8]);
         var interferencePlms = new RoomPlmSystem();
+        // Supply the fixture's short yellow-door programs explicitly; compiled
+        // retail instruction lookup deliberately excludes these synthetic addresses.
+        foreach ((ushort pointer, int length) in new (ushort, int)[]
+                 { (0xe000, 16), (0xe100, 7), (0xe200, 9), (0xe400, 4) })
+        {
+            byte[] instructions = Enumerable.Range(0, length)
+                .Select(offset => interferenceBus.ReadByte(0x840000 | (pointer + offset)))
+                .ToArray();
+            interferencePlms.SupplyInstructionFragmentForVerification(pointer, instructions);
+        }
         var interferenceStreamer = interferenceLevel.CreateBackgroundStreamer();
         AssertEqual(1, interferencePlms.LoadRoomPopulation(
                 interferenceBus,
@@ -356,8 +366,8 @@ internal static partial class Program
             YPosition = 128,
             EquippedBeams = 0x100d,
         };
-        var chargedShared = new SamusBombProjectileSystem();
-        var chargedProjectiles = new SamusProjectileSystem();
+        var chargedShared = CreateBombFixture();
+        var chargedProjectiles = CreateProjectileFixture();
         for (int frame = 0; frame < 60; frame++)
         {
             chargedShared.StepFrame(bus, level, chargedSamus, 0, 0);

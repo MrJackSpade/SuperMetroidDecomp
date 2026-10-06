@@ -27,6 +27,7 @@ internal static partial class Program
                 $"Ceres steam instruction mechanics word $A6:{definition.Address:X4}");
         }
 
+        var executedOperands = new HashSet<ushort>();
         var guard = new CeresSteamInstructionProgramReadGuard(rom);
         (CeresSteamVariant Variant, ushort Program, ushort Active)[] programs =
         [
@@ -74,6 +75,21 @@ internal static partial class Program
                 $"Ceres steam {variant} completes its full cycle");
         }
 
+        AssertEqual(CeresSteamInstructionProgramDefinitions.PresentationWordCount,
+            executedOperands.Count,
+            "all executed visual selectors match the cartridge");
+        for (int index = 0;
+             index < CeresSteamInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            ushort address =
+                CeresSteamInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"Ceres steam execution covers presentation $A6:{address:X4}");
+        }
+
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "compiled visual selectors require no runtime cartridge reads");
         AssertEqual(0, guard.ObservedPresentationWords.Count,
             "Ceres Steam production uses compiled visual selectors without ROM reads");
         for (int index = 0; index < CeresSteamInstructionProgramDefinitions.PresentationWordCount; index++)
@@ -102,8 +118,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Ceres steam instruction mechanics: sixty-eight compiled words, four shared " +
-            "directional cycles, and thirty-six original visual selectors pass with " +
-            "mechanics bytes forbidden and zero visual ROM reads.");
+            "directional cycles, and thirty-six executed selectors match cartridge data with " +
+            "runtime ROM reads forbidden.");
 
         RoomEnemySystem CreateSystem(CeresSteamVariant variant, out RoomEnemySlot slot)
         {
@@ -123,14 +139,17 @@ internal static partial class Program
             return enemies;
         }
 
-        static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
+        void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
             MethodInfo process = typeof(RoomEnemySystem).GetMethod(
                 "ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
             for (int frame = 0; frame < frames; frame++)
+            {
                 process.Invoke(enemies, arguments);
+                VerifyExecutedEnemySelector(rom, slot, executedOperands);
+            }
         }
     }
 

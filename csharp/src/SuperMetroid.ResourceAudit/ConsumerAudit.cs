@@ -13,6 +13,25 @@ internal static class ConsumerAudit
 {
     public static void Run(string root, ResourceIndex exports, AuditReport report)
     {
+        CSharpCompilation compilation = CreateCompilation(root);
+        var operands = new ProgramOperandAudit(exports, report);
+        var closedProviders = new ClosedPresentationAudit(compilation, exports);
+        foreach (SyntaxTree tree in compilation.SyntaxTrees)
+        {
+            // Catalog implementation is the provider, not a gameplay consumer.
+            if (tree.FilePath.Contains("/Assets/", StringComparison.Ordinal) || tree.FilePath.StartsWith('<')) continue;
+            SemanticModel semantic = compilation.GetSemanticModel(tree);
+            foreach (ClassDeclarationSyntax declaration in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
+                operands.Inspect(declaration, semantic);
+            foreach (InvocationExpressionSyntax call in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
+                Inspect(call, semantic, exports, report, closedProviders);
+        }
+        operands.Complete();
+        closedProviders.Complete(exports, report);
+    }
+
+    internal static CSharpCompilation CreateCompilation(string root)
+    {
         string directory = Path.Combine(root, "csharp/src/SuperMetroid.Core");
         if (!Directory.Exists(directory)) throw new DirectoryNotFoundException(directory);
         var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview);
@@ -33,20 +52,7 @@ internal static class ConsumerAudit
         CSharpCompilation compilation = CSharpCompilation.Create("SuperMetroid.Core.ResourceSourceAudit", trees,
             platforms.Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true));
-        var operands = new ProgramOperandAudit(exports, report);
-        var closedProviders = new ClosedPresentationAudit(compilation, exports);
-        foreach (SyntaxTree tree in trees)
-        {
-            // Catalog implementation is the provider, not a gameplay consumer.
-            if (tree.FilePath.Contains("/Assets/", StringComparison.Ordinal) || tree.FilePath.StartsWith('<')) continue;
-            SemanticModel semantic = compilation.GetSemanticModel(tree);
-            foreach (ClassDeclarationSyntax declaration in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
-                operands.Inspect(declaration, semantic);
-            foreach (InvocationExpressionSyntax call in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
-                Inspect(call, semantic, exports, report, closedProviders);
-        }
-        operands.Complete();
-        closedProviders.Complete(exports, report);
+        return compilation;
     }
 
     internal static void Inspect(InvocationExpressionSyntax call, SemanticModel semantic,

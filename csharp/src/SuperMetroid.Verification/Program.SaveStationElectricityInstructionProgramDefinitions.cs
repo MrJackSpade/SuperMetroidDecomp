@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -26,6 +27,9 @@ internal static partial class Program
                 $"save-station electricity mechanics word $86:{definition.Address:X4}");
         }
 
+        var spriteArtwork = runtimeFixtureInstallation.Value.LoadEnemyTiles().ProjectileSpritemaps
+            ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
+        var executedOperands = new HashSet<ushort>();
         var guard = new SaveStationElectricityInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -76,17 +80,19 @@ internal static partial class Program
         AssertTrue(!shot.IsActive,
             "save-station electricity shot reaction reaches shared compiled deletion");
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "SaveStationElectricity execution performs no live spritemap operand reads");
         AssertEqual(SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all save-station electricity spritemap operands remain cartridge reads");
-        for (int index = 0;
-             index < SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+            executedOperands.Count, "SaveStationElectricity executes every native visual operand");
+        for (int index = 0; index < SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount; index++)
         {
-            ushort address = SaveStationElectricityInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads save-station electricity presentation $86:{address:X4}");
+            ushort address = SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(executedOperands.Contains(address),
+                $"SaveStationElectricity executes native presentation operand {address:X4}");
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
+                "SaveStationElectricity has a compiled visual selector");
+            AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
+                "SaveStationElectricity compiled selector matches the cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids private and shared save-station electricity mechanics bytes");
@@ -106,8 +112,8 @@ internal static partial class Program
 
         Console.WriteLine(
             "Save-station electricity instruction mechanics: thirteen compiled words, the " +
-            "real producer, 160 displayed frames, both delete paths, and eight live " +
-            "spritemap reads pass.");
+            "real producer, 160 displayed frames, both delete paths, and eight installed " +
+            "sprite frames match native OAM.");
 
         RoomEnemySystem NewSystem()
         {
@@ -125,6 +131,7 @@ internal static partial class Program
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
             process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
     }
 

@@ -40,6 +40,7 @@ internal static partial class Program
         }
 
         var guard = new MagdolliteLavaInstructionReadGuard(rom);
+        var observedOperands = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_nextRandom", instanceFlags)!.SetValue(
@@ -99,6 +100,10 @@ internal static partial class Program
             enemies.LastMagdolliteLavaDropRequest!.Value.Y,
             "Magdollite drop preserves projectile Y");
 
+        AssertEqual(
+            MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount,
+            observedOperands.Count,
+            "both live Magdollite-lava spritemap operands are selected from installed artwork");
         AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled visual operands require no cartridge reads");
         for (int index = 0;
              index < MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount;
@@ -106,12 +111,16 @@ internal static partial class Program
         {
             ushort address =
                 MagdolliteLavaInstructionProgramDefinitions.PresentationWordAddress(index);
+            AssertTrue(observedOperands.Contains(address),
+                $"production execution selects Magdollite-lava presentation $86:{address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
                 $"compiled visual selector exists at $86:{address:X4}");
             AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
                 $"compiled visual selector matches native operand $86:{address:X4}");
         }
 
+        AssertEqual(0, guard.ObservedPresentationWords.Count,
+            "projectile visuals do not read cartridge bytes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids Magdollite-lava and shared-delete mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -134,8 +143,18 @@ internal static partial class Program
         Console.WriteLine(
             "Magdollite-lava instruction mechanics: seven private words, one shared " +
             "delete word, both directional poses, shot/drop/delete execution, and two " +
-            "compiled spritemap operands pass with mechanics bytes forbidden.");
+            "installed visual operands pass with mechanics bytes forbidden.");
 
+        void ObserveFrame(RoomEnemyProjectileSlot projectile)
+        {
+            if (!projectile.IsActive || projectile.InstructionTimer == 0) return;
+            ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));
+            AssertEqual(operand, projectile.PresentationOperandAddress,
+                "timed projectile frame retains its installed visual operand");
+            AssertEqual(ReadMagdolliteLavaInstructionWord(rom, unchecked((ushort)(operand - 2))),
+                projectile.InstructionTimer, "projectile frame duration matches cartridge data");
+            observedOperands.Add(projectile.PresentationOperandAddress);
+        }
         void RunToSleep(
             RoomEnemyProjectileSlot projectile,
             ushort program,
@@ -143,10 +162,12 @@ internal static partial class Program
         {
             projectile.InstructionTimer = 1;
             process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+            ObserveFrame(projectile);
             AssertEqual(unchecked((ushort)(program + 4)), projectile.InstructionPointer,
                 $"{direction} Magdollite-lava pose reaches terminal sleep");
             projectile.InstructionTimer = 1;
             process.Invoke(enemies, [projectile, null, (ushort)0, (ushort)0]);
+            ObserveFrame(projectile);
             AssertEqual((ushort)0, projectile.InstructionTimer,
                 $"{direction} Magdollite-lava terminal sleep parks the program");
         }

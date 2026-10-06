@@ -262,8 +262,8 @@ internal static partial class Program
             maps.RoomPaletteFx);
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var nativeState = new EndingCreditsState(nativeBus, nativeAudio, 2, 59);
-        var installedState = new EndingCreditsState(guardedBus, installedAudio, 2, 59);
+        var nativeState = CreateRetailEndingFixture(nativeBus, nativeAudio, 2, 59);
+        var installedState = CreateRetailEndingFixture(guardedBus, installedAudio, 2, 59);
         installedState.BindPaletteArtwork(stock);
         installedState.BindPaletteFxColors(maps.RoomPaletteFx);
         installedState.BindEndingText(maps.EndingText);
@@ -358,11 +358,11 @@ internal static partial class Program
             if (id == EndingPaletteId.Escape)
             {
                 var editedAudio = new CartridgeAudioState();
-                var editedState = new EndingCreditsState(guardedBus, editedAudio, 2, 59);
+                var editedState = CreateRetailEndingFixture(guardedBus, editedAudio, 2, 59);
                 editedState.BindPaletteArtwork(edited);
                 editedState.BindPaletteFxColors(maps.RoomPaletteFx);
                 var stockAudio = new CartridgeAudioState();
-                var stockState = new EndingCreditsState(nativeBus, stockAudio, 2, 59);
+                var stockState = CreateRetailEndingFixture(nativeBus, stockAudio, 2, 59);
                 editedState.Step();
                 stockState.Step();
                 AssertTrue(!editedState.CaptureRenderSnapshot().Memory.Cgram.SequenceEqual(
@@ -388,7 +388,7 @@ internal static partial class Program
                         "logo override fixture reaches its first palette transfer");
                 }
                 AssertTrue(!stockCgram.Colors.SequenceEqual(editedCgram.Colors) &&
-                    stockLogo.Draw().LowTable.SequenceEqual(editedLogo.Draw().LowTable),
+                    stockLogo.Draw(installation.LoadEndingObjectArt().LogoSprites).LowTable.SequenceEqual(editedLogo.Draw(installation.LoadEndingObjectArt().LogoSprites).LowTable),
                     $"edited {id} color changes logo CGRAM without changing actors");
             }
             File.Delete(overridePath);
@@ -452,8 +452,8 @@ internal static partial class Program
 
         var editedAudio = new CartridgeAudioState();
         var stockAudio = new CartridgeAudioState();
-        var editedScene = new EndingCreditsState(guardedBus, editedAudio, 2, 59);
-        var stockScene = new EndingCreditsState(nativeBus, stockAudio, 2, 59);
+        var editedScene = CreateRetailEndingFixture(guardedBus, editedAudio, 2, 59);
+        var stockScene = CreateRetailEndingFixture(nativeBus, stockAudio, 2, 59);
         editedScene.BindPaletteArtwork(installation.LoadEndingPalettes());
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         editedScene.BindPaletteFxColors(maps.RoomPaletteFx);
@@ -502,13 +502,26 @@ internal static partial class Program
     {
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
-        var nativeLogo = new EndingLogo(nativeBus, nativeCgram, () => { });
+        var nativeLogo = new EndingLogo(nativeBus, nativeCgram, () => { }, stock);
         var installedLogo = new EndingLogo(guardedBus, installedCgram, () => { }, stock);
         AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
             "installed initial logo palette matches cartridge CGRAM");
         for (int frame = 0; frame < 300 && !nativeLogo.Completed; frame++)
         {
-            nativeLogo.Step(nativeCgram);
+            nativeLogo.Step(nativeCgram, pointer => (ushort)(nativeBus.ReadByte(0x8b0000 | pointer) |
+                nativeBus.ReadByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8));
+            if (nativeLogo.PaletteStep > 0)
+            {
+                byte[] nativeColors = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus,
+                    EndingPaletteId.LogoCrossfade, EndingPaletteDefinitions.ColorCount(EndingPaletteId.LogoCrossfade));
+                for (int palette = 0; palette < 2; palette++)
+                    for (int color = 0; color < 16; color++)
+                    {
+                        int offset = (((nativeLogo.PaletteStep - 1) * 2 + palette) * 16 + color) * 2;
+                        nativeCgram.SetColor((palette == 0 ? 16 : 240) + color,
+                            (ushort)(nativeColors[offset] | nativeColors[offset + 1] << 8));
+                    }
+            }
             installedLogo.Step(installedCgram, EndingLogoInstructionDefinitions.ReadWord);
             AssertEqual(nativeLogo.PaletteStep, installedLogo.PaletteStep,
                 $"installed logo crossfade step {frame}");
@@ -537,8 +550,8 @@ internal static partial class Program
         EndingPaletteCatalog edited = installation.LoadEndingPalettes();
         var editedAudio = new CartridgeAudioState();
         var stockAudio = new CartridgeAudioState();
-        var editedState = new EndingCreditsState(guardedBus, editedAudio, 2, 59);
-        var stockState = new EndingCreditsState(nativeBus, stockAudio, 2, 59);
+        var editedState = CreateRetailEndingFixture(guardedBus, editedAudio, 2, 59);
+        var stockState = CreateRetailEndingFixture(nativeBus, stockAudio, 2, 59);
         editedState.BindPaletteArtwork(edited);
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         editedState.BindPaletteFxColors(maps.RoomPaletteFx);
@@ -587,8 +600,8 @@ internal static partial class Program
         EndingPaletteCatalog edited = installation.LoadEndingPalettes();
         var editedAudio = new CartridgeAudioState();
         var stockAudio = new CartridgeAudioState();
-        var editedState = new EndingCreditsState(guardedBus, editedAudio, 2, 59);
-        var stockState = new EndingCreditsState(nativeBus, stockAudio, 2, 59);
+        var editedState = CreateRetailEndingFixture(guardedBus, editedAudio, 2, 59);
+        var stockState = CreateRetailEndingFixture(nativeBus, stockAudio, 2, 59);
         editedState.BindPaletteArtwork(edited);
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         editedState.BindPaletteFxColors(maps.RoomPaletteFx);

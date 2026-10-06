@@ -3,13 +3,15 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// The cartridge's six simple bank-$87 room-FX animated-tile objects use contiguous
+/// The cartridge's simple bank-$87 room-FX animated-tile objects use contiguous
 /// frame artwork within each object. These addresses identify visual bytes only;
 /// duration, loop control, transfer size and VRAM destination remain compiled in
 /// <see cref="RoomFxAnimatedTileMechanicsDefinitions"/>.
 /// </summary>
 public static class RoomFxAnimatedTileArtworkDefinitions
 {
+    /// <summary>$87:9D84, three horizontal-spike images played 0/1/2/1 by $87:817E.</summary>
+    public const int HorizontalSpikesFirstSource = 0x879d84;
     /// <summary>$87:91E4, four ceiling-sand frames selected by $87:8221.</summary>
     public const int MaridiaSandCeilingFirstSource = 0x8791e4;
     /// <summary>$87:9164, four falling-sand frames selected by $87:8235.</summary>
@@ -27,7 +29,7 @@ public static class RoomFxAnimatedTileArtworkDefinitions
     /// <remarks>Each supported object selects its named first source; subsequent frames
     /// advance by the object's native transfer byte count. Accept only its timed frame
     /// cursors, rejecting source operands, odd addresses, goto words and other identities.
-    /// All26 native operands and every ushort cursor for all six compiled objects are
+    /// All30 native operands and every ushort cursor for all seven compiled objects are
     /// independently verified against NTSC J/U v1.0 and pinned bank_87.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). This existing exact arithmetic
     /// mapping requires no stored pointer table or generated cache. Pixel artwork is
@@ -38,6 +40,7 @@ public static class RoomFxAnimatedTileArtworkDefinitions
         ArgumentNullException.ThrowIfNull(definition);
         int first = definition.ObjectPointer switch
         {
+            AnimatedTileObjectPointers.HorizontalSpikes => HorizontalSpikesFirstSource,
             AnimatedTileObjectPointers.MaridiaSandCeiling => MaridiaSandCeilingFirstSource,
             AnimatedTileObjectPointers.MaridiaSandFalling => MaridiaSandFallingFirstSource,
             AnimatedTileObjectPointers.Lava => LavaFirstSource,
@@ -49,7 +52,8 @@ public static class RoomFxAnimatedTileArtworkDefinitions
         };
         for (int index = 0; index < definition.Frames.Count; index++)
             if (definition.Frames[index].InstructionPointer == instructionPointer)
-                return first + index * definition.TransferByteCount;
+                return first + (definition.ObjectPointer == AnimatedTileObjectPointers.HorizontalSpikes && index == 3
+                    ? 1 : index) * definition.TransferByteCount;
         throw new InvalidDataException(
             $"Room-FX object $87:{definition.ObjectPointer:X4} has no artwork frame at $87:{instructionPointer:X4}.");
     }

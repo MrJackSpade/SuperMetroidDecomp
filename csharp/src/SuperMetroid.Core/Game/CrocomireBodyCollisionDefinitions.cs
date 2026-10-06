@@ -14,6 +14,7 @@ internal readonly record struct CrocomireBodyCollisionHitbox(
 /// OAM and BG2 art are deliberately absent: installed visual overrides cannot
 /// alter the cartridge's component offsets, rectangles, or callback identities.
 /// Values are pinned to the project's NTSC J/U v1.0 retail cartridge.
+/// Corpse-frame requests delegate to the separate native corpse collision catalog.
 /// </summary>
 internal static class CrocomireBodyCollisionDefinitions
 {
@@ -93,17 +94,16 @@ internal static class CrocomireBodyCollisionDefinitions
         [0xcc2d] = [new(-38, -4, 42, 52, 0xb93d, 0xb951)],
     };
 
-    internal static bool HasFrame(ushort frame) => Frames.ContainsKey(frame);
+    internal static bool HasFrame(ushort frame) => Frames.ContainsKey(frame) ||
+        CrocomireCorpseCollisionDefinitions.HasFrame(frame);
 
     internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(ushort frame) =>
         Frames.TryGetValue(frame, out CrocomireBodyCollisionComponent[]? components)
             ? components
-            : throw new InvalidDataException(
-                $"Crocomire body frame $A4:{frame:X4} has no compiled collision.");
+            : CrocomireCorpseCollisionDefinitions.ComponentsAt(frame);
 
     internal static ReadOnlySpan<CrocomireBodyCollisionHitbox> HitboxesAt(ushort list) =>
         HitboxLists.TryGetValue(list, out CrocomireBodyCollisionHitbox[]? hitboxes)
             ? hitboxes
-            : throw new InvalidDataException(
-                $"Crocomire body hitbox list $A4:{list:X4} is not compiled.");
+            : CrocomireCorpseCollisionDefinitions.HitboxesAt(list);
 }

@@ -45,6 +45,16 @@ internal static partial class Program
             {
                 if (DesktopSmokeAuditCommands.TryRun(args)) return;
                 VerifyAudioQueueHealth();
+                if (args is ["--audio-endpoint-recovery-audit"])
+                {
+                    VerifyAudioEndpointRecovery();
+                    return;
+                }
+                if (args is ["--audio-backpressure-audit"])
+                {
+                    VerifyAudioQueueBackpressure();
+                    return;
+                }
                 if (args is ["--space-jump-audio-audit"])
                 {
                     VerifySpaceJumpAudio();

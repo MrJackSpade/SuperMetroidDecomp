@@ -18,8 +18,8 @@ internal static partial class Program
         int samples = 0;
         foreach (bool cancel in new[] { false, true })
         {
-            var legacy = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
-            var captured = new SuperMetroidGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+            var legacy = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+            var captured = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
             legacy.BindMapPresentation(presentation);
             captured.BindMapPresentation(presentation);
             var states = new HashSet<SuperMetroidGameState>();

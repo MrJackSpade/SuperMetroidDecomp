@@ -31,21 +31,12 @@ internal static partial class Program
             state.HorizontalVelocity = state.VerticalVelocity = unchecked((ushort)velocity);
             state.FunctionTimer = 20;
             step(slot, state);
-            AssertEqual(Expected(distance, velocity), state.HorizontalVelocity, "Death phase native X acceleration");
-            AssertEqual(Expected(-distance, velocity), state.VerticalVelocity, "Death phase native Y acceleration");
+            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.XPosition, 128, 16, 16), state.HorizontalVelocity, "Death phase native X acceleration");
+            AssertEqual(ExpectedRidleyNativeAcceleration(unchecked((ushort)velocity), slot.YPosition, 328, 16, 16), state.VerticalVelocity, "Death phase native Y acceleration");
             AssertEqual(unchecked((ushort)(128 + distance)), slot.XPosition, "Death phase leaves integration to shared movement");
             AssertEqual((ushort)0x8123, slot.XSubposition, "Death phase preserves fractional position");
         }
         Console.WriteLine("Ridley death acceleration: both phase callers match native index 0 / reversal boost 16 across 126 cases.");
 
-        static ushort Expected(int distance, int velocity)
-        {
-            if (distance == 0) return unchecked((ushort)velocity);
-            int direction = distance < 0 ? 1 : -1;
-            int quotient = Math.Max(1, Math.Abs(distance) / 16);
-            bool reversing = direction > 0 ? velocity < 0 : velocity >= 0;
-            int amount = reversing ? quotient * 2 + 24 : quotient;
-            return unchecked((ushort)Math.Clamp(velocity + direction * amount, -1280, 1280));
-        }
     }
 }

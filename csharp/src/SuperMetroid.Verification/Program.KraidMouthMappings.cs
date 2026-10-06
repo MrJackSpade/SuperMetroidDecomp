@@ -43,6 +43,6 @@ internal static partial class Program
                 KraidMouthHitboxes.ResolveCollision(bus, pointer), "Mouth boundary crossing uses original bytes");
         for (ushort pointer = 0x7ffd; pointer <= 0x7fff; pointer++)
             AssertEqual(unchecked((ushort)ExpectedWord((ushort)(pointer + 2))),
-                KraidHeadInstructionDefinitions.ResolveFrameTilemap(bus, pointer), "Head boundary crossing uses original bytes");
+                KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(bus, pointer), "Head boundary crossing uses original bytes");
     }
 }

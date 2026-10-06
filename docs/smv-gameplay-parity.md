@@ -268,9 +268,20 @@ also runs the still-enabled lava HDMA callback first (its byte swap is $88:B44A)
 while later pause dispatches run with HDMA disabled. Gameplay fade states retain
 runtime RNG ownership. Focused checks confirm both pause-entry value7266 and ordinary
 paused value5882 from seed117D, with no duplicate advance in gameplay fades.
-Independent replay matches all currently compared fields through update9571/10717.
-Next difference: update9572/source9697, paused Samus health native0014 vs port0013.
-The one-health-point transfer boundary has not yet been diagnosed.
+Independent replay passes the pause-entry RNG boundary.
+
+Reserve mode/capacity/energy are now imported once from the initial movie snapshot
+and compared every interval. Native starts with300 reserve energy in Auto mode.
+Equipment-page entry now selects the reserve mode control when capacity exists,
+matching $82:ABAD-$ABB5; previously it selected the first beam, redirecting the
+recorded A press. Each re-entry resets selection through the same native rule.
+Focused manual reserve checks pass (selection, toggle, first transfer, suspension,
+resumption, sound/clamp and visible digits); the historical-layout assertion now
+accounts for subsequently added map fields and excludes nonserialized assets.
+Independent replay passes the recorded reserve transfer and all currently compared
+fields through update9964/10717. Next difference: update9965/source10132, Ridley's
+zero-health grab: X fraction native4300 vs port5D00, Y fraction nativeCA00 vs portCB00.
+The death-entry movement boundary is the next investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

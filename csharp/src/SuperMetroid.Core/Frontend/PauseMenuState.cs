@@ -442,6 +442,8 @@ internal sealed partial class PauseMenuState
                 if (transition == PauseMenuTransition.MapToEquipmentFadeOut)
                 {
                     ScreenMode = 1;
+                    // $82:AB47 resets the selector on each equipment-page entry.
+                    SelectFirstCollectedEquipment();
                     // Equipment setup lights the arrow when reserves are nonempty;
                     // subsequent tank dispatches own animation and selection changes.
                     if (samus.ReserveEnergy != 0) SetReserveArrow(enabled: true);
@@ -475,6 +477,14 @@ internal sealed partial class PauseMenuState
 
     private void SelectFirstCollectedEquipment()
     {
+        // $82:ABAD-$ABB5 selects the tank mode control whenever reserve capacity exists,
+        // including empty tanks. The first beam is only the no-reserve fallback.
+        if (samus.MaxReserveEnergy != 0)
+        {
+            selectedCategory = PauseEquipmentCategories.Reserves;
+            selectedItem = PauseReserveTransferRomData.ModeItem;
+            return;
+        }
         for (int categoryIndex = 1; categoryIndex <= 3; categoryIndex++)
         {
             PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Get(categoryIndex);

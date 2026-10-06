@@ -17,8 +17,8 @@ internal static partial class Program
         var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
         pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
         for (int i = 0; i < 32; i++) pause.Step(0, 0);
-        pause.Step(0, (ushort)SnesButton.Up);
-        AssertEqual(PauseEquipmentCategories.Reserves, pause.SelectedCategory, "Up selects owned tank controls");
+        AssertEqual(PauseEquipmentCategories.Reserves, pause.SelectedCategory, "equipment entry selects owned reserve controls without Up");
+        AssertEqual(PauseReserveTransferRomData.ModeItem, pause.SelectedItem, "equipment entry selects reserve mode item");
         pause.Step(0, (ushort)SnesButton.A);
         AssertEqual(2, samus.ReserveTankMode, "A changes AUTO to MANUAL");
         pause.Step(0, (ushort)SnesButton.Down);
@@ -48,10 +48,11 @@ internal static partial class Program
         AssertEqual(1, samus.ReserveTankMode, "A restores AUTO");
         VerifyManualReserveSoundAndClamp(bus);
         var fields = typeof(PauseMenuState).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Where(field => !field.IsDefined(typeof(NonSerializedAttribute), false))
             .OrderBy(field => field.MetadataToken).ToArray();
-        var oldFields = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PauseMenuState), fields, fields.Length - 2);
-        AssertTrue(oldFields.SequenceEqual(fields.Where(field => field.Name is not "reserveTransferSoundDelay" and not "pauseNmiFrameCounter8")),
-            "legacy pause layout omits only new reserve transfer/flicker state");
+        var oldFields = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PauseMenuState), fields, fields.Length - 4);
+        AssertTrue(oldFields.SequenceEqual(fields.Where(field => field.Name is not "reserveTransferSoundDelay" and not "pauseNmiFrameCounter8" and not "mapArrows" and not "mapLabelsBeforeIcons")),
+            "legacy pre-reserve layout omits reserve transfer/flicker and subsequently added map presentation state");
         Console.WriteLine("Manual reserves: mode, selection, transfer ordering, suspended/resumed refill and visible supply pass.");
     }
 

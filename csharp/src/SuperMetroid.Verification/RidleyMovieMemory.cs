@@ -73,6 +73,12 @@ internal static class RidleyMovieMemory
     public const int Health = 0x09c2;
     /// <summary>$09C4: samus_max_health.</summary>
     public const int MaxHealth = 0x09c4;
+    /// <summary>$09C0: reserve_health_mode, initial reserve policy.</summary>
+    public const int ReserveMode = 0x09c0;
+    /// <summary>$09D4: samus_max_reserve_health, collected reserve capacity.</summary>
+    public const int MaxReserve = 0x09d4;
+    /// <summary>$09D6: samus_reserve_health, available reserve energy.</summary>
+    public const int Reserve = 0x09d6;
     /// <summary>$0A1C: samus_pose.</summary>
     public const int Pose = 0x0a1c;
     /// <summary>$0A20: samus_prev_pose.</summary>

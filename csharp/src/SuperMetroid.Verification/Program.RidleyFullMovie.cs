@@ -709,6 +709,9 @@ internal static partial class Program
         samus.EquippedBeams = W(RidleyMovieMemory.Beams);
         samus.Health = W(RidleyMovieMemory.Health);
         samus.MaxHealth = W(RidleyMovieMemory.MaxHealth);
+        samus.ReserveTankMode = W(RidleyMovieMemory.ReserveMode);
+        samus.MaxReserveEnergy = W(RidleyMovieMemory.MaxReserve);
+        samus.ReserveEnergy = W(RidleyMovieMemory.Reserve);
         samus.Pose = (byte)W(RidleyMovieMemory.Pose);
         samus.XPosition = W(RidleyMovieMemory.X);
         samus.YPosition = W(RidleyMovieMemory.Y);
@@ -840,6 +843,9 @@ internal static partial class Program
             Check("Samus vertical fraction", samus.Kinematics.YSubspeed, RidleyMovieMemory.VerticalFraction);
             Check("Samus vertical direction", samus.Kinematics.YDirection, RidleyMovieMemory.VerticalDirection);
             Check("Samus health", samus.Health, RidleyMovieMemory.Health);
+            Check("Samus reserve mode", samus.ReserveTankMode, RidleyMovieMemory.ReserveMode);
+            Check("Samus reserve capacity", samus.MaxReserveEnergy, RidleyMovieMemory.MaxReserve);
+            Check("Samus reserve energy", samus.ReserveEnergy, RidleyMovieMemory.Reserve);
             // The native CPU can still be decompressing source-room tiles while
             // IRQ scrolling advances; the port loads the destination atomically.
             // Align these owners at completed loading, not elapsed upload time.

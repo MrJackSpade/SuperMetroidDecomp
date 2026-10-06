@@ -9,6 +9,10 @@ public sealed partial class SuperMetroidRuntime
     {
         Plms.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
         RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        // Both state-$09 entry and each $E29E sound-drain dispatch return to
+        // MainGameLoop. Its HDMA/RNG prologue still runs while Samus is locked.
+        RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
+        System.NextRandom();
         Oam.BeginFrame();
         LastSamusBodyDrawn = false;
         LastShinesparkCrashDrawingHandlerActive = false;

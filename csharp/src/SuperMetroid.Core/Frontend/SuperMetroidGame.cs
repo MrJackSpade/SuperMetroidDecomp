@@ -968,6 +968,9 @@ public sealed partial class SuperMetroidGame
                 // $82:E279 follows both entry cancellation commands, not precedes them.
                 audio.DoorTransitionSoundsDisabled = true;
                 doorTransition.Begin(runtime);
+                // $82:E1B7 runs the source enemy/draw owners on the entry frame,
+                // with transition ownership already installed and Samus stationary.
+                runtime.RunDoorSoundWaitFrame(controllerInput);
                 // State $09 calls state $0A synchronously for ordinary doors; state $0A
                 // publishes state $0B before returning. Consequently neither intermediate
                 // numeric value owns a separately displayed frame.

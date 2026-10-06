@@ -1,0 +1,223 @@
+using System.Buffers.Binary;
+using System.IO.Compression;
+using System.Reflection;
+using System.Security.Cryptography;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+
+internal static partial class Program
+{
+    private static void VerifyRidleyDoorEntry()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RidleyMovieMemory.SourceRoom);
+        var level = runtime.LevelData!;
+        bool found = false;
+        for (int y = 0; y < level.HeightInBlocks && !found; y++)
+        for (int x = 0; x < level.WidthInBlocks && !found; x++)
+        {
+            var block = level.GetCollisionBlock(x, y);
+            if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
+            var door = level.ResolveDoorCollision(bus, block.Behavior, 1, false);
+            if (door.DestinationRoomPointer != RidleyMovieMemory.RidleyRoom) continue;
+            level.ResolveDoorCollision(bus, block.Behavior, 1, true);
+            found = true;
+        }
+        AssertTrue(found, "native Ridley entry door");
+        // Original movie: accepted main-loop samples 155, 156, 157. The source
+        // acid callback was installed long before the recorded door collision.
+        runtime.RoomLayer3Fx.AdvanceHdmaSharedState(runtime.System, false);
+        runtime.System.SetRandomNumber(0xd562);
+        typeof(SuperMetroidRuntime).GetProperty(nameof(runtime.NmiFrameCounter))!.SetValue(runtime, (ushort)0xa4df);
+        var samus = runtime.Samus!;
+        samus.InputLocked = false;
+        samus.XPosition = 20; samus.Kinematics.XSubposition = 0x2000;
+        samus.YPosition = 111; samus.Kinematics.YSubposition = 0x5bff;
+        uint xFixed = samus.Kinematics.XFixed, yFixed = samus.Kinematics.YFixed;
+        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
+        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
+        typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
+        game.Step(0);
+        AssertEqual((ushort)0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");
+        AssertEqual((ushort)0xa4e0, runtime.NmiFrameCounter, "entry accepts exactly one NMI");
+        AssertEqual(xFixed, samus.Kinematics.XFixed, "entry keeps Samus X fixed");
+        AssertEqual(yFixed, samus.Kinematics.YFixed, "entry keeps Samus Y fixed");
+        game.Step(0);
+        AssertEqual((ushort)0x27bc, runtime.System.RandomNumber, "native sound-wait HDMA swap then RNG");
+        AssertEqual((ushort)0xa4e1, runtime.NmiFrameCounter, "sound wait accepts exactly one NMI");
+        Console.WriteLine("Ridley movie door entry: native frames 155–157 RNG/NMI sequence and stationary Samus agree.");
+    }
+
+    private static void VerifyRidleyFullMovie(string directory)
+    {
+        byte[] movie = File.ReadAllBytes("csharp/test-fixtures/issue-1266-ridley/Ridley fight showcase.smv");
+        AssertTrue(Convert.ToHexString(SHA256.HashData(movie)) == "7E12861DC56C5ABED12C2BFA2B00D24BFA418F49F2CE4C027D930CE9A3663F66", "original Ridley movie hash");
+        int length = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(16));
+        int inputOffset = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(28));
+        AssertTrue(length == 10890, "full movie length");
+        using var file = File.OpenRead(Path.Combine(directory, "all-frames.wram.gz"));
+        using var trace = new GZipStream(file, CompressionMode.Decompress);
+        var record = new byte[131076];
+        byte[] ReadFrame(int frame)
+        {
+            trace.ReadExactly(record);
+            AssertTrue(BinaryPrimitives.ReadInt32LittleEndian(record) == frame, "contiguous native movie trace");
+            return record.AsSpan(4).ToArray();
+        }
+        byte[] memory = ReadFrame(0);
+        ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.System.LoadCollectedItemBytes(memory.AsSpan(RidleyMovieMemory.CollectedItemBits, Bank80SystemState.ItemBitByteCount));
+        runtime.System.LoadBossBytes(memory.AsSpan(RidleyMovieMemory.BossBits, Bank80SystemState.AreaCount));
+        runtime.System.LoadEventBytes(memory.AsSpan(RidleyMovieMemory.Events, Bank80SystemState.EventByteCount));
+        runtime.System.LoadOpenedDoorBytes(memory.AsSpan(RidleyMovieMemory.OpenedDoors, Bank80SystemState.DoorBitByteCount));
+        runtime.LoadCartridgeRoomForDebug(W(RidleyMovieMemory.Room), W(RidleyMovieMemory.CameraX), W(RidleyMovieMemory.CameraY));
+        // Preserve the native room's already-mutated doors and item blocks. Rebuilding
+        // these from the pristine room header would no longer represent this movie frame.
+        RoomLevelData level = runtime.LevelData ?? throw new InvalidDataException(
+            "The native Ridley checkpoint did not load room collision data.");
+        for (int index = 0; index < level.WidthInBlocks * level.HeightInBlocks; index++)
+        {
+            level.SetForegroundEntry(index, W(RidleyMovieMemory.Level + index * sizeof(ushort)));
+            level.SetBehavior(index, memory[RidleyMovieMemory.Bts + index]);
+        }
+
+        SamusState samus = runtime.Samus ?? throw new InvalidDataException(
+            "The native Ridley checkpoint did not load Samus.");
+        samus.InputLocked = false;
+        samus.EquippedItems = W(RidleyMovieMemory.Items);
+        samus.EquippedBeams = W(RidleyMovieMemory.Beams);
+        samus.Health = W(RidleyMovieMemory.Health);
+        samus.MaxHealth = W(RidleyMovieMemory.MaxHealth);
+        samus.Pose = (byte)W(RidleyMovieMemory.Pose);
+        samus.XPosition = W(RidleyMovieMemory.X);
+        samus.YPosition = W(RidleyMovieMemory.Y);
+        samus.Kinematics.XSubposition = W(RidleyMovieMemory.XFraction);
+        samus.Kinematics.YSubposition = W(RidleyMovieMemory.YFraction);
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        samus.SetAnimationFrameFromSpecialHandler(W(RidleyMovieMemory.Animation), W(RidleyMovieMemory.AnimationTimer));
+        samus.PoseHistory.PreviousPose = W(RidleyMovieMemory.PreviousPose);
+        samus.PoseHistory.PreviousDirectionAndMovement = W(RidleyMovieMemory.PreviousDirection);
+        samus.PoseHistory.LastDifferentPose = W(RidleyMovieMemory.LastDifferentPose);
+        samus.PoseHistory.LastDifferentDirectionAndMovement = W(RidleyMovieMemory.LastDifferentDirection);
+        samus.HorizontalSpeed.BaseSpeed = W(RidleyMovieMemory.BaseSpeed);
+        samus.HorizontalSpeed.BaseSubspeed = W(RidleyMovieMemory.BaseFraction);
+        samus.HorizontalSpeed.ExtraRunSpeed = W(RidleyMovieMemory.ExtraSpeed);
+        samus.HorizontalSpeed.ExtraRunSubspeed = W(RidleyMovieMemory.ExtraFraction);
+        samus.HorizontalSpeed.AccelerationMode = W(RidleyMovieMemory.AccelerationMode);
+        samus.HorizontalSpeed.HasRunningMomentum = W(RidleyMovieMemory.Momentum) != 0;
+        samus.HorizontalSpeed.SpeedBoostCounter = W(RidleyMovieMemory.BoostCounter);
+        samus.Kinematics.YSpeed = W(RidleyMovieMemory.VerticalSpeed);
+        samus.Kinematics.YSubspeed = W(RidleyMovieMemory.VerticalFraction);
+        samus.Kinematics.YDirection = W(RidleyMovieMemory.VerticalDirection);
+
+        // The snapshot was recorded after the entering door PLM deleted itself.
+        // Restore the empty physical pool rather than executing fresh room-entry actors.
+        var initialPlms = (Array)typeof(RoomPlmSystem).GetField("_slots", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.Plms)!;
+        for (int index = 0; index < initialPlms.Length; index++)
+        {
+            AssertTrue(W(RidleyMovieMemory.PlmHeaders + index * 2) == 0, "native initial PLM pool is empty");
+            object slot = initialPlms.GetValue(index)!;
+            slot.GetType().GetProperty("Active")!.SetValue(slot, false);
+        }
+        // This is a one-time initial snapshot import. No native state is fed back during replay.
+        runtime.System.SetRandomNumber(W(RidleyMovieMemory.Random));
+        // Native frame zero already has the acid BG3 callback installed at $18F0.
+        AssertTrue(W(RidleyMovieMemory.AcidHdmaPreInstruction) == RidleyMovieMemory.AcidHdmaCallback, "initial native acid HDMA callback");
+        typeof(RoomLayer3FxState).GetField("lavaAcidBg3PreInstructionInstalled", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, true);
+        string[] slotWords = ["EnemyDefinitionPointer", "XPosition", "XSubposition", "YPosition", "YSubposition", "XRadius", "YRadius", "Properties", "ExtraProperties", "AiHandlerBits", "Health", "SpritemapPointer", "Timer", "CurrentInstruction", "InstructionTimer", "PaletteIndex", "VramTilesIndex", "Layer", "FlashTimer", "FrozenTimer", "InvincibilityTimer", "ShakeTimer", "FrameCounter"];
+        for (int index = 0; index < runtime.Enemies.Slots.Count; index++)
+        {
+            var slot = runtime.Enemies.Slots[index];
+            int address = RidleyMovieMemory.EnemyBase + index * 64;
+            if (W(address) != 0)
+                AssertTrue(slot.EnemyDefinitionPointer == W(address), "initial enemy species agrees with room population");
+            for (int word = 0; word < slotWords.Length; word++)
+                typeof(RoomEnemySlot).GetProperty(slotWords[word])!.SetValue(slot, W(address + word * 2));
+            for (int word = 0; word < 6; word++)
+                typeof(RoomEnemySlot).GetProperty("Variable" + (char)('A' + word))!.SetValue(slot, W(address + 48 + word * 2));
+            if (runtime.Enemies.PipeBugStates[index] is { IsBrinstar: true } pipe)
+            {
+                pipe.SpawnX = slot.VariableB; pipe.SpawnY = slot.VariableC;
+                pipe.DelayOrCounter = slot.VariableD;
+                pipe.AnimationState = (PipeBugAnimationSelector)slot.VariableE;
+                pipe.EmergenceTopY = W(RidleyMovieMemory.EnemyExtra + index * 64);
+                pipe.InstalledAnimationState = (PipeBugAnimationSelector)W(RidleyMovieMemory.EnemyExtraPreviousAnimation + index * 64);
+            }
+        }
+        typeof(SuperMetroidRuntime).GetProperty(nameof(runtime.NmiFrameCounter))!.SetValue(runtime, W(RidleyMovieMemory.NmiCounter));
+        typeof(SuperMetroidRuntime).GetProperty(nameof(runtime.NmiFrameCounter8))!.SetValue(runtime, memory[RidleyMovieMemory.NmiCounterByte]);
+        samus.CollectedItems = W(RidleyMovieMemory.CollectedItems); samus.CollectedBeams = W(RidleyMovieMemory.CollectedBeams);
+        samus.Missiles = W(RidleyMovieMemory.Missiles); samus.MaxMissiles = W(RidleyMovieMemory.MaxMissiles);
+        samus.SuperMissiles = W(RidleyMovieMemory.SuperMissiles); samus.MaxSuperMissiles = W(RidleyMovieMemory.MaxSuperMissiles);
+        samus.PowerBombs = W(RidleyMovieMemory.PowerBombs); samus.MaxPowerBombs = W(RidleyMovieMemory.MaxPowerBombs);
+        samus.PreviousHealthForHurtCheck = samus.Health;
+        runtime.Controller1.Latch(W(RidleyMovieMemory.HeldInput));
+        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
+        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
+        typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, (SuperMetroidGameState)W(RidleyMovieMemory.GameState));
+        var audio = new CartridgeAudioRenderer(runtimeFixtureInstallation.Value.LoadAudio());
+        for (int frame = 0; frame <= length; frame++)
+        {
+            if (frame != 0) memory = ReadFrame(frame);
+            var mismatches = new List<string>();
+            void Check(string name, ushort actual, int address)
+            {
+                ushort expected = W(address);
+                if (actual != expected) mismatches.Add($"{name}: native={expected:X4} port={actual:X4}");
+            }
+            Check("Game state", (ushort)game.GameState, RidleyMovieMemory.GameState);
+            Check("Room", runtime.ActiveRoom!.Pointer, RidleyMovieMemory.Room);
+            Check("Samus X", samus.XPosition, RidleyMovieMemory.X);
+            Check("Samus X fraction", samus.Kinematics.XSubposition, RidleyMovieMemory.XFraction);
+            Check("Samus Y", samus.YPosition, RidleyMovieMemory.Y);
+            Check("Samus Y fraction", samus.Kinematics.YSubposition, RidleyMovieMemory.YFraction);
+            Check("Samus pose", samus.Pose, RidleyMovieMemory.Pose);
+            Check("Samus animation", samus.AnimationFrame, RidleyMovieMemory.Animation);
+            Check("Samus animation timer", samus.AnimationFrameTimer, RidleyMovieMemory.AnimationTimer);
+            Check("Samus base speed", samus.HorizontalSpeed.BaseSpeed, RidleyMovieMemory.BaseSpeed);
+            Check("Samus base fraction", samus.HorizontalSpeed.BaseSubspeed, RidleyMovieMemory.BaseFraction);
+            Check("Samus extra speed", samus.HorizontalSpeed.ExtraRunSpeed, RidleyMovieMemory.ExtraSpeed);
+            Check("Samus extra fraction", samus.HorizontalSpeed.ExtraRunSubspeed, RidleyMovieMemory.ExtraFraction);
+            Check("Samus vertical speed", samus.Kinematics.YSpeed, RidleyMovieMemory.VerticalSpeed);
+            Check("Samus vertical fraction", samus.Kinematics.YSubspeed, RidleyMovieMemory.VerticalFraction);
+            Check("Samus vertical direction", samus.Kinematics.YDirection, RidleyMovieMemory.VerticalDirection);
+            Check("Samus health", samus.Health, RidleyMovieMemory.Health);
+            Check("RNG", runtime.System.RandomNumber, RidleyMovieMemory.Random);
+            if (mismatches.Count != 0)
+            {
+                Console.Error.WriteLine($"Room width={level.WidthInBlocks}, Samus radius={samus.Kinematics.XRadius}/{samus.Kinematics.YRadius}, speed={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4}+{samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4}");
+                for (int block = 0; block < level.WidthInBlocks * level.HeightInBlocks; block++)
+                {
+                    ushort expectedBlock = W(RidleyMovieMemory.Level + block * 2);
+                    ushort actualBlock = level.ForegroundEntries.Span[block];
+                    if (expectedBlock != actualBlock) Console.Error.WriteLine($"Block {block} ({block % level.WidthInBlocks},{block / level.WidthInBlocks}): native={expectedBlock:X4} port={actualBlock:X4}");
+                }
+                throw new InvalidDataException($"Full movie first divergence at frame {frame}: " + string.Join("; ", mismatches));
+            }
+            // This libretro capture returns after the sample identified by its movie counter.
+            // Sample zero belongs to the restored snapshot; the first executed input is one.
+            if (frame < length)
+                {
+                var output = game.Step(BinaryPrimitives.ReadUInt16LittleEndian(movie.AsSpan(inputOffset + (frame + 1) * 2)));
+                audio.RenderFrame(output.AudioCommands);
+                game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+            }
+        }
+        AssertTrue(trace.ReadByte() == -1, "trace ends after movie terminal frame");
+        Console.WriteLine("Full movie input replay: all 10890 frames match the currently instrumented fields.");
+    }
+}

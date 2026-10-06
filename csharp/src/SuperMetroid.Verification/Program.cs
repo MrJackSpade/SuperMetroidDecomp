@@ -76,6 +76,8 @@ if (args is ["--ridley-acceleration-carry"])
     VerifyRidleyDeathAcceleration(rom);
     return 0;
 }
+if (args is ["--ridley-door-entry"]) { VerifyRidleyDoorEntry(); return 0; }
+if (args is ["--ridley-full-movie", var traceDirectory]) { VerifyRidleyFullMovie(traceDirectory); return 0; }
 if (args is ["--ridley-player-opening"]) { VerifyRidleyPlayerOpening(); return 0; }
 if (args is ["--door-autosave"]) { VerifyDoorTransitionAutosave(); return 0; }
 if (args is ["--door-music-timing"]) { VerifyDoorMusicTiming(); return 0; }

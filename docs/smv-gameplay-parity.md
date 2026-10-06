@@ -204,9 +204,16 @@ previously restarted frame zero. The focused fixture failed before the change;
 both facing directions now match frame1/timer2 on landing and frame1/timer16 on
 completion. The input-only replay passes both recorded transition boundaries.
 
-Expanded checked state now matches through update 3745 of 10,717. The next
-mismatch is update3746/source3850: Ridley's grab/release AI and Samus movement
-diverge (native AI $BBC4 versus port $BB8F). This remains under investigation.
+Ridley's grab now enters carry setup and its first movement/countdown immediately,
+matching $A6:BB8F's fallthrough to $BBC4. It installs native command-zero stationary
+control and release restores command one. Main places carried Samus after body/tail
+movement; beta observes actor control changes made during the same update. The
+source3850 focused grab fixture failed before the fix and now matches AI, timer,
+velocities and lock/release. Input-only replay passes the recorded grab update.
+
+Expanded checked state now matches through update 3746 of 10,717. The next
+mismatch is update3747/source3851: locked Samus's projectile cooldown remains10
+natively but decrements to9 in the port. This remains under investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

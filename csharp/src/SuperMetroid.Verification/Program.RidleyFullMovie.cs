@@ -12,6 +12,33 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyRidleyGrabEntry()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RidleyMovieMemory.RidleyRoom);
+        var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
+        body.XPosition = 211; body.YPosition = 346;
+        state.HorizontalVelocity = 0xc0; state.VerticalVelocity = 0x400;
+        state.FacingDirection = 2; state.Function = RidleyAiFunction.NorfairFireballAttack;
+        state.GrabState = 0; state.FeetDistanceIndex = 0;
+        samus.XPosition = 198; samus.YPosition = 402; samus.Pose = 0x54;
+        samus.RefreshCollisionRadii(bus);
+        var attack = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttack", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        attack.Invoke(runtime.Enemies, [body, state, samus, runtime.LevelData]);
+        AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "native grab immediately enters carry movement");
+        AssertEqual((ushort)31, state.FunctionTimer, "native setup falls through first carry countdown");
+        AssertEqual((ushort)0xb6, state.HorizontalVelocity, "native same-update grab X acceleration");
+        AssertEqual((ushort)0xfbfc, state.VerticalVelocity, "native same-update grab Y acceleration");
+        AssertTrue(samus.StationaryScriptControlLocked, "native grab installs command-zero alpha/beta pair");
+        var release = typeof(RoomEnemySystem).GetMethod("ReleaseNorfairRidleyGrab", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        release.Invoke(runtime.Enemies, [state, samus]);
+        AssertTrue(!samus.InputLocked && !samus.StationaryScriptControlLocked, "native release restores ordinary control");
+        Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
+    }
+
     private static void VerifyAimUpLandingAnimation()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

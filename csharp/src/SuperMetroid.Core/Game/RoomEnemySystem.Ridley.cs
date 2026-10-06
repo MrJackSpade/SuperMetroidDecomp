@@ -114,9 +114,6 @@ public sealed partial class RoomEnemySystem
 
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
 
-        if (state.GrabState != 0 && samus is not null)
-            UpdateNorfairRidleyGrabbedSamus(slot, state, samus);
-
         if (state.MovementAnimationEnabled != 0)
         {
             UpdateRidleyHurtFlashPalettes(slot, state, slot.FrameCounter);
@@ -125,6 +122,9 @@ public sealed partial class RoomEnemySystem
             TickRidleyTail(slot, state, samus);
             if (samusProjectiles is not null)
                 ResolveRidleyTailProjectileHits(slot, state, samusProjectiles);
+            // Native Main places carried Samus after body/tail movement.
+            if (state.GrabState != 0 && samus is not null)
+                UpdateNorfairRidleyGrabbedSamus(slot, state, samus);
         }
 
         UpdateNorfairRidleyHealthPalette(slot, state);
@@ -751,13 +751,15 @@ public sealed partial class RoomEnemySystem
         state.GrabXOffset = unchecked((ushort)(samus.XPosition - clawX));
         state.GrabYOffset = unchecked((ushort)(samus.YPosition - clawY));
         state.GrabState = 1;
+        samus.SetStationaryScriptControlLock(true);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
         if (slot.Health == 0)
         {
             StartNorfairRidleyDeathSequence(slot, state);
             return;
         }
-        state.Function = RidleyAiFunction.NorfairCarrySetup;
+        // $BB8F falls through $BBC4 on the grabbing update.
+        BeginNorfairRidleyCarry(slot, state);
     }
 
     private static void BeginNorfairRidleyCarry(RoomEnemySlot slot, RidleyEnemyState state)
@@ -769,11 +771,13 @@ public sealed partial class RoomEnemySystem
         state.Function = RidleyAiFunction.NorfairCarryMoveToAnchor;
         state.FunctionTimer = 32;
         MoveNorfairRidleyToward(slot, state, state.TargetX, state.TargetY, 0);
+        TickRidleyFunctionTimer(state);
     }
 
     private void ReleaseNorfairRidleyGrab(RidleyEnemyState state, SamusState? samus)
     {
         state.GrabState = 0;
+        samus?.SetStationaryScriptControlLock(false);
         state.TailWhipRequest = 1;
         state.TailFunctionIndex = 1;
         SamusMovementType movement = samus?.ReadMovementType(_bus!) ?? SamusMovementType.Standing;

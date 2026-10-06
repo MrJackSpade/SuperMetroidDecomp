@@ -1690,7 +1690,7 @@ public sealed partial class SuperMetroidRuntime
                 Samus.RefreshCollisionRadii(_addressSpace);
             // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
             // affects the next beta, not the animation already owned this frame.
-            bool stationaryScriptControlAtFrameStart = Samus.StationaryScriptControlLocked;
+            bool stationaryScriptControlLocked = Samus.StationaryScriptControlLocked;
             // Suit command $15 installs an empty beta, not just locked pose input.
             // Preserve the suspended movement pointer and all of its timers so command
             // $0B can resume it after the HDMA transformation (including Blue Suit).
@@ -2025,6 +2025,8 @@ public sealed partial class SuperMetroidRuntime
                     ? movementBeforeXrayAdmission : Samus.ReadMovementType(_addressSpace);
                 if (!enemyMainAlreadyRan)
                     RunEnemyMainPhase();
+                // Actor commands replace beta before its dispatch in this same update.
+                stationaryScriptControlLocked = Samus.StationaryScriptControlLocked;
                 if (!TimeIsFrozen && !deathOwnsSamus)
                     ResolveUpdatedBeamHits();
 
@@ -2180,7 +2182,7 @@ public sealed partial class SuperMetroidRuntime
                 // movement pointer that was active beforehand. Automatic Reserve can
                 // therefore freeze an in-progress hurt launch; special owners such as
                 // `$90:DF38` must not outrank this explicitly installed handler.
-                else if (stationaryScriptControlAtFrameStart)
+                else if (stationaryScriptControlLocked)
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
@@ -2870,7 +2872,7 @@ public sealed partial class SuperMetroidRuntime
                     VramWrites,
                     SamusBodyArt?.DeathPalettes);
             }
-            else if (!stationaryScriptControlAtFrameStart && !suitOwnsSamus)
+            else if (!stationaryScriptControlLocked && !suitOwnsSamus)
             {
                 Samus.AnimateNoFx(
                     _addressSpace,
@@ -2886,7 +2888,7 @@ public sealed partial class SuperMetroidRuntime
 
 
             if (GroundedSamusMovementEnabled && !deathOwnsSamus && !suitOwnsSamus &&
-                !stationaryScriptControlAtFrameStart)
+                !stationaryScriptControlLocked)
             {
                 // Hit interruption observes the old movement type before UpdateSamusPose.
                 // Its carry-clear bomb rejection still occurs when an animation transition
@@ -4100,7 +4102,7 @@ public sealed partial class SuperMetroidRuntime
                 // Command zero's `$90:E8DC` beta handler does not dispatch bank-$91
                 // palette effects. In particular, automatic Reserve recovery freezes a
                 // stored shine instead of consuming it while Samus is stationary.
-                advanceSamusPalette: !suitOwnsSamus && !stationaryScriptControlAtFrameStart);
+                advanceSamusPalette: !suitOwnsSamus && !stationaryScriptControlLocked);
         }
         // EnemyMain can install the gunship's $90:E902 beta handler on this frame.
         // It omits the normal $90:E738 timer-hack call: neither countdown nor OAM

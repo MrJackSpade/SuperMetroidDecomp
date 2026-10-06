@@ -77,6 +77,7 @@ if (args is ["--ridley-acceleration-carry"])
     return 0;
 }
 if (args is ["--ridley-fireball-damage"]) { VerifyRidleyFireballDamage(); return 0; }
+if (args is ["--ridley-grab-entry"]) { VerifyRidleyGrabEntry(); return 0; }
 if (args is ["--aim-up-landing-animation"]) { VerifyAimUpLandingAnimation(); return 0; }
 if (args is ["--ridley-fireball-square-slope"]) { VerifyRidleyFireballSquareSlope(); return 0; }
 if (args is ["--ridley-tail-impact"]) { VerifyRidleyTailImpact(); return 0; }

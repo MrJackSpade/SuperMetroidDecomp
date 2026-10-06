@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 423,
+  "remainingTableDefinitionCount": 422,
   "fileCount": 523,
   "entries": [
     {
@@ -2796,12 +2796,15 @@
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs",
-      "line": 12,
-      "name": "StockAttractDemoScenes.Sets",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Frontend/StockAttractDemoScenes.cs",
+  "line": 12,
+  "name": "StockAttractDemoScenes.Sets",
+  "kind": "stored definition",
+  "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+  "state": "justified-retained",
+  "implementationCommit": "8cfa167fbe74f905d62c0c928ec4d3b8ba315645",
+  "disposition": "Executable semantic scene/playlist dispatch calculates screen units,upgrade capacities,shared loadout flags/22beam aliases and17grounded placements via floor row minus immutable pose radius. Retain exact reviewed23record playlist/object,room/independentdoor/slot/camera/X,supportrows/six otherY,editorialcutoffs,setup-role/equipment/resource choices including unassigned0010metadata: these stage the selected recorded demonstrations and generating different choices changes that content. No ordinary gameplay/callback/movement/timing blanket exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/TitleSequenceInstructionDefinitions.cs",
       "line": 12,
@@ -21805,5 +21808,5 @@
     }
   ],
   "convertedSinceSnapshot": 606,
-  "justifiedRetainedSinceSnapshot": 99
+  "justifiedRetainedSinceSnapshot": 100
 }

@@ -2904,4 +2904,103 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.ForegroundSourcePixel(pixels.Length), "Foreground upper bound");
         Console.WriteLine($"World foreground:{pixels.Length} native pixels,{calculated} exact source relations,{stored.Count} source pixels/{masks.Count} masks/{fontDifferences} font differences,{edits.Count} independent tile/source edits/full inversion/full uploads pass.");
     }
+    private static void VerifyLookupStream1ProjectileRadiusLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var expected = new List<ushort>();
+        for (int address = 0x9386db; address < 0x93a1a1;)
+        {
+            ushort word = Word(address);
+            if (address == 0x93a117)
+            {
+                AssertEqual((ushort)0, word, "Native intervening empty spritemap record");
+                address += 2;
+            }
+            else if ((word & 0x8000) == 0)
+            {
+                expected.Add(unchecked((ushort)address));
+                address += 8;
+            }
+            else if (word == SamusProjectileRomData.Instructions.GoTo) address += 4;
+            else
+            {
+                AssertEqual(SamusProjectileRomData.Instructions.Delete, word, "Only native terminal delete remains");
+                address += 2;
+            }
+        }
+        AssertEqual(805, expected.Count, "Independent native timed-record count");
+        AssertTrue(SamusProjectileRadiusDefinitions.TimedRecordPointers.SequenceEqual(expected), "Exact calculated pointer domain/order");
+        AssertEqual(expected.Count, SamusProjectileRadiusDefinitions.TimedRecordPointers.Count, "Calculated pointer view count");
+        for (int index = 0; index < expected.Count; index++)
+        {
+            ushort pointer = expected[index];
+            AssertEqual(pointer, SamusProjectileRadiusDefinitions.TimedRecordPointers[index], "Calculated indexed pointer");
+            AssertTrue(SamusProjectileInstructionDefinitions.TryTimedFrame(0x930000 | pointer, out var frame), "Native timed frame classified");
+            AssertTrue(frame.Axis >= 0 && frame.Phase >= 0, "Native semantic axes are nonnegative");
+            AssertTrue(SamusProjectileRadiusDefinitions.TryCalculatedPair(frame, out ushort pair), "Every native frame has a calculated family policy");
+            AssertEqual(Word(0x930000 | (pointer + 4)), pair, "Direct family policy has no native-table fallback");
+            for (int component = 0; component < 2; component++)
+                AssertEqual(rom.ReadByte(0x930000 | (pointer + 4 + component)),
+                    SamusProjectileRadiusDefinitions.ReadByte(0x930000 | (pointer + 4 + component)), "Native physical radius bytes preserved");
+        }
+        var document = new ProjectileFrameBindingDocument
+        {
+            Version = 1,
+            Frames = expected.ToDictionary(pointer => ProjectileFrameBindingFormat.FrameName(pointer),
+                pointer => $"sprite_{Word(0x930000 | (pointer + 2)):X4}"),
+        };
+        var guard = new LookupFlareForbiddenBus();
+        var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        int interpreted = 0, bombInterpreted = 0;
+        foreach (bool edited in new[] { false, true })
+        {
+            if (edited)
+                foreach (ushort pointer in expected) document.Frames[ProjectileFrameBindingFormat.FrameName(pointer)] = "sprite_A117";
+            var bindings = ProjectileFrameBindingCatalog.Load(new MemoryStream(ProjectileFrameBindingCatalog.Write(document)));
+            var shots = new SamusProjectileSystem { FrameBindings = bindings };
+            var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
+            foreach (ushort pointer in expected)
+            {
+                ushort duration = Word(0x930000 | pointer);
+                ushort sprite = edited ? (ushort)0xa117 : Word(0x930000 | (pointer + 2));
+                var slot = new SamusProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer };
+                AssertTrue(!shots.RunProjectileInstructionHandler(guard, slot), "Actual native timed frame survives");
+                AssertEqual(duration, slot.InstructionTimer, "Actual timer unchanged");
+                AssertEqual(sprite, slot.SpritemapPointer, "Independent installed artwork selection");
+                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), slot.XRadius, "Actual X radius independent of art edit");
+                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 5)), slot.YRadius, "Actual Y radius independent of art edit");
+                AssertEqual(Word(0x930000 | (pointer + 6)), slot.AnimationFrame, "Actual trail phase unchanged");
+                AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
+                interpreted++;
+                if (duration == 0) continue; // Existing bomb contract excludes zero-duration timed records.
+                var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer, Type = 0x0500 };
+                AssertTrue(!(bool)runBomb.Invoke(bombs, [guard, bomb])!, "Actual bomb timed frame survives");
+                AssertEqual(duration, bomb.InstructionTimer, "Actual bomb timer unchanged");
+                AssertEqual(sprite, bomb.SpritemapPointer, "Independent bomb artwork selection");
+                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), bomb.XRadius, "Actual bomb X radius");
+                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 5)), bomb.YRadius, "Actual bomb Y radius");
+                AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Actual bomb record progression");
+                bombInterpreted++;
+            }
+        }        for (int step = 0; step < 4; step++)
+            AssertEqual(-4 - unchecked((sbyte)rom.ReadByte(0x93ae70 + 7 * step)),
+                ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(step), "Shared lobe source derives from centered native OAM");
+        AssertEqual((Word(0x93d64c) & 0x1ff) + 4, ProjectileWaveEnvelopeDefinitions.SpazerInitialAxialSpread,
+            "Shared initial Spazer lane source");
+        var radiusAddresses = expected.SelectMany(pointer => new[] { 0x930000 | (pointer + 4), 0x930000 | (pointer + 5) }).ToHashSet();
+        for (int address = 0x9386db; address < 0x93a1a1; address++)
+            if (!radiusAddresses.Contains(address))
+                AssertThrows<InvalidDataException>(() => SamusProjectileRadiusDefinitions.ReadByte(address), "Every non-radius operand/control byte remains rejected");        var identities = expected.ToHashSet();
+        for (int address = 0x9386db; address < 0x93a1a1; address++)
+            AssertEqual(identities.Contains(unchecked((ushort)address)),
+                SamusProjectileInstructionDefinitions.TryTimedFrame(address, out _), "Exact full bounded classifier admission");
+        foreach (int address in new[] { int.MinValue, -1, 0, 0x9386da, 0x93a1a1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TryTimedFrame(address, out _), "Classifier rejects outside domain without overflow");
+        AssertThrows<IndexOutOfRangeException>(() => _ = SamusProjectileRadiusDefinitions.TimedRecordPointers[-1], "Original lower indexed view rejection");
+        AssertThrows<IndexOutOfRangeException>(() => _ = SamusProjectileRadiusDefinitions.TimedRecordPointers[805], "Original upper indexed view rejection");
+        AssertEqual((byte)0, SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress), "Separate bounded MurderBeam X contract preserved");
+        AssertEqual((byte)0, SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress + 1), "Separate bounded MurderBeam Y contract preserved");
+        Console.WriteLine($"Projectile radii:805 native calculated records/1610 bytes,{interpreted} actual projectile/{bombInterpreted} bomb records with zero reads and independent art edits; exact domain/order/bounds pass.");
+    }
 }

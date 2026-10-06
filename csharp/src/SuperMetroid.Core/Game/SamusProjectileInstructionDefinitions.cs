@@ -336,4 +336,78 @@ internal static class SamusProjectileInstructionDefinitions
         TryChargedWord(address, out value) || TryNonBeamWord(address, out value) ? value :
         throw new InvalidDataException(
             $"Projectile instruction mechanics word ${address:X6} is outside the compiled definitions.");
+
+    /// <summary>Mutually exclusive native projectile program families; direction and frame remain separate axes.</summary>
+    internal enum FrameFamily
+    {
+        Power, Wave, Ice, Spazer, SpazerWave, Plasma, PlasmaWave,
+        ChargedPower, ChargedWave, ChargedIce, ChargedIceWave, ChargedSpazer,
+        ChargedSpazerWave, ChargedPlasma, ChargedPlasmaWave,
+        Missile, SuperMissile, SuperMissileLink, PowerBomb, FastPowerBomb,
+        Bomb, FastBomb, BeamExplosion, MissileExplosion, BombExplosion, PlasmaSba,
+        SuperExplosion, UnusedEcho, Echo, SpazerSba, WaveSba, UnusedExplosion,
+    }
+
+    /// <summary>Native timed-record identity; axis is program order and phase is the zero-based timed record.</summary>
+    internal readonly record struct TimedFrame(FrameFamily Family, int Axis, int Phase);
+
+    /// <summary>$93:86DB..A19C: classify exactly the 805 timed records, excluding every operand/control word.</summary>
+    internal static bool TryTimedFrame(int address, out TimedFrame frame)
+    {
+        if (address == WaveUpPrelude) { frame = new(FrameFamily.Wave, 0, 0); return true; }
+        if (address == ChargedWaveStart) { frame = new(FrameFamily.ChargedWave, 0, 0); return true; }
+        if (address == ChargedIceWaveStart) { frame = new(FrameFamily.ChargedIceWave, 0, 0); return true; }
+        return Group(PowerProgramsStart, PowerDirectionCount, 1, FrameFamily.Power, out frame) ||
+            Group(WaveCyclesStart, WaveAxisCount, RequiredWavePhases, FrameFamily.Wave, out frame) ||
+            Group(IceCycleStart, 1, RequiredIcePhases, FrameFamily.Ice, out frame) ||
+            Group(SpazerProgramsStart, PowerDirectionCount, RequiredSpazerGrowthPhases, FrameFamily.Spazer, out frame) ||
+            Group(SpazerWaveProgramsStart, PowerDirectionCount, RequiredSpazerWavePhases, FrameFamily.SpazerWave, out frame) ||
+            Group(PlasmaProgramsStart, WaveAxisCount, 2, FrameFamily.Plasma, out frame) ||
+            Group(PlasmaWaveProgramsStart, WaveAxisCount, 1 + RequiredPlasmaWaveCyclePhases, FrameFamily.PlasmaWave, out frame) ||
+            Group(ChargedPowerStart, PowerDirectionCount, RequiredChargedPowerPhases, FrameFamily.ChargedPower, out frame) ||
+            Group(ChargedWaveStart + TimedRecordBytes, WaveAxisCount, RequiredChargedWavePhases, FrameFamily.ChargedWave, out frame) ||
+            Group(ChargedIceStart, 1, RequiredChargedIcePhases, FrameFamily.ChargedIce, out frame) ||
+            Group(ChargedIceWaveStart + TimedRecordBytes, WaveAxisCount, RequiredChargedWavePhases, FrameFamily.ChargedIceWave, out frame) ||
+            Group(ChargedSpazerStart, WaveAxisCount, RequiredChargedSpazerPhases, FrameFamily.ChargedSpazer, out frame) ||
+            Group(ChargedSpazerWaveStart, PowerDirectionCount, RequiredChargedSpazerWavePhases, FrameFamily.ChargedSpazerWave, out frame) ||
+            Group(ChargedPlasmaStart, WaveAxisCount, RequiredChargedPlasmaPhases, FrameFamily.ChargedPlasma, out frame) ||
+            Group(ChargedPlasmaWaveStart, WaveAxisCount, RequiredChargedPlasmaWavePhases, FrameFamily.ChargedPlasmaWave, out frame) ||
+            Group(MissileStart, PowerDirectionCount, 1, FrameFamily.Missile, out frame) ||
+            Group(MissileStart + PowerDirectionCount * CycleBytes(1), PowerDirectionCount, 1, FrameFamily.SuperMissile, out frame) ||
+            Group(MissileStart + 2 * PowerDirectionCount * CycleBytes(1), 1, 1, FrameFamily.SuperMissileLink, out frame) ||
+            Group(PowerBombStart, 1, RequiredPowerBombPhases, FrameFamily.PowerBomb, out frame) ||
+            Group(FastPowerBombStart, 1, RequiredPowerBombPhases, FrameFamily.FastPowerBomb, out frame) ||
+            Group(BombStart, 1, RequiredBombPhases, FrameFamily.Bomb, out frame) ||
+            Group(FastBombStart, 1, RequiredBombPhases, FrameFamily.FastBomb, out frame) ||
+            Group(BeamExplosionStart, 1, RequiredExplosionPhases, FrameFamily.BeamExplosion, out frame, delete: true) ||
+            Group(MissileExplosionStart, 1, RequiredExplosionPhases, FrameFamily.MissileExplosion, out frame, delete: true) ||
+            Group(BombExplosionStart, 1, RequiredBombExplosionPhases, FrameFamily.BombExplosion, out frame, delete: true) ||
+            Group(PlasmaSbaStart, 1, RequiredBombExplosionPhases, FrameFamily.PlasmaSba, out frame) ||
+            Group(SuperExplosionStart, 1, RequiredExplosionPhases, FrameFamily.SuperExplosion, out frame, delete: true) ||
+            Group(UnusedProjectile25Start, 1, RequiredEchoPhases, FrameFamily.UnusedEcho, out frame) ||
+            Group(EchoStart, 1, RequiredEchoPhases, FrameFamily.Echo, out frame) ||
+            Group(SpazerSbaStart, 1, RequiredSpazerSbaPhases, FrameFamily.SpazerSba, out frame) ||
+            Group(WaveSbaStart, 1, RequiredWaveSbaPhases, FrameFamily.WaveSba, out frame) ||
+            Group(UnusedProjectile27Start, 1, RequiredExplosionPhases, FrameFamily.UnusedExplosion, out frame);
+
+        bool Group(int start, int directions, int phases, FrameFamily family, out TimedFrame result, bool delete = false)
+        {
+            long offset = (long)address - start;
+            int stride = delete ? OneShotBytes(phases) : CycleBytes(phases);
+            result = default;
+            if (offset < 0 || offset >= directions * stride) return false;
+            int local = (int)(offset % stride);
+            if (local >= phases * TimedRecordBytes || local % TimedRecordBytes != 0) return false;
+            result = new(family, (int)(offset / stride), local / TimedRecordBytes);
+            return true;
+        }
+    }
+
+    /// <summary>Ordered native pointer identities calculated from program layout; no cached pointer table.</summary>
+    internal static IEnumerable<ushort> EnumerateTimedPointers()
+    {
+        int end = UnusedProjectile27Start + CycleBytes(RequiredExplosionPhases);
+        for (int address = PowerProgramsStart; address < end; address += sizeof(ushort))
+            if (TryTimedFrame(address, out _)) yield return unchecked((ushort)address);
+    }
 }

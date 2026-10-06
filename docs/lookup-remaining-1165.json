@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 454,
+  "remainingTableDefinitionCount": 453,
   "fileCount": 523,
   "entries": [
     {
@@ -7928,12 +7928,15 @@
       "implementationCommit": "fa92295adc762b139edffb6a1d0807c102261da9"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileRadiusDefinitions.cs",
-      "line": 18,
-      "name": "SamusProjectileRadiusDefinitions.Radii",
-      "kind": "factory-built stock table",
-      "note": "Stored FrozenDictionary<int, ushort> initialized by Create(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileRadiusDefinitions.cs",
+  "line": 18,
+  "name": "SamusProjectileRadiusDefinitions.Radii",
+  "kind": "factory-built stock table",
+  "note": "Stored FrozenDictionary<int, ushort> initialized by Create(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+  "state": "justified-retained",
+  "implementationCommit": "527ce3262bf12d699e1b4d22680cf7f80e4cd80d",
+  "disposition": "Replace805sample pairs with semantic family/axis/phase calculations: symmetry, paired/reversed phases, growth/caps, triangular envelopes and shared native lobe geometry. Retain precisely named physical hitbox dimensions/minimums/growth/rounding, shoulder inset, startup/axis choices and five chargedPlasma diagonal spread bounds12/16/17/20/24. These independently select collision reach and do not equal sprite bounds or a common projection; inventing a fitted curve would reencode or change chosen gameplay. Source lobe artwork remains separately required; timing,damage,motion,sound excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs",
       "line": 15,
@@ -21712,5 +21715,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 74
+  "justifiedRetainedSinceSnapshot": 75
 }

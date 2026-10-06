@@ -912,8 +912,6 @@ public static class ProjectileSpriteDefinitions
     /// <summary>$93:EC43/EDA3: charged Power/Ice use independently selected OBJ glyphs $33/$34, sharing palette6/priority2 with the single-tile beam.</summary>
     private const int ChargedBeamTile = 0x33;
     internal static bool TryWavePhase(ushort pointer, out int phase) => TryPhase(pointer, WaveStart, 1, 33, out phase);
-    /// <summary>$93:AE70/AE77/AE7E/AE85: four independent axial offsets from the centered sprite origin; these source choices remain required under frames.</summary>
-    private static ReadOnlySpan<int> UnresolvedWaveDistances => [8, 13, 15, 16];
     /// <summary>$93:AEA4..AEC0 and other diagonal groups: component magnitudes6/9/11/12 equal floor(3*axial/4). This selected ratio remains required, not a trigonometric assertion.</summary>
     private const int WaveDiagonalNumerator = 3, WaveDiagonalDenominator = 4;
     private enum WaveDirection { Up, Down, UpRight, DownLeft, Right, Left, UpLeft, DownRight }
@@ -942,7 +940,7 @@ public static class ProjectileSpriteDefinitions
                         WaveDirection.DownRight => (1, 1),
                         _ => throw new IndexOutOfRangeException(),
                     };
-                    int distance = UnresolvedWaveDistances[step];
+                    int distance = SuperMetroid.Core.Game.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(step);
                     if (dx != 0 && dy != 0) distance = distance * WaveDiagonalNumerator / WaveDiagonalDenominator;
                     x += dx * distance;
                     y += dy * distance;
@@ -976,7 +974,7 @@ public static class ProjectileSpriteDefinitions
                 if ((uint)index >= Count) throw new IndexOutOfRangeException();
                 int lobe = index / 4, quadrant = index % 4;
                 int column = quadrant % 2, row = quadrant / 2;
-                int centerY = phase < 2 ? 0 : (lobe == 0 ? 1 : -1) * UnresolvedWaveDistances[(phase - 2) / 2];
+                int centerY = phase < 2 ? 0 : (lobe == 0 ? 1 : -1) * SuperMetroid.Core.Game.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance((phase - 2) / 2);
                 int tile = ChargedBeamTile + (phase < 2 ? 1 - phase : (phase + lobe) % 2);
                 var flips = (column == 0 ? SnesTileFlipFlags.Horizontal : 0) |
                     (row == 0 ? SnesTileFlipFlags.Vertical : 0);
@@ -1092,7 +1090,7 @@ public static class ProjectileSpriteDefinitions
                 // two orders is still a required source input, not a derived choice.
                 int column = left ? corner / 2 : corner % 2;
                 int row = left ? 1 - ((corner ^ (corner >> 1)) & 1) : corner / 2;
-                int centerX = (left ? -1 : 1) * UnresolvedWaveDistances[phase / 2];
+                int centerX = (left ? -1 : 1) * SuperMetroid.Core.Game.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase / 2);
                 int tile = ChargedBeamTile + 1 - (phase + lobe) % 2;
                 var flips = (column == 0 ? SnesTileFlipFlags.Horizontal : 0) |
                     (row == 0 ? SnesTileFlipFlags.Vertical : 0);
@@ -1190,7 +1188,7 @@ public static class ProjectileSpriteDefinitions
                 var seed = new SpazerSeedParts(pose)[index % 4];
                 int lane = index / 4;
                 int direction = lane == 0 ? 0 : lane == 1 ? -1 : 1;
-                int distance = WaveDiagonalNumerator * UnresolvedWaveDistances[phase] / WaveDiagonalDenominator;
+                int distance = WaveDiagonalNumerator * SuperMetroid.Core.Game.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase) / WaveDiagonalDenominator;
                 int dx = direction * distance * (pose >= 2 ? -1 : 1);
                 int dy = direction * distance * (pose is 1 or 2 ? -1 : 1);
                 return new(SnesSpritemapXWord.Create(seed.X.SignedOffset + dx, seed.X.IsLarge),
@@ -1215,8 +1213,6 @@ public static class ProjectileSpriteDefinitions
             withinGroup < 5 * RecordBytes(6) && withinGroup % RecordBytes(6) == 0 &&
             !(pose == 7 && phase == 0);
     }
-    /// <summary>$93:D64A's initial lane distance is an independent REQUIRED spacing input, preceding the shared8/13/15/16 distances.</summary>
-    private const int SpazerInitialAxialSpread = 4;
     /// <summary>Repeated axial seed lanes. Native vertical, initial-left and later horizontal traversal policies remain REQUIRED composition choices.</summary>
     internal readonly struct SpazerAxialSpreadParts(int pose, int phase) : IReadOnlyList<CompiledSpritePart>
     {
@@ -1226,7 +1222,7 @@ public static class ProjectileSpriteDefinitions
             get
             {
                 if ((uint)index >= Count) throw new IndexOutOfRangeException();
-                int distance = phase == 0 ? SpazerInitialAxialSpread : UnresolvedWaveDistances[phase - 1];
+                int distance = phase == 0 ? SuperMetroid.Core.Game.ProjectileWaveEnvelopeDefinitions.SpazerInitialAxialSpread : SuperMetroid.Core.Game.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase - 1);
                 bool vertical = pose is 4 or 6;
                 int seedIndex, lane;
                 if (vertical)
@@ -1276,7 +1272,7 @@ public static class ProjectileSpriteDefinitions
                 if ((uint)index >= Count) throw new IndexOutOfRangeException();
                 int lane = index / ChargedSpazerHorizontalCells;
                 int direction = phase <= 1 ? (lane == 0 ? 0 : lane == 1 ? 1 : -1) : 1 - lane;
-                int distance = phase <= 1 ? SpazerInitialAxialSpread : UnresolvedWaveDistances[phase - 2];
+                int distance = phase <= 1 ? SuperMetroid.Core.Game.ProjectileWaveEnvelopeDefinitions.SpazerInitialAxialSpread : SuperMetroid.Core.Game.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase - 2);
                 int size = SpazerCompositionGeometryDefinitions.TileSize;
                 int x = (ChargedSpazerHorizontalCells / 2 - 1 - index % ChargedSpazerHorizontalCells) * size;
                 int y = SpazerCompositionGeometryDefinitions.HorizontalStripOriginY + direction * distance;
@@ -1306,7 +1302,7 @@ public static class ProjectileSpriteDefinitions
                 if ((uint)index >= Count) throw new IndexOutOfRangeException();
                 int size = SpazerCompositionGeometryDefinitions.TileSize;
                 int lane = index / ChargedSpazerVerticalCells;
-                int distance = UnresolvedWaveDistances[phase];
+                int distance = SuperMetroid.Core.Game.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase);
                 int x = lane == 0 ? distance : lane == 1 ? -size - distance : -size / 2;
                 int y = (ChargedSpazerVerticalCells / 2 - 1 - index % ChargedSpazerVerticalCells) * size;
                 return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
@@ -1512,7 +1508,7 @@ public static class ProjectileSpriteDefinitions
                 int size = SpazerCompositionGeometryDefinitions.TileSize;
                 int x = (PlasmaWaveShortCells / 2 - 1 - index % PlasmaWaveShortCells) * size;
                 int direction = phase == 0 ? 0 : index < PlasmaWaveShortCells ? 1 : -1;
-                int y = -size / 2 + (phase == 0 ? 0 : direction * UnresolvedWaveDistances[phase - 1]);
+                int y = -size / 2 + (phase == 0 ? 0 : direction * SuperMetroid.Core.Game.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(phase - 1));
                 return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
                     SnesObjAttributeWord.Create(SpazerHorizontalGlyph, PowerPalette, PowerPriority, 0), false);
             }

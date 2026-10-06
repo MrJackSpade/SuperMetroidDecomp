@@ -520,7 +520,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusProjectileRadiusDefinitions.cs
 
-- [ ] **SamusProjectileRadiusDefinitions.Radii** ([L18](../csharp/src/SuperMetroid.Core/Game/SamusProjectileRadiusDefinitions.cs#L18)) - factory-built stock table. Stored FrozenDictionary<int, ushort> initialized by Create(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **SamusProjectileRadiusDefinitions.Radii** ([L18](../csharp/src/SuperMetroid.Core/Game/SamusProjectileRadiusDefinitions.cs#L18)) - factory-built stock table. Stored FrozenDictionary<int, ushort> initialized by Create(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusProjectileSelectionDefinitions.cs
 
@@ -1284,3 +1284,53 @@ WorldMapArtwork.foreground is MIXED COMPLETE. Totals190 wholly converted / twent
 - Final disposition: root independently viewed the complete labeled atlas, composed planet, full-glyph shadow diagnostics and exactC9 difference. Approved only the208 specified drawing cells,300 genuine font masks/360 contours,675 precisely partitioned non-font inputs and named shape/pen/state policies. The irregular terrain, selected portrait/anatomical forms, typography and mechanical shading cannot be generated from tile identities or transfer counts without re-embedding this selected design; substituting another contour changes the artwork. Every proven geometric/shared relationship remains calculated. No RGB, tilemap, timing or other-atlas exception. Final follow-up edits only clarify XML/report disposition; verified implementation is unchanged.
 
 Root integration: Root reviewed native labeled atlas, font shadow joins, composed Zebes map and exact C9 discrepancy. Integrated build1452warnings/zeroerrors; focused proof passes44032 native pixels,10845 geometry/reuse relations,14347source pixels/300masks/360contours,1197 independent source/tile edits, full inversion and actual full VRAM uploads. Master 600 converted/69 retained-mixed/459 pending.
+
+
+## Batch 99 — complete projectile collision-radius disposition
+
+SamusProjectileRadiusDefinitions.Radii is MIXED COMPLETE. Totals: 190 wholly converted / 26 mixed / 10 unchecked. SamusProjectileInstructionDefinitions.Words remains independently required for its selected timing, phase/loop and trail policies. No completion of projectile artwork is implied.
+
+- Removed the 805-entry FrozenDictionary and the cached sorted pointer array. The existing native program layout now classifies exactly 805 timed records by mutually exclusive family, direction axis and timed phase; an uncached ordered/indexed view preserves identity/order/bounds. Neither executable words nor the intervening A117 empty-spritemap word become radius records.
+- Each radius pair now calculates from its family policy. Reflection, repeated poses, linear growth/caps, triangular oscillation, grid rounding and exact shared lobe extents are evaluated on demand. The 32-bit input rejection domain and the existing separate 93:0004/0005 Murder Beam zero observations are unchanged. Those low-bank observations are not 93:8004 instruction bytes and receive no new memory-emulation exception.
+- New granted Game/ProjectileWaveEnvelopeDefinitions.cs owns the existing fixed artwork offsets 8/13/15/16 and initial Spazer spread4. Native AE70/AE77/AE7E/AE85 contain centered-OAM coordinates from which the four offsets derive; D64A's first and center lanes establish initial spread4. These five chosen source inputs remain REQUIRED under ProjectileSpriteCatalog.frames. Radius logic uses fixed source geometry, never independently edited imported art.
+
+### Exact physical-policy/source matrix
+
+All ranges are bank93 native program domains; radii occupy timed-record offsets4/5 only. Sizes below are half-extents in pixels. Selected magnitudes and named growth/minimum/cap/rounding decisions were independently reviewed by the coordinator as gameplay hit-reach design, not inferred from a failed universal pixel-bound fit.
+
+| Native domain | Family | Calculation and precisely selected physical policy |
+| --- | --- | --- |
+| 86DB–873A | Power | Vertical4×4; other compass cases8×4. Direction reflection/sharing calculated. |
+| 873B–8952 | Wave/IceWave | Axial thickness4, transverse baseline12 plus clipped triangular bump of step4/height8 on each eight-phase half-cycle. Diagonal radius follows a step2 triangle4..12, with initial/final shoulders8. The invisible upward prelude retains12×4. |
+| 8953–8976; 8E77–8F16; 912F–9152 | Ice, charged Power, charged Ice | Shared fixed8×8 envelope. |
+| 8977–8A56 | Spazer/IceSpazer | Axial thickness8; initial two transverse phases12 then20. Diagonal linear growth8+4×phase. |
+| 8A57–8CF6 | SpazerWave | Axial minimum12 plus exact small-lobe outer edge (shared center distance+half8px OBJ), thickness8. Diagonal clipped trapezoid8..16 in4px steps. Outward/return phases and compass transposes calculate. |
+| 8CF7–8D46 | Plasma/IcePlasma | Cross thickness8, axial length16; horizontal startup8 before16, diagonal8. |
+| 8D47–8E76 | PlasmaWave | Same shared outer-edge/minimum12 axial envelope, axial length16 except horizontal startup8. Diagonal centered8, otherwise shared small-lobe outer edge rounded down to4px. |
+| 8F17–912E; 9153–936A | Charged Wave/IceWave | Paired/reflected phases. Axial envelope12 at center, then8+shared lobe distance; only the middle distance13 shoulder has selected one-pixel collision inset21→20. Diagonal expands from8 by4px for first two outward stages and1px for final two (8/12/16/17/18). Thickness8. Invisible upward prelude12×8. |
+| 936B–94BA | Charged Spazer | Paired phases; axial across12 until final spread20, along8 during first four frames then16. Diagonal8 held initially, then4px growth to20. |
+| 94BB–9ADA | Charged SpazerWave | First four frames use axial12×8 or diagonal8. Axial spread uses shared lane outer edge rounded down to even pixels, initial transverse minimum12 and subsequent full length16; terminal narrow spread8 remains. Diagonal initial spread envelopes12/12/16, then shared outer edge rounded down to4px. Alternate-frame duplication and reflection calculate. |
+| 9ADB–9BEA | Charged Plasma | Paired stages; axial length grows by8 from8 capped28, cross8; diagonal grows by4 from8 to20. |
+| 9BEB–9EBA | Charged PlasmaWave | Six-frame startup: along8 for four frames then24; transverse12; diagonal8 then12. Repeating axial across=max12(shared small-lobe edge), along30 vertical/28 horizontal. Repeating diagonal poses use the exact five reviewed semantic bounds below, with alternate pairing and return calculated. |
+| 9EBB–9F1A; 9F87–A006; A159–A16C | Missiles, normal/fast bombs and Power Bombs, Wave SBA | Fixed4×4, independently of selected art and cadence. |
+| 9F1B–9F86; A039–A06A | Super missiles/link, missile explosion | Fixed8×8. |
+| A007–A038; A16D–A1A0 | Beam explosion/unused explosion | Exact zero radii; no claim this alone disables every possible point collision. |
+| A06B–A0F2 | Bomb explosion, Plasma SBA, super explosion | Linear8+4×phase capped16, shared across both axes. |
+| A0F3–A116; A119–A13C | Unused echo/Shinespark echo | Exact16×32 /32×32 bounds. A117's empty-artwork word is excluded. |
+| A13D–A158 | Spazer SBA | X grows4+8×phase, Y8. |
+
+### Five long diagonal PlasmaWave collision poses
+
+- Native labels split six startup records9C9F..9CC7 from the repeating centered/outward/return records9CCF..9D47; opposite slope uses9E37..9EAF. The named centered / first split / middle / outer shoulder / fully spread radii are12/16/17/20/24, observed at radius bytes9CD3/9CE3/9CF3/9D03/9D13 and their alternate/return/direction counterparts.
+- Source sprite short-axis half-extents are20/26/29/31/32 (alternates24/31/34/35/37). Their displacements0/6/9/11/12 agree with the existing selected3/4 lobe projection, but an8px physical core plus those displacements yields8/14/17/19/20, not the actual collision bounds. Projecting24 to17 would also fail the actual peak24. There is no common source projection/clamp/step operation selecting the five gameplay boxes; fitting a polynomial or phase-specific corrections would only re-encode the chosen collision design. Retention is limited to these five semantic bounds and the matrix's explicit physical policies.
+- Native93:8056/805F and8212/821B mask/store the two bytes directly. Managed SamusProjectileSystem.Animation.RunProjectileInstructionHandler publishes the same pair; SamusProjectileSystem.TrailsAndCollisions.ScanHorizontalWaveShotReactions/ScanVerticalWaveShotReactions use the bounds to enumerate block spans, and RoomEnemySystem.OrdinaryCombat uses them for actual ordinary/extended enemy overlaps (projectile path around907–922; bomb path1809–1821). These values materially control reach, hit timing and reactions; this is not a visual-only exemption. Movement velocity, damage, sound, timing, artwork and other fields are excluded.
+
+### Confirmation and integration dependencies
+
+- Focused command: `--lookup-stream-1-projectile-radii`. Independent native stream traversal confirms all805 record identities/order/indexing, all1610 original radius bytes and direct family calculation with no fallback. Actual interpreters execute1610 projectile and1610 bomb records (native and all-empty independently installed artwork selections), preserving timer, sprite, radii, trail and next pointer with every bus read unavailable. All non-radius bytes in the original bounded domain and outside-address/index rejection remain checked. Native shared OAM sources independently confirm all five helper inputs.
+- Static source diagnostic: `csharp/test-temp/projectile-radius-native-geometry.csv` records original ROM spritemap extents and physical radii; it is not an exploratory gameplay probe. Original bank93 DW address comments are occasionally two bytes early inside the repeating program, so exact identities above follow actual supported-ROM traversal and native labels.
+- This Stream1 worktree predates the integrated Stream2 artwork implementation. Its old ProjectileSpriteDefinitions.cs is intentionally untouched. The granted root-relative candidate `csharp/test-temp/ProjectileSpriteDefinitions.main-wave-basis-candidate.cs` removes only UnresolvedWaveDistances and SpazerInitialAxialSpread definitions and redirects their eight/two existing consumers to the shared helper. Apply only against original byte-SHA256 `12189DE61842331DA9B79B6D92FE09CA5D84432211805325CE105393DDBD8EFA`; candidate SHA256 `58F32DD9E95DF9A709F5A26CB7589B6D83673FA539D3959019CE57BCE8F333D4`. Root must reconcile if the original hash changes; never overwrite unrelated integrated art changes.
+- Root source-closure packet: ProjectileClosedContractDefinitions currently hashes radius definitions and ProjectileSpriteDefinitions (the latter in three closure lists). Refresh those hashes and include new ProjectileWaveEnvelopeDefinitions plus its transitive SamusProjectileInstructionDefinitions layout dependency in applicable closures. No shared audit/manifest file was edited here.
+- Final focused build: 1434 warnings / zero errors; the complete native/actual-interpreter/shared-source/domain proof above passed. git diff --check found no whitespace errors.
+
+Root integration: Root reviewed complete family rules, native frame classification, physical collision consumers and exact art-relative bounds.805original records/1610nativebytes and actual projectile/bomb interpreter checks confirm supplied artwork independence, no runtime reads and exact originaldomain; shared art candidate reconciled narrowly. No timing/artwork closure. Master 600 converted/75 retained-mixed/453 pending.

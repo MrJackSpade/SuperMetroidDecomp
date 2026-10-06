@@ -3203,6 +3203,7 @@
     ,{"path":"csharp/src/SuperMetroid.Core/Game/SmallExplosionAnimationDefinitions.cs","stream":3,"purpose":"Shared six-pose small-explosion phase operation; no broader timing exemption"}
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/MenuBorderParts.cs","stream":3,"purpose":"Calculated file-select perimeter geometry with dimensions, appearance roles and order still required; independent edits preserved"}
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/PlanetZebesTextColorDefinitions.cs","stream":4,"purpose":"Exact rounded RGB5 endpoint interpolation/reversal; three endpoints and program inputs remain required"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Assets/MaridiaEnvironmentalColorDefinitions.cs","stream":4,"purpose":"Exact sand/water color rotations and shared bands; all16source colors required, independent edits preserved"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

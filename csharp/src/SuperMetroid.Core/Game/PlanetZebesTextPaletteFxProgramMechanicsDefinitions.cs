@@ -19,52 +19,61 @@ public enum PlanetZebesTextPaletteFxProgramOwner
 /// <c>$C9B8</c>). Each one-shot lasts 24 frames. All 38 control words match
 /// the ROM. For frame <c>i</c> and color <c>c</c>, the ROM's fade-out color
 /// equals fade-in color <c>(7 - i, c)</c> at all 24 positions. The eight
-/// authored color rows and their reverse remain 48 live presentation words;
-/// the presentation compiler supplies them while this catalog supplies only
-/// control words to the palette-FX runtime. ROM SHA-256:
+/// color rows and their reverse form48 native presentation identities. The
+/// presentation view calculates rounded RGB5 interpolation from three required
+/// endpoints and preserves independent supplied edits. This catalog supplies
+/// control words; selected levels, cadence and palette inputs remain required.
+/// ROM SHA-256:
 /// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
 /// </remarks>
 public static class PlanetZebesTextPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>The text-fade programs each contain eight timed records.</summary>
+    /// <summary>$8D:C912..C960: REQUIRED eight selected brightness records per fade.</summary>
     public const int FrameCount = 8;
 
-    /// <summary>Each record writes three live BGR555 colors.</summary>
+    /// <summary>$8D:C914..C918: REQUIRED three selected text colors per record.</summary>
     public const int ColorsPerFrame = 3;
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
-    public const int FrameByteCount = 10;
+    public const int FrameByteCount = sizeof(ushort) * (ColorsPerFrame + 2);
 
-    /// <summary>Each text-fade record lasts three frames.</summary>
+    /// <summary>$8D:C912/C968: REQUIRED selected three-frame hold; no timing exception is claimed.</summary>
     public const ushort FrameDuration = 3;
 
     /// <summary>Each complete one-shot fade lasts 24 frames.</summary>
-    public const int CycleFrames = 24;
+    public const int CycleFrames = FrameCount * FrameDuration;
 
-    private static readonly PlanetZebesTextPaletteFxProgramDefinition[] Definitions =
-    [
-        new(
-            PlanetZebesTextPaletteFxProgramOwner.FadeIn,
-            definitionPointer: 0xe1b0,
-            programStart: 0xc90e,
-            colorByteIndex: 0x0102),
-        new(
-            PlanetZebesTextPaletteFxProgramOwner.FadeOut,
-            definitionPointer: 0xe1b4,
-            programStart: 0xc964,
-            colorByteIndex: 0x0102),
-    ];
-    private static readonly IReadOnlyList<PlanetZebesTextPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+    /// <summary>$8D:E1B0: native fade-in definition, immediately followed by the four-byte fade-out definition.</summary>
+    internal const ushort FadeInDefinition = 0xE1B0;
+    /// <summary>$8D:C90E: native fade-in setup; fade-out follows its terminal delete.</summary>
+    internal const ushort FadeInProgram = 0xC90E;
+    /// <summary>$8D:C910/C966: REQUIRED selected CGRAM palette8 for the cinematic text.</summary>
+    internal const int TextPalette = 8;
+    /// <summary>$8D:C910/C966: REQUIRED first text color1 within the selected palette.</summary>
+    internal const int FirstTextColor = 1;
 
-    /// <summary>The fade-in and fade-out programs in definition order.</summary>
-    public static IReadOnlyList<PlanetZebesTextPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+    /// <summary>The fade-in and fade-out programs in native order without cached definition records.</summary>
+    public static IReadOnlyList<PlanetZebesTextPaletteFxProgramDefinition> All { get; } = new DefinitionSequence();
 
+    private sealed class DefinitionSequence : IReadOnlyList<PlanetZebesTextPaletteFxProgramDefinition>
+    {
+        public int Count => 2;
+        public PlanetZebesTextPaletteFxProgramDefinition this[int index] => index switch
+        {
+            0 => new(PlanetZebesTextPaletteFxProgramOwner.FadeIn),
+            1 => new(PlanetZebesTextPaletteFxProgramOwner.FadeOut),
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+        public IEnumerator<PlanetZebesTextPaletteFxProgramDefinition> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>Resolves one compiled mechanics word across both programs.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        foreach (PlanetZebesTextPaletteFxProgramDefinition definition in Definitions)
+        foreach (PlanetZebesTextPaletteFxProgramDefinition definition in All)
         {
             if (definition.TryReadMechanicsWord(pointer, out value))
                 return true;
@@ -78,36 +87,28 @@ public static class PlanetZebesTextPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete cinematic PLANET ZEBES text-fade control program.</summary>
 public sealed class PlanetZebesTextPaletteFxProgramDefinition
 {
-    internal PlanetZebesTextPaletteFxProgramDefinition(
-        PlanetZebesTextPaletteFxProgramOwner owner,
-        ushort definitionPointer,
-        ushort programStart,
-        ushort colorByteIndex)
-    {
-        Owner = owner;
-        DefinitionPointer = definitionPointer;
-        ProgramStart = programStart;
-        ColorByteIndex = colorByteIndex;
-    }
+    internal PlanetZebesTextPaletteFxProgramDefinition(PlanetZebesTextPaletteFxProgramOwner owner) => Owner = owner;
 
     /// <summary>The mutually exclusive text-fade owner.</summary>
     public PlanetZebesTextPaletteFxProgramOwner Owner { get; }
 
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
-    /// <remarks>
-    /// <c>$8D:E1B0</c> is the fade-in definition and <c>$8D:E1B4</c> is fade-out.
-    /// </remarks>
-    public ushort DefinitionPointer { get; }
+    /// <summary>Native four-byte definition identity selected by fade direction.</summary>
+    public ushort DefinitionPointer => (ushort)(PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FadeInDefinition + (int)Owner * 4);
 
-    /// <summary>The native instruction-list entry.</summary>
-    /// <remarks>
-    /// <c>$8D:C90E</c> fades in and <c>$8D:C964</c> fades out.
-    /// </remarks>
-    public ushort ProgramStart { get; }
+    /// <summary>Fade-out begins after fade-in's setup, timed records and final delete word.</summary>
+    public ushort ProgramStart => (ushort)(PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FadeInProgram
+        + (Owner == PlanetZebesTextPaletteFxProgramOwner.FadeOut
+            ? 3 * sizeof(ushort) + PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount
+                * PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameByteCount : 0));
 
-    /// <summary>The first destination byte in CGRAM, authored as <c>$0102</c>.</summary>
-    public ushort ColorByteIndex { get; }
-
+    /// <summary>Byte destination from the independently required text palette and first color.</summary>
+    public ushort ColorByteIndex => Owner switch
+    {
+        PlanetZebesTextPaletteFxProgramOwner.FadeIn or PlanetZebesTextPaletteFxProgramOwner.FadeOut =>
+            (ushort)(sizeof(ushort) * (16 * PlanetZebesTextPaletteFxProgramMechanicsDefinitions.TextPalette
+                + PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FirstTextColor)),
+        _ => throw new InvalidOperationException("Unsupported PLANET ZEBES fade owner."),
+    };
     /// <summary>The first timed record after color-index setup.</summary>
     public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));
 

@@ -1223,3 +1223,8 @@ fb2d6faa8 calculates189of224eye/body fade words by flooring each RGB5 endpoint c
 Required eye deviations: A6:E2B0/E2EE/E2FC/E300. Required body deviations: A6:E33A/E362/E36C/E36E/E3A8/E3BC/E3C4/E404/E410/E436/E438/E440/E444/E446/E448/E44E/E450. Endpoints are E2AA-E2AE and E454-E468. A formula mismatch is not a nonsense justification; all these inputs remain unresolved. No aggregate closure or new retention;558converted/21retained-mixed/549pending unchanged.
 
 Root Verification1450warnings/zero errors; --lookup-stream-4-ceres-fades passes224native words,exact7eye/28body basis memberships,zero stock overrides,all224independent edits,3616actual row applications including both body destinations,immutability and bounds. ResourceAudit0warnings/0errors; closure includes the new fade helper and describes calculated versus required inputs.
+## Integrated PLANET ZEBES text fades
+
+d51e16626 replaces stored program definitions with semantic owner cases and calculates 45 of 48 color words by nearest RGB5 interpolation over seven intervals, reversing phase for fade-out. Three bright endpoints at 8D:C95A/C95C/C95E remain required, together with cadence3, level count8, color count3, palette8 and first color1. Independent supplied edits retain precedence. No retention exception or aggregate completion is claimed; inventory561converted/21retained-mixed/546pending unchanged.
+
+Root Verification1450warnings/zero errors; --lookup-stream-4-planet-text passes38native mechanics words,48native colors,exact three stored endpoints,all48independent edits,both actual installed one-shot fades,enumeration and bounds. No ResourceAudit source-hash references exist for the changed sources.

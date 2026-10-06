@@ -9,6 +9,81 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4PlanetText(CartridgeImportAddressSpace rom)
+    {
+        ushort Word(int pointer) => (ushort)(rom.ReadByte(0x8D0000 | pointer) | rom.ReadByte(0x8D0000 | (pointer + 1)) << 8);
+        var all = PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All;
+        AssertEqual(2, all.Count, "two text fade owners");
+        for (int owner = 0; owner < 2; owner++)
+        {
+            AssertEqual(Word(0xE1B2 + owner * 4), all[owner].ProgramStart, "native text definition target");
+            AssertEqual(Word(all[owner].ProgramStart + 2), all[owner].ColorByteIndex, "native text color destination");
+        }
+        VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(rom);
+        byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
+        var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
+        var stored = (Dictionary<ushort, ushort>)typeof(RoomPaletteFxPresentation)
+            .GetField("colors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        int storedCount = 0;
+        for (int owner = 0; owner < 2; owner++)
+        for (int frame = 0; frame < 8; frame++)
+        for (int color = 0; color < 3; color++)
+        {
+            ushort pointer = (ushort)((owner == 0 ? 0xC914 : 0xC96A) + frame * 10 + color * 2);
+            AssertEqual(pointer, all[owner].ColorPointer(frame, color), "independent native timed-color layout");
+            AssertTrue(PlanetZebesTextColorDefinitions.TryCalculate(pointer, stored, out ushort calculated), "native text interpolation domain");
+            AssertEqual(Word(pointer), calculated, "direct calculated native text color");
+            bool required = owner == 0 && frame == 7;
+            AssertEqual(required, stored.ContainsKey(pointer), "exact three required text endpoints with no stock overrides");
+            if (stored.ContainsKey(pointer)) storedCount++;
+            AssertTrue(stock.TryReadColor(pointer, out ushort installed), "installed text color available");
+            AssertEqual(Word(pointer), installed, "installed native text color");
+        }
+        AssertEqual(3, storedCount, "three required selected endpoint colors");
+        var pointers = stock.ColorPointers.Where(pointer => PlanetZebesTextColorDefinitions.TryCoordinates(pointer, out _, out _, out _)).ToArray();
+        AssertEqual(48, pointers.Length, "all text pointer identities remain published");
+        AssertEqual(48, pointers.Distinct().Count(), "text pointer identities are unique");
+        for (int edit = 0; edit < 48; edit++)
+        {
+            var document = JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+            var rows = edit < 24 ? document.PlanetZebesTextFadeIn : document.PlanetZebesTextFadeOut;
+            int selected = edit % 24;
+            rows[selected / 3][selected % 3] = rows[selected / 3][selected % 3] with { Red = rows[selected / 3][selected % 3].Red ^ 1 };
+            var changed = RoomPaletteFxPresentation.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            for (int owner = 0; owner < 2; owner++)
+            for (int frame = 0; frame < 8; frame++)
+            for (int color = 0; color < 3; color++)
+            {
+                ushort pointer = all[owner].ColorPointer(frame, color);
+                AssertTrue(changed.TryReadColor(pointer, out ushort actual), "edited text pointer resolves");
+                AssertEqual((ushort)(Word(pointer) ^ (owner * 24 + frame * 3 + color == edit ? 1 : 0)), actual, "independent text endpoint/derived edit");
+                AssertTrue(stock.TryReadColor(pointer, out ushort original), "stock text pointer resolves");
+                AssertEqual(Word(pointer), original, "stock text remains immutable");
+            }
+        }
+        foreach (var definition in all)
+        {
+            var nativeBus = new PaletteFxMechanicsForbiddenBus(rom);
+            var installedBus = new PaletteFxMechanicsForbiddenBus(rom);
+            var native = new RoomPaletteFxSystem(); var installed = new RoomPaletteFxSystem();
+            var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
+            native.SpawnDefinition(nativeBus, definition.DefinitionPointer, 0);
+            installed.SpawnDefinition(installedBus, definition.DefinitionPointer, 0);
+            for (int step = 0; step <= 24; step++)
+            {
+                native.Step(nativeBus, nativeCgram, new ReferencePaletteFxColorSource(nativeBus), 0, 0, false, false);
+                installed.Step(installedBus, installedCgram, stock, 0, 0, false, false);
+                AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors), "actual installed text fade matches native colors each step");
+            }
+            AssertEqual(0, installedBus.PresentationReadCount, "installed text fade makes zero live color reads");
+            AssertTrue(!installed.IsDefinitionActive(definition.DefinitionPointer), "installed text fade deletes at original time");
+        }
+        foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = all[invalid], "text owner bounds");
+        foreach (ushort pointer in new ushort[] { 0xC90E, 0xC912, 0xC91A, 0xC962, 0xC964, 0xC968, 0xC9B8 })
+            AssertTrue(!PlanetZebesTextColorDefinitions.TryCoordinates(pointer, out _, out _, out _), "text color view excludes native mechanics");
+        Console.WriteLine("PLANET ZEBES:38 native mechanics words,48 exact colors,three required endpoints,all48 independent edits and both actual installed one-shot fades pass.");
+    }
     private static void VerifyLookupStream4CeresFades(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);

@@ -1251,6 +1251,42 @@ internal static partial class Program
                 }
                 Check(owner + " InstructionTimer", projectile.InstructionTimer, RidleyMovieMemory.EnemyProjectileInstructionTimer + index);
                 Check(owner + " radii", (ushort)(projectile.XRadius | projectile.YRadius << 8), RidleyMovieMemory.EnemyProjectileRadius + index);
+                ushort properties = projectile.Damage;
+                if (projectile.DrawPriority == EnemyProjectileDrawPriority.High) properties |= RidleyMovieMemory.EnemyProjectileHighDraw;
+                if (!projectile.CanDamageSamus) properties |= RidleyMovieMemory.EnemyProjectileNoContact;
+                if (projectile.PersistsOnSamusContact) properties |= RidleyMovieMemory.EnemyProjectilePersistent;
+                if (projectile.BlocksSamusProjectiles) properties |= RidleyMovieMemory.EnemyProjectileShotCollision;
+                Check(owner + " properties", properties, RidleyMovieMemory.EnemyProjectileProperties + index);
+                ushort variableE = projectile.Variable0, variableF = projectile.Variable1;
+                switch (projectile.Kind)
+                {
+                    case RoomEnemyProjectileKind.CeresRidleyFireball:
+                        // $86:940E consumes F only as a zero/nonzero afterburn gate.
+                        // The caller may leave a noncanonical nonzero parameter (e.g. $E).
+                        if ((projectile.RemainingAfterburns != 0) !=
+                            (W(RidleyMovieMemory.EnemyProjectileVariableF + index) == 0))
+                            mismatches.Add(owner + " fireball afterburn gate differs");
+                        break;
+                    case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter:
+                    case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter:
+                    case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight:
+                    case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft:
+                    case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp:
+                    case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown:
+                        variableE = projectile.RemainingAfterburns;
+                        variableF = projectile.NextAfterburnKind;
+                        break;
+                    case RoomEnemyProjectileKind.MiscDustExplosion:
+                    case RoomEnemyProjectileKind.EnemyDeathExplosion:
+                    case RoomEnemyProjectileKind.EnemyDeathPickup:
+                        break;
+                    default:
+                        throw new InvalidDataException($"Movie projectile {projectile.Kind} needs an E/F mapping");
+                }
+                Check(owner + " variable E", variableE, RidleyMovieMemory.EnemyProjectileVariableE + index);
+                if (projectile.Kind != RoomEnemyProjectileKind.CeresRidleyFireball)
+                    Check(owner + " variable F", variableF, RidleyMovieMemory.EnemyProjectileVariableF + index);
+                Check(owner + " variable G", projectile.CollidedProjectileType, RidleyMovieMemory.EnemyProjectileVariableG + index);
                 ushort nativeDamage = (ushort)(W(RidleyMovieMemory.EnemyProjectileProperties + index) & 0x0fff);
                 if (projectile.Damage != nativeDamage) mismatches.Add(owner + $" damage: native={nativeDamage} port={projectile.Damage}");
             }

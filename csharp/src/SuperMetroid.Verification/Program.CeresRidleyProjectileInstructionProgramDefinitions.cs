@@ -152,7 +152,14 @@ internal static partial class Program
         beginFinal.Invoke(null, [final]);
         AssertEqual(CeresRidleyProjectileInstructionProgramDefinitions.AfterburnFinal,
             final.InstructionPointer, "production collision handoff selects final impact");
-        RunForcedTicks(finalSystem, final, 6);
+        AssertTrue(final.CanDamageSamus, "terrain impact preserves final-afterburn contact damage");
+        for (int frame = 0; frame < 5; frame++)
+        {
+            RunForcedTick(finalSystem, final);
+            AssertTrue(final.IsActive && final.CanDamageSamus,
+                $"final afterburn visual frame {frame} remains damaging");
+        }
+        RunForcedTick(finalSystem, final);
         AssertTrue(!final.IsActive,
             "final afterburn impact completes all five frames and deletes");
 

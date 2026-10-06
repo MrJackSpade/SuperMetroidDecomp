@@ -2431,8 +2431,8 @@ public sealed partial class RoomEnemySystem
             CeresRidleyProjectileInstructionProgramDefinitions.AfterburnFinal;
         projectile.InstructionTimer = 1;
         // $86:950D/$9522 replace the list; its clear-pre-instruction stops motion.
-        // The native velocity words themselves remain unchanged.
-        projectile.CanDamageSamus = false;
+        // Velocity words and contact properties remain unchanged. The final list
+        // clears movement, draws five frames, then deletes; it never disables damage.
     }
 
     /// <summary>Spawns the four bank-$86 particles emitted by a dying/burrowing Skree.</summary>

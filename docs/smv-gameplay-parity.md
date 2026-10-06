@@ -60,7 +60,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Samus movement and collision | Positions/fractions, camera, pose/history, animation, primary speeds, radii, gravity, external displacement, slope enable, speed divisor, contact mode, bounce/bomb-jump state and momentum/boost pass | Control-handler ownership, remaining movement flags and secondary motion state |
 | Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication and charge palette/audio words pass | Remaining combat/input ownership and filtered-input state |
 | Enemies and Ridley | Active enemy collision/properties/timers; complete Ridley tail records, shared tail/body controller, wing/grab/damage/health/facing state pass | Remaining actor AI variables and phase-dependent aliases |
-| Ordinary/enemy projectiles | Ordinary active-slot motion/program/art state; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Ordinary pre-instruction identity; enemy-projectile family variables/properties; bombs need live mappings only if a different movie activates them |
+| Ordinary/enemy projectiles | Ordinary active-slot motion/program/art state; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Ordinary pre-instruction identity; remaining enemy-projectile parallel metadata; bombs need live mappings only if a different movie activates them |
 | Persistent world and room effects | Complete boss/event/item/door bitsets; gameplay foreground/BTS; movie grey-door execution, condition and hit state; acid surface/tide phase pass | Loading-boundary mutations, remaining persistence allocations, environmental state, and PLM draw/presentation state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
 
@@ -556,3 +556,26 @@ Release build and all 10,717 input-only updates pass with these checks
 was required. This establishes inactivity for this supplied recording, not
 explosion behavior for recordings that use bombs. The summary ledger above now
 reflects the prior completed coverage expansions and their remaining gaps.
+
+
+### Enemy-projectile properties and family variables
+
+The full replay now compares all damage/contact/persistence/shot-blocking/draw
+property bits and E/F/G for the movie's fireball, afterburn, dust, death-explosion
+and pickup families. Afterburn E/F map to remaining count/next type; pickup E/F
+map to type/lifetime. Fireball F is compared as the zero/nonzero afterburn gate
+consumed by $86:940E: native callers can leave a noncanonical nonzero parameter
+($000E at update 1116/source 1217), while the port retains its Boolean meaning.
+Unmapped families fail explicitly rather than silently skipping those words.
+
+This reproduced update 1200/source 1301: final-afterburn properties were native
+$503C versus port $703C. Terrain impact prematurely disabled contact damage.
+Native $86:950D/$9522 only replace the program and reset its timer; the final
+$86:9574-958B program clears movement, draws five frames, and deletes without
+disabling contact. Removed the early disable. The focused real-program fixture
+now asserts damaging contact on entry and through all five final-animation frames.
+
+Release build, --ceres-ridley-projectile-instruction-mechanics and the independent
+10,717-update movie pass (`eproj-family-final-build.log`, `eproj-family-focused.log`,
+`eproj-family-final-replay.log`). Player validation remains pending. Parallel
+projectile collision/drop metadata and other documented coverage gaps remain open.

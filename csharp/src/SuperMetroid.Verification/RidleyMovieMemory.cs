@@ -1,6 +1,21 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$1AFF: enemy-projectile E, interpreted by its active family.</summary>
+    public const int EnemyProjectileVariableE = 0x1aff;
+    /// <summary>$1B23: enemy-projectile F, interpreted by its active family.</summary>
+    public const int EnemyProjectileVariableF = 0x1b23;
+    /// <summary>$1BFB: enemy-projectile G, including collision projectile type.</summary>
+    public const int EnemyProjectileVariableG = 0x1bfb;
+    /// <summary>$1BD7 bit $1000: enemy-projectile high draw pass.</summary>
+    public const ushort EnemyProjectileHighDraw = 0x1000;
+    /// <summary>$1BD7 bit $2000: enemy-projectile Samus contact disabled.</summary>
+    public const ushort EnemyProjectileNoContact = 0x2000;
+    /// <summary>$1BD7 bit $4000: enemy-projectile persists on Samus contact.</summary>
+    public const ushort EnemyProjectilePersistent = 0x4000;
+    /// <summary>$1BD7 bit $8000: enemy-projectile blocks Samus shots.</summary>
+    public const ushort EnemyProjectileShotCollision = 0x8000;
+
     /// <summary>$0592: bank-$88 power-bomb explosion activation status.</summary>
     public const int PowerBombExplosionStatus = 0x0592;
     /// <summary>$0CEE: armed power-bomb flag, negative from placement through cleanup.</summary>

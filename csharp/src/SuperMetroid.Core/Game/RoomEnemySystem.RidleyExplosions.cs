@@ -132,7 +132,8 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)fragment.VariableF) >= 0)
             return;
 
-        SpawnRidleyDust(fragment.XPosition, fragment.YPosition, variant: 3);
-        fragment.Properties = fragment.Properties.With(EnemyProperties.Deleted);
+        // $A6:C90B calls EnemyDeathAnimation(0): clear the slot immediately and
+        // retain the fragment header/position in the shared explosion-to-pickup actor.
+        StartGenericEnemyDeath(fragment, (ushort)EnemyDeathAnimation.SmallExplosion);
     }
 }

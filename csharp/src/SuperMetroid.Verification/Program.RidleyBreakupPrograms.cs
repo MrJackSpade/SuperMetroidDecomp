@@ -87,6 +87,19 @@ internal static partial class Program
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable), "breakup exact OAM bytes");
             AssertTrue(expected.HighTable.SequenceEqual(actual.HighTable), "breakup exact OAM size/X bits");
         }
+        var expiring = fragments[0];
+        ushort deathX = expiring.XPosition, deathY = expiring.YPosition;
+        expiring.VariableF = 0; expiring.VariableB = 0; expiring.VariableC = 0;
+        expiring.XSubposition = 0; expiring.YSubposition = 0;
+        typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyExplosionMain", flags)!.Invoke(enemies, [expiring]);
+        AssertEqual((ushort)0, expiring.EnemyDefinitionPointer, "native breakup expiry clears the actor immediately");
+        var explosion = enemies.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
+        AssertEqual(deathX, explosion.XPosition, "fragment death effect retains final X");
+        AssertEqual(deathY, explosion.YPosition, "fragment death effect retains final Y");
+        AssertEqual(RidleyExplosionDefinitions.EnemyDefinition, explosion.EnemyHeaderPointer, "fragment drop retains native header");
+        AssertEqual(EnemyDeathExplosionDefinitions.InstructionPointer((ushort)EnemyDeathAnimation.SmallExplosion),
+            explosion.InstructionPointer, "fragment expiry selects native small death animation");
+        AssertEqual((ushort)1, enemies.EnemiesKilled, "fragment death updates shared kill count");
         Console.WriteLine("Ridley breakup: death while grabbing releases Samus and runs all twelve fragment programs without cartridge access.");
         Console.WriteLine("All 29 breakup programs match native mechanics, frame selection, sleep and installed OAM.");
     }

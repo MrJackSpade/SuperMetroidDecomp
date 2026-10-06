@@ -289,10 +289,13 @@ movement. All currently compared fields match through update10161/10717.
 Ridley breakup spawning now installs the common empty spritemap after initialization,
 matching SpawnEnemy $A0:93D9. The focused twelve-actor fixture confirms this initial
 value and its replacement by each first instruction; all29 breakup programs pass.
-Independent replay now matches through update10202/10717. Next difference:
-update10203/source10375, enemy8 should be removed and enemy-projectile17 should be
-pickupF345, but the port retains the actor and publishes E509. Fragment expiry is
-not yet diagnosed.
+Fragment expiry now calls shared EnemyDeathAnimation(0), matching $A6:C90B-$C90E,
+instead of dust plus deferred deletion. It clears the slot immediately, preserves
+header/position in the F345 explosion-to-pickup actor and increments the kill count.
+Focused checks assert all these properties. Independent replay confirms recorded
+expiry/pickups and all currently compared fields through update10452/10717.
+Next difference: update10453/source10625, Ridley AI nativeC600 versus portC5DA.
+The terminal death dispatcher is the next investigation.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

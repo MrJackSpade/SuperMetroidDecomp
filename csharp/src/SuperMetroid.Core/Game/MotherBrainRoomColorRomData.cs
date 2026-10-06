@@ -58,6 +58,16 @@ public static class MotherBrainRoomColorRomData
     /// <summary>Second room-light slice begins at CGRAM byte offset $00A2.</summary>
     public const int RecoveryLightsSecondColor = 0x00a2 / sizeof(ushort);
 
+    /// <summary>$A9:94B4-B8, Palette_MotherBrain_Attacks cyan ramp, three nontransparent slots.</summary>
+    public const int AttackCyanFirst = 0, AttackCyanCount = 3;
+    /// <summary>$A9:94BA-C0, Palette_MotherBrain_Attacks yellow-to-red ramp, four slots.</summary>
+    public const int AttackFlameFirst = 3, AttackFlameCount = 4;
+    /// <summary>$A9:94C2-C6 repeats three body tissue shades from $A9:9486-948A.</summary>
+    public const int AttackTissueFirst = 7, AttackTissueCount = 3, AttackBodyTissueFirst = 9;
+    /// <summary>$A9:94C8-94CC and94D0 form four neutral shades; the white94CE slot interrupts their storage.</summary>
+    public const int AttackGrayFirst = 10, AttackGrayLast = 14;
+    /// <summary>$A9:94CE repeats the body palette's white nontransparent slot13.</summary>
+    public const int WhiteColor = 13;
     public static int RecoveryLightsSource(int index) =>
         (uint)index < RecoveryLightsFrames
             ? RecoveryLightsFirstSource - index * RecoveryLightsByteStride

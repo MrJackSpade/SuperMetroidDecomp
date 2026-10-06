@@ -2853,4 +2853,53 @@ internal static partial class Program
         foreach (int index in new[] { -1,9,int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitions.PresentationWordAddress(index), "Baby visual enumeration domain");
     }
+    private static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
+    {
+        byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
+        var document = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+        var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        object attack = typeof(MotherBrainRoomColorPresentation).GetField("phaseTwoAttack", fields)!.GetValue(stock)!;
+        AssertTrue(attack.GetType().GetField("supplied", fields)!.GetValue(attack) is null,
+            "stock attack palette calculates every color without a stored row");
+        var native = new SnesCgram();
+        stock.ApplyPhaseTwoInitial(native);
+        for (int color = 0; color < MotherBrainRoomColorRomData.PhaseTwoColors; color++)
+        {
+            int address = MotherBrainRoomColorRomData.PhaseTwoAttackSource + color * sizeof(ushort);
+            ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            AssertEqual(expected, native.Colors[MotherBrainRoomColorRomData.PhaseTwoAttackColor + color],
+                "attack palette exact native color and CGRAM destination");
+            foreach (string component in new[] { "red", "green", "blue" })
+            {
+                var edited = document.DeepClone();
+                var rgb = edited["phaseTwoAttack"]![color]!;
+                rgb[component] = rgb[component]!.GetValue<int>() ^ 1;
+                Confirm(Load(edited), edited);
+            }
+        }
+        var independentRecovery = document.DeepClone();
+        var recoveryRows = independentRecovery["recoveryLights"]!.AsArray();
+        var neutral = recoveryRows[recoveryRows.Count - 1]![14]!;
+        neutral["red"] = neutral["red"]!.GetValue<int>() ^ 1;
+        Confirm(Load(independentRecovery), independentRecovery);
+        Confirm(stock, document);
+
+        static MotherBrainRoomColorPresentation Load(System.Text.Json.Nodes.JsonNode document) =>
+            MotherBrainRoomColorPresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
+        static ushort Word(System.Text.Json.Nodes.JsonNode rgb) => (ushort)(rgb["red"]!.GetValue<int>()
+            | rgb["green"]!.GetValue<int>() << 5 | rgb["blue"]!.GetValue<int>() << 10);
+        static void Confirm(MotherBrainRoomColorPresentation palette, System.Text.Json.Nodes.JsonNode expected)
+        {
+            var cgram = new SnesCgram();
+            palette.ApplyPhaseTwoInitial(cgram);
+            for (int color = 0; color < MotherBrainRoomColorRomData.PhaseTwoColors; color++)
+            {
+                AssertEqual(Word(expected["phaseTwoAttack"]![color]!),
+                    cgram.Colors[MotherBrainRoomColorRomData.PhaseTwoAttackColor + color], "independent attack color preserved");
+                AssertEqual(Word(expected["phaseTwoRearLeg"]![color]!),
+                    cgram.Colors[MotherBrainRoomColorRomData.PhaseTwoRearLegColor + color], "paired rear palette remains independent");
+            }
+        }
+    }
 }

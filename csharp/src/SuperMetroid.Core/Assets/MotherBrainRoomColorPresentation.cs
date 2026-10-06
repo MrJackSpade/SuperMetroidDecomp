@@ -9,7 +9,7 @@ public sealed class MotherBrainRoomColorPresentation
 {
     private readonly RoomFlash flash;
     private readonly ushort[] finalRoom;
-    private readonly ushort[] phaseTwoAttack;
+    private readonly AttackPalette phaseTwoAttack;
     private readonly ushort[]? phaseTwoRearLeg;
     private readonly ushort[] initialGlassShard;
     private readonly ushort[] initialTubeProjectile;
@@ -27,7 +27,7 @@ public sealed class MotherBrainRoomColorPresentation
     {
         this.flash = new RoomFlash(flash, finalRoom);
         this.finalRoom = finalRoom;
-        this.phaseTwoAttack = phaseTwoAttack;
+        this.phaseTwoAttack = new AttackPalette(phaseTwoAttack);
         this.phaseTwoRearLeg = phaseTwoRearLeg.Where((word, color) =>
             word != MotherBrainHealthPalettePresentation.StockBaseColor(backLeg: true, color)).Any() ? phaseTwoRearLeg : null;
         this.initialGlassShard = initialGlassShard;
@@ -63,7 +63,7 @@ public sealed class MotherBrainRoomColorPresentation
         for (int index = 0; index < MotherBrainRoomColorRomData.PhaseTwoColors; index++)
         {
             cgram.SetColor(MotherBrainRoomColorRomData.PhaseTwoAttackColor + index,
-                phaseTwoAttack[index]);
+                phaseTwoAttack.Color(index));
             cgram.SetColor(MotherBrainRoomColorRomData.PhaseTwoRearLegColor + index,
                 phaseTwoRearLeg?[index] ?? MotherBrainHealthPalettePresentation.StockBaseColor(backLeg: true, index));
         }
@@ -146,6 +146,46 @@ public sealed class MotherBrainRoomColorPresentation
                 : new RecoveryLightFade(CompileRecoveryLights(document.RecoveryLights), finalRoom));
     }
 
+    // Shared shades use their definitions only after the installed output matches.
+    // The shared recovery highlight is reviewed paint; supplied edits remain independent.
+    private sealed class AttackPalette
+    {
+        private readonly ushort[]? supplied;
+        public AttackPalette(ushort[] colors)
+        {
+            for (int color = 0; color < colors.Length; color++)
+                if (Calculate(color) != colors[color]) { supplied = colors; return; }
+        }
+        public ushort Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        private static ushort Calculate(int color)
+        {
+            if (color < MotherBrainRoomColorRomData.AttackFlameFirst)
+                return InterpolateShade(MotherBrainAttackPaintDefinitions.RingHighlight, MotherBrainAttackPaintDefinitions.RingEdge,
+                    color - MotherBrainRoomColorRomData.AttackCyanFirst,
+                    MotherBrainRoomColorRomData.AttackCyanCount - 1);
+            if (color < MotherBrainRoomColorRomData.AttackTissueFirst)
+                return InterpolateShade(MotherBrainAttackPaintDefinitions.CoreHighlight, MotherBrainAttackPaintDefinitions.CoreEdge,
+                    color - MotherBrainRoomColorRomData.AttackFlameFirst,
+                    MotherBrainRoomColorRomData.AttackFlameCount - 1);
+            if (color < MotherBrainRoomColorRomData.AttackGrayFirst)
+                return MotherBrainHealthPalettePresentation.StockBaseColor(false,
+                    MotherBrainRoomColorRomData.AttackBodyTissueFirst + color - MotherBrainRoomColorRomData.AttackTissueFirst);
+            if (color == MotherBrainRoomColorRomData.WhiteColor)
+                return MotherBrainHealthPalettePresentation.StockBaseColor(false, MotherBrainRoomColorRomData.WhiteColor);
+            return InterpolateShade(MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight, MotherBrainAttackPaintDefinitions.ShellOutline,
+                color - MotherBrainRoomColorRomData.AttackGrayFirst
+                - (color > MotherBrainRoomColorRomData.WhiteColor ? 1 : 0),
+                MotherBrainRoomColorRomData.AttackGrayLast - MotherBrainRoomColorRomData.AttackGrayFirst - 1);
+        }
+        private static ushort InterpolateShade(ushort first, ushort last, int shade, int intervals)
+        {
+            int result = 0;
+            for (int shift = 0; shift < 15; shift += 5)
+                result |= (((first >> shift & 31) * (intervals - shade)
+                    + (last >> shift & 31) * shade + intervals / 2) / intervals) << shift;
+            return (ushort)result;
+        }
+    }
     /// <summary>Background highlight interpolation paired with darkening level colors.</summary>
     private sealed class RoomFlash
     {

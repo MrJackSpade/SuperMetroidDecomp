@@ -3189,7 +3189,7 @@
     ,{"path":"csharp/src/SuperMetroid.Core/Game/KraidLintInitializationDefinitions.cs","stream":2,"purpose":"Semantic top/middle/bottom initial timer policy with pinned native identities; preserve timed transitions"}
     ,{"path":"csharp/src/SuperMetroid.Core/Game/RidleyTailDefinitions.cs","stream":4,"purpose":"Named native quarter-turn and ideal segment separation; initial angle calculation only; unresolved distances stay required"}
     ,{"path":"csharp/src/SuperMetroid.Core/Game/RidleySamusInteractionDefinitions.cs","stream":4,"purpose":"Named movement-policy grab/release operations; preserve full byte domain and prove unconsumed native bits"}
-    ,{"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainAttackPaintDefinitions.cs","stream":3,"purpose":"Only reviewed5640/0C63 attack paint anchors and named RGB compositions; recovery-neutral dependency remains unresolved"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainAttackPaintDefinitions.cs","stream":3,"purpose":"Reviewed5640/0C63 attack paint anchors and named RGB compositions; shared6318 dependency now explicitly reviewed"}
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.SparkMovementDefinitions.cs","stream":3,"purpose":"After reproduced stale read expectation, compare exact native visuals and require zero reads; preserve producer/tangibility/sleep/allocation checks"}
     ,{"path":"csharp/src/SuperMetroid.Core/Game/HorizontalCameraTargetDefinitions.cs","stream":2,"purpose":"Named camera target modes and geometry; preserve all contexts/XOR/bounds; no invented historical purpose for unused index4"}
     ,{"path":"csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.OrdinaryCombat.cs","stream":4,"purpose":"Only inferred binding/foreach adaptation for calculated Ridley collision components"}
@@ -3222,6 +3222,7 @@
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowShadeChannel.cs","stream":3,"purpose":"Exact rainbow material channel calculations with narrowly reviewed paint inputs; independent edits preserved; other palette fields excluded"}
 ,{"path":"csharp/src/SuperMetroid.Core/Game/EscapeTimerCadenceDefinitions.cs","stream":1,"purpose":"Complete native countdown cadence via bounded rational scheduling; exact native phase and expiry confirmation"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/ChozoStrideGeometryDefinitions.cs","stream":2,"purpose":"Shared immutable Chozo stock foot geometry and calculated EnemySpritemapParts recognition; root-based loader candidate coordinated with Stream3; carry stride derives same basis, no duplicate anchors or artwork exemption"}
+,{"path":"csharp/src/SuperMetroid.Core/Assets/MotherBrainRecoveryPaintDefinitions.cs","stream":3,"purpose":"Previously reviewed72B2/71C7/4463 doorway rim and6318 shared casing paint only; declarations do not close independent recovery/final-room/glass/tube entries"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

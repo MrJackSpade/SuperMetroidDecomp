@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 499,
+  "remainingTableDefinitionCount": 498,
   "fileCount": 523,
   "entries": [
     {
@@ -1491,12 +1491,15 @@
       "note": "Original/default payload behind MotherBrainRoomColorPresentation.finalRoom. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
-      "line": 12,
-      "name": "MotherBrainRoomColorPresentation.phaseTwoAttack",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainRoomColorPresentation.phaseTwoAttack. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
+    "line":  12,
+    "name":  "MotherBrainRoomColorPresentation.phaseTwoAttack",
+    "kind":  "installed stock table",
+    "note":  "Original/default payload behind MotherBrainRoomColorPresentation.phaseTwoAttack. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+    "state":  "justified-retained",
+    "implementationCommit":  "05e24a495",
+    "disposition":  "Mixed complete: all15 colors calculate from previously reviewed attack/recovery/health paint anchors through nearest RGB5 ramps, shared tissue and white. Retention is limited to exact cyan/flame/shell paint composition already justified; other room fields are excluded. Zero stock output array; independent supplied edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
       "line": 13,
@@ -21576,5 +21579,5 @@
     }
   ],
   "convertedSinceSnapshot": 598,
-  "justifiedRetainedSinceSnapshot": 31
+  "justifiedRetainedSinceSnapshot": 32
 }

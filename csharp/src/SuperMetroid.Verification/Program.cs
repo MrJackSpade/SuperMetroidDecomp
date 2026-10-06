@@ -26,6 +26,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream3-attack-palette"])
+{
+    VerifyStream3MotherBrainAttackPalette(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    Console.WriteLine("Mother Brain attack palette:15 native colors,45 edits,recovery independence and paired rear routing pass.");
+    return 0;
+}
 if (args is ["--lookup-stream2-chozo-strides"])
 {
     VerifyLookupStream2ChozoFootGeometry(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

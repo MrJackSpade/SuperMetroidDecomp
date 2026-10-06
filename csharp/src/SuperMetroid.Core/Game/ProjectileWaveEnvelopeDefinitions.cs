@@ -5,6 +5,9 @@ namespace SuperMetroid.Core.Game;
 /// remain required under ProjectileSpriteCatalog.frames; sharing them grants no art exemption.</summary>
 internal static class ProjectileWaveEnvelopeDefinitions
 {
+    /// <summary>$93:AE6C..AE87: four outward geometric positions, shared by the reflected return path.</summary>
+    internal const int OutwardPositionCount = 4;
+
     /// <summary>$93:AE70/AE77/AE7E/AE85: four outward axial lobe offsets 8/13/15/16.
     /// These selected geometric source inputs remain REQUIRED under the artwork owner.</summary>
     internal static int AxialLobeDistance(int outwardStep) => outwardStep switch

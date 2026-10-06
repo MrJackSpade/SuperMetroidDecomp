@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 451,
+  "remainingTableDefinitionCount": 450,
   "fileCount": 523,
   "entries": [
     {
@@ -7891,12 +7891,15 @@
       "implementationCommit": "fac3dfa90929f6f3f6f30de84a8c18b6941b1e2c"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileInstructionDefinitions.cs",
-      "line": 12,
-      "name": "SamusProjectileInstructionDefinitions.Words",
-      "kind": "factory-built stock table",
-      "note": "Stored FrozenDictionary<int, ushort> initialized by Create(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileInstructionDefinitions.cs",
+  "line": 12,
+  "name": "SamusProjectileInstructionDefinitions.Words",
+  "kind": "factory-built stock table",
+  "note": "Stored FrozenDictionary<int, ushort> initialized by Create(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+  "state": "justified-retained",
+  "implementationCommit": "0a2173bfce04e86aec1d11cbf95b278305ba1517",
+  "disposition": "Calculate native program addresses, shared four-lobe/out-return/paired phase counts, trail ordinals/zeros and mature/skip-startup/delete targets. Retain precisely enumerated family exposure holds, independent content/growth/startup domains and named trail/terminal policies as selected projectile growth/reach/lifetime choreography; velocity does not determine those exposures. No stored word table. Source artwork/lobe geometry,fuse,damage,motion and other timers excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusProjectileMotionDefinitions.cs",
       "line": 14,
@@ -21721,5 +21724,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 77
+  "justifiedRetainedSinceSnapshot": 78
 }

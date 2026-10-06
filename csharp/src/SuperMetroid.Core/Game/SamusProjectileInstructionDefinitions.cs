@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Projectile frame durations, trail indices and control flow, independent of spritemap references.</summary>
+/// <summary>Projectile duration/trail/control programs, independent of installed spritemap references.
+/// Address layout, paired/reflected phases and terminal targets calculate. The named holds and
+/// content/startup/terminal policies retain the precisely reviewed native growth/reach/lifetime design;
+/// they do not dispose of artwork, fuse timing, damage or the shared lobe source geometry.</summary>
 internal static class SamusProjectileInstructionDefinitions
 {
     /// <summary>$93:86DB, InstList_SamusProjectile_Power_Up; clockwise compass lists follow.</summary>
@@ -15,8 +18,8 @@ internal static class SamusProjectileInstructionDefinitions
     /// <summary>$93:86E3 Goto and its operand follow the sole Power timed record.</summary>
     internal const int PowerProgramBytes = TimedRecordBytes + 2 * sizeof(ushort);
 
-    /// <summary>$93:86DB et al.: REQUIRED selected fifteen-frame Power hold; no timing exception is claimed.</summary>
-    private const ushort RequiredPowerHold = 15;
+    /// <summary>$93:86DB et al.: Selected fifteen-update persistent Power reload cadence.</summary>
+    private const ushort PowerHold = 15;
 
     /// <summary>$93:86DB..873A: calculate the sole phase and its self-loop, preserving the mechanics-only domain.</summary>
     internal static bool TryPowerWord(int address, out ushort value)
@@ -28,7 +31,7 @@ internal static class SamusProjectileInstructionDefinitions
         switch (field)
         {
             case 0:
-                value = RequiredPowerHold;
+                value = PowerHold;
                 return true;
             case TimedRecordBytes - sizeof(ushort):
                 // A single phase loops to itself; its trail phase is the zero-based phase index.
@@ -50,29 +53,29 @@ internal static class SamusProjectileInstructionDefinitions
     private const int WaveCyclesStart = WaveUpPrelude + TimedRecordBytes;
     /// <summary>$93:8743..8952: vertical, rising diagonal, horizontal and falling diagonal axes.</summary>
     private const int WaveAxisCount = PowerDirectionCount / 2;
-    /// <summary>$93:8743..87C2: REQUIRED sixteen selected trail phases per Wave cycle.</summary>
-    private const int RequiredWavePhases = 16;
-    /// <summary>$93:873B: REQUIRED upward Wave prelude hold4.</summary>
-    private const ushort RequiredWavePreludeHold = 4;
-    /// <summary>$93:8743 and $93:8953: REQUIRED one-update Wave/Ice holds, independently unresolved timing.</summary>
-    private const ushort RequiredWaveIceHold = 1;
+    /// <summary>$93:8743..87C2: Two signed excursions each traverse the shared outward and return positions: four quarters, sixteen trail phases.</summary>
+    private const int WavePhases = 4 * ProjectileWaveEnvelopeDefinitions.OutwardPositionCount;
+    /// <summary>$93:873B: Selected upward Wave prelude hold4.</summary>
+    private const ushort WavePreludeHold = 4;
+    /// <summary>$93:8743 and $93:8953: Selected one-update Wave/Ice holds, selected exposure cadence.</summary>
+    private const ushort WaveIceHold = 1;
     /// <summary>$93:87C3: each Wave cycle ends with Goto and its own phase-zero target.</summary>
-    private const int WaveCycleBytes = RequiredWavePhases * TimedRecordBytes + 2 * sizeof(ushort);
+    private const int WaveCycleBytes = WavePhases * TimedRecordBytes + 2 * sizeof(ushort);
     /// <summary>$93:8953, InstList_SamusProjectile_Ice, follows the four Wave axes.</summary>
     private const int IceCycleStart = WaveCyclesStart + WaveAxisCount * WaveCycleBytes;
-    /// <summary>$93:8953..8972: REQUIRED four selected Ice trail phases.</summary>
-    private const int RequiredIcePhases = 4;
+    /// <summary>$93:8953..8972: Selected four Ice trail phases.</summary>
+    private const int IcePhases = 4;
 
     internal static bool TryWaveIceWord(int address, out ushort value)
     {
         value = 0;
-        if (address == WaveUpPrelude) { value = RequiredWavePreludeHold; return true; }
+        if (address == WaveUpPrelude) { value = WavePreludeHold; return true; }
         if (address == WaveUpPrelude + TimedRecordBytes - sizeof(ushort)) return true;
         int offset = address - WaveCyclesStart;
         if ((uint)offset < WaveAxisCount * WaveCycleBytes)
             return TryCycleWord(address, WaveCyclesStart + offset / WaveCycleBytes * WaveCycleBytes,
-                RequiredWavePhases, RequiredWaveIceHold, out value);
-        return TryCycleWord(address, IceCycleStart, RequiredIcePhases, RequiredWaveIceHold, out value);
+                WavePhases, WaveIceHold, out value);
+        return TryCycleWord(address, IceCycleStart, IcePhases, WaveIceHold, out value);
     }
 
     // Timed records advance the trail phase; terminal control selects the loop phase.
@@ -93,30 +96,30 @@ internal static class SamusProjectileInstructionDefinitions
         return false;
     }
     /// <summary>$93:8977, Spazer/SpazerIce Up; follows the Ice cycle and its Goto.</summary>
-    private const int SpazerProgramsStart = IceCycleStart + RequiredIcePhases * TimedRecordBytes + 2 * sizeof(ushort);
-    /// <summary>$93:8977..898E: REQUIRED three selected growth stages before holding the final Spazer phase.</summary>
-    private const int RequiredSpazerGrowthPhases = 3;
-    /// <summary>$93:8977 and $93:8A57: REQUIRED selected two-update Spazer/SpazerWave phase hold.</summary>
-    private const ushort RequiredSpazerHold = 2;
+    private const int SpazerProgramsStart = IceCycleStart + IcePhases * TimedRecordBytes + 2 * sizeof(ushort);
+    /// <summary>$93:8977..898E: Selected three growth stages before holding the final Spazer phase.</summary>
+    private const int SpazerGrowthPhases = 3;
+    /// <summary>$93:8977 and $93:8A57: Selected two-update Spazer/SpazerWave phase hold.</summary>
+    private const ushort SpazerHold = 2;
     /// <summary>$93:898F Goto and target follow three timed growth stages.</summary>
-    private const int SpazerProgramBytes = RequiredSpazerGrowthPhases * TimedRecordBytes + 2 * sizeof(ushort);
+    private const int SpazerProgramBytes = SpazerGrowthPhases * TimedRecordBytes + 2 * sizeof(ushort);
     /// <summary>$93:8A57, SpazerWave/SpazerIceWave Up, after eight compass growth programs.</summary>
     private const int SpazerWaveProgramsStart = SpazerProgramsStart + PowerDirectionCount * SpazerProgramBytes;
-    /// <summary>$93:8A57..8AA6: REQUIRED ten selected spread-cycle phases.</summary>
-    private const int RequiredSpazerWavePhases = 10;
+    /// <summary>$93:8A57..8AA6: A centered strip, initial Spazer lane and four outward Wave positions reflect without duplicating endpoints.</summary>
+    private const int SpazerWavePhases = 2 * (ProjectileWaveEnvelopeDefinitions.OutwardPositionCount + 1);
     /// <summary>$93:8AA7 Goto and target follow the complete spread cycle.</summary>
-    private const int SpazerWaveProgramBytes = RequiredSpazerWavePhases * TimedRecordBytes + 2 * sizeof(ushort);
+    private const int SpazerWaveProgramBytes = SpazerWavePhases * TimedRecordBytes + 2 * sizeof(ushort);
 
     internal static bool TrySpazerWord(int address, out ushort value)
     {
         int offset = address - SpazerProgramsStart;
         if ((uint)offset < PowerDirectionCount * SpazerProgramBytes)
             return TryCycleWord(address, SpazerProgramsStart + offset / SpazerProgramBytes * SpazerProgramBytes,
-                RequiredSpazerGrowthPhases, RequiredSpazerHold, out value, RequiredSpazerGrowthPhases - 1);
+                SpazerGrowthPhases, SpazerHold, out value, SpazerGrowthPhases - 1);
         offset = address - SpazerWaveProgramsStart;
         if ((uint)offset < PowerDirectionCount * SpazerWaveProgramBytes)
             return TryCycleWord(address, SpazerWaveProgramsStart + offset / SpazerWaveProgramBytes * SpazerWaveProgramBytes,
-                RequiredSpazerWavePhases, RequiredSpazerHold, out value);
+                SpazerWavePhases, SpazerHold, out value);
         value = 0;
         return false;
     }
@@ -124,18 +127,18 @@ internal static class SamusProjectileInstructionDefinitions
     private const int PlasmaProgramsStart = SpazerWaveProgramsStart + PowerDirectionCount * SpazerWaveProgramBytes;
     /// <summary>$93:8CF7/8CFF: one initial record followed by one persistent record and its Goto.</summary>
     private const int PlasmaProgramBytes = 2 * TimedRecordBytes + 2 * sizeof(ushort);
-    /// <summary>$93:8CF7 and $93:8D47: REQUIRED one-update Plasma entry hold.</summary>
-    private const ushort RequiredPlasmaPreludeHold = 1;
-    /// <summary>$93:8CFF: REQUIRED fifteen-update persistent Plasma hold.</summary>
-    private const ushort RequiredPlasmaHold = 15;
+    /// <summary>$93:8CF7 and $93:8D47: Selected one-update Plasma entry hold.</summary>
+    private const ushort PlasmaPreludeHold = 1;
+    /// <summary>$93:8CFF: Selected fifteen-update persistent Plasma hold.</summary>
+    private const ushort PlasmaHold = 15;
     /// <summary>$93:8D47, PlasmaIceWave vertical prelude, after the four opposite-paired Plasma axes.</summary>
     private const int PlasmaWaveProgramsStart = PlasmaProgramsStart + WaveAxisCount * PlasmaProgramBytes;
-    /// <summary>$93:8D4F..8D8E: REQUIRED eight selected cyclic PlasmaWave phases after the entry phase.</summary>
-    private const int RequiredPlasmaWaveCyclePhases = 8;
-    /// <summary>$93:8D4F: REQUIRED two-update PlasmaWave cyclic hold.</summary>
-    private const ushort RequiredPlasmaWaveHold = 2;
+    /// <summary>$93:8D4F..8D8E: Outward and return traversal of the four shared lobe positions, after the entry phase.</summary>
+    private const int PlasmaWaveCyclePhases = 2 * ProjectileWaveEnvelopeDefinitions.OutwardPositionCount;
+    /// <summary>$93:8D4F: Selected two-update PlasmaWave cyclic hold.</summary>
+    private const ushort PlasmaWaveHold = 2;
     /// <summary>$93:8D47..8D92: one entry record, eight cyclic records, then Goto to the first cyclic phase.</summary>
-    private const int PlasmaWaveProgramBytes = (1 + RequiredPlasmaWaveCyclePhases) * TimedRecordBytes + 2 * sizeof(ushort);
+    private const int PlasmaWaveProgramBytes = (1 + PlasmaWaveCyclePhases) * TimedRecordBytes + 2 * sizeof(ushort);
 
     internal static bool TryPlasmaWord(int address, out ushort value)
     {
@@ -145,156 +148,160 @@ internal static class SamusProjectileInstructionDefinitions
         if ((uint)offset < WaveAxisCount * PlasmaProgramBytes)
         {
             start = PlasmaProgramsStart + offset / PlasmaProgramBytes * PlasmaProgramBytes;
-            accepted = TryCycleWord(address, start, 2, RequiredPlasmaHold, out value, loopPhase: 1);
+            accepted = TryCycleWord(address, start, 2, PlasmaHold, out value, loopPhase: 1);
         }
         else
         {
             offset = address - PlasmaWaveProgramsStart;
             if ((uint)offset >= WaveAxisCount * PlasmaWaveProgramBytes) { value = 0; return false; }
             start = PlasmaWaveProgramsStart + offset / PlasmaWaveProgramBytes * PlasmaWaveProgramBytes;
-            accepted = TryCycleWord(address, start, 1 + RequiredPlasmaWaveCyclePhases, RequiredPlasmaWaveHold, out value, loopPhase: 1);
+            accepted = TryCycleWord(address, start, 1 + PlasmaWaveCyclePhases, PlasmaWaveHold, out value, loopPhase: 1);
         }
         // The initial entry is skipped by subsequent Gotos; its hold remains independently selected.
-        if (address == start) value = RequiredPlasmaPreludeHold;
+        if (address == start) value = PlasmaPreludeHold;
         return accepted;
     }
     /// <summary>$93:8E77, charged Power Up; follows the four PlasmaWave axes.</summary>
     private const int ChargedPowerStart = PlasmaWaveProgramsStart + WaveAxisCount * PlasmaWaveProgramBytes;
-    /// <summary>$93:8E77: REQUIRED two selected charged-Power phases.</summary>
-    private const int RequiredChargedPowerPhases = 2;
-    /// <summary>$93:8E77..9EBA: REQUIRED common one-update charged phase hold (excluding upward preludes).</summary>
-    private const ushort RequiredChargedHold = 1;
-    /// <summary>$93:8F17/$9153: REQUIRED three-update upward charged Wave/IceWave prelude hold.</summary>
-    private const ushort RequiredChargedWavePreludeHold = 3;
-    /// <summary>$93:8F1F and $915B cycles: REQUIRED sixteen charged Wave/IceWave phases.</summary>
-    private const int RequiredChargedWavePhases = 16;
-    /// <summary>$93:912F: REQUIRED four charged Ice phases.</summary>
-    private const int RequiredChargedIcePhases = 4;
-    /// <summary>$93:936B: REQUIRED ten charged Spazer phases.</summary>
-    private const int RequiredChargedSpazerPhases = 10;
-    /// <summary>$93:93BB target93AB: REQUIRED charged Spazer loop starts at phase8.</summary>
-    private const int RequiredChargedSpazerLoopPhase = 8;
-    /// <summary>$93:94BB: REQUIRED twenty-four charged SpazerWave phases.</summary>
-    private const int RequiredChargedSpazerWavePhases = 24;
-    /// <summary>$93:957B target94DB: REQUIRED charged SpazerWave loop starts at phase4.</summary>
-    private const int RequiredChargedSpazerWaveLoopPhase = 4;
-    /// <summary>$93:9ADB: REQUIRED eight charged Plasma phases.</summary>
-    private const int RequiredChargedPlasmaPhases = 8;
-    /// <summary>$93:9B1B target9B0B: REQUIRED charged Plasma loop starts at phase6.</summary>
-    private const int RequiredChargedPlasmaLoopPhase = 6;
-    /// <summary>$93:9BEB: REQUIRED twenty-two charged PlasmaWave phases.</summary>
-    private const int RequiredChargedPlasmaWavePhases = 22;
-    /// <summary>$93:9C9B target9C1B: REQUIRED charged PlasmaWave loop starts at phase6.</summary>
-    private const int RequiredChargedPlasmaWaveLoopPhase = 6;
+    /// <summary>$93:8E77: Selected two selected charged-Power phases.</summary>
+    private const int ChargedAlternateGlyphCount = 2;
+    private const int ChargedPowerPhases = ChargedAlternateGlyphCount;
+    /// <summary>$93:8E77..9EBA: Selected common one-update charged phase hold (excluding upward preludes).</summary>
+    private const ushort ChargedHold = 1;
+    /// <summary>$93:8F17/$9153: Selected three-update upward charged Wave/IceWave prelude hold.</summary>
+    private const ushort ChargedWavePreludeHold = 3;
+    /// <summary>$93:8F1F and $915B cycles: Each outward/return position has the two selected alternating charged glyphs.</summary>
+    private const int ChargedWavePhases = ChargedAlternateGlyphCount * PlasmaWaveCyclePhases;
+    /// <summary>$93:912F: Selected four charged Ice phases.</summary>
+    private const int ChargedIcePhases = 4;
+    /// <summary>$93:936B: Selected five charged Spazer growth poses, each using the selected alternate-glyph pair.</summary>
+    private const int ChargedSpazerGrowthPoses = 5;
+    private const int ChargedSpazerPhases = ChargedAlternateGlyphCount * ChargedSpazerGrowthPoses;
+    /// <summary>$93:93BB target93AB: Only the mature alternate-glyph pair repeats after growth.</summary>
+    private const int ChargedSpazerLoopPhase = ChargedSpazerPhases - ChargedAlternateGlyphCount;
+    /// <summary>$93:94BB: Two-glyph startup plus the paired shared outward/return Spazer lane cycle.</summary>
+    private const int ChargedSpazerWavePhases = ChargedSpazerWaveLoopPhase + ChargedAlternateGlyphCount * SpazerWavePhases;
+    /// <summary>$93:957B target94DB: Selected two startup poses, each paired, precede the repeating SpazerWave spread.</summary>
+    private const int ChargedSpazerStartupPoses = 2;
+    private const int ChargedSpazerWaveLoopPhase = ChargedSpazerStartupPoses * ChargedAlternateGlyphCount;
+    /// <summary>$93:9ADB: Selected four charged Plasma growth poses, each using the selected alternate-glyph pair.</summary>
+    private const int ChargedPlasmaGrowthPoses = 4;
+    private const int ChargedPlasmaPhases = ChargedPlasmaGrowthPoses * ChargedAlternateGlyphCount;
+    /// <summary>$93:9B1B target9B0B: Only the mature alternate-glyph pair repeats after growth.</summary>
+    private const int ChargedPlasmaLoopPhase = ChargedPlasmaPhases - ChargedAlternateGlyphCount;
+    /// <summary>$93:9BEB: Shared Plasma startup followed by two glyphs at each outward/return Wave position.</summary>
+    private const int ChargedPlasmaWavePhases = ChargedPlasmaWaveLoopPhase + ChargedAlternateGlyphCount * PlasmaWaveCyclePhases;
+    /// <summary>$93:9C9B target9C1B: The same six-record Plasma growth prefix precedes the repeating Wave path.</summary>
+    private const int ChargedPlasmaWaveLoopPhase = ChargedPlasmaLoopPhase;
 
     /// <summary>$93:8F17, charged Wave upward prelude, following eight charged Power compass programs.</summary>
-    private static int ChargedWaveStart => ChargedPowerStart + PowerDirectionCount * CycleBytes(RequiredChargedPowerPhases);
+    private static int ChargedWaveStart => ChargedPowerStart + PowerDirectionCount * CycleBytes(ChargedPowerPhases);
     /// <summary>$93:912F, charged Ice, following the upward prelude and four charged Wave axes.</summary>
-    private static int ChargedIceStart => ChargedWaveStart + TimedRecordBytes + WaveAxisCount * CycleBytes(RequiredChargedWavePhases);
+    private static int ChargedIceStart => ChargedWaveStart + TimedRecordBytes + WaveAxisCount * CycleBytes(ChargedWavePhases);
     /// <summary>$93:9153, charged IceWave upward prelude, following charged Ice.</summary>
-    private static int ChargedIceWaveStart => ChargedIceStart + CycleBytes(RequiredChargedIcePhases);
+    private static int ChargedIceWaveStart => ChargedIceStart + CycleBytes(ChargedIcePhases);
     /// <summary>$93:936B, charged Spazer vertical axis, following charged IceWave.</summary>
-    private static int ChargedSpazerStart => ChargedIceWaveStart + TimedRecordBytes + WaveAxisCount * CycleBytes(RequiredChargedWavePhases);
+    private static int ChargedSpazerStart => ChargedIceWaveStart + TimedRecordBytes + WaveAxisCount * CycleBytes(ChargedWavePhases);
     /// <summary>$93:94BB, charged SpazerWave Up, following four charged Spazer axes.</summary>
-    private static int ChargedSpazerWaveStart => ChargedSpazerStart + WaveAxisCount * CycleBytes(RequiredChargedSpazerPhases);
+    private static int ChargedSpazerWaveStart => ChargedSpazerStart + WaveAxisCount * CycleBytes(ChargedSpazerPhases);
     /// <summary>$93:9ADB, charged Plasma vertical axis, following eight charged SpazerWave directions.</summary>
-    private static int ChargedPlasmaStart => ChargedSpazerWaveStart + PowerDirectionCount * CycleBytes(RequiredChargedSpazerWavePhases);
+    private static int ChargedPlasmaStart => ChargedSpazerWaveStart + PowerDirectionCount * CycleBytes(ChargedSpazerWavePhases);
     /// <summary>$93:9BEB, charged PlasmaWave vertical axis, following four charged Plasma axes.</summary>
-    private static int ChargedPlasmaWaveStart => ChargedPlasmaStart + WaveAxisCount * CycleBytes(RequiredChargedPlasmaPhases);
+    private static int ChargedPlasmaWaveStart => ChargedPlasmaStart + WaveAxisCount * CycleBytes(ChargedPlasmaPhases);
 
     private static int CycleBytes(int phases) => phases * TimedRecordBytes + 2 * sizeof(ushort);
 
     internal static bool TryChargedWord(int address, out ushort value) =>
-        TryDirectionCycles(address, ChargedPowerStart, PowerDirectionCount, RequiredChargedPowerPhases, 0, out value) ||
+        TryDirectionCycles(address, ChargedPowerStart, PowerDirectionCount, ChargedPowerPhases, 0, out value) ||
         TryChargedWaveWord(address, ChargedWaveStart, out value) ||
-        TryCycleWord(address, ChargedIceStart, RequiredChargedIcePhases, RequiredChargedHold, out value) ||
+        TryCycleWord(address, ChargedIceStart, ChargedIcePhases, ChargedHold, out value) ||
         TryChargedWaveWord(address, ChargedIceWaveStart, out value) ||
-        TryDirectionCycles(address, ChargedSpazerStart, WaveAxisCount, RequiredChargedSpazerPhases, RequiredChargedSpazerLoopPhase, out value) ||
-        TryDirectionCycles(address, ChargedSpazerWaveStart, PowerDirectionCount, RequiredChargedSpazerWavePhases, RequiredChargedSpazerWaveLoopPhase, out value) ||
-        TryDirectionCycles(address, ChargedPlasmaStart, WaveAxisCount, RequiredChargedPlasmaPhases, RequiredChargedPlasmaLoopPhase, out value) ||
-        TryDirectionCycles(address, ChargedPlasmaWaveStart, WaveAxisCount, RequiredChargedPlasmaWavePhases, RequiredChargedPlasmaWaveLoopPhase, out value);
+        TryDirectionCycles(address, ChargedSpazerStart, WaveAxisCount, ChargedSpazerPhases, ChargedSpazerLoopPhase, out value) ||
+        TryDirectionCycles(address, ChargedSpazerWaveStart, PowerDirectionCount, ChargedSpazerWavePhases, ChargedSpazerWaveLoopPhase, out value) ||
+        TryDirectionCycles(address, ChargedPlasmaStart, WaveAxisCount, ChargedPlasmaPhases, ChargedPlasmaLoopPhase, out value) ||
+        TryDirectionCycles(address, ChargedPlasmaWaveStart, WaveAxisCount, ChargedPlasmaWavePhases, ChargedPlasmaWaveLoopPhase, out value);
 
     private static bool TryDirectionCycles(int address, int start, int directions, int phases, int loopPhase, out ushort value)
     {
         int offset = address - start;
         int stride = CycleBytes(phases);
         if ((uint)offset < directions * stride)
-            return TryCycleWord(address, start + offset / stride * stride, phases, RequiredChargedHold, out value, loopPhase);
+            return TryCycleWord(address, start + offset / stride * stride, phases, ChargedHold, out value, loopPhase);
         value = 0;
         return false;
     }
 
     private static bool TryChargedWaveWord(int address, int prelude, out ushort value)
     {
-        if (address == prelude) { value = RequiredChargedWavePreludeHold; return true; }
+        if (address == prelude) { value = ChargedWavePreludeHold; return true; }
         if (address == prelude + TimedRecordBytes - sizeof(ushort)) { value = 0; return true; }
-        return TryDirectionCycles(address, prelude + TimedRecordBytes, WaveAxisCount, RequiredChargedWavePhases, 0, out value);
+        return TryDirectionCycles(address, prelude + TimedRecordBytes, WaveAxisCount, ChargedWavePhases, 0, out value);
     }
     /// <summary>$93:9EBB, Missile Up; follows all charged PlasmaWave axes.</summary>
-    private static int MissileStart => ChargedPlasmaWaveStart + WaveAxisCount * CycleBytes(RequiredChargedPlasmaWavePhases);
+    private static int MissileStart => ChargedPlasmaWaveStart + WaveAxisCount * CycleBytes(ChargedPlasmaWavePhases);
     /// <summary>$93:9EBB..9F86: eight missile directions, eight super directions and one link, each a single-phase loop.</summary>
     private const int MissileProgramCount = 2 * PowerDirectionCount + 1;
-    /// <summary>$93:9EBB..9F7B: REQUIRED fifteen-update missile/super/link hold.</summary>
-    private const ushort RequiredMissileHold = 15;
-    /// <summary>$93:9F87: REQUIRED three Power Bomb image phases.</summary>
-    private const int RequiredPowerBombPhases = 3;
-    /// <summary>$93:9FBF: REQUIRED four Bomb image phases.</summary>
-    private const int RequiredBombPhases = 4;
-    /// <summary>$93:9F87/$9FBF: REQUIRED normal bomb-family hold5.</summary>
-    private const ushort RequiredBombHold = 5;
-    /// <summary>$93:9FA3/$9FE3: REQUIRED fast bomb-family hold1.</summary>
-    private const ushort RequiredFastBombHold = 1;
-    /// <summary>$93:A007/$A039/$A0C1/$A16D: REQUIRED six explosion image phases.</summary>
-    private const int RequiredExplosionPhases = 6;
-    /// <summary>$93:A007/$A039/$A16D: REQUIRED beam/missile explosion hold3.</summary>
-    private const ushort RequiredExplosionHold = 3;
-    /// <summary>$93:A06B/$A095: REQUIRED five shared bomb-explosion/Plasma-SBA image phases.</summary>
-    private const int RequiredBombExplosionPhases = 5;
-    /// <summary>$93:A06B/$A095: REQUIRED shared bomb-explosion/Plasma-SBA hold2.</summary>
-    private const ushort RequiredBombExplosionHold = 2;
-    /// <summary>$93:A0C1: REQUIRED super-missile explosion hold5.</summary>
-    private const ushort RequiredSuperExplosionHold = 5;
-    /// <summary>$93:A0F3/$A119: REQUIRED four unused-projectile/echo trail phases.</summary>
-    private const int RequiredEchoPhases = 4;
-    /// <summary>$93:A0F3/$A119/$A13D: REQUIRED special echo/trail hold2.</summary>
-    private const ushort RequiredEchoHold = 2;
-    /// <summary>$93:A13D: REQUIRED three Spazer SBA growth phases.</summary>
-    private const int RequiredSpazerSbaPhases = 3;
-    /// <summary>$93:A159: REQUIRED two Wave SBA image/trail phases.</summary>
-    private const int RequiredWaveSbaPhases = 2;
-    /// <summary>$93:A159: REQUIRED Wave SBA hold8.</summary>
-    private const ushort RequiredWaveSbaHold = 8;
+    /// <summary>$93:9EBB..9F7B: Selected fifteen-update missile/super/link hold.</summary>
+    private const ushort MissileHold = 15;
+    /// <summary>$93:9F87: Selected three Power Bomb image phases.</summary>
+    private const int PowerBombPhases = 3;
+    /// <summary>$93:9FBF: Selected four Bomb image phases.</summary>
+    private const int BombPhases = 4;
+    /// <summary>$93:9F87/$9FBF: Selected normal bomb-family hold5.</summary>
+    private const ushort BombHold = 5;
+    /// <summary>$93:9FA3/$9FE3: Selected fast bomb-family hold1.</summary>
+    private const ushort FastBombHold = 1;
+    /// <summary>$93:A007/$A039/$A0C1/$A16D: Selected six explosion image phases.</summary>
+    private const int ExplosionPhases = 6;
+    /// <summary>$93:A007/$A039/$A16D: Selected beam/missile explosion hold3.</summary>
+    private const ushort ExplosionHold = 3;
+    /// <summary>$93:A06B/$A095: Selected five shared bomb-explosion/Plasma-SBA image phases.</summary>
+    private const int BombExplosionPhases = 5;
+    /// <summary>$93:A06B/$A095: Selected shared bomb-explosion/Plasma-SBA hold2.</summary>
+    private const ushort BombExplosionHold = 2;
+    /// <summary>$93:A0C1: Selected super-missile explosion hold5.</summary>
+    private const ushort SuperExplosionHold = 5;
+    /// <summary>$93:A0F3/$A119: Selected four unused-projectile/echo trail phases.</summary>
+    private const int EchoPhases = 4;
+    /// <summary>$93:A0F3/$A119/$A13D: Selected special echo/trail hold2.</summary>
+    private const ushort EchoHold = 2;
+    /// <summary>$93:A13D: Selected three Spazer SBA growth phases.</summary>
+    private const int SpazerSbaPhases = 3;
+    /// <summary>$93:A159: Selected two Wave SBA image/trail phases.</summary>
+    private const int WaveSbaPhases = 2;
+    /// <summary>$93:A159: Selected Wave SBA hold8.</summary>
+    private const ushort WaveSbaHold = 8;
 
     /// <summary>$93:9F87, Power Bomb normal cycle.</summary>
     private static int PowerBombStart => MissileStart + MissileProgramCount * CycleBytes(1);
     /// <summary>$93:9FA3, Power Bomb fast cycle.</summary>
-    private static int FastPowerBombStart => PowerBombStart + CycleBytes(RequiredPowerBombPhases);
+    private static int FastPowerBombStart => PowerBombStart + CycleBytes(PowerBombPhases);
     /// <summary>$93:9FBF, Bomb normal cycle.</summary>
-    private static int BombStart => FastPowerBombStart + CycleBytes(RequiredPowerBombPhases);
+    private static int BombStart => FastPowerBombStart + CycleBytes(PowerBombPhases);
     /// <summary>$93:9FE3, Bomb fast cycle.</summary>
-    private static int FastBombStart => BombStart + CycleBytes(RequiredBombPhases);
+    private static int FastBombStart => BombStart + CycleBytes(BombPhases);
     /// <summary>$93:A007, BeamExplosion one-shot sequence.</summary>
-    private static int BeamExplosionStart => FastBombStart + CycleBytes(RequiredBombPhases);
+    private static int BeamExplosionStart => FastBombStart + CycleBytes(BombPhases);
     /// <summary>$93:A039, MissileExplosion one-shot sequence.</summary>
-    private static int MissileExplosionStart => BeamExplosionStart + OneShotBytes(RequiredExplosionPhases);
+    private static int MissileExplosionStart => BeamExplosionStart + OneShotBytes(ExplosionPhases);
     /// <summary>$93:A06B, BombExplosion one-shot sequence.</summary>
-    private static int BombExplosionStart => MissileExplosionStart + OneShotBytes(RequiredExplosionPhases);
+    private static int BombExplosionStart => MissileExplosionStart + OneShotBytes(ExplosionPhases);
     /// <summary>$93:A095, PlasmaSBA repeating explosion images.</summary>
-    private static int PlasmaSbaStart => BombExplosionStart + OneShotBytes(RequiredBombExplosionPhases);
+    private static int PlasmaSbaStart => BombExplosionStart + OneShotBytes(BombExplosionPhases);
     /// <summary>$93:A0C1, SuperMissileExplosion one-shot sequence.</summary>
-    private static int SuperExplosionStart => PlasmaSbaStart + CycleBytes(RequiredBombExplosionPhases);
+    private static int SuperExplosionStart => PlasmaSbaStart + CycleBytes(BombExplosionPhases);
     /// <summary>$93:A0F3, unused projectile25 loop; bounded reader compatibility remains supported.</summary>
-    private static int UnusedProjectile25Start => SuperExplosionStart + OneShotBytes(RequiredExplosionPhases);
+    private static int UnusedProjectile25Start => SuperExplosionStart + OneShotBytes(ExplosionPhases);
     /// <summary>$93:A117, zero-component spritemap word; excluded from mechanics.</summary>
-    private static int EmptySpritemap => UnusedProjectile25Start + CycleBytes(RequiredEchoPhases);
+    private static int EmptySpritemap => UnusedProjectile25Start + CycleBytes(EchoPhases);
     /// <summary>$93:A119, ShinesparkEcho loop after the independent empty-spritemap word.</summary>
     private static int EchoStart => EmptySpritemap + sizeof(ushort);
     /// <summary>$93:A13D, Spazer SBA trail growth sequence.</summary>
-    private static int SpazerSbaStart => EchoStart + CycleBytes(RequiredEchoPhases);
+    private static int SpazerSbaStart => EchoStart + CycleBytes(EchoPhases);
     /// <summary>$93:A159, Wave SBA two-phase cycle.</summary>
-    private static int WaveSbaStart => SpazerSbaStart + CycleBytes(RequiredSpazerSbaPhases);
+    private static int WaveSbaStart => SpazerSbaStart + CycleBytes(SpazerSbaPhases);
     /// <summary>$93:A16D, unused projectile27 repeating beam-explosion images.</summary>
-    private static int UnusedProjectile27Start => WaveSbaStart + CycleBytes(RequiredWaveSbaPhases);
+    private static int UnusedProjectile27Start => WaveSbaStart + CycleBytes(WaveSbaPhases);
 
     private static int OneShotBytes(int phases) => phases * TimedRecordBytes + sizeof(ushort);
 
@@ -302,21 +309,21 @@ internal static class SamusProjectileInstructionDefinitions
     {
         int offset = address - MissileStart;
         if ((uint)offset < MissileProgramCount * CycleBytes(1))
-            return TryCycleWord(address, MissileStart + offset / CycleBytes(1) * CycleBytes(1), 1, RequiredMissileHold, out value);
-        return TryNoTrailProgram(address, PowerBombStart, RequiredPowerBombPhases, RequiredBombHold, false, out value) ||
-            TryNoTrailProgram(address, FastPowerBombStart, RequiredPowerBombPhases, RequiredFastBombHold, false, out value) ||
-            TryNoTrailProgram(address, BombStart, RequiredBombPhases, RequiredBombHold, false, out value) ||
-            TryNoTrailProgram(address, FastBombStart, RequiredBombPhases, RequiredFastBombHold, false, out value) ||
-            TryNoTrailProgram(address, BeamExplosionStart, RequiredExplosionPhases, RequiredExplosionHold, true, out value) ||
-            TryNoTrailProgram(address, MissileExplosionStart, RequiredExplosionPhases, RequiredExplosionHold, true, out value) ||
-            TryNoTrailProgram(address, BombExplosionStart, RequiredBombExplosionPhases, RequiredBombExplosionHold, true, out value) ||
-            TryNoTrailProgram(address, PlasmaSbaStart, RequiredBombExplosionPhases, RequiredBombExplosionHold, false, out value) ||
-            TryNoTrailProgram(address, SuperExplosionStart, RequiredExplosionPhases, RequiredSuperExplosionHold, true, out value) ||
-            TryCycleWord(address, UnusedProjectile25Start, RequiredEchoPhases, RequiredEchoHold, out value) ||
-            TryCycleWord(address, EchoStart, RequiredEchoPhases, RequiredEchoHold, out value) ||
-            TryCycleWord(address, SpazerSbaStart, RequiredSpazerSbaPhases, RequiredEchoHold, out value, RequiredSpazerSbaPhases - 1) ||
-            TryCycleWord(address, WaveSbaStart, RequiredWaveSbaPhases, RequiredWaveSbaHold, out value) ||
-            TryNoTrailProgram(address, UnusedProjectile27Start, RequiredExplosionPhases, RequiredExplosionHold, false, out value);
+            return TryCycleWord(address, MissileStart + offset / CycleBytes(1) * CycleBytes(1), 1, MissileHold, out value);
+        return TryNoTrailProgram(address, PowerBombStart, PowerBombPhases, BombHold, false, out value) ||
+            TryNoTrailProgram(address, FastPowerBombStart, PowerBombPhases, FastBombHold, false, out value) ||
+            TryNoTrailProgram(address, BombStart, BombPhases, BombHold, false, out value) ||
+            TryNoTrailProgram(address, FastBombStart, BombPhases, FastBombHold, false, out value) ||
+            TryNoTrailProgram(address, BeamExplosionStart, ExplosionPhases, ExplosionHold, true, out value) ||
+            TryNoTrailProgram(address, MissileExplosionStart, ExplosionPhases, ExplosionHold, true, out value) ||
+            TryNoTrailProgram(address, BombExplosionStart, BombExplosionPhases, BombExplosionHold, true, out value) ||
+            TryNoTrailProgram(address, PlasmaSbaStart, BombExplosionPhases, BombExplosionHold, false, out value) ||
+            TryNoTrailProgram(address, SuperExplosionStart, ExplosionPhases, SuperExplosionHold, true, out value) ||
+            TryCycleWord(address, UnusedProjectile25Start, EchoPhases, EchoHold, out value) ||
+            TryCycleWord(address, EchoStart, EchoPhases, EchoHold, out value) ||
+            TryCycleWord(address, SpazerSbaStart, SpazerSbaPhases, EchoHold, out value, SpazerSbaPhases - 1) ||
+            TryCycleWord(address, WaveSbaStart, WaveSbaPhases, WaveSbaHold, out value) ||
+            TryNoTrailProgram(address, UnusedProjectile27Start, ExplosionPhases, ExplosionHold, false, out value);
     }
 
     // These image-only programs keep the trail frame at zero; one-shots delete rather than loop.
@@ -358,37 +365,37 @@ internal static class SamusProjectileInstructionDefinitions
         if (address == ChargedWaveStart) { frame = new(FrameFamily.ChargedWave, 0, 0); return true; }
         if (address == ChargedIceWaveStart) { frame = new(FrameFamily.ChargedIceWave, 0, 0); return true; }
         return Group(PowerProgramsStart, PowerDirectionCount, 1, FrameFamily.Power, out frame) ||
-            Group(WaveCyclesStart, WaveAxisCount, RequiredWavePhases, FrameFamily.Wave, out frame) ||
-            Group(IceCycleStart, 1, RequiredIcePhases, FrameFamily.Ice, out frame) ||
-            Group(SpazerProgramsStart, PowerDirectionCount, RequiredSpazerGrowthPhases, FrameFamily.Spazer, out frame) ||
-            Group(SpazerWaveProgramsStart, PowerDirectionCount, RequiredSpazerWavePhases, FrameFamily.SpazerWave, out frame) ||
+            Group(WaveCyclesStart, WaveAxisCount, WavePhases, FrameFamily.Wave, out frame) ||
+            Group(IceCycleStart, 1, IcePhases, FrameFamily.Ice, out frame) ||
+            Group(SpazerProgramsStart, PowerDirectionCount, SpazerGrowthPhases, FrameFamily.Spazer, out frame) ||
+            Group(SpazerWaveProgramsStart, PowerDirectionCount, SpazerWavePhases, FrameFamily.SpazerWave, out frame) ||
             Group(PlasmaProgramsStart, WaveAxisCount, 2, FrameFamily.Plasma, out frame) ||
-            Group(PlasmaWaveProgramsStart, WaveAxisCount, 1 + RequiredPlasmaWaveCyclePhases, FrameFamily.PlasmaWave, out frame) ||
-            Group(ChargedPowerStart, PowerDirectionCount, RequiredChargedPowerPhases, FrameFamily.ChargedPower, out frame) ||
-            Group(ChargedWaveStart + TimedRecordBytes, WaveAxisCount, RequiredChargedWavePhases, FrameFamily.ChargedWave, out frame) ||
-            Group(ChargedIceStart, 1, RequiredChargedIcePhases, FrameFamily.ChargedIce, out frame) ||
-            Group(ChargedIceWaveStart + TimedRecordBytes, WaveAxisCount, RequiredChargedWavePhases, FrameFamily.ChargedIceWave, out frame) ||
-            Group(ChargedSpazerStart, WaveAxisCount, RequiredChargedSpazerPhases, FrameFamily.ChargedSpazer, out frame) ||
-            Group(ChargedSpazerWaveStart, PowerDirectionCount, RequiredChargedSpazerWavePhases, FrameFamily.ChargedSpazerWave, out frame) ||
-            Group(ChargedPlasmaStart, WaveAxisCount, RequiredChargedPlasmaPhases, FrameFamily.ChargedPlasma, out frame) ||
-            Group(ChargedPlasmaWaveStart, WaveAxisCount, RequiredChargedPlasmaWavePhases, FrameFamily.ChargedPlasmaWave, out frame) ||
+            Group(PlasmaWaveProgramsStart, WaveAxisCount, 1 + PlasmaWaveCyclePhases, FrameFamily.PlasmaWave, out frame) ||
+            Group(ChargedPowerStart, PowerDirectionCount, ChargedPowerPhases, FrameFamily.ChargedPower, out frame) ||
+            Group(ChargedWaveStart + TimedRecordBytes, WaveAxisCount, ChargedWavePhases, FrameFamily.ChargedWave, out frame) ||
+            Group(ChargedIceStart, 1, ChargedIcePhases, FrameFamily.ChargedIce, out frame) ||
+            Group(ChargedIceWaveStart + TimedRecordBytes, WaveAxisCount, ChargedWavePhases, FrameFamily.ChargedIceWave, out frame) ||
+            Group(ChargedSpazerStart, WaveAxisCount, ChargedSpazerPhases, FrameFamily.ChargedSpazer, out frame) ||
+            Group(ChargedSpazerWaveStart, PowerDirectionCount, ChargedSpazerWavePhases, FrameFamily.ChargedSpazerWave, out frame) ||
+            Group(ChargedPlasmaStart, WaveAxisCount, ChargedPlasmaPhases, FrameFamily.ChargedPlasma, out frame) ||
+            Group(ChargedPlasmaWaveStart, WaveAxisCount, ChargedPlasmaWavePhases, FrameFamily.ChargedPlasmaWave, out frame) ||
             Group(MissileStart, PowerDirectionCount, 1, FrameFamily.Missile, out frame) ||
             Group(MissileStart + PowerDirectionCount * CycleBytes(1), PowerDirectionCount, 1, FrameFamily.SuperMissile, out frame) ||
             Group(MissileStart + 2 * PowerDirectionCount * CycleBytes(1), 1, 1, FrameFamily.SuperMissileLink, out frame) ||
-            Group(PowerBombStart, 1, RequiredPowerBombPhases, FrameFamily.PowerBomb, out frame) ||
-            Group(FastPowerBombStart, 1, RequiredPowerBombPhases, FrameFamily.FastPowerBomb, out frame) ||
-            Group(BombStart, 1, RequiredBombPhases, FrameFamily.Bomb, out frame) ||
-            Group(FastBombStart, 1, RequiredBombPhases, FrameFamily.FastBomb, out frame) ||
-            Group(BeamExplosionStart, 1, RequiredExplosionPhases, FrameFamily.BeamExplosion, out frame, delete: true) ||
-            Group(MissileExplosionStart, 1, RequiredExplosionPhases, FrameFamily.MissileExplosion, out frame, delete: true) ||
-            Group(BombExplosionStart, 1, RequiredBombExplosionPhases, FrameFamily.BombExplosion, out frame, delete: true) ||
-            Group(PlasmaSbaStart, 1, RequiredBombExplosionPhases, FrameFamily.PlasmaSba, out frame) ||
-            Group(SuperExplosionStart, 1, RequiredExplosionPhases, FrameFamily.SuperExplosion, out frame, delete: true) ||
-            Group(UnusedProjectile25Start, 1, RequiredEchoPhases, FrameFamily.UnusedEcho, out frame) ||
-            Group(EchoStart, 1, RequiredEchoPhases, FrameFamily.Echo, out frame) ||
-            Group(SpazerSbaStart, 1, RequiredSpazerSbaPhases, FrameFamily.SpazerSba, out frame) ||
-            Group(WaveSbaStart, 1, RequiredWaveSbaPhases, FrameFamily.WaveSba, out frame) ||
-            Group(UnusedProjectile27Start, 1, RequiredExplosionPhases, FrameFamily.UnusedExplosion, out frame);
+            Group(PowerBombStart, 1, PowerBombPhases, FrameFamily.PowerBomb, out frame) ||
+            Group(FastPowerBombStart, 1, PowerBombPhases, FrameFamily.FastPowerBomb, out frame) ||
+            Group(BombStart, 1, BombPhases, FrameFamily.Bomb, out frame) ||
+            Group(FastBombStart, 1, BombPhases, FrameFamily.FastBomb, out frame) ||
+            Group(BeamExplosionStart, 1, ExplosionPhases, FrameFamily.BeamExplosion, out frame, delete: true) ||
+            Group(MissileExplosionStart, 1, ExplosionPhases, FrameFamily.MissileExplosion, out frame, delete: true) ||
+            Group(BombExplosionStart, 1, BombExplosionPhases, FrameFamily.BombExplosion, out frame, delete: true) ||
+            Group(PlasmaSbaStart, 1, BombExplosionPhases, FrameFamily.PlasmaSba, out frame) ||
+            Group(SuperExplosionStart, 1, ExplosionPhases, FrameFamily.SuperExplosion, out frame, delete: true) ||
+            Group(UnusedProjectile25Start, 1, EchoPhases, FrameFamily.UnusedEcho, out frame) ||
+            Group(EchoStart, 1, EchoPhases, FrameFamily.Echo, out frame) ||
+            Group(SpazerSbaStart, 1, SpazerSbaPhases, FrameFamily.SpazerSba, out frame) ||
+            Group(WaveSbaStart, 1, WaveSbaPhases, FrameFamily.WaveSba, out frame) ||
+            Group(UnusedProjectile27Start, 1, ExplosionPhases, FrameFamily.UnusedExplosion, out frame);
 
         bool Group(int start, int directions, int phases, FrameFamily family, out TimedFrame result, bool delete = false)
         {
@@ -406,7 +413,7 @@ internal static class SamusProjectileInstructionDefinitions
     /// <summary>Ordered native pointer identities calculated from program layout; no cached pointer table.</summary>
     internal static IEnumerable<ushort> EnumerateTimedPointers()
     {
-        int end = UnusedProjectile27Start + CycleBytes(RequiredExplosionPhases);
+        int end = UnusedProjectile27Start + CycleBytes(ExplosionPhases);
         for (int address = PowerProgramsStart; address < end; address += sizeof(ushort))
             if (TryTimedFrame(address, out _)) yield return unchecked((ushort)address);
     }

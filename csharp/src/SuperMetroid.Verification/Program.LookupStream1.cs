@@ -3003,4 +3003,108 @@ internal static partial class Program
         AssertEqual((byte)0, SamusProjectileRadiusDefinitions.ReadByte(SamusProjectileRadiusDefinitions.MurderBeamRadiusAddress + 1), "Separate bounded MurderBeam Y contract preserved");
         Console.WriteLine($"Projectile radii:805 native calculated records/1610 bytes,{interpreted} actual projectile/{bombInterpreted} bomb records with zero reads and independent art edits; exact domain/order/bounds pass.");
     }
+    private static void VerifyLookupStream1ProjectilePrograms(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var programs = new List<(ushort Start, int Ticks)>();
+        var records = new List<ushort>();
+        var mechanics = new HashSet<int>();
+        int programStart = 0x9386db, ticks = 1;
+        for (int address = programStart; address < 0x93a1a1;)
+        {
+            if (address == 0x93a117) { address += 2; programStart = address; continue; }
+            ushort word = Word(address);
+            mechanics.Add(address);
+            if ((word & 0x8000) == 0)
+            {
+                AssertTrue(word > 0, "Native projectile durations are positive");
+                mechanics.Add(address + 6);
+                records.Add(unchecked((ushort)address));
+                ticks += word;
+                address += 8;
+            }
+            else
+            {
+                if (word == 0x8239) { mechanics.Add(address + 2); address += 4; }
+                else { AssertEqual((ushort)0x822f, word, "Native terminal deletion opcode"); address += 2; }
+                programs.Add((unchecked((ushort)programStart), ticks));
+                programStart = address; ticks = 1;
+            }
+        }
+        AssertEqual(805, records.Count, "Original timed-record scope");
+        AssertEqual(1816, mechanics.Count, "Original mechanics-word scope");
+        AssertEqual(105, programs.Count, "Independent native complete program domains");
+        foreach (int address in mechanics)
+            AssertEqual(Word(address), SamusProjectileInstructionDefinitions.ReadWord(address), "Every native duration/trail/control/target word");
+        for (int address = 0x9386db; address < 0x93a1a1; address++)
+            if (!mechanics.Contains(address))
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Every nonmechanics byte remains rejected");
+        var document = new ProjectileFrameBindingDocument
+        {
+            Version = 1,
+            Frames = records.ToDictionary(pointer => ProjectileFrameBindingFormat.FrameName(pointer),
+                pointer => $"sprite_{Word(0x930000 | (pointer + 2)):X4}"),
+        };
+        var bindings = ProjectileFrameBindingCatalog.Load(new MemoryStream(ProjectileFrameBindingCatalog.Write(document)));
+        var guard = new LookupFlareForbiddenBus();
+        var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var readTrail = typeof(SamusProjectileSystem).GetMethod("GetTrailAnimationFrame",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
+        int actualTicks = 0, loops = 0, deletions = 0;
+        foreach (var program in programs)
+        {
+            var shots = new SamusProjectileSystem { FrameBindings = bindings };
+            var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
+            var slot = new SamusProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = program.Start, Damage = 30 };
+            var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = program.Start, Type = 0x0500 };
+            ushort timer = 1, pointer = program.Start, sprite = 0, x = 0, y = 0, trail = 0;
+            var visited = new HashSet<ushort>();
+            bool finished = false;
+            for (int tick = 0; tick < program.Ticks; tick++)
+            {
+                bool deleted = false, looped = false;
+                timer--;
+                if (timer == 0)
+                {
+                    ushort word = Word(0x930000 | pointer);
+                    if (word == 0x8239)
+                    {
+                        pointer = Word(0x930000 | (pointer + 2));
+                        word = Word(0x930000 | pointer);
+                    }
+                    if (word == 0x822f) deleted = true;
+                    else
+                    {
+                        AssertTrue(word > 0 && word < 0x8000, "Native command reaches a timed frame");
+                        looped = !visited.Add(pointer);
+                        timer = word; sprite = Word(0x930000 | (pointer + 2));
+                        x = rom.ReadByte(0x930000 | (pointer + 4)); y = rom.ReadByte(0x930000 | (pointer + 5));
+                        trail = Word(0x930000 | (pointer + 6)); pointer += 8;
+                    }
+                }
+                AssertEqual(deleted, shots.RunProjectileInstructionHandler(guard, slot), "Exact native projectile deletion tick");
+                AssertEqual(deleted, (bool)runBomb.Invoke(bombs, [guard, bomb])!, "Exact native bomb deletion tick");
+                actualTicks++;
+                if (deleted)
+                {
+                    AssertEqual((ushort)0, slot.Damage, "Projectile deletion clears occupancy");
+                    AssertEqual((ushort)0, bomb.Type, "Bomb deletion clears occupancy");
+                    deletions++; finished = true; break;
+                }
+                AssertEqual((timer, pointer, sprite, x, y, trail),
+                    (slot.InstructionTimer, slot.InstructionPointer, slot.SpritemapPointer, slot.XRadius, slot.YRadius, slot.AnimationFrame),
+                    "Every scheduled projectile exposure/physical envelope/trail phase matches native");
+                AssertEqual((timer, pointer, sprite, x, y),
+                    (bomb.InstructionTimer, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.XRadius, bomb.YRadius),
+                    "Every scheduled bomb exposure/physical envelope matches native");
+                slot.AnimationFrame = 0xbeef;
+                AssertEqual(trail, (ushort)readTrail.Invoke(null, [slot])!, "Actual trail consumer reads prior record, not next phase or cached frame");
+                slot.AnimationFrame = trail;
+                if (looped) { loops++; finished = true; break; }
+            }
+            AssertTrue(finished, "Complete native startup and first loop or terminal deletion confirmed");
+        }
+        Console.WriteLine($"Projectile programs:1816 native words,805 records,105 complete programs,{actualTicks} exact ticks per owner,{loops} loop returns/{deletions} terminal deletions, zero runtime reads; original domain preserved.");
+    }
 }

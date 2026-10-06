@@ -506,7 +506,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/SamusProjectileInstructionDefinitions.cs
 
-- [ ] **SamusProjectileInstructionDefinitions.Words** ([L12](../csharp/src/SuperMetroid.Core/Game/SamusProjectileInstructionDefinitions.cs#L12)) - factory-built stock table. Stored FrozenDictionary<int, ushort> initialized by Create(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **SamusProjectileInstructionDefinitions.Words** ([L12](../csharp/src/SuperMetroid.Core/Game/SamusProjectileInstructionDefinitions.cs#L12)) - factory-built stock table. Stored FrozenDictionary<int, ushort> initialized by Create(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/SamusProjectileMotionDefinitions.cs
 
@@ -1334,3 +1334,59 @@ All ranges are bank93 native program domains; radii occupy timed-record offsets4
 - Final focused build: 1434 warnings / zero errors; the complete native/actual-interpreter/shared-source/domain proof above passed. git diff --check found no whitespace errors.
 
 Root integration: Root reviewed complete family rules, native frame classification, physical collision consumers and exact art-relative bounds.805original records/1610nativebytes and actual projectile/bomb interpreter checks confirm supplied artwork independence, no runtime reads and exact originaldomain; shared art candidate reconciled narrowly. No timing/artwork closure. Master 600 converted/75 retained-mixed/453 pending.
+
+
+## Batch 100 — complete projectile instruction programs
+
+SamusProjectileInstructionDefinitions.Words is MIXED COMPLETE. Totals: 190 wholly converted / 27 mixed / nine unchecked. This completes the independently required program scope from Batches55–60; the source artwork and five shared lobe inputs remain required under their existing owners.
+
+### Calculated structure
+
+- The existing dictionary/factory had already been removed; this final pass resolves every remaining selected parameter instead of treating container removal as completion. Native timed records remain eight bytes, with duration/trail fields separated from independently installed sprites and the separately completed physical radii. Goto and Delete, target address arithmetic, compass aliases, ordered records and accepted word addresses calculate.
+- Four source-owned outward lobe positions give Wave16 = four signed outward/return quarters × four positions; PlasmaWave8 = outward/return × four positions; SpazerWave10 = outward/return × (four positions + initial Spazer lane). These counts are structural consequences of the existing named traversal policy, not new independent magnitude exemptions.
+- Charged programs pair the two selected alternating glyph phases: charged Wave16 = 2×8; charged Spazer10 = 2×5 growth poses; charged Plasma8 = 2×4 growth poses. Mature Spazer/Plasma loop entries are total phases minus the final two-pose pair, rather than independent constants8/6.
+- Charged SpazerWave24 = two paired startup poses + paired10-phase Spazer cycle; charged PlasmaWave22 = the same six-record Plasma growth prefix + paired8-phase Wave cycle. Their loop targets derive from those exact startup extents. Native first-frame preludes, last-growth-frame loops, complete cycles and one-shot deletion retain their named roles.
+- Trail phases calculate as timed ordinals for beam/echo/trail cycles. The separate no-trail bomb/explosion programs publish zero throughout. No source payload, polynomial encoding, generated sample array or per-address replacement word table remains.
+
+### Precisely retained timing/content policy matrix
+
+The coordinator independently reviewed native93:81D8 and81F0..8237 plus the actual managed consumers, and approved only these selected exposure/growth/reach/lifetime choices. Every duration is in interpreter updates. Native program domains are bank93; the fuller range matrix in Batch99 also applies.
+
+| Native source | Remaining selected program choices | Calculated consequence |
+| --- | --- | --- |
+| 86DB–873A Power | Persistent-frame reload hold15 | Single zero-trail phase loops to itself; exact timer reload remains observable. |
+| 873B and8743–8952 Wave/IceWave | Upward invisible prelude4; cycle hold1; signed outward/return traversal | Shared four-position geometry gives16 cyclic records; prelude is skipped by later loops. |
+| 8953–8976 Ice | Four selected image/trail phases, hold1 | Ordinals0..3 and full-cycle return. |
+| 8977–8A56 Spazer | Three growth phases, hold2, repeat only final growth pose | Final target = start+(count−1)×record size. |
+| 8A57–8CF6 SpazerWave | Hold2 and centered/outward/return traversal | Shared lane geometry gives10 phases. |
+| 8CF7–8D46 Plasma | Entry hold1; mature persistent hold15; skip entry thereafter | Two records, loop to the second. |
+| 8D47–8E76 PlasmaWave | Entry hold1; cyclic hold2; skip entry thereafter | One entry plus shared8-phase cycle. |
+| 8E77–8F16 charged Power | Two alternating image/trail phases, hold1 | Complete paired cycle. |
+| 8F17–912E; 9153–936A charged Wave/IceWave | Upward invisible prelude3; all cycle holds1; paired outward/return traversal | Shared16 records and exact skipped prelude. |
+| 912F–9152 charged Ice | Four selected image/trail phases, hold1 | Ordinals0..3 and complete cycle. |
+| 936B–94BA charged Spazer | Five paired growth poses, hold1, repeat mature pair | Ten records, loop index10−2. |
+| 94BB–9ADA charged SpazerWave | Two paired startup poses, hold1, then paired shared spread cycle | Four startup+20 cycle records. |
+| 9ADB–9BEA charged Plasma | Four paired growth poses, hold1, repeat mature pair | Eight records, loop index8−2. |
+| 9BEB–9EBA charged PlasmaWave | Same Plasma growth prefix, hold1, then paired shared Wave cycle | Six startup+16 cycle records. |
+| 9EBB–9F86 missile/super/link | Persistent-frame reload hold15 | One zero-trail frame per native direction/link identity. |
+| 9F87–9FBE Power Bomb | Three selected image phases, normal hold5/fast hold1, no trail | Same image-domain/control structure; independent fuse chooses the fast list. |
+| 9FBF–A006 Bomb | Four selected image phases, normal hold5/fast hold1, no trail | Same image-domain/control structure; independent fuse/explosion timing remains untouched. |
+| A007–A06A; A0C1–A0F2; A16D–A1A0 | Six selected explosion phases; beam/missile/unused hold3, super hold5; no trail. Beam/missile/super delete; unused repeats | Exact18- or30-update exposure before terminal action. |
+| A06B–A0C0 | Five selected bomb-explosion/Plasma-SBA phases, hold2, no trail; bomb deletes, Plasma SBA repeats | Ten-update exposure; chosen terminal behavior retained. |
+| A0F3–A116; A119–A13C | Four empty-sprite echo/trail phases, hold2, full cycle | Trail ordinals0..3; empty spritemapA117 itself is not executable mechanics. |
+| A13D–A158 Spazer SBA | Three growth/trail phases, hold2, repeat mature phase | Final target and trail ordinals calculated. |
+| A159–A16C Wave SBA | Two image/trail phases, hold8, full cycle | Sixteen-update cycle. |
+
+These choices define the selected projectile sequence, not a physical integration formula. Ordinary/charged beam cardinal speed is independently4px/update, so it does not explain the distinct upward exposure delays4/3 or other holds. Choosing a different time/phase/termination policy changes the native projectile performance rather than deriving missing samples. The exception covers exactly this matrix, with all identified shared structure still calculated; it excludes source pixels/spritemap selections, damage, acceleration, bomb fuse, sounds and all other timers.
+
+### Real consumers and confirmation
+
+- Native93:81F0..8237 and SamusProjectileSystem.Animation.RunProjectileInstructionHandler decrement the timer first, then publish duration/sprite/radii/trail and advance the pointer; terminal Delete clears the projectile. SamusBombProjectileSystem.RunProjectileInstructionHandler uses the corresponding duration/sprite/radius/terminal path. Thus exposure timing controls when collision reach changes and when occupied slots disappear, not merely which pixels appear.
+- Native93:81D8 and SamusProjectileSystem.TrailsAndCollisions.GetTrailAnimationFrame read the prior installed record's trail field. Trail spawning precedes motion/animation advancement and uses that ordinal for coordinate selection. The focused confirmation deliberately replaces the cached AnimationFrame with BEEF before this actual private consumer and still requires the previous native record's exact phase.
+- SamusBombProjectileSystem.RunBombPreInstruction and SamusPowerBombFuse independently select fast animation/explosion from their fuse state. This batch does not alter or exempt those fuse policies. All original assigned instruction selectors, program ranges and independently imported frame bindings remain intact.
+- `--lookup-stream-1-projectile-programs` independently traverses the supported original ROM, identifies all1816 duration/trail/opcode/target words,805 timed records and105 complete program domains, and rejects every nonmechanics byte in the original bounded region. It executes each complete native startup and first loop return or deletion through BOTH actual interpreters, comparing timer, pointer, sprite, physical radii and trail at every update, with runtime bus access unavailable. Native-derived duration sums bound each check, not an arbitrary exploratory run length. Result:1582 exact ticks per owner,101 loop returns/four terminal deletions.
+- `--lookup-stream-1-projectile-radii` is rerun because the newly derived layout counts are its direct dependency; all805 native pair identities and actual interpreter/edit checks remain required. No unrelated gameplay tests are added.
+- Changed production owners: SamusProjectileInstructionDefinitions.cs and the already granted shared ProjectileWaveEnvelopeDefinitions.cs (four-position domain count only). Root must refresh those transitive projectile-closure hashes after Batch99's shared artwork relocation; no additional artwork mutation or exemption. Local Program.cs only wires the focused command; coordinator owns shared integration.
+- Final build: 1219 warnings / zero errors. Both focused program and dependent radius commands passed; no whitespace errors reported by git diff --check.
+
+Root integration: Root reviewed native/managed timer-to-radius/sprite/trail-to-loop/delete ordering and exact family policy matrix. Build1454warnings/zeroerrors,Audit0/0;1816native words/805records/105complete programs,1582ticks per projectile/bomb owner,101loops/4deletes includingactual prior-record trail reads and zero runtime reads. Dependent805radius/1610byte/actualinterpreter proof still passes; only redundant XML wording corrected during integration. Master 600 converted/78 retained-mixed/450 pending.

@@ -68,6 +68,14 @@ if (args is ["--lookup-stream5-ceres-overlay-complete"])
     VerifyCeresEscapeVramTransferDefinitions(rom);
     return 0;
 }
+if (args is ["--lookup-stream-1-world-foreground"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "World foreground oracle revision");
+    VerifyLookupStream1WorldForeground(rom);
+    return 0;
+}
 if (args is ["--lookup-stream-1-world-background"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

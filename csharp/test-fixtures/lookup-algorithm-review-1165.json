@@ -12146,4 +12146,13 @@
     "Calculate X from staggered pairs and shared step2; retain only selected destruction formation/interleaved order,step2 and four vertical impact placements -8/4/22/12. Native producer emits independent effects, not trajectory samples or geometric sprite boundaries. Exact composition cannot be regenerated without these selected placements. Timing/sound/RNG threshold/overlay geometry excluded."
   ],
   "confirmation": "Root reviewed native A6:F7DC-F84F and variant2 footprint diagram. Build1452warnings/zeroerrors; fresh terminal-success rebuild and focused proof pass eight native words, bounds,98actual calls,20emissions at native/wrapping origins, reverse order, both animations and exact expiry. Only discrete formation/step2/vertical placements retained."
+},"worldForegroundWholeEntry":{
+  "disposition": [
+    "Calculate blanks, shared glyphs, circles/caps/diagonals/crosses, font shadows, rails, ramps and stars. Retain precisely208 independently drawn cells,300glyph masks/360contour choices and675 partitioned nonfont inputs:265letter strokes,233ink identities,176mechanical shading pixels,one C9 painted discontinuity. Selected portrait/terrain/glyph content and explicitly named shape/pen/state policies cannot be regenerated from transport or tile identity without reembedding the chosen design. RGB,tilemaps,timing and other artwork excluded."
+  ],
+  "completed": [
+    "WorldMapArtwork.foreground"
+  ],
+  "confirmation": "Root reviewed native labeled atlas, font shadow joins, composed Zebes map and exact C9 discrepancy. Integrated build1452warnings/zeroerrors; focused proof passes44032 native pixels,10845 geometry/reuse relations,14347source pixels/300masks/360contours,1197 independent source/tile edits, full inversion and actual full VRAM uploads.",
+  "workerCommit": "bc2cb446026f5d01d02d757f0ed88b448e0eced7"
 }}

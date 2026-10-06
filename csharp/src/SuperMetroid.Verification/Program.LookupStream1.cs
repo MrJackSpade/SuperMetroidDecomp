@@ -2836,4 +2836,72 @@ internal static partial class Program
         Console.WriteLine("Visor: six direct native defaults, exact two-color/step basis, zero stock overrides and six independent edits pass.");
     }
 
+    private static void VerifyLookupStream1WorldForeground(ISnesAddressSpace rom)
+    {
+        byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => rom.ReadByte(address + i)).ToArray();
+        byte[] front = Read(WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes);
+        byte[] back = Read(WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(front, 4, 16, out int width, out int height);
+        byte[] backPixels = SnesGraphics.DecodePlanarTiles(back, 2, 16, out _, out int backHeight);
+        byte[] Png(byte[] selected, int selectedHeight, int colors)
+        {
+            using var png = new MemoryStream(); IndexedPng.Write(png, width, selectedHeight, selected, SnesGraphics.DiagnosticPalette(colors));
+            return png.ToArray();
+        }
+        byte[] backPng = Png(backPixels, backHeight, 4);
+        WorldMapArtwork Create(byte[] selected) => WorldMapArtwork.Load(new MemoryStream(Png(selected, height, 16)), new MemoryStream(backPng));
+        var field = typeof(WorldMapArtwork).GetField("foreground", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var stock = Create(pixels);
+        var stored = (Dictionary<int, byte>)field.GetValue(stock)!;
+        ulong NativeMask(int tile)
+        {
+            ulong mask = 0;
+            for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++)
+                if (pixels[(tile / 16 * 8 + y) * width + tile % 16 * 8 + x] == 14) mask |= 1UL << (y * 8 + x);
+            return mask;
+        }
+        var masks = (Dictionary<int, ulong>)typeof(WorldMapArtwork).GetField("fontFill",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(300, masks.Count, "Exact source font masks after blank and named glyph aliases");
+        foreach (var pair in masks) AssertEqual(NativeMask(pair.Key), pair.Value, "Exact selected native font footprint");
+        int calculated = 0, fontDifferences = 0;
+        var edits = new HashSet<int>();
+        for (int index = 0; index < pixels.Length; index++)
+        {
+            int source = WorldMapTileDefinitions.ForegroundSourcePixel(index);
+            if (source >= 0)
+                AssertEqual(source, WorldMapTileDefinitions.ForegroundSourcePixel(source), "Foreground source dependencies are fixed and acyclic");
+            AssertEqual(pixels[index], source < 0 ? (byte)0 : pixels[source], $"Direct foreground relation at pixel{index}");
+            bool font = WorldMapTileDefinitions.TryForegroundFontPixel(index, NativeMask, out byte fontValue);
+            bool required = source == index && (!font || pixels[index] != fontValue);
+            AssertEqual(required, stored.ContainsKey(index), "Exact selected source/contour basis; zero stock relation exceptions");
+            if (source == index && font && pixels[index] != fontValue) fontDifferences++;
+            if (source != index) { calculated++; if (source >= 0) edits.Add(source); }
+        }
+        AssertEqual(14347, stored.Count, "Exact drawing, contour and primitive source inputs");
+        AssertEqual(10845, calculated, "Exact geometry and shared-source relations");
+
+        AssertEqual(360, fontDifferences, "Exact selected glyph bevel/contour decisions");
+        void Check(WorldMapArtwork art, byte[] expected)
+        {
+            var vram = new SnesVram(); art.LoadTo(vram);
+            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormat.ForegroundDestination, front.Length).SequenceEqual(
+                SnesPlanarTileEncoder.Encode(expected, width, height, 4)), "Complete independent foreground upload");
+            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormat.BackgroundDestination, back.Length).SequenceEqual(back), "Completed BG3 remains exact");
+        }
+        Check(stock, pixels);
+        for (int tile = 0; tile < WorldMapArtworkFormat.ForegroundTileCount; tile++)
+            edits.Add(tile / 16 * 8 * width + tile % 16 * 8);
+        foreach (int index in edits)
+        {
+            byte[] edited = (byte[])pixels.Clone();
+            edited[index] ^= 15;
+            Check(Create(edited), edited);
+        }
+        byte[] inverted = pixels.Select(p => (byte)(p ^ 15)).ToArray();
+        Check(Create(inverted), inverted);
+        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.ForegroundSourcePixel(-1), "Foreground lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.ForegroundSourcePixel(pixels.Length), "Foreground upper bound");
+        Console.WriteLine($"World foreground:{pixels.Length} native pixels,{calculated} exact source relations,{stored.Count} source pixels/{masks.Count} masks/{fontDifferences} font differences,{edits.Count} independent tile/source edits/full inversion/full uploads pass.");
+    }
 }

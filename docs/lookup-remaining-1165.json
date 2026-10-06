@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 460,
+  "remainingTableDefinitionCount": 459,
   "fileCount": 523,
   "entries": [
     {
@@ -2374,12 +2374,15 @@
   "disposition": "Calculate4419 pixels via solid/room/guide/arrow/panel/wedge geometry,shared rows and digit outlines. Retain precisely1720 selected glyph/icon contour pixels,ten digit fill masks,five reviewed edge decisions,and named topology/pen/stroke policies for96 BG3 characters. Exact chosen font/icon design has no numeric basis; transfer and transparent-pen routing remain observable. No RGB,tilemap or foreground-art exemption."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/WorldMapArtwork.cs",
-      "line": 8,
-      "name": "WorldMapArtwork.foreground",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind WorldMapArtwork.foreground. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/WorldMapArtwork.cs",
+  "line": 8,
+  "name": "WorldMapArtwork.foreground",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind WorldMapArtwork.foreground. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "bc2cb446026f5d01d02d757f0ed88b448e0eced7",
+  "disposition": "Calculate blanks, shared glyphs, circles/caps/diagonals/crosses, font shadows, rails, ramps and stars. Retain precisely208 independently drawn cells,300glyph masks/360contour choices and675 partitioned nonfont inputs:265letter strokes,233ink identities,176mechanical shading pixels,one C9 painted discontinuity. Selected portrait/terrain/glyph content and explicitly named shape/pen/state policies cannot be regenerated from transport or tile identity without reembedding the chosen design. RGB,tilemaps,timing and other artwork excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/YardVisualDefinitions.cs",
       "line": 17,
@@ -21694,5 +21697,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 68
+  "justifiedRetainedSinceSnapshot": 69
 }

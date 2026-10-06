@@ -11,7 +11,7 @@ public sealed class CeresRidleyColorCatalog
     private readonly CeresRidleyStartColorDefinitions start;
     private readonly CeresRidleyFadeColorDefinitions eyeFade;
     private readonly CeresRidleyFadeColorDefinitions bodyFade;
-    private readonly ushort[][] health;
+    private readonly CeresRidleyHealthPaintDefinitions health;
     private readonly CeresRidleyAlarmColorDefinitions alarm;
     private readonly Dictionary<int, ushort> retreatBg = [];
     /// <summary>Only supplied differences from the first eight door paints: native $A6:AA01-AA10 repeats $A6:E171-E180.</summary>
@@ -26,7 +26,7 @@ public sealed class CeresRidleyColorCatalog
         this.start = new(start, baby);
         this.eyeFade = eyeFade;
         this.bodyFade = bodyFade;
-        this.health = health;
+        this.health = new(health, bodyFade, eyeFade);
         this.alarm = alarm;
         for (int color = 0; color < retreatBg.Length; color++)
             if (retreatBg[color] != CalculateRetreatBg(color)) this.retreatBg.Add(color, retreatBg[color]);
@@ -48,7 +48,7 @@ public sealed class CeresRidleyColorCatalog
     public ushort ResolveStart(int color) => start.Resolve(color);
     public ushort ResolveEyeFade(int row, int color) => eyeFade.Resolve(row, color);
     public ushort ResolveBodyFade(int row, int color) => bodyFade.Resolve(row, color);
-    public ushort ResolveHealth(int row, int color) => Get(health, row, color);
+    public ushort ResolveHealth(int row, int color) => health.Resolve(row, color);
     public ushort ResolveAlarm(int row, int color) => alarm.Resolve(row, color);
     public ushort ResolveRetreatBg(int color)
     {
@@ -90,8 +90,13 @@ public sealed class CeresRidleyColorCatalog
         for (int color = 0; color < CeresRidleyPaletteRomData.BodyFadeColorCount; color++)
             cgram.SetColor(CeresRidleyPaletteRomData.BodyFadeObjCgramIndex + color, bodyFade.Resolve(row, color));
     }
-    public void ApplyHealth(SnesCgram cgram, int row) =>
-        Apply(cgram, Get(health, row), CeresRidleyPaletteRomData.HealthCgramIndex);
+    public void ApplyHealth(SnesCgram cgram, int row)
+    {
+        _ = health.Resolve(row, 0);
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < CeresRidleyPaletteRomData.HealthColorCount; color++)
+            cgram.SetColor(CeresRidleyPaletteRomData.HealthCgramIndex + color, health.Resolve(row, color));
+    }
 
     public void ApplyAlarm(SnesCgram cgram, int row)
     {
@@ -169,28 +174,6 @@ public sealed class CeresRidleyColorCatalog
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));
         return bytes;
-    }
-
-    private static ushort Get(ushort[] colors, int color)
-    {
-        if ((uint)color >= colors.Length) throw new ArgumentOutOfRangeException(nameof(color));
-        return colors[color];
-    }
-
-    private static ushort[] Get(ushort[][] rows, int row)
-    {
-        if ((uint)row >= rows.Length) throw new ArgumentOutOfRangeException(nameof(row));
-        return rows[row];
-    }
-
-    private static ushort Get(ushort[][] rows, int row, int color) =>
-        Get(Get(rows, row), color);
-
-    private static void Apply(SnesCgram cgram, ushort[] colors, int destination)
-    {
-        ArgumentNullException.ThrowIfNull(cgram);
-        for (int color = 0; color < colors.Length; color++)
-            cgram.SetColor(destination + color, colors[color]);
     }
 
     private static ushort[][] CompileRows(PaletteRgb5[][]? rows, int count,

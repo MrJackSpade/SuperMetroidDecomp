@@ -2806,4 +2806,84 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => stock.ApplyRetreat(null!), "Retreat null CGRAM");
         Console.WriteLine("Ceres zoom/retreat:150 native words,zero stock overrides,405 zoom/87 retreat-source RGB edits,3672 actual zoom selections/90 retreat copies,domains/null pass.");
     }
+    private static void VerifyLookupStream4CeresHealth(ISnesAddressSpace rom)
+    {
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        ushort Native(int row, int color)
+        {
+            int a = 0xa6e46a + (row * 14 + color) * 2;
+            return (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
+        }
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var definition = (CeresRidleyHealthPaintDefinitions)typeof(CeresRidleyColorCatalog).GetField("health", flags)!.GetValue(stock)!;
+        var overrides = (Dictionary<int, ushort>)typeof(CeresRidleyHealthPaintDefinitions).GetField("edits", flags)!.GetValue(definition)!;
+        AssertEqual(0, overrides.Count, "All42 native health colors calculate");
+        static PaletteRgb5 Change(PaletteRgb5 value, int channel) => channel switch
+        { 0 => value with { Red = value.Red ^ 1 }, 1 => value with { Green = value.Green ^ 1 }, _ => value with { Blue = value.Blue ^ 1 } };
+        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 56; edit++)
+        {
+            var rows = document.Health.Select(row => row.ToArray()).ToArray();
+            var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
+            var eyes = document.EyeFade.Select(row => row.ToArray()).ToArray();
+            if (edit is >= 0 and < 42) rows[edit / 14][edit % 14] = Change(rows[edit / 14][edit % 14], channel);
+            else if (edit is >= 42 and < 53) body[15][edit - 42] = Change(body[15][edit - 42], channel);
+            else if (edit >= 53) eyes[0][edit - 53] = Change(eyes[0][edit - 53], channel);
+            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Health = rows, BodyFade = body, EyeFade = eyes })));
+            for (int row = 0; row < 3; row++)
+            {
+                var cgram = new SnesCgram();
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                selected.ApplyHealth(cgram, row);
+                for (int color = 0; color < 256; color++)
+                {
+                    ushort expected = color is >= 241 and < 255
+                        ? (ushort)(Native(row, color - 241) ^ (edit == row * 14 + color - 241 ? 1 << (channel * 5) : 0)) : (ushort)0x1234;
+                    AssertEqual(expected, cgram.Colors[color], "Health copy preserves every independent source/output edit and neighbor");
+                }
+            }
+        }
+        for (int variation = -1; variation < 2; variation++)
+        {
+            var rows = document.Health.Select(row => row.ToArray()).ToArray();
+            var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
+            if (variation == 0) rows[1][5] = Change(rows[1][5], 2);
+            if (variation == 1) body[15][9] = Change(body[15][9], 1);
+            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Health = rows, BodyFade = body })));
+            var enemies = new RoomEnemySystem { CeresRidleyColors = selected };
+            var cgram = new SnesCgram();
+            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+            var norfair = typeof(RoomEnemySystem).GetMethod("UpdateNorfairRidleyHealthPalette", flags)!.CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
+            var ceres = typeof(RoomEnemySystem).GetMethod("UpdateCeresRidleyHealthPalette", flags)!.CreateDelegate<Action<RidleyEnemyState>>(enemies);
+            void Fill() { for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234); }
+            void Check(int row)
+            {
+                for (int color = 0; color < 256; color++)
+                {
+                    ushort expected = row >= 0 && color is >= 241 and < 255
+                        ? (ushort)(Native(row, color - 241) ^ (variation == 0 && row == 1 && color == 246 ? 1 << 10 : 0)) : (ushort)0x1234;
+                    AssertEqual(expected, cgram.Colors[color], "Actual encounter health/shot selection preserves installed paint and exact copy");
+                }
+            }
+            foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799 })
+            {
+                Fill(); enemies.Slots[0].Health = health;
+                var state = new RidleyEnemyState(); norfair(enemies.Slots[0], state);
+                int row = health >= 9000 ? -1 : health >= 5400 ? 0 : health >= 1800 ? 1 : 2;
+                AssertEqual((ushort)(row + 1), state.HealthStage, "Norfair health stage remains exact"); Check(row);
+            }
+            foreach (ushort fight in new ushort[] { 0, 1 }) foreach (ushort hits in new ushort[] { 49, 50, 69, 70, 89, 90 })
+            {
+                Fill(); ceres(new RidleyEnemyState { FightMode = fight, HitCounter = hits });
+                Check(fight == 0 || hits < 50 ? -1 : hits < 70 ? 0 : 2);
+            }
+        }
+        foreach (int row in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(row, 0), "Health row bounds");
+        foreach (int color in new[] { -1, 14, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, color), "Health color bounds");
+        AssertThrows<ArgumentNullException>(() => stock.ApplyHealth(null!, 0), "Health null CGRAM");
+        Console.WriteLine("Ridley health:42 native words,zero stock overrides,126 output/42 source RGB edits,513 actual copies,54 actual encounter selections and bounds/null pass.");
+    }
 }

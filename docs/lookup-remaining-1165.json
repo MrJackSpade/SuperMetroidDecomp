@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 439,
+  "remainingTableDefinitionCount": 438,
   "fileCount": 523,
   "entries": [
     {
@@ -225,12 +225,15 @@
   "disposition": "All176body samples use floor((endpointChannel*phase+1)/15), eliminating17exceptional words. First8endpoints share reviewed immutable Golden armor; its16/11middle shades now derive max(8,21−5*shade). Retain only5wing membrane inputs G18/G1/B−G5/darkR20/darkB4 with saturated-red/darkG0 hue policy, plus common rounding composition. Actual three masks establish selected membrane paint; independent replacements preserve supplied data. Initial/explosion palettes,pixels,timing excluded."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
-      "line": 14,
-      "name": "CeresRidleyColorCatalog.health",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CeresRidleyColorCatalog.health. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
+  "line": 14,
+  "name": "CeresRidleyColorCatalog.health",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CeresRidleyColorCatalog.health. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "c7d54e1e9777526db05258f1777f54c5250f3e0a",
+  "disposition": "Calculate42colors from existing body/eye paints tinted toward membrane183F at(2+row)/20. Retain only tint progression and precise recessed-armor green first-band / middle-plate blue second-band prior-shade holds as selected material composition. Magnitudes derive from source/prior shade; no new paint values,threshold,pixel or timing exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
       "line": 15,
@@ -21757,5 +21760,5 @@
     }
   ],
   "convertedSinceSnapshot": 602,
-  "justifiedRetainedSinceSnapshot": 87
+  "justifiedRetainedSinceSnapshot": 88
 }

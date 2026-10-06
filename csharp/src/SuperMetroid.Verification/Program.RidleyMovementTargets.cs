@@ -39,14 +39,24 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?>>(enemies);
         var slot = enemies.Slots[0];
         var state = new RidleyEnemyState();
-        // Independent zero-velocity specialization of native inertia: target selection
+        // Independent closed form of native inertia from zero velocity: target selection
         // must change actual output velocity, not just expose a matching catalog value.
+        // Toward a lower target, $A6:D559 starts the reversal SBC chain with carry set; the
+        // reversal acceleration of 8 borrows, so the chain removes 8 + 1 + 2 * step. Toward a
+        // higher target the single ADC carries in the unsigned CMP result (position >= target),
+        // which is set when the signed distance is negative only because the words wrapped.
         static ushort Expected(ushort position, ushort target, int index)
         {
             int distance = unchecked((short)(position - target));
             if (distance == 0) return 0;
             int step = Math.Max(1, Math.Abs(distance) / (16 - index));
-            return unchecked((ushort)Math.Clamp(distance > 0 ? -8 - step * 2 : step, -1280, 1280));
+            if (distance > 0)
+            {
+                ushort lowered = unchecked((ushort)(-9 - 2 * step));
+                return unchecked((short)(lowered + 1280)) < 0 ? unchecked((ushort)-1280) : lowered;
+            }
+            ushort raised = unchecked((ushort)(step + (position >= target ? 1 : 0)));
+            return unchecked((short)(raised - 1280)) >= 0 ? (ushort)1280 : raised;
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -61,7 +71,8 @@ internal static partial class Program
             AssertEqual(y, state.TargetY, "Real carry height selection");
             AssertEqual(Expected(slot.XPosition, x, 0), state.HorizontalVelocity, "Carry target drives exact X acceleration");
             AssertEqual(Expected(slot.YPosition, y, 0), state.VerticalVelocity, "Carry target drives exact Y acceleration");
-            AssertEqual((ushort)32, state.FunctionTimer, "Carry setup timer");
+            // Setup stores 32 and then falls through into the shared timer decrement.
+            AssertEqual((ushort)31, state.FunctionTimer, "Carry setup timer");
             AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "Carry setup phase");
             AssertEqual((int)hover[Math.Min(raw, 3)], readDivisor(state), "Every health word preserves existing divisor clamp");
         }

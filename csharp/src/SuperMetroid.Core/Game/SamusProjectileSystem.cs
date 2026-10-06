@@ -437,7 +437,8 @@ public sealed partial class SamusProjectileSystem
                     level,
                     samus,
                     controllerInput,
-                    controllerNewInput,
+                    // FireUnchargedBeam tests both current and prior new-input latches.
+                    unchecked((ushort)(controllerNewInput | controllerPreviousNewInput)),
                     sharedProjectiles,
                     roomPlms);
             }

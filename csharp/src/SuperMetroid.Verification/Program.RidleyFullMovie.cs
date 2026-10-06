@@ -520,8 +520,27 @@ internal static partial class Program
                     Check("Ridley tail tip Y", ridleyState.TailSegments[6].YPosition, RidleyMovieMemory.TailTipY);
                 }
             }
+            if (game.GameState == SuperMetroidGameState.MainGameplay)
+            {
+                Check("Projectile cooldown", runtime.BombProjectiles.CooldownTimer, RidleyMovieMemory.ProjectileCooldown);
+                Check("Beam charge", runtime.Projectiles.FlareCounter, RidleyMovieMemory.BeamCharge);
+            }
+            if (game.GameState == SuperMetroidGameState.MainGameplay)
+            foreach (var projectile in runtime.Projectiles.Slots.Take(5))
+            {
+                int index = projectile.NativeByteIndex;
+                string owner = $"Projectile {projectile.SlotIndex}";
+                Check(owner + " type", projectile.Type, RidleyMovieMemory.ProjectileType + index);
+                if (projectile.Type == 0 || W(RidleyMovieMemory.ProjectileType + index) == 0) continue;
+                Check(owner + " X", projectile.XPosition, RidleyMovieMemory.ProjectileX + index);
+                Check(owner + " Y", projectile.YPosition, RidleyMovieMemory.ProjectileY + index);
+                Check(owner + " X radius", projectile.XRadius, RidleyMovieMemory.ProjectileXRadius + index);
+                Check(owner + " Y radius", projectile.YRadius, RidleyMovieMemory.ProjectileYRadius + index);
+                Check(owner + " damage", projectile.Damage, RidleyMovieMemory.ProjectileDamage + index);
+            }
             if (mismatches.Count != 0)
             {
+                Console.Error.WriteLine($"Shot diagnostic: locked={samus.InputLocked}, HUD={samus.SelectedHudItem}, grappleDebug={runtime.DebugGrappleItemSelected}, charge={runtime.Projectiles.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer}, held={runtime.Controller1.Current:X4}, new={runtime.Controller1.NewlyPressed:X4}, spawn={runtime.Projectiles.LastFiredProjectileSnapshot}");
                 Console.Error.WriteLine($"Room width={level.WidthInBlocks}, Samus radius={samus.Kinematics.XRadius}/{samus.Kinematics.YRadius}, speed={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4}+{samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4}");
                 for (int block = 0; block < level.WidthInBlocks * level.HeightInBlocks; block++)
                 {

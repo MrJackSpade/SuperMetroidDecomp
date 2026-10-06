@@ -25,6 +25,22 @@ internal static class RidleyMovieMemory
     public const int TailTipX = 0x20a4;
     /// <summary>$20A6: tilemap_stuff[83], solved Ridley tail tip Y.</summary>
     public const int TailTipY = 0x20a6;
+    /// <summary>$0B64: projectile_x_pos, native ordinary projectile X array.</summary>
+    public const int ProjectileX = 0x0b64;
+    /// <summary>$0B78: projectile_y_pos, native ordinary projectile Y array.</summary>
+    public const int ProjectileY = 0x0b78;
+    /// <summary>$0BB4: projectile_x_radius.</summary>
+    public const int ProjectileXRadius = 0x0bb4;
+    /// <summary>$0BC8: projectile_y_radius.</summary>
+    public const int ProjectileYRadius = 0x0bc8;
+    /// <summary>$0C18: projectile_type.</summary>
+    public const int ProjectileType = 0x0c18;
+    /// <summary>$0C2C: projectile_damage.</summary>
+    public const int ProjectileDamage = 0x0c2c;
+    /// <summary>$0CCC: shared beam/bomb cooldown.</summary>
+    public const int ProjectileCooldown = 0x0ccc;
+    /// <summary>$0CD0: beam flare/charge counter.</summary>
+    public const int BeamCharge = 0x0cd0;
     /// <summary>$079B: room_ptr.</summary>
     public const int Room = 0x079b;
     /// <summary>$0911: layer1_x_pos.</summary>

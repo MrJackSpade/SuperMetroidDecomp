@@ -37,6 +37,21 @@ internal static partial class Program
             AssertEqual((ushort)retail.ReadByte(address), shared.CooldownTimer,
                 "Native charged/fresh/held selection installs exact shared delay");
         }
+        // Original source 2778 releases an uncharged shot via the pose handoff,
+        // with Charge equipped and neither current nor previous Shoot edge set.
+        foreach (bool chargeEquipped in new[] { true, false })
+        {
+            var projectiles = CreateProjectileFixture();
+            var shared = CreateBombFixture();
+            var samus = new SamusState { Pose = SamusPoseIds.NormalJumpGunExtendedLeftPose,
+                XPosition = 211, YPosition = 288, EquippedBeams = (ushort)(chargeEquipped ? 0x1009 : 9) };
+            typeof(SamusState).GetProperty(nameof(SamusState.PoseTransitionShotDirection))!
+                .SetValue(samus, (ushort)0x8007);
+            var result = projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
+                0, 0, 0, shared, controllerPreviousNewInput: chargeEquipped ? (ushort)0 : (ushort)SnesButton.X);
+            AssertEqual((int?)0, result.FiredSlot, "native handoff/previous-edge shot is produced");
+            AssertEqual((ushort)15, shared.CooldownTimer, "Charge equipment or previous Shoot edge selects ordinary cooldown");
+        }
         foreach (ushort beam in new ushort[] { 0, 10 })
         {
             var projectiles = CreateProjectileFixture();

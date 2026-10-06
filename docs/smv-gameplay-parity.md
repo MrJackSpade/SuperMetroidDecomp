@@ -165,6 +165,12 @@ Stationary Spring Ball now also selects command six during hurt movement. A
 source-1983 fixture confirms the native knockback displacement `$00CB.4000`,
 retained stationary pose, and zero residual base speed after the movement owner.
 
+Projectile coverage now includes types, X/Y, radii, damage, charge and shared
+cooldown. It caught an omitted cooldown condition at update 2677: Charge equipment
+or either current/previous Shoot edge selects the ordinary firing delay. The port
+incorrectly used the longer held-fire delay, suppressing a later shot. The focused
+producer checks and movie now pass that interval with the expanded coverage.
+
 Checked state now matches through update 2960 of 10,717. The next divergence is
 update 2961 (original source frame 3063): Ridley native Y `$0105.8A00` versus
 port `$0101.6A00`, health `$4362` versus `$4074`, and corresponding tail-tip Y.

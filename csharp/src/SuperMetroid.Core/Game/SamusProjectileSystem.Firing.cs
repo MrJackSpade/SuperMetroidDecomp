@@ -293,13 +293,14 @@ public sealed partial class SamusProjectileSystem
                 unchecked((ushort)(slot.InstructionPointer + 5))));
         slot.InstructionTimer = 1;
 
-        // A fresh press takes the ordinary table path. Held auto-fire without a new edge
-        // uses $19 instead, preserving the native distinction between the compiled rows.
+        // $90:B8ED checks Charge equipment and both input-edge latches before
+        // selecting ordinary cooldown. Only uncharged auto-fire without those
+        // conditions uses the longer held-fire delay.
         byte cooldown = charged
             ? SamusProjectileCooldownDefinitions.ReadByte(
                 SamusProjectileRomData.Beams.UnchargedCooldowns +
                 SamusProjectileRomData.Beams.ChargedRowOffset + beamType)
-            : (controllerNewInput & shoot) != 0
+            : samus.EquippedBeams.HasAny(SamusBeamFlags.Charge) || (controllerNewInput & shoot) != 0
                 ? SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + beamType)
                 : SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.AutoFireCooldowns + beamType);
         sharedProjectiles.SetSharedCooldown(cooldown);

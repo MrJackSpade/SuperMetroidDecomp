@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 546,
+  "remainingTableDefinitionCount": 545,
   "fileCount": 523,
   "entries": [
     {
@@ -2528,7 +2528,7 @@
       "line": 16,
       "name": "MapScrollControls.Buttons",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.", 
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
       "state": "converted",
       "implementationCommit": "a20ecf5ee3c746f891f2c501c6beba319919ac42"
     },
@@ -2813,7 +2813,7 @@
       "line": 269,
       "name": "CeresDoorInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.", 
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
       "state": "converted",
       "implementationCommit": "6a566201311d63e11a16a2fbc3204d23262ae323"
     },
@@ -7995,7 +7995,9 @@
       "line": 54,
       "name": "SharedCrawlerInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "79225b8f48e5347151851192e1707259c9b6c47a"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ShitroidInstructionProgramDefinitions.cs",
@@ -21486,6 +21488,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 561,
+  "convertedSinceSnapshot": 562,
   "justifiedRetainedSinceSnapshot": 21
 }

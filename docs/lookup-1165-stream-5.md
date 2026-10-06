@@ -604,7 +604,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/SharedCrawlerInstructionProgramDefinitions.cs
 
 - [ ] **SharedCrawlerInstructionProgramDefinitions.Words** ([L27](../csharp/src/SuperMetroid.Core/Game/SharedCrawlerInstructionProgramDefinitions.cs#L27)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **SharedCrawlerInstructionProgramDefinitions.PresentationWords** ([L54](../csharp/src/SuperMetroid.Core/Game/SharedCrawlerInstructionProgramDefinitions.cs#L54)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **SharedCrawlerInstructionProgramDefinitions.PresentationWords** ([L54](../csharp/src/SuperMetroid.Core/Game/SharedCrawlerInstructionProgramDefinitions.cs#L54)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/SlopeSpeedDefinitions.cs
 
@@ -997,3 +997,9 @@ Root Verification1450warnings/zero errors; --lookup-stream5-mode7-transfers pass
 a20ecf5ee completes MapScrollControls.Buttons: Left/Right/Up/Down dispatch to the matching named controller buttons. The default caller and equivalent native injection store no copied binding array; independently supplied custom bindings retain copied values. Direction iteration preserves native priority.
 
 Root Verification1450warnings/zero errors and ResourceAudit0warnings/zero errors. --lookup-stream5-map-buttons passes four native masks/IDs,index/direction bounds,zero default storage,actual default/custom four-direction pulses,release,sound boundary and simultaneous-input priority. Audit closure includes the new dispatch dependency. One converted entry;561converted/21retained-mixed/546pending. Only1165 is in-progress.
+
+## Integrated shared crawler instruction layout
+
+79225b8f4 completes SharedCrawlerInstructionProgramDefinitions.PresentationWords: four surface programs derive their visual operand addresses from setup,timed-record and loop widths. Function dispatch,self-loop targets and repeated mechanics layout calculate. Words remains pending for selected pose count5 and hold3; no timing or artwork exception.
+
+Root Verification1450warnings/zero errors; existing --shared-crawler-instruction-program-definitions passes36native words,four enemy families across four surface loops,20visual selections,function/loop publication,source-read guards and allocation checks. No direct ResourceAudit source-hash dependency exists. One converted entry;562converted/21retained-mixed/545pending.

@@ -1428,3 +1428,14 @@ Before batch131, FinalRoomPalette retained thirteen words below. Batch131 derive
 
 
 Root finalRoom confirmation:1452 warnings/0 errors;Audit0/0;24 direct native words,72 independent channel edits,actual CGRAM and dependent flash/recovery/glass/tube isolation passed. Mixed complete; master599converted/35retained-mixed/494pending. Amber role limitation is preserved without requiring an invented pixel classification.
+
+### Batch 165 — Complete recovery-light field candidate
+
+- Full scope is196 words: seven28-color images at AD:F283-F40A, selected in reverse by F273-F281. F24B-F254 indexes the seven pointers and zero sentinel; F25C-F26F copies14 colors to CGRAM31..3E and14 to51..5E. The caller's scheduler is outside this palette-field conversion.
+- Full-light endpoint F283-F2BA contains exactly the three already reviewed doorway-rim paints72B2/71C7/4463, final-room0..10, the reviewed casing highlight6318 twice, and final-room12..23. All shared fields have concrete source/routing ownership; no endpoint disappears into an unresolved alias. Duplicate supplied highlights remain independently editable.
+- Every RGB5 channel is floor(endpoint*(frame+1)/7), covering all196 native words. The seven positions come from the native pointer count; no fitted hidden-precision seeds or independently stored intermediate shades remain. The recovered ramp preserves all supplied sample edits through full-output confirmation/fallback.
+- Recovery-only reconciled candidates under csharp/test-temp/recovery-lights-reconciled/ start from the final-room full candidate. Production removes only four captured paint scalars and reads the already reviewed MotherBrainRecoveryPaintDefinitions constants; final-room reference, existing seven-step calculation, all other palettes and legacy inheritance stay intact. Verifier changes only the four-to-zero scalar-storage assertion and fixes its joined-line formatting; all original assertions remain.
+- Equivalent worker implementation passed in batch163's focused run:196 native words at both destinations,588 independently edited channel samples,72 independently edited final-room inputs, unchanged flash output and all seven legacy inherited frames. The temporary reconciliation script initially used a missing next-method name; its invalid temporary verifier was replaced, and final diff contains only the intended storage assertion. Root confirms the actual candidate after final-room integration before recoveryLights closure. This proposes converted status using separately justified paint catalogs, with no new retained choices in the original row field.
+
+
+Root recoveryLights confirmation:1452 warnings/0 errors;Audit0/0;196native colors,588channel edits,72final-room edits,actual routing and legacy inheritance passed. Converted; master600converted/35retained-mixed/493pending.

@@ -2365,8 +2365,9 @@ internal static partial class Program
         AssertTrue(ReferenceEquals(fade.GetType().GetField("finalRoom", flags)!.GetValue(fade),
             typeof(MotherBrainRoomColorPresentation).GetField("finalRoom", flags)!.GetValue(stock)),
             "stream 3 recovery endpoint reuses the final room palette");
-        AssertEqual(4, fade.GetType().GetFields(flags).Count(field => field.FieldType == typeof(ushort)),
-            "stream 3 recovery keeps only four additional paint endpoints");        for (int frame = 0; frame < 7; frame++)
+        AssertEqual(0, fade.GetType().GetFields(flags).Count(field => field.FieldType == typeof(ushort)),
+            "stream 3 reviewed recovery paints reside only in their domain catalog");
+        for (int frame = 0; frame < 7; frame++)
         {
             var actual = new SnesCgram();
             stock.ApplyRecoveryLights(actual, frame);

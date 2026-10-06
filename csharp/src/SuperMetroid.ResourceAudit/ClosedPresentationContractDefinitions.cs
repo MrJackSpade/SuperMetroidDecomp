@@ -67,7 +67,7 @@ internal static class ClosedPresentationContractDefinitions
             "installed-key set through constants or closed source flow; arbitrary strings remain unresolved."),
         new("SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation", "mother-brain-room-v3-complete-rows",
             ["ApplyFlash", "ApplyFinal", "ApplyPhaseTwoInitial", "ApplyRoomEntry", "ApplyRecoveryLights"],
-            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs", "F6AA33756E7F142B2AEC649BD1FC0DB548A90ABEDFDB7C418ACFB8A261567E75"),
+            [new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs", "01AFA1E5BDAD6AB0D138BF7E16088E5CFE3305059C47328EB9A5BEFA3DCEF44A"),
              new("csharp/src/SuperMetroid.Core/Game/MotherBrainRoomColorRomData.cs", "5472E152692CC5BC89B38AD141C824EC7AC7EFD515D3FEECC4CC2FBCD99CD96C"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainAttackPaintDefinitions.cs", "6A30A7BD6A6D487987ED6F3372ED19E301AF3F9FF2EAEC4F37CD43D17830610F"),
              new("csharp/src/SuperMetroid.Core/Assets/MotherBrainRecoveryPaintDefinitions.cs", "182FCC0906C39FD23DB0C005AA8A25B85D841FB9D7A02ADC0B906C9AA389C928"),

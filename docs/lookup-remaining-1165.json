@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 494,
+  "remainingTableDefinitionCount": 493,
   "fileCount": 523,
   "entries": [
     {
@@ -1527,12 +1527,15 @@
       "note": "Original/default payload behind MotherBrainRoomColorPresentation.initialTubeProjectile. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
-      "line": 16,
-      "name": "MotherBrainRoomColorPresentation.recoveryLights",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainRoomColorPresentation.recoveryLights. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainRoomColorPresentation.cs",
+    "line":  16,
+    "name":  "MotherBrainRoomColorPresentation.recoveryLights",
+    "kind":  "installed stock table",
+    "note":  "Original/default payload behind MotherBrainRoomColorPresentation.recoveryLights. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+    "state":  "converted",
+    "implementationCommit":  "dbf5b0ab0",
+    "disposition":  "Complete:196words calculate seven equal floor-RGB5 intensity steps using fully reviewed doorway rim/shared casing and final-room endpoint dependencies. No additional paint scalar fields or stock row array. Exact routing,all independent edits and legacy inheritance preserved; cadence outside field excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainSpecialSpriteArtworkDefinitions.cs",
       "line": 58,
@@ -21590,6 +21593,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 599,
+  "convertedSinceSnapshot": 600,
   "justifiedRetainedSinceSnapshot": 35
 }

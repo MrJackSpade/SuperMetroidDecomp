@@ -281,20 +281,11 @@ public sealed class MotherBrainRoomColorPresentation
     private sealed class RecoveryLightFade
     {
         private readonly FinalRoomPalette finalRoom;
-        private readonly ushort backgroundLight;
-        private readonly ushort backgroundMiddle;
-        private readonly ushort backgroundDark;
-        private readonly ushort neutralHighlight;
         private readonly ushort[][]? supplied;
 
         public RecoveryLightFade(ushort[][] rows, FinalRoomPalette finalRoom)
         {
             this.finalRoom = finalRoom;
-            ushort[] full = rows[^1];
-            backgroundLight = full[0];
-            backgroundMiddle = full[1];
-            backgroundDark = full[2];
-            neutralHighlight = full[14];
             for (int frame = 0; frame < rows.Length; frame++)
                 for (int color = 0; color < rows[frame].Length; color++)
                     if (Calculate(frame, color) != rows[frame][color])
@@ -307,11 +298,11 @@ public sealed class MotherBrainRoomColorPresentation
         {
             ushort endpoint = color switch
             {
-                0 => backgroundLight,
-                1 => backgroundMiddle,
-                2 => backgroundDark,
+                0 => MotherBrainRecoveryPaintDefinitions.DoorwayRimLight,
+                1 => MotherBrainRecoveryPaintDefinitions.DoorwayRimMiddle,
+                2 => MotherBrainRecoveryPaintDefinitions.DoorwayRimDark,
                 >= 3 and <= 13 => finalRoom[color - 3],
-                14 or 15 => neutralHighlight,
+                14 or 15 => MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight,
                 _ => finalRoom[color - 4],
             };
             int result = 0;

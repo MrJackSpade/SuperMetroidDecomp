@@ -137,8 +137,9 @@ public static class ProjectileSpriteDefinitions
         int phase = recordOffset / 8;
         WaveTravelAxis axis = (WaveTravelAxis)(offset / cycleBytes);
         // The last axial pair reverses glyph order in native data. Its independent
-        // selection remains supplied and REQUIRED rather than folded into this traversal.
-        if (phase >= 14 && axis is WaveTravelAxis.Vertical or WaveTravelAxis.Horizontal) return false;
+        // parity-selection policy remains REQUIRED; only its exact pointer mapping calculates.
+        int glyphParity = phase % 2;
+        if (phase >= 16 - 2 && axis is WaveTravelAxis.Vertical or WaveTravelAxis.Horizontal) glyphParity ^= 1;
         int halfPhase = phase / 2;
         int stage = Math.Min(halfPhase, 8 - halfPhase);
         int shapeGroup = axis switch
@@ -149,13 +150,352 @@ public static class ProjectileSpriteDefinitions
             WaveTravelAxis.FallingDiagonal => 1,
             _ => throw new InvalidOperationException("Unknown charged Wave travel axis."),
         };
-        int pose = stage == 0 ? phase % 2 : 2 + shapeGroup * 8 + (stage - 1) * 2 + phase % 2;
+        int pose = stage == 0 ? glyphParity : 2 + shapeGroup * 8 + (stage - 1) * 2 + glyphParity;
         sprite = ChargedWavePointer(compositionStart, pose);
         return true;
     }
+    /// <summary>$93:8977..8A56: eight compass Spazer/SpazerIce lists, each three timed records and a self-jump.</summary>
+    private const ushort SpazerProgramStart = 0x8977;
+    /// <summary>Native semantic spread phases of each ordinary Spazer list.</summary>
+    private enum SpazerSpreadPhase { Seed, Intermediate, Full }
+    /// <summary>Selected physical spread stages remain REQUIRED phase-policy inputs: axial2/5, diagonal1/4. Pointer arithmetic does not derive these choices.</summary>
+    private static int SpazerSelectedStage(SpazerSpreadPhase phase, bool diagonal) => phase switch
+    {
+        SpazerSpreadPhase.Seed => 0,
+        SpazerSpreadPhase.Intermediate => diagonal ? 1 : 2,
+        SpazerSpreadPhase.Full => diagonal ? 4 : 5,
+        _ => throw new ArgumentOutOfRangeException(nameof(phase)),
+    };
+    private static bool TrySpazerCompassSprite(ushort pointer, out ushort sprite)
+    {
+        const int programBytes = 3 * 8 + 4;
+        int offset = pointer - SpazerProgramStart;
+        int within = offset % programBytes;
+        if (offset < 0 || offset >= 8 * programBytes || within >= 3 * 8 || within % 8 != 0)
+        {
+            sprite = default;
+            return false;
+        }
+        SpazerSeedDirection direction = SpazerCompassDirection(offset / programBytes);
+        int group = (int)direction;
+        bool diagonal = group < 4;
+        int seedParts = diagonal ? 4 : 2;
+        int stage = SpazerSelectedStage((SpazerSpreadPhase)(within / 8), diagonal);
+        int start = SpazerStart + Math.Min(group, 4) * SpreadGroupBytes(4) + Math.Max(0, group - 4) * SpreadGroupBytes(2);
+        sprite = (ushort)(start + (stage == 0 ? 0 : RecordBytes(seedParts) + (stage - 1) * RecordBytes(3 * seedParts)));
+        return true;
+    }
+    private static SpazerSeedDirection SpazerCompassDirection(int compass) => compass switch
+        {
+            0 => SpazerSeedDirection.Up,
+            1 => SpazerSeedDirection.UpRight,
+            2 => SpazerSeedDirection.Right,
+            3 => SpazerSeedDirection.DownRight,
+            4 => SpazerSeedDirection.Down,
+            5 => SpazerSeedDirection.DownLeft,
+            6 => SpazerSeedDirection.Left,
+            7 => SpazerSeedDirection.UpLeft,
+            _ => throw new InvalidOperationException("Unknown Spazer compass direction."),
+        };
+    /// <summary>$93:8A57..8CF6: eight SpazerWave compass cycles, ten timed stages outward and back plus self-jump.</summary>
+    private const ushort SpazerWaveProgramStart = 0x8a57;
+    /// <summary>The last physical diagonal composition is the selected near-center pose at cycle phases1/9. This placement/selection choice remains REQUIRED independently of address calculation.</summary>
+    private const int SpazerDiagonalNearCenterStage = 5;
+    /// <summary>$93:8BFB..8C4E selects a capped0..4..0 sweep with three phases at4; this chosen ceiling/plateau remains REQUIRED phase policy.</summary>
+    private const int SpazerDownLeftSelectedCeiling = 4;
+    private static bool TrySpazerWaveSprite(ushort pointer, out ushort sprite)
+    {
+        const int cycleLength = 10, cycleBytes = cycleLength * 8 + 4;
+        int offset = pointer - SpazerWaveProgramStart;
+        int within = offset % cycleBytes;
+        if (offset < 0 || offset >= 8 * cycleBytes || within >= cycleLength * 8 || within % 8 != 0)
+        {
+            sprite = default;
+            return false;
+        }
+        int group = (int)SpazerCompassDirection(offset / cycleBytes);
+
+        bool diagonal = group < 4;
+        int phase = within / 8;
+        int spread = Math.Min(phase, cycleLength - phase);
+        int stage = group == (int)SpazerSeedDirection.DownLeft
+            ? Math.Min(spread, SpazerDownLeftSelectedCeiling)
+            : !diagonal || spread == 0 ? spread : spread == 1 ? SpazerDiagonalNearCenterStage : spread - 1;
+        int seedParts = diagonal ? 4 : 2;
+        int start = SpazerStart + Math.Min(group, 4) * SpreadGroupBytes(4) + Math.Max(0, group - 4) * SpreadGroupBytes(2);
+        sprite = (ushort)(start + (stage == 0 ? 0 : RecordBytes(seedParts) + (stage - 1) * RecordBytes(3 * seedParts)));
+        return true;
+    }
+    /// <summary>$93:8CF7..8D46: four Plasma/PlasmaIce axes, each startup core then mature pose and self-jump.</summary>
+    private const ushort PlasmaProgramStart = 0x8cf7;
+    /// <summary>$93:8D47..8E76: four PlasmaWave axes, each an optional core lead and eight outward/return phases.</summary>
+    private const ushort PlasmaWaveProgramStart = 0x8d47;
+    /// <summary>Native axis selects the named core orientation; independent chosen growth/artwork policy remains REQUIRED.</summary>
+    private static int PlasmaCoreGroup(WaveTravelAxis axis) => axis switch
+    {
+        WaveTravelAxis.Vertical => 1,
+        WaveTravelAxis.RisingDiagonal => 3,
+        WaveTravelAxis.Horizontal => 0,
+        WaveTravelAxis.FallingDiagonal => 2,
+        _ => throw new ArgumentOutOfRangeException(nameof(axis)),
+    };
+    private static bool TryPlasmaSprite(ushort pointer, out ushort sprite)
+    {
+        const int programBytes = 2 * 8 + 4;
+        int offset = pointer - PlasmaProgramStart;
+        int within = offset % programBytes;
+        if (offset >= 0 && offset < 4 * programBytes && within < 2 * 8 && within % 8 == 0)
+        {
+            var axis = (WaveTravelAxis)(offset / programBytes);
+            int coreGroup = PlasmaCoreGroup(axis);
+            if (within == 0) sprite = PlasmaStartupPointer(coreGroup * 4);
+            else
+            {
+                int pose = axis switch
+                {
+                    WaveTravelAxis.Vertical => 2,
+                    WaveTravelAxis.RisingDiagonal => 3,
+                    WaveTravelAxis.Horizontal => 0,
+                    WaveTravelAxis.FallingDiagonal => 1,
+                    _ => throw new InvalidOperationException("Unknown Plasma axis."),
+                };
+                sprite = (ushort)(PlasmaStart + pose / 2 * (RecordBytes(4) + RecordBytes(6)) + pose % 2 * RecordBytes(4));
+            }
+            return true;
+        }
+        const int waveBytes = 9 * 8 + 4;
+        offset = pointer - PlasmaWaveProgramStart;
+        within = offset % waveBytes;
+        if (offset >= 0 && offset < 4 * waveBytes && within < 9 * 8 && within % 8 == 0)
+        {
+            var axis = (WaveTravelAxis)(offset / waveBytes);
+            if (within == 0) sprite = PlasmaStartupPointer(PlasmaCoreGroup(axis) * 4);
+            else
+            {
+                PlasmaWaveShape shape = axis switch
+                {
+                    WaveTravelAxis.Vertical => PlasmaWaveShape.VerticalShort,
+                    WaveTravelAxis.RisingDiagonal => PlasmaWaveShape.DownLeftShort,
+                    WaveTravelAxis.Horizontal => PlasmaWaveShape.HorizontalShort,
+                    WaveTravelAxis.FallingDiagonal => PlasmaWaveShape.DownRightShort,
+                    _ => throw new InvalidOperationException("Unknown PlasmaWave axis."),
+                };
+                int phase = within / 8 - 1;
+                int spread = Math.Min(phase, 8 - phase);
+                sprite = PlasmaWavePointer((int)shape * 5 + spread);
+            }
+            return true;
+        }
+        sprite = default;
+        return false;
+    }
+    /// <summary>$93:9ADB..9BEA: four charged Plasma axes, eight alternating growth records and a full-size self-loop.</summary>
+    private const ushort ChargedPlasmaProgramStart = 0x9adb;
+    /// <summary>$93:9BEB..9EBA: four charged PlasmaWave axes, six alternating growth leads then sixteen spread records.</summary>
+    private const ushort ChargedPlasmaWaveProgramStart = 0x9beb;
+    private static ushort ChargedPlasmaGrowthSprite(WaveTravelAxis axis, int phase) =>
+        PlasmaStartupPointer((PlasmaCoreGroup(axis) + (phase % 2) * 4) * 4 + phase / 2);
+    private static bool TryChargedPlasmaSprite(ushort pointer, out ushort sprite)
+    {
+        const int programBytes = 8 * 8 + 4;
+        int offset = pointer - ChargedPlasmaProgramStart;
+        int within = offset % programBytes;
+        if (offset >= 0 && offset < 4 * programBytes && within < 8 * 8 && within % 8 == 0)
+        {
+            sprite = ChargedPlasmaGrowthSprite((WaveTravelAxis)(offset / programBytes), within / 8);
+            return true;
+        }
+        const int waveBytes = (6 + 16) * 8 + 4;
+        offset = pointer - ChargedPlasmaWaveProgramStart;
+        within = offset % waveBytes;
+        if (offset >= 0 && offset < 4 * waveBytes && within < 22 * 8 && within % 8 == 0)
+        {
+            var axis = (WaveTravelAxis)(offset / waveBytes);
+            int phase = within / 8;
+            if (phase < 6) sprite = ChargedPlasmaGrowthSprite(axis, phase);
+            else
+            {
+                // Alternating native long/alternate artwork and selected growth extents
+                // remain required art/policy inputs; the outward/return phase calculates.
+                bool alternate = (phase & 1) != 0;
+                PlasmaWaveShape shape = (axis, alternate) switch
+                {
+                    (WaveTravelAxis.Vertical, false) => PlasmaWaveShape.VerticalLong,
+                    (WaveTravelAxis.Vertical, true) => PlasmaWaveShape.VerticalAlternate,
+                    (WaveTravelAxis.RisingDiagonal, false) => PlasmaWaveShape.DownLeftLong,
+                    (WaveTravelAxis.RisingDiagonal, true) => PlasmaWaveShape.DownLeftAlternate,
+                    (WaveTravelAxis.Horizontal, false) => PlasmaWaveShape.HorizontalLong,
+                    (WaveTravelAxis.Horizontal, true) => PlasmaWaveShape.HorizontalAlternate,
+                    (WaveTravelAxis.FallingDiagonal, false) => PlasmaWaveShape.DownRightLong,
+                    (WaveTravelAxis.FallingDiagonal, true) => PlasmaWaveShape.DownRightAlternate,
+                    _ => throw new InvalidOperationException("Unknown charged PlasmaWave axis."),
+                };
+                int spreadPhase = (phase - 6) / 2;
+                int spread = Math.Min(spreadPhase, 8 - spreadPhase);
+                sprite = PlasmaWavePointer((int)shape * 5 + spread);
+            }
+            return true;
+        }
+        sprite = default;
+        return false;
+    }
+    /// <summary>$93:94BB..9ADA: eight charged SpazerWave compass lists, four startup rows then twenty alternating spread rows.</summary>
+    private const ushort ChargedSpazerWaveProgramStart = 0x94bb;
+    /// <summary>Native six-phase composition groups fromD8EE, named by actual directional/alternate consumers. Choosing these artworks remains REQUIRED.</summary>
+    private enum ChargedSpazerShape
+    {
+        HorizontalAlternate, VerticalAlternate, FallingAlternate, RisingAlternate,
+        UpRight, DownRight, DownLeft, UpLeft, Down, Left, Up, Right,
+    }
+    /// <summary>Selected two-pose startup groups EE12..F0C4 in native identity order. Their directional/art selections remain REQUIRED.</summary>
+    private enum SpazerStartupShape
+    {
+        Left, UpLeft, Up, UpRight, Right, DownRight, Down,
+        HorizontalAlternate, FallingAlternate, VerticalAlternate, RisingAlternate,
+    }
+    private static ChargedSpazerShape ChargedSpazerBase(SpazerSeedDirection direction) => direction switch
+    {
+        SpazerSeedDirection.Up => ChargedSpazerShape.Up,
+        SpazerSeedDirection.UpRight => ChargedSpazerShape.UpRight,
+        SpazerSeedDirection.Right => ChargedSpazerShape.Right,
+        SpazerSeedDirection.DownRight => ChargedSpazerShape.DownRight,
+        SpazerSeedDirection.Down => ChargedSpazerShape.Down,
+        SpazerSeedDirection.DownLeft => ChargedSpazerShape.DownLeft,
+        SpazerSeedDirection.Left => ChargedSpazerShape.Left,
+        SpazerSeedDirection.UpLeft => ChargedSpazerShape.UpLeft,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction)),
+    };
+    private static ChargedSpazerShape ChargedSpazerAlternate(SpazerSeedDirection direction) => direction switch
+    {
+        SpazerSeedDirection.Up or SpazerSeedDirection.Down => ChargedSpazerShape.VerticalAlternate,
+        SpazerSeedDirection.UpRight or SpazerSeedDirection.DownLeft => ChargedSpazerShape.RisingAlternate,
+        SpazerSeedDirection.Left or SpazerSeedDirection.Right => ChargedSpazerShape.HorizontalAlternate,
+        SpazerSeedDirection.UpLeft or SpazerSeedDirection.DownRight => ChargedSpazerShape.FallingAlternate,
+        _ => throw new ArgumentOutOfRangeException(nameof(direction)),
+    };
+    private static ushort ChargedSpazerStartup(SpazerSeedDirection direction, int phase)
+    {
+        SpazerStartupShape shape;
+        if ((phase & 1) != 0)
+            shape = ChargedSpazerAlternate(direction) switch
+            {
+                ChargedSpazerShape.HorizontalAlternate => SpazerStartupShape.HorizontalAlternate,
+                ChargedSpazerShape.VerticalAlternate => SpazerStartupShape.VerticalAlternate,
+                ChargedSpazerShape.RisingAlternate => SpazerStartupShape.RisingAlternate,
+                ChargedSpazerShape.FallingAlternate => SpazerStartupShape.FallingAlternate,
+                _ => throw new InvalidOperationException("Unknown Spazer alternate startup."),
+            };
+        else
+            shape = direction switch
+            {
+                SpazerSeedDirection.Up => SpazerStartupShape.Up,
+                SpazerSeedDirection.UpRight or SpazerSeedDirection.DownLeft => SpazerStartupShape.UpRight,
+                SpazerSeedDirection.Right => SpazerStartupShape.Right,
+                SpazerSeedDirection.DownRight => SpazerStartupShape.DownRight,
+                SpazerSeedDirection.Down => SpazerStartupShape.Down,
+                SpazerSeedDirection.Left => SpazerStartupShape.Left,
+                SpazerSeedDirection.UpLeft => SpazerStartupShape.UpLeft,
+                _ => throw new ArgumentOutOfRangeException(nameof(direction)),
+            };
+        return SpazerStartupPointer((int)shape * 2 + phase / 2);
+    }
+    private static bool TryChargedSpazerWaveSprite(ushort pointer, out ushort sprite)
+    {
+        const int programBytes = 24 * 8 + 4;
+        int offset = pointer - ChargedSpazerWaveProgramStart;
+        int within = offset % programBytes;
+        if (offset < 0 || offset >= 8 * programBytes || within >= 24 * 8 || within % 8 != 0)
+        {
+            sprite = default;
+            return false;
+        }
+        SpazerSeedDirection direction = SpazerCompassDirection(offset / programBytes);
+        int phase = within / 8;
+        if (phase < 4) sprite = ChargedSpazerStartup(direction, phase);
+        else
+        {
+            bool alternate = (phase & 1) != 0;
+            ChargedSpazerShape shape = alternate ? ChargedSpazerAlternate(direction) : ChargedSpazerBase(direction);
+            int spreadPhase = (phase - 4) / 2;
+            int spread = Math.Min(spreadPhase, 10 - spreadPhase);
+            // Directional diagonal base groups place their near-center pose last;
+            // this native selection policy remains REQUIRED independently of addresses.
+            int stage = !alternate && (int)direction < 4 && spread != 0
+                ? (spread == 1 ? SpazerDiagonalNearCenterStage : spread - 1) : spread;
+            sprite = ChargedSpazerPointer((int)shape * 6 + stage);
+        }
+        return true;
+    }
+    /// <summary>$93:936B..94BA: four ordinary charged Spazer axes, four startup and six selected spread rows.</summary>
+    private const ushort ChargedSpazerProgramStart = 0x936b;
+    private static bool TryChargedSpazerSprite(ushort pointer, out ushort sprite)
+    {
+        const int programBytes = 10 * 8 + 4;
+        int offset = pointer - ChargedSpazerProgramStart;
+        int within = offset % programBytes;
+        if (offset < 0 || offset >= 4 * programBytes || within >= 10 * 8 || within % 8 != 0)
+        {
+            sprite = default;
+            return false;
+        }
+        var axis = (WaveTravelAxis)(offset / programBytes);
+        SpazerSeedDirection direction = axis switch
+        {
+            WaveTravelAxis.Vertical => SpazerSeedDirection.Up,
+            WaveTravelAxis.RisingDiagonal => SpazerSeedDirection.UpRight,
+            WaveTravelAxis.Horizontal => SpazerSeedDirection.Left,
+            WaveTravelAxis.FallingDiagonal => SpazerSeedDirection.DownRight,
+            _ => throw new InvalidOperationException("Unknown charged Spazer axis."),
+        };
+        int phase = within / 8;
+        if (phase < 4)
+        {
+            // The ordinary horizontal list chooses right-facing startup before its
+            // left-axis mature shape. This native art selection remains REQUIRED.
+            sprite = ChargedSpazerStartup(axis == WaveTravelAxis.Horizontal ? SpazerSeedDirection.Right : direction, phase);
+        }
+        else
+        {
+            bool alternate = (phase & 1) != 0;
+            ChargedSpazerShape shape = alternate ? ChargedSpazerAlternate(direction) : ChargedSpazerBase(direction);
+            int stage = SpazerSelectedStage((SpazerSpreadPhase)((phase - 4) / 2), !alternate && (int)direction < 4);
+            sprite = ChargedSpazerPointer((int)shape * 6 + stage);
+        }
+        return true;
+    }
+    /// <summary>$93:A119: ShinesparkEcho's four invisible timed poses; visual echo rendering is separate from this selector.</summary>
+    private const ushort ShinesparkEchoProgram = 0xa119;
+    /// <summary>$93:A13D: Spazer SBA trail's three invisible timed collision stages.</summary>
+    private const ushort SpazerSpecialBeamTrailProgram = 0xa13d;
+    /// <summary>$93:A159: Wave SBA alternates the two centered charged Wave core compositions.</summary>
+    private const ushort WaveSpecialBeamProgram = 0xa159;
+    /// <summary>$93:A16D: unused Shinespark beam (projectile27h) traverses six beam-explosion visual stages.</summary>
+    private const ushort UnusedShinesparkBeamProgram = 0xa16d;
     internal static bool TryCalculatedFrameSprite(ushort instructionPointer, out ushort sprite)
     {
         if (TryPowerDirectionSprite(instructionPointer, out sprite)) return true;
+        if (TryTimedPhase(instructionPointer, ShinesparkEchoProgram, 4, out _) ||
+            TryTimedPhase(instructionPointer, SpazerSpecialBeamTrailProgram, 3, out _))
+        {
+            sprite = NothingStart;
+            return true;
+        }
+        if (TryTimedPhase(instructionPointer, WaveSpecialBeamProgram, 2, out int specialPhase))
+        {
+            sprite = ChargedWavePointer(ChargedWaveStart, specialPhase);
+            return true;
+        }
+        if (TryTimedPhase(instructionPointer, UnusedShinesparkBeamProgram, 6, out specialPhase))
+        {
+            sprite = BeamExplosionPointer(specialPhase);
+            return true;
+        }
+        if (TrySpazerCompassSprite(instructionPointer, out sprite)) return true;
+        if (TrySpazerWaveSprite(instructionPointer, out sprite)) return true;
+        if (TryPlasmaSprite(instructionPointer, out sprite)) return true;
+        if (TryChargedPlasmaSprite(instructionPointer, out sprite)) return true;
+        if (TryChargedSpazerWaveSprite(instructionPointer, out sprite)) return true;
+        if (TryChargedSpazerSprite(instructionPointer, out sprite)) return true;
         if (instructionPointer is ChargedWaveLeadIn or ChargedIceWaveLeadIn)
         {
             sprite = NothingStart;
@@ -1048,6 +1388,133 @@ public static class ProjectileSpriteDefinitions
                 var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
                 return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
                     SnesObjAttributeWord.Create(SpazerDiagonalGlyph - index % 2, PowerPalette, PowerPriority, flips), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    internal static bool TryPlasmaStartupCore(ushort pointer, out int group)
+    {
+        for (group = 0; group < 8; group++)
+            if (pointer == PlasmaStartupPointer(group * 4)) return true;
+        return false;
+    }
+    /// <summary>$93:F03C/F048/F0B8/F0C4: alternate diagonal Spazer startup pair and expanded two-endcap poses.</summary>
+    internal static bool TryAlternateDiagonalStartup(ushort pointer, out bool reflected, out int phase)
+    {
+        for (int variant = 0; variant < 2; variant++)
+        {
+            int shape = (int)(variant == 0 ? SpazerStartupShape.FallingAlternate : SpazerStartupShape.RisingAlternate);
+            for (phase = 0; phase < 2; phase++)
+                if (pointer == SpazerStartupPointer(shape * 2 + phase))
+                {
+                    reflected = shape == (int)SpazerStartupShape.RisingAlternate;
+                    return true;
+                }
+        }
+        reflected = false;
+        phase = 0;
+        return false;
+    }
+    /// <summary>$93:F048: chosen inner/endcap glyphs35/36 remain REQUIRED artwork inputs.</summary>
+    private const int SpazerDiagonalInnerGlyph = 0x35, SpazerDiagonalEndcapGlyph = 0x36;
+    /// <summary>One centered endcap pair, then two rotated pairs. Footprint, glyph/endcap selection and native traversal remain REQUIRED; cell adjacency/reflection calculate.</summary>
+    internal readonly struct AlternateDiagonalStartupParts(bool reflected, int phase) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => phase == 0 ? 2 : 4;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                int size = SpazerCompositionGeometryDefinitions.TileSize;
+                int x, y, tile;
+                bool rotated;
+                if (phase == 0)
+                {
+                    x = -size / 2;
+                    y = (index - 1) * size;
+                    tile = SpazerDiagonalEndcapGlyph;
+                    rotated = index != 0;
+                }
+                else
+                {
+                    int cell = index < 2 ? index : 3 - index;
+                    x = 0;
+                    y = -size / 2 + cell * size;
+                    tile = SpazerDiagonalInnerGlyph + cell;
+                    rotated = index < 2;
+                    if (!rotated) { x = -size - x; y = -size - y; }
+                }
+                if (reflected) x = -size - x;
+                var flips = (rotated != reflected ? SnesTileFlipFlags.Horizontal : 0) |
+                    (rotated ? SnesTileFlipFlags.Vertical : 0);
+                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                    SnesObjAttributeWord.Create(tile, PowerPalette, PowerPriority, flips), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    /// <summary>$93:F0FA/F194/F22E/F2CE and alternate groupsF36E/F408/F4A2/F542: centered startup cores share tile geometry; selected glyph/footprint/style remain REQUIRED.</summary>
+    internal readonly struct PlasmaStartupCoreParts(int group) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => group % 4 < 2 ? 1 : 2;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                int orientation = group % 4;
+                if (orientation < 2)
+                    return new SpazerAxialStartupParts(group < 4 ? orientation : orientation + 4, 1)[index];
+                if (group >= 4) return new AlternateDiagonalStartupParts(orientation == 3, 0)[index];
+                int size = SpazerCompositionGeometryDefinitions.TileSize;
+                bool reflected = orientation == 3;
+                int x = -index * size;
+                if (reflected) x = -size - x;
+                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)(-size / 2)),
+                    SnesObjAttributeWord.Create(SpazerDiagonalGlyph - index, PowerPalette, PowerPriority,
+                        reflected ? SnesTileFlipFlags.Horizontal : 0), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    /// <summary>$93:BC0A..BCC7: horizontal PlasmaWave Short core and four two-lobe spreads.</summary>
+    internal static bool TryHorizontalPlasmaWaveShort(ushort pointer, out int phase)
+    {
+        if (pointer == PlasmaWaveHorizontalShort) { phase = 0; return true; }
+        if (!TryPhase(pointer, (ushort)(PlasmaWaveHorizontalShort + RecordBytes(4)), 8, 4, out phase)) return false;
+        phase++;
+        return true;
+    }
+    /// <summary>$93:BC0A: the chosen four-cell short Plasma footprint remains REQUIRED artwork input.</summary>
+    private const int PlasmaWaveShortCells = 4;
+    /// <summary>Centered horizontal strip or opposite displaced copies. Selected length/glyph, lobe order and four spread distances remain REQUIRED; repeated cell geometry calculates.</summary>
+    internal readonly struct HorizontalPlasmaWaveShortParts(int phase) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => PlasmaWaveShortCells * (phase == 0 ? 1 : 2);
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                int size = SpazerCompositionGeometryDefinitions.TileSize;
+                int x = (PlasmaWaveShortCells / 2 - 1 - index % PlasmaWaveShortCells) * size;
+                int direction = phase == 0 ? 0 : index < PlasmaWaveShortCells ? 1 : -1;
+                int y = -size / 2 + (phase == 0 ? 0 : direction * UnresolvedWaveDistances[phase - 1]);
+                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                    SnesObjAttributeWord.Create(SpazerHorizontalGlyph, PowerPalette, PowerPriority, 0), false);
             }
         }
         public IEnumerator<CompiledSpritePart> GetEnumerator()

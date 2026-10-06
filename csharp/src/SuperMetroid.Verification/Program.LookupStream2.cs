@@ -111,6 +111,20 @@ internal static partial class Program
             if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.SpazerDiagonalStartupParts)
                 calculatedDiagonalStartup++;
         AssertEqual(6, calculatedDiagonalStartup, "Six diagonal Spazer startup poses calculate centered pair-strip geometry");
+        int calculatedAlternateStartup = 0, calculatedPlasmaCores = 0;
+        foreach (var composition in frames.Values)
+        {
+            object? parts = typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition);
+            if (parts is ProjectileSpriteDefinitions.AlternateDiagonalStartupParts) calculatedAlternateStartup++;
+            if (parts is ProjectileSpriteDefinitions.PlasmaStartupCoreParts) calculatedPlasmaCores++;
+        }
+        AssertEqual(4, calculatedAlternateStartup, "Four alternate diagonal startup poses calculate rotated/reflected endcap adjacency");
+        AssertEqual(8, calculatedPlasmaCores, "Eight Plasma startup cores calculate centered cell geometry");
+        int calculatedPlasmaShort = 0;
+        foreach (var composition in frames.Values)
+            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.HorizontalPlasmaWaveShortParts)
+                calculatedPlasmaShort++;
+        AssertEqual(5, calculatedPlasmaShort, "Five horizontal PlasmaWave Short poses calculate cell and lobe geometry");
         var firstCharged = (SpriteComposition)frames[(ushort)0xec3e]!;
         AssertTrue(typeof(SpriteComposition).GetField("parts", fields)!.GetValue(firstCharged) is CompiledSpritePart[], "Distinct initial charged-Power ordering stays explicitly supplied/pending");
         foreach (ushort pointer in expected)
@@ -185,7 +199,7 @@ internal static partial class Program
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
-        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and 191 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
+        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and 208 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
     }
     private static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
     {
@@ -1888,13 +1902,14 @@ internal static partial class Program
                     AssertEqual(Pack(colors[index]), actual.Resolve(source, index), "Every original or independently supplied Kraid color");
             }
         }
-    }    private static void VerifyLookupStream2PowerDirectionBindings(ISnesAddressSpace rom)
+    }
+    private static void VerifyLookupStream2PowerDirectionBindings(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(json));
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var remaining = (System.Collections.IDictionary)typeof(ProjectileFrameBindingCatalog).GetField("sprites", fields)!.GetValue(stock)!;
-        AssertEqual(523, remaining.Count, "Two hundred eighty-two beam/effect bindings calculate; other523 selections remain required");
+        AssertEqual(0, remaining.Count, "All805 stock selector operands calculate; independent selection policies remain required");
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), stock.Resolve(pointer), "Every installed selector retains its exact native target");
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
@@ -1922,7 +1937,8 @@ internal static partial class Program
             document.Frames[key] = original;
         }
         int checkedWaveIce = 0;
-        int pendingChargedPairs = 0;
+        int checkedAxialEndPairs = 0;
+        int checkedCappedSweep = 0;
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
         {
             if (!(pointer >= 0x873b && pointer < 0x8973) &&
@@ -1931,15 +1947,19 @@ internal static partial class Program
                 !(pointer >= 0xa007 && pointer < 0xa113) &&
                 !(pointer >= 0x9ebb && pointer < 0xa007) &&
                 !(pointer >= 0x8f17 && pointer < 0x912f) &&
-                !(pointer >= 0x9153 && pointer < 0x936b)) continue;
+                !(pointer >= 0x9153 && pointer < 0x936b) && !(pointer >= 0x8977 && pointer < 0x8e77) && !(pointer >= 0x936b && pointer < 0x9ebb) && !(pointer >= 0xa119 && pointer < 0xa19d)) continue;
             if ((pointer >= 0x8f8f && pointer <= 0x8f97) ||
                 (pointer >= 0x9097 && pointer <= 0x909f) ||
                 (pointer >= 0x91cb && pointer <= 0x91d3) ||
                 (pointer >= 0x92d3 && pointer <= 0x92db))
             {
-                AssertTrue(remaining.Contains(pointer), "Eight reversed axial glyph selections remain supplied/pending");
-                pendingChargedPairs++;
-                continue;
+                AssertTrue(!remaining.Contains(pointer), "Reversed axial end-pair operands calculate while parity policy remains required");
+                checkedAxialEndPairs++;
+            }
+            if (pointer >= 0x8bfb && pointer < 0x8c4f)
+            {
+                AssertTrue(!remaining.Contains(pointer), "Capped sweep operands calculate while plateau policy remains required");
+                checkedCappedSweep++;
             }
             AssertTrue(!remaining.Contains(pointer), "Calculated Wave/Ice selector is absent from stored residuals");
             var shot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
@@ -1963,8 +1983,9 @@ internal static partial class Program
             document.Frames[key] = original;
             checkedWaveIce++;
         }
-        AssertEqual(274, checkedWaveIce, "Other calculated beam/effect records including122 charged Wave rows");
-        AssertEqual(8, pendingChargedPairs, "All four reversed axial end-pairs stay explicit");
+        AssertEqual(797, checkedWaveIce, "All other calculated beam/effect records including18 explicit exceptional policies");
+        AssertEqual(8, checkedAxialEndPairs, "All four reversed axial end-pairs use exact native operands");
+        AssertEqual(10, checkedCappedSweep, "All ten capped sweep phases use exact native operands");
         var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         int checkedBombs = 0;
@@ -1980,6 +2001,6 @@ internal static partial class Program
         AssertEqual(14, checkedBombs, "Both normal/fast PowerBomb and Bomb visual cycles");
         AssertThrows<InvalidDataException>(() => stock.Resolve(0x87c3), "Wave self-jump is not accepted as a timed record");
         AssertThrows<InvalidDataException>(() => stock.Resolve(0x86dc), "Program interior is not accepted as a timed record");
-        Console.WriteLine("Stream2 Power bindings: 282calculated beam/effect selectors,805native operands,523explicit residuals and282actual handler/edit paths pass.");
+        Console.WriteLine("Stream2 Power bindings: 805calculated beam/effect selectors,805native operands,zero stored stock operands and805actual handler/edit paths pass.");
     }
 }

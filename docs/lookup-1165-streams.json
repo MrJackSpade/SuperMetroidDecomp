@@ -3205,6 +3205,7 @@
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/PlanetZebesTextColorDefinitions.cs","stream":4,"purpose":"Exact rounded RGB5 endpoint interpolation/reversal; three endpoints and program inputs remain required"}
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/MaridiaEnvironmentalColorDefinitions.cs","stream":4,"purpose":"Exact sand/water color rotations and shared bands; all16source colors required, independent edits preserved"}
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.CeresRidleyGetawayDefinitions.cs","stream":5,"purpose":"Mode7 calculated descriptor view binding only; preserve source-byte/VRAM comparisons and run only focused Mode7 confirmation"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Frontend/FileSelectMapScroll.cs","stream":5,"purpose":"Semantic default direction-button dispatch without copied default array; preserve independent injected bindings, priority and step behavior"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

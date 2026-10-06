@@ -3255,6 +3255,7 @@
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/CeresRidleyMode7PaintDefinitions.cs","stream":4,"purpose":"Complete zoom/retreat colors from existing body,eye,Golden neutral paints and reviewed zoom exposure; common quantizer, independent edits, no pixel/motion/timing exemption"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/FileSelectHelmetParts.cs","stream":3,"purpose":"Complete helmet compositions from reviewedD0/D9glyph anchors,exact pose/order/visor alignment and calculated atlas/overlap geometry; edits preserved,pixels/colors/timing excluded"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/CeresRidleyHealthPaintDefinitions.cs","stream":4,"purpose":"Complete42healthcolors via existing paints,tint progression and two reviewed prior-shade hold memberships; no new paint magnitudes,independent edits,pixels/thresholds/timing excluded"}
+,{"path":"csharp/src/SuperMetroid.Core/Assets/IntroFontGlyphDefinitions.cs","stream":3,"purpose":"Complete144fonttiles via authored one-bit strokes,exact4/91contour choices and calculated dilation/packing/blanks/aliases; independent edits,pixels outside this font/prose/timing excluded"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

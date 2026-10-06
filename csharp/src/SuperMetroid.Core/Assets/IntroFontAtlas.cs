@@ -3,11 +3,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable 2-bpp font used by the English opening narration.</summary>
 public sealed class IntroFontAtlas
 {
-    private readonly byte[] transfer;
+    private readonly byte[]? suppliedTransfer;
 
-    private IntroFontAtlas(byte[] transfer) => this.transfer = transfer;
+    private IntroFontAtlas(byte[] transfer) => suppliedTransfer =
+        transfer.AsSpan().SequenceEqual(IntroFontGlyphDefinitions.Compile()) ? null : transfer;
 
-    public ReadOnlyMemory<byte> Transfer => transfer;
+    public ReadOnlyMemory<byte> Transfer => suppliedTransfer ?? IntroFontGlyphDefinitions.Compile();
 
     public static IntroFontAtlas Load(Stream png)
     {
@@ -24,7 +25,7 @@ public sealed class IntroFontAtlas
         return new(planar);
     }
 
-    /// <summary>Constructs the cartridge-backed fallback used by focused legacy tests.</summary>
+    /// <summary>Imports an explicit planar font for startup or focused fixtures, preserving independently supplied drawings.</summary>
     internal static IntroFontAtlas FromPlanarBytes(ReadOnlySpan<byte> planar)
     {
         if (planar.Length != IntroFontAtlasFormat.ByteCount)

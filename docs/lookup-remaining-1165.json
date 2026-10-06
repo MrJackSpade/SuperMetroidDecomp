@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 437,
+  "remainingTableDefinitionCount": 436,
   "fileCount": 523,
   "entries": [
     {
@@ -1221,12 +1221,15 @@
   "disposition": "Calculate128words from actual0600-byte glyph staging capacity, font VRAM origin, two-half packing and centered width. Retain only selected two-line centered display and text/margin palette-priority styles; different selections invent typesetting. No glyph pixels, prose or timing exemption."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/IntroFontAtlas.cs",
-      "line": 6,
-      "name": "IntroFontAtlas.transfer",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind IntroFontAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/IntroFontAtlas.cs",
+  "line": 6,
+  "name": "IntroFontAtlas.transfer",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind IntroFontAtlas.transfer. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "c5a4c10c0953195f89bdc5bd639ac07343daa664",
+  "disposition": "Calculate all2304planar bytes with common eight-neighbor dilation,atlas packing,blanks,period shift and Japanese base/accent relation. Retain only88independent one-bit typeface stroke masks and precisely identified4outline additions/91removals as authored typography content; repeated/symmetric contours derive. No full outline plane or stock planar cache; no prose/timing/other artwork exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/IntroNarrationDefinitions.cs",
       "line": 70,
@@ -21763,5 +21766,5 @@
     }
   ],
   "convertedSinceSnapshot": 602,
-  "justifiedRetainedSinceSnapshot": 89
+  "justifiedRetainedSinceSnapshot": 90
 }

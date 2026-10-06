@@ -343,6 +343,7 @@ if (args is ["--lookup-stream3-options-sprites"])
     Console.WriteLine("Options headings: 144 native parts, 576 independent edits, reordered/expanded compositions and actual OAM draw pass.");
     return 0;
 }
+if (args is ["--lookup-stream3-intro-font"]){ VerifyStream3IntroFont(); return 0; }
 if (args is ["--lookup-stream3-initial-narration"])
 {
     VerifyStream3InitialNarrationMap();

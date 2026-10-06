@@ -3349,6 +3349,11 @@ internal static partial class Program
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(rom)));
             var intro = new IntroCinematicState(new TestAddressSpace(), introFont: font, characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
+            byte[] nativeFont = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
+                IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
+            AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+                IntroCinematicRomData.Vram.FontOneDestinationByte, nativeFont.Length).SequenceEqual(nativeFont),
+                "actual opening constructor transfers all calculated font bytes");
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
                 IntroCinematicRomData.Vram.NarrationTilemapDestinationByte, native.Length).SequenceEqual(native),
                 "actual opening constructor transfers calculated narration to native VRAM destination");
@@ -3460,4 +3465,53 @@ internal static partial class Program
                 "actual helmet draw preserves native and independent edited ordered OAM");
         }
     }
+    private static void VerifyStream3IntroFont()
+    {
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
+            IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
+        var stock = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.IntroFontAtlasExtractor.Extract(rom)));
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var constructor = typeof(IntroFontAtlas).GetConstructors(flags).Single();
+        var field = typeof(IntroFontAtlas).GetField("suppliedTransfer", flags)!;
+        AssertTrue(stock.Transfer.Span.SequenceEqual(native), "144 calculated font tiles match native 2304 bytes");
+        AssertTrue(field.GetValue(stock) is null, "native font retains no planar output array");
+        for (int index = 0; index < native.Length; index++)
+        {
+            byte[] edit = native.ToArray();
+            edit[index] ^= 0xff;
+            var selected = (IntroFontAtlas)constructor.Invoke([edit.ToArray()]);
+            AssertTrue(selected.Transfer.Span.SequenceEqual(edit), "independent font planar-byte edit survives");
+        }
+        AssertTrue(stock.Transfer.Span.SequenceEqual(native), "edited glyphs do not cross-couple stock or aliases");
+        byte[] output = stock.Transfer.ToArray();
+        output[0] ^= 1;
+        AssertTrue(stock.Transfer.Span.SequenceEqual(native), "font output is freshly calculated");
+        var type = typeof(IntroFontAtlas).Assembly.GetType("SuperMetroid.Core.Assets.IntroFontGlyphDefinitions")!;
+        const System.Reflection.BindingFlags methods = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
+        var add = type.GetMethod("AddedContour", methods)!;
+        var remove = type.GetMethod("RemovedContour", methods)!;
+        int additions = 0, removals = 0;
+        for (int tile = 0; tile < 144; tile++)
+        {
+            int glyph = tile < 48 ? tile : 48 + (tile - 48) / 32 * 32 + (tile - 48) % 16;
+            int dy = tile < 48 ? 0 : (tile - 48) % 32 / 16 * 8;
+            for (int y = 0; y < 8; y++)
+            for (int x = 0; x < 8; x++)
+            {
+                int gx = glyph == 0x26 ? x - 1 : x;
+                int source = glyph == 0x26 ? 0x24 : glyph;
+                if (gx < 0) continue;
+                if ((bool)add.Invoke(null, [source, gx, y + dy])!) additions++;
+                if ((bool)remove.Invoke(null, [source, gx, y + dy])!) removals++;
+            }
+        }
+        AssertEqual(4, additions, "only four authored outline additions");
+        AssertEqual(91, removals, "only 91 authored corner removals including derived period alias");
+        for (int y = 0; y < 8; y++)
+        for (int plane = 0; plane < 2; plane++)
+            AssertEqual((byte)(native[0x24 * 16 + y * 2 + plane] >> 1), native[0x26 * 16 + y * 2 + plane], "whole period drawing shifts right one pixel");
+        Console.WriteLine("Intro font: 144 native tiles/2304 bytes, 2304 independent edits, four outline additions/91 removals, exact period alias and no stock output storage pass.");
+    }
+
 }

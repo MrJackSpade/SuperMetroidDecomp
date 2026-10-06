@@ -2211,6 +2211,7 @@ public sealed partial class RoomEnemySystem
         // Function three carries all four actors as a rigid body. Above Y=$0300 it moves
         // $4.8000 pixels per call; below that threshold it slows to $2.8000 and clamps the
         // top hull to $045F before beginning the cartridge's seventeen-entry bounce table.
+        // The clamp ($A2:A8B2) writes only whole positions; subpixels keep this call's sum.
         uint delta = top.YPosition < 0x0300 ? 0x0004_8000u : 0x0002_8000u;
         AddGunshipYFixed(samus, top, delta);
         if (top.YPosition < 0x045f)
@@ -2219,11 +2220,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
         top.YPosition = 0x045f;
-        top.YSubposition = 0;
         bottom.YPosition = 0x0487;
-        bottom.YSubposition = 0;
         pad.YPosition = 0x045e;
-        pad.YSubposition = 0;
         top.VariableF = GunshipCodePointers.ApplyLandingBrakes;
         top.VariableE = 0;
     }

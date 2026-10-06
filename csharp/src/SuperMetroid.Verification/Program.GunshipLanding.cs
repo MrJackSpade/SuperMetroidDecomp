@@ -115,10 +115,12 @@ internal static partial class Program
         bool observedPadOpen = false;
         bool observedPadClose = false;
         bool observedEngineSound = false;
+        bool observedLandingClamp = false;
         while (enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted && frames < 800)
         {
             ushort previousTopY = top.YPosition;
             ushort previousTopSubY = top.YSubposition;
+            ushort previousFunction = top.VariableF;
             ushort cameraY = samus.YPosition > 120
                 ? unchecked((ushort)(samus.YPosition - 120))
                 : (ushort)0;
@@ -145,6 +147,17 @@ internal static partial class Program
                 }
             }
 
+            if (previousFunction == 0xa80c && top.VariableF != 0xa80c)
+            {
+                // $A2:A8B2 clamps whole Y positions only; each hull keeps this call's subpixel sum.
+                ushort carriedSubY = unchecked((ushort)(previousTopSubY + 0x8000));
+                AssertEqual((ushort)0x045f, top.YPosition, "landing clamp top Y");
+                AssertEqual(carriedSubY, top.YSubposition, "landing clamp keeps top subpixel");
+                AssertEqual(carriedSubY, bottom.YSubposition, "landing clamp keeps bottom subpixel");
+                AssertEqual(carriedSubY, pad.YSubposition, "landing clamp keeps pad subpixel");
+                observedLandingClamp = true;
+            }
+
             observedPadOpen |= enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened;
             if (enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened)
             {
@@ -168,6 +181,7 @@ internal static partial class Program
         }
 
         AssertTrue(observedSlowDescent, "gunship crosses native slow-descent threshold");
+        AssertTrue(observedLandingClamp, "gunship reaches the native landing clamp");
         AssertTrue(observedPadOpen, "gunship publishes pad-open boundary");
         AssertTrue(observedPadClose, "gunship publishes pad-close boundary");
         AssertTrue(observedEngineSound,

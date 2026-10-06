@@ -7,6 +7,17 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream2YardGroups()
+    {
+        var frames = YardVisualDefinitions.Frames();
+        AssertEqual(104, frames.Length, "Yard semantic groups preserve complete registry");
+        string identity = string.Join("\n", frames.Select(frame => $"{frame.Bank:X2}:{frame.Pointer:X4}:{frame.Name}"));
+        string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(identity)));
+        AssertEqual("2E09CB87CB8C4106F823834D08281C250FB4294981A52F4FE9F83BD983732954", hash,
+            "Yard exact pre-change native bank/pointer/name/order identity");
+        Console.WriteLine("Yard groups: 38 semantic program roles preserve all104 native frame identities/names/order.");
+    }
+
     private static void VerifyLookupStream2ChozoFootGeometry(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

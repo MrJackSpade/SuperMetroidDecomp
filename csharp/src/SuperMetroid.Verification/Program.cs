@@ -348,6 +348,7 @@ if (args is ["--lookup-stream3-background-maps"]){ VerifyStream3BackgroundMaps()
 if (args is ["--lookup-stream3-work-robot-registry"]) { VerifyStream3WorkRobotRegistry(); return 0; }
 if (args is ["--lookup-stream3-shaktool-registry"]) { VerifyStream3ShaktoolRegistry(); return 0; }
 if (args is ["--lookup-stream3-nintendo-fade-entries"]) { VerifyStream3NintendoFadeEntries(); return 0; }
+if (args is ["--lookup-stream2-yard-groups"]) { VerifyLookupStream2YardGroups(); return 0; }
 if (args is ["--lookup-stream3-portrait-map"])
 {
     VerifyStream3PortraitMap();

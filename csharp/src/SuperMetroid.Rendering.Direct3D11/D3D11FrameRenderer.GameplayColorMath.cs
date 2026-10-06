@@ -44,8 +44,11 @@ public sealed partial class D3D11FrameRenderer
             data[offset + 2] = (uint)(layer.Lines[y].Left | layer.Lines[y].Right << 8);
             // The high half carries the main-screen enable register for this line;
             // the low half retains the independent color-window edges.
-            data[offset + 2] |= (uint)(layer.Gameplay.MainScreenLayersByLine.IsEmpty
-                ? (ushort)r.MainScreenLayers : layer.Gameplay.MainScreenLayersByLine[line]) << 16;
+            var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty
+                ? r.MainScreenLayers : (SnesMainScreenLayers)layer.Gameplay.MainScreenLayersByLine[line];
+            // Draygon's TM HDMA still suppresses repeated BG2 art while X-Ray owns color math.
+            if (y < r.Bg2FirstScanline || y >= r.Bg2EndScanline) mainScreen &= ~SnesMainScreenLayers.Bg2;
+            data[offset + 2] |= (uint)mainScreen << 16;
             if (layer.Subscreen is { } bg3)
                 data[offset + 3] = (uint)(bg3.Scrolls[y].X | bg3.Scrolls[y].Y << 16);
         }

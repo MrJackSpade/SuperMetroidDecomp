@@ -65,7 +65,8 @@ public static class SoftwareGameplayColorMathRenderer
             var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty ? r.MainScreenLayers
                 : (SnesMainScreenLayers)layer.Gameplay.MainScreenLayersByLine[lineIndex];
             bool showBg1 = (mainScreen & SnesMainScreenLayers.Bg1) != 0;
-            bool showBg2 = (mainScreen & SnesMainScreenLayers.Bg2) != 0;
+            bool showBg2 = (mainScreen & SnesMainScreenLayers.Bg2) != 0 &&
+                y >= r.Bg2FirstScanline && y < r.Bg2EndScanline;
             bool showObjects = (mainScreen & SnesMainScreenLayers.Obj) != 0;
             XrayWindowLine window = layer.Lines[y];
             bool inside = x >= window.Left && x <= window.Right;

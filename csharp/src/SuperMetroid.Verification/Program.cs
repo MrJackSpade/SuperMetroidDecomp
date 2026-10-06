@@ -58,6 +58,7 @@ if (args is ["--space-screw-fixture"]) { VerifySamusSpaceJumpAndScrewAttack(); r
 if (args is ["--arm-cannon-fixture"]) { VerifySamusArmCannon(); return 0; }
 if (args is ["--game-over-fixture"]) { VerifyGameOverRomData(); return 0; }
 if (args is ["--enemy-pointer-fixture"]) { VerifyEnemyRomTablePointerCatalog(); return 0; }
+if (args is ["--draygon-prebattle-xray"]) { VerifyDraygonPrebattleXray(); return 0; }
 if (args is ["--kihunter-spit-audio"]) { VerifyKiHunterSpitAudio(); return 0; }
 if (args is ["--samus-liquid-physics"]) { VerifySamusLiquidPhysics(); return 0; }
 if (args is ["--shallow-water-jump"]) { VerifyShallowWaterJump(); return 0; }
@@ -6094,6 +6095,7 @@ VerifyGrappleGreenGateVisibility();
 VerifyGrappleEnemyDeath();
 VerifyShutterRiding();
 VerifyXrayInput();
+VerifyDraygonPrebattleXray();
 VerifyXrayWindowGeometry();
 VerifyXraySetupBuffers();
 VerifyFirefleaFx();

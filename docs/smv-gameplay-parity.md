@@ -61,7 +61,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Inventory and firing | Inventory/capacities, fractional health, hurt/immunity/knockback state, HUD selection, projectile/bomb counts, prior charge, firing immunity, shot-direction publication, charge palette/audio words, retained held/press samples, auto-jump timer, pose-input handler and directional shot-inheritance movement records pass | Remaining combat/input ownership |
 | Enemies and Ridley | Active enemy collision/properties/timers; complete Ridley tail records, shared tail/body controller, wing/grab/damage/health/facing state pass | Remaining actor AI variables and phase-dependent aliases |
 | Ordinary/enemy projectiles | Ordinary active-slot motion/program/art and callback identity; enemy-projectile motion/program/callback state and encountered rendered compositions pass; all bomb slots and explosion activation owners remain inactive throughout this movie | Final render composition/pixels; bombs need live mappings only if a different movie activates them |
-| Persistent world and room effects | Complete boss/event/item/door bitsets; gameplay foreground/BTS; movie grey-door execution, condition and hit state; acid surface/tide phase pass | Loading-boundary mutations, remaining persistence allocations, environmental state, and PLM draw/presentation state |
+| Persistent world and room effects | Complete boss/event/item/door bitsets and save/elevator/map-station allocations; all seven explored-map planes and fifty scroll bytes at gameplay boundaries; gameplay foreground/BTS; movie grey-door execution, condition and hit state; acid surface/tide phase pass | Loading-boundary mutations, remaining persistence allocations, environmental state, and PLM draw/presentation state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
 
 The history below records earlier divergence boundaries, not current completion.
@@ -757,3 +757,28 @@ no production timing was changed to satisfy that fixture.
 
 Both fixes await player validation. Final pixels and partial loading-state
 coverage remain separate open items; this is not a full-parity completion claim.
+
+
+### Scroll storage, explored maps and Ridley minimap initialization
+
+The replay imports all seven explored-map planes once, taking the current area's
+plane from live $07F7 and the other six from saved $CD52 storage. At every gameplay
+boundary it compares that same semantic mapping and all fifty mutable room-scroll
+bytes ($CD20). All sixteen save/elevator marker bytes and twelve map-station bytes
+compare at every retained boundary. The source movie is unchanged.
+
+Update 274/source 375 exposed two missing Norfair explored-map bits (bytes70/74).
+Native capture shows them set during room loading at source240. Ridley's live
+initializer calls $90:A7E2, whose $90:A89C list marks arena screens (0,0)/(0,1),
+blanks all fifteen HUD minimap cells and disables subsequent minimap updates.
+The port omitted that initialization. Room loading now publishes it for the live
+shared Ridley initializer, with the two-cell list selected only for Norfair's boss
+ID5. Ceres disables its minimap without an exploration-list match. The defeated
+boss gate omits the writes. Door entry restores updates per $82:E1B7.
+
+All 10,717 movie updates pass (`ridley-map-replay.log`), including the new minimap
+suppression comparison. Final build has zero errors (`ridley-map-final-build.log`).
+Focused --ridley-map-initialization checks both explored cells, every blank HUD
+cell, the defeated gate and door reset (`ridley-map-focused.log`). The fix awaits
+player validation. Other documented rendering/control/loading coverage remains
+open; this evidence does not establish complete full-movie parity.

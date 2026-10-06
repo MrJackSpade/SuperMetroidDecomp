@@ -1028,6 +1028,15 @@ public sealed partial class SuperMetroidRuntime
                     BackgroundScroll.SetBg2ScrollRegisters(horizontal, vertical),
             isRoomPlmPresent: Plms.HasActiveHeader,
             gunshipLoadScenario: gunshipLoadScenario);
+        // The shared Ridley initializer calls $90:A7E2 only for a live boss.
+        // Ceres also disables the HUD map, but has no matching exploration list.
+        if (Enemies.Ridley is not null)
+        {
+            Hud.DisableMinimapForBoss();
+            if (Enemies.BossId == RidleyMapDefinitions.NorfairBossId)
+                for (int row = 0; row < RidleyMapDefinitions.ArenaScreenRows; row++)
+                    System.MarkExploredMapTile(room.AreaIndex, room.MapX, room.MapY + row + 1);
+        }
         SetupEscapeRoomEffects(room.State.SetupCallback);
         // Gate setup runs while the room PLM population is constructed, but Enemies.Load
         // subsequently clears the shared bank-$86 projectile pool. Consume those setup

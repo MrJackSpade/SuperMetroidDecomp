@@ -187,6 +187,37 @@ internal static partial class Program
         Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
     }
 
+    private static void VerifyRidleyMapInitialization()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        foreach (bool defeated in new[] { false, true })
+        {
+            var runtime = CreateRetailRuntimeFixture(bus);
+            runtime.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.InitializeStartingCeresRoom();
+            runtime.InitializeCeresStartSamus();
+            runtime.Hud.EnableMinimapAfterDoorEntry();
+            runtime.System.LoadExploredMapBytes(new byte[Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea]);
+            if (defeated) runtime.System.SetBossBits(AreaId.Norfair, BossBits.AreaBoss);
+            runtime.LoadCartridgeRoomForDebug(RidleyMovieMemory.RidleyRoom);
+            var room = runtime.ActiveRoom!;
+            AssertEqual(!defeated, runtime.Hud.MinimapDisabled, "only live Ridley disables the minimap");
+            for (int row = 0; row < 2; row++)
+                AssertEqual(!defeated, runtime.System.IsMapTileExplored(room.AreaIndex, room.MapX, room.MapY + row + 1),
+                    "Ridley initializes both native arena map cells");
+            if (!defeated)
+            {
+                for (int y = 0; y < 3; y++)
+                for (int x = 0; x < 5; x++)
+                    AssertEqual((ushort)MapTileWords.HudBlank, runtime.Hud.Tiles[26 + y * HudState.WidthInTiles + x],
+                        "Ridley blanks all fifteen minimap tiles");
+                runtime.Hud.EnableMinimapAfterDoorEntry();
+                AssertTrue(!runtime.Hud.MinimapDisabled, "door entry restores minimap updates");
+            }
+        }
+        Console.WriteLine("Ridley map: live initializer explores both arena cells and blanks all fifteen HUD cells; defeated gate and door reset pass.");
+    }
+
     private static void VerifyRetainedHorizontalSpeed()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -786,6 +817,21 @@ internal static partial class Program
             level.SetBehavior(index, memory[RidleyMovieMemory.Bts + index]);
         }
 
+        byte[] initialScrolls = (byte[])typeof(RoomScrollGrid)
+            .GetField("_cells", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.Camera.Scrolls)!;
+        memory.AsSpan(RidleyMovieMemory.ScrollStorage, RoomScrollGrid.StorageByteCount).CopyTo(initialScrolls);
+        for (int index = 0; index < initialScrolls.Length; index++)
+            bus.WriteByte(RoomScrollGrid.WorkRamAddress + index, initialScrolls[index]);
+        typeof(HudState).GetProperty(nameof(HudState.MinimapDisabled))!
+            .SetValue(runtime.Hud, W(RidleyMovieMemory.MinimapDisabled) != 0);
+        byte[] initialMaps = memory.AsSpan(RidleyMovieMemory.SavedExploredMaps,
+            Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea).ToArray();
+        memory.AsSpan(RidleyMovieMemory.LiveExploredMap, Bank80SystemState.ExploredMapBytesPerArea)
+            .CopyTo(initialMaps.AsSpan(W(RidleyMovieMemory.CurrentArea) * Bank80SystemState.ExploredMapBytesPerArea));
+        runtime.System.LoadExploredMapBytes(initialMaps);
+        runtime.System.LoadUsedSaveStationBytes(memory.AsSpan(RidleyMovieMemory.SaveElevatorMarkers, Bank80SystemState.UsedSaveStationByteCount));
+        runtime.System.LoadMapStationBytes(memory.AsSpan(RidleyMovieMemory.MapStationMarkers, Bank80SystemState.MapStationByteCount));
+
         SamusState samus = runtime.Samus ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load Samus.");
         samus.InputLocked = false;
@@ -1000,6 +1046,21 @@ internal static partial class Program
             CheckBytes("Event bits", Bank80SystemState.EventByteCount, runtime.System.GetEventByteRaw, RidleyMovieMemory.Events);
             CheckBytes("Collected item bits", Bank80SystemState.ItemBitByteCount, runtime.System.GetCollectedItemByteRaw, RidleyMovieMemory.CollectedItemBits);
             CheckBytes("Opened door bits", Bank80SystemState.DoorBitByteCount, runtime.System.GetOpenedDoorByteRaw, RidleyMovieMemory.OpenedDoors);
+            CheckBytes("Save/elevator markers", Bank80SystemState.UsedSaveStationByteCount,
+                runtime.System.GetUsedSaveStationByteRaw, RidleyMovieMemory.SaveElevatorMarkers);
+            CheckBytes("Map-station markers", Bank80SystemState.MapStationByteCount,
+                runtime.System.GetMapStationByteRaw, RidleyMovieMemory.MapStationMarkers);
+            if (game.GameState == SuperMetroidGameState.MainGameplay)
+            {
+                Check("Minimap disabled", runtime.Hud.MinimapDisabled ? (ushort)1 : (ushort)0, RidleyMovieMemory.MinimapDisabled);
+                CheckBytes("Room scroll storage", RoomScrollGrid.StorageByteCount,
+                    runtime.Camera!.Scrolls.ReadStorage, RidleyMovieMemory.ScrollStorage);
+                for (int area = 0; area < Bank80SystemState.ExploredMapAreaCount; area++)
+                    CheckBytes($"Explored map {area}", Bank80SystemState.ExploredMapBytesPerArea,
+                        index => runtime.System.GetExploredMapByteRaw(area, index),
+                        area == W(RidleyMovieMemory.CurrentArea) ? RidleyMovieMemory.LiveExploredMap :
+                            RidleyMovieMemory.SavedExploredMaps + area * Bank80SystemState.ExploredMapBytesPerArea);
+            }
             // Only the reference's proven hardware-upload NMI count is normalized;
             // gameplay state is never copied back into the production runtime.
             int excludedNmis = frame == 0 ? 0 : updates[frame - 1].GetProperty("excludedNmiAfter").GetInt32();

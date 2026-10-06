@@ -82,6 +82,7 @@ if (args is ["--ridley-contact-ordering"]) { VerifyRidleyContactOrdering(); retu
 if (args is ["--ridley-swoop-timer"]) { VerifyRidleySwoopTimer(); return 0; }
 if (args is ["--ridley-death-finish"]) { VerifyRidleyDeathFinish(); return 0; }
 if (args is ["--ridley-grab-entry"]) { VerifyRidleyGrabEntry(); return 0; }
+if (args is ["--ridley-map-initialization"]) { VerifyRidleyMapInitialization(); return 0; }
 if (args is ["--samus-retained-horizontal-speed"]) { VerifyRetainedHorizontalSpeed(); return 0; }
 if (args is ["--pause-dispatch-rng"]) { VerifyPauseDispatcherRandom(); return 0; }
 if (args is ["--spin-fallback-history"]) { VerifySpinFallbackHistory(); return 0; }

@@ -1,6 +1,22 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$05F7: boss-owned minimap suppression flag.</summary>
+    public const int MinimapDisabled = 0x05f7;
+
+    /// <summary>$CD20: complete mutable fifty-byte room scroll allocation.</summary>
+    public const int ScrollStorage = 0xcd20;
+    /// <summary>$079F: current area selector for the live explored-map plane.</summary>
+    public const int CurrentArea = 0x079f;
+    /// <summary>$07F7: live current-area explored-map bytes.</summary>
+    public const int LiveExploredMap = 0x07f7;
+    /// <summary>$CD52: seven saved unpacked explored-map planes.</summary>
+    public const int SavedExploredMaps = 0xcd52;
+    /// <summary>$D8F8: sixteen save/elevator marker bytes.</summary>
+    public const int SaveElevatorMarkers = 0xd8f8;
+    /// <summary>$D908: twelve map-station marker bytes.</summary>
+    public const int MapStationMarkers = 0xd908;
+
     /// <summary>$0B0A/$0B0E: ideal layer-one camera targets.</summary>
     public const int IdealCameraX = 0x0b0a, IdealCameraY = 0x0b0e;
     /// <summary>$0B10-$0B17: previous Samus position retained by scrolling.</summary>

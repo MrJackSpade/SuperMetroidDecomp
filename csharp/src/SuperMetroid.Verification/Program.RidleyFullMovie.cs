@@ -79,8 +79,23 @@ internal static partial class Program
             game.Step(0);
             AssertEqual(nativeLoadingRandom[index], runtime.System.RandomNumber, $"native loading RNG update {173 + index}");
             AssertEqual((ushort)(0xa4f1 + index), runtime.NmiFrameCounter, "loading accepts one NMI per update");
+            if (index == 4)
+            {
+                AssertEqual(0x00135800u, samus.Kinematics.XFixed, "native scrolling setup moves Samus before destination placement");
+                AssertEqual(yFixed, samus.Kinematics.YFixed, "left scrolling setup preserves perpendicular coordinate");
+            }
         }
-        Console.WriteLine("Ridley door entry/fade/loading: native RNG/NMI through update 178, stationary entry, and exact first-fade enemy animation agree.");
+        game.Step(0); // The atomic destination loader must use the pre-setup source.
+        AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
+        AssertEqual(0x010f5800u, samus.Kinematics.XFixed, "destination rebase incorporates setup movement exactly once");
+        int scrollCalls = 0;
+        while (!runtime.StepDoorOpeningScroll() && ++scrollCalls < 64) { }
+        AssertEqual(62, scrollCalls, "left trajectory completes on its 63rd remaining IRQ call");
+        AssertEqual(0x00de2000u, samus.Kinematics.XFixed, "native source frame 276 scrolling endpoint");
+        runtime.FinishDoorOpeningScroll();
+        AssertEqual(0x00d82000u, samus.Kinematics.XFixed, "native final doorway alignment preserves original subposition");
+        AssertEqual(yFixed, samus.Kinematics.YFixed, "left door endpoint preserves perpendicular coordinate");
+        Console.WriteLine("Ridley door entry/fade/loading: native RNG/NMI, setup displacement, complete IRQ trajectory and final alignment agree.");
     }
 
     private static void VerifyRidleyFullMovie(string directory)

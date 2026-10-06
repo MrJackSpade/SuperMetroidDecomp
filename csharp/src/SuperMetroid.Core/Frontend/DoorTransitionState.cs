@@ -130,6 +130,13 @@ public sealed class DoorTransitionState
             case DoorTransitionPhase.SetupScrolling:
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.AdvanceDoorMainLoopRandom(hdmaObjectsEnabled: false);
+                // Capture immediately before the setup call; source actors have run
+                // during the fade. The atomic loader must not apply this step twice.
+                var setupSamus = runtime.Samus
+                    ?? throw new InvalidOperationException("Door scrolling requires Samus.");
+                sourceSamusXFixed = setupSamus.Kinematics.XFixed;
+                sourceSamusYFixed = setupSamus.Kinematics.YFixed;
+                runtime.ApplyDoorScrollingSetupMovement();
                 Phase = DoorTransitionPhase.PlaceSamusAndLoadTiles;
                 break;
 
@@ -145,7 +152,7 @@ public sealed class DoorTransitionState
                 // door_transition_flag bit $8000. The host room constructor performs that
                 // setup atomically; its following calls now run the real coordinate path.
                 fadedSourcePalette = runtime.Cgram.Colors.ToArray();
-                runtime.LoadPendingDoorDestinationForTransition();
+                runtime.LoadPendingDoorDestinationForTransition(sourceSamusXFixed, sourceSamusYFixed);
                 // Enemy loading resets room-private host gates. Restore the native
                 // $0795 transition ownership before any destination EnemyMain call;
                 // elevator AI must remain frozen through the final palette fade.

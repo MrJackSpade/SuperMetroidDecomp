@@ -83,10 +83,20 @@ room identity, and active enemies' identities, positions, health and visual curs
 That comparison is still under development; conversion success is not port parity.
 Door-entry and source-fade HDMA/RNG/actor omissions were reproduced and fixed,
 along with missing RNG advancement through the outer loading dispatches. The
-current checked gameplay properties match through update 176. The next unresolved
-boundary is the first door-scroll movement (update 177, source frame 211).
+current checked gameplay properties match through update 177. Setup now applies
+Samus's first displacement before destination rebasing; the atomic loader retains
+the pre-setup source coordinates so it does not count that movement twice. A
+focused failing-then-passing regression confirms native `$0013.5800` at setup,
+the complete remaining IRQ trajectory, and the unchanged `$00D8.2000` final
+position. All four trajectory checks, native camera alignment, and door autosave
+continuation checks pass.
+
+The next unresolved boundary is update 178 (source frame 212): native tile loading
+rebases Samus and starts IRQ scrolling, reaching `$010E.9000` at the next input
+boundary; the port still holds `$0013.5800` until atomic room loading completes.
 The focused RNG regression independently matches through update 178; that does
-not imply that the complete state matches those later updates.
+not imply complete state parity at that update. Camera staging and concurrent
+loader/IRQ progress still require comparison, not just endpoint assertions.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

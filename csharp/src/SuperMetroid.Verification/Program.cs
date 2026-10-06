@@ -4964,6 +4964,7 @@ if (args is ["--demo-input-object"])
 }
 if (args is ["--door-alignment"])
 {
+    VerifyDoorOpeningTrajectories();
     VerifyDoorAlignmentParity();
     return 0;
 }

@@ -350,6 +350,22 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Publishes setup's Samus displacement before destination-coordinate rebasing.
+    /// The later atomic room constructor uses the captured pre-setup coordinates.
+    /// </summary>
+    internal void ApplyDoorScrollingSetupMovement()
+    {
+        CartridgeDoorHeader door = PendingDoorTransition
+            ?? throw new InvalidOperationException("No pending door destination exists.");
+        if (Samus is null)
+            throw new InvalidOperationException("Door scrolling requires Samus.");
+        var position = DoorOpeningScrollState.ApplySetupMovement(
+            door, Samus.Kinematics.XFixed, Samus.Kinematics.YFixed);
+        Samus.Kinematics.SetXFixed(position.X);
+        Samus.Kinematics.SetYFixed(position.Y);
+    }
+
+    /// <summary>
     /// Rewinds an atomically loaded destination to the position established by
     /// <c>DoorTransitionScrollingSetup</c> and <c>PlaceSamusLoadTiles</c>.
     /// </summary>
@@ -517,14 +533,15 @@ public sealed partial class SuperMetroidRuntime
     /// Loads state $0B's destination without destroying the source-room VRAM ring. The
     /// following door IRQ replaces that ring incrementally while the screen slides.
     /// </summary>
-    internal InitialViewportResult LoadPendingDoorDestinationForTransition()
+    internal InitialViewportResult LoadPendingDoorDestinationForTransition(uint sourceSamusXFixed, uint sourceSamusYFixed)
     {
         CartridgeDoorHeader door = PendingDoorTransition
             ?? throw new InvalidOperationException("No pending door destination exists.");
-        return LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor);
+        return LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor, (sourceSamusXFixed, sourceSamusYFixed));
     }
 
-    private InitialViewportResult LoadPendingDoorDestination(RoomViewportLoadMode viewportLoadMode)
+    private InitialViewportResult LoadPendingDoorDestination(
+        RoomViewportLoadMode viewportLoadMode, (uint X, uint Y)? sourcePosition = null)
     {
         if (LevelData is null || Samus is null)
             throw new InvalidOperationException("A live room and Samus are required for a door transition.");
@@ -538,7 +555,8 @@ public sealed partial class SuperMetroidRuntime
                 $"Elevator pseudo-door $83:{door.Pointer:X4} cannot enter the normal room loader.");
         }
 
-        DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, Samus);
+        var placementSource = sourcePosition ?? (Samus.Kinematics.XFixed, Samus.Kinematics.YFixed);
+        DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, placementSource.Item1, placementSource.Item2);
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
 
         // Native transition teardown deletes direct G-Mode's stranded X-Ray HDMA object,
@@ -1260,18 +1278,16 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     private static DoorTransitionPlacement CalculateDoorTransitionPlacement(
         CartridgeDoorHeader door,
-        SamusState samus)
+        uint sourceXFixed,
+        uint sourceYFixed)
     {
         int direction = door.Orientation & 3;
-        int distance = unchecked((short)door.SamusDistance);
-        if (distance < 0)
-            distance = (direction & 2) != 0 ? 384 : 200;
-        uint step = unchecked((uint)(distance << 8));
+        uint step = DoorOpeningScrollState.GetSamusStep(door);
 
         ushort destinationX = unchecked((ushort)(door.DestinationScreenX << 8));
         ushort destinationY = unchecked((ushort)(door.DestinationScreenY << 8));
-        uint xFixed = samus.Kinematics.XFixed;
-        uint yFixed = samus.Kinematics.YFixed;
+        uint xFixed = sourceXFixed;
+        uint yFixed = sourceYFixed;
 
         switch (direction)
         {
@@ -1315,13 +1331,13 @@ public sealed partial class SuperMetroidRuntime
         if ((direction & 2) == 0)
         {
             yFixed = ReplaceWholePosition(
-                unchecked((ushort)(destinationY + (byte)(samus.YPosition))),
+                unchecked((ushort)(destinationY + (byte)(sourceYFixed >> 16))),
                 yFixed);
         }
         else
         {
             xFixed = ReplaceWholePosition(
-                unchecked((ushort)(destinationX + (byte)(samus.XPosition))),
+                unchecked((ushort)(destinationX + (byte)(sourceXFixed >> 16))),
                 xFixed);
         }
 

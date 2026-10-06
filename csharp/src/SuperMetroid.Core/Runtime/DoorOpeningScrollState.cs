@@ -75,10 +75,9 @@ internal sealed class DoorOpeningScrollState
         uint finalSamusYFixed)
     {
         int direction = door.Orientation & 3;
-        int distance = unchecked((short)door.SamusDistance);
-        if (distance < 0)
-            distance = (direction & 2) != 0 ? 384 : 200;
-        uint samusStep = unchecked((uint)(distance << 8));
+        uint samusStep = GetSamusStep(door);
+        (sourceSamusXFixed, sourceSamusYFixed) = ApplySetupMovement(
+            door, sourceSamusXFixed, sourceSamusYFixed);
         ushort destinationX = unchecked((ushort)(door.DestinationScreenX << 8));
         ushort destinationY = unchecked((ushort)(door.DestinationScreenY << 8));
 
@@ -93,7 +92,6 @@ internal sealed class DoorOpeningScrollState
         switch (direction)
         {
             case 0: // Right setup calls DoorTransition_Right once before placement.
-                sourceSamusXFixed = unchecked(sourceSamusXFixed + samusStep);
                 cameraX = unchecked((ushort)(destinationX - 252));
                 layer2X = unchecked((ushort)(finalLayer2X - 252));
                 samusX = ReplaceWholePosition(
@@ -103,7 +101,6 @@ internal sealed class DoorOpeningScrollState
                 break;
 
             case 1: // Left setup is the exact subtracting mirror.
-                sourceSamusXFixed = unchecked(sourceSamusXFixed - samusStep);
                 cameraX = unchecked((ushort)(destinationX + 252));
                 layer2X = unchecked((ushort)(finalLayer2X + 252));
                 samusX = ReplaceWholePosition(
@@ -122,7 +119,6 @@ internal sealed class DoorOpeningScrollState
                 break;
 
             case 3: // FixDoorsMovingUp leaves counter one for setup's first moving call.
-                sourceSamusYFixed = unchecked(sourceSamusYFixed - samusStep);
                 cameraY = unchecked((ushort)(destinationY + 251));
                 layer2Y = unchecked((ushort)(finalLayer2Y + 220));
                 samusY = ReplaceWholePosition(
@@ -151,6 +147,33 @@ internal sealed class DoorOpeningScrollState
             finalLayer2Y,
             finalSamusXFixed,
             finalSamusYFixed);
+    }
+
+    /// <summary>Samus's fixed-point displacement for one native door IRQ call.</summary>
+    internal static uint GetSamusStep(CartridgeDoorHeader door)
+    {
+        int distance = unchecked((short)door.SamusDistance);
+        if (distance < 0)
+            distance = (door.Orientation & 2) != 0 ? 384 : 200;
+        return unchecked((uint)(distance << 8));
+    }
+
+    /// <summary>
+    /// Applies setup's first directional call before <c>$82:E3C0</c> replaces the
+    /// whole position words. Downward setup stages a row without moving Samus.
+    /// </summary>
+    internal static (uint X, uint Y) ApplySetupMovement(
+        CartridgeDoorHeader door, uint sourceX, uint sourceY)
+    {
+        uint step = GetSamusStep(door);
+        return (door.Orientation & 3) switch
+        {
+            0 => (unchecked(sourceX + step), sourceY),
+            1 => (unchecked(sourceX - step), sourceY),
+            2 => (sourceX, sourceY),
+            3 => (sourceX, unchecked(sourceY - step)),
+            _ => throw new InvalidOperationException("Invalid door orientation."),
+        };
     }
 
     /// <summary>Runs one IRQ call and reports the frame that sets completion bit $8000.</summary>

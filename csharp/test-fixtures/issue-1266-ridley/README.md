@@ -10,7 +10,7 @@ These are the three original Snes9x SMV files supplied by the playtester for [is
 
 ## Native opening trajectory / acceleration regression
 
-`opening-native.csv` contains numeric expectations from movie 1, frames 375–733.
+`opening-native.csv` contains numeric expectations from movie 1, frames 375–744.
 Frame 375 is the destination-ready start of gameplay in room `$B32E`.
 The regression runs the production enemy dispatcher and instruction machinery,
 feeding the recorded Samus pose/position and random values to isolate Ridley's
@@ -41,5 +41,15 @@ snapshot version 11, while that executable supports SMV v4 / snapshot 1510.
 ROM, snapshots, and full WRAM dumps stay in ignored private diagnostic storage.
 Only these selected numeric fields are published.
 
-A separate target-arrival mismatch starts at frame 734 and is tracked in #1268.
-It is not hidden by adjusting acceleration or silently changing expected values.
+A separate target-arrival mismatch starts at frame 734, tracked in #1268. The
+cartridge calls `$A9:EF06`: compare absolute center separation against the sum of
+actor radius, target radius, and one. The port used only the target radius and
+excluded the touching edge. With actual Ridley radii 8/8 and target radii 8/8,
+frame 733's position (74, 270) already overlaps target (64, 256). On the next frame
+the cartridge enters `$B6DD`; the port previously remained in `$B2F3`.
+
+The regression was extended only after recording this distinct failure. It now
+confirms the exact transition and ten following frames through 744. Separate edge
+assertions cover the shared helper's existing 2-, 4-, and 8-radius callers. The
+center-only check originated in the Ceres translation `9d81b919c4` (2026-08-27),
+then became shared with Norfair in `d486f1cacb` (2026-08-29).

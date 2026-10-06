@@ -7,6 +7,22 @@ internal static partial class Program
 {
     private static void VerifyRidleyPlayerOpening()
     {
+        var overlaps = typeof(RoomEnemySystem).GetMethod("IsWithinRidleyRectangle", BindingFlags.NonPublic | BindingFlags.Static)!
+            .CreateDelegate<Func<RoomEnemySlot, ushort, ushort, ushort, ushort, bool>>();
+        var bounds = new RoomEnemySystem().Slots[0];
+        bounds.XRadius = bounds.YRadius = 8;
+        // Native $A9:EF06 adds both radii plus one before its unsigned comparison.
+        foreach (ushort targetRadius in new ushort[] { 2, 4, 8 })
+        {
+            ushort extent = (ushort)(8 + targetRadius);
+            bounds.XPosition = (ushort)(128 + extent); bounds.YPosition = (ushort)(256 - extent);
+            AssertTrue(overlaps(bounds, 128, 256, targetRadius, targetRadius), "Ridley arrival includes touching actor edges");
+            bounds.XPosition++;
+            AssertTrue(!overlaps(bounds, 128, 256, targetRadius, targetRadius), "Ridley arrival rejects one pixel past X edge");
+            bounds.XPosition = 128; bounds.YPosition--;
+            AssertTrue(!overlaps(bounds, 128, 256, targetRadius, targetRadius), "Ridley arrival rejects one pixel past Y edge");
+        }
+
         // The player's first movie, from the completed entry into Ridley's room.
         // Feed the recorded Samus state and RNG to isolate the reported boss trajectory.
         int[] addresses = [0xfa8,0xf7a,0xf7c,0xf7e,0xf80,0xfaa,0xfac,0xaf6,0xafa,0xa1c,0x5e5,
@@ -32,7 +48,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(SuperMetroid.Core.Game.RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => random));
         typeof(SuperMetroid.Core.Game.RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => random));
-        for (int frame = 376; frame <= 733; frame++)
+        for (int frame = 376; frame <= 744; frame++)
         {
             var expected = Read(frame);
             samus.XPosition = W(expected, 0xaf6); samus.YPosition = W(expected, 0xafa);
@@ -45,6 +61,6 @@ internal static partial class Program
             if (actual != native)
                 throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={body.CurrentInstruction:X4}/{body.InstructionTimer}; timer={state.FunctionTimer} native={W(expected,0xfb2)}");
         }
-        Console.WriteLine("Ridley player opening trajectory matches native movie frames 375..733.");
+        Console.WriteLine("Ridley player opening trajectory matches native movie frames 375..744.");
     }
 }

@@ -900,8 +900,10 @@ public sealed partial class RoomEnemySystem
         ushort centerY,
         ushort radiusX,
         ushort radiusY) =>
-        Math.Abs(unchecked((short)(slot.XPosition - centerX))) < radiusX &&
-            Math.Abs(unchecked((short)(slot.YPosition - centerY))) < radiusY;
+        // $A9:EF06 tests overlap with the actor's rectangle, including its boundary.
+        // A center-only test delays flight and attack handoffs until Ridley gets too close.
+        Math.Abs(unchecked((short)(slot.XPosition - centerX))) < unchecked((ushort)(slot.XRadius + radiusX + 1)) &&
+            Math.Abs(unchecked((short)(slot.YPosition - centerY))) < unchecked((ushort)(slot.YRadius + radiusY + 1));
 
     private static RidleyTailSegment[] CreateInitialRidleyTailSegments()
     {

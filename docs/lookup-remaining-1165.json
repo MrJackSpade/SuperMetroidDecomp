@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 504,
+  "remainingTableDefinitionCount": 503,
   "fileCount": 523,
   "entries": [
     {
@@ -1659,12 +1659,15 @@
       "implementationCommit": "55fcfdffe21c7a9922b6f54f4ea8a4b447ebf23a"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs",
-      "line": 16,
-      "name": "PauseReserveUiPresentation.arrowFrames",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind PauseReserveUiPresentation.arrowFrames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs",
+    "line":  16,
+    "name":  "PauseReserveUiPresentation.arrowFrames",
+    "kind":  "installed stock table",
+    "note":  "Original/default payload behind PauseReserveUiPresentation.arrowFrames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+    "state":  "justified-retained",
+    "implementationCommit":  "322d41c3bb52c9cdd724b2ed1f2eff94d26fbb23",
+    "disposition":  "Mixed complete: binary32 normalized fade calculates integral crossings; shared neutral channels,reversed solid starts,mirroring and held magnitudes calculated. Retain only source paint039E/0156,grey18/12 and penultimate bright-red/dark-blue shade hold as specific bevel/pulse content. No six-value residual table; independent edits preserved. Other arrow geometry/pixels excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/PauseWireframePresentation.cs",
       "line": 8,
@@ -21561,5 +21564,5 @@
     }
   ],
   "convertedSinceSnapshot": 598,
-  "justifiedRetainedSinceSnapshot": 26
+  "justifiedRetainedSinceSnapshot": 27
 }

@@ -11830,4 +11830,11 @@
     "workerCommit":  "95c2e398bf8b73ed1436aab25013285ed8f91b69",
     "state":  "converted",
     "algorithm":  "Nearest RGB5 endpoint interpolation; exact-match rainbow6 start plus reviewed drained/half-normal rear endpoints and repeated trailing highlight."
+},"reserveArrowColorsComplete":{
+    "confirmation":  "Root native consumer82:AD31-AD43 and source-arrow image reviewed;1452warnings/0errors;Audit0/0;64native colors,192frame edits,6solid edits,actual CGRAM/wrap/zero stock overrides pass.",
+    "justification":  "Only shared gold/brown paint039E/0156,grey levels18/12 and penultimate bright-red/dark-blue hold specify categorical bevel/pulse content. Six-channel retention proposal withdrawn; no independent held values stored.",
+    "completed":  "PauseReserveUiPresentation.arrowFrames",
+    "workerCommit":  "322d41c3bb52c9cdd724b2ed1f2eff94d26fbb23",
+    "state":  "mixed-complete",
+    "algorithm":  "Repeated normalized binary32 subtraction/multiply/add with explicit rounding explains four blue crossings; mirroring,neutral channels,shared starts and previous-shade held values calculate."
 }}

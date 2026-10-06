@@ -13,7 +13,8 @@ public sealed class PauseReserveUiPresentation
     private readonly int[]? arrowOffsets;
     private readonly int enabledPalette, disabledPalette;
     private readonly ushort solidColor6, solidColor11;
-    private readonly (ushort Color6, ushort Color11) arrowStart, arrowMiddle;
+    private readonly (ushort? Color6, ushort? Color11) arrowStartEdits;
+    private readonly (int Color6, int Color11) arrowGreyLevels;
     private readonly Dictionary<int, ushort> arrowColorEdits = [];
 
     private PauseReserveUiPresentation(Dictionary<string, ReserveLabel> labels, int digitOffset,
@@ -32,8 +33,10 @@ public sealed class PauseReserveUiPresentation
         this.enabledPalette = enabledPalette;
         this.disabledPalette = disabledPalette; this.solidColor6 = solidColor6;
         this.solidColor11 = solidColor11;
-        arrowStart = arrowFrames[0];
-        arrowMiddle = arrowFrames[PauseReserveUiDefinitions.ArrowFrames / 2 - 1];
+        arrowStartEdits = (arrowFrames[0].Item1 == solidColor11 ? null : arrowFrames[0].Item1,
+            arrowFrames[0].Item2 == solidColor6 ? null : arrowFrames[0].Item2);
+        var middle = arrowFrames[PauseReserveUiDefinitions.ArrowFrames / 2 - 1];
+        arrowGreyLevels = (middle.Item1 & 31, middle.Item2 & 31);
         for (int frame = 0; frame < arrowFrames.Length; frame++)
         {
             if (arrowFrames[frame].Item1 != CalculateArrowColor(frame, false))
@@ -96,19 +99,37 @@ public sealed class PauseReserveUiPresentation
 
     /// <summary>
     /// $82:AD5D/AD9D mirror two16-phase RGB ramps around the repeated midpoint.
-    /// Endpoint choices and six distinct native channel deviations remain pending
-    /// source payload; supplied deviations and independent edits are retained sparsely.
+    /// Starts share the reversed solid-arrow colors; grey midpoint channels share one level.
+    /// Repeated normalized fade subtraction explains the below-integer blue crossings at5/10.
+    /// The penultimate bright-red/dark-blue channels hold their preceding shade. Endpoint
+    /// colors/levels and this exact two-channel hold are authored bevel-color/pulse content:
+    /// different choices paint a different pulse. Held magnitudes derive from the prior shade;
+    /// independently supplied differences stay sparse.
     /// </summary>
     private ushort CalculateArrowColor(int frame, bool second)
     {
         int last = PauseReserveUiDefinitions.ArrowFrames - 1;
         int phase = Math.Min(frame, last - frame);
         int steps = last / 2;
-        ushort start = second ? arrowStart.Color11 : arrowStart.Color6;
-        ushort end = second ? arrowMiddle.Color11 : arrowMiddle.Color6;
+        ushort start = second ? arrowStartEdits.Color11 ?? solidColor6 : arrowStartEdits.Color6 ?? solidColor11;
+        int grey = second ? arrowGreyLevels.Color11 : arrowGreyLevels.Color6;
+        if (phase == steps) return (ushort)(grey | grey << 5 | grey << 10);
         int value = 0;
         for (int shift = 0; shift < 15; shift += 5)
-            value |= (((start >> shift & 31) * (steps - phase) + (end >> shift & 31) * phase) / steps) << shift;
+        {
+            int channelPhase = phase == steps - 1 && shift == (second ? 10 : 0) ? phase - 1 : phase;
+            float remaining = 1;
+            float step = (float)(1d / steps);
+            for (int tick = 0; tick < channelPhase; tick++)
+                remaining = (float)((double)remaining - step);
+            float amount = (float)(1d - remaining);
+            int channelStart = start >> shift & 31;
+            // Explicit binary32 roundings separate multiplication and addition: an FMA
+            // cannot remove the intermediate rounding or alter the integral crossings.
+            float delta = (float)((double)(grey - channelStart) * amount);
+            int channel = (int)(float)(channelStart + (double)delta);
+            value |= channel << shift;
+        }
         return (ushort)value;
     }
 

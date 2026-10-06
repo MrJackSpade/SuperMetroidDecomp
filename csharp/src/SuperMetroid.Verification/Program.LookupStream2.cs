@@ -1638,7 +1638,7 @@ internal static partial class Program
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
         var edits = (Dictionary<int, ushort>)typeof(PauseReserveUiPresentation)
             .GetField("arrowColorEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        AssertEqual(12, edits.Count, "Only six mirrored native residual color cells remain stored");
+        AssertEqual(0, edits.Count, "Native channel choices plus calculated ramps need no unexplained color overrides");
         var cgram = new SnesCgram();
         for (int frame = 0; frame < 32; frame++)
         {
@@ -1666,7 +1666,18 @@ internal static partial class Program
             encoded.Position = 0;
             Check(PauseReserveUiPresentation.Load(encoded), changed);
         }
-        Console.WriteLine("Reserve arrow ramps: all64 native colors,192 independent channel edits, solid/animated CGRAM writes and frame wrapping pass; endpoint and residual choices remain pending.");
+        for (int selected = 0; selected < 2; selected++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            PaletteRgb5 original = selected == 0 ? document.Arrow.SolidColor6 : document.Arrow.SolidColor11;
+            var changedColor = new PaletteRgb5 { Red = channel == 0 ? original.Red ^ 31 : original.Red,
+                Green = channel == 1 ? original.Green ^ 31 : original.Green, Blue = channel == 2 ? original.Blue ^ 31 : original.Blue };
+            var arrow = selected == 0 ? document.Arrow with { SolidColor6 = changedColor } : document.Arrow with { SolidColor11 = changedColor };
+            var changed = document with { Arrow = arrow };
+            using var encoded = new MemoryStream(); PauseReserveUiPresentation.Write(encoded, changed); encoded.Position = 0;
+            Check(PauseReserveUiPresentation.Load(encoded), changed);
+        }
+        Console.WriteLine("Reserve arrow ramps: all64 native colors,192 independent frame-channel edits,6 solid-color edits,zero stock color overrides,actual CGRAM and wrapping pass; mixed source paint/hold disposition documented.");
 
         static void Check(PauseReserveUiPresentation presentation, PauseReserveUiDocument expected)
         {

@@ -38,7 +38,7 @@ internal static class MenuClosedPresentationContractDefinitions
         new("SuperMetroid.Core.Assets.PauseReserveUiPresentation", "pause-reserve-v1-complete-fields",
             ["ApplyLabel", "ApplyDigit", "ApplyArrowTilePalettes", "ApplyArrowColors"],
             [new("csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs",
-                "A25DB1206665061D7B2E4E947449079E2ABC1499B6A2CD34688A8F1EF53B6C78"),
+                "123A68E03DBCE63AA5A6F43C6FE5BDAC3A2AED0113E2E5B5FE9E2CA895493C16"),
              new("csharp/src/SuperMetroid.Core/Assets/PauseReserveUiDefinitions.cs",
                 "B435BE1CAD4C5440A35090E6F8785EF44B0795FBAF16543A8FCBE81216149D55")],
             "The sole private-constructor loader requires Mode/ReserveTank/Manual/Auto labels, ten digit cells, " +

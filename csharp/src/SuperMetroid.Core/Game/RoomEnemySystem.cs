@@ -4006,6 +4006,16 @@ public sealed partial class RoomEnemySystem
         !IsNegative16(cameraY + 248 - slot.YPosition);
 
     /// <summary>
+    /// <c>CheckIfEnemyCenterIsOnScreen</c> ($A0:AD70): the center lies within $100 pixels
+    /// right of and below the camera on both axes.
+    /// </summary>
+    private static bool EnemyCenterIsOnScreen(RoomEnemySlot slot, ushort cameraX, ushort cameraY) =>
+        !IsNegative16(slot.XPosition - cameraX) &&
+        !IsNegative16(cameraX + 0x0100 - slot.XPosition) &&
+        !IsNegative16(slot.YPosition - cameraY) &&
+        !IsNegative16(cameraY + 0x0100 - slot.YPosition);
+
+    /// <summary>
     /// <c>CheckIfEnemyIsHorizontallyOffScreen</c> ($A0:C18E): a negative X, a right edge
     /// left of the camera, or a position at least $100 right of the camera is off-screen.
     /// </summary>

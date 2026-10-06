@@ -172,7 +172,7 @@ public sealed partial class RoomEnemySystem
             ? -unsignedDisplacement
             : unsignedDisplacement;
         AddZoaDisplacement(slot, xDisplacement, yDisplacement: 0);
-        if (ZoaCenterIsOnScreen(slot, cameraX, cameraY))
+        if (EnemyCenterIsOnScreen(slot, cameraX, cameraY))
         {
             SetZoaInstructionList(slot, state);
             return;
@@ -210,15 +210,6 @@ public sealed partial class RoomEnemySystem
             slot.YSubposition = unchecked((ushort)y);
         }
     }
-
-    private static bool ZoaCenterIsOnScreen(
-        RoomEnemySlot slot,
-        ushort cameraX,
-        ushort cameraY) =>
-        !IsNegative16(slot.XPosition - cameraX) &&
-        !IsNegative16(cameraX + 0x0100 - slot.XPosition) &&
-        !IsNegative16(slot.YPosition - cameraY) &&
-        !IsNegative16(cameraY + 0x0100 - slot.YPosition);
 
     private static void SetZoaInstructionList(RoomEnemySlot slot, ZoaEnemyState state)
     {

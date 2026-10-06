@@ -690,7 +690,8 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        if (!EnemyWithNormalSpritesIsOffScreen(slot, cameraX, cameraY))
+        // Every Geega flight function resets through CheckIfEnemyCenterIsOnScreen.
+        if (EnemyCenterIsOnScreen(slot, cameraX, cameraY))
             return false;
         slot.XPosition = state.SpawnX;
         slot.YPosition = state.SpawnY;

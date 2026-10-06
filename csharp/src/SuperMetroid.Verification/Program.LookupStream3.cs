@@ -216,10 +216,20 @@ internal static partial class Program
         {
             var original = Read();
             var stock = Load(original)[name];
-            AssertTrue(typeof(SpriteComposition).GetField("parts", flags)!.GetValue(stock) is MenuBorderParts,
-                "native border stores perimeter inputs instead of full parts");
+            AssertTrue(typeof(SpriteComposition).GetField("parts", flags)!.GetValue(stock) is MenuHeadingBorderDefinitions,
+                "native heading stores only semantic title identity instead of supplied bounds/order/style");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
+            var presentation = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, MapPresentationFormat.JsonOptions)));
+            string page = original.HeadingAnchors.Keys.Single(key => GameOptionsPresentationDefinitions.HeadingFrameName(key) == name);
+            var actualOam = new OamBuffer();
+            var expectedOam = new OamBuffer();
+            presentation.DrawHeading(actualOam, page, 3);
+            var point = original.HeadingAnchors[page];
+            MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
+                (ushort)point.X, unchecked((ushort)(point.Y - 3)), (ushort)(original.CursorPalette << 9));
+            AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) && actualOam.HighTable.SequenceEqual(expectedOam.HighTable),
+                "actual heading draw preserves exact native ordered OAM");
             ushort Word(int location) => (ushort)(rom.ReadByte(location) | rom.ReadByte(location + 1) << 8);
             AssertEqual((ushort)count, Word(address), "native border header");
             for (int index = 0; index < count; index++)
@@ -466,8 +476,33 @@ internal static partial class Program
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
         var original = Read();
         var stock = Sprites(Load(original));
+        var presentation = Load(original);
         foreach (string name in GameOverPresentationDefinitions.SpriteNames)
         {
+            var actualOam = new OamBuffer();
+            var expectedOam = new OamBuffer();
+            int x, y, palette;
+            if (name.StartsWith("Cursor.", StringComparison.Ordinal))
+            {
+                int frame = name[^1] - '0';
+                presentation.DrawCursor(actualOam, frame, false);
+                x = original.CursorX; y = original.YesCursorY; palette = presentation.CursorPaletteIndex;
+            }
+            else
+            {
+                if (name == GameOverPresentationDefinitions.EggFrame) presentation.DrawEgg(actualOam);
+                else presentation.DrawBaby(actualOam, name switch { "Baby.Closed" => GameOverBabyFrame.Closed, "Baby.Middle" => GameOverBabyFrame.Middle, _ => GameOverBabyFrame.Open });
+                x = original.BabyAnchor.X; y = original.BabyAnchor.Y;
+                palette = name == GameOverPresentationDefinitions.EggFrame ? presentation.EggPaletteIndex : presentation.BabyPaletteIndex;
+            }
+            MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
+                (ushort)x, (ushort)y, (ushort)(palette << 9));
+            AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) && actualOam.HighTable.SequenceEqual(expectedOam.HighTable),
+                "actual game-over draw emits exact native ordered OAM " + name);
+        }
+        foreach (string name in GameOverPresentationDefinitions.SpriteNames)
+        {
+            if (name == "Cursor.0") for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileAnimationDefinitions.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
             AssertTrue(Calculated(stock[name]), "stock game-over geometry retains no full part array " + name);
             Confirm(stock[name], original.Sprites[name]);
             for (int part = 0; part < original.Sprites[name].Length; part++)

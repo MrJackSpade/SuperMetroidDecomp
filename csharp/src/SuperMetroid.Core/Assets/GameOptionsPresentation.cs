@@ -256,8 +256,8 @@ public sealed class GameOptionsPresentation
 
         var sprites = new Dictionary<string, SpriteComposition>(StringComparer.Ordinal);
         foreach (string name in GameOptionsPresentationDefinitions.SpriteNames)
-            sprites.Add(name, MenuBorderParts.CalculateIfMatching(name, MenuCursorParts.CalculateIfMatching(name,
-                MenuSpriteCompiler.Compile(document.Sprites[name], $"options {name}"))));
+            sprites.Add(name, MenuHeadingBorderDefinitions.CalculateIfMatching(name, MenuBorderParts.CalculateIfMatching(name, MenuCursorParts.CalculateIfMatching(name,
+                MenuSpriteCompiler.Compile(document.Sprites[name], $"options {name}")))));
         foreach (string page in GameOptionsPresentationDefinitions.MenuPageNames)
         {
             ValidatePoint(document.HeadingAnchors[page], $"{page} heading", allowOffscreenX: false);

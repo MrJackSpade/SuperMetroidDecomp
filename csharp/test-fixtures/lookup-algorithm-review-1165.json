@@ -12274,4 +12274,22 @@
   "disposition": [
     "Remove8word duplicate; resolve through existing startup door material slots1..8 with sparse independently supplied differences. Both BG33..40 and OBJ241..248 copies preserved. No new retained values or exemption."
   ]
+},"gameOverSpritesWholeEntry":{
+  "confirmation": "Root viewed native missile/Baby/container images and native reverse playback. Build1456warnings/0errors,Audit0/0;15native parts,135field edits,reordered/expanded/shared cursor callers and all8actual GameOver OAM draws pass.",
+  "completed": [
+    "GameOverPresentation.sprites"
+  ],
+  "workerCommit": "63c92bc727565d1bd561af01cce557649a849371",
+  "disposition": [
+    "Calculate15parts from6named glyph anchors,actual atlas adjacency,centered geometry and reflections. Retain exact selected glyph/pose mapping and native part order as authored visual composition. Preserve reverse37..34 cursor playback through existing selector; no pixel,color,position-anchor or timing exemption."
+  ]
+},"optionsSpritesWholeEntry":{
+  "disposition": [
+    "Calculate144heading parts from exact heading text lengths,padding,centered geometry and packed F9..FD/ED glyph roles; share4reviewed cursors. Retain chosen typography/display style and exact irregular traversal13center offsets/commonrunpolicy as authored OAM order. No pixel,color,anchor-position or timing exemption."
+  ],
+  "confirmation": "Root viewed all3native borders and reviewed exact helper/native OAM consumer. Build1456warnings/0errors,Audit0/0;144nativeparts,576independent edits,reordered/expanded inputs and3actual heading OAM paths pass. Shared4cursor drawings separately confirmed.",
+  "completed": [
+    "GameOptionsPresentation.sprites"
+  ],
+  "workerCommit": "f7dd901a1dfcc10d4e88e71b498422224e66ebb4"
 }}

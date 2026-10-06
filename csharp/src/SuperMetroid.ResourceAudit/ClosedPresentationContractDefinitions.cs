@@ -59,7 +59,9 @@ internal static class ClosedPresentationContractDefinitions
                 "DrawCursor", "DrawHelmet", "DynamicAnchor", "ApplyPatch", "CopyPage", "DrawBorder"],
             [new("csharp/src/SuperMetroid.Core/Assets/FileSelectPresentation.cs", "5E511AF96B9E4663EBC7B8F394336CFD4A1ED29B4588859DD4734AE6017BB979"),
              new("csharp/src/SuperMetroid.Core/Assets/MenuBorderParts.cs", "6B79556FD47098253A8A977E398C98A1908D01A7DD4E9E5916A38634A33E0080"),
-             new("csharp/src/SuperMetroid.Core/Assets/MenuCursorParts.cs", "098A65F1E9C940A4FEE39562968A7719BE5F405E46F84E6FA151FF89C6E2C66C")],
+             new("csharp/src/SuperMetroid.Core/Assets/MapSpriteCatalog.cs", "6FDADA7BC65E29CCCA60F6D9301DD5B6020202553A025A2994AADA8BE497DA28"),
+             new("csharp/src/SuperMetroid.Core/Frontend/MenuMissileAnimationDefinitions.cs", "92CFE18B185C1526FACE125CF345944D1D878525935BE219DC21EE19838E3E9E"),
+             new("csharp/src/SuperMetroid.Core/Assets/MenuCursorParts.cs", "718108CB3359B183DF55EBB1F4C86D41E0858FC5DFE1AF6A01FC0612E69AD0FF")],
             "Load is the sole private-constructor path and requires exact page, patch, sprite, " +
             "border and dynamic-anchor sets plus complete digit/letter/slot/cursor arrays. " +
             "Reviewed array selectors reject invalid indices; generated cursor/helmet names are bounded. " +

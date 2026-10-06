@@ -323,6 +323,20 @@ if (args is ["--lookup-stream3-falling-tube-population-layout"])
     VerifyStream3FallingTubePopulationLayout(rom);
     return 0;
 }
+if (args is ["--lookup-stream3-menu-sprites"])
+{
+    var oracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyStream3MenuSpriteGeometry(oracle);
+    Console.WriteLine("Menu sprites: 15 native parts, 135 independent field edits, reordered/expanded compositions and shared cursor loaders pass.");
+    return 0;
+}
+if (args is ["--lookup-stream3-options-sprites"])
+{
+    var oracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyStream3OptionsBorders(oracle, SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(oracle));
+    Console.WriteLine("Options headings: 144 native parts, 576 independent edits, reordered/expanded compositions and actual OAM draw pass.");
+    return 0;
+}
 if (args is ["--lookup-stream3-initial-narration"])
 {
     VerifyStream3InitialNarrationMap();

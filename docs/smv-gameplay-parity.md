@@ -61,7 +61,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Health, reserves, equipment, collected inventory, ammunition and capacities | Complete replay passes these fields, fractional health, hurt/invincibility/knockback timers and directions, HUD selection/cancellation and X acceleration mode (`tide-owner-replay.log`) | Remaining combat/input ownership |
 | Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Remaining actor AI variables and phase-dependent aliases |
 | Ordinary/enemy projectiles | Ordinary active-slot subpixels, velocities, directions, instruction cursors/timers, spritemaps, trail/auxiliary words also pass the full replay | Ordinary pre-instruction identity, enemy-projectile family variables/properties, bombs and explosion owners |
-| Persistent world state and room effects | Selected room plus acid damage surface/tide phase checked during gameplay | PLM/room-block changes, remaining persistence allocations and environmental gameplay state |
+| Persistent world state and room effects | Selected room plus acid damage surface/tide phase checked during gameplay | PLM execution state, loading-boundary room mutations, remaining persistence allocations and environmental gameplay state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
 
 The history below records earlier divergence boundaries, not current completion.
@@ -441,3 +441,13 @@ one-time initial import remains unchanged. All10,717 updates pass, including the
 Ridley-defeated bit transition, without a production fix (`world-bits-build.log`,
 `world-bits-replay.log`). Other persistence allocations and room/PLM mutations
 remain explicit open coverage items.
+
+### Active room collision data
+
+At every MainGameplay boundary, every active foreground block word and BTS byte
+now compares with native WRAM. The full movie passes all10,717 retained updates
+with these checks enabled; no production change was needed (`room-collision-build.log`,
+`room-collision-replay.log`). This covers the collision data consumed during play,
+not merely sampled movement outcomes. Partially decompressed loading boundaries
+are not compared by this new check; PLM execution state and those transition-owned
+mutations remain separate audit items.

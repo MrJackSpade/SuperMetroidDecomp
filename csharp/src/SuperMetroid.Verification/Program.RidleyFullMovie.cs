@@ -1061,6 +1061,18 @@ internal static partial class Program
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
+                var activeLevel = runtime.LevelData ?? throw new InvalidDataException("Missing active collision data.");
+                for (int block = 0; block < activeLevel.WidthInBlocks * activeLevel.HeightInBlocks; block++)
+                {
+                    Check($"Room block {block}", activeLevel.ForegroundEntries.Span[block], RidleyMovieMemory.Level + block * 2);
+                    byte expectedBehavior = memory[RidleyMovieMemory.Bts + block];
+                    byte actualBehavior = activeLevel.BehaviorBytes.Span[block];
+                    if (actualBehavior != expectedBehavior)
+                        mismatches.Add($"Room BTS {block}: native={expectedBehavior:X2} port={actualBehavior:X2}");
+                }
+            }
+            if (game.GameState == SuperMetroidGameState.MainGameplay)
+            {
                 Check("Projectile cooldown", runtime.BombProjectiles.CooldownTimer, RidleyMovieMemory.ProjectileCooldown);
                 Check("Beam charge", runtime.Projectiles.FlareCounter, RidleyMovieMemory.BeamCharge);
             }

@@ -96,6 +96,21 @@ internal static partial class Program
             if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.HorizontalChargedSpazerParts)
                 calculatedChargedSpazer++;
         AssertEqual(6, calculatedChargedSpazer, "Six horizontal charged Spazer compositions calculate strip adjacency and lane geometry");
+        int calculatedVerticalSpazer = 0;
+        foreach (var composition in frames.Values)
+            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.VerticalChargedSpazerSpreadParts)
+                calculatedVerticalSpazer++;
+        AssertEqual(4, calculatedVerticalSpazer, "Four vertical charged Spazer spreads calculate cell adjacency and mirrored side columns");
+        int calculatedSpazerStartup = 0;
+        foreach (var composition in frames.Values)
+            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.SpazerAxialStartupParts)
+                calculatedSpazerStartup++;
+        AssertEqual(12, calculatedSpazerStartup, "Twelve axial Spazer startup poses calculate centered single/pair geometry");
+        int calculatedDiagonalStartup = 0;
+        foreach (var composition in frames.Values)
+            if (typeof(SpriteComposition).GetField("parts", fields)!.GetValue(composition) is ProjectileSpriteDefinitions.SpazerDiagonalStartupParts)
+                calculatedDiagonalStartup++;
+        AssertEqual(6, calculatedDiagonalStartup, "Six diagonal Spazer startup poses calculate centered pair-strip geometry");
         var firstCharged = (SpriteComposition)frames[(ushort)0xec3e]!;
         AssertTrue(typeof(SpriteComposition).GetField("parts", fields)!.GetValue(firstCharged) is CompiledSpritePart[], "Distinct initial charged-Power ordering stays explicitly supplied/pending");
         foreach (ushort pointer in expected)
@@ -170,7 +185,7 @@ internal static partial class Program
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
-        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and 169 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
+        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and 191 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
     }
     private static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
     {

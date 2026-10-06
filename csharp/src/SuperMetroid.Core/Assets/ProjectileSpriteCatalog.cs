@@ -88,6 +88,12 @@ public sealed class ProjectileSpriteCatalog
                 composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SpazerAxialSpreadParts(pose, phase));
             else if (ProjectileSpriteDefinitions.TryHorizontalChargedSpazer(id, out phase))
                 composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.HorizontalChargedSpazerParts(phase));
+            else if (ProjectileSpriteDefinitions.TryVerticalChargedSpazerSpread(id, out phase))
+                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.VerticalChargedSpazerSpreadParts(phase));
+            else if (ProjectileSpriteDefinitions.TrySpazerAxialStartup(id, out int group, out int length))
+                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SpazerAxialStartupParts(group, length));
+            else if (ProjectileSpriteDefinitions.TrySpazerDiagonalStartup(id, out group, out length))
+                composition = composition.CalculateIfMatching(new ProjectileSpriteDefinitions.SpazerDiagonalStartupParts(group, length));
             frames.Add(id, composition);
         }
         return new(frames);

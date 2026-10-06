@@ -950,5 +950,111 @@ public static class ProjectileSpriteDefinitions
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
+    /// <summary>$93:DA8E..DB85: later vertical charged Spazer spreads follow the vertical seed and its first spread. Initial DA3A/DA50 ordering remains required.</summary>
+    internal static bool TryVerticalChargedSpazerSpread(ushort pointer, out int phase) =>
+        TryPhase(pointer, (ushort)(ChargedSpazerStart + SpreadGroupBytes(4) + RecordBytes(4) + RecordBytes(12)), 12, 4, out phase);
+    /// <summary>$93:DA8E: the selected four-cell column and glyph37 remain REQUIRED artwork inputs.</summary>
+    private const int ChargedSpazerVerticalCells = 4, ChargedSpazerVerticalGlyph = 0x37;
+    /// <summary>Three descending columns. Side placement measures a required distance to the near cell edge and reflects across X=0; this placement policy and right/left/center traversal remain REQUIRED choices.</summary>
+    internal readonly struct VerticalChargedSpazerSpreadParts(int phase) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => 3 * ChargedSpazerVerticalCells;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                int size = SpazerCompositionGeometryDefinitions.TileSize;
+                int lane = index / ChargedSpazerVerticalCells;
+                int distance = UnresolvedWaveDistances[phase];
+                int x = lane == 0 ? distance : lane == 1 ? -size - distance : -size / 2;
+                int y = (ChargedSpazerVerticalCells / 2 - 1 - index % ChargedSpazerVerticalCells) * size;
+                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                    SnesObjAttributeWord.Create(ChargedSpazerVerticalGlyph, PowerPalette, PowerPriority, 0), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    /// <summary>$93:EE12..F085: each startup orientation group begins with a one-cell and two-cell axial strip, before its diagonal records.</summary>
+    internal static bool TrySpazerAxialStartup(ushort pointer, out int group, out int length)
+    {
+        int groupBytes = 7 * sizeof(ushort) + 5 * (4 * 5 / 2 + 2 * (3 * 4 / 2));
+        int offset = pointer - SpazerStartupStart;
+        group = offset / groupBytes;
+        int within = offset % groupBytes;
+        length = within == 0 ? 1 : 2;
+        return offset >= 0 && group < 6 && (within == 0 || within == RecordBytes(1));
+    }
+    /// <summary>One/two-cell centered startup strips; native group glyph/reflection selection and traversal remain REQUIRED composition inputs, while adjacency and centering calculate.</summary>
+    internal readonly struct SpazerAxialStartupParts(int group, int length) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => length;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                int size = SpazerCompositionGeometryDefinitions.TileSize;
+                bool vertical = (group & 1) != 0;
+                bool reflected = group is 2 or 3;
+                int along = -length * size / 2 + index * size;
+                if (vertical != reflected) along = -size - along;
+                int x = vertical ? -size / 2 : along;
+                int y = vertical ? along : SpazerCompositionGeometryDefinitions.HorizontalStripOriginY;
+                int glyph = group >= 4
+                    ? (vertical ? ChargedSpazerVerticalGlyph : ChargedSpazerHorizontalGlyph)
+                    : (vertical ? SpazerVerticalGlyph : SpazerHorizontalGlyph);
+                var flips = reflected ? (vertical ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.Horizontal) : 0;
+                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                    SnesObjAttributeWord.Create(glyph, PowerPalette, PowerPriority, flips), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+    /// <summary>$93:EE4C/EE58,EEC8/EED4,EF44/EF50: ordinary diagonal startup strips select one or two tile pairs after four physical axial records.</summary>
+    internal static bool TrySpazerDiagonalStartup(ushort pointer, out int group, out int pairs)
+    {
+        int groupBytes = 7 * sizeof(ushort) + 5 * (4 * 5 / 2 + 2 * (3 * 4 / 2));
+        int offset = pointer - SpazerStartupStart;
+        group = offset / groupBytes;
+        int within = offset % groupBytes - (4 * sizeof(ushort) + 5 * 4 * 5 / 2);
+        pairs = within == 0 ? 1 : 2;
+        return offset >= 0 && group < 3 && (within == 0 || within == RecordBytes(2));
+    }
+    /// <summary>Ordinary diagonal startup strips keep the required two-pair origin and shift by half a cell when shortened to one pair. Pair adjacency/reflection calculate; selected footprint lengths, origin, glyphs and order remain REQUIRED.</summary>
+    internal readonly struct SpazerDiagonalStartupParts(int group, int pairs) : IReadOnlyList<CompiledSpritePart>
+    {
+        public int Count => pairs * 2;
+        public CompiledSpritePart this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                int size = SpazerCompositionGeometryDefinitions.TileSize;
+                int x = SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX + (2 - pairs) * size / 2 +
+                    (index / 2 + index % 2) * size;
+                int y = SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY + (pairs - 2) * size / 2 - index / 2 * size;
+                bool flipX = group != 0, flipY = group == 2;
+                if (!flipX) x = -size - x;
+                if (flipY) y = -size - y;
+                var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
+                return new(SnesSpritemapXWord.Create(x, false), unchecked((byte)y),
+                    SnesObjAttributeWord.Create(SpazerDiagonalGlyph - index % 2, PowerPalette, PowerPriority, flips), false);
+            }
+        }
+        public IEnumerator<CompiledSpritePart> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     public static string Name(ushort pointer) => $"sprite_{pointer:X4}";
 }

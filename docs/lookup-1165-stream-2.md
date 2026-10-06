@@ -1111,3 +1111,10 @@ Root Verification build1446warnings/zero errors. Focused projectile identity/com
 Chosen lobe/corner/lane ordering,spacing4 and8/13/15/16,diagonal ratio3/4,origin(-14,0),strip length4,glyphs,priority,pixels and selected footprint lengths remain required. Initial-right D84E and final irregular diagonal spreads remain supplied and pending. Repeated lanes,adjacent cells and native reflections calculate without claiming these choices are resolved. Both aggregate entries remain pending; inventory558converted/21retained-mixed/549pending unchanged.
 
 Root Verification1447warnings/zero errors. Focused identity/composition check passes417native identities and actual OAM draws,805selector union,48physical startup records,exact169calculated views,independent edits/ownership,54flare selectors and bounds. ResourceAudit0warnings/0errors; projectile and flare closures include the shared coordinate catalog.
+## Integrated charged vertical Spazer and startup geometry
+
+c348d68aa and e228a7c5d calculate22additional compositions: four later charged vertical column layouts,twelve axial startup strips and six ordinary diagonal startup pair layouts. Total calculated views191. Cell adjacency,centering and reflected near-edge placement calculate; shortening a diagonal from two pairs to one preserves its center through a half-cell shift.
+
+Chosen edge-relative/traversal policies,distances,lengths,glyphs,priority,shared origin(-14,0),pixels and other independent inputs remain required. Initial charged vertical DA3A/DA50 and four charged diagonal startup layouts remain supplied/pending. No aggregate closure or new exemption; inventory unchanged558converted/21retained-mixed/549pending.
+
+Root Verification1447warnings/zero errors. Focused identity/composition check passes417native identities and actual OAM draws,805selector union,48physical startup records,exact191calculated views,independent edits/ownership,54flare selectors and bounds. ResourceAudit0warnings/0errors; affected projectile/flare source hashes refreshed.

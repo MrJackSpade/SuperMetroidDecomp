@@ -6,7 +6,9 @@ internal static class GoldenTorizoHealthPaintDefinitions
 {
     /// <summary>$84:8034-8042 / $AA:8709-8717: eight low-health armor red levels.</summary>
     private const int LowHighlight = 26, LowEdge = 18, LowRecess = 7, LowOutline = 3,
-        LowPlateLight = 21, LowPlateMiddle = 16, LowPlateShade = 11, LowPlateDark = 8;
+        LowPlateLight = 21, LowPlateDark = 8;
+    /// <summary>$84:803C-8042: selected five-level armor shade step, clipped at the dark facet.</summary>
+    private const int LowPlateShadeStep = 5;
     /// <summary>$84:8034-8042: low armor green and blue deficits; highlight shares green, middle blue selects13.</summary>
     private const int LowGreenDrop = 5, LowBlueDrop = 2, LowMiddleBlue = 13;
     /// <summary>$84:8044-8048: chosen purple core paints.</summary>
@@ -75,7 +77,7 @@ internal static class GoldenTorizoHealthPaintDefinitions
             int red = color switch
             {
                 1 => LowHighlight, 2 => LowEdge, 3 => LowRecess, 4 => LowOutline,
-                5 => LowPlateLight, 6 => LowPlateMiddle, 7 => LowPlateShade, 8 => LowPlateDark,
+                >= 5 and <= 8 => Math.Max(LowPlateDark, LowPlateLight - LowPlateShadeStep * (color - 5)),
                 _ => throw new ArgumentOutOfRangeException(nameof(color)),
             };
             int green = Math.Max(0, red - LowGreenDrop);

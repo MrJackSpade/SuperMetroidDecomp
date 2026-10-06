@@ -23,7 +23,7 @@ internal static class RemainingEnemyColorClosedContractDefinitions
         new("SuperMetroid.Core.Assets.EnemyAuxiliaryColorCatalog", "enemy-auxiliary-complete-color-images", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorCatalog.cs", "0507A0E45BB0C7B4F6BCEB9593067AB7376D539110E31DD1088133DB03E8A2FC"),
              new("csharp/src/SuperMetroid.Core/Assets/EnemyAuxiliaryColorDefinitions.cs", "F5A441D29909080B7E156F7C9BB712B83E7AC543B24FFD9EA0FC25523EF7B270"),
-             new("csharp/src/SuperMetroid.Core/Assets/GoldenTorizoHealthPaintDefinitions.cs", "A5B23FE7F76E84A6FD6062F30A44B4B38C1B7FDF82C26BEE1A8650D8CC1FC84A"),
+             new("csharp/src/SuperMetroid.Core/Assets/GoldenTorizoHealthPaintDefinitions.cs", "D5B783F6F8AFC55C8CF49B27B7AFFF9517A77E5621F2EAE4F60C8D75E5F876AE"),
              new("csharp/src/SuperMetroid.Core/Assets/FaceBlockGlowPaintDefinitions.cs", "E1AF3643259A6CB627417CA3FC141CA6DEB6CAA01731879DAC061F4F388FDCD2"),
              new("csharp/src/SuperMetroid.Core/Assets/SidehopperDrainPaintDefinitions.cs", "255A7790394C2DA198AA528FC336E360BD1DFBA2715C1750CAC20BB26B3F0AC5"),
              new("csharp/src/SuperMetroid.Core/Assets/SidehopperDrainShadeDefinitions.cs", "6878C8C21E97A7A2F6105F09470221F909DAC377786A3C5FB54B999760B0C7A7"),

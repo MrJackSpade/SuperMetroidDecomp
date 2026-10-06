@@ -12202,4 +12202,13 @@
   "disposition": [
     "Replace805sample pairs with semantic family/axis/phase calculations: symmetry, paired/reversed phases, growth/caps, triangular envelopes and shared native lobe geometry. Retain precisely named physical hitbox dimensions/minimums/growth/rounding, shoulder inset, startup/axis choices and five chargedPlasma diagonal spread bounds12/16/17/20/24. These independently select collision reach and do not equal sprite bounds or a common projection; inventing a fitted curve would reencode or change chosen gameplay. Source lobe artwork remains separately required; timing,damage,motion,sound excluded."
   ]
+},"ceresRidleyBodyFadeWholeEntry":{
+  "workerCommit": "fab62961594b752e660b681001355f18767fb6d0",
+  "disposition": [
+    "All176body samples use floor((endpointChannel*phase+1)/15), eliminating17exceptional words. First8endpoints share reviewed immutable Golden armor; its16/11middle shades now derive max(8,21−5*shade). Retain only5wing membrane inputs G18/G1/B−G5/darkR20/darkB4 with saturated-red/darkG0 hue policy, plus common rounding composition. Actual three masks establish selected membrane paint; independent replacements preserve supplied data. Initial/explosion palettes,pixels,timing excluded."
+  ],
+  "confirmation": "Root viewed native E983/DD4A composition and three membrane masks; common +1/15 quantizer removes every17formerlyexceptional word. Build1454warnings/zeroerrors;224native eye/body,672RGB edits,10848actual row applications, bounds/immutability pass. Golden clipped-ramp reduction additionally confirmed393auxiliary colors/1179RGB edits. ResourceAudit0/0 and LF-normalized source hashes refreshed; catalog has no standalone hash contract.",
+  "completed": [
+    "CeresRidleyColorCatalog.bodyFade"
+  ]
 }}

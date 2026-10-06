@@ -472,32 +472,32 @@ internal static partial class Program
                 int address = start + (row * count + color) * 2;
                 return (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
             }
-            bool Required(int row, int color) => eyes
-                ? false
-                : row == 15 || (row, color) is (2, 2) or (4, 0) or (4, 5) or (4, 6) or (7, 2)
-                    or (8, 1) or (8, 5) or (11, 4) or (11, 10) or (13, 7) or (13, 8)
-                    or (14, 1) or (14, 3) or (14, 4) or (14, 5) or (14, 8) or (14, 9);
+            if (!eyes)
+                for (int color = 0; color < 8; color++)
+                {
+                    int source = 0x848034 + color * 2;
+                    ushort golden = (ushort)(rom.ReadByte(source) | rom.ReadByte(source + 1) << 8);
+                    AssertEqual(golden, Native(15, color), "Exact native shared armor source identity");
+                    AssertEqual(golden, GoldenTorizoHealthPaintDefinitions.Color(0, color + 1, rear: false), "Shared immutable stock endpoint and clipped armor ramp");
+                }
             var definition = (CeresRidleyFadeColorDefinitions)typeof(CeresRidleyColorCatalog)
                 .GetField(eyes ? "eyeFade" : "bodyFade", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
             Dictionary<int, ushort> Stored(string name) => (Dictionary<int, ushort>)typeof(CeresRidleyFadeColorDefinitions)
                 .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(definition)!;
-            AssertEqual(eyes ? 0 : 28, Stored("basis").Count, "exact fade endpoints and unresolved deviations");
             AssertEqual(0, Stored("overrides").Count, "stock fade never hides residual samples as edit overrides");
             for (int row = 0; row < 16; row++)
             for (int color = 0; color < count; color++)
             {
-                AssertEqual(Required(row, color), definition.RequiresNativeBasis(row, color), "exact native required-site domain");
-                AssertEqual(Required(row, color), Stored("basis").ContainsKey(row * count + color), "exact stored basis membership");
                 AssertEqual(Native(row, color), definition.Resolve(row, color), "direct stock fade calculation matches native word");
             }
-            for (int channel = 0; channel < (eyes ? 3 : 1); channel++)
+            for (int channel = 0; channel < 3; channel++)
             for (int edit = -1; edit < 16 * count; edit++)
             {
                 var selected = stock;
                 if (edit >= 0)
                 {
                     var rows = (eyes ? document.EyeFade : document.BodyFade).Select(row => row.ToArray()).ToArray();
-                                        PaletteRgb5 original = rows[edit / count][edit % count];
+                    PaletteRgb5 original = rows[edit / count][edit % count];
                     rows[edit / count][edit % count] = channel switch
                     {
                         0 => original with { Red = original.Red ^ 1 },
@@ -530,7 +530,7 @@ internal static partial class Program
         }
         AssertThrows<ArgumentNullException>(() => stock.ApplyEyeFade(null!, 0), "eye null CGRAM");
         AssertThrows<ArgumentNullException>(() => stock.ApplyBodyFade(null!, 0), "body null CGRAM");
-        Console.WriteLine("Ceres fades:224 native words,all48 eye samples calculated from four paint magnitudes and the selected warm-shade composition; body remains partial (11 endpoints/17 deviations), zero stock overrides,144 eye channel edits/176 body edits and5184 actual row applications pass.");
+        Console.WriteLine("Ceres fades:224 native words,all48 eye samples calculated from four paint magnitudes and the selected warm-shade composition; all176body samples calculate through the same quantizer/shared stock paint, zero stock overrides,144eye/528body channel edits and10848 actual row applications pass.");
     }
     private static void VerifyLookupStream4CeresAlarm(ISnesAddressSpace rom)
     {

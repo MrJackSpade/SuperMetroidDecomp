@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 453,
+  "remainingTableDefinitionCount": 452,
   "fileCount": 523,
   "entries": [
     {
@@ -212,12 +212,15 @@
   "disposition": "All48 eye colors calculate using warm three-shade paint: maximum RGB5 red,red step5,green24/14/7,blue0; common floor((channel*phase+1)/15) removes four former exceptional samples. Retain only exact categorical paint magnitudes/material assignment and shared numerator-bias policy. Body28 inputs,initial/explosion containers and cadence remain separate required entries."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
-      "line": 13,
-      "name": "CeresRidleyColorCatalog.bodyFade",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CeresRidleyColorCatalog.bodyFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
+  "line": 13,
+  "name": "CeresRidleyColorCatalog.bodyFade",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CeresRidleyColorCatalog.bodyFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "fab62961594b752e660b681001355f18767fb6d0",
+  "disposition": "All176body samples use floor((endpointChannel*phase+1)/15), eliminating17exceptional words. First8endpoints share reviewed immutable Golden armor; its16/11middle shades now derive max(8,21−5*shade). Retain only5wing membrane inputs G18/G1/B−G5/darkR20/darkB4 with saturated-red/darkG0 hue policy, plus common rounding composition. Actual three masks establish selected membrane paint; independent replacements preserve supplied data. Initial/explosion palettes,pixels,timing excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
       "line": 14,
@@ -21715,5 +21718,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 75
+  "justifiedRetainedSinceSnapshot": 76
 }

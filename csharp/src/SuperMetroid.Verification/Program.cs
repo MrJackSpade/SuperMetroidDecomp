@@ -80,6 +80,7 @@ if (args is ["--ridley-fireball-damage"]) { VerifyRidleyFireballDamage(); return
 if (args is ["--ridley-spin-fireball"]) { VerifyRidleySpinFireball(); return 0; }
 if (args is ["--ridley-contact-ordering"]) { VerifyRidleyContactOrdering(); return 0; }
 if (args is ["--ridley-swoop-timer"]) { VerifyRidleySwoopTimer(); return 0; }
+if (args is ["--ridley-death-finish"]) { VerifyRidleyDeathFinish(); return 0; }
 if (args is ["--ridley-grab-entry"]) { VerifyRidleyGrabEntry(); return 0; }
 if (args is ["--pause-dispatch-rng"]) { VerifyPauseDispatcherRandom(); return 0; }
 if (args is ["--spin-fallback-history"]) { VerifySpinFallbackHistory(); return 0; }

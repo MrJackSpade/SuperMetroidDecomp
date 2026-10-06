@@ -146,6 +146,7 @@ public sealed partial class RoomEnemySystem
         RidleyDeathDropRequested = true;
         state.MusicRequest = MusicCommand.SelectTrack(3);
         body.Properties = body.Properties.With(EnemyProperties.Deleted);
+        state.Function = RidleyAiFunction.NorfairDeathComplete;
     }
 
     /// <summary>Ports $A6:C623 and its ten signed X/Y offset pairs at $A6:C66E.</summary>

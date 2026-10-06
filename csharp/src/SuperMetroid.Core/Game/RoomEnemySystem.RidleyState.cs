@@ -77,6 +77,8 @@ public enum RidleyAiFunction : ushort
     NorfairDeathImpact = 0xc5a8,
     NorfairDeathWait = 0xc5c8,
     NorfairDeathFinish = 0xc5da,
+    /// <summary>$A6:C600: terminal RTS selected by $C5FD after drops, music and deletion.</summary>
+    NorfairDeathComplete = 0xc600,
 }
 
 /// <summary>

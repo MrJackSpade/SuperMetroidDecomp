@@ -91,6 +91,28 @@ internal static partial class Program
         Console.WriteLine("Ridley swoop: independent countdown and retained general AI timer pass.");
     }
 
+    private static void VerifyRidleyDeathFinish()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = CreateRetailRuntimeFixture(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RidleyMovieMemory.RidleyRoom);
+        var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!;
+        typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.Enemies, runtime.Samus);
+        state.Function = RidleyAiFunction.NorfairDeathFinish; state.FunctionTimer = 0;
+        var dispatch = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        dispatch.Invoke(runtime.Enemies, [body, state, runtime.Samus, (ushort)0, runtime.LevelData]);
+        AssertEqual(RidleyAiFunction.NorfairDeathComplete, state.Function, "death finish selects native C600 return");
+        AssertTrue(body.Properties.HasAny(EnemyProperties.Deleted), "death finish publishes deletion");
+        AssertTrue(state.BossDefeatPublished && runtime.Enemies.RidleyDeathDropRequested, "death finish publishes boss defeat and drops");
+        ushort random = runtime.System.RandomNumber;
+        dispatch.Invoke(runtime.Enemies, [body, state, runtime.Samus, (ushort)0, runtime.LevelData]);
+        AssertEqual(random, runtime.System.RandomNumber, "terminal return does not spawn another drop scatter");
+        AssertEqual(ushort.MaxValue, state.FunctionTimer, "terminal return retains expired countdown");
+        Console.WriteLine("Ridley death finish: native terminal return, deletion, defeat/drop publication and inert subsequent dispatch pass.");
+    }
+
     private static void VerifyRidleyGrabEntry()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

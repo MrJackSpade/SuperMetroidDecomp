@@ -294,8 +294,17 @@ instead of dust plus deferred deletion. It clears the slot immediately, preserve
 header/position in the F345 explosion-to-pickup actor and increments the kill count.
 Focused checks assert all these properties. Independent replay confirms recorded
 expiry/pickups and all currently compared fields through update10452/10717.
-Next difference: update10453/source10625, Ridley AI nativeC600 versus portC5DA.
-The terminal death dispatcher is the next investigation.
+Ridley's death finish now stores terminal RTS $C600 after drops/music/deletion,
+matching $A6:C5FA-$C5FD. The focused production fixture checks terminal state,
+defeat/drop publication, deletion and inert subsequent dispatch.
+
+The independent input-only replay now reaches the terminal record: **all10,717
+updates across the original10,890 source frames match the currently instrumented
+fields** (`death-terminal-replay.log`). This is not yet a full-property parity claim.
+The remaining audit must cover relevant inventory/ammunition, control/combat timers,
+projectile motion/instructions, complete Ridley tail/AI state and other gameplay
+owners not currently compared. The original movie remains unchanged and no later
+native gameplay state is injected.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

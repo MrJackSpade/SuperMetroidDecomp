@@ -385,6 +385,9 @@ public sealed partial class RoomEnemySystem
                 TickNorfairRidleyDeathFinish(slot, state);
                 return;
 
+            case RidleyAiFunction.NorfairDeathComplete:
+                return;
+
             default:
                 throw new InvalidDataException(
                     $"Lower Norfair Ridley function $A6:{(ushort)state.Function:X4} is not translated.");

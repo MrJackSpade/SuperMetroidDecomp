@@ -6,8 +6,8 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.EnemySpritemapCatalog", "installed-simple-enemy-display-frames", ["TryGetDisplay"],
-            [new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs", "3C8BBA753530779AAD728EA9B6121B5A9D47EC9A4E6E1C63AD1FDE71439EEFA9"),
-             new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidSpriteParts.cs", "12D2DA1572C9337C8D86469A4EF0F4A08FDDF7D6F34D524B71C83D55ECA4BEB9"),
+            [new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs", "5362AF0924F0867F1A30829CAE448C8EC9C912F2D1D214E1DB734C9F7826C9D4"),
+             new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidSpriteParts.cs", "4D1E9A44D8DA9FDA65806635F113BCE341F5CB06FAA95DBC4A19F624F8E362CC"),
              new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidCompositionDefinitions.cs", "9286127000F8BC17979896282DCA39CF8A7C4BB935060F001F5D0FA498C134B3"),
              new("csharp/src/SuperMetroid.Core/Hardware/EnemySpritemapParts.cs", "A4314E73E8BB50CE1CE52EA245F79EAF39C90489C7677FEE5A774B8204193502"),
              new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs", "2021CB5537EFD9A98077D0C3350A015C0B59CFF730AC265C931D96E419736A8F")],
@@ -18,8 +18,8 @@ internal static class EnemyDisplayArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/EnemyExtendedFrameSequence.cs", "4FEF795EE481DA31C310082D30D7425BF127AEFD74CA1BC09C652F00BC4E94FB"),
              new("csharp/src/SuperMetroid.Core/Assets/BossOamFrameDefinitions.cs", "E406FF3323E0D9BD239376294BC30C5EFD13AECFC4DDCFF20C8E63D567660DC5"),
              new("csharp/src/SuperMetroid.Core/Assets/PirateArtworkNameDefinitions.cs", "83D8AAFF4A60C7C24263F7705BF52169EA3369B01F54121B320F3A110667F4F4"),
-             new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs", "3C8BBA753530779AAD728EA9B6121B5A9D47EC9A4E6E1C63AD1FDE71439EEFA9"),
-             new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidSpriteParts.cs", "12D2DA1572C9337C8D86469A4EF0F4A08FDDF7D6F34D524B71C83D55ECA4BEB9"),
+             new("csharp/src/SuperMetroid.Core/Assets/EnemySpritemapCatalog.cs", "5362AF0924F0867F1A30829CAE448C8EC9C912F2D1D214E1DB734C9F7826C9D4"),
+             new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidSpriteParts.cs", "4D1E9A44D8DA9FDA65806635F113BCE341F5CB06FAA95DBC4A19F624F8E362CC"),
              new("csharp/src/SuperMetroid.Core/Assets/BabyMetroidCompositionDefinitions.cs", "9286127000F8BC17979896282DCA39CF8A7C4BB935060F001F5D0FA498C134B3"),
              new("csharp/src/SuperMetroid.Core/Hardware/EnemySpritemapParts.cs", "A4314E73E8BB50CE1CE52EA245F79EAF39C90489C7677FEE5A774B8204193502"),
              new("csharp/src/SuperMetroid.Core/Game/CommonEnemyEmptyExtendedFrameDefinitions.cs", "FDA923F284D3E91EA136F923E9C66D4B1C264306F149450AFAABA76E5DA3ACC0")],

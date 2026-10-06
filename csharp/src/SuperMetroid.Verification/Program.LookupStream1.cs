@@ -5,6 +5,127 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1BodyOamBases(ISnesAddressSpace rom)
+    {
+        ushort[] ReadWords(int address, int count) => Enumerable.Range(0, count)
+            .Select(index => (ushort)(rom.ReadByte(address + index * 2) | rom.ReadByte(address + index * 2 + 1) << 8)).ToArray();
+        ushort[] top = ReadWords(0x929263, 253), bottom = ReadWords(0x92945d, 253), pointers = ReadWords(0x92808d, 2096);
+        // Marker parts confirm selected supplied payload identity, not native artwork.
+        SamusSpritemapDefinition[] definitions = pointers.Where(pointer => pointer != 0).Distinct()
+            .Select(pointer => new SamusSpritemapDefinition(pointer,
+                [new SamusSpritePart(pointer, (byte)pointer, (ushort)(pointer ^ 0x5555))])).ToArray();
+        SamusSpritemapArtworkCatalog Create(ushort[] upper, ushort[] lower) => new(upper, lower, pointers, definitions);
+        var stock = Create(top, bottom);
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        int Count(SamusSpritemapArtworkCatalog value, string field) =>
+            ((Dictionary<int, ushort>)typeof(SamusSpritemapArtworkCatalog).GetField(field, flags)!.GetValue(value)!).Count;
+        string Canonical(ushort[] upper, ushort[] lower) => SelectedPresentationHash.Create(nameof(SamusSpritemapArtworkCatalog), content =>
+        {
+            content.AppendWords("top bases", upper);
+            content.AppendWords("bottom bases", lower);
+            content.AppendWords("pointers", pointers);
+            foreach (SamusSpritemapDefinition definition in definitions.OrderBy(item => item.Pointer))
+            {
+                content.Append("pointer", definition.Pointer);
+                content.Append("part count", definition.Parts.Length);
+                foreach (SamusSpritePart part in definition.Parts)
+                {
+                    content.Append("x", part.X);
+                    content.Append("y", part.Y);
+                    content.Append("attributes", part.Attributes);
+                }
+            }
+        });
+        void CheckSelection(SamusSpritemapArtworkCatalog catalog, ushort selected)
+        {
+            bool found = catalog.TryGet(selected, out SamusSpritemapDefinition? definition);
+            AssertEqual(pointers[selected] != 0, found, "Native zero pointer retains mutable-memory routing");
+            if (found)
+            {
+                AssertEqual(pointers[selected], definition!.Pointer, "Actual selector resolves supplied pointer");
+                AssertEqual(new SamusSpritePart(pointers[selected], (byte)pointers[selected], (ushort)(pointers[selected] ^ 0x5555)),
+                    definition.Parts.Single(), "Actual selector resolves independent marker payload");
+            }
+        }
+        AssertEqual(0, Count(stock, "topBases") + Count(stock, "bottomBases"), "Zero stock OAM-base overrides");
+        AssertEqual(Canonical(top, bottom), stock.ContentIdentity, "Exact original canonical stock OAM hash");
+        for (int half = 0; half < 2; half++)
+        for (int pose = 0; pose < 253; pose++)
+        {
+            ushort expected = half == 0 ? top[pose] : bottom[pose];
+            AssertEqual(expected, half == 0 ? SamusSpritemapPoseDefinitions.TopBase((byte)pose) : SamusSpritemapPoseDefinitions.BottomBase((byte)pose),
+                "Direct named OAM-base case matches native ROM");
+            AssertEqual(expected, half == 0 ? stock.TopBase((byte)pose) : stock.BottomBase((byte)pose), "Runtime native base selection");
+            CheckSelection(stock, expected);
+            ushort[] upper = (ushort[])top.Clone(), lower = (ushort[])bottom.Clone();
+            ushort edited = (ushort)((expected + 1) % 2096);
+            (half == 0 ? upper : lower)[pose] = edited;
+            var changed = Create(upper, lower);
+            AssertEqual(1, Count(changed, "topBases") + Count(changed, "bottomBases"), "Exactly one independent OAM-base override");
+            AssertTrue(changed.TopBases.SequenceEqual(upper) && changed.BottomBases.SequenceEqual(lower), "All supplied independent bases preserved");
+            AssertTrue(changed.Pointers.SequenceEqual(pointers), "OAM pointer payload unchanged");
+            ushort selected = half == 0 ? changed.TopBase((byte)pose) : changed.BottomBase((byte)pose);
+            AssertEqual(edited, selected, "Runtime honors independently edited base");
+            CheckSelection(changed, selected);
+            AssertEqual(Canonical(upper, lower), changed.ContentIdentity, "Exact original canonical edited OAM hash");
+            AssertTrue(changed.ContentIdentity != stock.ContentIdentity, "Every independent base edit changes identity");
+        }
+        foreach (byte pose in new byte[] { 0xfd, 0xfe, 0xff })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusSpritemapPoseDefinitions.TopBase(pose), "Top default excludes adjacent data");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusSpritemapPoseDefinitions.BottomBase(pose), "Bottom default excludes adjacent data");
+            AssertThrows<IndexOutOfRangeException>(() => stock.TopBase(pose), "Original installed top domain exception");
+            AssertThrows<IndexOutOfRangeException>(() => stock.BottomBase(pose), "Original installed bottom domain exception");
+        }
+        ushort[] invalid = (ushort[])top.Clone(); invalid[0] = 2096;
+        AssertThrows<InvalidDataException>(() => Create(invalid, bottom), "Edited base retains original range validation");
+        AssertTrue(stock.TopBases.SequenceEqual(top) && stock.BottomBases.SequenceEqual(bottom), "Stock bases immutable after edits");
+        Console.WriteLine("Samus OAM bases:506 native named cases, zero stock overrides,506 independent edits, actual supplied payload selection, exact canonical hashes and original bounds pass.");
+    }
+    private static void VerifyLookupStream1HurtBlend(ISnesAddressSpace rom)
+    {
+        ushort[] native = Enumerable.Range(0, 32).Select(index =>
+            (ushort)(rom.ReadByte(0x9ba380 + index * 2) | rom.ReadByte(0x9ba381 + index * 2) << 8)).ToArray();
+        PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
+        SamusHurtColorCatalog Create(ushort[] supplied) => SamusHurtColorCatalog.Load(new MemoryStream(SamusHurtColorCatalog.Write(
+            new SamusHurtColorDocument { Version = 1, Hurt = supplied.Take(16).Select(Color).ToArray(), Intro = supplied.Skip(16).Select(Color).ToArray() })));
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        Dictionary<int, ushort> Overrides(SamusHurtColorCatalog catalog, string name) =>
+            (Dictionary<int, ushort>)typeof(SamusHurtColorCatalog).GetField(name, flags)!.GetValue(catalog)!;
+        byte[] Levels(SamusHurtColorCatalog catalog) => (byte[])typeof(SamusHurtColorCatalog).GetField("introLevels", flags)!.GetValue(catalog)!;
+        var stock = Create(native);
+        AssertEqual(0, Overrides(stock, "introOverrides").Count + Overrides(stock, "hurtOverrides").Count, "Zero stock channel/blend fallbacks");
+        AssertTrue(Levels(stock).SequenceEqual(native.Skip(17).Select(word => (byte)(word & 31))), "Exact fifteen required source levels");
+        for (int index = 1; index < 16; index++)
+        {
+            AssertEqual(native[index + 16], SamusHurtColorDefinitions.IntroFromLevel((byte)(native[index + 16] & 31)), "Direct native intro channel relation");
+            AssertEqual(native[index], SamusHurtColorDefinitions.HurtFromIntro(native[index + 16]), "Direct native hurt white blend");
+        }
+        for (int selected = 0; selected < 32; selected++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            ushort[] supplied = (ushort[])native.Clone(); supplied[selected] ^= (ushort)(31 << (channel * 5));
+            var edited = Create(supplied);
+            for (int index = 0; index < 32; index++)
+                AssertEqual(supplied[index], edited.Resolve(index < 16 ? SamusHurtColorVariant.Hurt : SamusHurtColorVariant.Intro, index % 16), "Every supplied RGB channel remains independent across palettes");
+            AssertTrue(Levels(edited).SequenceEqual(supplied.Skip(17).Select(word => (byte)(word & 31))), "Exact edited required red-level basis");
+            for (int index = 1; index < 16; index++)
+            {
+                int red = supplied[index + 16] & 31;
+                ushort expectedIntro = (ushort)(red | red << 5 | Math.Max(4, red - 2) << 10);
+                int Blend(int shift) => (2 * ((supplied[index + 16] >> shift) & 31) + 155) / 7;
+                ushort expectedHurt = (ushort)(Blend(0) | Blend(5) << 5 | Blend(10) << 10);
+                AssertEqual(supplied[index + 16] != expectedIntro, Overrides(edited, "introOverrides").ContainsKey(index), "Exact intro edit exception membership");
+                AssertEqual(supplied[index] != expectedHurt, Overrides(edited, "hurtOverrides").ContainsKey(index), "Exact independent hurt exception membership");
+            }
+        }
+        for (int index = 0; index < 32; index++)
+            AssertEqual(native[index], stock.Resolve(index < 16 ? SamusHurtColorVariant.Hurt : SamusHurtColorVariant.Intro, index % 16), "Stock color remains immutable");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((SamusHurtColorVariant)2, 0), "Variant rejection preserved");
+        foreach (int index in new[] { -1, 16 })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(SamusHurtColorVariant.Intro, index), "Color bounds preserved");
+        Console.WriteLine("Hurt/intro:32 native colors,30 direct relations,15 required source levels,zero stock overrides,96 independent RGB edits and exact exception membership pass.");
+    }
     private static void VerifyLookupStream1NonBeamProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

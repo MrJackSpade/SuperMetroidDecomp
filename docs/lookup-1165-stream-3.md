@@ -446,7 +446,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs
 
 - [ ] **MotherBrainBabyInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **MotherBrainBabyInstructionProgramDefinitions.PresentationWords** ([L45](../csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainBabyInstructionProgramDefinitions.PresentationWords** ([L45](../csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainBeamRomData.cs
 
@@ -495,15 +495,15 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs
 
-- [ ] **MotherBrainHandBeamBodyInstructionDefinitions.VisualOperands** ([L28](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainHandBeamBodyInstructionDefinitions.VisualOperands** ([L28](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs
 
-- [ ] **MotherBrainHandBeamInstructionProgramDefinitions.StageStarts** ([L25](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainHandBeamInstructionProgramDefinitions.StageStarts** ([L25](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **MotherBrainHandBeamInstructionProgramDefinitions.Durations** ([L26](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [ ] **MotherBrainHandBeamInstructionProgramDefinitions.MechanicsWords** ([L27](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L27)) - factory-built stock table. Stored EnemyProjectileMechanicsWordDefinition[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstructions** ([L29](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L29)) - factory-built stock table. Stored ushort[] initialized by BuildExternalCallInstructions(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
-- [ ] **MotherBrainHandBeamInstructionProgramDefinitions.PresentationWords** ([L30](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L30)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstructions** ([L29](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L29)) - factory-built stock table. Stored ushort[] initialized by BuildExternalCallInstructions(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **MotherBrainHandBeamInstructionProgramDefinitions.PresentationWords** ([L30](../csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs#L30)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainHeadInstructionProgramDefinitions.cs
 
@@ -1224,3 +1224,27 @@ Root Verification1450warnings/zero errors; --choot-pattern-definitions passes fi
 c3aa8dbeb applies the existing calculated rectangular perimeter view to Heading.Primary/Controller/Special at82:D24B/D2F7/D41B. It removes full stored coordinate repetition while preserving independently supplied geometry,appearance and drawing order. Dimensions,bounds,six appearance roles,order and pixels remain required. No new exception or aggregate completion;560converted/21retained-mixed/547pending unchanged.
 
 Root Verification1450warnings/zero errors and ResourceAudit0warnings/zero errors. --lookup-stream3-menu-borders passes258native file-select/options parts,1032independent field edits,six reversed orders and six expanded compositions. Audit dependencies now include the shared border helper for both providers.
+
+## Integrated recursive hand-beam layout
+
+Conversion d4ac1e58c completes StageStarts,ExternalCallInstructions and PresentationWords using three33-byte stages, seven4-byte timed records per stage and the5-byte external call after its first frame. Native86:C796/C7B7/C7D8 and C7F9 Delete confirm the structure; C7FB emits the next fired actor. MechanicsWords no longer stores a generated array, but it and Durations remain pending because holds3,3,2,2,1,1,1 are still REQUIRED.
+
+Root build1450warnings/0errors. Focused layout checks verify21visual operands,threecallbacks,101byte ownership and boundaries; existing native verification confirms25hand-beam words/callbacks plus307shared words and39actual programs with mechanics/callback reads forbidden. No timing exemption or whole-game claim. Inventory573converted/21retained-mixed/534pending.
+
+## Integrated shared Baby upper-body composition
+
+Partial233bbca6a shares nine identical negative-Y half-parts across the three Baby poses within each immutable catalog load. Native stock keeps27 half-parts rather than45; changed supplied records stay local, reflections and per-pose drawing order remain exact. Geometry,artwork and order are still REQUIRED; this is no aggregate completion or exemption.
+
+Root build1450warnings/0errors;90native OAM records,90single-part edits,27appearance edits,three symmetric-pair edits,prior-instance/cross-pose independence,reordered/expanded/empty frames and canonical hashes/bounds pass. Existing64legacy schemas/54binding schemas pass. ResourceAudit0/0 with both source dependencies refreshed. Inventory573converted/21retained-mixed/534pending unchanged.
+
+## Integrated Baby instruction address layout
+
+Conversiona5d65b5da completes MotherBrainBabyInstructionProgramDefinitions.PresentationWords with two four-frame loops and the fatal-blow visual operand. Semantic callbacks and address calculations remove stored mechanics rows, but Words remains pending for six chosen hold roles: initial16,drain8/8/5/2,fatal128. Native A9:CFA2/CFB8/CFCE establish each list; CFD4 is adjacent Mother Brain palette code, not Baby movement.
+
+Root build1450warnings/0errors;12native mechanics words,ninevisual addresses,exact bounded rejection,index domains and allocation checks pass. Corrected existing verifier output that overstated production coverage; this check does not execute the three live programs. No timing exemption. Inventory574converted/21retained-mixed/533pending.
+
+## Integrated hand-beam body visual addresses
+
+Conversion8134fd936 completes MotherBrainHandBeamBodyInstructionDefinitions.VisualOperands. An immutable indexed view computes three entry-frame addresses,eight dust-record visual addresses,the pre-emission frame and three post-emission frames from native A9:9A42-9AC6 command widths. No cached address array remains. Selected dust coordinates,parameters and holds remain REQUIRED.
+
+Root build1450warnings/0errors;15native operand identities,index/enumeration bounds and all52mechanics+15visual words through guarded production readers match the pinned ROM with list reads forbidden. This is reader-level confirmation,not a full attack replay. Inventory587converted/21retained-mixed/520pending.

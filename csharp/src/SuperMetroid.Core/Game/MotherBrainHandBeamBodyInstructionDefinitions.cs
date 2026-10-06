@@ -23,13 +23,38 @@ public static class MotherBrainHandBeamBodyInstructionDefinitions
     public const int DustRecordCount = 8;
 
     /// <summary>All fifteen visual operands; dust coordinates, durations and opcodes are excluded.</summary>
-    internal static ReadOnlySpan<ushort> PresentationOperands => VisualOperands;
-    private static readonly ushort[] VisualOperands =
-        new ushort[] { Start + 4, Start + 8, Start + 12 }
-            .Concat(Enumerable.Range(0, DustRecordCount).Select(index =>
-                checked((ushort)(FirstDustRecord + index * DustRecordStride + 10))))
-            .Concat(new ushort[] { End - 20, End - 14, End - 10, End - 6 }).ToArray();
+    internal static IReadOnlyList<ushort> PresentationOperands => VisualOperands;
+    private static readonly VisualOperandList VisualOperands = new();
 
+    /// <summary>$A9:9A44-9A4F: three entry duration/spritemap pairs after the pose callback.</summary>
+    private const int EntryFrames = 3;
+    /// <summary>$A9:9AB0: duration/spritemap pair immediately before the beam-spawn callback.</summary>
+    private const ushort BeforeEmissionFrame = FirstDustRecord + DustRecordCount * DustRecordStride;
+    /// <summary>$A9:9AB6-9AC1: three duration/spritemap pairs after the beam-spawn callback.</summary>
+    private const ushort AfterEmissionFrames = BeforeEmissionFrame + 3 * sizeof(ushort);
+
+    private sealed class VisualOperandList : IReadOnlyList<ushort>
+    {
+        public int Count => EntryFrames + DustRecordCount + 1 + EntryFrames;
+        public ushort this[int index]
+        {
+            get
+            {
+                if ((uint)index >= Count) throw new IndexOutOfRangeException();
+                if (index < EntryFrames) return (ushort)(Start + 2 * sizeof(ushort) + index * 2 * sizeof(ushort));
+                index -= EntryFrames;
+                if (index < DustRecordCount) return (ushort)(FirstDustRecord + index * DustRecordStride + DustRecordStride - sizeof(ushort));
+                index -= DustRecordCount;
+                return index == 0 ? (ushort)(BeforeEmissionFrame + sizeof(ushort)) :
+                    (ushort)(AfterEmissionFrames + (index - 1) * 2 * sizeof(ushort) + sizeof(ushort));
+            }
+        }
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>Whether the aligned word belongs to the compiled hand-beam list.</summary>
     public static bool ContainsWord(ushort address) =>
         address is >= Start and <= End && ((address - Start) & 1) == 0;

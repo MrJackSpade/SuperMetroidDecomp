@@ -6,6 +6,20 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3HandBeamBodyLayout()
+    {
+        ushort[] nativeOperands = [0x9a46, 0x9a4a, 0x9a4e, 0x9a5a, 0x9a66, 0x9a72,
+            0x9a7e, 0x9a8a, 0x9a96, 0x9aa2, 0x9aae, 0x9ab2, 0x9ab8, 0x9abc, 0x9ac0];
+        IReadOnlyList<ushort> calculated = MotherBrainHandBeamBodyInstructionDefinitions.PresentationOperands;
+        AssertEqual(nativeOperands.Length, calculated.Count, "hand-beam body visual operand count");
+        for (int index = 0; index < nativeOperands.Length; index++)
+            AssertEqual(nativeOperands[index], calculated[index], $"hand-beam body native operand {index}");
+        AssertTrue(nativeOperands.SequenceEqual(calculated), "hand-beam body indexed/enumerated order");
+        AssertThrows<IndexOutOfRangeException>(() => _ = calculated[-1], "hand-beam body negative operand index");
+        AssertThrows<IndexOutOfRangeException>(() => _ = calculated[calculated.Count], "hand-beam body upper operand index");
+        VerifyMotherBrainHandBeamBodyInstructionDefinitions();
+        Console.WriteLine("Hand-beam body address layout: fifteen native identities, enumeration and index bounds pass; selected mechanics inputs remain required.");
+    }
     private static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -2520,8 +2534,9 @@ internal static partial class Program
             AssertTrue(stock.TryGetDisplay(frame.Bank, frame.Pointer, out var parts), "stream 3 Baby display view");
             AssertTrue(parts is BabyMetroidSpriteParts, "stream 3 stock Baby full part arrays are discarded");
             var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-            AssertEqual(15, ((EnemySpritemapPart[])parts.GetType().GetField("halfParts", flags)!.GetValue(parts)!).Length,
-                "stream 3 Baby retains only one part per reflected pair");
+            bool sharedBody = parts.GetType().GetField("sharedBody", flags)!.GetValue(parts) is not null;
+            AssertEqual(sharedBody ? 6 : 15, ((EnemySpritemapPart[])parts.GetType().GetField("halfParts", flags)!.GetValue(parts)!).Length,
+                "stream 3 Baby shares nine upper-body halves and stores independent lower halves");
             var nativeOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, frame.Bank, frame.Pointer, 128, 128, 0, 0);
@@ -2536,6 +2551,23 @@ internal static partial class Program
                 Check(Load());
                 original[index] = saved;
             }
+            int upper = Array.FindIndex(original, value => value.OffsetY < 0);
+            SpriteVisualPart upperPart = original[upper];
+            int opposite = Array.FindIndex(original, value => value == (upperPart with
+            {
+                OffsetX = -upperPart.OffsetX - upperPart.Size,
+                FlipX = !upperPart.FlipX,
+            }));
+            AssertTrue(opposite >= 0, "native Baby upper-body part has its reflected pair");
+            SpriteVisualPart oppositePart = original[opposite];
+            original[upper] = upperPart with { OffsetY = upperPart.OffsetY + 1 };
+            original[opposite] = oppositePart with { OffsetY = oppositePart.OffsetY + 1 };
+            Check(Load());
+            AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(
+                original.Select((value, index) => index == upper ? upperPart : index == opposite ? oppositePart : value).ToArray(), frame.Name)),
+                "previous Baby component remains immutable after a symmetric supplied edit");
+            original[upper] = upperPart;
+            original[opposite] = oppositePart;
             var part = original[0];
             SpriteVisualPart[] edits =
             [
@@ -2554,5 +2586,69 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => _ = parts[30], "stream 3 calculated part upper bound");
         }
         VerifyEnemyLegacyOverrides();
+    }
+    private static void VerifyStream3HandBeamLayout()
+    {
+        ushort[] stages = [0xc796, 0xc7b7, 0xc7d8];
+        int[] frameOffsets = [0, 9, 13, 17, 21, 25, 29];
+        var mechanics = new HashSet<int>();
+        var presentation = new HashSet<int>();
+        int visual = 0;
+        for (int stage = 0; stage < stages.Length; stage++)
+        {
+            AssertEqual((ushort)(stages[stage] + 4), MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(stage),
+                "hand-beam native external-call instruction");
+            foreach (int offset in frameOffsets)
+            {
+                mechanics.Add(stages[stage] + offset);
+                mechanics.Add(stages[stage] + offset + 1);
+                presentation.Add(stages[stage] + offset + 2);
+                presentation.Add(stages[stage] + offset + 3);
+                AssertEqual((ushort)(stages[stage] + offset + 2), MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress(visual++),
+                    "hand-beam native visual operand order");
+            }
+            for (int offset = 4; offset < 9; offset++) mechanics.Add(stages[stage] + offset);
+        }
+        mechanics.Add(0xc7f9);
+        mechanics.Add(0xc7fa);
+        for (int address = 0xc795; address <= 0xc7fb; address++)
+        {
+            AssertEqual(mechanics.Contains(address), MotherBrainHandBeamInstructionProgramDefinitions.IsCompiledMechanicsByte(0x860000 | address),
+                "hand-beam exact mechanics/callback byte ownership");
+            AssertEqual(presentation.Contains(address), MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(0x860000 | address),
+                "hand-beam exact visual byte ownership");
+        }
+        AssertTrue(!MotherBrainHandBeamInstructionProgramDefinitions.IsCompiledMechanicsByte(0x85c796), "hand-beam mechanics rejects other bank");
+        AssertTrue(!MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(0x85c798), "hand-beam artwork rejects other bank");
+        foreach (int index in new[] { -1, 21, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress(index), "hand-beam visual index domain");
+        foreach (int index in new[] { -1, 25, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.NativeWord(index), "hand-beam mechanics index domain");
+        foreach (int index in new[] { -1, 3, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(index), "hand-beam callback index domain");
+    }
+    private static void VerifyStream3BabyInstructionLayout(ISnesAddressSpace rom)
+    {
+        ushort[] mechanics = [0xcfa2,0xcfa6,0xcfaa,0xcfae,0xcfb2,0xcfb8,0xcfbc,0xcfc0,0xcfc4,0xcfc8,0xcfce,0xcfd2];
+        ushort[] visual = [0xcfa4,0xcfa8,0xcfac,0xcfb0,0xcfba,0xcfbe,0xcfc2,0xcfc6,0xcfd0];
+        AssertEqual(mechanics.Length, MotherBrainBabyInstructionProgramDefinitions.MechanicsWordCount, "Baby native mechanics count");
+        AssertEqual(visual.Length, MotherBrainBabyInstructionProgramDefinitions.PresentationWordCount, "Baby native visual count");
+        for (int index = 0; index < mechanics.Length; index++)
+        {
+            var word = MotherBrainBabyInstructionProgramDefinitions.MechanicsWord(index);
+            AssertEqual(mechanics[index], word.Address, "Baby exact native mechanics enumeration");
+            AssertEqual((ushort)(rom.ReadByte(0xa90000 | word.Address) | rom.ReadByte(0xa90000 | (word.Address + 1)) << 8),
+                word.Value, "Baby exact native mechanics operand");
+        }
+        for (int index = 0; index < visual.Length; index++)
+            AssertEqual(visual[index], MotherBrainBabyInstructionProgramDefinitions.PresentationWordAddress(index), "Baby exact native visual enumeration");
+        for (int address = 0xcfa1; address <= 0xcfd4; address++)
+            if (!mechanics.Contains((ushort)address))
+                AssertThrows<InvalidDataException>(() => MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord((ushort)address),
+                    "Baby program rejects operand bytes and adjacent callbacks as mechanics");
+        foreach (int index in new[] { -1,12,int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitions.MechanicsWord(index), "Baby mechanics enumeration domain");
+        foreach (int index in new[] { -1,9,int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitions.PresentationWordAddress(index), "Baby visual enumeration domain");
     }
 }

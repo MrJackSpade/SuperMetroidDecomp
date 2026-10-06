@@ -26,7 +26,7 @@ internal static class EnemyVisualProgramSpecializations
     {
         [nameof(MotherBrainBodyInstructionProgramDefinitions)] = "6C16408D4EDA53AF1FCD170C725CCE24D3D99C28C7F3F0A4AD81E93D52377A49",
         [nameof(MotherBrainHeadInstructionProgramDefinitions)] = "D6A0B754F4B7E98F0A8A31D3006D8AE1723992E7C3E8FA724B6C9E137813A31E",
-        [nameof(MotherBrainHandBeamBodyInstructionDefinitions)] = "5CE8C4528445A5CB7EEF07E09B761B943B6B148DEF942937704C9EB9F7E4953D",
+        [nameof(MotherBrainHandBeamBodyInstructionDefinitions)] = "1BDCF55B7F53E321BC293DAAA6DD82712484A305B44D0E533C18612E8B7F3D71",
         [nameof(MotherBrainFallingTubeInstructionDefinitions)] = "FCA4060649CFE4B7A5177FB4F311CBE357F56F44987AA88C33779E621A1362E8",
     };
 

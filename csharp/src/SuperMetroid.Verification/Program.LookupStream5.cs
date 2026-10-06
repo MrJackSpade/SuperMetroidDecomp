@@ -6,6 +6,116 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)
+    {
+        byte[] extracted = SuperMetroid.AssetExtraction.MapLandmarkExtractor.Extract(rom);
+        MapLandmarkLayout layout = MapLandmarkLayout.Load(new MemoryStream(extracted));
+        var artwork = SuperMetroid.AssetExtraction.MapSpriteExtractor.Extract(rom);
+        MapSpriteCatalog sprites = MapSpriteCatalog.Load(new MemoryStream(artwork[MapSpriteFormat.JsonFile]), new MemoryStream(artwork[MapSpriteFormat.PngFile]));
+        int Read(int pointer) => ReadVerificationWord(rom, FileSelectMapRomData.MenuObjectBank | pointer);
+        int Root(int table, AreaId area) => ReadVerificationWord(rom, table + (int)area * 2);
+        string[] expectedIds = ["Crateria.Elevator.0", "Crateria.Elevator.1", "Crateria.Elevator.2", "Crateria.Elevator.3", "Crateria.Elevator.4",
+            "Boss.Kraid", "Brinstar.Elevator.0", "Brinstar.Elevator.1", "Brinstar.Elevator.2", "Brinstar.Elevator.3", "Brinstar.Elevator.4",
+            "Boss.Ridley", "Norfair.Elevator.0", "Boss.Phantoon", "WreckedShip.Elevator.0", "WreckedShip.Elevator.1",
+            "Boss.Draygon", "Maridia.Elevator.0", "Maridia.Elevator.1", "Maridia.Elevator.2", "Tourian.Elevator.0", "Boss.CeresRidley", "Crateria.Gunship"];
+        AssertTrue(expectedIds.SequenceEqual(MapLandmarkDefinitions.AllIds()), "Original public identity and manifest order");
+        using var editedBytes = new MemoryStream();
+        MapLandmarkLayout.Write(editedBytes, new MapLandmarkDocument { Version = MapLandmarkFormat.Version,
+            Markers = expectedIds.ToDictionary(id => id, id => layout.Get(id) with { X = layout.Get(id).X + 1, Y = layout.Get(id).Y + 1 }) });
+        editedBytes.Position = 0;
+        MapLandmarkLayout editedLayout = MapLandmarkLayout.Load(editedBytes);
+        int bossSlots = 0, elevatorSlots = 0;
+        foreach (AreaId area in Enum.GetValues<AreaId>())
+        {
+            var bosses = MapLandmarkDefinitions.Bosses(area);
+            int pointer = Root(FileSelectMapIconRomData.BossLists, area);
+            int count = 0;
+            if (pointer != 0)
+                while (Read(pointer + count * 4) != ushort.MaxValue)
+                {
+                    string? id = bosses[count];
+                    AssertEqual(Read(pointer + count * 4) == 0xfffe, id is null, "Native unused boss slot");
+                    if (id is not null)
+                    {
+                        AssertEqual(Read(pointer + count * 4), layout.Get(id).X, "Native semantic boss X");
+                        AssertEqual(Read(pointer + count * 4 + 2), layout.Get(id).Y, "Native semantic boss Y");
+                    }
+                    count++;
+                }
+            AssertEqual(count, bosses.Count, "Native boss slot count");
+            AssertEqual(count, bosses.ToArray().Length, "Boss enumeration count");
+            AssertThrows<IndexOutOfRangeException>(() => _ = bosses[-1], "Boss lower bound");
+            AssertThrows<IndexOutOfRangeException>(() => _ = bosses[count], "Boss upper bound");
+            bossSlots += count;
+            if (area == AreaId.Ceres) continue;
+            var elevators = MapLandmarkDefinitions.Elevators(area);
+            pointer = Root(FileSelectMapIconRomData.ElevatorLists, area);
+            count = 0;
+            while (Read(pointer + count * 6) != ushort.MaxValue)
+            {
+                var label = elevators[count];
+                AssertEqual(Read(pointer + count * 6 + 4), (int)MapLandmarkDefinitions.ElevatorSpritemap(label.Destination), "Native destination identity");
+                AssertEqual(Read(pointer + count * 6), layout.Get(label.Id).X, "Native elevator X");
+                AssertEqual(Read(pointer + count * 6 + 2), layout.Get(label.Id).Y, "Native elevator Y");
+                count++;
+            }
+            AssertEqual(count, elevators.Count, "Native elevator count");
+            AssertEqual(count, elevators.ToArray().Length, "Elevator enumeration count");
+            AssertThrows<IndexOutOfRangeException>(() => _ = elevators[-1], "Elevator lower bound");
+            AssertThrows<IndexOutOfRangeException>(() => _ = elevators[count], "Elevator upper bound");
+            elevatorSlots += count;
+        }
+        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (int adjustment in new[] { 0, 1 })
+        foreach (bool downloaded in new[] { false, true })
+        foreach (bool defeated in new[] { false, true })
+        {
+            var system = new Bank80SystemState();
+            if (downloaded) system.SetAreaMapAcquired(area);
+            if (defeated) system.SetBossBits(area, (BossBits)1);
+            var icons = new FileSelectMapIcons(system, area);
+            icons.BindLandmarks(adjustment == 0 ? layout : editedLayout); icons.BindSprites(sprites);
+            var actual = new OamBuffer(); var expected = new OamBuffer();
+            icons.DrawBossMarkers(actual, 7, 9);
+            int pointer = Root(FileSelectMapIconRomData.BossLists, area), bits = defeated ? 1 : 0;
+            if (pointer != 0)
+                for (int i = 0; Read(pointer + i * 4) != ushort.MaxValue; i++, bits >>= 1)
+                {
+                    int x = Read(pointer + i * 4), y = Read(pointer + i * 4 + 2);
+                    if (x == 0xfffe) continue;
+                    if ((bits & 1) != 0)
+                    {
+                        Draw(FileSelectMapIconRomData.DefeatedBoss, x, y, FileSelectMapRomData.StationMarkerPalette);
+                        Draw(FileSelectMapIconRomData.Boss, x, y, FileSelectMapIconRomData.DefeatedBossPalette);
+                    }
+                    else if (downloaded) Draw(FileSelectMapIconRomData.Boss, x, y, FileSelectMapRomData.StationMarkerPalette);
+                }
+            if (area != AreaId.Ceres)
+            {
+                icons.DrawAfterMarker(actual, 7, 9);
+                if (area == AreaId.Crateria)
+                {
+                    int ship = Root(FileSelectMapRomData.SavePointMapPointers, area);
+                    Draw(FileSelectMapIconRomData.Gunship, Read(ship), Read(ship + 2), FileSelectMapRomData.StationMarkerPalette);
+                }
+                if (downloaded)
+                {
+                    pointer = Root(FileSelectMapIconRomData.ElevatorLists, area);
+                    for (int i = 0; Read(pointer + i * 6) != ushort.MaxValue; i++)
+                        Draw((ushort)Read(pointer + i * 6 + 4), Read(pointer + i * 6), Read(pointer + i * 6 + 2), 0);
+                }
+            }
+            AssertTrue(actual.LowTable.SequenceEqual(expected.LowTable) && actual.HighTable.SequenceEqual(expected.HighTable), "Actual native ordered landmark OAM");
+            AssertEqual(defeated ? (byte)1 : (byte)0, system.GetBossBitsRaw(area), "Drawing preserves boss bits");
+            AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
+            void Draw(ushort id, int x, int y, ushort palette) => sprites.Draw(id, expected, unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9)), palette);
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarkDefinitions.Bosses((AreaId)7), "Invalid boss area");
+        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarkDefinitions.Elevators(AreaId.Ceres), "Ceres has no elevator labels");
+        AssertEqual(8, bossSlots, "Eight native boss slots including three unused");
+        AssertEqual(17, elevatorSlots, "Seventeen native destination labels");
+        Console.WriteLine("Map landmark cases: eight native boss slots, seventeen destinations, extraction/schema, 23 ordered IDs, bounds and 56 stock/edited ordered OAM/state cases pass.");
+    }
     private static void VerifyLookupStream5PhantoonCollision(SuperMetroidAddressSpace rom)
     {
         int componentCount = 0;
@@ -73,15 +183,23 @@ internal static partial class Program
             }
             document.FadeOut[color] = new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 };
         }
-        var required = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("requiredHealthColors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var required = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("requiredHealthChannels", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         var healthEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("healthEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        AssertEqual(8, required.Count, "Exactly eight native health deviations remain required");
+        var greenEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("healthyGreenEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var blueEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("healthyBlueEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, blueEdits.Count, "Native selected blue channels share subtractive yellow separation");
+        AssertEqual(0, greenEdits.Count, "Healthy native green channels share exact hue operation");
+        AssertEqual(9, required.Count, "Exactly nine native health channel deviations remain required");
         AssertEqual(0, healthEdits.Count, "Matched native tint subset has no unexplained overrides");
         for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
         {
-            bool isRequired = (band, color) is (5, 6) or (6, 6) or (3, 7) or (5, 8) or (6, 8) or (6, 9) or (0, 10) or (0, 11);
-            AssertEqual(isRequired, required.Contains(band * 16 + color), "Exact required target membership");
+            for (int channel = 0; channel < 3; channel++)
+            {
+                bool isRequired = (band, color, channel) is (5, 6, 2) or (6, 6, 1) or (3, 7, 2) or (5, 8, 1) or
+                    (6, 8, 2) or (6, 9, 1) or (6, 9, 2) or (0, 10, 2) or (0, 11, 1);
+                AssertEqual(isRequired, required.Contains((band * 16 + color) * 3 + channel), "Exact required channel membership");
+            }
             AssertEqual(ReadVerificationWord(rom, PhantoonColorRomData.HealthBandsSource + (band * 16 + color) * 2), stock.ResolveHealth(band, color), "Native health RGB equality");
             PaletteRgb5 original = document.HealthBands[band][color];
             for (int channel = 0; channel < 3; channel++)
@@ -96,13 +214,37 @@ internal static partial class Program
             }
             document.HealthBands[band][color] = original;
         }
+        var powerRequired = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("requiredPowerColors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var powerEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("powerEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(102, powerRequired.Count, "Ten darker shades calculate from required starting colors");
+        AssertEqual(0, powerEdits.Count, "Native power targets have no unexplained overrides");
+        for (int color = 0; color < PhantoonColorRomData.PowerOnCount; color++)
+        {
+            bool derived = color is 66 or 67 or 69 or 70 or 73 or 74 or 85 or 86 or 89 or 90;
+            AssertEqual(!derived, powerRequired.Contains(color), "Exact required power color membership");
+            AssertEqual(ReadVerificationWord(rom, PhantoonColorRomData.PowerOnSource + color * 2), stock.ResolvePowerOn(color), "Native power shade equality");
+            PaletteRgb5 original = document.PowerOn[color];
+            for (int channel = 0; channel < 3; channel++)
+            {
+                document.PowerOn[color] = new PaletteRgb5
+                {
+                    Red = channel == 0 ? original.Red ^ 31 : original.Red,
+                    Green = channel == 1 ? original.Green ^ 31 : original.Green,
+                    Blue = channel == 2 ? original.Blue ^ 31 : original.Blue,
+                };
+                _ = Check(document);
+            }
+            document.PowerOn[color] = original;
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(-1), "Power lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(112), "Power upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(-1, 0), "Health band lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(8, 0), "Health band upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, -1), "Health color lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, 16), "Health color upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(-1), "Fade lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(16), "Fade upper bound");
-        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, exact eight required deviations, zero stock overrides, 432 independent channel edits, hashes and bounds pass.");
+        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, exact nine required channels, zero stock overrides, 112 power colors, 768 independent channel edits, hashes and bounds pass.");
 
         static PhantoonColorCatalog Check(PhantoonColorDocument source)
         {

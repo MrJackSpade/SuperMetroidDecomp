@@ -342,8 +342,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs
 
-- [ ] **SamusSpritemapArtworkCatalog.topBases** ([L22](../csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs#L22)) - installed stock table. Original/default payload behind SamusSpritemapArtworkCatalog.topBases. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
-- [ ] **SamusSpritemapArtworkCatalog.bottomBases** ([L23](../csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs#L23)) - installed stock table. Original/default payload behind SamusSpritemapArtworkCatalog.bottomBases. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **SamusSpritemapArtworkCatalog.topBases** ([L22](../csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs#L22)) - installed stock table. Original/default payload behind SamusSpritemapArtworkCatalog.topBases. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **SamusSpritemapArtworkCatalog.bottomBases** ([L23](../csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs#L23)) - installed stock table. Original/default payload behind SamusSpritemapArtworkCatalog.bottomBases. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **SamusSpritemapArtworkCatalog.pointers** ([L24](../csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs#L24)) - installed stock table. Original/default payload behind SamusSpritemapArtworkCatalog.pointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 - [ ] **SamusSpritemapArtworkCatalog.definitions** ([L25](../csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs#L25)) - installed stock table. Original/default payload behind SamusSpritemapArtworkCatalog.definitions. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
@@ -998,3 +998,15 @@ DrawingData remains unchecked; no coordinate/artwork exemption. Root Verificatio
 Partial conversion from 3b7c13cde through 7fbc681bd: calculated timed-record geometry, trail phases, semantic one-shot/cycle selection and loop targets replace all1,816 stored mechanics words across805 timed projectile records. The original dictionary and factory are removed. Independent hold durations, phase counts and loop-entry choices remain REQUIRED; Words stays unchecked. This grants no timing or artwork exemption.
 
 Root Verification build1,450 warnings/zero errors. --lookup-stream-1-power-programs confirms all1,816 direct native words, exact byte domains, terminal targets, rejection boundaries and absence of stored fallbacks. --lookup-stream2-projectile-identity-geometry also passes805 native selectors,417 extracted OAM draws,48 startup records,independent edits and bounds. Inventory remains570 converted/21 retained-mixed/537 pending.
+
+## Integrated Samus intro channels and hurt whitening
+
+Partial2685cb494 calculates intro red=green/blue=max(4,red-2),then hurt RGB=floor((2*intro+5*31)/7) for slots1..15. Native9B:A380-A3BE confirms all30relationships. Fifteen source red levels,their slot roles,two zero-slot words and all four tint/blend parameters remain REQUIRED; both aggregates stay unchecked. Independent RGB edits across either palette preserve supplied values through exact overrides.
+
+Root build1451warnings/0errors;32native colors,30relations,exact15level basis,zero stock overrides,96independent RGB edits/exception membership and guarded ordinary/cinematic CGRAM/action/timer cycles pass. ResourceAudit0/0 with helper dependency and catalog hash refreshed. Inventory587converted/21retained-mixed/520pending unchanged.
+
+## Integrated named Samus OAM pose-base dispatch
+
+Conversionca882de7b completes topBases/bottomBases through253 named SamusPoseId cases per half selecting native frame-sequence identities. Stock stores zero base overrides; independently supplied bases remain exact. FD-FF retain their prior installed-domain rejection. Public base spans are uncached snapshots for transport/hash,not replacement lookup caches. All2096pointer payloads and OBJ parts remain REQUIRED.
+
+Root build1451warnings/0errors;506native cases,506independent base edits,actual supplied marker-payload selection,zero-pointer routing,exact old canonical hashes and bounds pass. ResourceAudit0/0; source helper and SamusPoseId dependencies pinned. Inventory589converted/21retained-mixed/518pending.

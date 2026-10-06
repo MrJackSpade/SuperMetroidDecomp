@@ -48,7 +48,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord(
                 MotherBrainBabyInstructionProgramDefinitions.FirstAdjacentMovementCode),
-            "adjacent Mother Brain Baby movement code is rejected as mechanics");
+            "adjacent Mother Brain palette code is rejected as mechanics");
 
         _ = ProbeMotherBrainBabyInstructionMechanicsAllocation();
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
@@ -60,8 +60,8 @@ internal static partial class Program
             "warmed Mother Brain Baby mechanics lookups allocate no per-frame storage");
 
         Console.WriteLine(
-            "Mother Brain Baby instruction mechanics: 12 compiled words across three " +
-            "production programs; 9 spritemap reads remain presentation data.");
+            "Mother Brain Baby instruction mechanics: 12 native-word comparisons, nine visual-operand " +
+            "rejections, callback/adjacent-code rejection and allocation checks pass.");
     }
 
     private static int ProbeMotherBrainBabyInstructionMechanicsAllocation()

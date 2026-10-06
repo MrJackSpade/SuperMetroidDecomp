@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 415,
+  "remainingTableDefinitionCount": 414,
   "fileCount": 523,
   "entries": [
     {
@@ -1817,12 +1817,15 @@
   "disposition": "Mixed complete: all544 words calculate from30 explicitly reviewed diagram pieces, strip/reflection/shared-foot relationships and selected composition. Retain exact piece identities/placement/variant membership,13priority memberships,cannon blank and connector copied palette metadata; native images/consumers reviewed. No glyph pixels or other pause-art exemption; independent edits preserved with zero stock overrides."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs",
-      "line": 21,
-      "name": "PhantoonColorCatalog.healthBands",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind PhantoonColorCatalog.healthBands. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs",
+  "line": 21,
+  "name": "PhantoonColorCatalog.healthBands",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind PhantoonColorCatalog.healthBands. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "e67f0deaa6e344877694c9f759d9544bf5dab32f",
+  "disposition": "All128colors calculate through20named material/tint parameters,shared channels,clipped/gamma ramps and uniform biased15step quantization. All nine prior residuals and exceptional memberships removed. Only exact source-backed hide/iris/surround paint choices are retained; inventing other categorical colors changes the intended content. Health thresholds,mechanics,pixels excluded;independent edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs",
       "line": 22,
@@ -21829,5 +21832,5 @@
     }
   ],
   "convertedSinceSnapshot": 606,
-  "justifiedRetainedSinceSnapshot": 107
+  "justifiedRetainedSinceSnapshot": 108
 }

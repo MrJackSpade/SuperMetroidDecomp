@@ -3266,6 +3266,7 @@
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/NorfairRidleyInitialPaintDefinitions.cs","purpose":"Complete initial32color material composition with independent edits; worker validated","stream":4}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/NorfairRidleyRevealPaintDefinitions.cs","purpose":"Norfair reveal endpoint material and common fade; worker implementation/disposition/validation","stream":4}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/CrocomirePaintDefinitions.cs","purpose":"Five Crocomire palette bands; worker implementation/disposition/validation","stream":5}
+,{"path":"csharp/src/SuperMetroid.Core/Assets/PhantoonHealthPaintDefinitions.cs","purpose":"Worker-completed128healthcolors with shared ramps and uniform quantization; exact material disposition and validation owned by worker","stream":5}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers own implementation, acceptable evidence-backed disposition, and validation; they commit completed entries and continue without coordinator approval. Coordinator monitors, mechanically integrates, maintains accounting and exclusively pushes/publishes; coordinator does not review or repeat worker validation. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

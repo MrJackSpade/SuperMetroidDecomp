@@ -644,32 +644,24 @@ internal static partial class Program
             }
             document.FadeOut[color] = new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 };
         }
-        var required = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("requiredHealthChannels", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         var healthEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("healthEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        var greenEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("healthyGreenEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        var blueEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("healthyBlueEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        AssertEqual(0, blueEdits.Count, "Native selected blue channels share subtractive yellow separation");
-        AssertEqual(0, greenEdits.Count, "Healthy native green channels share exact hue operation");
-        AssertEqual(9, required.Count, "Exactly nine native health channel deviations remain required");
-        AssertEqual(0, healthEdits.Count, "Matched native tint subset has no unexplained overrides");
+        AssertEqual(0, healthEdits.Count, "All health colors calculate without stock overrides");
+        AssertTrue(typeof(PhantoonColorCatalog).GetField("requiredHealthChannels", BindingFlags.Instance | BindingFlags.NonPublic) is null,
+            "No per-channel native residual samples remain");
+        AssertTrue(typeof(PhantoonColorCatalog).GetField("healthyPaint", BindingFlags.Instance | BindingFlags.NonPublic) is null,
+            "No stock healthy palette remains stored");
         for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
         {
-            for (int channel = 0; channel < 3; channel++)
-            {
-                bool isRequired = (band, color, channel) is (5, 6, 2) or (6, 6, 1) or (3, 7, 2) or (5, 8, 1) or
-                    (6, 8, 2) or (6, 9, 1) or (6, 9, 2) or (0, 10, 2) or (0, 11, 1);
-                AssertEqual(isRequired, required.Contains((band * 16 + color) * 3 + channel), "Exact required channel membership");
-            }
             AssertEqual(ReadVerificationWord(rom, PhantoonColorRomData.HealthBandsSource + (band * 16 + color) * 2), stock.ResolveHealth(band, color), "Native health RGB equality");
             PaletteRgb5 original = document.HealthBands[band][color];
             for (int channel = 0; channel < 3; channel++)
             {
                 document.HealthBands[band][color] = new PaletteRgb5
                 {
-                    Red = channel == 0 ? original.Red ^ 1 : original.Red,
-                    Green = channel == 1 ? original.Green ^ 1 : original.Green,
-                    Blue = channel == 2 ? original.Blue ^ 1 : original.Blue,
+                    Red = channel == 0 ? original.Red ^ 31 : original.Red,
+                    Green = channel == 1 ? original.Green ^ 31 : original.Green,
+                    Blue = channel == 2 ? original.Blue ^ 31 : original.Blue,
                 };
                 _ = Check(document);
             }
@@ -705,7 +697,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, 16), "Health color upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(-1), "Fade lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(16), "Fade upper bound");
-        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, exact nine required channels, zero stock overrides, 112 power colors, 768 independent channel edits, hashes and bounds pass.");
+        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, zero stored healthy palette/residual samples or stock overrides, 112 power colors, 768 independent channel edits, hashes and bounds pass.");
 
         static PhantoonColorCatalog Check(PhantoonColorDocument source)
         {

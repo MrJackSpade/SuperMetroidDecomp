@@ -1202,3 +1202,10 @@ Root Verification1446warnings/zero errors; focused beam geometry passes direct n
 Highlight phase2,diagonal pulse extent6,ten Spazer seed pens,wide-ribbon opposite phase2,thickness,origin,colors and other art inputs remain required. No new exemption or aggregate completion. Historical worker Batch82 prose understated tile4's then-required basis: it was27samples after37derived pixels, and this batch reduces it to19. Prior storage assertions were correct; this corrects only that report wording.
 
 Root Verification1447warnings/zero errors; --lookup-stream-4-beam-geometry passes3072native bytes,exact1093basis membership,independent edits and456actual queued NMI drains/readguard/bounds/adjacentVRAM. ResourceAudit0warnings/0errors. Inventory unchanged558converted/21retained-mixed/549pending.
+## Integrated Maridia palette program layout
+
+532abaf1c replaces three cached definition records with sand-pit,sand-fall and waterfall semantic owner cases. Definition identities,setup entries,timed-record strides,color addresses,loop opcodes and following-program starts calculate from native record layout. All enumeration/order and runtime bindings remain supported.
+
+Selected sand/waterfall cadence10/2,rotation group sizes4/8,sand-pit band count2,palette slots2/3 and starting colors4/8/4 remain required inputs. Actual waterfall operand0068 means palette3/color4; a conflicting pinned-source comment is not used as the behavioral oracle. Color payloads remain separately pending. No exception or aggregate closure; inventory558converted/21retained-mixed/549pending unchanged.
+
+Root Verification1447warnings/zero errors; --lookup-stream-4-maridia-palette passes supported ROM revision,three native programs,44mechanics words,112color identities,all three complete production loops,index bounds and cartridge-read guards. No ResourceAudit source-hash reference exists for this source. Only1165 remains in-progress.

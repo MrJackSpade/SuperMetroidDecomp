@@ -9,6 +9,50 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4MaridiaPaletteDefinitions(CartridgeImportAddressSpace rom)
+    {
+        ushort Word(int pointer) => (ushort)(rom.ReadByte(0x8D0000 | pointer) | rom.ReadByte(0x8D0000 | (pointer + 1)) << 8);
+        var all = MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All;
+        AssertEqual(3, all.Count, "three native environmental owners");
+        int colors = 0;
+        for (int index = 0; index < 3; index++)
+        {
+            var definition = all[index];
+            int pointer = Word(0xF795 + index * 4 + 2);
+            AssertEqual((ushort)pointer, definition.ProgramStart, "native definition selects calculated setup");
+            AssertEqual((MaridiaEnvironmentalPaletteOwner)index, definition.Owner, "owner order");
+            AssertEqual(Word(pointer + 2), definition.ColorByteIndex, "native destination palette bytes");
+            pointer += 4;
+            int frame = 0;
+            while (Word(pointer) < 0x8000)
+            {
+                AssertEqual((ushort)pointer, definition.FramePointer(frame), "native timed record stride");
+                AssertEqual(Word(pointer), definition.Duration, "required native cadence");
+                pointer += 2;
+                int color = 0;
+                while (Word(pointer) != PaletteFxInstructionCodes.Wait)
+                {
+                    AssertEqual((ushort)pointer, definition.ColorPointer(frame, color), "native color identity");
+                    color++; colors++; pointer += 2;
+                }
+                AssertEqual(definition.ColorsPerFrame, color, "native color group extent");
+                pointer += 2; frame++;
+            }
+            AssertEqual(definition.FrameCount, frame, "native rotation cycle extent");
+            AssertEqual((ushort)pointer, definition.LoopInstructionPointer, "native loop opcode location");
+            AssertEqual(PaletteFxInstructionCodes.Goto, Word(pointer), "native goto identity");
+            AssertEqual(definition.FirstFramePointer, Word(pointer + 2), "native loop target");
+            AssertThrows<ArgumentOutOfRangeException>(() => definition.FramePointer(-1), "negative frame rejection");
+            AssertThrows<ArgumentOutOfRangeException>(() => definition.FramePointer(frame), "exhausted frame rejection");
+            AssertThrows<ArgumentOutOfRangeException>(() => definition.ColorPointer(0, color: -1), "negative color rejection");
+            AssertThrows<ArgumentOutOfRangeException>(() => definition.ColorPointer(0, definition.ColorsPerFrame), "exhausted color rejection");
+        }
+        AssertEqual(112, colors, "native presentation words remain independently owned");
+        foreach (int index in new[] { -1, 3, int.MinValue, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = all[index], "owner selector bounds");
+        VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(rom);
+        Console.WriteLine("Maridia palette definitions: three native programs,44 mechanics words,112 color identities and actual complete loops pass; timing/destination/group inputs remain required.");
+    }
     private static void VerifyLookupStream4EndingShake(ISnesAddressSpace rom)
     {
         int Native(int address)

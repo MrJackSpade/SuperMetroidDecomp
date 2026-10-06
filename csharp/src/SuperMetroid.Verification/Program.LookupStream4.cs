@@ -2287,6 +2287,32 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => KzanInstructionProgramDefinitions.MechanicsWord(invalid), "Kzan control index bounds");
     }
+    private static void VerifyLookupStream4DraygonPresentationLayout(ISnesAddressSpace rom)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        AssertEqual(250, DraygonInstructionProgramDefinitions.PresentationWordCount, "Native Draygon timed-record count");
+        byte[] identities = new byte[500];
+        var enemies = new RoomEnemySystem();
+        typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
+        var slot = new RoomEnemySlot(0) { EnemyDefinitionPointer = DraygonEnemyDefinitionPointers.Body,
+            Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 } };
+        var read = typeof(RoomEnemySystem).GetMethod("ReadEnemyVisualSelector",flags)!.CreateDelegate<Func<RoomEnemySlot,ushort,ushort>>(enemies);
+        for(int index=0;index<250;index++)
+        {
+            ushort address=DraygonInstructionProgramDefinitions.PresentationWordAddress(index);
+            identities[index*2]=(byte)address; identities[index*2+1]=(byte)(address>>8);
+            ushort duration=(ushort)(rom.ReadByte(0xa50000+address-2)|rom.ReadByte(0xa50000+address-1)<<8);
+            ushort selector=(ushort)(rom.ReadByte(0xa50000+address)|rom.ReadByte(0xa50000+address+1)<<8);
+            AssertTrue(duration<0x8000,"Native timed record uses low-bit duration");
+            AssertEqual(duration,DraygonInstructionProgramDefinitions.ReadMechanicsWord((ushort)(address-2)),"Derived record duration is native");
+            AssertEqual(selector,read(slot,address),"Actual installed native visual selector without cartridge access");
+            AssertThrows<InvalidDataException>(()=>DraygonInstructionProgramDefinitions.ReadMechanicsWord(address),"Selector remains outside mechanics");
+        }
+        AssertEqual("D35407018D9032B43BC27AE2341FDBE7647C7B87D36E21BBDAB88B65C2DEFAF0",Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(identities)),"Exact ordered native selector-address identity");
+        foreach(int invalid in new[]{-1,250,int.MinValue,int.MaxValue})AssertThrows<IndexOutOfRangeException>(()=>DraygonInstructionProgramDefinitions.PresentationWordAddress(invalid),"Original presentation enumeration domain");
+        VerifyDraygonInstructionProgramDefinitions();
+        Console.WriteLine("Draygon presentation layout:250 exact ordered native operand identities/actual selector reads,mechanics separation/domains and existing four-owner reset/IRQ proof pass.");
+    }
     private static void VerifyLookupStream4DraygonIntro(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

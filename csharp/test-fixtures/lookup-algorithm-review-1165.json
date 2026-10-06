@@ -12587,4 +12587,13 @@
     "Prefix array removed; envelopes and cursors calculate. Exact authored scroll-only shake and sound/phase timing, including wall-break scheduling, retained with narrow A4:9859-98C9 and8F:E942-E94F source-backed performance rationale. Final3 is an oscillation counter. Physics and startup wait have no blanket exemption; precise prefix compatibility preserved."
   ],
   "workerCommit": "f4dfce289decb121b3050e81bc5965bcb576c676"
+},"draygonPresentationLayoutComplete":{
+  "completed": [
+    "DraygonInstructionProgramDefinitions.PresentationWords"
+  ],
+  "disposition": [
+    "Removed250 literal addresses; derive presentation operand addresses from the existing duration/selector timed-record partition. No new retained inputs. Words independent program layout/timing/control and selected artwork remain required in their separate entries."
+  ],
+  "confirmation": "Worker build1447warnings/0errors;exact ordered250identities/native duration/actual installed selectors/readguard/bounds and existing524-word/four-owner/atomic-reset/IRQ proof passed. Coordinator mechanically integrates without review/retest.",
+  "workerCommit": "1695380e1a61eaf9c48b1394be583a7288bd4ac5"
 }}

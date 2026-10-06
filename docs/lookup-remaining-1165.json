@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 404,
+  "remainingTableDefinitionCount": 403,
   "fileCount": 523,
   "entries": [
     {
@@ -3824,12 +3824,15 @@
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/DraygonInstructionProgramDefinitions.cs",
-      "line": 268,
-      "name": "DraygonInstructionProgramDefinitions.PresentationWords",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Game/DraygonInstructionProgramDefinitions.cs",
+  "line": 268,
+  "name": "DraygonInstructionProgramDefinitions.PresentationWords",
+  "kind": "stored definition",
+  "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+  "state": "converted",
+  "implementationCommit": "1695380e1a61eaf9c48b1394be583a7288bd4ac5",
+  "disposition": "Removed250 literal addresses; derive presentation operand addresses from the existing duration/selector timed-record partition. No new retained inputs. Words independent program layout/timing/control and selected artwork remain required in their separate entries."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DraygonProjectileInstructionProgramDefinitions.cs",
       "line": 30,
@@ -21861,6 +21864,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 608,
+  "convertedSinceSnapshot": 609,
   "justifiedRetainedSinceSnapshot": 116
 }

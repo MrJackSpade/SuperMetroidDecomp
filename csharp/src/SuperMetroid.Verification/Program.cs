@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream5-ceres-normal-paint"])
+{
+    VerifyLookupStream5CeresNormalPaint(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
+if (args is ["--lookup-stream5-ceres-escape-paint"])
+{
+    VerifyLookupStream5CeresEscapePaint(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--lookup-stream5-ceres-rumble"])
 {
     VerifyLookupStream5CeresRumble(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

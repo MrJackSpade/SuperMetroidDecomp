@@ -1794,4 +1794,124 @@ internal static partial class Program
             return actual;
         }
     }
+    private static void VerifyLookupStream5CeresNormalPaint(SuperMetroidAddressSpace rom)
+    {
+        PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
+        {
+            ushort w = ReadVerificationWord(rom, source + 2 * i);
+            return new PaletteRgb5 { Red = w & 31, Green = w >> 5 & 31, Blue = w >> 10 };
+        }).ToArray();
+        var document = new CeresDoorVisualDocument
+        {
+            Version = 1, Normal = Colors(CeresDoorVisualRomData.NormalColors, 15), Escape = Colors(CeresDoorVisualRomData.EscapeColors, 15),
+            Animation = Enumerable.Range(0, 8).Select(row => Colors(CeresDoorVisualRomData.AnimationColors + 16 * row, 6)).ToArray(),
+            Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
+        };
+        byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+        using var png = new MemoryStream(); IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        CeresDoorNormalPaintDefinitions stock = Check();
+        AssertEqual(20, ((Dictionary<int, int>)typeof(CeresDoorNormalPaintDefinitions).GetField("paint", flags)!.GetValue(stock)!).Count, "Exact retained seed membership");
+        AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorNormalPaintDefinitions).GetField("edits", flags)!.GetValue(stock)!).Count, "Native calculated channels need no unexplained overrides");
+        for (int color = 0; color < 15; color++)
+        {
+            PaletteRgb5 before = document.Normal[color];
+            for (int channel = 0; channel < 3; channel++)
+            {
+                document.Normal[color] = new PaletteRgb5 { Red = channel == 0 ? before.Red ^ 31 : before.Red, Green = channel == 1 ? before.Green ^ 31 : before.Green, Blue = channel == 2 ? before.Blue ^ 31 : before.Blue };
+                _ = Check();
+            }
+            document.Normal[color] = before;
+        }
+        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(-1), "Normal lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(15), "Normal upper bound");
+        Console.WriteLine("Ceres normal: fifteen native colors, twenty seeds/zero overrides,45 independent channel edits,92 actual initializer palette copies, hash and bounds pass.");
+
+        CeresDoorNormalPaintDefinitions Check()
+        {
+            ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
+            var basis = new CeresDoorNormalPaintDefinitions(document.Normal.Select(Pack).ToArray());
+            var visual = CeresDoorVisualCatalog.Load(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualCatalog.Write(document)));
+            for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), basis.ColorAt(color), "Every supplied normal channel remains independent");
+            foreach (ushort variant in new ushort[] { 0, 3 })
+            {
+                var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), ceresDoorVisual: visual) };
+                var cgram = new SnesCgram();
+                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(system, cgram);
+                var slot = system.Slots[0]; slot.Parameter1 = variant;
+                typeof(RoomEnemySystem).GetMethod("InitializeCeresDoor", flags)!.CreateDelegate<Action<RoomEnemySlot>>(system)(slot);
+                int destination = variant == 3 ? CeresDoorVisualRomData.NormalTargetColor : CeresDoorVisualRomData.ActiveTargetColor;
+                for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), cgram.Colors[destination + color], "Actual normal/target initializer copy");
+            }
+            string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
+            {
+                content.Append("tiles", planar); content.AppendWords("normal", document.Normal.Select(Pack).ToArray()); content.AppendWords("escape", document.Escape.Select(Pack).ToArray());
+                content.AppendWordFrames("animation", document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray());
+                content.Append("mode7-frames", 2); foreach (var frame in document.Mode7DoorFrames) content.Append("mode7-frame", frame.Select(value => (byte)value).ToArray());
+            });
+            AssertEqual(identity, visual.ContentIdentity, "Normal changes preserve independently installed escape/animation and canonical hash");
+            return basis;
+        }
+    }
+    private static void VerifyLookupStream5CeresEscapePaint(SuperMetroidAddressSpace rom)
+    {
+        PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
+        {
+            ushort w = ReadVerificationWord(rom, source + 2 * i);
+            return new PaletteRgb5 { Red = w & 31, Green = w >> 5 & 31, Blue = w >> 10 };
+        }).ToArray();
+        var document = new CeresDoorVisualDocument
+        {
+            Version = 1, Normal = Colors(CeresDoorVisualRomData.NormalColors, 15), Escape = Colors(CeresDoorVisualRomData.EscapeColors, 15),
+            Animation = Enumerable.Range(0, 8).Select(row => Colors(CeresDoorVisualRomData.AnimationColors + 16 * row, 6)).ToArray(),
+            Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
+        };
+        byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+        using var png = new MemoryStream(); IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        CeresDoorEscapePaintDefinitions stock = Check();
+        AssertEqual(4, ((int[])typeof(CeresDoorEscapePaintDefinitions).GetField("highlightAndEdgeLevels", flags)!.GetValue(stock)!).Length, "Four selected highlight/edge/outline levels");
+        AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorEscapePaintDefinitions).GetField("edits", flags)!.GetValue(stock)!).Count, "Native calculated channels need no unexplained overrides");
+        for (int color = 0; color < 15; color++)
+        {
+            PaletteRgb5 before = document.Escape[color];
+            for (int channel = 0; channel < 3; channel++)
+            {
+                document.Escape[color] = new PaletteRgb5 { Red = channel == 0 ? before.Red ^ 31 : before.Red, Green = channel == 1 ? before.Green ^ 31 : before.Green, Blue = channel == 2 ? before.Blue ^ 31 : before.Blue };
+                _ = Check();
+            }
+            document.Escape[color] = before;
+        }
+        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(-1), "Escape lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(15), "Escape upper bound");
+        Console.WriteLine("Ceres escape: fifteen native colors, eight paint seeds/zero overrides,45 independent channel edits,92 actual escape initializer palette copies, hash and bounds pass.");
+
+        CeresDoorEscapePaintDefinitions Check()
+        {
+            ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
+            var basis = new CeresDoorEscapePaintDefinitions(document.Escape.Select(Pack).ToArray(), new CeresDoorNormalPaintDefinitions(document.Normal.Select(Pack).ToArray()));
+            var visual = CeresDoorVisualCatalog.Load(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualCatalog.Write(document)));
+            for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), basis.ColorAt(color), "Every supplied escape channel remains independent");
+            foreach (ushort variant in new ushort[] { 0, 3 })
+            {
+                var system = new RoomEnemySystem { CeresStatus = 2, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), ceresDoorVisual: visual) };
+                var cgram = new SnesCgram();
+                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(system, cgram);
+                var slot = system.Slots[0]; slot.Parameter1 = variant;
+                typeof(RoomEnemySystem).GetMethod("InitializeCeresDoor", flags)!.CreateDelegate<Action<RoomEnemySlot>>(system)(slot);
+                int destination = CeresDoorVisualRomData.ActiveTargetColor;
+                for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), cgram.Colors[destination + color], "Actual escape initializer copy");
+            }
+            string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
+            {
+                content.Append("tiles", planar); content.AppendWords("normal", document.Normal.Select(Pack).ToArray()); content.AppendWords("escape", document.Escape.Select(Pack).ToArray());
+                content.AppendWordFrames("animation", document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray());
+                content.Append("mode7-frames", 2); foreach (var frame in document.Mode7DoorFrames) content.Append("mode7-frame", frame.Select(value => (byte)value).ToArray());
+            });
+            AssertEqual(identity, visual.ContentIdentity, "Escape changes preserve independently installed normal/animation and canonical hash");
+            return basis;
+        }
+    }
 }

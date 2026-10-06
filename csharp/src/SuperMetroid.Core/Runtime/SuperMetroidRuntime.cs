@@ -3862,11 +3862,8 @@ public sealed partial class SuperMetroidRuntime
                     Samus.CommitPoseHistory(_addressSpace);
             }
 
-            if (!deathOwnsSamus && !TimeIsFrozen &&
-                !Samus.Xray.AreEnemyProjectilesSuspended && LevelData is not null)
-                Enemies.StepEnemyProjectileInstructions(
-                    LevelData, Samus, Camera.XPosition, Camera.YPosition,
-                    NmiFrameCounter8, BombProjectiles);
+            if (!deathOwnsSamus)
+                RunEnemyProjectileHandler();
 
             // Native gameplay state eight reaches PLM_Handler after Samus's new-state and
             // enemy-projectile passes but before MainScrollingRoutine. A grapple block

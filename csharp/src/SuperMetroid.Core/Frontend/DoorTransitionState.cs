@@ -94,7 +94,7 @@ public sealed class DoorTransitionState
                 }
                 else
                 {
-                    runtime.DrawDoorTransitionActors();
+                    runtime.DrawDoorTransitionActors(runEnemyProjectiles: false);
                 }
                 break;
 
@@ -259,7 +259,7 @@ public sealed class DoorTransitionState
                 runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
                 // E737 runs enemy/draw owners on every fade step, without Samus's
                 // movement/animation handler or the ordinary camera streamer.
-                runtime.DrawDoorTransitionActors();
+                runtime.DrawDoorTransitionActors(runEnemyProjectiles: true);
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 // Enemy instruction lists run after the initial destination palette copy.
                 // Their target writes belong to this same fade, not a private dead buffer.

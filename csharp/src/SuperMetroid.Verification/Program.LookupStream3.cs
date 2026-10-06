@@ -1634,12 +1634,22 @@ internal static partial class Program
         CheckRevival(stock);
         const System.Reflection.BindingFlags privateFields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         object revivalFade = typeof(MotherBrainRainbowPalettePresentation).GetField("fromGrey", privateFields)!.GetValue(stock)!;
-        var revivalChannels = (Array)revivalFade.GetType().GetField("channels", privateFields)!.GetValue(revivalFade)!;
-        int suppliedChannels = 0;
-        foreach (object channel in revivalChannels)
-            if (channel.GetType().GetField("supplied", privateFields)!.GetValue(channel) is not null)
-                suppliedChannels++;
-        AssertEqual(1, suppliedChannels, "stream 3 calculates 56 revival channel curves; only unmatched green remains supplied");
+        var revivalOverrides = (Dictionary<(int Frame, int Color), ushort>)revivalFade.GetType()
+            .GetField("suppliedOverrides", privateFields)!.GetValue(revivalFade)!;
+        AssertEqual(0, revivalOverrides.Count, "revival calculates all words with one reviewed tissue-shade hold");
+        AssertEqual(Word(revival[1].Body[10]), Word(revival[2].Body[10]),
+            "native revival EE80 repeats EEA6 without an independently stored paint word");
+        foreach (string endpointName in new[] { "first", "last" })
+        {
+            object endpoint = revivalFade.GetType().GetField(endpointName, privateFields)!.GetValue(revivalFade)!;
+            object body = endpoint.GetType().GetProperty("Body")!.GetValue(endpoint)!;
+            AssertTrue(body.GetType().GetField("supplied", privateFields)!.GetValue(body) is null,
+                "revival endpoint body reuses reviewed health/drained paint calculations");
+            AssertTrue(endpoint.GetType().GetField("backLegs", privateFields)!.GetValue(endpoint) is null,
+                "revival rear endpoint calculates from reviewed normal/half-shadow paint");
+            AssertTrue(endpoint.GetType().GetField("trailing", privateFields)!.GetValue(endpoint) is null,
+                "revival trailing endpoint shares its calculated rear highlight");
+        }
         for (int frame = 0; frame < 8; frame++)
         for (int color = 0; color < 19; color++)
         for (int component = 0; component < 3; component++)
@@ -1729,6 +1739,7 @@ internal static partial class Program
             var editedPalette = Load(document);
             CheckRainbow(editedPalette);
             if (frame == 6) Check(editedPalette);
+            if (frame == 10) CheckRevival(editedPalette);
             row[index] = original;
         }
         foreach (int invalid in new[] { -1, 10, int.MaxValue })

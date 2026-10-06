@@ -10,7 +10,7 @@ public sealed class MotherBrainRainbowPalettePresentation
 {
     private readonly PaletteFrame[] rainbow;
     private readonly PaletteFade toGrey;
-    private readonly QuantizedPaletteFade fromGrey;
+    private readonly RevivalPaletteFade fromGrey;
     private readonly PaletteFade fakeDeathToGrey;
     private readonly PaletteFrame normal;
     private readonly ushort beamInitial;
@@ -44,7 +44,9 @@ public sealed class MotherBrainRainbowPalettePresentation
             rainbow[MotherBrainRainbowPaletteRomData.DrainedPointerOffset / sizeof(ushort)]);
         toGrey[^1] = PaletteFrame.ShareDrainEnd(toGrey[^1]);
         this.toGrey = new PaletteFade(toGrey);
-        this.fromGrey = new QuantizedPaletteFade(fromGrey);
+        fromGrey[0] = PaletteFrame.ShareDrainEnd(fromGrey[0]);
+        fromGrey[^1] = PaletteFrame.ShareNormalRearEndpoint(fromGrey[^1]);
+        this.fromGrey = new RevivalPaletteFade(fromGrey);
         this.fakeDeathToGrey = fakeDeathToGrey;
         this.normal = normal;
         this.beamInitial = beamInitial;
@@ -282,6 +284,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         private readonly ushort[]? backLegs;
         private readonly bool stockRear;
         private readonly bool drainedRear;
+        private readonly bool normalRearSubset;
         private readonly PaletteFrame? rearSource;
         private readonly ushort? trailing;
 
@@ -325,16 +328,18 @@ public sealed class MotherBrainRainbowPalettePresentation
         public int LegCount { get; }
         public ushort? TrailingColor => rearSource is not null
             ? rearSource.Leg(MotherBrainDrainedPaletteRomData.TrailingRearSourceColor)
-            : drainedRear ? Leg(1) : trailing;
+            : drainedRear || normalRearSubset ? Leg(1) : trailing;
         public ushort Leg(int color) => rearSource is not null
             ? rearSource.Leg(color + MotherBrainDrainedPaletteRomData.RearSourceColor)
             : drainedRear ? HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(true,
                 color + MotherBrainDrainedPaletteRomData.RearSourceColor))
+            : normalRearSubset ? MotherBrainHealthPalettePresentation.StockBaseColor(true,
+                color + MotherBrainDrainedPaletteRomData.RearSourceColor)
             : stockRear ? MotherBrainHealthPalettePresentation.StockBaseColor(true, color)
             : backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
 
-        // Only the drain's endpoints acquire these dependencies. Revival keeps its
-        // independently compiled frames and original quantized interpolation.
+        // Endpoint views are selected only after every separately supplied rear and
+        // trailing value matches; both sequences retain independent edit behavior.
         internal static PaletteFrame ShareDrainStart(PaletteFrame drain, PaletteFrame rainbow)
         {
             for (int color = 0; color < drain.Body.Length; color++)
@@ -357,6 +362,20 @@ public sealed class MotherBrainRainbowPalettePresentation
             LegCount = MotherBrainDrainedPaletteRomData.BackLegCount;
             this.drainedRear = drainedRear;
             rearSource = drainedRear ? null : source;
+        }
+
+        internal static PaletteFrame ShareNormalRearEndpoint(PaletteFrame frame)
+        {
+            for (int color = 0; color < frame.LegCount; color++)
+                if (frame.Leg(color) != MotherBrainHealthPalettePresentation.StockBaseColor(true,
+                    color + MotherBrainDrainedPaletteRomData.RearSourceColor)) return frame;
+            return frame.TrailingColor == frame.Leg(1) ? new PaletteFrame(frame) : frame;
+        }
+        private PaletteFrame(PaletteFrame source)
+        {
+            Body = source.Body;
+            LegCount = MotherBrainDrainedPaletteRomData.BackLegCount;
+            normalRearSubset = true;
         }
 
         private static ushort HalfIntensity(ushort color) => (ushort)(
@@ -600,67 +619,53 @@ public sealed class MotherBrainRainbowPalettePresentation
         ushort? Trailing(int frame);
     }
 
-    // Revival colors interpolate before RGB5 quantization. Endpoint intervals are inferred
-    // from supplied colors; every row must agree before a channel's samples are discarded.
-    // Unmatched channels remain explicit supplied content, with no retention exemption.
-    private sealed class QuantizedPaletteFade : IPaletteFade
+    // Revival rounds RGB5 endpoint interpolation to the nearest channel value. Stock
+    // holds the prior shade at one independently reviewed tissue-ink/phase choice.
+    // Sparse differences also preserve every independently edited output and endpoint.
+    private sealed class RevivalPaletteFade : IPaletteFade
     {
-        private readonly Channel[] channels;
+        private readonly PaletteFrame first;
+        private readonly PaletteFrame last;
+        private readonly Dictionary<(int Frame, int Color), ushort> suppliedOverrides = new();
 
-        public QuantizedPaletteFade(PaletteFrame[] frames)
+        public RevivalPaletteFade(PaletteFrame[] frames)
         {
+            first = frames[0];
+            last = frames[^1];
             Length = frames.Length;
-            BodyCount = frames[0].Body.Length;
-            LegCount = frames[0].LegCount;
-            channels = new Channel[(BodyCount + LegCount + 1) * 3];
-            for (int color = 0; color < channels.Length / 3; color++)
-                for (int component = 0; component < 3; component++)
+            for (int frame = 0; frame < Length; frame++)
+                for (int color = 0; color < BodyCount + LegCount + 1; color++)
                 {
-                    var values = new byte[Length];
-                    for (int frame = 0; frame < Length; frame++)
-                    {
-                        ushort packed = color < BodyCount ? frames[frame].Body[color]
-                            : color < BodyCount + LegCount ? frames[frame].Leg(color - BodyCount)
-                            : frames[frame].TrailingColor!.Value;
-                        values[frame] = (byte)(packed >> (5 * component) & 31);
-                    }
-                    channels[color * 3 + component] = new Channel(values);
+                    ushort supplied = ReadColor(frames[frame], color);
+                    if (Interpolate(frame, color) != supplied)
+                        suppliedOverrides.Add((frame, color), supplied);
                 }
         }
 
         public int Length { get; }
-        public int BodyCount { get; }
-        public int LegCount { get; }
+        public int BodyCount => first.Body.Length;
+        public int LegCount => first.LegCount;
         public ushort Body(int frame, int color) => Color(frame, color);
         public ushort Leg(int frame, int color) => Color(frame, BodyCount + color);
         public ushort? Trailing(int frame) => Color(frame, BodyCount + LegCount);
-        private ushort Color(int frame, int color) => (ushort)(channels[color * 3].At(frame, Length)
-            | channels[color * 3 + 1].At(frame, Length) << 5 | channels[color * 3 + 2].At(frame, Length) << 10);
 
-        private sealed class Channel
+        private ushort Color(int frame, int color) => suppliedOverrides.TryGetValue((frame, color), out ushort supplied)
+            ? supplied : Interpolate(frame, color);
+
+        private ushort ReadColor(PaletteFrame palette, int color) => color < BodyCount ? palette.Body[color]
+            : color < BodyCount + LegCount ? palette.Leg(color - BodyCount) : palette.TrailingColor!.Value;
+
+        private ushort Interpolate(int frame, int color)
         {
-            private readonly int first;
-            private readonly int last;
-            private readonly byte[]? supplied;
-
-            public Channel(byte[] values)
-            {
-                int intervals = values.Length - 1;
-                for (int start = values[0] * 8; start < values[0] * 8 + 8; start++)
-                    for (int end = values[^1] * 8; end < values[^1] * 8 + 8; end++)
-                    {
-                        bool matches = true;
-                        for (int frame = 0; frame < values.Length; frame++)
-                            if ((start * (intervals - frame) + end * frame) / (8 * intervals) != values[frame])
-                            { matches = false; break; }
-                        if (matches)
-                        { first = start; last = end; return; }
-                    }
-                supplied = values;
-            }
-
-            public int At(int frame, int length) => supplied is not null ? supplied[frame]
-                : (first * (length - 1 - frame) + last * frame) / (8 * (length - 1));
+            frame = MotherBrainDrainedPaletteRomData.RevivalInterpolationFrame(frame, color);
+            ushort start = ReadColor(first, color);
+            ushort end = ReadColor(last, color);
+            int intervals = Length - 1;
+            int result = 0;
+            for (int shift = 0; shift < 15; shift += 5)
+                result |= (((start >> shift & 31) * (intervals - frame)
+                    + (end >> shift & 31) * frame + intervals / 2) / intervals) << shift;
+            return (ushort)result;
         }
     }
     private sealed class PaletteFade : IPaletteFade

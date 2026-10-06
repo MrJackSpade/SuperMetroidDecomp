@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 502,
+  "remainingTableDefinitionCount": 501,
   "fileCount": 523,
   "entries": [
     {
@@ -1449,12 +1449,15 @@
     "disposition":  "All168 words calculated by nearest RGB5 interpolation across7 intervals. Start shares reviewed rainbow phase6 body/rear subset/trailing; end uses reviewed drained body and half-normal rear with repeated highlight. Exact-match dependency recognition preserves independent edits. No new retention; scheduler/cadence and revival excluded."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs",
-      "line": 12,
-      "name": "MotherBrainRainbowPalettePresentation.fromGrey",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind MotherBrainRainbowPalettePresentation.fromGrey. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+    "file":  "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs",
+    "line":  12,
+    "name":  "MotherBrainRainbowPalettePresentation.fromGrey",
+    "kind":  "installed stock table",
+    "note":  "Original/default payload behind MotherBrainRainbowPalettePresentation.fromGrey. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+    "state":  "justified-retained",
+    "implementationCommit":  "54f192edf69dbf9491337a7440b5af5f843157c1",
+    "disposition":  "Mixed complete: all152 words generated from reviewed drained/normal endpoints with nearest RGB5 interpolation. Only frame2/body ink11 previous-shade hold retained as specific tissue-paint animation choice; magnitude derives preceding interpolation, no stored3211. No fitted endpoint search or stock overrides. Scheduler,geometry and other palette fields excluded."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs",
       "line": 13,
@@ -21567,5 +21570,5 @@
     }
   ],
   "convertedSinceSnapshot": 598,
-  "justifiedRetainedSinceSnapshot": 28
+  "justifiedRetainedSinceSnapshot": 29
 }

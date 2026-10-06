@@ -3,6 +3,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Native $AD:EF0D/$EF4A drained-body and revival palette copies.</summary>
 public static class MotherBrainDrainedPaletteRomData
 {
+    /// <summary>$AD:EDA0 selects revival frame2, whose EE80 word repeats EEA6; the reviewed paint animation holds this one tissue shade for the preceding palette step.</summary>
+    private const int RevivalTissueHoldFrame = 2;
+    /// <summary>$AD:EE80 is body color B (zero-based10); this reviewed tissue ink supplies lower-face and neck shade pixels.</summary>
+    private const int RevivalHeldTissueColor = 10;
+    /// <summary>Exact EE80/EEA6 prior-step tissue-shade hold; narrowly reviewed paint content, with no historical-typo claim.</summary>
+    internal static int RevivalInterpolationFrame(int frame, int color) =>
+        frame == RevivalTissueHoldFrame && color == RevivalHeldTissueColor ? frame - 1 : frame;
     /// <summary>$AD:EF87, eight drained transition pointers followed by zero.</summary>
     public const int ToGreyTable = 0xadef87;
     /// <summary>$AD:ED9C, reversed grey transition pointers followed by zero.</summary>

@@ -13,27 +13,44 @@ internal sealed class CeresBabyPaintDefinitions
 {
     private const int Maximum = (1 << 5) - 1;
     private const int BrightnessStep = 3;
-    private readonly CeresRidleyFadeColorDefinitions body;
+    private readonly CeresRidleyFadeColorDefinitions? body;
+    private readonly CeresRidleyBodyPaintDefinitions? standaloneBody;
+    private readonly int rowCount;
     private readonly int glassRed, glassBlue, glassMiddleRed, glassGreenStep;
     private readonly int domeTint, domeGreen, domeShadeStep, outlineRed;
     private readonly Dictionary<int, ushort> edits = [];
 
     internal CeresBabyPaintDefinitions(ushort[][] rows, CeresRidleyFadeColorDefinitions body)
+        : this(rows[0], 4)
     {
         this.body = body;
-        ushort[] initial = rows[0];
-        glassRed = Channel(initial[0], 0); glassBlue = Channel(initial[0], 2);
-        glassMiddleRed = Channel(initial[12], 0); glassGreenStep = Maximum - Channel(initial[12], 1);
-        domeTint = Channel(initial[1], 0); domeGreen = Channel(initial[1], 1);
-        domeShadeStep = domeGreen - Channel(initial[2], 1); outlineRed = Channel(initial[8], 0);
-        for (int row = 0; row < 4; row++)
+        for (int row = 0; row < rowCount; row++)
             for (int color = 0; color < 15; color++)
                 if (Calculate(row, color) != rows[row][color]) edits.Add(row * 15 + color, rows[row][color]);
     }
 
+    /// <summary>The same material at Norfair Ridley $A6:E1F1-E20E, with its own supplied values.</summary>
+    internal CeresBabyPaintDefinitions(ReadOnlySpan<ushort> initial)
+        : this(initial, 1)
+    {
+        standaloneBody = new(initial[4], initial[5], initial[6]);
+        for (int color = 0; color < 15; color++)
+            if (Calculate(0, color) != initial[color]) edits.Add(color, initial[color]);
+    }
+
+    private CeresBabyPaintDefinitions(ReadOnlySpan<ushort> initial, int rowCount)
+    {
+        if (initial.Length != 15) throw new ArgumentException("Baby paint requires fifteen colors.", nameof(initial));
+        this.rowCount = rowCount;
+        glassRed = Channel(initial[0], 0); glassBlue = Channel(initial[0], 2);
+        glassMiddleRed = Channel(initial[12], 0); glassGreenStep = Maximum - Channel(initial[12], 1);
+        domeTint = Channel(initial[1], 0); domeGreen = Channel(initial[1], 1);
+        domeShadeStep = domeGreen - Channel(initial[2], 1); outlineRed = Channel(initial[8], 0);
+    }
+
     internal ushort Resolve(int row, int color)
     {
-        if ((uint)row >= 4) throw new ArgumentOutOfRangeException(nameof(row));
+        if ((uint)row >= rowCount) throw new ArgumentOutOfRangeException(nameof(row));
         if ((uint)color >= 15) throw new ArgumentOutOfRangeException(nameof(color));
         return edits.TryGetValue(row * 15 + color, out ushort edited) ? edited : Calculate(row, color);
     }
@@ -59,9 +76,9 @@ internal sealed class CeresBabyPaintDefinitions
     {
         0 => Pack(glassRed, Maximum, glassBlue),
         >= 1 and <= 3 => Pack(domeTint, domeGreen - domeShadeStep * (color - 1), domeTint),
-        >= 4 and <= 6 => body.Resolve(15, color + 4),
-        7 => Pack(Channel(body.Resolve(15, 10), 0) / 2, 0, Channel(body.Resolve(15, 10), 2) / 2),
-        8 => Pack(outlineRed, 0, Channel(body.Resolve(15, 10), 2) / 4),
+        >= 4 and <= 6 => BodyColor(color + 4),
+        7 => Pack(Channel(BodyColor(10), 0) / 2, 0, Channel(BodyColor(10), 2) / 2),
+        8 => Pack(outlineRed, 0, Channel(BodyColor(10), 2) / 4),
         9 => BabyMetroidInitialPaintDefinitions.FangLight,
         10 => Pack((Channel(BabyMetroidInitialPaintDefinitions.FangLight, 0) + Channel(BabyMetroidInitialPaintDefinitions.FangDark, 0)) / 2,
             (Channel(BabyMetroidInitialPaintDefinitions.FangLight, 1) + Channel(BabyMetroidInitialPaintDefinitions.FangDark, 1)) / 2,
@@ -71,6 +88,8 @@ internal sealed class CeresBabyPaintDefinitions
         13 => Pack(Maximum, Maximum, Maximum),
         _ => Pack(0, Maximum - 2 * glassGreenStep, Maximum - 2 * glassGreenStep),
     };
+
+    private ushort BodyColor(int color) => body is not null ? body.Resolve(15, color) : standaloneBody!.Color(color);
 
     private static int Channel(ushort color, int channel) => color >> (channel * 5) & Maximum;
     private static ushort Pack(int red, int green, int blue) => (ushort)(Math.Clamp(red, 0, Maximum)

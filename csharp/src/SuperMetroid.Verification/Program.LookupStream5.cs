@@ -1812,7 +1812,11 @@ internal static partial class Program
         using var png = new MemoryStream(); IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorNormalPaintDefinitions stock = Check();
-        AssertEqual(20, ((Dictionary<int, int>)typeof(CeresDoorNormalPaintDefinitions).GetField("paint", flags)!.GetValue(stock)!).Count, "Exact retained seed membership");
+        AssertEqual(13, ((Dictionary<int, int>)typeof(CeresDoorNormalPaintDefinitions).GetField("paint", flags)!.GetValue(stock)!).Count, "Thirteen local material seeds remain after shared warm extraction");
+        string[] warmSeeds = ["highlightBlue", "amberRed", "amberGreen", "red", "goldRed", "goldGreen", "goldBlue"];
+        AssertTrue(warmSeeds.Order(StringComparer.Ordinal).SequenceEqual(typeof(CeresDoorWarmTargetPaintDefinitions).GetFields(flags)
+            .Where(field => field.FieldType == typeof(int)).Select(field => field.Name).Order(StringComparer.Ordinal)), "Seven exact shared warm material inputs");
+        AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorWarmTargetPaintDefinitions).GetField("edits", flags)!.GetValue(stock.WarmTargets)!).Count, "Shared native warm shades need no overrides");
         AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorNormalPaintDefinitions).GetField("edits", flags)!.GetValue(stock)!).Count, "Native calculated channels need no unexplained overrides");
         for (int color = 0; color < 15; color++)
         {
@@ -1826,7 +1830,7 @@ internal static partial class Program
         }
         AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(-1), "Normal lower bound");
         AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(15), "Normal upper bound");
-        Console.WriteLine("Ceres normal: fifteen native colors, twenty seeds/zero overrides,45 independent channel edits,92 actual initializer palette copies, hash and bounds pass.");
+        Console.WriteLine("Ceres normal: fifteen native colors, thirteen local plus seven shared seeds/zero overrides,45 independent channel edits,92 actual initializer palette copies, hash and bounds pass.");
 
         CeresDoorNormalPaintDefinitions Check()
         {

@@ -26,6 +26,15 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream5-ceres-door-materials"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres door material oracle revision");
+    VerifyLookupStream5CeresNormalPaint(rom);
+    VerifyLookupStream5CeresEscapePaint(rom);
+    return 0;
+}
 if (args is ["--lookup-stream5-ceres-normal-paint"])
 {
     VerifyLookupStream5CeresNormalPaint(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
@@ -599,6 +608,13 @@ if (args is ["--lookup-stream-4-beam-paint"])
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Beam paint oracle revision");
     VerifyLookupStream4BeamColorRelations(rom);
+    return 0;
+}
+if (args is ["--lookup-stream-4-norfair-initial"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Norfair initial oracle revision");
+    VerifyLookupStream4NorfairInitial(rom);
     return 0;
 }
 if (args is ["--lookup-stream-4-botwoon-health"])

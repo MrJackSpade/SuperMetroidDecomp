@@ -13,14 +13,16 @@ internal sealed class CeresDoorNormalPaintDefinitions
 {
     private const int MaximumChannel = (1 << 5) - 1;
     private const int HighlightBlueTint = 14;
-    private const int GoldRedStep = 3;
-    private const int GoldGreenStep = 6;
+
+    private readonly CeresDoorWarmTargetPaintDefinitions warm;
+    internal CeresDoorWarmTargetPaintDefinitions WarmTargets => warm;
     private readonly Dictionary<int, int> paint = [];
     private readonly Dictionary<int, ushort> edits = [];
 
     internal CeresDoorNormalPaintDefinitions(ReadOnlySpan<ushort> colors)
     {
         if (colors.Length != 15) throw new ArgumentException("Normal door paint requires fifteen colors.", nameof(colors));
+        warm = new(colors.Slice(8, 6));
         for (int slot = 1; slot <= colors.Length; slot++)
             for (int channel = 0; channel < 3; channel++)
                 if (StoresPaint(slot, channel))
@@ -31,9 +33,9 @@ internal sealed class CeresDoorNormalPaintDefinitions
 
     private static bool StoresPaint(int slot, int channel) => channel switch
     {
-        0 => slot is 10 or 11 or 12,
-        1 => slot is 1 or 2 or 3 or 5 or 6 or 7 or 10 or 12,
-        2 => slot is 3 or 4 or 5 or 6 or 7 or 8 or 9 or 12 or 15,
+        0 => false,
+        1 => slot is 1 or 2 or 3 or 5 or 6 or 7,
+        2 => slot is 3 or 4 or 5 or 6 or 7 or 8 or 15,
         _ => false,
     };
 
@@ -48,20 +50,9 @@ internal sealed class CeresDoorNormalPaintDefinitions
 
     private ushort Calculate(int slot)
     {
-        int red, green, blue;
-        if (slot is >= 12 and <= 14)
-        {
-            int shade = slot - 12;
-            red = Math.Max(0, Seed(12, 0) - GoldRedStep * shade);
-            green = Math.Max(0, Seed(12, 1) - GoldGreenStep * shade);
-            blue = Math.Max(0, Seed(12, 2) * (1 - shade));
-        }
-        else
-        {
-            red = slot == 9 ? MaximumChannel : slot is 10 or 11 ? Seed(slot, 0) : 0;
-            green = slot is 9 or 15 ? MaximumChannel : slot is 4 or 11 ? 0 : slot == 8 ? Seed(7, 1) : Seed(slot, 1);
-            blue = slot is 1 or 2 ? Math.Min(MaximumChannel, green + HighlightBlueTint) : slot is 10 or 11 ? 0 : Seed(slot, 2);
-        }
-        return (ushort)(red | green << 5 | blue << 10);
+        if (slot is >= 9 and <= 14) return warm.ColorAt(slot - 9);
+        int green = slot == 15 ? MaximumChannel : slot == 4 ? 0 : slot == 8 ? Seed(7, 1) : Seed(slot, 1);
+        int blue = slot is 1 or 2 ? Math.Min(MaximumChannel, green + HighlightBlueTint) : Seed(slot, 2);
+        return (ushort)(green << 5 | blue << 10);
     }
 }

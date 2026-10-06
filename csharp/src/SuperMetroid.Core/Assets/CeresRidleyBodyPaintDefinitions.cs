@@ -18,15 +18,23 @@ internal sealed class CeresRidleyBodyPaintDefinitions
     private readonly int darkBlue;
 
     internal CeresRidleyBodyPaintDefinitions(ReadOnlySpan<ushort> endpoint)
+        : this(EndpointColor(endpoint, 8), EndpointColor(endpoint, 9), EndpointColor(endpoint, 10)) { }
+
+    /// <summary>Shared membrane material, also present at $A6:E1F9-E1FE in the Baby palette.</summary>
+    internal CeresRidleyBodyPaintDefinitions(ushort highlight, ushort middle, ushort dark)
     {
-        if (endpoint.Length != 11) throw new ArgumentException("Ridley body endpoint requires eleven colors.", nameof(endpoint));
-        highlightGreen = endpoint[8] >> 5 & MaximumChannel;
-        middleGreen = endpoint[9] >> 5 & MaximumChannel;
-        blueTint = (endpoint[8] >> 10) - highlightGreen;
-        darkRed = endpoint[10] & MaximumChannel;
-        darkBlue = endpoint[10] >> 10;
+        highlightGreen = highlight >> 5 & MaximumChannel;
+        middleGreen = middle >> 5 & MaximumChannel;
+        blueTint = (highlight >> 10) - highlightGreen;
+        darkRed = dark & MaximumChannel;
+        darkBlue = dark >> 10;
     }
 
+    private static ushort EndpointColor(ReadOnlySpan<ushort> endpoint, int index)
+    {
+        if (endpoint.Length != 11) throw new ArgumentException("Ridley body endpoint requires eleven colors.", nameof(endpoint));
+        return endpoint[index];
+    }
     internal ushort Color(int color)
     {
         if ((uint)color >= 11) throw new ArgumentOutOfRangeException(nameof(color));

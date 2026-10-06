@@ -2341,6 +2341,104 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(0, 4), "Draygon health color bounds");
         AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new SnesCgram(), 1), "Draygon odd native health selector rejected");
     }
+    private static void VerifyLookupStream4NorfairInitial(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => Word(address + i * 2)).ToArray();
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        static void NoEdits(object provider)
+        {
+            var edits = (Dictionary<int, ushort>)provider.GetType().GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(provider)!;
+            AssertEqual(0, edits.Count, "Native material has no unexplained output overrides");
+        }
+        byte[] json = NorfairRidleyColorExtractor.Extract(rom);
+        var original = JsonSerializer.Deserialize<NorfairRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var stock = NorfairRidleyColorCatalog.Load(new MemoryStream(json));
+        var initial = (NorfairRidleyInitialPaintDefinitions)typeof(NorfairRidleyColorCatalog).GetField("initial", flags)!.GetValue(stock)!;
+        var armor = (CeresDoorEscapePaintDefinitions)typeof(NorfairRidleyInitialPaintDefinitions).GetField("armor", flags)!.GetValue(initial)!;
+        var organ = (CeresBabyPaintDefinitions)typeof(NorfairRidleyInitialPaintDefinitions).GetField("organ", flags)!.GetValue(initial)!;
+        NoEdits(initial); NoEdits(armor); NoEdits(organ);
+        NoEdits(typeof(CeresDoorEscapePaintDefinitions).GetField("warm", flags)!.GetValue(armor)!);
+        for (int color = 0; color < 15; color++)
+        {
+            AssertEqual(Word(0xa6f50e + color * 2), stock.ResolveInitial(color + 1), "Exact escape material occurrence");
+            AssertEqual(Word(0xa6e1f1 + color * 2), stock.ResolveInitial(color + 17), "Exact Baby material occurrence");
+        }
+        for (int edit = -1; edit < 96; edit++)
+        {
+            var document = JsonSerializer.Deserialize<NorfairRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+            if (edit >= 0)
+            {
+                int color = edit / 3;
+                var rgb = document.Initial[color];
+                document.Initial[color] = (edit % 3) switch
+                { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
+            }
+            var selected = NorfairRidleyColorCatalog.Load(new MemoryStream(NorfairRidleyColorCatalog.Write(document)));
+            string hash = SelectedPresentationHash.Create("NorfairRidleyColorCatalog-v1", content =>
+            {
+                content.AppendWords("initial", document.Initial.Select(Pack).ToArray());
+                content.AppendWordFrames("reveal", document.Reveal.Select(row => row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(hash, selected.ContentIdentity, "Initial hash preserves exact supplied words and separate reveal");
+            var cgram = new SnesCgram();
+            for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+            selected.ApplyInitial(cgram);
+            for (int color = 0; color < 256; color++)
+                AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160]) : (ushort)0x1234,
+                    cgram.Colors[color], "Initial full CGRAM copy and independent channel edits");
+            for (int color = 0; color < 32; color++)
+            {
+                AssertEqual(Pack(document.Initial[color]), selected.ResolveInitial(color), "Initial supplied value preserved");
+                AssertEqual(Word(0xa6e1cf + color * 2), stock.ResolveInitial(color), "Stock instance immutable");
+            }
+            for (int row = 0; row < 15; row++) for (int color = 0; color < 14; color++)
+                AssertEqual(Pack(original.Reveal[row][color]), selected.ResolveReveal(row, color), "Independent reveal remains unchanged");
+            if (edit is -1 or 0 or 95)
+            {
+                var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
+                    new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), norfairRidleyColors: selected);
+                var enemies = new RoomEnemySystem { TileArtwork = artwork };
+                var guard = new ProjectileCompositionForbiddenBus();
+                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+                typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => false));
+                RoomEnemySlot slot = enemies.Slots[0];
+                slot.EnemyDefinitionPointer = RoomEnemySystem.NorfairRidleyDefinition;
+                typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidley", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
+                for (int color = 0; color < 256; color++)
+                    AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
+                        : color is >= 113 and <= 127 or >= 241 and <= 255 ? (ushort)0 : (ushort)0x1234,
+                        cgram.Colors[color], "Actual initializer copies both targets then clears separate reveal ranges");
+            }
+        }
+        ushort[] normalWords = Read(0xa6f4ee, 15), escapeWords = Read(0xa6f50e, 15);
+        var normalStock = new CeresDoorNormalPaintDefinitions(normalWords);
+        NoEdits(normalStock); NoEdits(normalStock.WarmTargets);
+        for (int edit = -1; edit < 90; edit++)
+        {
+            ushort[] normal = normalWords.ToArray(), escape = escapeWords.ToArray();
+            if (edit >= 0)
+            {
+                int local = edit % 45;
+                (edit < 45 ? normal : escape)[local / 3] ^= (ushort)(1 << (local % 3 * 5));
+            }
+            var normalProvider = new CeresDoorNormalPaintDefinitions(normal);
+            var dependentEscape = new CeresDoorEscapePaintDefinitions(escape, normalProvider);
+            var standaloneEscape = new CeresDoorEscapePaintDefinitions(escape);
+            for (int color = 0; color < 15; color++)
+            {
+                AssertEqual(normal[color], normalProvider.ColorAt(color), "Normal shared extraction preserves independent edits");
+                AssertEqual(escape[color], dependentEscape.ColorAt(color), "Normal source edits do not leak into escape occurrence");
+                AssertEqual(escape[color], standaloneEscape.ColorAt(color), "Standalone escape operation preserves exact colors");
+            }
+        }
+        foreach (int color in new[] { -1, 32, int.MinValue, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => stock.ResolveInitial(color), "Initial existing array-domain contract");
+        AssertThrows<ArgumentNullException>(() => stock.ApplyInitial(null!), "Initial null CGRAM");
+        Console.WriteLine("Norfair initial:32 native words,30 shared material identities,zero stock overrides,96 RGB edits/hash,97 full copies,three real initializers/read guard,90 normal/escape source edits and unchanged210 reveal words pass.");
+    }
     private static void VerifyLookupStream4BotwoonColors(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

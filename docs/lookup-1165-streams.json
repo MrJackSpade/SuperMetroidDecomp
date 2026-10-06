@@ -3213,6 +3213,7 @@
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/SamusBodyDefinitionLayout.cs","stream":1,"purpose":"Named physical allocation identities and semantic body-set dispatch; no invented numeric permutation or payload exemption"}
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/SidehopperDrainShadeDefinitions.cs","stream":3,"purpose":"Named native shade slots/four unresolved red levels and exact RGB-line operation; endpoints and independent edits remain required"}
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/SamusBodyPoseDefinitions.cs","stream":1,"purpose":"Named semantic dispatch for253real-pose frame-list identities; preserve independent edits and required frame contents"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Assets/SamusSpritemapPoseDefinitions.cs","stream":1,"purpose":"Named real-pose top/bottom OAM frame-sequence base dispatch; preserve independent edits and FD-FF rejection, underlying pointers/parts required"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

@@ -73,15 +73,23 @@ internal static partial class Program
             }
             document.FadeOut[color] = new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 };
         }
-        var required = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("requiredHealthColors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var required = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("requiredHealthChannels", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
         var healthEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("healthEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
-        AssertEqual(8, required.Count, "Exactly eight native health deviations remain required");
+        var greenEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("healthyGreenEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var blueEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("healthyBlueEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, blueEdits.Count, "Native selected blue channels share subtractive yellow separation");
+        AssertEqual(0, greenEdits.Count, "Healthy native green channels share exact hue operation");
+        AssertEqual(9, required.Count, "Exactly nine native health channel deviations remain required");
         AssertEqual(0, healthEdits.Count, "Matched native tint subset has no unexplained overrides");
         for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
         {
-            bool isRequired = (band, color) is (5, 6) or (6, 6) or (3, 7) or (5, 8) or (6, 8) or (6, 9) or (0, 10) or (0, 11);
-            AssertEqual(isRequired, required.Contains(band * 16 + color), "Exact required target membership");
+            for (int channel = 0; channel < 3; channel++)
+            {
+                bool isRequired = (band, color, channel) is (5, 6, 2) or (6, 6, 1) or (3, 7, 2) or (5, 8, 1) or
+                    (6, 8, 2) or (6, 9, 1) or (6, 9, 2) or (0, 10, 2) or (0, 11, 1);
+                AssertEqual(isRequired, required.Contains((band * 16 + color) * 3 + channel), "Exact required channel membership");
+            }
             AssertEqual(ReadVerificationWord(rom, PhantoonColorRomData.HealthBandsSource + (band * 16 + color) * 2), stock.ResolveHealth(band, color), "Native health RGB equality");
             PaletteRgb5 original = document.HealthBands[band][color];
             for (int channel = 0; channel < 3; channel++)
@@ -102,7 +110,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, 16), "Health color upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(-1), "Fade lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(16), "Fade upper bound");
-        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, exact eight required deviations, zero stock overrides, 432 independent channel edits, hashes and bounds pass.");
+        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, exact nine required channels, zero stock overrides, 432 independent channel edits, hashes and bounds pass.");
 
         static PhantoonColorCatalog Check(PhantoonColorDocument source)
         {

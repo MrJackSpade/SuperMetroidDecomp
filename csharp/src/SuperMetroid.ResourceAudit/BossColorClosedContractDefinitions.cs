@@ -36,7 +36,7 @@ internal static class BossColorClosedContractDefinitions
             "Load requires intro/background/sprite/white-flash arrays and all eight complete health bands before private construction. Health selection rejects odd/out-of-range byte indices; hurt uses only these loaded arrays."),
         new("SuperMetroid.Core.Assets.PhantoonColorCatalog", "phantoon-v1-complete-color-targets",
             ["ResolveHealth", "ResolveFadeOut", "ResolvePowerOn"],
-            [new("csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs", "64EC4A7F8F10DB9E071C6112B5446451F888105028618AD7CF282E60CDEAF441"),
+            [new("csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs", "FBCE21F9635C75CA1665D0F70461625E45ED00DB6339CAF75B56ABAF1A2FC6BD"),
              new("csharp/src/SuperMetroid.Core/Game/PhantoonColorRomData.cs", "797AD8063CCED30E06BE43FD5EC111BFFAD60474331B48EECEF637E3E5F28E28")],
             "Private construction requires all eight sixteen-color health bands, sixteen fade colors and 112 power-on colors. Bounded resolvers select calculated black/tint targets, required endpoint/deviation inputs or independently supplied overrides; power-on colors remain a complete installed array. No further identity is selected."),
         new("SuperMetroid.Core.Assets.TourianStatueColorCatalog", "tourian-statue-v1-complete-eye-palettes",

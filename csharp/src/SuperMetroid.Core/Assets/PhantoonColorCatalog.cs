@@ -27,9 +27,13 @@ public sealed class PhantoonColorCatalog
         });
 
     // REQUIRED: sixteen independently chosen healthy paint colors, tint range 8/15,
-    // and the eight native target deviations below. None has a retention exemption.
-    private readonly ushort[] healthyColors;
-    private readonly Dictionary<int, ushort> requiredHealthColors = [];
+    // and nine native channel deviations below. None has a retention exemption.
+    private readonly record struct HealthyPaint(int Red, int? RequiredBlue);
+    private readonly HealthyPaint[] healthyPaint;
+    private readonly Dictionary<int, int> healthyGreenEdits = [];
+    private readonly Dictionary<int, int> healthyBlueEdits = [];
+    private const int YellowChannelSeparation = 7;
+    private readonly Dictionary<int, int> requiredHealthChannels = [];
     private readonly Dictionary<int, ushort> healthEdits = [];
     private const int MinimumTintWeight = 8;
     private const int TintDenominator = 15;
@@ -38,13 +42,25 @@ public sealed class PhantoonColorCatalog
 
     private PhantoonColorCatalog(ushort[][] healthBands, ushort[] fadeOut, ushort[] powerOn)
     {
-        healthyColors = healthBands[^1];
-        for (int band = 0; band < healthBands.Length - 1; band++)
-        for (int color = 0; color < healthyColors.Length; color++)
+        ushort[] healthy = healthBands[^1];
+        healthyPaint = new HealthyPaint[healthy.Length];
+        for (int color = 0; color < healthy.Length; color++)
         {
-            int key = band * healthyColors.Length + color;
-            if (IsRequiredHealthChoice(band, color)) requiredHealthColors.Add(key, healthBands[band][color]);
-            else if (healthBands[band][color] != TintHealthColor(band, color)) healthEdits.Add(key, healthBands[band][color]);
+            int red = healthy[color] & 31, blue = healthy[color] >> 10;
+            healthyPaint[color] = new(red, SharesYellowBlue(color) ? null : blue);
+            if (SharesYellowBlue(color) && blue != Math.Max(0, red - YellowChannelSeparation))
+                healthyBlueEdits.Add(color, blue);
+            int green = (healthy[color] >> 5) & 31;
+            if (green != HealthyGreen(color)) healthyGreenEdits.Add(color, green);
+        }
+        for (int band = 0; band < healthBands.Length - 1; band++)
+        for (int color = 0; color < healthyPaint.Length; color++)
+        {
+            int key = band * healthyPaint.Length + color;
+            for (int channel = 0; channel < 3; channel++)
+                if (IsRequiredHealthChannel(band, color, channel))
+                    requiredHealthChannels.Add(key * 3 + channel, (healthBands[band][color] >> (channel * 5)) & 31);
+            if (healthBands[band][color] != RequiredHealthColor(band, color)) healthEdits.Add(key, healthBands[band][color]);
         }
         for (int color = 0; color < fadeOut.Length; color++)
             if (fadeOut[color] != 0) fadeOutEdits.Add(color, fadeOut[color]);
@@ -60,21 +76,39 @@ public sealed class PhantoonColorCatalog
 
     /// <summary>
     /// $A7:CB41..CC40 health targets, selected by $A7:DC0F. The matched subset
-    /// interpolates healthy RGB toward saturated red as health decreases. Eight
-    /// independently chosen deviations remain explicit required inputs.
+    /// interpolates healthy RGB toward saturated red as health decreases. Nine channel
+    /// deviations in eight words remain explicit required inputs.
     /// </summary>
     public ushort ResolveHealth(int band, int color)
     {
         _ = CheckBand(band);
-        _ = Get(healthyColors, color);
-        int key = band * healthyColors.Length + color;
-        if (requiredHealthColors.TryGetValue(key, out ushort required)) return required;
-        return healthEdits.TryGetValue(key, out ushort edit) ? edit : TintHealthColor(band, color);
+        _ = HealthyColor(color);
+        int key = band * healthyPaint.Length + color;
+        return healthEdits.TryGetValue(key, out ushort edit) ? edit : RequiredHealthColor(band, color);
     }
 
+    /// <summary>
+    /// $A7:CC21..CC40 healthy paint: slots0..12 share red/green channels for
+    /// olive/yellow body and iris shading; red eye-surround slots13..15 omit green.
+    /// R/B levels, grouping and unused transported slot0 remain required inputs.
+    /// </summary>
+    // REQUIRED grouping: these olive body/iris shades share subtractive yellow
+    // separation. Brightness, separation7 and all other blue choices remain inputs.
+    private static bool SharesYellowBlue(int color) => color is 2 or 3 or 4 or 5 or 7 or 8 or 11 or 12;
+    private int HealthyGreen(int color) => color < 13 ? healthyPaint[color].Red : 0;
+
+    private ushort HealthyColor(int color)
+    {
+        if ((uint)color >= healthyPaint.Length) throw new ArgumentOutOfRangeException(nameof(color));
+        HealthyPaint paint = healthyPaint[color];
+        int green = healthyGreenEdits.TryGetValue(color, out int edit) ? edit : HealthyGreen(color);
+        int blue = healthyBlueEdits.TryGetValue(color, out int blueEdit) ? blueEdit
+            : paint.RequiredBlue ?? Math.Max(0, paint.Red - YellowChannelSeparation);
+        return (ushort)(paint.Red | green << 5 | blue << 10);
+    }
     private ushort TintHealthColor(int band, int color)
     {
-        ushort healthy = healthyColors[color];
+        ushort healthy = HealthyColor(color);
         int weight = MinimumTintWeight + band;
         int red = (31 * TintDenominator + ((healthy & 31) - 31) * weight) / TintDenominator;
         int green = ((healthy >> 5) & 31) * weight / TintDenominator;
@@ -82,10 +116,24 @@ public sealed class PhantoonColorCatalog
         return (ushort)(red | green << 5 | blue << 10);
     }
 
-    // These exact native words differ from the shared red-tint operation. Membership
-    // is required source content, not a computed rounding correction or exemption.
-    private static bool IsRequiredHealthChoice(int band, int color) => (band, color) is
-        (5, 6) or (6, 6) or (3, 7) or (5, 8) or (6, 8) or (6, 9) or (0, 10) or (0, 11);
+    private ushort RequiredHealthColor(int band, int color)
+    {
+        int value = TintHealthColor(band, color);
+        int key = (band * healthyPaint.Length + color) * 3;
+        for (int channel = 0; channel < 3; channel++)
+            if (requiredHealthChannels.TryGetValue(key + channel, out int required))
+            {
+                int shift = channel * 5;
+                value = (value & ~(31 << shift)) | required << shift;
+            }
+        return (ushort)value;
+    }
+
+    // Only these nine channel values differ from the red-tint operation. Their
+    // membership remains required content, not a rounding correction or exemption.
+    private static bool IsRequiredHealthChannel(int band, int color, int channel) => (band, color, channel) is
+        (5, 6, 2) or (6, 6, 1) or (3, 7, 2) or (5, 8, 1) or (6, 8, 2) or
+        (6, 9, 1) or (6, 9, 2) or (0, 10, 2) or (0, 11, 1);
     /// <summary>
     /// $A7:CA41..CA60, Palette_Phantoon_FadeOutTarget: $A7:DBB1 fades every
     /// body palette component to black. Independent supplied target edits override it.

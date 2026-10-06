@@ -1029,3 +1029,11 @@ Root Verification1450warnings/zero errors; existing --rinka-instruction-mechanic
 ## Narrow Phantoon random-bucket ordering review
 
 Root inspected exact native CD41/CD53/CD63 values and consumers D060-D06C,D07C-D088,D5A6-D5B2,D7E7-D7F3. Only the exact bucket ordering is approved authored random-choice content: indices are RNG&7 or first-round(NMI>>1)&3, not a progression through physical or animation phases. Fitting a numerical permutation would merely encode the same selected random policy. This does not exempt duration magnitudes,scale/ratios or timer semantics, and does not close any timer aggregate. Worker implementation and focused confirmation remain queued.
+
+## Integrated Phantoon channel sharing and timer decomposition
+
+Partial color conversion550706e4f,c31b70f91,72cb71cf7: sixteen healthy green channels share red/zero by body/eye role; eight blue channels use clamped subtractive yellow. Only nine differing channels remain from eight exceptional tint words. Twenty-four healthy channel inputs,nine tint deviations,grouping,separation7 and tint8/15 remain REQUIRED. Independent supplied edits stay exact; no artwork exemption.
+
+Partial timer conversion2b3803c2c separates shared duration scales from the exact CD41/CD53/CD63 random-bucket order. Only that opaque selection order has the previously reviewed nonsense justification; quantum15,scales4/2/6 and doubling2 remain REQUIRED. All three timer aggregates stay unchecked.
+
+Root build1,450warnings/0errors;144 native color words,432 independent channel edits,exact residual membership,zero stock overrides,hashes and bounds pass. Timer confirmation compares24native words,196608 actual RNG selections and256 NMI values,including timer writes,phase handoffs and RNG consumption without a cartridge bus. ResourceAudit0/0. Inventory unchanged570converted/21retained-mixed/537pending.

@@ -1,14 +1,75 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Phantoon's authored timer choices; callers retain their native RNG/frame masks.</summary>
+/// <summary>Phantoon timer magnitudes and independently chosen random-bucket policy.</summary>
 public static class PhantoonTimerDefinitions
 {
     /// <summary>$A7:CE2B, InitAI_PhantoonBody: Japan/USA initial flame countdown is 120 frames. PAL uses 96.</summary>
     public const ushort InitialFlameDelayFrames = 120;
-    /// <summary>$A7:CD41, Phantoon_Figure8_VulnerableWindowTimers: eight eye-open duration choices.</summary>
-    public static ReadOnlySpan<ushort> VulnerableWindow => [60, 30, 15, 30, 60, 30, 15, 60];
-    /// <summary>$A7:CD53, Phantoon_EyeClosedTimers: eight hidden-eye duration choices; first-round NMI selection uses only the first four.</summary>
-    public static ReadOnlySpan<ushort> EyeClosed => [720, 60, 360, 720, 360, 60, 360, 720];
-    /// <summary>$A7:CD63, Phantoon_FlameRain_HidingTimers: eight hidden delays before rain placement.</summary>
-    public static ReadOnlySpan<ushort> RainHiding => [60, 120, 30, 60, 30, 60, 30, 30];
+
+    private enum DurationChoice { Short, Medium, Long }
+    internal enum TimerKind { Vulnerable, EyeClosed, RainHiding }
+
+    // Narrow approved nonsense retention: RNG/frame buckets have no temporal or
+    // physical ordering. These exact permutations specify the random choice policy;
+    // inventing a function for them would only re-encode the same ordering. This does
+    // not exempt the independent duration quantum, scales or tier ratios below.
+    /// <summary>$A7:CD41, RNG&amp;7 at $A7:D060-D06C selects the vulnerable window.</summary>
+    private static readonly DurationChoice[] VulnerableChoices =
+        [DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Medium,
+         DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Long];
+    /// <summary>$A7:CD53, RNG&amp;7 at D07C-D088; (NMI&gt;&gt;1)&amp;3 at D5A6-D5B2 for the first round.</summary>
+    private static readonly DurationChoice[] EyeClosedChoices =
+        [DurationChoice.Long, DurationChoice.Short, DurationChoice.Medium, DurationChoice.Long,
+         DurationChoice.Medium, DurationChoice.Short, DurationChoice.Medium, DurationChoice.Long];
+    /// <summary>$A7:CD63, RNG&amp;7 at $A7:D7E7-D7F3 selects the rain hiding delay.</summary>
+    private static readonly DurationChoice[] RainHidingChoices =
+        [DurationChoice.Medium, DurationChoice.Long, DurationChoice.Short, DurationChoice.Medium,
+         DurationChoice.Short, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Short];
+
+    // REQUIRED: chosen base duration and scaling policy, separate from bucket order.
+    private const int QuantumFrames = 15;
+    private const int EyeShortScale = 4;
+    private const int RainShortScale = 2;
+    private const int EyeMediumScale = 6;
+    private const int TierDoubling = 2;
+
+    public static Schedule VulnerableWindow => new(TimerKind.Vulnerable);
+    public static Schedule EyeClosed => new(TimerKind.EyeClosed);
+    public static Schedule RainHiding => new(TimerKind.RainHiding);
+
+    public readonly struct Schedule : IReadOnlyList<ushort>
+    {
+        private readonly TimerKind kind;
+        internal Schedule(TimerKind kind) => this.kind = kind;
+        private DurationChoice[] Choices => kind switch
+        {
+            TimerKind.Vulnerable => VulnerableChoices,
+            TimerKind.EyeClosed => EyeClosedChoices,
+            TimerKind.RainHiding => RainHidingChoices,
+            _ => throw new InvalidOperationException(),
+        };
+        public int Count => Choices.Length;
+        public int Length => Count;
+        public ushort this[int index]
+        {
+            get
+            {
+                DurationChoice choice = Choices[index];
+                int shortest = QuantumFrames * (kind == TimerKind.EyeClosed ? EyeShortScale : kind == TimerKind.RainHiding ? RainShortScale : 1);
+                int medium = shortest * (kind == TimerKind.EyeClosed ? EyeMediumScale : TierDoubling);
+                return (ushort)(choice switch
+                {
+                    DurationChoice.Short => shortest,
+                    DurationChoice.Medium => medium,
+                    DurationChoice.Long => medium * TierDoubling,
+                    _ => throw new InvalidOperationException(),
+                });
+            }
+        }
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            for (int index = 0; index < Count; index++) yield return this[index];
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }

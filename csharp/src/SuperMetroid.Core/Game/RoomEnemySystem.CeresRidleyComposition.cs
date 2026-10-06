@@ -543,19 +543,16 @@ public sealed partial class RoomEnemySystem
             switch (word)
             {
                 case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_PlayCrySFXOrGotoX:
-                    // BabyMetroid_Instr_2 calls QueueSfx3_Max6($24) on every execution,
-                    // including the random branch that immediately jumps to another list.
-                    // Publish before reproducing that branch so its control flow cannot
-                    // accidentally suppress the chirp.
+                    // $A6:BFC9: while the baby is falling ($880C nonzero) it always cries and
+                    // continues. Otherwise it samples the live RNG word's low bit without
+                    // calling GenerateRandomNumber; a set bit jumps silently ($A6:BFD5).
+                    if (state.BabyVerticalVelocity == 0 && (_readRandomNumber!() & 1) != 0)
+                    {
+                        cursor = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument);
+                        break;
+                    }
                     QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x0024), maximumQueued: 6);
-                    // The native “moving” word is the same $8808 velocity accumulator
-                    // advanced by TickCeresBaby. While stationary, the cartridge RNG may
-                    // branch to the expressive palette-animation list with 50% probability.
-                    cursor = state.BabyVerticalVelocity != 0
-                        ? unchecked((ushort)(argument + 2))
-                        : (_nextRandom!() & 1) != 0
-                            ? CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument)
-                            : unchecked((ushort)(argument + 2));
+                    cursor = unchecked((ushort)(argument + 2));
                     break;
 
                 case CeresEnemyCodePointers.Instruction_BabyMetroidCutscene_UpdateColors:

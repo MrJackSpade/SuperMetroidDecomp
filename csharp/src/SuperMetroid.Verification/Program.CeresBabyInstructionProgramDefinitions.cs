@@ -65,10 +65,15 @@ internal static partial class Program
         enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionPointers.CeresRidley;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
+        // $A6:BFCF samples the live RNG word; it never calls GenerateRandomNumber.
         ushort random = 0;
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
+        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(
             enemies,
             (Func<ushort>)(() => random));
+        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
+            enemies,
+            (Func<ushort>)(() => throw new InvalidOperationException(
+                "The Ceres Baby draw instructions must not advance the RNG.")));
         var advance = typeof(RoomEnemySystem).GetMethod(
                 "AdvanceCeresBabyDrawInstruction", flags)!
             .CreateDelegate<Func<RidleyEnemyState, ushort>>(enemies);

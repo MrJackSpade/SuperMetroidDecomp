@@ -6,6 +6,55 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5PhantoonCollision(SuperMetroidAddressSpace rom)
+    {
+        int componentCount = 0;
+        var lists = new HashSet<ushort>();
+        foreach (EnemyBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        {
+            int root = 0xa70000 | frame.Pointer;
+            var components = PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer);
+            AssertEqual((int)ReadVerificationWord(rom, root), components.Count, "Native component extent");
+            for (int index = 0; index < components.Count; index++)
+            {
+                int record = root + 2 + index * 8;
+                PhantoonCollisionComponent component = components[index];
+                AssertEqual(unchecked((short)ReadVerificationWord(rom, record)), component.X, "Native component X");
+                AssertEqual(unchecked((short)ReadVerificationWord(rom, record + 2)), component.Y, "Native component Y");
+                AssertEqual(ReadVerificationWord(rom, record + 6), component.HitboxPointer, "Native collision identity");
+                componentCount++;
+                if (!lists.Add(component.HitboxPointer)) continue;
+                int address = 0xa70000 | component.HitboxPointer;
+                var hitboxes = PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer);
+                AssertEqual((int)ReadVerificationWord(rom, address), hitboxes.Count, "Native hitbox extent");
+                for (int hitbox = 0; hitbox < hitboxes.Count; hitbox++)
+                {
+                    int native = address + 2 + hitbox * 12;
+                    var expected = new PhantoonCollisionHitbox(unchecked((short)ReadVerificationWord(rom, native)),
+                        unchecked((short)ReadVerificationWord(rom, native + 2)), unchecked((short)ReadVerificationWord(rom, native + 4)),
+                        unchecked((short)ReadVerificationWord(rom, native + 6)), ReadVerificationWord(rom, native + 8), ReadVerificationWord(rom, native + 10));
+                    AssertEqual(expected, hitboxes[hitbox], "Native shape and callback pair");
+                }
+                AssertThrows<IndexOutOfRangeException>(() => _ = hitboxes[-1], "Hitbox lower bound");
+                AssertThrows<IndexOutOfRangeException>(() => _ = hitboxes[hitboxes.Count], "Hitbox upper bound");
+            }
+            AssertEqual(components.Count, components.ToArray().Length, "Component enumeration compatibility");
+            AssertThrows<IndexOutOfRangeException>(() => _ = components[components.Count], "Component upper bound");
+        }
+        AssertEqual(25, componentCount, "All native components");
+        AssertEqual(3, lists.Count, "All native hitbox lists");
+        AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null!, rom,
+            PhantoonBg2FrameDefinitions.BodyFullHitbox, 128, 128, true), "Actual full-body shot callback");
+        AssertEqual(PhantoonCollisionDefinitions.TouchAi, FindPhantoonHitboxCallback(null!, rom,
+            PhantoonBg2FrameDefinitions.BodyFullHitbox, 128, 128, false), "Actual full-body touch callback");
+        AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null!, rom,
+            PhantoonBg2FrameDefinitions.BodyEyeHitboxOnly, 128, 153, true), "Actual vulnerable eye callback");
+        AssertEqual((ushort)0, FindPhantoonHitboxCallback(null!, rom,
+            PhantoonBg2FrameDefinitions.BodyEyeHitboxOnly, 128, 128, true), "Eye-only frame excludes body collision");
+        AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.ComponentsAt(0), "Frame domain");
+        AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.HitboxesAt(0), "Hitbox domain");
+        Console.WriteLine("Phantoon collision: 22 native frames, 25 components, all seven rectangles/callbacks, actual full-body/eye selection and bounds pass.");
+    }
     private static void VerifyLookupStream5PhantoonFade(SuperMetroidAddressSpace rom)
     {
         byte[] bytes = SuperMetroid.AssetExtraction.PhantoonColorExtractor.Extract(rom);

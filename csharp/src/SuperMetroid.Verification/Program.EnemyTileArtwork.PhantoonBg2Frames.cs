@@ -144,7 +144,7 @@ internal static partial class Program
         foreach (EnemyBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
             int root = (PhantoonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
-            ReadOnlySpan<PhantoonCollisionComponent> components =
+            PhantoonCollisionDefinitions.ComponentSequence components =
                 PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer);
             AssertEqual(rom.ReadByte(root), (byte)components.Length,
                 $"Phantoon {frame.Name} compiled hitbox component count");
@@ -162,7 +162,7 @@ internal static partial class Program
                     continue;
                 int listAddress = (PhantoonBg2FrameDefinitions.Bank << 16) |
                     component.HitboxPointer;
-                ReadOnlySpan<PhantoonCollisionHitbox> hitboxes =
+                PhantoonCollisionDefinitions.HitboxSequence hitboxes =
                     PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer);
                 AssertEqual(ReadWord(listAddress), (ushort)hitboxes.Length,
                     $"Phantoon ${component.HitboxPointer:X4} rectangle count");

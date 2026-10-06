@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 544,
+  "remainingTableDefinitionCount": 538,
   "fileCount": 523,
   "entries": [
     {
@@ -5514,35 +5514,45 @@
       "line": 30,
       "name": "PhantoonCollisionDefinitions.Point",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c88d48df168a880e4906f8b374450d6bb595dc53"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs",
       "line": 31,
       "name": "PhantoonCollisionDefinitions.FullBody",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c88d48df168a880e4906f8b374450d6bb595dc53"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs",
       "line": 32,
       "name": "PhantoonCollisionDefinitions.EyeOnly",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c88d48df168a880e4906f8b374450d6bb595dc53"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs",
       "line": 34,
       "name": "PhantoonCollisionDefinitions.DoublePoint",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c88d48df168a880e4906f8b374450d6bb595dc53"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs",
       "line": 37,
       "name": "PhantoonCollisionDefinitions.PointHitboxes",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c88d48df168a880e4906f8b374450d6bb595dc53"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonCollisionDefinitions.cs",
@@ -5556,7 +5566,9 @@
       "line": 48,
       "name": "PhantoonCollisionDefinitions.EyeOnlyHitboxes",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "c88d48df168a880e4906f8b374450d6bb595dc53"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonInstructionProgramDefinitions.cs",
@@ -21490,6 +21502,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 563,
+  "convertedSinceSnapshot": 569,
   "justifiedRetainedSinceSnapshot": 21
 }

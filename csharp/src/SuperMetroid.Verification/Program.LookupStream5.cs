@@ -6,6 +6,71 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5CrocomireSharedPaint(SuperMetroidAddressSpace rom)
+    {
+        int[] sources = [CrocomirePaletteRomData.FightBodySource, CrocomirePaletteRomData.InitialWallSource,
+            CrocomirePaletteRomData.InitialProjectileSource, CrocomirePaletteRomData.SkeletonArmSource, CrocomirePaletteRomData.WallSpikesSource];
+        int[] counts = [8, 17, 17, 16, 16];
+        int[] destinations = [112, 160, 208, 144, 176];
+        string[] labels = ["fightBody", "initialWall", "initialProjectile", "skeletonArm", "wallSpikes"];
+        PaletteRgb5[][] bands = new PaletteRgb5[5][];
+        for (int band = 0; band < bands.Length; band++)
+        {
+            bands[band] = new PaletteRgb5[counts[band]];
+            for (int color = 0; color < counts[band]; color++)
+            {
+                ushort native = ReadVerificationWord(rom, sources[band] + color * 2);
+                bands[band][color] = new PaletteRgb5 { Red = native & 31, Green = native >> 5 & 31, Blue = native >> 10 & 31 };
+            }
+        }
+        CrocomireColorCatalog stock = Check();
+        var paint = (System.Collections.IDictionary)typeof(CrocomireColorCatalog).GetField("paint", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var edits = (System.Collections.IDictionary)typeof(CrocomireColorCatalog).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(61, paint.Count, "Only 61 required paint inputs remain after thirteen shared words");
+        AssertEqual(0, edits.Count, "Native sharing needs no unexplained override");
+        for (int band = 0; band < bands.Length; band++)
+            for (int color = 0; color < counts[band]; color++)
+            {
+                PaletteRgb5 original = bands[band][color];
+                for (int channel = 0; channel < 3; channel++)
+                {
+                    bands[band][color] = new PaletteRgb5 { Red = channel == 0 ? original.Red ^ 31 : original.Red,
+                        Green = channel == 1 ? original.Green ^ 31 : original.Green, Blue = channel == 2 ? original.Blue ^ 31 : original.Blue };
+                    _ = Check();
+                }
+                bands[band][color] = original;
+            }
+        Console.WriteLine("Crocomire shared paint: 74 native colors, 222 independent channel edits, 61 required seeds/zero stock overrides, actual CGRAM, hash and bounds pass.");
+
+        CrocomireColorCatalog Check()
+        {
+            var document = new CrocomireColorDocument { Version = 1, FightBody = bands[0], InitialWall = bands[1], InitialProjectile = bands[2], SkeletonArm = bands[3], WallSpikes = bands[4] };
+            var result = CrocomireColorCatalog.Load(new MemoryStream(CrocomireColorCatalog.Write(document)));
+            Func<int, ushort>[] resolve = [result.ResolveFightBody, result.ResolveInitialWall, result.ResolveInitialProjectile, result.ResolveSkeletonArm, result.ResolveWallSpikes];
+            var cgram = new SnesCgram(); result.ApplyInitial(cgram); result.ApplyFightBody(cgram); result.ApplySkeletonArm(cgram); result.ApplyWallSpikes(cgram);
+            string expectedHash = SelectedPresentationHash.Create("CrocomireColorCatalog-v1", content =>
+            {
+                for (int band = 0; band < bands.Length; band++)
+                {
+                    ushort[] words = new ushort[counts[band]];
+                    for (int color = 0; color < words.Length; color++)
+                    {
+                        PaletteRgb5 rgb = bands[band][color];
+                        words[color] = (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+                        AssertEqual(words[color], resolve[band](color), "Independent native/edit word");
+                        // Wall's overlapping destination176 is subsequently replaced by the spike transfer.
+                        if (band != 1 || color != 16) AssertEqual(words[color], cgram.Colors[destinations[band] + color], "Calculated paint reaches CGRAM");
+                    }
+                    content.AppendWords(labels[band], words);
+                    int selected = band;
+                    AssertThrows<ArgumentOutOfRangeException>(() => resolve[selected](-1), "Paint lower domain");
+                    AssertThrows<ArgumentOutOfRangeException>(() => resolve[selected](counts[selected]), "Paint upper domain");
+                }
+            });
+            AssertEqual(expectedHash, result.ContentIdentity, "Original five-band canonical hash framing");
+            return result;
+        }
+    }
     private static void VerifyLookupStream5CeresSourcePages()
     {
         CeresEscapeTileSheetDefinition[] tilePages = [new(0xb7da00, 0x900, "ceres-escape-warning-tiles.png"), new(0xb0ba00, 0x600, "ceres-escape-door-tiles.png")];

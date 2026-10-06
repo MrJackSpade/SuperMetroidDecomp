@@ -1060,3 +1060,8 @@ Root build1450warnings/0errors;8native boss slots,17destinations,extraction/sche
 ### Integrated Ceres source catalog cases (d1cef8ec3)
 
 Two descriptor arrays are replaced by named WarningText/Doors and Emergency/JapaneseFirst/Second/Third/Fourth cases. Root confirmed exact identities, ordered enumeration, range admission and bounds; the existing native DMA check passes 19 records, three terminators, both timer lists and Japanese overlay with descriptor reads blocked. Verification build 1452 warnings/0 errors, corrected command wiring incremental build 25/0; ResourceAudit 0/0. An initial missing CLI branch fell through to the unrelated default suite and is not confirmation evidence. Overlay words and character pixels remain required; no new retention. Master 595 converted /21 retained-mixed /512 pending.
+
+
+### Integrated Crocomire shared paint (3b42ed044)
+
+Native A4:B8BD wall slots2..6 repeat one color;B8FD skeleton slots2..6 repeat7..11 and share body1/7;two17-word initial transfers overlap next palette startsB8DD/B8FD. Thirteen repeated words derive from61required paint inputs with independently supplied differences. Root inspected pinned source and passed74native colors,222independent channel edits,exact61input basis/zero stock overrides,actual five-band CGRAM,original hash framing and bounds. Verification1452warnings/0errors;Audit0/0. All paint choices/group membership remain required;five entries unchecked;master595/21/512 unchanged.

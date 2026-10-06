@@ -20,7 +20,7 @@ internal static class BossColorClosedContractDefinitions
             "Load compiles complete start/retreat arrays, sixteen eye/body/alarm rows, three health rows and four baby rows before private construction. Legacy omissions inherit validated stock. Eye/body fade rows resolve exact RGB5 calculations with explicit required endpoints/deviations and independent edits. Alarm rows resolve from required forward colors and exact reflected aliases with independent edits; all Apply paths validate bounds and use installed data only."),
         new("SuperMetroid.Core.Assets.CrocomireColorCatalog", "crocomire-v1-complete-fixed-palettes",
             ["ApplyInitial", "ApplyFightBody", "ApplySkeletonArm", "ApplyWallSpikes"],
-            [new("csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs", "0E22E4568925289B92BE9F5545F2C76810A727C8003C3793B727AB7BD0F22066"),
+            [new("csharp/src/SuperMetroid.Core/Assets/CrocomireColorCatalog.cs", "0CE216FC6A1483BFFDCD09406BFE01E30431BBA524C608F0B47986589CDD5400"),
              new("csharp/src/SuperMetroid.Core/Game/CrocomirePaletteRomData.cs", "9BA574D8DEC750637921FEC4505D82889D26EC116C4D62FFD09C395F048D0DB2")],
             "Load requires complete fight/wall/projectile/skeleton-arm/spike color arrays before private construction. These four operations transfer fixed loaded arrays, not external identities."),
         new("SuperMetroid.Core.Assets.SporeSpawnColorCatalog", "spore-spawn-v1-complete-scene-palettes",

@@ -11,32 +11,69 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CrocomireColorCatalog
 {
-    /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
+    /// <summary>Canonical selected colors preserve the five native transfer labels/order.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("CrocomireColorCatalog-v1", content =>
-        {
-            content.AppendWords("fightBody", fightBody);
-            content.AppendWords("initialWall", initialWall);
-            content.AppendWords("initialProjectile", initialProjectile);
-            content.AppendWords("skeletonArm", skeletonArm);
-            content.AppendWords("wallSpikes", wallSpikes);
-        });
+    {
+        Append(content, Band.FightBody, "fightBody");
+        Append(content, Band.InitialWall, "initialWall");
+        Append(content, Band.InitialProjectile, "initialProjectile");
+        Append(content, Band.SkeletonArm, "skeletonArm");
+        Append(content, Band.WallSpikes, "wallSpikes");
+    });
 
-    private readonly ushort[] fightBody;
-    private readonly ushort[] initialWall;
-    private readonly ushort[] initialProjectile;
-    private readonly ushort[] skeletonArm;
-    private readonly ushort[] wallSpikes;
+    private enum Band { FightBody, InitialWall, InitialProjectile, SkeletonArm, WallSpikes }
+    // Remaining paint and selected sharing relationships are REQUIRED source inputs.
+    private readonly Dictionary<(Band Band, int Color), ushort> paint = [];
+    private readonly Dictionary<(Band Band, int Color), ushort> edits = [];
 
     private CrocomireColorCatalog(ushort[] fightBody, ushort[] initialWall,
         ushort[] initialProjectile, ushort[] skeletonArm, ushort[] wallSpikes)
     {
-        this.fightBody = fightBody;
-        this.initialWall = initialWall;
-        this.initialProjectile = initialProjectile;
-        this.skeletonArm = skeletonArm;
-        this.wallSpikes = wallSpikes;
+        ushort[][] supplied = [fightBody, initialWall, initialProjectile, skeletonArm, wallSpikes];
+        for (int band = 0; band < supplied.Length; band++)
+            for (int color = 0; color < supplied[band].Length; color++)
+            {
+                var source = SharedSource((Band)band, color);
+                paint.TryAdd(source, supplied[(int)source.Band][source.Color]);
+            }
+        for (int band = 0; band < supplied.Length; band++)
+            for (int color = 0; color < supplied[band].Length; color++)
+                if (supplied[band][color] != paint[SharedSource((Band)band, color)])
+                    edits.Add(((Band)band, color), supplied[band][color]);
     }
 
+    /// <summary>
+    /// $A4:B8BD wall slots2..6 share neutral paint; $B8FD skeleton slots2..6
+    /// repeat slots7..11 and share white/first bone paint with body $B89D.
+    /// Seventeen-word initial transfers overlap the next palette at $B8DD/$B8FD.
+    /// Supplied edits remain independent even across those native source overlaps.
+    /// </summary>
+    private static (Band Band, int Color) SharedSource(Band band, int color) => (band, color) switch
+    {
+        (Band.InitialWall, 16) => (Band.InitialProjectile, 0),
+        (Band.InitialProjectile, 16) => (Band.SkeletonArm, 0),
+        (Band.InitialWall, >= 3 and <= 6) => (Band.InitialWall, 2),
+        (Band.SkeletonArm, 1) => (Band.FightBody, 1),
+        (Band.SkeletonArm, 2 or 7) => (Band.FightBody, 7),
+        (Band.SkeletonArm, >= 3 and <= 6) => (Band.SkeletonArm, color + 5),
+        _ => (band, color),
+    };
+
+    private static int Count(Band band) => band switch
+    {
+        Band.FightBody => CrocomirePaletteRomData.FightBodyCount,
+        Band.InitialWall => CrocomirePaletteRomData.InitialWallCount,
+        Band.InitialProjectile => CrocomirePaletteRomData.InitialProjectileCount,
+        Band.SkeletonArm => CrocomirePaletteRomData.SkeletonArmCount,
+        _ => CrocomirePaletteRomData.WallSpikesCount,
+    };
+
+    private void Append(SelectedPresentationHash content, Band band, string label)
+    {
+        Span<ushort> transfer = stackalloc ushort[Count(band)];
+        for (int color = 0; color < transfer.Length; color++) transfer[color] = Get(band, color);
+        content.AppendWords(label, transfer);
+    }
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -44,27 +81,27 @@ public sealed class CrocomireColorCatalog
         WriteIndented = true,
     };
 
-    public ushort ResolveFightBody(int color) => Get(fightBody, color);
-    public ushort ResolveInitialWall(int color) => Get(initialWall, color);
-    public ushort ResolveInitialProjectile(int color) => Get(initialProjectile, color);
-    public ushort ResolveSkeletonArm(int color) => Get(skeletonArm, color);
-    public ushort ResolveWallSpikes(int color) => Get(wallSpikes, color);
+    public ushort ResolveFightBody(int color) => Get(Band.FightBody, color);
+    public ushort ResolveInitialWall(int color) => Get(Band.InitialWall, color);
+    public ushort ResolveInitialProjectile(int color) => Get(Band.InitialProjectile, color);
+    public ushort ResolveSkeletonArm(int color) => Get(Band.SkeletonArm, color);
+    public ushort ResolveWallSpikes(int color) => Get(Band.WallSpikes, color);
 
     public void ApplyInitial(SnesCgram cgram)
     {
-        Apply(cgram, initialWall, CrocomirePaletteRomData.InitialWallDestination);
-        Apply(cgram, initialProjectile,
+        Apply(cgram, Band.InitialWall, CrocomirePaletteRomData.InitialWallDestination);
+        Apply(cgram, Band.InitialProjectile,
             CrocomirePaletteRomData.InitialProjectileDestination);
     }
 
     public void ApplyFightBody(SnesCgram cgram) =>
-        Apply(cgram, fightBody, CrocomirePaletteRomData.FightBodyDestination);
+        Apply(cgram, Band.FightBody, CrocomirePaletteRomData.FightBodyDestination);
 
     public void ApplySkeletonArm(SnesCgram cgram) =>
-        Apply(cgram, skeletonArm, CrocomirePaletteRomData.SkeletonArmDestination);
+        Apply(cgram, Band.SkeletonArm, CrocomirePaletteRomData.SkeletonArmDestination);
 
     public void ApplyWallSpikes(SnesCgram cgram) =>
-        Apply(cgram, wallSpikes, CrocomirePaletteRomData.WallSpikesDestination);
+        Apply(cgram, Band.WallSpikes, CrocomirePaletteRomData.WallSpikesDestination);
 
     public static CrocomireColorCatalog Load(Stream json)
     {
@@ -102,20 +139,18 @@ public sealed class CrocomireColorCatalog
         return bytes;
     }
 
-    private static ushort Get(ushort[] colors, int index)
+    private ushort Get(Band band, int index)
     {
-        if ((uint)index >= colors.Length)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        return colors[index];
+        if ((uint)index >= Count(band)) throw new ArgumentOutOfRangeException(nameof(index));
+        return edits.TryGetValue((band, index), out ushort edited) ? edited : paint[SharedSource(band, index)];
     }
 
-    private static void Apply(SnesCgram cgram, ushort[] colors, int destination)
+    private void Apply(SnesCgram cgram, Band band, int destination)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        for (int color = 0; color < colors.Length; color++)
-            cgram.SetColor(destination + color, colors[color]);
+        for (int color = 0; color < Count(band); color++)
+            cgram.SetColor(destination + color, Get(band, color));
     }
-
     private static ushort[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)

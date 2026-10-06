@@ -58,6 +58,7 @@ if (args is ["--space-screw-fixture"]) { VerifySamusSpaceJumpAndScrewAttack(); r
 if (args is ["--arm-cannon-fixture"]) { VerifySamusArmCannon(); return 0; }
 if (args is ["--game-over-fixture"]) { VerifyGameOverRomData(); return 0; }
 if (args is ["--enemy-pointer-fixture"]) { VerifyEnemyRomTablePointerCatalog(); return 0; }
+if (args is ["--door-music-timing"]) { VerifyDoorMusicTiming(); return 0; }
 if (args is ["--collectible-message-timing"]) { VerifyCollectibleMessageTiming(); return 0; }
 if (args is ["--permanent-collectibles-fixture"]) { VerifyPermanentCollectibles(); return 0; }
 if (args is ["--enemy-art-fixtures"]) { VerifyGrappleGreenGateVisibility(); VerifyGrappleEnemyDeath(); VerifyDraygonTilemapProduction(); return 0; }
@@ -6004,6 +6005,7 @@ VerifyPauseReserveManual();
 VerifyPauseReserveArrow();
 VerifyPauseReserveTanks();
 VerifyPauseReserveHud();
+VerifyDoorMusicTiming();
 VerifyDoorAlignmentParity();
 VerifyDoorOpeningTrajectories();
 VerifyCreditsObjectInterpreter();

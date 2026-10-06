@@ -179,7 +179,17 @@ public sealed class DoorTransitionState
             case DoorTransitionPhase.WaitForMusicQueue:
                 runtime.RunBlankGameplayFrame(controllerInput);
                 if (!audio.HasQueuedMusic)
+                {
                     Phase = DoorTransitionPhase.HandleTransition;
+                    // $82:E670 calls LoadNewMusicTrackIfChanged here, before the
+                    // final Samus nudge and palette fade, not during room creation.
+                    if (!runtime.IsAttractDemo)
+                    {
+                        CartridgeRoomState state = runtime.ActiveRoom?.State
+                            ?? throw new InvalidOperationException("Door music requires the destination room.");
+                        audio.QueueRoomMusicTrack(state.MusicDataIndex, state.MusicTrackIndex);
+                    }
+                }
                 break;
 
             case DoorTransitionPhase.HandleTransition:

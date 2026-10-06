@@ -141,6 +141,19 @@ public sealed class CartridgeAudioState
     }
 
     /// <summary>
+    /// Executes $82:E0D5 after the door scroll and earlier music requests finish.
+    /// A zero room track inherits the current track; otherwise compare the native
+    /// data/track pair and preserve the track byte until bank-$80 dispatch masks it.
+    /// </summary>
+    internal void QueueRoomMusicTrack(byte dataIndex, byte trackIndex)
+    {
+        if (trackIndex != 0 && (dataIndex != MusicDataIndex || trackIndex != MusicTrackIndex))
+            QueueMusicDelayed(
+                MusicCommand.FromCartridge(trackIndex),
+                MusicCommandDelay.FromDelayedYArgument(6));
+    }
+
+    /// <summary>
     /// Queues only $82:E071's changed nonzero music data bank. Saved-game loading
     /// shares this operation but lets the appearance coroutine schedule its own tracks.
     /// </summary>

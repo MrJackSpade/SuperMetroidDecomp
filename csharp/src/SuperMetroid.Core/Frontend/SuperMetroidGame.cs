@@ -1114,7 +1114,12 @@ public sealed partial class SuperMetroidGame
         if (runtime?.ActiveRoom?.State is { } roomState &&
             roomState.Pointer != lastAudioRoomStatePointer)
         {
-            audio.QueueRoomMusic(roomState.MusicDataIndex, roomState.MusicTrackIndex);
+            // $82:E071 loads data during door setup. $82:E664 selects the track
+            // only after the opening scroll and this data queue have completed.
+            if (GameState == SuperMetroidGameState.LoadingNextRoomB)
+                audio.QueueRoomMusicData(roomState.MusicDataIndex);
+            else
+                audio.QueueRoomMusic(roomState.MusicDataIndex, roomState.MusicTrackIndex);
             lastAudioRoomStatePointer = roomState.Pointer;
         }
 

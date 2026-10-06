@@ -5,6 +5,63 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1DeathPixels(ISnesAddressSpace rom)
+    {
+        var pages = SamusSpecialSequenceRomData.Death.TileSegments;
+        int pageBytes = SamusSpecialSequenceRomData.Death.TileSegmentByteCount;
+        byte[] native = Enumerable.Range(0, SamusDeathTileAtlasFormat.TotalByteCount)
+            .Select(index => rom.ReadByte(pages[index / pageBytes].SourceAddress + index % pageBytes)).ToArray();
+        SamusDeathTileAtlas Create(byte[] planar)
+        {
+            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, 8, out int width, out int height);
+            using var png = new MemoryStream();
+            IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+            png.Position = 0;
+            return SamusDeathTileAtlas.Load(png);
+        }
+        var field = typeof(SamusDeathTileAtlas).GetField("sourceBytes",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        Dictionary<int, byte> Stored(SamusDeathTileAtlas art) => (Dictionary<int, byte>)field.GetValue(art)!;
+        void Check(SamusDeathTileAtlas art, byte[] expected)
+        {
+            for (int page = 0; page < pages.Count; page++)
+            {
+                AssertTrue(art.TryResolve(pages[page].SourceAddress, pageBytes, out var bytes), "Native death page resolved");
+                AssertTrue(bytes.Span.SequenceEqual(expected.AsSpan(page * pageBytes, pageBytes)), "Exact independent death page bytes");
+            }
+            AssertEqual(SelectedPresentationHash.Create(nameof(SamusDeathTileAtlas),
+                content => content.Append("death characters", expected)), art.ContentIdentity, "Exact pre-conversion death hash");
+        }
+        var stock = Create(native);
+        Check(stock, native);
+        AssertEqual(151 * 32, Stored(stock).Count, "Exact151 source tiles, no stock padding/repetition overrides");
+        var edits = new HashSet<int>();
+        for (int index = 0; index < native.Length; index++)
+        {
+            int source = SamusDeathTileAtlasFormat.SourceByte(index);
+            AssertEqual(native[index], source < 0 ? (byte)0 : native[source], "Direct native padding/patch relation");
+            AssertEqual(source == index, Stored(stock).ContainsKey(index), "Exact retained source-byte membership");
+            if (source != index) { edits.Add(index); if (source >= 0) edits.Add(source); }
+        }
+        foreach (int edit in edits)
+        {
+            byte[] changed = (byte[])native.Clone(); changed[edit] ^= 255;
+            Check(Create(changed), changed);
+        }
+        for (int page = 0; page < pages.Count; page++)
+        {
+            var queue = new VramWriteQueue();
+            queue.Enqueue((ushort)pageBytes, pages[page].SourceAddress, pages[page].EncodedVramDestination);
+            var actual = new SnesVram(); var expected = new SnesVram();
+            expected.ExecuteQueuedAssetWrite(native.AsSpan(page * pageBytes, pageBytes).ToArray(), pages[page].EncodedVramDestination);
+            queue.DrainTo(actual, ReferenceMutableMemory.From(rom), new DeathTileAssetProvider(stock));
+            AssertTrue(actual.Bytes.SequenceEqual(expected.Bytes), "Actual five-page NMI transport matches native");
+        }
+        AssertTrue(!stock.TryResolve(0, pageBytes, out _), "Unknown death source remains unresolved");
+        AssertThrows<InvalidDataException>(() => stock.TryResolve(pages[0].SourceAddress, pageBytes - 1, out _), "Exact death page size required");
+        Console.WriteLine($"Death atlas:5120 native bytes,151 exact source tiles,zero stock relation overrides,{edits.Count} independent source/derived-byte edits,canonical hashes and five actual uploads pass.");
+    }
+
     private static void VerifyLookupStream1EscapeDachoraCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

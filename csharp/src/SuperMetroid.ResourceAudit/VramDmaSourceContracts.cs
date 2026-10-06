@@ -32,7 +32,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "C6C4D17762C7CE15D198E75002EFA383250973B3C2AFF62D24A42A378D772FDA"),
              new("csharp/src/SuperMetroid.Core/Game/SamusComboMechanicsDefinitions.cs", "09B7001995AF8DD5373C1599A837379832D0257A24CF77B5BD249678B73355B8"),
              new("csharp/src/SuperMetroid.Core/Game/SamusComboRomData.cs", "EA65CD34CE62929EA176D6B3A840D90DFEB8D52A94C011ADF74E8C6EF3F41767"),
-        new("csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs", "DB2353AEFABDD5D94FE882436C3AC5AA287121FEEE8A152C31155B6612CB9028"),
+        new("csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs", "2FB8E3F4E15C6940576F46765485157A66592B5246DFA9AEB3E0D757A6E0E251"),
         new("csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileAtlas.cs", "7C527DA3902174D55EE9CB3FB305D49D8962E1F7A5B57453DD1956AA4113AA99"),
         new("csharp/src/SuperMetroid.Core/Assets/RoomFxAnimatedTileArtworkDefinitions.cs", "7847D7359C95EF6D00D5CB78E9D40F817AE9FF04D51FA3A5C919D78ECEA58E76"),
         new("csharp/src/SuperMetroid.Core/Assets/TourianStatueAnimatedTileArtworkDefinitions.cs", "697D7E7EBCF798075CF6FA5A891DCD9DF805092EE349CF8847705EDFFC790B03"),

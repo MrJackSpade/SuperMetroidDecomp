@@ -333,7 +333,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs
 
-- [ ] **SamusDeathTileAtlas.planar** ([L9](../csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs#L9)) - installed stock table. Original/default payload behind SamusDeathTileAtlas.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
+- [x] **SamusDeathTileAtlas.planar** ([L9](../csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs#L9)) - installed stock table. Original/default payload behind SamusDeathTileAtlas.planar. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.
 
 ### csharp/src/SuperMetroid.Core/Assets/SamusHurtColorCatalog.cs
 
@@ -1228,3 +1228,20 @@ SamusHurtColorCatalog.hurt and intro are MIXED COMPLETE. Totals190 wholly conver
 - Coordinator refreshes SamusHurtColorCatalog.cs and SamusHurtColorDefinitions.cs hashes in SamusColorClosedContractDefinitions.cs. No new transitive production dependency and no shared audit edit. Root SamusPaletteRomData remains untouched.
 
 Root integration: Root Verification1452existing warnings/0errors;Audit0/0;32native colors/15calculated levels/30relations,zero stock shade samples/overrides,96independent RGB edits and guarded ordinary/cinematic cycles pass. Master 600 converted/52 retained-mixed/476 pending.
+
+
+## Batch 96: complete bounded death-explosion bitmap
+
+SamusDeathTileAtlas.planar is MIXED COMPLETE. Totals190 wholly converted / twenty-three mixed /13 unchecked.
+
+- Pinned bank9B:8000 labels Tiles_SamusDeathSequence as an exact1400-byte binary image. The original entry is only5120 planar bytes/160 tiles, exported as64x160 indexed PNG in upload order. Native9B:B7BF/B7C9's five cyclic pages and destinations were already calculated; this change preserves their exact order and public transfer domain.
+- Source-only death-native-nine-phases.png renders every right/left phase from native OAM IDs081C..082D, all five uploaded pages, and actual per-phase palettes selected through9B:B823/B7D3/B80F. It shows selected suited rupture, human anatomy, hair and sparks. Late-phase whiteness substantially comes from palettes; no separate pixel drawing is attributed merely to a color change. Facing pairs already share tile identities with OAM Hflip.
+- Six blank allocation tiles at native tile indices72,83,91,105,146,151 (9B:8900/8A60/8B60/8D20/9240/92E0) now calculate zero. Three direct reused patches calculate from their original counterparts:123<-102 ($8F60<-$8CC0),132<-124 ($9080<-$8F80),157<-133 ($93A0<-$90A0). These are semantic same-position anatomy relationships confirmed in late native OAM: hair tip(6,-28) between phases6/7,outer arm(-10,-12) between6/8,and torso(-2,-12) between6/8. Exact source pixel inspection found no further whole nonblank direct/H/V/HV tile reuses; no generic runtime deduplication is introduced.
+- Late phases6/7/8 already reuse lower-body16x16tile120,foot tile153 and side tile148. Their different upper blocks101/133,138,141 and hair/arm pieces remain distinct selected pixels. Their existing sharing is not counted as newly removed content.
+- Root viewed the complete18phase image, original atlas and death-native-unreferenced-tiles.png. Three nonblank fragments114=$9B8E40,119=$9B8EE0,135=$9B90E0 are not referenced by those18 explosion maps, but remain exact bounded transferred/hash/PNG content. This does not declare them globally dead or invoke a memory-corruption exception.
+- Narrow retained content is151 source tiles (4832 planar bytes): exact chosen anatomical/hair/suit-rupture/spark contours and pen membership, including those three copied fragments and transparency within drawn tiles. Pose/timer/transport cannot select this particular human figure, shading and rupture drawing without re-embedding its design; geometric approximation would change the image. Root approved this specific bitmap content after the shared/reflected/late-phase review. No RGB, OAM, timing, physics or other-atlas exemption.
+- Runtime stores those source bytes plus independent supplied exceptions to blank/repeated regions. It reconstructs each original page and canonical hash on demand; no full replacement stock atlas table is cached. Independent PNG edits to a source patch preserve independently supplied repeated patches through explicit differences. Original schema/source/size rejection behavior remains.
+- Focused --lookup-stream-1-death-pixels confirms all5120 native bytes and direct source relations, exact151tile basis membership with zero stock relation overrides,384 independent edits across every blank/repeated/source byte, exact canonical hashes, all five actual NMI uploads and source/size rejection. Build1,219 warnings/zero errors and focused command pass. Final class comment is XML only.
+- Coordinator refreshes SamusDeathTileAtlas.cs in VramDmaSourceContracts.cs and records existing SamusSpecialSequenceRomData.cs page-layout dependency if absent. Search found no other direct source hash reference. Owned atlas/helper-format changes and own focused verifier only; no shared audit edits.
+
+Root integration: Root build1452 warnings/0 errors; ResourceAudit build0/0. Focused5120 native bytes,151 source tiles,zero stock relation overrides,384 independent edits,canonical hashes and five actual uploads passed. Master 600 converted/56 retained-mixed/472 pending.

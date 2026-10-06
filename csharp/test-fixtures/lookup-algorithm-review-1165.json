@@ -12036,4 +12036,13 @@
     "ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.Durations"
   ],
   "confirmation": "Root build1452 warnings/0 errors; focused foreground cadence passed35 native controls,16 decoded durations,144 actual CGRAM exposures, deletion/star handoff,read guard and bounds."
+},"deathAtlasWhole":{
+  "disposition": [
+    "Six blank tiles calculate zero; three semantically shared hair/arm/torso patches derive from source tiles. Retain only151 distinct selected anatomy,hair,suit-rupture and spark bitmap contours/pen memberships (4832 bytes), including three transferred fragments. Exact authored image cannot be reconstructed from pose/timing without re-embedding its design. No RGB,OAM,timing or other-atlas exception; independent PNG edits preserved."
+  ],
+  "completed": [
+    "SamusDeathTileAtlas.planar"
+  ],
+  "workerCommit": "c85cd57cd",
+  "confirmation": "Root build1452 warnings/0 errors; ResourceAudit build0/0. Focused5120 native bytes,151 source tiles,zero stock relation overrides,384 independent edits,canonical hashes and five actual uploads passed."
 }}

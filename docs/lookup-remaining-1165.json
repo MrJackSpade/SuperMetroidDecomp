@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 391,
+  "remainingTableDefinitionCount": 291,
   "fileCount": 523,
   "entries": [
     {
@@ -3400,7 +3400,10 @@
       "line": 25,
       "name": "ChozoStatueInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ChozoStatueInstructionProgramDefinitions.cs",
@@ -3537,14 +3540,20 @@
       "line": 300,
       "name": "CrocomireInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CrocomireInstructionProgramDefinitions.cs",
       "line": 745,
       "name": "CrocomireInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
   "file": "csharp/src/SuperMetroid.Core/Game/CrocomireRumbleDefinitions.cs",
@@ -3561,21 +3570,30 @@
       "line": 60,
       "name": "DachoraInstructionProgramDefinitions.Sources",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DachoraInstructionProgramDefinitions.cs",
       "line": 78,
       "name": "DachoraInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored DachoraInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored DachoraInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DachoraInstructionProgramDefinitions.cs",
       "line": 79,
       "name": "DachoraInstructionProgramDefinitions.PresentationWords",
       "kind": "factory-built stock table",
-      "note": "Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs",
@@ -3625,14 +3643,20 @@
       "line": 35,
       "name": "DeadSidehopperInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DeadSidehopperInstructionProgramDefinitions.cs",
       "line": 51,
       "name": "DeadSidehopperInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DeadSidehopperLaunchDefinitions.cs",
@@ -3653,7 +3677,10 @@
       "line": 23,
       "name": "DeadTorizoInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs",
@@ -3854,7 +3881,10 @@
       "line": 89,
       "name": "DraygonInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
   "file": "csharp/src/SuperMetroid.Core/Game/DraygonInstructionProgramDefinitions.cs",
@@ -3898,7 +3928,10 @@
       "line": 33,
       "name": "EnemyDeathInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EnemyDeathInstructionProgramDefinitions.cs",
@@ -4044,14 +4077,20 @@
       "line": 55,
       "name": "EtecoonInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EtecoonInstructionProgramDefinitions.cs",
       "line": 93,
       "name": "EtecoonInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EvirInstructionProgramDefinitions.cs",
@@ -4321,7 +4360,10 @@
       "line": 22,
       "name": "GoldenTorizoAwakeningInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningInstructionProgramDefinitions.cs",
@@ -4355,14 +4397,20 @@
       "line": 23,
       "name": "GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs",
       "line": 26,
       "name": "GoldenTorizoEyeBeamInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs",
@@ -4403,14 +4451,20 @@
       "line": 25,
       "name": "GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftFootOrbInstructionProgramDefinitions.cs",
       "line": 52,
       "name": "GoldenTorizoLeftFootOrbInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftOrbCollisionDefinitions.cs",
@@ -4431,28 +4485,40 @@
       "line": 19,
       "name": "GoldenTorizoLeftOrbInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftOrbInstructionProgramDefinitions.cs",
       "line": 69,
       "name": "GoldenTorizoLeftOrbInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftTurnInstructionProgramDefinitions.cs",
       "line": 29,
       "name": "GoldenTorizoLeftTurnInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftTurnInstructionProgramDefinitions.cs",
       "line": 44,
       "name": "GoldenTorizoLeftTurnInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightOrbCollisionDefinitions.cs",
@@ -4473,14 +4539,20 @@
       "line": 17,
       "name": "GoldenTorizoRightOrbInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightOrbInstructionProgramDefinitions.cs",
       "line": 44,
       "name": "GoldenTorizoRightOrbInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightSonicCollisionDefinitions.cs",
@@ -4501,14 +4573,20 @@
       "line": 18,
       "name": "GoldenTorizoRightSonicInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightSonicInstructionProgramDefinitions.cs",
       "line": 88,
       "name": "GoldenTorizoRightSonicInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardCollisionDefinitions.cs",
@@ -4536,35 +4614,50 @@
       "line": 18,
       "name": "GoldenTorizoRightwardInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardInstructionProgramDefinitions.cs",
       "line": 104,
       "name": "GoldenTorizoRightwardInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoStunnedInstructionProgramDefinitions.cs",
       "line": 26,
       "name": "GoldenTorizoStunnedInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoSuperMissileInstructionProgramDefinitions.cs",
       "line": 28,
       "name": "GoldenTorizoSuperMissileInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoSuperMissileInstructionProgramDefinitions.cs",
       "line": 77,
       "name": "GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
     "file":  "csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkDefinitions.cs",
@@ -4602,14 +4695,20 @@
       "line": 18,
       "name": "GoldenTorizoWalkingInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingInstructionProgramDefinitions.cs",
       "line": 92,
       "name": "GoldenTorizoWalkingInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/GrappleBodyPlacementDefinitions.cs",
@@ -4736,7 +4835,10 @@
       "line": 55,
       "name": "HopperInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/HopperInstructionProgramDefinitions.cs",
@@ -4815,7 +4917,10 @@
       "line": 24,
       "name": "KiHunterAcidSpitInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KiHunterAcidSpitInstructionProgramDefinitions.cs",
@@ -4831,14 +4936,20 @@
       "line": 41,
       "name": "KiHunterInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KiHunterInstructionProgramDefinitions.cs",
       "line": 95,
       "name": "KiHunterInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/KraidArmCollisionDefinitions.cs",
@@ -4931,7 +5042,10 @@
       "line": 31,
       "name": "LowerNorfairRioInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored LowerNorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored LowerNorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/LowerNorfairRioInstructionProgramDefinitions.cs",
@@ -4947,14 +5061,20 @@
       "line": 57,
       "name": "MagdolliteInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MagdolliteInstructionProgramDefinitions.cs",
       "line": 172,
       "name": "MagdolliteInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MagdolliteLavaInstructionProgramDefinitions.cs",
@@ -4988,7 +5108,10 @@
       "line": 43,
       "name": "MamaTurtleInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored MamaTurtleInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MamaTurtleInstructionProgramDefinitions.cs",
@@ -5052,14 +5175,20 @@
       "line": 42,
       "name": "MaridiaLargeSnailInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MaridiaLargeSnailInstructionProgramDefinitions.cs",
       "line": 101,
       "name": "MaridiaLargeSnailInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MetroidBehaviorDefinitions.cs",
@@ -5139,7 +5268,10 @@
       "line": 41,
       "name": "MorphBallEyeInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored MorphBallEyeInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored MorphBallEyeInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MorphBallEyeInstructionProgramDefinitions.cs",
@@ -5155,7 +5287,10 @@
       "line": 30,
       "name": "MotherBrainBabyInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainBabyInstructionProgramDefinitions.cs",
@@ -5337,14 +5472,20 @@
       "line": 26,
       "name": "MotherBrainHandBeamInstructionProgramDefinitions.Durations",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs",
       "line": 27,
       "name": "MotherBrainHandBeamInstructionProgramDefinitions.MechanicsWords",
       "kind": "factory-built stock table",
-      "note": "Stored EnemyProjectileMechanicsWordDefinition[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored EnemyProjectileMechanicsWordDefinition[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamInstructionProgramDefinitions.cs",
@@ -5508,14 +5649,20 @@
       "line": 27,
       "name": "MotherBrainTopTubeInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainTopTubeInstructionProgramDefinitions.cs",
       "line": 38,
       "name": "MotherBrainTopTubeInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainTurretDefinitions.cs",
@@ -5576,7 +5723,10 @@
       "line": 17,
       "name": "MultiviolaInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MultiviolaInstructionProgramDefinitions.cs",
@@ -5592,7 +5742,10 @@
       "line": 56,
       "name": "NinjaSpacePirateInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NinjaSpacePirateInstructionProgramDefinitions.cs",
@@ -5624,7 +5777,10 @@
       "line": 23,
       "name": "NoobTubeProjectileInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored NoobTubeProjectileInstructionMechanicsWord[] initialized by BuildWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored NoobTubeProjectileInstructionMechanicsWord[] initialized by BuildWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NoobTubeProjectileInstructionProgramDefinitions.cs",
@@ -5705,7 +5861,10 @@
       "line": 33,
       "name": "NorfairLavaJumperInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs",
@@ -5739,7 +5898,10 @@
       "line": 31,
       "name": "NorfairRioInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored NorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored NorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs",
@@ -5939,7 +6101,10 @@
       "line": 57,
       "name": "PhantoonInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonInstructionProgramDefinitions.cs",
@@ -5983,7 +6148,10 @@
       "line": 45,
       "name": "PhantoonProjectileInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PhantoonProjectileInstructionProgramDefinitions.cs",
@@ -6369,14 +6537,20 @@
       "line": 34,
       "name": "RidleyInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RidleyInstructionProgramDefinitions.cs",
       "line": 112,
       "name": "RidleyInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RidleyMovementTargets.cs",
@@ -6482,7 +6656,10 @@
       "line": 27,
       "name": "RinkaInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RinkaInstructionProgramDefinitions.cs",
@@ -6498,7 +6675,10 @@
       "line": 32,
       "name": "RioInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RioInstructionProgramDefinitions.cs",
@@ -7132,14 +7312,20 @@
       "line": 23,
       "name": "RoomSpriteObjectInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomSpriteObjectInstructionProgramDefinitions.cs",
       "line": 165,
       "name": "RoomSpriteObjectInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs",
@@ -8362,7 +8548,10 @@
       "line": 62,
       "name": "ShaktoolInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ShaktoolInstructionProgramDefinitions.cs",
@@ -8378,7 +8567,10 @@
       "line": 23,
       "name": "ShaktoolProjectileInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ShaktoolProjectileInstructionProgramDefinitions.cs",
@@ -8394,7 +8586,10 @@
       "line": 27,
       "name": "SharedCrawlerInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SharedCrawlerInstructionProgramDefinitions.cs",
@@ -8410,7 +8605,10 @@
       "line": 36,
       "name": "ShitroidInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ShitroidInstructionProgramDefinitions.cs",
@@ -8444,14 +8642,20 @@
       "line": 22,
       "name": "SkreeMetareeInstructionProgramDefinitions.MetareeWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SkreeMetareeInstructionProgramDefinitions.cs",
       "line": 36,
       "name": "SkreeMetareeInstructionProgramDefinitions.SkreeWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SkreeMetareeInstructionProgramDefinitions.cs",
@@ -8494,7 +8698,10 @@
       "line": 29,
       "name": "SkulteraInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SkulteraInstructionProgramDefinitions.cs",
@@ -8531,7 +8738,10 @@
       "line": 39,
       "name": "SpacePirateProjectileInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SpacePirateProjectileInstructionProgramDefinitions.cs",
@@ -8547,7 +8757,10 @@
       "line": 26,
       "name": "SparkInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SparkInstructionProgramDefinitions.cs",
@@ -8588,14 +8801,20 @@
       "line": 36,
       "name": "SporeSpawnInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SporeSpawnInstructionProgramDefinitions.cs",
       "line": 79,
       "name": "SporeSpawnInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileDefinitions.cs",
@@ -8627,7 +8846,10 @@
       "line": 25,
       "name": "SporeSpawnProjectileInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SporeSpawnProjectileInstructionProgramDefinitions.cs",
@@ -8643,7 +8865,10 @@
       "line": 23,
       "name": "StokeInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/StokeInstructionProgramDefinitions.cs",
@@ -8659,7 +8884,10 @@
       "line": 23,
       "name": "StokeProjectileInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/StokeProjectileInstructionProgramDefinitions.cs",
@@ -8735,7 +8963,10 @@
       "line": 28,
       "name": "TorizoExplosionInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs",
@@ -8783,56 +9014,80 @@
       "line": 30,
       "name": "TorizoFallingLeftInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoFallingLeftInstructionProgramDefinitions.cs",
       "line": 47,
       "name": "TorizoFallingLeftInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.BombLeft.cs",
       "line": 7,
       "name": "TorizoInstructionProgramDefinitions.BombLeft",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.BombRight.cs",
       "line": 7,
       "name": "TorizoInstructionProgramDefinitions.BombRight",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.cs",
       "line": 406,
       "name": "TorizoInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.GoldenLeft.cs",
       "line": 7,
       "name": "TorizoInstructionProgramDefinitions.GoldenLeft",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.GoldenRight.cs",
       "line": 7,
       "name": "TorizoInstructionProgramDefinitions.GoldenRight",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.Shared.cs",
       "line": 7,
       "name": "TorizoInstructionProgramDefinitions.Shared",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoInstructionVramTransferDefinitions.cs",
@@ -8860,14 +9115,20 @@
       "line": 18,
       "name": "TorizoJumpBackInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoJumpBackInstructionProgramDefinitions.cs",
       "line": 74,
       "name": "TorizoJumpBackInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoJumpBackLeftCollisionDefinitions.cs",
@@ -8888,42 +9149,60 @@
       "line": 15,
       "name": "TorizoJumpBackLeftInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoJumpBackLeftInstructionProgramDefinitions.cs",
       "line": 71,
       "name": "TorizoJumpBackLeftInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoLandingDustInstructionProgramDefinitions.cs",
       "line": 19,
       "name": "TorizoLandingDustInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoLandingDustInstructionProgramDefinitions.cs",
       "line": 39,
       "name": "TorizoLandingDustInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoSonicBoomInstructionProgramDefinitions.cs",
       "line": 30,
       "name": "TorizoSonicBoomInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoSonicBoomInstructionProgramDefinitions.cs",
       "line": 67,
       "name": "TorizoSonicBoomInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TourianEntranceStatueInstructionProgramDefinitions.cs",
@@ -8973,7 +9252,10 @@
       "line": 35,
       "name": "TourianStatueProjectileInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TourianStatueProjectileInstructionProgramDefinitions.cs",
@@ -9023,7 +9305,10 @@
       "line": 32,
       "name": "WalkingSpacePirateInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/WalkingSpacePirateInstructionProgramDefinitions.cs",
@@ -9039,14 +9324,20 @@
       "line": 32,
       "name": "WallSpacePirateInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/WallSpacePirateInstructionProgramDefinitions.cs",
       "line": 86,
       "name": "WallSpacePirateInstructionProgramDefinitions.PresentationWords",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Presentation slot addresses derive from the semantic InstructionProgramLayout item order; no stored address list. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/WaverAnimationDefinitions.cs",
@@ -9080,7 +9371,10 @@
       "line": 62,
       "name": "WorkRobotInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/WorkRobotLaserDefinitions.cs",
@@ -9141,7 +9435,10 @@
       "line": 47,
       "name": "YappingMawInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
-      "note": "Stored YappingMawInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored YappingMawInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/YappingMawInstructionProgramDefinitions.cs",
@@ -9175,7 +9472,10 @@
       "line": 95,
       "name": "YardInstructionProgramDefinitions.Words",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "15c0276119ffae5913f30b1d82b82697b8983f99",
+      "disposition": "Mixed: opcodes, operands, branch targets, entry checks and all word addresses are semantic (InstructionProgramLayout or the existing calculated program); only frame durations and named action/placement values remain as authored cadence, each documented on its owner. See docs/lookup-1165-instruction-programs.md."
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/YardTurnDefinitions.cs",
@@ -21900,6 +22200,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 609,
-  "justifiedRetainedSinceSnapshot": 128
+  "convertedSinceSnapshot": 635,
+  "justifiedRetainedSinceSnapshot": 202
 }

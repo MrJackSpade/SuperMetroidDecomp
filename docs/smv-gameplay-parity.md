@@ -243,11 +243,14 @@ independent replay passes the recorded source4322 instruction transition.
 Camera coverage now includes both fractional positions, imported once from the movie
 snapshot. It exposed door setup/loading clearing retained native fractions at update177.
 Door position writes now preserve them, including transfer to the new room scroll grid.
-The independent replay confirms both fractions through update6175. Previously checked
-integer/gameplay state reached6570; the newly compared fraction first differs at
-update6176/source6289, during airborne morph entry (native Y fraction7000 vs port5000).
-Native command seven writes the corrected previous-Y checkpoint; that missing pose
-handoff is the next investigation.
+The independent replay confirms the door fraction handoff. Native command seven
+($91:ED0E) also replaces Samus's previous whole-Y checkpoint after morph/unmorph
+alignment. Restoring that omitted write resolves the source6289 camera fraction
+mismatch. Focused checks cover both facings, current/previous fractions, one-time
+checkpoint consumption, and the zero-offset unmorph entry.
+All currently compared fields now match through update7650/10717. The next difference
+is update7651/source7764: Samus X fraction nativeFFFF vs portA000, and camera X fraction
+native3FFF vs portE000. This new boundary has not yet been diagnosed.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

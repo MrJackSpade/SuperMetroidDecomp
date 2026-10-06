@@ -137,6 +137,41 @@ internal static partial class Program
         Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
     }
 
+    private static void VerifyMorphCameraCheckpoint()
+    {
+        var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var level = CreateRoom(16, 32, new ushort[16 * 32], new byte[16 * 32]);
+        foreach (bool left in new[] { false, true })
+        {
+            var samus = new SamusState
+            {
+                Pose = left ? SamusPoseIds.FallingAimDownLeftPose : SamusPoseIds.FallingAimDownRightPose,
+                XPosition = 128, YPosition = 402,
+                EquippedItems = (ushort)SamusEquipmentFlags.MorphBall,
+            };
+            samus.Kinematics.YSubposition = 0x97ff;
+            samus.RefreshCollisionRadii(bus);
+            var previous = new SamusCameraPoint(128, 0, 401, 0xb7ff);
+            AssertTrue(samus.TryApplyMorphTransition(bus, level,
+                left ? SamusPoseIds.MorphingTransitionLeftPose : SamusPoseIds.MorphingTransitionRightPose, 0),
+                "source6289 airborne morph accepted");
+            AssertEqual((ushort)411, samus.YPosition, "native morph center alignment");
+            AssertEqual((ushort)0x97ff, samus.Kinematics.YSubposition, "morph preserves current fraction");
+            AssertEqual(previous with { YPosition = 411 }, samus.ApplyPoseCollisionCameraCheckpoint(previous),
+                "command seven replaces previous whole Y and retains previous fraction");
+            AssertEqual(previous, samus.ApplyPoseCollisionCameraCheckpoint(previous), "checkpoint consumed once");
+
+            samus.Pose = left ? SamusPoseIds.MorphBallFallingLeftPose : SamusPoseIds.MorphBallFallingRightPose;
+            samus.RefreshCollisionRadii(bus);
+            AssertTrue(samus.TryApplyMorphTransition(bus, level,
+                left ? SamusPoseIds.UnmorphingTransitionLeftPose : SamusPoseIds.UnmorphingTransitionRightPose, 0),
+                "unmorph command seven accepted");
+            AssertEqual(previous with { YPosition = samus.YPosition }, samus.ApplyPoseCollisionCameraCheckpoint(previous),
+                "zero alignment entry still replaces previous whole Y");
+        }
+        Console.WriteLine("Morph camera checkpoint: both facings, alignment, fractions, one-time consumption and unmorph pass.");
+    }
+
     private static void VerifyAimUpLandingAnimation()
     {
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

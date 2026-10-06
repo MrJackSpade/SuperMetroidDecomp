@@ -12065,4 +12065,13 @@
   "disposition": [
     "All48 eye colors calculate using warm three-shade paint: maximum RGB5 red,red step5,green24/14/7,blue0; common floor((channel*phase+1)/15) removes four former exceptional samples. Retain only exact categorical paint magnitudes/material assignment and shared numerator-bias policy. Body28 inputs,initial/explosion containers and cadence remain separate required entries."
   ]
+},"worldMapBackgroundWhole":{
+  "disposition": [
+    "Calculate4419 pixels via solid/room/guide/arrow/panel/wedge geometry,shared rows and digit outlines. Retain precisely1720 selected glyph/icon contour pixels,ten digit fill masks,five reviewed edge decisions,and named topology/pen/stroke policies for96 BG3 characters. Exact chosen font/icon design has no numeric basis; transfer and transparent-pen routing remain observable. No RGB,tilemap or foreground-art exemption."
+  ],
+  "completed": [
+    "WorldMapArtwork.background"
+  ],
+  "confirmation": "Root build1452 warnings/0 errors;6144 native pixels,4419 calculated outputs,1725 residual source pixels/10footprints,96 tile edits,all-pixel inversion,import bounds and actual full uploads passed. Source inspection found no direct ResourceAudit owner hash; MapScreen closure references unchanged format constants only.",
+  "workerCommit": "addcb77b0"
 }}

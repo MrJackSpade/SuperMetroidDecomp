@@ -5,6 +5,69 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1WorldBackground(ISnesAddressSpace rom)
+    {
+        byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => rom.ReadByte(address + i)).ToArray();
+        byte[] front = Read(WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes);
+        byte[] back = Read(WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes);
+        byte[] frontPixels = SnesGraphics.DecodePlanarTiles(front, 4, 16, out int width, out int frontHeight);
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(back, 2, 16, out _, out int backHeight);
+        byte[] Png(byte[] selected, int height, int colors)
+        {
+            using var png = new MemoryStream(); IndexedPng.Write(png, width, height, selected, SnesGraphics.DiagnosticPalette(colors));
+            return png.ToArray();
+        }
+        byte[] frontPng = Png(frontPixels, frontHeight, 16);
+        WorldMapArtwork Create(byte[] selected) => WorldMapArtwork.Load(new MemoryStream(frontPng), new MemoryStream(Png(selected, backHeight, 4)));
+        var field = typeof(WorldMapArtwork).GetField("background", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var stock = Create(pixels);
+        var stored = (Dictionary<int, byte>)field.GetValue(stock)!;
+        var masks = (Dictionary<int, ulong>)typeof(WorldMapArtwork).GetField("digitFill",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(10, masks.Count, "Exactly ten selected digit footprints");
+        ulong NativeMask(int tile)
+        {
+            ulong mask = 0;
+            for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++)
+                if (pixels[(tile / 16 * 8 + y) * width + tile % 16 * 8 + x] == 2) mask |= 1UL << (y * 8 + x);
+            return mask;
+        }
+        foreach (var pair in masks) AssertEqual(NativeMask(pair.Key), pair.Value, "Exact native selected footprint bits");
+        int calculated = 0;
+        for (int index = 0; index < pixels.Length; index++)
+        {
+            int x = index % width, y = index / width;
+            int tile = y / 8 * 16 + x / 8;
+            bool available = tile is >= 0x3c and <= 0x45
+                ? WorldMapTileDefinitions.TryOutlinedPixel(tile, x % 8, y % 8, NativeMask(tile), out byte value)
+                : WorldMapTileDefinitions.TryBackgroundPixel(tile, x % 8, y % 8, out value);
+            if (available) { AssertEqual(pixels[index], value, $"Native primitive tile{y / 8 * 16 + x / 8:X2} pixel{x % 8},{y % 8}"); calculated++; }
+            AssertEqual(!available, stored.ContainsKey(index), "Exact font/icon basis, no stock primitive overrides");
+        }
+        AssertEqual(1725, stored.Count, "Exact residual contour pixels plus five selected font edges");
+        void Check(WorldMapArtwork art, byte[] expected)
+        {
+            var vram = new SnesVram(); art.LoadTo(vram);
+            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormat.ForegroundDestination, front.Length).SequenceEqual(front), "Foreground obligation remains exact and separate");
+            AssertTrue(vram.Bytes.Slice(WorldMapArtworkFormat.BackgroundDestination, back.Length).SequenceEqual(
+                SnesPlanarTileEncoder.Encode(expected, width, backHeight, 2)), "Actual complete BG3 upload preserves independent pixels");
+        }
+        Check(stock, pixels);
+        for (int tile = 0; tile < 96; tile++)
+        {
+            byte[] edited = (byte[])pixels.Clone();
+            int index = (tile / 16 * 8 + tile / 8 % 8) * width + tile % 16 * 8 + tile % 8;
+            edited[index] ^= 3;
+            Check(Create(edited), edited);
+        }
+        Check(Create(pixels.Select(p => (byte)(p ^ 3)).ToArray()), pixels.Select(p => (byte)(p ^ 3)).ToArray());
+        byte[] invalid = (byte[])pixels.Clone(); invalid[0] = 4;
+        AssertThrows<InvalidDataException>(() => WorldMapArtwork.Load(new MemoryStream(frontPng),
+            new MemoryStream(Png(invalid, backHeight, 16))), "Invalid BG3 pen rejected during import, before upload");
+        AssertThrows<ArgumentOutOfRangeException>(() => WorldMapTileDefinitions.TryBackgroundPixel(96, 0, 0, out _), "Background tile bound");
+        Console.WriteLine($"World BG3:6144 native pixels,{calculated} geometry/mask defaults,{stored.Count} exact source pixels/10footprints,96 independent tile edits/all-pixel inversion and actual full uploads pass.");
+    }
+
     private static void VerifyLookupStream1DeathPixels(ISnesAddressSpace rom)
     {
         var pages = SamusSpecialSequenceRomData.Death.TileSegments;

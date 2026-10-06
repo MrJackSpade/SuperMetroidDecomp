@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 469,
+  "remainingTableDefinitionCount": 468,
   "fileCount": 523,
   "entries": [
     {
@@ -2352,12 +2352,15 @@
       "note": "Fixed values inside a method; not an array parameter/return declaration."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/WorldMapArtwork.cs",
-      "line": 8,
-      "name": "WorldMapArtwork.background",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind WorldMapArtwork.background. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/WorldMapArtwork.cs",
+  "line": 8,
+  "name": "WorldMapArtwork.background",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind WorldMapArtwork.background. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "addcb77b0",
+  "disposition": "Calculate4419 pixels via solid/room/guide/arrow/panel/wedge geometry,shared rows and digit outlines. Retain precisely1720 selected glyph/icon contour pixels,ten digit fill masks,five reviewed edge decisions,and named topology/pen/stroke policies for96 BG3 characters. Exact chosen font/icon design has no numeric basis; transfer and transparent-pen routing remain observable. No RGB,tilemap or foreground-art exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/WorldMapArtwork.cs",
       "line": 8,
@@ -21667,5 +21670,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 59
+  "justifiedRetainedSinceSnapshot": 60
 }

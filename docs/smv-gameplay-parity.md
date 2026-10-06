@@ -60,7 +60,7 @@ This is an end-to-end baseline, not proof that every gameplay owner is covered.
 | Samus position/fractions, camera position/fractions, pose/history, animation, primary speeds | Compared every retained interval | Control handlers, remaining movement flags and secondary motion state |
 | Health, reserves, equipment, collected inventory, ammunition and capacities | Complete replay passes these fields, fractional health, hurt/invincibility/knockback timers and directions, HUD selection/cancellation and X acceleration mode (`tide-owner-replay.log`) | Remaining combat/input ownership |
 | Enemy identity/position/health/instructions, Ridley phase/countdown and tail tip | Complete baseline passes | Full actor properties, timers, AI variables and seven-segment tail state |
-| Ordinary/enemy projectiles | Active identities, positions, radii, damage, shared cooldown and charge checked | Full motion/instruction/pre-instruction state, bombs and explosion owners |
+| Ordinary/enemy projectiles | Ordinary active-slot subpixels, velocities, directions, instruction cursors/timers, spritemaps, trail/auxiliary words also pass the full replay | Pre-instruction identity, enemy-projectile motion/instructions, bombs and explosion owners |
 | Persistent world state and room effects | Selected room plus acid damage surface/tide phase checked during gameplay | Boss/event/door/item bits, PLM changes, remaining environmental gameplay state |
 | Pause, presentation and audio behavior | Recorded gameplay transitions pass current fields | Explicit inventory of remaining state and observable output coverage |
 
@@ -355,3 +355,19 @@ The corrected ROM-backed tide fixture checks all phases for the existing four
 option combinations. The expanded independent replay passes all 10,717 updates,
 including health fractions, combat/HUD fields and gameplay acid surface/tide phase.
 This fixes that demonstrated discrepancy; the coverage audit above remains open.
+
+### Ordinary projectile state coverage
+
+The comparison now includes all active ordinary projectile subpixels, signed
+velocities, directions, instruction cursors/timers, spritemaps, trail timers,
+missile variables and auxiliary words. It reproduced a retained-word difference
+at update8484/source8598: a Super Missile companion had native trail timer2,
+while the port had cleared it. Native $90:ADB7 leaves $0C90 and $0CA4 intact;
+$90:BF46 allocation does not initialize those words. Individual deletion/allocation
+now preserves them, while full pool initialization retains its separate reset.
+The companion does not itself consume the trail timer; this is a verified state
+lifetime correction, not evidence of a player-visible missile defect.
+
+Release build and the independent input-only movie pass all10,717 updates with
+these additional checks (`projectile-retained-build.log` and
+`projectile-retained-replay.log`). The original movie remains unchanged.

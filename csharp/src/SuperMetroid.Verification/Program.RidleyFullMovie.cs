@@ -995,6 +995,17 @@ internal static partial class Program
                 Check(owner + " X radius", projectile.XRadius, RidleyMovieMemory.ProjectileXRadius + index);
                 Check(owner + " Y radius", projectile.YRadius, RidleyMovieMemory.ProjectileYRadius + index);
                 Check(owner + " damage", projectile.Damage, RidleyMovieMemory.ProjectileDamage + index);
+                Check(owner + " XFraction", unchecked((ushort)projectile.XSubposition), RidleyMovieMemory.ProjectileXFraction + index);
+                Check(owner + " YFraction", unchecked((ushort)projectile.YSubposition), RidleyMovieMemory.ProjectileYFraction + index);
+                Check(owner + " XVelocity", unchecked((ushort)projectile.XVelocity), RidleyMovieMemory.ProjectileXVelocity + index);
+                Check(owner + " YVelocity", unchecked((ushort)projectile.YVelocity), RidleyMovieMemory.ProjectileYVelocity + index);
+                Check(owner + " Direction", unchecked((ushort)projectile.Direction), RidleyMovieMemory.ProjectileDirection + index);
+                Check(owner + " Instruction", unchecked((ushort)projectile.InstructionPointer), RidleyMovieMemory.ProjectileInstruction + index);
+                Check(owner + " InstructionTimer", unchecked((ushort)projectile.InstructionTimer), RidleyMovieMemory.ProjectileInstructionTimer + index);
+                Check(owner + " Variable", unchecked((ushort)projectile.Variable), RidleyMovieMemory.ProjectileVariable + index);
+                Check(owner + " TrailTimer", unchecked((ushort)projectile.TrailTimer), RidleyMovieMemory.ProjectileTrailTimer + index);
+                Check(owner + " AuxiliaryPhase", unchecked((ushort)projectile.AuxiliaryPhase), RidleyMovieMemory.ProjectileAuxiliaryPhase + index);
+                Check(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), RidleyMovieMemory.ProjectileSpritemap + index);
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             foreach (var projectile in runtime.Enemies.EnemyProjectiles)

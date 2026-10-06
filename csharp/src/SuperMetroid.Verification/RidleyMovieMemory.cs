@@ -1,6 +1,28 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$0B8C: ordinary projectile XFraction, word-strided per slot.</summary>
+    public const int ProjectileXFraction = 0x0b8c;
+    /// <summary>$0BA0: ordinary projectile YFraction, word-strided per slot.</summary>
+    public const int ProjectileYFraction = 0x0ba0;
+    /// <summary>$0BDC: ordinary projectile XVelocity, word-strided per slot.</summary>
+    public const int ProjectileXVelocity = 0x0bdc;
+    /// <summary>$0BF0: ordinary projectile YVelocity, word-strided per slot.</summary>
+    public const int ProjectileYVelocity = 0x0bf0;
+    /// <summary>$0C04: ordinary projectile Direction, word-strided per slot.</summary>
+    public const int ProjectileDirection = 0x0c04;
+    /// <summary>$0C40: ordinary projectile Instruction, word-strided per slot.</summary>
+    public const int ProjectileInstruction = 0x0c40;
+    /// <summary>$0C54: ordinary projectile InstructionTimer, word-strided per slot.</summary>
+    public const int ProjectileInstructionTimer = 0x0c54;
+    /// <summary>$0C7C: ordinary projectile Variable, word-strided per slot.</summary>
+    public const int ProjectileVariable = 0x0c7c;
+    /// <summary>$0C90: ordinary projectile TrailTimer, word-strided per slot.</summary>
+    public const int ProjectileTrailTimer = 0x0c90;
+    /// <summary>$0CA4: ordinary projectile AuxiliaryPhase, word-strided per slot.</summary>
+    public const int ProjectileAuxiliaryPhase = 0x0ca4;
+    /// <summary>$0CB8: ordinary projectile Spritemap, word-strided per slot.</summary>
+    public const int ProjectileSpritemap = 0x0cb8;
     /// <summary>$1962: lava_acid_y_pos, the collision/damage surface.</summary>
     public const int AcidSurface = 0x1962;
     /// <summary>$1970: fx_y_suboffset, low word of the tidal displacement.</summary>

@@ -73,8 +73,8 @@ internal static partial class Program
             if (game.GameState == SuperMetroidGameState.MainGameplay && trackFrame >= 0) break;
         }
         AssertEqual((ushort)0x91f8, runtime.ActiveRoom!.Pointer, "transition reaches Landing Site");
-        AssertTrue(uploadFrame >= 0 && uploadFrame < musicWaitFrame, "native music data uploads during opening scroll");
-        AssertEqual(musicWaitFrame + 8, trackFrame, "native delayed-Y(6) is clamped to eight frames after music wait");
+        AssertEqual(musicWaitFrame + 15, uploadFrame, "stop and upload delays advance on outer dispatches after scrolling");
+        AssertEqual(uploadFrame + 9, trackFrame, "track queued after upload is acquired on the next prologue, then waits eight dispatches");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "music transition resumes gameplay");
         AssertEqual((byte)6, audio.MusicDataIndex, "destination music bank is active");
         audio.QueueRoomMusicTrack(6, 5);
@@ -85,6 +85,6 @@ internal static partial class Program
         var stopCommands = new List<CartridgeAudioCommand>();
         for (int frame = 0; frame < 9; frame++) stopCommands.AddRange(audio.AdvanceFrame(bus, default));
         AssertTrue(stopCommands.Contains(CartridgeAudioCommand.WritePort(0, 0)), "nonzero masked track-zero remains an explicit stop");
-        Console.WriteLine("  Door music: data upload during scroll; track request after scroll, eight-frame delay, and gameplay resume agree.");
+        Console.WriteLine("  Door music: IRQ-only waits preserve queued delays; post-scroll stop/upload and track dispatch timing agree.");
     }
 }

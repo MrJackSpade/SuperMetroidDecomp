@@ -250,6 +250,16 @@ public sealed partial class SuperMetroidGame
         // another serialized flag that could disagree with the coroutine phase.
         audio.DoorTransitionSoundsDisabled = GameState == SuperMetroidGameState.LoadingNextRoomB;
         bool messageWasActive = runtime?.MessageBox.IsActive == true;
+        bool doorAudioDispatch = GameState is SuperMetroidGameState.HitDoorBlock or
+            SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB;
+        DoorTransitionPhase startingDoorPhase = doorTransition.Phase;
+        // Music runs in the outer loop prologue; sound handlers run after its
+        // coroutine returns. An accepted IRQ/NMI alone runs neither handler.
+        bool doorMusicDispatch = doorAudioDispatch &&
+            (GameState != SuperMetroidGameState.LoadingNextRoomB ||
+             startingDoorPhase is not (DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading));
+        IReadOnlyList<CartridgeAudioCommand> doorMusicCommands = doorMusicDispatch
+            ? audio.AdvanceMusicDispatch() : Array.Empty<CartridgeAudioCommand>();
         var gameplayAudio = new GameplayAudioFramePublication(audio);
         FrameNumber++;
         AdvanceMenuRandom();
@@ -1085,7 +1095,13 @@ public sealed partial class SuperMetroidGame
         // entry and must not inject a new command merely because the host resumed.
         if (!messageWasActive && runtime?.MessageBox.IsActive == true)
             audio.QueueCancelSoundEffects();
-        lastAudioCommands = audio.AdvanceFrame(bus, audioAcknowledgements);
+        IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = audio.AdvanceFrame(
+            bus, audioAcknowledgements,
+            advanceMusicQueue: !doorAudioDispatch,
+            advanceSoundEffects: !doorAudioDispatch ||
+                startingDoorPhase is not (DoorTransitionPhase.LoadMoreThingsAndOpenDoor or DoorTransitionPhase.WaitForDoorOpeningScroll));
+        lastAudioCommands = doorMusicCommands.Count == 0 ? trailingAudioCommands
+            : [.. doorMusicCommands, .. trailingAudioCommands];
         return CurrentFrame;
     }
 

@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -29,85 +31,13 @@ internal static class MotherBrainBodyInstructionProgramDefinitions
             $"Mother Brain initial dummy visual operand $A9:{address:X4} is not compiled.");
 
     /// <summary>
-    /// Selects the fixed extended spritemap following one timed body frame in
-    /// $A9:9730-$9A43 or the initial dummy at $A9:9C15. Repeated walk speeds
-    /// change only frame durations, not the authored visual sequence.
+    /// Selects the compiled extended spritemap following one timed body frame in
+    /// $A9:9730-$9A43 or the initial dummy at $A9:9C15. Repeated walk speeds share the
+    /// same named drawing sequence; only their frame durations differ.
     /// </summary>
-    internal static ushort ReadVisualSelector(ushort address)
-    {
-        if (address == InitialDummyVisualOperand)
-            return InitialDummyVisualFrame;
-
-        if (TryWalkFrame(address, ForwardWalkReallyFast, forward: true, out ushort frame) ||
-            TryWalkFrame(address, BackwardWalkSlow, forward: false, out frame))
-            return frame;
-
-        int offset = address - CrouchAndThenStandUp;
-        if ((uint)offset <= 0x30)
-        {
-            return offset switch
-            {
-                0x04 or 0x30 => 0x9fa0,
-                0x0a or 0x2a => 0xa2d6,
-                0x10 or 0x24 => 0xa28c,
-                0x18 or 0x1c => 0xa252,
-                _ => throw UnknownVisual(address),
-            };
-        }
-
-        if (TryStandFrame(address, StandAfterCrouchSlow, out frame) ||
-            TryStandFrame(address, StandAfterCrouchFast, out frame))
-            return frame;
-
-        return address switch
-        {
-            0x99e6 or 0x99fe or 0x9a14 or 0x9a30 => 0xa2d6,
-            0x99ec or 0x99f6 or 0x9a0e or 0x9a2a => 0x9fa0,
-            0x9a06 or 0x9a22 or 0x9a3e => 0xa252,
-            0x9a1a or 0x9a36 => 0xa28c,
-            _ => throw UnknownVisual(address),
-        };
-    }
-
-    private static bool TryWalkFrame(ushort address, ushort first, bool forward,
-        out ushort frame)
-    {
-        int delta = address - first;
-        if ((uint)delta >= 5 * 0x3a)
-        {
-            frame = 0;
-            return false;
-        }
-        int within = delta % 0x3a;
-        int index = within switch
-        {
-            0x04 => 0, 0x0a => 1, 0x10 => 2, 0x16 => 3, 0x1c => 4,
-            0x22 => 5, 0x28 => 6, 0x2e => 7, 0x36 => 8,
-            _ => -1,
-        };
-        if (index < 0)
-        {
-            frame = 0;
-            return false;
-        }
-        ReadOnlySpan<ushort> frames =
-            [0x9fa0, 0x9fea, 0xa03c, 0xa08e, 0xa0e0, 0xa12a, 0xa174, 0xa1be, 0xa208];
-        frame = frames[forward ? index : 8 - index];
-        return true;
-    }
-
-    private static bool TryStandFrame(ushort address, ushort start, out ushort frame)
-    {
-        frame = (address - start) switch
-        {
-            0x04 => 0xa252,
-            0x0a => 0xa28c,
-            0x10 => 0xa2d6,
-            0x16 => 0x9fa0,
-            _ => 0,
-        };
-        return frame != 0;
-    }
+    internal static ushort ReadVisualSelector(ushort address) =>
+        Layout.IsPresentationWord(address) && Layout.TryReadWord(address, out ushort frame)
+            ? frame : throw UnknownVisual(address);
 
     private static InvalidDataException UnknownVisual(ushort address) => new(
         $"Mother Brain body visual operand $A9:{address:X4} is not compiled.");
@@ -142,242 +72,376 @@ internal static class MotherBrainBodyInstructionProgramDefinitions
     /// <summary>$A9:9A26, InstList_MotherBrainBody_Crouch_Fast.</summary>
     private const ushort CrouchFast = 0x9a26;
 
-    private static readonly MotherBrainBodyInstructionMechanicsWord[] Words = CreateWords();
+    /// <summary>Native program bank $A9.</summary>
+    internal const byte Bank = 0xa9;
 
-    /// <summary>All compiled addresses, exposed internally for cartridge-equivalence tests.</summary>
-    internal static IReadOnlyList<MotherBrainBodyInstructionMechanicsWord> AllWords => Words;
+    /// <summary><c>InstList_MotherBrainBody_WalkingForwards_Fast</c> at $A9:976A.</summary>
+    private const ushort InstList_MotherBrainBody_WalkingForwards_Fast = 0x976a;
+    /// <summary><c>InstList_MotherBrainBody_WalkingForwards_Medium</c> at $A9:97A4.</summary>
+    private const ushort InstList_MotherBrainBody_WalkingForwards_Medium = 0x97a4;
+    /// <summary><c>InstList_MotherBrainBody_WalkingForwards_Slow</c> at $A9:97DE.</summary>
+    private const ushort InstList_MotherBrainBody_WalkingForwards_Slow = 0x97de;
+    /// <summary><c>InstList_MotherBrainBody_WalkingForwards_ReallySlow</c> at $A9:9818.</summary>
+    private const ushort InstList_MotherBrainBody_WalkingForwards_ReallySlow = 0x9818;
+    /// <summary><c>InstList_MotherBrainBody_WalkingBackwards_ReallyFast</c> at $A9:988C.</summary>
+    private const ushort InstList_MotherBrainBody_WalkingBackwards_ReallyFast = 0x988c;
+    /// <summary><c>InstList_MotherBrainBody_WalkingBackwards_Fast</c> at $A9:98C6.</summary>
+    private const ushort InstList_MotherBrainBody_WalkingBackwards_Fast = 0x98c6;
+    /// <summary><c>InstList_MotherBrainBody_WalkingBackwards_Medium</c> at $A9:9900.</summary>
+    private const ushort InstList_MotherBrainBody_WalkingBackwards_Medium = 0x9900;
+    /// <summary><c>InstList_MotherBrainBody_WalkingBackwards_ReallySlow</c> at $A9:993A.</summary>
+    private const ushort InstList_MotherBrainBody_WalkingBackwards_ReallySlow = 0x993a;
+    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Standing</c> at $A9:9FA0.</summary>
+    private const ushort ExtendedSpritemap_MotherBrainBody_Standing = 0x9fa0;
+    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_0</c> at $A9:9FEA.</summary>
+    private const ushort ExtendedSpritemap_MotherBrainBody_Walking_0 = 0x9fea;
+    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_1</c> at $A9:A03C.</summary>
+    private const ushort ExtendedSpritemap_MotherBrainBody_Walking_1 = 0xa03c;
+    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_2</c> at $A9:A08E.</summary>
+    private const ushort ExtendedSpritemap_MotherBrainBody_Walking_2 = 0xa08e;
+    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_3</c> at $A9:A0E0.</summary>
+    private const ushort ExtendedSpritemap_MotherBrainBody_Walking_3 = 0xa0e0;
+    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_4</c> at $A9:A12A.</summary>
+    private const ushort ExtendedSpritemap_MotherBrainBody_Walking_4 = 0xa12a;
+    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_5</c> at $A9:A174.</summary>
+    private const ushort ExtendedSpritemap_MotherBrainBody_Walking_5 = 0xa174;
+    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_6</c> at $A9:A1BE.</summary>
+    private const ushort ExtendedSpritemap_MotherBrainBody_Walking_6 = 0xa1be;
+    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Walking_7</c> at $A9:A208.</summary>
+    private const ushort ExtendedSpritemap_MotherBrainBody_Walking_7 = 0xa208;
+    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Crouched</c> at $A9:A252.</summary>
+    private const ushort ExtendedSpritemap_MotherBrainBody_Crouched = 0xa252;
+    /// <summary><c>ExtendedSpritemap_MotherBrainBody_Uncrouching</c> at $A9:A28C.</summary>
+    private const ushort ExtendedSpritemap_MotherBrainBody_Uncrouching = 0xa28c;
+    /// <summary><c>ExtendedSpritemap_MotherBrainBody_LeaningDown</c> at $A9:A2D6.</summary>
+    private const ushort ExtendedSpritemap_MotherBrainBody_LeaningDown = 0xa2d6;
+
+    /// <summary>
+    /// Body programs in native order: named pose and movement instructions, frames with their
+    /// compiled extended-spritemap identity, and sleep terminators. Durations are authored walk,
+    /// crouch and stand cadence (reviewed under #1165); speed variants differ only in them.
+    /// </summary>
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0x9730),
+        Entry(ForwardWalkReallyFast),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_ScrollRightBy1),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_0),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyRightBy2),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_1),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1_RightBy3_Footstep),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_3),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy15),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_4),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy6),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_5),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy2),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_6),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_7),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(InstList_MotherBrainBody_WalkingForwards_Fast),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_ScrollRightBy1),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_0),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyRightBy2),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_1),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1_RightBy3_Footstep),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_3),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy15),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_4),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy6),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_5),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy2),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_6),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_7),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(InstList_MotherBrainBody_WalkingForwards_Medium),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_ScrollRightBy1),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_0),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyRightBy2),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_1),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1_RightBy3_Footstep),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_3),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy15),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_4),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy6),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_5),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy2),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_6),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_7),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(InstList_MotherBrainBody_WalkingForwards_Slow),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_ScrollRightBy1),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_0),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyRightBy2),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_1),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1_RightBy3_Footstep),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_3),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy15),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_4),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy6),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_5),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy2),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_6),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_7),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(InstList_MotherBrainBody_WalkingForwards_ReallySlow),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_ScrollRightBy1),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_0),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyRightBy2),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_1),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1_RightBy3_Footstep),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_3),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy15),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_4),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy6),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_5),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy2),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_6),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_7),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(BackwardWalkSlow),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_7),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy1),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_6),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy2),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_5),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy6),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_4),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy15_Footstep),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_3),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1_LeftBy3),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_1),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyLeftBy2),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Walking_0),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep_d),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(InstList_MotherBrainBody_WalkingBackwards_ReallyFast),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_7),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy1),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_6),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy2),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_5),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy6),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_4),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy15_Footstep),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_3),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1_LeftBy3),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_1),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyLeftBy2),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Walking_0),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep_d),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(InstList_MotherBrainBody_WalkingBackwards_Fast),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_7),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy1),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_6),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy2),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_5),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy6),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_4),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy15_Footstep),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_3),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1_LeftBy3),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_1),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyLeftBy2),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Walking_0),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep_d),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Frame(4, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(InstList_MotherBrainBody_WalkingBackwards_Medium),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_7),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy1),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_6),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy2),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_5),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy6),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_4),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy15_Footstep),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_3),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1_LeftBy3),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_1),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyLeftBy2),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Walking_0),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep_d),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Frame(6, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(InstList_MotherBrainBody_WalkingBackwards_ReallySlow),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_7),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy1),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_6),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy2),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_5),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy6),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_4),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy15_Footstep),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_3),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1_LeftBy3),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_1),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyLeftBy2),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Walking_0),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep_d),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Frame(10, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(CrouchAndThenStandUp),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy12_ScrollLeftBy4),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_LeaningDown),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy16_ScrollRightBy2),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Uncrouching),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy10_ScrollRightBy2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouching),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Crouched),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Crouched),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy10_ScrollLeftBy4),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Uncrouching),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy16_ScrollLeftBy4),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_LeaningDown),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy12_ScrollRightBy2),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(StandAfterCrouchSlow),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition),
+        Frame(16, ExtendedSpritemap_MotherBrainBody_Crouched),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy10_ScrollLeftBy4),
+        Frame(16, ExtendedSpritemap_MotherBrainBody_Uncrouching),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy16_ScrollLeftBy4),
+        Frame(16, ExtendedSpritemap_MotherBrainBody_LeaningDown),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy12_ScrollRightBy2),
+        Frame(16, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(StandAfterCrouchFast),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Crouched),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy10_ScrollLeftBy4),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Uncrouching),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy16_ScrollLeftBy4),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_LeaningDown),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy12_ScrollRightBy2),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(StandAfterLeaning),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_LeaningDown),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy12_ScrollRightBy2),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(LeanDown),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy12_ScrollLeftBy4),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToLeaningDown),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_LeaningDown),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(Crouched),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouching),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Crouched),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(CrouchSlow),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy12_ScrollLeftBy4),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_LeaningDown),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy16_ScrollRightBy2),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Uncrouching),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy10_ScrollRightBy2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouching),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Crouched),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(CrouchFast),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Standing),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy12_ScrollLeftBy4),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_LeaningDown),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy16_ScrollRightBy2),
+        Frame(2, ExtendedSpritemap_MotherBrainBody_Uncrouching),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy10_ScrollRightBy2),
+        Op(MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouching),
+        Frame(8, ExtendedSpritemap_MotherBrainBody_Crouched),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Origin(0x9c13),
+        Entry(InitialDummy),
+        Frame(0, InitialDummyVisualFrame),
+        Op(CommonEnemyInstructionCodes.Sleep));
+
+    /// <summary>All compiled mechanics words in address order, for cartridge-equivalence tests.</summary>
+    internal static IReadOnlyList<MotherBrainBodyInstructionMechanicsWord> AllWords =>
+        Enumerable.Range(0, Layout.MechanicsWordCount).Select(index =>
+        {
+            (ushort address, ushort value) = Layout.MechanicsWord(index);
+            return new MotherBrainBodyInstructionMechanicsWord(address, value);
+        }).ToArray();
 
     /// <summary>
     /// Looks up a mechanics word while returning false for interleaved spritemap words and
     /// for instruction streams outside the translated body-program family.
     /// </summary>
-    internal static bool TryGetWord(ushort address, out ushort word)
-    {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            MotherBrainBodyInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-            {
-                word = candidate.Word;
-                return true;
-            }
-
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        word = 0;
-        return false;
-    }
+    internal static bool TryGetWord(ushort address, out ushort word) =>
+        Layout.TryReadMechanicsWord(address, out word);
 
     /// <summary>
     /// Reads one compiled mechanics word and rejects presentation or foreign addresses.
     /// </summary>
-    internal static ushort ReadMechanicsWord(ushort address)
-    {
-        if (TryGetWord(address, out ushort word))
-            return word;
-
-        throw new InvalidDataException(
-            $"Mother Brain body instruction mechanics pointer $A9:{address:X4} is not compiled.");
-    }
-
-    private static MotherBrainBodyInstructionMechanicsWord[] CreateWords()
-    {
-        var words = new List<MotherBrainBodyInstructionMechanicsWord>();
-
-        AddForwardWalk(words, ForwardWalkReallyFast + 0x00, 2);
-        AddForwardWalk(words, ForwardWalkReallyFast + 0x3a, 4);
-        AddForwardWalk(words, ForwardWalkReallyFast + 0x74, 6);
-        AddForwardWalk(words, ForwardWalkReallyFast + 0xae, 8);
-        AddForwardWalk(words, ForwardWalkReallyFast + 0xe8, 10);
-
-        AddBackwardWalk(words, BackwardWalkSlow + 0x00, 8);
-        AddBackwardWalk(words, BackwardWalkSlow + 0x3a, 2);
-        AddBackwardWalk(words, BackwardWalkSlow + 0x74, 4);
-        AddBackwardWalk(words, BackwardWalkSlow + 0xae, 6);
-        AddBackwardWalk(words, BackwardWalkSlow + 0xe8, 10);
-
-        AddCrouchAndStand(words);
-        AddStandAfterCrouch(words, StandAfterCrouchSlow, 16);
-        AddStandAfterCrouch(words, StandAfterCrouchFast, 8);
-        AddStandAfterLeaning(words);
-        AddLeanDown(words);
-        AddCrouched(words);
-        AddCrouch(words, CrouchSlow, 8, 8, 8, 8);
-        AddCrouch(words, CrouchFast, 8, 2, 2, 8);
-
-        // The native initializer installs a zero-duration dummy frame. Its timer wraps
-        // after that first frame, so the adjacent sleep is normally dormant but remains
-        // part of the authored mechanics stream.
-        Add(words, InitialDummy, 0);
-        Add(words, InitialDummy + 4, MotherBrainInstructionCodes.Instruction_CommonA9_Sleep);
-
-        words.Sort(static (left, right) => left.Address.CompareTo(right.Address));
-        for (int index = 1; index < words.Count; index++)
-        {
-            if (words[index - 1].Address == words[index].Address)
-                throw new InvalidOperationException(
-                    $"Duplicate Mother Brain body mechanics word at $A9:{words[index].Address:X4}.");
-        }
-        return [.. words];
-    }
-
-    private static void AddForwardWalk(
-        List<MotherBrainBodyInstructionMechanicsWord> words,
-        int start,
-        ushort duration)
-    {
-        Add(words, start + 0x00, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking);
-        AddFrame(words, start + 0x02, duration);
-        Add(words, start + 0x06, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_ScrollRightBy1);
-        AddFrame(words, start + 0x08, duration);
-        Add(words, start + 0x0c, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyRightBy2);
-        AddFrame(words, start + 0x0e, duration);
-        Add(words, start + 0x12, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1);
-        AddFrame(words, start + 0x14, duration);
-        Add(words, start + 0x18, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy1_RightBy3_Footstep);
-        AddFrame(words, start + 0x1a, duration);
-        Add(words, start + 0x1e, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy15);
-        AddFrame(words, start + 0x20, duration);
-        Add(words, start + 0x24, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy6);
-        AddFrame(words, start + 0x26, duration);
-        Add(words, start + 0x2a, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy2);
-        AddFrame(words, start + 0x2c, duration);
-        Add(words, start + 0x30, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep);
-        Add(words, start + 0x32, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding);
-        AddFrame(words, start + 0x34, duration);
-        Add(words, start + 0x38, MotherBrainInstructionCodes.Instruction_CommonA9_Sleep);
-    }
-
-    private static void AddBackwardWalk(
-        List<MotherBrainBodyInstructionMechanicsWord> words,
-        int start,
-        ushort duration)
-    {
-        Add(words, start + 0x00, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToWalking);
-        AddFrame(words, start + 0x02, duration);
-        Add(words, start + 0x06, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy2_RightBy1);
-        AddFrame(words, start + 0x08, duration);
-        Add(words, start + 0x0c, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy4_RightBy2);
-        AddFrame(words, start + 0x0e, duration);
-        Add(words, start + 0x12, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy4_LeftBy6);
-        AddFrame(words, start + 0x14, duration);
-        Add(words, start + 0x18, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy15_Footstep);
-        AddFrame(words, start + 0x1a, duration);
-        Add(words, start + 0x1e, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1_LeftBy3);
-        AddFrame(words, start + 0x20, duration);
-        Add(words, start + 0x24, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy1);
-        AddFrame(words, start + 0x26, duration);
-        Add(words, start + 0x2a, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyLeftBy2);
-        AddFrame(words, start + 0x2c, duration);
-        Add(words, start + 0x30, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy2_LeftBy1_Footstep_d);
-        Add(words, start + 0x32, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding);
-        AddFrame(words, start + 0x34, duration);
-        Add(words, start + 0x38, MotherBrainInstructionCodes.Instruction_CommonA9_Sleep);
-    }
-
-    private static void AddCrouchAndStand(List<MotherBrainBodyInstructionMechanicsWord> words)
-    {
-        Add(words, CrouchAndThenStandUp + 0x00, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition);
-        AddFrame(words, CrouchAndThenStandUp + 0x02, 8);
-        Add(words, CrouchAndThenStandUp + 0x06, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy12_ScrollLeftBy4);
-        AddFrame(words, CrouchAndThenStandUp + 0x08, 8);
-        Add(words, CrouchAndThenStandUp + 0x0c, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy16_ScrollRightBy2);
-        AddFrame(words, CrouchAndThenStandUp + 0x0e, 8);
-        Add(words, CrouchAndThenStandUp + 0x12, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy10_ScrollRightBy2);
-        Add(words, CrouchAndThenStandUp + 0x14, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouching);
-        AddFrame(words, CrouchAndThenStandUp + 0x16, 8);
-        AddFrame(words, CrouchAndThenStandUp + 0x1a, 8);
-        Add(words, CrouchAndThenStandUp + 0x1e, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy10_ScrollLeftBy4);
-        Add(words, CrouchAndThenStandUp + 0x20, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition);
-        AddFrame(words, CrouchAndThenStandUp + 0x22, 8);
-        Add(words, CrouchAndThenStandUp + 0x26, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy16_ScrollLeftBy4);
-        AddFrame(words, CrouchAndThenStandUp + 0x28, 8);
-        Add(words, CrouchAndThenStandUp + 0x2c, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy12_ScrollRightBy2);
-        AddFrame(words, CrouchAndThenStandUp + 0x2e, 8);
-        Add(words, CrouchAndThenStandUp + 0x32, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding);
-        Add(words, CrouchAndThenStandUp + 0x34, MotherBrainInstructionCodes.Instruction_CommonA9_Sleep);
-    }
-
-    private static void AddStandAfterCrouch(
-        List<MotherBrainBodyInstructionMechanicsWord> words,
-        ushort start,
-        ushort duration)
-    {
-        Add(words, start + 0x00, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition);
-        AddFrame(words, start + 0x02, duration);
-        Add(words, start + 0x06, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy10_ScrollLeftBy4);
-        AddFrame(words, start + 0x08, duration);
-        Add(words, start + 0x0c, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy16_ScrollLeftBy4);
-        AddFrame(words, start + 0x0e, duration);
-        Add(words, start + 0x12, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy12_ScrollRightBy2);
-        AddFrame(words, start + 0x14, duration);
-        Add(words, start + 0x18, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding);
-        Add(words, start + 0x1a, MotherBrainInstructionCodes.Instruction_CommonA9_Sleep);
-    }
-
-    private static void AddStandAfterLeaning(List<MotherBrainBodyInstructionMechanicsWord> words)
-    {
-        Add(words, StandAfterLeaning + 0x00, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition);
-        AddFrame(words, StandAfterLeaning + 0x02, 8);
-        Add(words, StandAfterLeaning + 0x06, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyUpBy12_ScrollRightBy2);
-        AddFrame(words, StandAfterLeaning + 0x08, 8);
-        Add(words, StandAfterLeaning + 0x0c, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToStanding);
-        Add(words, StandAfterLeaning + 0x0e, MotherBrainInstructionCodes.Instruction_CommonA9_Sleep);
-    }
-
-    private static void AddLeanDown(List<MotherBrainBodyInstructionMechanicsWord> words)
-    {
-        Add(words, LeanDown + 0x00, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition);
-        AddFrame(words, LeanDown + 0x02, 8);
-        Add(words, LeanDown + 0x06, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy12_ScrollLeftBy4);
-        Add(words, LeanDown + 0x08, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToLeaningDown);
-        AddFrame(words, LeanDown + 0x0a, 8);
-        Add(words, LeanDown + 0x0e, MotherBrainInstructionCodes.Instruction_CommonA9_Sleep);
-    }
-
-    private static void AddCrouched(List<MotherBrainBodyInstructionMechanicsWord> words)
-    {
-        Add(words, Crouched + 0x00, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouching);
-        AddFrame(words, Crouched + 0x02, 8);
-        Add(words, Crouched + 0x06, MotherBrainInstructionCodes.Instruction_CommonA9_Sleep);
-    }
-
-    private static void AddCrouch(
-        List<MotherBrainBodyInstructionMechanicsWord> words,
-        ushort start,
-        ushort standingDuration,
-        ushort leaningDuration,
-        ushort uncrouchingDuration,
-        ushort crouchedDuration)
-    {
-        Add(words, start + 0x00, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouchingTransition);
-        AddFrame(words, start + 0x02, standingDuration);
-        Add(words, start + 0x06, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy12_ScrollLeftBy4);
-        AddFrame(words, start + 0x08, leaningDuration);
-        Add(words, start + 0x0c, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy16_ScrollRightBy2);
-        AddFrame(words, start + 0x0e, uncrouchingDuration);
-        Add(words, start + 0x12, MotherBrainInstructionCodes.Instruction_MotherBrainBody_MoveBodyDownBy10_ScrollRightBy2);
-        Add(words, start + 0x14, MotherBrainInstructionCodes.Instruction_MotherBrainBody_SetPoseToCrouching);
-        AddFrame(words, start + 0x16, crouchedDuration);
-        Add(words, start + 0x1a, MotherBrainInstructionCodes.Instruction_CommonA9_Sleep);
-    }
-
-    private static void AddFrame(
-        List<MotherBrainBodyInstructionMechanicsWord> words,
-        int address,
-        ushort duration) => Add(words, address, duration);
-
-    private static void Add(
-        List<MotherBrainBodyInstructionMechanicsWord> words,
-        int address,
-        ushort word) => words.Add(new(unchecked((ushort)address), word));
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        TryGetWord(address, out ushort word) ? word :
+            throw new InvalidDataException(
+                $"Mother Brain body instruction mechanics pointer $A9:{address:X4} is not compiled.");
 }
 
 /// <summary>One compiled command or duration word at its native bank-$A9 address.</summary>

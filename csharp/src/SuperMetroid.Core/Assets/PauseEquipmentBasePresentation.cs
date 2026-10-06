@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable equipment-page base art, independent of live inventory and reserve patches.</summary>
 public sealed class PauseEquipmentBasePresentation
 {
-    // Independent layout/connector cells remain required alongside explicit asset edits.
+    // Only independent supplied edits remain; every stock word comes from the composed page.
     private readonly Dictionary<int, ushort> remainingCells = [];
     private PauseEquipmentBasePresentation(ReadOnlySpan<byte> selected)
     {
-        // Row order installs each left wireframe cell before its reflected partner.
+        // Compare each supplied word independently with immutable stock composition.
         for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
         {
             ushort word = BinaryPrimitives.ReadUInt16LittleEndian(selected[(cell * sizeof(ushort))..]);
@@ -29,23 +29,15 @@ public sealed class PauseEquipmentBasePresentation
 
     private ushort Word(int cell) => remainingCells.TryGetValue(cell, out ushort value) ? value : DefaultWord(cell);
 
-    private ushort DefaultWord(int cell)
+    private static ushort DefaultWord(int cell)
     {
         int relative = cell - PauseWireframeDefinitions.DestinationByte / sizeof(ushort);
         int stride = PauseWireframeDefinitions.DestinationStride / sizeof(ushort);
         if (relative >= 0 && relative / stride < PauseWireframeDefinitions.Rows &&
             relative % stride < PauseWireframeDefinitions.Columns)
         {
-            int column = relative % stride;
-            int local = relative / stride * PauseWireframeDefinitions.Columns + column;
-            if (PauseWireframeDefinitions.TryStockTile(PauseWireframeKind.PowerSuit, local, out int tile))
-                return (ushort)(PauseWireframeDefinitions.CommonPieceAttributes | tile);
-            if (column >= PauseWireframeDefinitions.Columns / 2)
-            {
-                ushort left = Word(cell + PauseWireframeDefinitions.Columns - 1 - column * 2);
-                return left == 0 ? (ushort)0 : (ushort)(left ^ MapPresentationFormat.FlipXBit);
-            }
-            return 0;
+            int local = relative / stride * PauseWireframeDefinitions.Columns + relative % stride;
+            return PauseWireframeDefinitions.StockWord(PauseWireframeKind.PowerSuit, local);
         }
         return PauseEquipmentBaseDefinitions.StockWord(cell);
     }

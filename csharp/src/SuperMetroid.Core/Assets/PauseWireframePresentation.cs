@@ -40,58 +40,25 @@ public sealed class PauseWireframePresentation
         return new(frames);
     }
 
-    /// <summary>
-    /// The four native 8x17 figures contain reflected armor/limb pairs. Independent
-    /// left-side tile choices and asymmetric right-side content remain REQUIRED
-    /// under PauseWireframePresentation.frames; this is only a symmetry derivation.
-    /// </summary>
+    /// <summary>Calculated authored composition with independent supplied word overrides.</summary>
     private sealed class Wireframe
     {
         private readonly PauseWireframeKind kind;
-        private readonly Dictionary<int, ushort> leftCells = [];
-        private readonly Dictionary<int, ushort> rightDifferences = [];
-        private const int HalfColumns = PauseWireframeDefinitions.Columns / 2;
+        private readonly Dictionary<int, ushort> edits = [];
 
         internal Wireframe(PauseWireframeKind kind, ReadOnlySpan<byte> words)
         {
             this.kind = kind;
-            for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
-            for (int column = 0; column < HalfColumns; column++)
+            for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
             {
-                int cell = row * PauseWireframeDefinitions.Columns + column;
                 ushort value = BinaryPrimitives.ReadUInt16LittleEndian(words[(cell * sizeof(ushort))..]);
-                if (value != StockLeftWord(cell)) leftCells.Add(cell, value);
-            }
-            for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
-            for (int column = HalfColumns; column < PauseWireframeDefinitions.Columns; column++)
-            {
-                int cell = row * PauseWireframeDefinitions.Columns + column;
-                ushort value = BinaryPrimitives.ReadUInt16LittleEndian(words[(cell * sizeof(ushort))..]);
-                if (value != DefaultRightWord(cell)) rightDifferences.Add(cell, value);
+                if (value != PauseWireframeDefinitions.StockWord(kind, cell)) edits.Add(cell, value);
             }
         }
 
-        internal ushort Word(int cell) => cell % PauseWireframeDefinitions.Columns < HalfColumns
-            ? LeftWord(cell) : rightDifferences.TryGetValue(cell, out ushort value) ? value : DefaultRightWord(cell);
-
-        private ushort LeftWord(int cell) => leftCells.TryGetValue(cell, out ushort value) ? value : StockLeftWord(cell);
-
-        private ushort StockLeftWord(int cell) => PauseWireframeDefinitions.TryStockTile(kind, cell, out int tile)
-            ? (ushort)(PauseWireframeDefinitions.CommonPieceAttributes | tile) : (ushort)0;
-
-        private ushort DefaultRightWord(int cell)
-        {
-            if (PauseWireframeDefinitions.TryStockTile(kind, cell, out int tile))
-                return (ushort)(PauseWireframeDefinitions.CommonPieceAttributes | tile);
-            int source = cell / PauseWireframeDefinitions.Columns * PauseWireframeDefinitions.Columns
-                + PauseWireframeDefinitions.Columns - 1 - cell % PauseWireframeDefinitions.Columns;
-            ushort left = LeftWord(source);
-            // A completely empty map cell stays empty; a selected glyph reflects
-            // horizontally without changing its palette, priority or vertical flip.
-            return left == 0 ? (ushort)0 : (ushort)(left ^ MapPresentationFormat.FlipXBit);
-        }
+        internal ushort Word(int cell) => edits.TryGetValue(cell, out ushort value)
+            ? value : PauseWireframeDefinitions.StockWord(kind, cell);
     }
-
     public static void Write(Stream output, PauseWireframeDocument document)
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);

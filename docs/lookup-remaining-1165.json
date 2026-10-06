@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 485,
+  "remainingTableDefinitionCount": 483,
   "fileCount": 523,
   "entries": [
     {
@@ -1628,12 +1628,15 @@
       "implementationCommit": "a9ec2a301"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBasePresentation.cs",
-      "line": 10,
-      "name": "PauseEquipmentBasePresentation.tilemap",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind PauseEquipmentBasePresentation.tilemap. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentBasePresentation.cs",
+  "line": 10,
+  "name": "PauseEquipmentBasePresentation.tilemap",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind PauseEquipmentBasePresentation.tilemap. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "7851a956f",
+  "disposition": "Mixed complete: all1024 words calculate shared Power figure,label-relative panel rectangles,centered titles,border/guide strips/reflections. Retain only reviewed title/header/arrow/gauge/guide glyph placement/style,supply padding2 and bounded transparent/priority metadata as exact composed interface. No glyph pixels or other pause-table exemption. Zero stock overrides,independent words and live rebind ownership preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/PauseEquipmentLabelPresentation.cs",
       "line": 12,
@@ -1690,12 +1693,15 @@
     "disposition":  "Mixed complete: binary32 normalized fade calculates integral crossings; shared neutral channels,reversed solid starts,mirroring and held magnitudes calculated. Retain only source paint039E/0156,grey18/12 and penultimate bright-red/dark-blue shade hold as specific bevel/pulse content. No six-value residual table; independent edits preserved. Other arrow geometry/pixels excluded."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/PauseWireframePresentation.cs",
-      "line": 8,
-      "name": "PauseWireframePresentation.frames",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind PauseWireframePresentation.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/PauseWireframePresentation.cs",
+  "line": 8,
+  "name": "PauseWireframePresentation.frames",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind PauseWireframePresentation.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "7851a956f",
+  "disposition": "Mixed complete: all544 words calculate from30 explicitly reviewed diagram pieces, strip/reflection/shared-foot relationships and selected composition. Retain exact piece identities/placement/variant membership,13priority memberships,cannon blank and connector copied palette metadata; native images/consumers reviewed. No glyph pixels or other pause-art exemption; independent edits preserved with zero stock overrides."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/PhantoonColorCatalog.cs",
       "line": 21,
@@ -21619,5 +21625,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 43
+  "justifiedRetainedSinceSnapshot": 45
 }

@@ -545,21 +545,14 @@ internal static partial class Program
             if (x is >= 12 and < 20 && y is >= 7 and < 24)
             {
                 int local = (y - 7) * 8 + x - 12;
-                if (PauseWireframeDefinitions.TryStockTile(PauseWireframeKind.PowerSuit, local, out int tile))
-                    calculated = (ushort)(0x2400 | tile);
-                else if (x >= 16)
-                {
-                    ushort left = ReadVerificationWord(rom, 0xb6e800 + (y * 32 + 31 - x) * 2);
-                    calculated = left == 0 ? (ushort)0 : (ushort)(left ^ 0x4000);
-                }
-                else calculated = 0;
+                calculated = PauseWireframeDefinitions.StockWord(PauseWireframeKind.PowerSuit, local);
             }
             else calculated = PauseEquipmentBaseDefinitions.StockWord(cell);
             AssertEqual(expected != calculated, residuals.ContainsKey(cell), "Exact equipment base residual membership");
             if (residuals.TryGetValue(cell, out ushort retained)) AssertEqual(expected, retained, "Required stock input remains exact");
         }
-        AssertEqual(23, residuals.Count, "Exact required equipment base residual count" );
-        Console.WriteLine("Equipment base required residuals: " + string.Join(", ", residuals.Select(pair => $"({pair.Key % 32},{pair.Key / 32})={pair.Value:X4}")));
+        AssertEqual(0, residuals.Count, "Zero unexplained stock equipment-base words" );
+
         ConfirmRebind(stock, native);
         foreach (int cell in new[] { 0, 5 * 32 + 13, 9 * 32 + 2, 4 * 32 + 1, 12 * 32 + 3, 16 * 32 + 4, 7 * 32 + 15, 7 * 32 + 16 })
         {
@@ -577,7 +570,7 @@ internal static partial class Program
         AssertTrue(native.AsSpan().SequenceEqual(stock.CreateTilemap()), "Mutable menu state does not alter immutable template");
         AssertThrows<ArgumentException>(() => stock.RebindBaseInto(new byte[1]), "Base rebind length bound");
         AssertThrows<ArgumentException>(() => stock.RebindBeforeInventoryRefreshInto(new byte[1]), "Inventory rebind length bound");
-        Console.WriteLine($"Equipment template:1024native words, exact{residuals.Count}required residuals,8independent edits,18actual rebinds,mutable-state independence and bounds pass; selected layout/style/glyph inputs remain required.");
+        Console.WriteLine($"Equipment template:1024native words, exact{residuals.Count}stock overrides,8independent edits,18actual rebinds,mutable-state independence and bounds pass; approved specific page composition retained, glyph pixels separately accounted.");
 
         static void ConfirmRebind(PauseEquipmentBasePresentation presentation, byte[] selected)
         {
@@ -612,7 +605,7 @@ internal static partial class Program
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseWireframeDocument>(json,
             MapPresentationFormat.JsonOptions)!;
         var stock = PauseWireframePresentation.Load(new MemoryStream(json));
-        int pieceCells = 0, leftResiduals = 0, rightResiduals = 0;
+        int pieceCells = 0, stockOverrides = 0;
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
             int pointer = Word(PauseWireframeDefinitions.Pointers + (int)kind * 2) | 0x820000;
@@ -622,37 +615,21 @@ internal static partial class Program
             Confirm(stock, kind, native, "Actual mirrored stock wireframe preserves every native tile word");
             const BindingFlags privateFields = BindingFlags.Instance | BindingFlags.NonPublic;
             object frame = ((Array)typeof(PauseWireframePresentation).GetField("frames", privateFields)!.GetValue(stock)!).GetValue((int)kind)!;
-            var left = (Dictionary<int, ushort>)frame.GetType().GetField("leftCells", privateFields)!.GetValue(frame)!;
-            var right = (Dictionary<int, ushort>)frame.GetType().GetField("rightDifferences", privateFields)!.GetValue(frame)!;
-            leftResiduals += left.Count; rightResiduals += right.Count;
+            var edits = (Dictionary<int, ushort>)frame.GetType().GetField("edits", privateFields)!.GetValue(frame)!;
+            stockOverrides += edits.Count;
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
             {
                 ushort actualNative = Word(pointer + cell * 2);
-                bool piece = PauseWireframeDefinitions.TryStockTile(kind, cell, out int tile);
-                if (piece)
+                AssertEqual(actualNative, PauseWireframeDefinitions.StockWord(kind, cell), $"Complete native composition word {kind}/{cell}");
+                if (PauseWireframeDefinitions.TryStockTile(kind, cell, out int tile))
                 {
                     AssertEqual(actualNative & 0x03ff, tile, "Native body-piece tile progression");
                     pieceCells++;
                 }
-                if (cell % 8 < 4)
-                {
-                    ushort calculated = piece ? (ushort)(PauseWireframeDefinitions.CommonPieceAttributes | tile) : (ushort)0;
-                    AssertEqual(actualNative != calculated, left.ContainsKey(cell), "Exact required left residual membership");
-                    if (left.TryGetValue(cell, out ushort input)) AssertEqual(actualNative, input, "Required left input preserved exactly");
-                }
-                else
-                {
-                    int paired = cell / 8 * 8 + 7 - cell % 8;
-                    ushort pairedWord = Word(pointer + paired * 2);
-                    ushort reflected = piece ? (ushort)(PauseWireframeDefinitions.CommonPieceAttributes | tile)
-                        : pairedWord == 0 ? (ushort)0 : (ushort)(pairedWord ^ 0x4000);
-                    AssertEqual(actualNative != reflected, right.ContainsKey(cell), "Exact asymmetric right residual membership");
-                    if (right.TryGetValue(cell, out ushort input)) AssertEqual(actualNative, input, "Required right input preserved exactly");
-                }
             }
             // Confirm independent edits to an empty cell, either side of the
             // helmet pair, and the asymmetric lower-right artwork/connector cell.
-            foreach (int cell in new[] { 0, 3, 4, 6 * PauseWireframeDefinitions.Columns + 6, PauseWireframeDefinitions.Cells - 1 })
+            foreach (int cell in new[] { 0, 3, 4, 6 * PauseWireframeDefinitions.Columns + 6, PauseWireframeDefinitions.Cells - 1, 13 * 8 + 3, 14 * 8 + 7 })
             {
                 var frames = document.Frames.ToDictionary(pair => pair.Key, pair => pair.Value);
                 PauseBackdropCell[] cells = frames[kind.ToString()].ToArray();
@@ -660,6 +637,8 @@ internal static partial class Program
                 {
                     TileColumn = (cells[cell].TileColumn + 1) % PauseBackdropDefinitions.AtlasColumns,
                     FlipX = !cells[cell].FlipX,
+                    Palette = (cells[cell].Palette + 1) % 8,
+                    Priority = !cells[cell].Priority,
                 };
                 frames[kind.ToString()] = cells;
                 using var output = new MemoryStream();
@@ -670,11 +649,10 @@ internal static partial class Program
             }
         }
         AssertEqual(266, pieceCells, "Native glyph cells calculated from named body pieces");
-        AssertEqual(19, leftResiduals, "Independent left shape/priority residual count");
-        AssertEqual(17, rightResiduals, "Independent right asymmetry residual count");
+        AssertEqual(0, stockOverrides, "All stock words derive without unexplained overrides");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyTo(new byte[2048], (PauseWireframeKind)4), "Wireframe kind bound");
         AssertThrows<ArgumentException>(() => stock.ApplyTo(new byte[1], PauseWireframeKind.PowerSuit), "Wireframe page bound");
-        Console.WriteLine("Wireframe reflection/body pieces:544 native words,266 calculated glyph cells, exact19left/17right residual membership, four actual full stock patches,20 independent empty/left/right/cannon/asymmetric edits and untouched-page/bounds checks pass; independent shape inputs remain required.");
+        Console.WriteLine("Wireframe composition:544 native words,266 atlas-strip cells,zero stock overrides,four full native patches,28 independent glyph/flip/palette/priority edits and untouched-page/bounds checks pass. Only the approved specific diagram composition is retained; glyph pixels remain separately accounted.");
 
         static void Confirm(PauseWireframePresentation presentation, PauseWireframeKind kind, byte[] words, string context)
         {

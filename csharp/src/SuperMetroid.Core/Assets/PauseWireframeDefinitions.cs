@@ -63,13 +63,68 @@ public static class PauseWireframeDefinitions
     private const int RegularFootToe = 0x1ad;
     /// <summary>$82:D61D/D62D: outer regular foot strip uses $1EE/$1FE.</summary>
     private const int RegularFootOuter = 0x1ee;
-    /// <summary>Common native wireframe words use BG palette one with priority; deviations remain independent input.</summary>
+    /// <summary>Common native wireframe words use BG palette one with priority; StockWord expresses the chosen layering.</summary>
     internal const ushort CommonPieceAttributes = 0x2400;
 
+    /// <summary>$82:D5B3: hand tip at the end of the common arm strip.</summary>
+    private const int HandTip = 0x1c9;
+    /// <summary>$82:D605: regular Power ankle joins the shin to the foot.</summary>
+    private const int RegularPowerAnkle = 0x18f;
+    /// <summary>$82:D611: regular boot's outer toe edge.</summary>
+    private const int RegularToeEdge = 0x18e;
+    /// <summary>$82:D705: inner Power/Hi-Jump collar.</summary>
+    private const int PowerHiJumpInnerCollar = 0x18c;
+    /// <summary>$82:D60F and counterparts: diagonal equipment-guide connector.</summary>
+    private const int DiagonalConnector = 0x155;
+    /// <summary>Native BG word priority and reflected connector attributes.</summary>
+    private const int Priority = 0x2000, ConnectorAttributes = 0xe000;
+
+    /// <summary>Compose one cell of the four authored equipment diagrams at $82:D521/D631/D741/D851.</summary>
+    /// <remarks>The thirty named pieces, placements, variant membership and layering specify these
+    /// drawings. Atlas strips, shared knee/foot pieces and reflections calculate their repeated cells.
+    /// Connector palette six versus two is preserved copied metadata: stock colors coincide, but
+    /// independently edited palettes can distinguish them. This does not exempt the glyph pixels.</remarks>
+    internal static ushort StockWord(PauseWireframeKind kind, int cell)
+    {
+        bool piece = TryStockTile(kind, cell, out int tile);
+        int row = cell / Columns, column = cell % Columns;
+        bool varia = kind is PauseWireframeKind.VariaSuit or PauseWireframeKind.VariaSuitHiJump;
+        bool hiJump = kind is PauseWireframeKind.PowerSuitHiJump or PauseWireframeKind.VariaSuitHiJump;
+        if (row == 9 && column == 6) return 0; // Cannon-side negative space.
+        if (row == 14 && column == 7)
+            return (ushort)(DiagonalConnector | ConnectorAttributes | (kind is PauseWireframeKind.PowerSuit or PauseWireframeKind.VariaSuitHiJump ? 6 : 2) << 10);
+        if (!piece)
+        {
+            if (!varia && row == 6 && column == 2) tile = PowerTorso - PieceRowStride;
+            else if (row == 9 && column == 1) tile = HandTip;
+            else if (!varia && !hiJump && row == 14 && column == 2) tile = RegularPowerAnkle;
+            else if (!hiJump && row == 15 && column == 0) tile = RegularToeEdge;
+            else if (!varia && hiJump && row == 13 && column == 2) tile = PowerHiJumpInnerCollar;
+            else if (varia && !hiJump && row == 13 && column == 3) tile = PowerLeg + 2 * PieceRowStride + 1;
+            else if (row == 15 && column == 7) tile = HiJumpOuterFoot + 1;
+            else if (varia && !hiJump && row == 16 && column == 7) tile = RegularFootOuter + PieceRowStride + 1;
+            else tile = -1;
+        }
+        ushort word;
+        if (tile >= 0) word = (ushort)(CommonPieceAttributes | tile);
+        else if (column < Columns / 2) word = 0;
+        else
+        {
+            ushort paired = StockWord(kind, row * Columns + Columns - 1 - column);
+            word = paired == 0 ? (ushort)0 : (ushort)(paired ^ MapPresentationFormat.FlipXBit);
+        }
+        bool underlay = (row == 13 && column == 3 && !(varia && hiJump))
+            || (!varia && hiJump && column == 1 && row is 13 or 14)
+            || (hiJump && column == 3 && row == 15)
+            || (varia && !hiJump && column is 1 or 4 && row is 11 or 12);
+        if (underlay) word = (ushort)(word & ~Priority);
+        if (varia && !hiJump && column == 6 && row is 11 or 12) word |= Priority;
+        return word;
+    }
     /// <summary>Calculate tile references within identified rectangular body pieces.</summary>
-    /// <remarks>Chosen piece origins/placements, uncovered artwork and priority differences
-    /// remain required under PauseWireframePresentation.frames. This only removes the
-    /// repeated within-piece tile progression, not the independent composition obligation.</remarks>
+    /// <remarks>The named piece composition is authored drawing content; StockWord completes its
+    /// shared glyphs and layering. This strip-only operation also serves the separately
+    /// accounted equipment base page.</remarks>
     internal static bool TryStockTile(PauseWireframeKind kind, int cell, out int tile)
     {
         if ((uint)kind >= Count) throw new ArgumentOutOfRangeException(nameof(kind));

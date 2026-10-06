@@ -104,13 +104,37 @@ internal static partial class Program
             }
             document.HealthBands[band][color] = original;
         }
+        var powerRequired = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("requiredPowerColors", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        var powerEdits = (System.Collections.IDictionary)typeof(PhantoonColorCatalog).GetField("powerEdits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(102, powerRequired.Count, "Ten darker shades calculate from required starting colors");
+        AssertEqual(0, powerEdits.Count, "Native power targets have no unexplained overrides");
+        for (int color = 0; color < PhantoonColorRomData.PowerOnCount; color++)
+        {
+            bool derived = color is 66 or 67 or 69 or 70 or 73 or 74 or 85 or 86 or 89 or 90;
+            AssertEqual(!derived, powerRequired.Contains(color), "Exact required power color membership");
+            AssertEqual(ReadVerificationWord(rom, PhantoonColorRomData.PowerOnSource + color * 2), stock.ResolvePowerOn(color), "Native power shade equality");
+            PaletteRgb5 original = document.PowerOn[color];
+            for (int channel = 0; channel < 3; channel++)
+            {
+                document.PowerOn[color] = new PaletteRgb5
+                {
+                    Red = channel == 0 ? original.Red ^ 31 : original.Red,
+                    Green = channel == 1 ? original.Green ^ 31 : original.Green,
+                    Blue = channel == 2 ? original.Blue ^ 31 : original.Blue,
+                };
+                _ = Check(document);
+            }
+            document.PowerOn[color] = original;
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(-1), "Power lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(112), "Power upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(-1, 0), "Health band lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(8, 0), "Health band upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, -1), "Health color lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(0, 16), "Health color upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(-1), "Fade lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(16), "Fade upper bound");
-        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, exact nine required channels, zero stock overrides, 432 independent channel edits, hashes and bounds pass.");
+        Console.WriteLine("Phantoon colors: 16 native fade targets, 128 health colors, exact nine required channels, zero stock overrides, 112 power colors, 768 independent channel edits, hashes and bounds pass.");
 
         static PhantoonColorCatalog Check(PhantoonColorDocument source)
         {

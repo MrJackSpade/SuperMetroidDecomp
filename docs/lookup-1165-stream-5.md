@@ -1043,3 +1043,9 @@ Root build1,450warnings/0errors;144 native color words,432 independent channel e
 Partial147760ba0 derives centered body/eye/center X edges as left=-right-1 and reflects the side-tentacle interval around the same pixel center. Five horizontal extents and ten vertical edges remain REQUIRED. Root identified this remaining exact relationship during exception review; no collision-shape exception is granted and FullBodyHitboxes remains unchecked.
 
 Root build1450warnings/0errors;22native frames,25components,seven rectangles/callbacks,actual full-body/eye selection and bounds pass. Inventory573converted/21retained-mixed/534pending unchanged.
+
+## Integrated Wrecked Ship power-on shade ramps
+
+Partial34245036f calculates ten darker RGB5 colors from five selected three-shade runs in BG palettes4/5. Root inspected native A7:DC71-DC8A fade-target consumer and source-art export using actual area tile-table C1C5CF. Row4 slots1-3,4-6,8-10 and row5 slots4-6,8-10 subtract6 per channel; row5 slots1-3 are not a ramp and remain required. All102 starting/unrelated colors,step6 and membership remain REQUIRED; powerOn stays unchecked. Independent supplied edits retain their exact values and canonical hashes.
+
+Root build1450warnings/0errors;256native colors,768independent channel edits,exact residual membership,zero stock overrides and bounds/hash pass. ResourceAudit0/0; contract dependency and description updated. Inventory573converted/21retained-mixed/534pending unchanged.

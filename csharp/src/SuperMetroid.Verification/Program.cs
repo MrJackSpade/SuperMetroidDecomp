@@ -26,6 +26,13 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream3-intro-palette-rows"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro palette oracle revision");
+    VerifyStream3IntroPaletteRows(rom);
+    return 0;
+}
 if (args is ["--lookup-stream3-intro-layouts"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -1253,3 +1253,8 @@ Root build1450warnings/0errors;15native operand identities,index/enumeration bou
 ### Integrated intro layout relationships (ef8d67265 /39cf275fd)
 
 Divider cells calculate from a blank word and interior origin across paired tile-strip rows. Eye frames calculate four3x2rectangles from their individual atlas origins and16tile row stride. Root inspected native8B:A72B-A82A and8C:D785/D795/D7A5/D7B5. Focused --lookup-stream3-intro-layouts passes128divider and24eye native cells,152independent full-word edits,previous-instance isolation,eye original hash framing and index bounds. Verification1452warnings/0errors;ResourceAudit0/0. Both entries remain REQUIRED: chosen base words/origins,margins/arrangement,atlas geometry and pixels need dispositions. No retention or aggregate closure;master595/21/512 unchanged.
+
+
+### Integrated intro palette dependencies (640aab891 /d2f0c896f)
+
+Five flat foreground rows, one four-shade RGB5 cycle, eight shared cross-fade gradient colors and its blue31/22/13/4 ramp now calculate matching supplied palettes. Independent mismatches retain their full row, with no coupling across loaded instances. Root inspected8C:E3E9-E5E8 and preserved161independent color words plus selected cycle4/step1/blue decrement9 as REQUIRED; aggregate remains unchecked. Root --lookup-stream3-intro-palette-rows passes256native colors/256independent RGB5 edits through transfer bytes and actual CGRAM,including source/destination rows and previous-instance isolation. Build1452warnings/0errors. No direct ResourceAudit source dependency. Fixed three joined-line formatting defects during integration. Master595/21/512 unchanged.

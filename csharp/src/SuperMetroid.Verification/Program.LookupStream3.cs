@@ -6,6 +6,42 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyStream3IntroPaletteRows(ISnesAddressSpace rom)
+    {
+        ushort[] native = Enumerable.Range(0, SnesCgram.ColorCount)
+            .Select(color => ReadVerificationWord(rom, IntroCinematicRomData.Assets.Palette + 2 * color)).ToArray();
+        IntroCinematicPalette stock = Load(native);
+        Confirm(stock, native);
+        for (int color = 0; color < native.Length; color++)
+        {
+            ushort[] edited = (ushort[])native.Clone();
+            edited[color] ^= 0x0421;
+            Confirm(Load(edited), edited);
+            Confirm(stock, native);
+        }
+        Console.WriteLine("Intro palette rows:256 native colors and256 independent RGB5 edits preserve transfer bytes/CGRAM/instance isolation; paints and cycle choices remain required.");
+        static void Confirm(IntroCinematicPalette selected, ushort[] expected)
+        {
+            ReadOnlySpan<byte> bytes = selected.Transfer.Span;
+            for (int color = 0; color < expected.Length; color++)
+                AssertEqual(expected[color], System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(bytes[(color * 2)..]), "intro palette transfer word");
+            var cgram = new SnesCgram();
+            selected.LoadTo(cgram);
+            AssertTrue(expected.AsSpan().SequenceEqual(cgram.Colors), "intro palette CGRAM load");
+        }
+        static IntroCinematicPalette Load(ushort[] words)
+        {
+            var document = new IntroCinematicPaletteDocument
+            {
+                Version = IntroCinematicPaletteFormat.Version,
+                Colors = words.Select(word => new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 }).ToArray(),
+            };
+            using var json = new MemoryStream();
+            IntroCinematicPalette.Write(json, document);
+            json.Position = 0;
+            return IntroCinematicPalette.Load(json);
+        }
+    }
     private static void VerifyStream3IntroEyeRectangles(ISnesAddressSpace rom)
     {
         ushort[][] native = Enumerable.Range(0, 4).Select(frame => Enumerable.Range(0, 6)

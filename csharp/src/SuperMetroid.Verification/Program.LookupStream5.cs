@@ -6,6 +6,32 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5SkeletonTransfers()
+    {
+        var oracle = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)),
+            "Skeleton transfer oracle revision");
+        string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
+            "lookup-skeleton-transfers-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Extract(oracle, directory,
+                SuperMetroid.AssetExtraction.SupportedCartridge.Sha256);
+            VerifyCrocomireSkeletonArtwork(oracle, directory,
+                SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(directory, null));
+            AssertThrows<InvalidDataException>(() => CrocomireSkeletonTransferDefinitions.TryGet(-1, out _),
+                "Skeleton negative transfer index rejects");
+            AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireSkeletonTransferDefinitions.Frames[6],
+                "Skeleton view excludes sentinel");
+        }
+        finally
+        {
+            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
+        }
+    }
+
     private static void VerifyLookupStream5CeresRumble(SuperMetroidAddressSpace rom)
     {
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",

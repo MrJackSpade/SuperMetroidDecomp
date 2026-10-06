@@ -3678,6 +3678,7 @@ if (args is ["--lookup-kraid-foot-programs"])
     Console.WriteLine("Kraid foot programs: 193 mechanics words, 106 presentation positions, native domains and bounds pass.");
     return 0;
 }
+if (args is ["--lookup-stream5-skeleton-transfers"]){ VerifyLookupStream5SkeletonTransfers(); return 0; }
 if (args is ["--lookup-crocomire-skeleton-frames"])
 {
     var skeletonOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

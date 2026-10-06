@@ -12,36 +12,55 @@ internal readonly record struct CrocomireSkeletonTransferDefinition(
 internal static class CrocomireSkeletonTransferDefinitions
 {
     internal const int ChunkByteCount = 0x0200;
-    internal const int TotalByteCount = ChunkByteCount * 6;
+    internal const int TotalByteCount = ChunkByteCount * FrameCount;
     internal const int ObselBaseWord = 0x6000;
     internal const string FileName = "crocomire-skeleton-tiles.png";
     /// <summary>First source page at $AD:A600; subsequent pages are contiguous $0200-byte chunks.</summary>
     internal const int FirstGraphicsSourceAddress = 0xada600;
 
-    private static readonly CrocomireSkeletonTransferDefinition[] Entries =
-    [
-        new(FirstGraphicsSourceAddress, 0x1600),
-        new(FirstGraphicsSourceAddress + ChunkByteCount, 0x1700),
-        new(FirstGraphicsSourceAddress + ChunkByteCount * 2, 0x1800),
-        new(FirstGraphicsSourceAddress + ChunkByteCount * 3, 0x1900),
-        new(FirstGraphicsSourceAddress + ChunkByteCount * 4, 0x1e00),
-        new(FirstGraphicsSourceAddress + ChunkByteCount * 5, 0x1f00),
-    ];
+    /// <summary>$A4:99CB: selected OBJ atlas allocation begins at tile $160.</summary>
+    private const int FirstAtlasTile = 0x160;
+    /// <summary>$A4:99CB..99D1 installs four rows at tiles $160..$19F.</summary>
+    private const int FirstRegionRows = 4;
+    /// <summary>$A4:99D3: second selected atlas allocation begins at tile $1E0.</summary>
+    private const int SecondAtlasTile = 0x1e0;
+    /// <summary>$A4:99D3..99D5 installs two rows at tiles $1E0..$1FF.</summary>
+    private const int SecondRegionRows = 2;
+    private const int TileByteCount = 32;
+    private const int TilesPerRow = 16;
+    internal const int FrameCount = FirstRegionRows + SecondRegionRows;
 
-    internal static ReadOnlySpan<CrocomireSkeletonTransferDefinition> Frames => Entries;
+    internal static CrocomireSkeletonTransferSequence Frames => new(FrameCount);
+
+    internal static CrocomireSkeletonTransferDefinition Frame(int index)
+    {
+        if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
+        int tile = index < FirstRegionRows
+            ? FirstAtlasTile + index * TilesPerRow
+            : SecondAtlasTile + (index - FirstRegionRows) * TilesPerRow;
+        return new(FirstGraphicsSourceAddress + index * ChunkByteCount,
+            (ushort)(tile * TileByteCount / sizeof(ushort)));
+    }
 
     /// <summary>Returns false only for the native seventh-entry sentinel.</summary>
     internal static bool TryGet(int index, out CrocomireSkeletonTransferDefinition frame)
     {
-        if ((uint)index < (uint)Entries.Length)
+        if ((uint)index < FrameCount)
         {
-            frame = Entries[index];
+            frame = Frame(index);
             return true;
         }
-        if (index != Entries.Length)
+        if (index != FrameCount)
             throw new InvalidDataException(
                 $"Crocomire skeleton upload index {index} is outside its native sequence.");
         frame = default;
         return false;
     }
+}
+
+/// <summary>Calculated source-page and OBJ-placement identities, without stored transfer rows.</summary>
+internal readonly record struct CrocomireSkeletonTransferSequence(int Length)
+{
+    internal CrocomireSkeletonTransferDefinition this[int index] =>
+        CrocomireSkeletonTransferDefinitions.Frame(index);
 }

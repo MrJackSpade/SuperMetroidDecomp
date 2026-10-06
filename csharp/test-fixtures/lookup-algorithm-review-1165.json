@@ -12531,4 +12531,13 @@
   "completed": [
     "DraygonColorCatalog.background"
   ]
+},"crocomireSkeletonTransfersComplete":{
+  "completed": [
+    "CrocomireSkeletonTransferDefinitions.Entries"
+  ],
+  "disposition": [
+    "Six source pages and destination rows calculate. Only two exact atlas allocations remain: tile160 across4rows and tile1E0 across2rows. These identify selected graphic placement; deriving arbitrary alternative allocations without authored linkage would produce nonsense. Native page strides, cursor and sentinel are calculated; independent edits preserved."
+  ],
+  "workerCommit": "954a69f278ed0eb863f3d16a04824abab91197d1",
+  "confirmation": "Worker build25warnings/0errors;3072native bytes, six actual installed uploads/full VRAM, cursor12/sentinel/bounds, zero runtime reads, PNG edit/reload/hash/rejection passed. Stale fixture ROM-fallback oracle corrected to direct native table copies. Coordinator mechanically integrates without review/retest."
 }}

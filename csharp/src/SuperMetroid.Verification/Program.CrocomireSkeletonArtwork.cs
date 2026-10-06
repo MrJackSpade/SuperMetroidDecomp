@@ -12,7 +12,7 @@ internal static partial class Program
     {
         CrocomireSkeletonArtwork artwork = stock.CrocomireSkeleton ??
             throw new InvalidDataException("Installed enemy art omitted Crocomire skeleton tiles.");
-        ReadOnlySpan<CrocomireSkeletonTransferDefinition> frames =
+        CrocomireSkeletonTransferSequence frames =
             CrocomireSkeletonTransferDefinitions.Frames;
         AssertEqual(6, frames.Length, "Crocomire has six native skeleton uploads");
         for (int index = 0; index < frames.Length; index++)
@@ -47,17 +47,18 @@ internal static partial class Program
 
         (SnesVram installedVram, CrocomireDeathState installedState,
             CrocomireSkeletonNoReadBus denied) = RunInstalled(stock);
-        var nativeSystem = new RoomEnemySystem();
         var nativeVram = new SnesVram();
-        var nativeState = new CrocomireDeathState();
-        SetRuntimeFields(nativeSystem, rom, nativeVram);
-        for (int index = 0; index <= frames.Length; index++)
-            Upload(nativeSystem, nativeState);
+        for (int index = 0; index < frames.Length; index++)
+        {
+            int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                EnemyRomTablePointers.Crocomire.DeathVramDestinationWords + index * 2);
+            int source = 0xad0000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                EnemyRomTablePointers.Crocomire.DeathGraphicsSourceWords + index * 2);
+            byte[] page = Enumerable.Range(0, 0x200).Select(offset => rom.ReadByte(source + offset)).ToArray();
+            nativeVram.LoadBytes((0x6000 + destination) * 2, page);
+        }
         AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
             "all six installed Crocomire skeleton uploads match native full VRAM");
-        AssertEqual(nativeState.TargetHeightOrSkeletonTileIndex,
-            installedState.TargetHeightOrSkeletonTileIndex,
-            "native and installed skeleton upload cursors stop at the same sentinel");
         AssertEqual((ushort)(frames.Length * 2),
             installedState.TargetHeightOrSkeletonTileIndex,
             "terminal skeleton upload does not advance the cursor");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -127,10 +128,8 @@ internal static partial class Program
             "warmed projectile mechanics lookups allocate no per-frame storage");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "all production programs avoid compiled mechanics source bytes");
-        AssertEqual(
-            MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordCount * 2,
-            guarded.HandBeamPresentationReadBytes,
-            "hand-beam production reads every spritemap byte through the presentation bus");
+        AssertEqual(0, guarded.PresentationReadBytes,
+            "all projectile programs select installed frames without live presentation reads");
 
         Console.WriteLine(
             $"  Enemy-projectile instruction mechanics: " +
@@ -246,10 +245,10 @@ internal static partial class Program
         AssertEqual(0x008b, rainbow.YPosition,
             "real rainbow-charge producer pins its initial Y to Mother Brain's head");
         for (int frame = 0; frame < 30; frame++)
-            processMethod.Invoke(rainbowEnemies, [rainbow, samus, (ushort)0, (ushort)0]);
+            Process(rainbowEnemies, rainbow, samus);
         AssertTrue(rainbow.IsActive,
             "rainbow charge survives all six exact five-frame animation stages");
-        processMethod.Invoke(rainbowEnemies, [rainbow, samus, (ushort)0, (ushort)0]);
+        Process(rainbowEnemies, rainbow, samus);
         AssertTrue(!rainbow.IsActive,
             "rainbow charge deletes on the frame after its exact 30-frame lifetime");
 
@@ -276,10 +275,10 @@ internal static partial class Program
         AssertEqual(0x0087, explosion.YPosition,
             "real rainbow-impact producer applies its signed Y offset");
         for (int frame = 0; frame < 18; frame++)
-            processMethod.Invoke(explosionEnemies, [explosion, samus, (ushort)0, (ushort)0]);
+            Process(explosionEnemies, explosion, samus);
         AssertTrue(explosion.IsActive,
             "rainbow impact survives its exact five-stage 18-frame lifetime");
-        processMethod.Invoke(explosionEnemies, [explosion, samus, (ushort)0, (ushort)0]);
+        Process(explosionEnemies, explosion, samus);
         AssertTrue(!explosion.IsActive,
             "rainbow impact deletes on the frame after its exact lifetime");
 
@@ -315,15 +314,11 @@ internal static partial class Program
                         RoomEnemyProjectileKind.MotherBrainDeathExplosion);
             for (int frame = 0; frame < deathExplosionLifetimes[parameter]; frame++)
             {
-                processMethod.Invoke(
-                    deathExplosionEnemies,
-                    [deathExplosion, samus, (ushort)0, (ushort)0]);
+                Process(deathExplosionEnemies, deathExplosion, samus);
             }
             AssertTrue(deathExplosion.IsActive,
                 $"Mother Brain death explosion {parameter} survives its exact lifetime");
-            processMethod.Invoke(
-                deathExplosionEnemies,
-                [deathExplosion, samus, (ushort)0, (ushort)0]);
+            Process(deathExplosionEnemies, deathExplosion, samus);
             AssertTrue(!deathExplosion.IsActive,
                 $"Mother Brain death explosion {parameter} deletes on its following frame");
         }
@@ -351,9 +346,7 @@ internal static partial class Program
                 RoomEnemyProjectileKind.MotherBrainHandBeamCharging);
         for (int frame = 0; frame < 39; frame++)
         {
-            processMethod.Invoke(
-                handBeamEnemies,
-                [handBeam, handBeamTarget, (ushort)0, (ushort)0]);
+            Process(handBeamEnemies, handBeam, handBeamTarget);
         }
         AssertTrue(handBeam.IsActive,
             "hand-beam charge survives all three exact 13-frame stages");
@@ -361,9 +354,7 @@ internal static partial class Program
                 projectile => projectile.Kind ==
                     RoomEnemyProjectileKind.MotherBrainHandBeamFired),
             "three compiled external callbacks spawn three fired hand-beam children");
-        processMethod.Invoke(
-            handBeamEnemies,
-            [handBeam, handBeamTarget, (ushort)0, (ushort)0]);
+        Process(handBeamEnemies, handBeam, handBeamTarget);
         AssertTrue(!handBeam.IsActive,
             "hand-beam charge deletes on the frame after its exact 39-frame lifetime");
 
@@ -387,12 +378,12 @@ internal static partial class Program
         RoomEnemyProjectileSlot ring = ringEnemies.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainOnionRing);
         for (int frame = 0; frame < 52; frame++)
-            processMethod.Invoke(ringEnemies, [ring, samus, (ushort)0, (ushort)0]);
+            Process(ringEnemies, ring, samus);
         AssertEqual(6, ring.XRadius,
             "real room onion ring reaches its compiled final X radius");
         AssertEqual(6, ring.YRadius,
             "real room onion ring reaches its compiled final Y radius");
-        processMethod.Invoke(ringEnemies, [ring, samus, (ushort)0, (ushort)0]);
+        Process(ringEnemies, ring, samus);
         AssertEqual(0xc462, ring.InstructionPointer,
             "real room onion ring sleeps at its authored initial-program terminal");
 
@@ -403,14 +394,14 @@ internal static partial class Program
             EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsOnionRings;
         ring.GraphicsIndex = 0x0400;
         for (int frame = 0; frame < 30; frame++)
-            processMethod.Invoke(ringEnemies, [ring, samus, (ushort)0, (ushort)0]);
+            Process(ringEnemies, ring, samus);
         AssertTrue(ring.IsActive,
             "onion-ring impact survives all six exact five-frame stages");
         AssertEqual(0, ring.GraphicsIndex,
             "onion-ring impact's duplicate native opcode selects palette zero");
         AssertEqual(EnemyProjectileCodePointers.RTS_868170, ring.PreInstruction,
             "onion-ring impact clears its movement pre-instruction");
-        processMethod.Invoke(ringEnemies, [ring, samus, (ushort)0, (ushort)0]);
+        Process(ringEnemies, ring, samus);
         AssertTrue(!ring.IsActive,
             "onion-ring impact deletes on the frame after its exact 30-frame lifetime");
 
@@ -435,6 +426,22 @@ internal static partial class Program
         AssertEqual(0xcb11, subtitle.InstructionPointer,
             "room-system Mother Brain escape subtitle retains its sleep opcode");
 
+        void Process(RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile, SamusState target)
+        {
+            bool selectsFrame = projectile.InstructionTimer == 1;
+            processMethod.Invoke(enemies, [projectile, target, (ushort)0, (ushort)0]);
+            if (!projectile.IsActive || !selectsFrame || projectile.InstructionTimer == 0 || projectile.PresentationOperandAddress == 0)
+                return;
+            ushort operand = projectile.PresentationOperandAddress;
+            AssertEqual(unchecked((ushort)(projectile.InstructionPointer - 2)), operand,
+                "real projectile interpreter selects its exact native operand address");
+            AssertTrue(EnemyProjectilePresentationFrameDefinitions.Contains(operand),
+                "real projectile interpreter selects an installed-art identity");
+            AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, projectile.SpritemapPointer,
+                "real projectile interpreter leaves spritemap resolution to installed content");
+            if (bus is EnemyProjectileMechanicsReadGuard guard)
+                guard.VerifySelectedDuration(operand, projectile.InstructionTimer);
+        }
         RoomEnemySystem CreateRoomEnemySystem()
         {
             var enemies = new RoomEnemySystem();
@@ -454,7 +461,7 @@ internal static partial class Program
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                processMethod.Invoke(enemies, [projectile, samus, (ushort)0, (ushort)0]);
+                Process(enemies, projectile, samus);
             }
         }
 
@@ -484,12 +491,12 @@ internal static partial class Program
             ushort attachedY = drool.YPosition;
 
             for (int frame = 0; frame < 50; frame++)
-                processMethod.Invoke(droolEnemies, [drool, samus, (ushort)0, (ushort)0]);
+                Process(droolEnemies, drool, samus);
             AssertEqual(
                 EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsDrool,
                 drool.PreInstruction,
                 $"{expectedKind} remains attached for five exact ten-frame stages");
-            processMethod.Invoke(droolEnemies, [drool, samus, (ushort)0, (ushort)0]);
+            Process(droolEnemies, drool, samus);
             AssertEqual(
                 EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_MotherBrainsDrool_Falling,
                 drool.PreInstruction,
@@ -508,10 +515,10 @@ internal static partial class Program
                 drool.InstructionPointer,
                 $"{expectedKind} floor impact enters the compiled splash program");
             for (int frame = 0; frame < 40; frame++)
-                processMethod.Invoke(droolEnemies, [drool, samus, (ushort)0, (ushort)0]);
+                Process(droolEnemies, drool, samus);
             AssertTrue(drool.IsActive,
                 $"{expectedKind} splash survives all four exact ten-frame stages");
-            processMethod.Invoke(droolEnemies, [drool, samus, (ushort)0, (ushort)0]);
+            Process(droolEnemies, drool, samus);
             AssertTrue(!drool.IsActive,
                 $"{expectedKind} splash deletes on the frame after its 40-frame lifetime");
         }
@@ -653,10 +660,10 @@ internal static partial class Program
     private sealed class EnemyProjectileMechanicsReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource
     {
-        private readonly HashSet<int> _handBeamPresentationReadBytes = [];
+        private readonly HashSet<int> _presentationReadBytes = [];
 
         public int ForbiddenReadAttempts { get; private set; }
-        public int HandBeamPresentationReadBytes => _handBeamPresentationReadBytes.Count;
+        public int PresentationReadBytes => _presentationReadBytes.Count;
 
         public byte ReadByte(int address)
         {
@@ -680,10 +687,19 @@ internal static partial class Program
                     $"Production read compiled enemy-projectile mechanics byte ${address:X6}.");
             }
 
-            if (MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(address))
-                _handBeamPresentationReadBytes.Add(address);
+            if (MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(address) ||
+                (address & 0xff0000) == 0x860000 &&
+                (EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand((ushort)address) ||
+                 EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand(unchecked((ushort)(address - 1)))))
+                _presentationReadBytes.Add(address);
         }
 
+        internal void VerifySelectedDuration(ushort operand, ushort duration)
+        {
+            int address = 0x860000 | unchecked((ushort)(operand - 2));
+            ushort native = (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+            AssertEqual(native, duration, "real projectile frame retains exact native duration");
+        }
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

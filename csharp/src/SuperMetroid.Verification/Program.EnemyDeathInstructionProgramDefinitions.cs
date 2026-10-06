@@ -39,6 +39,7 @@ internal static partial class Program
                 $"generic enemy-death mechanics word $86:{definition.Address:X4}");
         }
 
+        var observedInstalledOperands = new HashSet<ushort>();
         var guard = new EnemyDeathInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
@@ -105,17 +106,18 @@ internal static partial class Program
         }
 
         AssertEqual(EnemyDeathInstructionProgramDefinitions.PresentationWordCount,
-            guard.ObservedPresentationWords.Count,
-            "all generic enemy-death spritemap operands remain cartridge reads");
+            observedInstalledOperands.Count,
+            "all generic enemy-death operands select installed artwork");
         for (int index = 0;
              index < EnemyDeathInstructionProgramDefinitions.PresentationWordCount;
              index++)
         {
             ushort address =
                 EnemyDeathInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(guard.ObservedPresentationWords.Contains(address),
-                $"production reads generic enemy-death presentation $86:{address:X4}");
+            AssertTrue(observedInstalledOperands.Contains(address),
+                $"production selects installed generic enemy-death presentation $86:{address:X4}");
         }
+        AssertEqual(0, guard.ObservedPresentationWords.Count, "generic enemy-death presentation needs no live cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids all compiled generic enemy-death mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -134,11 +136,21 @@ internal static partial class Program
 
         Console.WriteLine(
             "Generic enemy-death instruction mechanics: all five real death variants, " +
-            "the shared respawn tail, 66 compiled words, and 31 live spritemap reads pass " +
-            "with mechanics bytes forbidden.");
+            "the shared respawn tail, 66 calculated words, and 31 installed visual selectors pass " +
+            "without runtime instruction-source reads.");
 
-        void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile) =>
+        void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
+        {
             process.Invoke(system, [projectile, new SamusState(), (ushort)0, (ushort)0]);
+            if (!projectile.IsActive) return;
+            ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));
+            AssertEqual(operand, projectile.PresentationOperandAddress, "generic death native frame operand after control flow");
+            AssertTrue(EnemyProjectilePresentationFrameDefinitions.Contains(operand), "generic death operand owns installed art");
+            int durationAddress = EnemyProjectileCodePointers.BankBase | unchecked((ushort)(operand - 2));
+            ushort duration = (ushort)(rom.ReadByte(durationAddress) | rom.ReadByte(durationAddress + 1) << 8);
+            AssertEqual(duration, projectile.InstructionTimer, "generic death native frame duration");
+            observedInstalledOperands.Add(operand);
+        }
     }
 
     private static int ProbeEnemyDeathInstructionMechanicsAllocation()

@@ -535,7 +535,10 @@ public sealed partial class SamusLiquidPhysicsState
 
     private void SpawnLandingPairUnlessSubmerged(SamusState samus, byte type)
     {
-        ushort bottom = samus.Kinematics.BottomBoundary;
+        // GetBottom_R18 uses the current pose definition and includes the last
+        // occupied pixel; the live collision radius can still belong to the old pose.
+        ushort bottom = unchecked((ushort)(samus.YPosition +
+            SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
 
         // Both `$91:F116` and `$91:F166` suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. `DetermineRawMedium...`

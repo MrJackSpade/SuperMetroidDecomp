@@ -816,6 +816,18 @@ internal static partial class Program
             typeof(SamusProjectileTrailSide).GetProperty("YPosition")!.SetValue(trail.Right, W(RidleyMovieMemory.TrailRightYPosition + trail.NativeByteIndex));
         }
 
+        for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
+        {
+            ushort packed = W(RidleyMovieMemory.AtmosphericFrameAndType + index * 2);
+            samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, (byte)(packed >> 8), (byte)packed,
+                W(RidleyMovieMemory.AtmosphericTimer + index * 2),
+                W(RidleyMovieMemory.AtmosphericX + index * 2), W(RidleyMovieMemory.AtmosphericY + index * 2));
+        }
+        typeof(SamusState).GetProperty(nameof(samus.AnimationFrameBuffer))!.SetValue(samus, W(RidleyMovieMemory.AnimationFrameBuffer));
+        typeof(SamusLiquidPhysicsState).GetProperty("LiquidPhysicsType")!.SetValue(samus.LiquidPhysics, W(RidleyMovieMemory.LiquidPhysicsType));
+        typeof(SamusLiquidPhysicsState).GetProperty("PeriodicSubDamage")!.SetValue(samus.LiquidPhysics, W(RidleyMovieMemory.PeriodicSubDamage));
+        typeof(SamusLiquidPhysicsState).GetProperty("PeriodicDamage")!.SetValue(samus.LiquidPhysics, W(RidleyMovieMemory.PeriodicDamage));
+
         // The snapshot was recorded after the entering door PLM deleted itself.
         // Restore the empty physical pool rather than executing fresh room-entry actors.
         var initialPlms = (Array)typeof(RoomPlmSystem).GetField("_slots", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.Plms)!;
@@ -939,6 +951,19 @@ internal static partial class Program
             Check("Camera Y fraction", runtime.Camera.YSubposition, RidleyMovieMemory.CameraYFraction);
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
+                for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
+                {
+                    var effect = samus.LiquidPhysics.AtmosphericEffects.Slots[index];
+                    Check($"Atmosphere {index} frame/type", effect.FrameAndType, RidleyMovieMemory.AtmosphericFrameAndType + index * 2);
+                    if (effect.Type == 0) continue;
+                    Check($"Atmosphere {index} timer", effect.AnimationTimer, RidleyMovieMemory.AtmosphericTimer + index * 2);
+                    Check($"Atmosphere {index} X", effect.XPosition, RidleyMovieMemory.AtmosphericX + index * 2);
+                    Check($"Atmosphere {index} Y", effect.YPosition, RidleyMovieMemory.AtmosphericY + index * 2);
+                }
+                Check("Liquid animation buffer", samus.AnimationFrameBuffer, RidleyMovieMemory.AnimationFrameBuffer);
+                Check("LiquidPhysicsType", samus.LiquidPhysics.LiquidPhysicsType, RidleyMovieMemory.LiquidPhysicsType);
+                Check("PeriodicSubDamage", samus.LiquidPhysics.PeriodicSubDamage, RidleyMovieMemory.PeriodicSubDamage);
+                Check("PeriodicDamage", samus.LiquidPhysics.PeriodicDamage, RidleyMovieMemory.PeriodicDamage);
                 Check("Acid damage surface", samus.LiquidPhysics.LavaAcidYPosition, RidleyMovieMemory.AcidSurface);
                 Check("Liquid tide phase", (ushort)typeof(RoomLayer3FxState).GetField("tidePhase", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.RoomLayer3Fx)!, RidleyMovieMemory.TidePhase);
             }

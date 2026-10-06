@@ -1359,8 +1359,8 @@ static void VerifySamusAtmosphericEffects()
         "landing dust right X offset");
     AssertEqual(92, landing.LiquidPhysics.AtmosphericEffects.Slots[3].XPosition,
         "landing dust left X offset");
-    AssertEqual(112, landing.LiquidPhysics.AtmosphericEffects.Slots[2].YPosition,
-        "landing dust uses current bottom boundary");
+    AssertEqual(111, landing.LiquidPhysics.AtmosphericEffects.Slots[2].YPosition,
+        "landing dust uses pose-defined inclusive bottom pixel");
 
     // Whole speed five changes only the impact sound to hard `$04`; Screw Attack changes
     // only the preceding library-one termination to `$34`. A cinematic suppresses both
@@ -1386,11 +1386,18 @@ static void VerifySamusAtmosphericEffects()
         "Norfair cinematic still dispatches landing dust");
     landing.LiquidPhysics.CinematicFunctionActive = false;
 
+    landing.LiquidPhysics.ConfigureWater(surfaceY: 111);
+    landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+        bus, landing, previousMovementType: SamusMovementType.Falling, previousPose: 0x29,
+        landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
+    AssertEqual(6, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+        "liquid exactly at the inclusive bottom does not suppress landing dust");
+
     // Active liquid returns without touching the landing slots. This is intentionally not
     // deletion: seed an unrelated type-seven record and prove its packed word survives.
     landing.LiquidPhysics.AtmosphericEffects.SetSlot(
         2, type: 7, animationFrame: 2, animationTimer: 9, worldX: 77, worldY: 88);
-    landing.LiquidPhysics.ConfigureWater(surfaceY: 111);
+    landing.LiquidPhysics.ConfigureWater(surfaceY: 110);
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         bus, landing, previousMovementType: SamusMovementType.Falling, previousPose: 0x29,
@@ -1440,7 +1447,7 @@ static void VerifySamusAtmosphericEffects()
         "landing splash right X offset");
     AssertEqual(97, landing.LiquidPhysics.AtmosphericEffects.Slots[3].XPosition,
         "landing splash left X offset");
-    AssertEqual(108, landing.LiquidPhysics.AtmosphericEffects.Slots[2].YPosition,
+    AssertEqual(107, landing.LiquidPhysics.AtmosphericEffects.Slots[2].YPosition,
         "landing splash rises four pixels above feet");
 
     Console.WriteLine(

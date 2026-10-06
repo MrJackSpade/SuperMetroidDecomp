@@ -1,6 +1,23 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$0AD4: native AtmosphericTimer liquid/atmospheric owner.</summary>
+    public const int AtmosphericTimer = 0x0ad4;
+    /// <summary>$0ADC: native AtmosphericX liquid/atmospheric owner.</summary>
+    public const int AtmosphericX = 0x0adc;
+    /// <summary>$0AE4: native AtmosphericY liquid/atmospheric owner.</summary>
+    public const int AtmosphericY = 0x0ae4;
+    /// <summary>$0AEC: native AtmosphericFrameAndType liquid/atmospheric owner.</summary>
+    public const int AtmosphericFrameAndType = 0x0aec;
+    /// <summary>$0AD2: native LiquidPhysicsType liquid/atmospheric owner.</summary>
+    public const int LiquidPhysicsType = 0x0ad2;
+    /// <summary>$0A9C: native AnimationFrameBuffer liquid/atmospheric owner.</summary>
+    public const int AnimationFrameBuffer = 0x0a9c;
+    /// <summary>$0A4E: native PeriodicSubDamage liquid/atmospheric owner.</summary>
+    public const int PeriodicSubDamage = 0x0a4e;
+    /// <summary>$0A50: native PeriodicDamage liquid/atmospheric owner.</summary>
+    public const int PeriodicDamage = 0x0a50;
+
     /// <summary>$D658: projectile trail left InstructionTimer, eighteen word-strided slots.</summary>
     public const int TrailLeftInstructionTimer = 0xd658;
     /// <summary>$D67C: projectile trail right InstructionTimer, eighteen word-strided slots.</summary>

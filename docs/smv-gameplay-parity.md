@@ -632,3 +632,28 @@ Release build and all 10,717 updates pass (`trail-state-build.log`,
 `trail-state-replay.log`) with no production change. This establishes trail state,
 placement and selected tiles, not final frame pixel equivalence; renderer composition
 and the other documented presentation/control/loading gaps remain open.
+
+
+### Atmospheric effects and liquid animation/damage owners
+
+All four atmospheric slots now compare packed frame/type and, when active, timers
+and X/Y. The remembered liquid medium, animation-delay buffer and both periodic
+damage accumulator words also compare at MainGameplay boundaries. These fields
+are initialized from the starting snapshot once, with no later native injection.
+Corrected the atmospheric-state XML address range to $0AD4-$0AF3.
+
+Two discrepancies were reproduced and fixed:
+- Update 353/source 454: landing dust Y was $01AF instead of $01AE. Native
+  GetBottom_R18 ($90:EC3E) uses current pose radius and subtracts one. Landing
+  effects now use that inclusive pixel for placement and liquid suppression.
+  Focused checks assert dust/splash Y and equality at the liquid surface.
+- Update 3230/source 3334: knockback floor contact created dust absent on the
+  cartridge. $90:DF6E clears live vertical speed before $91:F046 checks impact.
+  The port restored a diagnostic pre-impact magnitude, inventing landing effects.
+  The consumer now sees the cleared live speed; drained movement remains unchanged.
+
+Release build, --samus-atmospheric-effects, and all 10,717 movie updates pass
+(`atmosphere-final-build.log`, `atmosphere-final-focused.log`,
+`atmosphere-final-replay.log`). Both observed slot properties are verified directly.
+These implemented fixes await player validation; remaining presentation/control/
+loading coverage still prevents a complete-parity claim.

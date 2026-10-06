@@ -4,7 +4,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// The four packed atmospheric-graphics slots at WRAM <c>$0A8D-$0AB4</c> and their
+/// The four packed atmospheric-graphics slots at WRAM <c>$0AD4-$0AF3</c> and their
 /// bank-$90 producer/animation/draw logic.
 /// </summary>
 /// <remarks>

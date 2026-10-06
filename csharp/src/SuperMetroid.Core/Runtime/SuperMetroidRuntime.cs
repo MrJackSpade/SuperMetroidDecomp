@@ -2799,9 +2799,9 @@ public sealed partial class SuperMetroidRuntime
 
             // Every ordinary downward collision calls `$91:F046` inside movement, before
             // the timer hack, liquid animation, prospective-pose selection, and velocity
-            // cleanup. Ordinary-air, Morph/Spring, knockback, and drained special movement
-            // all publish `Landed`; the latter two also carry the magnitude they clear
-            // immediately after collision so hard/soft sound selection remains exact.
+            // cleanup. Knockback clears its live vertical speed in DF6E before this
+            // consumer; do not restore its diagnostic pre-impact magnitude for effects.
+            // Drained movement retains its separately modeled impact publication.
             bool ordinaryOrBallLanded =
                 LastAerialSamusMovement is { Landed: true } ||
                 LastMorphBallMovement is { Landed: true };
@@ -2809,16 +2809,12 @@ public sealed partial class SuperMetroidRuntime
             bool drainedLanded = LastDrainedSamusMovement is { Landed: true };
             if (!deathOwnsSamus && (ordinaryOrBallLanded || knockbackLanded || drainedLanded))
             {
-                ushort impactYSpeed = knockbackLanded
-                    ? LastKnockbackMovement!.Value.ImpactYSpeed
-                    : drainedLanded
-                        ? LastDrainedSamusMovement!.Value.ImpactYSpeed
-                        : Samus.Kinematics.YSpeed;
-                ushort impactYSubspeed = knockbackLanded
-                    ? LastKnockbackMovement!.Value.ImpactYSubspeed
-                    : drainedLanded
-                        ? LastDrainedSamusMovement!.Value.ImpactYSubspeed
-                        : Samus.Kinematics.YSubspeed;
+                ushort impactYSpeed = drainedLanded
+                    ? LastDrainedSamusMovement!.Value.ImpactYSpeed
+                    : Samus.Kinematics.YSpeed;
+                ushort impactYSubspeed = drainedLanded
+                    ? LastDrainedSamusMovement!.Value.ImpactYSubspeed
+                    : Samus.Kinematics.YSubspeed;
                 Samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
                     _addressSpace,
                     Samus,

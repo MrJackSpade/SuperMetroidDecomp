@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>Editable visual composition behind the bank-$92 Samus OAM pointer table.</summary>
 /// <remarks>
-/// The 253 pose selectors and 2,096 indexed pointers preserve native identity. Only
-/// the five-byte sprite parts describe appearance; animation timing and collisions
+/// The 253 pose selectors and 2,096 indexed pointers preserve native identity;
+/// the selected compositions and their five-byte sprite parts describe appearance; timing and collisions
 /// remain in the simulation. A zero pointer is a native mutable-memory reference,
 /// not an empty picture, and must still be resolved through the CPU address space.
 /// </remarks>
@@ -21,7 +21,7 @@ public sealed class SamusSpritemapArtworkCatalog
 
     private readonly Dictionary<int, ushort> topBases;
     private readonly Dictionary<int, ushort> bottomBases;
-    private readonly ushort[] pointers;
+    private readonly Dictionary<int, ushort> pointers;
     private readonly Dictionary<ushort, SamusSpritemapDefinition> definitions;
 
     public SamusSpritemapArtworkCatalog(ushort[] topBases, ushort[] bottomBases,
@@ -41,7 +41,6 @@ public sealed class SamusSpritemapArtworkCatalog
         this.bottomBases = Enumerable.Range(0, bottomBases.Length)
             .Where(pose => bottomBases[pose] != SamusSpritemapPoseDefinitions.BottomBase((byte)pose))
             .ToDictionary(pose => pose, pose => bottomBases[pose]);
-        this.pointers = (ushort[])pointers.Clone();
         this.definitions = new Dictionary<ushort, SamusSpritemapDefinition>();
         foreach (SamusSpritemapDefinition definition in definitions)
         {
@@ -52,9 +51,14 @@ public sealed class SamusSpritemapArtworkCatalog
                         (SamusSpritePart[])definition.Parts.Clone())))
                 throw new InvalidDataException("Samus spritemap has an invalid or duplicate record.");
         }
-        foreach (ushort pointer in this.pointers)
+        foreach (ushort pointer in pointers)
             if (pointer != 0 && !this.definitions.ContainsKey(pointer))
                 throw new InvalidDataException($"Samus spritemap ${pointer:X4} is absent from installed art.");
+        this.pointers = Enumerable.Range(0, pointers.Length)
+            .Where(index => SamusSpritemapFrameDefinitions.SourceIndex(index) != index
+                ? pointers[index] != pointers[SamusSpritemapFrameDefinitions.SourceIndex(index)]
+                : !SamusSpritemapFrameDefinitions.TryPointer(index, this.definitions, out ushort calculated) || pointers[index] != calculated)
+            .ToDictionary(index => index, index => pointers[index]);
         foreach (ushort index in topBases.Concat(bottomBases))
             if (index >= PointerCount)
                 throw new InvalidDataException($"Samus spritemap base index {index} is outside the table.");
@@ -65,7 +69,7 @@ public sealed class SamusSpritemapArtworkCatalog
     {
         content.AppendWords("top bases", TopBases);
         content.AppendWords("bottom bases", BottomBases);
-        content.AppendWords("pointers", this.pointers);
+        content.AppendWords("pointers", Pointers);
         foreach ((ushort pointer, SamusSpritemapDefinition definition) in this.definitions.OrderBy(pair => pair.Key))
         {
             content.Append("pointer", pointer);
@@ -81,7 +85,12 @@ public sealed class SamusSpritemapArtworkCatalog
 
     public ReadOnlySpan<ushort> TopBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => TopBase((byte)pose)).ToArray();
     public ReadOnlySpan<ushort> BottomBases => Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(pose => BottomBase((byte)pose)).ToArray();
-    public ReadOnlySpan<ushort> Pointers => pointers;
+    public ReadOnlySpan<ushort> Pointers => Enumerable.Range(0, PointerCount).Select(Pointer).ToArray();
+    private ushort Pointer(int index) => pointers.TryGetValue(index, out ushort value)
+        ? value : SamusSpritemapFrameDefinitions.SourceIndex(index) != index
+            ? Pointer(SamusSpritemapFrameDefinitions.SourceIndex(index))
+            : SamusSpritemapFrameDefinitions.TryPointer(index, definitions, out ushort calculated)
+                ? calculated : throw new InvalidDataException("Installed OAM allocation no longer supplies its selected identity.");
     public IReadOnlyCollection<SamusSpritemapDefinition> Definitions => definitions.Values;
     public ushort TopBase(byte pose)
     {
@@ -99,7 +108,7 @@ public sealed class SamusSpritemapArtworkCatalog
     {
         if (index >= PointerCount)
             throw new InvalidDataException($"Samus spritemap index {index} is outside extracted art.");
-        ushort pointer = pointers[index];
+        ushort pointer = Pointer(index);
         definition = pointer == 0 ? null : definitions[pointer];
         return definition is not null;
     }

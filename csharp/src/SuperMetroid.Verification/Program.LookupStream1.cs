@@ -3194,6 +3194,75 @@ internal static partial class Program
         Console.WriteLine($"Cannon placement:135 direct body/tail defaults,608 native bytes/independent edits,zero stock fallbacks,canonical hashes,independent empty/zero/shifted body art and{draws} actual OAM draws pass.");
     }
 
+    private static void VerifyLookupStream1OamPointers(ISnesAddressSpace rom)
+    {
+        using var directory = new MapCatalogTestDirectory();
+        SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
+        var body = SamusBodyArtworkFiles.Load(directory.Root, null);
+        var stock = body.Spritemaps;
+        ushort[] native = Enumerable.Range(0, 2096).Select(index =>
+            (ushort)(rom.ReadByte(0x92808d + index * 2) | rom.ReadByte(0x92808e + index * 2) << 8)).ToArray();
+        int aliases = 0, directPointers = 0;
+        var nativeDefinitions = stock.Definitions.ToDictionary(map => map.Pointer);
+        for (int index = 0; index < native.Length; index++)
+        {
+            int source = SamusSpritemapFrameDefinitions.SourceIndex(index);
+            AssertEqual(native[index], native[source], $"Source-identified native OAM sharing {index:X4}->{source:X4}");
+            if (source != index) aliases++;
+            else if (SamusSpritemapFrameDefinitions.TryPointer(index, nativeDefinitions, out ushort calculated))
+            {
+                AssertEqual(native[index], calculated, $"Direct native composition identity {index:X4}");
+                directPointers++;
+            }
+        }
+        AssertTrue(stock.Pointers.SequenceEqual(native), "All native pointer observations preserved");
+        var stored = (Dictionary<int, ushort>)typeof(SamusSpritemapArtworkCatalog).GetField("pointers",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(native.Length - aliases - directPointers, stored.Count, "Exact independent pointer basis, no stock alias/allocation fallbacks");
+        ushort[] top = stock.TopBases.ToArray(), bottom = stock.BottomBases.ToArray();
+        SamusSpritemapDefinition[] definitions = stock.Definitions.ToArray();
+        string Canonical(ushort[] pointers) => SelectedPresentationHash.Create(nameof(SamusSpritemapArtworkCatalog), content =>
+        {
+            content.AppendWords("top bases", top); content.AppendWords("bottom bases", bottom);
+            content.AppendWords("pointers", pointers);
+            foreach (var map in definitions.OrderBy(map => map.Pointer))
+            {
+                content.Append("pointer", map.Pointer); content.Append("part count", map.Parts.Length);
+                foreach (var part in map.Parts)
+                {
+                    content.Append("x", part.X); content.Append("y", part.Y); content.Append("attributes", part.Attributes);
+                }
+            }
+        });
+        AssertEqual(Canonical(native), stock.ContentIdentity, "Original native OAM canonical hash");
+        SamusSpritemapArtworkCatalog Create(ushort[] pointers) => new(top, bottom, pointers, definitions);
+        var emptyCompositions = new SamusSpritemapArtworkCatalog(top, bottom, native,
+            definitions.Select(map => new SamusSpritemapDefinition(map.Pointer, [])).ToArray());
+        AssertTrue(emptyCompositions.Pointers.SequenceEqual(native), "Independent OAM part-count edits preserve every supplied pointer identity");
+        for (int index = 0; index < native.Length; index++)
+        {
+            var supplied = native.ToArray(); supplied[index] = supplied[index] == 0 ? native[0] : (ushort)0;
+            var edited = Create(supplied);
+            AssertTrue(edited.Pointers.SequenceEqual(supplied), "Independent basis/alias edit preserves every supplied pointer");
+            bool exists = edited.TryGet((ushort)index, out var map);
+            AssertEqual(supplied[index] != 0, exists, "Actual edited selector retains mutable-memory versus installed record distinction");
+            if (exists) AssertEqual(supplied[index], map!.Pointer, "Actual edited native record identity");
+            if (index == native.Length - 1) AssertEqual(Canonical(supplied), edited.ContentIdentity, "Original independently edited OAM canonical hash");
+        }
+        Directory.CreateDirectory("csharp/test-temp");
+        File.WriteAllLines("csharp/test-temp/samus-oam-pointer-required.csv", new[] { "Index,NativeAddress,CompositionPointer" }
+            .Concat(stored.OrderBy(pair => pair.Key).Select(pair => $"{pair.Key:X4},{0x92808d + pair.Key * 2:X6},{pair.Value:X4}")));
+        AssertThrows<InvalidDataException>(() => stock.TryGet(2096, out _), "Original upper index rejection");
+        AssertThrows<InvalidDataException>(() => stock.TryGet(ushort.MaxValue, out _), "Original full ushort rejection");
+        var memory = new TestAddressSpace();
+        byte[] record = [1, 0, 3, 0, 2, 0x34, 0x12];
+        for (int index = 0; index < record.Length; index++) memory.WriteByte(0x920000 + index, record[index]);
+        var oam = new OamBuffer(); oam.BeginFrame();
+        oam.AddSamusSpritemap(memory, 3, 127, 131, stock);
+        AssertTrue(oam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }), "Native zero selector still reads mutable memory through actual renderer");
+        Console.WriteLine($"Samus OAM pointers:2096 native selectors, {aliases} exact aliases/{directPointers} direct calculations/{stored.Count} retained composition inputs,2096 independent edits,empty OAM,actual identity/WRAM selection and domain checks pass.");
+    }
+
     private static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
         using var directory = new MapCatalogTestDirectory();

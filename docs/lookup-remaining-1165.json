@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 424,
+  "remainingTableDefinitionCount": 423,
   "fileCount": 523,
   "entries": [
     {
@@ -2209,12 +2209,15 @@
       "implementationCommit": "ca882de7bb8da59fd61d0ac24de908c166b4a437"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs",
-      "line": 24,
-      "name": "SamusSpritemapArtworkCatalog.pointers",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind SamusSpritemapArtworkCatalog.pointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs",
+  "line": 24,
+  "name": "SamusSpritemapArtworkCatalog.pointers",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind SamusSpritemapArtworkCatalog.pointers. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "828111d98b5385cc397e7ffb56c6dbebefabbedb",
+  "disposition": "1062 named shared/reversed/repeated selections and220direct allocation/control/visibility defaults calculate. Retain exactly813 pose/half/phase drawing choices and separate observable06D7 zero WRAM identity, CSV SHA2568C3B8ED5FC546EE4B826B2D4F948FFCB58C31CCDC3DDF722BD39E2563A6EF29C with full domain partition in report. Selected illustration/sequence membership cannot be generated without changing the intended compositions; no physical,parts,pixels,timing or memory-emulation exemption. Independent supplied edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs",
       "line": 25,
@@ -21802,5 +21805,5 @@
     }
   ],
   "convertedSinceSnapshot": 606,
-  "justifiedRetainedSinceSnapshot": 98
+  "justifiedRetainedSinceSnapshot": 99
 }

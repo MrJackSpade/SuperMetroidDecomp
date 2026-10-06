@@ -12,11 +12,11 @@ internal sealed class CeresRidleyFadeColorDefinitions
     private readonly CeresRidleyBodyPaintDefinitions? bodyPaint;
 
     /// <summary>Source eye paint at $A6:E2AA..E2AE (also Ridley palette slots 12..14 at $A6:E167..E16B). The selected warm highlight/middle/shadow paint uses saturated red, a shared red step, three green levels and no blue. Regenerating these categorical material choices without the source inputs would select different eye paint. Initial/explosion palette aliases are evidence only; their independent containers are not exempted.</summary>
-    private readonly record struct EyePaint(int RedStep, int HighlightGreen, int MiddleGreen, int ShadowGreen)
+    internal readonly record struct EyePaint(int RedStep, int HighlightGreen, int MiddleGreen, int ShadowGreen)
     {
         private const int MaximumRgb5 = (1 << 5) - 1;
 
-        internal static EyePaint From(ushort[] colors) => new(MaximumRgb5 - (colors[1] & 31), colors[0] >> 5 & 31,
+        internal static EyePaint From(ReadOnlySpan<ushort> colors) => new(MaximumRgb5 - (colors[1] & 31), colors[0] >> 5 & 31,
             colors[1] >> 5 & 31, colors[2] >> 5 & 31);
 
         internal ushort Color(int shade)
@@ -55,10 +55,17 @@ internal sealed class CeresRidleyFadeColorDefinitions
     {
         ushort endpoint = kind == CeresRidleyFadeKind.Eyes ? eyePaint.Color(color) : bodyPaint!.Color(color);
         int phase = kind == CeresRidleyFadeKind.Eyes ? Rows - 1 - row : row;
+        return Scale(endpoint, phase);
+    }
+
+    /// <summary>Shared fifteen-interval channel quantizer used by native eye/body, retreat and zoom colors.</summary>
+    internal static ushort Scale(ushort endpoint, int phase)
+    {
+        const int intervals = 15;
         const int bias = 1;
-        int red = ((endpoint & 31) * phase + bias) / (Rows - 1);
-        int green = (((endpoint >> 5) & 31) * phase + bias) / (Rows - 1);
-        int blue = (((endpoint >> 10) & 31) * phase + bias) / (Rows - 1);
+        int red = ((endpoint & 31) * phase + bias) / intervals;
+        int green = (((endpoint >> 5) & 31) * phase + bias) / intervals;
+        int blue = (((endpoint >> 10) & 31) * phase + bias) / intervals;
         return (ushort)(red | green << 5 | blue << 10);
     }
 

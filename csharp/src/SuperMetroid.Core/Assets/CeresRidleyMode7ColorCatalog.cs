@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Ceres Ridley Mode-7 zoom shades, separate from movement and rotation.</summary>
 public sealed class CeresRidleyMode7ColorCatalog
 {
-    private readonly ushort[][] rows;
+    private readonly CeresRidleyMode7PaintDefinitions rows;
 
-    private CeresRidleyMode7ColorCatalog(ushort[][] rows) => this.rows = rows;
+    private CeresRidleyMode7ColorCatalog(ushort[][] rows) => this.rows = new(rows);
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -22,23 +22,18 @@ public sealed class CeresRidleyMode7ColorCatalog
     /// <summary>Reads an authored color by the high byte of the native zoom word.</summary>
     public ushort Resolve(int zoomHighByte, int color)
     {
-        if ((uint)zoomHighByte >= rows.Length)
+        if ((uint)zoomHighByte >= CeresRidleyPaletteRomData.Mode7ZoomRowCount)
             throw new ArgumentOutOfRangeException(nameof(zoomHighByte));
-        if ((uint)color >= rows[zoomHighByte].Length)
-            throw new ArgumentOutOfRangeException(nameof(color));
-        return rows[zoomHighByte][color];
+        return rows.Resolve(zoomHighByte, color);
     }
 
     public void Apply(SnesCgram cgram, int zoomHighByte)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        if ((uint)zoomHighByte >= rows.Length)
-            throw new ArgumentOutOfRangeException(nameof(zoomHighByte));
-        for (int color = 0; color < rows[zoomHighByte].Length; color++)
-            cgram.SetColor(CeresRidleyPaletteRomData.Mode7ZoomCgramIndex + color,
-                rows[zoomHighByte][color]);
+        _ = Resolve(zoomHighByte, 0);
+        for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
+            cgram.SetColor(CeresRidleyPaletteRomData.Mode7ZoomCgramIndex + color, rows.Resolve(zoomHighByte, color));
     }
-
     public static CeresRidleyMode7ColorCatalog Load(Stream json)
     {
         ArgumentNullException.ThrowIfNull(json);

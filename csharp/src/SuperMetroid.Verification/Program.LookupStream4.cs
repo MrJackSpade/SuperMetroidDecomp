@@ -2726,4 +2726,84 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => stock.ApplyRetreat(null!), "Retreat null CGRAM");
         Console.WriteLine("Ceres shared retreat:8 native identities,zero stock values,48 independent RGB edits,51 exact dual-domain copies/bounds/null pass.");
     }
+    private static void VerifyLookupStream4CeresZoomAndRetreat(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
+        var zoomDocument = JsonSerializer.Deserialize<CeresRidleyMode7ColorDocument>(zoomJson, MapPresentationFormat.JsonOptions)!;
+        var zoomStock = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(zoomJson));
+        var zoomDefinition = (CeresRidleyMode7PaintDefinitions)typeof(CeresRidleyMode7ColorCatalog).GetField("rows", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(zoomStock)!;
+        var zoomEdits = (Dictionary<int, ushort>)typeof(CeresRidleyMode7PaintDefinitions).GetField("edits", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(zoomDefinition)!;
+        AssertEqual(0, zoomEdits.Count, "All native zoom words calculate without residuals");
+        AssertEqual(Word(0x848050), Word(0xa6b123), "Native neutral contour identity shared with Golden Torizo");
+        AssertEqual(Word(0xa6b123), GoldenTorizoHealthPaintDefinitions.Color(0, 15, rear: false), "Existing immutable neutral source owner");
+        static PaletteRgb5 Change(PaletteRgb5 original, int channel) => channel switch
+        {
+            0 => original with { Red = original.Red ^ 1 },
+            1 => original with { Green = original.Green ^ 1 },
+            _ => original with { Blue = original.Blue ^ 1 },
+        };
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 135; edit++)
+        {
+            var rows = zoomDocument.ZoomRows.Select(row => row.ToArray()).ToArray();
+            if (edit >= 0) rows[edit / 15][edit % 15] = Change(rows[edit / 15][edit % 15], channel);
+            var selected = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorCatalog.Write(zoomDocument with { ZoomRows = rows })));
+            var cgram = new SnesCgram();
+            var enemies = new RoomEnemySystem { CeresRidleyMode7Colors = selected };
+            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+            var apply = typeof(RoomEnemySystem).GetMethod("UpdateCeresRidleyMode7Palette", flags)!.CreateDelegate<Action<ushort>>(enemies);
+            for (int row = 0; row < 9; row++)
+            {
+                for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+                apply((ushort)(row * 256 + (edit < 0 ? 255 : 0)));
+                for (int color = 0; color < 256; color++)
+                {
+                    ushort expected = color is >= 81 and < 96
+                        ? (ushort)(Word(0xa6b107 + row * 32 + (color - 81) * 2) ^ (edit == row * 15 + color - 81 ? 1 << (channel * 5) : 0))
+                        : (ushort)0x1234;
+                    AssertEqual(expected, cgram.Colors[color], "Actual native high-byte zoom selection and independent edits");
+                    if (color is >= 81 and < 96) AssertEqual(expected, selected.Resolve(row, color - 81), "Calculated zoom resolver matches actual copy");
+                }
+            }
+        }
+        byte[] json = CeresRidleyColorExtractor.Extract(rom);
+        var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
+        var stock = CeresRidleyColorCatalog.Load(new MemoryStream(json));
+        var retreatEdits = (Dictionary<int, ushort>)typeof(CeresRidleyColorCatalog).GetField("retreatBg", flags)!.GetValue(stock)!;
+        AssertEqual(0, retreatEdits.Count, "All native retreat background words calculate");
+        for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 29; edit++)
+        {
+            var retreat = document.RetreatBg.ToArray();
+            var body = document.BodyFade.Select(row => row.ToArray()).ToArray();
+            var eyes = document.EyeFade.Select(row => row.ToArray()).ToArray();
+            if (edit is >= 0 and < 15) retreat[edit] = Change(retreat[edit], channel);
+            else if (edit is >= 15 and < 26) body[1][edit - 15] = Change(body[1][edit - 15], channel);
+            else if (edit >= 26) eyes[14][edit - 26] = Change(eyes[14][edit - 26], channel);
+            var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { RetreatBg = retreat, BodyFade = body, EyeFade = eyes })));
+            var cgram = new SnesCgram();
+            for (int color = 0; color < 256; color++) cgram.SetColor(color, 0x1234);
+            selected.ApplyRetreat(cgram);
+            for (int color = 0; color < 256; color++)
+            {
+                int shared = color is >= 33 and < 41 ? color - 33 : color is >= 241 and < 249 ? color - 241 : -1;
+                ushort expected = color is >= 81 and < 96
+                    ? (ushort)(Word(0xa6a9e3 + (color - 81) * 2) ^ (edit == color - 81 ? 1 << (channel * 5) : 0))
+                    : shared >= 0 ? Word(0xa6aa01 + shared * 2) : (ushort)0x1234;
+                AssertEqual(expected, cgram.Colors[color], "Retreat near-black source independence and exact BG/OBJ destinations");
+            }
+        }
+        foreach (int invalid in new[] { -1, int.MinValue, int.MaxValue })
+        {
+            AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(invalid, 0), "Zoom row domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(0, invalid), "Zoom color domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatBg(invalid), "Retreat color domain");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(9, 0), "Zoom upper row bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => zoomStock.Resolve(0, 15), "Zoom upper color bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveRetreatBg(15), "Retreat upper color bound");
+        AssertThrows<ArgumentNullException>(() => zoomStock.Apply(null!, 0), "Zoom null CGRAM");
+        AssertThrows<ArgumentNullException>(() => stock.ApplyRetreat(null!), "Retreat null CGRAM");
+        Console.WriteLine("Ceres zoom/retreat:150 native words,zero stock overrides,405 zoom/87 retreat-source RGB edits,3672 actual zoom selections/90 retreat copies,domains/null pass.");
+    }
 }

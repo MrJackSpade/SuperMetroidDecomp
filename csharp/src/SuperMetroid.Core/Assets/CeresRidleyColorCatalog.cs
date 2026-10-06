@@ -13,7 +13,7 @@ public sealed class CeresRidleyColorCatalog
     private readonly CeresRidleyFadeColorDefinitions bodyFade;
     private readonly ushort[][] health;
     private readonly CeresRidleyAlarmColorDefinitions alarm;
-    private readonly ushort[] retreatBg;
+    private readonly Dictionary<int, ushort> retreatBg = [];
     /// <summary>Only supplied differences from the first eight door paints: native $A6:AA01-AA10 repeats $A6:E171-E180.</summary>
     private readonly Dictionary<int, ushort> retreatShared = [];
     private readonly CeresBabyPaintDefinitions baby;
@@ -28,7 +28,8 @@ public sealed class CeresRidleyColorCatalog
         this.bodyFade = bodyFade;
         this.health = health;
         this.alarm = alarm;
-        this.retreatBg = retreatBg;
+        for (int color = 0; color < retreatBg.Length; color++)
+            if (retreatBg[color] != CalculateRetreatBg(color)) this.retreatBg.Add(color, retreatBg[color]);
         // The retreat copies the normal door/container paints into both drawing domains.
         // Keep only independent supplied differences from the existing startup owner.
         for (int color = 0; color < retreatShared.Length; color++)
@@ -49,7 +50,14 @@ public sealed class CeresRidleyColorCatalog
     public ushort ResolveBodyFade(int row, int color) => bodyFade.Resolve(row, color);
     public ushort ResolveHealth(int row, int color) => Get(health, row, color);
     public ushort ResolveAlarm(int row, int color) => alarm.Resolve(row, color);
-    public ushort ResolveRetreatBg(int color) => Get(retreatBg, color);
+    public ushort ResolveRetreatBg(int color)
+    {
+        if ((uint)color >= CeresRidleyPaletteRomData.RetreatBgColorCount)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        return retreatBg.TryGetValue(color, out ushort edited) ? edited : CalculateRetreatBg(color);
+    }
+    private ushort CalculateRetreatBg(int color) => color < 11 ? bodyFade.Resolve(1, color)
+        : color < 14 ? eyeFade.Resolve(14, color - 11) : CeresRidleyMode7PaintDefinitions.RetreatNeutral;
     public ushort ResolveRetreatShared(int color)
     {
         if ((uint)color >= CeresRidleyPaletteRomData.RetreatSharedColorCount)
@@ -95,7 +103,9 @@ public sealed class CeresRidleyColorCatalog
 
     public void ApplyRetreat(SnesCgram cgram)
     {
-        Apply(cgram, retreatBg, CeresRidleyPaletteRomData.RetreatBgCgramIndex);
+        ArgumentNullException.ThrowIfNull(cgram);
+        for (int color = 0; color < CeresRidleyPaletteRomData.RetreatBgColorCount; color++)
+            cgram.SetColor(CeresRidleyPaletteRomData.RetreatBgCgramIndex + color, ResolveRetreatBg(color));
         for (int color = 0; color < CeresRidleyPaletteRomData.RetreatSharedColorCount; color++)
         {
             ushort selected = ResolveRetreatShared(color);

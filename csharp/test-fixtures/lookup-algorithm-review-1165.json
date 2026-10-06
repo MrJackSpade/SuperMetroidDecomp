@@ -12301,4 +12301,15 @@
   "completed": [
     "SamusArmCannonArtworkCatalog.drawingData"
   ]
+},"ceresZoomRetreatWholeEntries":{
+  "workerCommit": "9371dd6090864aa93132a44413f5dd9754eafe5f",
+  "confirmation": "Root build1457warnings/0errors;150native colors,zero stock overrides,405zoom/87retreat-source RGB edits,3672actual zoom selections/90fullretreat copies,bounds/null pass. Shared quantizer existing224native/672edits/10848fade applications also pass. Exact Golden neutral identity and native full-map/copy consumer reviewed.",
+  "completed": [
+    "CeresRidleyColorCatalog.retreatBg",
+    "CeresRidleyMode7ColorCatalog.rows"
+  ],
+  "disposition": [
+    "Calculate15retreat colors from existing body phase1/15,eye phase1/15 and Golden neutral through shared biased quantizer. Preserve independent source/output edits. No new retained values or exemption.",
+    "Calculate135colors from existing14body/eye paints and Golden neutral endpoint using common floor((channel*exposure+1)/15). Retain only selected two-rate zoom exposure15-min(z,6)-2max(0,z-6) as visual dimming design; no new neutral magnitude or residual samples. Independent edits and all15copied colors preserved; no pixel/movement/timing exemption."
+  ]
 }}

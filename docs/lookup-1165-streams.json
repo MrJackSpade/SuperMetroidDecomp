@@ -3252,6 +3252,7 @@
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/CeresBabyPaintDefinitions.cs","stream":4,"purpose":"Complete60 Baby colors via shared material owners,eight exact paint inputs and reviewed shape hue policies; independent edits preserved, pixels/timing excluded"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/MenuHeadingBorderDefinitions.cs","stream":3,"purpose":"Complete options heading geometry from reviewed typography,glyph identities and exact perimeter ordering; supplied edits preserved, pixels/colors/timing excluded"}
 ,{"path":"csharp/src/SuperMetroid.Core/Assets/SamusArmCannonPlacementDefinitions.cs","stream":1,"purpose":"Complete cannon descriptor geometry through body OAM, exact reviewed overlay joins/phase policies and four opaque tail components; narrow SamusBodyArtworkCatalog constructor binding, independent edits preserved"}
+,{"path":"csharp/src/SuperMetroid.Core/Assets/CeresRidleyMode7PaintDefinitions.cs","stream":4,"purpose":"Complete zoom/retreat colors from existing body,eye,Golden neutral paints and reviewed zoom exposure; common quantizer, independent edits, no pixel/motion/timing exemption"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

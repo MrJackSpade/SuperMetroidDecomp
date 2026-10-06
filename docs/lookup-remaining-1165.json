@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 442,
+  "remainingTableDefinitionCount": 440,
   "fileCount": 523,
   "entries": [
     {
@@ -239,12 +239,15 @@
       "note": "Original/default payload behind CeresRidleyColorCatalog.alarm. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
-      "line": 16,
-      "name": "CeresRidleyColorCatalog.retreatBg",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CeresRidleyColorCatalog.retreatBg. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
+  "line": 16,
+  "name": "CeresRidleyColorCatalog.retreatBg",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CeresRidleyColorCatalog.retreatBg. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "converted",
+  "implementationCommit": "9371dd6090864aa93132a44413f5dd9754eafe5f",
+  "disposition": "Calculate15retreat colors from existing body phase1/15,eye phase1/15 and Golden neutral through shared biased quantizer. Preserve independent source/output edits. No new retained values or exemption."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
   "line": 17,
@@ -266,12 +269,15 @@
   "disposition": "Calculate60colors from shared body membrane and Baby fang paints,eight local material channels,midpoints and pose brightness. Retain exact glass/dome/seam paint choices,clipped3-step brightening,one-phase fang-red lag and cyan G/B ceiling maximum-minus-one as reviewed selected color composition. Zero stock residual words; pixels/timing excluded."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyMode7ColorCatalog.cs",
-      "line": 11,
-      "name": "CeresRidleyMode7ColorCatalog.rows",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CeresRidleyMode7ColorCatalog.rows. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyMode7ColorCatalog.cs",
+  "line": 11,
+  "name": "CeresRidleyMode7ColorCatalog.rows",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CeresRidleyMode7ColorCatalog.rows. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "9371dd6090864aa93132a44413f5dd9754eafe5f",
+  "disposition": "Calculate135colors from existing14body/eye paints and Golden neutral endpoint using common floor((channel*exposure+1)/15). Retain only selected two-rate zoom exposure15-min(z,6)-2max(0,z-6) as visual dimming design; no new neutral magnitude or residual samples. Independent edits and all15copied colors preserved; no pixel/movement/timing exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ChargeFlarePlacementCatalog.cs",
       "line": 9,
@@ -21747,6 +21753,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 601,
-  "justifiedRetainedSinceSnapshot": 85
+  "convertedSinceSnapshot": 602,
+  "justifiedRetainedSinceSnapshot": 86
 }

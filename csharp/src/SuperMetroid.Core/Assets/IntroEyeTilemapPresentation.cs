@@ -8,7 +8,7 @@ public sealed class IntroEyeTilemapPresentation
 {
     private readonly EyeRectangle[] frames;
 
-    private IntroEyeTilemapPresentation(ushort[][] frames) => this.frames = frames.Select(words => new EyeRectangle(words)).ToArray();
+    private IntroEyeTilemapPresentation(ushort[][] frames) => this.frames = frames.Select((words, index) => new EyeRectangle(words, index)).ToArray();
 
     /// <summary>Identity of every selected eye rectangle in its compiled blink-selector order.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
@@ -27,11 +27,11 @@ public sealed class IntroEyeTilemapPresentation
 
     private sealed class EyeRectangle
     {
-        private readonly ushort origin;
+        private readonly int frame;
         private readonly ushort[]? supplied;
-        internal EyeRectangle(ushort[] words)
+        internal EyeRectangle(ushort[] words, int frame)
         {
-            origin = words[0];
+            this.frame = frame;
             for (int cell = 0; cell < words.Length; cell++)
             {
                 if (words[cell] == Calculate(cell)) continue;
@@ -39,8 +39,8 @@ public sealed class IntroEyeTilemapPresentation
                 break;
             }
         }
-        private ushort Calculate(int cell) => unchecked((ushort)(origin +
-            cell % IntroEyeTilemapFormat.Columns + cell / IntroEyeTilemapFormat.Columns * IntroEyeTilemapFormat.UnresolvedNativeRowStride));
+        private ushort Calculate(int cell) => unchecked((ushort)(IntroEyeTilemapFormat.FirstWord(frame) +
+            cell % IntroEyeTilemapFormat.Columns + cell / IntroEyeTilemapFormat.Columns * IntroEyeTilemapFormat.NativeRowStride));
         internal ReadOnlySpan<ushort> Words
         {
             get
@@ -111,7 +111,7 @@ public sealed record IntroEyeTilemapFrame
     public required RoomBackgroundTilemapCell[] Cells { get; init; }
 }
 
-/// <summary>Stable names and native dimensions for the four portrait eye frames.</summary>
+/// <summary>Stable identities and calculated atlas layout for the four portrait eye drawings. The three selected patch anchors and display design identify authored portrait content; changing them invents different drawings. Timing and pixels are outside this retained scope.</summary>
 public static class IntroEyeTilemapFormat
 {
     public const int Version = 1;
@@ -119,8 +119,28 @@ public static class IntroEyeTilemapFormat
     public const int Columns = 3;
     public const int Rows = 2;
     public const int CellsPerFrame = Columns * Rows;
-    /// <summary>$8C:D785/D795/D7A5/D7B5: second tile row begins16 characters after the first; this selected atlas geometry remains required.</summary>
-    internal const int UnresolvedNativeRowStride = 16;
+    /// <summary>$8C:D785/D795/D7A5/D7B5: second tile row begins16 characters after the first; each selected patch uses the native 16-column artwork atlas.</summary>
+    internal const int NativeRowStride = 16;
+    /// <summary>$8C:D785: open-eye patch starts at tile389 of the installed95:F90E atlas.</summary>
+    private const int OpenTile = 0x389;
+    /// <summary>$8C:D795: half-open-eye patch starts at tile31D of the same atlas.</summary>
+    private const int HalfOpenTile = 0x31d;
+    /// <summary>$8C:D7A5: closed-eye patch starts at tile33A; deadpan patch atD7B5 lies immediately to its right.</summary>
+    private const int ClosedTile = 0x33a;
+    /// <summary>$8C:D785-D7BF: selected portrait palette three, no priority or flips.</summary>
+    private const int PortraitPalette = 3;
+    internal static ushort FirstWord(int frame)
+    {
+        int tile = frame switch
+        {
+            0 => OpenTile,
+            1 => HalfOpenTile,
+            2 => ClosedTile,
+            3 => ClosedTile + Columns,
+            _ => throw new ArgumentOutOfRangeException(nameof(frame)),
+        };
+        return SnesBgTilemapWord.Create(tile, PortraitPalette, false, default).Raw;
+    }
     public const string FileName = "intro-samus-eye-frames.json";
 
     public static string FrameId(int index)

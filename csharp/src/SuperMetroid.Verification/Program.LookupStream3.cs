@@ -67,6 +67,14 @@ internal static partial class Program
         ushort[][] native = Enumerable.Range(0, 4).Select(frame => Enumerable.Range(0, 6)
             .Select(cell => ReadVerificationWord(rom, 0x8cd785 + 16 * frame + 2 * cell)).ToArray()).ToArray();
         IntroEyeTilemapPresentation stock = Load(native);
+        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        foreach (object rectangle in (Array)typeof(IntroEyeTilemapPresentation).GetField("frames", fields)!.GetValue(stock)!)
+        {
+            AssertTrue(rectangle.GetType().GetField("supplied", fields)!.GetValue(rectangle) is null,
+                "stock eye rectangle stores no native word payload");
+            AssertTrue(rectangle.GetType().GetField("origin", fields) is null,
+                "stock eye rectangle no longer stores independent origin words");
+        }
         Confirm(stock, native);
         for (int frame = 0; frame < 4; frame++)
         for (int cell = 0; cell < 6; cell++)
@@ -78,12 +86,23 @@ internal static partial class Program
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameWords(-1).ToArray(), "negative eye frame");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameWords(4).ToArray(), "upper eye frame");
-        Console.WriteLine("Intro eye rectangles:24 native cells,24 independent edits, content identities and bounds pass; four origins/row stride/artwork remain required.");
+        Console.WriteLine("Intro eye rectangles:24 native cells,24 independent edits, content identities and bounds pass; actual portrait draw copies pass; only reviewed patch identities/display policy remain.");
 
         static void Confirm(IntroEyeTilemapPresentation selected, ushort[][] expected)
         {
             for (int frame = 0; frame < expected.Length; frame++)
                 AssertTrue(expected[frame].AsSpan().SequenceEqual(selected.FrameWords(frame)), $"eye rectangle {frame}");
+            var vram = new SnesVram();
+            var objects = new IntroCinematicObjectSystem(new TestAddressSpace(), vram, new ushort[1024], eyeArtwork: selected);
+            var draw = typeof(IntroCinematicObjectSystem).GetMethod("ProcessTileData",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+            for (int frame = 0; frame < expected.Length; frame++)
+            {
+                draw.Invoke(objects, [(ushort)0, (ushort)(17 | 13 << 8), (ushort)(0xd781 + frame * 16)]);
+                for (int cell = 0; cell < 6; cell++)
+                    AssertEqual(expected[frame][cell], vram.ReadWord(0x4800 + (13 + cell / 3) * 32 + 17 + cell % 3),
+                        "actual eye patch draw preserves native and independently supplied cells");
+            }
             string identity = SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
             {
                 content.Append("frames", expected.Length);
@@ -136,7 +155,7 @@ internal static partial class Program
             AssertTrue(edited.AsSpan().SequenceEqual(selected.Words.Span), $"independent divider cell edit {changed}");
             AssertTrue(native.AsSpan().SequenceEqual(stock.Words.Span), "previous divider instance remains immutable");
         }
-        Console.WriteLine("Intro divider:128 native cells and128 independent tile/palette/flip edits pass; base words and selected arrangement remain required.");
+        Console.WriteLine("Japanese subtitle staging:128 native cells and128 independent tile/palette/flip edits pass; only reviewed display policy remains.");
 
         static IntroFinalLineTilemap Load(ushort[] words)
         {
@@ -160,7 +179,6 @@ internal static partial class Program
             return IntroFinalLineTilemap.Load(json);
         }
     }
-
     private static void VerifyStream3HandBeamBodyLayout()
     {
         ushort[] nativeOperands = [0x9a46, 0x9a4a, 0x9a4e, 0x9a5a, 0x9a66, 0x9a72,
@@ -3289,6 +3307,13 @@ internal static partial class Program
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
                 IntroCinematicRomData.Vram.NarrationTilemapDestinationByte, native.Length).SequenceEqual(native),
                 "actual opening constructor transfers calculated narration to native VRAM destination");
+            typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!.Invoke(intro, null);
+            var subtitleUpload = intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
+                IntroCinematicRomData.Vram.NarrationTilemapDestinationByte + IntroCinematicRomData.Text.FinalLineDestinationStart * 2,
+                IntroFinalLineTilemapFormat.CellCount * 2);
+            for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
+                AssertEqual(ReadVerificationWord(rom, IntroCinematicRomData.Assets.FinalTextLine + index * 2),
+                    (ushort)(subtitleUpload[index * 2] | subtitleUpload[index * 2 + 1] << 8), "actual Japanese subtitle staging upload");
             string hash = stock.ContentIdentity;
             for (int word = 0; word < 1024; word++)
             {

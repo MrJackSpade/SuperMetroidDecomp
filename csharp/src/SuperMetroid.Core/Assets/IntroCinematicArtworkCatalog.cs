@@ -81,7 +81,7 @@ public sealed class IntroCinematicArtworkCatalog
     /// <summary>First, pre-typewriter narration BG3 tilemap uploaded at VRAM byte $9800.</summary>
     public ReadOnlyMemory<byte> InitialNarrationTilemap => suppliedInitialNarration ?? IntroInitialNarrationTilemapDefinitions.Compile();
     private readonly byte[]? suppliedInitialNarration;
-    /// <summary>Four ornamental BG3 rows placed beneath illustrated-page text.</summary>
+    /// <summary>Four BG3 rows mapping Japanese subtitle glyph staging beneath illustrated-page text.</summary>
     public IntroFinalLineTilemap FinalLine { get; }
     /// <summary>Four editable Samus-portrait eye rectangles, without their blink timing.</summary>
     public IntroEyeTilemapPresentation EyeFrames { get; }

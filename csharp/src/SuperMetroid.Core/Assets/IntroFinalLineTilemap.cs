@@ -1,18 +1,16 @@
 using System.Text.Json;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>The four-row illustrated-page divider, as ordered editable BG tile references.</summary>
+/// <summary>The four-row Japanese subtitle staging map, as ordered editable BG tile references.</summary>
 public sealed class IntroFinalLineTilemap
 {
     private readonly ushort[]? suppliedWords;
-    private readonly ushort blankWord, firstInteriorWord;
 
     private IntroFinalLineTilemap(ushort[] words)
     {
-        blankWord = words[0];
-        firstInteriorWord = words[IntroFinalLineTilemapFormat.UnresolvedMarginColumns];
         for (int index = 0; index < words.Length; index++)
         {
             if (words[index] == CalculateWord(index)) continue;
@@ -33,16 +31,16 @@ public sealed class IntroFinalLineTilemap
         }
     }
 
-    private ushort CalculateWord(int index)
+    private static ushort CalculateWord(int index)
     {
         int column = index % IntroFinalLineTilemapFormat.Columns;
         int row = index / IntroFinalLineTilemapFormat.Columns;
-        int margin = IntroFinalLineTilemapFormat.UnresolvedMarginColumns;
+        int margin = IntroFinalLineTilemapFormat.MarginColumns;
         int interiorColumns = IntroFinalLineTilemapFormat.Columns - 2 * margin;
-        if (column < margin || column >= margin + interiorColumns) return blankWord;
-        // Paired screen rows select the upper/lower halves of each two-row tile strip.
+        if (column < margin || column >= margin + interiorColumns) return IntroFinalLineTilemapFormat.MarginWord;
+        // Native $8B:8D84 places lower halves 0300 bytes after upper halves; each group contains two text lines.
         int tileStripRow = 2 * (row & 1) + (row >> 1);
-        return unchecked((ushort)(firstInteriorWord + tileStripRow * interiorColumns + column - margin));
+        return unchecked((ushort)(IntroFinalLineTilemapFormat.FirstInteriorWord + tileStripRow * interiorColumns + column - margin));
     }
     public static IntroFinalLineTilemap Load(Stream json)
     {
@@ -88,14 +86,26 @@ public sealed record IntroFinalLineTilemapDocument
     public required RoomBackgroundTilemapCell[] Cells { get; init; }
 }
 
-/// <summary>File identity and dimensions for the cartridge's four-row text divider.</summary>
+/// <summary>File identity and dimensions for the cartridge's four-row Japanese subtitle staging map.</summary>
 public static class IntroFinalLineTilemapFormat
 {
     public const int Version = 1;
     public const int Columns = 32;
-    public const int Rows = 4;
+    /// <summary>$8B:A72B-A82A: two selected subtitle lines, each composed of an upper and lower glyph half.</summary>
+    public const int Rows = 2 * 2;
     public const int CellCount = Columns * Rows;
-    /// <summary>$8B:A72B-A82A subtitle tilemap: four blank columns at each side; this chosen margin remains required.</summary>
-    internal const int UnresolvedMarginColumns = 4;
+    /// <summary>$8B:8DEA/A68F: 0600 bytes of 2bpp glyph staging form four displayed tile rows, yielding 24 columns.</summary>
+    internal const int InteriorColumns = IntroCinematicRomData.Vram.JapaneseBlankCharactersByteCount /
+        (IntroFontAtlasFormat.BitsPerPixel * IntroFontAtlasFormat.TileSize * Rows);
+    /// <summary>$8B:A72B-A82A: center the subtitle staging width in the 32-column BG page.</summary>
+    internal const int MarginColumns = (Columns - InteriorColumns) / 2;
+    /// <summary>$8B:A6B7: margins share the surrounding Japanese blank tile/palette/priority word.</summary>
+    internal static ushort MarginWord => IntroCinematicRomData.Text.JapaneseBlank.Raw;
+    /// <summary>$8B:A72B: first subtitle tile follows its VRAM staging destination relative to the font base; palette four and priority are selected subtitle style.</summary>
+    internal static ushort FirstInteriorWord => SnesBgTilemapWord.Create(
+        (IntroCinematicRomData.Vram.JapaneseBlankCharactersDestinationByte - IntroCinematicRomData.Vram.FontOneDestinationByte) /
+        (IntroFontAtlasFormat.BitsPerPixel * IntroFontAtlasFormat.TileSize), SubtitlePalette, true, default).Raw;
+    /// <summary>$8B:A733: chosen palette four for the Japanese subtitle glyph staging area; this display policy is retained as selected typesetting, not prose, pixels or timing.</summary>
+    private const int SubtitlePalette = 4;
     public const string FileName = "intro-final-text-divider.json";
 }

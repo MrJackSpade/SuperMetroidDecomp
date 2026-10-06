@@ -12238,4 +12238,22 @@
     "CeresRidleyColorCatalog.start"
   ],
   "confirmation": "Root reviewed exact normal/Baby source aliases and full32target-copy consumer. Build1455warnings/zeroerrors,Audit0/0;32native words,16door/15Baby aliases,zero overrides,141independentRGB edits,144actual full start/Baby copies,bounds/null pass. Source ownership and independent replacements preserved; Baby entry separately pending."
+},"japaneseSubtitleStagingWholeEntry":{
+  "confirmation": "Root confirms128native subtitle words/128independent edits and actual SetupFirstIllustratedPage VRAM copies, preserving1024opening-card checks. Verification build25warnings/0errors; exact native staging consumer reviewed. No prose,pixel,timing exemption.",
+  "workerCommit": "8f342875ebd58e815b0a52f68254a55c35c30533",
+  "disposition": [
+    "Calculate128words from actual0600-byte glyph staging capacity, font VRAM origin, two-half packing and centered width. Retain only selected two-line centered display and text/margin palette-priority styles; different selections invent typesetting. No glyph pixels, prose or timing exemption."
+  ],
+  "completed": [
+    "IntroFinalLineTilemap.words"
+  ]
+},"introEyePatchesWholeEntry":{
+  "completed": [
+    "IntroEyeTilemapPresentation.frames"
+  ],
+  "confirmation": "Root viewed all4native portrait patches; confirms24native cells/24independent edits,identity,bounds,zero stock word storage and actual ProcessTileData VRAM copies. Verification build25warnings/0errors. Timing and pixels separately scoped.",
+  "disposition": [
+    "Calculate24patch cells from3named open/half-open/closed atlas anchors, deadpan adjacency,3x2dimensions and16-column atlas. Retain only those selected portrait identities, pose mapping and palette3/plain display style. Timing and pixel content receive no exemption."
+  ],
+  "workerCommit": "f826538623367cb03c451b1642677069f3d740b7"
 }}

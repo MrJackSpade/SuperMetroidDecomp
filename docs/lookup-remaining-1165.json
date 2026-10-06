@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 449,
+  "remainingTableDefinitionCount": 447,
   "fileCount": 523,
   "entries": [
     {
@@ -1174,19 +1174,25 @@
   "disposition": "All256 colors calculate through semantic material rows, sepia and hue ramps, gamma2 helmet/visor/green glow shading, shared plate paint, tint/neutral/cycle relationships. Retain only precise named portrait/material endpoint hues, terminal textshadow11/ceil-gamma policy, selected slot/tint/rounding composition and copied zero-word compatibility. Source artwork and actual2bpp consumer establish categorical roles; choosing different hues would invent content. No pixel,timing,mechanics or other-palette exemption."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs",
-      "line": 9,
-      "name": "IntroEyeTilemapPresentation.frames",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind IntroEyeTilemapPresentation.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/IntroEyeTilemapPresentation.cs",
+  "line": 9,
+  "name": "IntroEyeTilemapPresentation.frames",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind IntroEyeTilemapPresentation.frames. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "f826538623367cb03c451b1642677069f3d740b7",
+  "disposition": "Calculate24patch cells from3named open/half-open/closed atlas anchors, deadpan adjacency,3x2dimensions and16-column atlas. Retain only those selected portrait identities, pose mapping and palette3/plain display style. Timing and pixel content receive no exemption."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/IntroFinalLineTilemap.cs",
-      "line": 9,
-      "name": "IntroFinalLineTilemap.words",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind IntroFinalLineTilemap.words. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/IntroFinalLineTilemap.cs",
+  "line": 9,
+  "name": "IntroFinalLineTilemap.words",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind IntroFinalLineTilemap.words. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "8f342875ebd58e815b0a52f68254a55c35c30533",
+  "disposition": "Calculate128words from actual0600-byte glyph staging capacity, font VRAM origin, two-half packing and centered width. Retain only selected two-line centered display and text/margin palette-priority styles; different selections invent typesetting. No glyph pixels, prose or timing exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/IntroFontAtlas.cs",
       "line": 6,
@@ -21727,5 +21733,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 79
+  "justifiedRetainedSinceSnapshot": 81
 }

@@ -1439,7 +1439,7 @@ public sealed partial class IntroCinematicState
                 IntroCinematicRomData.Text.JapaneseBlank.Raw;
         }
 
-        // $8B:A72B supplies the four-row ornamental divider at rows 24-27.
+        // $8B:A72B maps Japanese subtitle glyph staging into BG3 rows 24-27.
         (characterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic requires installed artwork."))
             .FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(

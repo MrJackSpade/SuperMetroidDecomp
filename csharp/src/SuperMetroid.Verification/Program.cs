@@ -105,6 +105,7 @@ if (args is ["--door-autosave"]) { VerifyDoorTransitionAutosave(); return 0; }
 if (args is ["--door-music-timing"]) { VerifyDoorMusicTiming(); return 0; }
 if (args is ["--collectible-message-timing"]) { VerifyCollectibleMessageTiming(); return 0; }
 if (args is ["--permanent-collectibles-fixture"]) { VerifyPermanentCollectibles(); return 0; }
+if (args is ["--room-plm-population"]) { VerifySequentialRoomPlmPopulationLoader(); return 0; }
 if (args is ["--enemy-art-fixtures"]) { VerifyGrappleGreenGateVisibility(); VerifyGrappleEnemyDeath(); VerifyDraygonTilemapProduction(); return 0; }
 if (args is ["--xray-overlay-fixtures"]) { VerifyXrayOverlays(); VerifyXraySetupBuffers(); return 0; }
 if (args is ["--grapple-sound-refire-fixtures"]) { VerifyGrappleSounds(); VerifyGrapplePoseRefire(); return 0; }

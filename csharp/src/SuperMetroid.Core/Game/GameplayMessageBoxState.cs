@@ -35,6 +35,13 @@ public sealed class GameplayMessageBoxState
     private bool _gunshipCompletion;
     private bool _savingSoundRequested;
     private int _savingFramesRemaining;
+    // Lag frames left in the current Preparing/Restoring stretch, or until the save
+    // selector's next ReadControllerInput.
+    private int _lagFramesRemaining;
+    [NonSerialized] private MessageBoxFrameAudio _lastFrameAudio;
+
+    /// <summary>The bank-$85 audio and HDMA-object calls made by the frame <see cref="Step"/> just ran.</summary>
+    public MessageBoxFrameAudio LastFrameAudio => _lastFrameAudio;
     private ushort _shootBinding = (ushort)SnesButton.X;
     private ushort _runBinding = (ushort)SnesButton.B;
 
@@ -121,9 +128,14 @@ public sealed class GameplayMessageBoxState
     /// Bindings are parameters because the options menu may remap them; their defaults are
     /// the words installed by <c>NewSaveFile</c>.
     /// </summary>
+    /// <param name="controllerRead">
+    /// The controller held at the dispatch's last ReadControllerInput. During the box the
+    /// NMI handler runs in lag mode, so the save selector's presses are relative to this.
+    /// </param>
     public void Begin(
         ISnesAddressSpace bus,
         GameplayMessageId messageId,
+        ushort controllerRead,
         ushort shootBinding = (ushort)SnesButton.X,
         ushort runBinding = (ushort)SnesButton.B,
         string sourceContext = nameof(GameplayMessageBoxState))
@@ -167,7 +179,15 @@ public sealed class GameplayMessageBoxState
         CompletedConfirmationResult = null;
         ConfirmationSelectionYes = true;
         DrawSaveConfirmationSelection();
-        Phase = GameplayMessageBoxPhase.Opening;
+        _controller.Latch(controllerRead);
+        // The routine's first lag wait belongs to the dispatch that opened the box.
+        BeginPreparing(GameplayMessageRomData.Timing.PreOpenLagFrames - 1);
+    }
+
+    private void BeginPreparing(int lagFrames)
+    {
+        _lagFramesRemaining = lagFrames;
+        Phase = GameplayMessageBoxPhase.Preparing;
     }
 
     /// <summary>Consumes the completed result of save confirmation message $17.</summary>
@@ -179,17 +199,43 @@ public sealed class GameplayMessageBoxState
     }
 
     /// <summary>Advances one accepted NMI while gameplay remains blocked.</summary>
+    /// <summary>
+    /// Runs one frame of the bank-$85 routine, which waits on lag frames: the NMI handler
+    /// reads no controller while it runs, so only the routine's own reads see input.
+    /// </summary>
     public void Step(ushort controllerInput)
     {
-        // The save selector calls ReadControllerInput and then consumes Controller1New.
-        // Latch on every opening/closing NMI as well as the selection loop so a direction
-        // held before the box finishes opening is not manufactured into a new edge.
-        _controller.Latch(controllerInput);
         ConfirmationSelectionChangedThisFrame = false;
+        // Each routine calls HandleMusicQueue and HandleSounds after its lag wait returns.
+        _lastFrameAudio = MessageBoxFrameAudio.MusicAndSounds;
 
         switch (Phase)
         {
             case GameplayMessageBoxPhase.Inactive:
+                _lastFrameAudio = default;
+                return;
+
+            case GameplayMessageBoxPhase.Preparing:
+                // Initialise_PPU_for_MessageBoxes waits twice before its audio calls.
+                if (_lagFramesRemaining == GameplayMessageRomData.Timing.PreOpenLagFrames - 1)
+                    _lastFrameAudio = default;
+                if (--_lagFramesRemaining == 0)
+                    Phase = GameplayMessageBoxPhase.Opening;
+                return;
+
+            case GameplayMessageBoxPhase.Restoring:
+                _lastFrameAudio = _lagFramesRemaining switch
+                {
+                    // Restore_PPU's first wait; its second ends in $88:84B9 (HDMA objects
+                    // and music), then HandleSounds.
+                    3 => default,
+                    2 => MessageBoxFrameAudio.MusicAndSounds with { RunsHdmaObjects = true },
+                    // The routine returns into the dispatch, whose own HandleSounds follows.
+                    0 => MessageBoxFrameAudio.MusicAndSounds with { SoundHandlerCalls = 2 },
+                    _ => MessageBoxFrameAudio.MusicAndSounds,
+                };
+                if (_lagFramesRemaining-- == 0)
+                    Finish();
                 return;
 
             case GameplayMessageBoxPhase.Opening:
@@ -202,6 +248,7 @@ public sealed class GameplayMessageBoxState
                     if (IsSaveConfirmation)
                     {
                         MinimumDisplayFramesRemaining = 0;
+                        _lagFramesRemaining = GameplayMessageRomData.Timing.SaveSelectionReadLagFrames;
                         Phase = GameplayMessageBoxPhase.AwaitingInput;
                     }
                     else
@@ -232,10 +279,28 @@ public sealed class GameplayMessageBoxState
             case GameplayMessageBoxPhase.AwaitingInput:
                 if (IsSaveConfirmation)
                 {
-                    // Bank $85's save selector owns the same synchronous window as item
-                    // boxes. Horizontal input changes the two-choice cursor; A confirms the
-                    // highlighted choice and B is the retail cancellation shortcut.
+                    // $85:84BA waits two lag frames, then calls ReadControllerInput. The
+                    // read's frame also holds the next iteration's first wait.
+                    if (_lagFramesRemaining > 0)
+                    {
+                        _lagFramesRemaining--;
+                        return;
+                    }
+                    _controller.Latch(controllerInput);
+                    _lagFramesRemaining = GameplayMessageRomData.Timing.SaveSelectionReadLagFrames - 1;
+                    // $85:84D8: A confirms the highlighted choice, then B cancels; only a
+                    // press with neither moves the two-choice cursor.
                     ushort newlyPressed = _controller.NewlyPressed;
+                    if ((newlyPressed & (ushort)SnesButton.A) != 0)
+                    {
+                        BeginClosing(ConfirmationSelectionYes);
+                        return;
+                    }
+                    if ((newlyPressed & (ushort)SnesButton.B) != 0)
+                    {
+                        BeginClosing(false);
+                        return;
+                    }
                     ushort horizontal = unchecked((ushort)(
                         newlyPressed & ((ushort)SnesButton.Left | (ushort)SnesButton.Right |
                             (ushort)SnesButton.Select)));
@@ -245,31 +310,13 @@ public sealed class GameplayMessageBoxState
                         DrawSaveConfirmationSelection();
                         ConfirmationSelectionChangedThisFrame = true;
                     }
-                    if ((newlyPressed & (ushort)SnesButton.B) != 0)
-                    {
-                        _closingConfirmationResult = false;
-                        _nextClosingRadiusPixels =
-                            GameplayMessageRomData.Timing.MaximumRadiusPixels;
-                        Phase = GameplayMessageBoxPhase.Closing;
-                    }
-                    else if ((newlyPressed & (ushort)SnesButton.A) != 0)
-                    {
-                        _closingConfirmationResult = ConfirmationSelectionYes;
-                        _nextClosingRadiusPixels =
-                            GameplayMessageRomData.Timing.MaximumRadiusPixels;
-                        Phase = GameplayMessageBoxPhase.Closing;
-                    }
                     return;
                 }
-                // Retail's enabled bug-fix path checks held keys, not only new edges.
+                // $85:84A3 polls the joypad registers for any held key, not a new edge.
                 // This is observable when a player begins holding a button during the
                 // mandatory 360-frame item fanfare.
                 if (controllerInput != 0)
-                {
-                    _nextClosingRadiusPixels =
-                        GameplayMessageRomData.Timing.MaximumRadiusPixels;
-                    Phase = GameplayMessageBoxPhase.Closing;
-                }
+                    BeginClosing(null);
                 return;
 
             case GameplayMessageBoxPhase.GunshipSavingSound:
@@ -279,40 +326,64 @@ public sealed class GameplayMessageBoxState
                     // saving sound's synchronous wait. Preserve YES across that message.
                     ISnesAddressSpace bus = _activeBus!;
                     Phase = GameplayMessageBoxPhase.Inactive;
-                    Begin(bus, GameplayMessageIds.SaveCompleted);
+                    Begin(bus, GameplayMessageIds.SaveCompleted, _controller.Current);
+                    // The second box skips Initialise_PPU_for_MessageBoxes and the clear,
+                    // which preceded the saving sound.
+                    BeginPreparing(GameplayMessageRomData.Timing.ReopenLagFrames);
                     _gunshipCompletion = true;
                 }
                 return;
 
             case GameplayMessageBoxPhase.Closing:
-                RadiusPixels = _nextClosingRadiusPixels;
-                _nextClosingRadiusPixels -= GameplayMessageRomData.Timing.RadiusStepPixels;
-                if (_nextClosingRadiusPixels < 0)
-                {
-                    if (MessageId == GameplayMessageIds.GunshipSaveConfirmation &&
-                        _closingConfirmationResult == true)
-                    {
-                        Phase = GameplayMessageBoxPhase.GunshipSavingSound;
-                        _savingFramesRemaining = GameplayMessageRomData.Timing.GunshipSavingSoundFrames;
-                        _savingSoundRequested = true;
-                        return;
-                    }
-                    // Radius zero has no visible pixels, so restoring gameplay state at
-                    // this point preserves the final native wait without losing artwork.
-                    Phase = GameplayMessageBoxPhase.Inactive;
-                    CompletedConfirmationResult = _gunshipCompletion ? true : _closingConfirmationResult;
-                    _gunshipCompletion = false;
-                    _closingConfirmationResult = null;
-                    MessageId = GameplayMessageId.None;
-                    MinimumDisplayFramesRemaining = 0;
-                    _tilemap = [];
-                    _activeBus = null;
-                }
+                StepClosing();
                 return;
 
             default:
                 throw new InvalidDataException($"Unknown gameplay message phase {Phase}.");
         }
+    }
+
+    /// <summary>Accepts the interaction; Close_MessageBox's first step runs in the same frame.</summary>
+    private void BeginClosing(bool? confirmationResult)
+    {
+        _closingConfirmationResult = confirmationResult;
+        _nextClosingRadiusPixels = GameplayMessageRomData.Timing.MaximumRadiusPixels;
+        Phase = GameplayMessageBoxPhase.Closing;
+        StepClosing();
+    }
+
+    private void StepClosing()
+    {
+        RadiusPixels = _nextClosingRadiusPixels;
+        _nextClosingRadiusPixels -= GameplayMessageRomData.Timing.RadiusStepPixels;
+        if (_nextClosingRadiusPixels >= 0)
+            return;
+        if (MessageId == GameplayMessageIds.GunshipSaveConfirmation && _closingConfirmationResult == true)
+        {
+            // $85:80D3 clears the tilemap, then waits out the saving sound.
+            Phase = GameplayMessageBoxPhase.GunshipSavingSound;
+            _savingFramesRemaining = GameplayMessageRomData.Timing.ClearTilemapLagFrames +
+                GameplayMessageRomData.Timing.GunshipSavingSoundFrames;
+            _savingSoundRequested = true;
+            return;
+        }
+        // $85:80AA-$80B4: clear the tilemap, restore the PPU, two music/sound frames.
+        _lagFramesRemaining = GameplayMessageRomData.Timing.RestoreLagFrames;
+        Phase = GameplayMessageBoxPhase.Restoring;
+    }
+
+    /// <summary>The routine returns into the suspended gameplay dispatch.</summary>
+    private void Finish()
+    {
+        Phase = GameplayMessageBoxPhase.Inactive;
+        CompletedConfirmationResult = _gunshipCompletion ? true : _closingConfirmationResult;
+        _gunshipCompletion = false;
+        _closingConfirmationResult = null;
+        MessageId = GameplayMessageId.None;
+        MinimumDisplayFramesRemaining = 0;
+        RadiusPixels = 0;
+        _tilemap = [];
+        _activeBus = null;
     }
 
     /// <summary>
@@ -369,6 +440,12 @@ public sealed class GameplayMessageBoxState
 
 }
 
+/// <summary>Audio and HDMA-object handler calls made by one bank-$85 frame.</summary>
+public readonly record struct MessageBoxFrameAudio(bool RunsHdmaObjects, int MusicHandlerCalls, int SoundHandlerCalls)
+{
+    public static MessageBoxFrameAudio MusicAndSounds { get; } = new(false, 1, 1);
+}
+
 /// <summary>Coroutine phase for <see cref="GameplayMessageBoxState"/>.</summary>
 public enum GameplayMessageBoxPhase : byte
 {
@@ -379,4 +456,8 @@ public enum GameplayMessageBoxPhase : byte
     Closing,
     /// <summary>The gunship's $85:8119 sound wait before SAVE COMPLETED.</summary>
     GunshipSavingSound,
+    /// <summary>Lag frames before Open_MessageBox: PPU, tilemap and HDMA setup.</summary>
+    Preparing,
+    /// <summary>Lag frames after Close_MessageBox: tilemap clear and PPU restore.</summary>
+    Restoring,
 }

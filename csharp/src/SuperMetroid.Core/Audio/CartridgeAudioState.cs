@@ -262,13 +262,15 @@ public sealed class CartridgeAudioState
         ISnesAddressSpace bus,
         CartridgeAudioAcknowledgements acknowledgements,
         bool advanceMusicQueue = true,
-        bool advanceSoundEffects = true)
+        int soundEffectHandlerCalls = 1)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        ArgumentOutOfRangeException.ThrowIfNegative(soundEffectHandlerCalls);
         List<CartridgeAudioCommand> commands = [.. _pendingImmediateCommands];
         _pendingImmediateCommands.Clear();
         if (advanceMusicQueue) HandleMusicQueue(commands);
-        if (advanceSoundEffects) HandleSoundEffects(acknowledgements, commands);
+        for (int call = 0; call < soundEffectHandlerCalls; call++)
+            HandleSoundEffects(acknowledgements, commands);
         return commands.Count == 0 ? Array.Empty<CartridgeAudioCommand>() : commands.ToArray();
     }
 

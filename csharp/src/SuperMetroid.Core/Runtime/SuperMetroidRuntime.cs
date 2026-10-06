@@ -1433,6 +1433,10 @@ public sealed partial class SuperMetroidRuntime
         Plms.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
         Samus?.Shinespark.BindProjectileOwners(Projectiles, BombProjectiles.PowerBombExplosion);
         ApplyPendingChozoStatuePlms();
+        // Bank $85's message routine runs on lag frames inside the suspended dispatch: the
+        // NMI accepts no input and the main loop neither calls the RNG nor any owner.
+        if (MessageBox.IsActive)
+            return StepMessageBoxFrame(controller1Input, infiniteAmmoGuard);
         Projectiles.BeginImpactAudioFrame(cinematicActive: false);
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
         afterAcceptedNmi?.Invoke();
@@ -1479,89 +1483,11 @@ public sealed partial class SuperMetroidRuntime
         // those waits. This early seam is shared by all permanent-item identities.
         // EnemyMain suspended at $A2:AB1F requests its distinct bank-$85 coroutine.
         // Keep the ship waiting until the entire YES/NO/completion chain has returned.
-        if (Enemies.GunshipSavePromptPending && !MessageBox.IsActive)
-            MessageBox.Begin(_addressSpace, GameplayMessageIds.GunshipSaveConfirmation);
-
-        if (MessageBox.IsActive)
+        if (Enemies.GunshipSavePromptPending)
         {
-            MessageBox.Step(Controller1.Current);
-            if (MessageBox.ConfirmationSelectionChangedThisFrame)
-                MessageBoxSelectionSoundRequestedThisFrame = true;
-            if (MessageBox.IsActive)
-                return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
-
-            if (Enemies.GunshipSavePromptPending)
-            {
-                bool accepted = MessageBox.ConsumeConfirmationResult()
-                    ?? throw new InvalidDataException("Gunship message closed without a save selection.");
-                Enemies.AnswerGunshipSavePrompt(accepted);
-                _gunshipExitSoundRequested = true;
-                if (accepted)
-                {
-                    System.MarkSaveStationUsed(AreaId.Crateria, 0);
-                    _completedSaveStation = new SaveStationPersistenceRequest(AreaId.Crateria, 0);
-                }
-                return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
-            }
-
-            if (_pendingSaveStation is { } saveStation)
-            {
-                bool? accepted = MessageBox.ConsumeConfirmationResult();
-                if (accepted is null)
-                {
-                    throw new InvalidDataException(
-                        "Save-station message $17 closed without publishing a selection.");
-                }
-                _pendingSaveStation = null;
-                bool saving = Plms.ResolveSaveStationConfirmation(
-                    _addressSpace,
-                    saveStation,
-                    accepted.Value);
-                if (saving)
-                {
-                    RoomLevelData level = LevelData ?? throw new InvalidOperationException(
-                        "Accepted save station has no active room level data.");
-                    Enemies.SpawnSaveStationElectricity(
-                        saveStation.BlockIndex,
-                        level.WidthInBlocks);
-                    System.MarkSaveStationUsed(
-                        saveStation.AreaIndex,
-                        saveStation.StationIndex & 7);
-                    _completedSaveStation = new SaveStationPersistenceRequest(
-                        saveStation.AreaIndex,
-                        saveStation.StationIndex);
-                }
-                return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
-            }
-
-            if (_pendingSaveStationCompletion is { } completedStation)
-            {
-                Plms.CompleteSaveStation(completedStation);
-                _pendingSaveStationCompletion = null;
-            }
-
-            Plms.CompleteCollectibleMessage();
-
-            // The final zero-radius close NMI returns directly to the suspended item-PLM
-            // instruction list. Varia/Gravity immediately call their shared setup routine;
-            // all other items simply continue the rest of this gameplay pass.
-            if (_pendingSuitPickup is { } pendingSuit)
-            {
-                if (Samus is null || Camera is null)
-                {
-                    throw new InvalidOperationException(
-                        "A pending suit transformation requires an active Samus and room camera.");
-                }
-                ElevatorStatus = 0;
-                SuitPickup.Begin(
-                    _addressSpace,
-                    Samus,
-                    Camera.XPosition,
-                    Camera.YPosition,
-                    pendingSuit,
-                    soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
-                _pendingSuitPickup = null;
-            }
+            // This dispatch ends in the routine's first lag wait.
+            MessageBox.Begin(_addressSpace, GameplayMessageIds.GunshipSaveConfirmation, Controller1.Current);
+            return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
         }
 
         // Room FX objects run in the ordinary gameplay owner list. In particular, they
@@ -3931,7 +3857,7 @@ public sealed partial class SuperMetroidRuntime
                             "Multiple permanent items attempted to enter the synchronous " +
                             "bank-$85 message routine during one PLM pass.");
                     }
-                    MessageBox.Begin(_addressSpace, pickup.MessageBoxIndex);
+                    MessageBox.Begin(_addressSpace, pickup.MessageBoxIndex, Controller1.Current);
                 }
                 foreach (StationActivationEvent station in Plms.StationActivationEvents)
                 {
@@ -3949,7 +3875,8 @@ public sealed partial class SuperMetroidRuntime
                             _pendingSaveStation = station;
                             MessageBox.Begin(
                                 _addressSpace,
-                                GameplayMessageIds.SaveConfirmation);
+                                GameplayMessageIds.SaveConfirmation,
+                                Controller1.Current);
                             continue;
                         }
                         if (station.MessageBoxIndex == GameplayMessageIds.SaveCompleted)
@@ -3962,7 +3889,7 @@ public sealed partial class SuperMetroidRuntime
                                     "A completed save station attempted to replace an active message owner.");
                             }
                             _pendingSaveStationCompletion = station;
-                            MessageBox.Begin(_addressSpace, GameplayMessageIds.SaveCompleted);
+                            MessageBox.Begin(_addressSpace, GameplayMessageIds.SaveCompleted, Controller1.Current);
                             continue;
                         }
                         throw new InvalidDataException(
@@ -3974,7 +3901,7 @@ public sealed partial class SuperMetroidRuntime
                             "Multiple PLMs attempted to enter the synchronous bank-$85 " +
                             "message routine during one handler pass.");
                     }
-                    MessageBox.Begin(_addressSpace, station.MessageBoxIndex);
+                    MessageBox.Begin(_addressSpace, station.MessageBoxIndex, Controller1.Current);
                 }
                 foreach (MotherBrainGlassProjectileRequest request in
                          Plms.MotherBrainGlassProjectileRequests)
@@ -4471,6 +4398,113 @@ public sealed partial class SuperMetroidRuntime
         samus.InputLocked = false;
         GroundedSamusMovementEnabled = true;
         _samusLoadAppearancePaletteFxDefinition = 0;
+    }
+
+    /// <summary>
+    /// One lag frame of the bank-$85 message routine. Its completion returns into the
+    /// suspended dispatch, whose remaining owners already ran when the box opened.
+    /// </summary>
+    private RuntimeFrameResult StepMessageBoxFrame(ushort controller1Input, HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
+    {
+        MessageBoxSelectionSoundRequestedThisFrame = false;
+        // The joypad registers are the routine's only input: the NMI reads no controller.
+        MessageBox.Step(controller1Input);
+        if (MessageBox.LastFrameAudio.RunsHdmaObjects)
+        {
+            // Restore_PPU's $88:84B9 runs the HDMA objects, including their RNG mutations.
+            if (Camera is not null)
+                RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
+            if (Samus is { } hdmaSamus)
+                BombProjectiles.AdvancePowerBombHdma(_addressSpace, hdmaSamus, Controller1.Current);
+        }
+        if (MessageBox.ConfirmationSelectionChangedThisFrame)
+            MessageBoxSelectionSoundRequestedThisFrame = true;
+        if (MessageBox.IsActive)
+            return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+
+        if (Enemies.GunshipSavePromptPending)
+        {
+            bool accepted = MessageBox.ConsumeConfirmationResult()
+                ?? throw new InvalidDataException("Gunship message closed without a save selection.");
+            Enemies.AnswerGunshipSavePrompt(accepted);
+            _gunshipExitSoundRequested = true;
+            if (accepted)
+            {
+                System.MarkSaveStationUsed(AreaId.Crateria, 0);
+                _completedSaveStation = new SaveStationPersistenceRequest(AreaId.Crateria, 0);
+            }
+            return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+        }
+
+        if (_pendingSaveStation is { } saveStation)
+        {
+            bool? accepted = MessageBox.ConsumeConfirmationResult();
+            if (accepted is null)
+            {
+                throw new InvalidDataException(
+                    "Save-station message $17 closed without publishing a selection.");
+            }
+            _pendingSaveStation = null;
+            bool saving = Plms.ResolveSaveStationConfirmation(
+                _addressSpace,
+                saveStation,
+                accepted.Value);
+            if (saving)
+            {
+                RoomLevelData level = LevelData ?? throw new InvalidOperationException(
+                    "Accepted save station has no active room level data.");
+                Enemies.SpawnSaveStationElectricity(
+                    saveStation.BlockIndex,
+                    level.WidthInBlocks);
+                System.MarkSaveStationUsed(
+                    saveStation.AreaIndex,
+                    saveStation.StationIndex & 7);
+                _completedSaveStation = new SaveStationPersistenceRequest(
+                    saveStation.AreaIndex,
+                    saveStation.StationIndex);
+            }
+            return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+        }
+
+        if (_pendingSaveStationCompletion is { } completedStation)
+        {
+            Plms.CompleteSaveStation(completedStation);
+            _pendingSaveStationCompletion = null;
+        }
+
+        if (LevelData is null || BackgroundStreamer is null || Camera is null)
+            throw new InvalidOperationException("A message box returned without an active room.");
+        foreach (PlmTilemapUpdate update in Plms.CompleteCollectibleMessage(
+                     _addressSpace, LevelData, BackgroundStreamer, Camera.XPosition, Camera.YPosition,
+                     BackgroundScroll.Bg1XOffset))
+            update.ExecuteTo(Vram);
+        // The resumed dispatch reaches the HUD handler, which shows the new inventory.
+        if (Samus is not null)
+            Hud.UpdateGameplayCounters(_addressSpace, Samus, TimeIsFrozen,
+                soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
+        Hud.QueueUpload(_addressSpace, VramWrites);
+
+        // The routine returns directly to the suspended item-PLM instruction list.
+        // Varia/Gravity immediately call their shared setup routine; for other items the
+        // rest of the dispatch already ran when the box opened.
+        if (_pendingSuitPickup is { } pendingSuit)
+        {
+            if (Samus is null || Camera is null)
+            {
+                throw new InvalidOperationException(
+                    "A pending suit transformation requires an active Samus and room camera.");
+            }
+            ElevatorStatus = 0;
+            SuitPickup.Begin(
+                _addressSpace,
+                Samus,
+                Camera.XPosition,
+                Camera.YPosition,
+                pendingSuit,
+                soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
+            _pendingSuitPickup = null;
+        }
+        return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
     }
 
     private RuntimeFrameResult Snapshot(

@@ -1132,11 +1132,26 @@ public sealed partial class SuperMetroidGame
         // entry and must not inject a new command merely because the host resumed.
         if (!messageWasActive && runtime?.MessageBox.IsActive == true)
             audio.QueueCancelSoundEffects();
+        bool musicHandler = !doorAudioDispatch && !resumesNmiWait;
+        int soundHandlers = !resumesNmiWait && (!doorAudioDispatch ||
+            startingDoorPhase is not (DoorTransitionPhase.LoadMoreThingsAndOpenDoor or DoorTransitionPhase.WaitForDoorOpeningScroll))
+            ? 1 : 0;
+        if (messageWasActive)
+        {
+            // A message-box lag frame runs exactly the routine's own audio calls.
+            MessageBoxFrameAudio boxAudio = runtime!.MessageBox.LastFrameAudio;
+            musicHandler = boxAudio.MusicHandlerCalls != 0;
+            soundHandlers = boxAudio.SoundHandlerCalls;
+        }
+        else if (runtime?.MessageBox.IsActive == true)
+        {
+            // The opening dispatch's HandleSounds runs only once the routine returns.
+            soundHandlers = 0;
+        }
         IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = audio.AdvanceFrame(
             bus, audioAcknowledgements,
-            advanceMusicQueue: !doorAudioDispatch && !resumesNmiWait,
-            advanceSoundEffects: !resumesNmiWait && (!doorAudioDispatch ||
-                startingDoorPhase is not (DoorTransitionPhase.LoadMoreThingsAndOpenDoor or DoorTransitionPhase.WaitForDoorOpeningScroll)));
+            advanceMusicQueue: musicHandler,
+            soundEffectHandlerCalls: soundHandlers);
         lastAudioCommands = doorMusicCommands.Count == 0 ? trailingAudioCommands
             : [.. doorMusicCommands, .. trailingAudioCommands];
         // $82:8AB0 runs after the pause dispatcher returns, even though Samus's

@@ -88,7 +88,7 @@ internal static partial class Program
 
             AssertEqual(visibleItemWord, fixture.Level.ForegroundEntries.Span[fixture.BlockIndex],
                 $"{kind} retains pickup artwork during its message");
-            fixture.Plms.CompleteCollectibleMessage();
+            fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
             fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
 
             // Returning from the message frees the native physical ID. Reuse that same highest slot for
@@ -164,7 +164,7 @@ internal static partial class Program
 
         AssertEqual(orbItemWord, orb.Level.ForegroundEntries.Span[orb.BlockIndex],
             "Chozo pickup remains visible throughout message");
-        orb.Plms.CompleteCollectibleMessage();
+        orb.Plms.CompleteCollectibleMessage(bus, orb.Level, orb.Streamer, 0, 0, 0);
         orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
         AssertEqual(0, orb.Plms.Collectibles.Count, "Chozo pickup deletes after message");
 
@@ -204,7 +204,7 @@ internal static partial class Program
         StepFrames(180, _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0));
         AssertEqual(shotItemWord, shot.Level.ForegroundEntries.Span[shot.BlockIndex],
             "shot pickup cannot clear or begin respawn countdown during message");
-        shot.Plms.CompleteCollectibleMessage();
+        shot.Plms.CompleteCollectibleMessage(bus, shot.Level, shot.Streamer, 0, 0, 0);
         shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0);
         AssertEqual(CollectiblePhase.CollectedShotBlockEmpty,
             shot.Plms.Collectibles[0].Phase,
@@ -245,18 +245,19 @@ internal static partial class Program
         AssertEqual(CollectiblePhase.AwaitingMessage, fixture.Plms.Collectibles[0].Phase,
             "Morph Ball retains its owner during the synchronous message");
         AssertEqual(1, fixture.Plms.CollectiblePickupEvents.Count, "Morph Ball publishes one pickup");
-        fixture.Plms.CompleteCollectibleMessage();
-        // Message return resumes gameplay movement before the next PLM handler pass.
+        // The message returns into the item's list, which draws empty for one frame
+        // within that same PLM_Handler call and deletes the PLM on the next pass.
+        fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
+        AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).LevelWord,
+            "Morph Ball pickup draws native empty level word on message return");
         var next = SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
             plms: fixture.Plms, alignToSlopeAfterMovement: false);
         AssertEqual((ushort)1122, movement.XPosition, "message-return horizontal movement advances");
         AssertTrue(!next.Collided, "message-return Morph Ball block remains passable");
-        AssertEqual(CollectiblePhase.ResumeAfterMessage, fixture.Plms.Collectibles[0].Phase,
-            "repeat contact preserves the pending cleanup continuation");
+        AssertEqual(CollectiblePhase.EmptyAwaitingDelete, fixture.Plms.Collectibles[0].Phase,
+            "repeat contact preserves the pending delete");
         fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
-        AssertEqual(0, fixture.Plms.ActiveCount, "Morph Ball owner deletes after message return");
-        AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).LevelWord,
-            "Morph Ball pickup draws native empty level word");
+        AssertEqual(0, fixture.Plms.ActiveCount, "Morph Ball owner deletes on the next PLM pass"); 
         AssertEqual(0, fixture.Plms.CollectiblePickupEvents.Count, "Morph Ball cannot be awarded twice");
         var cleared = SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
             plms: fixture.Plms, alignToSlopeAfterMovement: false);
@@ -495,7 +496,17 @@ internal static partial class Program
         var bus = new TestAddressSpace();
         var message = CreatePermanentMessageFixture();
 
-        message.Begin(bus, GameplayMessageIds.EnergyTank);
+        message.Begin(bus, GameplayMessageIds.EnergyTank, 0);
+        // $85:808D-$8096 spend eight lag frames before Open_MessageBox; the first ends the
+        // dispatch that opened the box.
+        AssertEqual(GameplayMessageBoxPhase.Preparing, message.Phase,
+            "item message prepares the PPU, tilemap and HDMA before opening");
+        for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
+        {
+            message.Step(0);
+            AssertEqual(preparingFrame == 0 ? default : MessageBoxFrameAudio.MusicAndSounds, message.LastFrameAudio,
+                $"item message preparing audio frame {preparingFrame}");
+        }
         AssertEqual(GameplayMessageBoxPhase.Opening, message.Phase,
             "item message enters shared opening coroutine");
         AssertEqual(3, message.TilemapRowCount, "small item message has border/content/border");
@@ -529,23 +540,40 @@ internal static partial class Program
         message.Step((ushort)SnesButton.X);
         AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase,
             "retail held-input fix dismisses item message");
+        AssertEqual(24, message.RadiusPixels, "the accepting frame also draws the first close step");
 
-        for (int closingFrame = 0; closingFrame < 13; closingFrame++)
+        for (int closingFrame = 1; closingFrame < 13; closingFrame++)
         {
             message.Step(0);
-            if (closingFrame < 12)
-            {
-                AssertEqual(24 - closingFrame * 2, message.RadiusPixels,
-                    $"item message closing radius frame {closingFrame}");
-                AssertTrue(message.IsActive,
-                    $"item message remains active through visible close frame {closingFrame}");
-            }
+            AssertEqual(24 - closingFrame * 2, message.RadiusPixels,
+                $"item message closing radius frame {closingFrame}");
         }
-        AssertTrue(!message.IsActive, "item message exits after thirteen close NMIs");
+        // $85:80AA-$80B4: tilemap clear, Restore_PPU's two waits, two music/sound frames.
+        AssertEqual(GameplayMessageBoxPhase.Restoring, message.Phase, "item message restores the PPU");
+        MessageBoxFrameAudio[] restoringAudio =
+        [
+            MessageBoxFrameAudio.MusicAndSounds,
+            MessageBoxFrameAudio.MusicAndSounds,
+            default,
+            MessageBoxFrameAudio.MusicAndSounds with { RunsHdmaObjects = true },
+            MessageBoxFrameAudio.MusicAndSounds,
+        ];
+        foreach (MessageBoxFrameAudio expected in restoringAudio)
+        {
+            message.Step(0);
+            AssertTrue(message.IsActive, "item message remains active while restoring");
+            AssertEqual(expected, message.LastFrameAudio, "item message restoring audio");
+        }
+        message.Step(0);
+        AssertTrue(!message.IsActive, "item message returns after its restore frames");
+        AssertEqual(MessageBoxFrameAudio.MusicAndSounds with { SoundHandlerCalls = 2 }, message.LastFrameAudio,
+            "the return frame adds the dispatch's own HandleSounds");
 
         // Message two is the first large box and patches its shoot-button placeholder.
         // Supplying B proves the glyph is selected from the binding word, not hard-coded X.
-        message.Begin(bus, GameplayMessageIds.MissileTank, shootBinding: (ushort)SnesButton.B);
+        message.Begin(bus, GameplayMessageIds.MissileTank, 0, shootBinding: (ushort)SnesButton.B);
+        for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
+            message.Step(0);
         AssertEqual(6, message.TilemapRowCount, "large item message has four content rows");
         AssertEqual((ushort)0x3ce1, message.Tilemap[0x12a / 2],
             "large item message patches configured shoot-button glyph");
@@ -575,7 +603,9 @@ internal static partial class Program
         // verifies the native variable-length copy instead of inferring height from the
         // border routine's name, and exercises that shape through the compositor too.
         message = CreatePermanentMessageFixture();
-        message.Begin(bus, GameplayMessageIds.MapDataAccessCompleted);
+        message.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
+        for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
+            message.Step(0);
         AssertEqual(5, message.TilemapRowCount,
             "map-station message accepts three rows inside the small border");
         AssertEqual((ushort)0x3820, message.Tilemap[32],
@@ -604,8 +634,11 @@ internal static partial class Program
         message.Step((ushort)SnesButton.X);
         AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase,
             "map-station message accepts held input after ten frames");
-        for (int closingFrame = 0; closingFrame < 13; closingFrame++)
+        // Twelve more close steps, five restore frames, then the return.
+        for (int returnFrame = 0; returnFrame < 12 + 5; returnFrame++)
             message.Step(0);
+        AssertTrue(message.IsActive, "map-station message restores before returning");
+        message.Step(0);
         AssertTrue(!message.IsActive,
             "map-station message returns to its suspended station PLM");
 
@@ -621,7 +654,8 @@ internal static partial class Program
                 var retailMessage = CreateGameplayMessageFixture();
                 retailMessage.Begin(
                     retailBus,
-                    GameplayMessageIds.FromCartridge(messageId, "retail definition-table audit"));
+                    GameplayMessageIds.FromCartridge(messageId, "retail definition-table audit"),
+                    controllerRead: 0);
                 AssertTrue(
                     retailMessage.TilemapRowCount is >=
                         GameplayMessageRomData.Layout.MinimumRows and <=

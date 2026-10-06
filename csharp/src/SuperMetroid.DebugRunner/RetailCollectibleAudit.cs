@@ -112,7 +112,8 @@ internal static class RetailCollectibleAudit
             var message = new GameplayMessageBoxState();
             message.Begin(
                 bus,
-                GameplayMessageIds.FromCartridge(messageId, "retail collectible audit"));
+                GameplayMessageIds.FromCartridge(messageId, "retail collectible audit"),
+                controllerRead: 0);
             if (message.TilemapRowCount is not (3 or 6))
             {
                 throw new InvalidDataException(

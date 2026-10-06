@@ -42,6 +42,12 @@ internal static class DebuggerStateFieldMigrations
             // Older captures set the scene up at construction; restored as already past $8B:C11B.
             return SelectSerializedFields(type, current.Where(field => field.Name != "initialNmiWaits").ToArray(), count);
         }
+        if (type == typeof(SuperMetroid.Core.Game.GameplayMessageBoxState) &&
+            current.Any(field => field.Name == "_lagFramesRemaining"))
+        {
+            // Older boxes had no pre-open or post-close lag frames; none is pending.
+            return SelectSerializedFields(type, current.Where(field => field.Name != "_lagFramesRemaining").ToArray(), count);
+        }
         if (type == typeof(SuperMetroid.Core.Audio.ManagedSpcPlayer) &&
             current.Any(field => field.Name == "soundCommandReads"))
         {

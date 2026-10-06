@@ -17,10 +17,10 @@ internal static partial class Program
         foreach (GameplayMessageId id in GameplayMessageNoticeDefinitions.MessageIds)
         {
             var cartridge = new GameplayMessageBoxState();
-            cartridge.Begin(bus, id);
+            cartridge.Begin(bus, id, 0);
             var installed = new GameplayMessageBoxState();
             installed.BindPresentation(null, null, stock);
-            installed.Begin(new ForbiddenGameplayMessageBus(), id);
+            installed.Begin(new ForbiddenGameplayMessageBus(), id, 0);
             AssertTrue(cartridge.Tilemap.SequenceEqual(installed.Tilemap),
                 $"installed gameplay-message notice {id} matches cartridge tilemap");
             comparedWords += installed.Tilemap.Length;
@@ -51,7 +51,7 @@ internal static partial class Program
         var active = new GameplayMessageBoxState();
         active.BindPresentation(null, null, stock);
         active.Begin(new ForbiddenGameplayMessageBus(),
-            GameplayMessageId.MapDataAccessCompleted);
+            GameplayMessageId.MapDataAccessCompleted, 0);
         active.Step(0);
         GameplayMessageBoxPhase phase = active.Phase;
         int radius = active.RadiusPixels;
@@ -101,7 +101,7 @@ internal static partial class Program
         var state = new GameplayMessageBoxState();
         state.BindPresentation(edited.GameplayMessageTitles, edited.GameplayMessagePanels,
             edited.GameplayMessageNotices);
-        state.Begin(new ForbiddenGameplayMessageBus(), GameplayMessageId.SaveConfirmation);
+        state.Begin(new ForbiddenGameplayMessageBus(), GameplayMessageId.SaveConfirmation, 0);
         AssertTrue(!stockCatalog.GameplayMessageNotices.Build(GameplayMessageId.SaveConfirmation)
                 .AsSpan().SequenceEqual(state.Tilemap),
             "catalog override changes installed save-confirmation text");

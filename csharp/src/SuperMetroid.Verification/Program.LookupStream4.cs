@@ -1361,7 +1361,7 @@ internal static partial class Program
             AssertTrue(expected.SequenceEqual(stock.Build(id)), "Derived notice export reproduces every native border/content word");
             var state = new GameplayMessageBoxState();
             state.BindPresentation(null, null, stock);
-            state.Begin(new FrontendCartridgeReadGuard(rom), id);
+            state.Begin(new FrontendCartridgeReadGuard(rom), id, 0);
             if (GameplayMessageNoticeDefinitions.IsSaveConfirmation(id))
                 for (int column = 0; column < 32; column++) expected[128 + column] = Word(0x8595c1 + column * 2);
             AssertTrue(expected.AsSpan().SequenceEqual(state.Tilemap), "Actual notice initial tilemap preserves native YES row and all content");
@@ -1377,7 +1377,7 @@ internal static partial class Program
         var edited = GameplayMessageNoticePresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(editedJson.ToJsonString())));
         var active = new GameplayMessageBoxState();
         active.BindPresentation(null, null, stock);
-        active.Begin(new FrontendCartridgeReadGuard(rom), GameplayMessageId.MapDataAccessCompleted);
+        active.Begin(new FrontendCartridgeReadGuard(rom), GameplayMessageId.MapDataAccessCompleted, 0);
         active.Step(0);
         var phase = active.Phase; int radius = active.RadiusPixels;
         ushort[] original = active.Tilemap.ToArray();

@@ -17,12 +17,12 @@ internal static partial class Program
         foreach (GameplayMessageId id in GameplayMessagePanelDefinitions.MessageIds)
         {
             var cartridge = new GameplayMessageBoxState();
-            cartridge.Begin(bus, id,
+            cartridge.Begin(bus, id, 0,
                 shootBinding: (ushort)SnesButton.B,
                 runBinding: (ushort)SnesButton.Y);
             var installed = new GameplayMessageBoxState();
             installed.BindPresentation(null, stock);
-            installed.Begin(new ForbiddenGameplayMessageBus(), id,
+            installed.Begin(new ForbiddenGameplayMessageBus(), id, 0,
                 shootBinding: (ushort)SnesButton.B,
                 runBinding: (ushort)SnesButton.Y);
             AssertTrue(cartridge.Tilemap.SequenceEqual(installed.Tilemap),
@@ -40,7 +40,7 @@ internal static partial class Program
 
         var active = new GameplayMessageBoxState();
         active.BindPresentation(null, stock);
-        active.Begin(new ForbiddenGameplayMessageBus(), GameplayMessageId.MissileTank,
+        active.Begin(new ForbiddenGameplayMessageBus(), GameplayMessageId.MissileTank, 0,
             shootBinding: (ushort)SnesButton.B);
         active.Step(0);
         GameplayMessageBoxPhase phase = active.Phase;
@@ -91,7 +91,7 @@ internal static partial class Program
             stockDirectory, overrideDirectory);
         var state = new GameplayMessageBoxState();
         state.BindPresentation(edited.GameplayMessageTitles, edited.GameplayMessagePanels);
-        state.Begin(new ForbiddenGameplayMessageBus(), GameplayMessageId.GrappleBeam);
+        state.Begin(new ForbiddenGameplayMessageBus(), GameplayMessageId.GrappleBeam, 0);
         AssertTrue(!stockCatalog.GameplayMessagePanels.Build(GameplayMessageId.GrappleBeam)
                 .AsSpan().SequenceEqual(state.Tilemap),
             "catalog override changes installed large-message title");

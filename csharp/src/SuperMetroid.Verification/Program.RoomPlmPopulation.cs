@@ -1621,7 +1621,7 @@ internal static partial class Program
 
         var message = new GameplayMessageBoxState();
         message.BindPresentation(null, notices: presentation);
-        message.Begin(bus, GameplayMessageIds.SaveConfirmation);
+        message.Begin(bus, GameplayMessageIds.SaveConfirmation, 0);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)
@@ -1632,27 +1632,38 @@ internal static partial class Program
             "save message enters shared yes/no selection phase");
         AssertEqual(0x5100, message.Tilemap[128],
             "save message begins with native selected-YES row");
+        // $85:84BA waits two lag frames before its first ReadControllerInput.
+        message.Step(0);
+        message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
+        AssertTrue(message.ConfirmationSelectionYes, "save selector does not read during its lag waits");
         message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "save cursor changes the shared confirmation selection");
         AssertEqual(0x5200, message.Tilemap[128],
             "save cursor redraws the native selected-NO row");
+        // Later reads come every second frame: the read's frame holds the next first wait.
+        message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
         message.Step((ushort)SuperMetroid.Core.Input.SnesButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "holding a direction does not toggle the newly-pressed save cursor repeatedly");
         message.Step((ushort)SuperMetroid.Core.Input.SnesButton.A);
+        AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase, "A is read on the next read frame");
+        message.Step((ushort)SuperMetroid.Core.Input.SnesButton.A);
+        AssertEqual(GameplayMessageBoxPhase.Closing, message.Phase, "A confirms on a read frame");
         for (int guard = 0; message.IsActive && guard < 32; guard++)
             message.Step(0);
         AssertEqual(false, message.ConsumeConfirmationResult(),
             "save confirmation publishes selected no result after close");
 
-        message.Begin(bus, GameplayMessageIds.SaveConfirmation);
+        message.Begin(bus, GameplayMessageIds.SaveConfirmation, 0);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)
         {
             message.Step(0);
         }
+        message.Step(0);
+        message.Step(0);
         message.Step((ushort)SuperMetroid.Core.Input.SnesButton.A);
         for (int guard = 0; message.IsActive && guard < 32; guard++)
             message.Step(0);

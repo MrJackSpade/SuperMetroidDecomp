@@ -30,8 +30,8 @@ internal static partial class Program
             AssertEqual((ushort)0xda, fx.BaseYPosition, "pickup preserves native liquid surface");
 
             // Runtime suspends gameplay while the message is active and invokes this
-            // continuation on its final close NMI, before the ordinary FX pass.
-            fixture.Plms.CompleteCollectibleMessage();
+            // continuation when the routine returns, before the next FX pass.
+            fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
             AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.PackedYVelocity,
                 "only the Chozo instruction list writes the native upward velocity");
             fx.Step(cartridge, vram, 0, 0, timeIsFrozen: false);
@@ -52,7 +52,7 @@ internal static partial class Program
                     fx.BaseYPosition, "lava rises at native subpixel speed after delay");
             }
             fx.ApplyCartridgeMotionWrites(packedYVelocity: 0);
-            fixture.Plms.CompleteCollectibleMessage();
+            fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
             AssertEqual((ushort)0, fx.PackedYVelocity, "message continuation is consumed once");
         }
         Console.WriteLine("Speed Booster pickup continuation, delay, rise and earthquake verified.");

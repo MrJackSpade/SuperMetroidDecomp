@@ -27,7 +27,7 @@ internal static class PauseMessageGateAudit
         SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime = game.RuntimeForVerification
             ?? throw new InvalidOperationException("Pause/message audit lost its gameplay runtime.");
 
-        runtime.MessageBox.Begin(bus, GameplayMessageIds.MorphBall);
+        runtime.MessageBox.Begin(bus, GameplayMessageIds.MorphBall, 0);
         int messageOwnedFrames = 0;
         bool sawMinimumDisplay = false;
         bool sawClosing = false;

@@ -39,12 +39,33 @@ public sealed partial class RoomPlmSystem
         }
     }
 
-    /// <summary>Resumes the item's synchronous bank-$85 message return continuation.</summary>
-    internal void CompleteCollectibleMessage()
+    /// <summary>
+    /// The bank-$85 message returns into the item's suspended instruction list, which draws
+    /// the empty block and deletes itself within the same PLM_Handler call. Returns that
+    /// draw's tilemap updates.
+    /// </summary>
+    internal IReadOnlyList<PlmTilemapUpdate> CompleteCollectibleMessage(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        ushort layer1XPosition,
+        ushort layer1YPosition,
+        ushort bg1XOffset)
     {
+        _tilemapUpdates.Clear();
         foreach (PlmSlot slot in _slots)
-            if (slot.Active && slot.Item?.Phase == CollectiblePhase.AwaitingMessage)
-                slot.Item.Phase = CollectiblePhase.ResumeAfterMessage;
+        {
+            if (!slot.Active || slot.Item?.Phase != CollectiblePhase.AwaitingMessage)
+                continue;
+            slot.Item.Phase = CollectiblePhase.ResumeAfterMessage;
+            FinishCollectiblePickup(bus, level, streamer, slot, layer1XPosition, layer1YPosition, bg1XOffset);
+        }
+        CompleteSpeedBoosterPickupContinuation();
+        return _tilemapUpdates;
+    }
+
+    private void CompleteSpeedBoosterPickupContinuation()
+    {
         if (!_pendingSpeedBoosterPickupContinuation)
             return;
         RoomLayer3FxState fx = _speedBoosterEscapeFx
@@ -105,7 +126,8 @@ public sealed partial class RoomPlmSystem
             // the pending empty draw/delete. Native $EEAB matches the block index without
             // filtering the instruction phase; acknowledge this owner without collecting
             // again or disturbing its message-return continuation.
-            if (slot.Item.Phase is CollectiblePhase.AwaitingMessage or CollectiblePhase.ResumeAfterMessage)
+            if (slot.Item.Phase is CollectiblePhase.AwaitingMessage or CollectiblePhase.ResumeAfterMessage or
+                CollectiblePhase.EmptyAwaitingDelete)
                 return true;
             if (slot.Item.Phase is not (
                     CollectiblePhase.Visible or CollectiblePhase.ShotBlockVisible))
@@ -336,6 +358,12 @@ public sealed partial class RoomPlmSystem
             case CollectiblePhase.ResumeAfterMessage:
                 FinishCollectiblePickup(bus, level, streamer, slot,
                     layer1XPosition, layer1YPosition, bg1XOffset);
+                return true;
+
+            case CollectiblePhase.EmptyAwaitingDelete:
+                // InstList_PLM_EmptyItem's Instruction_PLM_Delete ($84:DFAD).
+                slot.Active = false;
+                slot.HeaderPointer = 0;
                 return true;
 
             case CollectiblePhase.CollectedEmpty:
@@ -609,11 +637,13 @@ public sealed partial class RoomPlmSystem
             return;
         }
 
+        // $84:DFA9: InstList_PLM_EmptyItem draws for one frame; its delete runs on the
+        // following PLM_Handler pass.
         DrawCollectible(
             bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty,
             layer1XPosition, layer1YPosition, bg1XOffset);
-        slot.Active = false;
-        slot.HeaderPointer = 0;
+        item.Phase = CollectiblePhase.EmptyAwaitingDelete;
+        item.Timer = 1;
     }
 
     private static void ApplyCollectibleEffect(
@@ -795,6 +825,8 @@ public enum CollectiblePhase : byte
     CollectedShotBlockRespawn,
     AwaitingMessage,
     ResumeAfterMessage,
+    /// <summary>The empty draw has run; the instruction list deletes the PLM next pass.</summary>
+    EmptyAwaitingDelete,
 }
 
 /// <summary>Stable debugger view of one occupied permanent-item PLM slot.</summary>

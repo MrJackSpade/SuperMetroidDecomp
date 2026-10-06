@@ -35,6 +35,7 @@ internal static partial class Program
         byte[] memory = checkpoints.ReadAfter(0);
         Console.WriteLine($"Native first input boundary: SMV frame {updates[0].SourceFrame}, " +
             $"state {Word(memory, MovieDesyncMemory.GameState):X2}, RNG {Word(memory, MovieDesyncMemory.Random):X4}.");
+        ushort[] frameInputs = ReadMovieFrameInputs(movie);
         var recentInputs = new Queue<string>();
         var uploadNmis = new EvidencedDoorMusicUploadNmis();
         game.DoorMusicUploadNmis = uploadNmis;
@@ -60,6 +61,24 @@ internal static partial class Program
             uploadNmis.AssertSettled();
             audio.RenderFrame(output.AudioCommands);
             game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+            // Bank $85's message box runs inside this dispatch on lag frames, polling the
+            // joypad registers rather than accepting NMIs, so the box spans this update's
+            // remaining source frames. The port shows it one frame per step.
+            if (game.RuntimeForVerification?.MessageBox.IsActive == true)
+            {
+                int endSourceFrame = update < updates.Count ? updates[update].SourceFrame : checkpoints.SourceFrameCount;
+                int frame = step.SourceFrame + 1;
+                for (; frame < endSourceFrame && game.RuntimeForVerification.MessageBox.IsActive; frame++)
+                {
+                    output = game.Step(frameInputs[frame]);
+                    audio.RenderFrame(output.AudioCommands);
+                    game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+                }
+                if (game.RuntimeForVerification.MessageBox.IsActive || frame != endSourceFrame)
+                    throw new InvalidDataException(
+                        $"The port's message box closed after SMV frame {frame - 1}, but native dispatch {update} " +
+                        $"(SMV frames {step.SourceFrame}-{endSourceFrame}) ends at {endSourceFrame - 1}.");
+            }
             memory = checkpoints.ReadAfter(update);
 
             if (update >= traceFromUpdate)
@@ -254,6 +273,20 @@ internal static partial class Program
             Check(owner + " health", actor.Health, address + MovieDesyncMemory.EnemyHealthOffset);
         }
         return mismatches;
+    }
+
+    /// <summary>Reads the one-controller SMV input word of every source frame.</summary>
+    private static ushort[] ReadMovieFrameInputs(byte[] movie)
+    {
+        const int FrameCountField = 0x10, ControllerCountField = 0x14, ControllerOffsetField = 0x1c;
+        if (movie[ControllerCountField] != 1)
+            throw new InvalidDataException("Only one-controller movies are supported.");
+        int frames = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(FrameCountField));
+        int offset = BinaryPrimitives.ReadInt32LittleEndian(movie.AsSpan(ControllerOffsetField));
+        var inputs = new ushort[frames + 1];
+        for (int frame = 0; frame <= frames; frame++)
+            inputs[frame] = BinaryPrimitives.ReadUInt16LittleEndian(movie.AsSpan(offset + 2 * frame));
+        return inputs;
     }
 
     /// <summary>

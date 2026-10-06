@@ -37,9 +37,7 @@ public sealed class CeresDoorVisualCatalog
     private readonly RoomCharacterAtlas tiles;
     private readonly CeresDoorNormalPaintDefinitions normal;
     private readonly CeresDoorEscapePaintDefinitions escape;
-    private readonly ushort[] animationSeeds;
-    private readonly Dictionary<int, ushort> animationPhaseResiduals = [];
-    private readonly Dictionary<int, ushort> animationRowEdits = [];
+    private readonly CeresDoorAnimationPaintDefinitions animation;
     private readonly Dictionary<int, byte> platformEdits = [];
 
     private CeresDoorVisualCatalog(RoomCharacterAtlas tiles, ushort[] normal,
@@ -48,15 +46,7 @@ public sealed class CeresDoorVisualCatalog
         this.tiles = tiles;
         this.normal = new(normal);
         this.escape = new(escape, this.normal);
-        animationSeeds = animation[1];
-        for (int phase = 0; phase < CeresDoorVisualRomData.AnimationRowCount / 2; phase++)
-        for (int color = 0; color < CeresDoorVisualRomData.AnimationColorCount; color++)
-            if (animation[phase][color] != AnimationRamp(phase, color))
-                animationPhaseResiduals.Add(phase * CeresDoorVisualRomData.AnimationColorCount + color, animation[phase][color]);
-        for (int row = CeresDoorVisualRomData.AnimationRowCount / 2; row < CeresDoorVisualRomData.AnimationRowCount; row++)
-        for (int color = 0; color < CeresDoorVisualRomData.AnimationColorCount; color++)
-            if (animation[row][color] != AnimationColor(row, color))
-                animationRowEdits.Add(row * CeresDoorVisualRomData.AnimationColorCount + color, animation[row][color]);
+        this.animation = new(animation, this.normal);
         for (int frame = 0; frame < mode7DoorFrames.Length; frame++)
         for (int index = 0; index < CeresDoorVisualRomData.Mode7FrameByteCount; index++)
             if (mode7DoorFrames[frame][index] != PlatformTile(frame, index))
@@ -141,29 +131,7 @@ public sealed class CeresDoorVisualCatalog
             cgram.SetColor(CeresDoorVisualRomData.AnimationTargetColor + color, AnimationColor(row, color));
     }
 
-    private ushort AnimationColor(int row, int color)
-    {
-        int key = row * CeresDoorVisualRomData.AnimationColorCount + color;
-        if (animationRowEdits.TryGetValue(key, out ushort edited)) return edited;
-        int phase = Math.Min(row, CeresDoorVisualRomData.AnimationRowCount - 1 - row);
-        int phaseKey = phase * CeresDoorVisualRomData.AnimationColorCount + color;
-        return animationPhaseResiduals.TryGetValue(phaseKey, out ushort residual) ? residual : AnimationRamp(phase, color);
-    }
-
-    /// <summary>
-    /// $A6:F871-$F8EC: the eight rows mirror four phases. RGB5 channels change by five
-    /// per phase relative to phase1, clamped to0..31. Six seed choices and four stock
-    /// deviations remain unresolved; custom rows retain all independent differences.
-    /// </summary>
-    private ushort AnimationRamp(int phase, int color)
-    {
-        ushort seed = animationSeeds[color];
-        int delta = 5 * (1 - phase);
-        int red = Math.Clamp((seed & 31) + delta, 0, 31);
-        int green = Math.Clamp(((seed >> 5) & 31) + delta, 0, 31);
-        int blue = Math.Clamp(((seed >> 10) & 31) + delta, 0, 31);
-        return (ushort)(red | green << 5 | blue << 10);
-    }
+    private ushort AnimationColor(int row, int color) => animation.ColorAt(row, color);
 
     /// <summary>$A6:F918/F91C: resolve shared canonical platform imagery or an independent supplied cell edit.</summary>
     private byte PlatformTile(int frame, int index)

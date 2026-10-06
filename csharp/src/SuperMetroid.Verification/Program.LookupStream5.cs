@@ -1914,4 +1914,73 @@ internal static partial class Program
             return basis;
         }
     }
+    private static void VerifyLookupStream5CeresBeaconPaint(SuperMetroidAddressSpace rom)
+    {
+        PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
+        {
+            ushort w = ReadVerificationWord(rom, source + 2 * i);
+            return new PaletteRgb5 { Red = w & 31, Green = w >> 5 & 31, Blue = w >> 10 };
+        }).ToArray();
+        var document = new CeresDoorVisualDocument
+        {
+            Version = 1, Normal = Colors(CeresDoorVisualRomData.NormalColors, 15), Escape = Colors(CeresDoorVisualRomData.EscapeColors, 15),
+            Animation = Enumerable.Range(0, 8).Select(row => Colors(CeresDoorVisualRomData.AnimationColors + 16 * row, 6)).ToArray(),
+            Mode7DoorFrames = Enumerable.Range(0, 2).Select(frame => Enumerable.Range(0, 4).Select(i => (int)rom.ReadByte(CeresDoorVisualRomData.Mode7FirstFrameSource + frame * 4 + i)).ToArray()).ToArray(),
+        };
+        byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out int width, out int height);
+        using var png = new MemoryStream(); IndexedPng.Write(png, width, height, pixels, SnesGraphics.DiagnosticPalette(16));
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        CeresDoorAnimationPaintDefinitions stock = Check(-1);
+        AssertEqual(17, (int)typeof(CeresDoorAnimationPaintDefinitions).GetField("firstSeedBlue", flags)!.GetValue(stock)!, "Selected beacon blue");
+        AssertEqual(14, (int)typeof(CeresDoorAnimationPaintDefinitions).GetField("dimMiddleAmberRed", flags)!.GetValue(stock)!, "Selected dim amber red");
+        foreach (string field in new[] { "seedEdits", "edits" })
+            AssertEqual(0, ((Dictionary<int, ushort>)typeof(CeresDoorAnimationPaintDefinitions).GetField(field, flags)!.GetValue(stock)!).Count, "All native beacon dependencies calculate without overrides");
+        for (int row = 0; row < 8; row++)
+        for (int color = 0; color < 6; color++)
+        {
+            PaletteRgb5 before = document.Animation[row][color];
+            for (int channel = 0; channel < 3; channel++)
+            {
+                document.Animation[row][color] = new PaletteRgb5 { Red = channel == 0 ? before.Red ^ 31 : before.Red, Green = channel == 1 ? before.Green ^ 31 : before.Green, Blue = channel == 2 ? before.Blue ^ 31 : before.Blue };
+                _ = Check(row);
+            }
+            document.Animation[row][color] = before;
+        }
+        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(-1, 0), "Beacon row lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(8, 0), "Beacon row upper bound");
+        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(0, -1), "Beacon color lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => stock.ColorAt(0, 6), "Beacon color upper bound");
+        Console.WriteLine("Ceres beacon:48native colors/zero stock overrides,144independent RGB edits,208actual row selections including64-tick cycle, untouched neighbors/hash/bounds pass.");
+
+        CeresDoorAnimationPaintDefinitions Check(int editedRow)
+        {
+            ushort Pack(PaletteRgb5 c) => (ushort)(c.Red | c.Green << 5 | c.Blue << 10);
+            var basis = new CeresDoorAnimationPaintDefinitions(document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray(), new CeresDoorNormalPaintDefinitions(document.Normal.Select(Pack).ToArray()));
+            var visual = CeresDoorVisualCatalog.Load(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualCatalog.Write(document)));
+            for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
+                AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
+            var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort, RoomCharacterAtlas>(), new Dictionary<ushort, EnemyPaletteSheet>(), ceresDoorVisual: visual) };
+            var cgram = new SnesCgram();
+            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(system, cgram);
+            typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(system, new SnesVram());
+            var tick = typeof(RoomEnemySystem).GetMethod("RunCeresDoorPaletteAnimation", flags)!.CreateDelegate<Action>(system);
+            foreach (int counter in editedRow < 0 ? Enumerable.Range(0, 64) : new[] { editedRow * 8 })
+            {
+                system.Slots[0].FrameCounter = (ushort)counter; tick();
+                int row = (counter & 0x38) >> 3;
+                for (int color = 0; color < 6; color++) AssertEqual(Pack(document.Animation[row][color]), cgram.Colors[41 + color], "Actual native eight-tick row selection and six CGRAM writes");
+                AssertEqual((ushort)0, cgram.Colors[40], "Beacon lower neighbor unchanged");
+                AssertEqual((ushort)0, cgram.Colors[47], "Beacon upper neighbor unchanged");
+            }
+            string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
+            {
+                content.Append("tiles", planar); content.AppendWords("normal", document.Normal.Select(Pack).ToArray()); content.AppendWords("escape", document.Escape.Select(Pack).ToArray());
+                content.AppendWordFrames("animation", document.Animation.Select(row => row.Select(Pack).ToArray()).ToArray());
+                content.Append("mode7-frames", 2); foreach (var frame in document.Mode7DoorFrames) content.Append("mode7-frame", frame.Select(value => (byte)value).ToArray());
+            });
+            AssertEqual(identity, visual.ContentIdentity, "Beacon edits preserve normal/escape/platform and canonical hash");
+            return basis;
+        }
+    }
 }

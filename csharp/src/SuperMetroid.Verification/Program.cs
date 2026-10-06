@@ -36,6 +36,11 @@ if (args is ["--lookup-stream5-ceres-escape-paint"])
     VerifyLookupStream5CeresEscapePaint(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--lookup-stream5-ceres-beacon-paint"])
+{
+    VerifyLookupStream5CeresBeaconPaint(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--lookup-stream5-ceres-rumble"])
 {
     VerifyLookupStream5CeresRumble(CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

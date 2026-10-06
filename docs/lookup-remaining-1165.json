@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 456,
+  "remainingTableDefinitionCount": 455,
   "fileCount": 523,
   "entries": [
     {
@@ -107,12 +107,15 @@
   "disposition": "Calculate grey-blue hue channels, six normal warm aliases and clipped inner-bevel ramp max(9,21−5*shade). Retain only highlight/edge/outline levels26/18/7/3, bevel peak21/floor9, less-blue middle18, copied cyan accentB14, tint3/step5 and precise facet grouping. These select material paint; no physical or transport rule determines them. Other palettes,animation,pixels,timing excluded."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CeresDoorVisualCatalog.cs",
-      "line": 26,
-      "name": "CeresDoorVisualCatalog.animation",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CeresDoorVisualCatalog.animation. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CeresDoorVisualCatalog.cs",
+  "line": 26,
+  "name": "CeresDoorVisualCatalog.animation",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CeresDoorVisualCatalog.animation. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "a514179b1eae1283f0622743cde8eca05a26ee40",
+  "disposition": "Calculate17shared normal seed channels, clamped five-level fade, mirrored four-phase/eight-row structure, and bright gold facet RGB changes from common3/highlightG4 steps. Retain only independent first-seedB17 and dim middle-amberR14 plus precisely named material/fade/brightening composition policies. Native masks establish specific painted surfaces; changing these choices invents different beacon paint. NMI cadence, gate, pixels and mechanics excluded."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/CeresDoorVisualCatalog.cs",
   "line": 27,
@@ -21706,5 +21709,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 72
+  "justifiedRetainedSinceSnapshot": 73
 }

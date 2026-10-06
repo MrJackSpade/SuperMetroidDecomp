@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 406,
+  "remainingTableDefinitionCount": 405,
   "fileCount": 523,
   "entries": [
     {
@@ -591,12 +591,15 @@
       "implementationCommit": "f1ef6f08d"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs",
-      "line": 24,
-      "name": "DraygonColorCatalog.intro",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind DraygonColorCatalog.intro. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs",
+  "line": 24,
+  "name": "DraygonColorCatalog.intro",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind DraygonColorCatalog.intro. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "converted",
+  "implementationCommit": "87497186be0ed68fee92f05b4db37680bc98e71e",
+  "disposition": "All25stock outputs derive from16 primary Draygon material aliases, its clear value and eight exact escape-surface aliases. No new retained paint inputs. Shared escape surface operation extracted without changing independent supplied edits."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs",
   "line": 25,
@@ -21855,6 +21858,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 607,
+  "convertedSinceSnapshot": 608,
   "justifiedRetainedSinceSnapshot": 115
 }

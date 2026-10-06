@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
 using System.Text.Json;
@@ -2285,6 +2286,73 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress(invalid), "Ceres presentation index bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => KzanInstructionProgramDefinitions.MechanicsWord(invalid), "Kzan control index bounds");
+    }
+    private static void VerifyLookupStream4DraygonIntro(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        byte[] json = DraygonColorExtractor.Extract(rom);
+        var stock = DraygonColorCatalog.Load(new MemoryStream(json));
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var intro = (DraygonIntroPaintDefinitions)typeof(DraygonColorCatalog).GetField("intro",flags)!.GetValue(stock)!;
+        var primary = (DraygonMaterialPaintDefinitions)typeof(DraygonIntroPaintDefinitions).GetField("primary",flags)!.GetValue(intro)!;
+        var surface = (CeresDoorEscapeSurfacePaintDefinitions)typeof(DraygonIntroPaintDefinitions).GetField("surface",flags)!.GetValue(intro)!;
+        AssertEqual(0,((Dictionary<int,ushort>)typeof(DraygonMaterialPaintDefinitions).GetField("edits",flags)!.GetValue(primary)!).Count,"Intro primary zero native overrides");
+        AssertEqual(0,((Dictionary<int,ushort>)typeof(CeresDoorEscapeSurfacePaintDefinitions).GetField("edits",flags)!.GetValue(surface)!).Count,"Intro surface zero native overrides");
+        AssertEqual<object?>(null,typeof(DraygonIntroPaintDefinitions).GetField("clearEdit",flags)!.GetValue(intro),"Intro clear has no native override");
+        for(int edit=-1;edit<75;edit++)
+        {
+            var document=JsonSerializer.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions)!;
+            if(edit>=0)
+            {
+                var rgb=document.Intro[edit/3]; document.Intro[edit/3]=(edit%3) switch
+                {0=>rgb with{Red=rgb.Red^1},1=>rgb with{Green=rgb.Green^1},_=>rgb with{Blue=rgb.Blue^1}};
+            }
+            var selected=DraygonColorCatalog.Load(new MemoryStream(DraygonColorCatalog.Write(document)));
+            string hash=SelectedPresentationHash.Create("DraygonColorCatalog-v1",content=>
+            {
+                content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
+                content.AppendWords("sprite",document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash",document.WhiteFlash.Select(Pack).ToArray());
+                content.AppendWordFrames("healthBands",document.HealthBands.Select(row=>row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(hash,selected.ContentIdentity,"Independent intro content hash");
+            for(int color=0;color<25;color++)
+            {
+                AssertEqual(Word(0xa5a217+color*2),stock.ResolveIntro(color),"Native intro word");
+                AssertEqual(Pack(document.Intro[color]),selected.ResolveIntro(color),"Independent intro replacement");
+                if(color>=17)AssertEqual(Word(0xa6f50e+(color-17)*2),stock.ResolveIntro(color),"Canonical escape surface identity");
+            }
+            for(int color=0;color<16;color++)
+            {
+                AssertEqual(Word(0xa5a277+color*2),selected.ResolveBackground(color),"Intro edits leave background independent");
+                AssertEqual(Word(0xa5a1f7+color*2),selected.ResolveSprite(color),"Intro edits leave sprite independent");
+            }
+            var cgram=new SnesCgram(); for(int color=0;color<256;color++)cgram.SetColor(color,0x1234);
+            selected.ApplyIntro(cgram);
+            for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0x1234,cgram.Colors[color],"Full intro target copy");
+            if(edit is -1 or 0 or 48 or 74)
+            {
+                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort,RoomCharacterAtlas>(),new Dictionary<ushort,EnemyPaletteSheet>(),draygonColors:selected);
+                var enemies=new RoomEnemySystem{TileArtwork=artwork}; var actual=new SnesCgram(); var vram=new SnesVram();
+                typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,actual); typeof(RoomEnemySystem).GetField("_vram",flags)!.SetValue(enemies,vram);
+                typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
+                typeof(RoomEnemySystem).GetMethod("InitializeDraygonBody",flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies)(enemies.Slots[0]);
+                for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
+                AssertEqual(true,enemies.Draygon!.BackgroundTilemapPrepared,"Actual initializer continues BG2 preparation");
+                AssertEqual(DraygonAiFunction.IntroInitialDelay,enemies.Draygon.Function,"Actual initializer phase");
+            }
+        }
+        ushort[] escape=Enumerable.Range(0,15).Select(index=>Word(0xa6f50e+index*2)).ToArray();
+        for(int edit=-1;edit<45;edit++)
+        {
+            ushort[] selected=(ushort[])escape.Clone(); if(edit>=0)selected[edit/3]^=(ushort)(1<<(edit%3*5));
+            var paint=new CeresDoorEscapePaintDefinitions(selected);
+            for(int color=0;color<15;color++)AssertEqual(selected[color],paint.ColorAt(color),"Shared extraction preserves all escape channels and edits");
+            for(int color=0;color<25;color++)AssertEqual(Word(0xa5a217+color*2),stock.ResolveIntro(color),"Escape edits do not couple intro instance");
+        }
+        foreach(int invalid in new[]{-1,25,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveIntro(invalid),"Original intro domain");
+        AssertThrows<ArgumentNullException>(()=>stock.ApplyIntro(null!),"Intro null target");
+        Console.WriteLine("Draygon intro:25native aliases/zero overrides,75RGB edits/hash/76full copies,four actual initializers/readguard,45escape edits/independence/bounds pass.");
     }
     private static void VerifyLookupStream4DraygonSprite(ISnesAddressSpace rom)
     {

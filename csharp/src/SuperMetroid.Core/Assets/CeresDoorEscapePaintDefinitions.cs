@@ -10,14 +10,9 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresDoorEscapePaintDefinitions
 {
-    private const int BlueTint = 3;
-    private const int BevelShadeStep = 5;
     private const int MaximumChannel = (1 << 5) - 1;
     private readonly CeresDoorWarmTargetPaintDefinitions warm;
-    private readonly int[] highlightAndEdgeLevels;
-    private readonly int bevelPeak;
-    private readonly int bevelShadow;
-    private readonly int middleBevelBlue;
+    private readonly CeresDoorEscapeSurfacePaintDefinitions surface;
     private readonly int accentBlue;
     private readonly Dictionary<int, ushort> edits = [];
 
@@ -37,11 +32,7 @@ internal sealed class CeresDoorEscapePaintDefinitions
     {
         if (colors.Length != 15) throw new ArgumentException("Escape door paint requires fifteen colors.", nameof(colors));
         this.warm = warm;
-        highlightAndEdgeLevels = new int[4];
-        for (int index = 0; index < highlightAndEdgeLevels.Length; index++) highlightAndEdgeLevels[index] = colors[index] & MaximumChannel;
-        bevelPeak = colors[4] & MaximumChannel;
-        bevelShadow = colors[7] & MaximumChannel;
-        middleBevelBlue = colors[5] >> 10;
+        surface = new(colors[..8]);
         accentBlue = colors[14] >> 10;
         for (int index = 0; index < colors.Length; index++)
             if (Calculate(index) != colors[index]) edits.Add(index, colors[index]);
@@ -57,8 +48,6 @@ internal sealed class CeresDoorEscapePaintDefinitions
     {
         if (index is >= 8 and < 14) return warm.ColorAt(index - 8);
         if (index == 14) return (ushort)(MaximumChannel << 5 | accentBlue << 10);
-        int level = index < 4 ? highlightAndEdgeLevels[index] : Math.Max(bevelShadow, bevelPeak - BevelShadeStep * (index - 4));
-        int blue = index == 0 ? level : index == 5 ? middleBevelBlue : Math.Min(MaximumChannel, level + BlueTint);
-        return (ushort)(level | level << 5 | blue << 10);
+        return surface.ColorAt(index);
     }
 }

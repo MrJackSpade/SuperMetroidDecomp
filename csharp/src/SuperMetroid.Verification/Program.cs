@@ -26,6 +26,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream-4-draygon-intro"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Draygon intro oracle revision");
+    VerifyLookupStream4DraygonIntro(rom);
+    return 0;
+}
 if (args is ["--lookup-stream-4-draygon-sprite"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -14,7 +14,9 @@ public sealed class DraygonColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
         {
-            content.AppendWords("intro", intro);
+            Span<ushort> introWords = stackalloc ushort[DraygonColorRomData.IntroCount];
+            for (int color = 0; color < introWords.Length; color++) introWords[color] = intro.Color(color);
+            content.AppendWords("intro", introWords);
             Span<ushort> backgroundWords = stackalloc ushort[DraygonColorRomData.BackgroundCount];
             for (int color = 0; color < backgroundWords.Length; color++) backgroundWords[color] = background.Color(color);
             content.AppendWords("background", backgroundWords);
@@ -33,7 +35,7 @@ public sealed class DraygonColorCatalog
             }
         });
 
-    private readonly ushort[] intro;
+    private readonly DraygonIntroPaintDefinitions intro;
     private readonly DraygonMaterialPaintDefinitions background;
     private readonly DraygonMaterialPaintDefinitions sprite;
     private readonly Dictionary<int, ushort> whiteFlash = new();
@@ -42,7 +44,7 @@ public sealed class DraygonColorCatalog
     private DraygonColorCatalog(ushort[] intro, ushort[] background, ushort[] sprite,
         ushort[] whiteFlash, ushort[][] healthBands)
     {
-        this.intro = intro;
+        this.intro = new(intro);
         this.background = new(background);
         this.sprite = new(sprite);
         for (int color = 0; color < whiteFlash.Length; color++)
@@ -57,7 +59,7 @@ public sealed class DraygonColorCatalog
         WriteIndented = true,
     };
 
-    public ushort ResolveIntro(int color) => Get(intro, color);
+    public ushort ResolveIntro(int color) => intro.Color(color);
     public ushort ResolveBackground(int color) => background.Color(color);
     public ushort ResolveSprite(int color) => sprite.Color(color);
     public ushort ResolveWhiteFlash(int color)
@@ -79,7 +81,7 @@ public sealed class DraygonColorCatalog
     private static ushort StockWhiteFlash(int color) => color == 0 ? DraygonMaterialPaintDefinitions.ClearTarget : (ushort)0x7fff;
 
     public void ApplyIntro(SnesCgram cgram) =>
-        Apply(cgram, intro, DraygonColorRomData.IntroDestination);
+        ApplyCalculated(cgram, DraygonColorRomData.IntroCount, DraygonColorRomData.IntroDestination, ResolveIntro);
 
     public void ApplyHurt(SnesCgram cgram, bool whiteFrame, ushort healthTableByteIndex)
     {

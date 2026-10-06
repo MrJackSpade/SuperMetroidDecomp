@@ -126,18 +126,18 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs
 
-- [ ] **ChootFallingPathDefinitions.Normal** ([L59](../csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs#L59)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ChootFallingPathDefinitions.Wide** ([L92](../csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs#L92)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **ChootFallingPathDefinitions.VeryWide** ([L125](../csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs#L125)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChootFallingPathDefinitions.Normal** ([L59](../csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs#L59)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChootFallingPathDefinitions.Wide** ([L92](../csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs#L92)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChootFallingPathDefinitions.VeryWide** ([L125](../csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs#L125)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs
 
-- [ ] **ChootInstructionProgramDefinitions.Words** ([L45](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChootInstructionProgramDefinitions.Words** ([L45](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **ChootInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs
 
-- [ ] **ChootPatternDefinitions.Patterns** ([L33](../csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChootPatternDefinitions.Patterns** ([L33](../csharp/src/SuperMetroid.Core/Game/ChootPatternDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.cs
 
@@ -219,15 +219,15 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs
 
-- [ ] **EnemyPickupInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EnemyPickupInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **EnemyPickupInstructionProgramDefinitions.PresentationWords** ([L64](../csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs#L64)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs
 
-- [ ] **EnemyProjectileInstructionMechanicsDefinitions.BlueRingDurations** ([L76](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L76)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EnemyProjectileInstructionMechanicsDefinitions.BlueRingDurations** ([L76](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L76)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **EnemyProjectileInstructionMechanicsDefinitions.MiscDustInitialPointers** ([L84](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L84)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **EnemyProjectileInstructionMechanicsDefinitions.TimedPrograms** ([L93](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L93)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **EnemyProjectileInstructionMechanicsDefinitions.MechanicsWords** ([L162](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L162)) - factory-built stock table. Stored EnemyProjectileMechanicsWordDefinition[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **EnemyProjectileInstructionMechanicsDefinitions.TimedPrograms** ([L93](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L93)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **EnemyProjectileInstructionMechanicsDefinitions.MechanicsWords** ([L162](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L162)) - factory-built stock table. Stored EnemyProjectileMechanicsWordDefinition[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [x] **EnemyProjectileInstructionMechanicsDefinitions.PresentationFrames** ([L165](../csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs#L165)) - factory-built stock table. Stored EnemyProjectilePresentationFrameDefinition[] initialized by BuildPresentationFrames(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/EnemyVulnerabilityDefinitions.cs
@@ -253,7 +253,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs
 
-- [ ] **FirefleaInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs#L20)) - factory-built stock table. Stored FirefleaInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **FirefleaInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs#L20)) - factory-built stock table. Stored FirefleaInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [x] **FirefleaInstructionProgramDefinitions.PresentationWords** ([L21](../csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs#L21)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Assets/GameOptionsPresentation.cs
@@ -368,8 +368,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs
 
-- [ ] **RoomEnemySystem.RunMochtroidShake / xOffsets** ([L212](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs#L212)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
-- [ ] **RoomEnemySystem.RunMochtroidShake / yOffsets** ([L213](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs#L213)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemySystem.RunMochtroidShake / xOffsets** ([L212](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs#L212)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
+- [x] **RoomEnemySystem.RunMochtroidShake / yOffsets** ([L213](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs#L213)) - method-local definition. Fixed values inside a method; not an array parameter/return declaration.
 
 ### csharp/src/SuperMetroid.Core/Assets/BabyMetroidCutsceneColorCatalog.cs
 
@@ -434,10 +434,10 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs
 
-- [ ] **BabyMetroidCutsceneState.ShakingXOffsets** ([L35](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **BabyMetroidCutsceneState.ShakingYOffsets** ([L36](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **BabyMetroidCutsceneState.DeathExplosionXOffsets** ([L42](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **BabyMetroidCutsceneState.DeathExplosionYOffsets** ([L45](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BabyMetroidCutsceneState.ShakingXOffsets** ([L35](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs#L35)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BabyMetroidCutsceneState.ShakingYOffsets** ([L36](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs#L36)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BabyMetroidCutsceneState.DeathExplosionXOffsets** ([L42](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs#L42)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BabyMetroidCutsceneState.DeathExplosionYOffsets** ([L45](../csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs#L45)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/BabyMetroidRouteDefinitions.cs
 
@@ -491,7 +491,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubePopulationDefinitions.cs
 
-- [ ] **MotherBrainFallingTubePopulationDefinitions.Pointers** ([L30](../csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubePopulationDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **MotherBrainFallingTubePopulationDefinitions.Pointers** ([L30](../csharp/src/SuperMetroid.Core/Game/MotherBrainFallingTubePopulationDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs
 
@@ -662,7 +662,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs
 
-- [ ] **YellowPipeBugInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **YellowPipeBugInstructionProgramDefinitions.Words** ([L20](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs#L20)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **YellowPipeBugInstructionProgramDefinitions.PresentationWords** ([L32](../csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs#L32)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ## Agent handoff

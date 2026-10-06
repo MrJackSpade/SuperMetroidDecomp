@@ -158,7 +158,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/CrawlerSpeedDefinitions.cs
 
-- [ ] **CrawlerSpeedDefinitions.Speeds** ([L16](../csharp/src/SuperMetroid.Core/Game/CrawlerSpeedDefinitions.cs#L16)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **CrawlerSpeedDefinitions.Speeds** ([L16](../csharp/src/SuperMetroid.Core/Game/CrawlerSpeedDefinitions.cs#L16)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Assets/CrystalFlashColorCatalog.cs
 
@@ -395,9 +395,9 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/BombTorizoMovementDefinitions.cs
 
-- [ ] **BombTorizoMovementDefinitions.PostureX** ([L15](../csharp/src/SuperMetroid.Core/Game/BombTorizoMovementDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **BombTorizoMovementDefinitions.PostureY** ([L18](../csharp/src/SuperMetroid.Core/Game/BombTorizoMovementDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **BombTorizoMovementDefinitions.WalkVelocities** ([L25](../csharp/src/SuperMetroid.Core/Game/BombTorizoMovementDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BombTorizoMovementDefinitions.PostureX** ([L15](../csharp/src/SuperMetroid.Core/Game/BombTorizoMovementDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BombTorizoMovementDefinitions.PostureY** ([L18](../csharp/src/SuperMetroid.Core/Game/BombTorizoMovementDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **BombTorizoMovementDefinitions.WalkVelocities** ([L25](../csharp/src/SuperMetroid.Core/Game/BombTorizoMovementDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/DeadTorizoInstructionProgramDefinitions.cs
 

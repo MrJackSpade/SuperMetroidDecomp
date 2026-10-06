@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 202,
+  "remainingTableDefinitionCount": 163,
   "fileCount": 523,
   "entries": [
     {
@@ -2948,7 +2948,10 @@
       "line": 12,
       "name": "TitleSequenceInstructionDefinitions.Program",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Card layout and progressive text addresses calculate; the holds 60/8/45/120/32 are named timing scalars. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs",
@@ -2964,28 +2967,40 @@
       "line": 35,
       "name": "BabyMetroidCutsceneState.ShakingXOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Authored four-step jitter shared with Mother Brain's brain shake ($A9:93BB). (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs",
       "line": 36,
       "name": "BabyMetroidCutsceneState.ShakingYOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Authored four-step jitter; Y is not a reflection or rotation of X. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs",
       "line": 42,
       "name": "BabyMetroidCutsceneState.DeathExplosionXOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Identical copy of the Ridley death scatter; deduplicated into DeathExplosionScatterDefinitions. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/BabyMetroidCutsceneState.cs",
       "line": 45,
       "name": "BabyMetroidCutsceneState.DeathExplosionYOffsets",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Identical copy of the Ridley death scatter; deduplicated into DeathExplosionScatterDefinitions. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/BabyMetroidRouteDefinitions.cs",
@@ -3015,21 +3030,30 @@
       "line": 15,
       "name": "BombTorizoMovementDefinitions.PostureX",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Per-frame displacements authored to the posture/walk animation; the facing reflection and duplicate copies already calculate. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/BombTorizoMovementDefinitions.cs",
       "line": 18,
       "name": "BombTorizoMovementDefinitions.PostureY",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Per-frame displacements authored to the posture/walk animation; the facing reflection and duplicate copies already calculate. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/BombTorizoMovementDefinitions.cs",
       "line": 25,
       "name": "BombTorizoMovementDefinitions.WalkVelocities",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Per-frame displacements authored to the posture/walk animation; the facing reflection and duplicate copies already calculate. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/BotwoonMovementSampleData.cs",
@@ -3241,49 +3265,70 @@
       "line": 32,
       "name": "CeresMode7TransferDefinitions.PlatformLight",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Transfer layout and tile runs calculate; map placement is one named position. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs",
       "line": 36,
       "name": "CeresMode7TransferDefinitions.PlatformDark",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Transfer layout and tile runs calculate; map placement is one named position. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs",
       "line": 40,
       "name": "CeresMode7TransferDefinitions.Baby0",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Transfer layout and tile runs calculate; map placement is one named position. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs",
       "line": 45,
       "name": "CeresMode7TransferDefinitions.Baby1",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Transfer layout and tile runs calculate; map placement is one named position. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs",
       "line": 50,
       "name": "CeresMode7TransferDefinitions.Baby2",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Transfer layout and tile runs calculate; map placement is one named position. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs",
       "line": 55,
       "name": "CeresMode7TransferDefinitions.Wing0",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Row stepping and paired-frame addresses calculate; the six row extents trace the drawn wing silhouette. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresMode7TransferDefinitions.cs",
       "line": 64,
       "name": "CeresMode7TransferDefinitions.Wing1",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Row stepping and paired-frame addresses calculate; the six row extents trace the drawn wing silhouette. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CeresRidleyProjectileInstructionProgramDefinitions.cs",
@@ -3390,21 +3435,30 @@
       "line": 59,
       "name": "ChootFallingPathDefinitions.Normal",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Drawn falling trajectory; Y wobbles non-monotonically and no ballistic, sine or polynomial path reproduces it. Slow variants already calculate by plateau expansion. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs",
       "line": 92,
       "name": "ChootFallingPathDefinitions.Wide",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Drawn falling trajectory; Y wobbles non-monotonically and no ballistic, sine or polynomial path reproduces it. Slow variants already calculate by plateau expansion. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ChootFallingPathDefinitions.cs",
       "line": 125,
       "name": "ChootFallingPathDefinitions.VeryWide",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Drawn falling trajectory; Y wobbles non-monotonically and no ballistic, sine or polynomial path reproduces it. Slow variants already calculate by plateau expansion. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs",
@@ -3412,8 +3466,9 @@
       "name": "ChootInstructionProgramDefinitions.Words",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "pending",
-      "implementationCommit": "5670b1983384c99fbee47e1e63f84324ab7186ed"
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Program control words calculate from named instruction codes and record layout; only the program's authored frame durations remain as named scalars. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ChootInstructionProgramDefinitions.cs",
@@ -3430,8 +3485,10 @@
       "name": "ChootPatternDefinitions.Patterns",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "pending",
-      "reopeningReason": "Selector dispatch is converted, but loop Y advances30/28/32 remain unresolved functional trajectory inputs; no accepted exception."
+      "reopeningReason": "Selector dispatch is converted, but loop Y advances30/28/32 remain unresolved functional trajectory inputs; no accepted exception.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Selector dispatch calculates; the loop advances 30/28/32 are authored with each drawn path (not the paths' final offsets 31/29/32). (residualScalarInputsReview)"
     },
     {
   "file": "csharp/src/SuperMetroid.Core/Game/ChozoCarryMotionDefinitions.cs",
@@ -3566,7 +3623,10 @@
       "line": 16,
       "name": "CrawlerSpeedDefinitions.Speeds",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Quarter-pixel ramps calculate with two named gap points and a named penultimate speed. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/CrocomireBodyCollisionDefinitions.cs",
@@ -4031,8 +4091,9 @@
       "name": "EnemyPickupInstructionProgramDefinitions.Words",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "pending",
-      "implementationCommit": "e0a0ac2c096ab54344e07e0204f4b12ad2785cd1"
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Program control words calculate from named instruction codes and record layout; only the program's authored frame durations remain as named scalars. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EnemyPickupInstructionProgramDefinitions.cs",
@@ -4048,7 +4109,10 @@
       "line": 76,
       "name": "EnemyProjectileInstructionMechanicsDefinitions.BlueRingDurations",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Program structure and growth phases calculate; animation holds are named scalars. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs",
@@ -4062,14 +4126,20 @@
       "line": 93,
       "name": "EnemyProjectileInstructionMechanicsDefinitions.TimedPrograms",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Program structure and growth phases calculate; animation holds are named scalars. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs",
       "line": 162,
       "name": "EnemyProjectileInstructionMechanicsDefinitions.MechanicsWords",
       "kind": "factory-built stock table",
-      "note": "Stored EnemyProjectileMechanicsWordDefinition[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion."
+      "note": "Stored EnemyProjectileMechanicsWordDefinition[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Program structure and growth phases calculate; animation holds are named scalars. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/EnemyProjectileInstructionMechanicsDefinitions.cs",
@@ -4311,8 +4381,9 @@
       "name": "FirefleaInstructionProgramDefinitions.Words",
       "kind": "factory-built stock table",
       "note": "Stored FirefleaInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.",
-      "state": "pending",
-      "implementationCommit": "e0a0ac2c096ab54344e07e0204f4b12ad2785cd1"
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Program control words calculate from named instruction codes and record layout; only the program's authored frame durations remain as named scalars. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/FirefleaInstructionProgramDefinitions.cs",
@@ -5293,8 +5364,9 @@
       "name": "MamaTurtleInstructionProgramDefinitions.AddBabyCrawl / literal at L202",
       "kind": "method-local definition",
       "note": "Fixed values inside a method; not an array parameter/return declaration.",
-      "state": "pending",
-      "implementationCommit": "139eaa64a"
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "The crawl records calculate from record layout; the uniform 10-tick hold is one authored timing scalar. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MamaTurtleShellContourDefinitions.cs",
@@ -5621,7 +5693,10 @@
       "line": 30,
       "name": "MotherBrainFallingTubePopulationDefinitions.Pointers",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Population records calculate from the eight-word record format and named center/offset/baseline placements. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/MotherBrainHandBeamBodyInstructionDefinitions.cs",
@@ -6419,7 +6494,10 @@
       "line": 45,
       "name": "PlanetZebesTextPaletteFxProgramMechanicsDefinitions.Definitions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Fade-in/out records calculate (the fade-out reverses the fade-in, rounded RGB5 interpolation); hold, palette and endpoints are named inputs. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/PolypInstructionProgramDefinitions.cs",
@@ -6717,15 +6795,19 @@
       "name": "RidleyExplosionDefinitions.PartRecords",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "pending",
-      "implementationCommit": "898664e1c23e483afa611faa0667c27b53f961e5"
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Initializer addresses and part parameters calculate from native record layout; lifetimes are named per-part scalars (bases 72/40, step 8, torso 128). (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs",
       "line": 87,
       "name": "RidleyExplosionDefinitions.DeathExplosionPlacements",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Authored ten-point scatter, now one shared owner (DeathExplosionScatterDefinitions) with the identical Baby Metroid copy at $A9:CDFC. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RidleyExplosionDefinitions.cs",
@@ -7101,7 +7183,10 @@
       "line": 916,
       "name": "RoomEnemySystem.CreateInitialRidleyTailSegments / distances",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Rest distances calculate per segment role from three named lengths (2/8/5 px). (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidley.cs",
@@ -7117,14 +7202,20 @@
       "line": 10,
       "name": "RoomEnemySystem.CeresRidleyWingAnimationDeltas",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Authored wing-flap timing deltas 12,14,16,18,28,32,40,48; neither linear nor geometric. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs",
       "line": 323,
       "name": "RoomEnemySystem.UpdateRidleyTailDistances / maximumDistances",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "justified-retained",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Authored per-segment shrink limits that hold in pairs then fall unevenly. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CeresRidleyComposition.cs",
@@ -7258,14 +7349,20 @@
       "line": 212,
       "name": "RoomEnemySystem.RunMochtroidShake / xOffsets",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Axis and sign calculate from timer bits; the 2-pixel amplitude is one named scalar. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Mochtroid.cs",
       "line": 213,
       "name": "RoomEnemySystem.RunMochtroidShake / yOffsets",
       "kind": "method-local definition",
-      "note": "Fixed values inside a method; not an array parameter/return declaration."
+      "note": "Fixed values inside a method; not an array parameter/return declaration.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Axis and sign calculate from timer bits; the 2-pixel amplitude is one named scalar. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MorphBallEye.cs",
@@ -8951,7 +9048,10 @@
       "line": 13,
       "name": "SlopeSpeedDefinitions.Multipliers",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Explicit geometry-family case mapping over native height profiles; the coefficients are named per family. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/SpacePirateCollisionDefinitions.cs",
@@ -9768,8 +9868,9 @@
       "name": "YellowPipeBugInstructionProgramDefinitions.Words",
       "kind": "stored definition",
       "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
-      "state": "pending",
-      "implementationCommit": "1654bde7d17e104abc6881a82e969c27d2641394"
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Program control words calculate from named instruction codes and record layout; only the program's authored frame durations remain as named scalars. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/YellowPipeBugInstructionProgramDefinitions.cs",
@@ -9785,7 +9886,10 @@
       "line": 16,
       "name": "ZebesEscapeExplosionDefinitions.Definitions",
       "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
+      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+      "state": "converted",
+      "implementationCommit": "ffcf799e1edffb8cf47446fd5be9b0be6549db43",
+      "disposition": "Explicit named case mapping of the eight weighted sprite/sound choices. (residualScalarInputsReview)"
     },
     {
       "file": "csharp/src/SuperMetroid.Core/Game/ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.cs",
@@ -22467,6 +22571,6 @@
       "inactive": false
     }
   ],
-  "convertedSinceSnapshot": 667,
-  "justifiedRetainedSinceSnapshot": 259
+  "convertedSinceSnapshot": 690,
+  "justifiedRetainedSinceSnapshot": 275
 }

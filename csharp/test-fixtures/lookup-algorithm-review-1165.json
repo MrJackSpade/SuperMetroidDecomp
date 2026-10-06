@@ -11994,4 +11994,15 @@
     "SamusBodyArtworkCatalog.drainedYOffsets"
   ],
   "confirmation": "Root Verification1452existing warnings/0errors;Audit0/0;32native defaults/zero stock fallbacks,32independent edits,22actual draws and empty/pointer/blank/shifted-art/graphics-origin independence pass."
+},"babyNormalAndTargetComplete":{
+  "workerCommit": "95db2334e",
+  "completed": [
+    "ShitroidColorCatalog.normal",
+    "ShitroidColorCatalog.shitroid"
+  ],
+  "confirmation": "Root Verification1452existing warnings/0errors;Audit0/0;32native pulse words/96pulse edits/48target edits including transparent slot,15initial/live native aliases/45reverse initial edits,identities,bounds and bidirectional isolation pass.",
+  "disposition": [
+    "Mixed complete:32normal organ pulse colors derive reviewed initial paints,reflected four-level phase and channel clipping. Retain only selected dimming step5,saturated-red headroom5,red floor5 and organ-only symmetric intensity composition after native masks/consumer review. No cadence,SFX,low-health or other target exemption;zero stock pulse rows,independent target/frame edits preserved.",
+    "Mixed complete:15visible target colors share reviewed Baby initial calculation,with independent edits. Retain only exact copied slot0=3800 atA9F8E6 as transparent compatibility payload:EF9F-EFA8 copies it but OBJ ink0 skips color lookup; inventing a paint function for it would re-encode unrelated payload. No visible-background or other target exemption;installed suit palettes remain independent."
+  ]
 }}

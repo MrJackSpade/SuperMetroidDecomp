@@ -11,7 +11,9 @@ public sealed class ShitroidColorCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
         {
             content.AppendWords("sidehopper", sidehopper);
-            content.AppendWords("shitroid", shitroid);
+            Span<ushort> selectedShitroid = stackalloc ushort[ShitroidColorRomData.TargetColorCount];
+            for (int color = 0; color < selectedShitroid.Length; color++) selectedShitroid[color] = TargetColor(ShitroidColorTarget.Shitroid, color);
+            content.AppendWords("shitroid", selectedShitroid);
             content.AppendWords("deadSidehopper", deadSidehopper);
             content.Append("normal", ShitroidColorRomData.NormalFrameCount);
             for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
@@ -24,15 +26,20 @@ public sealed class ShitroidColorCatalog
 
     private readonly ColorPulse normal;
     private readonly ushort[] sidehopper;
-    private readonly ushort[] shitroid;
+    private readonly BabyMetroidInitialPalette shitroid;
+    /// <summary>$A9:F8E6 is copied by EF9F-EFA8 to target slot A0. Stock3800 is an exact
+    /// transparent-slot compatibility payload: OBJ ink0 is skipped before color lookup.
+    /// It has no visible hue to derive; independently supplied replacements remain exact.</summary>
+    private readonly ushort shitroidTransparentSlot;
     private readonly ushort[] deadSidehopper;
 
     private ShitroidColorCatalog(ushort[][] normal, ushort[] sidehopper,
         ushort[] shitroid, ushort[] deadSidehopper)
     {
-        this.normal = new ColorPulse(normal);
+        this.shitroid = new BabyMetroidInitialPalette(shitroid.AsSpan(1).ToArray());
+        this.normal = new ColorPulse(normal, this.shitroid);
         this.sidehopper = sidehopper;
-        this.shitroid = shitroid;
+        shitroidTransparentSlot = shitroid[0];
         this.deadSidehopper = deadSidehopper;
     }
 
@@ -51,10 +58,14 @@ public sealed class ShitroidColorCatalog
 
     public ushort TargetColor(ShitroidColorTarget target, int color)
     {
+        if (target == ShitroidColorTarget.Shitroid)
+        {
+            if ((uint)color >= ShitroidColorRomData.TargetColorCount) throw new ArgumentOutOfRangeException(nameof(color));
+            return color == 0 ? shitroidTransparentSlot : shitroid.Resolve(color - 1);
+        }
         ushort[] selected = target switch
         {
             ShitroidColorTarget.Sidehopper => sidehopper,
-            ShitroidColorTarget.Shitroid => shitroid,
             ShitroidColorTarget.DeadSidehopper => deadSidehopper,
             _ => throw new ArgumentOutOfRangeException(nameof(target)),
         };
@@ -117,37 +128,16 @@ public sealed class ShitroidColorCatalog
 
     private sealed class ColorPulse
     {
-        private readonly uint[] origins;
-        private readonly ushort minimum;
+        private readonly BabyMetroidInitialPalette target;
         private readonly ushort[][]? supplied;
 
-        public ColorPulse(ushort[][] frames)
+        public ColorPulse(ushort[][] frames, BabyMetroidInitialPalette target)
         {
-            origins = new uint[ShitroidColorRomData.NormalColorsPerFrame];
-            for (int channel = 0; channel < 3; channel++)
-            {
-                int floor = 31;
-                foreach (ushort[] frame in frames)
-                foreach (ushort color in frame)
-                    floor = Math.Min(floor, color >> (5 * channel) & 31);
-                minimum |= (ushort)(floor << (5 * channel));
-            }
-            for (int color = 0; color < origins.Length; color++)
-            for (int channel = 0; channel < 3; channel++)
-            {
-                int floor = minimum >> (5 * channel) & 31;
-                int origin = floor;
-                for (int phase = 0; phase < 4; phase++)
-                {
-                    int value = frames[phase][color] >> (5 * channel) & 31;
-                    if (value > floor) origin = Math.Max(origin, value + 5 * phase);
-                }
-                origins[color] |= (uint)origin << (8 * channel);
-            }
-            // Four dimming levels subtract five per RGB channel, then retrace.
-            // The red highlights begin above RGB5's ceiling; dark reds have a floor.
+            this.target = target;
+            // Sharing the target's innard colors is valid only when every supplied
+            // pulse sample agrees. Independently edited targets or frames stay exact.
             for (int frame = 0; frame < frames.Length; frame++)
-            for (int color = 0; color < origins.Length; color++)
+            for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
                 if (Resolve(frame, color) != frames[frame][color])
                 { supplied = frames; return; }
         }
@@ -155,18 +145,24 @@ public sealed class ShitroidColorCatalog
         public ushort Resolve(int frame, int color)
         {
             if (supplied is not null) return supplied[frame][color];
-            int phase = Math.Min(frame, 7 - frame);
+            int phase = Math.Min(frame, ShitroidColorRomData.NormalFrameCount - 1 - frame);
+            ushort paint = target.Resolve(ShitroidColorRomData.NormalFirstInitialColor + color);
             int result = 0;
             for (int channel = 0; channel < 3; channel++)
             {
-                int origin = (int)(origins[color] >> (8 * channel) & 255);
-                int floor = minimum >> (5 * channel) & 31;
-                result |= Math.Clamp(origin - 5 * phase, floor, 31) << (5 * channel);
+                int origin = paint >> (5 * channel) & 31;
+                int floor = 0;
+                if (channel == 0)
+                {
+                    floor = ShitroidColorRomData.NormalOrganRedFloor;
+                    if (origin == 31) origin += ShitroidColorRomData.NormalOrganRedHeadroom;
+                }
+                result |= Math.Clamp(origin - ShitroidColorRomData.NormalOrganDimmingStep * phase,
+                    floor, 31) << (5 * channel);
             }
             return (ushort)result;
         }
     }
-
     private static void RejectDuplicates(JsonElement value)
     {
         if (value.ValueKind == JsonValueKind.Object)

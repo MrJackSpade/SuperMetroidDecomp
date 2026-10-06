@@ -26,6 +26,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--lookup-stream3-baby-normal-target"])
+{
+    var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+        Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby normal/target oracle revision");
+    VerifyStream3ShitroidPulse(rom);
+    VerifyStream3BabyInitialPaints(rom);
+    Console.WriteLine("Baby normal/target: native outputs, independent pulse/target/initial edits, bidirectional isolation, identities and bounds pass.");
+    return 0;
+}
 if (args is ["--lookup-stream-1-drained-geometry"])
 {
     var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

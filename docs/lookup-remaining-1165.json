@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 480,
+  "remainingTableDefinitionCount": 478,
   "fileCount": 523,
   "entries": [
     {
@@ -2144,12 +2144,15 @@
       "note": "Fixed values inside a method; not an array parameter/return declaration."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
-      "line": 19,
-      "name": "ShitroidColorCatalog.normal",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind ShitroidColorCatalog.normal. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
+  "line": 19,
+  "name": "ShitroidColorCatalog.normal",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind ShitroidColorCatalog.normal. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "95db2334e",
+  "disposition": "Mixed complete:32normal organ pulse colors derive reviewed initial paints,reflected four-level phase and channel clipping. Retain only selected dimming step5,saturated-red headroom5,red floor5 and organ-only symmetric intensity composition after native masks/consumer review. No cadence,SFX,low-health or other target exemption;zero stock pulse rows,independent target/frame edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
       "line": 20,
@@ -2158,12 +2161,15 @@
       "note": "Original/default payload behind ShitroidColorCatalog.sidehopper. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
-      "line": 21,
-      "name": "ShitroidColorCatalog.shitroid",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind ShitroidColorCatalog.shitroid. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
+  "line": 21,
+  "name": "ShitroidColorCatalog.shitroid",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind ShitroidColorCatalog.shitroid. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "95db2334e",
+  "disposition": "Mixed complete:15visible target colors share reviewed Baby initial calculation,with independent edits. Retain only exact copied slot0=3800 atA9F8E6 as transparent compatibility payload:EF9F-EFA8 copies it but OBJ ink0 skips color lookup; inventing a paint function for it would re-encode unrelated payload. No visible-background or other target exemption;installed suit palettes remain independent."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/ShitroidColorCatalog.cs",
       "line": 22,
@@ -21634,5 +21640,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 48
+  "justifiedRetainedSinceSnapshot": 50
 }

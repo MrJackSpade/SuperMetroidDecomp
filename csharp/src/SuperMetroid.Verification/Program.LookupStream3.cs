@@ -1460,11 +1460,26 @@ internal static partial class Program
             Shitroid = shitroid.Select(Rgb).ToArray(), DeadSidehopper = dead.Select(Rgb).ToArray(),
         };
         ShitroidColorCatalog Load() => ShitroidColorCatalog.Load(new MemoryStream(ShitroidColorCatalog.Write(document)));
+        var babyDocument = new BabyMetroidCutsceneColorDocument
+        {
+            Version = 1,
+            Initial = Words(0xa994d4, 15).Select(Rgb).ToArray(),
+            Fade = Enumerable.Range(0, 6).Select(frame => Words(0xade90c + frame * 28, 14).Select(Rgb).ToArray()).ToArray(),
+        };
+        BabyMetroidCutsceneColorCatalog LoadBaby() => BabyMetroidCutsceneColorCatalog.Load(
+            new MemoryStream(BabyMetroidCutsceneColorCatalog.Write(babyDocument)));
+        var baby = LoadBaby();
         void Check(ShitroidColorCatalog colors)
         {
             for (int frame = 0; frame < 8; frame++)
             for (int color = 0; color < 4; color++)
                 AssertEqual(normal[frame][color], colors.NormalColor(frame, color), "stream 3 Shitroid pulse RGB5");
+            for (int color = 0; color < 16; color++)
+            {
+                AssertEqual(shitroid[color], colors.TargetColor(ShitroidColorTarget.Shitroid, color), "stream 3 complete Shitroid target palette");
+                AssertEqual(sidehopper[color], colors.TargetColor(ShitroidColorTarget.Sidehopper, color), "stream 3 independent Sidehopper target");
+                AssertEqual(dead[color], colors.TargetColor(ShitroidColorTarget.DeadSidehopper, color), "stream 3 independent corpse target");
+            }
             string identity = SelectedPresentationHash.Create("ShitroidColorCatalog-v1", content =>
             {
                 content.AppendWords("sidehopper", sidehopper);
@@ -1480,6 +1495,9 @@ internal static partial class Program
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(stock)!;
         AssertTrue(pulse.GetType().GetField("supplied", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
             .GetValue(pulse) is null, "stream 3 Shitroid original pulse rows discarded");
+        AssertTrue(!pulse.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+            .Any(field => field.FieldType == typeof(uint[]) || field.FieldType == typeof(ushort)),
+            "stream 3 Shitroid pulse owns no duplicate paint origins or floor words");
         for (int frame = 0; frame < 8; frame++)
         for (int color = 0; color < 4; color++)
         for (int channel = 0; channel < 3; channel++)
@@ -1491,6 +1509,52 @@ internal static partial class Program
             normal[frame][color] = original;
             rows[frame][color] = Rgb(original);
         }
+        for (int color = 0; color < 15; color++)
+            AssertEqual(Read(0xa994d4 + color * 2), stock.TargetColor(ShitroidColorTarget.Shitroid, color + 1),
+                "stream 3 native Baby/Shitroid palette duplication");
+        for (int color = 0; color < 16; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            ushort original = shitroid[color];
+            shitroid[color] ^= (ushort)(1 << (5 * channel));
+            document.Shitroid[color] = Rgb(shitroid[color]);
+            Check(Load());
+            for (int other = 0; other < 15; other++)
+                AssertEqual(Read(0xa994d4 + other * 2), baby.InitialColor(other), "stream 3 target edits retain independent Baby colors");
+            shitroid[color] = original;
+            document.Shitroid[color] = Rgb(original);
+            if (color == 0) continue;
+            babyDocument.Initial[color - 1] = Rgb((ushort)(original ^ 1 << (5 * channel)));
+            AssertEqual((ushort)(original ^ 1 << (5 * channel)), LoadBaby().InitialColor(color - 1), "stream 3 shared resolver preserves Baby edit");
+            Check(stock);
+            babyDocument.Initial[color - 1] = Rgb(original);
+        }
+        for (int color = 0; color < 16; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            ushort original = sidehopper[color];
+            sidehopper[color] ^= (ushort)(1 << (5 * channel));
+            document.Sidehopper[color] = Rgb(sidehopper[color]);
+            Check(Load());
+            AssertEqual(original, stock.TargetColor(ShitroidColorTarget.Sidehopper, color),
+                "stream 3 Sidehopper supplied changes preserve independent catalog instances");
+            sidehopper[color] = original;
+            document.Sidehopper[color] = Rgb(original);
+        }
+        for (int color = 0; color < 16; color++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            ushort original = dead[color];
+            dead[color] ^= (ushort)(1 << (5 * channel));
+            document.DeadSidehopper[color] = Rgb(dead[color]);
+            Check(Load());
+            AssertEqual(original, stock.TargetColor(ShitroidColorTarget.DeadSidehopper, color),
+                "stream 3 corpse edits preserve independent catalog instances");
+            dead[color] = original;
+            document.DeadSidehopper[color] = Rgb(original);
+        }
+        foreach (int invalid in new[] { -1, 16, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.TargetColor(ShitroidColorTarget.Shitroid, invalid), "stream 3 Shitroid target bounds");
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.NormalColor(invalid, 0), "stream 3 Shitroid pulse frame bounds");
         foreach (int invalid in new[] { -1, 4, int.MaxValue })

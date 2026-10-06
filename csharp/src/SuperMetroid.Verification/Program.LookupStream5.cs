@@ -6,6 +6,54 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream5MeltingTilemaps()
+    {
+        var oracle = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Melt tilemap source revision");
+        string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"), "lookup-melt-maps-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Extract(oracle, directory, SuperMetroid.AssetExtraction.SupportedCartridge.Sha256);
+            EnemyTileArtworkCatalog catalog = SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(directory, null);
+            CrocomireMeltingArtwork art = catalog.CrocomireMelting!;
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var native = new ushort[2][];
+            for (int phase = 0; phase < 2; phase++)
+            {
+                int source = phase == 0 ? CrocomireMeltingArtworkAddresses.FirstTilemap : CrocomireMeltingArtworkAddresses.SecondTilemap;
+                native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, source + i * 2)).ToArray();
+                var calculated = new CrocomireMeltingTilemap(phase != 0, native[phase]);
+                AssertEqual(0, ((Dictionary<int, ushort>)typeof(CrocomireMeltingTilemap).GetField("edits", flags)!.GetValue(calculated)!).Count,
+                    "Every native melt tilemap word calculates without fallback");
+                AssertTrue(calculated.Words().AsSpan().SequenceEqual(native[phase]), "All native melt words");
+                AssertTrue(art.Tilemap(source).SequenceEqual(native[phase]), "Installed melt words");
+                VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
+                    ? CrocomireInstructionProgramDefinitions.MeltingOneTopRow : CrocomireInstructionProgramDefinitions.MeltingTwoTopRow);
+                for (int index = 0; index < 256; index++)
+                {
+                    ushort[] edited = (ushort[])native[phase].Clone(); edited[index] ^= 0xffff;
+                    var independent = new CrocomireMeltingTilemap(phase != 0, edited);
+                    edited[index] = native[phase][index];
+                    ushort[] expected = (ushort[])native[phase].Clone(); expected[index] ^= 0xffff;
+                    AssertTrue(independent.Words().AsSpan().SequenceEqual(expected), "Full-word edit owns input and preserves neighbors");
+                    AssertTrue(calculated.Words().AsSpan().SequenceEqual(native[phase]), "Edited map does not mutate stock");
+                }
+                AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap(phase != 0, new ushort[255]), "Short melt map rejects");
+            }
+            var first = (RoomCharacterAtlas)typeof(CrocomireMeltingArtwork).GetField("first", flags)!.GetValue(art)!;
+            var second = (RoomCharacterAtlas)typeof(CrocomireMeltingArtwork).GetField("second", flags)!.GetValue(art)!;
+            string expectedIdentity = SelectedPresentationHash.Create("enemy-crocomire-melt-v1", content =>
+            {
+                content.Append("first", first.Transfer.Span); content.Append("second", second.Transfer.Span);
+                content.AppendWords("first-map", native[0]); content.AppendWords("second-map", native[1]);
+            });
+            AssertEqual(expectedIdentity, art.ContentIdentity, "Original canonical melt identity");
+            AssertThrows<InvalidDataException>(() => { _ = art.Tilemap(0); }, "Unknown map identity rejects");
+            Console.WriteLine("Crocomire melt layouts: 512 native words, 512 isolated full-word edits, input ownership, both actual guarded BG2 uploads and canonical identity pass.");
+        }
+        finally { if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true); }
+    }
     private static void VerifyLookupStream5SkeletonTransfers()
     {
         var oracle = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(

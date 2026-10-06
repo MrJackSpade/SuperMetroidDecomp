@@ -3703,6 +3703,7 @@ if (args is ["--lookup-kraid-foot-programs"])
     return 0;
 }
 if (args is ["--lookup-stream5-skeleton-transfers"]){ VerifyLookupStream5SkeletonTransfers(); return 0; }
+if (args is ["--lookup-stream5-melting-tilemaps"]){ VerifyLookupStream5MeltingTilemaps(); return 0; }
 if (args is ["--lookup-crocomire-skeleton-frames"])
 {
     var skeletonOracle = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

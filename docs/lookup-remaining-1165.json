@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 408,
+  "remainingTableDefinitionCount": 406,
   "fileCount": 523,
   "entries": [
     {
@@ -498,19 +498,25 @@
   "disposition": "Five-band aggregate74words calculates gamma/linear ramps,shared channels and material aliases. Retain only exact53named material inputs (45channel parameters plus8RGB anchors) and transparent compatibility payload specified by native source copy/pen roles in worker report. These categorical paint choices define intended visual content; no physics,timing or artwork-pixel exemption. Independent supplied edits preserved."
 },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireMeltingArtwork.cs",
-      "line": 25,
-      "name": "CrocomireMeltingArtwork.firstTilemap",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CrocomireMeltingArtwork.firstTilemap. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireMeltingArtwork.cs",
+  "line": 25,
+  "name": "CrocomireMeltingArtwork.firstTilemap",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CrocomireMeltingArtwork.firstTilemap. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "735ff8487792aae1e465b9b5d6789256d9a6512c",
+  "disposition": "Blank cells, style, atlas strips, adjacent columns and repeats calculate. Exact remaining illustrated silhouette/fragment choices are authored content, established from native intact/eroded-face images and A4:93A7/9422 copy-only consumers; replacing those chosen placements with arbitrary geometry would change the illustration. Independent supplied full-word edits preserved; pixels/physics/timing outside this entry."
+},
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireMeltingArtwork.cs",
-      "line": 26,
-      "name": "CrocomireMeltingArtwork.secondTilemap",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CrocomireMeltingArtwork.secondTilemap. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireMeltingArtwork.cs",
+  "line": 26,
+  "name": "CrocomireMeltingArtwork.secondTilemap",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CrocomireMeltingArtwork.secondTilemap. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "735ff8487792aae1e465b9b5d6789256d9a6512c",
+  "disposition": "Blank cells, style, atlas strips, adjacent columns and repeats calculate. Exact remaining illustrated silhouette/fragment choices are authored content, established from native intact/eroded-face images and A4:93A7/9422 copy-only consumers; replacing those chosen placements with arbitrary geometry would change the illustration. Independent supplied full-word edits preserved; pixels/physics/timing outside this entry."
+},
     {
   "file": "csharp/src/SuperMetroid.Core/Assets/CrocomireSkeletonTransferDefinitions.cs",
   "line": 22,
@@ -21850,5 +21856,5 @@
     }
   ],
   "convertedSinceSnapshot": 607,
-  "justifiedRetainedSinceSnapshot": 113
+  "justifiedRetainedSinceSnapshot": 115
 }

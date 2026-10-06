@@ -16,22 +16,22 @@ public sealed class CrocomireMeltingArtwork
         {
             content.Append("first", first.Transfer.Span);
             content.Append("second", second.Transfer.Span);
-            content.AppendWords("first-map", firstTilemap);
-            content.AppendWords("second-map", secondTilemap);
+            content.AppendWords("first-map", firstTilemap.Words());
+            content.AppendWords("second-map", secondTilemap.Words());
         });
 
     private readonly RoomCharacterAtlas first;
     private readonly RoomCharacterAtlas second;
-    private readonly ushort[] firstTilemap;
-    private readonly ushort[] secondTilemap;
+    private readonly CrocomireMeltingTilemap firstTilemap;
+    private readonly CrocomireMeltingTilemap secondTilemap;
 
     private CrocomireMeltingArtwork(RoomCharacterAtlas first, RoomCharacterAtlas second,
         ushort[] firstTilemap, ushort[] secondTilemap)
     {
         this.first = first;
         this.second = second;
-        this.firstTilemap = firstTilemap;
-        this.secondTilemap = secondTilemap;
+        this.firstTilemap = new(false, firstTilemap);
+        this.secondTilemap = new(true, secondTilemap);
     }
 
     /// <summary>Compiles both PNG sheets and tile layouts into one installed snapshot.</summary>
@@ -70,8 +70,8 @@ public sealed class CrocomireMeltingArtwork
     /// <summary>Returns only the visual tile references, never melt control or hitboxes.</summary>
     internal ReadOnlySpan<ushort> Tilemap(int sourceAddress) => sourceAddress switch
     {
-        CrocomireMeltingArtworkAddresses.FirstTilemap => firstTilemap,
-        CrocomireMeltingArtworkAddresses.SecondTilemap => secondTilemap,
+        CrocomireMeltingArtworkAddresses.FirstTilemap => firstTilemap.Words(),
+        CrocomireMeltingArtworkAddresses.SecondTilemap => secondTilemap.Words(),
         _ => throw new InvalidDataException(
             $"Crocomire melt tilemap ${sourceAddress:X6} is not installed."),
     };

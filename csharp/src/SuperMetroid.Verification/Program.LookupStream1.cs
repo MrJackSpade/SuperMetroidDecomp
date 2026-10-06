@@ -5,6 +5,241 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1NonBeamProgramLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var expected = new Dictionary<int, ushort>();
+        for (int cursor = 0x939ebb; cursor < 0x93a1a1;)
+        {
+            if (cursor == 0x93a117) { cursor += 2; continue; }
+            ushort command = Word(cursor);
+            expected.Add(cursor, command);
+            if ((command & 0x8000) == 0)
+            {
+                expected.Add(cursor + 6, Word(cursor + 6)); cursor += 8;
+            }
+            else if (command == 0x822f) cursor += 2;
+            else
+            {
+                AssertEqual((ushort)0x8239, command, "Native NonBeam terminal is Goto");
+                expected.Add(cursor + 2, Word(cursor + 2)); cursor += 4;
+            }
+        }
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
+        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
+        for (int address = 0x939eba; address <= 0x93a1a1; address++)
+        {
+            bool accepted = expected.TryGetValue(address, out ushort native);
+            AssertEqual(accepted, SamusProjectileInstructionDefinitions.TryNonBeamWord(address, out ushort calculated), "NonBeam exact native mechanics domain");
+            if (accepted)
+            {
+                AssertEqual(native, calculated, "NonBeam direct native duration, trail phase or control");
+                AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "NonBeam production reader");
+                AssertTrue(stored is null || !stored.ContainsKey(address), "No NonBeam stock fallback survives");
+            }
+            else if (address < 0x93a1a1)
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "NonBeam nonmechanics retain rejection");
+        }
+        AssertEqual(214, expected.Count, "Native nonbeam and special program mechanics count");
+        AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(0x93a1a1), "Following flare table remains outside mechanics");
+        AssertTrue(typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags) is null, "Original mechanics dictionary removed entirely; required scalar inputs remain explicit");
+        foreach (int address in new[] { 0x928743, 0x948743, -1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TryNonBeamWord(address, out _), "NonBeam bank and address bounds");
+        Console.WriteLine("NonBeam projectile programs:214 direct native mechanics words, exact domain and zero stored fallbacks pass; selected holds and phase counts remain required.");
+    }
+
+    private static void VerifyLookupStream1ChargedProgramLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var expected = new Dictionary<int, ushort>();
+        for (int cursor = 0x938e77; cursor < 0x939ebb;)
+        {
+            ushort command = Word(cursor);
+            expected.Add(cursor, command);
+            if ((command & 0x8000) == 0)
+            {
+                expected.Add(cursor + 6, Word(cursor + 6)); cursor += 8;
+            }
+            else
+            {
+                AssertEqual((ushort)0x8239, command, "Native Charged terminal is Goto");
+                expected.Add(cursor + 2, Word(cursor + 2)); cursor += 4;
+            }
+        }
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
+        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
+        for (int address = 0x938e76; address <= 0x939ebb; address++)
+        {
+            bool accepted = expected.TryGetValue(address, out ushort native);
+            AssertEqual(accepted, SamusProjectileInstructionDefinitions.TryChargedWord(address, out ushort calculated), "Charged exact native mechanics domain");
+            if (accepted)
+            {
+                AssertEqual(native, calculated, "Charged direct native duration, trail phase or control");
+                AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "Charged production reader");
+                AssertTrue(stored is null || !stored.ContainsKey(address), "No Charged stock fallback survives");
+            }
+            else if (address < 0x939ebb)
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Charged nonmechanics retain rejection");
+        }
+        AssertEqual(1078, expected.Count, "Native charged beam program mechanics count");
+        AssertEqual(Word(0x939ebb), SamusProjectileInstructionDefinitions.ReadWord(0x939ebb), "Following Missile required payload is unchanged");
+        foreach (int address in new[] { 0x928743, 0x948743, -1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TryChargedWord(address, out _), "Charged bank and address bounds");
+        Console.WriteLine("Charged projectile programs:1078 direct native mechanics words, exact domain and zero stored fallbacks pass; holds, phase counts and loop-entry choices remain required.");
+    }
+
+    private static void VerifyLookupStream1PlasmaProgramLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var expected = new Dictionary<int, ushort>();
+        for (int cursor = 0x938cf7; cursor < 0x938e77;)
+        {
+            ushort command = Word(cursor);
+            expected.Add(cursor, command);
+            if ((command & 0x8000) == 0)
+            {
+                expected.Add(cursor + 6, Word(cursor + 6)); cursor += 8;
+            }
+            else
+            {
+                AssertEqual((ushort)0x8239, command, "Native Plasma terminal is Goto");
+                expected.Add(cursor + 2, Word(cursor + 2)); cursor += 4;
+            }
+        }
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
+        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
+        for (int address = 0x938cf6; address <= 0x938e77; address++)
+        {
+            bool accepted = expected.TryGetValue(address, out ushort native);
+            AssertEqual(accepted, SamusProjectileInstructionDefinitions.TryPlasmaWord(address, out ushort calculated), "Plasma exact native mechanics domain");
+            if (accepted)
+            {
+                AssertEqual(native, calculated, "Plasma direct native duration, trail phase or control");
+                AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "Plasma production reader");
+                AssertTrue(stored is null || !stored.ContainsKey(address), "No Plasma stock fallback survives");
+            }
+            else if (address < 0x938e77)
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Plasma nonmechanics retain rejection");
+        }
+        AssertEqual(104, expected.Count, "Native four persistent and four cyclic Plasma programs mechanics count");
+        AssertEqual(Word(0x938e77), SamusProjectileInstructionDefinitions.ReadWord(0x938e77), "Following charged Power required payload is unchanged");
+        foreach (int address in new[] { 0x928743, 0x948743, -1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TryPlasmaWord(address, out _), "Plasma bank and address bounds");
+        Console.WriteLine("Plasma projectile programs:104 direct native mechanics words, exact domain and zero stored fallbacks pass; holds1/15/2 and cyclic phase count8 remain required.");
+    }
+
+    private static void VerifyLookupStream1SpazerProgramLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var expected = new Dictionary<int, ushort>();
+        for (int cursor = 0x938977; cursor < 0x938cf7;)
+        {
+            ushort command = Word(cursor);
+            expected.Add(cursor, command);
+            if ((command & 0x8000) == 0)
+            {
+                expected.Add(cursor + 6, Word(cursor + 6)); cursor += 8;
+            }
+            else
+            {
+                AssertEqual((ushort)0x8239, command, "Native Spazer terminal is Goto");
+                expected.Add(cursor + 2, Word(cursor + 2)); cursor += 4;
+            }
+        }
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
+        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
+        for (int address = 0x938976; address <= 0x938cf7; address++)
+        {
+            bool accepted = expected.TryGetValue(address, out ushort native);
+            AssertEqual(accepted, SamusProjectileInstructionDefinitions.TrySpazerWord(address, out ushort calculated), "Spazer exact native mechanics domain");
+            if (accepted)
+            {
+                AssertEqual(native, calculated, "Spazer direct native duration, trail phase or control");
+                AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "Spazer production reader");
+                AssertTrue(stored is null || !stored.ContainsKey(address), "No Spazer stock fallback survives");
+            }
+            else if (address < 0x938cf7)
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Spazer nonmechanics retain rejection");
+        }
+        AssertEqual(240, expected.Count, "Native eight growth programs and eight spread cycles mechanics count");
+        AssertEqual(Word(0x938cf7), SamusProjectileInstructionDefinitions.ReadWord(0x938cf7), "Following Plasma required payload is unchanged");
+        foreach (int address in new[] { 0x928743, 0x948743, -1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TrySpazerWord(address, out _), "Spazer bank and address bounds");
+        Console.WriteLine("Spazer projectile programs:240 direct native mechanics words, exact domain and zero stored fallbacks pass; hold2 and phase counts3/10 remain required.");
+    }
+
+    private static void VerifyLookupStream1WaveIceProgramLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var expected = new Dictionary<int, ushort>();
+        for (int cursor = 0x93873b; cursor < 0x938977;)
+        {
+            ushort command = Word(cursor);
+            expected.Add(cursor, command);
+            if ((command & 0x8000) == 0)
+            {
+                expected.Add(cursor + 6, Word(cursor + 6)); cursor += 8;
+            }
+            else
+            {
+                AssertEqual((ushort)0x8239, command, "Native Wave/Ice terminal is Goto");
+                expected.Add(cursor + 2, Word(cursor + 2)); cursor += 4;
+            }
+        }
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
+        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
+        for (int address = 0x93873a; address <= 0x938977; address++)
+        {
+            bool accepted = expected.TryGetValue(address, out ushort native);
+            AssertEqual(accepted, SamusProjectileInstructionDefinitions.TryWaveIceWord(address, out ushort calculated), "Wave/Ice exact native mechanics domain");
+            if (accepted)
+            {
+                AssertEqual(native, calculated, "Wave/Ice direct native duration, trail phase or control");
+                AssertEqual(native, SamusProjectileInstructionDefinitions.ReadWord(address), "Wave/Ice production reader");
+                AssertTrue(stored is null || !stored.ContainsKey(address), "No Wave/Ice stock fallback survives");
+            }
+            else if (address < 0x938977)
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(address), "Wave/Ice nonmechanics retain rejection");
+        }
+        AssertEqual(148, expected.Count, "Native Wave prelude, four cycles and Ice mechanics count");
+        AssertEqual(Word(0x938977), SamusProjectileInstructionDefinitions.ReadWord(0x938977), "Following Spazer required payload is unchanged");
+        foreach (int address in new[] { 0x928743, 0x948743, -1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TryWaveIceWord(address, out _), "Wave/Ice bank and address bounds");
+        Console.WriteLine("Wave/Ice projectile programs:148 direct native mechanics words, exact domain and zero stored fallbacks pass; holds4/1 and phase counts16/4 remain required.");
+    }
+
+    private static void VerifyLookupStream1PowerProgramLayout(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
+        var stored = (IReadOnlyDictionary<int, ushort>)typeof(SamusProjectileInstructionDefinitions).GetField("Words", flags)?.GetValue(null)!;
+        int admitted = 0;
+        for (int address = 0x9386da; address <= 0x93873b; address++)
+        {
+            int offset = address - 0x9386db;
+            bool expected = offset >= 0 && offset < 96 && offset % 12 is 0 or 6 or 8 or 10;
+            bool actual = SamusProjectileInstructionDefinitions.TryPowerWord(address, out ushort calculated);
+            AssertEqual(expected, actual, "Power mechanics domain excludes sprites, radii and odd bytes");
+            if (!expected) continue;
+            admitted++;
+            AssertEqual(Word(address), calculated, "Direct calculated Power mechanics matches native word");
+            AssertEqual(calculated, SamusProjectileInstructionDefinitions.ReadWord(address), "Production mechanics reader uses calculated Power layout");
+            AssertTrue(stored is null || !stored.ContainsKey(address), "No stock Power mechanics fallback survives");
+        }
+        AssertEqual(32, admitted, "Eight native Power programs have four mechanics words each");
+        for (int direction = 0; direction < 8; direction++)
+        {
+            int start = 0x9386db + direction * 12;
+            AssertEqual((ushort)start, SamusProjectileInstructionDefinitions.ReadWord(start + 10), "Power native Goto returns to its own compass phase");
+            foreach (int field in new[] { 1, 2, 3, 4, 5, 7, 9, 11 })
+                AssertThrows<InvalidDataException>(() => SamusProjectileInstructionDefinitions.ReadWord(start + field), "Power non-mechanics addresses retain rejection");
+        }
+        AssertEqual(Word(0x93873b), SamusProjectileInstructionDefinitions.ReadWord(0x93873b), "Following Wave required payload remains intact");
+        foreach (int address in new[] { 0x9286db, 0x9486db, -1, int.MaxValue })
+            AssertTrue(!SamusProjectileInstructionDefinitions.TryPowerWord(address, out _), "Power calculated bank/domain bounds");
+        Console.WriteLine("Power projectile programs:32 direct native mechanics words, eight self-loop targets, exact domain and zero stored Power fallbacks pass; hold15 remains required.");
+    }
+
     private static void VerifyLookupStream1CannonPoses(ISnesAddressSpace rom)
     {
         using var directory = new MapCatalogTestDirectory();

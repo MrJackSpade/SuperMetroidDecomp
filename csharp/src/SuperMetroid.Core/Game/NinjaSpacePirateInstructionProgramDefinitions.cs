@@ -52,9 +52,10 @@ internal static class NinjaSpacePirateInstructionProgramDefinitions
     /// <summary><c>InstList_PirateNinja_StandingKick_FacingRight</c> at $B2:F51A.</summary>
     internal const ushort KickFacingRight = 0xf51a;
 
-    // Independent phase dwell, launch magnitudes and palette choices remain
-    // REQUIRED under Words. Composition removes repeated addresses/control data,
-    // not those separate authored scalar obligations.
+    // Reviewed under #1165: pose holds are authored cadence; claw spawn offsets are where each claw
+    // leaves the drawn attack pose; palette and sound operands name the normal/flash palette slots and
+    // the queued library-two effects. Facing pairs, layout and control calculate.
+    /// <summary>Ninja Space Pirate pose holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort AttackWindupHold = 5, ClawReleaseHold = 2, SpinPreparationHold = 8,
         SpinHold = 1, ActiveHold = 10, FlinchHold = 16, JumpPreparationHold = 8,
         JumpFlashHold = 4, DiveHold = 1, WalkHold = 5, InitialLongHold = 32,

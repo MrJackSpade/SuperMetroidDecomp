@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 internal readonly record struct GoldenTorizoLeftTurnMechanicsWord(
@@ -25,51 +27,37 @@ internal static class GoldenTorizoLeftTurnInstructionProgramDefinitions
     /// <summary><c>Function_Torizo_SimpleMovement</c> at $AA:C6BF.</summary>
     private const ushort SimpleMovement = 0xc6bf;
 
-    private static readonly GoldenTorizoLeftTurnMechanicsWord[] Words =
-    [
-        new(0xd1f1, TorizoInstructionCodes.Instruction_Torizo_FunctionInY),
-        new(0xd1f3, SimpleMovement),
-        new(0xd1f5, TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock),
-        new(0xd1f7, TorizoInstructionCodes.Instruction_Torizo_SetTorizoTurningAroundFlag),
-        new(0xd1f9, 0x0018),
-        new(0xd1fd, TorizoInstructionCodes.Instruction_Torizo_ClearAnimationLock),
-        new(0xd1ff, CommonEnemyInstructionCodes.Goto),
-        new(0xd201, GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg),
-        new(0xd203, TorizoInstructionCodes.Instruction_Torizo_FunctionInY),
-        new(0xd205, SimpleMovement),
-        new(0xd207, TorizoInstructionCodes.Instruction_Torizo_SetTorizoTurningAroundFlag),
-        new(0xd209, 0x0008),
-    ];
+    /// <summary><c>InstList_GoldenTorizo_WalkingLeft_RightLegMoving</c> at $AA:D20D.</summary>
+    private const ushort TorizoWalkingLeftRightLegMoving = 0xd20d;
 
-    private static readonly ushort[] PresentationWords = [0xd1fb, 0xd20b];
+    /// <summary>Native program bank $AA.</summary>
+    internal const byte Bank = 0xaa;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static GoldenTorizoLeftTurnMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xd1f1),
+        Entry(Dodge),
+        Op(TorizoInstructionCodes.Instruction_Torizo_FunctionInY, SimpleMovement),
+        Op(TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock),
+        Op(TorizoInstructionCodes.Instruction_Torizo_SetTorizoTurningAroundFlag),
+        Frame(24),
+        Op(TorizoInstructionCodes.Instruction_Torizo_ClearAnimationLock),
+        Op(CommonEnemyInstructionCodes.Goto, TorizoWalkingLeftRightLegMoving),
+        Entry(Turn),
+        Op(TorizoInstructionCodes.Instruction_Torizo_FunctionInY, SimpleMovement),
+        Op(TorizoInstructionCodes.Instruction_Torizo_SetTorizoTurningAroundFlag),
+        Frame(8));
 
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static GoldenTorizoLeftTurnMechanicsWord MechanicsWord(int index)
     {
-        foreach (GoldenTorizoLeftTurnMechanicsWord word in Words)
-        {
-            if (word.Address != address) continue;
-            value = word.Value;
-            return true;
-        }
-        value = 0;
-        return false;
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xaa0000)
-            return false;
-        ushort offset = unchecked((ushort)address);
-        foreach (GoldenTorizoLeftTurnMechanicsWord word in Words)
-            if (offset == word.Address ||
-                offset == unchecked((ushort)(word.Address + 1)))
-                return true;
-        return false;
-    }
+    internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
+        Layout.TryReadMechanicsWord(address, out value);
+
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

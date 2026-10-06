@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -11,93 +13,93 @@ internal static class TorizoJumpBackLeftInstructionProgramDefinitions
     internal const ushort Start = 0xbc96;
     internal const ushort End = 0xbd0e;
 
-    private static readonly TorizoJumpBackMechanicsWord[] Words =
-    [
-        new(0xbc96, TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY),
-        new(0xbc98, 0xc82c),
-        new(0xbc9a, TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY),
-        new(0xbc9c, 0xbcae),
-        new(0xbc9e, 0x0005),
-        new(0xbca2, 0x0005),
-        new(0xbca6, 0x0001),
-        new(0xbcaa, TorizoInstructionCodes.Instruction_Torizo_GotoY_IfRising),
-        new(0xbcac, 0xbca6),
-        new(0xbcae, TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY),
-        new(0xbcb0, 0xc82c),
-        new(0xbcb2, TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY),
-        new(0xbcb4, 0xbcbe),
-        new(0xbcb6, 0x0005),
-        new(0xbcba, CommonEnemyInstructionCodes.Goto),
-        new(0xbcbc, 0xbcb6),
-        new(0xbcbe, TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX),
-        new(0xbcc0, TorizoInstructionCodes.Instruction_Torizo_SpawnTorizoLandingDustClouds),
-        new(0xbcc2, TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden),
-        new(0xbcc4, 0xbd18),
-        new(0xbcc6, 0xcdaf),
-        new(0xbcc8, TorizoInstructionCodes.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack),
-        new(0xbcca, 0xba46),
-        new(0xbccc, 0xbaf2),
-        new(0xbcce, CommonEnemyInstructionCodes.Goto),
-        new(0xbcd0, 0xb96c),
-        new(0xbcd2, TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY),
-        new(0xbcd4, 0xc82c),
-        new(0xbcd6, TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY),
-        new(0xbcd8, 0xbcea),
-        new(0xbcda, 0x0005),
-        new(0xbcde, 0x0005),
-        new(0xbce2, 0x0001),
-        new(0xbce6, TorizoInstructionCodes.Instruction_Torizo_GotoY_IfRising),
-        new(0xbce8, 0xbce2),
-        new(0xbcea, TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY),
-        new(0xbcec, 0xc82c),
-        new(0xbcee, TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY),
-        new(0xbcf0, 0xbcfa),
-        new(0xbcf2, 0x0005),
-        new(0xbcf6, CommonEnemyInstructionCodes.Goto),
-        new(0xbcf8, 0xbcf2),
-        new(0xbcfa, TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX),
-        new(0xbcfc, TorizoInstructionCodes.Instruction_Torizo_SpawnTorizoLandingDustClouds),
-        new(0xbcfe, TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden),
-        new(0xbd00, 0xbd52),
-        new(0xbd02, 0xcdb9),
-        new(0xbd04, TorizoInstructionCodes.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack),
-        new(0xbd06, 0xba04),
-        new(0xbd08, 0xba88),
-        new(0xbd0a, CommonEnemyInstructionCodes.Goto),
-        new(0xbd0c, 0xb9b6),
-    ];
+    /// <summary><c>InstList_Torizo_FacingLeft_Walking_RightLegMoving</c> at $AA:B96C.</summary>
+    private const ushort FacingLeftWalkingRightLegMoving = 0xb96c;
+    /// <summary><c>InstList_Torizo_FacingLeft_Walking_LeftLegMoving</c> at $AA:B9B6.</summary>
+    private const ushort FacingLeftWalkingLeftLegMoving = 0xb9b6;
+    /// <summary><c>InstList_Torizo_FacingLeft_SpewingChozoOrbs_RightFootFwd_0</c> at $AA:BA04.</summary>
+    private const ushort FacingLeftSpewingChozoOrbsRightFootFwd0 = 0xba04;
+    /// <summary><c>InstList_Torizo_FacingLeft_SpewingChozoOrbs_LeftFootFwd_0</c> at $AA:BA46.</summary>
+    private const ushort FacingLeftSpewingChozoOrbsLeftFootFwd0 = 0xba46;
+    /// <summary><c>InstList_Torizo_FacingLeft_SonicBooms_RightFootForward_0</c> at $AA:BA88.</summary>
+    private const ushort FacingLeftSonicBoomsRightFootForward0 = 0xba88;
+    /// <summary><c>InstList_Torizo_FacingLeft_SonicBooms_LeftFootForward_0</c> at $AA:BAF2.</summary>
+    private const ushort FacingLeftSonicBoomsLeftFootForward0 = 0xbaf2;
+    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_LandLeftFootFwd_1</c> at $AA:BCA6.</summary>
+    private const ushort FacingLeftJumpingBackwardLandLeftFootFwd1 = 0xbca6;
+    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_LandLeftFootFwd_2</c> at $AA:BCAE.</summary>
+    private const ushort FacingLeftJumpingBackwardLandLeftFootFwd2 = 0xbcae;
+    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_LandLeftFootFwd_3</c> at $AA:BCB6.</summary>
+    private const ushort FacingLeftJumpingBackwardLandLeftFootFwd3 = 0xbcb6;
+    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_LandLeftFootFwd_4</c> at $AA:BCBE.</summary>
+    private const ushort FacingLeftJumpingBackwardLandLeftFootFwd4 = 0xbcbe;
+    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_RightFootFwd_1</c> at $AA:BCE2.</summary>
+    private const ushort FacingLeftJumpingBackwardRightFootFwd1 = 0xbce2;
+    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_RightFootFwd_2</c> at $AA:BCEA.</summary>
+    private const ushort FacingLeftJumpingBackwardRightFootFwd2 = 0xbcea;
+    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_RightFootFwd_3</c> at $AA:BCF2.</summary>
+    private const ushort FacingLeftJumpingBackwardRightFootFwd3 = 0xbcf2;
+    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_RightFootFwd_4</c> at $AA:BCFA.</summary>
+    private const ushort FacingLeftJumpingBackwardRightFootFwd4 = 0xbcfa;
+    /// <summary><c>InstList_Torizo_FacingLeft_Faceless_Walking_RightLegMoving</c> at $AA:BD18.</summary>
+    private const ushort FacingLeftFacelessWalkingRightLegMoving = 0xbd18;
+    /// <summary><c>InstList_Torizo_FacingLeft_Faceless_Walking_LeftLegMoving</c> at $AA:BD52.</summary>
+    private const ushort FacingLeftFacelessWalkingLeftLegMoving = 0xbd52;
+    /// <summary><c>Function_Torizo_Movement_Jumping_Falling</c> at $AA:C82C.</summary>
+    private const ushort MovementJumpingFallingFunction = 0xc82c;
+    /// <summary><c>InstList_GT_LandedFromBackwardsJump_FacingLeft_LeftFootFwd</c> at $AA:CDAF.</summary>
+    private const ushort GTLandedFromBackwardsJumpFacingLeftLeftFootFwd = 0xcdaf;
+    /// <summary><c>InstList_GT_LandedFromBackwardsJump_FacingLeft_RightFootFwd</c> at $AA:CDB9.</summary>
+    private const ushort GTLandedFromBackwardsJumpFacingLeftRightFootFwd = 0xcdb9;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xbca0, 0xbca4, 0xbca8, 0xbcb8,
-        0xbcdc, 0xbce0, 0xbce4, 0xbcf4,
-    ];
+    /// <summary>Native program bank $AA.</summary>
+    internal const byte Bank = 0xaa;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static TorizoJumpBackMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xbc96),
+        Entry(Start),
+        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, MovementJumpingFallingFunction),
+        Op(TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY, FacingLeftJumpingBackwardLandLeftFootFwd2),
+        Frame(5),
+        Frame(5),
+        Frame(1),
+        Op(TorizoInstructionCodes.Instruction_Torizo_GotoY_IfRising, FacingLeftJumpingBackwardLandLeftFootFwd1),
+        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, MovementJumpingFallingFunction),
+        Op(TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY, FacingLeftJumpingBackwardLandLeftFootFwd4),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, FacingLeftJumpingBackwardLandLeftFootFwd3),
+        Op(TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX),
+        Op(TorizoInstructionCodes.Instruction_Torizo_SpawnTorizoLandingDustClouds),
+        Op(TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacingLeftFacelessWalkingRightLegMoving, GTLandedFromBackwardsJumpFacingLeftLeftFootFwd),
+        Op(TorizoInstructionCodes.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack, FacingLeftSpewingChozoOrbsLeftFootFwd0, FacingLeftSonicBoomsLeftFootForward0),
+        Op(CommonEnemyInstructionCodes.Goto, FacingLeftWalkingRightLegMoving),
+        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, MovementJumpingFallingFunction),
+        Op(TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY, FacingLeftJumpingBackwardRightFootFwd2),
+        Frame(5),
+        Frame(5),
+        Frame(1),
+        Op(TorizoInstructionCodes.Instruction_Torizo_GotoY_IfRising, FacingLeftJumpingBackwardRightFootFwd1),
+        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, MovementJumpingFallingFunction),
+        Op(TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY, FacingLeftJumpingBackwardRightFootFwd4),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, FacingLeftJumpingBackwardRightFootFwd3),
+        Op(TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX),
+        Op(TorizoInstructionCodes.Instruction_Torizo_SpawnTorizoLandingDustClouds),
+        Op(TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacingLeftFacelessWalkingLeftLegMoving, GTLandedFromBackwardsJumpFacingLeftRightFootFwd),
+        Op(TorizoInstructionCodes.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack, FacingLeftSpewingChozoOrbsRightFootFwd0, FacingLeftSonicBoomsRightFootForward0),
+        Op(CommonEnemyInstructionCodes.Goto, FacingLeftWalkingLeftLegMoving));
 
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static TorizoJumpBackMechanicsWord MechanicsWord(int index)
     {
-        foreach (TorizoJumpBackMechanicsWord word in Words)
-        {
-            if (word.Address != address) continue;
-            value = word.Value;
-            return true;
-        }
-        value = 0;
-        return false;
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xaa0000)
-            return false;
-        ushort offset = unchecked((ushort)address);
-        foreach (TorizoJumpBackMechanicsWord word in Words)
-            if (offset == word.Address || offset == unchecked((ushort)(word.Address + 1)))
-                return true;
-        return false;
-    }
+    internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
+        Layout.TryReadMechanicsWord(address, out value);
+
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

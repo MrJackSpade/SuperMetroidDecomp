@@ -34,9 +34,9 @@ internal static class RioInstructionProgramDefinitions
     private const int TransitionFrameCount = 5;
     /// <summary>$A2:BB97-BB9B: two alternating poses while the swoop continues.</summary>
     private const int SwoopLoopFrameCount = 2;
-    /// <summary>$A2:BB4B-BB79 idle instruction cadence. This independent hold remains required under #1165.</summary>
+    /// <summary>$A2:BB4B-BB79 idle instruction cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort IdleFrameDuration = 4;
-    /// <summary>$A2:BB7F-BBB3 swoop and recovery instruction cadence. This independent hold remains required under #1165.</summary>
+    /// <summary>$A2:BB7F-BBB3 swoop and recovery instruction cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort SwoopFrameDuration = 3;
 
     internal static int MechanicsWordCount => PresentationWordCount + 8;

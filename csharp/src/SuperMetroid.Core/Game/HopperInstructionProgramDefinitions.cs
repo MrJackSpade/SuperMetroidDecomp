@@ -55,14 +55,14 @@ internal static class HopperInstructionProgramDefinitions
     private const ushort JumpSound = 0x005d;
     /// <summary>$A3:AA86/AAAC/B0D5/B0FB: Sidehopper landing sound in library 2.</summary>
     private const ushort LandSound = 0x005e;
-    /// <summary>$A3:AA7C and all airborne programs: independent one-tick pose hold, pending disposition.</summary>
-    private const ushort UnresolvedAirborneHold = 1;
-    /// <summary>$A3:AA88/AA90 and each landed program: independent two-tick first/third pose hold, pending disposition.</summary>
-    private const ushort UnresolvedLandingOuterHold = 2;
-    /// <summary>$A3:AA8C and each landed program: independent second pose hold, pending disposition.</summary>
-    private const ushort UnresolvedLandingMiddleHold = 5;
-    /// <summary>$A3:AA94 and each landed program: independent last pose hold before ReadyToHop, pending disposition.</summary>
-    private const ushort UnresolvedLandingFinalHold = 3;
+    /// <summary>$A3:AA7C and all airborne programs: one-tick pose hold. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort AirborneHold = 1;
+    /// <summary>$A3:AA88/AA90 and each landed program: two-tick first/third pose hold. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort LandingOuterHold = 2;
+    /// <summary>$A3:AA8C and each landed program: second pose hold. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort LandingMiddleHold = 5;
+    /// <summary>$A3:AA94 and each landed program: last pose hold before ReadyToHop. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort LandingFinalHold = 3;
 
     private readonly record struct ProgramDefinition(ushort Start, bool Sound, bool Jumping)
     {
@@ -133,11 +133,11 @@ internal static class HopperInstructionProgramDefinitions
         int poseStart = program.Start + program.PrefixWords * 2;
         if (pose < program.PoseCount)
         {
-            ushort hold = program.Jumping ? UnresolvedAirborneHold : pose switch
+            ushort hold = program.Jumping ? AirborneHold : pose switch
             {
-                0 or 2 => UnresolvedLandingOuterHold,
-                1 => UnresolvedLandingMiddleHold,
-                _ => UnresolvedLandingFinalHold,
+                0 or 2 => LandingOuterHold,
+                1 => LandingMiddleHold,
+                _ => LandingFinalHold,
             };
             return new((ushort)(poseStart + pose * 4), hold);
         }

@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 internal readonly record struct TorizoFallingLeftMechanicsWord(
@@ -26,52 +28,37 @@ internal static class TorizoFallingLeftInstructionProgramDefinitions
     /// <summary><c>InstList_Torizo_FacingLeft_Walking_LeftLegMoving</c> at $AA:B9B6.</summary>
     private const ushort BombTorizoWalkingLeftLeg = 0xb9b6;
 
-    private static readonly TorizoFallingLeftMechanicsWord[] Words =
-    [
-        new(0xbc78, TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY),
-        new(0xbc7a, JumpingFallingMovement),
-        new(0xbc7c, TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY),
-        new(0xbc7e, Landing),
-        new(0xbc80, 0x0005),
-        new(0xbc84, CommonEnemyInstructionCodes.Goto),
-        new(0xbc86, FallingLoop),
-        new(0xbc88, TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX),
-        new(0xbc8a, TorizoInstructionCodes.Instruction_Torizo_SpawnTorizoLandingDustClouds),
-        new(0xbc8c, TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden),
-        new(0xbc8e, FacelessWalkingLeftLeg),
-        new(0xbc90, GoldenTorizoCombatInstructionPointers.WalkingLeftLeftLeg),
-        new(0xbc92, CommonEnemyInstructionCodes.Goto),
-        new(0xbc94, BombTorizoWalkingLeftLeg),
-    ];
+    /// <summary><c>InstList_GoldenTorizo_WalkingLeft_LeftLegMoving</c> at $AA:D259.</summary>
+    private const ushort GoldenTorizoWalkingLeftLeftLegMoving = 0xd259;
 
-    private static readonly ushort[] PresentationWords = [0xbc82];
+    /// <summary>Native program bank $AA.</summary>
+    internal const byte Bank = 0xaa;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static TorizoFallingLeftMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xbc78),
+        Entry(Start),
+        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, JumpingFallingMovement),
+        Op(TorizoInstructionCodes.Instruction_Torizo_LinkInstructionInY, Landing),
+        Entry(FallingLoop),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, FallingLoop),
+        Entry(Landing),
+        Op(TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX),
+        Op(TorizoInstructionCodes.Instruction_Torizo_SpawnTorizoLandingDustClouds),
+        Op(TorizoInstructionCodes.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacelessWalkingLeftLeg, GoldenTorizoWalkingLeftLeftLegMoving),
+        Op(CommonEnemyInstructionCodes.Goto, BombTorizoWalkingLeftLeg));
 
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static TorizoFallingLeftMechanicsWord MechanicsWord(int index)
     {
-        foreach (TorizoFallingLeftMechanicsWord word in Words)
-        {
-            if (word.Address != address) continue;
-            value = word.Value;
-            return true;
-        }
-        value = 0;
-        return false;
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xaa0000)
-            return false;
-        ushort offset = unchecked((ushort)address);
-        foreach (TorizoFallingLeftMechanicsWord word in Words)
-            if (offset == word.Address ||
-                offset == unchecked((ushort)(word.Address + 1)))
-                return true;
-        return false;
-    }
+    internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
+        Layout.TryReadMechanicsWord(address, out value);
+
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

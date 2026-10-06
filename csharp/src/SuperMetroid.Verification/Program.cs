@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--dump-instruction-layouts", var instructionLayoutOutput])
+{
+    DumpInstructionLayouts(instructionLayoutOutput);
+    return 0;
+}
 if (args is ["--lookup-stream-4-hud-icons"])
 {
     var rom=CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

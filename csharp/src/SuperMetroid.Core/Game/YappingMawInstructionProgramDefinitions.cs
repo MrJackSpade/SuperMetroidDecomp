@@ -47,7 +47,7 @@ internal static class YappingMawInstructionProgramDefinitions
     internal static int MechanicsWordCount => 96;
     internal static int PresentationWordCount => 52;
 
-    /// <summary>Independent animation holds remain pending source payload; shared layout does not derive them.</summary>
+    /// <summary>Yapping Maw animation holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort OpenHold = 5, ClosingHold = 3, ExtendedHold = 80, DiagonalAdjustmentHold = 4;
 
     /// <summary>Eight22-byte attack lists follow the native clockwise octant order.</summary>

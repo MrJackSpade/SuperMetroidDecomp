@@ -54,32 +54,32 @@ internal static class WorkRobotInstructionProgramDefinitions
     private const int PresentationOperand = -1;
     /// <summary>$A8:CB77, first code after the complete robot instruction region.</summary>
     private const ushort EndAddress = 0xcb77;
-    /// <summary>$A8:C6D3/D9/DF: unpowered pose hold before sleep; the maximum positive timer choice remains pending.</summary>
-    private const ushort UnresolvedUnpoweredTicks = (ushort)short.MaxValue;
-    /// <summary>$A8:C6E9/C73F/C92D/C985/CA01: entry pose scheduling before the ongoing gait; pending.</summary>
-    private const ushort UnresolvedEntryTicks = 1;
-    /// <summary>$A8:C6F1/C6FB/C731 and mirrored shot checks: delay before the callback within a gait pose; pending.</summary>
-    private const ushort UnresolvedShootingOpportunityTicks = 1;
-    /// <summary>$A8:C6E5, initial stationary pose before walking; independent hold remains pending.</summary>
-    private const ushort UnresolvedInitialTicks = 32;
-    /// <summary>$A8:C6ED and mirrored gait: common walking cadence; its independent magnitude remains pending.</summary>
-    private const ushort UnresolvedWalkTicks = 10;
+    /// <summary>$A8:C6D3/D9/DF: unpowered pose hold before sleep: the maximum positive timer, holding indefinitely (InstructionItem.IndefiniteDuration) rather than a chosen cadence.</summary>
+    private const ushort UnpoweredTicks = InstructionItem.IndefiniteDuration;
+    /// <summary>$A8:C6E9/C73F/C92D/C985/CA01: entry pose scheduling before the ongoing gait. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort EntryTicks = 1;
+    /// <summary>$A8:C6F1/C6FB/C731 and mirrored shot checks: delay before the callback within a gait pose. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort ShootingOpportunityTicks = 1;
+    /// <summary>$A8:C6E5, initial stationary pose before walking; independent hold. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort InitialTicks = 32;
+    /// <summary>$A8:C6ED and mirrored gait: common walking cadence; its independent magnitude. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort WalkTicks = 10;
     /// <summary>$A8:C7BB/CA05 shot response traverses the same gait poses at twice normal cadence.</summary>
-    private const ushort ShotResponseTicks = UnresolvedWalkTicks / 2;
-    /// <summary>$A8:C8B1/BD/D1 and mirrored laser aims: initial firing pose hold, pending.</summary>
-    private const ushort UnresolvedLaserPoseTicks = 5;
-    /// <summary>$A8:C8B5/C8C1/C8D5/C8D9 and mirrors: laser transition pose cadence, pending.</summary>
-    private const ushort UnresolvedLaserTransitionTicks = 2;
-    /// <summary>$A8:C8DD/E5 and mirrors: upward-shot stepping poses, pending.</summary>
-    private const ushort UnresolvedUpwardStepTicks = 4;
-    /// <summary>$A8:C8EB/CB37: initial recoil kick hold, pending.</summary>
-    private const ushort UnresolvedRecoilKickTicks = 16;
-    /// <summary>$A8:C911/CB5D: final recoil recovery hold, pending.</summary>
-    private const ushort UnresolvedRecoilRecoveryTicks = 96;
-    /// <summary>$A8:C91B/CB65: ledge-approach hold before the two return poses, pending.</summary>
-    private const ushort UnresolvedLedgeTicks = 128;
-    /// <summary>$A8:CA61: right-facing shot retreat's second contact pose differs from its five-tick peers; pending.</summary>
-    private const ushort UnresolvedRightRetreatContactTicks = 10;
+    private const ushort ShotResponseTicks = WalkTicks / 2;
+    /// <summary>$A8:C8B1/BD/D1 and mirrored laser aims: initial firing pose hold. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort LaserPoseTicks = 5;
+    /// <summary>$A8:C8B5/C8C1/C8D5/C8D9 and mirrors: laser transition pose cadence. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort LaserTransitionTicks = 2;
+    /// <summary>$A8:C8DD/E5 and mirrors: upward-shot stepping poses. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort UpwardStepTicks = 4;
+    /// <summary>$A8:C8EB/CB37: initial recoil kick hold. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort RecoilKickTicks = 16;
+    /// <summary>$A8:C911/CB5D: final recoil recovery hold. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort RecoilRecoveryTicks = 96;
+    /// <summary>$A8:C91B/CB65: ledge-approach hold before the two return poses. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort LedgeTicks = 128;
+    /// <summary>$A8:CA61: right-facing shot retreat's second contact pose differs from its five-tick peers. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort RightRetreatContactTicks = 10;
 
     internal const int MechanicsWordCount = 367;
     internal static int PresentationWordCount => 227;
@@ -129,14 +129,14 @@ internal static class WorkRobotInstructionProgramDefinitions
         {
             start = (ushort)(NoPowerNeutral + (address - NoPowerNeutral) / 6 * 6);
             var idle = new WordSelector(address, start);
-            idle.Timed(UnresolvedUnpoweredTicks);
+            idle.Timed(UnpoweredTicks);
             idle.Command(CommonEnemyInstructionCodes.Sleep);
             return idle.Value;
         }
         if (address < FacingLeftWalkingForwards)
         {
             var initial = new WordSelector(address, Initial);
-            initial.Timed(UnresolvedInitialTicks);
+            initial.Timed(InitialTicks);
             return initial.Value;
         }
         bool right = address >= FacingRightWalkingForwards;
@@ -171,24 +171,24 @@ internal static class WorkRobotInstructionProgramDefinitions
     private static void Walk(ref WordSelector writer, bool right)
     {
         ushort move = MoveForward(right, hitWallOnly: false);
-        writer.Timed(UnresolvedEntryTicks);
+        writer.Timed(EntryTicks);
         if (right)
         {
             ShootingOpportunity(ref writer, WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownRight);
             writer.Command(WorkRobotInstructionCodes.Instruction_Robot_DecrementLaserCooldown);
         }
-        writer.Timed(UnresolvedWalkTicks);
+        writer.Timed(WalkTicks);
         ShootingOpportunity(ref writer, right ? WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserRight
             : WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserLeft);
         ShootingOpportunity(ref writer, right ? WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpRight
             : WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserUpLeft);
-        writer.Timed(UnresolvedWalkTicks);
+        writer.Timed(WalkTicks);
         SoundThenMove(ref writer, move);
-        writer.Timed(UnresolvedWalkTicks);
+        writer.Timed(WalkTicks);
         writer.Command(move);
-        writer.Timed(UnresolvedWalkTicks, 5);
+        writer.Timed(WalkTicks, 5);
         MoveThenSound(ref writer, move);
-        writer.Timed(UnresolvedWalkTicks);
+        writer.Timed(WalkTicks);
         writer.Command(move);
         if (!right) ShootingOpportunity(ref writer, WorkRobotInstructionCodes.Instruction_Robot_TryShootingLaserDownLeft);
         writer.Goto((ushort)((right ? FacingRightWalkingForwards : FacingLeftWalkingForwards) + 4));
@@ -197,15 +197,15 @@ internal static class WorkRobotInstructionProgramDefinitions
     {
         // The callback is scheduled within a pose; the remainder completes
         // the same ten-tick gait exposure if no shooting branch replaces the list.
-        writer.Timed(UnresolvedShootingOpportunityTicks);
+        writer.Timed(ShootingOpportunityTicks);
         writer.Command(callback);
-        writer.Timed(UnresolvedWalkTicks - UnresolvedShootingOpportunityTicks);
+        writer.Timed(WalkTicks - ShootingOpportunityTicks);
     }
     private static void Retreat(ref WordSelector writer, bool right, bool wallResponse)
     {
-        ushort cadence = wallResponse ? UnresolvedWalkTicks : ShotResponseTicks;
+        ushort cadence = wallResponse ? WalkTicks : ShotResponseTicks;
         ushort move = MoveBackward(right, hitWallOnly: !wallResponse);
-        if (wallResponse || right) writer.Timed(UnresolvedEntryTicks);
+        if (wallResponse || right) writer.Timed(EntryTicks);
         for (int stride = 0; stride < 2; stride++)
         {
             if (stride == 0)
@@ -222,7 +222,7 @@ internal static class WorkRobotInstructionProgramDefinitions
             }
             writer.Timed(cadence, 5);
             SoundThenMove(ref writer, move);
-            writer.Timed(right && !wallResponse && stride == 1 ? UnresolvedRightRetreatContactTicks : cadence);
+            writer.Timed(right && !wallResponse && stride == 1 ? RightRetreatContactTicks : cadence);
             writer.Command(move);
             writer.Timed(cadence, 5);
         }
@@ -252,14 +252,14 @@ internal static class WorkRobotInstructionProgramDefinitions
     }
     private static void Laser(ref WordSelector writer, bool right, LaserAim aim)
     {
-        writer.Timed(UnresolvedLaserPoseTicks);
-        writer.Timed(UnresolvedLaserTransitionTicks, aim == LaserAim.Up ? 2 : 1);
-        if (aim == LaserAim.Up) writer.Timed(UnresolvedUpwardStepTicks);
+        writer.Timed(LaserPoseTicks);
+        writer.Timed(LaserTransitionTicks, aim == LaserAim.Up ? 2 : 1);
+        if (aim == LaserAim.Up) writer.Timed(UpwardStepTicks);
         if (aim != LaserAim.Down)
         {
             ushort move = MoveBackward(right, hitWallOnly: false);
             if (right) SoundThenMove(ref writer, move); else MoveThenSound(ref writer, move);
-            writer.Timed(aim == LaserAim.Up ? UnresolvedUpwardStepTicks : UnresolvedWalkTicks);
+            writer.Timed(aim == LaserAim.Up ? UpwardStepTicks : WalkTicks);
         }
         if (aim != LaserAim.Up) writer.Goto(right ? FacingRightLaserShotRecoil : FacingLeftLaserShotRecoil);
     }
@@ -267,20 +267,20 @@ internal static class WorkRobotInstructionProgramDefinitions
     {
         ushort move = MoveBackward(right, hitWallOnly: false);
         writer.Command(move);
-        writer.Timed(UnresolvedRecoilKickTicks);
+        writer.Timed(RecoilKickTicks);
         writer.Timed(ShotResponseTicks, 4);
         SoundThenMove(ref writer, move);
-        writer.Timed(UnresolvedWalkTicks);
+        writer.Timed(WalkTicks);
         writer.Command(move);
-        writer.Timed(UnresolvedWalkTicks, 2);
-        writer.Timed(UnresolvedRecoilRecoveryTicks);
+        writer.Timed(WalkTicks, 2);
+        writer.Timed(RecoilRecoveryTicks);
         if (!right) writer.Command(WorkRobotInstructionCodes.Instruction_Robot_DecrementLaserCooldown);
         writer.Goto(right ? FacingRightWalkingForwards : FacingLeftWalkingForwards);
     }
     private static void Ledge(ref WordSelector writer, bool right)
     {
-        writer.Timed(UnresolvedLedgeTicks);
-        writer.Timed(UnresolvedWalkTicks, 2);
+        writer.Timed(LedgeTicks);
+        writer.Timed(WalkTicks, 2);
         writer.Command(WorkRobotInstructionCodes.Instruction_Robot_DecrementLaserCooldown);
         writer.Goto(right ? FacingRightWalkingForwards : FacingLeftWalkingForwards);
     }

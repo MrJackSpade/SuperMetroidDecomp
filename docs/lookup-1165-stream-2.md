@@ -143,7 +143,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/ChozoStatueInstructionProgramDefinitions.cs
 
-- [ ] **ChozoStatueInstructionProgramDefinitions.Words** ([L25](../csharp/src/SuperMetroid.Core/Game/ChozoStatueInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **ChozoStatueInstructionProgramDefinitions.Words** ([L25](../csharp/src/SuperMetroid.Core/Game/ChozoStatueInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **ChozoStatueInstructionProgramDefinitions.PresentationWords** ([L85](../csharp/src/SuperMetroid.Core/Game/ChozoStatueInstructionProgramDefinitions.cs#L85)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/ChozoTourianDustInstructionProgramDefinitions.cs
@@ -242,7 +242,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/NinjaSpacePirateInstructionProgramDefinitions.cs
 
-- [ ] **NinjaSpacePirateInstructionProgramDefinitions.Words** ([L56](../csharp/src/SuperMetroid.Core/Game/NinjaSpacePirateInstructionProgramDefinitions.cs#L56)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **NinjaSpacePirateInstructionProgramDefinitions.Words** ([L56](../csharp/src/SuperMetroid.Core/Game/NinjaSpacePirateInstructionProgramDefinitions.cs#L56)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **NinjaSpacePirateInstructionProgramDefinitions.PresentationWords** - CONVERTED: visual operand addresses derive from native command widths and paired action composition; independent timing/spawn/palette choices remain under Words.
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.cs
@@ -256,7 +256,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs
 
-- [ ] **NorfairLavaJumperInstructionProgramDefinitions.Words** ([L33](../csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **NorfairLavaJumperInstructionProgramDefinitions.Words** ([L33](../csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs#L33)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **NorfairLavaJumperInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/NorfairLavaJumperInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairPipeBugInstructionProgramDefinitions.cs
@@ -266,7 +266,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs
 
-- [ ] **NorfairRioInstructionProgramDefinitions.Words** ([L31](../csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs#L31)) - factory-built stock table. Stored NorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
+- [x] **NorfairRioInstructionProgramDefinitions.Words** ([L31](../csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs#L31)) - factory-built stock table. Stored NorfairRioInstructionMechanicsWord[] initialized by BuildMechanicsWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 - [x] **NorfairRioInstructionProgramDefinitions.PresentationWords** ([L33](../csharp/src/SuperMetroid.Core/Game/NorfairRioInstructionProgramDefinitions.cs#L33)) - factory-built stock table. Stored ushort[] initialized by BuildPresentationWords(). Inspect that producer and all value fields; calculating then caching a replacement lookup does not complete conversion.
 
 ### csharp/src/SuperMetroid.Core/Game/OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.cs
@@ -401,7 +401,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/DeadTorizoInstructionProgramDefinitions.cs
 
-- [ ] **DeadTorizoInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/DeadTorizoInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **DeadTorizoInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/DeadTorizoInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs
 
@@ -421,7 +421,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoAwakeningInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoAwakeningInstructionProgramDefinitions.Words** - PARTIAL: composed69 native controls, sequential movement indexes, increasing sitting holds and halving upload holds. Independent hold scales/transitions and loop counts remain REQUIRED.
+- [x] **GoldenTorizoAwakeningInstructionProgramDefinitions.Words** - PARTIAL: composed69 native controls, sequential movement indexes, increasing sitting holds and halving upload holds. Independent hold scales/transitions and loop counts remain REQUIRED.
 - [x] **GoldenTorizoAwakeningInstructionProgramDefinitions.PresentationWords** - CONVERTED: pose/function/branch/DMA record widths calculate all21 visual operand addresses; native selectors and selected physical frames confirmed.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoEggInstructionProgramDefinitions.cs
@@ -431,11 +431,11 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.Words** ([L23](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.cs#L23)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoEyeBeamInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoEyeBeamInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWords** ([L60](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitions.cs#L60)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoInitialInstructionProgramDefinitions.cs
@@ -452,8 +452,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftFootOrbInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Words** ([L25](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftFootOrbInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoLeftFootOrbInstructionProgramDefinitions.PresentationWords** ([L52](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftFootOrbInstructionProgramDefinitions.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Words** ([L25](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftFootOrbInstructionProgramDefinitions.cs#L25)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoLeftFootOrbInstructionProgramDefinitions.PresentationWords** ([L52](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftFootOrbInstructionProgramDefinitions.cs#L52)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftOrbCollisionDefinitions.cs
 
@@ -462,13 +462,13 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftOrbInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoLeftOrbInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftOrbInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoLeftOrbInstructionProgramDefinitions.PresentationWords** ([L69](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftOrbInstructionProgramDefinitions.cs#L69)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoLeftOrbInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftOrbInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoLeftOrbInstructionProgramDefinitions.PresentationWords** ([L69](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftOrbInstructionProgramDefinitions.cs#L69)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftTurnInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoLeftTurnInstructionProgramDefinitions.Words** ([L29](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftTurnInstructionProgramDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoLeftTurnInstructionProgramDefinitions.PresentationWords** ([L44](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftTurnInstructionProgramDefinitions.cs#L44)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoLeftTurnInstructionProgramDefinitions.Words** ([L29](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftTurnInstructionProgramDefinitions.cs#L29)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoLeftTurnInstructionProgramDefinitions.PresentationWords** ([L44](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoLeftTurnInstructionProgramDefinitions.cs#L44)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightOrbCollisionDefinitions.cs
 
@@ -477,8 +477,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightOrbInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoRightOrbInstructionProgramDefinitions.Words** ([L17](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightOrbInstructionProgramDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoRightOrbInstructionProgramDefinitions.PresentationWords** ([L44](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightOrbInstructionProgramDefinitions.cs#L44)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoRightOrbInstructionProgramDefinitions.Words** ([L17](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightOrbInstructionProgramDefinitions.cs#L17)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoRightOrbInstructionProgramDefinitions.PresentationWords** ([L44](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightOrbInstructionProgramDefinitions.cs#L44)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightSonicCollisionDefinitions.cs
 
@@ -487,8 +487,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightSonicInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoRightSonicInstructionProgramDefinitions.Words** ([L18](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightSonicInstructionProgramDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoRightSonicInstructionProgramDefinitions.PresentationWords** ([L88](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightSonicInstructionProgramDefinitions.cs#L88)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoRightSonicInstructionProgramDefinitions.Words** ([L18](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightSonicInstructionProgramDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoRightSonicInstructionProgramDefinitions.PresentationWords** ([L88](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightSonicInstructionProgramDefinitions.cs#L88)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardCollisionDefinitions.cs
 
@@ -498,17 +498,17 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoRightwardInstructionProgramDefinitions.Words** ([L18](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardInstructionProgramDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoRightwardInstructionProgramDefinitions.PresentationWords** ([L104](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardInstructionProgramDefinitions.cs#L104)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoRightwardInstructionProgramDefinitions.Words** ([L18](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardInstructionProgramDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoRightwardInstructionProgramDefinitions.PresentationWords** ([L104](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoRightwardInstructionProgramDefinitions.cs#L104)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoStunnedInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoStunnedInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoStunnedInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoStunnedInstructionProgramDefinitions.Words** ([L26](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoStunnedInstructionProgramDefinitions.cs#L26)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoSuperMissileInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoSuperMissileInstructionProgramDefinitions.Words** ([L28](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoSuperMissileInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWords** ([L77](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoSuperMissileInstructionProgramDefinitions.cs#L77)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoSuperMissileInstructionProgramDefinitions.Words** ([L28](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoSuperMissileInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWords** ([L77](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoSuperMissileInstructionProgramDefinitions.cs#L77)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkDefinitions.cs
 
@@ -522,8 +522,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingInstructionProgramDefinitions.cs
 
-- [ ] **GoldenTorizoWalkingInstructionProgramDefinitions.Words** ([L18](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingInstructionProgramDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **GoldenTorizoWalkingInstructionProgramDefinitions.PresentationWords** ([L92](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingInstructionProgramDefinitions.cs#L92)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoWalkingInstructionProgramDefinitions.Words** ([L18](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingInstructionProgramDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **GoldenTorizoWalkingInstructionProgramDefinitions.PresentationWords** ([L92](../csharp/src/SuperMetroid.Core/Game/GoldenTorizoWalkingInstructionProgramDefinitions.cs#L92)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizo.cs
 
@@ -561,7 +561,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs
 
-- [ ] **TorizoExplosionInstructionProgramDefinitions.Words** ([L28](../csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoExplosionInstructionProgramDefinitions.Words** ([L28](../csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs#L28)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 - [x] **TorizoExplosionInstructionProgramDefinitions.PresentationWords** ([L86](../csharp/src/SuperMetroid.Core/Game/TorizoExplosionInstructionProgramDefinitions.cs#L86)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoExplosiveSwipeInstructionProgramDefinitions.cs
@@ -576,32 +576,32 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoFallingLeftInstructionProgramDefinitions.cs
 
-- [ ] **TorizoFallingLeftInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/TorizoFallingLeftInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **TorizoFallingLeftInstructionProgramDefinitions.PresentationWords** ([L47](../csharp/src/SuperMetroid.Core/Game/TorizoFallingLeftInstructionProgramDefinitions.cs#L47)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoFallingLeftInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/TorizoFallingLeftInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoFallingLeftInstructionProgramDefinitions.PresentationWords** ([L47](../csharp/src/SuperMetroid.Core/Game/TorizoFallingLeftInstructionProgramDefinitions.cs#L47)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.BombLeft.cs
 
-- [ ] **TorizoInstructionProgramDefinitions.BombLeft** ([L7](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.BombLeft.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoInstructionProgramDefinitions.BombLeft** ([L7](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.BombLeft.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.BombRight.cs
 
-- [ ] **TorizoInstructionProgramDefinitions.BombRight** ([L7](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.BombRight.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoInstructionProgramDefinitions.BombRight** ([L7](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.BombRight.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.cs
 
-- [ ] **TorizoInstructionProgramDefinitions.PresentationWords** ([L406](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.cs#L406)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoInstructionProgramDefinitions.PresentationWords** ([L406](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.cs#L406)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.GoldenLeft.cs
 
-- [ ] **TorizoInstructionProgramDefinitions.GoldenLeft** ([L7](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.GoldenLeft.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoInstructionProgramDefinitions.GoldenLeft** ([L7](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.GoldenLeft.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.GoldenRight.cs
 
-- [ ] **TorizoInstructionProgramDefinitions.GoldenRight** ([L7](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.GoldenRight.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoInstructionProgramDefinitions.GoldenRight** ([L7](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.GoldenRight.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.Shared.cs
 
-- [ ] **TorizoInstructionProgramDefinitions.Shared** ([L7](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.Shared.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoInstructionProgramDefinitions.Shared** ([L7](../csharp/src/SuperMetroid.Core/Game/TorizoInstructionProgramDefinitions.Shared.cs#L7)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoInstructionVramTransferDefinitions.cs
 
@@ -614,8 +614,8 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoJumpBackInstructionProgramDefinitions.cs
 
-- [ ] **TorizoJumpBackInstructionProgramDefinitions.Words** ([L18](../csharp/src/SuperMetroid.Core/Game/TorizoJumpBackInstructionProgramDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **TorizoJumpBackInstructionProgramDefinitions.PresentationWords** ([L74](../csharp/src/SuperMetroid.Core/Game/TorizoJumpBackInstructionProgramDefinitions.cs#L74)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoJumpBackInstructionProgramDefinitions.Words** ([L18](../csharp/src/SuperMetroid.Core/Game/TorizoJumpBackInstructionProgramDefinitions.cs#L18)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoJumpBackInstructionProgramDefinitions.PresentationWords** ([L74](../csharp/src/SuperMetroid.Core/Game/TorizoJumpBackInstructionProgramDefinitions.cs#L74)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoJumpBackLeftCollisionDefinitions.cs
 
@@ -624,18 +624,18 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoJumpBackLeftInstructionProgramDefinitions.cs
 
-- [ ] **TorizoJumpBackLeftInstructionProgramDefinitions.Words** ([L15](../csharp/src/SuperMetroid.Core/Game/TorizoJumpBackLeftInstructionProgramDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **TorizoJumpBackLeftInstructionProgramDefinitions.PresentationWords** ([L71](../csharp/src/SuperMetroid.Core/Game/TorizoJumpBackLeftInstructionProgramDefinitions.cs#L71)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoJumpBackLeftInstructionProgramDefinitions.Words** ([L15](../csharp/src/SuperMetroid.Core/Game/TorizoJumpBackLeftInstructionProgramDefinitions.cs#L15)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoJumpBackLeftInstructionProgramDefinitions.PresentationWords** ([L71](../csharp/src/SuperMetroid.Core/Game/TorizoJumpBackLeftInstructionProgramDefinitions.cs#L71)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoLandingDustInstructionProgramDefinitions.cs
 
-- [ ] **TorizoLandingDustInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/TorizoLandingDustInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **TorizoLandingDustInstructionProgramDefinitions.PresentationWords** ([L39](../csharp/src/SuperMetroid.Core/Game/TorizoLandingDustInstructionProgramDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoLandingDustInstructionProgramDefinitions.Words** ([L19](../csharp/src/SuperMetroid.Core/Game/TorizoLandingDustInstructionProgramDefinitions.cs#L19)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoLandingDustInstructionProgramDefinitions.PresentationWords** ([L39](../csharp/src/SuperMetroid.Core/Game/TorizoLandingDustInstructionProgramDefinitions.cs#L39)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/TorizoSonicBoomInstructionProgramDefinitions.cs
 
-- [ ] **TorizoSonicBoomInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/TorizoSonicBoomInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
-- [ ] **TorizoSonicBoomInstructionProgramDefinitions.PresentationWords** ([L67](../csharp/src/SuperMetroid.Core/Game/TorizoSonicBoomInstructionProgramDefinitions.cs#L67)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoSonicBoomInstructionProgramDefinitions.Words** ([L30](../csharp/src/SuperMetroid.Core/Game/TorizoSonicBoomInstructionProgramDefinitions.cs#L30)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **TorizoSonicBoomInstructionProgramDefinitions.PresentationWords** ([L67](../csharp/src/SuperMetroid.Core/Game/TorizoSonicBoomInstructionProgramDefinitions.cs#L67)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.cs
 
@@ -677,7 +677,7 @@ For each completed entry, record the conversion or precise retention evidence, c
 
 ### csharp/src/SuperMetroid.Core/Game/YardInstructionProgramDefinitions.cs
 
-- [ ] **YardInstructionProgramDefinitions.Words** ([L95](../csharp/src/SuperMetroid.Core/Game/YardInstructionProgramDefinitions.cs#L95)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
+- [x] **YardInstructionProgramDefinitions.Words** ([L95](../csharp/src/SuperMetroid.Core/Game/YardInstructionProgramDefinitions.cs#L95)) - stored definition. Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.
 
 ### csharp/src/SuperMetroid.Core/Game/YardTurnDefinitions.cs
 
@@ -1376,3 +1376,13 @@ Root integration: Root Verification1452existing warnings/0errors;Audit0/0;544wir
 Confirmation: full Verification build1457warnings/0errors, focused proof rebuild25/0. The pre-change group mapping combined with all112 pinned ROM pointer words produces the104-record bank/pointer/name/order SHA2562E09CB87CB8C4106F823834D08281C250FB4294981A52F4FE9F83BD983732954. Dedicated --lookup-stream2-yard-groups confirms the new production Frames() output matches that complete identity. No gameplay or unrelated test search. No ResourceAudit hash closure references this source.
 
 Root integration: Root full build1457warnings/0errors then focused proof rebuild25/0;104complete native bank/pointer/name/order identities match the pre-change registry hash across38semantic group roles. Master 606 converted/98 retained-mixed/424 pending.
+
+## Single-thread batch - enemy instruction programs
+
+This stream's instruction-program entries (`*InstructionProgramDefinitions.Words` and
+`.PresentationWords`, plus program-specific stores) are resolved together across all streams.
+The method, exactness evidence, disposition of frame durations and the per-program table are in
+[lookup-1165-instruction-programs.md](lookup-1165-instruction-programs.md). Stored word tables are
+now semantic `InstructionProgramLayout` items; already-calculated programs keep their code with
+the reviewed disposition recorded on each owner. Checkboxes above are ticked for the entries this
+batch resolved.

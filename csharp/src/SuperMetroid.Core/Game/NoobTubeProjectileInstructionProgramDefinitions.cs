@@ -25,7 +25,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitions
     private const ushort CrackFalling = Crack + 72;
     /// <summary>$86:D46F begins the two-pose counted tail.</summary>
     private const ushort CrackTail = Crack + 152;
-    /// <summary>Five irregular final flicker holds at $86:D407-D417 remain unresolved under #1165.</summary>
+    /// <summary>Five irregular final flicker holds at $86:D407-D417. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static ReadOnlySpan<ushort> CrackFlickerTailDurations => [2,3,6,9,8];
 
     internal static NoobTubeShardProgramSequence ShardInstructionLists => default;

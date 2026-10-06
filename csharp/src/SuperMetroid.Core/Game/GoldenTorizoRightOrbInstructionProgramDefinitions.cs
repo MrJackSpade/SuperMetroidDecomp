@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 internal readonly record struct GoldenTorizoRightOrbMechanicsWord(
@@ -13,65 +15,49 @@ internal static class GoldenTorizoRightOrbInstructionProgramDefinitions
     internal const ushort Start = 0xcc99;
     internal const ushort End = 0xccdb;
 
-    private static readonly GoldenTorizoRightOrbMechanicsWord[] Words =
-    [
-        new(0xcc99, TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY),
-        new(0xcc9b, 0xd5ed),
-        new(0xcc9d, 0x0006),
-        new(0xcca1, 0x0003),
-        new(0xcca5, 0x0003),
-        new(0xcca9, 0x0003),
-        new(0xccad, 0x0003),
-        new(0xccb1, 0x0006),
-        new(0xccb5, CommonEnemyInstructionCodes.SetTimer),
-        new(0xccb7, 0x0006),
-        new(0xccb9, TorizoInstructionCodes.Instruction_Torizo_PlayShotTorizoSFX),
-        new(0xccbb, TorizoInstructionCodes.Instruction_GoldenTorizo_SpawnChozoOrbs),
-        new(0xccbd, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xccbf, 0x0006),
-        new(0xccc1, CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
-        new(0xccc3, 0xccb9),
-        new(0xccc5, 0x0003),
-        new(0xccc9, 0x0003),
-        new(0xcccd, 0x0003),
-        new(0xccd1, 0x0003),
-        new(0xccd5, TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY),
-        new(0xccd7, 0xd5f1),
-        new(0xccd9, TorizoInstructionCodes.Instruction_Torizo_Return),
-    ];
+    /// <summary><c>InstList_GoldenTorizo_SpewChozoOrb_FacingLeft_RightFootFwd_1</c> at $AA:CCB9.</summary>
+    private const ushort TorizoSpewChozoOrbFacingLeftRightFootFwd1 = 0xccb9;
+    /// <summary><c>Function_GoldenTorizo_Movement_Attacking</c> at $AA:D5ED.</summary>
+    private const ushort TorizoMovementAttackingFunction = 0xd5ed;
+    /// <summary><c>Function_GoldenTorizo_Movement_Walking</c> at $AA:D5F1.</summary>
+    private const ushort TorizoMovementWalkingFunction = 0xd5f1;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xcc9f, 0xcca3, 0xcca7, 0xccab, 0xccaf,
-        0xccb3, 0xccc7, 0xcccb, 0xcccf, 0xccd3,
-    ];
+    /// <summary>Native program bank $AA.</summary>
+    internal const byte Bank = 0xaa;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static GoldenTorizoRightOrbMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xcc99),
+        Entry(Start),
+        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementAttackingFunction),
+        Frame(6),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(6),
+        Op(CommonEnemyInstructionCodes.SetTimer, 0x0006),
+        Op(TorizoInstructionCodes.Instruction_Torizo_PlayShotTorizoSFX),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_SpawnChozoOrbs),
+        Op(CommonEnemyInstructionCodes.WaitFrames, 0x0006),
+        Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, TorizoSpewChozoOrbFacingLeftRightFootFwd1),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementWalkingFunction),
+        Op(TorizoInstructionCodes.Instruction_Torizo_Return));
 
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static GoldenTorizoRightOrbMechanicsWord MechanicsWord(int index)
     {
-        foreach (GoldenTorizoRightOrbMechanicsWord word in Words)
-        {
-            if (word.Address != address) continue;
-            value = word.Value;
-            return true;
-        }
-        value = 0;
-        return false;
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xaa0000)
-            return false;
-        ushort offset = unchecked((ushort)address);
-        foreach (GoldenTorizoRightOrbMechanicsWord word in Words)
-            if (offset == word.Address ||
-                offset == unchecked((ushort)(word.Address + 1)))
-                return true;
-        return false;
-    }
+    internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
+        Layout.TryReadMechanicsWord(address, out value);
+
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

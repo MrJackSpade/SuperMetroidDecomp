@@ -55,11 +55,11 @@ internal static class PhantoonInstructionProgramDefinitions
     /// <summary>First casual-flame timer word following the instruction block at $A7:CCFD.</summary>
     internal const ushort AdjacentCasualFlameTimers = 0xccfd;
 
-    /// <summary>Unresolved eye-transition dwell at A7:CC53/CC57/CC85/CC95; remains required under #1165.</summary>
+    /// <summary>Eye-transition dwell at A7:CC53/CC57/CC85/CC95. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort EyeTransitionFrames = 10;
-    /// <summary>Unresolved four-pose tentacle cadence at A7:CCD7..CCE3; remains required under #1165.</summary>
+    /// <summary>Four-pose tentacle cadence at A7:CCD7..CCE3. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort TentaclePoseFrames = 8;
-    /// <summary>Unresolved mouth preparation dwell at A7:CCEB/CCEF; remains required under #1165.</summary>
+    /// <summary>Mouth preparation dwell at A7:CCEB/CCEF. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort MouthPreparationFrames = 5;
 
     internal static int MechanicsWordCount => 58;
@@ -153,7 +153,7 @@ internal static class PhantoonInstructionProgramDefinitions
     /// <summary>
     /// $A7:CC43..CCF9 visual operands select named body modes, opening/retracting
     /// eyelids, compass gaze, mirrored tentacles and mouth release/recovery poses.
-    /// Independent pose/timing/art choices retain their existing required disposition.
+    /// Pose holds are authored animation cadence reviewed under #1165; the artwork is installed presentation.
     /// </summary>
     internal static ushort PresentationFrame(int index)
     {

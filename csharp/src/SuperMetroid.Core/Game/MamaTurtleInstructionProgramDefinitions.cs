@@ -40,17 +40,17 @@ internal static class MamaTurtleInstructionProgramDefinitions
     /// <summary><c>BabyTurtleConstants_travelDistance</c> at $A2:8D50.</summary>
     internal const ushort AdjacentMovementDefinitions = 0x8d50;
 
-    /// <summary>A2:8BD2/8C02 spin holds; uneven cadence remains required issue-1165 input.</summary>
+    /// <summary>A2:8BD2/8C02 spin holds; uneven spin cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] SpinDurations = [1, 4, 5, 5, 5];
-    /// <summary>A2:8C1C left-entry holds; original timing inputs remain required.</summary>
+    /// <summary>A2:8C1C left-entry holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] MamaEnterLeftDurations = [32, 5, 5];
-    /// <summary>A2:8D00 right-entry holds; original timing inputs remain required.</summary>
+    /// <summary>A2:8D00 right-entry holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] MamaEnterRightDurations = [1, 5, 5];
-    /// <summary>A2:8C30/8D14 hiding holds; original timing inputs remain required.</summary>
+    /// <summary>A2:8C30/8D14 hiding holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] BabyHideDurations = [5, 5, 64];
-    /// <summary>A2:8C4A/8D28 exit holds; original timing inputs remain required.</summary>
+    /// <summary>A2:8C4A/8D28 exit holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] MamaLeaveDurations = [16, 5, 5, 96];
-    /// <summary>A2:8C62/8D40 baby exit holds; original timing inputs remain required.</summary>
+    /// <summary>A2:8C62/8D40 baby exit holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] BabyLeaveDurations = [5, 47];
     internal static int MechanicsWordCount => 117;
     internal static int PresentationWordCount => 75;

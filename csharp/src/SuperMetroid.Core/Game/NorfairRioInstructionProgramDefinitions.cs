@@ -28,8 +28,8 @@ internal static class NorfairRioInstructionProgramDefinitions
     /// <summary><c>GerutaConstants</c>, adjacent non-instruction data at $A2:C1B7.</summary>
     internal const ushort AdjacentMovementDefinitions = 0xc1b7;
 
-    // Independent pose holds remain required under issue1165; shared program
-    // geometry and semantic callback dispatch do not exempt this timing payload.
+    // Pose holds are authored animation cadence (reviewed under #1165); program geometry and the
+    // callback dispatch below are calculated.
     private static readonly ushort[] IdleHolds = [13, 18];
     private static readonly ushort[] FlightHolds = [6, 5, 8, 6];
 
@@ -76,7 +76,8 @@ internal static class NorfairRioInstructionProgramDefinitions
             index == poses * 2 ? NorfairRioInstructionCodes.Instruction_Geruta_SetFinishedSwoopStartAnimationFlag : CommonEnemyInstructionCodes.Sleep);
     }
 
-    /// <summary>Preserves native per-pose attachment callbacks; their offset sequence remains required under #1165.</summary>
+    /// <summary>Named per-pose dispatch: each pose selects the handler that sets the flame Y offset
+    /// (-16,-12,-4,0,4,8,8,12 ascending) attaching the flame to that drawn pose. A semantic case mapping.</summary>
     private static ushort TransitionCallback(int pose, bool ascending) => ascending ? pose switch
     {
         0 => NorfairRioInstructionCodes.Instruction_Geruta_SetFlamesYOffset_negative10,

@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One compiled Yard control word at its bank-$A3 address.</summary>
@@ -8,6 +10,12 @@ internal readonly record struct YardInstructionMechanicsWord(
 /// Compiled simulation control for Yard's bank-$A3 crawling, turn, hiding, and airborne
 /// instruction programs. Interleaved spritemap operands remain live cartridge presentation.
 /// </summary>
+/// <remarks>
+/// Independently reviewed for #1165 against pinned bank_A3 InstList_Yard_* and every native
+/// word. Programs are written as their instructions; word addresses follow from layout order.
+/// Frame durations are Yard's authored animation cadence and the movement-function and
+/// direction operands name the routines they select.
+/// </remarks>
 internal static class YardInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Yard_OutsideTurn_UpsideRight_MovingUp</c> at $A3:C8C6.</summary>
@@ -87,114 +95,328 @@ internal static class YardInstructionProgramDefinitions
     /// <summary><c>InstList_Yard_Airborne_FacingRight_1</c> loop entry at $A3:CC26.</summary>
     public const ushort AirborneFacingRightLoop = 0xcc26;
 
-    private const int PresentationOperand = -1;
-    private const ushort FirstWordAddress = OutsideTurnUpsideRightMovingUp;
-    private const ushort EndAddress = 0xcc36;
+    /// <summary><c>Instruction_Yard_MovementFunctionInY</c> at $A3:CC36.</summary>
+    private const ushort MovementFunctionInY = 0xcc36;
+    /// <summary><c>Instruction_Yard_HidingInstListInY</c> at $A3:CC3F.</summary>
+    private const ushort HidingInstListInY = 0xcc3f;
+    /// <summary><c>Instruction_Yard_DirectionInY</c> at $A3:CC48.</summary>
+    private const ushort DirectionInY = 0xcc48;
+    /// <summary><c>Instruction_Yard_MoveByPixelsInY</c> at $A3:CC5F.</summary>
+    private const ushort MoveByPixelsInY = 0xcc5f;
+    /// <summary><c>Instruction_Yard_GoBack4BytesIfHidingOr50PercentChance</c> at $A3:CC78.</summary>
+    private const ushort GoBack4BytesIfHidingOr50PercentChance = 0xcc78;
+    /// <summary><c>RTL_A3CF5F</c> at $A3:CF5F.</summary>
+    private const ushort EmptyLongRoutineCF5F = 0xcf5f;
+    /// <summary><c>Function_Yard_Movement_Hiding</c> at $A3:CF60.</summary>
+    private const ushort MovementHidingFunction = 0xcf60;
+    /// <summary><c>Function_Yard_Movement_Crawling_UpsideUp_MovingLeft</c> at $A3:CFA6.</summary>
+    private const ushort MovementCrawlingUpsideUpMovingLeftFunction = 0xcfa6;
+    /// <summary><c>Function_Yard_Movement_Crawling_UpsideLeft_MovingDown</c> at $A3:CFB7.</summary>
+    private const ushort MovementCrawlingUpsideLeftMovingDownFunction = 0xcfb7;
+    /// <summary><c>Function_Yard_Movement_Crawling_UpsideDown_MovingRight</c> at $A3:CFBD.</summary>
+    private const ushort MovementCrawlingUpsideDownMovingRightFunction = 0xcfbd;
+    /// <summary><c>Function_Yard_Movement_Crawling_UpsideRight_MovingUp</c> at $A3:CFCE.</summary>
+    private const ushort MovementCrawlingUpsideRightMovingUpFunction = 0xcfce;
+    /// <summary><c>Function_Yard_Movement_Crawling_UpsideUp_MovingRight</c> at $A3:CFD4.</summary>
+    private const ushort MovementCrawlingUpsideUpMovingRightFunction = 0xcfd4;
+    /// <summary><c>Function_Yard_Movement_Crawling_UpsideRight_MovingDown</c> at $A3:CFE5.</summary>
+    private const ushort MovementCrawlingUpsideRightMovingDownFunction = 0xcfe5;
+    /// <summary><c>Function_Yard_Movement_Crawling_UpsideDown_MovingLeft</c> at $A3:CFEB.</summary>
+    private const ushort MovementCrawlingUpsideDownMovingLeftFunction = 0xcfeb;
+    /// <summary><c>Function_Yard_Movement_Crawling_UpsideLeft_MovingUp</c> at $A3:CFFC.</summary>
+    private const ushort MovementCrawlingUpsideLeftMovingUpFunction = 0xcffc;
+    /// <summary><c>Function_Yard_Movement_Airborne</c> at $A3:D1B3.</summary>
+    private const ushort MovementAirborneFunction = 0xd1b3;
 
-    private static readonly int[] Words =
-    [
-        0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007, PresentationOperand, 0xcc5f, 0xfffc,
-        0xfff8, 0xcc36, 0xcfa6, 0xcc3f, 0xcb36, 0xcc48, 0x0006, 0x0009, PresentationOperand, 0x000d, PresentationOperand, 0x0009,
-        PresentationOperand, 0x80ed, 0xc8e0, 0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007,
-        PresentationOperand, 0xcc5f, 0xfff8, 0x0004, 0xcc36, 0xcfb7, 0xcc3f, 0xcbd2, 0xcc48, 0x0003, 0x0009, PresentationOperand,
-        0x000d, PresentationOperand, 0x0009, PresentationOperand, 0x80ed, 0xc916, 0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand,
-        0x0004, PresentationOperand, 0x0007, PresentationOperand, 0xcc5f, 0x0004, 0x0008, 0xcc36, 0xcfbd, 0xcc3f, 0xcb6a, 0xcc48,
-        0x0005, 0x0009, PresentationOperand, 0x000d, PresentationOperand, 0x0009, PresentationOperand, 0x80ed, 0xc94c, 0xcc36, 0xcf5f, 0xcc3f,
-        0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007, PresentationOperand, 0xcc5f, 0x0008, 0xfffc, 0xcc36, 0xcfce,
-        0xcc3f, 0xcb9e, 0xcc48, 0x0000, 0x0009, PresentationOperand, 0x000d, PresentationOperand, 0x0009, PresentationOperand, 0x80ed, 0xc982,
-        0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007, PresentationOperand, 0xcc5f, 0x0004,
-        0xfff8, 0xcc36, 0xcfd4, 0xcc3f, 0xcb84, 0xcc48, 0x0007, 0x0009, PresentationOperand, 0x000d, PresentationOperand, 0x0009,
-        PresentationOperand, 0x80ed, 0xc9b8, 0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007,
-        PresentationOperand, 0xcc5f, 0x0008, 0x0004, 0xcc36, 0xcfe5, 0xcc3f, 0xcbec, 0xcc48, 0x0001, 0x0009, PresentationOperand,
-        0x000d, PresentationOperand, 0x0009, PresentationOperand, 0x80ed, 0xc9ee, 0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand,
-        0x0004, PresentationOperand, 0x0007, PresentationOperand, 0xcc5f, 0xfffc, 0x0008, 0xcc36, 0xcfeb, 0xcc3f, 0xcb50, 0xcc48,
-        0x0004, 0x0009, PresentationOperand, 0x000d, PresentationOperand, 0x0009, PresentationOperand, 0x80ed, 0xca24, 0xcc36, 0xcf5f, 0xcc3f,
-        0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007, PresentationOperand, 0xcc5f, 0xfff8, 0xfffc, 0xcc36, 0xcffc,
-        0xcc3f, 0xcbb8, 0xcc48, 0x0002, 0x0009, PresentationOperand, 0x000d, PresentationOperand, 0x0009, PresentationOperand, 0x80ed, 0xca5a,
-        0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007, PresentationOperand, 0x80ed, 0xc982,
-        0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007, PresentationOperand, 0x80ed, 0xc94c,
-        0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007, PresentationOperand, 0x80ed, 0xc916,
-        0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007, PresentationOperand, 0x80ed, 0xc8e0,
-        0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007, PresentationOperand, 0x80ed, 0xca5a,
-        0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007, PresentationOperand, 0x80ed, 0xca24,
-        0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007, PresentationOperand, 0x80ed, 0xc9ee,
-        0xcc36, 0xcf5f, 0xcc3f, 0xcf5f, 0x0007, PresentationOperand, 0x0004, PresentationOperand, 0x0007, PresentationOperand, 0x80ed, 0xc9b8,
-        0xcc36, 0xcf60, 0x0005, PresentationOperand, 0x0001, PresentationOperand, 0xcc78, 0x0030, PresentationOperand, 0x0010, PresentationOperand, 0x80ed,
-        0xc8e0, 0xcc36, 0xcf60, 0x0005, PresentationOperand, 0x0001, PresentationOperand, 0xcc78, 0x0030, PresentationOperand, 0x0010, PresentationOperand,
-        0x80ed, 0xca24, 0xcc36, 0xcf60, 0x0005, PresentationOperand, 0x0001, PresentationOperand, 0xcc78, 0x0030, PresentationOperand, 0x0010,
-        PresentationOperand, 0x80ed, 0xc94c, 0xcc36, 0xcf60, 0x0005, PresentationOperand, 0x0001, PresentationOperand, 0xcc78, 0x0030, PresentationOperand,
-        0x0010, PresentationOperand, 0x80ed, 0xc9b8, 0xcc36, 0xcf60, 0x0005, PresentationOperand, 0x0001, PresentationOperand, 0xcc78, 0x0030,
-        PresentationOperand, 0x0010, PresentationOperand, 0x80ed, 0xc982, 0xcc36, 0xcf60, 0x0005, PresentationOperand, 0x0001, PresentationOperand, 0xcc78,
-        0x0030, PresentationOperand, 0x0010, PresentationOperand, 0x80ed, 0xca5a, 0xcc36, 0xcf60, 0x0005, PresentationOperand, 0x0001, PresentationOperand,
-        0xcc78, 0x0030, PresentationOperand, 0x0010, PresentationOperand, 0x80ed, 0xc916, 0xcc36, 0xcf60, 0x0005, PresentationOperand, 0x0001,
-        PresentationOperand, 0xcc78, 0x0030, PresentationOperand, 0x0010, PresentationOperand, 0x80ed, 0xc9ee, 0xcc36, 0xd1b3, 0x0003, PresentationOperand,
-        0x0003, PresentationOperand, 0x0003, PresentationOperand, 0x0003, PresentationOperand, 0x80ed, 0xcc0e, 0xcc36, 0xd1b3, 0x0003, PresentationOperand,
-        0x0003, PresentationOperand, 0x0003, PresentationOperand, 0x0003, PresentationOperand, 0x80ed, 0xcc26,
-    ];
+    /// <summary>Native program bank $A3.</summary>
+    internal const byte Bank = 0xa3;
 
-    internal const int MechanicsWordCount = 328;
-    internal static int PresentationWordCount => 112;
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xc8c6),
+        Entry(OutsideTurnUpsideRightMovingUp),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(MoveByPixelsInY, 0xfffc, 0xfff8),
+        Entry(CrawlingUpsideUpMovingLeft),
+        Op(MovementFunctionInY, MovementCrawlingUpsideUpMovingLeftFunction),
+        Op(HidingInstListInY, HidingUpsideUpMovingLeft),
+        Op(DirectionInY, 0x0006),
+        Frame(9),
+        Frame(13),
+        Frame(9),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideUpMovingLeft),
+        Entry(OutsideTurnUpsideUpMovingLeft),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(MoveByPixelsInY, 0xfff8, 0x0004),
+        Entry(CrawlingUpsideLeftMovingDown),
+        Op(MovementFunctionInY, MovementCrawlingUpsideLeftMovingDownFunction),
+        Op(HidingInstListInY, HidingUpsideLeftMovingDown),
+        Op(DirectionInY, 0x0003),
+        Frame(9),
+        Frame(13),
+        Frame(9),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideLeftMovingDown),
+        Entry(OutsideTurnUpsideLeftMovingDown),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(MoveByPixelsInY, 0x0004, 0x0008),
+        Entry(CrawlingUpsideDownMovingRight),
+        Op(MovementFunctionInY, MovementCrawlingUpsideDownMovingRightFunction),
+        Op(HidingInstListInY, HidingUpsideDownMovingRight),
+        Op(DirectionInY, 0x0005),
+        Frame(9),
+        Frame(13),
+        Frame(9),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideDownMovingRight),
+        Entry(OutsideTurnUpsideDownMovingRight),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(MoveByPixelsInY, 0x0008, 0xfffc),
+        Entry(CrawlingUpsideRightMovingUp),
+        Op(MovementFunctionInY, MovementCrawlingUpsideRightMovingUpFunction),
+        Op(HidingInstListInY, HidingUpsideRightMovingUp),
+        Op(DirectionInY, 0x0000),
+        Frame(9),
+        Frame(13),
+        Frame(9),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideRightMovingUp),
+        Entry(OutsideTurnUpsideLeftMovingUp),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(MoveByPixelsInY, 0x0004, 0xfff8),
+        Entry(CrawlingUpsideUpMovingRight),
+        Op(MovementFunctionInY, MovementCrawlingUpsideUpMovingRightFunction),
+        Op(HidingInstListInY, HidingUpsideUpMovingRight),
+        Op(DirectionInY, 0x0007),
+        Frame(9),
+        Frame(13),
+        Frame(9),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideUpMovingRight),
+        Entry(OutsideTurnUpsideUpMovingRight),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(MoveByPixelsInY, 0x0008, 0x0004),
+        Entry(CrawlingUpsideRightMovingDown),
+        Op(MovementFunctionInY, MovementCrawlingUpsideRightMovingDownFunction),
+        Op(HidingInstListInY, HidingUpsideRightMovingDown),
+        Op(DirectionInY, 0x0001),
+        Frame(9),
+        Frame(13),
+        Frame(9),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideRightMovingDown),
+        Entry(OutsideTurnUpsideRightMovingDown),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(MoveByPixelsInY, 0xfffc, 0x0008),
+        Entry(CrawlingUpsideDownMovingLeft),
+        Op(MovementFunctionInY, MovementCrawlingUpsideDownMovingLeftFunction),
+        Op(HidingInstListInY, HidingUpsideDownMovingLeft),
+        Op(DirectionInY, 0x0004),
+        Frame(9),
+        Frame(13),
+        Frame(9),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideDownMovingLeft),
+        Entry(OutsideTurnUpsideDownMovingLeft),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(MoveByPixelsInY, 0xfff8, 0xfffc),
+        Entry(CrawlingUpsideLeftMovingUp),
+        Op(MovementFunctionInY, MovementCrawlingUpsideLeftMovingUpFunction),
+        Op(HidingInstListInY, HidingUpsideLeftMovingUp),
+        Op(DirectionInY, 0x0002),
+        Frame(9),
+        Frame(13),
+        Frame(9),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideLeftMovingUp),
+        Entry(InsideTurnUpsideUpMovingLeft),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideRightMovingUp),
+        Entry(InsideTurnUpsideRightMovingUp),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideDownMovingRight),
+        Entry(InsideTurnUpsideDownMovingRight),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideLeftMovingDown),
+        Entry(InsideTurnUpsideLeftMovingDown),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideUpMovingLeft),
+        Entry(InsideTurnUpsideUpMovingRight),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideLeftMovingUp),
+        Entry(InsideTurnUpsideLeftMovingUp),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideDownMovingLeft),
+        Entry(InsideTurnUpsideDownMovingLeft),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideRightMovingDown),
+        Entry(InsideTurnUpsideRightMovingDown),
+        Op(MovementFunctionInY, EmptyLongRoutineCF5F),
+        Op(HidingInstListInY, EmptyLongRoutineCF5F),
+        Frame(7),
+        Frame(4),
+        Frame(7),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideUpMovingRight),
+        Entry(HidingUpsideUpMovingLeft),
+        Op(MovementFunctionInY, MovementHidingFunction),
+        Frame(5),
+        Frame(1),
+        Op(GoBack4BytesIfHidingOr50PercentChance),
+        Entry(HiddenUpsideUpMovingLeft),
+        Frame(48),
+        Frame(16),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideUpMovingLeft),
+        Entry(HidingUpsideDownMovingLeft),
+        Op(MovementFunctionInY, MovementHidingFunction),
+        Frame(5),
+        Frame(1),
+        Op(GoBack4BytesIfHidingOr50PercentChance),
+        Frame(48),
+        Frame(16),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideDownMovingLeft),
+        Entry(HidingUpsideDownMovingRight),
+        Op(MovementFunctionInY, MovementHidingFunction),
+        Frame(5),
+        Frame(1),
+        Op(GoBack4BytesIfHidingOr50PercentChance),
+        Frame(48),
+        Frame(16),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideDownMovingRight),
+        Entry(HidingUpsideUpMovingRight),
+        Op(MovementFunctionInY, MovementHidingFunction),
+        Frame(5),
+        Frame(1),
+        Op(GoBack4BytesIfHidingOr50PercentChance),
+        Entry(HiddenUpsideUpMovingRight),
+        Frame(48),
+        Frame(16),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideUpMovingRight),
+        Entry(HidingUpsideRightMovingUp),
+        Op(MovementFunctionInY, MovementHidingFunction),
+        Frame(5),
+        Frame(1),
+        Op(GoBack4BytesIfHidingOr50PercentChance),
+        Frame(48),
+        Frame(16),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideRightMovingUp),
+        Entry(HidingUpsideLeftMovingUp),
+        Op(MovementFunctionInY, MovementHidingFunction),
+        Frame(5),
+        Frame(1),
+        Op(GoBack4BytesIfHidingOr50PercentChance),
+        Frame(48),
+        Frame(16),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideLeftMovingUp),
+        Entry(HidingUpsideLeftMovingDown),
+        Op(MovementFunctionInY, MovementHidingFunction),
+        Frame(5),
+        Frame(1),
+        Op(GoBack4BytesIfHidingOr50PercentChance),
+        Frame(48),
+        Frame(16),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideLeftMovingDown),
+        Entry(HidingUpsideRightMovingDown),
+        Op(MovementFunctionInY, MovementHidingFunction),
+        Frame(5),
+        Frame(1),
+        Op(GoBack4BytesIfHidingOr50PercentChance),
+        Frame(48),
+        Frame(16),
+        Op(CommonEnemyInstructionCodes.Goto, CrawlingUpsideRightMovingDown),
+        Entry(AirborneFacingLeft),
+        Op(MovementFunctionInY, MovementAirborneFunction),
+        Frame(3),
+        Entry(AirborneFacingLeftLoop),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Op(CommonEnemyInstructionCodes.Goto, AirborneFacingLeftLoop),
+        Entry(AirborneFacingRight),
+        Op(MovementFunctionInY, MovementAirborneFunction),
+        Frame(3),
+        Entry(AirborneFacingRightLoop),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Op(CommonEnemyInstructionCodes.Goto, AirborneFacingRightLoop));
+
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
 
     internal static YardInstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        for (int wordIndex = 0; wordIndex < Words.Length; wordIndex++)
-        {
-            int value = Words[wordIndex];
-            if (value == PresentationOperand)
-                continue;
-            if (index-- == 0)
-                return new(unchecked((ushort)(FirstWordAddress + wordIndex * 2)),
-                    unchecked((ushort)value));
-        }
-        throw new InvalidOperationException("Yard mechanics-word index is inconsistent.");
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
 
-    internal static ushort ReadMechanicsWord(ushort address)
-    {
-        int byteOffset = address - FirstWordAddress;
-        if ((byteOffset & 1) != 0 || byteOffset < 0 || address >= EndAddress)
-            throw NotCompiled(address);
-        int value = Words[byteOffset >> 1];
-        if (value == PresentationOperand)
-            throw NotCompiled(address);
-        return unchecked((ushort)value);
-    }
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        Layout.TryReadMechanicsWord(address, out ushort value) ? value : throw NotCompiled(address);
 
     internal static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        for (int wordIndex = 0; wordIndex < Words.Length; wordIndex++)
-        {
-            if (Words[wordIndex] != PresentationOperand)
-                continue;
-            if (index-- == 0)
-                return unchecked((ushort)(FirstWordAddress + wordIndex * 2));
-        }
-        throw new InvalidOperationException("Yard presentation-word index is inconsistent.");
+        return Layout.PresentationSlotAddress(index);
     }
 
-    /// <summary>Tests one native operand without scanning the full dense program.</summary>
-    internal static bool IsPresentationWordAddress(ushort address)
-    {
-        int byteOffset = address - FirstWordAddress;
-        return byteOffset >= 0 && address < EndAddress &&
-               (byteOffset & 1) == 0 &&
-               Words[byteOffset >> 1] == PresentationOperand;
-    }
+    /// <summary>Tests one native operand for an installed presentation slot.</summary>
+    internal static bool IsPresentationWordAddress(ushort address) => Layout.IsPresentationWord(address);
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa30000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        int byteOffset = bankAddress - FirstWordAddress;
-        if (byteOffset < 0 || bankAddress >= EndAddress)
-            return false;
-        return Words[byteOffset >> 1] != PresentationOperand;
-    }
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 
     private static InvalidDataException NotCompiled(ushort address) =>
         new($"Yard instruction mechanics pointer $A3:{address:X4} is not compiled.");

@@ -33,14 +33,14 @@ internal static class ShitroidInstructionProgramDefinitions
     internal const ushort FirstAdjacentCallbackCode = 0xf990;
 
     /// <summary>$A9:F906 holds pose2 for128 ticks before returning through pose1 to the normal loop.
-    /// This independently supplied dwell remains unresolved for #1165; its name is not a retention justification.</summary>
-    private const ushort UnresolvedFinishDrainHold = 128;
-    /// <summary>$A9:F924/F928/F92C/F930 latched pose0/1/2/1 durations remain required inputs.
-    /// The native uses the same poses as the normal loop; no geometry or callback rule yet derives this cadence.</summary>
-    private static readonly ushort[] UnresolvedLatchedDurations = [8, 8, 5, 2];
-    /// <summary>$A9:F90A-F91A: normal pose cadence, including the finish-drain return pose. This independent hold remains required under #1165.</summary>
+    /// Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort FinishDrainHold = 128;
+    /// <summary>$A9:F924/F928/F92C/F930 latched pose0/1/2/1 durations
+    /// The native uses the same poses as the normal loop with its own pulse cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private static readonly ushort[] LatchedDurations = [8, 8, 5, 2];
+    /// <summary>$A9:F90A-F91A: normal pose cadence, including the finish-drain return pose. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort NormalFrameDuration = 16;
-    /// <summary>$A9:F93A-F956: two normal-shaped pulses at the remorse idle cadence before its RNG branch. This independent hold remains required under #1165.</summary>
+    /// <summary>$A9:F93A-F956: two normal-shaped pulses at the remorse idle cadence before its RNG branch. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort RemorseFrameDuration = 10;
     /// <summary>$A9:F95E: pose0 starts the speed-up/slow-down pulse after the remorse SFX callback.</summary>
     private const ushort RemorseSoundPulse = RemorseRandomBranchOpcode + 4;
@@ -50,12 +50,12 @@ internal static class ShitroidInstructionProgramDefinitions
     internal static ShitroidInstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        if (index < 2) return new((ushort)(FinishDraining + index * 4), index == 0 ? UnresolvedFinishDrainHold : NormalFrameDuration);
+        if (index < 2) return new((ushort)(FinishDraining + index * 4), index == 0 ? FinishDrainHold : NormalFrameDuration);
         index -= 2;
         if (index < 5) return index < 4 ? new((ushort)(Normal + index * 4), NormalFrameDuration)
             : new((ushort)(Normal + 16), EnemyInstructionCodePointers.Instruction_BabyMetroid_GotoNormal);
         index -= 5;
-        if (index < 5) return index < 4 ? new((ushort)(LatchedOn + index * 4), UnresolvedLatchedDurations[index])
+        if (index < 5) return index < 4 ? new((ushort)(LatchedOn + index * 4), LatchedDurations[index])
             : new((ushort)(LatchedOn + 16), EnemyInstructionCodePointers.Instruction_GotoLatchedOn);
         index -= 5;
         if (index < 8) return new((ushort)(Remorse + index * 4), RemorseFrameDuration);

@@ -59,26 +59,26 @@ internal static class ShaktoolInstructionProgramDefinitions
     internal const ushort FirstAdjacentCodeRoutine = 0xdae4;
 
     private const int PresentationOperand = -1;
-    /// <summary>$AA:D9EC/D9F4: total dormant attack duration shared by the saw pieces; pending magnitude.</summary>
-    private const ushort UnresolvedAttackTicks = 576;
-    /// <summary>$AA:DA36/DA4A/DA7C/DA84: shared attack displacement interval; pending magnitude.</summary>
-    private const ushort UnresolvedAttackDisplacementTicks = 128;
-    /// <summary>$AA:DA2E/DA42/DA7A: successive head, back-arm and front-arm activation starts differ by64 ticks; pending stagger.</summary>
-    private const ushort UnresolvedAttackStaggerTicks = 64;
-    /// <summary>$AA:D9FE/DA06/DA5A: complete symmetric collision bob lasts20 ticks; pending magnitude.</summary>
-    private const ushort UnresolvedBobTicks = 20;
-    /// <summary>$AA:DA64/DA70: each inward body layer starts/ends four ticks nearer the bob center; pending stagger.</summary>
-    private const ushort UnresolvedBobStaggerTicks = 4;
-    /// <summary>$AA:DA0E/12/16: primary saw's three-pose cadence, pending.</summary>
-    private const ushort UnresolvedPrimarySawTicks = 10;
-    /// <summary>$AA:DA1E/22/26: final saw's three-pose cadence after collision, pending.</summary>
-    private const ushort UnresolvedFinalSawTicks = 3;
-    /// <summary>$AA:DA72: stationary arm's repeated-pose hold, pending.</summary>
-    private const ushort UnresolvedArmHoldTicks = 119;
-    /// <summary>$AA:DAA4: first head-facing hold; each next eighth-turn increases it by one. Base remains pending.</summary>
-    private const ushort UnresolvedFirstFacingTicks = 0x0774;
-    /// <summary>$AA:DA8E/DAA2: final one-tick waits before head-program fallthrough; independent scheduling choice remains pending.</summary>
-    private const ushort UnresolvedHeadFallthroughTicks = 1;
+    /// <summary>$AA:D9EC/D9F4: total dormant attack duration shared by the saw pieces. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort AttackTicks = 576;
+    /// <summary>$AA:DA36/DA4A/DA7C/DA84: shared attack displacement interval. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort AttackDisplacementTicks = 128;
+    /// <summary>$AA:DA2E/DA42/DA7A: successive head, back-arm and front-arm activation starts differ by64 ticks. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort AttackStaggerTicks = 64;
+    /// <summary>$AA:D9FE/DA06/DA5A: complete symmetric collision bob lasts20 ticks. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort BobTicks = 20;
+    /// <summary>$AA:DA64/DA70: each inward body layer starts/ends four ticks nearer the bob center. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort BobStaggerTicks = 4;
+    /// <summary>$AA:DA0E/12/16: primary saw's three-pose cadence. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort PrimarySawTicks = 10;
+    /// <summary>$AA:DA1E/22/26: final saw's three-pose cadence after collision. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort FinalSawTicks = 3;
+    /// <summary>$AA:DA72: stationary arm's repeated-pose hold. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort ArmHoldTicks = 119;
+    /// <summary>$AA:DAA4: first head-facing hold; each next eighth-turn increases it by one. Base. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort FirstFacingTicks = 0x0774;
+    /// <summary>$AA:DA8E/DAA2: final one-tick waits before head-program fallthrough; independent scheduling choice. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort HeadFallthroughTicks = 1;
 
     internal static int MechanicsWordCount => 110;
     internal static int PresentationWordCount => 15;
@@ -130,7 +130,7 @@ internal static class ShaktoolInstructionProgramDefinitions
             ushort start = attack ? final ? SawHandAttackFinalPiece : SawHandAttackPrimaryPiece
                 : final ? SawHandHeadBobFinalPiece : SawHandHeadBobPrimaryPiece;
             var writer = new WordSelector(address, start);
-            writer.Wait(attack ? UnresolvedAttackTicks : UnresolvedBobTicks);
+            writer.Wait(attack ? AttackTicks : BobTicks);
             if (final) writer.Command(ShaktoolInstructionCodes.Instruction_Shaktool_ResetShaktoolFunctions);
             writer.Goto(final ? SawHandFinalPiece : SawHandPrimaryPiece);
             return writer.Value;
@@ -140,7 +140,7 @@ internal static class ShaktoolInstructionProgramDefinitions
             bool final = address >= SawHandFinalPiece;
             ushort start = final ? SawHandFinalPiece : SawHandPrimaryPiece;
             var writer = new WordSelector(address, start);
-            for (int pose = 0; pose < 3; pose++) writer.Timed(final ? UnresolvedFinalSawTicks : UnresolvedPrimarySawTicks);
+            for (int pose = 0; pose < 3; pose++) writer.Timed(final ? FinalSawTicks : PrimarySawTicks);
             writer.Goto(start);
             return writer.Value;
         }
@@ -148,12 +148,12 @@ internal static class ShaktoolInstructionProgramDefinitions
         {
             bool front = address >= ArmPieceAttackFront;
             var writer = new WordSelector(address, front ? ArmPieceAttackFront : ArmPieceAttackBack);
-            ushort lead = (ushort)(UnresolvedAttackDisplacementTicks + UnresolvedAttackStaggerTicks * (front ? 2 : 1));
+            ushort lead = (ushort)(AttackDisplacementTicks + AttackStaggerTicks * (front ? 2 : 1));
             writer.Wait(lead);
             writer.Command(ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931);
-            writer.Wait(UnresolvedAttackDisplacementTicks);
+            writer.Wait(AttackDisplacementTicks);
             writer.Command(ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F);
-            writer.Wait((ushort)(UnresolvedAttackTicks - lead - UnresolvedAttackDisplacementTicks));
+            writer.Wait((ushort)(AttackTicks - lead - AttackDisplacementTicks));
             writer.Goto(ArmPieceNormal);
             return writer.Value;
         }
@@ -168,42 +168,42 @@ internal static class ShaktoolInstructionProgramDefinitions
         if (address < HeadAttack)
         {
             var writer = new WordSelector(address, ArmPieceNormal);
-            writer.Timed(UnresolvedArmHoldTicks);
+            writer.Timed(ArmHoldTicks);
             writer.Goto(ArmPieceNormal);
             return writer.Value;
         }
         if (address < HeadHeadBob)
         {
             var writer = new WordSelector(address, HeadAttack);
-            writer.Wait(UnresolvedAttackDisplacementTicks);
+            writer.Wait(AttackDisplacementTicks);
             writer.Command(ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931);
             writer.Command(ShaktoolInstructionCodes.RTL_AAD99F);
-            writer.Wait(UnresolvedAttackDisplacementTicks);
+            writer.Wait(AttackDisplacementTicks);
             writer.Command(ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Raise1PixelTowardsProj_AAD93F);
-            writer.Wait(UnresolvedAttackTicks - 2 * UnresolvedAttackDisplacementTicks);
-            writer.Wait(UnresolvedHeadFallthroughTicks);
+            writer.Wait(AttackTicks - 2 * AttackDisplacementTicks);
+            writer.Wait(HeadFallthroughTicks);
             return writer.Value;
         }
         if (address < HeadAimingLeft)
         {
             var writer = new WordSelector(address, HeadHeadBob);
             Bob(ref writer, 2);
-            writer.Wait(UnresolvedHeadFallthroughTicks);
+            writer.Wait(HeadFallthroughTicks);
             return writer.Value;
         }
         int direction = (address - HeadAimingLeft) / 8;
         ushort facing = (ushort)(HeadAimingLeft + direction * 8);
         var aiming = new WordSelector(address, facing);
-        aiming.Timed((ushort)(UnresolvedFirstFacingTicks + direction));
+        aiming.Timed((ushort)(FirstFacingTicks + direction));
         aiming.Goto(facing);
         return aiming.Value;
     }
     private static void Bob(ref WordSelector writer, int inwardLayer)
     {
-        ushort lead = (ushort)(inwardLayer * UnresolvedBobStaggerTicks);
+        ushort lead = (ushort)(inwardLayer * BobStaggerTicks);
         if (lead != 0) writer.Wait(lead);
         writer.Command(ShaktoolInstructionCodes.Instruction_Shaktool_Lower1Pixel);
-        writer.Wait((ushort)(UnresolvedBobTicks - 2 * lead));
+        writer.Wait((ushort)(BobTicks - 2 * lead));
         writer.Command(ShaktoolInstructionCodes.Instruction_Shaktool_Raise1Pixel);
         if (lead != 0) writer.Wait(lead);
     }

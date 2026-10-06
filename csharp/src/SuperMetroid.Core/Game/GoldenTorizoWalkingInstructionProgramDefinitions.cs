@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 internal readonly record struct GoldenTorizoWalkingMechanicsWord(
@@ -14,112 +16,88 @@ internal static class GoldenTorizoWalkingInstructionProgramDefinitions
     internal const ushort Start = GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
     internal const ushort End = 0xd2ad;
 
-    private static readonly GoldenTorizoWalkingMechanicsWord[] Words =
-    [
-        new(0xd20d, TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithLeftFootState),
-        new(0xd20f, TorizoInstructionCodes.Instruction_Torizo_FunctionInY),
-        new(0xd211, 0xd5e6),
-        new(0xd213, TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY),
-        new(0xd215, 0xd5f1),
-        new(0xd217, TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX),
-        new(0xd219, 0x0008),
-        new(0xd21d, TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpForwards_IfAtLeast70Pixel),
-        new(0xd21f, 0xbc60),
-        new(0xd221, TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpBack_IfLessThan20Pixels),
-        new(0xd223, 0xbc96),
-        new(0xd225, TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_IfStunHealthGreaterThan2A31),
-        new(0xd227, 0xd193),
-        new(0xd229, TorizoInstructionCodes.Instruction_GT_CallY_25Chance_IfSamusMorphedInFrontOfTorizo),
-        new(0xd22b, 0xd10d),
-        new(0xd22d, TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY),
-        new(0xd22f, 0x0002),
-        new(0xd231, 0x0004),
-        new(0xd235, TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY),
-        new(0xd237, 0x0004),
-        new(0xd239, 0x0004),
-        new(0xd23d, TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_25Chance_IfHealthLessThan789),
-        new(0xd23f, 0xd031),
-        new(0xd241, TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpBack_IfLessThan20Pixels),
-        new(0xd243, 0xbc96),
-        new(0xd245, TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY),
-        new(0xd247, 0x0006),
-        new(0xd249, 0x0004),
-        new(0xd24d, TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY),
-        new(0xd24f, 0x0008),
-        new(0xd251, 0x0004),
-        new(0xd255, TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY),
-        new(0xd257, 0x000a),
-        new(0xd259, TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithRightFootState),
-        new(0xd25b, TorizoInstructionCodes.Instruction_Torizo_FunctionInY),
-        new(0xd25d, 0xd5e6),
-        new(0xd25f, TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY),
-        new(0xd261, 0xd5f1),
-        new(0xd263, TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX),
-        new(0xd265, 0x0008),
-        new(0xd269, TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_IfSamusIsMorphedBehindTorizo),
-        new(0xd26b, 0xcf59),
-        new(0xd26d, TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpForwards_IfAtLeast70Pixel),
-        new(0xd26f, 0xbc60),
-        new(0xd271, TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpBack_IfLessThan20Pixels),
-        new(0xd273, 0xbcd2),
-        new(0xd275, TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_IfStunHealthGreaterThan2A31),
-        new(0xd277, 0xd193),
-        new(0xd279, TorizoInstructionCodes.Instruction_GT_CallY_25Chance_IfSamusMorphedInFrontOfTorizo),
-        new(0xd27b, 0xd10d),
-        new(0xd27d, TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY),
-        new(0xd27f, 0x000c),
-        new(0xd281, 0x0004),
-        new(0xd285, TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY),
-        new(0xd287, 0x000e),
-        new(0xd289, 0x0004),
-        new(0xd28d, TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_25Chance_IfHealthLessThan789),
-        new(0xd28f, 0xd031),
-        new(0xd291, TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpBack_IfLessThan20Pixels),
-        new(0xd293, 0xbcd2),
-        new(0xd295, TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY),
-        new(0xd297, 0x0010),
-        new(0xd299, 0x0004),
-        new(0xd29d, TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY),
-        new(0xd29f, 0x0012),
-        new(0xd2a1, 0x0004),
-        new(0xd2a5, TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY),
-        new(0xd2a7, 0x0000),
-        new(0xd2a9, CommonEnemyInstructionCodes.Goto),
-        new(0xd2ab, GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg),
-    ];
+    /// <summary><c>InstList_Torizo_FacingLeft_JumpingForwards_0</c> at $AA:BC60.</summary>
+    private const ushort TorizoFacingLeftJumpingForwards0 = 0xbc60;
+    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_LandLeftFootFwd_0</c> at $AA:BC96.</summary>
+    private const ushort TorizoFacingLeftJumpingBackwardLandLeftFootFwd0 = 0xbc96;
+    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_RightFootFwd_0</c> at $AA:BCD2.</summary>
+    private const ushort TorizoFacingLeftJumpingBackwardRightFootFwd0 = 0xbcd2;
+    /// <summary><c>InstList_GoldenTorizo_SitDownAttack_FacingLeft</c> at $AA:CF59.</summary>
+    private const ushort TorizoSitDownAttackFacingLeft = 0xcf59;
+    /// <summary><c>InstList_GoldenTorizo_ReleaseGoldenTorizoEggs_0</c> at $AA:D031.</summary>
+    private const ushort TorizoReleaseGoldenTorizoEggs0 = 0xd031;
+    /// <summary><c>InstList_GoldenTorizo_EyeBeamAttack_0</c> at $AA:D10D.</summary>
+    private const ushort TorizoEyeBeamAttack0 = 0xd10d;
+    /// <summary><c>InstList_Torizo_Stunned_0</c> at $AA:D193.</summary>
+    private const ushort TorizoStunned0 = 0xd193;
+    /// <summary><c>InstList_GoldenTorizo_WalkingLeft_RightLegMoving</c> at $AA:D20D.</summary>
+    private const ushort TorizoWalkingLeftRightLegMoving = 0xd20d;
+    /// <summary><c>Function_GoldenTorizo_NormalMovement</c> at $AA:D5E6.</summary>
+    private const ushort TorizoNormalMovementFunction = 0xd5e6;
+    /// <summary><c>Function_GoldenTorizo_Movement_Walking</c> at $AA:D5F1.</summary>
+    private const ushort TorizoMovementWalkingFunction = 0xd5f1;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xd21b, 0xd233, 0xd23b, 0xd24b, 0xd253,
-        0xd267, 0xd283, 0xd28b, 0xd29b, 0xd2a3,
-    ];
+    /// <summary>Native program bank $AA.</summary>
+    internal const byte Bank = 0xaa;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static GoldenTorizoWalkingMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xd20d),
+        Entry(GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg),
+        Op(TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithLeftFootState),
+        Op(TorizoInstructionCodes.Instruction_Torizo_FunctionInY, TorizoNormalMovementFunction),
+        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementWalkingFunction),
+        Op(TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX),
+        Frame(8),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpForwards_IfAtLeast70Pixel, TorizoFacingLeftJumpingForwards0),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpBack_IfLessThan20Pixels, TorizoFacingLeftJumpingBackwardLandLeftFootFwd0),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_IfStunHealthGreaterThan2A31, TorizoStunned0),
+        Op(TorizoInstructionCodes.Instruction_GT_CallY_25Chance_IfSamusMorphedInFrontOfTorizo, TorizoEyeBeamAttack0),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0002),
+        Frame(4),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0004),
+        Frame(4),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_25Chance_IfHealthLessThan789, TorizoReleaseGoldenTorizoEggs0),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpBack_IfLessThan20Pixels, TorizoFacingLeftJumpingBackwardLandLeftFootFwd0),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0006),
+        Frame(4),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0008),
+        Frame(4),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x000a),
+        Entry(GoldenTorizoCombatInstructionPointers.WalkingLeftLeftLeg),
+        Op(TorizoInstructionCodes.Instruction_Torizo_SetSteppedLeftWithRightFootState),
+        Op(TorizoInstructionCodes.Instruction_Torizo_FunctionInY, TorizoNormalMovementFunction),
+        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementWalkingFunction),
+        Op(TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX),
+        Frame(8),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_IfSamusIsMorphedBehindTorizo, TorizoSitDownAttackFacingLeft),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpForwards_IfAtLeast70Pixel, TorizoFacingLeftJumpingForwards0),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpBack_IfLessThan20Pixels, TorizoFacingLeftJumpingBackwardRightFootFwd0),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_IfStunHealthGreaterThan2A31, TorizoStunned0),
+        Op(TorizoInstructionCodes.Instruction_GT_CallY_25Chance_IfSamusMorphedInFrontOfTorizo, TorizoEyeBeamAttack0),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x000c),
+        Frame(4),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x000e),
+        Frame(4),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_CallY_25Chance_IfHealthLessThan789, TorizoReleaseGoldenTorizoEggs0),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_GotoY_JumpBack_IfLessThan20Pixels, TorizoFacingLeftJumpingBackwardRightFootFwd0),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0010),
+        Frame(4),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0012),
+        Frame(4),
+        Op(TorizoInstructionCodes.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0000),
+        Op(CommonEnemyInstructionCodes.Goto, TorizoWalkingLeftRightLegMoving));
 
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static GoldenTorizoWalkingMechanicsWord MechanicsWord(int index)
     {
-        foreach (GoldenTorizoWalkingMechanicsWord word in Words)
-        {
-            if (word.Address != address) continue;
-            value = word.Value;
-            return true;
-        }
-        value = 0;
-        return false;
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xaa0000)
-            return false;
-        ushort offset = unchecked((ushort)address);
-        foreach (GoldenTorizoWalkingMechanicsWord word in Words)
-            if (offset == word.Address ||
-                offset == unchecked((ushort)(word.Address + 1)))
-                return true;
-        return false;
-    }
+    internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
+        Layout.TryReadMechanicsWord(address, out value);
+
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

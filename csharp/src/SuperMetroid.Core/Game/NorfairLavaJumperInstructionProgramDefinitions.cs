@@ -29,7 +29,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitions
     /// <summary><c>Instruction_NorfairLavaJumper_SetAnimationFinished</c> at $A2:BE8E.</summary>
     internal const ushort AnimationFinishedCallback = 0xbe8e;
 
-    // Independent jump pose holds remain pending under issue1165.
+    // Jump pose holds are authored animation cadence (reviewed under #1165).
     private static readonly ushort[] JumpHolds = [1, 5, 9, 7, 3, 10, 1];
 
     internal static int MechanicsWordCount => 23;

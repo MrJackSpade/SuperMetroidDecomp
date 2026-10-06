@@ -23,7 +23,7 @@ internal static class RinkaInstructionProgramDefinitions
     /// <summary><c>$A2:BA0C</c>, off-screen Mother Brain Rinka animation program.</summary>
     internal const ushort SpecialInitial = 0xba0c;
 
-    // REQUIRED timing/content choices: initial hidden hold, seed hold, minimum
+    // Authored timing/content choices (reviewed under #1165): initial hidden hold, seed hold, minimum
     // pulse hold and eight-pose cycle. Mirrored dwell follows the same returning
     // sprite stages in A2:B9EC-BA04 and BA18-BA30; no chosen magnitude is exempt.
     private const ushort HiddenHold = 64;

@@ -15,7 +15,7 @@ internal static class MultiviolaInstructionProgramDefinitions
 
     /// <summary>$A2:B2DC-B310: fourteen timed poses (0..7 then 6..1), ten ticks each.</summary>
     private const int TimedFrameCount = 14;
-    /// <summary>$A2:B2DC-B310 InstList_Multiviola uses one shared ten-tick frame cadence. This independent hold remains required under #1165.</summary>
+    /// <summary>$A2:B2DC-B310 InstList_Multiviola uses one shared ten-tick frame cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort FrameDuration = 10;
     /// <summary>$A2:B314 Instruction_Common_GotoY after the timed loop.</summary>
     private const ushort LoopOpcode = Flying + TimedFrameCount * 4;

@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One compiled Dachora mechanics word at its native bank-$A7 address.</summary>
@@ -50,111 +52,154 @@ internal static class DachoraInstructionProgramDefinitions
     /// <summary>The retail-unused left-facing charge program at $A7:F3F1.</summary>
     internal const ushort UnusedChargeLeft = 0xf3f1;
 
-    private readonly record struct ProgramSource(
-        ushort Entry,
-        ushort[] Durations,
-        bool Loops,
-        ushort LoopTarget = 0);
+    /// <summary>Native program bank $A7.</summary>
+    internal const byte Bank = 0xa7;
 
-    private static readonly ProgramSource[] Sources =
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xf345),
+        Entry(RunningLeft),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, RunningLeft),
+        Entry(RunningLeftFast),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Op(CommonEnemyInstructionCodes.Goto, RunningLeftFast),
+        Entry(RunningLeftVeryFast),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Goto, RunningLeftVeryFast),
+        Entry(IdleLeft),
+        Frame(48),
+        Frame(10),
+        Frame(7),
+        Frame(7),
+        Frame(7),
+        Frame(7),
+        Frame(7),
+        Frame(7),
+        Frame(7),
+        Frame(7),
+        Frame(10),
+        Op(CommonEnemyInstructionCodes.Goto, IdleLeft),
+        Entry(BlinkLeft),
+        Frame(11),
+        Frame(8),
+        Frame(8),
+        Frame(4),
+        Frame(4),
+        Frame(4),
+        Frame(10),
+        Frame(5),
+        Frame(11),
+        Op(CommonEnemyInstructionCodes.Goto, BlinkLeft),
+        Skip(6),
+        Entry(EchoLeft),
+        Frame(10),
+        Op(CommonEnemyInstructionCodes.Goto, EchoLeft),
+        Entry(FallingLeft),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, FallingLeft),
+        Entry(RunningRight),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, RunningRight),
+        Entry(RunningRightFast),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Op(CommonEnemyInstructionCodes.Goto, RunningRightFast),
+        Entry(RunningRightVeryFast),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Goto, RunningRightVeryFast),
+        Entry(IdleRight),
+        Frame(48),
+        Frame(10),
+        Frame(7),
+        Frame(7),
+        Frame(7),
+        Frame(7),
+        Frame(7),
+        Frame(7),
+        Frame(7),
+        Frame(7),
+        Frame(10),
+        Op(CommonEnemyInstructionCodes.Goto, IdleRight),
+        Entry(BlinkRight),
+        Frame(11),
+        Frame(8),
+        Frame(8),
+        Frame(4),
+        Frame(4),
+        Frame(4),
+        Frame(10),
+        Frame(5),
+        Frame(11),
+        Op(CommonEnemyInstructionCodes.Goto, BlinkRight),
+        Entry(ChargeRight),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EchoRight),
+        Frame(10),
+        Op(CommonEnemyInstructionCodes.Goto, EchoRight),
+        Entry(FallingRight),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, FallingRight));
+
+    /// <summary>The fifteen production entry programs, in native order.</summary>
+    private static readonly ushort[] ProgramEntries =
     [
-        new(RunningLeft, [5, 5, 5, 5, 5, 5], true, RunningLeft),
-        new(RunningLeftFast, [3, 3, 3, 3, 3, 3], true, RunningLeftFast),
-        new(RunningLeftVeryFast, [1, 1, 1, 1, 1, 1], true, RunningLeftVeryFast),
-        new(IdleLeft, [0x30, 10, 7, 7, 7, 7, 7, 7, 7, 7, 10], true, IdleLeft),
-        new(BlinkLeft, [11, 8, 8, 4, 4, 4, 10, 5, 11], true, BlinkLeft),
-        new(EchoLeft, [10], true, EchoLeft),
-        new(FallingLeft, [5], true, FallingLeft),
-        new(RunningRight, [5, 5, 5, 5, 5, 5], true, RunningRight),
-        new(RunningRightFast, [3, 3, 3, 3, 3, 3], true, RunningRightFast),
-        new(RunningRightVeryFast, [1, 1, 1, 1, 1, 1], true, RunningRightVeryFast),
-        new(IdleRight, [0x30, 10, 7, 7, 7, 7, 7, 7, 7, 7, 10], true, IdleRight),
-        new(BlinkRight, [11, 8, 8, 4, 4, 4, 10, 5, 11], true, BlinkRight),
-        new(ChargeRight, [1], false),
-        new(EchoRight, [10], true, EchoRight),
-        new(FallingRight, [5], true, FallingRight),
+        RunningLeft, RunningLeftFast, RunningLeftVeryFast, IdleLeft, BlinkLeft, EchoLeft, FallingLeft,
+        RunningRight, RunningRightFast, RunningRightVeryFast, IdleRight, BlinkRight, ChargeRight, EchoRight, FallingRight,
     ];
 
-    private static readonly DachoraInstructionMechanicsWord[] Words = BuildMechanicsWords();
-    private static readonly ushort[] PresentationWords = BuildPresentationWords();
+    internal static int ProgramCount => ProgramEntries.Length;
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
 
-    internal static int ProgramCount => Sources.Length;
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static DachoraInstructionProgram Program(int index) =>
-        new(Sources[index].Entry, Sources[index].Durations.Length, Sources[index].Loops);
-    internal static DachoraInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    internal static ushort ReadMechanicsWord(ushort address)
+    internal static DachoraInstructionProgram Program(int index)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            DachoraInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Dachora instruction mechanics pointer $A7:{address:X4} is not compiled.");
+        ushort entry = ProgramEntries[index];
+        (int frames, ushort terminator) = Layout.FramesFrom(entry);
+        return new(entry, frames, terminator == CommonEnemyInstructionCodes.Goto);
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
+    internal static DachoraInstructionMechanicsWord MechanicsWord(int index)
     {
-        if ((address & 0xff0000) != 0xa70000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
 
-    private static DachoraInstructionMechanicsWord[] BuildMechanicsWords()
-    {
-        var words = new List<DachoraInstructionMechanicsWord>(capacity: 110);
-        foreach (ProgramSource source in Sources)
-        {
-            ushort cursor = source.Entry;
-            foreach (ushort duration in source.Durations)
-            {
-                words.Add(new(cursor, duration));
-                cursor = unchecked((ushort)(cursor + 4));
-            }
-            words.Add(new(cursor, source.Loops
-                ? CommonEnemyInstructionCodes.Goto
-                : CommonEnemyInstructionCodes.Sleep));
-            if (source.Loops)
-                words.Add(new(unchecked((ushort)(cursor + 2)), source.LoopTarget));
-        }
-        return [.. words];
-    }
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    private static ushort[] BuildPresentationWords()
-    {
-        var words = new List<ushort>(capacity: 81);
-        foreach (ProgramSource source in Sources)
-        {
-            ushort cursor = unchecked((ushort)(source.Entry + 2));
-            for (int frame = 0; frame < source.Durations.Length; frame++)
-            {
-                words.Add(cursor);
-                cursor = unchecked((ushort)(cursor + 4));
-            }
-        }
-        return [.. words];
-    }
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        Layout.TryReadMechanicsWord(address, out ushort value) ? value :
+            throw new InvalidDataException(
+                $"Dachora instruction mechanics pointer $A7:{address:X4} is not compiled.");
+
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

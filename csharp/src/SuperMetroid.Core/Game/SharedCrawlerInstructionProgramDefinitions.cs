@@ -23,7 +23,7 @@ internal static class SharedCrawlerInstructionProgramDefinitions
     /// <summary>The first word of the adjacent initial-list pointer table at $A3:E2CC.</summary>
     internal const ushort AdjacentInitialSelectorTable = 0xe2cc;
 
-    // Required animation policy: five poses are held for three ticks each.
+    // Authored animation cadence (reviewed under #1165): five poses are held for three ticks each.
     // The repeated program layout derives from those still-independent choices.
     private const int PoseCount = 5;
     private const ushort PoseHold = 3;

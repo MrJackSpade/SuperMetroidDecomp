@@ -26,18 +26,18 @@ internal static class MotherBrainBabyInstructionProgramDefinitions
     /// <summary>ProcessMotherBrainInvincibilityPalette at $A9:CFD4, adjacent executable code outside the Baby list.</summary>
     internal const ushort FirstAdjacentMovementCode = 0xcfd4;
 
-    /// <summary>$A9:CFA2/CFA6/CFAA/CFAE: selected normal pose hold; magnitude remains unresolved.</summary>
-    private const ushort UnresolvedInitialPoseHold = 16;
-    /// <summary>$A9:CFB8: selected first draining pose hold; magnitude remains unresolved.</summary>
-    private const ushort UnresolvedDrainFirstPoseHold = 8;
-    /// <summary>$A9:CFBC: selected second draining pose hold; magnitude remains unresolved.</summary>
-    private const ushort UnresolvedDrainSecondPoseHold = 8;
-    /// <summary>$A9:CFC0: selected third draining pose hold; magnitude remains unresolved.</summary>
-    private const ushort UnresolvedDrainThirdPoseHold = 5;
-    /// <summary>$A9:CFC4: selected return draining pose hold; magnitude remains unresolved.</summary>
-    private const ushort UnresolvedDrainReturnPoseHold = 2;
-    /// <summary>$A9:CFCE: selected fatal-blow hold before Sleep; magnitude remains unresolved.</summary>
-    private const ushort UnresolvedFatalBlowHold = 128;
+    /// <summary>$A9:CFA2/CFA6/CFAA/CFAE: selected normal pose hold. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort InitialPoseHold = 16;
+    /// <summary>$A9:CFB8: selected first draining pose hold. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort DrainFirstPoseHold = 8;
+    /// <summary>$A9:CFBC: selected second draining pose hold. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort DrainSecondPoseHold = 8;
+    /// <summary>$A9:CFC0: selected third draining pose hold. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort DrainThirdPoseHold = 5;
+    /// <summary>$A9:CFC4: selected return draining pose hold. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort DrainReturnPoseHold = 2;
+    /// <summary>$A9:CFCE: selected fatal-blow hold before Sleep. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort FatalBlowHold = 128;
     /// <summary>Each loop has four duration/spritemap records followed by its native goto callback opcode.</summary>
     private const int LoopFrames = 4, FrameBytes = 2 * sizeof(ushort), LoopWords = LoopFrames + 1;
 
@@ -61,24 +61,24 @@ internal static class MotherBrainBabyInstructionProgramDefinitions
             (ushort)(TakingFatalBlow + sizeof(ushort));
     }
 
-    /// <summary>Dispatches the two frame loops and terminal fatal-blow hold/Sleep; selected holds remain required.</summary>
+    /// <summary>Dispatches the two frame loops and terminal fatal-blow hold/Sleep from the reviewed holds above.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int initialOffset = address - Initial;
         if (initialOffset >= 0 && initialOffset <= LoopFrames * FrameBytes && initialOffset % FrameBytes == 0)
             return initialOffset == LoopFrames * FrameBytes
-                ? MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoInitial : UnresolvedInitialPoseHold;
+                ? MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoInitial : InitialPoseHold;
         int drainOffset = address - DrainingMotherBrain;
         if (drainOffset >= 0 && drainOffset <= LoopFrames * FrameBytes && drainOffset % FrameBytes == 0)
             return (drainOffset / FrameBytes) switch
             {
-                0 => UnresolvedDrainFirstPoseHold,
-                1 => UnresolvedDrainSecondPoseHold,
-                2 => UnresolvedDrainThirdPoseHold,
-                3 => UnresolvedDrainReturnPoseHold,
+                0 => DrainFirstPoseHold,
+                1 => DrainSecondPoseHold,
+                2 => DrainThirdPoseHold,
+                3 => DrainReturnPoseHold,
                 _ => MotherBrainInstructionCodes.Instruction_BabyMetroid_GotoDrainingMotherBrain,
             };
-        if (address == TakingFatalBlow) return UnresolvedFatalBlowHold;
+        if (address == TakingFatalBlow) return FatalBlowHold;
         if (address == TakingFatalBlow + FrameBytes) return CommonEnemyInstructionCodes.Sleep;
         throw new InvalidDataException(
             $"Mother Brain Baby instruction mechanics pointer $A9:{address:X4} is not compiled.");

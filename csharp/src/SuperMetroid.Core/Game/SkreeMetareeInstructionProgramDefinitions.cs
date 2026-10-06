@@ -26,7 +26,7 @@ internal static class SkreeMetareeInstructionProgramDefinitions
     /// <summary><c>UNUSED_InstList_Skree_StopAnimating_A3C694</c> at $A3:C694.</summary>
     internal const ushort SkreeStopAnimating = 0xc694;
 
-    // Idle 10, preparation 16/8, dive 2 and stop 1 holds remain required independent timing inputs under #1165.
+    // Idle 10, preparation 16/8, dive 2 and stop 1 holds are authored animation cadence (reviewed under #1165).
     internal static int MechanicsWordCount(bool metaree) => 20;
     internal static int PresentationWordCount(bool metaree) => 11;
 

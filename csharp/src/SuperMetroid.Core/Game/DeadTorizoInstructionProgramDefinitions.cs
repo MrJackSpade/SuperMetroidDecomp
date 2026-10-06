@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 internal readonly record struct DeadTorizoInstructionMechanicsWord(
@@ -19,37 +21,31 @@ internal static class DeadTorizoInstructionProgramDefinitions
     /// <summary><c>Spritemaps_CorpseTorizo</c> begins after the program at $A9:D6E2.</summary>
     internal const ushort FirstAdjacentPresentationData = 0xd6e2;
 
-    private static readonly DeadTorizoInstructionMechanicsWord[] Words =
-    [
-        new(Stationary, 1),
-        new(SleepOpcode, CommonEnemyInstructionCodes.Sleep),
-    ];
-
     /// <summary>The <c>Spritemaps_CorpseTorizo</c> visual operand at $A9:D6DE.</summary>
     internal const ushort PresentationWord = 0xd6de;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static DeadTorizoInstructionMechanicsWord MechanicsWord(int index) => Words[index];
+    /// <summary>Native program bank $A9.</summary>
+    internal const byte Bank = 0xa9;
 
-    internal static ushort ReadMechanicsWord(ushort address)
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xd6dc),
+        Entry(Stationary),
+        Op(0x0001),
+        Origin(0xd6e0),
+        Entry(SleepOpcode),
+        Op(CommonEnemyInstructionCodes.Sleep));
+
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static DeadTorizoInstructionMechanicsWord MechanicsWord(int index)
     {
-        for (int index = 0; index < Words.Length; index++)
-        {
-            if (Words[index].Address == address)
-                return Words[index].Value;
-        }
-
-        throw new InvalidDataException(
-            $"Dead Torizo instruction mechanics pointer $A9:{address:X4} is not compiled.");
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa90000)
-            return false;
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        Layout.TryReadMechanicsWord(address, out ushort value) ? value :
+            throw new InvalidDataException(
+                $"Dead Torizo instruction mechanics pointer $A9:{address:X4} is not compiled.");
 
-        ushort bankAddress = unchecked((ushort)address);
-        return bankAddress is
-            Stationary or Stationary + 1 or SleepOpcode or SleepOpcode + 1;
-    }
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

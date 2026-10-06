@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 internal readonly record struct DeadSidehopperInstructionMechanicsWord(
@@ -31,62 +33,51 @@ internal static class DeadSidehopperInstructionProgramDefinitions
     /// <summary>The first following program, <c>InstList_CorpseZoomer_Param1_0</c>, at $A9:ECF5.</summary>
     internal const ushort FirstAdjacentProgram = 0xecf5;
 
-    private static readonly DeadSidehopperInstructionMechanicsWord[] Words =
-    [
-        new(0xecac, 0x0002), new(0xecb0, 0x0004),
-        new(0xecb4, 0x0005), new(0xecb8, 0x0030),
-        new(0xecbc, 0x0005), new(0xecc0, 0x0004),
-        new(0xecc4, 0x0005), new(0xecc8, 0x0004),
-        new(EndHopOpcode, EnemyInstructionCodePointers.Instruction_SidehopperCorpse_EndHop),
-        new(HoppingSleepOpcode, CommonEnemyInstructionCodes.Sleep),
-        new(AliveIdle, 0x0001),
-        new(0xece7, CommonEnemyInstructionCodes.Sleep),
-        new(AliveCorpse, 0x0001),
-        new(0xeced, CommonEnemyInstructionCodes.Sleep),
-        new(InitiallyDead, 0x0001),
-        new(0xecf3, CommonEnemyInstructionCodes.Sleep),
-    ];
+    /// <summary><c>Instruction_SidehopperCorpse_EndHop</c> at $A9:ECD0.</summary>
+    private const ushort SidehopperCorpseEndHop = 0xecd0;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xecae, 0xecb2, 0xecb6, 0xecba,
-        0xecbe, 0xecc2, 0xecc6, 0xecca,
-        0xece5, 0xeceb, 0xecf1,
-    ];
+    /// <summary>Native program bank $A9.</summary>
+    internal const byte Bank = 0xa9;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static DeadSidehopperInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xecac),
+        Entry(AliveHopping),
+        Frame(2),
+        Frame(4),
+        Frame(5),
+        Frame(48),
+        Frame(5),
+        Frame(4),
+        Frame(5),
+        Frame(4),
+        Entry(EndHopOpcode),
+        Op(SidehopperCorpseEndHop),
+        Entry(HoppingSleepOpcode),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Origin(0xece3),
+        Entry(AliveIdle),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(AliveCorpse),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(InitiallyDead),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep));
 
-    internal static ushort ReadMechanicsWord(ushort address)
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    internal static DeadSidehopperInstructionMechanicsWord MechanicsWord(int index)
     {
-        for (int index = 0; index < Words.Length; index++)
-        {
-            if (Words[index].Address == address)
-                return Words[index].Value;
-        }
-
-        throw new InvalidDataException(
-            $"Dead sidehopper instruction mechanics pointer $A9:{address:X4} is not compiled.");
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa90000)
-            return false;
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        Layout.TryReadMechanicsWord(address, out ushort value) ? value :
+            throw new InvalidDataException(
+                $"Dead sidehopper instruction mechanics pointer $A9:{address:X4} is not compiled.");
 
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

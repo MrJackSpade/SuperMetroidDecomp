@@ -35,7 +35,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_PirateClaw_Right_1</c> at $86:9FE5.</summary>
     internal const ushort ClawRightLoop = 0x9fe5;
 
-    /// <summary>Unresolved laser startup dwell at86:9F41/9F45/9F49 and right-facing equivalents; remains required under #1165.</summary>
+    /// <summary>Laser startup dwell at $86:9F41/9F45/9F49 and right-facing equivalents. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort LaserStartupFrames = 2;
 
     internal static int MechanicsWordCount => 58;

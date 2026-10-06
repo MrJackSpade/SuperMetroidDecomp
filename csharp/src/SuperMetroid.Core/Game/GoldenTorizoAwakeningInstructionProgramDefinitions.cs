@@ -22,7 +22,7 @@ internal static class GoldenTorizoAwakeningInstructionProgramDefinitions
     private const ushort FallingFunction = 0xc6bf;
     /// <summary>$AA:C6AB, RTS_AAC6AB, disables movement during the seated upload sequence.</summary>
     private const ushort IdleFunction = 0xc6ab;
-    /// <summary>Independent native hold scales and loop counts remain required under #1165.</summary>
+    /// <summary>Awakening holds and the upload loop count. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it. The loop count only repeats the authored upload pose.</summary>
     private const ushort FallingHold = 1, SittingInitialHold = 3, SeatedHold = 48,
         UploadInitialHold = 32, UploadLoopHold = 4, UploadLoopCount = 2,
         StandFirstHold = 32, StandSecondHold = 12, StandRemainingHold = 8,

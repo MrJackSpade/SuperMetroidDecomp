@@ -22,10 +22,10 @@ internal static class StokeInstructionProgramDefinitions
     /// <summary>
     /// $A2:8934/8938/893C/8940, repeated for right-facing movement: original walking holds.
     /// The longer second pose has no established mathematical or semantic timing derivation.
-    /// This value input remains required issue-1165 work; calculating the program layout does not resolve it.
+    /// Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.
     /// </summary>
     private static readonly ushort[] WalkingFrameDurations = [8, 16, 8, 8];
-    // Attack holds of 16 also remain independent required inputs under #1165.
+    // Attack holds of 16 are the same authored cadence (reviewed under #1165).
     internal static int MechanicsWordCount => 26;
     internal static int PresentationWordCount => 12;
 

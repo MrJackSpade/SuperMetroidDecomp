@@ -31,12 +31,12 @@ internal static class TourianStatueProjectileInstructionProgramDefinitions
     /// <summary>Looping Phantoon-statue program at $86:B872.</summary>
     internal const ushort Phantoon = 0xb872;
 
-    /// <summary>$86:B7B3-B7D9: independent eye-pose holds remain required payload.</summary>
+    /// <summary>$86:B7B3-B7D9: eye-pose holds, slowing 8/7/6/5 before the 48-tick stare. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] EyeHolds = [8, 8, 8, 7, 7, 7, 6, 6, 5, 48];
-    /// <summary>Independent splash/particle/tail/soul and statue hold choices remain required.</summary>
+    /// <summary>Splash/particle/tail/soul and statue holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort SplashHold = 8, ParticleHold = 3, TailHold = 4, SoulHold = 8,
         DecorationInitialHold = 128, StatueHold = 0x0777;
-    /// <summary>$86:B7E0-B7E6: independently selected four-particle burst remains required.</summary>
+    /// <summary>$86:B7E0-B7E6: the authored four-particle burst count; it sets how many particle frames repeat, not a physical quantity.</summary>
     private const int ParticleBurstCount = 4;
     internal static int MechanicsWordCount => 57;
     internal static int PresentationWordCount => 28;

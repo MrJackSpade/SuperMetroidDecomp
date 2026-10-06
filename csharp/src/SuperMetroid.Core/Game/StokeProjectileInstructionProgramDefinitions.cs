@@ -19,7 +19,7 @@ internal static class StokeProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort LoopCommand = 0xdb14;
 
-    // The shared 16-tick pose cadence remains an independent required input under #1165.
+    // The shared 16-tick pose cadence is authored animation timing (reviewed under #1165); the interpreter only loads it into the instruction timer.
     internal static int MechanicsWordCount => 4;
     internal static int PresentationWordCount => 2;
     internal static StokeProjectileInstructionMechanicsWord MechanicsWord(int index)

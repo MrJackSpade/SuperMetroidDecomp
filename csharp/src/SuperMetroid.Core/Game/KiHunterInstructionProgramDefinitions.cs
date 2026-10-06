@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 internal readonly record struct KiHunterInstructionMechanicsWord(
@@ -37,118 +39,131 @@ internal static class KiHunterInstructionProgramDefinitions
     /// <summary><c>InstList_Kihunter_AcidSpitAttack_FacingRight</c> at $A8:EB10.</summary>
     internal const ushort SpitRight = 0xeb10;
 
-    private static readonly KiHunterInstructionMechanicsWord[] Words =
-    [
-        new(0xe9fa, 2), new(0xe9fe, 2), new(0xea02, 1),
-        new(0xea06, EnemyInstructionCodePointers.Instruction_Kihunter_SetIdlingInstListsFacingForwards),
+    /// <summary><c>Instruction_Kihunter_SetIdlingInstListsFacingForwards</c> at $A8:F526.</summary>
+    private const ushort KihunterSetIdlingInstListsFacingForwards = 0xf526;
+    /// <summary><c>Instruction_Kihunter_SetFunctionToHop</c> at $A8:F5E4.</summary>
+    private const ushort KihunterSetFunctionToHop = 0xf5e4;
+    /// <summary><c>Instruction_Kihunter_SetFunctionTo_Wingless_Thinking</c> at $A8:F67F.</summary>
+    private const ushort KihunterSetFunctionToWinglessThinking = 0xf67f;
+    /// <summary><c>Instruction_Kihunter_FireAcidSpitLeft</c> at $A8:F6D2.</summary>
+    private const ushort KihunterFireAcidSpitLeft = 0xf6d2;
+    /// <summary><c>Instruction_Kihunter_FireAcidSpitRight</c> at $A8:F6D8.</summary>
+    private const ushort KihunterFireAcidSpitRight = 0xf6d8;
 
-        new(0xea08, 2), new(0xea0c, 6), new(0xea10, 2),
-        new(0xea14, 2), new(0xea18, 2), new(0xea1c, 0x0020),
-        new(0xea20, CommonEnemyInstructionCodes.Goto), new(0xea22, FlyingLeft),
+    /// <summary>Native program bank $A8.</summary>
+    internal const byte Bank = 0xa8;
 
-        new(0xea24, 2), new(0xea28, 2), new(0xea2c, 1),
-        new(0xea30, EnemyInstructionCodePointers.Instruction_Kihunter_SetIdlingInstListsFacingForwards),
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xe9fa),
+        Entry(FlyingLeft),
+        Frame(2),
+        Frame(2),
+        Frame(1),
+        Op(KihunterSetIdlingInstListsFacingForwards),
+        Entry(SwoopLeft),
+        Frame(2),
+        Frame(6),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Frame(32),
+        Op(CommonEnemyInstructionCodes.Goto, FlyingLeft),
+        Entry(FlyingRight),
+        Frame(2),
+        Frame(2),
+        Frame(1),
+        Op(KihunterSetIdlingInstListsFacingForwards),
+        Entry(SwoopRight),
+        Frame(2),
+        Frame(6),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Frame(32),
+        Op(CommonEnemyInstructionCodes.Goto, FlyingRight),
+        Entry(WingsLeft),
+        Frame(2),
+        Frame(2),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Goto, WingsLeft),
+        Entry(WingsRight),
+        Frame(2),
+        Frame(2),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Goto, WingsRight),
+        Origin(0xea7e),
+        Entry(DetachedWings),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Skip(6),
+        Entry(JumpLeft),
+        Frame(8),
+        Frame(8),
+        Frame(11),
+        Frame(2),
+        Frame(2),
+        Op(KihunterSetFunctionToHop),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(JumpRight),
+        Frame(8),
+        Frame(8),
+        Frame(11),
+        Frame(2),
+        Frame(2),
+        Op(KihunterSetFunctionToHop),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(LandLeft),
+        Frame(8),
+        Frame(8),
+        Frame(11),
+        Frame(8),
+        Op(KihunterSetFunctionToWinglessThinking),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(LandRight),
+        Frame(8),
+        Frame(8),
+        Frame(11),
+        Frame(8),
+        Op(KihunterSetFunctionToWinglessThinking),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(SpitLeft),
+        Frame(32),
+        Frame(6),
+        Frame(16),
+        Frame(2),
+        Op(KihunterFireAcidSpitLeft),
+        Frame(24),
+        Op(KihunterSetFunctionToWinglessThinking),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(SpitRight),
+        Frame(32),
+        Frame(6),
+        Frame(16),
+        Frame(2),
+        Op(KihunterFireAcidSpitRight),
+        Frame(24),
+        Op(KihunterSetFunctionToWinglessThinking),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep));
 
-        new(0xea32, 2), new(0xea36, 6), new(0xea3a, 2),
-        new(0xea3e, 2), new(0xea42, 2), new(0xea46, 0x0020),
-        new(0xea4a, CommonEnemyInstructionCodes.Goto), new(0xea4c, FlyingRight),
-
-        new(0xea4e, 2), new(0xea52, 2), new(0xea56, 1),
-        new(0xea5a, CommonEnemyInstructionCodes.Goto), new(0xea5c, WingsLeft),
-        new(0xea5e, 2), new(0xea62, 2), new(0xea66, 1),
-        new(0xea6a, CommonEnemyInstructionCodes.Goto), new(0xea6c, WingsRight),
-
-        new(0xea7e, 1), new(0xea82, CommonEnemyInstructionCodes.Sleep),
-
-        new(0xea8a, 8), new(0xea8e, 8), new(0xea92, 0x000b),
-        new(0xea96, 2), new(0xea9a, 2),
-        new(0xea9e, EnemyInstructionCodePointers.Instruction_Kihunter_SetFunctionToHop),
-        new(0xeaa0, 1), new(0xeaa4, CommonEnemyInstructionCodes.Sleep),
-
-        new(0xeaa6, 8), new(0xeaaa, 8), new(0xeaae, 0x000b),
-        new(0xeab2, 2), new(0xeab6, 2),
-        new(0xeaba, EnemyInstructionCodePointers.Instruction_Kihunter_SetFunctionToHop),
-        new(0xeabc, 1), new(0xeac0, CommonEnemyInstructionCodes.Sleep),
-
-        new(0xeac2, 8), new(0xeac6, 8), new(0xeaca, 0x000b), new(0xeace, 8),
-        new(0xead2, EnemyInstructionCodePointers.Instruction_Kihunter_SetFunctionTo_Wingless_Thinking),
-        new(0xead4, 1), new(0xead8, CommonEnemyInstructionCodes.Sleep),
-
-        new(0xeada, 8), new(0xeade, 8), new(0xeae2, 0x000b), new(0xeae6, 8),
-        new(0xeaea, EnemyInstructionCodePointers.Instruction_Kihunter_SetFunctionTo_Wingless_Thinking),
-        new(0xeaec, 1), new(0xeaf0, CommonEnemyInstructionCodes.Sleep),
-
-        new(0xeaf2, 0x0020), new(0xeaf6, 6), new(0xeafa, 0x0010), new(0xeafe, 2),
-        new(0xeb02, EnemyInstructionCodePointers.Instruction_Kihunter_FireAcidSpitLeft),
-        new(0xeb04, 0x0018),
-        new(0xeb08, EnemyInstructionCodePointers.Instruction_Kihunter_SetFunctionTo_Wingless_Thinking),
-        new(0xeb0a, 1), new(0xeb0e, CommonEnemyInstructionCodes.Sleep),
-
-        new(0xeb10, 0x0020), new(0xeb14, 6), new(0xeb18, 0x0010), new(0xeb1c, 2),
-        new(0xeb20, EnemyInstructionCodePointers.Instruction_Kihunter_FireAcidSpitRight),
-        new(0xeb22, 0x0018),
-        new(0xeb26, EnemyInstructionCodePointers.Instruction_Kihunter_SetFunctionTo_Wingless_Thinking),
-        new(0xeb28, 1), new(0xeb2c, CommonEnemyInstructionCodes.Sleep),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe9fc, 0xea00, 0xea04,
-        0xea0a, 0xea0e, 0xea12, 0xea16, 0xea1a, 0xea1e,
-        0xea26, 0xea2a, 0xea2e,
-        0xea34, 0xea38, 0xea3c, 0xea40, 0xea44, 0xea48,
-        0xea50, 0xea54, 0xea58,
-        0xea60, 0xea64, 0xea68,
-        0xea80,
-        0xea8c, 0xea90, 0xea94, 0xea98, 0xea9c, 0xeaa2,
-        0xeaa8, 0xeaac, 0xeab0, 0xeab4, 0xeab8, 0xeabe,
-        0xeac4, 0xeac8, 0xeacc, 0xead0, 0xead6,
-        0xeadc, 0xeae0, 0xeae4, 0xeae8, 0xeaee,
-        0xeaf4, 0xeaf8, 0xeafc, 0xeb00, 0xeb06, 0xeb0c,
-        0xeb12, 0xeb16, 0xeb1a, 0xeb1e, 0xeb24, 0xeb2a,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static KiHunterInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    internal static ushort ReadMechanicsWord(ushort address)
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    internal static KiHunterInstructionMechanicsWord MechanicsWord(int index)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            KiHunterInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"KiHunter instruction mechanics pointer $A8:{address:X4} is not compiled.");
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa80000)
-            return false;
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        Layout.TryReadMechanicsWord(address, out ushort value) ? value :
+            throw new InvalidDataException(
+                $"KiHunter instruction mechanics pointer $A8:{address:X4} is not compiled.");
 
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

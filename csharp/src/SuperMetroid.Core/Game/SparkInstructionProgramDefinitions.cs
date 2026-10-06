@@ -36,8 +36,10 @@ internal static class SparkInstructionProgramDefinitions
     private const ushort ActivationSustainedTicks = 2;
     /// <summary>$A8:E5D1-E5DD and E609-E615: reviewed three-tick continuous visual cadence. Both four-pose loops have no callbacks; separate function timers own lifetime and emission, and nonzero maps preserve fixed contact radii.</summary>
     private const ushort ContinuousVisualCadence = 3;
-    /// <summary>$A8:E5E5-E601: every deactivation pose/blank interval advances after one tick; this choice and its later tangibility callback remain outside the activation exception.</summary>
-    private const ushort UnresolvedFlickerOutCadence = 1;
+    /// <summary>$A8:E5E5-E601: every deactivation pose and blank advances after one tick, a reviewed
+    /// one-frame flicker-out cadence. Like the activation flashes it is authored visual timing loaded
+    /// into the instruction timer; the separate intangibility callback and function timers own gameplay.</summary>
+    private const ushort FlickerOutCadence = 1;
 
     internal static int MechanicsWordCount => 33;
     internal static int PresentationWordCount => 26;
@@ -47,7 +49,7 @@ internal static class SparkInstructionProgramDefinitions
         if (index == 0) return new(FlickerOn, SetTangible);
         if (index <= 10) return new((ushort)(FlickerOn + 2 + (index - 1) * 4), ActivationDuration(index - 1));
         if (index < 17) return LoopWord(Active, index - 11);
-        if (index < 25) return new((ushort)(FlickerOut + (index - 17) * 4), UnresolvedFlickerOutCadence);
+        if (index < 25) return new((ushort)(FlickerOut + (index - 17) * 4), FlickerOutCadence);
         if (index < 27) return new((ushort)(FlickerOut + 32 + (index - 25) * 2),
             index == 25 ? SetIntangible : CommonEnemyInstructionCodes.Sleep);
         return LoopWord(Emitter, index - 27);

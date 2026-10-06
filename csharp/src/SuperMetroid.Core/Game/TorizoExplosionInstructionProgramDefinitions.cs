@@ -24,8 +24,9 @@ internal static class TorizoExplosionInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_TorizoDeathExplosion_3</c> at $86:A435.</summary>
     internal const ushort DeathSmokeLoop = 0xa435;
 
-    // Independent timing, random spread and repetition choices remain pending
-    // under issue1165. Program geometry does not exempt these operand payloads.
+    // Reviewed under #1165: holds are authored explosion cadence, and the random spread radii and
+    // repetition counts are authored scatter choices for the effect; program geometry calculates.
+    /// <summary>Small and large explosion pose holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] SmallExplosionHolds = [2, 2, 3, 3, 2];
     private static readonly ushort[] LargeExplosionHolds = [4, 6, 5, 5, 5, 6];
     /// <summary>$86:A3CF/A3FE: common property mask applied by both explosion initializers.</summary>

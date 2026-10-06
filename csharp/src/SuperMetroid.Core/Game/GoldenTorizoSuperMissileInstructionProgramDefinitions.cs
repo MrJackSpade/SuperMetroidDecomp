@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 internal readonly record struct GoldenTorizoSuperMissileInstructionMechanicsWord(
@@ -24,96 +26,67 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_GoldenTorizoSuperMissile</c> at $86:B2EF.</summary>
     internal const ushort Impact = 0xb2ef;
 
-    private static readonly GoldenTorizoSuperMissileInstructionMechanicsWord[] Words =
-    [
-        new(RightInitial, 0x0030),
-        new(0xb297, EnemyProjectileCodePointers.Instruction_AimSuperMissile_Rightwards),
-        new(0xb299, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0xb29b, EnemyProjectileCodePointers.PreInst_EnemyProjectile_GoldenTorizoSuperMissile_Thrown),
-        new(RightLoop, 2),
-        new(0xb2a1, 2),
-        new(0xb2a5, 2),
-        new(0xb2a9, 2),
-        new(0xb2ad, 2),
-        new(0xb2b1, 2),
-        new(0xb2b5, 2),
-        new(0xb2b9, 2),
-        new(0xb2bd, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb2bf, RightLoop),
+    /// <summary>Native program bank $86.</summary>
+    internal const byte Bank = 0x86;
 
-        new(LeftInitial, 0x0030),
-        new(0xb2c5, EnemyProjectileCodePointers.Instruction_AimSuperMissile_Leftwards),
-        new(0xb2c7, EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY),
-        new(0xb2c9, EnemyProjectileCodePointers.PreInst_EnemyProjectile_GoldenTorizoSuperMissile_Thrown),
-        new(LeftLoop, 2),
-        new(0xb2cf, 2),
-        new(0xb2d3, 2),
-        new(0xb2d7, 2),
-        new(0xb2db, 2),
-        new(0xb2df, 2),
-        new(0xb2e3, 2),
-        new(0xb2e7, 2),
-        new(0xb2eb, EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY),
-        new(0xb2ed, LeftLoop),
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xb293),
+        Entry(RightInitial),
+        Frame(48),
+        Op(EnemyProjectileCodePointers.Instruction_AimSuperMissile_Rightwards),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY, EnemyProjectileCodePointers.PreInst_EnemyProjectile_GoldenTorizoSuperMissile_Thrown),
+        Entry(RightLoop),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY, RightLoop),
+        Entry(LeftInitial),
+        Frame(48),
+        Op(EnemyProjectileCodePointers.Instruction_AimSuperMissile_Leftwards),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY, EnemyProjectileCodePointers.PreInst_EnemyProjectile_GoldenTorizoSuperMissile_Thrown),
+        Entry(LeftLoop),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Frame(2),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY, LeftLoop),
+        Entry(Impact),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_XYRadiusInY, InstructionWord.Bytes(0x10, 0x10)),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY, 0x5000),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY, 0x5fff),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
+        Skip(1),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete));
 
-        new(Impact, EnemyProjectileCodePointers.Instruction_EnemyProjectile_XYRadiusInY),
-        new(0xb2f1, 0x1010),
-        new(0xb2f3, EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction),
-        new(0xb2f5, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_OrY),
-        new(0xb2f7, 0x5000),
-        new(0xb2f9, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Properties_AndY),
-        new(0xb2fb, 0x5fff),
-        new(0xb2fd, EnemyProjectileCodePointers.Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6),
-        new(0xb300, 5),
-        new(0xb304, 5),
-        new(0xb308, 5),
-        new(0xb30c, 5),
-        new(0xb310, 5),
-        new(0xb314, 5),
-        new(0xb318, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xb295,
-        0xb29f, 0xb2a3, 0xb2a7, 0xb2ab, 0xb2af, 0xb2b3, 0xb2b7, 0xb2bb,
-        0xb2c3,
-        0xb2cd, 0xb2d1, 0xb2d5, 0xb2d9, 0xb2dd, 0xb2e1, 0xb2e5, 0xb2e9,
-        0xb302, 0xb306, 0xb30a, 0xb30e, 0xb312, 0xb316,
-    ];
-
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static GoldenTorizoSuperMissileInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    internal static ushort ReadMechanicsWord(ushort address)
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    internal static GoldenTorizoSuperMissileInstructionMechanicsWord MechanicsWord(int index)
     {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            GoldenTorizoSuperMissileInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address) return candidate.Value;
-            if (candidate.Address < address) low = middle + 1;
-            else high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Golden Torizo Super Missile mechanics pointer $86:{address:X4} is not compiled.");
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        ushort bankAddress = unchecked((ushort)address);
-        foreach (GoldenTorizoSuperMissileInstructionMechanicsWord word in Words)
-        {
-            if (bankAddress == word.Address || bankAddress == unchecked((ushort)(word.Address + 1)))
-                return true;
-        }
-        return false;
-    }
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        Layout.TryReadMechanicsWord(address, out ushort value) ? value :
+            throw new InvalidDataException(
+                $"Golden Torizo Super Missile mechanics pointer $86:{address:X4} is not compiled.");
+
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

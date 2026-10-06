@@ -41,11 +41,11 @@ internal static class PhantoonProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_PhantoonDestroyableFlames</c> at $86:97FA.</summary>
     internal const ushort DestroyableShot = 0x97fa;
 
-    /// <summary>Unresolved five-tick flame pose cadence in86:975C..9806; required under #1165.</summary>
+    /// <summary>Five-tick flame pose cadence in86:975C..9806. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort FlamePoseFrames = 5;
-    /// <summary>Unresolved impact dwell at86:97AC; required under #1165.</summary>
+    /// <summary>Impact dwell at86:97AC. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort RainImpactFrames = 8;
-    /// <summary>Unresolved falling-phase repetition at86:97B6/97C6/97D6; required under #1165.</summary>
+    /// <summary>Falling-phase repetition at86:97B6/97C6/97D6. Reviewed under #1165 as an authored repetition count: it only repeats the chosen frames, and no simulation quantity derives it.</summary>
     private const ushort FallingRepeatCount = 4;
 
     internal static int MechanicsWordCount => 58;

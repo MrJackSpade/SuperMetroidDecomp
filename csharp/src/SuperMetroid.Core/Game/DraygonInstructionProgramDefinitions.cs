@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One compiled Draygon mechanics word at its native bank-$A5 address.</summary>
@@ -85,249 +87,525 @@ internal static class DraygonInstructionProgramDefinitions
     /// <summary><c>InstList_DraygonTail_FacingRight_TailFlail_0</c> at $A5:9F15.</summary>
     public const ushort TailFacingRightFlail = 0x9f15;
 
-    private static readonly DraygonInstructionMechanicsWord[] Words =
-    [
-        new(0x97b9, 0x812f), new(0x97bb, 0x94dd), new(0x97bd, 0x9889),
-        new(0x97bf, 0x9944), new(0x97c1, 0x99c6), new(0x97c3, 0x97e7),
-        new(0x97c5, 0x9895), new(0x97c7, 0xc47b), new(0x97c9, 0xc48d),
-        new(0x97cb, 0x0001), new(0x97cf, 0x812f), new(0x97d1, 0x94dd),
-        new(0x97d3, 0x9c7e), new(0x97d5, 0x9cd6), new(0x97d7, 0x9d68),
-        new(0x97d9, 0x9bda), new(0x97db, 0x9895), new(0x97dd, 0xc47b),
-        new(0x97df, 0xc513), new(0x97e1, 0x0001), new(0x97e5, 0x812f),
-        new(0x97e7, 0x0005), new(0x97eb, 0x0005), new(0x97ef, 0x0005),
-        new(0x97f3, 0x0005), new(0x97f7, 0x0005), new(0x97fb, 0x0005),
-        new(0x97ff, 0x80ed), new(0x9801, 0x97e7), new(0x9813, 0x0001),
-        new(0x9817, 0x0001), new(0x981b, 0x0001), new(0x981f, 0x0040),
-        new(0x9823, 0x812f), new(0x9845, 0x0001), new(0x9849, 0x0001),
-        new(0x984d, 0x0001), new(0x9851, 0x0008), new(0x9855, 0x0001),
-        new(0x9859, 0x0001), new(0x985d, 0x0001), new(0x9861, 0x0001),
-        new(0x9865, 0x812f), new(0x9867, 0x0005), new(0x986b, 0x0005),
-        new(0x986f, 0x0005), new(0x9873, 0x0005), new(0x9877, 0x80ed),
-        new(0x9879, 0x989b), new(0x9889, 0x9895), new(0x988b, 0xc47b),
-        new(0x988d, 0xc48d), new(0x988f, 0x0001), new(0x9893, 0x812f),
-        new(0x989b, 0x9f6e), new(0x989d, 0x001b), new(0x989f, 0x98ef),
-        new(0x98a1, 0x8123), new(0x98a3, 0x0008), new(0x98a5, 0x813a),
-        new(0x98a7, 0x000c), new(0x98a9, 0x9765), new(0x98ab, 0x9752),
-        new(0x98ad, 0x973f), new(0x98af, 0x9778), new(0x98b1, 0x9f60),
-        new(0x98b3, 0x0025), new(0x98b5, 0x8110), new(0x98b7, 0x98a5),
-        new(0x98b9, 0x813a), new(0x98bb, 0x0001), new(0x98bd, 0x98d3),
-        new(0x98bf, 0x813a), new(0x98c1, 0x0010), new(0x98c3, 0x9765),
-        new(0x98c5, 0x9752), new(0x98c7, 0x973f), new(0x98c9, 0x9778),
-        new(0x98cb, 0x9f60), new(0x98cd, 0x0025), new(0x98cf, 0x80ed),
-        new(0x98d1, 0x98bf), new(0x98ed, 0x807c), new(0x98fe, 0x0001),
-        new(0x9902, 0x0002), new(0x9906, 0x0003), new(0x990a, 0x9f7c),
-        new(0x990c, 0x9f60), new(0x990e, 0x004c), new(0x9910, 0x0003),
-        new(0x9914, 0x0002), new(0x9918, 0x0002), new(0x991c, 0x0001),
-        new(0x9920, 0x812f), new(0x9922, 0x9f60), new(0x9924, 0x0073),
-        new(0x9926, 0x0006), new(0x992a, 0x0006), new(0x992e, 0x0006),
-        new(0x9932, 0x0006), new(0x9936, 0x0006), new(0x993a, 0x0006),
-        new(0x993e, 0x0006), new(0x9942, 0x812f), new(0x9944, 0x0015),
-        new(0x9948, 0x0005), new(0x994c, 0x0005), new(0x9950, 0x000a),
-        new(0x9954, 0x000a), new(0x9958, 0x000a), new(0x995c, 0x000a),
-        new(0x9960, 0x000a), new(0x9964, 0x000a), new(0x9968, 0x0005),
-        new(0x996c, 0x0005), new(0x9970, 0x0005), new(0x9974, 0x9736),
-        new(0x9976, 0xc48d), new(0x9978, 0x812f), new(0x997a, 0x8123),
-        new(0x997c, 0x0004), new(0x997e, 0x0004), new(0x9982, 0x0004),
-        new(0x9986, 0x0004), new(0x998a, 0x0004), new(0x998e, 0x8110),
-        new(0x9990, 0x997e), new(0x9992, 0x0020), new(0x9996, 0x0010),
-        new(0x999a, 0x812f), new(0x999c, 0x0020), new(0x99a0, 0x0020),
-        new(0x99a4, 0x0020), new(0x99a8, 0x0001), new(0x99ac, 0x812f),
-        new(0x99ae, 0x0001), new(0x99b2, 0x812f), new(0x99b4, 0x0001),
-        new(0x99b8, 0x812f), new(0x99ba, 0x0001), new(0x99be, 0x812f),
-        new(0x99c0, 0x0001), new(0x99c4, 0x812f), new(0x99c6, 0x0008),
-        new(0x99ca, 0x0007), new(0x99ce, 0x0006), new(0x99d2, 0x0006),
-        new(0x99d6, 0x0006), new(0x99da, 0x0006), new(0x99de, 0x0006),
-        new(0x99e2, 0x0006), new(0x99e6, 0x0006), new(0x99ea, 0x0006),
-        new(0x99ee, 0x0006), new(0x99f2, 0x0007), new(0x99f6, 0x80ed),
-        new(0x99f8, 0x99c6), new(0x99fc, 0x9e0a), new(0x99fe, 0xffff),
-        new(0x9a00, 0xffff), new(0x9a02, 0x0010), new(0x9a06, 0x9e0a),
-        new(0x9a08, 0xfffe), new(0x9a0a, 0xfffe), new(0x9a0c, 0x0006),
-        new(0x9a10, 0x9e0a), new(0x9a12, 0xfffd), new(0x9a14, 0xfffd),
-        new(0x9a16, 0x0005), new(0x9a1a, 0x9e0a), new(0x9a1c, 0xfffc),
-        new(0x9a1e, 0xfffc), new(0x9a20, 0x0004), new(0x9a24, 0x9e0a),
-        new(0x9a26, 0xfffb), new(0x9a28, 0xfffb), new(0x9a2a, 0x0003),
-        new(0x9a2e, 0x9e0a), new(0x9a30, 0xfffa), new(0x9a32, 0xfffa),
-        new(0x9a34, 0x0002), new(0x9a38, 0x9e0a), new(0x9a3a, 0xfff8),
-        new(0x9a3c, 0xfff8), new(0x9a3e, 0x0001), new(0x9a42, 0x9e0a),
-        new(0x9a44, 0x0000), new(0x9a46, 0x0000), new(0x9a48, 0x0010),
-        new(0x9a4c, 0x0001), new(0x9a50, 0x0002), new(0x9a54, 0x0003),
-        new(0x9a58, 0x0004), new(0x9a5c, 0x0005), new(0x9a60, 0x0006),
-        new(0x9a64, 0x80ed), new(0x9a66, 0x99c6), new(0x9a68, 0x8123),
-        new(0x9a6a, 0x0004), new(0x9a6c, 0x9e0a), new(0x9a6e, 0xffff),
-        new(0x9a70, 0xffff), new(0x9a72, 0x0002), new(0x9a76, 0x9e0a),
-        new(0x9a78, 0xfffe), new(0x9a7a, 0xfffe), new(0x9a7c, 0x0006),
-        new(0x9a80, 0x9e0a), new(0x9a82, 0xfffd), new(0x9a84, 0xfffd),
-        new(0x9a86, 0x0005), new(0x9a8a, 0x9e0a), new(0x9a8c, 0xfffc),
-        new(0x9a8e, 0xfffc), new(0x9a90, 0x0004), new(0x9a94, 0x9e0a),
-        new(0x9a96, 0xfffb), new(0x9a98, 0xfffb), new(0x9a9a, 0x0003),
-        new(0x9a9e, 0x9e0a), new(0x9aa0, 0xfffa), new(0x9aa2, 0xfffa),
-        new(0x9aa4, 0x0002), new(0x9aa8, 0x9e0a), new(0x9aaa, 0xfff8),
-        new(0x9aac, 0xfff8), new(0x9aae, 0x0001), new(0x9ab2, 0x9e0a),
-        new(0x9ab4, 0x0000), new(0x9ab6, 0x0000), new(0x9ab8, 0x9b9a),
-        new(0x9aba, 0x9f60), new(0x9abc, 0x0025), new(0x9abe, 0x0003),
-        new(0x9ac2, 0x0001), new(0x9ac6, 0x0002), new(0x9aca, 0x0003),
-        new(0x9ace, 0x0004), new(0x9ad2, 0x0005), new(0x9ad6, 0x0006),
-        new(0x9ada, 0x8110), new(0x9adc, 0x9a6c), new(0x9ade, 0x9f57),
-        new(0x9ae0, 0x9128), new(0x9ae2, 0x80ed), new(0x9ae4, 0x99c6),
-        new(0x9ae8, 0x9e0a), new(0x9aea, 0xffff), new(0x9aec, 0xffff),
-        new(0x9aee, 0x0002), new(0x9af2, 0x9e0a), new(0x9af4, 0xfffe),
-        new(0x9af6, 0xfffe), new(0x9af8, 0x0006), new(0x9afc, 0x9e0a),
-        new(0x9afe, 0xfffd), new(0x9b00, 0xfffd), new(0x9b02, 0x0005),
-        new(0x9b06, 0x9e0a), new(0x9b08, 0xfffc), new(0x9b0a, 0xfffc),
-        new(0x9b0c, 0x0004), new(0x9b10, 0x9e0a), new(0x9b12, 0xfffb),
-        new(0x9b14, 0xfffb), new(0x9b16, 0x0003), new(0x9b1a, 0x9e0a),
-        new(0x9b1c, 0xfffa), new(0x9b1e, 0xfffa), new(0x9b20, 0x0002),
-        new(0x9b24, 0x9e0a), new(0x9b26, 0xfff8), new(0x9b28, 0xfff8),
-        new(0x9b2a, 0x0001), new(0x9b2e, 0x9e0a), new(0x9b30, 0x0000),
-        new(0x9b32, 0x0000), new(0x9b34, 0x9b9a), new(0x9b36, 0x9f60),
-        new(0x9b38, 0x0025), new(0x9b3a, 0x0003), new(0x9b3e, 0x0001),
-        new(0x9b42, 0x0002), new(0x9b46, 0x0003), new(0x9b4a, 0x0004),
-        new(0x9b4e, 0x0005), new(0x9b52, 0x0006), new(0x9b56, 0x80ed),
-        new(0x9b58, 0x99c6), new(0x9b5a, 0x0002), new(0x9b5e, 0x0006),
-        new(0x9b62, 0x0005), new(0x9b66, 0x0004), new(0x9b6a, 0x0003),
-        new(0x9b6e, 0x0002), new(0x9b72, 0x0001), new(0x9b76, 0x9f60),
-        new(0x9b78, 0x0025), new(0x9b7a, 0x0003), new(0x9b7e, 0x0001),
-        new(0x9b82, 0x0002), new(0x9b86, 0x0003), new(0x9b8a, 0x0004),
-        new(0x9b8e, 0x0005), new(0x9b92, 0x0006), new(0x9b96, 0x80ed),
-        new(0x9b98, 0x99c6), new(0x9bda, 0x0005), new(0x9bde, 0x0005),
-        new(0x9be2, 0x0005), new(0x9be6, 0x0005), new(0x9bea, 0x0005),
-        new(0x9bee, 0x0005), new(0x9bf2, 0x80ed), new(0x9bf4, 0x9bda),
-        new(0x9c06, 0x0001), new(0x9c0a, 0x0001), new(0x9c0e, 0x0001),
-        new(0x9c12, 0x0040), new(0x9c16, 0x812f), new(0x9c38, 0x0001),
-        new(0x9c3c, 0x0001), new(0x9c40, 0x0001), new(0x9c44, 0x0008),
-        new(0x9c48, 0x0001), new(0x9c4c, 0x0001), new(0x9c50, 0x0001),
-        new(0x9c54, 0x0001), new(0x9c58, 0x812f), new(0x9c5a, 0x0005),
-        new(0x9c5e, 0x0005), new(0x9c62, 0x0005), new(0x9c66, 0x0005),
-        new(0x9c6a, 0x80ed), new(0x9c6c, 0x989b), new(0x9c7e, 0x9c8a),
-        new(0x9c80, 0xc47b), new(0x9c82, 0xc513), new(0x9c84, 0x0001),
-        new(0x9c88, 0x812f), new(0x9c90, 0x0001), new(0x9c94, 0x0002),
-        new(0x9c98, 0x0003), new(0x9c9c, 0x9fae), new(0x9c9e, 0x9f60),
-        new(0x9ca0, 0x004c), new(0x9ca2, 0x0003), new(0x9ca6, 0x0002),
-        new(0x9caa, 0x0002), new(0x9cae, 0x0001), new(0x9cb2, 0x812f),
-        new(0x9cb4, 0x9f60), new(0x9cb6, 0x0073), new(0x9cb8, 0x0006),
-        new(0x9cbc, 0x0006), new(0x9cc0, 0x0006), new(0x9cc4, 0x0006),
-        new(0x9cc8, 0x0006), new(0x9ccc, 0x0006), new(0x9cd0, 0x0006),
-        new(0x9cd4, 0x812f), new(0x9cd6, 0x0015), new(0x9cda, 0x0005),
-        new(0x9cde, 0x0005), new(0x9ce2, 0x000a), new(0x9ce6, 0x000a),
-        new(0x9cea, 0x000a), new(0x9cee, 0x000a), new(0x9cf2, 0x000a),
-        new(0x9cf6, 0x000a), new(0x9cfa, 0x0005), new(0x9cfe, 0x0005),
-        new(0x9d02, 0x0005), new(0x9d06, 0x9736), new(0x9d08, 0xc48d),
-        new(0x9d0a, 0x812f), new(0x9d1c, 0x8123), new(0x9d1e, 0x0004),
-        new(0x9d20, 0x0004), new(0x9d24, 0x0004), new(0x9d28, 0x0004),
-        new(0x9d2c, 0x0004), new(0x9d30, 0x8110), new(0x9d32, 0x9d20),
-        new(0x9d34, 0x0020), new(0x9d38, 0x0010), new(0x9d3c, 0x812f),
-        new(0x9d3e, 0x0020), new(0x9d42, 0x0020), new(0x9d46, 0x0020),
-        new(0x9d4a, 0x0001), new(0x9d4e, 0x812f), new(0x9d50, 0x0001),
-        new(0x9d54, 0x812f), new(0x9d56, 0x0001), new(0x9d5a, 0x812f),
-        new(0x9d5c, 0x0001), new(0x9d60, 0x812f), new(0x9d62, 0x0001),
-        new(0x9d66, 0x812f), new(0x9d68, 0x0008), new(0x9d6c, 0x0007),
-        new(0x9d70, 0x0006), new(0x9d74, 0x0006), new(0x9d78, 0x0006),
-        new(0x9d7c, 0x0006), new(0x9d80, 0x0006), new(0x9d84, 0x0006),
-        new(0x9d88, 0x0006), new(0x9d8c, 0x0006), new(0x9d90, 0x0006),
-        new(0x9d94, 0x0007), new(0x9d98, 0x80ed), new(0x9d9a, 0x9d68),
-        new(0x9e21, 0x8123), new(0x9e23, 0x0004), new(0x9e25, 0x9e0a),
-        new(0x9e27, 0x0001), new(0x9e29, 0xffff), new(0x9e2b, 0x0002),
-        new(0x9e2f, 0x9e0a), new(0x9e31, 0x0002), new(0x9e33, 0xfffe),
-        new(0x9e35, 0x0006), new(0x9e39, 0x9e0a), new(0x9e3b, 0x0003),
-        new(0x9e3d, 0xfffd), new(0x9e3f, 0x0005), new(0x9e43, 0x9e0a),
-        new(0x9e45, 0x0004), new(0x9e47, 0xfffc), new(0x9e49, 0x0004),
-        new(0x9e4d, 0x9e0a), new(0x9e4f, 0x0005), new(0x9e51, 0xfffb),
-        new(0x9e53, 0x0003), new(0x9e57, 0x9e0a), new(0x9e59, 0x0006),
-        new(0x9e5b, 0xfffa), new(0x9e5d, 0x0002), new(0x9e61, 0x9e0a),
-        new(0x9e63, 0x0008), new(0x9e65, 0xfff8), new(0x9e67, 0x0001),
-        new(0x9e6b, 0x9e0a), new(0x9e6d, 0x0000), new(0x9e6f, 0x0000),
-        new(0x9e71, 0x9b9a), new(0x9e73, 0x9f60), new(0x9e75, 0x0025),
-        new(0x9e77, 0x0003), new(0x9e7b, 0x0001), new(0x9e7f, 0x0002),
-        new(0x9e83, 0x0003), new(0x9e87, 0x0004), new(0x9e8b, 0x0005),
-        new(0x9e8f, 0x0006), new(0x9e93, 0x8110), new(0x9e95, 0x9e25),
-        new(0x9e97, 0x9f57), new(0x9e99, 0x9128), new(0x9e9b, 0x80ed),
-        new(0x9e9d, 0x9d68), new(0x9ea1, 0x9e0a), new(0x9ea3, 0x0001),
-        new(0x9ea5, 0xffff), new(0x9ea7, 0x0002), new(0x9eab, 0x9e0a),
-        new(0x9ead, 0x0002), new(0x9eaf, 0xfffe), new(0x9eb1, 0x0006),
-        new(0x9eb5, 0x9e0a), new(0x9eb7, 0x0003), new(0x9eb9, 0xfffd),
-        new(0x9ebb, 0x0005), new(0x9ebf, 0x9e0a), new(0x9ec1, 0x0004),
-        new(0x9ec3, 0xfffc), new(0x9ec5, 0x0004), new(0x9ec9, 0x9e0a),
-        new(0x9ecb, 0x0005), new(0x9ecd, 0xfffb), new(0x9ecf, 0x0003),
-        new(0x9ed3, 0x9e0a), new(0x9ed5, 0x0006), new(0x9ed7, 0xfffa),
-        new(0x9ed9, 0x0002), new(0x9edd, 0x9e0a), new(0x9edf, 0x0008),
-        new(0x9ee1, 0xfff8), new(0x9ee3, 0x0001), new(0x9ee7, 0x9e0a),
-        new(0x9ee9, 0x0000), new(0x9eeb, 0x0000), new(0x9eed, 0x9b9a),
-        new(0x9eef, 0x9f60), new(0x9ef1, 0x0025), new(0x9ef3, 0x0003),
-        new(0x9ef7, 0x0001), new(0x9efb, 0x0002), new(0x9eff, 0x0003),
-        new(0x9f03, 0x0004), new(0x9f07, 0x0005), new(0x9f0b, 0x0006),
-        new(0x9f0f, 0x80ed), new(0x9f11, 0x9d68), new(0x9f15, 0x0002),
-        new(0x9f19, 0x0006), new(0x9f1d, 0x0005), new(0x9f21, 0x0004),
-        new(0x9f25, 0x0003), new(0x9f29, 0x0002), new(0x9f2d, 0x0001),
-        new(0x9f31, 0x9f60), new(0x9f33, 0x0025), new(0x9f35, 0x0003),
-        new(0x9f39, 0x0001), new(0x9f3d, 0x0002), new(0x9f41, 0x0003),
-        new(0x9f45, 0x0004), new(0x9f49, 0x0005), new(0x9f4d, 0x0006),
-        new(0x9f51, 0x80ed), new(0x9f53, 0x9d68),
-    ];
+    /// <summary><c>Function_DraygonBody_GrabbedSamus_FlailTail_FlyStraightUp</c> at $A5:9128.</summary>
+    private const ushort BodyGrabbedSamusFlailTailFlyStraightUpFunction = 0x9128;
+    /// <summary><c>Instruction_Draygon_SetInstList_Body_Eye_Tail_Arms</c> at $A5:94DD.</summary>
+    private const ushort SetInstListBodyEyeTailArms = 0x94dd;
+    /// <summary><c>Instruction_Draygon_FunctionInY</c> at $A5:9736.</summary>
+    private const ushort FunctionInY = 0x9736;
+    /// <summary><c>Inst_Draygon_SpawnDyingDraygonSpriteObject_BigDustCloud</c> at $A5:973F.</summary>
+    private const ushort InstDraygonSpawnDyingDraygonSpriteObjectBigDustCloud = 0x973f;
+    /// <summary><c>Inst_Draygon_SpawnDyingDraygonSpriteObject_SmallExplosion</c> at $A5:9752.</summary>
+    private const ushort InstDraygonSpawnDyingDraygonSpriteObjectSmallExplosion = 0x9752;
+    /// <summary><c>Inst_Draygon_SpawnDyingDraygonSpriteObject_BigExplosion</c> at $A5:9765.</summary>
+    private const ushort InstDraygonSpawnDyingDraygonSpriteObjectBigExplosion = 0x9765;
+    /// <summary><c>Inst_Draygon_SpawnDyingDraygonSpriteObject_BreathBubbles</c> at $A5:9778.</summary>
+    private const ushort InstDraygonSpawnDyingDraygonSpriteObjectBreathBubbles = 0x9778;
+    /// <summary><c>Instruction_Draygon_RoomLoadingInterruptCmd_BeginHUDDraw</c> at $A5:9895.</summary>
+    private const ushort RoomLoadingInterruptCmdBeginHUDDraw = 0x9895;
+    /// <summary><c>InstList_DraygonBody_Dying_0</c> at $A5:989B.</summary>
+    private const ushort BodyDying0 = 0x989b;
+    /// <summary><c>InstList_DraygonBody_Dying_1</c> at $A5:98A5.</summary>
+    private const ushort BodyDying1 = 0x98a5;
+    /// <summary><c>InstList_DraygonBody_Dying_2</c> at $A5:98BF.</summary>
+    private const ushort BodyDying2 = 0x98bf;
+    /// <summary><c>Instruction_Draygon_ParalyseDraygonTailAndArms</c> at $A5:98D3.</summary>
+    private const ushort ParalyseDraygonTailAndArms = 0x98d3;
+    /// <summary><c>Instruction_DraygonBody_SetAsIntangible</c> at $A5:98EF.</summary>
+    private const ushort BodySetAsIntangible = 0x98ef;
+    /// <summary><c>InstList_DraygonEye_FacingLeft_Dying_1</c> at $A5:997E.</summary>
+    private const ushort EyeFacingLeftDying1 = 0x997e;
+    /// <summary><c>InstList_DraygonTail_FacingLeft_Idle_0</c> at $A5:99C6.</summary>
+    private const ushort TailFacingLeftIdle0 = 0x99c6;
+    /// <summary><c>InstList_DraygonTail_FacingLeft_FinalTailWhips_1</c> at $A5:9A6C.</summary>
+    private const ushort TailFacingLeftFinalTailWhips1 = 0x9a6c;
+    /// <summary><c>Instruction_DraygonTail_TailWhipHit</c> at $A5:9B9A.</summary>
+    private const ushort TailTailWhipHit = 0x9b9a;
+    /// <summary><c>InstList_DraygonBody_FacingRight_Idle</c> at $A5:9C7E.</summary>
+    private const ushort BodyFacingRightIdle = 0x9c7e;
+    /// <summary><c>Instruction_Draygon_RoomLoadingInterruptCmd_BeginHUDDraw_dup</c> at $A5:9C8A.</summary>
+    private const ushort RoomLoadingInterruptCmdBeginHUDDrawDup = 0x9c8a;
+    /// <summary><c>InstList_DraygonEye_FacingRight_Idle</c> at $A5:9CD6.</summary>
+    private const ushort EyeFacingRightIdle = 0x9cd6;
+    /// <summary><c>InstList_DraygonEye_FacingRight_Dying_1</c> at $A5:9D20.</summary>
+    private const ushort EyeFacingRightDying1 = 0x9d20;
+    /// <summary><c>InstList_DraygonTail_FacingRight_Idle_0</c> at $A5:9D68.</summary>
+    private const ushort TailFacingRightIdle0 = 0x9d68;
+    /// <summary><c>Instruction_DraygonBody_DisplaceGraphics</c> at $A5:9E0A.</summary>
+    private const ushort BodyDisplaceGraphics = 0x9e0a;
+    /// <summary><c>InstList_DraygonTail_FacingRight_FinalTailWhips_1</c> at $A5:9E25.</summary>
+    private const ushort TailFacingRightFinalTailWhips1 = 0x9e25;
+    /// <summary><c>Instruction_Draygon_BodyFunctionInY</c> at $A5:9F57.</summary>
+    private const ushort BodyFunctionInY = 0x9f57;
+    /// <summary><c>Instruction_Draygon_QueueSFXInY_Lib2_Max6</c> at $A5:9F60.</summary>
+    private const ushort QueueSFXInYLib2Max6 = 0x9f60;
+    /// <summary><c>Instruction_Draygon_QueueSFXInY_Lib3_Max6</c> at $A5:9F6E.</summary>
+    private const ushort QueueSFXInYLib3Max6 = 0x9f6e;
+    /// <summary><c>Instruction_Draygon_SpawnGoop_Leftwards</c> at $A5:9F7C.</summary>
+    private const ushort SpawnGoopLeftwards = 0x9f7c;
+    /// <summary><c>Instruction_Draygon_SpawnGoop_Rightwards</c> at $A5:9FAE.</summary>
+    private const ushort SpawnGoopRightwards = 0x9fae;
+    /// <summary><c>Instruction_Draygon_EyeFunctionInY</c> at $A5:C47B.</summary>
+    private const ushort EyeFunctionInY = 0xc47b;
+    /// <summary><c>Function_DraygonEye_FacingLeft</c> at $A5:C48D.</summary>
+    private const ushort EyeFacingLeftFunction = 0xc48d;
+    /// <summary><c>Function_DraygonEye_FacingRight</c> at $A5:C513.</summary>
+    private const ushort EyeFacingRightFunction = 0xc513;
 
-    internal static int MechanicsWordCount => Words.Length;
-    /// <summary>
-    /// The native timed record is duration then visual selector. Existing mechanics
-    /// Words retains the duration but omits its selector; the next mechanics word
-    /// therefore follows four bytes later. High-bit words are control instructions.
-    /// This derives the duplicate selector-address inventory, not the unresolved
-    /// timings, controls, program layout or selected artwork in their separate owners.
-    /// </summary>
-    internal static int PresentationWordCount
+    /// <summary>Native program bank $A5.</summary>
+    internal const byte Bank = 0xa5;
+
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0x97b9),
+        Entry(Sleep),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(BodyFacingLeftReset),
+        Op(SetInstListBodyEyeTailArms, BodyFacingLeftIdle, EyeFacingLeftIdle, TailFacingLeftIdle0, ArmsFacingLeftIdle),
+        Op(RoomLoadingInterruptCmdBeginHUDDraw),
+        Op(EyeFunctionInY, EyeFacingLeftFunction),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(BodyFacingRightReset),
+        Op(SetInstListBodyEyeTailArms, BodyFacingRightIdle, EyeFacingRightIdle, TailFacingRightIdle0, ArmsFacingRightIdle),
+        Op(RoomLoadingInterruptCmdBeginHUDDraw),
+        Op(EyeFunctionInY, EyeFacingRightFunction),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(ArmsFacingLeftIdle),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, ArmsFacingLeftIdle),
+        Origin(0x9813),
+        Entry(ArmsFacingLeftNearSwoopApex),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Frame(64),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Origin(0x9845),
+        Entry(ArmsFacingLeftGrab),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Frame(8),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(ArmsFacingLeftDying),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, BodyDying0),
+        Origin(0x9889),
+        Entry(BodyFacingLeftIdle),
+        Op(RoomLoadingInterruptCmdBeginHUDDraw),
+        Op(EyeFunctionInY, EyeFacingLeftFunction),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Skip(6),
+        Op(QueueSFXInYLib3Max6, 0x001b),
+        Op(BodySetAsIntangible),
+        Op(CommonEnemyInstructionCodes.SetTimer, 0x0008),
+        Op(CommonEnemyInstructionCodes.WaitFrames, 0x000c, InstDraygonSpawnDyingDraygonSpriteObjectBigExplosion, InstDraygonSpawnDyingDraygonSpriteObjectSmallExplosion, InstDraygonSpawnDyingDraygonSpriteObjectBigDustCloud, InstDraygonSpawnDyingDraygonSpriteObjectBreathBubbles),
+        Op(QueueSFXInYLib2Max6, 0x0025),
+        Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, BodyDying1),
+        Op(CommonEnemyInstructionCodes.WaitFrames, 0x0001),
+        Op(ParalyseDraygonTailAndArms),
+        Op(CommonEnemyInstructionCodes.WaitFrames, 0x0010, InstDraygonSpawnDyingDraygonSpriteObjectBigExplosion, InstDraygonSpawnDyingDraygonSpriteObjectSmallExplosion, InstDraygonSpawnDyingDraygonSpriteObjectBigDustCloud, InstDraygonSpawnDyingDraygonSpriteObjectBreathBubbles),
+        Op(QueueSFXInYLib2Max6, 0x0025),
+        Op(CommonEnemyInstructionCodes.Goto, BodyDying2),
+        Origin(0x98ed),
+        Entry(Delete),
+        Op(CommonEnemyInstructionCodes.StopScript),
+        Origin(0x98fe),
+        Entry(BodyFacingLeftFireGoop),
+        Frame(1),
+        Frame(2),
+        Frame(3),
+        Op(SpawnGoopLeftwards),
+        Op(QueueSFXInYLib2Max6, 0x004c),
+        Frame(3),
+        Frame(2),
+        Frame(2),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(BodyFacingLeftRoar),
+        Op(QueueSFXInYLib2Max6, 0x0073),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EyeFacingLeftIdle),
+        Frame(21),
+        Frame(5),
+        Frame(5),
+        Frame(10),
+        Frame(10),
+        Frame(10),
+        Frame(10),
+        Frame(10),
+        Frame(10),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Op(FunctionInY, EyeFacingLeftFunction),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EyeFacingLeftDying),
+        Op(CommonEnemyInstructionCodes.SetTimer, 0x0004),
+        Frame(4),
+        Frame(4),
+        Frame(4),
+        Frame(4),
+        Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, EyeFacingLeftDying1),
+        Frame(32),
+        Frame(16),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EyeFacingLeftDead),
+        Frame(32),
+        Frame(32),
+        Frame(32),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EyeFacingLeftLookingLeft),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EyeFacingLeftLookingRight),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EyeFacingLeftLookingUp),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EyeFacingLeftLookingDown),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Frame(8),
+        Frame(7),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(7),
+        Op(CommonEnemyInstructionCodes.Goto, TailFacingLeftIdle0),
+        Skip(2),
+        Entry(TailFacingLeftInitialFakeWhip),
+        Op(BodyDisplaceGraphics, 0xffff, 0xffff),
+        Frame(16),
+        Op(BodyDisplaceGraphics, 0xfffe, 0xfffe),
+        Frame(6),
+        Op(BodyDisplaceGraphics, 0xfffd, 0xfffd),
+        Frame(5),
+        Op(BodyDisplaceGraphics, 0xfffc, 0xfffc),
+        Frame(4),
+        Op(BodyDisplaceGraphics, 0xfffb, 0xfffb),
+        Frame(3),
+        Op(BodyDisplaceGraphics, 0xfffa, 0xfffa),
+        Frame(2),
+        Op(BodyDisplaceGraphics, 0xfff8, 0xfff8),
+        Frame(1),
+        Op(BodyDisplaceGraphics, 0x0000, 0x0000),
+        Frame(16),
+        Frame(1),
+        Frame(2),
+        Frame(3),
+        Frame(4),
+        Frame(5),
+        Frame(6),
+        Op(CommonEnemyInstructionCodes.Goto, TailFacingLeftIdle0),
+        Entry(TailFacingLeftFinalWhips),
+        Op(CommonEnemyInstructionCodes.SetTimer, 0x0004),
+        Op(BodyDisplaceGraphics, 0xffff, 0xffff),
+        Frame(2),
+        Op(BodyDisplaceGraphics, 0xfffe, 0xfffe),
+        Frame(6),
+        Op(BodyDisplaceGraphics, 0xfffd, 0xfffd),
+        Frame(5),
+        Op(BodyDisplaceGraphics, 0xfffc, 0xfffc),
+        Frame(4),
+        Op(BodyDisplaceGraphics, 0xfffb, 0xfffb),
+        Frame(3),
+        Op(BodyDisplaceGraphics, 0xfffa, 0xfffa),
+        Frame(2),
+        Op(BodyDisplaceGraphics, 0xfff8, 0xfff8),
+        Frame(1),
+        Op(BodyDisplaceGraphics, 0x0000, 0x0000),
+        Op(TailTailWhipHit),
+        Op(QueueSFXInYLib2Max6, 0x0025),
+        Frame(3),
+        Frame(1),
+        Frame(2),
+        Frame(3),
+        Frame(4),
+        Frame(5),
+        Frame(6),
+        Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, TailFacingLeftFinalTailWhips1),
+        Op(BodyFunctionInY, BodyGrabbedSamusFlailTailFlyStraightUpFunction),
+        Op(CommonEnemyInstructionCodes.Goto, TailFacingLeftIdle0),
+        Skip(2),
+        Entry(TailFacingLeftWhip),
+        Op(BodyDisplaceGraphics, 0xffff, 0xffff),
+        Frame(2),
+        Op(BodyDisplaceGraphics, 0xfffe, 0xfffe),
+        Frame(6),
+        Op(BodyDisplaceGraphics, 0xfffd, 0xfffd),
+        Frame(5),
+        Op(BodyDisplaceGraphics, 0xfffc, 0xfffc),
+        Frame(4),
+        Op(BodyDisplaceGraphics, 0xfffb, 0xfffb),
+        Frame(3),
+        Op(BodyDisplaceGraphics, 0xfffa, 0xfffa),
+        Frame(2),
+        Op(BodyDisplaceGraphics, 0xfff8, 0xfff8),
+        Frame(1),
+        Op(BodyDisplaceGraphics, 0x0000, 0x0000),
+        Op(TailTailWhipHit),
+        Op(QueueSFXInYLib2Max6, 0x0025),
+        Frame(3),
+        Frame(1),
+        Frame(2),
+        Frame(3),
+        Frame(4),
+        Frame(5),
+        Frame(6),
+        Op(CommonEnemyInstructionCodes.Goto, TailFacingLeftIdle0),
+        Entry(TailFacingLeftFlail),
+        Frame(2),
+        Frame(6),
+        Frame(5),
+        Frame(4),
+        Frame(3),
+        Frame(2),
+        Frame(1),
+        Op(QueueSFXInYLib2Max6, 0x0025),
+        Frame(3),
+        Frame(1),
+        Frame(2),
+        Frame(3),
+        Frame(4),
+        Frame(5),
+        Frame(6),
+        Op(CommonEnemyInstructionCodes.Goto, TailFacingLeftIdle0),
+        Origin(0x9bda),
+        Entry(ArmsFacingRightIdle),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, ArmsFacingRightIdle),
+        Origin(0x9c06),
+        Entry(ArmsFacingRightNearSwoopApex),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Frame(64),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Origin(0x9c38),
+        Entry(ArmsFacingRightGrab),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Frame(8),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(ArmsFacingRightDying),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, BodyDying0),
+        Origin(0x9c7e),
+        Op(RoomLoadingInterruptCmdBeginHUDDrawDup),
+        Op(EyeFunctionInY, EyeFacingRightFunction),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Skip(6),
+        Entry(BodyFacingRightFireGoop),
+        Frame(1),
+        Frame(2),
+        Frame(3),
+        Op(SpawnGoopRightwards),
+        Op(QueueSFXInYLib2Max6, 0x004c),
+        Frame(3),
+        Frame(2),
+        Frame(2),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(BodyFacingRightRoar),
+        Op(QueueSFXInYLib2Max6, 0x0073),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Frame(21),
+        Frame(5),
+        Frame(5),
+        Frame(10),
+        Frame(10),
+        Frame(10),
+        Frame(10),
+        Frame(10),
+        Frame(10),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Op(FunctionInY, EyeFacingLeftFunction),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Origin(0x9d1c),
+        Entry(EyeFacingRightDying),
+        Op(CommonEnemyInstructionCodes.SetTimer, 0x0004),
+        Frame(4),
+        Frame(4),
+        Frame(4),
+        Frame(4),
+        Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, EyeFacingRightDying1),
+        Frame(32),
+        Frame(16),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EyeFacingRightDead),
+        Frame(32),
+        Frame(32),
+        Frame(32),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EyeFacingRightLookingRight),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EyeFacingRightLookingLeft),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EyeFacingRightLookingUp),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(EyeFacingRightLookingDown),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Frame(8),
+        Frame(7),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(6),
+        Frame(7),
+        Op(CommonEnemyInstructionCodes.Goto, TailFacingRightIdle0),
+        Origin(0x9e21),
+        Entry(TailFacingRightFinalWhips),
+        Op(CommonEnemyInstructionCodes.SetTimer, 0x0004),
+        Op(BodyDisplaceGraphics, 0x0001, 0xffff),
+        Frame(2),
+        Op(BodyDisplaceGraphics, 0x0002, 0xfffe),
+        Frame(6),
+        Op(BodyDisplaceGraphics, 0x0003, 0xfffd),
+        Frame(5),
+        Op(BodyDisplaceGraphics, 0x0004, 0xfffc),
+        Frame(4),
+        Op(BodyDisplaceGraphics, 0x0005, 0xfffb),
+        Frame(3),
+        Op(BodyDisplaceGraphics, 0x0006, 0xfffa),
+        Frame(2),
+        Op(BodyDisplaceGraphics, 0x0008, 0xfff8),
+        Frame(1),
+        Op(BodyDisplaceGraphics, 0x0000, 0x0000),
+        Op(TailTailWhipHit),
+        Op(QueueSFXInYLib2Max6, 0x0025),
+        Frame(3),
+        Frame(1),
+        Frame(2),
+        Frame(3),
+        Frame(4),
+        Frame(5),
+        Frame(6),
+        Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, TailFacingRightFinalTailWhips1),
+        Op(BodyFunctionInY, BodyGrabbedSamusFlailTailFlyStraightUpFunction),
+        Op(CommonEnemyInstructionCodes.Goto, TailFacingRightIdle0),
+        Skip(2),
+        Entry(TailFacingRightWhip),
+        Op(BodyDisplaceGraphics, 0x0001, 0xffff),
+        Frame(2),
+        Op(BodyDisplaceGraphics, 0x0002, 0xfffe),
+        Frame(6),
+        Op(BodyDisplaceGraphics, 0x0003, 0xfffd),
+        Frame(5),
+        Op(BodyDisplaceGraphics, 0x0004, 0xfffc),
+        Frame(4),
+        Op(BodyDisplaceGraphics, 0x0005, 0xfffb),
+        Frame(3),
+        Op(BodyDisplaceGraphics, 0x0006, 0xfffa),
+        Frame(2),
+        Op(BodyDisplaceGraphics, 0x0008, 0xfff8),
+        Frame(1),
+        Op(BodyDisplaceGraphics, 0x0000, 0x0000),
+        Op(TailTailWhipHit),
+        Op(QueueSFXInYLib2Max6, 0x0025),
+        Frame(3),
+        Frame(1),
+        Frame(2),
+        Frame(3),
+        Frame(4),
+        Frame(5),
+        Frame(6),
+        Op(CommonEnemyInstructionCodes.Goto, TailFacingRightIdle0),
+        Skip(2),
+        Entry(TailFacingRightFlail),
+        Frame(2),
+        Frame(6),
+        Frame(5),
+        Frame(4),
+        Frame(3),
+        Frame(2),
+        Frame(1),
+        Op(QueueSFXInYLib2Max6, 0x0025),
+        Frame(3),
+        Frame(1),
+        Frame(2),
+        Frame(3),
+        Frame(4),
+        Frame(5),
+        Frame(6),
+        Op(CommonEnemyInstructionCodes.Goto, TailFacingRightIdle0));
+
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+
+    internal static DraygonInstructionMechanicsWord MechanicsWord(int index)
     {
-        get
-        {
-            int count = 0;
-            for (int index = 0; index + 1 < Words.Length; index++)
-                if (IsTimedRecord(index)) count++;
-            return count;
-        }
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    private static bool IsTimedRecord(int index) =>
-        Words[index].Value < 0x8000 && Words[index + 1].Address == Words[index].Address + 4;
-    internal static DraygonInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index)
-    {
-        if (index < 0) throw new IndexOutOfRangeException();
-        for (int word = 0; word + 1 < Words.Length; word++)
-        {
-            if (!IsTimedRecord(word)) continue;
-            if (index-- == 0) return (ushort)(Words[word].Address + sizeof(ushort));
-        }
-        throw new IndexOutOfRangeException();
-    }
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        Layout.TryReadMechanicsWord(address, out ushort value) ? value :
+            throw new InvalidDataException(
+                $"Draygon instruction mechanics pointer $A5:{address:X4} is not compiled.");
 
-    internal static ushort ReadMechanicsWord(ushort address)
-    {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            DraygonInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Draygon instruction mechanics pointer $A5:{address:X4} is not compiled.");
-    }
-
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa50000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1)))
-                return true;
-        }
-        return false;
-    }
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

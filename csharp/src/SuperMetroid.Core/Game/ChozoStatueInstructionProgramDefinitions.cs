@@ -28,8 +28,10 @@ internal static class ChozoStatueInstructionProgramDefinitions
     /// <summary>$AA:E7DA: Wrecked Ship carrying/walking pre-instruction.</summary>
     private const ushort WreckedShipWalking = 0xe7da;
 
-    // Independent pose holds and footstep offsets remain unresolved under issue1165.
-    // The layout conversion does not exempt these payloads or the per-scene holds.
+    // Pose holds are authored animation cadence (reviewed under #1165). Footstep offsets are the
+    // chosen spike-clearing spawn points within each drawn stride pose: compared with the support-foot
+    // origins -31/-28/-14/-7 in ChozoStrideGeometryDefinitions they differ by +23/+8/-2/+7, so no
+    // stride geometry derives them; they are placement choices attached to the artwork.
     private static readonly ushort[] AcquisitionHolds = [32, 8, 80];
     private static readonly ushort[] StrideHolds = [8, 11, 8, 6];
     private static readonly short[] FootstepOffsets = [-8, -20, -16, 0];

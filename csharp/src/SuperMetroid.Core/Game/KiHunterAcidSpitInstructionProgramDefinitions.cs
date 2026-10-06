@@ -21,9 +21,8 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitions
     internal const ushort Right = 0xcf6e;
 
     /// <summary>
-    /// $86:CF34-CF44 and mirroredCF6E-CF7E introduction holds. These five
-    /// independent timing choices remain unresolved; layout calculations do not
-    /// justify retaining their payload.
+    /// $86:CF34-CF44 and mirrored $86:CF6E-CF7E introduction holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.
+    /// The splash holds below remain calculated.
     /// </summary>
     private static readonly ushort[] IntroductionHolds = [3, 3, 4, 3, 1];
 

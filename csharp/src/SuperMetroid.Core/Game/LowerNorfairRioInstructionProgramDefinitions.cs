@@ -28,11 +28,11 @@ internal static class LowerNorfairRioInstructionProgramDefinitions
     /// <summary><c>UNUSED_HoltzConstants_A2C6C0</c>, adjacent data at $A2:C6C0.</summary>
     internal const ushort AdjacentMovementDefinitions = 0xc6c0;
 
-    /// <summary>A2:C630 preparation holds; required timing inputs until a functional derivation is established.</summary>
+    /// <summary>$A2:C630 preparation holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] PreparationDurations = [3, 3, 3, 3, 2, 1, 2, 3, 3];
-    /// <summary>A2:C686 cooldown holds, including the distinct final three poses; required issue-1165 timing inputs.</summary>
+    /// <summary>$A2:C686 cooldown holds, including the distinct final three poses. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] CooldownDurations = [3, 3, 2, 1, 2, 3, 1, 1, 1];
-    /// <summary>A2:C6B0 flame display holds; the three values alone do not establish a halving process. Required input.</summary>
+    /// <summary>$A2:C6B0 flame display holds; three values do not establish a halving process. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] FlameDurations = [6, 4, 3];
     internal static int MechanicsWordCount => 51;
     internal static int PresentationWordCount => 32;

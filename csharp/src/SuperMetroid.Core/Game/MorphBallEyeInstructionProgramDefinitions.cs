@@ -38,8 +38,8 @@ internal static class MorphBallEyeInstructionProgramDefinitions
 
     internal const int ActiveFrameCount = 16;
 
-    // Still unresolved authored eyelid cadence: closing uses these holds forward,
-    // opening reverses them after its activation delay. No exception is claimed.
+    // Authored eyelid cadence (reviewed under #1165): closing uses these holds forward,
+    // opening reverses them after its activation delay; the reversal is calculated.
     private static readonly ushort[] EyelidDurations = [8, 48, 5];
 
     internal static int MechanicsWordCount => 46;

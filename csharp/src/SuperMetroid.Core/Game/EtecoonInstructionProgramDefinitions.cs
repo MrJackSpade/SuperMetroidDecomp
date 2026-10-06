@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 internal readonly record struct EtecoonInstructionMechanicsWord(ushort Address, ushort Value);
@@ -51,93 +53,106 @@ internal static class EtecoonInstructionProgramDefinitions
     /// <summary>The first Etecoon movement constant after the programs, at $A7:E900.</summary>
     internal const ushort FirstAdjacentMechanicsData = 0xe900;
 
-    private static readonly EtecoonInstructionMechanicsWord[] Words =
-    [
-        new(LookRightAtSamusAndRunLeft, 5),
-        new(0xe822, CommonEnemyInstructionCodes.Sleep),
-        new(BeginRunningLeft, 1),
-        new(RunningLeft, 5), new(0xe82c, 5), new(0xe830, 5), new(0xe834, 5),
-        new(0xe838, CommonEnemyInstructionCodes.Goto), new(0xe83a, RunningLeft),
-        new(WallJumpLeft, 8), new(WallJumpLeftLoop, 3), new(0xe844, 3),
-        new(0xe848, 3), new(0xe84c, 3),
-        new(0xe850, CommonEnemyInstructionCodes.Goto), new(0xe852, WallJumpLeftLoop),
-        new(HoppingFacingLeft, 1), new(0xe858, CommonEnemyInstructionCodes.Sleep),
-        new(ContinueHoppingFacingLeft, 0x0c), new(0xe85e, 0x0c),
-        new(HitCeiling, 6), new(0xe866, 0x0c), new(0xe86a, 0x0c),
-        new(0xe86e, CommonEnemyInstructionCodes.Sleep),
-        new(WallJumpLeftEligible, 1), new(0xe874, CommonEnemyInstructionCodes.Sleep),
-        new(LookLeftAtSamusAndRunRight, 5),
-        new(0xe87a, CommonEnemyInstructionCodes.Sleep),
-        new(BeginRunningRight, 1),
-        new(RunningRight, 5), new(0xe884, 5), new(0xe888, 5), new(0xe88c, 5),
-        new(0xe890, CommonEnemyInstructionCodes.Goto), new(0xe892, RunningRight),
-        new(WallJumpRight, 8),
-        new(JumpingRight, 3), new(0xe89c, 3), new(0xe8a0, 3), new(0xe8a4, 3),
-        new(0xe8a8, CommonEnemyInstructionCodes.Goto), new(0xe8aa, JumpingRight),
-        new(HoppingFacingRight, 1), new(0xe8b0, CommonEnemyInstructionCodes.Sleep),
-        new(ContinueHoppingFacingRight, 0x0c), new(0xe8b6, 0x0c),
-        new(0xe8ba, 6), new(0xe8be, 0x0c), new(0xe8c2, 0x0c),
-        new(0xe8c6, CommonEnemyInstructionCodes.Sleep),
-        new(WallJumpRightEligible, 1), new(0xe8cc, CommonEnemyInstructionCodes.Sleep),
-        new(Initial, 8), new(0xe8d2, CommonEnemyInstructionCodes.Goto),
-        new(0xe8d4, Initial),
-        new(Flexing, CommonEnemyInstructionCodes.SetTimer), new(0xe8d8, 4),
-        new(FlexingLoop, 8), new(0xe8de, 8), new(0xe8e2, 8), new(0xe8e6, 8),
-        new(0xe8ea, 8), new(0xe8ee, 8),
-        new(0xe8f2, CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
-        new(0xe8f4, FlexingLoop), new(0xe8f6, 0x20), new(0xe8fa, 0x20),
-        new(0xe8fe, CommonEnemyInstructionCodes.Sleep),
-    ];
+    /// <summary>Native program bank $A7.</summary>
+    internal const byte Bank = 0xa7;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe820, 0xe826,
-        0xe82a, 0xe82e, 0xe832, 0xe836,
-        0xe83e, 0xe842, 0xe846, 0xe84a, 0xe84e,
-        0xe856, 0xe85c, 0xe860,
-        0xe864, 0xe868, 0xe86c,
-        0xe872,
-        0xe878, 0xe87e,
-        0xe882, 0xe886, 0xe88a, 0xe88e,
-        0xe896,
-        0xe89a, 0xe89e, 0xe8a2, 0xe8a6,
-        0xe8ae, 0xe8b4, 0xe8b8, 0xe8bc, 0xe8c0, 0xe8c4,
-        0xe8ca,
-        0xe8d0,
-        0xe8dc, 0xe8e0, 0xe8e4, 0xe8e8, 0xe8ec, 0xe8f0,
-        0xe8f8, 0xe8fc,
-    ];
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xe81e),
+        Entry(LookRightAtSamusAndRunLeft),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(BeginRunningLeft),
+        Frame(1),
+        Entry(RunningLeft),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, RunningLeft),
+        Entry(WallJumpLeft),
+        Frame(8),
+        Entry(WallJumpLeftLoop),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Op(CommonEnemyInstructionCodes.Goto, WallJumpLeftLoop),
+        Entry(HoppingFacingLeft),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(ContinueHoppingFacingLeft),
+        Frame(12),
+        Frame(12),
+        Entry(HitCeiling),
+        Frame(6),
+        Frame(12),
+        Frame(12),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(WallJumpLeftEligible),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(LookLeftAtSamusAndRunRight),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(BeginRunningRight),
+        Frame(1),
+        Entry(RunningRight),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Frame(5),
+        Op(CommonEnemyInstructionCodes.Goto, RunningRight),
+        Entry(WallJumpRight),
+        Frame(8),
+        Entry(JumpingRight),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Frame(3),
+        Op(CommonEnemyInstructionCodes.Goto, JumpingRight),
+        Entry(HoppingFacingRight),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(ContinueHoppingFacingRight),
+        Frame(12),
+        Frame(12),
+        Frame(6),
+        Frame(12),
+        Frame(12),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(WallJumpRightEligible),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(Initial),
+        Frame(8),
+        Op(CommonEnemyInstructionCodes.Goto, Initial),
+        Entry(Flexing),
+        Op(CommonEnemyInstructionCodes.SetTimer, 0x0004),
+        Entry(FlexingLoop),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, FlexingLoop),
+        Frame(32),
+        Frame(32),
+        Op(CommonEnemyInstructionCodes.Sleep));
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static EtecoonInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
-
-    internal static ushort ReadMechanicsWord(ushort address)
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    internal static EtecoonInstructionMechanicsWord MechanicsWord(int index)
     {
-        for (int index = 0; index < Words.Length; index++)
-        {
-            if (Words[index].Address == address)
-                return Words[index].Value;
-        }
-        throw new InvalidDataException(
-            $"Etecoon instruction mechanics pointer $A7:{address:X4} is not compiled.");
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa70000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        Layout.TryReadMechanicsWord(address, out ushort value) ? value :
+            throw new InvalidDataException(
+                $"Etecoon instruction mechanics pointer $A7:{address:X4} is not compiled.");
+
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

@@ -23,15 +23,15 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitions
 
     /// <summary>
     /// $86:DC06 release-frame holds; the spawn callback lies between the second and third frames.
-    /// These unequal timings remain required issue-1165 work. Program position alone does not derive them.
+    /// Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.
     /// </summary>
     private static readonly ushort[] ReleaseDurations = [1, 6, 16, 6, 1];
     /// <summary>
     /// $86:DC34 shot-spore display holds around property, sound and drop callbacks.
-    /// These unequal timings remain required issue-1165 work, with no impossible/nonsense disposition established.
+    /// Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.
     /// </summary>
     private static readonly ushort[] ShotDurations = [1, 3, 6, 5, 5, 5, 6];
-    // Closed-emitter hold 1 and airborne/stalk holds 5 also remain independent required timing inputs.
+    // Closed-emitter hold 1 and airborne/stalk holds 5 are the same authored cadence (reviewed under #1165).
     internal static int MechanicsWordCount => 28;
     internal static int PresentationWordCount => 17;
 

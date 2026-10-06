@@ -29,26 +29,26 @@ internal static class EnemyDeathInstructionProgramDefinitions
     /// <summary>Samus-contact death program at $86:EDFF.</summary>
     internal const ushort KilledBySamusContact = 0xedff;
 
-    /// <summary>Unresolved blank respawn countdown 64 at $86:ECA3; no timing exception approved.</summary>
-    private const ushort UnresolvedRespawnBlankDuration = 64;
+    /// <summary>Blank respawn countdown 64 at $86:ECA3. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort RespawnBlankDuration = 64;
 
-    /// <summary>Unresolved big-explosion repetition count 5, TimerInY operand at $86:ECAD.</summary>
-    private const ushort UnresolvedBigExplosionRepetitions = 5;
+    /// <summary>Big-explosion repetition count 5, TimerInY operand at $86:ECAD. Reviewed under #1165 as an authored repetition count: it only repeats the chosen frames, and no simulation quantity derives it.</summary>
+    private const ushort BigExplosionRepetitions = 5;
 
-    /// <summary>Unresolved Mini-Kraid repetition count 16, TimerInY operand at $86:ECC7.</summary>
-    private const ushort UnresolvedMiniKraidRepetitions = 16;
+    /// <summary>Mini-Kraid repetition count 16, TimerInY operand at $86:ECC7. Reviewed under #1165 as an authored repetition count: it only repeats the chosen frames, and no simulation quantity derives it.</summary>
+    private const ushort MiniKraidRepetitions = 16;
 
-    /// <summary>Unresolved big-explosion blank hold 8 at $86:ECB7, after two sprite-spawn commands.</summary>
-    private const ushort UnresolvedBigExplosionBlankDuration = 8;
+    /// <summary>Big-explosion blank hold 8 at $86:ECB7, after two sprite-spawn commands. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort BigExplosionBlankDuration = 8;
 
-    /// <summary>Unresolved Mini-Kraid blank hold 8 at $86:ECD5, after three sprite-spawn commands.</summary>
-    private const ushort UnresolvedMiniKraidBlankDuration = 8;
+    /// <summary>Mini-Kraid blank hold 8 at $86:ECD5, after three sprite-spawn commands. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort MiniKraidBlankDuration = 8;
 
-    /// <summary>Unresolved normal-explosion pose hold 5 at $86:ED4B..ED61.</summary>
-    private const ushort UnresolvedNormalExplosionPoseDuration = 5;
+    /// <summary>Normal-explosion pose hold 5 at $86:ED4B..ED61. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort NormalExplosionPoseDuration = 5;
 
-    /// <summary>Unresolved Samus-contact death pose hold 2 at $86:EDFF..EE3D.</summary>
-    private const ushort UnresolvedContactDeathPoseDuration = 2;
+    /// <summary>Samus-contact death pose hold 2 at $86:EDFF..EE3D. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
+    private const ushort ContactDeathPoseDuration = 2;
 
     internal static int MechanicsWordCount => 66;
     internal static int PresentationWordCount => 31;
@@ -109,7 +109,7 @@ internal static class EnemyDeathInstructionProgramDefinitions
         if (address >= RespawnTail && address < BigExplosion && ((address - RespawnTail) & 1) == 0)
             result = (address - RespawnTail) switch
             {
-                0 => UnresolvedRespawnBlankDuration,
+                0 => RespawnBlankDuration,
                 4 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Pickup_HandleRespawningEnemy,
                 6 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete,
                 _ => null,
@@ -134,7 +134,7 @@ internal static class EnemyDeathInstructionProgramDefinitions
     {
         int firstFrameOffset = miniKraid ? 16 : 12;
         if (offset == 0) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_TimerInY;
-        if (offset == 2) return miniKraid ? UnresolvedMiniKraidRepetitions : UnresolvedBigExplosionRepetitions;
+        if (offset == 2) return miniKraid ? MiniKraidRepetitions : BigExplosionRepetitions;
         if (offset < firstFrameOffset)
             return offset % 4 == 0
                 ? miniKraid ? EnemyProjectileCodePointers.Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_20
@@ -142,7 +142,7 @@ internal static class EnemyDeathInstructionProgramDefinitions
                 : (ushort)(3 + 9 * ((offset - 6) / 4));
         return (offset - firstFrameOffset) switch
         {
-            0 => miniKraid ? UnresolvedMiniKraidBlankDuration : UnresolvedBigExplosionBlankDuration,
+            0 => miniKraid ? MiniKraidBlankDuration : BigExplosionBlankDuration,
             4 => EnemyProjectileCodePointers.Instruction_EnemyProj_EDeathExplo_QueueSmallExplosionSoundFX,
             6 => EnemyProjectileCodePointers.Instruction_EnemyProjectile_DecrementTimer_GotoYIfNonZero,
             8 => (ushort)((miniKraid ? MiniKraidExplosion : BigExplosion) + 4),
@@ -165,8 +165,8 @@ internal static class EnemyDeathInstructionProgramDefinitions
         if (offset == pickup + 2) return EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete;
         int normalized = offset - (offset > sound ? 2 : 0);
         if (normalized % 4 != 0) return null;
-        if (contact) return UnresolvedContactDeathPoseDuration;
-        if (!small) return UnresolvedNormalExplosionPoseDuration;
+        if (contact) return ContactDeathPoseDuration;
+        if (!small) return NormalExplosionPoseDuration;
         return SmallExplosionAnimationDefinitions.Duration(normalized / 4);
     }
 }

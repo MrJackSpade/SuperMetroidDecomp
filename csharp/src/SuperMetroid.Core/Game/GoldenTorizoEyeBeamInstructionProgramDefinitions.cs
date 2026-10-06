@@ -22,7 +22,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEyeBeam_Normal</c> at $86:B410.</summary>
     internal const ushort Normal = 0xb410;
 
-    /// <summary>Independent native wall/landing/flight holds and initial explosion hold remain required.</summary>
+    /// <summary>Wall, landing, flight and initial explosion holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort WallHold = 4, LandingHold = 8, FlightHold = 1, ExplosionInitialHold = 4;
     /// <summary>$86:B3FC clears projectile property bit13, enabling Samus damage.</summary>
     private const ushort EnableSamusDamageMask = unchecked((ushort)~(1 << 13));

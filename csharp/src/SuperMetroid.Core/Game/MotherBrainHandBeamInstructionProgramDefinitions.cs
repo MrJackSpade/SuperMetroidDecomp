@@ -19,8 +19,7 @@ internal static class MotherBrainHandBeamInstructionProgramDefinitions
     private const ushort TerminalDelete = Initial + StageCount * StageBytes;
 
     /// <summary>$86:C796/C79F/C7A3/C7A7/C7AB/C7AF/C7B3: selected frame holds,
-    /// repeated in the next two stages. These independent timing choices remain unresolved;
-    /// repeated storage and executable address layout do not justify their magnitudes.</summary>
+    /// repeated in the next two stages (the repetition is calculated). Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] Durations = [3, 3, 2, 2, 1, 1, 1];
 
     internal static int NativeWordCount => StageCount * WordsPerStage + 1;

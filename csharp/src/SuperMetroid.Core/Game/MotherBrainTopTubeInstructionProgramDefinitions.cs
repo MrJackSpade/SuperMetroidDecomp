@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One compiled Mother Brain ceiling-tube mechanics word at its bank-$86 address.</summary>
@@ -23,25 +25,32 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitions
     /// <summary>Top-middle-right ceiling tube instruction list at $86:CC55.</summary>
     internal const ushort TopMiddleRight = 0xcc55;
 
-    private static readonly MotherBrainTopTubeInstructionMechanicsWord[] Words =
-    [
-        new(TopRight, 0x0001),
-        new(0xcc47, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(TopLeft, 0x0001),
-        new(0xcc4d, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(TopMiddleLeft, 0x0001),
-        new(0xcc53, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-        new(TopMiddleRight, 0x0001),
-        new(0xcc59, EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
-    ];
+    /// <summary>Native program bank $86.</summary>
+    internal const byte Bank = 0x86;
 
-    private static readonly ushort[] PresentationWords = [0xcc45, 0xcc4b, 0xcc51, 0xcc57];
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xcc43),
+        Entry(TopRight),
+        Frame(1),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
+        Entry(TopLeft),
+        Frame(1),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
+        Entry(TopMiddleLeft),
+        Frame(1),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep),
+        Entry(TopMiddleRight),
+        Frame(1),
+        Op(EnemyProjectileCodePointers.Instruction_EnemyProjectile_Sleep));
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static MotherBrainTopTubeInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    internal static MotherBrainTopTubeInstructionMechanicsWord MechanicsWord(int index)
+    {
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
+    }
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainTopRightTube or
@@ -49,42 +58,10 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitions
         RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube or
         RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube;
 
-    internal static ushort ReadMechanicsWord(ushort address)
-    {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            MotherBrainTopTubeInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        Layout.TryReadMechanicsWord(address, out ushort value) ? value :
+            throw new InvalidDataException(
+                $"Mother Brain ceiling-tube mechanics pointer $86:{address:X4} is not compiled.");
 
-        throw new InvalidDataException(
-            $"Mother Brain ceiling-tube mechanics pointer $86:{address:X4} is not compiled.");
-    }
-
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
-            return false;
-
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

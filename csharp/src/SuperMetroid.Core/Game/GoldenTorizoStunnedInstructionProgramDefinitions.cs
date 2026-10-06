@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 internal readonly record struct GoldenTorizoStunnedMechanicsWord(
@@ -22,63 +24,45 @@ internal static class GoldenTorizoStunnedInstructionProgramDefinitions
     /// <summary><c>Function_GoldenTorizo_Movement_Walking</c> at $AA:D5F1.</summary>
     private const ushort WalkingMovement = 0xd5f1;
 
-    private static readonly GoldenTorizoStunnedMechanicsWord[] Words =
-    [
-        new(0xd193, TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY),
-        new(0xd195, AttackingMovement),
-        new(0xd197, TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock),
-        new(0xd199, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xd19b, 0x0018),
-        new(0xd19d, CommonEnemyInstructionCodes.SetTimer),
-        new(0xd19f, 0x0002),
-        new(0xd1a1, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xd1a3, 0x0003),
-        new(0xd1a5, CommonEnemyInstructionCodes.CopyToVram),
-        new(0xd1ae, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xd1b0, 0x0003),
-        new(0xd1b2, CommonEnemyInstructionCodes.CopyToVram),
-        new(0xd1bb, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xd1bd, 0x0003),
-        new(0xd1bf, CommonEnemyInstructionCodes.CopyToVram),
-        new(0xd1c8, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xd1ca, 0x0003),
-        new(0xd1cc, CommonEnemyInstructionCodes.CopyToVram),
-        new(0xd1d5, CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate),
-        new(0xd1d7, TileLoop),
-        new(0xd1d9, CommonEnemyInstructionCodes.WaitFrames),
-        new(0xd1db, 0x0010),
-        new(0xd1dd, TorizoInstructionCodes.Instruction_Torizo_ClearAnimationLock),
-        new(0xd1df, TorizoInstructionCodes.Instruction_GoldenTorizo_UnmarkStunned),
-        new(0xd1e1, TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY),
-        new(0xd1e3, WalkingMovement),
-        new(0xd1e5, TorizoInstructionCodes.Instruction_Torizo_Return),
-    ];
+    /// <summary>Native program bank $AA.</summary>
+    internal const byte Bank = 0xaa;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static GoldenTorizoStunnedMechanicsWord MechanicsWord(int index) =>
-        Words[index];
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xd193),
+        Entry(Start),
+        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, AttackingMovement),
+        Op(TorizoInstructionCodes.Instruction_Torizo_SetAnimationLock),
+        Op(CommonEnemyInstructionCodes.WaitFrames, 0x0018),
+        Op(CommonEnemyInstructionCodes.SetTimer, 0x0002),
+        Entry(TileLoop),
+        Op(CommonEnemyInstructionCodes.WaitFrames, 0x0003),
+        Op(CommonEnemyInstructionCodes.CopyToVram),
+        Origin(0xd1ae),
+        Op(CommonEnemyInstructionCodes.WaitFrames, 0x0003),
+        Op(CommonEnemyInstructionCodes.CopyToVram),
+        Origin(0xd1bb),
+        Op(CommonEnemyInstructionCodes.WaitFrames, 0x0003),
+        Op(CommonEnemyInstructionCodes.CopyToVram),
+        Origin(0xd1c8),
+        Op(CommonEnemyInstructionCodes.WaitFrames, 0x0003),
+        Op(CommonEnemyInstructionCodes.CopyToVram),
+        Origin(0xd1d5),
+        Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, TileLoop),
+        Op(CommonEnemyInstructionCodes.WaitFrames, 0x0010),
+        Op(TorizoInstructionCodes.Instruction_Torizo_ClearAnimationLock),
+        Op(End),
+        Op(TorizoInstructionCodes.Instruction_CommonAA_Enemy0FB2_InY, WalkingMovement),
+        Op(TorizoInstructionCodes.Instruction_Torizo_Return));
 
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static GoldenTorizoStunnedMechanicsWord MechanicsWord(int index)
     {
-        foreach (GoldenTorizoStunnedMechanicsWord word in Words)
-        {
-            if (word.Address != address) continue;
-            value = word.Value;
-            return true;
-        }
-        value = 0;
-        return false;
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
     }
 
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xaa0000)
-            return false;
-        ushort offset = unchecked((ushort)address);
-        foreach (GoldenTorizoStunnedMechanicsWord word in Words)
-            if (offset == word.Address ||
-                offset == unchecked((ushort)(word.Address + 1)))
-                return true;
-        return false;
-    }
+    internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
+        Layout.TryReadMechanicsWord(address, out value);
+
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

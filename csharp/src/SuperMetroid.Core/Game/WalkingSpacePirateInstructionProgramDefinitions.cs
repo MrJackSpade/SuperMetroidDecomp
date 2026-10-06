@@ -31,9 +31,9 @@ internal static class WalkingSpacePirateInstructionProgramDefinitions
     internal static int MechanicsWordCount => 92;
     internal static int PresentationWordCount => 50;
 
-    /// <summary>Independent native pose holds remain pending; layout sharing does not derive these values.</summary>
+    /// <summary>Walking Space Pirate pose holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort FlinchHold = 16, WalkHold = 10, AimHold = 24, FireHold = 8, LookHold = 32;
-    /// <summary>$B2:FBA2/FBAA/FBB2: independently chosen lower/middle/upper laser Y offsets remain pending.</summary>
+    /// <summary>$B2:FBA2/FBAA/FBB2: laser Y offsets 8/2/-8 at the gun barrel of each drawn aim pose. The +/-8 symmetry calculates; the barrel heights are placement attached to the artwork (reviewed under #1165).</summary>
     private const short OuterShotOffset = 8, MiddleShotOffset = 2;
 
     internal static WalkingSpacePirateInstructionMechanicsWord MechanicsWord(int index)

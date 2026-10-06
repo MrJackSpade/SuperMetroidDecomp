@@ -21,14 +21,14 @@ internal static class ShaktoolProjectileInstructionProgramDefinitions
 
     /// <summary>$86:BD9C begins the adjacent initialization code.</summary>
     private const ushort End = 0xbd9c;
-    /// <summary>$86:BD68/6C/80: common growth-pose cadence, pending independent timing.</summary>
-    private const ushort UnresolvedGrowthTicks = 4;
-    /// <summary>$86:BD78: middle circle delay before installing its movement callback, pending.</summary>
-    private const ushort UnresolvedMiddleLaunchTicks = 6;
-    /// <summary>$86:BD8C: back circle delay before installing its movement callback, pending.</summary>
-    private const ushort UnresolvedBackLaunchTicks = 10;
-    /// <summary>$86:BD70/84/94: repeated final-pose hold, pending independent timing.</summary>
-    private const ushort UnresolvedHeldPoseTicks = 119;
+    /// <summary>$86:BD68/6C/80: common growth-pose cadence. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort GrowthTicks = 4;
+    /// <summary>$86:BD78: middle circle delay before installing its movement callback. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort MiddleLaunchTicks = 6;
+    /// <summary>$86:BD8C: back circle delay before installing its movement callback. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort BackLaunchTicks = 10;
+    /// <summary>$86:BD70/84/94: repeated final-pose hold. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
+    private const ushort HeldPoseTicks = 119;
     private const int PresentationOperand = -1;
 
     internal static int MechanicsWordCount => 18;
@@ -75,18 +75,18 @@ internal static class ShaktoolProjectileInstructionProgramDefinitions
         var writer = new WordSelector(address, start);
         if (start == Front)
         {
-            writer.Timed(UnresolvedGrowthTicks);
-            writer.Timed(UnresolvedGrowthTicks);
+            writer.Timed(GrowthTicks);
+            writer.Timed(GrowthTicks);
         }
         else
         {
-            writer.Timed(start == Middle ? UnresolvedMiddleLaunchTicks : UnresolvedBackLaunchTicks);
+            writer.Timed(start == Middle ? MiddleLaunchTicks : BackLaunchTicks);
             writer.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_PreInstructionInY);
             writer.Command(EnemyProjectileCodePointers.PreInst_EnemyProjectile_ShaktoolsAttack_MiddleBack_Moving);
-            if (start == Middle) writer.Timed(UnresolvedGrowthTicks);
+            if (start == Middle) writer.Timed(GrowthTicks);
         }
         ushort heldPose = (ushort)(start + (start == Middle ? 12 : 8));
-        writer.Timed(UnresolvedHeldPoseTicks);
+        writer.Timed(HeldPoseTicks);
         writer.Command(EnemyProjectileCodePointers.Instruction_EnemyProjectile_GotoY);
         writer.Command(heldPose);
         return writer.Value;

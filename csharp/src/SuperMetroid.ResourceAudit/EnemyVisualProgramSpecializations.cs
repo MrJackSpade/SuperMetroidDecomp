@@ -16,9 +16,9 @@ internal static class EnemyVisualProgramSpecializations
     private static readonly Dictionary<string, string> ControlOnly = new Dictionary<string, string>
     {
         [nameof(CommonEnemyProjectileInstructionProgramDefinitions)] = "E681BB9CF421324D916B1AD8F50D4780A17678158323A05EBA36ABB7A9E3509D",
-        [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "D2A9DC8911732A71F49E80E9D95AD47D1976AD324D20D9712A364BEC8E090DF1",
+        [nameof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)] = "699E83B6058B7FDC925C9E6BC0D9FC38DD8A7B682D17856FC07261B352A3201C",
         [nameof(GoldenTorizoJumpLandingInstructionProgramDefinitions)] = "3005930C469DDE29CCC5E38213020BE64F744E4BF92B41CB512D2ADF5536A0D0",
-        [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "F00EF6C4538BC256AC8C6FED813F52C2BC2334B36D640B3312333E5B54C76BB1",
+        [nameof(GoldenTorizoStunnedInstructionProgramDefinitions)] = "54E323801E720755A2B549DB47F66CBD18B0E4BCB2051DFF3A2D506EE3EEBFC6",
         [nameof(TourianEntranceStatueInstructionProgramDefinitions)] = "C59312C3A87CBDE15DB6397E86783EC62CD34942656F12CCA056EF94B838A322",
     };
 

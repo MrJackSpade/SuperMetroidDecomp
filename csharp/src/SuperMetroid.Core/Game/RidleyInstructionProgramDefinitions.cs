@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One compiled Ridley mechanics word at its native bank-$A6 address.</summary>
@@ -30,141 +32,271 @@ internal static class RidleyInstructionProgramDefinitions
     /// <summary><c>InstList_RidleyCeres_FacingLeft_TransitionToFlying</c> at $A6:E91D.</summary>
     public const ushort TransitionToFlying = 0xe91d;
 
-    private static readonly RidleyInstructionMechanicsWord[] Words =
-    [
-        new(0xe538, 0xe517), new(0xe53a, 0xe542), new(0xe53c, 0x000c),
-        new(0xe540, 0x812f), new(0xe542, 0x000c), new(0xe546, 0x812f),
-        new(0xe548, 0xe517), new(0xe54a, 0xe576), new(0xe54c, 0xe501),
-        new(0xe54e, 0x0000), new(0xe550, 0x0004), new(0xe554, 0xe501),
-        new(0xe556, 0x0002), new(0xe558, 0x0006), new(0xe55c, 0xe501),
-        new(0xe55e, 0x0004), new(0xe560, 0x0050), new(0xe564, 0xe501),
-        new(0xe566, 0x0002), new(0xe568, 0x0006), new(0xe56c, 0xe501),
-        new(0xe56e, 0x0000), new(0xe570, 0x0004), new(0xe574, 0x812f),
-        new(0xe576, 0xe501), new(0xe578, 0x0000), new(0xe57a, 0x0004),
-        new(0xe57e, 0xe501), new(0xe580, 0x0002), new(0xe582, 0x0006),
-        new(0xe586, 0xe501), new(0xe588, 0x0004), new(0xe58a, 0x0050),
-        new(0xe58e, 0xe501), new(0xe590, 0x0002), new(0xe592, 0x0006),
-        new(0xe596, 0xe501), new(0xe598, 0x0000), new(0xe59a, 0x0004),
-        new(0xe59e, 0x812f), new(0xe658, 0xe517), new(0xe65a, 0xe676),
-        new(0xe65c, 0xe501), new(0xe65e, 0x0000), new(0xe660, 0x0004),
-        new(0xe664, 0xe501), new(0xe666, 0x0002), new(0xe668, 0x0006),
-        new(0xe66c, 0xe501), new(0xe66e, 0x0004), new(0xe670, 0x0001),
-        new(0xe674, 0x812f), new(0xe676, 0xe501), new(0xe678, 0x0000),
-        new(0xe67a, 0x0004), new(0xe67e, 0xe501), new(0xe680, 0x0002),
-        new(0xe682, 0x0006), new(0xe686, 0xe501), new(0xe688, 0x0004),
-        new(0xe68a, 0x0001), new(0xe68e, 0x812f), new(0xe690, 0xe517),
-        new(0xe692, 0xe6ae), new(0xe694, 0x0006), new(0xe698, 0xe4be),
-        new(0xe69a, 0x0008), new(0xe69e, 0x0060), new(0xe6a2, 0x0008),
-        new(0xe6a6, 0xe4ca), new(0xe6a8, 0x0001), new(0xe6ac, 0x812f),
-        new(0xe6ae, 0x0006), new(0xe6b2, 0xe4be), new(0xe6b4, 0x0008),
-        new(0xe6b8, 0x0060), new(0xe6bc, 0x0008), new(0xe6c0, 0xe4ca),
-        new(0xe6c2, 0x0001), new(0xe6c6, 0x812f), new(0xe6c8, 0xe517),
-        new(0xe6ca, 0xe6de), new(0xe6cc, 0x0006), new(0xe6d0, 0xe4be),
-        new(0xe6d2, 0x0008), new(0xe6d6, 0x0010), new(0xe6da, 0xe4ca),
-        new(0xe6dc, 0x812f), new(0xe6de, 0x0006), new(0xe6e2, 0xe4be),
-        new(0xe6e4, 0x0008), new(0xe6e8, 0x0010), new(0xe6ec, 0xe4ca),
-        new(0xe6ee, 0x812f), new(0xe6f0, 0xe727), new(0xe6f2, 0x0001),
-        new(0xe6f6, 0x0008), new(0xe6fa, 0xe72f), new(0xe6fc, 0x0001),
-        new(0xe700, 0x0001), new(0xe704, 0x812f), new(0xe706, 0xe727),
-        new(0xe708, 0x0001), new(0xe70c, 0x0008), new(0xe710, 0xe71c),
-        new(0xe712, 0x0001), new(0xe716, 0x0001), new(0xe71a, 0x812f),
-        new(0xe73a, 0xe517), new(0xe73c, 0xe7b4), new(0xe73e, 0xe4d2),
-        new(0xe740, 0xe7ac), new(0xe742, 0x0008), new(0xe746, 0xe4be),
-        new(0xe748, 0x0008), new(0xe74c, 0x0002), new(0xe750, 0xe84d),
-        new(0xe752, 0xe904), new(0xe754, 0x0005), new(0xe758, 0xe84d),
-        new(0xe75a, 0xe909), new(0xe75c, 0x0005), new(0xe760, 0xe84d),
-        new(0xe762, 0xe909), new(0xe764, 0x0005), new(0xe768, 0xe84d),
-        new(0xe76a, 0xe909), new(0xe76c, 0x0030), new(0xe770, 0x0008),
-        new(0xe774, 0xe4d2), new(0xe776, 0xe7ac), new(0xe778, 0x0020),
-        new(0xe77c, 0xe84d), new(0xe77e, 0xe4be), new(0xe780, 0x0008),
-        new(0xe784, 0x0002), new(0xe788, 0xe84d), new(0xe78a, 0xe904),
-        new(0xe78c, 0x0005), new(0xe790, 0xe84d), new(0xe792, 0xe909),
-        new(0xe794, 0x0005), new(0xe798, 0xe84d), new(0xe79a, 0xe909),
-        new(0xe79c, 0x0005), new(0xe7a0, 0xe84d), new(0xe7a2, 0xe909),
-        new(0xe7a4, 0x0030), new(0xe7a8, 0x0008), new(0xe7ac, 0xe4ca),
-        new(0xe7ae, 0x0001), new(0xe7b2, 0x812f), new(0xe7b4, 0xe4d2),
-        new(0xe7b6, 0xe820), new(0xe7b8, 0x0008), new(0xe7bc, 0xe4be),
-        new(0xe7be, 0x0008), new(0xe7c2, 0x0002), new(0xe7c6, 0xe84d),
-        new(0xe7c8, 0xe904), new(0xe7ca, 0x0005), new(0xe7ce, 0xe84d),
-        new(0xe7d0, 0xe909), new(0xe7d2, 0x0005), new(0xe7d6, 0xe84d),
-        new(0xe7d8, 0xe909), new(0xe7da, 0x0005), new(0xe7de, 0xe84d),
-        new(0xe7e0, 0xe909), new(0xe7e2, 0x0030), new(0xe7e6, 0x0008),
-        new(0xe7ea, 0xe4d2), new(0xe7ec, 0xe820), new(0xe7ee, 0x0020),
-        new(0xe7f2, 0xe4be), new(0xe7f4, 0x0008), new(0xe7f8, 0x0002),
-        new(0xe7fc, 0xe84d), new(0xe7fe, 0xe904), new(0xe800, 0x0005),
-        new(0xe804, 0xe84d), new(0xe806, 0xe909), new(0xe808, 0x0005),
-        new(0xe80c, 0xe84d), new(0xe80e, 0xe909), new(0xe810, 0x0005),
-        new(0xe814, 0xe84d), new(0xe816, 0xe909), new(0xe818, 0x0030),
-        new(0xe81c, 0x0008), new(0xe820, 0xe4ca), new(0xe822, 0x0001),
-        new(0xe826, 0x812f), new(0xe91d, 0xe517), new(0xe91f, 0xe945),
-        new(0xe921, 0x0003), new(0xe925, 0xe51f), new(0xe927, 0x0001),
-        new(0xe929, 0xfff4), new(0xe92b, 0x0004), new(0xe92f, 0xe51f),
-        new(0xe931, 0xfffc), new(0xe933, 0xfff8), new(0xe935, 0x0005),
-        new(0xe939, 0xe969), new(0xe93b, 0x0011), new(0xe93f, 0x0011),
-        new(0xe943, 0x812f), new(0xe945, 0x0003), new(0xe949, 0xe51f),
-        new(0xe94b, 0xffff), new(0xe94d, 0xfff4), new(0xe94f, 0x0004),
-        new(0xe953, 0xe51f), new(0xe955, 0x0004), new(0xe957, 0xfff8),
-        new(0xe959, 0x0005), new(0xe95d, 0xe976), new(0xe95f, 0x0011),
-        new(0xe963, 0x0011), new(0xe967, 0x812f),
-    ];
+    /// <summary><c>Instruction_Ridley_Roar</c> at $A6:E4BE.</summary>
+    private const ushort Roar = 0xe4be;
+    /// <summary><c>Instruction_Ridley_ClearRoaringFlag</c> at $A6:E4CA.</summary>
+    private const ushort ClearRoaringFlag = 0xe4ca;
+    /// <summary><c>Instruction_Ridley_GotoYIfNotNorfairAndSamusHasLowEnergy</c> at $A6:E4D2.</summary>
+    private const ushort GotoYIfNotNorfairAndSamusHasLowEnergy = 0xe4d2;
+    /// <summary><c>Instruction_RidleyCeres_RidleyFeetDistanceIndexInY</c> at $A6:E501.</summary>
+    private const ushort CeresRidleyFeetDistanceIndexInY = 0xe501;
+    /// <summary><c>Instruction_Ridley_GotoYIfNotFacingLeft</c> at $A6:E517.</summary>
+    private const ushort GotoYIfNotFacingLeft = 0xe517;
+    /// <summary><c>Instruction_Ridley_MoveRidleyWithArgsInY</c> at $A6:E51F.</summary>
+    private const ushort MoveRidleyWithArgsInY = 0xe51f;
+    /// <summary><c>InstList_Ridley_FacingRight_Initial</c> at $A6:E542.</summary>
+    private const ushort FacingRightInitial = 0xe542;
+    /// <summary><c>UNUSED_InstList_RidleyCeres_FacingRight_Lunging_A6E576</c> at $A6:E576.</summary>
+    private const ushort UNUSEDInstListRidleyCeresFacingRightLungingA6E576 = 0xe576;
+    /// <summary><c>UNUSED_InstList_RidleyCeres_FacingRight_RetrieveBabyMetroid_A6E676</c> at $A6:E676.</summary>
+    private const ushort UNUSEDInstListRidleyCeresFacingRightRetrieveBabyMetroidA6E676 = 0xe676;
+    /// <summary><c>InstList_Ridley_FacingRight_OpeningRoar</c> at $A6:E6AE.</summary>
+    private const ushort FacingRightOpeningRoar = 0xe6ae;
+    /// <summary><c>InstList_Ridley_FacingRight_DeathRoar</c> at $A6:E6DE.</summary>
+    private const ushort FacingRightDeathRoar = 0xe6de;
+    /// <summary><c>Instruction_Ridley_FlipRidleyLeft</c> at $A6:E71C.</summary>
+    private const ushort FlipRidleyLeft = 0xe71c;
+    /// <summary><c>Instruction_Ridley_FaceRidleyForward</c> at $A6:E727.</summary>
+    private const ushort FaceRidleyForward = 0xe727;
+    /// <summary><c>Instruction_Ridley_FlipRidleyRight</c> at $A6:E72F.</summary>
+    private const ushort FlipRidleyRight = 0xe72f;
+    /// <summary><c>InstList_Ridley_FacingLeft_Fireballing_1</c> at $A6:E7AC.</summary>
+    private const ushort FacingLeftFireballing1 = 0xe7ac;
+    /// <summary><c>InstList_Ridley_FacingRight_Fireballing_0</c> at $A6:E7B4.</summary>
+    private const ushort FacingRightFireballing0 = 0xe7b4;
+    /// <summary><c>InstList_Ridley_FacingRight_Fireballing_1</c> at $A6:E820.</summary>
+    private const ushort FacingRightFireballing1 = 0xe820;
+    /// <summary><c>Instruction_Ridley_CalculateFireballXYVelocities</c> at $A6:E84D.</summary>
+    private const ushort CalculateFireballXYVelocities = 0xe84d;
+    /// <summary><c>Instruction_Ridley_SpawnRidleysFireballWithAfterburn</c> at $A6:E904.</summary>
+    private const ushort SpawnRidleysFireballWithAfterburn = 0xe904;
+    /// <summary><c>Instruction_Ridley_SpawnRidleysFireballWithoutAfterburn</c> at $A6:E909.</summary>
+    private const ushort SpawnRidleysFireballWithoutAfterburn = 0xe909;
+    /// <summary><c>InstList_RidleyCeres_FacingRight_TransitionToFlying</c> at $A6:E945.</summary>
+    private const ushort CeresFacingRightTransitionToFlying = 0xe945;
+    /// <summary><c>Instruction_RidleyCeres_StartLiftoff</c> at $A6:E969.</summary>
+    private const ushort CeresStartLiftoff = 0xe969;
+    /// <summary><c>Instruction_Ridley_StartLiftoff</c> at $A6:E976.</summary>
+    private const ushort StartLiftoff = 0xe976;
 
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe53e, 0xe544, 0xe552, 0xe55a, 0xe562, 0xe56a, 0xe572,
-        0xe57c, 0xe584, 0xe58c, 0xe594, 0xe59c, 0xe662, 0xe66a,
-        0xe672, 0xe67c, 0xe684, 0xe68c, 0xe696, 0xe69c, 0xe6a0,
-        0xe6a4, 0xe6aa, 0xe6b0, 0xe6b6, 0xe6ba, 0xe6be, 0xe6c4,
-        0xe6ce, 0xe6d4, 0xe6d8, 0xe6e0, 0xe6e6, 0xe6ea, 0xe6f4,
-        0xe6f8, 0xe6fe, 0xe702, 0xe70a, 0xe70e, 0xe714, 0xe718,
-        0xe744, 0xe74a, 0xe74e, 0xe756, 0xe75e, 0xe766, 0xe76e,
-        0xe772, 0xe77a, 0xe782, 0xe786, 0xe78e, 0xe796, 0xe79e,
-        0xe7a6, 0xe7aa, 0xe7b0, 0xe7ba, 0xe7c0, 0xe7c4, 0xe7cc,
-        0xe7d4, 0xe7dc, 0xe7e4, 0xe7e8, 0xe7f0, 0xe7f6, 0xe7fa,
-        0xe802, 0xe80a, 0xe812, 0xe81a, 0xe81e, 0xe824, 0xe923,
-        0xe92d, 0xe937, 0xe93d, 0xe941, 0xe947, 0xe951, 0xe95b,
-        0xe961, 0xe965,
-    ];
+    /// <summary>Native program bank $A6.</summary>
+    internal const byte Bank = 0xa6;
 
-    internal static int MechanicsWordCount => Words.Length;
-    internal static int PresentationWordCount => PresentationWords.Length;
-    internal static RidleyInstructionMechanicsWord MechanicsWord(int index) => Words[index];
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xe538),
+        Entry(Initial),
+        Op(GotoYIfNotFacingLeft, FacingRightInitial),
+        Frame(12),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Frame(12),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(CeresLunge),
+        Op(GotoYIfNotFacingLeft, UNUSEDInstListRidleyCeresFacingRightLungingA6E576),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0000),
+        Frame(4),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0002),
+        Frame(6),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0004),
+        Frame(80),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0002),
+        Frame(6),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0000),
+        Frame(4),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0000),
+        Frame(4),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0002),
+        Frame(6),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0004),
+        Frame(80),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0002),
+        Frame(6),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0000),
+        Frame(4),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Origin(0xe658),
+        Entry(RetrieveBabyMetroid),
+        Op(GotoYIfNotFacingLeft, UNUSEDInstListRidleyCeresFacingRightRetrieveBabyMetroidA6E676),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0000),
+        Frame(4),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0002),
+        Frame(6),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0004),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0000),
+        Frame(4),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0002),
+        Frame(6),
+        Op(CeresRidleyFeetDistanceIndexInY, 0x0004),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(OpeningRoar),
+        Op(GotoYIfNotFacingLeft, FacingRightOpeningRoar),
+        Frame(6),
+        Op(Roar),
+        Frame(8),
+        Frame(96),
+        Frame(8),
+        Op(ClearRoaringFlag),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Frame(6),
+        Op(Roar),
+        Frame(8),
+        Frame(96),
+        Frame(8),
+        Op(ClearRoaringFlag),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(DeathRoar),
+        Op(GotoYIfNotFacingLeft, FacingRightDeathRoar),
+        Frame(6),
+        Op(Roar),
+        Frame(8),
+        Frame(16),
+        Op(ClearRoaringFlag),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Frame(6),
+        Op(Roar),
+        Frame(8),
+        Frame(16),
+        Op(ClearRoaringFlag),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(TurnFromLeftToRight),
+        Op(FaceRidleyForward),
+        Frame(1),
+        Frame(8),
+        Op(FlipRidleyRight),
+        Frame(1),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(TurnFromRightToLeft),
+        Op(FaceRidleyForward),
+        Frame(1),
+        Frame(8),
+        Op(FlipRidleyLeft),
+        Frame(1),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Origin(0xe73a),
+        Entry(Fireballing),
+        Op(GotoYIfNotFacingLeft, FacingRightFireballing0),
+        Op(GotoYIfNotNorfairAndSamusHasLowEnergy, FacingLeftFireballing1),
+        Frame(8),
+        Op(Roar),
+        Frame(8),
+        Frame(2),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithAfterburn),
+        Frame(5),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithoutAfterburn),
+        Frame(5),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithoutAfterburn),
+        Frame(5),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithoutAfterburn),
+        Frame(48),
+        Frame(8),
+        Op(GotoYIfNotNorfairAndSamusHasLowEnergy, FacingLeftFireballing1),
+        Frame(32),
+        Op(CalculateFireballXYVelocities),
+        Op(Roar),
+        Frame(8),
+        Frame(2),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithAfterburn),
+        Frame(5),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithoutAfterburn),
+        Frame(5),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithoutAfterburn),
+        Frame(5),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithoutAfterburn),
+        Frame(48),
+        Frame(8),
+        Op(ClearRoaringFlag),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Op(GotoYIfNotNorfairAndSamusHasLowEnergy, FacingRightFireballing1),
+        Frame(8),
+        Op(Roar),
+        Frame(8),
+        Frame(2),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithAfterburn),
+        Frame(5),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithoutAfterburn),
+        Frame(5),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithoutAfterburn),
+        Frame(5),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithoutAfterburn),
+        Frame(48),
+        Frame(8),
+        Op(GotoYIfNotNorfairAndSamusHasLowEnergy, FacingRightFireballing1),
+        Frame(32),
+        Op(Roar),
+        Frame(8),
+        Frame(2),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithAfterburn),
+        Frame(5),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithoutAfterburn),
+        Frame(5),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithoutAfterburn),
+        Frame(5),
+        Op(CalculateFireballXYVelocities),
+        Op(SpawnRidleysFireballWithoutAfterburn),
+        Frame(48),
+        Frame(8),
+        Op(ClearRoaringFlag),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Origin(0xe91d),
+        Entry(TransitionToFlying),
+        Op(GotoYIfNotFacingLeft, CeresFacingRightTransitionToFlying),
+        Frame(3),
+        Op(MoveRidleyWithArgsInY, 0x0001, 0xfff4),
+        Frame(4),
+        Op(MoveRidleyWithArgsInY, 0xfffc, 0xfff8),
+        Frame(5),
+        Op(CeresStartLiftoff),
+        Frame(17),
+        Frame(17),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Frame(3),
+        Op(MoveRidleyWithArgsInY, 0xffff, 0xfff4),
+        Frame(4),
+        Op(MoveRidleyWithArgsInY, 0x0004, 0xfff8),
+        Frame(5),
+        Op(StartLiftoff),
+        Frame(17),
+        Frame(17),
+        Op(CommonEnemyInstructionCodes.Sleep));
+
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
+    internal static RidleyInstructionMechanicsWord MechanicsWord(int index)
+    {
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
+    }
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     /// <summary>Reads one compiled mechanics word and rejects presentation or foreign data.</summary>
-    internal static ushort ReadMechanicsWord(ushort address)
-    {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            RidleyInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        Layout.TryReadMechanicsWord(address, out ushort value) ? value :
+            throw new InvalidDataException(
+                $"Ridley instruction mechanics pointer $A6:{address:X4} is not compiled.");
 
-        throw new InvalidDataException(
-            $"Ridley instruction mechanics pointer $A6:{address:X4} is not compiled.");
-    }
-
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa60000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress ||
-                bankAddress == unchecked((ushort)(wordAddress + 1)))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

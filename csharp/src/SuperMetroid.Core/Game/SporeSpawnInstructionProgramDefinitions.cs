@@ -1,3 +1,5 @@
+using static SuperMetroid.Core.Game.InstructionItem;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One compiled mechanics-owned word at its native bank-$A5 address.</summary>
@@ -32,108 +34,172 @@ internal static class SporeSpawnInstructionProgramDefinitions
     /// <summary><c>$A5:E77D</c>, complete death and hardening program.</summary>
     internal const ushort Death = 0xe77d;
 
-    private static readonly SporeSpawnInstructionMechanicsWord[] Words =
-    [
-        new(0xe6b9, 0xe91c), new(0xe6bb, 0x00c0), new(0xe6bd, 0xe8ba),
-        new(0xe6bf, 0xeb1a), new(0xe6c1, 0x0001), new(0xe6c5, 0x812f),
-        new(0xe6c7, 0x0100), new(0xe6cb, 0xe8ba), new(0xe6cd, 0xeb1b),
-        new(0xe6cf, 0x0001), new(0xe6d3, 0x812f), new(0xe6d5, 0xe82d),
-        new(0xe6d7, 0x0040), new(0xe6d9, 0x0001), new(0xe6db, 0xe8ba),
-        new(0xe6dd, 0xeb52), new(0xe6df, 0x0300), new(0xe6e3, 0xe872),
-        new(0xe6e5, 0x0001), new(0xe6e7, 0xe895), new(0xe6e9, 0x002c),
-        new(0xe6eb, 0x0001), new(0xe6ef, 0x0008), new(0xe6f3, 0x0008),
-        new(0xe6f7, 0x0008), new(0xe6fb, 0x0007), new(0xe6ff, 0x0007),
-        new(0xe703, 0x0006), new(0xe707, 0x0001), new(0xe70b, 0xe771),
-        new(0xe70d, 0xe8ba), new(0xe70f, 0xeb1a), new(0xe711, 0x8123),
-        new(0xe713, 0x0005), new(0xe715, 0x0008), new(0xe719, 0x0008),
-        new(0xe71d, 0x0008), new(0xe721, 0x0008), new(0xe725, 0x8110),
-        new(0xe727, 0xe715), new(0xe729, 0x0008), new(0xe72d, 0x0008),
-        new(0xe731, 0x0008), new(0xe735, 0x0008), new(0xe739, 0x0008),
-        new(0xe73d, 0x0008), new(0xe741, 0x0001), new(0xe745, 0xe8ba),
-        new(0xe747, 0xeb52), new(0xe749, 0xe872), new(0xe74b, 0x0000),
-        new(0xe74d, 0xe75f), new(0xe74f, 0x0200), new(0xe753, 0xe872),
-        new(0xe755, 0x0001), new(0xe757, 0x00d0), new(0xe75b, 0x80ed),
-        new(0xe75d, 0xe6e3), new(0xe77d, 0xe8ba), new(0xe77f, 0xeb9b),
-        new(0xe781, 0x0001), new(0xe785, 0xe8ba), new(0xe787, 0xebee),
-        new(0xe789, 0x8123), new(0xe78b, 0x000a), new(0xe78d, 0x0001),
-        new(0xe791, 0xe9b1), new(0xe793, 0x813a), new(0xe795, 0x0008),
-        new(0xe797, 0x8110), new(0xe799, 0xe78d), new(0xe79b, 0x0008),
-        new(0xe79f, 0x0008), new(0xe7a3, 0x0008), new(0xe7a7, 0x0008),
-        new(0xe7ab, 0x0008), new(0xe7af, 0x0008), new(0xe7b3, 0x0001),
-        new(0xe7b7, 0xe87c), new(0xe7b9, 0x8123), new(0xe7bb, 0x000a),
-        new(0xe7bd, 0xe96e), new(0xe7bf, 0x813a), new(0xe7c1, 0x0008),
-        new(0xe7c3, 0x8110), new(0xe7c5, 0xe7bd), new(0xe7c7, 0xe8ca),
-        new(0xe7c9, 0x0000), new(0xe7cb, 0xe96e), new(0xe7cd, 0x0010),
-        new(0xe7d1, 0xe8ca), new(0xe7d3, 0x0020), new(0xe7d5, 0xe96e),
-        new(0xe7d7, 0x0010), new(0xe7db, 0xe8ca), new(0xe7dd, 0x0040),
-        new(0xe7df, 0xe96e), new(0xe7e1, 0x0010), new(0xe7e5, 0xe8ca),
-        new(0xe7e7, 0x0060), new(0xe7e9, 0xe96e), new(0xe7eb, 0x0010),
-        new(0xe7ef, 0xe8ca), new(0xe7f1, 0x0080), new(0xe7f3, 0xe96e),
-        new(0xe7f5, 0x0010), new(0xe7f9, 0xe8ca), new(0xe7fb, 0x00a0),
-        new(0xe7fd, 0xe96e), new(0xe7ff, 0x0010), new(0xe803, 0xe8ca),
-        new(0xe805, 0x00c0), new(0xe807, 0xe96e), new(0xe809, 0x0010),
-        new(0xe80d, 0xe8b1), new(0xe80f, 0x812f),
-    ];
-
-    private static readonly ushort[] PresentationWords =
-    [
-        0xe6c3, 0xe6c9, 0xe6d1, 0xe6e1, 0xe6ed, 0xe6f1, 0xe6f5,
-        0xe6f9, 0xe6fd, 0xe701, 0xe705, 0xe709, 0xe717, 0xe71b,
-        0xe71f, 0xe723, 0xe72b, 0xe72f, 0xe733, 0xe737, 0xe73b,
-        0xe73f, 0xe743, 0xe751, 0xe759, 0xe783, 0xe78f, 0xe79d,
-        0xe7a1, 0xe7a5, 0xe7a9, 0xe7ad, 0xe7b1, 0xe7b5, 0xe7cf,
-        0xe7d9, 0xe7e3, 0xe7ed, 0xe7f7, 0xe801, 0xe80b,
-    ];
-
     /// <summary>Number of mechanics words compiled from the five native programs.</summary>
-    internal static int MechanicsWordCount => Words.Length;
+    /// <summary><c>InstList_SporeSpawn_OpenAndStop_0</c> at $A5:E6E3.</summary>
+    private const ushort SpawnOpenAndStop0 = 0xe6e3;
+    /// <summary><c>InstList_SporeSpawn_OpenAndStop_1</c> at $A5:E715.</summary>
+    private const ushort SpawnOpenAndStop1 = 0xe715;
+    /// <summary><c>Instruction_SporeSpawn_IncreaseMaxXRadius</c> at $A5:E75F.</summary>
+    private const ushort SpawnIncreaseMaxXRadius = 0xe75f;
+    /// <summary><c>Instruction_SporeSpawn_ClearDamagedFlag</c> at $A5:E771.</summary>
+    private const ushort SpawnClearDamagedFlag = 0xe771;
+    /// <summary><c>InstList_SporeSpawn_DeathSequence_1</c> at $A5:E78D.</summary>
+    private const ushort SpawnDeathSequence1 = 0xe78d;
+    /// <summary><c>InstList_SporeSpawn_DeathSequence_2</c> at $A5:E7BD.</summary>
+    private const ushort SpawnDeathSequence2 = 0xe7bd;
+    /// <summary><c>Instruction_SporeSpawn_SetMaxXRadiusAndAngleDelta</c> at $A5:E82D.</summary>
+    private const ushort SpawnSetMaxXRadiusAndAngleDelta = 0xe82d;
+    /// <summary><c>Instruction_SporeSpawn_SporeGenerationFlagInY</c> at $A5:E872.</summary>
+    private const ushort SpawnSporeGenerationFlagInY = 0xe872;
+    /// <summary><c>Instruction_SporeSpawn_Harden</c> at $A5:E87C.</summary>
+    private const ushort SpawnHarden = 0xe87c;
+    /// <summary><c>Instruction_SporeSpawn_QueueSFXInY_Lib2_Max6</c> at $A5:E895.</summary>
+    private const ushort SpawnQueueSFXInYLib2Max6 = 0xe895;
+    /// <summary><c>Instruction_SporeSpawn_CallSporeSpawnDeathItemDropRoutine</c> at $A5:E8B1.</summary>
+    private const ushort SpawnCallSporeSpawnDeathItemDropRoutine = 0xe8b1;
+    /// <summary><c>Instruction_SporeSpawn_FunctionInY</c> at $A5:E8BA.</summary>
+    private const ushort SpawnFunctionInY = 0xe8ba;
+    /// <summary><c>Instruction_SporeSpawn_LoadDeathSequencePalette</c> at $A5:E8CA.</summary>
+    private const ushort SpawnLoadDeathSequencePalette = 0xe8ca;
+    /// <summary><c>Instruction_SporeSpawn_LoadDeathSequenceTargetPalette</c> at $A5:E91C.</summary>
+    private const ushort SpawnLoadDeathSequenceTargetPalette = 0xe91c;
+    /// <summary><c>Instruction_SporeSpawn_SpawnHardeningDustCloud</c> at $A5:E96E.</summary>
+    private const ushort SpawnSpawnHardeningDustCloud = 0xe96e;
+    /// <summary><c>Instruction_SporeSpawn_SpawnDyingExplosion</c> at $A5:E9B1.</summary>
+    private const ushort SpawnSpawnDyingExplosion = 0xe9b1;
+    /// <summary><c>RTS_A5EB1A</c> at $A5:EB1A.</summary>
+    private const ushort EmptyRoutineEB1A = 0xeb1a;
+    /// <summary><c>Function_SporeSpawn_Descent</c> at $A5:EB1B.</summary>
+    private const ushort SpawnDescentFunction = 0xeb1b;
+    /// <summary><c>Function_SporeSpawn_Moving</c> at $A5:EB52.</summary>
+    private const ushort SpawnMovingFunction = 0xeb52;
+    /// <summary><c>Function_SporeSpawn_SetupDeath</c> at $A5:EB9B.</summary>
+    private const ushort SpawnSetupDeathFunction = 0xeb9b;
+    /// <summary><c>Function_SporeSpawn_Dying</c> at $A5:EBEE.</summary>
+    private const ushort SpawnDyingFunction = 0xebee;
+
+    /// <summary>Native program bank $A5.</summary>
+    internal const byte Bank = 0xa5;
+
+    private static readonly InstructionProgramLayout Layout = new(Bank,
+        Origin(0xe6b9),
+        Entry(InitialDead),
+        Op(SpawnLoadDeathSequenceTargetPalette, 0x00c0),
+        Op(SpawnFunctionInY, EmptyRoutineEB1A),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(InitialAlive),
+        Frame(256),
+        Op(SpawnFunctionInY, SpawnDescentFunction),
+        Frame(1),
+        Op(CommonEnemyInstructionCodes.Sleep),
+        Entry(FightStarted),
+        Op(SpawnSetMaxXRadiusAndAngleDelta, 0x0040, 0x0001),
+        Op(SpawnFunctionInY, SpawnMovingFunction),
+        Frame(768),
+        Op(SpawnSporeGenerationFlagInY, 0x0001),
+        Op(SpawnQueueSFXInYLib2Max6, 0x002c),
+        Frame(1),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(7),
+        Frame(7),
+        Frame(6),
+        Frame(1),
+        Op(SpawnClearDamagedFlag),
+        Op(SpawnFunctionInY, EmptyRoutineEB1A),
+        Op(CommonEnemyInstructionCodes.SetTimer, 0x0005),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, SpawnOpenAndStop1),
+        Entry(CloseAndMove),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(1),
+        Op(SpawnFunctionInY, SpawnMovingFunction),
+        Op(SpawnSporeGenerationFlagInY, 0x0000),
+        Op(SpawnIncreaseMaxXRadius),
+        Frame(512),
+        Op(SpawnSporeGenerationFlagInY, 0x0001),
+        Frame(208),
+        Op(CommonEnemyInstructionCodes.Goto, SpawnOpenAndStop0),
+        Origin(0xe77d),
+        Entry(Death),
+        Op(SpawnFunctionInY, SpawnSetupDeathFunction),
+        Frame(1),
+        Op(SpawnFunctionInY, SpawnDyingFunction),
+        Op(CommonEnemyInstructionCodes.SetTimer, 0x000a),
+        Frame(1),
+        Op(SpawnSpawnDyingExplosion),
+        Op(CommonEnemyInstructionCodes.WaitFrames, 0x0008),
+        Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, SpawnDeathSequence1),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(8),
+        Frame(1),
+        Op(SpawnHarden),
+        Op(CommonEnemyInstructionCodes.SetTimer, 0x000a),
+        Op(SpawnSpawnHardeningDustCloud),
+        Op(CommonEnemyInstructionCodes.WaitFrames, 0x0008),
+        Op(CommonEnemyInstructionCodes.DecrementTimerAndGotoDuplicate, SpawnDeathSequence2),
+        Op(SpawnLoadDeathSequencePalette, 0x0000),
+        Op(SpawnSpawnHardeningDustCloud),
+        Frame(16),
+        Op(SpawnLoadDeathSequencePalette, 0x0020),
+        Op(SpawnSpawnHardeningDustCloud),
+        Frame(16),
+        Op(SpawnLoadDeathSequencePalette, 0x0040),
+        Op(SpawnSpawnHardeningDustCloud),
+        Frame(16),
+        Op(SpawnLoadDeathSequencePalette, 0x0060),
+        Op(SpawnSpawnHardeningDustCloud),
+        Frame(16),
+        Op(SpawnLoadDeathSequencePalette, 0x0080),
+        Op(SpawnSpawnHardeningDustCloud),
+        Frame(16),
+        Op(SpawnLoadDeathSequencePalette, 0x00a0),
+        Op(SpawnSpawnHardeningDustCloud),
+        Frame(16),
+        Op(SpawnLoadDeathSequencePalette, 0x00c0),
+        Op(SpawnSpawnHardeningDustCloud),
+        Frame(16),
+        Op(SpawnCallSporeSpawnDeathItemDropRoutine),
+        Op(CommonEnemyInstructionCodes.Sleep));
+
+    internal static int MechanicsWordCount => Layout.MechanicsWordCount;
 
     /// <summary>Number of interleaved presentation words, compiled separately for installed play.</summary>
-    internal static int PresentationWordCount => PresentationWords.Length;
+    internal static int PresentationWordCount => Layout.PresentationSlotCount;
 
     /// <summary>Returns one mechanics definition for cartridge-equivalence verification.</summary>
-    internal static SporeSpawnInstructionMechanicsWord MechanicsWord(int index) =>
-        Words[index];
+    internal static SporeSpawnInstructionMechanicsWord MechanicsWord(int index)
+    {
+        (ushort address, ushort value) = Layout.MechanicsWord(index);
+        return new(address, value);
+    }
 
     /// <summary>Returns one live spritemap-word address for boundary verification.</summary>
-    internal static ushort PresentationWordAddress(int index) => PresentationWords[index];
+    internal static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
     /// <summary>
     /// Reads one mechanics word and rejects presentation addresses or pointers outside the
     /// translated family. A restored invalid cursor must not silently resume ROM execution.
     /// </summary>
-    internal static ushort ReadMechanicsWord(ushort address)
-    {
-        int low = 0;
-        int high = Words.Length - 1;
-        while (low <= high)
-        {
-            int middle = low + ((high - low) >> 1);
-            SporeSpawnInstructionMechanicsWord candidate = Words[middle];
-            if (candidate.Address == address)
-                return candidate.Value;
-            if (candidate.Address < address)
-                low = middle + 1;
-            else
-                high = middle - 1;
-        }
-
-        throw new InvalidDataException(
-            $"Spore Spawn instruction mechanics pointer $A5:{address:X4} is not compiled.");
-    }
+    internal static ushort ReadMechanicsWord(ushort address) =>
+        Layout.TryReadMechanicsWord(address, out ushort value) ? value :
+            throw new InvalidDataException(
+                $"Spore Spawn instruction mechanics pointer $A5:{address:X4} is not compiled.");
 
     /// <summary>True when an absolute address names a byte owned by compiled mechanics.</summary>
-    internal static bool IsCompiledMechanicsByte(int address)
-    {
-        if ((address & 0xff0000) != 0xa50000)
-            return false;
-        ushort bankAddress = unchecked((ushort)address);
-        for (int index = 0; index < Words.Length; index++)
-        {
-            ushort wordAddress = Words[index].Address;
-            if (bankAddress == wordAddress || bankAddress == unchecked((ushort)(wordAddress + 1)))
-                return true;
-        }
-        return false;
-    }
+    internal static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

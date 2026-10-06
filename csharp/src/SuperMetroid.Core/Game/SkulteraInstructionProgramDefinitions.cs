@@ -28,10 +28,10 @@ internal static class SkulteraInstructionProgramDefinitions
     /// <summary>
     /// $A3:903C/9040/9044/9048: first half of the turn's mirrored holds.
     /// Mirroring removes duplicate samples, but does not derive these four timings.
-    /// They remain required issue-1165 work; no endpoint correction or ordinal formula is a disposition.
+    /// Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it. A short-series fit such as 13*0.8^n is incidental, not a derivation.
     /// </summary>
     private static readonly ushort[] TurnHalfDurations = [13, 10, 8, 6];
-    /// <summary>$A3:902C/9062: independent swimming cadence remains required under #1165.</summary>
+    /// <summary>$A3:902C/9062: swimming cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort SwimmingDuration = 14;
     internal static int MechanicsWordCount => 32;
     internal static int PresentationWordCount => 22;

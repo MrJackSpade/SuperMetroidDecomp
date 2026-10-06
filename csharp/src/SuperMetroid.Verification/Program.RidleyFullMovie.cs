@@ -131,8 +131,21 @@ internal static partial class Program
         AssertEqual(RidleyMovieMemory.RidleyFirstFadeInstruction, ridley.CurrentInstruction, "first fade runs native Ridley instruction list");
         AssertEqual(RidleyMovieMemory.RidleyFirstFadeSpritemap, ridley.SpritemapPointer, "first fade publishes native Ridley sprite");
         AssertEqual((ushort)12, ridley.InstructionTimer, "first native fade visual duration");
+        AssertEqual(RidleyAiFunction.WaitForDoorTransition, runtime.Enemies.Ridley!.Function, "native Ridley AI remains gated during fade visuals");
+        AssertEqual((ushort)0, runtime.Enemies.Ridley.FunctionTimer, "fade does not consume the reveal countdown");
         game.Step(0);
         AssertEqual((ushort)11, ridley.InstructionTimer, "later fade updates continue enemy animation");
+        int remainingFade = 0;
+        while (game.GameState == SuperMetroidGameState.LoadingNextRoomB && remainingFade++ < 32)
+        {
+            game.Step(0);
+            AssertEqual(RidleyAiFunction.WaitForDoorTransition, runtime.Enemies.Ridley.Function, "reveal timer remains gated through the final fade dispatch");
+        }
+        AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "fade releases ordinary gameplay");
+        AssertTrue(!runtime.Enemies.EnemyDoorTransitionActive, "completed fade clears enemy gate");
+        game.Step(0);
+        AssertEqual(RidleyAiFunction.InitialDelay, runtime.Enemies.Ridley.Function, "first gameplay update begins reveal");
+        AssertEqual((ushort)169, runtime.Enemies.Ridley.FunctionTimer, "native first gameplay update consumes one of 170 reveal ticks");
         Console.WriteLine("Ridley door entry/loading/fade: native positions, RNG, one NMI per dispatch, stationary Samus animation and continuing enemy visuals agree.");
     }
 
@@ -294,6 +307,7 @@ internal static partial class Program
             if (runtime.NmiFrameCounter != normalizedNmi)
                 mismatches.Add($"Accepted gameplay NMI: native={normalizedNmi:X4} port={runtime.NmiFrameCounter:X4}");
             Check("Game state", (ushort)game.GameState, RidleyMovieMemory.GameState);
+            Check("Enemy door gate", runtime.Enemies.EnemyDoorTransitionActive ? (ushort)1 : (ushort)0, RidleyMovieMemory.EnemyDoorTransition);
             // Native LoadDoorHeader publishes the destination room pointer before
             // loading its room/state data. The port keeps that identity in the pending
             // door while ActiveRoom still owns the source room's loaded data.
@@ -360,6 +374,12 @@ internal static partial class Program
                 Check(owner + " spritemap", actor.SpritemapPointer, address + 22);
                 Check(owner + " instruction", actor.CurrentInstruction, address + 26);
                 Check(owner + " instruction timer", actor.InstructionTimer, address + 28);
+            }
+            if (!deferLoadingOwners && runtime.Enemies.Ridley is { } ridleyState &&
+                W(RidleyMovieMemory.EnemyBase) == RoomEnemySystem.NorfairRidleyDefinition)
+            {
+                Check("Ridley AI function", (ushort)ridleyState.Function, RidleyMovieMemory.RidleyFunction);
+                Check("Ridley AI timer", ridleyState.FunctionTimer, RidleyMovieMemory.RidleyFunctionTimer);
             }
             if (mismatches.Count != 0)
             {

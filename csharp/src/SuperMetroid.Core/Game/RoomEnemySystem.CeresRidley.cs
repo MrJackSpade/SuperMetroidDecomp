@@ -196,8 +196,9 @@ public sealed partial class RoomEnemySystem
         switch (state.Function)
         {
             case RidleyAiFunction.WaitForDoorTransition:
-                // Enemy AI cannot run until the runtime has completed room loading, so the
-                // native door_transition_flag_enemies test is necessarily clear here.
+                // A35B waits even though enemy visual instructions run during fade.
+                if (EnemyDoorTransitionActive)
+                    break;
                 state.Function = RidleyAiFunction.InitialDelay;
                 state.FunctionTimer = 512;
                 TickCeresRidleyInitialDelay(state);

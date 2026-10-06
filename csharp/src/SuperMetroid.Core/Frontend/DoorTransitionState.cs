@@ -39,6 +39,7 @@ public sealed class DoorTransitionState
 
         runtime.Samus.InputLocked = true;
         runtime.Enemies.ElevatorDoorTransitionActive = true;
+        runtime.Enemies.EnemyDoorTransitionActive = true;
         door = runtime.PendingDoorTransition;
         sourceCreBitset = runtime.ActiveRoom?.CreBitset
             ?? throw new InvalidOperationException("Door transition requires a source room header.");
@@ -65,6 +66,8 @@ public sealed class DoorTransitionState
         if (!IsActive)
             throw new InvalidOperationException("Door transition has not begun.");
 
+        // Derive the native door-owned gate for resumed legacy snapshots as well.
+        runtime.Enemies.EnemyDoorTransitionActive = true;
         runtime.CeresHaze.Step(
             roomFadeIn: Phase == DoorTransitionPhase.FadeInDestinationPalette,
             roomFadeOut: Phase == DoorTransitionPhase.FadeOutSourcePalette);
@@ -160,6 +163,7 @@ public sealed class DoorTransitionState
                 // $0795 transition ownership before any destination EnemyMain call;
                 // elevator AI must remain frozen through the final palette fade.
                 runtime.Enemies.ElevatorDoorTransitionActive = true;
+                runtime.Enemies.EnemyDoorTransitionActive = true;
                 ushort[] destinationTarget = runtime.Cgram.Colors.ToArray();
                 RestorePalette(runtime.Cgram, fadedSourcePalette);
                 runtime.BeginDoorOpeningScroll(
@@ -260,6 +264,7 @@ public sealed class DoorTransitionState
                     // $82:E737 releases $0795 after EnemyMain and the last fade step.
                     // Movement resumes on the following gameplay frame, not this one.
                     runtime.Enemies.ElevatorDoorTransitionActive = false;
+                    runtime.Enemies.EnemyDoorTransitionActive = false;
                     // Elevator arrival retains command zero's lock until the platform
                     // reaches rest; its actor, not the room fade, restores Samus movement.
                     // The elevatube door ASM also installs command zero. Native E737

@@ -316,6 +316,7 @@ public sealed partial class RoomEnemySystem
         ResetShitroidRoomState();
         ResetShutterRoomState(cameraX, cameraY);
         ResetElevatorRoomActors();
+        EnemyDoorTransitionActive = false;
         LastKzanSoundEffect = null;
         LastHibashiSoundEffect = null;
         LastHibashiActivityFrameIndex = null;

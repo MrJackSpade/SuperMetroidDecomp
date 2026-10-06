@@ -86,7 +86,7 @@ room identity, and active enemies' identities, positions, health and visual curs
 That comparison is still under development; conversion success is not port parity.
 Door-entry and source-fade HDMA/RNG/actor omissions were reproduced and fixed,
 along with missing RNG advancement through the outer loading dispatches. The
-current checked properties match through update 531, with loading-owner alignment
+current checked properties match through update 632, with loading-owner alignment
 and upload normalization as described here. Setup now applies
 Samus's first displacement before destination rebasing; the atomic loader retains
 the pre-setup source coordinates so it does not count that movement twice. A
@@ -128,10 +128,18 @@ runs the enemy/draw owners and palette step, still without Samus movement. Nativ
 first-fade instruction `$E546`, sprite `$E9A5`, and durations 12 then 11 are covered
 by the focused fixture. The independent replay passes the entire door transition.
 
-The next divergence is normalized update 532 (original source frame 633): Ridley's
-instruction cursor changes to `$E6B2` in the port while native retains `$E546`;
-native duration is `$FEFC`, port duration 6. The other currently compared fields,
-including positions and RNG, still agree there. This is the next investigation.
+The shared Ridley wait now checks the native enemy door flag `$0797`, separately
+from the elevator gate `$0795`. Visual instructions still run during the fade, but
+the reveal countdown remains zero until the first ordinary gameplay update, where
+it becomes 169. This was reproduced with a failing real-door assertion and then
+confirmed against the native checkpoints. The replay now also compares the door
+flag, Ridley AI function, and function timer. Autosave continuation passes.
+
+The next divergence is normalized update 633 (original source frame 734): the port
+selects turning instruction `$E706` while native retains `$E967` with duration 6.
+AI function/timer, positions and RNG agree. Source inspection shows the port's
+turn-toward-room-center helper ignores native `$A6:D955`'s position-byte sign test;
+that condition is the next correction.
 Additional gameplay properties still need coverage before any full-match claim.
 The old frames 375–744 Ridley-only comparison, which supplies recorded Samus state
 and RNG, remains an isolated regression.

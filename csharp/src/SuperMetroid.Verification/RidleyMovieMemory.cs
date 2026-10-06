@@ -13,6 +13,12 @@ internal static class RidleyMovieMemory
     public const ushort RidleyFirstFadeInstruction = 0xe546;
     /// <summary>$A6:E9A5: native Ridley body sprite installed on the first fade update.</summary>
     public const ushort RidleyFirstFadeSpritemap = 0xe9a5;
+    /// <summary>$0797: door_transition_flag_enemies; gates the shared Ridley reveal wait.</summary>
+    public const int EnemyDoorTransition = 0x0797;
+    /// <summary>$0FA8: Ridley's slot-zero var_A, the native AI function.</summary>
+    public const int RidleyFunction = 0x0fa8;
+    /// <summary>$0FB2: Ridley's slot-zero var_F, the native function timer.</summary>
+    public const int RidleyFunctionTimer = 0x0fb2;
     /// <summary>$079B: room_ptr.</summary>
     public const int Room = 0x079b;
     /// <summary>$0911: layer1_x_pos.</summary>

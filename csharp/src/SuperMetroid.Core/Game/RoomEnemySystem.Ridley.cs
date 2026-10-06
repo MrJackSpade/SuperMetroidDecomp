@@ -137,6 +137,8 @@ public sealed partial class RoomEnemySystem
         switch (state.Function)
         {
             case RidleyAiFunction.WaitForDoorTransition:
+                if (EnemyDoorTransitionActive)
+                    return;
                 state.Function = RidleyAiFunction.InitialDelay;
                 state.FunctionTimer = 170;
                 TickCeresRidleyInitialDelay(state);

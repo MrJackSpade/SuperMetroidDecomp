@@ -14,7 +14,7 @@ internal static class BossColorClosedContractDefinitions
         new("SuperMetroid.Core.Assets.CeresRidleyColorCatalog", "ceres-ridley-v3-complete-palette-rows",
             ["ApplyStart", "ApplyEyeFade", "ApplyBodyFade", "ApplyHealth", "ApplyAlarm", "ApplyRetreat", "ApplyBaby"],
             [new("csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs", "9D518C166D89DA192F0B055D4CDD199D9F251B8E2E861D79281FC708AB071F26"),
-             new("csharp/src/SuperMetroid.Core/Assets/CeresRidleyFadeColorDefinitions.cs", "0D9702B22861DC2994CD31C8A2CCB4CEDA6E44F55C1D7DBE73FE11F8E86F72EB"),
+             new("csharp/src/SuperMetroid.Core/Assets/CeresRidleyFadeColorDefinitions.cs", "190ED8397113DDBF7FA1B22DB056EF30B0D730E88386FB2C78DA70DB683EE7A0"),
              new("csharp/src/SuperMetroid.Core/Assets/CeresRidleyAlarmColorDefinitions.cs", "CE584950758AB811CD7E8B7143F5EF6CE04AD6F9E503B6B68D8E2FDCCEC13CE7"),
              new("csharp/src/SuperMetroid.Core/Game/CeresRidleyPaletteRomData.cs", "20CB1E292CC94F8BB30D9F237F148789E3E165F58BD116D5259990370C9E17CE")],
             "Load compiles complete start/retreat arrays, sixteen eye/body/alarm rows, three health rows and four baby rows before private construction. Legacy omissions inherit validated stock. Eye/body fade rows resolve exact RGB5 calculations with explicit required endpoints/deviations and independent edits. Alarm rows resolve from required forward colors and exact reflected aliases with independent edits; all Apply paths validate bounds and use installed data only."),

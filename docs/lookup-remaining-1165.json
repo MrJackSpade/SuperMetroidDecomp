@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 470,
+  "remainingTableDefinitionCount": 469,
   "fileCount": 523,
   "entries": [
     {
@@ -187,12 +187,15 @@
       "note": "Original/default payload behind CeresRidleyColorCatalog.start. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
-      "line": 12,
-      "name": "CeresRidleyColorCatalog.eyeFade",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind CeresRidleyColorCatalog.eyeFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
+  "line": 12,
+  "name": "CeresRidleyColorCatalog.eyeFade",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind CeresRidleyColorCatalog.eyeFade. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "31511092c",
+  "disposition": "All48 eye colors calculate using warm three-shade paint: maximum RGB5 red,red step5,green24/14/7,blue0; common floor((channel*phase+1)/15) removes four former exceptional samples. Retain only exact categorical paint magnitudes/material assignment and shared numerator-bias policy. Body28 inputs,initial/explosion containers and cadence remain separate required entries."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs",
       "line": 13,
@@ -21664,5 +21667,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 58
+  "justifiedRetainedSinceSnapshot": 59
 }

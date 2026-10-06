@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 412,
+  "remainingTableDefinitionCount": 411,
   "fileCount": 523,
   "entries": [
     {
@@ -589,12 +589,15 @@
       "note": "Original/default payload behind DraygonColorCatalog.intro. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs",
-      "line": 25,
-      "name": "DraygonColorCatalog.background",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind DraygonColorCatalog.background. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs",
+  "line": 25,
+  "name": "DraygonColorCatalog.background",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind DraygonColorCatalog.background. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "5ac419402a2a10c194430d3e321d7d18615a6e69",
+  "disposition": "All16stock outputs calculate from16 exact material/metadata inputs with shared channel gaps and clipped ramps; gold reuses completed health owner. Native34BG2 frames and sprite source distinguish visible eye13/14 from copied-only green15/clear0. Authored material choices have no functional derivation; independent supplied edits preserved."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/DraygonColorCatalog.cs",
       "line": 26,
@@ -21838,5 +21841,5 @@
     }
   ],
   "convertedSinceSnapshot": 606,
-  "justifiedRetainedSinceSnapshot": 110
+  "justifiedRetainedSinceSnapshot": 111
 }

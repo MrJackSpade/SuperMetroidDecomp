@@ -48,6 +48,13 @@ internal sealed class DraygonHealthPaintDefinitions
         return (ushort)(red | green << 5);
     }
 
+    /// <summary>Immutable healthy gold material shared with the primary body palette.</summary>
+    internal static ushort HealthyShade(int shade)
+    {
+        if ((uint)shade >= Shades) throw new ArgumentOutOfRangeException(nameof(shade));
+        return Calculate(0, shade);
+    }
+
     private static int Interpolate(int first, int last, int band)
     {
         int delta = last - first;

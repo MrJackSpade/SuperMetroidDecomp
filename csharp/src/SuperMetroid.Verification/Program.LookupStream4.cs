@@ -2286,12 +2286,79 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => KzanInstructionProgramDefinitions.MechanicsWord(invalid), "Kzan control index bounds");
     }
+    private static void VerifyLookupStream4DraygonBackground(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
+        byte[] json = DraygonColorExtractor.Extract(rom);
+        var stock = DraygonColorCatalog.Load(new MemoryStream(json));
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var material = (DraygonMaterialPaintDefinitions)typeof(DraygonColorCatalog).GetField("background",flags)!.GetValue(stock)!;
+        AssertEqual(0,((Dictionary<int,ushort>)typeof(DraygonMaterialPaintDefinitions).GetField("edits",flags)!.GetValue(material)!).Count,"All16 background colors calculate without unexplained stock overrides");
+        for (int edit = -1; edit < 48; edit++)
+        {
+            var document = JsonSerializer.Deserialize<DraygonColorDocument>(json,MapPresentationFormat.JsonOptions)!;
+            if(edit >= 0)
+            {
+                var rgb = document.Background[edit / 3];
+                document.Background[edit / 3] = (edit % 3) switch
+                { 0 => rgb with { Red = rgb.Red ^ 1 }, 1 => rgb with { Green = rgb.Green ^ 1 }, _ => rgb with { Blue = rgb.Blue ^ 1 } };
+            }
+            var selected = DraygonColorCatalog.Load(new MemoryStream(DraygonColorCatalog.Write(document)));
+            string hash = SelectedPresentationHash.Create("DraygonColorCatalog-v1",content =>
+            {
+                content.AppendWords("intro",document.Intro.Select(Pack).ToArray()); content.AppendWords("background",document.Background.Select(Pack).ToArray());
+                content.AppendWords("sprite",document.Sprite.Select(Pack).ToArray()); content.AppendWords("whiteFlash",document.WhiteFlash.Select(Pack).ToArray());
+                content.AppendWordFrames("healthBands",document.HealthBands.Select(row => row.Select(Pack).ToArray()).ToArray());
+            });
+            AssertEqual(hash,selected.ContentIdentity,"Background source edits preserve canonical identity and independent resources");
+            for(int color=0;color<16;color++)
+            {
+                AssertEqual(Pack(document.Background[color]),selected.ResolveBackground(color),"All independent background channels remain installed");
+                AssertEqual(Word(0xa5a277+color*2),stock.ResolveBackground(color),"All16 native material words");
+                AssertEqual(Word(0xa5a1f7+color*2),selected.ResolveSprite(color),"Independent sprite occurrence unaffected");
+                AssertEqual(Word(0xa5a217+color*2),selected.ResolveIntro(color),"Independent intro occurrence unaffected");
+            }
+            foreach(bool white in new[]{false,true})
+            {
+                var cgram=new SnesCgram(); for(int color=0;color<256;color++) cgram.SetColor(color,0x1234);
+                selected.ApplyHurt(cgram,white,6);
+                for(int color=0;color<256;color++)
+                {
+                    ushort expected=(ushort)0x1234;
+                    if(color is >=80 and <96) expected=white?Pack(document.WhiteFlash[color-80]):color is >=89 and <93?Pack(document.HealthBands[3][color-89]):Pack(document.Background[color-80]);
+                    if(color>=240) expected=Pack((white?document.WhiteFlash:document.Sprite)[color-240]);
+                    AssertEqual(expected,cgram.Colors[color],"Full normal/white copy with native belly overwrite order");
+                }
+            }
+            if(edit is -1 or 0 or 47)
+            {
+                var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<ushort,RoomCharacterAtlas>(),new Dictionary<ushort,EnemyPaletteSheet>(),draygonColors:selected);
+                var enemies=new RoomEnemySystem{TileArtwork=artwork}; var cgram=new SnesCgram();
+                typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,cgram);
+                typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,new ProjectileCompositionForbiddenBus());
+                var body=enemies.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteTableByteIndex=6};
+                var hurt=typeof(RoomEnemySystem).GetMethod("ApplyDraygonHurt",flags)!.CreateDelegate<Action<RoomEnemySlot,DraygonEnemyState,SamusState?>>(enemies);
+                foreach(ushort timer in new ushort[]{2,0})
+                {
+                    body.FlashTimer=timer; hurt(body,state,null);
+                    for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands[3][color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves edited targets and health overlay");
+                }
+            }
+        }
+        foreach(int invalid in new[]{-1,16,int.MinValue,int.MaxValue}) AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveBackground(invalid),"Original background domain");
+        AssertThrows<ArgumentNullException>(()=>stock.ApplyHurt(null!,false,0),"Background null destination");
+        Console.WriteLine("Draygon background:16native/zero overrides,48RGB edits/hash/independent aliases,98full normal-white copies,six actual hurt producer calls/readguard/belly overwrite/bounds pass.");
+    }
     private static void ExportLookupStream4DraygonHealthSource(CartridgeImportAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         byte[] tiles = SnesGraphics.DecodePlanarTiles(Enumerable.Range(0, 0x2000).Select(i => rom.ReadByte(0xb0c800 + i)).ToArray(), 4, 16, out int width, out int height);
         byte[] roomPlanar = RomDataReader.Decompress(rom, RoomTilesetDefinitions.Get(0x1c).CharacterAddress);
-        byte[] bgTiles = SnesGraphics.DecodePlanarTiles(roomPlanar, 4, 16, out int bgWidth, out _);
+        byte[] cre = RomDataReader.Decompress(rom, RoomAssetRomData.Tilesets.CreCharactersAddress);
+        byte[] bgPlanar = new byte[Math.Max(roomPlanar.Length, RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset + cre.Length)];
+        roomPlanar.CopyTo(bgPlanar, 0); cre.CopyTo(bgPlanar, RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset);
+        byte[] bgTiles = SnesGraphics.DecodePlanarTiles(bgPlanar, 4, 16, out int bgWidth, out _);
         string directory = Path.GetFullPath("csharp/test-temp/draygon-health-source"); Directory.CreateDirectory(directory);
         var canvas = new byte[256 * 256];
         int cursor = 0xa5b240;
@@ -2308,6 +2375,64 @@ internal static partial class Program
                     canvas[((first + cell) / 32 * 8 + y) * 256 + (first + cell) % 32 * 8 + x] = ink;
                 }
             }
+        }
+        var bodyTiles = new HashSet<int>();
+        int targetFrame = 0, targetStream = 0;
+        for (int facing = 0; facing < 2; facing++) for (int frame = 0; frame < 17; frame++)
+        {
+            int root = 0xa50000 | ((facing == 0 ? 0xa31b : 0xa643) + frame * 10);
+            int source = 0xa50000 | Word(root + 6); source += 2;
+            while (Word(source) != 0xffff)
+            {
+                int count = Word(source + 2); source += 4;
+                for (int cell = 0; cell < count; cell++, source += 2)
+                {
+                    int attr = Word(source);
+                    if ((attr >> 10 & 7) == 5)
+                    {
+                        int tile = attr & 0x3ff; bodyTiles.Add(tile);
+                        for(int y=0;y<8;y++) for(int x=0;x<8;x++)
+                            if(targetFrame == 0 && bgTiles[(tile / 16 * 8 + y) * bgWidth + tile % 16 * 8 + x] is 13 or 14)
+                            { targetFrame=root; targetStream=0xa50000|Word(root+6); }
+                    }
+                }
+            }
+        }
+        if(targetStream != 0)
+        {
+            var targetCanvas = new byte[256*256]; int source = targetStream+2;
+            while(Word(source)!=0xffff)
+            {
+                int first=(Word(source)-0x2000)/2,count=Word(source+2); source+=4;
+                for(int cell=0;cell<count;cell++,source+=2)
+                {
+                    int attr=Word(source),tile=attr&0x3ff;
+                    for(int y=0;y<8;y++)for(int x=0;x<8;x++)
+                    {
+                        int sx=(attr&0x4000)==0?x:7-x,sy=(attr&0x8000)==0?y:7-y;
+                        targetCanvas[((first+cell)/32*8+y)*256+(first+cell)%32*8+x]=bgTiles[(tile/16*8+sy)*bgWidth+tile%16*8+sx];
+                    }
+                }
+            }
+            var targetColors=Enumerable.Range(0,16).Select(i=>SnesGraphics.DecodeBgr555Color(Word(0xa5a277+i*2))).ToArray(); targetColors[0]=new Rgba32(35,35,35,255);
+            byte[] enlarged=Enumerable.Range(0,512*512).Select(i=>targetCanvas[i/512/2*256+i%512/2]).ToArray();
+            using(var output=File.Create(Path.Combine(directory,"material-target-frame.png")))IndexedPng.Write(output,512,512,enlarged,targetColors);
+            for(int slot=13;slot<=14;slot++)
+            {
+                using var output=File.Create(Path.Combine(directory,$"material-target-slot-{slot}.png"));
+                IndexedPng.Write(output,512,512,enlarged.Select(pixel=>(byte)(pixel==slot?1:0)).ToArray(),[new Rgba32(35,35,35,255),new Rgba32(255,220,0,255)]);
+            }
+            Console.WriteLine($"Draygon target-color source frame {targetFrame:X6}, stream {targetStream:X6}.");
+        }
+        var bodyUsage = new int[16];
+        foreach (int tile in bodyTiles) for (int y = 0; y < 8; y++) for (int x = 0; x < 8; x++)
+            bodyUsage[bgTiles[(tile / 16 * 8 + y) * bgWidth + tile % 16 * 8 + x]]++;
+        for (int slot = 1; slot < 16; slot++)
+        {
+            byte[] bodyMask = Enumerable.Range(0, 512 * 512).Select(i => (byte)(canvas[i / 512 / 2 * 256 + i % 512 / 2] == slot ? 1 : 0)).ToArray();
+            using var output = File.Create(Path.Combine(directory, $"material-body-slot-{slot}.png"));
+            IndexedPng.Write(output, 512, 512, bodyMask, [new Rgba32(35,35,35,255),new Rgba32(255,220,0,255)]);
+            Console.WriteLine($"Draygon material slot{slot}: BG2 firstframe {canvas.Count(pixel => pixel == slot)}, all34frames unique tiles {bodyUsage[slot]}, sprite atlas {tiles.Count(pixel => pixel == slot)}.");
         }
         for (int endpoint = 0; endpoint < 2; endpoint++)
         {

@@ -15,7 +15,9 @@ public sealed class DraygonColorCatalog
     public string ContentIdentity => SelectedPresentationHash.Create("DraygonColorCatalog-v1", content =>
         {
             content.AppendWords("intro", intro);
-            content.AppendWords("background", background);
+            Span<ushort> backgroundWords = stackalloc ushort[DraygonColorRomData.BackgroundCount];
+            for (int color = 0; color < backgroundWords.Length; color++) backgroundWords[color] = background.Color(color);
+            content.AppendWords("background", backgroundWords);
             content.AppendWords("sprite", sprite);
             Span<ushort> flash = stackalloc ushort[DraygonColorRomData.WhiteFlashCount];
             for (int color = 0; color < flash.Length; color++) flash[color] = ResolveWhiteFlash(color);
@@ -30,7 +32,7 @@ public sealed class DraygonColorCatalog
         });
 
     private readonly ushort[] intro;
-    private readonly ushort[] background;
+    private readonly DraygonMaterialPaintDefinitions background;
     private readonly ushort[] sprite;
     private readonly Dictionary<int, ushort> whiteFlash = new();
     private readonly DraygonHealthPaintDefinitions healthBands;
@@ -39,7 +41,7 @@ public sealed class DraygonColorCatalog
         ushort[] whiteFlash, ushort[][] healthBands)
     {
         this.intro = intro;
-        this.background = background;
+        this.background = new(background);
         this.sprite = sprite;
         for (int color = 0; color < whiteFlash.Length; color++)
             if (whiteFlash[color] != StockWhiteFlash(color)) this.whiteFlash.Add(color, whiteFlash[color]);
@@ -54,7 +56,7 @@ public sealed class DraygonColorCatalog
     };
 
     public ushort ResolveIntro(int color) => Get(intro, color);
-    public ushort ResolveBackground(int color) => Get(background, color);
+    public ushort ResolveBackground(int color) => background.Color(color);
     public ushort ResolveSprite(int color) => Get(sprite, color);
     public ushort ResolveWhiteFlash(int color)
     {
@@ -72,7 +74,7 @@ public sealed class DraygonColorCatalog
     }
 
     /// <summary><c>Palette_Draygon_WhiteFlash</c> at $A5:A297 preserves the backdrop; all visible inks are white.</summary>
-    private static ushort StockWhiteFlash(int color) => color == 0 ? (ushort)0x3800 : (ushort)0x7fff;
+    private static ushort StockWhiteFlash(int color) => color == 0 ? DraygonMaterialPaintDefinitions.ClearTarget : (ushort)0x7fff;
 
     public void ApplyIntro(SnesCgram cgram) =>
         Apply(cgram, intro, DraygonColorRomData.IntroDestination);
@@ -82,7 +84,7 @@ public sealed class DraygonColorCatalog
         if (whiteFrame)
             ApplyCalculated(cgram, DraygonColorRomData.WhiteFlashCount, DraygonColorRomData.BackgroundDestination, ResolveWhiteFlash);
         else
-            Apply(cgram, background, DraygonColorRomData.BackgroundDestination);
+            ApplyCalculated(cgram, DraygonColorRomData.BackgroundCount, DraygonColorRomData.BackgroundDestination, ResolveBackground);
         if (!whiteFrame)
             ApplyHealthBand(cgram, healthTableByteIndex);
         if (whiteFrame)

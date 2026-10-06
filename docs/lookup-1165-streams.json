@@ -3217,6 +3217,7 @@
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/SamusHurtColorDefinitions.cs","stream":1,"purpose":"Exact hurt RGB blend and shared intro channels; weights,slot roles,base levels and independent edits remain required"}
     ,{"path":"csharp/src/SuperMetroid.Core/Assets/SamusBodyFrameDefinitions.cs","stream":1,"purpose":"Exact named standing/crouching X-ray upper-half and moving/aiming-pose lower-gait and crouch/jump/fall aliases; preserve independent components,counts,bounds and hashes; source artwork required"}
     ,{"path":"csharp/src/SuperMetroid.Verification/Program.MotherBrainBabyInstructionProgramDefinitions.cs","stream":3,"purpose":"Message-only correction to accurately describe native word/rejection/allocation checks; preserve assertions and do not claim live producer coverage"}
+    ,{"path":"csharp/src/SuperMetroid.Core/Assets/EscapeTimerGlyphDefinitions.cs","stream":1,"purpose":"Exact native glyph grouping/shared tiles and outline operation; preserve independent PNG edits and required footprints,inks,policy/deviations"}
   ],
   "scheduling": "Five isolated worktrees at .worktrees/lookup-stream-N, branches work/lookup-1165-stream-N. Coordinator plus three concurrent workers; rotate worker slots across all five streams. Workers build and commit locally; coordinator integrates and exclusively pushes/publishes. Per-worktree Program.cs wiring permitted, reconciled centrally."
 }

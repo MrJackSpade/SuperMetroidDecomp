@@ -998,3 +998,9 @@ DrawingData remains unchecked; no coordinate/artwork exemption. Root Verificatio
 Partial conversion from 3b7c13cde through 7fbc681bd: calculated timed-record geometry, trail phases, semantic one-shot/cycle selection and loop targets replace all1,816 stored mechanics words across805 timed projectile records. The original dictionary and factory are removed. Independent hold durations, phase counts and loop-entry choices remain REQUIRED; Words stays unchecked. This grants no timing or artwork exemption.
 
 Root Verification build1,450 warnings/zero errors. --lookup-stream-1-power-programs confirms all1,816 direct native words, exact byte domains, terminal targets, rejection boundaries and absence of stored fallbacks. --lookup-stream2-projectile-identity-geometry also passes805 native selectors,417 extracted OAM draws,48 startup records,independent edits and bounds. Inventory remains570 converted/21 retained-mixed/537 pending.
+
+## Integrated Samus intro channels and hurt whitening
+
+Partial2685cb494 calculates intro red=green/blue=max(4,red-2),then hurt RGB=floor((2*intro+5*31)/7) for slots1..15. Native9B:A380-A3BE confirms all30relationships. Fifteen source red levels,their slot roles,two zero-slot words and all four tint/blend parameters remain REQUIRED; both aggregates stay unchecked. Independent RGB edits across either palette preserve supplied values through exact overrides.
+
+Root build1451warnings/0errors;32native colors,30relations,exact15level basis,zero stock overrides,96independent RGB edits/exception membership and guarded ordinary/cinematic CGRAM/action/timer cycles pass. ResourceAudit0/0 with helper dependency and catalog hash refreshed. Inventory587converted/21retained-mixed/520pending unchanged.

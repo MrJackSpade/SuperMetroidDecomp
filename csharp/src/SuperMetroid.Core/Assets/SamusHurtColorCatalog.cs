@@ -14,13 +14,24 @@ public enum SamusHurtColorVariant
 /// <summary>Editable RGB5 artwork for the hurt flash and cinematic restoration.</summary>
 public sealed class SamusHurtColorCatalog
 {
-    private readonly ushort[] hurt;
-    private readonly ushort[] intro;
+    // The zero slots, fifteen source levels and selected blend/tint parameters remain required inputs.
+    private readonly ushort hurtZero;
+    private readonly ushort introZero;
+    private readonly byte[] introLevels;
+    private readonly Dictionary<int, ushort> introOverrides;
+    private readonly Dictionary<int, ushort> hurtOverrides;
 
     private SamusHurtColorCatalog(ushort[] hurt, ushort[] intro)
     {
-        this.hurt = hurt;
-        this.intro = intro;
+        hurtZero = hurt[0];
+        introZero = intro[0];
+        introLevels = intro.Skip(1).Select(word => (byte)(word & 31)).ToArray();
+        introOverrides = Enumerable.Range(1, 15)
+            .Where(index => intro[index] != SamusHurtColorDefinitions.IntroFromLevel(introLevels[index - 1]))
+            .ToDictionary(index => index, index => intro[index]);
+        hurtOverrides = Enumerable.Range(1, 15)
+            .Where(index => hurt[index] != SamusHurtColorDefinitions.HurtFromIntro(intro[index]))
+            .ToDictionary(index => index, index => hurt[index]);
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -60,16 +71,17 @@ public sealed class SamusHurtColorCatalog
     /// <summary>Returns one display color; counter, phase, and sound rules remain in code.</summary>
     public ushort Resolve(SamusHurtColorVariant variant, int index)
     {
-        ushort[] colors = variant switch
-        {
-            SamusHurtColorVariant.Hurt => hurt,
-            SamusHurtColorVariant.Intro => intro,
-            _ => throw new ArgumentOutOfRangeException(nameof(variant)),
-        };
-        return (uint)index < colors.Length
-            ? colors[index] : throw new ArgumentOutOfRangeException(nameof(index));
+        if (variant is not (SamusHurtColorVariant.Hurt or SamusHurtColorVariant.Intro))
+            throw new ArgumentOutOfRangeException(nameof(variant));
+        if ((uint)index >= SamusHurtColorFormat.ColorsPerPalette)
+            throw new ArgumentOutOfRangeException(nameof(index));
+        if (variant == SamusHurtColorVariant.Intro) return Intro(index);
+        return index == 0 ? hurtZero : hurtOverrides.TryGetValue(index, out ushort value)
+            ? value : SamusHurtColorDefinitions.HurtFromIntro(Intro(index));
     }
 
+    private ushort Intro(int index) => index == 0 ? introZero : introOverrides.TryGetValue(index, out ushort value)
+        ? value : SamusHurtColorDefinitions.IntroFromLevel(introLevels[index - 1]);
     private static ushort[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusHurtColorFormat.ColorsPerPalette)

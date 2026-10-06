@@ -5,6 +5,50 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream1HurtBlend(ISnesAddressSpace rom)
+    {
+        ushort[] native = Enumerable.Range(0, 32).Select(index =>
+            (ushort)(rom.ReadByte(0x9ba380 + index * 2) | rom.ReadByte(0x9ba381 + index * 2) << 8)).ToArray();
+        PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
+        SamusHurtColorCatalog Create(ushort[] supplied) => SamusHurtColorCatalog.Load(new MemoryStream(SamusHurtColorCatalog.Write(
+            new SamusHurtColorDocument { Version = 1, Hurt = supplied.Take(16).Select(Color).ToArray(), Intro = supplied.Skip(16).Select(Color).ToArray() })));
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        Dictionary<int, ushort> Overrides(SamusHurtColorCatalog catalog, string name) =>
+            (Dictionary<int, ushort>)typeof(SamusHurtColorCatalog).GetField(name, flags)!.GetValue(catalog)!;
+        byte[] Levels(SamusHurtColorCatalog catalog) => (byte[])typeof(SamusHurtColorCatalog).GetField("introLevels", flags)!.GetValue(catalog)!;
+        var stock = Create(native);
+        AssertEqual(0, Overrides(stock, "introOverrides").Count + Overrides(stock, "hurtOverrides").Count, "Zero stock channel/blend fallbacks");
+        AssertTrue(Levels(stock).SequenceEqual(native.Skip(17).Select(word => (byte)(word & 31))), "Exact fifteen required source levels");
+        for (int index = 1; index < 16; index++)
+        {
+            AssertEqual(native[index + 16], SamusHurtColorDefinitions.IntroFromLevel((byte)(native[index + 16] & 31)), "Direct native intro channel relation");
+            AssertEqual(native[index], SamusHurtColorDefinitions.HurtFromIntro(native[index + 16]), "Direct native hurt white blend");
+        }
+        for (int selected = 0; selected < 32; selected++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            ushort[] supplied = (ushort[])native.Clone(); supplied[selected] ^= (ushort)(31 << (channel * 5));
+            var edited = Create(supplied);
+            for (int index = 0; index < 32; index++)
+                AssertEqual(supplied[index], edited.Resolve(index < 16 ? SamusHurtColorVariant.Hurt : SamusHurtColorVariant.Intro, index % 16), "Every supplied RGB channel remains independent across palettes");
+            AssertTrue(Levels(edited).SequenceEqual(supplied.Skip(17).Select(word => (byte)(word & 31))), "Exact edited required red-level basis");
+            for (int index = 1; index < 16; index++)
+            {
+                int red = supplied[index + 16] & 31;
+                ushort expectedIntro = (ushort)(red | red << 5 | Math.Max(4, red - 2) << 10);
+                int Blend(int shift) => (2 * ((supplied[index + 16] >> shift) & 31) + 155) / 7;
+                ushort expectedHurt = (ushort)(Blend(0) | Blend(5) << 5 | Blend(10) << 10);
+                AssertEqual(supplied[index + 16] != expectedIntro, Overrides(edited, "introOverrides").ContainsKey(index), "Exact intro edit exception membership");
+                AssertEqual(supplied[index] != expectedHurt, Overrides(edited, "hurtOverrides").ContainsKey(index), "Exact independent hurt exception membership");
+            }
+        }
+        for (int index = 0; index < 32; index++)
+            AssertEqual(native[index], stock.Resolve(index < 16 ? SamusHurtColorVariant.Hurt : SamusHurtColorVariant.Intro, index % 16), "Stock color remains immutable");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((SamusHurtColorVariant)2, 0), "Variant rejection preserved");
+        foreach (int index in new[] { -1, 16 })
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(SamusHurtColorVariant.Intro, index), "Color bounds preserved");
+        Console.WriteLine("Hurt/intro:32 native colors,30 direct relations,15 required source levels,zero stock overrides,96 independent RGB edits and exact exception membership pass.");
+    }
     private static void VerifyLookupStream1NonBeamProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);

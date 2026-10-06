@@ -4,6 +4,46 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>Independent $90:C663 arm-cannon draw/transfer result from native state and ROM.</summary>
+    private static SamusArmCannonDrawResult RidleyNativeCannonDraw(
+        ISnesAddressSpace rom, byte[] checkpoint, bool invincibleAtDraw, ushort nmi)
+    {
+        ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(checkpoint.AsSpan(address, 2));
+        ushort R(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        if ((W(RidleyMovieMemory.CannonDrawingMode) & 15) == 0) return default;
+        ushort frame = W(RidleyMovieMemory.CannonFrame);
+        if (frame == 0 || (invincibleAtDraw && (nmi & 1) != 0))
+            return new SamusArmCannonDrawResult(false, false, frame);
+        ushort pose = W(RidleyMovieMemory.Pose), animation = W(RidleyMovieMemory.Animation);
+        int drawing = RidleyMovieMemory.CannonDefinitionBank | R(RidleyMovieMemory.CannonPosePointers + pose * 2);
+        byte first = rom.ReadByte(drawing);
+        bool alternate = (first & 128) != 0;
+        byte direction = (byte)((alternate && animation != 0 ? rom.ReadByte(drawing + 2) : first) & 127);
+        int offsets = drawing + (alternate ? 4 : 2) + animation * 2;
+        short x = unchecked((short)(W(RidleyMovieMemory.X) + (sbyte)rom.ReadByte(offsets) - W(RidleyMovieMemory.CameraX)));
+        // C6F4 masks the pose graphics offset to a byte, unlike the body renderer's sign extension.
+        short y = unchecked((short)(W(RidleyMovieMemory.Y) + (sbyte)rom.ReadByte(offsets + 1) -
+            rom.ReadByte(RidleyMovieMemory.PoseDefinitions + pose * 8 + 4) - W(RidleyMovieMemory.CameraY)));
+        ushort attributes = R(RidleyMovieMemory.CannonAttributes + direction * 2);
+        int tiles = RidleyMovieMemory.CannonDefinitionBank | R(RidleyMovieMemory.CannonTileLists + direction * 2);
+        return new SamusArmCannonDrawResult(x >= 0 && x < 256 && y >= 0 && y < 256,
+            true, frame, direction, attributes, R(tiles + frame * 2), x, y);
+    }
+
+    private static bool ContainsMovieCannonSprite(ReadOnlySpan<byte> low, ReadOnlySpan<byte> high,
+        SamusArmCannonDrawResult draw)
+    {
+        for (int index = 0; index < 128; index++)
+        {
+            int offset = index * 4;
+            if (low[offset] == (byte)draw.ScreenX && low[offset + 1] == (byte)draw.ScreenY &&
+                BinaryPrimitives.ReadUInt16LittleEndian(low.Slice(offset + 2, 2)) == draw.Attributes &&
+                ((high[index / 4] >> ((index % 4) * 2)) & 3) == 0)
+                return true;
+        }
+        return false;
+    }
+
     /// <summary>
     /// Read-only cartridge oracle for $90:85E2/$864E/$8C1F. Uses checkpoint physics
     /// and original ROM definitions, never production draw methods or extracted art.

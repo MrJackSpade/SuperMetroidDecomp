@@ -1,6 +1,21 @@
 /// <summary>Native WRAM identities used only to import the supplied Ridley movie initial-state fixture.</summary>
 internal static class RidleyMovieMemory
 {
+    /// <summary>$90:C7DF: per-pose arm-cannon drawing-record pointers.</summary>
+    public const int CannonPosePointers = 0x90c7df;
+    /// <summary>$90:C791: ten directional arm-cannon OBJ attribute words.</summary>
+    public const int CannonAttributes = 0x90c791;
+    /// <summary>$90:C7A5: ten pointers to arm-cannon tile-source lists.</summary>
+    public const int CannonTileLists = 0x90c7a5;
+    /// <summary>$90 bank of arm-cannon drawing definitions.</summary>
+    public const int CannonDefinitionBank = 0x900000;
+    /// <summary>$9A bank of arm-cannon tile artwork.</summary>
+    public const int CannonTileBank = 0x9a0000;
+    /// <summary>$61F0: VRAM word destination of the 32-byte arm-cannon tile.</summary>
+    public const ushort CannonTileDestination = 0x61f0;
+    /// <summary>$0370/$0570: native low/high OAM staging tables.</summary>
+    public const int OamLow = 0x0370, OamHigh = 0x0570;
+
     /// <summary>$0A1F: native Samus movement-type byte used by draw dispatch.</summary>
     public const int SamusMovementType = 0x0a1f;
     /// <summary>$093F: Ceres status; high bit requests Mode 7 position transformation.</summary>

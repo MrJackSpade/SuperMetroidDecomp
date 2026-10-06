@@ -849,3 +849,27 @@ Release build has zero errors and all 10,717 updates pass
 (`samus-oracle-build.log`, `samus-oracle-replay.log`). No production behavior
 changed. This verifies the selected body records, not composed OAM/pixels, tile
 transfer timing, cannon drawing output, palettes or the other open audit areas.
+
+### Arm-cannon drawing and queued tile transfer
+
+An independent $90:C663 reference now reads the native pose drawing pointers,
+frame-dependent direction selector, signed per-frame X/Y offsets, unsigned pose
+Y offset ($90:C6F4), sprite attributes and tile-source pointers directly from ROM.
+It applies the draw-mode/frame/invincibility gates with the appropriate native or
+normalized NMI phase. For every gameplay update after initialization, the complete
+port drawing result must match (visibility, upload flag, frame, direction,
+attributes, source and screen position).
+
+When the native reference draws a visible cannon, its exact small-sprite OAM
+record must exist in the native checkpoint. The same assertion checks port OAM
+using the normalized phase. The port's actual pending VRAM queue must contain
+exactly one 32-byte bank-$9A transfer to word $61F0 when requested, with the native
+source pointer, and none when suppressed. This checks emitted data, not merely
+cannon state or an unobserved return value. It does not establish OAM ordering,
+absence of unrelated extra sprites, or final PPU consumption/pixels.
+
+Release build has zero errors; all 10,717 updates pass
+(`cannon-output-build.log`, `cannon-output-replay.log`). No production fix was
+required. The previous cannon draw-output/source-transfer gap is closed for the
+recorded gameplay updates; complete rendering and the other documented audit
+areas remain open. Original movie and initial-only state import are unchanged.

@@ -1135,6 +1135,29 @@ internal static partial class Program
                     Check("Samus sprite X", samus.SpritemapXPosition, RidleyMovieMemory.SamusSpriteX);
                     Check("Samus sprite Y", samus.SpritemapYPosition, RidleyMovieMemory.SamusSpriteY);
                 }
+                if (frame != 0)
+                {
+                    var nativeCannon = RidleyNativeCannonDraw(bus, memory, invincibleAtDraw, W(RidleyMovieMemory.NmiCounter));
+                    if (nativeCannon.SpriteWritten)
+                        AssertTrue(ContainsMovieCannonSprite(memory.AsSpan(RidleyMovieMemory.OamLow, 512),
+                            memory.AsSpan(RidleyMovieMemory.OamHigh, 32), nativeCannon),
+                            $"update {frame}: native OAM contains reference cannon sprite");
+                    var cannon = RidleyNativeCannonDraw(bus, memory, invincibleAtDraw, runtime.NmiFrameCounter);
+                    AssertEqual(cannon, runtime.LastArmCannonDraw, $"update {frame}: normalized cannon draw result");
+                    if (cannon.SpriteWritten)
+                        AssertTrue(ContainsMovieCannonSprite(runtime.Oam.LowTable, runtime.Oam.HighTable, cannon),
+                            $"update {frame}: port OAM contains reference cannon sprite");
+                    var transfers = runtime.VramWrites.Entries.Where(entry =>
+                        entry.EncodedVramDestination == RidleyMovieMemory.CannonTileDestination).ToArray();
+                    AssertEqual(cannon.TileUploadQueued ? 1 : 0, transfers.Length,
+                        $"update {frame}: cannon upload count");
+                    if (cannon.TileUploadQueued)
+                    {
+                        AssertEqual((ushort)32, transfers[0].SizeInBytes, $"update {frame}: cannon upload bytes");
+                        AssertEqual(RidleyMovieMemory.CannonTileBank | cannon.TileSource, transfers[0].SourceAddress,
+                            $"update {frame}: cannon upload source");
+                    }
+                }
                 Check("Cannon flags", (ushort)(samus.ArmCannon.OpenFlag | samus.ArmCannon.CloseFlag << 8), RidleyMovieMemory.CannonFlags);
                 Check("Cannon frame", samus.ArmCannon.Frame, RidleyMovieMemory.CannonFrame);
                 Check("Cannon toggle", samus.ArmCannon.ToggleFlag, RidleyMovieMemory.CannonToggle);

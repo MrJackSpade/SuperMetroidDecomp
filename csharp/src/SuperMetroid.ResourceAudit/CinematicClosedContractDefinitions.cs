@@ -6,8 +6,10 @@ internal static class CinematicClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.TitlePalettePresentation", "title-complete-initial-palette", ["Apply"],
-            [new("csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs", "C1ECCD51302467FDF4B1E32F4936D8FD7724776A598884B3590E4EEA9B07C45A"),
-             new("csharp/src/SuperMetroid.Core/Game/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs", "99A9E4DC779F4880FDF6B007733480F07EA950872FEA66EA7D68A5100A6A0F25")],
+            [new("csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs", "6F927C5331EFE41AF443A54EC5BDAC9A2DBD7B2C11B6298977BEC511F6509050"),
+             new("csharp/src/SuperMetroid.Core/Game/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs", "74C663D73187948FD1CE61FED35B4C137636FDED80728B7383FED3E85B169242"),
+             new("csharp/src/SuperMetroid.Core/Assets/TitleAmbientColorDefinitions.cs", "541DA5049CBBDEC86EE34FC0EC4013B486E2989630A01E629C92CF7E5C87CED6"),
+             new("csharp/src/SuperMetroid.Core/Frontend/TitleSequenceRomData.cs", "55FB939A7977CA89913E2250DFCA24B3981F78FFB1C3B4C93D9BCCBCB8B8075F")],
             "Private construction requires the complete initial CGRAM image, both exact ambient color sequences and the fast-skip colors. Apply selects fixed independent loaded colors. Ambient identities are separately audited; palette clocks and title phases are not executed."),
         new("SuperMetroid.Core.Assets.TitleGradientPresentation", "title-complete-masked-gradient-variants", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Assets/TitleGradientPresentation.cs", "5CB6033938EA9C0244BFD5CFCB788AD663FCA2EF2B990293561A884128A27356")],

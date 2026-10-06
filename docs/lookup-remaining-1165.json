@@ -2,7 +2,7 @@
   "issue": 1165,
   "generatedUtc": "2026-10-04T20:43:25.3086366Z",
   "countingUnit": "canonical named source table definition; rows, copies, aggregate views, individual instances and independent value columns are not additional table definitions",
-  "remainingTableDefinitionCount": 476,
+  "remainingTableDefinitionCount": 474,
   "fileCount": 523,
   "entries": [
     {
@@ -2268,12 +2268,15 @@
       "note": "Original/default payload behind TitlePalettePresentation.colors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs",
-      "line": 14,
-      "name": "TitlePalettePresentation.animatedColors",
-      "kind": "installed stock table",
-      "note": "Original/default payload behind TitlePalettePresentation.animatedColors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Assets/TitlePalettePresentation.cs",
+  "line": 14,
+  "name": "TitlePalettePresentation.animatedColors",
+  "kind": "installed stock table",
+  "note": "Original/default payload behind TitlePalettePresentation.animatedColors. Convert its stock mapping or record an impossible/nonsense justification; preserve independently editable replacement content. Serialization buffers, document properties and loader copies are not extra entries.",
+  "state": "justified-retained",
+  "implementationCommit": "2f03a9638",
+  "disposition": "Mixed complete:all36colors calculate from unchanged initial-palette slots3/19/42..47 and shared clipped rational nearest-even channel ramp. No isolated green correction,duplicate endpoint or stock overrides remain. Retain only selected shade scale3/interpolation policy and named dim-display paint binding3/19. All256initial paints including eight referenced slots remain independently REQUIRED;independent initial/animated edits preserve all outputs."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Assets/TitleSpriteDefinitions.cs",
       "line": 8,
@@ -8422,12 +8425,15 @@
       "implementationCommit": "284b4a0ecbc7a7588b7e34146cf384494ba65880"
     },
     {
-      "file": "csharp/src/SuperMetroid.Core/Game/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs",
-      "line": 38,
-      "name": "TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.Definitions",
-      "kind": "stored definition",
-      "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition."
-    },
+  "file": "csharp/src/SuperMetroid.Core/Game/TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.cs",
+  "line": 38,
+  "name": "TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.Definitions",
+  "kind": "stored definition",
+  "note": "Fixed stored mapping. Remove the lookup through calculation or meaningful cases, or establish the permitted impossible/nonsense exception. Cover all value columns; nested rows are part of this table definition.",
+  "state": "justified-retained",
+  "implementationCommit": "2f03a9638",
+  "disposition": "Mixed complete: two semantic owners calculate identities,record widths,program addresses,color destinations and loop structure. Retain only exact four-step tube pulse/ten-tick dwell and alternating every-update display choreography with CGRAM42..45/46..47 material binding,after native independent timer/consumer review. Colors separately accounted; no other title clock exemption."
+},
     {
       "file": "csharp/src/SuperMetroid.Core/Game/TorizoBellyPaletteFxProgramMechanicsDefinitions.cs",
       "line": 24,
@@ -21646,5 +21652,5 @@
     }
   ],
   "convertedSinceSnapshot": 600,
-  "justifiedRetainedSinceSnapshot": 52
+  "justifiedRetainedSinceSnapshot": 54
 }

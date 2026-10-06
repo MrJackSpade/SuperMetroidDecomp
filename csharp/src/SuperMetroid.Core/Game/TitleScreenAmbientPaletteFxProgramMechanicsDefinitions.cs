@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The mutually exclusive title-screen ambient palette owner.</summary>
@@ -15,109 +17,87 @@ public enum TitleScreenAmbientPaletteFxProgramOwner
 /// enters at <c>$8D:C7FA</c>: <c>SetColorIndex($0054)</c>, eight 12-byte
 /// records of <c>10, colors[4], Wait</c>, then <c>Goto($C7FE)</c> at
 /// <c>$C85E</c> (80 frames per loop). All 20 control words match. The
-/// first color row is <c>[0113,000F,175C,0299]</c>. For frame <c>f</c>
-/// (0..7), let <c>k = min(f, 8 - f)</c>. Each BGR555 component is
-/// <c>max(0, first-row component - 3*k)</c>, except the green component
-/// of column 0 gains one unit when <c>k = 2</c>. This rule matches all
-/// 32 tube-light ROM colors exactly.
+/// first row reuses the initial title palette. Tube channels interpolate to their
+/// clamped endpoint using the minimum phase count at the selected three-unit
+/// scale and nearest/even integer quantization; no green exception is needed.
 /// Issue #854 / #625: definition <c>$8D:E1A4</c> enters at
 /// <c>$8D:C862</c>, sets color index <c>$005C</c>, and alternates two
 /// eight-byte records of <c>1, colors[2], Wait</c> from <c>$C866</c>;
 /// <c>Goto($C866)</c> at <c>$C876</c> repeats the two-frame cycle. All
 /// eight control words match. Even records write <c>[13FF,0BB1]</c> and
-/// odd records write <c>[00AC,0145]</c>; the four distinct cartridge
-/// colors are retained as authored presentation data. All 36 colors in
-/// these two loops require installed presentation data; missing colors report
-/// an error rather than falling back to a runtime cartridge read.
+/// odd records write <c>[00AC,0145]</c>. These frames reuse the initial
+/// title palette's material paint through named bindings and calculated shading.
+/// The initial palette's independent paint values remain separately required
+/// under TitlePalettePresentation.colors; each supplied initial or animated
+/// edit preserves every other installed value. Missing inputs report an error
+/// rather than falling back to a runtime cartridge read.
 /// ROM SHA-256:
 /// <c>12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72</c>.
 /// </remarks>
 public static class TitleScreenAmbientPaletteFxProgramMechanicsDefinitions
 {
-    private static readonly TitleScreenAmbientPaletteFxProgramDefinition[] Definitions =
-    [
-        new(
-            TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight,
-            definitionPointer: 0xe1a0,
-            programStart: 0xc7fa,
-            colorByteIndex: 0x0054,
-            frameCount: 8,
-            colorsPerFrame: 4,
-            frameDuration: 10),
-        new(
-            TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays,
-            definitionPointer: 0xe1a4,
-            programStart: 0xc862,
-            colorByteIndex: 0x005c,
-            frameCount: 2,
-            colorsPerFrame: 2,
-            frameDuration: 1),
-    ];
-    private static readonly IReadOnlyList<TitleScreenAmbientPaletteFxProgramDefinition>
-        ReadOnlyDefinitions = Array.AsReadOnly(Definitions);
+    /// <summary>$8D:C7FE-C85D: four dimming steps and their reflected return form the tube pulse. This selected pulse depth is authored title choreography.</summary>
+    internal const int TubeDimmingSteps = 4;
+    /// <summary>$8D:C7FE and each following tube record: authored ten-tick shade exposure in this title pulse.</summary>
+    internal const ushort TubeShadeTicks = 10;
+    /// <summary>$8D:C866/C86E: bright and dim display states alternate on consecutive palette updates.</summary>
+    internal const int DisplayStates = 2;
+    /// <summary>$8D:C7FC: first tube material color is CGRAM42; four material slots end at45.</summary>
+    internal const int TubeFirstColor = 42, TubeLastColor = 45;
+    /// <summary>$8D:C864: the adjacent display material slots end at CGRAM47.</summary>
+    internal const int DisplayLastColor = 47;
+    /// <summary>$8D:C7FA, InstList_PaletteFXObject_TitleScreenBabyMetroidTubeLight_0.</summary>
+    internal const ushort TubeProgram = 0xc7fa;
+    /// <summary>$8D:E1A0 / $C7FA: the eight-frame baby-Metroid tube light.</summary>
+    public static TitleScreenAmbientPaletteFxProgramDefinition TubeLight { get; } =
+        new(TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight);
+    /// <summary>$8D:E1A4 / $C862: the two-frame flickering displays.</summary>
+    public static TitleScreenAmbientPaletteFxProgramDefinition Displays { get; } =
+        new(TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays);
 
-    /// <summary>The tube-light and display loops in definition order.</summary>
-    public static IReadOnlyList<TitleScreenAmbientPaletteFxProgramDefinition> All =>
-        ReadOnlyDefinitions;
+    /// <summary>The two semantic palette owners in native definition order.</summary>
+    public static IReadOnlyList<TitleScreenAmbientPaletteFxProgramDefinition> All { get; } = new ProgramList();
 
-    /// <summary>Resolves one compiled mechanics word across both loops.</summary>
-    public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
+    private sealed class ProgramList : IReadOnlyList<TitleScreenAmbientPaletteFxProgramDefinition>
     {
-        foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in Definitions)
+        public int Count => 2;
+        public TitleScreenAmbientPaletteFxProgramDefinition this[int index] => index switch
         {
-            if (definition.TryReadMechanicsWord(pointer, out value))
-                return true;
+            0 => TubeLight, 1 => Displays, _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+        public IEnumerator<TitleScreenAmbientPaletteFxProgramDefinition> GetEnumerator()
+        {
+            yield return TubeLight;
+            yield return Displays;
         }
-
-        value = 0;
-        return false;
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-}
 
+    /// <summary>Resolves a control word through the two mutually exclusive palette programs.</summary>
+    public static bool TryReadMechanicsWord(ushort pointer, out ushort value) =>
+        TubeLight.TryReadMechanicsWord(pointer, out value) || Displays.TryReadMechanicsWord(pointer, out value);
+}
 /// <summary>One complete looping title-screen ambient palette program.</summary>
 public sealed class TitleScreenAmbientPaletteFxProgramDefinition
 {
-    internal TitleScreenAmbientPaletteFxProgramDefinition(
-        TitleScreenAmbientPaletteFxProgramOwner owner,
-        ushort definitionPointer,
-        ushort programStart,
-        ushort colorByteIndex,
-        int frameCount,
-        int colorsPerFrame,
-        ushort frameDuration)
-    {
-        Owner = owner;
-        DefinitionPointer = definitionPointer;
-        ProgramStart = programStart;
-        ColorByteIndex = colorByteIndex;
-        FrameCount = frameCount;
-        ColorsPerFrame = colorsPerFrame;
-        FrameDuration = frameDuration;
-    }
-
-    /// <summary>The mutually exclusive title-screen palette owner.</summary>
+    internal TitleScreenAmbientPaletteFxProgramDefinition(TitleScreenAmbientPaletteFxProgramOwner owner) => Owner = owner;
     public TitleScreenAmbientPaletteFxProgramOwner Owner { get; }
+    private bool IsTubeLight => Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight;
 
-    /// <summary>The palette-FX definition identity that installs this program.</summary>
-    /// <remarks><c>$8D:E1A0</c> is tube light and <c>$8D:E1A4</c> is displays.</remarks>
-    public ushort DefinitionPointer { get; }
-
-    /// <summary>The native instruction-list entry.</summary>
-    /// <remarks><c>$8D:C7FA</c> is tube light and <c>$8D:C862</c> is displays.</remarks>
-    public ushort ProgramStart { get; }
-
-    /// <summary>The first destination byte in CGRAM.</summary>
-    public ushort ColorByteIndex { get; }
-
-    /// <summary>The number of timed records in one loop.</summary>
-    public int FrameCount { get; }
-
-    /// <summary>The number of live BGR555 colors in each record.</summary>
-    public int ColorsPerFrame { get; }
-
-    /// <summary>The cartridge-authored duration of each timed record.</summary>
-    public ushort FrameDuration { get; }
-
+    /// <summary>Native palette definitions $8D:E1A0 (tube) / $E1A4 (displays).</summary>
+    public ushort DefinitionPointer => IsTubeLight ? TitleSequenceRomData.ConsolePaletteFx.SlowLights : TitleSequenceRomData.ConsolePaletteFx.FastLights;
+    /// <summary>Native instruction entries $8D:C7FA (tube) / $C862 (displays).</summary>
+    public ushort ProgramStart => IsTubeLight ? TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeProgram
+        : (ushort)(TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeLight.LoopInstructionPointer + 2 * sizeof(ushort));
+    /// <summary>Native color destinations: byte $54 (tube) / $5C (displays).</summary>
+    public ushort ColorByteIndex => (ushort)(FirstColor * sizeof(ushort));
+    private int FirstColor => IsTubeLight ? TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeFirstColor
+        : TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeLastColor + 1;
+    public int FrameCount => IsTubeLight ? 2 * TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeDimmingSteps
+        : TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.DisplayStates;
+    public int ColorsPerFrame => (IsTubeLight ? TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeLastColor
+        : TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.DisplayLastColor) - FirstColor + 1;
+    public ushort FrameDuration => IsTubeLight ? TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeShadeTicks : (ushort)1;
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public int FrameByteCount => sizeof(ushort) + ColorsPerFrame * sizeof(ushort) +
         sizeof(ushort);

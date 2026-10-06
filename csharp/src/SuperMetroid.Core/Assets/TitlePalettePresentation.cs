@@ -28,15 +28,29 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     public ReadOnlySpan<ushort> Colors => colors;
 
     /// <summary>Installed ambient-color identities for the development dependency auditor.</summary>
-    internal IReadOnlyCollection<ushort> ColorPointers => animatedColors.Keys;
+    internal IReadOnlyCollection<ushort> ColorPointers { get; } = new AmbientPointerSequence();
 
+    private sealed class AmbientPointerSequence : IReadOnlyCollection<ushort>
+    {
+        public int Count => TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All.Sum(
+            program => program.FrameCount * program.ColorsPerFrame);
+        public IEnumerator<ushort> GetEnumerator()
+        {
+            foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+            for (int frame = 0; frame < program.FrameCount; frame++)
+            for (int index = 0; index < program.ColorsPerFrame; index++)
+                yield return (ushort)(program.FramePointer(frame) + sizeof(ushort) * (index + 1));
+        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+    }
     /// <summary>The two copyright glyph colors restored by the title's fast-skip route.</summary>
     public ushort SkipCopyrightWhite { get; }
     public ushort SkipCopyrightRed { get; }
 
     /// <inheritdoc />
     public bool TryReadColor(ushort pointer, out ushort color) =>
-        animatedColors.TryGetValue(pointer, out color);
+        animatedColors.TryGetValue(pointer, out color) ||
+        TitleAmbientColorDefinitions.TryCalculate(pointer, colors, animatedColors, out color);
 
     /// <summary>Loads the complete authored palette into native CGRAM slots zero through 255.</summary>
     public void Apply(SnesCgram destination)
@@ -123,6 +137,14 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
             }
         }
 
+        foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        for (int frame = 0; frame < program.FrameCount; frame++)
+        for (int index = 0; index < program.ColorsPerFrame; index++)
+        {
+            ushort pointer = (ushort)(program.FramePointer(frame) + sizeof(ushort) * (index + 1));
+            if (TitleAmbientColorDefinitions.TryCalculate(pointer, colors, animatedColors, out ushort calculated) &&
+                animatedColors[pointer] == calculated) animatedColors.Remove(pointer);
+        }
         return new TitlePalettePresentation(colors, animatedColors,
             PackColor(document.SkipCopyrightWhite, "skip copyright white"),
             PackColor(document.SkipCopyrightRed, "skip copyright red"));

@@ -9,6 +9,195 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    private static void VerifyLookupStream4TitleAmbientColors(ISnesAddressSpace rom)
+    {
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Pack(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
+        byte[] json = TitlePaletteExtractor.Extract(rom);
+        TitlePalettePresentation stock = TitlePalettePresentation.Load(new MemoryStream(json));
+        var native = new Dictionary<ushort, ushort>();
+        foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        for (int frame = 0; frame < program.FrameCount; frame++)
+        for (int index = 0; index < program.ColorsPerFrame; index++)
+        {
+            ushort pointer = (ushort)(program.FramePointer(frame) + 2 + index * 2);
+            native.Add(pointer, Word(0x8d0000 | pointer));
+            AssertTrue(stock.TryReadColor(pointer, out ushort value), "calculated title ambient color resolves");
+            AssertEqual(native[pointer], value, "native title ambient color");
+        }
+        var stored = (Dictionary<ushort, ushort>)typeof(TitlePalettePresentation).GetField("animatedColors",
+            BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(stock)!;
+        AssertEqual(0, stored.Count, "all ambient stock colors calculate from independent initial-palette paint");
+        AssertEqual(36, stock.ColorPointers.Count, "title color identity count preserved");
+        AssertEqual(36, stock.ColorPointers.Distinct().Count(), "title color identities enumerate once");
+        for (int pointer = 0xc7fa; pointer <= 0xc87a; pointer++)
+            AssertEqual(native.ContainsKey((ushort)pointer), stock.TryReadColor((ushort)pointer, out _),
+                "title ambient color domain excludes controls and unaligned bytes");
+        var document = JsonSerializer.Deserialize<TitlePaletteDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        document.BabyMetroidTubeLight[0][0] = document.BabyMetroidTubeLight[0][0] with { Red = 20 };
+        document.BabyMetroidTubeLight[2][0] = document.BabyMetroidTubeLight[2][0] with { Green = 12 };
+        document.BabyMetroidTubeLight[7][3] = document.BabyMetroidTubeLight[7][3] with { Blue = 9 };
+        document.FlickeringDisplays[1][1] = document.FlickeringDisplays[1][1] with { Red = 17 };
+        using var changedJson = new MemoryStream();
+        TitlePalettePresentation.Write(changedJson, document);
+        changedJson.Position = 0;
+        TitlePalettePresentation changed = TitlePalettePresentation.Load(changedJson);
+        foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        for (int frame = 0; frame < program.FrameCount; frame++)
+        for (int index = 0; index < program.ColorsPerFrame; index++)
+        {
+            ushort pointer = (ushort)(program.FramePointer(frame) + 2 + index * 2);
+            PaletteRgb5 supplied = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
+                ? document.BabyMetroidTubeLight[frame][index] : document.FlickeringDisplays[frame][index];
+            AssertTrue(changed.TryReadColor(pointer, out ushort value), "edited ambient color resolves");
+            AssertEqual(Pack(supplied), value, "independent title ambient edit and every unchanged neighbor preserved");
+        }
+        foreach (int invalid in new[] { -1, 2, int.MaxValue })
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All[invalid],
+                "title ambient owner list domain");
+    }
+    private static void VerifyLookupStream4TitleAmbientMechanics(CartridgeImportAddressSpace rom)
+    {
+        VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(rom);
+        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        int ticks = 0;
+        foreach (var definition in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        {
+            ushort nativeProgram = Word(0x8d0000 | definition.DefinitionPointer + 2);
+            AssertEqual(nativeProgram, definition.ProgramStart, "Native ambient definition selects calculated program");
+            int destination = Word(0x8d0000 | nativeProgram + 2) / 2;
+            var nativeRows = new List<(ushort Duration, ushort[] Colors)>();
+            int cursor = nativeProgram + 4;
+            while (Word(0x8d0000 | cursor) < 0x8000)
+            {
+                ushort duration = Word(0x8d0000 | cursor);
+                cursor += 2;
+                var colors = new List<ushort>();
+                while (Word(0x8d0000 | cursor) < 0x8000)
+                {
+                    colors.Add(Word(0x8d0000 | cursor));
+                    cursor += 2;
+                }
+                AssertEqual(PaletteFxInstructionCodes.Wait, Word(0x8d0000 | cursor), "Native ambient record wait");
+                cursor += 2;
+                nativeRows.Add((duration, colors.ToArray()));
+            }
+            AssertEqual(PaletteFxInstructionCodes.Goto, Word(0x8d0000 | cursor), "Native ambient terminal loop");
+            AssertEqual((ushort)(nativeProgram + 4), Word(0x8d0000 | cursor + 2), "Native ambient loop target");
+            AssertEqual(nativeRows.Count, definition.FrameCount, "Native ambient selected phase count");
+            AssertEqual(cursor, (int)definition.LoopInstructionPointer, "Calculated terminal layout");
+            var guarded = new PaletteFxMechanicsForbiddenBus(rom);
+            var fx = new RoomPaletteFxSystem();
+            var cgram = new SnesCgram();
+            fx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
+            for (int cycle = 0; cycle < 2; cycle++)
+            foreach (var row in nativeRows)
+            for (int hold = 0; hold < row.Duration; hold++)
+            {
+                fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), 0, 0, false, false);
+                for (int color = 0; color < SnesCgram.ColorCount; color++)
+                {
+                    ushort expected = color >= destination && color < destination + row.Colors.Length
+                        ? row.Colors[color - destination] : (ushort)0;
+                    AssertEqual(expected, cgram.Colors[color], "Actual ambient shade/dwell/destination and untouched CGRAM");
+                }
+                ticks++;
+            }
+            AssertEqual(0, guarded.ForbiddenReadAttempts, "Ambient mechanics have no live cartridge dependency");
+            AssertTrue(fx.IsDefinitionActive(definition.DefinitionPointer), "Ambient loop stays active");
+        }
+        AssertEqual(164, ticks, "Both exact ambient loops confirmed twice");
+        Console.WriteLine("Title ambient mechanics:28 native controls, independent record decoding,164 actual per-tick CGRAM states, untouched colors and mechanics read guard pass; independent color artwork remains pending.");
+    }
+    private static void VerifyLookupStream4TitleAmbientComplete(CartridgeImportAddressSpace rom)
+    {
+        VerifyLookupStream4TitleAmbientColors(rom);
+        byte[] json = TitlePaletteExtractor.Extract(rom);
+        TitlePaletteDocument Document() => JsonSerializer.Deserialize<TitlePaletteDocument>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        static ushort Pack(PaletteRgb5 value) => (ushort)(value.Red | value.Green << 5 | value.Blue << 10);
+        static PaletteRgb5 Edit(PaletteRgb5 value, int channel) => channel switch
+        {
+            0 => value with { Red = (value.Red + 1) % 32 },
+            1 => value with { Green = (value.Green + 1) % 32 },
+            _ => value with { Blue = (value.Blue + 1) % 32 },
+        };
+        static TitlePalettePresentation Load(TitlePaletteDocument document)
+        {
+            using var output = new MemoryStream();
+            TitlePalettePresentation.Write(output, document);
+            return TitlePalettePresentation.Load(new MemoryStream(output.ToArray()));
+        }
+        void Confirm(TitlePaletteDocument document, TitlePalettePresentation selected)
+        {
+            for (int color = 0; color < 256; color++)
+                AssertEqual(Pack(document.Colors[color]), selected.Colors[color], "Independent initial paint remains exact");
+            foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+            {
+                var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
+                    ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
+                for (int frame = 0; frame < rows.Length; frame++)
+                for (int index = 0; index < rows[frame].Length; index++)
+                {
+                    AssertTrue(selected.TryReadColor((ushort)(program.FramePointer(frame) + 2 + index * 2), out ushort actual), "Every supplied ambient word resolves");
+                    AssertEqual(Pack(rows[frame][index]), actual, "Independent initial/animated edits preserve every supplied neighbor");
+                }
+            }
+        }
+        int edits = 0;
+        foreach (int slot in new[] { 3, 19, 42, 43, 44, 45, 46, 47 })
+        for (int channel = 0; channel < 3; channel++)
+        {
+            var document = Document();
+            document.Colors[slot] = Edit(document.Colors[slot], channel);
+            Confirm(document, Load(document));
+            edits++;
+        }
+        foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+        for (int frame = 0; frame < program.FrameCount; frame++)
+        for (int index = 0; index < program.ColorsPerFrame; index++)
+        for (int channel = 0; channel < 3; channel++)
+        {
+            var document = Document();
+            var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
+                ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
+            rows[frame][index] = Edit(rows[frame][index], channel);
+            Confirm(document, Load(document));
+            edits++;
+        }
+        AssertEqual(132, edits, "All initial paint and animated channel edits confirmed independently");
+        for (int scenario = 0; scenario < 3; scenario++)
+        {
+            var document = Document();
+            if (scenario == 1) document.Colors[42] = Edit(document.Colors[42], 1);
+            if (scenario == 2) document.BabyMetroidTubeLight[2][0] = Edit(document.BabyMetroidTubeLight[2][0], 1);
+            var selected = Load(document);
+            var guarded = new PaletteFxMechanicsForbiddenBus(rom);
+            var fx = new RoomPaletteFxSystem();
+            var cgram = new SnesCgram();
+            selected.Apply(cgram);
+            foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+                fx.SpawnDefinition(guarded, program.DefinitionPointer, 0);
+            for (int tick = 0; tick <= 80; tick++)
+            {
+                fx.Step(guarded, cgram, selected, 0, 0, false, false);
+                ushort[] expected = document.Colors.Select(Pack).ToArray();
+                foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+                {
+                    var rows = program.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight
+                        ? document.BabyMetroidTubeLight : document.FlickeringDisplays;
+                    int frame = tick / program.FrameDuration % program.FrameCount;
+                    for (int index = 0; index < program.ColorsPerFrame; index++)
+                        expected[program.ColorByteIndex / 2 + index] = Pack(rows[frame][index]);
+                }
+                AssertTrue(expected.AsSpan().SequenceEqual(cgram.Colors), "Actual simultaneous title loops preserve stock/source-edited/frame-edited output and wrap");
+            }
+            AssertEqual(0, guarded.ForbiddenReadAttempts, "Installed title mechanics avoid live reads");
+            AssertEqual(0, guarded.PresentationReadCount, "Installed title colors avoid live reads");
+        }
+        Console.WriteLine("Title ambient complete:36 native words/zero stock overrides,132 independent RGB edits,unchanged256 initial-paint owner,243 actual simultaneous-loop CGRAM states and no live reads pass.");
+    }
     private static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
     {
         byte[] decoded = SuperMetroid.Core.Rom.RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom),

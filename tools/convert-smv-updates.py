@@ -26,10 +26,12 @@ def door_loader_enemy_progress(boundary_loading, boundary_enemy_ids):
 
     The loader's CPU work spans several NMIs. Load_Enemies clears every slot before
     Initialise_Enemies writes each slot's ID ahead of its init AI, so slot k is known
-    complete once slot k+1 has an ID. None outside the loader or before the clear."""
+    complete once slot k+1 has an ID, and every slot once $0E4E holds the count the
+    routine stores on exit (it zeroes $0E4E on entry). None outside the loader or before
+    the clear."""
     progress = []
     cleared = False
-    for (state, function, _), ids in zip(boundary_loading, boundary_enemy_ids):
+    for (state, function, _), (ids, initialised) in zip(boundary_loading, boundary_enemy_ids):
         if state != 0x0B or function != DOOR_LOADER_FUNCTION:
             cleared = False
             progress.append(None)
@@ -42,7 +44,7 @@ def door_loader_enemy_progress(boundary_loading, boundary_enemy_ids):
         written = next((slot for slot, value in enumerate(ids) if value == 0), len(ids))
         if any(ids[written:]):
             raise ValueError("Initialise_Enemies left a gap in the enemy slots")
-        progress.append(max(written - 1, 0))
+        progress.append(written if written and initialised == written else max(written - 1, 0))
     return progress
 
 
@@ -198,6 +200,8 @@ def run():
     apu_uploading, door_scroll_counter = 0x0617, 0x0925
     # Enemy.ID of each of the 32 enemy slots ($0F78 + $40 * slot).
     enemy_id, enemy_slot_size, enemy_slots = 0x0F78, 0x40, 32
+    # Initialise_Enemies zeroes $0E4E on entry and stores the enemy count on exit.
+    initialised_enemy_count = 0x0E4E
     boundary_timing = []
     boundary_loading = []
     boundary_enemy_ids = []
@@ -215,9 +219,10 @@ def run():
                 struct.unpack_from("<H", record, 8 + 0x0998)[0],  # GameState
                 struct.unpack_from("<H", record, 8 + 0x099c)[0],  # DoorTransitionFunction
                 bool(struct.unpack_from("<H", record, 8 + 0x0931)[0] & 0x8000)))
-            boundary_enemy_ids.append(tuple(
+            boundary_enemy_ids.append((tuple(
                 struct.unpack_from("<H", record, 8 + enemy_id + enemy_slot_size * slot)[0]
-                for slot in range(enemy_slots)))
+                for slot in range(enemy_slots)),
+                struct.unpack_from("<H", record, 8 + initialised_enemy_count)[0]))
             if frame != expected_frame or pc != (read_enter if index < len(updates) else 0):
                 raise ValueError(f"Checkpoint {index} disagrees with its input boundary")
         if source.read(1):

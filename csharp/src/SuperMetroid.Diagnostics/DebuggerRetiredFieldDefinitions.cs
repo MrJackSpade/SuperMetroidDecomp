@@ -70,6 +70,13 @@ internal static class DebuggerRetiredFieldDefinitions
             if (step != 0)
                 Console.Error.WriteLine("WARNING: Legacy Kraid background fade was captured mid-transition; it restarts from the shared PaletteChangeNumerator.");
         },
+        // Draygon's turret and goop speeds are the A values each spawn passes to $86:8027,
+        // now named constants. The old shared copy has no current meaning.
+        [(typeof(DraygonEnemyState), "<ProjectileSpeedParameter>k__BackingField")] = (_, _, value) =>
+        {
+            if (value is not ushort)
+                throw new InvalidDataException("Legacy Draygon projectile speed parameter is not a word.");
+        },
     };
 
     /// <summary>Returns the migration of a retired serialized field.</summary>

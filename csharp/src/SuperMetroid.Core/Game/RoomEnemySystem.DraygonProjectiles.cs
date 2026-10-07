@@ -21,7 +21,6 @@ public sealed partial class RoomEnemySystem
         if (turret is null)
             return;
 
-        state.ProjectileSpeedParameter = 3;
         InitializeEnemyProjectileFromDefinition(
             turret,
             RoomEnemyProjectileKind.DraygonWallTurret,
@@ -37,7 +36,7 @@ public sealed partial class RoomEnemySystem
             unchecked((short)(samus.XPosition - turret.XPosition)),
             unchecked((short)(samus.YPosition - turret.YPosition)));
         byte flightAngle = unchecked((byte)(-cartridgeAngle + 0x40));
-        SetDraygonProjectileVelocity(turret, flightAngle, state.ProjectileSpeedParameter);
+        SetDraygonProjectileVelocity(turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
 
         // The definition says $8DFF, but init replaces it with RTS until the 84-frame muzzle
         // bloom reaches instruction $8CF6 and explicitly enables flight.
@@ -84,9 +83,7 @@ public sealed partial class RoomEnemySystem
 
         ushort random = _nextRandom!();
         byte angle = unchecked((byte)((random & 0x003f) + (movingRight ? 0x00c0 : 0x0080)));
-        // Retail never initializes parameter zero here. Preserve the inherited word most
-        // recently published by a successful turret spawn—including zero if none existed.
-        SetDraygonProjectileVelocity(goop, angle, state.ProjectileSpeedParameter);
+        SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
         state.GoopProjectilesSpawned++;
     }
 

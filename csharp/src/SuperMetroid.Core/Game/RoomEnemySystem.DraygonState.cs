@@ -105,12 +105,6 @@ public sealed class DraygonEnemyState
     /// <summary>Native long count initialized to sixteen when a firing pass begins.</summary>
     public ushort GoopCounter { get; internal set; }
 
-    /// <summary>
-    /// Global enemy-projectile initialization parameter zero. Turret spawns publish speed
-    /// three; Draygon goop deliberately inherits that word instead of initializing it.
-    /// </summary>
-    public ushort ProjectileSpeedParameter { get; internal set; }
-
     public int WallTurretsSpawned { get; internal set; }
     public int GoopProjectilesSpawned { get; internal set; }
 

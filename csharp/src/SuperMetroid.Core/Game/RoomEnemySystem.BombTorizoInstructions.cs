@@ -10,6 +10,8 @@ public sealed partial class RoomEnemySystem
     /// points at the opcode on entry and at the next opcode/frame/branch target on return.
     /// A true <paramref name="pauseInterpreter"/> reproduces callbacks that return a null
     /// instruction pointer after scheduling a multi-frame delay in the common enemy slot.
+    /// <paramref name="frameCounterLow"/> is the low byte of <c>NMI_FrameCounter</c> ($05B6),
+    /// which both attack choosers ($AA:C5B9, $AA:D53B) add; only its bit 3 survives.
     /// </summary>
     private bool TryProcessBombTorizoInstruction(
         RoomEnemySlot torizo,
@@ -18,7 +20,7 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor,
         ushort controllerInput,
-        byte nmiFrameCounter8,
+        byte frameCounterLow,
         out bool pauseInterpreter)
     {
         pauseInterpreter = false;
@@ -277,7 +279,7 @@ public sealed partial class RoomEnemySystem
                     torizo, unchecked((ushort)(cursor + 4)));
                 state.ReturnInstruction = unchecked((ushort)(cursor + 6));
                 bool chooseFirst = samus.Missiles < 5 ||
-                    ((nmiFrameCounter8 + (samus.XPosition & 1) + (samus.XPosition >> 1)) & 8) != 0;
+                    ((frameCounterLow + (samus.XPosition & 1) + (samus.XPosition >> 1)) & 8) != 0;
                 cursor = chooseFirst ? ReadOperand0() : operand1;
                 return true;
             }
@@ -468,7 +470,7 @@ public sealed partial class RoomEnemySystem
                     torizo, unchecked((ushort)(cursor + 4)));
                 state.ReturnInstruction = unchecked((ushort)(cursor + 6));
                 bool chooseFirst = activeSamus.Missiles < 0x20 ||
-                    ((nmiFrameCounter8 + (activeSamus.XPosition & 1) +
+                    ((frameCounterLow + (activeSamus.XPosition & 1) +
                         (activeSamus.XPosition >> 1)) & 8) != 0;
                 cursor = chooseFirst ? ReadOperand0() : operand1;
                 return true;

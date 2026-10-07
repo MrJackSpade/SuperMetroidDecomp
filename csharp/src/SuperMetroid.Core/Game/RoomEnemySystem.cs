@@ -3608,7 +3608,7 @@ public sealed partial class RoomEnemySystem
                             word,
                             ref cursor,
                             controllerInput,
-                            nmiFrameCounter8,
+                            unchecked((byte)_enemyFrameNmiFrameCounter),
                             out bool pauseBombTorizoInterpreter))
                     {
                         if (pauseBombTorizoInterpreter)

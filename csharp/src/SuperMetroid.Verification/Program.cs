@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--golden-torizo-attack-choice"])
+{
+    VerifyGoldenTorizoAttackChoice();
+    return 0;
+}
 if (args is ["--magdollite-apex-threshold"])
 {
     VerifyMagdolliteApexThreshold();
@@ -7195,6 +7200,7 @@ VerifyWallJumpSpinExit();
 VerifyEvirInitTimer();
 VerifyRefillStationLock();
 VerifyMagdolliteApexThreshold();
+VerifyGoldenTorizoAttackChoice();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

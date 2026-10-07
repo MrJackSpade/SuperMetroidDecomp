@@ -73,6 +73,15 @@ internal static partial class Program
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
         AssertEqual((ushort)0, runtime.Samus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
         AssertTrue(bombed.XPosition != bombedX, "the goop routine still moves the released slot");
-        Console.WriteLine("Draygon turret cadence: $A5:87AA follows NMI_FrameCounter ($05B6), not $05B5; goop speed is two; power bombs delete goop.");
+
+        // #1269: DraygonReaction_Common's dead branch ($A5:9618) has no "already dying"
+        // test. A later hit on the zero-health body reinstalls the drift function.
+        boss.Body.Health = 0;
+        boss.Function = DraygonAiFunction.DyingSink;
+        typeof(RoomEnemySystem).GetMethod("ResolveDraygonReaction", flags)!
+            .Invoke(runtime.Enemies, [boss.Body, runtime.Samus]);
+        AssertEqual(DraygonAiFunction.Dying, boss.Function,
+            "a hit on the dead body restarts the drift to the death spot");
+        Console.WriteLine("Draygon turret cadence: $A5:87AA follows NMI_FrameCounter ($05B6), not $05B5; goop speed is two; power bombs delete goop; dead-body hits restart the death drift.");
     }
 }

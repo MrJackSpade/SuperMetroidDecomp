@@ -1436,7 +1436,13 @@ public sealed partial class SuperMetroidRuntime
         // Bank $85's message routine runs on lag frames inside the suspended dispatch: the
         // NMI accepts no input and the main loop neither calls the RNG nor any owner.
         if (MessageBox.IsActive)
-            return StepMessageBoxFrame(controller1Input, infiniteAmmoGuard);
+            return StepMessageBoxFrame(
+                controller1Input,
+                drawHighPriorityEnemyProjectiles,
+                drawLowPriorityEnemyProjectiles,
+                allowCeresElevatorDeparture,
+                advanceGameTime,
+                infiniteAmmoGuard);
         Projectiles.BeginImpactAudioFrame(cinematicActive: false);
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
         afterAcceptedNmi?.Invoke();
@@ -1595,6 +1601,7 @@ public sealed partial class SuperMetroidRuntime
             RunEnemyMainPhase();
             enemyMainReleasedAlphaLock = lockedBeforeEnemyMain && Samus?.InputLocked == false;
         }
+        SuspendedGameplayFrameTail? frameTail = null;
         if (Samus is not null && Camera is not null)
         {
             // X-ray's HDMA object is not part of the Samus handler. Advance its explicit
@@ -3807,6 +3814,53 @@ public sealed partial class SuperMetroidRuntime
                 }
             }
 
+            frameTail = new SuspendedGameplayFrameTail(
+                deathOwnsSamus,
+                previousCameraPoint,
+                stationaryScriptControlLocked,
+                suitOwnsSamus);
+        }
+
+        // Bank $85's message routine runs inside PLM_Handler: the rest of this gameplay
+        // frame (enemy-projectile collision, scrolling, drawing, room main and the shared
+        // tail) resumes only after the box closes, after the item routine finishes.
+        if (frameTail is { } suspendedTail && MessageBox.IsActive)
+        {
+            _suspendedFrameTail = suspendedTail;
+            // Producers up to PLM_Handler queued their sounds before DisplayMessageBox's
+            // entry cancel; the frontend publishes this frame's requests at that boundary.
+            CompletedGameplayAudioPublication++;
+            return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+        }
+        return FinishGameplayFrame(
+            frameTail,
+            drawHighPriorityEnemyProjectiles,
+            drawLowPriorityEnemyProjectiles,
+            allowCeresElevatorDeparture,
+            advanceGameTime,
+            infiniteAmmoGuard,
+            resumedAfterMessageBox: false);
+    }
+
+    /// <summary>
+    /// The remainder of gameplay state eight after <c>PLM_Handler</c>. A frame whose PLM
+    /// pass opened a message box parks this state and resumes it when the box closes.
+    /// </summary>
+    private RuntimeFrameResult FinishGameplayFrame(
+        SuspendedGameplayFrameTail? frameTail,
+        Action<OamBuffer>? drawHighPriorityEnemyProjectiles,
+        Action<OamBuffer>? drawLowPriorityEnemyProjectiles,
+        bool allowCeresElevatorDeparture,
+        bool advanceGameTime,
+        HostInfiniteAmmoFrameGuard infiniteAmmoGuard,
+        bool resumedAfterMessageBox)
+    {
+        if (frameTail is { } tail && Samus is not null && Camera is not null)
+        {
+            bool deathOwnsSamus = tail.DeathOwnsSamus;
+            SamusCameraPoint previousCameraPoint = tail.PreviousCameraPoint;
+            bool stationaryScriptControlLocked = tail.StationaryScriptControlLocked;
+            bool suitOwnsSamus = tail.SuitOwnsSamus;
             if (!deathOwnsSamus && !TimeIsFrozen)
             {
                 Enemies.ResolveEnemyProjectileSamusHits(Samus);
@@ -4057,7 +4111,9 @@ public sealed partial class SuperMetroidRuntime
             Projectiles.DecrementInteractionTimer();
         }
 
-        CompletedGameplayAudioPublication++;
+        // A resumed tail's frame already published its audio when it suspended.
+        if (!resumedAfterMessageBox)
+            CompletedGameplayAudioPublication++;
         return Snapshot(escapeTimerExpired, infiniteAmmoGuard);
     }
 
@@ -4280,7 +4336,13 @@ public sealed partial class SuperMetroidRuntime
     /// One lag frame of the bank-$85 message routine. Its completion returns into the
     /// suspended dispatch, whose remaining owners already ran when the box opened.
     /// </summary>
-    private RuntimeFrameResult StepMessageBoxFrame(ushort controller1Input, HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
+    private RuntimeFrameResult StepMessageBoxFrame(
+        ushort controller1Input,
+        Action<OamBuffer>? drawHighPriorityEnemyProjectiles,
+        Action<OamBuffer>? drawLowPriorityEnemyProjectiles,
+        bool allowCeresElevatorDeparture,
+        bool advanceGameTime,
+        HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
         MessageBoxSelectionSoundRequestedThisFrame = false;
         // The joypad registers are the routine's only input: the NMI reads no controller.
@@ -4298,6 +4360,28 @@ public sealed partial class SuperMetroidRuntime
         if (MessageBox.IsActive)
             return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
 
+        ResolveClosedMessageBox();
+        // The native PLM_Handler returns once the box and its item routine finish; the
+        // parked remainder of that gameplay frame runs now, in this same dispatch.
+        if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
+        {
+            _suspendedFrameTail = null;
+            return FinishGameplayFrame(
+                tail,
+                drawHighPriorityEnemyProjectiles,
+                drawLowPriorityEnemyProjectiles,
+                allowCeresElevatorDeparture,
+                advanceGameTime,
+                infiniteAmmoGuard,
+                resumedAfterMessageBox: true);
+        }
+        return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+    }
+
+    /// <summary>Applies the effects that follow a message box closing.</summary>
+    private void ResolveClosedMessageBox()
+    {
+
         if (Enemies.GunshipSavePromptPending)
         {
             bool accepted = MessageBox.ConsumeConfirmationResult()
@@ -4309,7 +4393,7 @@ public sealed partial class SuperMetroidRuntime
                 System.MarkSaveStationUsed(AreaId.Crateria, 0);
                 _completedSaveStation = new SaveStationPersistenceRequest(AreaId.Crateria, 0);
             }
-            return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+            return;
         }
 
         if (_pendingSaveStation is { } saveStation)
@@ -4339,7 +4423,7 @@ public sealed partial class SuperMetroidRuntime
                     saveStation.AreaIndex,
                     saveStation.StationIndex);
             }
-            return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+            return;
         }
 
         if (_pendingSaveStationCompletion is { } completedStation)
@@ -4354,11 +4438,13 @@ public sealed partial class SuperMetroidRuntime
                      _addressSpace, LevelData, BackgroundStreamer, Camera.XPosition, Camera.YPosition,
                      BackgroundScroll.Bg1XOffset))
             update.ExecuteTo(Vram);
-        // The resumed dispatch reaches the HUD handler, which shows the new inventory.
-        if (Samus is not null)
+        // The resumed dispatch reaches the HUD handler, which shows the new inventory. A
+        // suspended frame tail does that itself; a capture without one updates it here.
+        if (Samus is not null && _suspendedFrameTail is null)
             Hud.UpdateGameplayCounters(_addressSpace, Samus, TimeIsFrozen,
                 soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
-        Hud.QueueUpload(_addressSpace, VramWrites);
+        if (_suspendedFrameTail is null)
+            Hud.QueueUpload(_addressSpace, VramWrites);
 
         // The routine returns directly to the suspended item-PLM instruction list.
         // Varia/Gravity immediately call their shared setup routine; for other items the
@@ -4380,7 +4466,7 @@ public sealed partial class SuperMetroidRuntime
                 soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
             _pendingSuitPickup = null;
         }
-        return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+        return;
     }
 
     private RuntimeFrameResult Snapshot(

@@ -236,7 +236,7 @@ internal static partial class Program
         var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [typeof(SuperMetroidRuntime)])!;
         // Runtime fields published after the spike owner are absent from that layout too.
-        string[] laterRuntimeFields = ["<RoomMainScratch>k__BackingField", "_pendingLoaderSamusPlacement"];
+        string[] laterRuntimeFields = ["<RoomMainScratch>k__BackingField", "_pendingLoaderSamusPlacement", "_suspendedFrameTail"];
         FieldInfo[] preSpikeFields = fields
             .Where(field => !laterRuntimeFields.Contains(field.Name))
             .ToArray();

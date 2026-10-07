@@ -56,6 +56,14 @@ internal static class DebuggerStateFieldMigrations
                 field.Name is not "soundCommandReads" and not "previousSoundCommandReads").ToArray(), count);
         }
         if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
+            current.Any(field => field.Name == "_suspendedFrameTail"))
+        {
+            // Older builds finished a message box's gameplay frame before the box, so no
+            // capture holds a suspended frame tail.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "_suspendedFrameTail").ToArray(), count);
+        }
+        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
             current.Any(field => field.Name == "_pendingLoaderSamusPlacement"))
         {
             // Older builds applied the loader's elevator placement only when the door finished.

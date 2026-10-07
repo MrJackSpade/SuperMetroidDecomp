@@ -129,6 +129,10 @@ public sealed class SamusSuitPickupState
         // fixed screen coordinates, not a room-specific item-location approximation.
         samus.XPosition = unchecked((ushort)(layer1X + 120));
         samus.YPosition = unchecked((ushort)(layer1Y + 136));
+        // $91:D580/$D58D store the same words as the previous position, so this frame's
+        // scrolling sees no movement.
+        samus.WritePreviousXPosition(samus.XPosition);
+        samus.WritePreviousYPosition(samus.YPosition);
         IsActive = true;
         TransformationSoundSuppressed = soundSuppressed;
         _transformationSoundPending = true;

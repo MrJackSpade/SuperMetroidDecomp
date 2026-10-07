@@ -213,9 +213,14 @@ internal static partial class Program
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)])!;
         AssertTrue(runtimeFields.All(field => field.Name is not "_ceresFallingDebrisTimer" and not "_escapeDiagonalFrames"),
             "retired room-main timers are not current runtime fields");
-        // Every published runtime layout predates the deferred door-loader Samus placement.
+        // Every published runtime layout predates the deferred door-loader Samus placement
+        // and the suspended message-box frame tail.
         FieldInfo[] currentRuntimeFields = runtimeFields;
-        runtimeFields = runtimeFields.Where(field => field.Name != "_pendingLoaderSamusPlacement").ToArray();
+        FieldInfo[] preFrameTailRuntimeFields = runtimeFields.Where(field => field.Name != "_suspendedFrameTail").ToArray();
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime),
+                currentRuntimeFields, preFrameTailRuntimeFields.Length).SequenceEqual(preFrameTailRuntimeFields),
+            "pre-frame-tail runtime preserves every other saved field in order");
+        runtimeFields = preFrameTailRuntimeFields.Where(field => field.Name != "_pendingLoaderSamusPlacement").ToArray();
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime),
                 currentRuntimeFields, runtimeFields.Length).SequenceEqual(runtimeFields),
             "pre-loader-placement runtime preserves every other saved field in order");

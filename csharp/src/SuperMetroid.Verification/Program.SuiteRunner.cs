@@ -4,9 +4,10 @@ internal static partial class Program
 {
     /// <summary>
     /// Runs one verifier method by name: <c>--suite VerifyName</c>. Supports methods with no
-    /// parameters, or whose single required parameter accepts the retail cartridge address
-    /// space (optional parameters take their defaults). Verifiers that need other prepared
-    /// inputs keep running through their parent flag.
+    /// parameters, or whose single required parameter is the retail cartridge address space or
+    /// the shared retail <see cref="SuperMetroid.AssetExtraction.GameInstallation"/> (optional
+    /// parameters take their defaults). Verifiers that need other prepared inputs keep running
+    /// through their parent flag.
     /// </summary>
     private static int RunNamedSuite(string name)
     {
@@ -15,7 +16,11 @@ internal static partial class Program
         ParameterInfo[] parameters = method.GetParameters();
         var required = parameters.Where(parameter => !parameter.IsOptional).ToArray();
         object?[] arguments = parameters.Select(parameter => parameter.IsOptional ? parameter.DefaultValue : null).ToArray();
-        if (required.Length == 1)
+        if (required.Length == 1 && required[0].ParameterType == typeof(SuperMetroid.AssetExtraction.GameInstallation))
+        {
+            arguments[Array.IndexOf(parameters, required[0])] = runtimeFixtureInstallation.Value;
+        }
+        else if (required.Length == 1)
         {
             var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             if (!required[0].ParameterType.IsInstanceOfType(rom))

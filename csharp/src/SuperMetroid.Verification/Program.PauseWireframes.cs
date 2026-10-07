@@ -48,15 +48,23 @@ internal static partial class Program
                     new Bank80SystemState(), AreaId.Maridia, 5, 5,
                     mapPresentation: original);
                 var pause = new PauseMenuState(guard, samus, new Bank80SystemState(), AreaId.Maridia, 5, 5, mapPresentation: original);
+                // Every tick compares the complete render inputs; identical inputs cannot render
+                // differently, so pixels are rasterized once each page change settles.
                 void StepBoth(ushort input)
                 {
                     native.Step(input, input); pause.Step(input, input);
-                    AssertTrue(native.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(pause.CaptureRenderSnapshot().Memory.Vram), "every native wireframe variant retains exact VRAM through page transitions, including Gravity");
-                    AssertTrue(native.Render().AsSpan().SequenceEqual(pause.Render()), "wireframe migration retains actual native pixels with all artwork reads blocked");
+                    var nativeInputs = native.CaptureRenderSnapshot(); var portInputs = pause.CaptureRenderSnapshot();
+                    AssertTrue(nativeInputs.Memory.Vram.SequenceEqual(portInputs.Memory.Vram), "every native wireframe variant retains exact VRAM through page transitions, including Gravity");
+                    AssertTrue(nativeInputs.Memory.Cgram.SequenceEqual(portInputs.Memory.Cgram) && nativeInputs.Memory.Oam.SequenceEqual(portInputs.Memory.Oam) &&
+                        nativeInputs.Brightness == portInputs.Brightness, "every native wireframe variant retains exact colors, objects and brightness through page transitions");
                 }
+                void AssertPixels() =>
+                    AssertTrue(native.Render().AsSpan().SequenceEqual(pause.Render()), "wireframe migration retains actual native pixels with all artwork reads blocked");
                 // To the equipment page and back, each change run to completion (#1266 cadence).
                 ChangePausePage(pause, SnesButton.R, StepBoth);
+                AssertPixels();
                 ChangePausePage(pause, SnesButton.L, StepBoth);
+                AssertPixels();
                 AssertEqual(0, pause.ScreenMode, "wireframe fixture returns to the map page");
                 // Rebind on the map must not replace the map's shared BG1 page.
                 byte[] map = pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x1000).ToArray();

@@ -102,6 +102,11 @@ public static partial class SamusGrappleMovement
         // origin table. $9B:C51E clears all four words, not merely their whole halves.
         grapple.EndpointXOffsetFixed = 0;
         grapple.EndpointYOffsetFixed = 0;
+        // $9B:C651-C65A.
+        grapple.XQuarterSubVelocity = 0;
+        grapple.XQuarterVelocity = 0;
+        grapple.YQuarterSubVelocity = 0;
+        grapple.YQuarterVelocity = 0;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 12;
         grapple.AngularVelocity = 0;
@@ -131,6 +136,25 @@ public static partial class SamusGrappleMovement
         grapple.BeamStartY = unchecked((ushort)(samus.YPosition + grapple.FlareYOffset));
         grapple.AnchorX = unchecked((ushort)(samus.XPosition + grapple.OriginXOffset));
         grapple.AnchorY = unchecked((ushort)(samus.YPosition + grapple.OriginYOffset));
+    }
+
+    /// <summary>
+    /// <c>$94:A85E-A879</c> (and its Y twin): the velocity word is stored one byte into the
+    /// four-byte quarter pair, which is then rotated right twice as 32 bits. The pair's low
+    /// and high bytes are last frame's, and the second rotate carries the low bit into the
+    /// top. A negative velocity then sets the top ten bits.
+    /// </summary>
+    private static (ushort Sub, ushort Whole) QuarterExtensionVelocity(
+        short velocity, ushort previousSub, ushort previousWhole)
+    {
+        uint pair = ((uint)(previousWhole & 0xff00) << 16) |
+            ((uint)(ushort)velocity << 8) |
+            (uint)(previousSub & 0x00ff);
+        uint rotated = (pair >> 2) | ((pair & 1) << 31);
+        ushort whole = unchecked((ushort)(rotated >> 16));
+        if (velocity < 0)
+            whole |= 0xffc0;
+        return (unchecked((ushort)rotated), whole);
     }
 
     /// <summary>
@@ -310,11 +334,17 @@ public static partial class SamusGrappleMovement
             }
         }
 
-        // $94:A85B shifts each table velocity left six and performs four identical probes.
-        // Since the table is velocity*100h, the four additions together move exactly one
-        // authored per-frame velocity while retaining every intermediate collision point.
-        int xSubstep = grapple.ExtensionXVelocity << 6;
-        int ySubstep = grapple.ExtensionYVelocity << 6;
+        // $94:A85B quarters each velocity and performs four identical probes. The quarter
+        // keeps stale bytes from the previous frame, so the four steps need not add up to
+        // exactly one authored per-frame velocity.
+        (ushort xSub, ushort xWhole) = QuarterExtensionVelocity(
+            grapple.ExtensionXVelocity, grapple.XQuarterSubVelocity, grapple.XQuarterVelocity);
+        (grapple.XQuarterSubVelocity, grapple.XQuarterVelocity) = (xSub, xWhole);
+        (ushort ySub, ushort yWhole) = QuarterExtensionVelocity(
+            grapple.ExtensionYVelocity, grapple.YQuarterSubVelocity, grapple.YQuarterVelocity);
+        (grapple.YQuarterSubVelocity, grapple.YQuarterVelocity) = (ySub, yWhole);
+        int xSubstep = unchecked((int)(((uint)xWhole << 16) | xSub));
+        int ySubstep = unchecked((int)(((uint)yWhole << 16) | ySub));
         GrappleBlockReaction finalReaction = default;
         for (int substep = 0; substep < 4; substep++)
         {

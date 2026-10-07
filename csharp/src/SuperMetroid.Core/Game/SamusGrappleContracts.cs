@@ -85,6 +85,19 @@ public sealed class SamusGrappleState
     public ushort PoseChangeAutoFireTimer { get; set; }
     public short ExtensionXVelocity { get; set; }
     public short ExtensionYVelocity { get; set; }
+
+    /// <summary>
+    /// <c>GrappleCollision_XQuarterSubVelocity/XQuarterVelocity</c> ($0D82/$0D84). Each firing
+    /// frame rebuilds them from the extension velocity, but the outer bytes keep last frame's
+    /// values, so they are state rather than a pure function of the velocity.
+    /// </summary>
+    public ushort XQuarterSubVelocity { get; set; }
+    /// <inheritdoc cref="XQuarterSubVelocity"/>
+    public ushort XQuarterVelocity { get; set; }
+    /// <summary><c>GrappleCollision_YQuarterSubVelocity/YQuarterVelocity</c> ($0D86/$0D88).</summary>
+    public ushort YQuarterSubVelocity { get; set; }
+    /// <inheritdoc cref="YQuarterSubVelocity"/>
+    public ushort YQuarterVelocity { get; set; }
     public short OriginXOffset { get; set; }
     public short OriginYOffset { get; set; }
     public short FlareXOffset { get; set; }

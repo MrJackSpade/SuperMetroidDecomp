@@ -52,11 +52,17 @@ internal static partial class Program
             "debugger preserves remaining refire window");
         var fields = typeof(SamusGrappleState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .OrderBy(field => field.MetadataToken).ToArray();
-        var preSlowScroll = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusGrappleState), fields, fields.Length - 1);
-        AssertTrue(preSlowScroll.SequenceEqual(fields.Where(field => field.Name != "<SlowScrolling>k__BackingField")),
-            "pre-slow-scroll grapple layout omits only the slow-scrolling flag");
-        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusGrappleState), fields, fields.Length - 2);
-        AssertTrue(legacy.SequenceEqual(fields.Where(field =>
+        string[] quarters = ["<XQuarterSubVelocity>k__BackingField", "<XQuarterVelocity>k__BackingField",
+            "<YQuarterSubVelocity>k__BackingField", "<YQuarterVelocity>k__BackingField"];
+        var preQuarter = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusGrappleState), fields, fields.Length - 4);
+        AssertTrue(preQuarter.SequenceEqual(fields.Where(field => !quarters.Contains(field.Name))),
+            "pre-quarter-velocity grapple layout omits only the four quarter words");
+        var preSlowScroll = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusGrappleState), fields, fields.Length - 5);
+        AssertTrue(preSlowScroll.SequenceEqual(fields.Where(field =>
+                !quarters.Contains(field.Name) && field.Name != "<SlowScrolling>k__BackingField")),
+            "pre-slow-scroll grapple layout omits only the slow-scrolling flag and quarter words");
+        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusGrappleState), fields, fields.Length - 6);
+        AssertTrue(legacy.SequenceEqual(fields.Where(field => !quarters.Contains(field.Name) &&
                 field.Name is not ("<PoseChangeAutoFireTimer>k__BackingField" or "<SlowScrolling>k__BackingField"))),
             "legacy grapple migration retains old field identities");
         Console.WriteLine("Grapple pose refire: mirrored frame-1..9 restarts, frame-10 cancellation, endpoint trajectory and timer serialization pass.");

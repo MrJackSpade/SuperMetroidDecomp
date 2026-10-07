@@ -72,7 +72,13 @@ internal static partial class Program
         var grappleResultFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod(
             "GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(GrappleMovementResult)])!;
-        FieldInfo[] legacyGrappleResultFields = grappleResultFields.Where(field => field.Name is not
+        FieldInfo[] preReleasePoseGrappleResultFields = grappleResultFields.Where(field =>
+            field.Name != "<PendingReleasePose>k__BackingField").ToArray();
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(
+            typeof(GrappleMovementResult), grappleResultFields, preReleasePoseGrappleResultFields.Length)
+            .SequenceEqual(preReleasePoseGrappleResultFields),
+            "pre-deferred-release grapple result restores with no pending release pose");
+        FieldInfo[] legacyGrappleResultFields = preReleasePoseGrappleResultFields.Where(field => field.Name is not
             "<PendingDropPose>k__BackingField" and not "<PendingConnection>k__BackingField").ToArray();
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(
             typeof(GrappleMovementResult), grappleResultFields, legacyGrappleResultFields.Length)

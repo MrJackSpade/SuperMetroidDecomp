@@ -510,8 +510,9 @@ public static partial class SamusGrappleMovement
         {
             // $9B:CB8B executes on the frame after $9B:C79D queued it. The launch velocity
             // was already published, so this pass changes art/handlers and clears grapple.
-            CompleteQueuedRelease(bus, level, samus, grapple);
-            return new GrappleMovementResult(GrapplePhase.Inactive, Released: true, ReleaseQueued: false);
+            byte? pendingReleasePose = CompleteQueuedRelease(bus, level, samus, grapple, deferDropPoseChange);
+            return new GrappleMovementResult(GrapplePhase.Inactive, Released: true, ReleaseQueued: false,
+                PendingReleasePose: pendingReleasePose);
         }
 
         // These are literal bank-$9B function-pointer phases. Each handler owns the whole

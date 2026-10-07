@@ -552,6 +552,12 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Legacy grapple state has no pose-change auto-fire timer; unavailable firing age restores expired until the next shot.");
             return current.Where(field => field.Name != "<PoseChangeAutoFireTimer>k__BackingField").ToArray();
         }
+        if (type == typeof(GrappleMovementResult) && current.Any(field => field.Name == "<PendingReleasePose>k__BackingField"))
+        {
+            // Older builds applied the release pose immediately; nothing is pending.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<PendingReleasePose>k__BackingField").ToArray(), count);
+        }
         if (type == typeof(GrappleMovementResult) && count == current.Length - 2 &&
             current.Any(field => field.Name == "<PendingDropPose>k__BackingField") &&
             current.Any(field => field.Name == "<PendingConnection>k__BackingField"))

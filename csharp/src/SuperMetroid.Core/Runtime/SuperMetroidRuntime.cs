@@ -2750,6 +2750,17 @@ public sealed partial class SuperMetroidRuntime
                     animationTransitionApplied = true;
                 }
 
+                // $9B:CB8B queues its release pose the same way, so the hit interruption
+                // earlier this frame still saw the grappling movement type.
+                if (!animationTransitionApplied && LastGrappleMovement is { PendingReleasePose: byte releasePose })
+                {
+                    SamusGrappleMovement.ApplyReleasePose(_addressSpace, Samus, releasePose);
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    ProspectiveSamusWallCollisionPose = null;
+                    animationTransitionApplied = true;
+                }
+
                 // Crash movement queues a transitional pose; it must not replace the
                 // body seen by AnimateSamus earlier in this frame. Command-three
                 // animation transitions retain their higher cartridge priority.

@@ -222,7 +222,8 @@ public readonly record struct GrappleMovementResult(
     ushort? CameraPreviousX = null,
     ushort? CameraPreviousY = null,
     byte? PendingDropPose = null,
-    GrapplePendingConnection? PendingConnection = null);
+    GrapplePendingConnection? PendingConnection = null,
+    byte? PendingReleasePose = null);
 
 /// <summary>
 /// The prospective pose published by <c>HandleConnectingGrapple</c>. Bank $9B installs

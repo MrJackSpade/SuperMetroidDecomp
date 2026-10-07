@@ -205,7 +205,7 @@ public sealed partial class RoomEnemySystem
             bullet.YSubposition,
             bullet.YVelocity);
 
-        if (ProjectileProbeHitsRoom(level, bullet.XPosition, bullet.YPosition))
+        if (NonAirBlockAt(level, bullet.XPosition, bullet.YPosition))
             bullet.Clear();
     }
 

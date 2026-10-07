@@ -1385,21 +1385,12 @@ public sealed partial class RoomEnemySystem
             return true;
         }
 
-        return type is
-            RoomCollisionType.Slope or
-            RoomCollisionType.HorizontalExtension or
-            RoomCollisionType.SolidBlock or
-            RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpecialBlock or
-            RoomCollisionType.ShootableBlock or
-            RoomCollisionType.VerticalExtension or
-            RoomCollisionType.GrappleBlock or
-            RoomCollisionType.BombableBlock;
+        return EnemyProjectileBlockIsWall(type);
     }
 
     /// <summary>
-    /// Point-form room collision used by projectile routines that do not carry an axis,
-    /// radius, or movement direction and therefore cannot resolve non-square geometry.
+    /// One block of <c>Move_EnemyProjectile_Vertically</c>'s span, for a caller that
+    /// carries no slope geometry.
     /// </summary>
     private static bool ProjectileProbeHitsRoom(RoomLevelData level, ushort x, ushort y)
     {
@@ -1416,17 +1407,31 @@ public sealed partial class RoomEnemySystem
             return true;
 
         RoomCollisionType type = level.GetCollisionBlockByIndex(blockIndex).CollisionType;
-        return type is
-            RoomCollisionType.Slope or
-            RoomCollisionType.HorizontalExtension or
-            RoomCollisionType.SolidBlock or
-            RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpecialBlock or
-            RoomCollisionType.ShootableBlock or
-            RoomCollisionType.VerticalExtension or
-            RoomCollisionType.GrappleBlock or
-            RoomCollisionType.BombableBlock;
+        return EnemyProjectileBlockIsWall(type);
     }
+
+    /// <summary>
+    /// The unconditional rows of <c>$86:8846</c>/<c>$8866</c>, the enemy-projectile block
+    /// reaction tables. Slopes and extensions are resolved before reaching this test.
+    /// Spike blocks stop projectiles; grapple blocks do not.
+    /// </summary>
+    private static bool EnemyProjectileBlockIsWall(RoomCollisionType type) => type is
+        RoomCollisionType.Slope or
+        RoomCollisionType.HorizontalExtension or
+        RoomCollisionType.SolidBlock or
+        RoomCollisionType.DoorBlock or
+        RoomCollisionType.SpikeBlock or
+        RoomCollisionType.SpecialBlock or
+        RoomCollisionType.ShootableBlock or
+        RoomCollisionType.VerticalExtension or
+        RoomCollisionType.BombableBlock;
+
+    /// <summary>
+    /// <c>CheckForCollisionWithNonAirBlock</c> ($A6:D4F9): any block type other than air,
+    /// read directly without following extensions.
+    /// </summary>
+    private static bool NonAirBlockAt(RoomLevelData level, ushort x, ushort y) =>
+        level.GetCollisionBlock(x >> 4, y >> 4).CollisionType != RoomCollisionType.Air;
 
     private static ushort? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,

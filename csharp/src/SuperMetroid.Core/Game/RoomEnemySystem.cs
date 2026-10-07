@@ -517,6 +517,25 @@ public sealed partial class RoomEnemySystem
     /// Rebuilds native active/interactive lists, executes selected enemy AI, advances
     /// instruction lists, and records the layer queues consumed by the later draw phase.
     /// </summary>
+    /// <summary>
+    /// Runs the bank-$88 morph-ball eye beam HDMA object, then
+    /// <c>Determine_Which_Enemies_to_Process</c> ($A0:8EB6).
+    /// </summary>
+    /// <remarks>
+    /// Game state eight calls $A0:8EB6 first ($82:8B47), before Samus's handlers. The grapple
+    /// endpoint scan therefore sees this frame's interactive list, including an actor that
+    /// `$86:EF10` respawned at the end of the previous frame. The HDMA objects run earlier
+    /// still, in the main-loop prologue: that order is observable on spawn (one-frame pending
+    /// initialization) and shutdown (the full beam sees the body's cleared activation word on
+    /// the following frame).
+    /// </remarks>
+    public void PrepareEnemyProcessingList(ushort cameraX, ushort cameraY)
+    {
+        EnsureLoaded();
+        StepMorphBallEyeBeam();
+        DetermineWhichEnemiesToProcess(cameraX, cameraY);
+    }
+
     public void StepFrame(
         ushort cameraX,
         ushort cameraY,
@@ -532,7 +551,8 @@ public sealed partial class RoomEnemySystem
         VramWriteQueue? vramWriteQueue = null,
         bool resolveSamusContactBeforeAi = false,
         RoomPlmSystem? collisionPlms = null,
-        ushort? nmiFrameCounter = null)
+        ushort? nmiFrameCounter = null,
+        bool processingListPrepared = false)
     {
         using var terrainScope = new EnemyTerrainScope(this, collisionPlms);
         EnsureLoaded();
@@ -615,11 +635,8 @@ public sealed partial class RoomEnemySystem
         BeginShutterFrame(cameraX, cameraY);
         BeginElevatorFrame();
         SetRinkaCamera(cameraX, cameraY);
-        // Bank-$88 HDMA objects run before the bank-$A0 enemy dispatcher. This ordering is
-        // observable both on spawn (one-frame pending initialization) and shutdown (the
-        // full beam sees the body's cleared activation word on the following frame).
-        StepMorphBallEyeBeam();
-        DetermineWhichEnemiesToProcess(cameraX, cameraY);
+        if (!processingListPrepared)
+            PrepareEnemyProcessingList(cameraX, cameraY);
         foreach (List<ushort> queue in _drawQueues)
             queue.Clear();
 

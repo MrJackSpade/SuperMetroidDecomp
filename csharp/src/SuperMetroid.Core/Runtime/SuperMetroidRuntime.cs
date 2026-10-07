@@ -1639,6 +1639,11 @@ public sealed partial class SuperMetroidRuntime
                 Samus.YPosition,
                 Samus.Kinematics.YSubposition);
 
+        // `GameState_8_MainGameplay` begins with Determine_Which_Enemies_to_Process
+        // ($82:8B47), before palette FX and Samus. The grapple scan uses this list.
+        if (Camera is not null && Enemies.IsLoaded)
+            Enemies.PrepareEnemyProcessingList(Camera.XPosition, Camera.YPosition);
+
         // Gameplay state eight calls `$8D:C527` before `$91:8000` dispatches Samus and
         // before `$A0:868F` processes enemies. Controller function three is invoked by the
         // Baby during that later enemy phase, so a newly spawned `$E1F0` object naturally
@@ -1693,7 +1698,7 @@ public sealed partial class SuperMetroidRuntime
         if (enemyMainAlreadyRan)
         {
             bool lockedBeforeEnemyMain = Samus?.InputLocked == true;
-            RunEnemyMainPhase();
+            RunEnemyMainPhase(processingListPrepared: true);
             enemyMainReleasedAlphaLock = lockedBeforeEnemyMain && Samus?.InputLocked == false;
         }
         SuspendedGameplayFrameTail? frameTail = null;
@@ -1942,7 +1947,7 @@ public sealed partial class SuperMetroidRuntime
                 PreviousMovementTypeForXray = xrayActivatedThisFrame
                     ? movementBeforeXrayAdmission : Samus.ReadMovementType(_addressSpace);
                 if (!enemyMainAlreadyRan)
-                    RunEnemyMainPhase();
+                    RunEnemyMainPhase(processingListPrepared: true);
                 // Actor commands replace beta before its dispatch in this same update.
                 stationaryScriptControlLocked = Samus.StationaryScriptControlLocked;
                 if (!TimeIsFrozen && !deathOwnsSamus)

@@ -32,6 +32,16 @@ internal static partial class Program
             context: "Hellway enemy respawn");
         AssertEqual((ushort)0, enemy.SpritemapPointer,
             "Respawn_Enemy does not install the empty spritemap");
+
+        // #1269: game state eight rebuilds the interactive list ($A0:8EB6) before Samus's
+        // grapple runs. The list built during the respawn frame still excluded the $DAFF
+        // placeholder; only the next frame's prologue admits the respawned actor.
+        AssertTrue(!runtime.Enemies.ResolveGrappleEndpoint(enemy.XPosition, enemy.YPosition).Collided,
+            "the respawn frame's interactive list does not yet contain the respawned actor");
+        runtime.Enemies.PrepareEnemyProcessingList(runtime.Camera!.XPosition, runtime.Camera.YPosition);
+        AssertTrue(runtime.Enemies.ResolveGrappleEndpoint(enemy.XPosition, enemy.YPosition).Collided,
+            "the next frame's prologue list lets the grapple reach the respawned actor");
+        enemy.AiHandlerBits = 0;
         // $A0:A08C rejects Samus contact while this word is zero; the first instruction
         // then installs the actor's map and contact can resume on the following pass.
         runtime.StepFrame(0);

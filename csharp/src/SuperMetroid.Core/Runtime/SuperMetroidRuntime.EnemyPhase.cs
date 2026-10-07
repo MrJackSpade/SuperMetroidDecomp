@@ -62,7 +62,11 @@ public sealed partial class SuperMetroidRuntime
 
     // GameState_8 runs this after Samus alpha/projectile update and before beta
     // movement. Keep actor side effects together at that shared frame boundary.
-    private void RunEnemyMainPhase()
+    /// <param name="processingListPrepared">
+    /// True in game state eight, whose frame start already ran $A0:8EB6. Door-transition
+    /// enemy passes build the list immediately before EnemyMain instead.
+    /// </param>
+    private void RunEnemyMainPhase(bool processingListPrepared)
     {
         if (Camera is not null && Enemies.IsLoaded)
         {
@@ -81,7 +85,8 @@ public sealed partial class SuperMetroidRuntime
                 VramWrites,
                 resolveSamusContactBeforeAi: true,
                 collisionPlms: Plms,
-                nmiFrameCounter: NmiFrameCounter);
+                nmiFrameCounter: NmiFrameCounter,
+                processingListPrepared: processingListPrepared);
             if (Enemies.LastElevatorEvent == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha

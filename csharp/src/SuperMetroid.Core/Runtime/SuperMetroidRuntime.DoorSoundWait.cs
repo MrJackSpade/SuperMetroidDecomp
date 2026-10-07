@@ -31,7 +31,7 @@ public sealed partial class SuperMetroidRuntime
         // The draw handler can append spin-stop/charge sounds. Do not publish the
         // prior gameplay frame's liquid, movement, projectile or PLM requests again.
         Samus?.LiquidPhysics.BeginFrameSoundRequests(BombProjectiles.PowerBombExplosion);
-        RunEnemyMainPhase();
+        RunEnemyMainPhase(processingListPrepared: false);
         // The Samus-collision pass belongs to gameplay only.
         if (runEnemyProjectiles)
             RunEnemyProjectileHandler();

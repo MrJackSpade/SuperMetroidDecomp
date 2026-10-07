@@ -80,7 +80,8 @@ public sealed partial class SuperMetroidRuntime
                 BombProjectiles,
                 VramWrites,
                 resolveSamusContactBeforeAi: true,
-                collisionPlms: Plms);
+                collisionPlms: Plms,
+                nmiFrameCounter: NmiFrameCounter);
             if (Enemies.LastElevatorEvent == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha

@@ -202,8 +202,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Dispatches <c>SporeSpawn_Main</c> at $A5:EB13.</summary>
     private void RunSporeSpawnMain(
         RoomEnemySlot body,
-        SporeSpawnEnemyState state,
-        byte nmiFrameCounter8)
+        SporeSpawnEnemyState state)
     {
         switch (state.Function)
         {
@@ -223,7 +222,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case SporeSpawnFunction.Dying:
-                RunSporeSpawnDying(body, state, nmiFrameCounter8);
+                RunSporeSpawnDying(body, state);
                 return;
 
             default:
@@ -280,8 +279,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>SporeSpawn_Func_4</c> at $A5:EBEE.</summary>
     private void RunSporeSpawnDying(
         RoomEnemySlot body,
-        SporeSpawnEnemyState state,
-        byte nmiFrameCounter8)
+        SporeSpawnEnemyState state)
     {
         int xDisplacement = ((state.DeathAngle + 64) & 0x80) != 0
             ? -state.DeathXVelocityMagnitude
@@ -305,7 +303,8 @@ public sealed partial class RoomEnemySystem
         }
 
         UpdateSporeSpawnStalks(state);
-        if ((nmiFrameCounter8 & 0x0f) == 0)
+        // $A5:E9F7 tests the 16-bit NMI_FrameCounter, not the 8-bit $05B5 copy.
+        if ((_enemyFrameNmiFrameCounter & 0x0f) == 0)
         {
             ushort random = _nextRandom!();
             _ = SpawnRoomSpriteObject(

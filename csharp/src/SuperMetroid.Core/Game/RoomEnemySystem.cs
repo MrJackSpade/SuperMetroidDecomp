@@ -42,6 +42,12 @@ public sealed partial class RoomEnemySystem
     private Action? _setAreaMiniBossDefeated;
     private Action<ushort>? _setRandomNumber;
     private ushort _randomEnemyCounter;
+
+    /// <summary>
+    /// The 16-bit NMI_FrameCounter ($05B6) for the current enemy pass. It is independent of
+    /// the 8-bit $05B5 counter; standalone audits seed both from the same enemy clock.
+    /// </summary>
+    private ushort _enemyFrameNmiFrameCounter;
     private SnesVram? _vram;
     private SnesCgram? _cgram;
 
@@ -525,7 +531,8 @@ public sealed partial class RoomEnemySystem
         SamusBombProjectileSystem? sharedProjectiles = null,
         VramWriteQueue? vramWriteQueue = null,
         bool resolveSamusContactBeforeAi = false,
-        RoomPlmSystem? collisionPlms = null)
+        RoomPlmSystem? collisionPlms = null,
+        ushort? nmiFrameCounter = null)
     {
         using var terrainScope = new EnemyTerrainScope(this, collisionPlms);
         EnsureLoaded();
@@ -536,6 +543,7 @@ public sealed partial class RoomEnemySystem
         // counter begins at zero and advances at the same end-of-frame point, which gives
         // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.
         byte enemyNmiFrameCounter8 = nmiFrameCounter8 ?? unchecked((byte)_randomEnemyCounter);
+        _enemyFrameNmiFrameCounter = nmiFrameCounter ?? _randomEnemyCounter;
         LastGunshipEvent = GunshipFrameEvent.None;
         BeginEnemySoundRequestFrame();
         LastBoyonSoundEffect = null;
@@ -1696,7 +1704,7 @@ public sealed partial class RoomEnemySystem
                 RunCrocomireMain(slot, samus, controllerInput, level, cameraX);
                 return;
             case EnemyAiCodePointers.MainAI_SporeSpawn when slot.EnemyDefinitionPointer == SporeSpawnDefinition:
-                RunSporeSpawnMain(slot, RequireSporeSpawnState(slot), nmiFrameCounter8);
+                RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));
                 return;
             case EnemyAiCodePointers.MainAI_CrocomireTongue when slot.EnemyDefinitionPointer == CrocomireTongueDefinition:
                 // $A4:F6BB is a literal RTL. The tongue's bank-$A4 instruction list and

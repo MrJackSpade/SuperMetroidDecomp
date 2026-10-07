@@ -74,13 +74,6 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
 /// <summary>Five $400-byte 4-bpp segments, each occupying four 64-pixel-wide tile rows.</summary>
 public static class SamusDeathTileAtlasFormat
 {
-    /// <summary>$9B:8F60 repeats $9B:8CC0: phase-seven hair tip at (6,-28), previously the phase-six upper-right OBJ quadrant.</summary>
-    private const int RepeatedHairTip = 0x9b8f60, HairTipSource = 0x9b8cc0;
-    /// <summary>$9B:9080 repeats $9B:8F80: outer arm at (-10,-12), shared by late phases six/eight.</summary>
-    private const int RepeatedArmEdge = 0x9b9080, ArmEdgeSource = 0x9b8f80;
-    /// <summary>$9B:93A0 repeats $9B:90A0: torso patch at (-2,-12), phase-eight lower-left OBJ quadrant and phase-six upper-left.</summary>
-    private const int RepeatedTorso = 0x9b93a0, TorsoSource = 0x9b90a0;
-
     /// <summary>
     /// Source relation in the five uploaded pages: six unused transparent padding tiles
     /// at $9B:8900/8A60/8B60/8D20/9240/92E0, three named repeated anatomy patches,
@@ -96,10 +89,12 @@ public static class SamusDeathTileAtlasFormat
         int tile = address - address % tileBytes;
         int source = tile switch
         {
-            0x9b8900 or 0x9b8a60 or 0x9b8b60 or 0x9b8d20 or 0x9b9240 or 0x9b92e0 => -1,
-            RepeatedHairTip => HairTipSource,
-            RepeatedArmEdge => ArmEdgeSource,
-            RepeatedTorso => TorsoSource,
+            SamusDeathTileAtlasAddresses.TransparentPadding0 or SamusDeathTileAtlasAddresses.TransparentPadding1 or
+                SamusDeathTileAtlasAddresses.TransparentPadding2 or SamusDeathTileAtlasAddresses.TransparentPadding3 or
+                SamusDeathTileAtlasAddresses.TransparentPadding4 or SamusDeathTileAtlasAddresses.TransparentPadding5 => -1,
+            SamusDeathTileAtlasAddresses.RepeatedHairTip => SamusDeathTileAtlasAddresses.HairTipSource,
+            SamusDeathTileAtlasAddresses.RepeatedArmEdge => SamusDeathTileAtlasAddresses.ArmEdgeSource,
+            SamusDeathTileAtlasAddresses.RepeatedTorso => SamusDeathTileAtlasAddresses.TorsoSource,
             _ => tile,
         };
         if (source < 0) return -1;

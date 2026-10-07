@@ -389,8 +389,8 @@ public sealed class MotherBrainRainbowPalettePresentation
         private readonly ushort[] inputs;
         private RedOriginColors(BodyColors colors)
         {
-            inputs = [colors[0], (ushort)(colors[RedOriginLayout.DarkHead] & 0x7fe0), colors[RedOriginLayout.PlateStart], colors[RedOriginLayout.PlateEnd], colors[RedOriginLayout.TissueStart], colors[RedOriginLayout.TissueEnd],
-                (ushort)(colors[RedOriginLayout.TissueStart + 1] & 0x3e0), (ushort)(colors[RedOriginLayout.TissueStart + 2] & 0x3e0), (ushort)(colors[RedOriginLayout.TissueStart + 3] & 0x3e0), colors[RedOriginLayout.TailStart], colors[RedOriginLayout.TailStart + 1]];
+            inputs = [colors[0], (ushort)(colors[RedOriginLayout.DarkHead] & SnesColorMasks.GreenBlue), colors[RedOriginLayout.PlateStart], colors[RedOriginLayout.PlateEnd], colors[RedOriginLayout.TissueStart], colors[RedOriginLayout.TissueEnd],
+                (ushort)(colors[RedOriginLayout.TissueStart + 1] & SnesColorMasks.Green), (ushort)(colors[RedOriginLayout.TissueStart + 2] & SnesColorMasks.Green), (ushort)(colors[RedOriginLayout.TissueStart + 3] & SnesColorMasks.Green), colors[RedOriginLayout.TailStart], colors[RedOriginLayout.TailStart + 1]];
         }
         internal static RedOriginColors? TryCreate(BodyColors colors)
         {
@@ -408,7 +408,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                 if (color < RedOriginLayout.PlateStart)
                 {
                     int red = (inputs[0] & 31) - color * MotherBrainRainbowPaletteFormat.HeadRedStep;
-                    int greenBlue = color < RedOriginLayout.DarkHead ? inputs[0] & 0x7fe0 : inputs[1];
+                    int greenBlue = color < RedOriginLayout.DarkHead ? inputs[0] & SnesColorMasks.GreenBlue : inputs[1];
                     return (ushort)(red | greenBlue);
                 }
                 if (color < RedOriginLayout.TissueStart)
@@ -424,7 +424,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                     int shade = color - RedOriginLayout.TissueStart;
                     int red = ((inputs[4] & 31) * (RedOriginLayout.TissueIntervals - shade) + (inputs[5] & 31) * shade + RedOriginLayout.TissueIntervals / 2) / RedOriginLayout.TissueIntervals;
                     int blue = ((inputs[4] >> 10) * (RedOriginLayout.TissueIntervals - shade) + (inputs[5] >> 10) * shade) / RedOriginLayout.TissueIntervals;
-                    int green = shade == 0 ? inputs[4] & 0x3e0 : shade == RedOriginLayout.TissueIntervals ? inputs[5] & 0x3e0 : inputs[5 + shade];
+                    int green = shade == 0 ? inputs[4] & SnesColorMasks.Green : shade == RedOriginLayout.TissueIntervals ? inputs[5] & SnesColorMasks.Green : inputs[5 + shade];
                     return (ushort)(red | green | blue << 10);
                 }
                 return inputs[color - RedOriginLayout.TailStart + 9];

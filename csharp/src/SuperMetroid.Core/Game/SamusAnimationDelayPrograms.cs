@@ -134,169 +134,188 @@ internal static class SamusAnimationDelayPrograms
 {
     internal static ReadOnlySpan<SamusAnimationSegment> Segments => segments;
 
-    private static readonly SamusAnimationSegment[] segments =
+    // Native segments are contiguous from $91:B20A: each starts where the previous one ends,
+    // so start addresses are laid out from the stream start rather than stored.
+    private static readonly SamusAnimationSegment[] segments = Layout(
+        (ushort)(SamusAnimationDelayDefinitions.DelayStreamsAddress & ushort.MaxValue),
     [
-        Loop(0xB20A, [2, 3, 2, 3, 2, 3, 2, 3, 2, 3]),
-        Loop(0xB215, [..Repeat(4, 6), 3, 4, 4, 3]),
-        Loop(0xB220, [10]),
-        RepeatFrom(0xB222, [2, 16], frame: 1),
-        Loop(0xB226, [..Repeat(16, 6)]),
-        TurnTransition(0xB22D, [5, 2], SamusPoseId.FacingRightNormalPose),
-        TurnTransition(0xB231, [5, 2], SamusPoseId.FacingLeftNormalPose),
-        TurnTransition(0xB235, [3, 5, 2], SamusPoseId.FacingRightNormalPose),
-        TurnTransition(0xB23A, [3, 5, 2], SamusPoseId.FacingLeftNormalPose),
-        TurnTransition(0xB23F, [5, 2], SamusPoseId.StandingAimUpRightPose),
-        TurnTransition(0xB243, [5, 2], SamusPoseId.StandingAimUpLeftPose),
-        TurnTransition(0xB247, [5, 2], SamusPoseId.StandingAimDiagonalUpRightPose),
-        TurnTransition(0xB24B, [5, 2], SamusPoseId.StandingAimDiagonalUpLeftPose),
-        TurnTransition(0xB24F, [5, 2], SamusPoseId.StandingAimDiagonalDownRightPose),
-        TurnTransition(0xB253, [5, 2], SamusPoseId.StandingAimDiagonalDownLeftPose),
-        InstallDrainedFall(0xB257, [2, 2, 2, 16]),
-        RepeatFrom(0xB25C, [1], frame: 0),
-        RepeatFrom(0xB25F, [16, 16, 16, 16], frame: 0),
-        Transition(0xB265, [3], SamusPoseId.FacingRightNormalPose),
-        InstallDrainedFall(0xB268, [2, 2, 16]),
-        RepeatFrom(0xB26C, [1], frame: 0),
-        RepeatFrom(0xB26F, [8, 16, 16, 16, 16], frame: 1),
-        Transition(0xB276, [16, 16, 16], SamusPoseId.FacingLeftNormalPose),
-        RepeatFrom(0xB27B, [16, 16, 16, 16, 16], segment: 0xB26F, frame: 3),
-        RepeatFrom(0xB282, [16], segment: 0xB26F, frame: 3),
-        RepeatFrom(0xB285, [16], frame: 0),
-        Loop(0xB288, [16, 16, 16, 16]),
-        Transition(0xB28D, [3], SamusPoseId.FacingRightNormalPose),
-        Loop(0xB290, [16, 16, 16, 16]),
-        Transition(0xB295, [3], SamusPoseId.FacingLeftNormalPose),
-        LoopUnlessLowEnergy(0xB298, [10, 10, 10, 10]),
-        RepeatFrom(0xB29D, [8, 8, 8, 8], frame: 0),
-        LoopUnlessLowEnergy(0xB2A3, [10, 10, 10, 10]),
-        RepeatFrom(0xB2A8, [8, 8, 8, 8], frame: 0),
-        Loop(0xB2AE, [15, 15, 15, 15, 15]),
-        Loop(0xB2B4, [16]),
-        Loop(0xB2B6, [16]),
-        RepeatFrom(0xB2B8, [2, 16], frame: 1),
-        RepeatFrom(0xB2BC, [2, 16], frame: 1),
-        RepeatFrom(0xB2C0, [2, 16], frame: 1),
-        RepeatFrom(0xB2C4, [..Repeat(8, 66)], frame: 65),
-        Transition(0xB308, [1], SamusPoseId.NeutralJumpRightPose),
-        Transition(0xB30B, [1], SamusPoseId.NeutralJumpLeftPose),
-        TransitionWord(0xB30E, [1], SamusPoseId.NormalJumpAimUpRightPose),
-        TransitionWord(0xB312, [1], SamusPoseId.NormalJumpAimUpLeftPose),
-        TransitionWord(0xB316, [1], SamusPoseId.NormalJumpAimDiagonalUpRightPose),
-        TransitionWord(0xB31A, [1], SamusPoseId.NormalJumpAimDiagonalUpLeftPose),
-        TransitionWord(0xB31E, [1], SamusPoseId.NormalJumpAimDiagonalDownRightPose),
-        TransitionWord(0xB322, [1], SamusPoseId.NormalJumpAimDiagonalDownLeftPose),
-        RepeatFrom(0xB326, [3, 4, 4, 4, 4, 80], frame: 5),
-        RepeatFrom(0xB32E, [8, ..Repeat(2, 9)], frame: 9),
-        RepeatFrom(0xB33A, [2, 16], frame: 1),
-        RepeatFrom(0xB33E, [2, 16], frame: 1),
-        RepeatFrom(0xB342, [2, 3], frame: 1),
-        RepeatFrom(0xB346, [2, 16], frame: 1),
-        RepeatFrom(0xB34A, [8, 6, 6], frame: 2),
-        RepeatFrom(0xB34F, [8, 16], frame: 1),
-        RepeatFrom(0xB353, [8, 6, 6], frame: 2),
-        RepeatFrom(0xB358, [8, 16], frame: 1),
-        RepeatFrom(0xB35C, [2, 16, 16], frame: 2),
-        Hold(0xB361, [2]),
-        RepeatFrom(0xB363, [16], frame: 0),
-        RepeatFrom(0xB366, [2, 16], frame: 1),
-        RepeatFrom(0xB36A, [2, 16], frame: 1),
-        Loop(0xB36E, [6, 6, 6, 8]),
-        Loop(0xB373, [8, 8]),
-        Loop(0xB376, [10]),
-        Loop(0xB378, [..Repeat(3, 8)]),
-        RepeatFrom(0xB381, [3], segment: 0xB378, frame: 0),
-        RepeatFrom(0xB384, [4, 3, 2, 3, 2, 3, 2, 3, 2], frame: 1),
-        Loop(0xB38F, [8]),
-        RepeatFrom(0xB391, [4, ..Repeat(1, 8)], frame: 1),
-        Loop(0xB39C, [8]),
-        RepeatFrom(0xB39E, [4, ..Repeat(1, 24)], frame: 1),
-        Loop(0xB3B9, [8]),
-        TurnTransition(0xB3BB, [2, 2, 2], SamusPoseId.FacingLeftNormalPose),
-        TurnTransition(0xB3C0, [2, 2, 2], SamusPoseId.FacingRightNormalPose),
-        TurnTransition(0xB3C5, [2, 2, 2], SamusPoseId.NormalJumpForwardLeftPose),
-        TurnTransition(0xB3CA, [2, 2, 2], SamusPoseId.NormalJumpForwardRightPose),
-        TurnTransition(0xB3CF, [2, 2, 2], SamusPoseId.CrouchingLeftPose),
-        TurnTransition(0xB3D4, [2, 2, 2], SamusPoseId.CrouchingRightPose),
-        TurnTransition(0xB3D9, [2, 2, 2], SamusPoseId.FallingLeftPose),
-        TurnTransition(0xB3DE, [2, 2, 2], SamusPoseId.FallingRightPose),
-        TurnTransition(0xB3E3, [2, 2, 2], SamusPoseId.StandingAimUpLeftPose),
-        TurnTransition(0xB3E8, [2, 2, 2], SamusPoseId.StandingAimUpRightPose),
-        TurnTransition(0xB3ED, [2, 2, 2], SamusPoseId.StandingAimDiagonalDownLeftPose),
-        TurnTransition(0xB3F2, [2, 2, 2], SamusPoseId.StandingAimDiagonalDownRightPose),
-        TurnTransition(0xB3F7, [2, 2, 2], SamusPoseId.NormalJumpAimUpLeftPose),
-        TurnTransition(0xB3FC, [2, 2, 2], SamusPoseId.NormalJumpAimUpRightPose),
-        TurnTransition(0xB401, [2, 2, 2], SamusPoseId.NormalJumpAimDownLeftPose),
-        TurnTransition(0xB406, [2, 2, 2], SamusPoseId.NormalJumpAimDownRightPose),
-        TurnTransition(0xB40B, [2, 2, 2], SamusPoseId.FallingAimUpLeftPose),
-        TurnTransition(0xB410, [2, 2, 2], SamusPoseId.FallingAimUpRightPose),
-        TurnTransition(0xB415, [2, 2, 2], SamusPoseId.FallingAimDownLeftPose),
-        TurnTransition(0xB41A, [2, 2, 2], SamusPoseId.FallingAimDownRightPose),
-        TurnTransition(0xB41F, [2, 2, 2], SamusPoseId.CrouchingAimUpLeftPose),
-        TurnTransition(0xB424, [2, 2, 2], SamusPoseId.CrouchingAimUpRightPose),
-        TurnTransition(0xB429, [2, 2, 2], SamusPoseId.CrouchingAimDiagonalDownLeftPose),
-        TurnTransition(0xB42E, [2, 2, 2], SamusPoseId.CrouchingAimDiagonalDownRightPose),
-        TurnTransition(0xB433, [2, 2, 2], SamusPoseId.StandingAimDiagonalUpLeftPose),
-        TurnTransition(0xB438, [2, 2, 2], SamusPoseId.StandingAimDiagonalUpRightPose),
-        TurnTransition(0xB43D, [2, 2, 2], SamusPoseId.NormalJumpAimDiagonalUpLeftPose),
-        TurnTransition(0xB442, [2, 2, 2], SamusPoseId.NormalJumpAimDiagonalUpRightPose),
-        TurnTransition(0xB447, [2, 2, 2], SamusPoseId.FallingAimDiagonalUpLeftPose),
-        TurnTransition(0xB44C, [2, 2, 2], SamusPoseId.FallingAimDiagonalUpRightPose),
-        TurnTransition(0xB451, [2, 2, 2], SamusPoseId.CrouchingAimDiagonalUpLeftPose),
-        TurnTransition(0xB456, [2, 2, 2], SamusPoseId.CrouchingAimDiagonalUpRightPose),
-        TurnTransition(0xB45B, [2, 2, 2], SamusPoseId.SpinJumpLeftPose),
-        TurnTransition(0xB460, [2, 2, 2], SamusPoseId.SpinJumpRightPose),
-        TurnTransition(0xB465, [2, 2, 2], SamusPoseId.SpinJumpLeftPose),
-        TurnTransition(0xB46A, [2, 2, 2], SamusPoseId.SpinJumpRightPose),
-        TurnTransition(0xB46F, [2, 2, 2], SamusPoseId.SpinJumpLeftPose),
-        TurnTransition(0xB474, [2, 2, 2], SamusPoseId.SpinJumpRightPose),
-        Transition(0xB479, [2, 2, 2], SamusPoseId.DraygonGrabbedNeutralLeftPose),
-        RepeatFrom(0xB47E, [4, 3], frame: 1),
-        RepeatFrom(0xB482, [4, 3], frame: 1),
-        RepeatFrom(0xB486, [3, ..Repeat(2, 8)], frame: 1),
-        WallJumpSelect(0xB491, [5, 5]),
-        RepeatFrom(0xB494, [3, 2, 3, 2, 3, 2, 3, 2], frame: 0),
-        RepeatFrom(0xB49E, [2, 1, 2, 1, 2, 1, 2, 1], frame: 0),
-        RepeatFrom(0xB4A8, [..Repeat(1, 24)], frame: 0),
-        Transition(0xB4C2, [3], SamusPoseId.CrouchingRightPose),
-        Transition(0xB4C5, [3], SamusPoseId.CrouchingLeftPose),
-        ItemAirborneTransition(0xB4C8, [3, 3], SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallFallingRightPose, SamusPoseId.SpringBallGroundRightPose, SamusPoseId.SpringBallFallingRightPose),
-        ItemAirborneTransition(0xB4D1, [3, 3], SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.MorphBallFallingLeftPose, SamusPoseId.SpringBallGroundLeftPose, SamusPoseId.SpringBallFallingLeftPose),
-        Transition(0xB4DA, [0], SamusPoseId.UnusedPose20),
-        Transition(0xB4DD, [0], SamusPoseId.UnusedPose42),
-        Transition(0xB4E0, [3], SamusPoseId.FacingRightNormalPose),
-        Transition(0xB4E3, [3], SamusPoseId.FacingLeftNormalPose),
-        Transition(0xB4E6, [3, 3], SamusPoseId.CrouchingRightPose),
-        Transition(0xB4EA, [3, 3], SamusPoseId.CrouchingLeftPose),
-        ItemTransition(0xB4EE, [0], SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.SpringBallGroundRightPose),
-        ItemTransition(0xB4F4, [0], SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.SpringBallGroundLeftPose),
-        ItemAirborneTransition(0xB4FA, [3, 3, 3], SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallFallingRightPose, SamusPoseId.SpringBallGroundRightPose, SamusPoseId.SpringBallFallingRightPose),
-        ItemAirborneTransition(0xB504, [3, 3, 3], SamusEquipmentFlags.SpringBall, SamusPoseId.UnusedPoseDf, SamusPoseId.UnusedPoseDf, SamusPoseId.UnusedPoseDf, SamusPoseId.UnusedPoseDf),
-        Transition(0xB50E, [3, 3, 3], SamusPoseId.FacingRightNormalPose),
-        Transition(0xB513, [3, 3, 3], SamusPoseId.DraygonGrabbedNeutralLeftPose),
-        Transition(0xB518, [3], SamusPoseId.CrouchingAimUpRightPose),
-        Transition(0xB51B, [3], SamusPoseId.CrouchingAimUpLeftPose),
-        Transition(0xB51E, [3], SamusPoseId.CrouchingAimDiagonalUpRightPose),
-        Transition(0xB521, [3], SamusPoseId.CrouchingAimDiagonalUpLeftPose),
-        Transition(0xB524, [3], SamusPoseId.CrouchingAimDiagonalDownRightPose),
-        Transition(0xB527, [3], SamusPoseId.CrouchingAimDiagonalDownLeftPose),
-        Transition(0xB52A, [3], SamusPoseId.StandingAimUpRightPose),
-        Transition(0xB52D, [3], SamusPoseId.StandingAimUpLeftPose),
-        Transition(0xB530, [3], SamusPoseId.StandingAimDiagonalUpRightPose),
-        Transition(0xB533, [3], SamusPoseId.StandingAimDiagonalUpLeftPose),
-        Transition(0xB536, [3], SamusPoseId.StandingAimDiagonalDownRightPose),
-        Transition(0xB539, [3], SamusPoseId.StandingAimDiagonalDownLeftPose),
-        Loop(0xB53C, [..Repeat(6, 6)]),
-        Loop(0xB543, [8]),
-        RepeatFrom(0xB545, [3, 3, 1, 1], frame: 2),
-        RepeatFrom(0xB54B, [12, 12, 12, 12], frame: 0),
-        Transition(0xB551, [3, 3, 3], SamusPoseId.FacingRightNormalPose),
-        RepeatFrom(0xB556, [3, 3, 1, 1], frame: 2),
-        RepeatFrom(0xB55C, [12, 12, 12, 12], frame: 0),
-        Transition(0xB562, [3, 3, 3], SamusPoseId.FacingLeftNormalPose),
-        RepeatFrom(0xB567, [..Repeat(2, 6)], frame: 5),
-        Loop(0xB56F, [8]),
-        RepeatFrom(0xB571, [..Repeat(3, 89), 51, 2, 2, 2, 48], frame: 93),
-    ];
+        Loop([2, 3, 2, 3, 2, 3, 2, 3, 2, 3]),
+        Loop([..Repeat(4, 6), 3, 4, 4, 3]),
+        Loop([10]),
+        RepeatFrom([2, 16], frame: 1),
+        Loop([..Repeat(16, 6)]),
+        TurnTransition([5, 2], SamusPoseId.FacingRightNormalPose),
+        TurnTransition([5, 2], SamusPoseId.FacingLeftNormalPose),
+        TurnTransition([3, 5, 2], SamusPoseId.FacingRightNormalPose),
+        TurnTransition([3, 5, 2], SamusPoseId.FacingLeftNormalPose),
+        TurnTransition([5, 2], SamusPoseId.StandingAimUpRightPose),
+        TurnTransition([5, 2], SamusPoseId.StandingAimUpLeftPose),
+        TurnTransition([5, 2], SamusPoseId.StandingAimDiagonalUpRightPose),
+        TurnTransition([5, 2], SamusPoseId.StandingAimDiagonalUpLeftPose),
+        TurnTransition([5, 2], SamusPoseId.StandingAimDiagonalDownRightPose),
+        TurnTransition([5, 2], SamusPoseId.StandingAimDiagonalDownLeftPose),
+        InstallDrainedFall([2, 2, 2, 16]),
+        RepeatFrom([1], frame: 0),
+        RepeatFrom([16, 16, 16, 16], frame: 0),
+        Transition([3], SamusPoseId.FacingRightNormalPose),
+        InstallDrainedFall([2, 2, 16]),
+        RepeatFrom([1], frame: 0),
+        RepeatFrom([8, 16, 16, 16, 16], frame: 1),
+        Transition([16, 16, 16], SamusPoseId.FacingLeftNormalPose),
+        RepeatFrom([16, 16, 16, 16, 16], segmentsBack: 2, frame: 3),
+        RepeatFrom([16], segmentsBack: 3, frame: 3),
+        RepeatFrom([16], frame: 0),
+        Loop([16, 16, 16, 16]),
+        Transition([3], SamusPoseId.FacingRightNormalPose),
+        Loop([16, 16, 16, 16]),
+        Transition([3], SamusPoseId.FacingLeftNormalPose),
+        LoopUnlessLowEnergy([10, 10, 10, 10]),
+        RepeatFrom([8, 8, 8, 8], frame: 0),
+        LoopUnlessLowEnergy([10, 10, 10, 10]),
+        RepeatFrom([8, 8, 8, 8], frame: 0),
+        Loop([15, 15, 15, 15, 15]),
+        Loop([16]),
+        Loop([16]),
+        RepeatFrom([2, 16], frame: 1),
+        RepeatFrom([2, 16], frame: 1),
+        RepeatFrom([2, 16], frame: 1),
+        RepeatFrom([..Repeat(8, 66)], frame: 65),
+        Transition([1], SamusPoseId.NeutralJumpRightPose),
+        Transition([1], SamusPoseId.NeutralJumpLeftPose),
+        TransitionWord([1], SamusPoseId.NormalJumpAimUpRightPose),
+        TransitionWord([1], SamusPoseId.NormalJumpAimUpLeftPose),
+        TransitionWord([1], SamusPoseId.NormalJumpAimDiagonalUpRightPose),
+        TransitionWord([1], SamusPoseId.NormalJumpAimDiagonalUpLeftPose),
+        TransitionWord([1], SamusPoseId.NormalJumpAimDiagonalDownRightPose),
+        TransitionWord([1], SamusPoseId.NormalJumpAimDiagonalDownLeftPose),
+        RepeatFrom([3, 4, 4, 4, 4, 80], frame: 5),
+        RepeatFrom([8, ..Repeat(2, 9)], frame: 9),
+        RepeatFrom([2, 16], frame: 1),
+        RepeatFrom([2, 16], frame: 1),
+        RepeatFrom([2, 3], frame: 1),
+        RepeatFrom([2, 16], frame: 1),
+        RepeatFrom([8, 6, 6], frame: 2),
+        RepeatFrom([8, 16], frame: 1),
+        RepeatFrom([8, 6, 6], frame: 2),
+        RepeatFrom([8, 16], frame: 1),
+        RepeatFrom([2, 16, 16], frame: 2),
+        Hold([2]),
+        RepeatFrom([16], frame: 0),
+        RepeatFrom([2, 16], frame: 1),
+        RepeatFrom([2, 16], frame: 1),
+        Loop([6, 6, 6, 8]),
+        Loop([8, 8]),
+        Loop([10]),
+        Loop([..Repeat(3, 8)]),
+        RepeatFrom([3], segmentsBack: 1, frame: 0),
+        RepeatFrom([4, 3, 2, 3, 2, 3, 2, 3, 2], frame: 1),
+        Loop([8]),
+        RepeatFrom([4, ..Repeat(1, 8)], frame: 1),
+        Loop([8]),
+        RepeatFrom([4, ..Repeat(1, 24)], frame: 1),
+        Loop([8]),
+        TurnTransition([2, 2, 2], SamusPoseId.FacingLeftNormalPose),
+        TurnTransition([2, 2, 2], SamusPoseId.FacingRightNormalPose),
+        TurnTransition([2, 2, 2], SamusPoseId.NormalJumpForwardLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.NormalJumpForwardRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.CrouchingLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.CrouchingRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.FallingLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.FallingRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.StandingAimUpLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.StandingAimUpRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.StandingAimDiagonalDownLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.StandingAimDiagonalDownRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.NormalJumpAimUpLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.NormalJumpAimUpRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.NormalJumpAimDownLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.NormalJumpAimDownRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.FallingAimUpLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.FallingAimUpRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.FallingAimDownLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.FallingAimDownRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.CrouchingAimUpLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.CrouchingAimUpRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.CrouchingAimDiagonalDownLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.CrouchingAimDiagonalDownRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.StandingAimDiagonalUpLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.StandingAimDiagonalUpRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.NormalJumpAimDiagonalUpLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.NormalJumpAimDiagonalUpRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.FallingAimDiagonalUpLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.FallingAimDiagonalUpRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.CrouchingAimDiagonalUpLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.CrouchingAimDiagonalUpRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.SpinJumpLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.SpinJumpRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.SpinJumpLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.SpinJumpRightPose),
+        TurnTransition([2, 2, 2], SamusPoseId.SpinJumpLeftPose),
+        TurnTransition([2, 2, 2], SamusPoseId.SpinJumpRightPose),
+        Transition([2, 2, 2], SamusPoseId.DraygonGrabbedNeutralLeftPose),
+        RepeatFrom([4, 3], frame: 1),
+        RepeatFrom([4, 3], frame: 1),
+        RepeatFrom([3, ..Repeat(2, 8)], frame: 1),
+        WallJumpSelect([5, 5]),
+        RepeatFrom([3, 2, 3, 2, 3, 2, 3, 2], frame: 0),
+        RepeatFrom([2, 1, 2, 1, 2, 1, 2, 1], frame: 0),
+        RepeatFrom([..Repeat(1, 24)], frame: 0),
+        Transition([3], SamusPoseId.CrouchingRightPose),
+        Transition([3], SamusPoseId.CrouchingLeftPose),
+        ItemAirborneTransition([3, 3], SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallFallingRightPose, SamusPoseId.SpringBallGroundRightPose, SamusPoseId.SpringBallFallingRightPose),
+        ItemAirborneTransition([3, 3], SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.MorphBallFallingLeftPose, SamusPoseId.SpringBallGroundLeftPose, SamusPoseId.SpringBallFallingLeftPose),
+        Transition([0], SamusPoseId.UnusedPose20),
+        Transition([0], SamusPoseId.UnusedPose42),
+        Transition([3], SamusPoseId.FacingRightNormalPose),
+        Transition([3], SamusPoseId.FacingLeftNormalPose),
+        Transition([3, 3], SamusPoseId.CrouchingRightPose),
+        Transition([3, 3], SamusPoseId.CrouchingLeftPose),
+        ItemTransition([0], SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.SpringBallGroundRightPose),
+        ItemTransition([0], SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.SpringBallGroundLeftPose),
+        ItemAirborneTransition([3, 3, 3], SamusEquipmentFlags.SpringBall, SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallFallingRightPose, SamusPoseId.SpringBallGroundRightPose, SamusPoseId.SpringBallFallingRightPose),
+        ItemAirborneTransition([3, 3, 3], SamusEquipmentFlags.SpringBall, SamusPoseId.UnusedPoseDf, SamusPoseId.UnusedPoseDf, SamusPoseId.UnusedPoseDf, SamusPoseId.UnusedPoseDf),
+        Transition([3, 3, 3], SamusPoseId.FacingRightNormalPose),
+        Transition([3, 3, 3], SamusPoseId.DraygonGrabbedNeutralLeftPose),
+        Transition([3], SamusPoseId.CrouchingAimUpRightPose),
+        Transition([3], SamusPoseId.CrouchingAimUpLeftPose),
+        Transition([3], SamusPoseId.CrouchingAimDiagonalUpRightPose),
+        Transition([3], SamusPoseId.CrouchingAimDiagonalUpLeftPose),
+        Transition([3], SamusPoseId.CrouchingAimDiagonalDownRightPose),
+        Transition([3], SamusPoseId.CrouchingAimDiagonalDownLeftPose),
+        Transition([3], SamusPoseId.StandingAimUpRightPose),
+        Transition([3], SamusPoseId.StandingAimUpLeftPose),
+        Transition([3], SamusPoseId.StandingAimDiagonalUpRightPose),
+        Transition([3], SamusPoseId.StandingAimDiagonalUpLeftPose),
+        Transition([3], SamusPoseId.StandingAimDiagonalDownRightPose),
+        Transition([3], SamusPoseId.StandingAimDiagonalDownLeftPose),
+        Loop([..Repeat(6, 6)]),
+        Loop([8]),
+        RepeatFrom([3, 3, 1, 1], frame: 2),
+        RepeatFrom([12, 12, 12, 12], frame: 0),
+        Transition([3, 3, 3], SamusPoseId.FacingRightNormalPose),
+        RepeatFrom([3, 3, 1, 1], frame: 2),
+        RepeatFrom([12, 12, 12, 12], frame: 0),
+        Transition([3, 3, 3], SamusPoseId.FacingLeftNormalPose),
+        RepeatFrom([..Repeat(2, 6)], frame: 5),
+        Loop([8]),
+        RepeatFrom([..Repeat(3, 89), 51, 2, 2, 2, 48], frame: 93),
+    ]);
+
+    /// <summary>Builds one segment at its laid-out address; <c>earlier</c> holds the preceding segments.</summary>
+    private delegate SamusAnimationSegment Placement(ushort address, IReadOnlyList<SamusAnimationSegment> earlier);
+
+    private static SamusAnimationSegment[] Layout(ushort start, Placement[] placements)
+    {
+        var laidOut = new List<SamusAnimationSegment>(placements.Length);
+        ushort address = start;
+        foreach (Placement place in placements)
+        {
+            SamusAnimationSegment segment = place(address, laidOut);
+            laidOut.Add(segment);
+            address = (ushort)(address + segment.Length);
+        }
+        return [.. laidOut];
+    }
 
     private static byte[] Repeat(byte delay, int count)
     {
@@ -305,48 +324,60 @@ internal static class SamusAnimationDelayPrograms
         return run;
     }
 
-    private static SamusAnimationSegment Loop(ushort address, byte[] delays) =>
-        new(address, delays, SamusAnimationCommand.Loop);
+    private static Placement Loop(byte[] delays) =>
+        (address, earlier) =>
+            new(address, delays, SamusAnimationCommand.Loop);
 
-    private static SamusAnimationSegment Hold(ushort address, byte[] delays) =>
-        new(address, delays, SamusAnimationCommand.Hold);
+    private static Placement Hold(byte[] delays) =>
+        (address, earlier) =>
+            new(address, delays, SamusAnimationCommand.Hold);
 
-    private static SamusAnimationSegment LoopUnlessLowEnergy(ushort address, byte[] delays) =>
-        new(address, delays, SamusAnimationCommand.LoopUnlessLowEnergy);
+    private static Placement LoopUnlessLowEnergy(byte[] delays) =>
+        (address, earlier) =>
+            new(address, delays, SamusAnimationCommand.LoopUnlessLowEnergy);
 
-    private static SamusAnimationSegment InstallDrainedFall(ushort address, byte[] delays) =>
-        new(address, delays, SamusAnimationCommand.InstallDrainedFall);
+    private static Placement InstallDrainedFall(byte[] delays) =>
+        (address, earlier) =>
+            new(address, delays, SamusAnimationCommand.InstallDrainedFall);
 
-    private static SamusAnimationSegment WallJumpSelect(ushort address, byte[] delays) =>
-        new(address, delays, SamusAnimationCommand.WallJumpSelect);
+    private static Placement WallJumpSelect(byte[] delays) =>
+        (address, earlier) =>
+            new(address, delays, SamusAnimationCommand.WallJumpSelect);
 
     /// <summary>Repeat from <paramref name="frame"/> of this segment.</summary>
-    private static SamusAnimationSegment RepeatFrom(ushort address, byte[] delays, int frame) =>
-        new(address, delays, SamusAnimationCommand.RepeatFrom, repeatTarget: (ushort)(address + frame));
+    private static Placement RepeatFrom(byte[] delays, int frame) =>
+        (address, earlier) =>
+            new(address, delays, SamusAnimationCommand.RepeatFrom, repeatTarget: (ushort)(address + frame));
 
-    /// <summary>Repeat from <paramref name="frame"/> of the shared loop body at <paramref name="segment"/>.</summary>
-    private static SamusAnimationSegment RepeatFrom(ushort address, byte[] delays, ushort segment, int frame) =>
-        new(address, delays, SamusAnimationCommand.RepeatFrom, repeatTarget: (ushort)(segment + frame));
+    /// <summary>Repeat from <paramref name="frame"/> of the shared loop body <paramref name="segmentsBack"/> segments earlier.</summary>
+    private static Placement RepeatFrom(byte[] delays, int segmentsBack, int frame) =>
+        (address, earlier) =>
+            new(address, delays, SamusAnimationCommand.RepeatFrom, repeatTarget: (ushort)(earlier[^segmentsBack].Address + frame));
 
-    private static SamusAnimationSegment TurnTransition(ushort address, byte[] delays, SamusPoseId pose) =>
-        new(address, delays, SamusAnimationCommand.TurnTransition, unequippedGrounded: pose);
+    private static Placement TurnTransition(byte[] delays, SamusPoseId pose) =>
+        (address, earlier) =>
+            new(address, delays, SamusAnimationCommand.TurnTransition, unequippedGrounded: pose);
 
-    private static SamusAnimationSegment Transition(ushort address, byte[] delays, SamusPoseId pose) =>
-        new(address, delays, SamusAnimationCommand.Transition, unequippedGrounded: pose);
+    private static Placement Transition(byte[] delays, SamusPoseId pose) =>
+        (address, earlier) =>
+            new(address, delays, SamusAnimationCommand.Transition, unequippedGrounded: pose);
 
     /// <summary>A <c>$FD</c> transition whose pose the source wrote as a word.</summary>
-    private static SamusAnimationSegment TransitionWord(ushort address, byte[] delays, SamusPoseId pose) =>
-        new(address, delays, SamusAnimationCommand.Transition, unequippedGrounded: pose, wordPose: true);
+    private static Placement TransitionWord(byte[] delays, SamusPoseId pose) =>
+        (address, earlier) =>
+            new(address, delays, SamusAnimationCommand.Transition, unequippedGrounded: pose, wordPose: true);
 
-    private static SamusAnimationSegment ItemTransition(ushort address, byte[] delays,
+    private static Placement ItemTransition(byte[] delays,
         SamusEquipmentFlags item, SamusPoseId unequipped, SamusPoseId equipped) =>
-        new(address, delays, SamusAnimationCommand.ItemTransition, item: item,
+        (address, earlier) =>
+            new(address, delays, SamusAnimationCommand.ItemTransition, item: item,
             unequippedGrounded: unequipped, equippedGrounded: equipped);
 
-    private static SamusAnimationSegment ItemAirborneTransition(ushort address, byte[] delays,
+    private static Placement ItemAirborneTransition(byte[] delays,
         SamusEquipmentFlags item, SamusPoseId unequippedGrounded, SamusPoseId unequippedAirborne,
         SamusPoseId equippedGrounded, SamusPoseId equippedAirborne) =>
-        new(address, delays, SamusAnimationCommand.ItemAirborneTransition, item: item,
+        (address, earlier) =>
+            new(address, delays, SamusAnimationCommand.ItemAirborneTransition, item: item,
             unequippedGrounded: unequippedGrounded, unequippedAirborne: unequippedAirborne,
             equippedGrounded: equippedGrounded, equippedAirborne: equippedAirborne);
 

@@ -24,7 +24,7 @@ internal static class SamusBodyTransferClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapFrameDefinitions.cs", "45C8A46CB2B4351F5845E2E5A8DD3E9BD216AAE248C6CA92AA824537483DFE8F"),
              new("csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs", "48F98641513B038D3B4A73EBD5D6F46F17DE8F22B74DA5D91B7B883CFD758FDE"),
              new("csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs", "BBB348752ABA20A9A13CD0D6E17A4A15B35E4DA199F5D9F54701A277D99C85A4"),
-             new("csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayPrograms.cs", "8E8A5E7BF403D3549E9FE1E4586385BD4BB04280A17220FAB6FACFDB734172D6"),
+             new("csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayPrograms.cs", "C8F9554A323E19ECB777197ED16F7DF9E150775615FEE55D9DA2E224178A34F1"),
              new("csharp/src/SuperMetroid.Core/Game/SamusDeathExplosionTimingDefinitions.cs", "452B184D6FC9F55826EBDF8AB90EDA286A900B50B4CA0633C79D065B063E6F9C"),
              new("csharp/src/SuperMetroid.Core/Game/SamusMovementRomData.cs", "F08777915DBEA264FF7589BC67049A4F2A17321A5DDAF4A09F615BB8D1A07D05"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapPoseDefinitions.cs", "F4FCCF227D6D58676E8565799A8F66F74424BFD01E6FA245C0635B76C810CE0C"),

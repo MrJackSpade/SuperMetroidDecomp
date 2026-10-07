@@ -290,6 +290,14 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
+            // $A0:A10E-A11F: on the ordinary radius path a frozen enemy never runs its touch
+            // AI, except the respawn placeholder. The extended-hitbox path has no such gate.
+            if (!usesExtendedHitboxes && slot.FrozenTimer != 0 &&
+                slot.EnemyDefinitionPointer != EnemyLifecycleDefinitions.RespawnPlaceholder)
+            {
+                continue;
+            }
+
             if (isKraidNail)
             {
                 ResolveNormalEnemyTouch(slot, samus, controllerInput);

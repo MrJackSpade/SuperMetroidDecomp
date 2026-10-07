@@ -428,15 +428,26 @@ public sealed partial class RoomEnemySystem
     private void QueueEvirSpitSound() => LastEvirSoundEffect = EvirSpitSound;
 
     /// <summary>Instruction $A8:879B.</summary>
-    private static void SetInitialEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
-        state.RegenerationXOffset = state.FacingDirection != 0
+    private void SetInitialEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
+        state.RegenerationXOffset = EvirBodyFacesRight(slot)
             ? unchecked((ushort)-8)
             : (ushort)8;
 
     /// <summary>Instruction $A8:87B6.</summary>
-    private static void AdvanceEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
+    private void AdvanceEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
         state.RegenerationXOffset = unchecked((ushort)(
-            state.RegenerationXOffset + (state.FacingDirection != 0 ? 1 : -1)));
+            state.RegenerationXOffset + (EvirBodyFacesRight(slot) ? 1 : -1)));
+
+    /// <summary>
+    /// Both regeneration instructions test <c>Evir.instList-$80,X</c>: the installed list
+    /// of the body two slots before the projectile, not any facing word of its own.
+    /// </summary>
+    private bool EvirBodyFacesRight(RoomEnemySlot projectile)
+    {
+        EvirEnemyState body = _evirStates[projectile.SlotIndex - 2] ?? throw new InvalidDataException(
+            $"Evir projectile slot {projectile.SlotIndex} has no body two slots before it.");
+        return body.InstalledInstructionList == EvirInstructionProgramDefinitions.BodyFacingRight;
+    }
 
     /// <summary>Instruction $A8:87CB.</summary>
     private static void FinishEvirRegeneration(EvirEnemyState state)

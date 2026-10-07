@@ -86,14 +86,18 @@ internal static partial class Program
 
         {
             var enemies = NewEvirInstructionSystem(guard, flags);
-            RoomEnemySlot slot = enemies.Slots[0];
+            // The regeneration instructions read Evir.instList-$80,X: the body record two
+            // slots before the projectile, as the retail population lays them out.
+            RoomEnemySlot slot = enemies.Slots[2];
             PrepareEvirInstructionSlot(
                 slot,
                 RoomEnemySystem.EvirProjectileDefinition,
                 EvirInstructionProgramDefinitions.ProjectileRegenerating);
+            // #1269: the projectile's own facing word disagrees with its body on purpose;
+            // $A8:879B/$87B6 follow the body's installed list, so the offset starts at +8.
             var state = new EvirEnemyState(slot)
             {
-                FacingDirection = 0,
+                FacingDirection = 1,
                 MovingFlag = 1,
                 RegenerationFlag = 1,
                 Function = EvirAiFunction.ProjectileRegenerating,
@@ -101,13 +105,20 @@ internal static partial class Program
             var states = (EvirEnemyState?[])typeof(RoomEnemySystem)
                 .GetField("_evirStates", flags)!
                 .GetValue(enemies)!;
-            states[0] = state;
+            states[2] = state;
+            states[0] = new EvirEnemyState(enemies.Slots[0])
+            {
+                InstalledInstructionList = EvirInstructionProgramDefinitions.BodyFacingLeft,
+            };
             object?[] arguments =
                 [slot, null, null, (ushort)0, (ushort)0, (ushort)0, (byte)0];
             for (int call = 0; call < 10; call++)
             {
                 slot.InstructionTimer = 1;
                 process.Invoke(enemies, arguments);
+                if (call == 0)
+                    AssertEqual((ushort)8, state.RegenerationXOffset,
+                        "a left-facing body sets the +8 offset whatever the projectile's facing word");
             }
             AssertEqual(unchecked((ushort)(
                     EvirInstructionProgramDefinitions.ProjectileRegenerationLoop + 16)),

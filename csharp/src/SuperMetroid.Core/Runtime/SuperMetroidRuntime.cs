@@ -3536,12 +3536,15 @@ public sealed partial class SuperMetroidRuntime
                              SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose)
                 {
                     // Definition byte two leaves the launch animation for ordinary spin
-                    // art. Type $14 selects command six in $91:8304, so after F624
-                    // initializes the target, EC85 clears base/extra speed and mode.
-                    Samus.ApplySpinJumpDirectionTransition(
-                        _addressSpace,
-                        unchecked((byte)ProspectiveSamusFallbackPose.Value));
-                    Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
+                    // art. Type $14 selects command six in $91:8304. HandleSamusPoseChange
+                    // ($91:F426) sets carry only when InitializeSamusPose itself replaces the
+                    // installed pose; then UpdateSamusPose ($91:EBEE) skips the command. So
+                    // a spin jump keeps its launch speed only when initialization promotes it
+                    // to Space Jump or Screw Attack; otherwise EC85 clears base/extra speed.
+                    byte spinFallback = unchecked((byte)ProspectiveSamusFallbackPose.Value);
+                    Samus.ApplySpinJumpDirectionTransition(_addressSpace, spinFallback);
+                    if (Samus.Pose == spinFallback)
+                        Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
                 }
                 else if (!animationTransitionApplied &&
                          poseAtFrameStart is SamusPoseIds.MorphBallFallingRightPose or SamusPoseIds.MorphBallFallingLeftPose &&

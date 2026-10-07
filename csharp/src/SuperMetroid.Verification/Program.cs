@@ -320,6 +320,11 @@ if (args is ["--draygon-turret-cadence"])
     VerifyDraygonTurretCadence();
     return 0;
 }
+if (args is ["--wall-jump-spin-exit"])
+{
+    VerifyWallJumpSpinExit();
+    return 0;
+}
 if (args is ["--zoa-speeds"])
 {
     VerifyCompiledZoaSpeeds(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
@@ -7171,6 +7176,7 @@ VerifyRespawnedEnemyContact();
 VerifyVerticalOffScreenDeletion();
 VerifyBotwoonPositionHistory();
 VerifyDraygonTurretCadence();
+VerifyWallJumpSpinExit();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

@@ -193,6 +193,9 @@ public static class SamusKnockbackMovement
         // accepting the producer-owned value here prevents this shared initializer from
         // shortening that visibly longer scripted reaction to ordinary gameplay timing.
         samus.KnockbackActive = true;
+        // $91:EE1F/EE40 install the knockback movement handler, which replaces the
+        // released-from-grapple-swing handler if that was still running.
+        samus.Grapple.ReleasedMovementActive = false;
 
         // The remainder of `$91:ED4E` runs for both pointer-table families. A pending bomb
         // jump cannot coexist with hurt movement, and shinespark/Screw contact damage is

@@ -7,25 +7,14 @@
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
-    <Compile Include="../../tools/ProductionMagicNumberAudit.cs" Link="ProductionMagicNumberAudit.cs" />
-    <Compile Include="../../test-support/SaveLoadRandomAudit.cs" Link="SaveLoadRandomAudit.cs" />
+    <ProjectReference Include="../SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
     <Compile Include="../../test-support/ReferenceBusReadExtensions.cs" Link="ReferenceBusReadExtensions.cs" />
-    <Compile Include="../../test-support/ReferencePaletteFxColorSource.cs" Link="ReferencePaletteFxColorSource.cs" />
-    <Compile Include="../../test-support/ImportedSpritemapOracle.cs" Link="ImportedSpritemapOracle.cs" />
-    <Compile Include="../../test-support/ImportedVramOracle.cs" Link="ImportedVramOracle.cs" />
     <Compile Include="../../test-support/ShutterBombArcScenario.cs" Link="ShutterBombArcScenario.cs" />
     <Compile Include="../../test-support/BombSpreadTransitionScenario.cs" Link="BombSpreadTransitionScenario.cs" />
     <Compile Include="../../test-support/ShallowWaterJumpScenario.cs" Link="ShallowWaterJumpScenario.cs" />
     <Compile Include="../../test-support/EnemyVisualSelectorInventory.cs" Link="EnemyVisualSelectorInventory.cs" />
     <Compile Include="../../test-support/RoomFxRecordCatalogSource.cs" Link="RoomFxRecordCatalogSource.cs" />
-  </ItemGroup>
-  <Import Project="../../test-support/RenderFixtures.projitems" />
-  <ItemGroup>
-    <Compile Include="../../test-support/SaveMapPresentationFixture.cs" Link="SaveMapPresentationFixture.cs" />
+    <Compile Include="../../test-support/PixelComparison.cs" Link="TestSupport/PixelComparison.cs" />
   </ItemGroup>
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
-  <ItemGroup>
-    <Compile Include="../../test-support/PixelComparison.cs" Link="TestSupport/PixelComparison.cs" />
-    <ProjectReference Include="../SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
-  </ItemGroup>
 </Project>

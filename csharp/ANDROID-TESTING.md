@@ -33,69 +33,6 @@ error. `*.keystore` and `*.jks` are ignored as an additional guard.
 The APK contains no ROM or extracted game assets. First launch asks for the user's own
 supported ROM through Android's document picker; [ROM setup](ROM-SETUP.md) describes the flow.
 
-## Verify Android startup without a cartridge
-
-Use `csharp/tools/verify-android-rom-free.ps1` for the isolated cold-start gate.
-It never updates the player's testing package or copies saves, settings, SRAM,
-debugger states or a cartridge. It validates all required resources before device
-mutation, then copies only the extracted `game` tree into a new diagnostic package.
-The current DebugRunner DLL is required as the validator: a current top-level receipt
-alone does not establish that every nested asset format is current.
-
-Build the guarded validator and the separate Release AOT package:
-
-```powershell
-dotnet build csharp/src/SuperMetroid.DebugRunner/SuperMetroid.DebugRunner.csproj -c Release
-dotnet build csharp/src/SuperMetroid.Android/SuperMetroid.Android.csproj -c Release -t:Rebuild -p:ApplicationId=org.supermetroid.csharp.romfree549 -p:AndroidHostProbes=false
-```
-
-Supply an existing extracted installation and the SDK's `aapt.exe`. If the fixture
-is stale, explicitly generate a fresh one through the importer. This command
-refuses an existing destination; do not point it at a player's data directory.
-
-```powershell
-dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --prepare-extracted-installation "Super Metroid.smc" "csharp/test-temp/fresh-android-install"
-pwsh -NoProfile -File csharp/tools/verify-android-rom-free.ps1 -InstallationRoot "csharp/test-temp/fresh-android-install" -ApkPath "csharp/src/SuperMetroid.Android/bin/Release/net10.0-android/android-arm64/org.supermetroid.csharp.romfree549-Signed.apk" -ValidatorPath "csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll" -AaptPath "C:/Program Files (x86)/Android/android-sdk/build-tools/36.0.0/aapt.exe" -DeviceSerial DEVICE_SERIAL
-```
-
-The script refuses to overwrite an existing diagnostic package. It wakes the
-device and dismisses only a nonsecure keyguard so the production focus gate can
-run. Two separate cold processes must each reach `TitleScreen` with a positive
-paint rate and at least 600 emulated frames. It checks for fatal logs and forbidden
-payloads, prints the APK hash, then removes only its own package and generated
-staging directories. A locked device may still require its owner to unlock it;
-the tool never changes lock credentials or persistent device settings.
-
-On 2026-09-30, the Release AOT build passed on the Retroid Pocket Classic with
-1,093 extracted files (77,480,674 bytes) and no ROM, SRAM or debugger state.
-The two cold launches reported `TitleScreen` at host frames 1,567 and 1,569,
-each with 60.0 emulation/paint FPS and zero audio underruns in the final timing
-window. This verifies actual platform startup and title presentation, not complete
-gameplay coverage, sustained room performance or pixel parity with Windows.
-
-The focused `--extracted-validation-contract <installation-root>` verifier also
-checks a missing root, an old receipt, wrong provenance, an index hash mismatch,
-an outdated enemy manifest and a missing required PLM domain. It copies extracted
-resources only and verifies that strict failures retain the exact path, startup
-repair admission returns null, and no asset bytes are repaired or imported.
-
-Rebuild the normal Android project without the `ApplicationId` override afterward:
-
-```powershell
-dotnet build csharp/src/SuperMetroid.Android/SuperMetroid.Android.csproj -c Release -t:Rebuild -p:AndroidHostProbes=false
-& "C:/Program Files (x86)/Android/android-sdk/build-tools/36.0.0/aapt.exe" dump badging "csharp/src/SuperMetroid.Android/bin/Release/net10.0-android/android-arm64/org.supermetroid.csharp.testing-Signed.apk"
-```
-
-Require `package: name='org.supermetroid.csharp.testing'` before any player update.
-Changing `ApplicationId` with an incremental build can rename the APK while retaining
-the previous manifest package and provider authority; the SDK does not reliably
-invalidate that cached manifest. Use `-t:Rebuild` in both directions and verify the
-actual APK manifest, not its filename. The acceptance script already refuses APKs
-whose manifest is not the isolated diagnostic package.
-
-The optional source fixture remains separate from the script's temporary staging;
-remove only that explicitly created fixture when finished. Never clear player data.
-
 ## Capture on the handheld
 
 Open **Testing tools** with Back/Mode or a long press on the game surface. Choose

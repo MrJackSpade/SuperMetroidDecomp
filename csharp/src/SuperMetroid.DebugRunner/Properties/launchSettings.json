@@ -1,10 +1,5 @@
 {
   "profiles": {
-    "Translated frame debugger": {
-      "commandName": "Project",
-      "commandLineArgs": "\"Super Metroid.smc\" --frames 240 --timer ceres",
-      "workingDirectory": "../../../"
-    },
     "Assets: Render Landing Site": {
       "commandName": "Project",
       "commandLineArgs": "assets room standalone-assets/raw standalone-assets/rooms/LandingSite.png"

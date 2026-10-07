@@ -4,16 +4,15 @@ Issue #1155: find undeclared installed-resource dependencies from source and imm
 definition catalogs, without searching for failures by playing or replaying the game.
 This tool is development-only and is not referenced or shipped by either playable host.
 
-#1161 adds a separate [static PLM program audit](PLM-PROGRAM-AUDIT.md): complete
+#1161 adds a separate static PLM program audit: complete
 timer/draw records, byte/word operands, branches, links and production provider
 closure. Use `--plm-program-audit` or `-p:RunPlmProgramAudit=true`; it does not
 execute gameplay and is also a Windows release-packaging gate.
 
 #1156 reconciled the initial inventory: 266 absent identities and 353 unresolved
 boundaries are fully accounted, with no findings in the final declared static
-scope. All 352 original consumer sites remain in the report. See
-[FINDING-RESOLUTION.md](FINDING-RESOLUTION.md) for fixes, guarded classifications,
-confirmation and scope limits. This is not a whole-game validation claim.
+scope. All 352 original consumer sites remain in the report. This is not a whole-game
+validation claim.
 
 ## Run
 
@@ -144,8 +143,7 @@ The ordinary-enemy check also accepts `Zebetite`, `WreckedShipGhost`, `Powamp`, 
 or `Shitroid`, each targeting its already identified catalog omission.
 
 These constructed-data checks confirm selected compositions and legacy edit inheritance;
-they do not execute gameplay or search for additional defects. Reconciliation evidence is
-recorded in [FINDING-RESOLUTION.md](FINDING-RESOLUTION.md).
+they do not execute gameplay or search for additional defects.
 
 The Crocomire skeleton check also confirms the identified thirteen-component collapse pose
 through the production importer and loader. Its synthetic source has no hitbox bytes,

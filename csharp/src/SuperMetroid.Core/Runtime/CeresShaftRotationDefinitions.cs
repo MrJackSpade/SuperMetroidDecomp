@@ -12,9 +12,9 @@ public static class CeresShaftRotationDefinitions
     /// The latter is also the quadratic small-angle approximation with half-way decrements
     /// rounded downward. It is NOT round(sqrt(65536-n*n)): that alternative returns 255
     /// at n=+/-16, while the native independently quantized coordinates have cosine 256.
-    /// LookupTableResearch checks every coefficient against NTSC J/U v1.0 ROM, pinned
+    /// The #1165 research checked every coefficient against NTSC J/U v1.0 ROM, pinned
     /// RoomMainASM_CeresElevatorShaft assembly, and Read, using decimal Taylor bounds to
-    /// certify each trig rounding. All 65,536 phase values are checked, including the 138
+    /// certify each trig rounding. All 65,536 phase values were checked, including the 138
     /// valid aliases created by wrapped 16-bit multiplication before indexing.
     /// This proves a compatible generator, not the original authoring tool. The existing
     /// coefficient logic matches it; the separate timer ramp is described below.

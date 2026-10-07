@@ -3,18 +3,15 @@
 This directory contains the actively developed C# translation. Cartridge access belongs to
 asset import, not gameplay: Core contains no ROM allocation, cartridge reader, cartridge
 decompressor, or importer reference. A complete extracted installation opens mutable WRAM/SRAM
-and installed presentation resources without opening the retained private ROM. Source-level
-boundary auditing and platform acceptance are tracked in
-[the ROM-free migration audit](test-fixtures/ROM-FREE-SOURCE-ACCESS-549.md); this architectural
-boundary is not a claim of complete gameplay parity. It targets
+and installed presentation resources without opening the retained private ROM. This
+architectural boundary is not a claim of complete gameplay parity. It targets
 `.NET 10` on Windows and treats warnings as errors. Open `SuperMetroid.slnx` in Visual Studio
 or use the commands below from this directory. The playable build is fully managed and requires
 the .NET 10 SDK; it no longer builds or deploys a native audio DLL or requires the C++ workload.
 
 `SuperMetroid.slnx` includes all 14 non-Android projects, grouped as apps, libraries, tools,
 and verification. `SuperMetroid.Full.slnx` includes all 15 projects and requires the Android
-workload. See the [current project inventory](../docs/project-inventory.md) for ownership and
-the [shared test support](test-support/README.md) for fixture imports.
+workload. See the [shared test support](test-support/README.md) for fixture imports.
 
 Portable import validation is explicitly ROM-free:
 
@@ -38,9 +35,7 @@ No ROM, installed art, saves, frames or controller inputs are opened. The audit 
 currently clean; findings are development work, not proof that every listed identity is a
 reachable player bug. See [scope, build integration and report format](src/SuperMetroid.ResourceAudit/README.md).
 
-This file is the authoritative high-level status summary. Detailed Samus movement coverage,
-original routine addresses, and focused verification evidence live in
-[`MOVEMENT_COVERAGE.md`](MOVEMENT_COVERAGE.md). A translated focused audit proves the named
+This file is the authoritative high-level status summary. A translated focused audit proves the named
 subsystem; it does not imply that every surrounding room or top-level game state is connected.
 
 ## Playable status
@@ -105,9 +100,7 @@ mailbox; superseded pictures may be discarded, not simulation inputs or audio.
 The native image stays 256x224 with TV-aspect scaling and letterboxing. Per-monitor
 DPI awareness is enabled; an actual cross-monitor transition remains unverified.
 
-See [build and packaging](D3D11_BUILD.md), [coverage and performance](RENDERER_MIGRATION.md),
-and the [remaining acceptance gates](RENDERER_ACCEPTANCE_AUDIT.md). Issue #321 is
-not yet fully qualified. RDP reconnect testing is explicitly deferred by the user.
+See [build and packaging](D3D11_BUILD.md). Issue #321 is not yet fully qualified. RDP reconnect testing is explicitly deferred by the user.
 
 ### Development smoke audits
 
@@ -129,12 +122,7 @@ Other migrated switches are `--unhandled-exception-console-audit`, `--github-err
 It checks the STA apartment required by native Windows file dialogs as well as DPI awareness.
 `DesktopVerification --rom-picker-audit <published-Game.dll>` exercises the real Choose ROM
 button on the game's declared entry apartment, briefly opens and cancels its native dialog,
-and does not install content or touch player saves. The desktop publish script includes it.
-
-`csharp/tools/verify-desktop-publish.ps1`, run from the repository root, checks clean
-player/test publishes, identical production dependencies, absence of test types and bundled
-game assets, moved smoke commands, and hidden desktop lifecycle/presentation. Private ROM
-and audio fixtures are copied only into the isolated verification output after packaging checks.
+and does not install content or touch player saves.
 
 ### Controls
 
@@ -305,8 +293,7 @@ grab, drained/Mother-Brain routes, and the translated death presentation.
 The projectile systems cover every valid ordinary/charged beam combination, Charge Beam flare,
 Hyper Beam production/motion, Missiles, Super Missiles, normal Bombs, Power Bombs, trails,
 explosions, terrain collision, breakable-block reactions, and the implemented HDMA/color-math
-effects. See `MOVEMENT_COVERAGE.md` for exact admitted poses, native addresses, and focused
-verification evidence. The current high-level gap list is maintained in this README.
+effects. The current high-level gap list is maintained in this README.
 
 ### Enemies
 
@@ -465,36 +452,14 @@ It verifies typed address/memory behavior, decompression and rendering primitive
 collision, projectiles, PLMs, enemies, frontend state, pause/save behavior, and other translated
 dispatcher boundaries. It is not a complete-game playthrough.
 
-### Debug runner
+### Developer tools
 
-`SuperMetroid.DebugRunner` hosts private-ROM subsystem and room-state audits. Representative
-commands are shown below. Run the named retail-population audits from the repository root;
-they deliberately read the pinned `upstream-sm/assets/names.txt` population boundaries from
-that working directory.
-
-```powershell
-cd ..
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-coverage-audit "Super Metroid.smc"
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-execution-audit "Super Metroid.smc"
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-lifecycle-audit "Super Metroid.smc"
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-touch-audit "Super Metroid.smc"
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-attack-audit "Super Metroid.smc"
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-plm-population-audit "Super Metroid.smc"
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --speed-booster-escape-plm-audit "Super Metroid.smc"
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --wrecked-ship-attic-plm-audit "Super Metroid.smc"
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-scroll-ownership-audit "Super Metroid.smc"
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --early-controller-route-audit "Super Metroid.smc"
-```
-
-The scroll-ownership audit loads every named room state through the production PLM loader,
-checks every type-$3/BTS-$46 collision trigger against its resident `$B703` owner, exercises
-the first native touch/wake/sleep cycle, and reports untranslated PLMs that prevent a state
-from reaching that check.
-
-Focused actor and boss flags are defined near the top of
-`src/SuperMetroid.DebugRunner/Program.cs`. The ordinary frame-script parser also supports
-movement and weapon scripts such as `--jump-script`, `--grapple-script`,
-`--power-bomb-script`, and `--mother-brain-rainbow-script`.
+`SuperMetroid.DebugRunner` hosts file-taking developer tools: extracted-installation
+preparation and validation, Android bundle replay, assembly-metadata and captured-frame
+comparisons, state-fixture exporters, and the generated-definition writers
+(`--generate-enemy-visual-selectors`, `--generate-room-fx-records`,
+`--generate-room-level-stream-corpus`). The dispatchers live in
+`src/SuperMetroid.DebugRunner/Tools/`.
 
 ### Asset commands
 
@@ -570,9 +535,8 @@ schemas remain loadable with an explicit compatibility warning. Installed hosts 
 revision digest from the verified catalog and no longer reopen the private ROM merely to hash it.
 
 Gameplay consumes compiled mechanics, installed presentation catalogs and active console
-memory. Cartridge decoding is isolated in AssetExtraction. See
-`test-fixtures/ROM-FREE-SOURCE-ACCESS-549.md` for the source/type audit and remaining
-installation/platform acceptance; the ROM-free boundary is not whole-game parity proof.
+memory. Cartridge decoding is isolated in AssetExtraction; the ROM-free boundary is not
+whole-game parity proof.
 
 ## Testing policy
 

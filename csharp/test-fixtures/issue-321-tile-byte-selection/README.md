@@ -2,7 +2,7 @@
 
 `frame.smframe` is constructed memory from seed 32111, not ROM or player data.
 SHA256: `F8DA4405D5E641553B64B862B5A5A790C2470AD95DAC454F74EE78B0D30D2BAE`.
-`before.json` records the original mismatch: 14,377 pixels, first at (0,0).
+The original mismatch was 14,377 pixels, first at (0,0).
 
 With the pinned FXC and `/O3`, the original dynamic byte-extraction expression
 miscompiled an inlined `row+17` access. The first tile is `$EC04`; its row address

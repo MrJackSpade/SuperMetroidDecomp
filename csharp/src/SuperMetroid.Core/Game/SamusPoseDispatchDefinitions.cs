@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Game;
 /// Poses 00..FC use semantic cases. FD..FF retain only the bounded byte observations
 /// of the unrelated $91:BE11 X-ray HDMA machine-code routine. Those instruction encodings
 /// have no managed pose-policy meaning; re-deriving them as pose data would be nonsense.
-/// Exact addresses, instructions and the byte-only consumer contract are recorded in
-/// docs/lookup-1165-stream-1.md, Batch 30. This exemption covers no ordinary pose value.
+/// Exact addresses, instructions and the byte-only consumer contract were reviewed in
+/// #1165 (stream 1, Batch 30). This exemption covers no ordinary pose value.
 /// </remarks>
 internal static class SamusPoseDispatchDefinitions
 {

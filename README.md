@@ -113,7 +113,6 @@ projects, controls, diagnostics, and verification commands. Additional documenta
 - [Android builds and testing](csharp/ANDROID-TESTING.md)
 - [Shared ROM extraction and installation](csharp/ROM-SETUP.md)
 - [Tagged releases and Discord announcements](docs/releases.md)
-- [Movement coverage](csharp/MOVEMENT_COVERAGE.md)
 
 Translation and diagnostics cross-check the original cartridge against these references:
 

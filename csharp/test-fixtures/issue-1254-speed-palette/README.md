@@ -7,12 +7,10 @@ can therefore reach Gravity list $DABF +8 or +10. The original routine copies
 before clamping the next phase to6. The C translation in upstream-sm/src/sm_91.c
 contains an explicit pre-read bug fix; it is not the oracle used here.
 
-probe.cpp executes the unmodified ROM routine $91:D9B2 on the pinned 65816 core.
-The probe maps only the routine's WRAM, ROM and undriven $9B:6000..7FFF accesses;
-unexpected peripheral accesses fail. It neither plays through the game nor edits
-the ROM. Its process boundary disables Windows error dialogs and reports failures
-with a nonzero exit code. Build probe.vcxproj with MSBuild Release/x64, then run
-csharp/test-temp/issue-1254-speed-palette/probe.exe upstream-sm/sm.smc.
+native.csv was captured by a probe (since removed; see git history) that executed
+the unmodified ROM routine $91:D9B2 on the pinned 65816 core. The probe mapped only
+the routine's WRAM, ROM and undriven $9B:6000..7FFF accesses; unexpected peripheral
+accesses failed. It neither played through the game nor edited the ROM.
 
 Supported ROM SHA256: 12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72
 CPU source SHA256: A5D88B0F2E0798482A2CAE9DDDAF602FEC69A8FD26C55B167417C4C92EEC30A6

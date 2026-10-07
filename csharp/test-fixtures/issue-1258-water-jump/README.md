@@ -6,7 +6,7 @@ standing pose has radius 21 and occupies bottom pixel 447. The new jump pose
 $4B has radius 19, making its bottom pixel 445, although the live collision
 radius remains 21 until the next movement pass.
 
-`native.csv` was captured by `probe.cpp` running the original ROM's instructions
+`native.csv` was captured by a probe (since removed; see git history) running the original ROM's instructions
 on the unchanged pinned `upstream-sm/src/snes/cpu.c`. It uses the retail room's
 collision words and BTS exported by the managed fixture, not translated native
 movement functions. The probe models WRAM, ROM, and multiply/divide registers;
@@ -40,13 +40,8 @@ CPU source SHA-256: `A5D88B0F2E0798482A2CAE9DDDAF602FEC69A8FD26C55B167417C4C92EE
 From repository root, with the supported ROM available:
 
 ```powershell
-dotnet build csharp/src/SuperMetroid.Verification -c Release --no-restore
-dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0-windows/SuperMetroid.DebugRunner.dll --export-shallow-water-jump
-& 'C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe' csharp/test-fixtures/issue-1258-water-jump/probe.vcxproj /p:Configuration=Release /p:Platform=x64 /v:minimal
-& csharp/test-temp/issue-1258-water-jump/probe.exe upstream-sm/sm.smc csharp/test-temp/issue-1258-water-jump/room.bin csharp/test-temp/issue-1258-water-jump/seed.txt
-dotnet csharp/src/SuperMetroid.Verification/bin/Release/net10.0/SuperMetroid.Verification.dll --shallow-water-jump
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --shallow-water-jump
 ```
 
-The probe prints the native CSV; compare that output to the checked-in trace.
 Do not regenerate the expected trace from managed output. The managed export
 contains room geometry and the initial seed, not expected movement results.

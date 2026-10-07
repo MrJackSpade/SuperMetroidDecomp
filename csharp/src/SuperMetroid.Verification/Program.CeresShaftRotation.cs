@@ -8,8 +8,8 @@ internal static partial class Program
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int offset) => (ushort)(rom.ReadByte(CeresShaftRotationDefinitions.ReferenceAddress + offset) |
             rom.ReadByte(CeresShaftRotationDefinitions.ReferenceAddress + offset + 1) << 8);
-        // Numeric coefficient/phase proof is owned by LookupTableResearch's
-        // VerifyCeresRotation; this check covers actual per-frame publication only.
+        // Numeric coefficients/phases were proven by the #1165 research; this check covers
+        // actual per-frame publication only.
         var state = new CeresElevatorShaftRoomMainState();
         state.Reset(active: true);
         var empty = new TestAddressSpace();

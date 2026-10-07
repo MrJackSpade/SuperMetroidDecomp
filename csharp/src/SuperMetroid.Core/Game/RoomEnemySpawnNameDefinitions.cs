@@ -59,7 +59,7 @@ internal static class RoomEnemySpawnNameDefinitions
     /// Chosen label text from bank B4, copied opaquely by $A0:8923..8968 and retained in
     /// RoomEnemySpawnSnapshot.NameWords. No AI/physics quantity determines these spellings.
     /// Only the exact 69 labels plus ten composing lexical fragments documented in
-    /// docs/lookup-1165-stream-4.md Batch 49 have the reviewed nonsense disposition.
+    /// #1165 (stream 4, Batch 49) have the reviewed nonsense disposition.
     /// </summary>
     private static readonly Dictionary<ushort, string> Names = new Dictionary<ushort, string>
     {

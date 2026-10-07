@@ -11,9 +11,9 @@ public static class EnemyTrigonometryTables
     /// <remarks>Independently reviewed for #1165; keep this existing algorithm: for byte angle a, let n = a &amp; 127 and
     /// U(n) = floor(65535*sin(n*pi/128)). The exact result is floor(U(n)/2),
     /// negated only when a &gt;= 128. All 256 words match the NTSC J/U v1.0 ROM
-    /// and pinned bank_A0.asm in csharp/tools/LookupTableResearch. This preserves
+    /// and pinned bank_A0.asm. This preserves
     /// the half-unit scale (32767.5), rather than assuming a scale of 32767.
-    /// The research evaluator uses bounded decimal arithmetic, not Math.Sin.
+    /// The #1165 research evaluator used bounded decimal arithmetic, not Math.Sin.
     /// Bull adds a quarter-turn for X, while Yapping Maw negates and narrows its
     /// input angle before sampling. Individual investigation: #625 / #909.
     /// </remarks>
@@ -38,8 +38,8 @@ public static class EnemyTrigonometryTables
     /// <remarks>Independently reviewed for #1165; keep this existing algorithm: sign(a)*floor(256*sin((a &amp; 127)*pi/128)),
     /// with positive sign for a &lt; 128, reproduces the native words. Treat the
     /// quarter-turn magnitude as exactly 256; the byte table saturates it to 255.
-    /// LookupTableResearch checks the entire 320-word negative-cosine prefix/full
-    /// sine view as well. Any later replacement must preserve PhantoonWaveRomData's
+    /// The #1165 research also checked the entire 320-word negative-cosine prefix/full
+    /// sine view. Any later replacement must preserve PhantoonWaveRomData's
     /// separate odd-byte composition and final $8B instruction-byte overread;
     /// these are byte-addressing behavior, not additional sine samples.
     /// Individual investigation: #625 / #910.</remarks>

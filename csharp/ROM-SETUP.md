@@ -238,8 +238,7 @@ It edits an isolated copy and checks the selected movement, pose-collision and
 special-sequence owners against stock presentation frame by frame. It does not
 import a ROM or touch player data. This complements the separate
 `--installed-samus-artwork` software/GPU pixel checks;
-neither command establishes whole-game parity. Exact coverage and remaining
-gates are recorded in `test-fixtures/ROM-FREE-SOURCE-ACCESS-549.md`.
+neither command establishes whole-game parity.
 
 `--installed-samus-file-contracts` checks all 34 Samus PNG/JSON
 resources using disposable copies. Invalid stock and edits report the exact file in the

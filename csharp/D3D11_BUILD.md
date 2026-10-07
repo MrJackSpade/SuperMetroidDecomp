@@ -5,8 +5,7 @@ solid packets, 4-bpp backgrounds, 2-bpp planes/viewports, raw OAM sprites,
 fixed-color addition, signed Mode 7 projection and ordered brightness, ordinary and
 mixed-mode gameplay, color effects, messages and windowed child scenes. Full retail
 scene verification and live performance/recovery qualification are still pending.
-Desktop selection and a dedicated GPU/presentation owner are implemented; see
-`RENDERER_MIGRATION.md` for the current evidence matrix and remaining gates.
+Desktop selection and a dedicated GPU/presentation owner are implemented.
 The console verification project never substitutes the CPU reference for GPU work.
 
 The portable INI contract now accepts `[Video] Renderer=Software|Direct3D11|Auto`
@@ -90,18 +89,6 @@ gate. Hidden worker tests assert a redraw at the new target size with unchanged
 publication/consumption sequence. Visible expose/recovery remains a separate gate.
 
 ## Reproducible inputs
-
-`powershell -NoProfile -File csharp/tools/verify-render-publish.ps1` performs a
-locked Release restore/publish using a fresh GUID-named artifacts tree, rebuilding
-all five embedded shaders from source. It runs solid, ordinary gameplay and display
-tests on hardware and WARP from the published directory, with no ROM or loose shader
-files. The display fixture is copied alongside the diagnostic and resolved relative
-to its application directory, not the repository working directory. Dependency
-notices are required in the output. This gate passed September 7, 2026: 64 solid,
-96 ordinary and eight display-size comparisons per device. Outputs are retained
-under `test-temp/render-publish` for inspection; they are disposable diagnostics,
-not alternate playable builds. This verifies renderer packaging, not the complete
-desktop/audio-asset distribution or a fresh machine's prerequisite installation.
 
 - .NET SDK 10.0.400, as used for current project verification.
 - Vortice.Direct3D11 exactly 3.8.3, with checked-in `packages.lock.json` files.
@@ -274,20 +261,3 @@ Startup and recovery diagnostics include adapter name, explicit Hardware/WARP ba
 and the actual feature level returned by the created device (`Level_11_0` on both
 qualified adapters). This capability is queried from the device, not inferred from
 the adapter's name. Device-loss records retain their separate raw adapter field.
-
-Run `powershell -NoProfile -ExecutionPolicy Bypass -File csharp/tools/verify-desktop-publish.ps1`
-from the checkout with its private ROM and extracted audio available. The script uses
-a fresh intermediate/output tree, locked restore, and source shader compilation.
-It publishes the actual game and desktop verifier, requires identical Core/Desktop/
-D3D11 assembly hashes, checks renderer notices, and verifies every extracted audio
-file's hash in both outputs (138 files in the September 7 run).
-
-It runs the game's console/keyboard/viewport audits from its published directory,
-then exercises identical published dependencies through hidden desktop lifecycle,
-async load/reset, and five-second gameplay/pause audio-render checks. Both clean runs
-passed on this Windows host with .NET 10.0.11 and the pinned shader compiler installed.
-This is a framework-dependent package: it does not prove installation on a machine
-without the .NET Desktop Runtime, and is not a visible presentation or long-soak gate.
-The script retains its GUID-named outputs under `csharp/test-temp/desktop-publish`,
-including a private ROM copy, for inspection. These disposable outputs are not player
-saves; remove only the exact run directory after inspection.

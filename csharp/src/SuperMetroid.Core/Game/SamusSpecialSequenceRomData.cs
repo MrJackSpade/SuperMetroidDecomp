@@ -139,9 +139,9 @@ public static class SamusSpecialSequenceRomData
         /// For output row y=0..191 let j=max(0, ceil(256*y/R)-1), equivalently
         /// max(0, (256*y-1)/R) with integer division. Return zero if j&gt;=192, else floor(B(j)*R/256).
         /// Preserve both quantization stages and the lower-side inverse-scale boundary.
-        /// LookupTableResearch verifies all 4,032 white/yellow bytes against NTSC J/U v1.0 ROM
+        /// The #1165 research verified all 4,032 white/yellow bytes against NTSC J/U v1.0 ROM
         /// and pinned bank_88.asm. Its deterministic decimal implementation selects k by bounded
-        /// sine comparisons rather than platform asin, and certifies every resulting integer.
+        /// sine comparisons rather than platform asin, and certified every resulting integer.
         /// Both true pi and 3.14159 reproduce the bytes, so their historical choice is undetermined.
         /// A continuous ellipse basis misses 955 bytes; ordinary floor(256*y/R) misses 59.
         /// Full-circle resolutions 256, 512, 2048, and 4096 also fail. No stored shape/radius table

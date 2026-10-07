@@ -3,7 +3,7 @@
 These MSBuild shared-source groups own fixtures used by multiple developer runners.
 They are deliberately not player dependencies and are not separate executables.
 
-- `RenderFixtures.projitems`: cartridge/render scenarios for DebugRunner and RenderVerification.
+- `RenderFixtures.projitems`: cartridge/render scenarios for RenderVerification.
 - `StateFixtures.projitems`: private fixture loading for IntegrationVerification and DesktopVerification.
 - `WindowsConsole.projitems`: non-interactive native error handling for Windows verification runners and the portable integration runner when hosted on Windows.
 

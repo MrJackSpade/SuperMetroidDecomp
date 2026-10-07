@@ -1,5 +1,4 @@
 # Cartridge inputs, extracted assets, and private diagnostics stay local.
-# Ignoring files does not remove prior commits; see docs/publication-audit/README.md.
 *.smc
 *.sfc
 *.smstate

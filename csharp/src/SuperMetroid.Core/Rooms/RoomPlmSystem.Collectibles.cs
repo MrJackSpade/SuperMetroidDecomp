@@ -195,9 +195,6 @@ public sealed partial class RoomPlmSystem
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         bool collected = unchecked((short)slot.RoomArgument) >= 0 &&
             system.HasCollectedItemBit(slot.RoomArgument);
-        bool chozoOrbOpened = presentation == CollectiblePresentation.ChozoOrb &&
-            unchecked((short)slot.RoomArgument) >= 0 &&
-            system.HasRoomChozoBit(slot.RoomArgument);
         int graphicsSlot = kind >= InWorldCollectibleKind.Bombs
             ? LoadDynamicCollectibleGraphics(
                 level, streamer, vram, kind, suppliedGraphic)
@@ -218,9 +215,9 @@ public sealed partial class RoomPlmSystem
             : presentation switch
             {
                 CollectiblePresentation.Exposed => CollectiblePhase.Visible,
-                CollectiblePresentation.ChozoOrb => chozoOrbOpened
-                    ? CollectiblePhase.Visible
-                    : CollectiblePhase.ChozoOrb,
+                // Item orb lists test only the collected-item bit ($84:887C). A shell
+                // broken on an earlier visit is rebuilt until the item is picked up.
+                CollectiblePresentation.ChozoOrb => CollectiblePhase.ChozoOrb,
                 CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,
                 _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
             };
@@ -412,15 +409,8 @@ public sealed partial class RoomPlmSystem
             case CollectiblePhase.ChozoOrb:
                 if (item.Triggered)
                 {
-                    // The native orb list executes $84:8865 as soon as the shell is
-                    // broken. Leaving and re-entering before touching the item must
-                    // therefore restore the exposed pickup, not rebuild the orb.
-                    if (unchecked((short)slot.RoomArgument) >= 0)
-                    {
-                        (_collectibleSystem ?? throw new InvalidOperationException(
-                            "A live Chozo collectible has no persistence owner."))
-                            .SetRoomChozoBit(slot.RoomArgument);
-                    }
+                    // Breaking the shell persists nothing. $84:8865 (chozo block destroyed)
+                    // belongs only to the unused chozo-block PLMs $D700/$D708.
                     item.Triggered = false;
                     item.Phase = CollectiblePhase.ChozoOrbBurst;
                     item.AnimationIndex = 0;

@@ -18,8 +18,19 @@ internal static partial class Program
             fx.Load(cartridge, vram, new SnesCgram(), 0x8600, 0, 0);
             CollectibleFixture fixture = LoadCollectible(bus,
                 chozo ? RoomPlmHeaders.ChozoSpeedBooster : RoomPlmHeaders.ExposedSpeedBooster,
-                roomArgument: 8, precollected: false, preopenedChozo: chozo, roomFx: fx);
+                roomArgument: 8, precollected: false, roomFx: fx);
             fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+            if (chozo)
+            {
+                // The orb must be shot open before its item can be touched.
+                AssertTrue(fixture.Plms.TryNotifyCollectibleProjectileHit(fixture.BlockIndex, 0x0100),
+                    "Speed Booster orb accepts a projectile");
+                StepUntil(
+                    () => fixture.Plms.Collectibles[0].Phase == CollectiblePhase.Visible,
+                    _ => fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0),
+                    maximumFrames: 20,
+                    context: "Speed Booster orb burst");
+            }
             AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 "Speed Booster pickup accepts contact");
             fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0);

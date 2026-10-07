@@ -146,8 +146,8 @@ internal static partial class Program
             (ushort)SnesButton.X, orb.Plms);
         AssertTrue(orbHit.CancelQueued, "grapple collides with the solid Chozo orb");
         orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
-        AssertTrue(orb.System.HasRoomChozoBit(91),
-            "breaking a Chozo orb persists before item acquisition");
+        AssertTrue(!orb.System.HasRoomChozoBit(91),
+            "breaking a Chozo orb persists nothing; only unused PLMs $D700/$D708 use $84:8865");
         AssertTrue(!orb.System.HasCollectedItemBit(91),
             "breaking a Chozo orb does not prematurely collect its item");
         StepFrames(9, _ => orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0));
@@ -174,8 +174,8 @@ internal static partial class Program
             roomArgument: 91,
             precollected: false,
             preopenedChozo: true);
-        AssertEqual(CollectiblePhase.Visible, reopenedOrb.Plms.Collectibles[0].Phase,
-            "previously broken Chozo orb reloads as exposed item");
+        AssertEqual(CollectiblePhase.ChozoOrb, reopenedOrb.Plms.Collectibles[0].Phase,
+            "an uncollected Chozo item rebuilds its orb on reload, whatever the chozo bit holds");
         AssertTrue(!reopenedOrb.System.HasCollectedItemBit(91),
             "reloaded broken orb remains independently uncollected");
 

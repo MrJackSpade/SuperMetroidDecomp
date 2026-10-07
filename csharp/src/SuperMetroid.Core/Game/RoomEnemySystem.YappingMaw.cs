@@ -329,6 +329,9 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         ushort bendStep = unchecked((ushort)(state.ExtensionWhole >> 2));
+        // $A8:A532 clears carry once, then adds the eight correction words in segment
+        // order (X then Y) with ADC alone, so each addition's carry adds one to the next.
+        int carry = 0;
         for (int segment = 0; segment < 4; segment++)
         {
             ushort multiple = unchecked((ushort)(bendStep * (segment + 1)));
@@ -354,8 +357,8 @@ public sealed partial class RoomEnemySystem
                 CalculateYappingMawY(0, rawX)));
             state.CorrectionX[segment] = correctionX;
             state.CorrectionY[segment] = correctionY;
-            state.SegmentXOffsets[segment] = unchecked((ushort)(rawX + correctionX));
-            state.SegmentYOffsets[segment] = unchecked((ushort)(rawY + correctionY));
+            state.SegmentXOffsets[segment] = AddWithCarry(rawX, correctionX, ref carry);
+            state.SegmentYOffsets[segment] = AddWithCarry(rawY, correctionY, ref carry);
         }
 
         slot.XPosition = unchecked((ushort)(state.OriginX + state.SegmentXOffsets[3]));
@@ -410,6 +413,13 @@ public sealed partial class RoomEnemySystem
 
         if (!skipHeldPlacement && state.HasGrabbedSamus)
             PositionSamusInYappingMaw(slot, state, samus);
+    }
+
+    private static ushort AddWithCarry(ushort value, ushort addend, ref int carry)
+    {
+        int sum = value + addend + carry;
+        carry = sum >> 16;
+        return unchecked((ushort)sum);
     }
 
     /// <summary>Ports $A8:A63E's split-word addition and eight-byte table advance.</summary>

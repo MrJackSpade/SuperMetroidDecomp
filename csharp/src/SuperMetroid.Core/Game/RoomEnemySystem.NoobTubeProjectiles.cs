@@ -135,7 +135,7 @@ public sealed partial class RoomEnemySystem
                     projectile.YPosition,
                     projectile.YSubposition,
                     projectile.YVelocity);
-                DeleteNoobTubeProjectileIfVerticallyOffscreen(projectile, cameraY);
+                DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
                 return;
 
             case EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFalling:
@@ -144,7 +144,7 @@ public sealed partial class RoomEnemySystem
                     projectile.YPosition,
                     projectile.YSubposition,
                     projectile.YVelocity);
-                DeleteNoobTubeProjectileIfVerticallyOffscreen(projectile, cameraY);
+                DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
                 return;
 
             case EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFalling:
@@ -185,13 +185,5 @@ public sealed partial class RoomEnemySystem
             projectile.YSubposition,
             projectile.YVelocity);
         projectile.XPosition = projectile.Variable1;
-    }
-
-    private static void DeleteNoobTubeProjectileIfVerticallyOffscreen(
-        RoomEnemyProjectileSlot projectile,
-        ushort cameraY)
-    {
-        if (unchecked((ushort)(projectile.YPosition - cameraY)) >= 256)
-            projectile.Clear();
     }
 }

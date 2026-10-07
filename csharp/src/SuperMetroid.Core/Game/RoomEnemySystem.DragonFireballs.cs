@@ -7,7 +7,6 @@ public sealed partial class RoomEnemySystem
     private const ushort DragonFireballLeftXVelocity = 0xfd40;
     private const ushort DragonFireballRightXVelocity = 0x02c0;
     private const ushort DragonFireballGravity = 0x0020;
-    private const ushort DragonFireballBottomCull = 0x0120;
 
     /// <summary>Ports projectile initializer $86:B4EF.</summary>
     private void SpawnDragonFireball(RoomEnemySlot body, DragonEnemyState bodyState)
@@ -74,10 +73,7 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = unchecked((ushort)(
             projectile.YVelocity + DragonFireballGravity));
 
-        // $86:B5B9 intentionally retains fireballs above the viewport. Only a descending
-        // origin at or below camera+288 is deleted; horizontal distance is never consulted.
-        ushort screenY = unchecked((ushort)(projectile.YPosition - cameraY));
-        if (unchecked((short)screenY) >= 0 && screenY >= DragonFireballBottomCull)
-            projectile.Clear();
+        // $86:B5B9 retains fireballs above the viewport; horizontal distance is never consulted.
+        DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
     }
 }

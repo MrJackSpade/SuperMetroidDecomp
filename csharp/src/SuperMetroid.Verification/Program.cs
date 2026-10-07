@@ -305,6 +305,11 @@ if (args is ["--respawned-enemy-contact"])
     VerifyRespawnedEnemyContact();
     return 0;
 }
+if (args is ["--vertical-offscreen-deletion"])
+{
+    VerifyVerticalOffScreenDeletion();
+    return 0;
+}
 if (args is ["--single-frame-enemy-visuals"])
 {
     VerifyKzanInstructionProgramDefinitions();
@@ -7147,6 +7152,7 @@ VerifyPowerBombFuse();
 VerifyPowerBombBoundary();
 VerifyPowerBombDeathRadius();
 VerifyRespawnedEnemyContact();
+VerifyVerticalOffScreenDeletion();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

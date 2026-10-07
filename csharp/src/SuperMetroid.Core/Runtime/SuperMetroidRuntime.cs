@@ -3921,28 +3921,37 @@ public sealed partial class SuperMetroidRuntime
                 // installed. InputLocked suppresses controller transitions; it does not
                 // suppress scrolling. That is why the station-eighteen gunship can carry
                 // Samus down several screens while her ordinary movement handler is absent.
-                Camera.TrackMovedSamusHorizontally(
-                    previousCameraPoint,
-                    currentCameraPoint,
-                    new HorizontalCameraContext(
-                        KnockbackDirection: Samus.KnockbackDirection,
-                        MovementType: Samus.ReadMovementType(_addressSpace),
-                        XAccelerationMode: Samus.HorizontalSpeed.AccelerationMode,
-                        PoseXDirection: Samus.ReadPoseXDirection(_addressSpace),
-                        CameraDistanceIndex: (ushort)Enemies.CameraDistanceIndex));
+                if (Samus.Grapple.SlowScrolling)
+                {
+                    // $90:94F2: a fast grapple swing takes the slow branch, which leaves
+                    // the camera speed words from the last normal frame in place.
+                    Camera.TrackGrappleSlowScrolling(Samus.XPosition, Samus.YPosition);
+                }
+                else
+                {
+                    Camera.TrackMovedSamusHorizontally(
+                        previousCameraPoint,
+                        currentCameraPoint,
+                        new HorizontalCameraContext(
+                            KnockbackDirection: Samus.KnockbackDirection,
+                            MovementType: Samus.ReadMovementType(_addressSpace),
+                            XAccelerationMode: Samus.HorizontalSpeed.AccelerationMode,
+                            PoseXDirection: Samus.ReadPoseXDirection(_addressSpace),
+                            CameraDistanceIndex: (ushort)Enemies.CameraDistanceIndex));
+                    Camera.TrackMovedSamusVertically(
+                        previousCameraPoint,
+                        currentCameraPoint,
+                        new VerticalCameraContext(
+                            YDirection: Samus.Kinematics.YDirection,
+                            UpScroller: roomGeometry.UpScroller,
+                            DownScroller: roomGeometry.DownScroller));
+                }
                 // $90:96C0 writes the same distance-plus-one words consumed by Yard
                 // kick setup. Publish the camera calculation itself, including its
                 // integer-only sign test and previous scrolling checkpoint. A second
                 // frame-end absolute delta loses both the bias and checkpoint timing.
                 Samus.AbsoluteMovedLastFrameXFixed =
                     ((uint)Camera.CameraXSpeed << 16) | Camera.CameraXSubspeed;
-                Camera.TrackMovedSamusVertically(
-                    previousCameraPoint,
-                    currentCameraPoint,
-                    new VerticalCameraContext(
-                        YDirection: Samus.Kinematics.YDirection,
-                        UpScroller: roomGeometry.UpScroller,
-                        DownScroller: roomGeometry.DownScroller));
                 SamusProjectileInheritance.PublishCameraYSubspeed(_addressSpace, Camera.CameraYSubspeed);
 
                 // MainScrollingRoutine `$90:9563` invokes the mutable global

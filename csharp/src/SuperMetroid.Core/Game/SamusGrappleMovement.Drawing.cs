@@ -199,6 +199,8 @@ public static partial class SamusGrappleMovement
         }
 
         grapple.Phase = GrapplePhase.Inactive;
+        // $9B:C66F/$C884 (cancel) and $90:F4E9 (kill) clear the slow-scroll flag.
+        grapple.SlowScrolling = false;
         grapple.PoseChangeAutoFireTimer = 0;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;

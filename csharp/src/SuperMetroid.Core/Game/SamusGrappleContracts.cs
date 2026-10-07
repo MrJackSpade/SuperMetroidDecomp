@@ -130,6 +130,12 @@ public sealed class SamusGrappleState
     public bool SpecialAngleHandling { get; set; }
 
     /// <summary>
+    /// <c>GrappleBeam_SlowScrollingFlag</c>: set by <c>$9B:BD95</c> while the swing is fast,
+    /// it switches <c>Main_Scrolling_Routine</c> to its slow three-pixel camera branch.
+    /// </summary>
+    public bool SlowScrolling { get; set; }
+
+    /// <summary>
     /// Native `$0D30` grace counter. Wall-grab release seeds 30, then `$9B:C832` performs
     /// one DEC/BPL wall-jump check per frame until zero wraps to `$FFFF`.
     /// </summary>

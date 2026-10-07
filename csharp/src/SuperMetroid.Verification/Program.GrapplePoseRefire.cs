@@ -52,8 +52,12 @@ internal static partial class Program
             "debugger preserves remaining refire window");
         var fields = typeof(SamusGrappleState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .OrderBy(field => field.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusGrappleState), fields, fields.Length - 1);
-        AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name != "<PoseChangeAutoFireTimer>k__BackingField")),
+        var preSlowScroll = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusGrappleState), fields, fields.Length - 1);
+        AssertTrue(preSlowScroll.SequenceEqual(fields.Where(field => field.Name != "<SlowScrolling>k__BackingField")),
+            "pre-slow-scroll grapple layout omits only the slow-scrolling flag");
+        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusGrappleState), fields, fields.Length - 2);
+        AssertTrue(legacy.SequenceEqual(fields.Where(field =>
+                field.Name is not ("<PoseChangeAutoFireTimer>k__BackingField" or "<SlowScrolling>k__BackingField"))),
             "legacy grapple migration retains old field identities");
         Console.WriteLine("Grapple pose refire: mirrored frame-1..9 restarts, frame-10 cancellation, endpoint trajectory and timer serialization pass.");
     }

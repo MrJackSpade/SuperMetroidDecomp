@@ -17,6 +17,10 @@ public static partial class SamusGrappleMovement
         SamusState samus,
         SamusGrappleState grapple)
     {
+        // $9B:BD9B-BDB1: a fast swing selects the slow-scrolling camera branch.
+        ushort angularSpeed = unchecked((ushort)Math.Abs((int)grapple.AngularVelocity));
+        grapple.SlowScrolling = unchecked((short)(angularSpeed -
+            GrappleSlowScrollDefinitions.FastSwingAngularSpeed)) >= 0;
         // $94:AC11 calls the same position helper used by terrain probes. Besides scaling the
         // signed table components, it applies the block-side 7/8 endpoint bias documented in
         // CalculateCollisionPoint; using one helper prevents visible art from disagreeing
@@ -91,6 +95,7 @@ public static partial class SamusGrappleMovement
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
         grapple.Phase = GrapplePhase.Inactive;
+        grapple.SlowScrolling = false; // $9B:CBBA
         grapple.DirectionInputAcceleration = 0;
         grapple.GravityAcceleration = 0;
         grapple.VelocityCorrection = 0;
@@ -117,6 +122,8 @@ public static partial class SamusGrappleMovement
         grapple.JumpImpulse = 0;
         grapple.CollisionBounceTimer = 0;
         grapple.SpecialAngleHandling = false;
+        // $9B:C979 (dropped) and $9B:CA24 (wall jumping) clear the slow-scroll flag.
+        grapple.SlowScrolling = false;
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
         grapple.ValidateAnchorBlock = false;

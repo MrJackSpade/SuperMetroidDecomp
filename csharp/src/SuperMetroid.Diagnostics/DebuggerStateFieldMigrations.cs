@@ -533,6 +533,12 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Legacy pause state predates manual reserve transfer; restores with no transfer pending.");
             return current.Where(field => field.Name != "reserveTransferSoundDelay").ToArray();
         }
+        if (type == typeof(SamusGrappleState) && current.Any(field => field.Name == "<SlowScrolling>k__BackingField"))
+        {
+            // False is the slow-scroll state of every non-swinging grapple; a swing sets it again.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<SlowScrolling>k__BackingField").ToArray(), count);
+        }
         if (type == typeof(SamusGrappleState) && count == current.Length - 1)
         {
             Console.Error.WriteLine("WARNING: Legacy grapple state has no pose-change auto-fire timer; unavailable firing age restores expired until the next shot.");

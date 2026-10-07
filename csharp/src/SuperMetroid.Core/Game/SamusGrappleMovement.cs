@@ -904,6 +904,7 @@ public static partial class SamusGrappleMovement
             samus.InitializeAnimation(bus, initialFrame: 0);
             grapple.Phase = phase;
             grapple.WallJumpTimer = 0;
+            grapple.SlowScrolling = false; // $9B:BB0D
 
             ushort cameraPreviousX = ClampPreviousPosition(samus.XPosition, previousXPosition);
             ushort cameraPreviousY = ClampPreviousPosition(samus.YPosition, previousYPosition);

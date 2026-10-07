@@ -231,6 +231,41 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
+    /// The fast-swing branch of <c>Main_Scrolling_Routine</c> ($90:94F7-$9555): layer 1
+    /// steps three pixels toward a dead zone around Samus, then both autoscrollers run.
+    /// The camera speed words are not recalculated. A negative Samus X skips both axes.
+    /// </summary>
+    public void TrackGrappleSlowScrolling(ushort samusX, ushort samusY, bool timeIsFrozen = false)
+    {
+        if (unchecked((short)samusX) >= 0)
+        {
+            XPosition = StepTowardDeadZone(XPosition, samusX,
+                GrappleSlowScrollDefinitions.LeftEdgeX, GrappleSlowScrollDefinitions.RightEdgeX);
+            if (unchecked((short)samusY) >= 0)
+            {
+                YPosition = StepTowardDeadZone(YPosition, samusY,
+                    GrappleSlowScrollDefinitions.TopEdgeY, GrappleSlowScrollDefinitions.BottomEdgeY);
+            }
+        }
+        HandleHorizontalAutoscrolling(timeIsFrozen);
+        HandleVerticalAutoscrolling(timeIsFrozen);
+    }
+
+    // The subtraction is unsigned: Samus left of or above the camera borrows and scrolls
+    // back, as do screen offsets below the near edge; offsets at the far edge advance.
+    private static ushort StepTowardDeadZone(ushort camera, ushort samus, ushort nearEdge, ushort farEdge)
+    {
+        if (samus < camera)
+            return unchecked((ushort)(camera - GrappleSlowScrollDefinitions.Step));
+        ushort onScreen = unchecked((ushort)(samus - camera));
+        if (onScreen >= farEdge)
+            return unchecked((ushort)(camera + GrappleSlowScrollDefinitions.Step));
+        if (onScreen < nearEdge)
+            return unchecked((ushort)(camera - GrappleSlowScrollDefinitions.Step));
+        return camera;
+    }
+
+    /// <summary>
     /// Ports vertical Samus tracking at <c>$90:964F</c> plus distance calculation
     /// <c>$90:96FF</c>. An unchanged integer Y position runs <c>$80:A731</c>.
     /// </summary>

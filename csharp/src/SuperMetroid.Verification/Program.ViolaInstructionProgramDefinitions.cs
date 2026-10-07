@@ -37,7 +37,10 @@ internal static partial class Program
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = RoomEnemySystem.ViolaDefinition;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
-            slot.CurrentInstruction = (ushort)orientation;
+            // InitAI_Viola ($A3:B678) selects with the property bits; a different
+            // population parameter proves the parameter is not the source.
+            slot.CurrentInstruction = (ushort)((ushort)orientation ^ 1);
+            slot.Properties = (ushort)orientation;
             slot.Parameter1 = 0;
             initialize.Invoke(enemies,
                 [slot, CrawlerAnimationFamily.Viola, (ushort?)6]);

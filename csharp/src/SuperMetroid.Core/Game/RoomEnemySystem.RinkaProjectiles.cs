@@ -119,10 +119,12 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
+        // $86:E6E0 compares the position against camera + $100 and culls on BPL, so
+        // a projectile exactly $100 past the camera is already off-screen.
         if (unchecked((short)(projectile.XPosition - cameraX)) < 0 ||
-            unchecked((short)(cameraX + 256 - projectile.XPosition)) < 0 ||
+            unchecked((short)(projectile.XPosition - (cameraX + 256))) >= 0 ||
             unchecked((short)(projectile.YPosition - cameraY)) < 0 ||
-            unchecked((short)(cameraY + 256 - projectile.YPosition)) < 0)
+            unchecked((short)(projectile.YPosition - (cameraY + 256))) >= 0)
         {
             projectile.Clear();
         }

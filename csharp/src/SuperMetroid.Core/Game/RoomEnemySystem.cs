@@ -724,8 +724,10 @@ public sealed partial class RoomEnemySystem
                     // clears bit two; falling through here prematurely clears flash.
                     ranActorAi = true;
                 }
-                if (!ranActorAi &&
-                    (slot.FrozenTimer != 0 || (slot.AiHandlerBits & 0x0004) != 0))
+                // $A0:9044 selects the handler from the lowest set AI bit alone. A frozen
+                // clock without bit four (a Geruta flame sharing its parent's freeze)
+                // still runs main AI.
+                if (!ranActorAi && (slot.AiHandlerBits & 0x0004) != 0)
                 {
                     if (slot.EnemyDefinitionPointer == RinkaDefinition &&
                         RunRinkaFrozenTail(slot))

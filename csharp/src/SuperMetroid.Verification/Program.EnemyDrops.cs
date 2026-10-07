@@ -18,7 +18,7 @@ internal static partial class Program
         VerifyEnemyDropSelectionRules();
         VerifyEnemyPickupLifetimeAndCollision();
         VerifyEnemyPickupGrappleDelay();
-        VerifyEnemyProjectileSlotZeroDropBug();
+        VerifyDirectEnemyDropReachesSlotZero();
         VerifyGenericEnemyDeathDropConversion();
         VerifyContactDeathStopsEnemyDispatch();
 
@@ -284,7 +284,12 @@ internal static partial class Program
             "grapple endpoint collects on the seventeenth pickup frame");
     }
 
-    private static void VerifyEnemyProjectileSlotZeroDropBug()
+    /// <summary>
+    /// $86:EF29's branch tests the X restored by Random_Drop_Routine, which on this path is
+    /// the spawn routine's projectile ID rather than a slot index, so slot zero still
+    /// becomes a pickup. Crocomire's death drops in the 100% movie depend on it.
+    /// </summary>
+    private static void VerifyDirectEnemyDropReachesSlotZero()
     {
         SamusState samus = CreateDropTestSamus();
         samus.Health = 50;
@@ -305,8 +310,8 @@ internal static partial class Program
         RoomEnemyProjectileSlot slotZero =
             fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer)!;
         AssertEqual(0, slotZero.SlotIndex, "eighteenth allocation reaches physical slot zero");
-        AssertEqual((ushort)0xefdf, slotZero.PreInstruction,
-            "physical slot zero cannot become a pickup despite a successful random roll");
+        AssertEqual((ushort)0xefe0, slotZero.PreInstruction,
+            "a directly spawned drop in physical slot zero becomes a pickup");
         AssertEqual<RoomEnemyProjectileSlot?>(null,
             fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer),
             "nineteenth allocation observes the shared eighteen-slot pool as full");

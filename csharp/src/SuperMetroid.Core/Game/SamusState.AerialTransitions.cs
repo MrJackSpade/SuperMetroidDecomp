@@ -576,12 +576,13 @@ public sealed partial class SamusState
         RefreshCollisionRadii(bus);
         Shinespark.BeginWindup(this);
 
-        // `$91:F56B-$F575` checks the PREVIOUS movement type and adjusts both current and
-        // previous Y words by one. The host camera captures its previous point outside this
-        // object, so only the live word is written here; the same-frame camera delta remains
-        // one pixel and the following frame starts from the corrected coordinate.
+        // `$91:F580-$F595` checks the PREVIOUS movement type, lifts Samus one pixel and
+        // stores the result in both Y words, so this frame's vertical scroll sees no motion.
         if (previousMovementType == SamusMovementType.NormalJumping)
+        {
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 1));
+            WritePreviousYPosition(Kinematics.YPosition);
+        }
 
         InitializeAnimation(bus, initialFrame: 0);
         return true;

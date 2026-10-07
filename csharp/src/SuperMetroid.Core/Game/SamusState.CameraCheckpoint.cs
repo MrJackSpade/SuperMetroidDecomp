@@ -30,9 +30,13 @@ public sealed partial class SamusState
     /// Records a direct write of SamusPreviousYPosition ($0B14), such as bank-$91
     /// changed-pose collision correction or MakeSamusFaceForward's lift. The previous
     /// fraction is deliberately not changed: native writes only $0B14, not $0B16.
+    /// The write is absolute, discarding any earlier bottom-alignment shift this frame.
     /// </summary>
-    internal void WritePreviousYPosition(ushort correctedY) =>
+    internal void WritePreviousYPosition(ushort correctedY)
+    {
         _poseCollisionPreviousYPosition = correctedY;
+        _poseAlignmentPreviousYDelta = 0;
+    }
 
     /// <summary>
     /// The live SamusPreviousXPosition/SamusPreviousYPosition words ($0B10/$0B14): the

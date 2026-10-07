@@ -552,8 +552,8 @@ public static class SamusAerialMovement
     /// This is a movement-handler pointer, not movement type two. It begins on the same
     /// frame that `$9B:C7B8` derives launch velocity, survives the beam's following-frame
     /// cleanup, uses the three standalone ROM acceleration records at `$90:9F31-$9F54`,
-    /// and restores the normal handler only after upward-speed underflow or vertical
-    /// collision. Keeping that lifetime explicit prevents a grapple launch from silently
+    /// and restores the normal handler after upward-speed underflow, any downward pass, or
+    /// a ceiling hit. Keeping that lifetime explicit prevents a grapple launch from silently
     /// acquiring ordinary jump input/caps one frame too early.
     /// </remarks>
     public static AerialMovementResult StepReleasedFromGrapple(
@@ -625,7 +625,9 @@ public static class SamusAerialMovement
             horizontal,
             nmiFrameCounter,
             plms: plms);
-        if (result.Vertical is { Collided: true })
+        // `$90:94BF` reads the whole word: any downward pass, or a ceiling hit, ends the
+        // special handler. Only a free upward pass keeps it for another frame.
+        if (samus.SolidVerticalCollisionResult != SamusVerticalCollisionResults.None)
             restoreNormalHandler = true;
 
         samus.Grapple.ReleasedMovementActive = !restoreNormalHandler;
@@ -762,6 +764,22 @@ public static class SamusAerialMovement
             canBreakBombBlocks: canBreakBombBlocks,
             plms: plms);
 
+        // `$90:E61B` (down) and `$90:E606` (up) publish this word after every move. A
+        // downward pass is never zero: 1 on a landing, otherwise 2 unless a wall jump's 5 is retained.
+        if (downwardDisplacement)
+        {
+            if (vertical.Collided)
+                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.Landed;
+            else if ((samus.SolidVerticalCollisionResult & 0xff) != SamusVerticalCollisionResults.WallJump)
+                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.Falling;
+        }
+        else
+        {
+            samus.SolidVerticalCollisionResult = vertical.Collided
+                ? SamusVerticalCollisionResults.HitCeiling
+                : SamusVerticalCollisionResults.None;
+        }
+
         hitCeiling = displacement < 0 && vertical.Collided;
         if (hitCeiling && !deferCeilingResponse)
         {
@@ -853,7 +871,7 @@ public static class SamusAerialMovement
             // `$90:9E7F`. This is not merely an internal boolean. `$0DC6` is shared WRAM
             // state, so retain the publication even though the host result below also tells
             // the runtime to install the wall-jump pose explicitly.
-            samus.SolidVerticalCollisionResult = 5;
+            samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.WallJump;
 
             if (probe.EnemyCollision is { EnemyIndex: ushort enemyIndex })
             {

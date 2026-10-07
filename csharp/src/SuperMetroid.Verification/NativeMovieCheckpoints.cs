@@ -6,7 +6,8 @@ using System.Text.Json;
 /// <summary>One converted gameplay update from <c>tools/convert-smv-updates.py</c>.</summary>
 internal readonly record struct ConvertedMovieUpdate(
     int Update, int SourceFrame, ushort Input, string Kind, string TimingClass,
-    int ExpectedRecord, int ExcludedNmiAfter, ushort? HardwareWaitLatch, int? DoorLoaderCompletedEnemySlots);
+    int ExpectedRecord, int ExcludedNmiAfter, ushort? HardwareWaitLatch, int? DoorLoaderCompletedEnemySlots,
+    int? MessageBoxStartFrame);
 
 /// <summary>
 /// Read-only view of a converted SMV replay manifest plus its forward-only native
@@ -49,7 +50,7 @@ internal sealed class NativeMovieCheckpoints : IDisposable
         using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "updates.json")));
         JsonElement root = manifest.RootElement;
         string format = root.GetProperty("format").GetString()!;
-        if (format != "super-metroid-gameplay-updates-v4")
+        if (format != "super-metroid-gameplay-updates-v5")
             throw new InvalidDataException($"Unsupported converted replay format {format}.");
         if (root.GetProperty("movieSha256").GetString() != Convert.ToHexString(SHA256.HashData(movie)))
             throw new InvalidDataException("Converted replay was produced from a different movie.");
@@ -65,7 +66,9 @@ internal sealed class NativeMovieCheckpoints : IDisposable
                 ? null : (ushort)update.GetProperty("hardwareWaitLatch").GetInt32(),
             update.GetProperty("timingEvidence").GetProperty("doorLoaderCompletedEnemySlots") is
                 { ValueKind: not JsonValueKind.Null } completedSlots
-                ? completedSlots.GetInt32() : null)).ToArray();
+                ? completedSlots.GetInt32() : null,
+            update.GetProperty("messageBoxStartFrame") is { ValueKind: not JsonValueKind.Null } boxStart
+                ? boxStart.GetInt32() : null)).ToArray();
         if (updates.Length != root.GetProperty("updateCount").GetInt32())
             throw new InvalidDataException("Converted update count disagrees with its update list.");
         return new NativeMovieCheckpoints(directory, root.Clone(), updates);

@@ -1,5 +1,17 @@
 """Install the reviewed read-only observation hook in a pinned private Snes9x clone."""
 
+BOUNDARY_HOOK_V1 = """        if ((Registers.PB == 0x82 && (Registers.PCw == 0x8948 || Registers.PCw == 0x897a)) ||
+            (Registers.PB == 0x80 && (Registers.PCw == 0x9496 || Registers.PCw == 0x9459 || Registers.PCw == 0x8338)))
+            RidleyObserveBoundary(Registers.PBPC);
+"""
+MESSAGE_BOX_CONDITION = "(Registers.PB == 0x85 && Registers.PCw == 0x8080)"
+BOUNDARY_HOOK = """        if ((Registers.PB == 0x82 && (Registers.PCw == 0x8948 || Registers.PCw == 0x897a)) ||
+            (Registers.PB == 0x80 && (Registers.PCw == 0x9496 || Registers.PCw == 0x9459 || Registers.PCw == 0x8338)) ||
+            """ + MESSAGE_BOX_CONDITION + """)
+            RidleyObserveBoundary(Registers.PBPC);
+"""
+
+
 def run():
     import argparse
     import subprocess
@@ -18,11 +30,14 @@ def run():
         if text.count(declaration) != 1 or text.count(instruction) != 1:
             raise ValueError("Unexpected CPU execution source layout")
         text = text.replace(declaration, declaration + "\nextern void RidleyObserveBoundary(unsigned pc);")
-        hook = """        if ((Registers.PB == 0x82 && (Registers.PCw == 0x8948 || Registers.PCw == 0x897a)) ||
-            (Registers.PB == 0x80 && (Registers.PCw == 0x9496 || Registers.PCw == 0x9459 || Registers.PCw == 0x8338)))
-            RidleyObserveBoundary(Registers.PBPC);
-"""
-        text = text.replace(instruction, hook + instruction)
+        text = text.replace(instruction, BOUNDARY_HOOK + instruction)
+        path.write_text(text)
+    if MESSAGE_BOX_CONDITION not in text:
+        # Revision two also observes MessageBox_Routine entry ($85:8080). Its frame proves
+        # how many lag frames the dispatch spent before the box's own controller reads.
+        if text.count(BOUNDARY_HOOK_V1) != 1:
+            raise ValueError("Unexpected instrumented boundary hook")
+        text = text.replace(BOUNDARY_HOOK_V1, BOUNDARY_HOOK)
         path.write_text(text)
     if "RidleyObserveInstruction" not in text:
         # Optional execution trace: a single flag test per instruction when inactive.

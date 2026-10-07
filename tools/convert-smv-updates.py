@@ -76,6 +76,8 @@ def normalize_upload_intervals(updates, initial_input, prelude=0):
         if record < prelude:
             continue
         if update["timingClass"] in ("apu-upload-continuation", "apu-upload-tail-continuation"):
+            if update["messageBoxStartFrame"] is not None:
+                raise ValueError("A message box cannot open inside an excluded upload wait")
             # This contract is deliberately limited to the native door music wait.
             # No new CPU gameplay dispatch or moving door IRQ runs in this interval; an
             # upload tail only finishes the dispatch its main-loop update already owns.
@@ -156,7 +158,10 @@ def run():
     # Native addresses are capture-format identities, not guessed timing rules.
     read_enter, read_complete = 0x809459, 0x809496
     main_begin, main_end, wait = 0x828948, 0x82897A, 0x808338
-    known = {read_enter, read_complete, main_begin, main_end, wait}
+    # MessageBox_Routine entry. Its frame, relative to the dispatch's input read, is how
+    # many lag frames the dispatch spent before the box's own controller polling began.
+    message_box = 0x858080
+    known = {read_enter, read_complete, main_begin, main_end, wait, message_box}
     updates = []
     current = None
     previous_input = inputs[0]
@@ -173,7 +178,7 @@ def run():
                     if "input" not in current:
                         raise ValueError("Controller read did not complete")
                     updates.append(current)
-                current = {"sourceFrame": frame, "mainLoopDispatches": 0}
+                current = {"sourceFrame": frame, "mainLoopDispatches": 0, "messageBoxStartFrame": None}
             elif pc == read_complete:
                 if current is None or "input" in current or current["sourceFrame"] != frame:
                     raise ValueError("Ambiguous native controller-read boundary")
@@ -186,6 +191,12 @@ def run():
                 if current is None or "input" not in current:
                     raise ValueError("Main dispatch precedes its input event")
                 current["mainLoopDispatches"] += 1
+            elif pc == message_box:
+                if current is None or "input" not in current or not current["mainLoopDispatches"]:
+                    raise ValueError(f"Message box at SMV frame {frame} precedes its dispatch")
+                if current["messageBoxStartFrame"] is not None:
+                    raise ValueError(f"Two message boxes in the dispatch at SMV frame {current['sourceFrame']}")
+                current["messageBoxStartFrame"] = frame
     if current is None or "input" not in current:
         raise ValueError("No completed terminal input step")
     updates.append(current)
@@ -261,13 +272,13 @@ def run():
     prelude = boot_prelude_length(updates) if from_reset else 0
     updates, excluded = normalize_upload_intervals(updates, inputs[0], prelude)
     manifest = {
-        "format": "super-metroid-gameplay-updates-v4",
+        "format": "super-metroid-gameplay-updates-v5",
         "startsFromReset": from_reset,
         "initialRecord": prelude,
         "bootPreludeInputsExcluded": prelude,
         "movieSha256": hashlib.sha256(movie).hexdigest().upper(),
         "romSha256": rom_hash,
-        "nativeCapture": "Snes9x 1.60 913b75d07c6e8d54e966e2c4a79d7c55428007df; instrumented J/U input boundaries",
+        "nativeCapture": "Snes9x 1.60 913b75d07c6e8d54e966e2c4a79d7c55428007df; instrumented J/U input boundaries and MessageBox_Routine entry",
         "eventsSha256": digest(events_path), "checkpointsSha256": digest(boundaries_path),
         "sourceFrameCount": frames, "initialInput": inputs[0],
         "updateCount": len(updates),

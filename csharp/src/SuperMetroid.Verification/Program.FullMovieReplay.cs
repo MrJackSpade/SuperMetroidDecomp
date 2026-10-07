@@ -61,6 +61,9 @@ internal static partial class Program
                 game.AcceptDoorMusicWaitControllerRead(latched);
             memory = checkpoints.ReadAfter(update);
             game.SetAudioAcknowledgements(soundAcknowledgements.ForUpdate(spcAcknowledgements, memory));
+            // A confirmation box can continue from the previous dispatch into this
+            // NMI continuation; its MessageBox_Routine entry belongs to that dispatch.
+            bool boxContinues = game.RuntimeForVerification?.MessageBox.IsActive == true;
             var output = game.Step(step.Input);
             uploadNmis.AssertSettled();
             audio.RenderFrame(output.AudioCommands);
@@ -71,7 +74,17 @@ internal static partial class Program
             if (game.RuntimeForVerification?.MessageBox.IsActive == true)
             {
                 int endSourceFrame = update < updates.Count ? updates[update].SourceFrame : checkpoints.SourceFrameCount;
-                int frame = step.SourceFrame + 1;
+                // The capture records MessageBox_Routine's entry frame. When the dispatch's
+                // gameplay overran its own frame first, those lag frames read no controller;
+                // the box's own polling starts that many frames after the dispatch's input.
+                if (boxContinues && step.MessageBoxStartFrame is not null)
+                    throw new InvalidDataException(
+                        $"Native dispatch {update} opened a new message box while the port's box was still open.");
+                int boxStartFrame = boxContinues ? step.SourceFrame : step.MessageBoxStartFrame ??
+                    throw new InvalidDataException(
+                        $"The port opened a message box in update {update}, but the native capture records " +
+                        "no MessageBox_Routine entry in that dispatch.");
+                int frame = boxStartFrame + 1;
                 // The box's own HandleSounds calls span frames the capture does not split,
                 // so they read the port's SPC model frame by frame.
                 game.SetAudioAcknowledgements(spcAcknowledgements);
@@ -93,6 +106,11 @@ internal static partial class Program
                     throw new InvalidDataException(
                         $"The port's message box closed after SMV frame {frame - 1}, but native dispatch {update} " +
                         $"(SMV frames {step.SourceFrame}-{endSourceFrame}) ends at {endSourceFrame - 1}.");
+            }
+            else if (step.MessageBoxStartFrame is { } nativeBoxFrame)
+            {
+                throw new InvalidDataException(
+                    $"Native dispatch {update} opened a message box at SMV frame {nativeBoxFrame}; the port did not.");
             }
             soundAcknowledgements.Capture(memory);
 

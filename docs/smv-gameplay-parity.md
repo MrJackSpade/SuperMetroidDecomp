@@ -95,6 +95,12 @@ Manifest v4 adds two conversion rules, both validated by retained input edges:
   more accepted NMI before the door function runs. `$0617` is already clear, but no
   main-loop dispatch began, so this `apu-upload-tail-continuation` is the same
   upload stall and is excluded like the music-wait NMIs.
+- **Message-box start.** Bank $85's box polls the joypad itself on lag frames, so
+  its frames consume input inside one dispatch. The capture records
+  `MessageBox_Routine` entry (`$85:8080`) and manifest v5 stores it as
+  `messageBoxStartFrame`. When the dispatch's gameplay overran its own frame before
+  the box opened (once in the 100% movie, of 109 boxes), those lag frames read no
+  controller and the replay starts the box's polling after them.
 
 The conversion retains 426,466 updates (399,832 main-loop dispatches, 26,634
 continuations), excluding 149 prelude NMIs, 1,775 music-wait NMIs (four of them

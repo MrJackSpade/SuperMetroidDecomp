@@ -113,11 +113,15 @@ public static partial class SamusGrappleMovement
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;
         grapple.SpecialAngleHandling = false;
+        grapple.SlowScrolling = false; // $9B:C66F
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
         InitializeBeamAnimation(grapple);
 
         QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Fire);
+        // $9B:C6A3-C6AE: firing again ends the released-from-swing movement handler, so
+        // Samus moves with ordinary physics from this same frame.
+        grapple.ReleasedMovementActive = false;
         // Native WRAM has two easily conflated coordinate pairs. Start is the hand/rope
         // origin used by connection positioning; Flare is the small-OBJ draw origin used
         // by $94:AFBA. They coincide while swinging but can differ while firing or locked.

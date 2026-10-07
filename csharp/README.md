@@ -9,8 +9,8 @@ architectural boundary is not a claim of complete gameplay parity. It targets
 or use the commands below from this directory. The playable build is fully managed and requires
 the .NET 10 SDK; it no longer builds or deploys a native audio DLL or requires the C++ workload.
 
-`SuperMetroid.slnx` includes all 14 non-Android projects, grouped as apps, libraries, tools,
-and verification. `SuperMetroid.Full.slnx` includes all 15 projects and requires the Android
+`SuperMetroid.slnx` includes all 15 non-Android projects, grouped as apps, libraries, tools,
+and verification. `SuperMetroid.Full.slnx` includes all 16 projects and requires the Android
 workload. See the [shared test support](test-support/README.md) for fixture imports.
 
 Portable import validation is explicitly ROM-free:
@@ -34,6 +34,16 @@ resource lookups from source, and fails on missing definitions **or unresolved c
 No ROM, installed art, saves, frames or controller inputs are opened. The audit is not
 currently clean; findings are development work, not proof that every listed identity is a
 reachable player bug. See [scope, build integration and report format](src/SuperMetroid.ResourceAudit/README.md).
+
+`SuperMetroid.ReachabilityAudit` reports every type, member, field and enum member that no
+player host or tool reaches, regardless of accessibility. Verification projects are not users:
+code only a test reaches is reported as unused. It also lists members touched only by JSON
+serialization and production code reached only by tools. Members that only reflection reaches
+carry `[AccessedByReflection]`. From the repository root:
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.ReachabilityAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --output out/reachability
+```
 
 This file is the authoritative high-level status summary. A translated focused audit proves the named
 subsystem; it does not imply that every surrounding room or top-level game state is connected.

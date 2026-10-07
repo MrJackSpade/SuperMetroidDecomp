@@ -14,6 +14,7 @@
   <Folder Name="/Tools/">
     <Project Path="src/SuperMetroid.ResourceAudit/SuperMetroid.ResourceAudit.csproj" />
     <Project Path="src/SuperMetroid.DebugRunner/SuperMetroid.DebugRunner.csproj" />
+    <Project Path="src/SuperMetroid.ReachabilityAudit/SuperMetroid.ReachabilityAudit.csproj" />
   </Folder>
   <Folder Name="/Verification/">
     <Project Path="src/SuperMetroid.Verification/SuperMetroid.Verification.csproj" />

@@ -52,6 +52,25 @@ internal static partial class Program
                 }
             }
         }
+
+        // #1269: leaving the camera square snaps Zoa to its spawn coordinate. $A3:B51E-$B527
+        // writes only the whole words, so both subpixel fractions carry into the next flight.
+        state.XSpeedTableIndex = 0;
+        state.InstructionListTableIndex = state.PreviousInstructionListTableIndex =
+            ZoaAnimationSelector.None;
+        state.SpawnXPosition = 0x560;
+        state.SpawnYPosition = 0xd8;
+        actor.XPosition = 128;
+        actor.XSubposition = 0x8000;
+        actor.YPosition = 128;
+        actor.YSubposition = 0x4000;
+        int resetDisplacement = -unchecked((Word(0xa3b415) << 16) | Word(0xa3b417));
+        uint movedX = unchecked(0x00808000u + (uint)resetDisplacement);
+        shoot(actor, state, 0x1000, 0x1000);
+        AssertEqual((ushort)0x560, actor.XPosition, "off-screen Zoa returns to its spawn X");
+        AssertEqual((ushort)0xd8, actor.YPosition, "off-screen Zoa returns to its spawn Y");
+        AssertEqual((ushort)movedX, actor.XSubposition, "the spawn reset keeps the moved sub-X");
+        AssertEqual((ushort)0x4000, actor.YSubposition, "the spawn reset keeps sub-Y");
         Console.WriteLine("Zoa compiled speeds: all 17 native byte windows and 655360 real signed/subpixel integrations match without a speed-table bus.");
     }
 }

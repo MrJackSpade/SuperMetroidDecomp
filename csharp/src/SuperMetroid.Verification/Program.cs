@@ -315,6 +315,12 @@ if (args is ["--botwoon-position-history"])
     VerifyBotwoonPositionHistory();
     return 0;
 }
+if (args is ["--zoa-speeds"])
+{
+    VerifyCompiledZoaSpeeds(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--single-frame-enemy-visuals"])
 {
     VerifyKzanInstructionProgramDefinitions();

@@ -69,6 +69,7 @@ public static class ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
     public const int CycleFrames = 210;
 
     /// <summary>All native definitions whose mechanics are owned by this catalog.</summary>
+    [AccessedByReflection]
     public static IReadOnlyList<ZebesExplosionWhiteoutPaletteFxProgramDefinition> All { get; } =
     [
         new(

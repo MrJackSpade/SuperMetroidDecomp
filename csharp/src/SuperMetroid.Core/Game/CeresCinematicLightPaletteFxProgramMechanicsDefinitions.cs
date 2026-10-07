@@ -99,6 +99,7 @@ public static class CeresCinematicLightPaletteFxProgramMechanicsDefinitions
     public const int NavigationLightsCycleFrames = 56;
 
     /// <summary>All native definitions whose mechanics are owned by this catalog.</summary>
+    [AccessedByReflection]
     public static IReadOnlyList<CeresCinematicLightPaletteFxProgramDefinition> All { get; } = new ProgramEntries();
 
     private sealed class ProgramEntries : IReadOnlyList<CeresCinematicLightPaletteFxProgramDefinition>

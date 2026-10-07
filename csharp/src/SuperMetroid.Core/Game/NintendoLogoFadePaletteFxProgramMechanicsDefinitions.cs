@@ -71,6 +71,7 @@ public static class NintendoLogoFadePaletteFxProgramMechanicsDefinitions
     private static readonly DefinitionList ReadOnlyDefinitions = new();
 
     /// <summary>The boot-logo and copyright entries in native definition order, calculated from their semantic entry contracts.</summary>
+    [AccessedByReflection]
     public static IReadOnlyList<NintendoLogoFadePaletteFxProgramDefinition> All => ReadOnlyDefinitions;
 
     /// <summary>$8D:E198/E19C select two distinct entry operations: boot sets its slot then falls through; copyright sets its slot then explicitly branches to the shared fade body.</summary>

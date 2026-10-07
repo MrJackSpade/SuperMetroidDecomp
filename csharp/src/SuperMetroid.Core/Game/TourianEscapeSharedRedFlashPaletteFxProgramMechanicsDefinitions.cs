@@ -72,6 +72,7 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>The two entries into the shared red-flash loop.</summary>
+    [AccessedByReflection]
     public static IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> All =>
         Definitions;
 

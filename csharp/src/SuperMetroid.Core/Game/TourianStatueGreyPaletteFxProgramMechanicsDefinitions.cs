@@ -73,6 +73,7 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
     public const ushort DeleteInstructionPointer = 0xe2de;
 
     /// <summary>The Draygon, Kraid, Ridley, and Phantoon entries in cartridge order.</summary>
+    [AccessedByReflection]
     public static IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition> All =>
         Definitions;
 

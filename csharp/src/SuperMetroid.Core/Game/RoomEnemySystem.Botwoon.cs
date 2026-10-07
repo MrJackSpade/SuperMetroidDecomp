@@ -237,8 +237,10 @@ public sealed partial class RoomEnemySystem
             state.HeadHistoryX[history] = head.XPosition;
             state.HeadHistoryY[history] = head.YPosition;
         }
-        Array.Fill(state.HistoryX, head.XPosition);
-        Array.Fill(state.HistoryY, head.YPosition);
+        // BotwoonPositionHistory ($7E:9000-$93FF) is never seeded by InitAI_Botwoon. It
+        // lies inside the $7E:7000-$97FF range Initialise_Enemies ($A0:8AA9) zeroes on room
+        // load, so body segments read (0,0) until the ring has been written that far; the
+        // freshly constructed state's arrays are that zeroed RAM.
     }
 
     /// <summary>Ports <c>Botwoon_Main</c> and its variable-D dispatcher.</summary>

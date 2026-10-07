@@ -310,6 +310,11 @@ if (args is ["--vertical-offscreen-deletion"])
     VerifyVerticalOffScreenDeletion();
     return 0;
 }
+if (args is ["--botwoon-position-history"])
+{
+    VerifyBotwoonPositionHistory();
+    return 0;
+}
 if (args is ["--single-frame-enemy-visuals"])
 {
     VerifyKzanInstructionProgramDefinitions();
@@ -7153,6 +7158,7 @@ VerifyPowerBombBoundary();
 VerifyPowerBombDeathRadius();
 VerifyRespawnedEnemyContact();
 VerifyVerticalOffScreenDeletion();
+VerifyBotwoonPositionHistory();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

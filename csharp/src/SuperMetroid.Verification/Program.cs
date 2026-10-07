@@ -325,6 +325,11 @@ if (args is ["--wall-jump-spin-exit"])
     VerifyWallJumpSpinExit();
     return 0;
 }
+if (args is ["--evir-init-timer"])
+{
+    VerifyEvirInitTimer();
+    return 0;
+}
 if (args is ["--zoa-speeds"])
 {
     VerifyCompiledZoaSpeeds(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
@@ -7177,6 +7182,7 @@ VerifyVerticalOffScreenDeletion();
 VerifyBotwoonPositionHistory();
 VerifyDraygonTurretCadence();
 VerifyWallJumpSpinExit();
+VerifyEvirInitTimer();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

@@ -120,15 +120,29 @@ public sealed partial class RoomEnemySystem
             (state.UpVelocity, state.UpSubvelocity) = ReadLinearEnemySpeed(
                 unchecked((ushort)(speedOffset + 4)));
 
-            // $A8:8811 accidentally indexes Enemy.init1 with Y (the speed-table byte offset)
-            // rather than X. Both retail layouts make that aliased byte zero, so the first
-            // bobbing half-cycle turns immediately; later cycles use the body's high byte.
-            state.MovementTimer = 0;
+            // $A8:8811 indexes Enemy.init1+1 ($0FB7) with Y, the speed-table byte offset,
+            // rather than X. The byte read is absolute enemy RAM chosen by the speed index
+            // alone: in the 100% movie's Botwoon-hallway Evirs (speed 12) it is the high
+            // byte of slot 2's palette word, so the first half-cycle is not always zero.
+            state.MovementTimer = (ushort)(ReadAliasedEnemyRamByte(
+                EvirInitDefinitions.AliasedTimerAddress + speedOffset) >> 1);
         }
 
         state.MovementDirection = 0;
         state.InstalledInstructionList = 0;
         state.Function = EvirAiFunction.HandleBodyOrArms;
+    }
+
+    /// <summary>Reads one byte of the 32-slot enemy RAM block at absolute WRAM <paramref name="address"/>.</summary>
+    private byte ReadAliasedEnemyRamByte(int address)
+    {
+        int relative = address - EnemyRamDefinitions.FirstSlotAddress;
+        int slotIndex = relative / EnemyRamDefinitions.SlotStride;
+        if (relative < 0 || slotIndex >= MaximumEnemyCount)
+            throw new InvalidOperationException($"WRAM ${address:X4} lies outside enemy RAM.");
+        int byteOffset = relative % EnemyRamDefinitions.SlotStride;
+        ushort word = _slots[slotIndex].ReadNativeWord(byteOffset & ~1);
+        return (byteOffset & 1) == 0 ? (byte)word : (byte)(word >> 8);
     }
 
     /// <summary>Ports <c>InitAI_EvirProjectile</c> at $A8:88B0.</summary>

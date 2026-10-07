@@ -159,6 +159,14 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Older runtime has no horizontal-spike animation; restarting the selected room's spike loop at frame zero.");
             return SelectSerializedFields(type, current.Where(field => field.Name != "_roomSpikes").ToArray(), count);
         }
+        if (type == typeof(SamusState) && current.Any(field => field.Name == "<RefillStationLocked>k__BackingField"))
+        {
+            // Older builds folded command six into the plain input lock. A capture taken at a
+            // station resumes with the normal beta, as those builds behaved.
+            Console.Error.WriteLine("WARNING: Older Samus state lacks the station-lock beta; a capture taken at a station animates Samus until release.");
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<RefillStationLocked>k__BackingField").ToArray(), count);
+        }
         if (type == typeof(SamusState) && current.Any(field => field.Name == "_previousXPositionWrite"))
         {
             // A pending previous-X write exists only within one frame's enemy-to-scroll span;

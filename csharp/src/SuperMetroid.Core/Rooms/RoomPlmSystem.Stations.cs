@@ -419,7 +419,7 @@ public sealed partial class RoomPlmSystem
                     SamusState samus = _collectibleSamus?.Invoke()
                         ?? throw new InvalidOperationException(
                             $"{slot.Station.Kind} station setup has no live Samus owner.");
-                    samus.InputLocked = true;
+                    samus.LockIntoRefillStation();
                 }
             }
             return true;
@@ -490,7 +490,7 @@ public sealed partial class RoomPlmSystem
                 station.OperationPhase = StationOperationPhase.Extending;
                 station.OperationTimer = StationAccessMovementFrames;
                 operationStartedThisPass = true;
-                samus.InputLocked = true;
+                samus.LockIntoRefillStation();
                 _soundRequests.Add(CreateSoundRequest(RoomPlmSounds.StationExtension, MaximumQueued: 6));
                 DrawStationAccess(
                     bus,

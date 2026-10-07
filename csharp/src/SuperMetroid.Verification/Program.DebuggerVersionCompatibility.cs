@@ -41,10 +41,14 @@ internal static partial class Program
 
         var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusState)])!;
-        // Every published layout predates the frame-local previous-X write.
-        FieldInfo[] published = fields.Where(field => field.Name != "_previousXPositionWrite").ToArray();
+        // Every published layout predates the frame-local previous-X write and the station-lock beta.
+        FieldInfo[] published = fields.Where(field => field.Name is not "_previousXPositionWrite"
+            and not "<RefillStationLocked>k__BackingField").ToArray();
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, published.Length)
-            .SequenceEqual(published), "layout before the previous-X write omits only that field");
+            .SequenceEqual(published), "layout before the previous-X write and station-lock beta omits only those fields");
+        FieldInfo[] beforeStationLock = fields.Where(field => field.Name != "<RefillStationLocked>k__BackingField").ToArray();
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, beforeStationLock.Length)
+            .SequenceEqual(beforeStationLock), "layout before the station-lock beta omits only that field");
         FieldInfo[] legacy = published.Where(field => field.Name is not
             "<PreviousHealthForHurtCheck>k__BackingField" and not
             "<StationaryScriptControlLocked>k__BackingField" and not

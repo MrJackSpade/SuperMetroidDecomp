@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--refill-station-lock"])
+{
+    VerifyRefillStationLock();
+    return 0;
+}
 if (args is ["--zoa-speeds"])
 {
     VerifyCompiledZoaSpeeds(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
@@ -7183,6 +7188,7 @@ VerifyBotwoonPositionHistory();
 VerifyDraygonTurretCadence();
 VerifyWallJumpSpinExit();
 VerifyEvirInitTimer();
+VerifyRefillStationLock();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

@@ -200,7 +200,11 @@ public sealed partial class SamusState
         set
         {
             field = value;
-            if (!value) StationaryScriptControlLocked = false;
+            if (!value)
+            {
+                StationaryScriptControlLocked = false;
+                RefillStationLocked = false;
+            }
         }
     }
 

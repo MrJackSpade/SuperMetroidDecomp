@@ -1744,6 +1744,7 @@ public sealed partial class SuperMetroidRuntime
             // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
             // affects the next beta, not the animation already owned this frame.
             bool stationaryScriptControlLocked = Samus.StationaryScriptControlLocked;
+            bool refillStationLocked = Samus.RefillStationLocked;
             // Suit command $15 installs an empty beta, not just locked pose input.
             // Preserve the suspended movement pointer and all of its timers so command
             // $0B can resume it after the HDMA transformation (including Blue Suit).
@@ -2719,7 +2720,8 @@ public sealed partial class SuperMetroidRuntime
                     VramWrites,
                     SamusBodyArt?.DeathPalettes);
             }
-            else if (!stationaryScriptControlLocked && !suitOwnsSamus)
+            // Command six's bare RTL beta ($90:E8D6) skips animation like the locked beta.
+            else if (!stationaryScriptControlLocked && !refillStationLocked && !suitOwnsSamus)
             {
                 Samus.AnimateNoFx(
                     _addressSpace,

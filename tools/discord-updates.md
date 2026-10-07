@@ -66,9 +66,15 @@ Install this repository's tracked reminder once per clone:
 git config --get core.hooksPath
 # If another hook path or active .git/hooks scripts exist, preserve/integrate
 # those hooks before changing this setting.
-git config core.hooksPath .githooks
+git config core.hooksPath "$((Resolve-Path .githooks).Path -replace '\', '/')"
 git hook run pre-push
 ```
+
+Use the main checkout's absolute path. A relative `.githooks` resolves inside each
+linked worktree, so worktrees on branches without the current hooks would bypass
+them. The same hooks also reject any commit or push whose author, committer, or
+message names Claude, Anthropic, Codex, or OpenAI (`.githooks/commit-msg` and
+`.githooks/pre-push`, sharing `.githooks/attribution-guard.sh`).
 
 Git has no client-side `post-push` hook. `.githooks/pre-push` prints instructions
 for the model to follow after the push succeeds. It does not send messages or

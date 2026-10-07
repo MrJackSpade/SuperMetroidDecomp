@@ -1,0 +1,9 @@
+#!/bin/sh
+# Reject any commit whose identity or message names an AI assistant vendor.
+set -eu
+. "$(dirname "$0")/attribution-guard.sh"
+
+if ! { git var GIT_AUTHOR_IDENT; git var GIT_COMMITTER_IDENT; git stripspace --strip-comments < "$1"; } | reject_blocked_names; then
+    echo 'Commit blocked: the lines above name Claude, Anthropic, Codex, or OpenAI.' >&2
+    exit 1
+fi

@@ -33,7 +33,7 @@
   this loop until it returns `caught-up`. Do not stop after one update. Catch-up
   requests resume the existing tracker; never restart from the first commit.
   If already caught up, no post is needed.
-- Install the tracked push reminder with `git config core.hooksPath .githooks`
+- Install the tracked push reminder with `core.hooksPath` set to the main checkout's absolute `.githooks` path
   as described in `tools/discord-updates.md`. Its `pre-push` output reminds the
   model to perform this loop AFTER the push succeeds; it does not post itself.
 - Do not enumerate later commits, skip ahead, or use raw webhooks to bypass the

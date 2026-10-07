@@ -1,4 +1,24 @@
 #!/bin/sh
+set -eu
+. "$(dirname "$0")/attribution-guard.sh"
+
+# Refuse to publish any commit that names an AI assistant vendor, including
+# commits created with --no-verify or before the commit-msg hook existed.
+zero=0000000000000000000000000000000000000000
+while read -r local_ref local_sha remote_ref remote_sha; do
+    [ "$local_sha" = "$zero" ] && continue
+    if [ "$remote_sha" = "$zero" ]; then
+        range="$local_sha --not --remotes"
+    else
+        range="$remote_sha..$local_sha"
+    fi
+    for commit in $(git rev-list $range); do
+        if ! git log -n1 --format='%an <%ae>%n%cn <%ce>%n%B' "$commit" | reject_blocked_names; then
+            echo "Push blocked: commit $commit names Claude, Anthropic, Codex, or OpenAI." >&2
+            exit 1
+        fi
+    done
+done
 printf '%s\n' '
 
 DISCORD UPDATES: AFTER this push succeeds, drain the published commit queue.

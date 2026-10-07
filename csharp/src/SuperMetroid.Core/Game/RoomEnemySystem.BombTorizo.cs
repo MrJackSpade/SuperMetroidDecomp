@@ -350,7 +350,7 @@ public sealed partial class RoomEnemySystem
 
     private CartridgePaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
         state.PaletteTransition ??= new CartridgePaletteTransition(
-            _cgram!.Colors, TorizoPaletteDefinitions.FadeDenominator);
+            _cgram!.Colors, TorizoPaletteDefinitions.FadeDenominator, GradualColorChange);
 
     private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<ushort> colors)
     {

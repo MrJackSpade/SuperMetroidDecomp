@@ -18,6 +18,10 @@ internal static class DebuggerRetiredFieldDefinitions
     // owning graph is complete. Weak keys keep this from retaining restored state.
     private static readonly ConditionalWeakTable<object, Dictionary<string, object?>> LegacyValues = new();
 
+    // Declared before the inventory, whose initializer reads it.
+    private static readonly Type CartridgePaletteTransitionType =
+        typeof(SuperMetroidRuntime).Assembly.GetType("SuperMetroid.Core.Frontend.CartridgePaletteTransition", throwOnError: true)!;
+
     // An explicit inventory, not permission to discard arbitrary unknown fields.
     private static readonly Dictionary<(Type DeclaringType, string Name), RetiredFieldMigration> Retired = new()
     {
@@ -40,6 +44,28 @@ internal static class DebuggerRetiredFieldDefinitions
         [(typeof(SuperMetroidRuntime), "_escapeDiagonalFrames")] = Remember,
         [(typeof(CeresElevatorShaftRoomMainState), "<RotationIndex>k__BackingField")] = Remember,
         [(typeof(MaridiaElevatubeRoomMainState), "<PositionSubposition>k__BackingField")] = Remember,
+        // PaletteChangeNumerator ($7E:C400) is now one shared counter. A legacy fade keeps
+        // its saved progress in a counter of its own; Kraid's restarts from the shared one.
+        [(CartridgePaletteTransitionType, "transitionNumber")] = (instance, _, value) =>
+        {
+            if (value is not int transitionNumber)
+                throw new InvalidDataException("Legacy palette transition number is not an integer.");
+            var counter = new GradualColorChangeCounter();
+            typeof(GradualColorChangeCounter).GetProperty(nameof(GradualColorChangeCounter.Numerator))!
+                .SetValue(counter, checked((ushort)transitionNumber));
+            CartridgePaletteTransitionType.GetField("numerator",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .SetValue(instance, counter);
+            if (transitionNumber != 0)
+                Console.Error.WriteLine("WARNING: Legacy palette fade was captured mid-transition; it resumes on its own counter rather than the shared PaletteChangeNumerator.");
+        },
+        [(typeof(KraidEnemyState), "<RoomBackgroundFadeStep>k__BackingField")] = (_, _, value) =>
+        {
+            if (value is not ushort step)
+                throw new InvalidDataException("Legacy Kraid background fade step is not a word.");
+            if (step != 0)
+                Console.Error.WriteLine("WARNING: Legacy Kraid background fade was captured mid-transition; it restarts from the shared PaletteChangeNumerator.");
+        },
     };
 
     /// <summary>Returns the migration of a retired serialized field.</summary>

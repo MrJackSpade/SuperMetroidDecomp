@@ -44,6 +44,12 @@ public sealed partial class RoomEnemySystem
     private ushort _randomEnemyCounter;
     private SnesVram? _vram;
     private SnesCgram? _cgram;
+
+    /// <summary>
+    /// The shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
+    /// fades advance this one counter, as the cartridge's fades all advance one WRAM word.
+    /// </summary>
+    public GradualColorChangeCounter GradualColorChange { get; private set; } = new();
     // Live dependency supplied by EnemyMain, shared by ordinary and custom touch callbacks.
     private SamusProjectileSystem? _samusProjectilesForEnemyFrame;
     private RidleyEnemyState? _ridleyState;

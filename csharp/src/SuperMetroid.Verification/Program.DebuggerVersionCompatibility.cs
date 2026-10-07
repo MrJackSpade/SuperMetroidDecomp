@@ -288,9 +288,13 @@ internal static partial class Program
 
         var enemyFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(RoomEnemySystem)])!;
+        FieldInfo[] preCounterEnemyFields = enemyFields.Where(field => field.Name != "<GradualColorChange>k__BackingField").ToArray();
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(RoomEnemySystem), enemyFields,
+                preCounterEnemyFields.Length).SequenceEqual(preCounterEnemyFields),
+            "pre-shared-palette-counter enemy owner preserves every other saved field in order");
         foreach (bool beforeStatueFields in new[] { false, true })
         {
-            FieldInfo[] oldEnemyFields = enemyFields.Where(field => field.Name != "_samusProjectilesForEnemyFrame" &&
+            FieldInfo[] oldEnemyFields = preCounterEnemyFields.Where(field => field.Name != "_samusProjectilesForEnemyFrame" &&
                 (!beforeStatueFields || field.Name is not "<TourianEntranceStatueVerticalOffset>k__BackingField" and not
                     "<TourianStatueWaterY>k__BackingField")).ToArray();
             AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(RoomEnemySystem), enemyFields,

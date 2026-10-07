@@ -133,14 +133,14 @@ public sealed partial class RoomEnemySystem
         state.Parts[foot.SlotIndex].NextFunction = 0;
     }
 
+    /// <summary>
+    /// Ports <c>InitAI_KraidNail_Common</c> ($A7:BCF2). Unlike the other parts it has no
+    /// dead-room branch: in a defeated Kraid's room the fingernails initialize and run,
+    /// deleting themselves only once slot zero's health reads below one ($A7:BD34).
+    /// </summary>
     private void InitializeKraidNail(RoomEnemySlot nail, int expectedSlot)
     {
         KraidEnemyState state = RequireKraidState(nail);
-        if (RequireAreaBossDefeated())
-        {
-            MarkKraidPartDead(nail);
-            return;
-        }
         EnsureKraidSlot(nail, expectedSlot, "fingernail");
         nail.PaletteIndex = _slots[0].PaletteIndex;
         nail.VariableB = 40;
@@ -213,7 +213,7 @@ public sealed partial class RoomEnemySystem
             RunKraidRiseFunction(body, state, samus);
             return;
         }
-        RunKraidCombatFunction(body, state, vramWriteQueue);
+        RunKraidCombatFunction(body, state, vramWriteQueue, cameraX);
     }
 
     private void RunKraidPaletteHandling(RoomEnemySlot body, KraidEnemyState state)

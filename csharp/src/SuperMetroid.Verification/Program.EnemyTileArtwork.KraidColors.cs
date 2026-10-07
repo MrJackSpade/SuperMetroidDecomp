@@ -192,7 +192,7 @@ internal static partial class Program
                         consumer == KraidPaletteConsumer.BackdropLoad ? 96 : 176);
                 break;
             case KraidPaletteConsumer.BackdropFade:
-                state.RoomBackgroundFadeStep = 13;
+                enemies.GradualColorChange.Numerator = 13;
                 _ = typeof(RoomEnemySystem).GetMethod("AdvanceKraidRoomBackgroundFade", flags)!
                     .CreateDelegate<Func<KraidEnemyState, bool, bool>>(enemies)(state, false);
                 break;

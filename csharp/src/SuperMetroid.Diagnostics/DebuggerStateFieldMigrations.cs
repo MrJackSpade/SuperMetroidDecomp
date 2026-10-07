@@ -55,6 +55,27 @@ internal static class DebuggerStateFieldMigrations
             return SelectSerializedFields(type, current.Where(field =>
                 field.Name is not "soundCommandReads" and not "previousSoundCommandReads").ToArray(), count);
         }
+        if (type == typeof(KraidEnemyState) &&
+            current.Any(field => field.Name == "<Layer1XBlockResetRequested>k__BackingField"))
+        {
+            // Older builds never requested the dead-room column reset; nothing is pending.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<Layer1XBlockResetRequested>k__BackingField").ToArray(), count);
+        }
+        if (type == typeof(RoomEnemySystem) &&
+            current.Any(field => field.Name == "<GradualColorChange>k__BackingField"))
+        {
+            // The shared PaletteChangeNumerator is initialized once the legacy graph loads.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<GradualColorChange>k__BackingField").ToArray(), count);
+        }
+        if (type.FullName == "SuperMetroid.Core.Frontend.CartridgePaletteTransition" &&
+            current.Any(field => field.Name == "numerator"))
+        {
+            // The retired private transition number supplies this counter; see
+            // DebuggerRetiredFieldDefinitions.
+            return SelectSerializedFields(type, current.Where(field => field.Name != "numerator").ToArray(), count);
+        }
         if (type == typeof(SamusSuitPickupState) &&
             current.Any(field => field.Name == "_preInstructionInstallCallsRemaining"))
         {
@@ -730,6 +751,9 @@ internal static class DebuggerStateFieldMigrations
         if (instance is SuperMetroid.Core.Runtime.SuperMetroidRuntime legacyRuntime &&
             serializedCount < GetCurrentInstanceFieldCount(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)))
             SeedLegacyRoomMainScratch(legacyRuntime);
+        if (instance is RoomEnemySystem legacyEnemies && legacyEnemies.GradualColorChange is null)
+            typeof(RoomEnemySystem).GetField("<GradualColorChange>k__BackingField",
+                BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(legacyEnemies, new GradualColorChangeCounter());
         if (instance is SuperMetroid.Core.Frontend.SuperMetroidGame game &&
             serializedCount < GetCurrentInstanceFieldCount(typeof(SuperMetroid.Core.Frontend.SuperMetroidGame)))
         {

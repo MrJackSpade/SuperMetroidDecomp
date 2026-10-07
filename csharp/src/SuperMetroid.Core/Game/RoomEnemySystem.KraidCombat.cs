@@ -12,7 +12,8 @@ public sealed partial class RoomEnemySystem
     private void RunKraidCombatFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
-        VramWriteQueue? vramWriteQueue)
+        VramWriteQueue? vramWriteQueue,
+        ushort cameraX)
     {
         switch ((KraidAiFunction)body.VariableA)
         {
@@ -81,7 +82,7 @@ public sealed partial class RoomEnemySystem
             case KraidAiFunction.DeathFadeInBackground:
             case KraidAiFunction.DeathFinishedWasAlive:
             case KraidAiFunction.DeathFinishedWasDead:
-                RunKraidDeathFunction(body, state, vramWriteQueue);
+                RunKraidDeathFunction(body, state, vramWriteQueue, cameraX);
                 return;
 
             default:

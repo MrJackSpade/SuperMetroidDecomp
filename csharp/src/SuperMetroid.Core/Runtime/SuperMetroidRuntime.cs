@@ -3954,6 +3954,12 @@ public sealed partial class SuperMetroidRuntime
                 // The camera can cross a 16-pixel boundary in the same main-loop pass.
                 // Build and execute the exact row/column staging transfers now so both the
                 // live PPU diagnostic and the following frame see the newly exposed edge.
+                // Kraid's dead-room function wrote PreviousLayer1XBlock during EnemyMain.
+                if (Enemies.Kraid is { Layer1XBlockResetRequested: true } kraid)
+                {
+                    BackgroundScroll.ResetPreviousLayer1XBlock();
+                    kraid.Layer1XBlockResetRequested = false;
+                }
                 IReadOnlyList<BackgroundUpdateRequest> backgroundRequests =
                     UpdateBackgroundScrollingFromCamera();
                 ExecuteBackgroundStreamRequests(backgroundRequests, "active room camera");

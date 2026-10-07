@@ -49,7 +49,8 @@ public sealed class DoorTransitionState
         sourceSamusYFixed = runtime.Samus.Kinematics.YFixed;
         paletteTransition = new CartridgePaletteTransition(
             BuildSourceFadeTarget(runtime),
-            denominator: 12);
+            denominator: 12,
+            runtime.Enemies.GradualColorChange);
         fadedSourcePalette = null;
         Phase = DoorTransitionPhase.WaitForSoundQueues;
     }
@@ -188,7 +189,8 @@ public sealed class DoorTransitionState
                 }
                 paletteTransition = new CartridgePaletteTransition(
                     destinationTarget,
-                    denominator: 12);
+                    denominator: 12,
+                    runtime.Enemies.GradualColorChange);
                 Phase = DoorTransitionPhase.WaitForDoorOpeningScroll;
                 break;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -10,16 +11,19 @@ internal sealed class CartridgePaletteTransition
 {
     private readonly ushort[] target;
     private readonly int denominator;
-    private int transitionNumber;
+    private readonly GradualColorChangeCounter numerator;
 
-    public CartridgePaletteTransition(ReadOnlySpan<ushort> target, int denominator)
+    /// <param name="numerator">The shared <c>$7E:C400</c> transition number this fade advances.</param>
+    public CartridgePaletteTransition(ReadOnlySpan<ushort> target, int denominator, GradualColorChangeCounter numerator)
     {
+        ArgumentNullException.ThrowIfNull(numerator);
         if (target.Length != SnesCgram.ColorCount)
             throw new ArgumentException("A global palette transition requires 256 target colors.", nameof(target));
         if (denominator <= 0 || denominator > ushort.MaxValue - 1)
             throw new ArgumentOutOfRangeException(nameof(denominator));
         this.target = target.ToArray();
         this.denominator = denominator;
+        this.numerator = numerator;
     }
 
     /// <summary>
@@ -30,9 +34,10 @@ internal sealed class CartridgePaletteTransition
     public bool Step(SnesCgram cgram, ushort paletteMask = ushort.MaxValue)
     {
         ArgumentNullException.ThrowIfNull(cgram);
+        int transitionNumber = numerator.Numerator;
         if (transitionNumber > denominator + 1)
         {
-            transitionNumber = 0;
+            numerator.Numerator = 0;
             return true;
         }
 
@@ -44,7 +49,7 @@ internal sealed class CartridgePaletteTransition
             if (current != target[color])
                 cgram.SetColor(color, CalculateColor(transitionNumber, current, target[color]));
         }
-        transitionNumber++;
+        numerator.Numerator = unchecked((ushort)(transitionNumber + 1));
         return false;
     }
 

@@ -48,7 +48,7 @@ internal static class ColosseumSandFadeAudit
             {
                 var fade = typeof(DoorTransitionState).GetField("paletteTransition", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(transition)!;
                 var target = (ushort[])typeof(CartridgePaletteTransition).GetField("target", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fade)!;
-                expectedFade = new CartridgePaletteTransition(target, 12);
+                expectedFade = new CartridgePaletteTransition(target, 12, new GradualColorChangeCounter());
                 for (int color = 0; color < 256; color++) expectedCgram.SetColor(color, runtime.Cgram.Colors[color]);
             }
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);

@@ -95,7 +95,7 @@ internal static class DoorSoundWaitAudit
                 .SetValue(game, SuperMetroidGameState.LoadingNextRoomB);
             var transition = (DoorTransitionState)typeof(SuperMetroidGame).GetField("doorTransition", fields)!.GetValue(game)!;
             typeof(DoorTransitionState).GetField("paletteTransition", fields)!
-                .SetValue(transition, new CartridgePaletteTransition(runtime.Cgram.Colors, 1));
+                .SetValue(transition, new CartridgePaletteTransition(runtime.Cgram.Colors, 1, runtime.Enemies.GradualColorChange));
             typeof(DoorTransitionState).GetProperty(nameof(transition.Phase))!
                 .SetValue(transition, DoorTransitionPhase.FadeInDestinationPalette);
             var audio = (CartridgeAudioState)typeof(SuperMetroidGame).GetField("audio", fields)!.GetValue(game)!;
@@ -187,7 +187,7 @@ internal static class DoorSoundWaitAudit
         Console.WriteLine($"Frontend wait: PB={powerBombActive}, {produced} fresh enemy/draw requests ({movementProduced} movement), {admitted} admitted over 24 calls.");
         // Exercise the actual final-fade release, not a manually cleared audio flag.
         typeof(DoorTransitionState).GetField("paletteTransition", fields)!
-            .SetValue(transition, new CartridgePaletteTransition(runtime.Cgram.Colors, 1));
+            .SetValue(transition, new CartridgePaletteTransition(runtime.Cgram.Colors, 1, runtime.Enemies.GradualColorChange));
         typeof(DoorTransitionState).GetProperty(nameof(transition.Phase))!
             .SetValue(transition, DoorTransitionPhase.FadeInDestinationPalette);
         for (int frame = 0; frame < 4 && transition.Phase != DoorTransitionPhase.Complete; frame++)

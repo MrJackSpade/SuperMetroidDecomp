@@ -454,6 +454,9 @@ public sealed partial class RoomPlmSystem
             ?? throw new InvalidOperationException(
                 $"{station.Kind} station has no live Samus owner.");
 
+        // The access list's first draw instruction installs its six-frame timer on the
+        // triggering pass itself; the common PLM handler only decrements on later passes.
+        bool operationStartedThisPass = false;
         if (station.Triggered)
         {
             station.Triggered = false;
@@ -486,6 +489,7 @@ public sealed partial class RoomPlmSystem
                 // command six owns Samus for that entire synchronous sequence.
                 station.OperationPhase = StationOperationPhase.Extending;
                 station.OperationTimer = StationAccessMovementFrames;
+                operationStartedThisPass = true;
                 samus.InputLocked = true;
                 _soundRequests.Add(CreateSoundRequest(RoomPlmSounds.StationExtension, MaximumQueued: 6));
                 DrawStationAccess(
@@ -513,7 +517,8 @@ public sealed partial class RoomPlmSystem
             return true;
         }
 
-        if (station.OperationPhase is not (StationOperationPhase.Idle or StationOperationPhase.AwaitingMapUnpause))
+        if (!operationStartedThisPass &&
+            station.OperationPhase is not (StationOperationPhase.Idle or StationOperationPhase.AwaitingMapUnpause))
         {
             station.OperationTimer--;
             if (station.OperationTimer == 0)
@@ -535,6 +540,11 @@ public sealed partial class RoomPlmSystem
                         break;
                     case StationOperationPhase.Extended:
                         PublishStationActivation(station, slot, samus);
+                        // $84:8CC6/$8CE7: the recharge activations run Samus command one
+                        // right after their message box, before the access retracts. The
+                        // map activation leaves input locked for pause teardown's command.
+                        if (station.Kind != StationKind.Map)
+                            samus.InputLocked = false;
                         station.OperationPhase = StationOperationPhase.PostActivationHold;
                         station.OperationTimer = StationAccessMovementFrames;
                         break;
@@ -562,10 +572,8 @@ public sealed partial class RoomPlmSystem
                             : StationOperationPhase.Idle;
                         station.AccessBlockIndex = -1;
                         station.AccessBehavior = null;
-                        // The map access list only deletes itself. Command $0C,
-                        // executed by pause teardown, owns its later input release.
-                        if (station.Kind != StationKind.Map)
-                            samus.InputLocked = false;
+                        // Every access list only deletes itself here. Recharges released
+                        // input at activation; map pause teardown's command $0C owns its release.
                         break;
                     default:
                         throw new InvalidDataException(

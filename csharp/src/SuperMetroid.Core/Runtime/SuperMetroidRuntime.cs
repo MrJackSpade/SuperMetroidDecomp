@@ -2196,6 +2196,13 @@ public sealed partial class SuperMetroidRuntime
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                 }
+                // `$90:A337` returns before the movement table and echo update while time is
+                // frozen. X-ray setup freezes time in alpha, so a running Samus stops on
+                // the activation frame before her pose changes.
+                else if (TimeIsFrozen)
+                {
+                    // No positional movement.
+                }
                 // `$90:A7DA` is the normal movement-table entry for type `$1B`.
                 // It only clears the momentum-transition selector. This path is reachable
                 // when hurt-expiry command one replaces a freshly installed Shinespark

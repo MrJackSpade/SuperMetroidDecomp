@@ -132,7 +132,7 @@ public static class SamusHurtFlashPalette
         bool queued = (controllerInput & (ushort)SnesButton.X) != 0;
         if (queued)
         {
-            samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x41), maximumQueued: 9);
+            samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.ResumeChargingBeam, maximumQueued: 9);
         }
 
         samus.ResumeChargingBeamSoundFlag = 0;

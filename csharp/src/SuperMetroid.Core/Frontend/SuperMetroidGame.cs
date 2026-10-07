@@ -298,6 +298,8 @@ public sealed partial class SuperMetroidGame
         FrameNumber++;
         AdvanceMenuNmiFrameCounters();
         AdvanceMenuRandom();
+        if (runtime is not null)
+            runtime.DispatchGameState = (ushort)GameState;
         switch (GameState)
         {
             case SuperMetroidGameState.Reset:

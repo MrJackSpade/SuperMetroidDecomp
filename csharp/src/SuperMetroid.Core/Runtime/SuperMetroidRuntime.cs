@@ -242,6 +242,13 @@ public sealed partial class SuperMetroidRuntime
     /// solely as a debugger seam for precondition tests that force an otherwise impossible
     /// status without constructing an entire explosion.
     /// </summary>
+    /// <summary>
+    /// WRAM GameState ($0998) of the frontend dispatch now running. Samus commands such as
+    /// $90:F4A2 test it from inside the outer frame; runtime-only hosts run state eight.
+    /// </summary>
+    [field: NonSerialized]
+    public ushort DispatchGameState { get; set; } = (ushort)Frontend.SuperMetroidGameState.MainGameplay;
+
     public ushort PowerBombExplosionStatus
     {
         get => BombProjectiles.PowerBombExplosion.Status;
@@ -1547,8 +1554,13 @@ public sealed partial class SuperMetroidRuntime
 
         // Blast HDMA belongs to the outer frame, not Samus alpha. A statue carry
         // replaces her handlers while the already-spawned blast continues normally.
+        // Its cleanup runs Samus command $1E, which can queue sounds before the Samus
+        // handler; the frame's Samus sound window therefore opens here.
         if (Samus is { } hdmaSamus && !MessageBox.IsActive)
-            BombProjectiles.AdvancePowerBombHdma(_addressSpace, hdmaSamus, Controller1.Current);
+        {
+            hdmaSamus.LiquidPhysics.BeginFrameSoundRequests(BombProjectiles.PowerBombExplosion);
+            BombProjectiles.AdvancePowerBombHdma(_addressSpace, hdmaSamus, Controller1.Current, DispatchGameState);
+        }
 
         // The bank-$82 main loop calls GenerateRandomNumber at $82:894F on every accepted
         // main-loop pass, immediately after the bank-$88 HDMA-object handler and before it
@@ -1743,9 +1755,8 @@ public sealed partial class SuperMetroidRuntime
             // suppressing only their application would be too late and observably wrong.
             bool deathOwnsSamus = Samus.DeathSequence.IsActive;
             // Sound queues are global persistent engines on hardware, but this typed host
-            // publication is scoped to one Samus handler. Begin before movement because
-            // `$91:F046` queues landing sounds during collision, before AnimateSamus.
-            Samus.LiquidPhysics.BeginFrameSoundRequests(BombProjectiles.PowerBombExplosion);
+            // publication is scoped to one frame's Samus handler. It opened before the HDMA
+            // pass, ahead of `$91:F046`'s landing sounds during collision.
             bool xrayOwnsPoseInput = Samus.Xray.OwnsSamusControl && !deathOwnsSamus;
             bool xrayActivatedThisFrame = false;
             SamusMovementType movementBeforeXrayAdmission = Samus.ReadMovementType(_addressSpace);
@@ -4426,7 +4437,7 @@ public sealed partial class SuperMetroidRuntime
             if (Camera is not null)
                 RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
             if (Samus is { } hdmaSamus)
-                BombProjectiles.AdvancePowerBombHdma(_addressSpace, hdmaSamus, Controller1.Current);
+                BombProjectiles.AdvancePowerBombHdma(_addressSpace, hdmaSamus, Controller1.Current, DispatchGameState);
         }
         if (MessageBox.ConfirmationSelectionChangedThisFrame)
             MessageBoxSelectionSoundRequestedThisFrame = true;

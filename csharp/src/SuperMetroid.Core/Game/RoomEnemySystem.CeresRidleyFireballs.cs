@@ -801,6 +801,7 @@ public sealed partial class RoomEnemySystem
             case EnemyProjectileCodePointers.RTS_8684FB:
             case EnemyProjectileCodePointers.RTS_86EC94:
             case EnemyProjectileCodePointers.RTS_86D0EB:
+            case EnemyProjectileCodePointers.RTS_86CFF7:
             case EnemyProjectileCodePointers.RTS_868D54:
             case EnemyProjectileCodePointers.RTS_86950C:
             case EnemyProjectileCodePointers.RTS_869A44:

@@ -29,8 +29,13 @@ internal static class EnemyProjectileCodePointers
     public const ushort PreInstruction_EnemyProjectile_KiHunterAcid_Left = 0xcfd5;
     /// <summary><c>PreInstruction_EnemyProjectile_KiHunterAcid_Right</c> at $86:CFE6.</summary>
     public const ushort PreInstruction_EnemyProjectile_KiHunterAcid_Right = 0xcfe6;
-    /// <summary><c>PreInstruction_EnemyProjectile_KiHunterAcid_Moving</c> at $86:CFF7.</summary>
-    public const ushort PreInstruction_EnemyProjectile_KiHunterAcid_Moving = 0xcff7;
+    /// <summary>
+    /// <c>RTS_86CFF7</c> at $86:CFF7: the acid spit header's idle pre-instruction, a bare
+    /// RTS until the instruction list installs a start-moving callback.
+    /// </summary>
+    public const ushort RTS_86CFF7 = 0xcff7;
+    /// <summary><c>PreInstruction_EnemyProj_KiHunterAcidSpit_Moving</c> at $86:CFF8.</summary>
+    public const ushort PreInstruction_EnemyProjectile_KiHunterAcid_Moving = 0xcff8;
     /// <summary><c>PreInstruction_EnemyProjectile_PolypRock</c> at $86:BC0F.</summary>
     public const ushort PreInstruction_EnemyProjectile_PolypRock = 0xbc0f;
     /// <summary><c>PreInstruction_EnemyProjectile_Pickup</c> at $86:EFE0.</summary>

@@ -8,8 +8,8 @@ public sealed partial class RoomEnemySystem
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Left;
     private const ushort KiHunterAcidInitialRightPreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Right;
-    // Definition records contain $CFF7. The disassembly labels the first C instruction at
-    // $CFF8 because $CFF7 is the native callable entry byte; preserve the stored pointer.
+    // Definition records hold the idle RTS at $86:CFF7; the start-moving callbacks install
+    // the mover at $86:CFF8, so the spit does not move on the frames before that.
     private const ushort KiHunterAcidMovingPreInstruction =
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_KiHunterAcid_Moving;
     private const ushort KiHunterAcidHorizontalSpeed = 0x0300;
@@ -47,7 +47,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>
     /// Ports one-shot pre-instructions $86:CFD5/$CFE6. The animation list installs one via
     /// common opcode $8161 after its opening map; the callback shifts nineteen pixels and
-    /// then restores the header's $CFF7 mover.
+    /// then installs the $CFF8 mover.
     /// </summary>
     private static void StartKiHunterAcidMovement(
         RoomEnemyProjectileSlot projectile,

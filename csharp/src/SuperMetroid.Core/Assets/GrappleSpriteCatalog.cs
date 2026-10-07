@@ -61,20 +61,9 @@ public sealed class GrappleSpriteCatalog
         return bytes;
     }
 
-    private static void RejectDuplicates(JsonElement value)
-    {
-        if (value.ValueKind == JsonValueKind.Object)
-        {
-            var names = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var property in value.EnumerateObject())
-            {
-                if (!names.Add(property.Name)) throw new InvalidDataException("Duplicate Grapple sprite property.");
-                RejectDuplicates(property.Value);
-            }
-        }
-        else if (value.ValueKind == JsonValueKind.Array)
-            foreach (var child in value.EnumerateArray()) RejectDuplicates(child);
-    }
+    private static void RejectDuplicates(JsonElement value) =>
+        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
+            name => new InvalidDataException("Duplicate Grapple sprite property."));
 }
 
 public sealed record GrappleSpriteDocument

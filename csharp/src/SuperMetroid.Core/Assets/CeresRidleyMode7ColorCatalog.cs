@@ -79,21 +79,9 @@ public sealed class CeresRidleyMode7ColorCatalog
         return bytes;
     }
 
-    private static void RejectDuplicates(JsonElement value)
-    {
-        if (value.ValueKind == JsonValueKind.Object)
-        {
-            var names = new HashSet<string>(StringComparer.Ordinal);
-            foreach (JsonProperty property in value.EnumerateObject())
-            {
-                if (!names.Add(property.Name))
-                    throw new InvalidDataException($"Duplicate Ceres Ridley Mode-7 property {property.Name}.");
-                RejectDuplicates(property.Value);
-            }
-        }
-        else if (value.ValueKind == JsonValueKind.Array)
-            foreach (JsonElement child in value.EnumerateArray()) RejectDuplicates(child);
-    }
+    private static void RejectDuplicates(JsonElement value) =>
+        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
+            name => new InvalidDataException($"Duplicate Ceres Ridley Mode-7 property {name}."));
 }
 
 public sealed record CeresRidleyMode7ColorDocument

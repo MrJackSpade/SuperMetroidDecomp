@@ -332,23 +332,9 @@ public sealed class EnemySpritemapCatalog
         return parts;
     }
 
-    internal static void RejectDuplicateProperties(JsonElement element, StringComparer? propertyComparer = null)
-    {
-        if (element.ValueKind == JsonValueKind.Object)
-        {
-            var names = new HashSet<string>(propertyComparer ?? StringComparer.Ordinal);
-            foreach (JsonProperty property in element.EnumerateObject())
-            {
-                if (!names.Add(property.Name))
-                    throw new InvalidDataException(
-                        $"Duplicate enemy composition property {property.Name}.");
-                RejectDuplicateProperties(property.Value, propertyComparer);
-            }
-        }
-        else if (element.ValueKind == JsonValueKind.Array)
-            foreach (JsonElement item in element.EnumerateArray())
-                RejectDuplicateProperties(item, propertyComparer);
-    }
+    internal static void RejectDuplicateProperties(JsonElement element, StringComparer? propertyComparer = null) =>
+        JsonAssetDocument.RejectDuplicateProperties(element, propertyComparer ?? StringComparer.Ordinal,
+            name => new InvalidDataException($"Duplicate enemy composition property {name}."));
 }
 
 /// <summary>Versioned, semantic enemy frame names mapped to editable OAM parts.</summary>

@@ -1588,19 +1588,14 @@ internal static class EnemySpritemapDefinitions
 
     internal sealed class FrameList : IReadOnlyList<EnemySpritemapDefinition>
     {
-        public int Count => EnumerateFrames().Count();
+        // The frame list is a fixed derivation of the definitions; derive it once, not per access.
+        private readonly Lazy<EnemySpritemapDefinition[]> frames = new(() => EnumerateFrames().ToArray());
+        public int Count => frames.Value.Length;
         internal int Length => Count;
         public EnemySpritemapDefinition this[int index] => (uint)index < Count
-            ? EnumerateFrames().ElementAt(index) : throw new IndexOutOfRangeException();
-        internal EnemySpritemapDefinition[] this[Range range]
-        {
-            get
-            {
-                (int offset, int length) = range.GetOffsetAndLength(Count);
-                return EnumerateFrames().Skip(offset).Take(length).ToArray();
-            }
-        }
-        public IEnumerator<EnemySpritemapDefinition> GetEnumerator() => EnumerateFrames().GetEnumerator();
+            ? frames.Value[index] : throw new IndexOutOfRangeException();
+        internal EnemySpritemapDefinition[] this[Range range] => frames.Value[range];
+        public IEnumerator<EnemySpritemapDefinition> GetEnumerator() => ((IEnumerable<EnemySpritemapDefinition>)frames.Value).GetEnumerator();
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

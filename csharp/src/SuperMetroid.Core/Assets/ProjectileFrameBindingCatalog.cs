@@ -62,17 +62,9 @@ public sealed class ProjectileFrameBindingCatalog
         return bytes;
     }
 
-    private static void RejectDuplicates(JsonElement value)
-    {
-        if (value.ValueKind != JsonValueKind.Object) return;
-        var names = new HashSet<string>(StringComparer.Ordinal);
-        foreach (JsonProperty property in value.EnumerateObject())
-        {
-            if (!names.Add(property.Name))
-                throw new InvalidDataException($"Duplicate projectile frame-binding property {property.Name}.");
-            RejectDuplicates(property.Value);
-        }
-    }
+    private static void RejectDuplicates(JsonElement value) =>
+        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
+            name => new InvalidDataException($"Duplicate projectile frame-binding property {name}."), descendArrays: false);
 
     private static readonly JsonSerializerOptions Options = new()
     {

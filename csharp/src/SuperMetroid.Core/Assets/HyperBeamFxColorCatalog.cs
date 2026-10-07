@@ -203,21 +203,9 @@ public sealed class HyperBeamFxColorCatalog
         return bytes;
     }
 
-    private static void RejectDuplicateProperties(JsonElement value)
-    {
-        if (value.ValueKind == JsonValueKind.Object)
-        {
-            var names = new HashSet<string>(StringComparer.Ordinal);
-            foreach (JsonProperty property in value.EnumerateObject())
-            {
-                if (!names.Add(property.Name))
-                    throw new InvalidDataException("Duplicate Hyper Beam FX color property.");
-                RejectDuplicateProperties(property.Value);
-            }
-        }
-        else if (value.ValueKind == JsonValueKind.Array)
-            foreach (JsonElement child in value.EnumerateArray()) RejectDuplicateProperties(child);
-    }
+    private static void RejectDuplicateProperties(JsonElement value) =>
+        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
+            name => new InvalidDataException("Duplicate Hyper Beam FX color property."));
 }
 
 public sealed record HyperBeamFxColorDocument

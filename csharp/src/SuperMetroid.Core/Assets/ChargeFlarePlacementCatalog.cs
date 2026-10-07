@@ -66,16 +66,9 @@ public sealed class ChargeFlarePlacementCatalog
         _ = Load(new MemoryStream(bytes));
         return bytes;
     }
-    private static void ValidateUnique(JsonElement element)
-    {
-        if (element.ValueKind != JsonValueKind.Object) return;
-        var names = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var property in element.EnumerateObject())
-        {
-            if (!names.Add(property.Name)) throw new InvalidDataException("Duplicate charge-flare placement property.");
-            ValidateUnique(property.Value);
-        }
-    }
+    private static void ValidateUnique(JsonElement element) =>
+        JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,
+            name => new InvalidDataException("Duplicate charge-flare placement property."), descendArrays: false);
 }
 
 public sealed record ChargeFlareOffset

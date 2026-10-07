@@ -92,6 +92,9 @@ internal readonly struct InstructionItem
 internal sealed class InstructionProgramLayout
 {
     private readonly InstructionItem[] items;
+    // Lookups run per instruction and per byte; the layout is immutable, so its words are laid
+    // out once and indexed by address instead of walked on every query.
+    private readonly Lazy<WordIndex> index;
 
     internal InstructionProgramLayout(byte bank, params InstructionItem[] items)
     {
@@ -99,6 +102,7 @@ internal sealed class InstructionProgramLayout
             throw new ArgumentException("A program layout starts with its origin.", nameof(items));
         Bank = bank;
         this.items = items;
+        index = new(() => new WordIndex(new WordWalker(items)));
         int address = 0;
         foreach (InstructionItem item in items)
         {
@@ -137,27 +141,21 @@ internal sealed class InstructionProgramLayout
     internal (ushort Address, ushort Value) MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
-        foreach ((ushort address, InstructionWord word) in Words())
-            if (!word.IsPresentation && index-- == 0)
-                return (address, word.Value);
-        throw new InvalidOperationException("Instruction mechanics count is inconsistent.");
+        var (address, word) = this.index.Value.Words[this.index.Value.Mechanics[index]];
+        return (address, word.Value);
     }
 
     /// <summary>Address of the <paramref name="index"/>th presentation slot.</summary>
     internal ushort PresentationSlotAddress(int index)
     {
         if ((uint)index >= PresentationSlotCount) throw new IndexOutOfRangeException();
-        foreach ((ushort address, InstructionWord word) in Words())
-            if (word.IsPresentation && index-- == 0)
-                return address;
-        throw new InvalidOperationException("Instruction presentation count is inconsistent.");
+        return this.index.Value.Words[this.index.Value.Presentation[index]].Address;
     }
 
     internal bool TryReadMechanicsWord(ushort address, out ushort value)
     {
-        foreach ((ushort wordAddress, InstructionWord word) in Words())
+        if (index.Value.TryGet(address, out InstructionWord word))
         {
-            if (wordAddress != address) continue;
             value = word.Value;
             return !word.IsPresentation;
         }
@@ -171,9 +169,8 @@ internal sealed class InstructionProgramLayout
     /// </summary>
     internal bool TryReadWord(ushort address, out ushort value)
     {
-        foreach ((ushort wordAddress, InstructionWord word) in Words())
+        if (index.Value.TryGet(address, out InstructionWord word))
         {
-            if (wordAddress != address) continue;
             value = word.Value;
             return !word.IsPresentation || word.IsCompiledVisual;
         }
@@ -181,13 +178,8 @@ internal sealed class InstructionProgramLayout
         return false;
     }
 
-    internal bool IsPresentationWord(ushort address)
-    {
-        foreach ((ushort wordAddress, InstructionWord word) in Words())
-            if (wordAddress == address)
-                return word.IsPresentation;
-        return false;
-    }
+    internal bool IsPresentationWord(ushort address) =>
+        index.Value.TryGet(address, out InstructionWord word) && word.IsPresentation;
 
     /// <summary>
     /// Counts the timed frames that run from <paramref name="entry"/> and returns the opcode of
@@ -214,12 +206,30 @@ internal sealed class InstructionProgramLayout
         wordAddress = 0;
         if (longAddress >> 16 != Bank) return false;
         int bankAddress = longAddress & ushort.MaxValue;
-        foreach ((ushort address, InstructionWord word) in Words())
+        // Words never overlap, so the byte belongs to the word starting one byte before it or at it.
+        if (TryWordContaining(bankAddress, out ushort start, out InstructionWord word) && word.IsPresentation)
         {
-            if (!word.IsPresentation || (bankAddress != address && bankAddress != address + 1)) continue;
-            wordAddress = address;
+            wordAddress = start;
             return true;
         }
+        return false;
+    }
+
+    /// <summary>The word containing <paramref name="bankAddress"/>, checking the earlier start first.</summary>
+    private bool TryWordContaining(int bankAddress, out ushort start, out InstructionWord word)
+    {
+        if (bankAddress > 0 && index.Value.TryGet((ushort)(bankAddress - 1), out word))
+        {
+            start = (ushort)(bankAddress - 1);
+            return true;
+        }
+        if (bankAddress <= ushort.MaxValue && index.Value.TryGet((ushort)bankAddress, out word))
+        {
+            start = (ushort)bankAddress;
+            return true;
+        }
+        start = 0;
+        word = default;
         return false;
     }
 
@@ -228,22 +238,42 @@ internal sealed class InstructionProgramLayout
     {
         if (longAddress >> 16 != Bank) return false;
         int bankAddress = longAddress & ushort.MaxValue;
-        foreach ((ushort wordAddress, InstructionWord word) in Words())
-            if (!word.IsPresentation && (bankAddress == wordAddress || bankAddress == wordAddress + 1))
-                return true;
-        return false;
+        return TryWordContaining(bankAddress, out _, out InstructionWord word) && !word.IsPresentation;
     }
 
     /// <summary>True when <paramref name="address"/> is the first byte of any laid-out word.</summary>
-    internal bool Owns(ushort address)
-    {
-        foreach ((ushort wordAddress, _) in Words())
-            if (wordAddress == address)
-                return true;
-        return false;
-    }
+    internal bool Owns(ushort address) => index.Value.TryGet(address, out _);
 
-    private WordWalker Words() => new(items);
+    /// <summary>Every laid-out word in address order, its address index, and its two orderings.</summary>
+    private sealed class WordIndex
+    {
+        internal readonly (ushort Address, InstructionWord Word)[] Words;
+        internal readonly int[] Mechanics, Presentation;
+        private readonly Dictionary<ushort, int> byAddress = [];
+
+        internal WordIndex(WordWalker walker)
+        {
+            var words = new List<(ushort, InstructionWord)>();
+            var mechanics = new List<int>();
+            var presentation = new List<int>();
+            foreach ((ushort address, InstructionWord word) in walker)
+            {
+                (word.IsPresentation ? presentation : mechanics).Add(words.Count);
+                byAddress.TryAdd(address, words.Count);
+                words.Add((address, word));
+            }
+            Words = [.. words];
+            Mechanics = [.. mechanics];
+            Presentation = [.. presentation];
+        }
+
+        internal bool TryGet(ushort address, out InstructionWord word)
+        {
+            bool found = byAddress.TryGetValue(address, out int position);
+            word = found ? Words[position].Word : default;
+            return found;
+        }
+    }
 
     /// <summary>Allocation-free walk of every laid-out word in address order.</summary>
     private struct WordWalker(InstructionItem[] items)

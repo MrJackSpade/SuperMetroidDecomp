@@ -105,20 +105,9 @@ public sealed class ProjectileSpriteCatalog
         return new(frames);
     }
 
-    private static void RejectDuplicateProperties(JsonElement element)
-    {
-        if (element.ValueKind == JsonValueKind.Object)
-        {
-            var names = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var property in element.EnumerateObject())
-            {
-                if (!names.Add(property.Name)) throw new InvalidDataException($"Duplicate projectile composition property {property.Name}.");
-                RejectDuplicateProperties(property.Value);
-            }
-        }
-        else if (element.ValueKind == JsonValueKind.Array)
-            foreach (var item in element.EnumerateArray()) RejectDuplicateProperties(item);
-    }
+    private static void RejectDuplicateProperties(JsonElement element) =>
+        JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,
+            name => new InvalidDataException($"Duplicate projectile composition property {name}."));
 }
 
 public sealed record ProjectileSpriteDocument

@@ -171,20 +171,9 @@ public sealed class EnemyAuxiliaryColorCatalog
         return data;
     }
 
-    private static void RejectDuplicates(JsonElement value)
-    {
-        if (value.ValueKind == JsonValueKind.Object)
-        {
-            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (JsonProperty property in value.EnumerateObject())
-            {
-                if (!names.Add(property.Name)) throw new InvalidDataException($"Duplicate auxiliary palette property {property.Name}.");
-                RejectDuplicates(property.Value);
-            }
-        }
-        else if (value.ValueKind == JsonValueKind.Array)
-            foreach (JsonElement child in value.EnumerateArray()) RejectDuplicates(child);
-    }
+    private static void RejectDuplicates(JsonElement value) =>
+        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.OrdinalIgnoreCase,
+            name => new InvalidDataException($"Duplicate auxiliary palette property {name}."));
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

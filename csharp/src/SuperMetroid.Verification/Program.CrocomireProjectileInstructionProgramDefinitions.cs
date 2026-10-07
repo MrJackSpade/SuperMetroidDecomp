@@ -18,7 +18,7 @@ internal static partial class Program
         Suite(nameof(VerifyCrocomireProjectileMechanicsDispatch), () => VerifyCrocomireProjectileMechanicsDispatch(rom));
         Suite(nameof(VerifyCrocomireProjectilePresentationPositions), () => VerifyCrocomireProjectilePresentationPositions(rom));
 
-        var spriteArtwork = RepositoryInstallation.Installation.LoadEnemyTiles().ProjectileSpritemaps
+        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = new CrocomireProjectileInstructionReadGuard(rom);

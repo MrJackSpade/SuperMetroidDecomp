@@ -14,7 +14,7 @@ internal static partial class Program
     {
         var rom = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var installation = RepositoryInstallation.Installation;
-        var art = installation.LoadMaps();
+        var art = RepositoryInstallation.Maps;
         // All SRAM changes belong to this private imported address space.
         var saves = new SuperMetroidSaveRam(rom, RetailPresentationFixture());
         for (int slot = 0; slot < 3; slot++)

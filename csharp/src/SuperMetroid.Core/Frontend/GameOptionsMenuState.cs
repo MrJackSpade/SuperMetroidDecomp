@@ -9,6 +9,11 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Complete game-state-$02 options owner, including both secondary pages.</summary>
 public sealed class GameOptionsMenuState
 {
+    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    [NonSerialized] private Rgba32[]? objectLayerScratch;
+    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    [NonSerialized] private Rgba32[]? frameBuffer;
+
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
     private readonly MenuPpuState ppu;
@@ -193,14 +198,14 @@ public sealed class GameOptionsMenuState
 
     public Rgba32[] Render()
     {
-        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(
-            ppu.Cgram,
-            FrontendFrame.Width * FrontendFrame.Height);
-        Rgba32[] backgroundLayer = SnesBgTilemapRenderer.Render4BppViewport(
+        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            background,
             ppu.Vram, ppu.Cgram, MenuPpuState.Bg2TilemapWord, 0, 0, 0,
             FrontendFrame.Width, FrontendFrame.Height,
             GameOptionsRomData.MenuTilemapWidth, GameOptionsRomData.MenuTilemapHeight);
-        Rgba32[] foreground = SnesBgTilemapRenderer.Render4BppViewport(
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            background,
             ppu.Vram,
             ppu.Cgram,
             MenuPpuState.Bg1TilemapWord,
@@ -211,13 +216,13 @@ public sealed class GameOptionsMenuState
             FrontendFrame.Height,
             GameOptionsRomData.MenuTilemapWidth,
             GameOptionsRomData.MenuTilemapHeight);
-        SnesLayerCompositor.Composite(background, backgroundLayer);
-        SnesLayerCompositor.Composite(background, foreground);
 
         PrepareRenderOam();
+        Rgba32[] objectLayer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
+        SnesObjRenderer.Render(objectLayer, oam, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
         SnesLayerCompositor.Composite(
             background,
-            SnesObjRenderer.Render(oam, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection));
+            objectLayer);
         ApplyBrightness(background);
         return background;
     }

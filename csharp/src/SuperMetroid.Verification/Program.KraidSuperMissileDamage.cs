@@ -16,11 +16,11 @@ internal static partial class Program
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
-        game.BindMapPresentation(installation.LoadMaps());
+        game.BindMapPresentation(RepositoryInstallation.Maps);
         game.BindGameplayBasePalettes(installation.LoadGameplayBasePalettes());
         game.BindStandardObjectArt(installation.LoadStandardObjects());
-        game.BindIntroCinematicArt(installation.LoadIntroCinematicArt());
-        game.BindSamusBodyArt(installation.LoadSamusBodyArt());
+        game.BindIntroCinematicArt(RepositoryInstallation.IntroArtwork);
+        game.BindSamusBodyArt(RepositoryInstallation.SamusBody);
         game.BindEndingMode7Art(installation.LoadEndingMode7Art());
         game.BindEndingObjectArt(installation.LoadEndingObjectArt());
         game.BindEndingPaletteArt(installation.LoadEndingPalettes());
@@ -58,11 +58,11 @@ internal static partial class Program
         game.BindXrayRevealVisuals(installation.LoadXrayRevealVisuals());
         game.BindRoomBackgroundTilemapArt(installation.LoadRoomBackgroundTilemaps());
         game.BindRoomSkyTilemapArt(installation.LoadRoomSkyTilemaps());
-        var projectiles=installation.LoadProjectiles();
+        var projectiles=RepositoryInstallation.Projectiles;
         game.BindProjectileCompositions(projectiles.Catalog);
         game.BindProjectileFrameBindings(projectiles.FrameBindings);
         game.BindBeamArtwork(projectiles.BeamTiles);
-        game.BindEnemyTileArtwork(installation.LoadEnemyTiles());
+        game.BindEnemyTileArtwork(RepositoryInstallation.EnemyTiles);
         game.BindTrailArtwork(projectiles.Trails);
         game.BindChargeFlarePlacement(projectiles.FlarePlacement);
         game.BindChargeFlareCompositions(projectiles.FlareCompositions);

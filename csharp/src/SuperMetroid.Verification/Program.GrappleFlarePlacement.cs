@@ -86,7 +86,7 @@ internal static partial class Program
             }
             void Compare(bool checkVisibleOffset = true)
             {
-                AssertTrue(SaveGrappleFixture(native).SequenceEqual(SaveGrappleFixture(selected)), "Stock extracted flare preserves complete Samus graph");
+                AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(selected)), "Stock extracted flare preserves complete Samus graph");
                 var a = native.Grapple; var b = changed.Grapple;
                 if (checkVisibleOffset)
                 {
@@ -96,7 +96,7 @@ internal static partial class Program
                 var saved = (b.FlareXOffset, b.FlareYOffset, b.BeamStartX, b.BeamStartY);
                 b.FlareXOffset = a.FlareXOffset; b.FlareYOffset = a.FlareYOffset;
                 b.BeamStartX = a.BeamStartX; b.BeamStartY = a.BeamStartY;
-                AssertTrue(SaveGrappleFixture(native).SequenceEqual(SaveGrappleFixture(changed)), "Edited flare changes only four presentation words, not full-body/anchor/trajectory state");
+                AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Edited flare changes only four presentation words, not full-body/anchor/trajectory state");
                 (b.FlareXOffset, b.FlareYOffset, b.BeamStartX, b.BeamStartY) = saved;
             }
         }
@@ -104,12 +104,12 @@ internal static partial class Program
         var runtime = CreateRetailRuntimeFixture(rom);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.RunNmi(0, true);
-        byte[] beforeBinding = SaveGrappleFixture(runtime.Samus!);
+        byte[] beforeBinding = GraphDigest(runtime.Samus!);
         var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameExtractor.Extract(rom)));
         runtime.GrappleArtwork = GrappleTileAtlas.Load(new MemoryStream(GrappleTileExtractor.Extract(rom)), flarePlacement: edited, swingFrames: swingFrames);
         AssertTrue(ReferenceEquals(edited, runtime.Samus!.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");
         AssertTrue(ReferenceEquals(swingFrames, runtime.Samus.Grapple.SwingFrames), "Artwork rebinding reaches current swing-frame selection");
-        AssertTrue(beforeBinding.SequenceEqual(SaveGrappleFixture(runtime.Samus)), "Presentation binding is excluded from Samus saved graph");
+        AssertTrue(beforeBinding.SequenceEqual(GraphDigest(runtime.Samus)), "Presentation binding is excluded from Samus saved graph");
         runtime.Samus.Grapple.FlarePlacement = null;
         runtime.Samus.Grapple.SwingFrames = null;
         runtime.StepFrame(0);

@@ -13,8 +13,18 @@ public static class AudioMusicInstructionOperations
     public const string FastForwardOff = "fastForwardOff";
     public const string Repeat = "repeat";
 
+    // Each manifest instruction names its effect; build the camel-case names once.
+    private static readonly Dictionary<SpcMusicEffect, string> effectOperations =
+        Enum.GetValues<SpcMusicEffect>().Distinct().ToDictionary(effect => effect, effect =>
+        {
+            string name = effect.ToString();
+            return char.ToLowerInvariant(name[0]) + name[1..];
+        });
+
     internal static string ForEffect(SpcMusicEffect effect)
     {
+        if (effectOperations.TryGetValue(effect, out string? operation))
+            return operation;
         string name = effect.ToString();
         return char.ToLowerInvariant(name[0]) + name[1..];
     }

@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Security.Cryptography;
 using System.Buffers.Binary;
 using System.Text.Json;
@@ -141,8 +142,8 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
     /// <summary>Reads all areas atomically into a new catalog; an invalid override is never replaced with stock.</summary>
     public static AreaMapPresentationCatalog Load(string stockDirectory, string? overrideDirectory)
     {
-        var stock = VerifiedStockReader.Open(stockDirectory);
-        var mapBytes = new Dictionary<AreaId, byte[]>();
+        using var stock = VerifiedStockReader.Open(stockDirectory);
+        var mapBytes = new Dictionary<AreaId, ArraySegment<byte>>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
             mapBytes.Add(area, stock.Read(AreaMapCatalogFormat.FileName(area)));
         Dictionary<AreaId, HashSet<int>> stationCells = stock.ReadStationCells();
@@ -150,7 +151,7 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         using var identity = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            using var baselineStream = new MemoryStream(mapBytes[area], writable: false);
+            using var baselineStream = ReadOnlyStream(mapBytes[area]);
             var baseline = AreaMapPresentationAsset.Load(baselineStream, new AreaMapDecodeRules(area));
             IAreaMapView definition = new AreaMapStockRules(baseline, stationCells[area]);
             // The identity covers baseline rule content too: equal override bytes do
@@ -160,14 +161,14 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
             foreach (int cell in stationCells[area]) stationPlane[cell] = 1;
             AppendFramed(stationPlane);
             string? replacement = OverridePath(AreaMapCatalogFormat.FileName(area));
-            byte[] selected = replacement is not null ? File.ReadAllBytes(replacement) : mapBytes[area];
+            ArraySegment<byte> selected = replacement is not null ? File.ReadAllBytes(replacement) : mapBytes[area];
             if (replacement is null)
                 areas[AreaIds.ToIndex(area)] = baseline.WithRules(definition);
             else
             {
                 try
                 {
-                    using var stream = new MemoryStream(selected, writable: false);
+                    using var stream = ReadOnlyStream(selected);
                     areas[AreaIds.ToIndex(area)] = AreaMapPresentationAsset.Load(stream, definition);
                 }
                 catch (InvalidDataException error)
@@ -263,12 +264,12 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         // compiled stock value; an edited one compiles its override against current stock.
         T MultiFileResource<T>(string[] files, string description, Func<Stream[], T?, T> compile, bool frameStock = false) where T : class
         {
-            byte[][] stockBytes = files.Select(stock.Read).ToArray();
+            ArraySegment<byte>[] stockBytes = files.Select(stock.Read).ToArray();
             T stockValue = Compile(files.Select(file => Path.Combine(stockDirectory, file)).ToArray(), stockBytes, null);
             if (frameStock)
-                foreach (byte[] bytes in stockBytes) AppendFramed(bytes);
+                foreach (ArraySegment<byte> bytes in stockBytes) AppendFramed(bytes);
             string?[] edited = files.Select(OverridePath).ToArray();
-            byte[][] selected = new byte[files.Length][];
+            var selected = new ArraySegment<byte>[files.Length];
             for (int index = 0; index < files.Length; index++)
             {
                 selected[index] = edited[index] is { } path ? File.ReadAllBytes(path) : stockBytes[index];
@@ -277,11 +278,11 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
             if (edited.All(path => path is null)) return stockValue;
             return Compile(files.Select((file, index) => edited[index] ?? Path.Combine(stockDirectory, file)).ToArray(), selected, stockValue);
 
-            T Compile(string[] paths, byte[][] contents, T? current)
+            T Compile(string[] paths, ArraySegment<byte>[] contents, T? current)
             {
                 try
                 {
-                    return compile(contents.Select(bytes => (Stream)new MemoryStream(bytes, writable: false)).ToArray(), current);
+                    return compile(contents.Select(bytes => (Stream)ReadOnlyStream(bytes)).ToArray(), current);
                 }
                 catch (InvalidDataException error)
                 {
@@ -298,7 +299,7 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
             return path is not null && File.Exists(path) ? path : null;
         }
 
-        void AppendFramed(byte[] bytes)
+        void AppendFramed(ReadOnlySpan<byte> bytes)
         {
             Span<byte> length = stackalloc byte[sizeof(int)];
             BinaryPrimitives.WriteInt32LittleEndian(length, bytes.Length);
@@ -307,15 +308,24 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
         }
     }
 
+    /// <summary>
+    /// A read-only view whose buffer the JSON reader may parse in place. Compilers copy what
+    /// they keep, so pooled stock bytes are never referenced after <see cref="Load"/> returns.
+    /// </summary>
+    private static MemoryStream ReadOnlyStream(ArraySegment<byte> bytes) =>
+        new(bytes.Array!, bytes.Offset, bytes.Count, writable: false, publiclyVisible: true);
+
     /// <summary>Installer integrity check; never repairs files or touches the override directory.</summary>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     /// <summary>Reads stock files that must match the extraction manifest's SHA-256 values.</summary>
-    private sealed class VerifiedStockReader
+    private sealed class VerifiedStockReader : IDisposable
     {
         private readonly string directory;
         private readonly AreaMapCatalogManifest manifest;
         private readonly HashSet<string> read = new(StringComparer.Ordinal);
+        // Stock bytes live only for one catalog load; every buffer returns to the pool on dispose.
+        private readonly List<byte[]> rented = [];
 
         private VerifiedStockReader(string directory, AreaMapCatalogManifest manifest)
         {
@@ -338,15 +348,28 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
             return new VerifiedStockReader(directory, manifest);
         }
 
-        public byte[] Read(string file)
+        public ArraySegment<byte> Read(string file)
         {
             if (!manifest.Sha256.TryGetValue(file, out string? expected))
                 throw new InvalidDataException($"Map catalog manifest is missing {file}.");
-            byte[] bytes = File.ReadAllBytes(Path.Combine(directory, file));
-            if (!string.Equals(expected, Convert.ToHexString(SHA256.HashData(bytes)), StringComparison.OrdinalIgnoreCase))
+            using var input = File.OpenRead(Path.Combine(directory, file));
+            int length = checked((int)input.Length);
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(length);
+            rented.Add(buffer);
+            input.ReadExactly(buffer.AsSpan(0, length));
+            var bytes = new ArraySegment<byte>(buffer, 0, length);
+            Span<byte> actual = stackalloc byte[SHA256.HashSizeInBytes];
+            SHA256.HashData(bytes, actual);
+            if (!string.Equals(expected, Convert.ToHexString(actual), StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException($"Stock map '{Path.GetFullPath(Path.Combine(directory, file))}' failed its SHA-256 check. Put edits in the overrides directory, not stock content.");
             read.Add(file);
             return bytes;
+        }
+
+        public void Dispose()
+        {
+            foreach (byte[] buffer in rented) ArrayPool<byte>.Shared.Return(buffer);
+            rented.Clear();
         }
 
         public Dictionary<AreaId, HashSet<int>> ReadStationCells()
@@ -354,7 +377,7 @@ private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity,
             Dictionary<string, int[]> masks;
             try
             {
-                masks = JsonAssetDocument.Read<Dictionary<string, int[]>>(Read(AreaMapCatalogFormat.StationRevealFile), MapPresentationFormat.JsonOptions)
+                masks = JsonAssetDocument.Read<Dictionary<string, int[]>>(ReadOnlyStream(Read(AreaMapCatalogFormat.StationRevealFile)), MapPresentationFormat.JsonOptions)
                     ?? throw new InvalidDataException("Station reveal content is null.");
             }
             catch (JsonException error) { throw new InvalidDataException("Invalid station reveal content.", error); }

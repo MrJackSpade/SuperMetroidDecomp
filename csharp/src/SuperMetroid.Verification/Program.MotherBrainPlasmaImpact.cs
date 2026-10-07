@@ -23,7 +23,7 @@ internal static partial class Program
         ((List<ushort>)typeof(RoomEnemySystem).GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!).Add(head.NativeIndex);
         var samus = new SamusState();
         var installation = RepositoryInstallation.Installation;
-        var shots = new SamusProjectileSystem { FrameBindings = installation.LoadProjectiles().FrameBindings };
+        var shots = new SamusProjectileSystem { FrameBindings = RepositoryInstallation.Projectiles.FrameBindings };
         var bombs = new SamusBombProjectileSystem();
         var shot = shots.Slots[0];
         SeedChargedPlasma();

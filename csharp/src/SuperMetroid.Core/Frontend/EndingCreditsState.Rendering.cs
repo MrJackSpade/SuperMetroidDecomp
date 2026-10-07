@@ -7,19 +7,25 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class EndingCreditsState
 {
+    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    [NonSerialized] private Rgba32[]? objectLayerScratch;
+    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    [NonSerialized] private Rgba32[]? frameBuffer;
+
     /// <summary>Projects the current cartridge-backed PPU image into the desktop raster.</summary>
     public Rgba32[] Render()
     {
         if (AtmosphericMapWraps || UsesFlyawayMode7Priority || UsesExplosionFinaleDisplay || postShot is not null || endingLogo is not null || Phase >= EndingCreditsPhase.PostCreditsBlank)
             return SoftwareLayeredSnapshotRenderer.Render(CaptureRenderSnapshot());
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
+        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
 
         if (Phase == EndingCreditsPhase.Credits)
         {
             // Function 126 installs font 3 at word $4000 and the circular credits map at
             // BG1SC word $4800. The half-pixel accumulator itself is held by the credits
             // object; the PPU consumes only its whole vertical-scroll word.
-            Rgba32[] text = SnesBgTilemapRenderer.Render4BppViewport(
+            SnesBgTilemapRenderer.Composite4BppViewport(
+                pixels,
                 vram,
                 cgram,
                 tilemapBaseWord: EndingCreditsRomData.Rendering.CreditsTilemapWord,
@@ -30,7 +36,6 @@ internal sealed partial class EndingCreditsState
                 height: 224,
                 tilemapWidthInTiles: 32,
                 tilemapHeightInTiles: 32);
-            SnesLayerCompositor.Composite(pixels, text);
         }
         else if (Phase >= EndingCreditsPhase.PostCreditsBlank)
         {
@@ -56,7 +61,8 @@ internal sealed partial class EndingCreditsState
         short sine = ReadSine(mode7Angle.TableIndex);
         short matrixA = Scale(cosine, mode7Zoom);
         short matrixB = Scale(sine, mode7Zoom);
-        Rgba32[] mode7 = SnesMode7Renderer.RenderViewport(
+        SnesMode7Renderer.CompositeViewport(
+            pixels,
             vram,
             cgram,
             matrixA,
@@ -67,7 +73,6 @@ internal sealed partial class EndingCreditsState
             centerY: CurrentMode7CenterY,
             horizontalOffset: unchecked((short)mode7X),
             verticalOffset: unchecked((short)mode7Y), wrapOutsideMap: AtmosphericMapWraps);
-        SnesLayerCompositor.Composite(pixels, mode7);
     }
 
     private byte CurrentEscapeObjectSelection => Phase < EndingCreditsPhase.FadeInZebesExplosion
@@ -96,7 +101,8 @@ internal sealed partial class EndingCreditsState
 
         // The opening waiting scene uses BG2 ($4C00/$5000). Result text is uploaded to
         // BG1 ($4800/$4000), so its map and font must change together at the handoff.
-        Rgba32[] waiting = SnesBgTilemapRenderer.Render4BppViewport(
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            pixels,
             vram,
             cgram,
             tilemapBaseWord: CurrentPostCreditsTilemapWord,
@@ -107,13 +113,13 @@ internal sealed partial class EndingCreditsState
             height: 224,
             tilemapWidthInTiles: 32,
             tilemapHeightInTiles: postCreditsMapHeight);
-        SnesLayerCompositor.Composite(pixels, waiting);
     }
 
     private void RenderSprites(Span<Rgba32> pixels, byte obsel)
     {
         OamBuffer oam = PrepareSprites();
-        Rgba32[] objects = SnesObjRenderer.Render(oam, vram, cgram, obsel);
+        Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
+        SnesObjRenderer.Render(objects, oam, vram, cgram, obsel);
         if (RewardSubscreenAddition) SnesLayerCompositor.AddSubscreen(pixels, objects);
         else SnesLayerCompositor.Composite(pixels, objects);
     }

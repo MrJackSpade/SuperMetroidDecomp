@@ -52,7 +52,7 @@ internal static partial class Program
                 AssertEqual(a.Entries[i].EncodedVramDestination, b.Entries[i].EncodedVramDestination, "Grapple atlas preserves transfer ordering and destination");
             }
             AssertTrue(oa.LowTable.SequenceEqual(ob.LowTable) && oa.HighTable.SequenceEqual(ob.HighTable) && oa.LowTable.SequenceEqual(oc.LowTable) && oa.HighTable.SequenceEqual(oc.HighTable), "Grapple PNG edits do not change rope OBJ placement or composition");
-            AssertTrue(SaveGrappleFixture(native).SequenceEqual(SaveGrappleFixture(selected)) && SaveGrappleFixture(native).SequenceEqual(SaveGrappleFixture(changed)), "Grapple PNG edits preserve entire rope/animation simulation state");
+            AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(selected)) && GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Grapple PNG edits preserve entire rope/animation simulation state");
             var va = new SnesVram(); var vb = new SnesVram(); var vc = new SnesVram();
             va.LoadBytes(0, poison); vb.LoadBytes(0, poison); vc.LoadBytes(0, poison);
             ImportedVramOracle.Drain(a, va, bus); b.DrainTo(vb, ReferenceMutableMemory.From(guard), stock); c.DrainTo(vc, ReferenceMutableMemory.From(guard), edited);

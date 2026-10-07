@@ -547,26 +547,22 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException(
                 $"Invalid Crocomire melt artwork in {overrideDirectory ?? stockDirectory}: {error.Message}", error);
         }
-        byte[] compositionJson = ReadStockOrOverride(
-            EnemySpritemapDefinitions.FileName, manifest.EnemyCompositionsSha256);
         EnemySpritemapCatalog spritemaps;
         try
         {
             // Older overrides cannot know the later Skultera, Waver, and
             // Skree/Metaree/Zoa, Pipe Bug, Fake Kraid, Kraid nail, Owtch, Stoke, and Ripper identities.
             // Merge only their validated frames onto verified current stock content,
-            // preserving existing user edits through an extraction upgrade.
-            string stockCompositionPath = Path.Combine(
-                stockDirectory, EnemySpritemapDefinitions.FileName);
-            byte[] stockComposition = File.ReadAllBytes(stockCompositionPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockComposition)),
-                    manifest.EnemyCompositionsSha256, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException(
-                    $"Stock enemy compositions {stockCompositionPath} failed its manifest hash.");
+            // preserving existing user edits through an extraction upgrade. Stock is
+            // compiled once; without an override that compiled stock is the selection.
+            byte[] stockComposition = ReadVerifiedStock(
+                EnemySpritemapDefinitions.FileName, manifest.EnemyCompositionsSha256);
             EnemySpritemapCatalog stockSpritemaps = EnemySpritemapCatalog.Load(
                 new MemoryStream(stockComposition, writable: false));
-            spritemaps = EnemySpritemapCatalog.Load(
-                new MemoryStream(compositionJson, writable: false), stockSpritemaps);
+            spritemaps = OverridePath(EnemySpritemapDefinitions.FileName) is { } compositionOverride
+                ? EnemySpritemapCatalog.Load(
+                    new MemoryStream(File.ReadAllBytes(compositionOverride), writable: false), stockSpritemaps)
+                : stockSpritemaps;
         }
         catch (InvalidDataException error)
         {
@@ -577,43 +573,34 @@ public static class EnemyTileArtworkFiles
         EnemyProjectileSpritemapCatalog projectileSpritemaps;
         try
         {
-            string stockPath = Path.Combine(stockDirectory,
-                EnemyProjectileSpritemapDefinitions.FileName);
-            byte[] selected = ReadStockOrOverride(
-                EnemyProjectileSpritemapDefinitions.FileName,
-                manifest.EnemyProjectileCompositionsSha256);
             EnemyProjectileSpritemapCatalog stockProjectiles =
-                EnemyProjectileSpritemapCatalog.Load(
-                    new MemoryStream(File.ReadAllBytes(stockPath), writable: false));
-            projectileSpritemaps = EnemyProjectileSpritemapCatalog.Load(
-                new MemoryStream(selected, writable: false), stockProjectiles);
+                EnemyProjectileSpritemapCatalog.Load(new MemoryStream(ReadVerifiedStock(
+                    EnemyProjectileSpritemapDefinitions.FileName,
+                    manifest.EnemyProjectileCompositionsSha256), writable: false));
+            projectileSpritemaps = OverridePath(EnemyProjectileSpritemapDefinitions.FileName) is { } projectileOverride
+                ? EnemyProjectileSpritemapCatalog.Load(
+                    new MemoryStream(File.ReadAllBytes(projectileOverride), writable: false), stockProjectiles)
+                : stockProjectiles;
         }
         catch (InvalidDataException error)
         {
             throw new InvalidDataException(
                 "Invalid installed enemy-projectile compositions.", error);
         }
-        byte[] extendedJson = ReadStockOrOverride(
-            EnemyExtendedFrameDefinitions.FileName,
-            manifest.EnemyExtendedCompositionsSha256);
         EnemyExtendedFrameCatalog extendedFrames;
         try
         {
             // V1 has walking frames and v2 adds wall frames. Overlay either
             // validated legacy file onto complete, hash-checked v3 stock so
             // newly added Ninja art cannot discard the user's existing edits.
-            string stockExtendedPath = Path.Combine(stockDirectory,
-                EnemyExtendedFrameDefinitions.FileName);
-            byte[] stockExtendedJson = File.ReadAllBytes(stockExtendedPath);
-            if (!string.Equals(Convert.ToHexString(SHA256.HashData(stockExtendedJson)),
-                    manifest.EnemyExtendedCompositionsSha256,
-                    StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException(
-                    $"Stock extended enemy compositions {stockExtendedPath} failed its manifest hash.");
+            byte[] stockExtendedJson = ReadVerifiedStock(
+                EnemyExtendedFrameDefinitions.FileName, manifest.EnemyExtendedCompositionsSha256);
             EnemyExtendedFrameCatalog stockExtended = EnemyExtendedFrameCatalog.Load(
                 new MemoryStream(stockExtendedJson, writable: false));
-            extendedFrames = EnemyExtendedFrameCatalog.Load(
-                new MemoryStream(extendedJson, writable: false), stockExtended);
+            extendedFrames = OverridePath(EnemyExtendedFrameDefinitions.FileName) is { } extendedOverride
+                ? EnemyExtendedFrameCatalog.Load(
+                    new MemoryStream(File.ReadAllBytes(extendedOverride), writable: false), stockExtended)
+                : stockExtended;
         }
         catch (InvalidDataException error)
         {
@@ -1128,15 +1115,25 @@ public static class EnemyTileArtworkFiles
 
         byte[] ReadStockOrOverride(string fileName, string expectedSha256)
         {
+            byte[] stock = ReadVerifiedStock(fileName, expectedSha256);
+            return OverridePath(fileName) is { } overridePath ? File.ReadAllBytes(overridePath) : stock;
+        }
+
+        byte[] ReadVerifiedStock(string fileName, string expectedSha256)
+        {
             string stockPath = Path.Combine(stockDirectory, fileName);
             byte[] stock = File.ReadAllBytes(stockPath);
             if (!string.Equals(Convert.ToHexString(SHA256.HashData(stock)), expectedSha256,
                     StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException($"Stock enemy asset {stockPath} failed its manifest hash.");
+            return stock;
+        }
+
+        string? OverridePath(string fileName)
+        {
             string? overridePath = overrideDirectory is null ? null :
                 Path.Combine(overrideDirectory, fileName);
-            return overridePath is not null && File.Exists(overridePath)
-                ? File.ReadAllBytes(overridePath) : stock;
+            return overridePath is not null && File.Exists(overridePath) ? overridePath : null;
         }
     }
 

@@ -110,7 +110,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem
         {
-            TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles(),
+            TileArtwork = RepositoryInstallation.EnemyTiles,
             CeresRidleyColors = RetailPresentationFixture().CeresRidleyColors,
         };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);

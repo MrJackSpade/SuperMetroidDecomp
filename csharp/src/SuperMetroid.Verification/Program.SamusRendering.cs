@@ -514,7 +514,7 @@ static void VerifySamusArmCannon()
         SelectedHudItem = 0,
     };
 
-    samus.TileTransfers.BindArtwork(RepositoryInstallation.Installation.LoadSamusBodyArt());
+    samus.TileTransfers.BindArtwork(RepositoryInstallation.SamusBody);
     samus.ArmCannon.Artwork = artwork;
 
     // The HUD producer requires two identical samples. Merely changing selection sets the

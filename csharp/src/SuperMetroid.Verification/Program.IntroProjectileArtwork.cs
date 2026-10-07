@@ -76,8 +76,8 @@ internal static partial class Program
         // dependencies without invoking the separate cinematic-sheet reupload path,
         // which deliberately replaces VRAM and is covered by the cinematic art fixture.
         typeof(IntroCinematicState).GetField("characterArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(intro, RepositoryInstallation.Installation.LoadIntroCinematicArt());
-        intro.BindSamusBodyArtwork(RepositoryInstallation.Installation.LoadSamusBodyArt());
+            .SetValue(intro, RepositoryInstallation.IntroArtwork);
+        intro.BindSamusBodyArtwork(RepositoryInstallation.SamusBody);
         intro.ProjectileCompositions = RepositoryInstallation.Projectiles.Catalog;
         intro.ProjectileFrameBindings = RepositoryInstallation.Projectiles.FrameBindings;
     }

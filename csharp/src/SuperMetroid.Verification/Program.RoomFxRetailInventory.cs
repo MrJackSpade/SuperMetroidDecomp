@@ -15,15 +15,29 @@ internal static partial class Program
     private const int RetailRoomFxDoorCount = 597;
 
     /// <summary>Supplies the production FX owner with import-time presentation assets.</summary>
-    private static RoomLayer3FxState CreateRetailFxState(SuperMetroidAddressSpace bus) => new()
+    /// <summary>One bus's extracted room-FX catalogs; immutable, so every FX state built on that bus shares them.</summary>
+    private sealed record RetailFxCatalogs(RoomFxPaletteBlendCatalog PaletteBlends,
+        RoomFxLayer3TilemapCatalog Layer3Tilemaps, RoomFxAnimatedTileAtlas AnimatedTiles);
+
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<SuperMetroidAddressSpace, RetailFxCatalogs>
+        retailFxCatalogs = new();
+
+    private static RoomLayer3FxState CreateRetailFxState(SuperMetroidAddressSpace bus)
     {
-        PaletteBlendColors = RoomFxPaletteBlendCatalog.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.RoomFxPaletteBlendExtractor.Extract(bus))),
-        Layer3Tilemaps = RoomFxLayer3TilemapCatalog.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.RoomFxLayer3TilemapExtractor.Extract(bus))),
-        AnimatedTileArtwork = RoomFxAnimatedTileAtlas.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.RoomFxAnimatedTileAtlasExtractor.Extract(bus))),
-    };
+        RetailFxCatalogs catalogs = retailFxCatalogs.GetValue(bus, source => new(
+            RoomFxPaletteBlendCatalog.Load(new MemoryStream(
+                SuperMetroid.AssetExtraction.RoomFxPaletteBlendExtractor.Extract(source))),
+            RoomFxLayer3TilemapCatalog.Load(new MemoryStream(
+                SuperMetroid.AssetExtraction.RoomFxLayer3TilemapExtractor.Extract(source))),
+            RoomFxAnimatedTileAtlas.Load(new MemoryStream(
+                SuperMetroid.AssetExtraction.RoomFxAnimatedTileAtlasExtractor.Extract(source)))));
+        return new()
+        {
+            PaletteBlendColors = catalogs.PaletteBlends,
+            Layer3Tilemaps = catalogs.Layer3Tilemaps,
+            AnimatedTileArtwork = catalogs.AnimatedTiles,
+        };
+    }
 
     /// <summary>
     /// Exhaustively compares every named retail room state and every physical entry door
@@ -36,13 +50,6 @@ internal static partial class Program
         string romPath = Path.GetFullPath("Super Metroid.smc");
         string symbolPath = Path.GetFullPath(
             Path.Combine("upstream-sm", "assets", "names.txt"));
-        if (!File.Exists(romPath) || !File.Exists(symbolPath))
-        {
-            Console.WriteLine(
-                "  Room FX inventory: exhaustive retail audit skipped (private inputs absent).");
-            return;
-        }
-
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(romPath);
         RetailFxRoomState[] states = File.ReadLines(symbolPath)
             .Select(ParseRetailFxRoomState)

@@ -43,7 +43,7 @@ internal static partial class Program
             KraidHeadInstructionDefinitions.All)
         {
             var guard = new KraidHeadProgramReadGuard(rom);
-            var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles() };
+            var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, new SnesVram());
             var execute = typeof(RoomEnemySystem)
@@ -98,7 +98,7 @@ internal static partial class Program
 
     private static void VerifyTimerAndGrowthConsumers(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles() };
+        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         var state = new KraidEnemyState();
         var guard = new KraidHeadProgramReadGuard(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

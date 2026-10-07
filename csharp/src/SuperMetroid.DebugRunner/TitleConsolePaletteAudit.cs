@@ -43,7 +43,7 @@ internal static class TitleConsolePaletteAudit
 
     private static int VerifyVisibleConsoleFlash(TitleSequenceState title)
     {
-        var before = title.Render();
+        var before = title.Render().ToArray();
         var beforeColors = title.PaletteColors.ToArray();
         title.Step(0);
         var after = title.Render();

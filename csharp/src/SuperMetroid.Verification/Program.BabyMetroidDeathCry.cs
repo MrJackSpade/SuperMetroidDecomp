@@ -12,7 +12,7 @@ internal static partial class Program
         var bus = CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         var installation = RepositoryInstallation.Installation;
-        enemies.MotherBrainRoomColors = installation.LoadMaps().MotherBrainRoomColors;
+        enemies.MotherBrainRoomColors = RepositoryInstallation.Maps.MotherBrainRoomColors;
         var cgram = new SnesCgram();
         for (int index = 0; index < 256; index++) cgram.SetColor(index, (ushort)(index + 1));
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);

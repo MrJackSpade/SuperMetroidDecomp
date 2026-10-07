@@ -105,7 +105,7 @@ internal static partial class Program
             "file-select page, field and actor edits reach the real renderer");
         FileSelectPhase phaseBeforeRebind = stockMenu.Phase;
         int selectionBeforeRebind = stockMenu.SelectedItem;
-        Rgba32[] pixelsBeforeRebind = stockMenu.Render();
+        Rgba32[] pixelsBeforeRebind = stockMenu.Render().ToArray();
         stockMenu.BindMapPresentation(edited);
         AssertEqual(phaseBeforeRebind, stockMenu.Phase,
             "file-select content rebind preserves phase");

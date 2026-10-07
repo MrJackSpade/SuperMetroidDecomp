@@ -133,7 +133,7 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.TileArtwork = artwork ?? RepositoryInstallation.Installation.LoadEnemyTiles();
+        enemies.TileArtwork = artwork ?? RepositoryInstallation.EnemyTiles;
         RoomEnemySlot body = enemies.Slots[0];
         body.EnemyDefinitionPointer = RoomEnemySystem.SporeSpawnDefinition;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 };

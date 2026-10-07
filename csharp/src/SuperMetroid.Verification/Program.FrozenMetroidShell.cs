@@ -12,7 +12,7 @@ internal static partial class Program
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
-        var enemies = new RoomEnemySystem { TileArtwork = installation.LoadEnemyTiles() };
+        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         var slot = enemies.Slots[0];
         slot.XPosition = 120;
         slot.YPosition = 100;

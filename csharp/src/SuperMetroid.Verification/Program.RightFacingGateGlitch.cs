@@ -57,16 +57,24 @@ internal static partial class Program
         int cameraX = gateX - 128;
         int cameraY = 0;
         var actual = new List<string>();
+        // PLM setup only uploads into VRAM; nothing below reads it, so every position shares one image.
+        var populationVram = new SnesVram();
+        // One pristine level and one working level restored from it per position. The
+        // field-by-field check proves no state from the previous position survives.
+        RoomLevelData NewLevel() => new(
+            original.WidthInBlocks,
+            original.HeightInBlocks,
+            original.ForegroundEntries.Span,
+            original.BehaviorBytes.Span,
+            original.BackgroundEntries.Span,
+            original.BlockDefinitions.Span);
+        RoomLevelData pristine = NewLevel();
+        RoomLevelData level = NewLevel();
         for (int x = gateX - 192; x < gateX; x++)
         for (int y = gateY - 32; y <= gateY + 96; y++)
         {
-            var level = new RoomLevelData(
-                original.WidthInBlocks,
-                original.HeightInBlocks,
-                original.ForegroundEntries.Span,
-                original.BehaviorBytes.Span,
-                original.BackgroundEntries.Span,
-                original.BlockDefinitions.Span);
+            level.RestoreFrom(pristine);
+            AssertTrue(InstanceStateEquals(level, pristine), "Restored gate-glitch level matches a freshly built level");
             var samus = new SamusState
             {
                 XPosition = unchecked((ushort)x),
@@ -82,7 +90,7 @@ internal static partial class Program
                 bus,
                 level,
                 streamer,
-                new SnesVram(),
+                populationVram,
                 RoomPlmPopulationImporter.Read(bus, runtime.ActiveRoom!.State.PlmPointer),
                 new Bank80SystemState(),
                 runtime.ActiveRoom.AreaIndex,

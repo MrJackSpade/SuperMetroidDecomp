@@ -162,7 +162,7 @@ internal static partial class Program
     private static void VerifyCrocomireMeltingGraphicsProduction(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var artwork = RepositoryInstallation.Installation.LoadEnemyTiles();
+        var artwork = RepositoryInstallation.EnemyTiles;
         foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };

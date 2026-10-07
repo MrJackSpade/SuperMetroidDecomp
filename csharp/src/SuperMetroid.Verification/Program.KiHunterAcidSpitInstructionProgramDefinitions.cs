@@ -27,7 +27,7 @@ internal static partial class Program
                 $"KiHunter acid-spit mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.Installation.LoadEnemyTiles().ProjectileSpritemaps
+        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("KiHunter fixture requires installed projectile sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = new KiHunterAcidSpitInstructionReadGuard(rom);

@@ -47,7 +47,7 @@ internal static class StartInputVisualAudit
             SuperMetroidRuntime? runtimeBefore = game.RuntimeForVerification;
             ushort? cameraXBefore = runtimeBefore?.Camera?.XPosition;
             ushort? cameraYBefore = runtimeBefore?.Camera?.YPosition;
-            FrontendFrame currentFrame = game.Step(input);
+            FrontendFrame currentFrame = game.Step(input).WithCopiedPixels();
 
             if (followedBaseline is FrontendFrame resumeBaseline &&
                 previousGameState != SuperMetroidGameState.MainGameplay &&

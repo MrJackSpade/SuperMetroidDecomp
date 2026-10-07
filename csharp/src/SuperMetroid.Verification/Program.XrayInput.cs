@@ -50,7 +50,7 @@ internal static partial class Program
                         "only setup stage eight installs the X-ray backdrop");
                 }
             }
-            VerifyXrayWindowGeometry(bus, samus);
+            VerifyXrayWindowGeometry(bus, samus, xrayGeometryReference);
         }
         AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "held Run widens the X-ray beam fully");
         var horizontal = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
@@ -73,7 +73,7 @@ internal static partial class Program
         for (int frame = 0; frame < 240; frame++)
         {
             runtime.StepFrame((ushort)(runtime.ControllerBindings.Dash | (ushort)(frame < 80 ? SnesButton.Up : SnesButton.Down)));
-            VerifyXrayWindowGeometry(bus, samus);
+            VerifyXrayWindowGeometry(bus, samus, xrayGeometryReference);
         }
         var captured = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         var reveal = captured.Layers.ToArray().OfType<GameplayColorMathRenderLayer>().Single();

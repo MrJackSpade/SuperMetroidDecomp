@@ -130,6 +130,38 @@ public sealed class RoomLevelData
         }
     }
 
+    /// <summary>
+    /// Returns this level to <paramref name="source"/>'s complete state in place: every block
+    /// plane, allocation tail and pending door flag. Both levels must share one layout.
+    /// </summary>
+    internal void RestoreFrom(RoomLevelData source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        if (source.WidthInBlocks != WidthInBlocks || source.HeightInBlocks != HeightInBlocks ||
+            source.DoorListPointer != DoorListPointer ||
+            source._blockDefinitions.Length != _blockDefinitions.Length ||
+            source._streamingForegroundAllocation.Length != _streamingForegroundAllocation.Length ||
+            source._streamingBackgroundAllocation.Length != _streamingBackgroundAllocation.Length ||
+            source._plmForegroundAllocation.Length != _plmForegroundAllocation.Length ||
+            ReferenceEquals(source._visualStreamingForegroundAllocation, source._streamingForegroundAllocation) !=
+                ReferenceEquals(_visualStreamingForegroundAllocation, _streamingForegroundAllocation) ||
+            ReferenceEquals(source._visualStreamingBackgroundAllocation, source._streamingBackgroundAllocation) !=
+                ReferenceEquals(_visualStreamingBackgroundAllocation, _streamingBackgroundAllocation))
+            throw new ArgumentException("A level can only be restored from one with the same layout.", nameof(source));
+        source._foregroundEntries.CopyTo(_foregroundEntries, 0);
+        source._behaviorBytes.CopyTo(_behaviorBytes, 0);
+        source._backgroundEntries.CopyTo(_backgroundEntries, 0);
+        source._blockDefinitions.CopyTo(_blockDefinitions, 0);
+        source._streamingForegroundAllocation.CopyTo(_streamingForegroundAllocation, 0);
+        source._streamingBackgroundAllocation.CopyTo(_streamingBackgroundAllocation, 0);
+        source._visualStreamingForegroundAllocation.CopyTo(_visualStreamingForegroundAllocation, 0);
+        source._visualStreamingBackgroundAllocation.CopyTo(_visualStreamingBackgroundAllocation, 0);
+        source._plmForegroundAllocation.CopyTo(_plmForegroundAllocation, 0);
+        source._plmBehaviorAllocation.CopyTo(_plmBehaviorAllocation, 0);
+        PendingDoorTransition = source.PendingDoorTransition;
+        ElevatorDoorContactPending = source.ElevatorDoorContactPending;
+    }
+
     /// <summary>Native <c>room_width_in_blocks</c>, used as every row's index stride.</summary>
     public int WidthInBlocks { get; }
 

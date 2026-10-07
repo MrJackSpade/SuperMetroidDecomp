@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -21,7 +22,23 @@ internal static class JsonAssetDocument
     internal static T Read<T>(Stream json, JsonSerializerOptions options, string description)
     {
         ArgumentNullException.ThrowIfNull(json);
-        return Read<T>(Buffer(json), options, description);
+        if (json is MemoryStream memory && memory.TryGetBuffer(out ArraySegment<byte> segment))
+        {
+            int position = checked((int)memory.Position);
+            int length = checked((int)(memory.Length - memory.Position));
+            memory.Position = memory.Length;
+            return Read<T>(segment.AsSpan(position, length), options, description);
+        }
+        // Deserialization copies everything it keeps, so the document bytes are only borrowed.
+        byte[] rented = Rent(json, out int byteCount);
+        try
+        {
+            return Read<T>(rented.AsSpan(0, byteCount), options, description);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rented);
+        }
     }
 
     private static T Read<T>(ReadOnlySpan<byte> json, JsonSerializerOptions options, string description)
@@ -42,25 +59,31 @@ internal static class JsonAssetDocument
         }
     }
 
-    private static ArraySegment<byte> Buffer(Stream json)
+    private static byte[] Rent(Stream json, out int byteCount)
     {
-        if (json is MemoryStream memory && memory.TryGetBuffer(out ArraySegment<byte> segment))
-        {
-            int position = checked((int)memory.Position);
-            int length = checked((int)(memory.Length - memory.Position));
-            memory.Position = memory.Length;
-            return segment.Slice(position, length);
-        }
         if (json.CanSeek)
         {
             // Files know their length: one exact read rather than a doubling copy.
-            var exact = new byte[checked((int)(json.Length - json.Position))];
-            json.ReadExactly(exact);
+            byteCount = checked((int)(json.Length - json.Position));
+            byte[] exact = ArrayPool<byte>.Shared.Rent(byteCount);
+            json.ReadExactly(exact.AsSpan(0, byteCount));
             return exact;
         }
-        var copy = new MemoryStream();
-        json.CopyTo(copy);
-        return new ArraySegment<byte>(copy.GetBuffer(), 0, checked((int)copy.Length));
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(64 * 1024);
+        byteCount = 0;
+        while (true)
+        {
+            if (byteCount == buffer.Length)
+            {
+                byte[] larger = ArrayPool<byte>.Shared.Rent(checked(buffer.Length * 2));
+                buffer.AsSpan(0, byteCount).CopyTo(larger);
+                ArrayPool<byte>.Shared.Return(buffer);
+                buffer = larger;
+            }
+            int read = json.Read(buffer, byteCount, buffer.Length - byteCount);
+            if (read == 0) return buffer;
+            byteCount += read;
+        }
     }
 
     /// <summary>One property name: a raw UTF-8 range of the document, or its decoded text when escaped.</summary>

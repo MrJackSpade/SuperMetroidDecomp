@@ -32,7 +32,7 @@ internal static class RetailRidleyCaptureTests
             ridley.Mode7CenterX = 128; ridley.Mode7CenterY = 120;
             ridley.Mode7HorizontalOffset = 7;
             ridley.Mode7VerticalOffset = unchecked((ushort)scroll);
-            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime).ToArray();
             var scene = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
             if (scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null } mixed ||
                 mixed.HudScanlines != SnesPpuLayout.GameplayHudHeightPixels)

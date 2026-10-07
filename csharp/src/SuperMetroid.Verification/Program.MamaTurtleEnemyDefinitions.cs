@@ -32,7 +32,7 @@ internal static partial class Program
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
-        var enemies = new RoomEnemySystem { TileArtwork = installation.LoadEnemyTiles() };
+        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         enemies.Load(
             guard,
             room.State.EnemyPopulationPointer,

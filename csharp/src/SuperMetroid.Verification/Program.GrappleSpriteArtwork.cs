@@ -43,8 +43,8 @@ internal static partial class Program
                     AssertEqual((byte)(stockOam.LowTable[offset + 2] ^ 1), editedOam.LowTable[offset + 2], "Selected tile column reaches real renderer");
                     AssertEqual((byte)(stockOam.LowTable[offset + 3] ^ 2), editedOam.LowTable[offset + 3], "Selected palette reaches real renderer");
                 }
-                AssertTrue(SaveGrappleFixture(originalState).SequenceEqual(SaveGrappleFixture(stockState)) &&
-                    SaveGrappleFixture(stockState).SequenceEqual(SaveGrappleFixture(editedState)), "Visual edits preserve all Grapple state and animation timing");
+                AssertTrue(GraphDigest(originalState).SequenceEqual(GraphDigest(stockState)) &&
+                    GraphDigest(stockState).SequenceEqual(GraphDigest(editedState)), "Visual edits preserve all Grapple state and animation timing");
                 AssertTrue(stockQueue.Entries.SequenceEqual(editedQueue.Entries), "Visual attributes leave uploads unchanged");
                 cases++;
             }

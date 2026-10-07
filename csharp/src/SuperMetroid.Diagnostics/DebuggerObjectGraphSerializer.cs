@@ -133,14 +133,12 @@ internal static class DebuggerObjectGraphSerializer
         {
             Type elementType = type.GetElementType()
                 ?? throw new InvalidOperationException($"Array {type.FullName} has no element type.");
-            if (elementType.IsPrimitive)
+            if (RawArrayElements.IsRaw(elementType))
             {
                 writer.Write((byte)PayloadKind.PrimitiveArray);
                 WriteArrayShape(array);
-                int byteLength = Buffer.ByteLength(array);
-                writer.Write(byteLength);
-                var bytes = new byte[byteLength];
-                Buffer.BlockCopy(array, 0, bytes, 0, byteLength);
+                Span<byte> bytes = RawArrayElements.Bytes(array);
+                writer.Write(bytes.Length);
                 writer.Write(bytes);
                 return;
             }
@@ -185,6 +183,46 @@ internal static class DebuggerObjectGraphSerializer
         private readonly Dictionary<int, object> references = [];
         // One restore reports each legacy omission once, not once per restored instance.
         private readonly HashSet<string> reportedWarnings = [];
+        // Every object repeats its type and field names; decode each distinct name once.
+        private readonly Dictionary<string, string> names = new(StringComparer.Ordinal);
+
+        /// <summary>
+        /// Reads a <see cref="BinaryWriter.Write(string)"/> type or member name, returning the
+        /// restore's single instance of that text instead of a new string per occurrence.
+        /// </summary>
+        private string ReadName()
+        {
+            int byteCount = reader.Read7BitEncodedInt();
+            if (byteCount < 0)
+                throw new InvalidDataException("Debugger state has a negative name length.");
+            byte[]? rented = byteCount > 256 ? System.Buffers.ArrayPool<byte>.Shared.Rent(byteCount) : null;
+            try
+            {
+                Span<byte> utf8 = rented is null ? stackalloc byte[byteCount] : rented.AsSpan(0, byteCount);
+                reader.BaseStream.ReadExactly(utf8);
+                int charCount = System.Text.Encoding.UTF8.GetCharCount(utf8);
+                char[]? rentedChars = charCount > 256 ? System.Buffers.ArrayPool<char>.Shared.Rent(charCount) : null;
+                try
+                {
+                    Span<char> text = rentedChars is null ? stackalloc char[charCount] : rentedChars.AsSpan(0, charCount);
+                    System.Text.Encoding.UTF8.GetChars(utf8, text);
+                    var lookup = names.GetAlternateLookup<ReadOnlySpan<char>>();
+                    if (lookup.TryGetValue(text, out string? known))
+                        return known;
+                    string name = new(text);
+                    names.Add(name, name);
+                    return name;
+                }
+                finally
+                {
+                    if (rentedChars is not null) System.Buffers.ArrayPool<char>.Shared.Return(rentedChars);
+                }
+            }
+            finally
+            {
+                if (rented is not null) System.Buffers.ArrayPool<byte>.Shared.Return(rented);
+            }
+        }
 
         public object? Read()
         {
@@ -205,7 +243,7 @@ internal static class DebuggerObjectGraphSerializer
                 throw new InvalidDataException($"Unknown debugger-state object marker {(byte)marker}.");
 
             int referenceId = reader.ReadInt32();
-            Type type = ResolveAllowedType(reader.ReadString());
+            Type type = ResolveAllowedType(ReadName());
             PayloadKind kind = (PayloadKind)reader.ReadByte();
             return kind switch
             {
@@ -250,17 +288,24 @@ internal static class DebuggerObjectGraphSerializer
                 ?? throw new InvalidDataException($"Serialized array {type.FullName} has no element type.");
             Array array = CreateArray(elementType);
             Register(referenceId, array);
+            if (!RawArrayElements.IsRaw(elementType))
+                throw new InvalidDataException($"Serialized raw array {type.FullName} has a non-raw element type.");
             int byteLength = ReadNonnegativeLength("primitive-array byte");
-            if (byteLength != Buffer.ByteLength(array))
+            Span<byte> bytes = RawArrayElements.Bytes(array);
+            if (byteLength != bytes.Length)
             {
                 throw new InvalidDataException(
                     $"Primitive array {type.FullName} declares {byteLength} bytes, " +
-                    $"expected {Buffer.ByteLength(array)}.");
+                    $"expected {bytes.Length}.");
             }
-            byte[] bytes = reader.ReadBytes(byteLength);
-            if (bytes.Length != byteLength)
-                throw new EndOfStreamException("Debugger state ended inside a primitive array.");
-            Buffer.BlockCopy(bytes, 0, array, 0, byteLength);
+            // Fill the array's own memory directly; no intermediate copy of large VRAM/WRAM images.
+            while (!bytes.IsEmpty)
+            {
+                int read = reader.Read(bytes);
+                if (read == 0)
+                    throw new EndOfStreamException("Debugger state ended inside a primitive array.");
+                bytes = bytes[read..];
+            }
             return array;
         }
 
@@ -301,7 +346,7 @@ internal static class DebuggerObjectGraphSerializer
             Delegate? combined = null;
             for (int index = 0; index < count; index++)
             {
-                Type declaringType = ResolveAllowedType(reader.ReadString());
+                Type declaringType = ResolveAllowedType(ReadName());
                 MethodInfo method;
                 if (legacyDelegateTokens)
                 {
@@ -346,8 +391,8 @@ internal static class DebuggerObjectGraphSerializer
             bool discardedIdentity = false;
             for (int index = 0; index < count; index++)
             {
-                string declaringName = reader.ReadString();
-                string fieldName = reader.ReadString();
+                string declaringName = ReadName();
+                string fieldName = ReadName();
                 Type declaringType = ResolveAllowedType(declaringName);
                 if (hasRetiredIdentity && declaringType == type &&
                     fieldName == DebuggerPresentationIdentityFieldDefinitions.RetiredFieldName)
@@ -383,6 +428,8 @@ internal static class DebuggerObjectGraphSerializer
                 if (introduction.Warning is { } warning && reportedWarnings.Add(warning))
                     Console.Error.WriteLine($"WARNING: {warning}");
             DebuggerStateFieldMigrations.InitializeOmitted(instance, omitted);
+            if (instance is SuperMetroid.AssetExtraction.IRestoredSharedContent shared)
+                shared.ReattachSharedContent();
             return instance;
         }
 
@@ -397,8 +444,8 @@ internal static class DebuggerObjectGraphSerializer
             bool discardedRom = false;
             for (int index = 0; index < count; index++)
             {
-                Type declaringType = ResolveAllowedType(reader.ReadString());
-                string name = reader.ReadString();
+                Type declaringType = ResolveAllowedType(ReadName());
+                string name = ReadName();
                 if (declaringType != instance.GetType())
                     throw new InvalidDataException("Legacy address-space field has the wrong declaring type.");
                 if (name == "_rom" && !discardedRom)
@@ -431,7 +478,7 @@ internal static class DebuggerObjectGraphSerializer
             if ((ObjectMarker)reader.ReadByte() != ObjectMarker.New)
                 throw new InvalidDataException("Legacy cartridge field is not an owned byte-array payload.");
             int id = reader.ReadInt32();
-            if (ResolveAllowedType(reader.ReadString()) != typeof(byte[]) ||
+            if (ResolveAllowedType(ReadName()) != typeof(byte[]) ||
                 (PayloadKind)reader.ReadByte() != PayloadKind.PrimitiveArray)
                 throw new InvalidDataException("Legacy cartridge field is not a primitive byte array.");
             int rank = reader.ReadInt32();
@@ -545,5 +592,33 @@ internal static class DebuggerObjectGraphSerializer
         }
         throw new InvalidDataException(
             $"Debugger state type {type.FullName} comes from disallowed assembly {assembly}.");
+    }
+}
+
+/// <summary>
+/// Array element types written as their raw little-endian bytes: every primitive, plus the
+/// 4-byte <see cref="SuperMetroid.Core.Assets.Rgba32"/> pixel, whose per-element object
+/// encoding made one retained 256x224 display cost tens of megabytes.
+/// </summary>
+internal static class RawArrayElements
+{
+    static RawArrayElements()
+    {
+        if (System.Runtime.CompilerServices.Unsafe.SizeOf<SuperMetroid.Core.Assets.Rgba32>() != 4)
+            throw new InvalidOperationException("Rgba32 must remain four packed bytes to be serialized raw.");
+    }
+
+    internal static bool IsRaw(Type elementType) =>
+        elementType.IsPrimitive || elementType == typeof(SuperMetroid.Core.Assets.Rgba32);
+
+    /// <summary>The array's element storage viewed as bytes, in memory order across every dimension.</summary>
+    internal static Span<byte> Bytes(Array array)
+    {
+        Type elementType = array.GetType().GetElementType()!;
+        int byteLength = elementType == typeof(SuperMetroid.Core.Assets.Rgba32)
+            ? checked(array.Length * 4)
+            : Buffer.ByteLength(array);
+        return System.Runtime.InteropServices.MemoryMarshal.CreateSpan(
+            ref System.Runtime.InteropServices.MemoryMarshal.GetArrayDataReference(array), byteLength);
     }
 }

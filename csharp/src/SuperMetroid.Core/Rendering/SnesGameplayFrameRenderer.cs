@@ -591,9 +591,10 @@ public static partial class SnesGameplayFrameRenderer
         short centerY,
         short horizontalOffset,
         short verticalOffset,
-        byte obsel = 0x03)
+        byte obsel = 0x03,
+        Rgba32[]? outputBuffer = null)
     {
-        Rgba32[] output = CreateBackdrop(cgram);
+        Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
         SnesMode7Renderer.CompositeViewport(
             output,
             vram,
@@ -638,7 +639,8 @@ public static partial class SnesGameplayFrameRenderer
         ushort bg2HorizontalScroll,
         ushort bg2VerticalScroll,
         ushort bg2CharacterBaseWord,
-        byte obsel = 0x03)
+        byte obsel = 0x03,
+        Rgba32[]? outputBuffer = null)
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -646,8 +648,11 @@ public static partial class SnesGameplayFrameRenderer
 
         const int floorHeight = 16;
         const int floorFirstScanline = Height - floorHeight;
-        Rgba32[] output = CreateBackdrop(cgram);
-        Rgba32[] mode7 = SnesMode7Renderer.RenderViewport(
+        Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
+        using var scratch = new RenderScratch();
+        Rgba32[] mode7 = scratch.Colors(Width * Height);
+        SnesMode7Renderer.CompositeViewport(
+            mode7,
             vram,
             cgram,
             matrixA,
@@ -660,13 +665,7 @@ public static partial class SnesGameplayFrameRenderer
             verticalOffset,
             Width,
             Height);
-        ResolvedObjFrame objects = SnesObjRenderer.RenderResolved(
-            oam,
-            vram,
-            cgram,
-            obsel,
-            Width,
-            Height);
+        ResolvedObjFrame objects = scratch.ResolveObjects(oam, vram, cgram, obsel, Width, Height);
 
         // IndirectHDMATable_CeresRidleyMode_BGTileSize and its matching TM table keep
         // scanlines 32..207 in Mode 7 with BG1/BG2/OBJ selected. The existing Mode-7

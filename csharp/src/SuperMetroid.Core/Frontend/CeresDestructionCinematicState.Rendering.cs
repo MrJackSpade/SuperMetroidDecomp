@@ -7,9 +7,14 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class CeresDestructionCinematicState
 {
+    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    [NonSerialized] private Rgba32[]? objectLayerScratch;
+    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    [NonSerialized] private Rgba32[]? frameBuffer;
+
     public Rgba32[] Render()
     {
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
+        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
         OamBuffer oam = PrepareRenderOam();
 
         if (usesMode7 && (mainScreenLayers & SnesMainScreenLayers.Bg1) == 0)
@@ -21,7 +26,8 @@ internal sealed partial class CeresDestructionCinematicState
         {
             (short matrixA, short matrixB, short matrixC, short matrixD) = CalculateMatrix();
             CompositeObjPriority(pixels, oam, 0);
-            Rgba32[] mode7 = SnesMode7Renderer.RenderViewport(
+            SnesMode7Renderer.CompositeViewport(
+                pixels,
                 vram,
                 cgram,
                 matrixA,
@@ -34,7 +40,6 @@ internal sealed partial class CeresDestructionCinematicState
                     ? CeresDestructionRomData.Rendering.CeresCenterY : CeresDestructionRomData.Rendering.ZebesCenterY,
                 horizontalOffset: unchecked((short)backgroundX),
                 verticalOffset: unchecked((short)backgroundY));
-            SnesLayerCompositor.Composite(pixels, mode7);
             CompositeObjPriority(pixels, oam, 1);
             CompositeObjPriority(pixels, oam, 2);
             CompositeObjPriority(pixels, oam, 3);
@@ -45,7 +50,8 @@ internal sealed partial class CeresDestructionCinematicState
             // sampling granularity, but not the underlying cartridge-authored tilemap;
             // rendering the unmosaicked samples keeps this software path deterministic
             // until the compositor gains a general post-BG mosaic stage.
-            Rgba32[] bg1 = SnesBgTilemapRenderer.Render4BppViewport(
+            SnesBgTilemapRenderer.Composite4BppViewport(
+                pixels,
                 vram,
                 cgram,
                 tilemapBaseWord: CeresDestructionRomData.Rendering.Mode1TilemapWord,
@@ -56,7 +62,6 @@ internal sealed partial class CeresDestructionCinematicState
                 height: 224,
                 tilemapWidthInTiles: 32,
                 tilemapHeightInTiles: 32);
-            SnesLayerCompositor.Composite(pixels, bg1);
         }
 
         if (CaptureStationExplosion() is { } blast)
@@ -134,8 +139,8 @@ internal sealed partial class CeresDestructionCinematicState
 
     private void CompositeObjPriority(Span<Rgba32> pixels, OamBuffer oam, int priority)
     {
-        Rgba32[] layer = SnesObjRenderer.Render(
-            oam,
+        Rgba32[] layer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
+        SnesObjRenderer.Render(layer, oam,
             vram,
             cgram,
             obsel: 3,

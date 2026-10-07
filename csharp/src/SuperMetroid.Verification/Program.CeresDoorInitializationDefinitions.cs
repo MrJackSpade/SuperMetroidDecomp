@@ -28,7 +28,7 @@ internal static partial class Program
                 definition.InstructionList,
                 $"Ceres door instruction selector {variant}");
 
-            var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles() };
+            var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
             busField.SetValue(enemies, guarded);
             vramField.SetValue(enemies, new SnesVram());
             cgramField.SetValue(enemies, new SnesCgram());

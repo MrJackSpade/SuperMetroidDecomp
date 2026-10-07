@@ -66,7 +66,8 @@ public static class SuperMetroidRuntimeFrameRenderer
                 // Setup ASM $8F:C97B writes BG12NBA=$66; the floor slice returns to
                 // Mode 1 and therefore consumes the same $6000 character base as BG2 did
                 // before the getaway HDMA tables changed BGMODE.
-                bg2CharacterBaseWord: 0x6000);
+                bg2CharacterBaseWord: 0x6000,
+                outputBuffer: runtime.GameplayFrameBuffer);
         }
         else if (runtime.ActiveDoor.UsesCeresElevatorMode7)
         {
@@ -95,7 +96,8 @@ public static class SuperMetroidRuntimeFrameRenderer
                 // Leaving these at zero pins the shaft art to the window while Samus,
                 // enemies, and projectiles correctly move relative to the camera.
                 horizontalOffset: unchecked((short)bg1HorizontalScroll),
-                verticalOffset: unchecked((short)bg1VerticalScroll));
+                verticalOffset: unchecked((short)bg1VerticalScroll),
+                outputBuffer: runtime.GameplayFrameBuffer);
         }
         else
         {
@@ -189,7 +191,8 @@ public static class SuperMetroidRuntimeFrameRenderer
                 bg2FirstScanline: runtime.DisplayedGameplayPpu.Bg2FirstScanline,
                 bg2EndScanline: runtime.DisplayedGameplayPpu.Bg2EndScanline,
                 mainScreenLayersByLine: runtime.DoorTransitionMainScreenLayers is null && runtime.Enemies.MotherBrain?.RisingHdmaActive == true
-                    ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default);
+                    ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default,
+                outputBuffer: runtime.GameplayFrameBuffer);
         }
 
         bool doorIrqOwnsDisplay = runtime.DoorTransitionMainScreenLayers is not null;

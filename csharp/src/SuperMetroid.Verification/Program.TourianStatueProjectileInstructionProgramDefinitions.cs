@@ -27,11 +27,11 @@ internal static partial class Program
                 $"Tourian statue projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.Installation.LoadEnemyTiles().ProjectileSpritemaps
+        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = new TourianStatueProjectileInstructionReadGuard(rom);
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles() };
+        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(

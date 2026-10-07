@@ -36,12 +36,12 @@ internal static partial class Program
                 AssetId = VramAssetId.None,
             };
         AssertTrue(runtime.VramWrites.Entries.All(entry => entry.AssetId == VramAssetId.None), "Legacy fixture stores native sources before binding");
-        byte[] legacy = SaveGrappleFixture(game);
+        byte[] legacy = SerializeGraph(game);
         game.BindGrappleArtwork(stock);
         AssertTrue(runtime.VramWrites.Entries.All(entry => entry.AssetId != VramAssetId.None), "Binding converts known legacy transfers in place");
-        byte[] stockGraph = SaveGrappleFixture(game);
+        byte[] stockGraph = GraphDigest(game);
         game.BindGrappleArtwork(edited);
-        AssertTrue(stockGraph.SequenceEqual(SaveGrappleFixture(game)), "Changing Grapple PNG does not embed different image data in saved state");
+        AssertTrue(stockGraph.SequenceEqual(GraphDigest(game)), "Changing Grapple PNG does not embed different image data in saved state");
         game.BindGrappleArtwork(stock);
         runtime.RunNmi(0, true);
         byte[] nativeVram = runtime.Vram.Bytes.ToArray();
@@ -60,7 +60,7 @@ internal static partial class Program
         AssertTrue(nativeVram.AsSpan().SequenceEqual(restoredRuntime.Vram.Bytes), "Legacy restored NMI resolves current Grapple PNG with exact edited-bit isolation");
         Draw(restoredRuntime);
         AssertTrue(restoredRuntime.VramWrites.Entries.All(entry => entry.AssetId != VramAssetId.None), "Actual rebound actor queues typed Grapple resources");
-        using var typedState = new MemoryStream(SaveGrappleFixture(restored));
+        using var typedState = new MemoryStream(SerializeGraph(restored));
         var typedRestored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(typedState);
         typedRestored.BindGrappleArtwork(stock);
         var typedRuntime = (SuperMetroidRuntime)runtimeField.GetValue(typedRestored)!;

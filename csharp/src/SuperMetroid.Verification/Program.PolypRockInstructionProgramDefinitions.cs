@@ -54,7 +54,7 @@ internal static partial class Program
         AssertEqual(PolypRockInstructionProgramDefinitions.PresentationWord,
             rock.PresentationOperandAddress,
             "Polyp rock selects its installed presentation binding without cartridge reads");
-        var spriteArtwork = RepositoryInstallation.Installation.LoadEnemyTiles().ProjectileSpritemaps
+        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidOperationException("Polyp rock fixture requires installed projectile artwork.");
         Suite(nameof(VerifyExecutedProjectileFrame), () => VerifyExecutedProjectileFrame(rom, rock, spriteArtwork, new HashSet<ushort>()));
         AssertEqual(PolypRockInstructionProgramDefinitions.Sleep,

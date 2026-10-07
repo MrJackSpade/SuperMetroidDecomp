@@ -18,7 +18,7 @@ internal static partial class Program
         var samus = new SamusState { Health = 999, MaxHealth = 999, XPosition = 256, YPosition = 64,
             Pose = SamusPoseIds.FacingRightNormalPose };
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
-        var enemies = new RoomEnemySystem { TileArtwork = installation.LoadEnemyTiles() };
+        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram,
             random.NextRandom, random.SetRandomNumber, readRandomNumber: () => random.RandomNumber,
             level: assets.LevelData, samus: samus, isAreaBossDefeated: () => false);

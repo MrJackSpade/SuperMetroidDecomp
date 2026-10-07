@@ -49,7 +49,7 @@ internal static class RescuedAnimalsShipAudit
                     throw new InvalidDataException($"Escape pod position/animation differs at age {age}.");
                 if (firstVisibleAge == 0)
                 {
-                    var withPod = ending.Render();
+                    var withPod = ending.Render().ToArray();
                     sprites.Remove(pod);
                     var withoutPod = ending.Render();
                     sprites.Add(pod);

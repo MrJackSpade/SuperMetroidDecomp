@@ -10,7 +10,7 @@ internal static partial class Program
         var installation = RepositoryInstallation.Installation;
         foreach (string trigger in new[] { "contact", "shot", "power bomb", "solid collision delay" })
         {
-            var enemies = new RoomEnemySystem { TileArtwork = installation.LoadEnemyTiles() };
+            var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, installation.OpenRuntimeAddressSpace());
             typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 0));
             var slot = enemies.Slots[0];

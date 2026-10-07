@@ -68,16 +68,32 @@ internal static class SamusBodyFrameDefinitions
         value = 0;
         return false;
     }
+    // Resolved once: the alias walk is a pure function of the component index, so render-time
+    // lookups never rebuild its pose tables or closures.
+    private static readonly int[] sourceComponents = ResolveSourceComponents();
+
     internal static int SourceComponent(int index)
     {
-        int source = SourceStep(index);
-        while (source != index)
+        if ((uint)index >= (uint)sourceComponents.Length) throw new ArgumentOutOfRangeException(nameof(index));
+        return sourceComponents[index];
+    }
+
+    private static int[] ResolveSourceComponents()
+    {
+        var components = new int[SamusBodyArtworkCatalog.FrameCount * 4];
+        for (int component = 0; component < components.Length; component++)
         {
-            if (source >= index) throw new InvalidOperationException("Body-frame aliases must reference an earlier native component.");
-            index = source;
-            source = SourceStep(index);
+            int index = component;
+            int source = SourceStep(index);
+            while (source != index)
+            {
+                if (source >= index) throw new InvalidOperationException("Body-frame aliases must reference an earlier native component.");
+                index = source;
+                source = SourceStep(index);
+            }
+            components[component] = source;
         }
-        return source;
+        return components;
     }
 
     private static int SourceStep(int index)

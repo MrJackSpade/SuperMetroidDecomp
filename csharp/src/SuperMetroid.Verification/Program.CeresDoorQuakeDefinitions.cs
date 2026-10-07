@@ -30,7 +30,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem
         {
             CeresStatus = 1,
-            TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles(),
+            TileArtwork = RepositoryInstallation.EnemyTiles,
         };
         enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionPointers.CeresRidley;
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

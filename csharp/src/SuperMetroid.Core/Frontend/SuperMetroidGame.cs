@@ -40,9 +40,12 @@ public sealed partial class SuperMetroidGame
     private readonly SamusReserveAutoRecoveryState reserveRecovery = new();
     private readonly DoorTransitionState doorTransition = new();
     private Rgba32[] legacyPixels = CreateBlackFrame();
+    // Software raster of a captured display, reused by every read of the frame below.
+    [NonSerialized] private Rgba32[]? capturedDisplayRaster;
     private Rgba32[] lastPixels
     {
-        get => capturedDisplay is null ? legacyPixels : SoftwareFrameSnapshotRenderer.Render(capturedDisplay);
+        get => capturedDisplay is null ? legacyPixels : SoftwareFrameSnapshotRenderer.Render(capturedDisplay,
+            capturedDisplayRaster ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
         set { legacyPixels = value; capturedDisplay = null; }
     }
     private int selectedSaveSlot;

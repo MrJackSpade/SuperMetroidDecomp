@@ -9,7 +9,7 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
-        var enemies = new RoomEnemySystem { MotherBrainRoomColors = installation.LoadMaps().MotherBrainRoomColors };
+        var enemies = new RoomEnemySystem { MotherBrainRoomColors = RepositoryInstallation.Maps.MotherBrainRoomColors };
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         var state = new MotherBrainEnemyState(enemies.Slots[0]) { Head = enemies.Slots[1] };
         typeof(RoomEnemySystem).GetField("_motherBrain", flags)!.SetValue(enemies, state);

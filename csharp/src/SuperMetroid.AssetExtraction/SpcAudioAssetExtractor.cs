@@ -105,9 +105,10 @@ public static class SpcAudioAssetExtractor
             banks,
             soundPrograms,
             soundLibraries);
-        File.WriteAllText(
-            Path.Combine(audioDirectory, ExtractedAudioAssetCatalog.ManifestFileName),
-            JsonSerializer.Serialize(manifest, AudioAssetJson.Options));
+        // Stream the UTF-8 JSON into the file; the manifest is large enough that one
+        // intermediate string per install dominated extraction allocation.
+        using (var output = File.Create(Path.Combine(audioDirectory, ExtractedAudioAssetCatalog.ManifestFileName)))
+            JsonSerializer.Serialize(output, manifest, AudioAssetJson.Options);
         return manifest;
     }
 

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Security.Cryptography;
 
 namespace SuperMetroid.Core.Audio;
@@ -67,9 +68,7 @@ public sealed class ExtractedAudioAssetCatalog
                 manifestPath);
         }
 
-        AudioAssetManifest manifest = JsonSerializer.Deserialize<AudioAssetManifest>(
-            File.ReadAllText(manifestPath), AudioAssetJson.Options)
-            ?? throw new InvalidDataException($"Audio manifest '{manifestPath}' deserialized to null.");
+        AudioAssetManifest manifest = DeserializeManifest(manifestPath);
         if (manifest.FormatVersion != AudioAssetManifest.CurrentFormatVersion)
         {
             throw new InvalidDataException(
@@ -187,9 +186,30 @@ public sealed class ExtractedAudioAssetCatalog
             ComputeContentIdentity(manifest));
     }
 
-    private static string ComputeContentIdentity(AudioAssetManifest manifest) =>
-        Convert.ToHexString(SHA256.HashData(
-            JsonSerializer.SerializeToUtf8Bytes(manifest, AudioAssetJson.Options)));
+    /// <summary>SHA-256 of the canonical serialized manifest, hashed as it streams out.</summary>
+    private static string ComputeContentIdentity(AudioAssetManifest manifest)
+    {
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        using (var hashing = new HashingWriteStream(hash))
+            JsonSerializer.Serialize(hashing, manifest, AudioAssetJson.Options);
+        return Convert.ToHexString(hash.GetHashAndReset());
+    }
+
+    /// <summary>A write-only stream that appends every byte to an incremental hash.</summary>
+    private sealed class HashingWriteStream(IncrementalHash hash) : Stream
+    {
+        public override bool CanRead => false;
+        public override bool CanSeek => false;
+        public override bool CanWrite => true;
+        public override long Length => throw new NotSupportedException();
+        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        public override void Write(byte[] buffer, int offset, int count) => hash.AppendData(buffer, offset, count);
+        public override void Write(ReadOnlySpan<byte> buffer) => hash.AppendData(buffer);
+        public override void Flush() { }
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+    }
 
     /// <summary>
     /// Validates immutable stock audio first, then selects a complete compatible catalog from
@@ -498,9 +518,17 @@ public sealed class ExtractedAudioAssetCatalog
 
     private static AudioAssetManifest ReadManifest(string root)
     {
-        string path = Path.Combine(root, ManifestFileName);
-        return JsonSerializer.Deserialize<AudioAssetManifest>(
-            File.ReadAllText(path), AudioAssetJson.Options)
+        return DeserializeManifest(Path.Combine(root, ManifestFileName));
+    }
+
+    /// <summary>
+    /// Streams the multi-megabyte manifest from its UTF-8 file rather than decoding it into one
+    /// UTF-16 string first; the stream reader accepts the same optional byte-order mark.
+    /// </summary>
+    private static AudioAssetManifest DeserializeManifest(string path)
+    {
+        using var file = File.OpenRead(path);
+        return JsonSerializer.Deserialize<AudioAssetManifest>(file, AudioAssetJson.Options)
             ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
     }
 
@@ -714,5 +742,53 @@ internal static class AudioAssetJson
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
+        Converters = { new ExactByteListConverter() },
     };
+
+    /// <summary>
+    /// Reads every instruction's timing/argument bytes into one exact array instead of a
+    /// growing list. Writes the same JSON number array the default collection writer emits.
+    /// </summary>
+    private sealed class ExactByteListConverter : JsonConverter<IReadOnlyList<byte>>
+    {
+        public override IReadOnlyList<byte> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType != JsonTokenType.StartArray)
+                throw new JsonException("Expected a JSON array of bytes.");
+            Span<byte> small = stackalloc byte[16];
+            byte[]? rented = null;
+            Span<byte> values = small;
+            int count = 0;
+            try
+            {
+                while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+                {
+                    if (count == values.Length)
+                    {
+                        byte[] larger = System.Buffers.ArrayPool<byte>.Shared.Rent(values.Length * 2);
+                        values.CopyTo(larger);
+                        if (rented is not null) System.Buffers.ArrayPool<byte>.Shared.Return(rented);
+                        rented = larger;
+                        values = larger;
+                    }
+                    values[count++] = reader.GetByte();
+                }
+                if (reader.TokenType != JsonTokenType.EndArray)
+                    throw new JsonException("Byte array is not terminated.");
+                return values[..count].ToArray();
+            }
+            finally
+            {
+                if (rented is not null) System.Buffers.ArrayPool<byte>.Shared.Return(rented);
+            }
+        }
+
+        public override void Write(Utf8JsonWriter writer, IReadOnlyList<byte> value, JsonSerializerOptions options)
+        {
+            writer.WriteStartArray();
+            for (int index = 0; index < value.Count; index++)
+                writer.WriteNumberValue(value[index]);
+            writer.WriteEndArray();
+        }
+    }
 }

@@ -111,21 +111,14 @@ internal static partial class Program
                 AssertEqual((a.GetEntry(i).X + 7) & 511, c.GetEntry(i).X, "Grapple emits edited visual part offsets");
                 AssertEqual(a.GetEntry(i).Y, c.GetEntry(i).Y, "Grapple X-only visual edit preserves Y");
             }
-            AssertTrue(SaveGrappleFixture(native).SequenceEqual(SaveGrappleFixture(actual)) && SaveGrappleFixture(native).SequenceEqual(SaveGrappleFixture(changed)), "Flare edits preserve complete Samus/Grapple state including physical origins and timers");
+            AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(actual)) && GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Flare edits preserve complete Samus/Grapple state including physical origins and timers");
             cases++;
         }
         static SamusState Clone(SamusState source)
         {
-            using var stream = new MemoryStream(SaveGrappleFixture(source));
+            using var stream = new MemoryStream(SerializeGraph(source));
             return SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SamusState>(stream);
         }
-    }
-
-    private static byte[] SaveGrappleFixture(object value)
-    {
-        using var stream = new MemoryStream();
-        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(stream, value);
-        return stream.ToArray();
     }
 
     private static void VerifyGrappleFlareActorBinding(SuperMetroidAddressSpace bus,
@@ -155,7 +148,7 @@ internal static partial class Program
         AssertTrue(original.SequenceEqual(Draw(runtime)), "Real Grapple actor stock composition preserves OAM");
         game.BindChargeFlareCompositions(edited);
         AssertTrue(!original.SequenceEqual(Draw(runtime)), "Real Grapple actor consumes current composition override");
-        using var stream = new MemoryStream(SaveGrappleFixture(game));
+        using var stream = new MemoryStream(SerializeGraph(game));
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
         var restoredRuntime = (SuperMetroidRuntime)field.GetValue(restored)!;
         roomAssets.Bind(restoredRuntime);

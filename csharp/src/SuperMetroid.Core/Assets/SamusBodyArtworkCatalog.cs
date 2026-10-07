@@ -345,17 +345,41 @@ public sealed class SamusBodyTileDefinition
         this.set = set;
         this.position = position;
         PayloadLength = supplied.PayloadLength;
-        pixelInputs = [];
-        contourEdits = [];
-        for (int index = 0; index < PayloadLength; index++)
+        // Collect the sparse edits first so each dictionary is created at its final size;
+        // growing one entry at a time reallocated every tile's tables several times over.
+        int[] scratchIndexes = System.Buffers.ArrayPool<int>.Shared.Rent(PayloadLength * 2);
+        byte[] scratchValues = System.Buffers.ArrayPool<byte>.Shared.Rent(PayloadLength * 2);
+        try
         {
-            byte value = supplied.ReadPlanarByte(index);
-            byte mask = SamusBodyPixelDefinitions.ContourMask(upper, set, position, index);
-            byte outside = (byte)(value & ~mask);
-            if (outside != 0) contourEdits.Add(index, outside);
-            value &= mask;
-            if (!TryPixelDefault(index, out byte pixel) || value != pixel)
-                pixelInputs.Add(index, value);
+            int pixelCount = 0, contourCount = 0;
+            for (int index = 0; index < PayloadLength; index++)
+            {
+                byte value = supplied.ReadPlanarByte(index);
+                byte mask = SamusBodyPixelDefinitions.ContourMask(upper, set, position, index);
+                byte outside = (byte)(value & ~mask);
+                if (outside != 0)
+                {
+                    scratchIndexes[PayloadLength + contourCount] = index;
+                    scratchValues[PayloadLength + contourCount++] = outside;
+                }
+                value &= mask;
+                if (!TryPixelDefault(index, out byte pixel) || value != pixel)
+                {
+                    scratchIndexes[pixelCount] = index;
+                    scratchValues[pixelCount++] = value;
+                }
+            }
+            pixelInputs = new Dictionary<int, byte>(pixelCount);
+            for (int entry = 0; entry < pixelCount; entry++)
+                pixelInputs.Add(scratchIndexes[entry], scratchValues[entry]);
+            contourEdits = new Dictionary<int, byte>(contourCount);
+            for (int entry = 0; entry < contourCount; entry++)
+                contourEdits.Add(scratchIndexes[PayloadLength + entry], scratchValues[PayloadLength + entry]);
+        }
+        finally
+        {
+            System.Buffers.ArrayPool<int>.Shared.Return(scratchIndexes);
+            System.Buffers.ArrayPool<byte>.Shared.Return(scratchValues);
         }
         int source = supplied.SourceAddress;
         ushort first = supplied.FirstSize;

@@ -78,7 +78,7 @@ public static class DebuggerSaveStateSmokeTest
             var expectedAcknowledgements = new CartridgeAudioAcknowledgements[continuationFrames];
             for (int frame = 0; frame < continuationFrames; frame++)
             {
-                expected[frame] = game.Step(0);
+                expected[frame] = game.Step(0).WithCopiedPixels();
                 expectedPcm[frame] = audio.RenderFrame(expected[frame].AudioCommands).ToArray();
                 expectedAcknowledgements[frame] = audio.ReadAcknowledgements();
                 game.SetAudioAcknowledgements(expectedAcknowledgements[frame]);

@@ -54,7 +54,7 @@ internal static partial class Program
         }
         var subject = new SamusState { Pose = 1, XPosition = 100, YPosition = 100 };
         PrepareRetailSamusFixture(subject);
-        byte[] beforeSamus = Save(subject), beforeSystem = Save(system);
+        byte[] beforeSamus = GraphDigest(subject), beforeSystem = GraphDigest(system);
         var original = new OamBuffer(); var changed = new OamBuffer();
         draw(bus, original, subject, 0, 0, 0, null, stock, sprites);
         draw(bus, changed, subject, 0, 0, 0, null, edited, sprites);
@@ -65,7 +65,7 @@ internal static partial class Program
             AssertEqual((original.GetEntry(i).X + 7) & 511, changed.GetEntry(i).X, "Editable placement shifts the actual flare OBJ seven pixels");
             AssertEqual(original.GetEntry(i).Y, changed.GetEntry(i).Y, "X-only flare edit preserves Y");
         }
-        AssertTrue(beforeSamus.SequenceEqual(Save(subject)) && beforeSystem.SequenceEqual(Save(system)), "Flare art edit changes neither Samus physics nor any projectile/timer state");
+        AssertTrue(beforeSamus.SequenceEqual(GraphDigest(subject)) && beforeSystem.SequenceEqual(GraphDigest(system)), "Flare art edit changes neither Samus physics nor any projectile/timer state");
         foreach (ushort hyper in new ushort[] { 0, 1 })
         {
             var originalSystem = new SamusProjectileSystem(); var editedSystem = new SamusProjectileSystem();
@@ -84,7 +84,7 @@ internal static partial class Program
             AssertEqual(original.NextByteOffset, changed.NextByteOffset, "Public flare placement preserves component admission");
             for (int i = 0; i < original.NextByteOffset / 4; i++)
                 AssertEqual((original.GetEntry(i).X + 7) & 511, changed.GetEntry(i).X, "Public normal/Hyper path forwards selected placement to all components");
-            AssertTrue(Save(originalSystem).SequenceEqual(Save(editedSystem)), "Normal/Hyper flare visual edits retain identical complete post-tick simulation state");
+            AssertTrue(GraphDigest(originalSystem).SequenceEqual(GraphDigest(editedSystem)), "Normal/Hyper flare visual edits retain identical complete post-tick simulation state");
         }
         document["offsets"]!.AsObject().Remove(ChargeFlarePlacementDefinitions.Key(false, 0));
         AssertThrows<InvalidDataException>(() => Load(document), "Missing flare placement rejected");
@@ -96,12 +96,6 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => ChargeFlarePlacementCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))), "Duplicate flare properties rejected");
         Console.WriteLine($"Flare placement: {cases} native OAM cases with position ROM forbidden, visible edited displacement, whole-state isolation and invalid-resource rejection pass.");
         static ChargeFlarePlacementCatalog Load(JsonNode node) => ChargeFlarePlacementCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
-        static byte[] Save(object value)
-        {
-            using var stream = new MemoryStream();
-            SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(stream, value);
-            return stream.ToArray();
-        }
     }
     private delegate void FlareMetadataDraw(OamBuffer oam, SamusState samus,
         ushort layer1X, ushort layer1Y, int component, SamusMode7Transform? transform,

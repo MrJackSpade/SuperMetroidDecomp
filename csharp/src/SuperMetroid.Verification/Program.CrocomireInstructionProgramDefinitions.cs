@@ -52,7 +52,7 @@ internal static partial class Program
         samus.RefreshCollisionRadii(rom);
         samus.InitializeAnimation(rom);
 
-        var enemies = new RoomEnemySystem { TileArtwork = installation.LoadEnemyTiles() };
+        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         enemies.Load(
             guard,
             room.State.EnemyPopulationPointer,

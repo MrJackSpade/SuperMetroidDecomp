@@ -172,21 +172,29 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>Physical-slot views in cartridge handler order, highest ID first.</summary>
-    public IReadOnlyList<RoomPlmSlotSnapshot> PopulationSlots => _slots
-        .Select((slot, index) => (slot, index))
-        .Where(entry => entry.slot.Active)
-        .OrderByDescending(entry => entry.index)
-        .Select(entry => new RoomPlmSlotSnapshot(
-            NativeSlotIndex: entry.index,
-            HeaderPointer: entry.slot.HeaderPointer,
-            BlockIndex: entry.slot.BlockIndex,
-            RoomArgument: entry.slot.RoomArgument,
-            InstructionPointer: entry.slot.InstructionPointer,
-            PreInstruction: entry.slot.PreInstruction,
-            InstructionTimer: entry.slot.InstructionTimer,
-            LinkInstruction: entry.slot.LinkInstruction,
-            LoopTimer: entry.slot.LoopTimer))
-        .ToArray();
+    public IReadOnlyList<RoomPlmSlotSnapshot> PopulationSlots
+    {
+        get
+        {
+            var snapshots = new List<RoomPlmSlotSnapshot>(_slots.Length);
+            for (int index = _slots.Length - 1; index >= 0; index--)
+            {
+                PlmSlot slot = _slots[index];
+                if (!slot.Active) continue;
+                snapshots.Add(new RoomPlmSlotSnapshot(
+                    NativeSlotIndex: index,
+                    HeaderPointer: slot.HeaderPointer,
+                    BlockIndex: slot.BlockIndex,
+                    RoomArgument: slot.RoomArgument,
+                    InstructionPointer: slot.InstructionPointer,
+                    PreInstruction: slot.PreInstruction,
+                    InstructionTimer: slot.InstructionTimer,
+                    LinkInstruction: slot.LinkInstruction,
+                    LoopTimer: slot.LoopTimer));
+            }
+            return snapshots;
+        }
+    }
 
     private PlmSlot? AllocateRoomPopulationSlot(
         RoomPlmPopulationRecord record,

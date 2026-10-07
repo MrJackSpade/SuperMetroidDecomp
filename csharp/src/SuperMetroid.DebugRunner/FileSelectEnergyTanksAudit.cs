@@ -48,7 +48,7 @@ internal static class FileSelectEnergyTanksAudit
             }
             var ppu = (MenuPpuState)typeof(FileSelectMenuState).GetField("ppu", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(menu)!;
             var original = menu.BackgroundTilemap.ToArray();
-            var withTanks = menu.Render();
+            var withTanks = menu.Render().ToArray();
             var erased = original.ToArray();
             for (int tank = 0; tank < 14; tank++) erased[(anchor.Y + (tank < 7 ? 1 : 0)) * 32 + anchor.X + 4 + tank % 7] = 0xf;
             ppu.Vram.ExecuteWordTransfer(erased, MenuPpuState.Bg1TilemapWord, 1);

@@ -7,9 +7,9 @@ internal static class SamusBodyTransferClosedContractDefinitions
     [
         new("SuperMetroid.Core.Assets.SamusBodyArtworkCatalog", "samus-complete-physical-transfer-records",
             ["Frame", "DefinitionAddress", "DefinitionAt"],
-            [new("csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs", "A37060E1A4A6A4DB5C83705B452294953A89C1BC4D3E0CCBFCE49FD9FC4C4FE8"),
+            [new("csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs", "48C9CB66CAA6CF24CF7D4338389F17F6C92AA7D833D935BDE33008F81140FF27"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusBodyPixelDefinitions.cs", "1E9EA019CB38CA024B15EC658037EBABAB24F0CF5D43411760C2FD1EF05F34B5"),
-             new("csharp/src/SuperMetroid.Core/Assets/SamusBodyFrameDefinitions.cs", "BB38541200D17EEE72F3B09E72C52F99EF0807B26A67492EE528ED6C72C6E9BF"),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusBodyFrameDefinitions.cs", "2DC96921E97617DFC6695A579904C86938F57C9725BE73379D426F68995D1749"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusBodyPlacementDefinitions.cs", "F05C6645CBC1D4419166D361C1865BDB6E611CBC7816ADDE00ABFD28D01C7098"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusBodyPoseDefinitions.cs", "C5FC4C4CCFD7ACFAA8833A33DF0F302CC1A6D5FC367433B05569D64B09C9942B"),
              new("csharp/src/SuperMetroid.Core/Game/SamusPoseId.cs", "012612D5038094238C5FF9442742D744204A07379B433D0B5F9A825419C1A524"),

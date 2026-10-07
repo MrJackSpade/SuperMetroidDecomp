@@ -26,7 +26,7 @@ internal static partial class Program
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = new DeadSidehopperInstructionReadGuard(rom);
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.Installation.LoadEnemyTiles() };
+        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
         var initialize = type.GetMethod("InitializeDeadSidehopper", flags)!

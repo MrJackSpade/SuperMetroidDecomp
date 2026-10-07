@@ -9,6 +9,11 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Retail game-over prompt at <c>$81:90AE-$81:93F7</c>.</summary>
 public sealed class GameOverMenuState
 {
+    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    [NonSerialized] private Rgba32[]? objectLayerScratch;
+    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    [NonSerialized] private Rgba32[]? frameBuffer;
+
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState audio;
     private readonly MenuPpuState ppu;
@@ -158,18 +163,18 @@ public sealed class GameOverMenuState
     public Rgba32[] Render()
     {
         // `TM=$11` enables BG1 and OBJ only. Game-over does not retain the menu starfield.
-        Rgba32[] output = SnesLayerCompositor.CreateBackdrop(
-            ppu.Cgram,
-            FrontendFrame.Width * FrontendFrame.Height);
-        Rgba32[] foreground = SnesBgTilemapRenderer.Render4BppViewport(
+        Rgba32[] output = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            output,
             ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, 0, 0,
             FrontendFrame.Width, FrontendFrame.Height,
             GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight);
-        SnesLayerCompositor.Composite(output, foreground);
 
         PrepareRenderOam();
+        Rgba32[] objectLayer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
+        SnesObjRenderer.Render(objectLayer, oam, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
         SnesLayerCompositor.Composite(output,
-            SnesObjRenderer.Render(oam, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection));
+            objectLayer);
         MasterBrightnessFilter.Apply(output, (byte)brightness);
         return output;
     }

@@ -6,6 +6,9 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    // Per-pixel reference raster, refilled for every scroll the interval check compares.
+    private static readonly Rgba32[] xrayGeometryReference = new Rgba32[256 * 224];
+
     private static void VerifyXrayWindowGeometry()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -18,18 +21,18 @@ internal static partial class Program
             {
                 ushort input = (ushort)(SnesButton.B | (frame < 90 ? 0 : frame < 170 ? SnesButton.Up : SnesButton.Down));
                 samus.Xray.StepBeam(bus, samus, input);
-                VerifyXrayWindowGeometry(bus, samus);
+                VerifyXrayWindowGeometry(bus, samus, xrayGeometryReference);
             }
         }
         Console.WriteLine("  X-ray intervals: standing/crouching, both facings, widening, aim sweep and clipped origins match per-pixel reference.");
     }
-    private static void VerifyXrayWindowGeometry(ISnesAddressSpace bus, SamusState samus)
+    private static void VerifyXrayWindowGeometry(ISnesAddressSpace bus, SamusState samus, Rgba32[] reference)
     {
         if (samus.Xray.SetupStage != 0 || samus.Xray.BeamPhase is not (XrayBeamPhase.Widening or XrayBeamPhase.Full)) return;
         foreach (var scroll in new[] { (0, 0), (160, 0), (220, 180) })
         {
             var source = new Rgba32(248, 128, 64);
-            var reference = Enumerable.Repeat(source, 256 * 224).ToArray();
+            Array.Fill(reference, source);
             SnesGameplayFrameRenderer.ApplyXrayWindowColorMath(reference, bus, samus.Xray, samus,
                 (ushort)scroll.Item1, (ushort)scroll.Item2);
             var lines = SnesGameplayFrameRenderer.CaptureXrayWindowLines(bus, samus,

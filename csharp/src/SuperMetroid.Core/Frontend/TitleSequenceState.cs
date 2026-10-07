@@ -17,6 +17,14 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class TitleSequenceState
 {
+    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    [NonSerialized] private Rgba32[]? objectLayerScratch;
+    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    [NonSerialized] private Rgba32[]? frameBuffer;
+    // Gradient OBJ priority/palette planes; fully rewritten by every resolve.
+    [NonSerialized] private byte[]? gradientPriorityScratch;
+    [NonSerialized] private byte[]? gradientPaletteScratch;
+
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
     private readonly SnesVram vram = new();
@@ -349,9 +357,7 @@ public sealed class TitleSequenceState
         // zoom *out*. Taking its reciprocal reversed that motion and also magnified the
         // Nintendo Presents pan offsets until much of their movement wrapped off-screen.
         short matrixScale = unchecked((short)zoom);
-        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(
-            cgram,
-            FrontendFrame.Width * FrontendFrame.Height);
+        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
 
         // Setup_PPU_TitleSequence writes TM=$10 at `$8B:803F`: OBJ is visible but BG1 is
         // not. Each scrolling-text command leaves that state alone, so the 1994/NINTENDO/
@@ -363,7 +369,8 @@ public sealed class TitleSequenceState
         // turned the whole screen into the sampled red texel.
         if (mode7BackgroundEnabled)
         {
-            Rgba32[] mode7Layer = SnesMode7Renderer.RenderViewport(
+            SnesMode7Renderer.CompositeViewport(
+                background,
                 vram,
                 cgram,
                 matrixScale,
@@ -374,21 +381,21 @@ public sealed class TitleSequenceState
                 128,
                 unchecked((short)mode7X),
                 unchecked((short)mode7Y));
-            SnesLayerCompositor.Composite(background, mode7Layer);
         }
 
         PrepareRenderOam();
-        Rgba32[] objects = SnesObjRenderer.Render(
-            oam,
+        Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
+        SnesObjRenderer.Render(objects, oam,
             vram,
             cgram,
             obsel: TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector);
         SnesLayerCompositor.Composite(background, objects);
         if (gradientEnabled)
         {
-            var palettes = new byte[background.Length];
+            byte[] palettes = gradientPaletteScratch ??= new byte[background.Length];
             SnesObjRenderer.RenderResolved(oam, vram, cgram,
-                TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector, objects, new byte[background.Length], palettes: palettes);
+                TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector, objects,
+                gradientPriorityScratch ??= new byte[background.Length], palettes: palettes);
             ReadOnlySpan<TitleGradientLine> gradient = ResolveTitleGradient();
             for (int pixel = 0; pixel < background.Length; pixel++)
                 background[pixel] = TitleGradientColorMath.Apply(background[pixel], gradient[pixel / 256],

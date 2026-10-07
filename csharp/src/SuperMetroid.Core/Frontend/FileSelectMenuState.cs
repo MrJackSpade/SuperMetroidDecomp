@@ -20,6 +20,11 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed partial class FileSelectMenuState
 {
+    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    [NonSerialized] private Rgba32[]? objectLayerScratch;
+    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    [NonSerialized] private Rgba32[]? frameBuffer;
+
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
     private readonly SuperMetroidSaveRam saveRam;
@@ -163,16 +168,17 @@ public sealed partial class FileSelectMenuState
     /// <summary>Composes the menu's BG2, BG1, and OBJ main-screen layers.</summary>
     public Rgba32[] Render()
     {
-        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224);
-        Rgba32[] backgroundLayer = SnesBgTilemapRenderer.Render4BppViewport(
+        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            background,
             ppu.Vram, ppu.Cgram, MenuPpuState.Bg2TilemapWord, 0, 0, 0, 256, 224, 32, 32);
-        Rgba32[] foreground = SnesBgTilemapRenderer.Render4BppViewport(
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            background,
             ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, 0, 0, 256, 224, 32, 32);
-        SnesLayerCompositor.Composite(background, backgroundLayer);
-        SnesLayerCompositor.Composite(background, foreground);
 
         PrepareRenderOam();
-        Rgba32[] objects = SnesObjRenderer.Render(oam, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
+        Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
+        SnesObjRenderer.Render(objects, oam, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
         SnesLayerCompositor.Composite(background, objects);
         ApplyBrightness(background);
         return background;

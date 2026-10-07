@@ -39,7 +39,7 @@ internal static partial class Program
                     AssertEqual((a.GetEntry(i).X + 7) & 511, c.GetEntry(i).X, "All emitted normal/Hyper components consume edited composition");
                     AssertEqual(a.GetEntry(i).Y, c.GetEntry(i).Y, "Composition X edit preserves emitted Y");
                 }
-                AssertTrue(Save(native).SequenceEqual(Save(compiled)) && Save(native).SequenceEqual(Save(changed)), "All projectile, flare-counter and animation state remains identical after visual replacement");
+                AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(compiled)) && GraphDigest(native).SequenceEqual(GraphDigest(changed)), "All projectile, flare-counter and animation state remains identical after visual replacement");
                 ticks++;
             }
         }
@@ -75,10 +75,10 @@ internal static partial class Program
         game.BindChargeFlareCompositions(edited);
         AssertTrue(!baseline.SequenceEqual(Draw(runtime)), "Runtime actor pass emits edited flare composition");
         game.BindChargeFlareCompositions(null);
-        byte[] unbound = Save(game);
+        byte[] unbound = GraphDigest(game);
         game.BindChargeFlareCompositions(stock);
-        byte[] bound = Save(game);
-        AssertTrue(unbound.SequenceEqual(bound), "Charge-flare compositions are excluded from saved frontend/runtime graphs");
+        byte[] bound = SerializeGraph(game);
+        AssertTrue(unbound.SequenceEqual(System.Security.Cryptography.SHA256.HashData(bound)), "Charge-flare compositions are excluded from saved frontend/runtime graphs");
         using var stream = new MemoryStream(bound);
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
         var restoredRuntime = (SuperMetroidRuntime)runtimeField.GetValue(restored)!;
@@ -92,12 +92,6 @@ internal static partial class Program
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored actor pass uses current composition at saved animation state");
         Console.WriteLine($"Charge-flare production: {ticks} native/compiled/edited normal and Hyper ticks, ROM guard, state isolation and real actor restore/rebind pass.");
 
-        static byte[] Save(object target)
-        {
-            using var output = new MemoryStream();
-            SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(output, target);
-            return output.ToArray();
-        }
         static byte[] Draw(SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();

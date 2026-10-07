@@ -8,6 +8,11 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Initial native Mode 7 leg of Samus's flight toward Ceres station.</summary>
 internal sealed class IntroCeresFlightState
 {
+    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    [NonSerialized] private Rgba32[]? objectLayerScratch;
+    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    [NonSerialized] private Rgba32[]? frameBuffer;
+
     private readonly ISnesAddressSpace bus;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
@@ -142,7 +147,7 @@ internal sealed class IntroCeresFlightState
 
     public Rgba32[] Render()
     {
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
+        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
 
         OamBuffer oam = PrepareRenderOam();
 
@@ -158,7 +163,8 @@ internal sealed class IntroCeresFlightState
 
             // Mode 7 has one BG priority between OBJ priorities zero and one in this PPU mode.
             CompositeObjPriority(pixels, oam, 0);
-            Rgba32[] mode7 = SnesMode7Renderer.RenderViewport(
+            SnesMode7Renderer.CompositeViewport(
+                pixels,
                 vram,
                 cgram,
                 matrixA,
@@ -169,7 +175,6 @@ internal sealed class IntroCeresFlightState
                 centerY: CeresFlightRenderDefinitions.CenterY,
                 horizontalOffset: unchecked((short)backgroundX),
                 verticalOffset: unchecked((short)backgroundY));
-            SnesLayerCompositor.Composite(pixels, mode7);
             CompositeObjPriority(pixels, oam, 1);
             CompositeObjPriority(pixels, oam, 2);
             CompositeObjPriority(pixels, oam, 3);
@@ -384,7 +389,8 @@ internal sealed class IntroCeresFlightState
 
     private void CompositeSpaceColonyPriority(Span<Rgba32> pixels, bool priority)
     {
-        Rgba32[] caption = SnesBgTilemapRenderer.Render4BppViewport(
+        SnesBgTilemapRenderer.Composite4BppViewport(
+            pixels,
             vram,
             cgram,
             CeresFlightRomData.Layers.SpaceColonyTilemapWord,
@@ -396,7 +402,6 @@ internal sealed class IntroCeresFlightState
             tilemapWidthInTiles: 32,
             tilemapHeightInTiles: 32,
             priority: priority);
-        SnesLayerCompositor.Composite(pixels, caption);
     }
 
     private void StepRearViewActors()
@@ -515,7 +520,8 @@ internal sealed class IntroCeresFlightState
         // Name both optional arguments. A positional integer following `obsel` binds to
         // the renderer's width parameter, not its priority filter, and would request a
         // nonsensical zero-to-three-pixel framebuffer during the first Ceres frame.
-        Rgba32[] layer = SnesObjRenderer.Render(oam, vram, cgram, obsel: 3, priority: priority);
+        Rgba32[] layer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
+        SnesObjRenderer.Render(layer, oam, vram, cgram, obsel: 3, priority: priority);
         SnesLayerCompositor.Composite(pixels, layer);
     }
 

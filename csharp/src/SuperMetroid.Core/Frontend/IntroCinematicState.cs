@@ -18,6 +18,9 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed partial class IntroCinematicState
 {
+    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    [NonSerialized] private Rgba32[]? frameBuffer;
+
     /// <summary>Current host appearance; snapshots retain simulation state, not external overrides.</summary>
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
     [NonSerialized] private bool trailArtworkRefreshPending;
@@ -1149,7 +1152,7 @@ public sealed partial class IntroCinematicState
 
     private Rgba32[] RenderMotherBrainFlashback()
     {
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight);
+        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
         OamBuffer oam = PrepareMotherBrainOam();
 
         CompositeObjPriority(pixels, oam, 0);
@@ -1209,7 +1212,7 @@ public sealed partial class IntroCinematicState
 
     private Rgba32[] RenderBabyDiscovery()
     {
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight);
+        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
         OamBuffer oam = PrepareBabyDiscoveryOam();
 
         CompositeObjPriority(pixels, oam, 0);
@@ -1242,7 +1245,7 @@ public sealed partial class IntroCinematicState
 
     private Rgba32[] RenderScientistCutscene()
     {
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight);
+        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
         OamBuffer oam = PrepareScientistOam();
 
         // TM=$15 uses the same BG1/BG3/OBJ priority ladder as the gameplay flashbacks.
@@ -1327,12 +1330,16 @@ public sealed partial class IntroCinematicState
     {
         // Initial SetupPpu_Intro sets TM=$04: only BG3 is visible. BG3SC=$4C and BG34NBA=$04
         // select tilemap word $4C00 and 2-bpp character word $4000 respectively.
-        return SnesBgTilemapRenderer.Render2Bpp(
+        // Opaque BG3 with no priority filter writes all 28 rows, i.e. the whole frame.
+        Rgba32[] pixels = frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight];
+        SnesBgTilemapRenderer.Render2Bpp(
+            pixels,
             vram,
             cgram,
             tilemapBaseWord: IntroCinematicRomData.Layers.NarrationTilemapWord,
             characterBaseWord: IntroCinematicRomData.Layers.FontCharacterBaseWord,
             rowCount: IntroCinematicRomData.Layers.NarrationRowCount);
+        return pixels;
     }
 
     private Rgba32[] RenderFirstIllustratedPage()
@@ -1340,7 +1347,7 @@ public sealed partial class IntroCinematicState
         // TM=$16 enables BG2, BG3, and OBJ. BG2 is the 4-bpp Samus portrait at SC=$48;
         // BG3 is the progressively written 2-bpp narration at SC=$4C. Both vertical scroll
         // registers are eight, so source scanline eight is the first visible output line.
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight);
+        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
         OamBuffer oam = PrepareIllustratedPageOam();
         CompositeObjPriority(pixels, oam, 0);
         CompositeTextPriority(pixels, priority: false);

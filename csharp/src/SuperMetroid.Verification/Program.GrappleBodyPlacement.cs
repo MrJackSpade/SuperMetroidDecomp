@@ -68,7 +68,7 @@ internal static partial class Program
                 AssertEqual(native.AnimationFrameTimer, changed.AnimationFrameTimer, "Visual mapping cannot change swing timing");
                 ushort displayed = changed.AnimationFrame;
                 changed.SetGrappleSwingAnimationFrame(native.AnimationFrame);
-                AssertTrue(SaveGrappleFixture(native).SequenceEqual(SaveGrappleFixture(changed)), "Entire swing simulation state matches except displayed frame");
+                AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Entire swing simulation state matches except displayed frame");
                 changed.SetGrappleSwingAnimationFrame(displayed);
             }
         }

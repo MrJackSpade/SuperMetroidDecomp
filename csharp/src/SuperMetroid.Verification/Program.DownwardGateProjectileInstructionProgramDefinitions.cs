@@ -29,7 +29,7 @@ internal static partial class Program
                 $"downward-gate projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.Installation.LoadEnemyTiles().ProjectileSpritemaps
+        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = new DownwardGateProjectileInstructionReadGuard(rom);

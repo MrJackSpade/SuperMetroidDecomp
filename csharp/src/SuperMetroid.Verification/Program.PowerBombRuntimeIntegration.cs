@@ -51,7 +51,7 @@ internal static partial class Program
             cameraY: 0);
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
 
-        Rgba32[] baseline = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+        Rgba32[] baseline = SuperMetroidRuntimeFrameRenderer.Render(runtime).ToArray();
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Arm();
         explosion.Spawn(

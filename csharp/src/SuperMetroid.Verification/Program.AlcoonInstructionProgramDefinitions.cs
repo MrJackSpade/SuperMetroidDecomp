@@ -132,7 +132,7 @@ internal static partial class Program
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem { TileArtwork = installedArt ?? installation.LoadEnemyTiles() };
+        var enemies = new RoomEnemySystem { TileArtwork = installedArt ?? RepositoryInstallation.EnemyTiles };
         enemies.Load(
             guard,
             room.State.EnemyPopulationPointer,

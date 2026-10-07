@@ -8,7 +8,10 @@ public sealed partial class RoomEnemySystem
     private void PublishCrocomirePlm(byte blockX, byte blockY, ushort header) =>
         _crocomirePlmRequests.Add(new CrocomirePlmRequest(blockX, blockY, header));
 
-    /// <summary>Ports the staged $0600/$0620/$0630 bridge effects in $A4:8D5E.</summary>
+    /// <summary>
+    /// Ports the bridge effects in $A4:8D5E, staged at Crocomire X $0600, $0610 and $0620.
+    /// Each stage's dust lands one block ahead, at $0600, $0620 and $0630.
+    /// </summary>
     private void HandleCrocomireBridgeApproach(RoomEnemySlot body)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
@@ -30,14 +33,10 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
+        // $A4:8DA4-8DDB: one block deep crumbles the first bridge block. The flag
+        // resets at $8DDC and $8E2D sit behind comparisons these ranges already passed
+        // and never execute.
         if (unchecked((short)(body.XPosition - 1568)) < 0)
-        {
-            death.BridgeBlockAt1568Crumbling = false;
-            death.BridgeBlocksAt1584Crumbling = false;
-            return;
-        }
-
-        if (unchecked((short)(body.XPosition - 1584)) < 0)
         {
             if (!death.BridgeBlockAt1568Crumbling)
             {
@@ -49,7 +48,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        if (unchecked((short)(body.XPosition - 1600)) < 0 &&
+        // $A4:8DED-8E2C: two blocks deep crumbles the next pair.
+        if (unchecked((short)(body.XPosition - 1584)) < 0 &&
             !death.BridgeBlocksAt1584Crumbling)
         {
             death.BridgeBlocksAt1584Crumbling = true;

@@ -2415,12 +2415,19 @@ public sealed partial class RoomEnemySystem
         int carry = horizontalRadius & 1;
         int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + carry) >> 1;
         int reactionCount = 0;
+        _enemyDeathRespawnScratch = null;
 
         // The native pass walks all 32 physical slots from $07C0 down to zero, independent
         // of the ordinary active list. That matters while a power bomb reaches off-screen
         // actors and then sets their process-off-screen property below.
         for (int slotIndex = MaximumEnemyCount - 1; slotIndex >= 0; slotIndex--)
         {
+            // A death inside the previous reaction overwrote `$12`, the horizontal radius
+            // this walker never reloads: zero for an ordinary kill and $4000 for a
+            // respawning one. The vertical radius in `$14` survives unchanged.
+            if (_enemyDeathRespawnScratch is { } deathScratch)
+                horizontalRadius = deathScratch;
+            _enemyDeathRespawnScratch = null;
             RoomEnemySlot enemy = _slots[slotIndex];
             if (enemy.EnemyDefinitionPointer is 0 or 0xdaff ||
                 enemy.InvincibilityTimer != 0 ||
@@ -2636,6 +2643,7 @@ public sealed partial class RoomEnemySystem
             reactionCount++;
         }
 
+        _enemyDeathRespawnScratch = null;
         return reactionCount;
     }
 

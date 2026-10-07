@@ -42,6 +42,14 @@ public sealed partial class RoomEnemySystem
     public ushort? LastEnemyDeathSoundEffectLibrary2 { get; private set; }
 
     /// <summary>
+    /// Scratch word `$12` as last written by <c>EnemyDeath</c> ($A0:A3E6) or
+    /// <c>RinkaDeath</c> ($A0:A437): the dying actor's respawn property bit. The
+    /// power-bomb walker at $A0:A306 keeps its horizontal radius in that same word, so a
+    /// kill inside its loop resizes the explosion for every lower slot that frame.
+    /// </summary>
+    private ushort? _enemyDeathRespawnScratch;
+
+    /// <summary>
     /// Ports <c>EnemyDeathAnimation</c> at $A0:A3AF. The enemy is cleared immediately,
     /// while projectile $F345 retains the header, position, and optional respawn index until
     /// its ROM animation reaches opcode $EEAF and becomes a pickup.
@@ -50,6 +58,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot enemy,
         ushort deathAnimation)
     {
+        _enemyDeathRespawnScratch = RespawnScratchWord(enemy);
         // $A0:A3AF installs the dropped-grapple function before clearing the enemy.
         // Equality is deliberate: this is not a general test for any set grapple bit.
         if (enemy.AiHandlerBits == 1)
@@ -91,6 +100,11 @@ public sealed partial class RoomEnemySystem
         }
         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
     }
+
+    private static ushort RespawnScratchWord(RoomEnemySlot enemy) =>
+        enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled)
+            ? (ushort)EnemyProperties.RespawnIfKilled
+            : (ushort)0;
 
     private void InstallRespawnPlaceholder(RoomEnemySlot enemy)
     {

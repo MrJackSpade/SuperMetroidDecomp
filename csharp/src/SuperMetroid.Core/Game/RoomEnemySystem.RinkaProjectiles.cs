@@ -45,6 +45,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>RinkasDeathAnimation(0)</c> at $A0:A410.</summary>
     private void RunRinkaDeathAnimation(RoomEnemySlot slot)
     {
+        _enemyDeathRespawnScratch = RespawnScratchWord(slot);
         bool respawns = slot.Properties.HasAny(EnemyProperties.RespawnIfKilled);
         RoomEnemySpawnSnapshot survivingSpawnSnapshot = slot.Spawn;
 

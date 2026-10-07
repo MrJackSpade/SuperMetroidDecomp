@@ -295,6 +295,11 @@ if (args is ["--power-bomb-death-drawing"])
     VerifyPowerBombDeathDrawing();
     return 0;
 }
+if (args is ["--power-bomb-death-radius"])
+{
+    VerifyPowerBombDeathRadius();
+    return 0;
+}
 if (args is ["--single-frame-enemy-visuals"])
 {
     VerifyKzanInstructionProgramDefinitions();
@@ -7135,6 +7140,7 @@ VerifyMurderBeam();
 VerifyPowerBombRuntimeRendererIntegration();
 VerifyPowerBombFuse();
 VerifyPowerBombBoundary();
+VerifyPowerBombDeathRadius();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

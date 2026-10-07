@@ -12,6 +12,8 @@
 *.dll
 *.exe
 *.pdb
+*.obj
+*.ilk
 /.worktrees/
 __pycache__/
 *.pyc
@@ -67,3 +69,5 @@ stdout.txt
 
 # Private native emulator captures consumed by verifiers (never committed).
 /native-captures/
+# Player-supplied native snapshots contain emulated game memory, not just inputs.
+/csharp/test-fixtures/issue-445-player-cwj/

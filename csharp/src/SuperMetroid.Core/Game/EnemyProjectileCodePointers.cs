@@ -478,7 +478,7 @@ internal static class EnemyProjectileCodePointers
     /// <summary><c>Instruction_EnemyProjectile_Spores_SetProperties3000</c> at $86:DC5A. Spore impact: replace packed properties with literal $3000.</summary>
     public const ushort Instruction_EnemyProjectile_Spores_SetProperties3000 = 0xdc5a;
 
-    /// <summary><c>Instruction_EnemyProjectile_Spores_SpawnEnemyDrops</c> at $86:DC61. Spore impact: request enemy definition $DF3F's drop table.</summary>
+    /// <summary><c>Instruction_EnemyProjectile_Spores_SpawnEnemyDrops</c> at $86:DC61. Spore impact: request the stalk header $DF7F's drop table.</summary>
     public const ushort Instruction_EnemyProjectile_Spores_SpawnEnemyDrops = 0xdc61;
 
     /// <summary><c>Instruction_EnemyProjectile_SporeSpawner_SpawnSpore</c> at $86:DC77. Ceiling spawner: allocate one room-graphics spore here.</summary>

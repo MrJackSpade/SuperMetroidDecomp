@@ -74,7 +74,7 @@ public sealed class SporeSpawnEnemyState
 /// <summary>One hardcoded bank-$84 ceiling mutation published by Spore Spawn.</summary>
 public readonly record struct SporeSpawnPlmRequest(byte BlockX, byte BlockY, ushort Header);
 
-/// <summary>One destroyed spore's request to use enemy $DF3F's item-drop table.</summary>
+/// <summary>One destroyed spore's request to use the stalk header $DF7F's item-drop table.</summary>
 public readonly record struct SporeSpawnDropRequest(ushort X, ushort Y);
 
 public sealed partial class RoomEnemySystem

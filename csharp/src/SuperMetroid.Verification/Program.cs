@@ -315,6 +315,11 @@ if (args is ["--botwoon-position-history"])
     VerifyBotwoonPositionHistory();
     return 0;
 }
+if (args is ["--draygon-turret-cadence"])
+{
+    VerifyDraygonTurretCadence();
+    return 0;
+}
 if (args is ["--zoa-speeds"])
 {
     VerifyCompiledZoaSpeeds(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.LoadRetailRom(
@@ -7165,6 +7170,7 @@ VerifyPowerBombDeathRadius();
 VerifyRespawnedEnemyContact();
 VerifyVerticalOffScreenDeletion();
 VerifyBotwoonPositionHistory();
+VerifyDraygonTurretCadence();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

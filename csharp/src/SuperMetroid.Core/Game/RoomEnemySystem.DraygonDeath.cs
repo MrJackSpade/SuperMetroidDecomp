@@ -62,9 +62,9 @@ public sealed partial class RoomEnemySystem
 
     private void WaitForDraygonBurialEvirs(
         DraygonEnemyState state,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        SpawnDyingDraygonSmoke(state, nmiFrameCounter8);
+        SpawnDyingDraygonSmoke(state, frameCounterLow);
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
         if (state.FunctionTimer == 0)
         {
@@ -77,9 +77,9 @@ public sealed partial class RoomEnemySystem
 
     private void SinkDraygonBelowTheRoom(
         DraygonEnemyState state,
-        byte nmiFrameCounter8)
+        byte frameCounterLow)
     {
-        SpawnDyingDraygonSmoke(state, nmiFrameCounter8);
+        SpawnDyingDraygonSmoke(state, frameCounterLow);
         MoveDraygonDeathEvirs();
         RoomEnemySlot body = state.Body;
         body.YPosition = unchecked((ushort)(body.YPosition + 1));
@@ -110,9 +110,9 @@ public sealed partial class RoomEnemySystem
         ClearRoomSpriteObjectPool();
     }
 
-    private void SpawnDyingDraygonSmoke(DraygonEnemyState state, byte nmiFrameCounter8)
+    private void SpawnDyingDraygonSmoke(DraygonEnemyState state, byte frameCounterLow)
     {
-        if ((nmiFrameCounter8 & 7) != 0)
+        if ((frameCounterLow & 7) != 0)
             return;
 
         ushort random = _nextRandom!();

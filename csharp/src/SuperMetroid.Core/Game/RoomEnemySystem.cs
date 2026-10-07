@@ -1684,7 +1684,9 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.RTL_A3804C:
                 return;
             case EnemyAiCodePointers.MainAI_DraygonBody when slot.EnemyDefinitionPointer == DraygonBodyDefinition:
-                RunDraygonBodyMain(slot, samus, nmiFrameCounter8);
+                // Bank $A5 times turrets and smoke from NMI_FrameCounter ($05B6), never
+                // the separate 8-bit counter at $05B5; only its low bits are tested.
+                RunDraygonBodyMain(slot, samus, unchecked((byte)_enemyFrameNmiFrameCounter));
                 return;
             case EnemyAiCodePointers.MainAI_DraygonEye when slot.EnemyDefinitionPointer == DraygonEyeDefinition:
                 RunDraygonPartMain(slot, samus);

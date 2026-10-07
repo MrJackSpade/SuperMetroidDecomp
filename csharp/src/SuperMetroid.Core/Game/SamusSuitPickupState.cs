@@ -39,6 +39,14 @@ public sealed class SamusSuitPickupState
     /// <summary>Whether the post-message transformation currently owns Samus input.</summary>
     public bool IsActive { get; private set; }
 
+    /// <summary>
+    /// HDMA-handler calls left before the instruction list installs the pre-instruction.
+    /// The handler runs an object's pre-instruction before its instructions; the list's
+    /// first call ends on a one-frame table entry and its second installs the
+    /// pre-instruction and sleeps ($91:D5A2/$D67A), so the first stage runs on the third.
+    /// </summary>
+    private byte _preInstructionInstallCallsRemaining;
+
     /// <summary>The suit whose native stage-three function is installed.</summary>
     public SamusSuitPickupKind Kind { get; private set; }
 
@@ -92,6 +100,7 @@ public sealed class SamusSuitPickupState
             : SamusPaletteRomData.SuitPickup.GravityBlue;
         Substate = 0;
         LightBeamPosition = 0;
+        _preInstructionInstallCallsRemaining = 2;
         PublishSharedScratch(samus);
         LightBeamWideningSpeed = SamusSpecialSequenceRomData.SuitPickup.InitialWideningSpeed;
         Array.Fill(_windowTable, SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints);
@@ -146,6 +155,11 @@ public sealed class SamusSuitPickupState
         ArgumentNullException.ThrowIfNull(cgram);
         if (!IsActive)
             return;
+        if (_preInstructionInstallCallsRemaining != 0)
+        {
+            _preInstructionInstallCallsRemaining--;
+            return;
+        }
 
         switch (Substate)
         {

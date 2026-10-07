@@ -722,6 +722,15 @@ internal static partial class Program
         SamusSuitPickupRenderer.Composite(pixels, pickup);
         AssertEqual(default(SuperMetroid.Core.Assets.Rgba32), pixels[0],
             "initial inverted suit window applies no fixed color");
+        // The HDMA instruction list spends two handler calls before installing the
+        // stage pre-instruction ($91:D5A2): neither changes the window table.
+        for (int installCall = 0; installCall < 2; installCall++)
+        {
+            pickup.Step(curveGuard, samus, cgram);
+            AssertEqual((ushort)0x00ff, pickup.WindowTable[0],
+                "instruction-list setup calls leave the inverted window untouched");
+            AssertEqual((byte)0, pickup.Substate, "instruction-list setup calls stay in stage zero");
+        }
         pickup.Step(curveGuard, samus, cgram);
         AssertEqual((ushort)0x7878, pickup.WindowTable[0],
             "stage zero narrows first top scanline");

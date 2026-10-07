@@ -55,6 +55,14 @@ internal static class DebuggerStateFieldMigrations
             return SelectSerializedFields(type, current.Where(field =>
                 field.Name is not "soundCommandReads" and not "previousSoundCommandReads").ToArray(), count);
         }
+        if (type == typeof(SamusSuitPickupState) &&
+            current.Any(field => field.Name == "_preInstructionInstallCallsRemaining"))
+        {
+            // Older builds ran the pre-instruction from the first handler call; a saved
+            // transformation resumes with its pre-instruction already installed.
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "_preInstructionInstallCallsRemaining").ToArray(), count);
+        }
         if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) &&
             current.Any(field => field.Name == "_suspendedFrameTail"))
         {

@@ -100,11 +100,16 @@ internal static partial class Program
             "legacy DSP voice retains envelope, PCM cursor, and interpolation state");
         var suitFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusSuitPickupState)])!;
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusSuitPickupState), suitFields, suitFields.Length - 1)
+            .SequenceEqual(suitFields.Where(field => field.Name != "_preInstructionInstallCallsRemaining")),
+            "pre-install-delay suit pickup retains every other saved field in order");
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusSuitPickupState), suitFields, 9)
-            .SequenceEqual(suitFields.Where(field => field.Name is not "_transformationSoundPending" and not "<TransformationSoundSuppressed>k__BackingField")),
+            .SequenceEqual(suitFields.Where(field => field.Name is not "_transformationSoundPending" and not
+                "<TransformationSoundSuppressed>k__BackingField" and not "_preInstructionInstallCallsRemaining")),
             "legacy suit pickup retains its saved transformation phase");
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusSuitPickupState), suitFields, 10)
-            .SequenceEqual(suitFields.Where(field => field.Name != "<TransformationSoundSuppressed>k__BackingField")),
+            .SequenceEqual(suitFields.Where(field => field.Name is not "<TransformationSoundSuppressed>k__BackingField" and not
+                "_preInstructionInstallCallsRemaining")),
             "pre-guard suit pickup retains its pending sound and transformation phase");
         var projectileResultFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusProjectileFrameResult)])!;

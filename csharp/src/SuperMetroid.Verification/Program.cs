@@ -330,6 +330,11 @@ if (args is ["--evir-init-timer"])
     VerifyEvirInitTimer();
     return 0;
 }
+if (args is ["--magdollite-apex-threshold"])
+{
+    VerifyMagdolliteApexThreshold();
+    return 0;
+}
 if (args is ["--refill-station-lock"])
 {
     VerifyRefillStationLock();
@@ -7189,6 +7194,7 @@ VerifyDraygonTurretCadence();
 VerifyWallJumpSpinExit();
 VerifyEvirInitTimer();
 VerifyRefillStationLock();
+VerifyMagdolliteApexThreshold();
 VerifyRoomFxRomData();
 VerifyPowerBombFixedColors();
 VerifySamusVisorColors();

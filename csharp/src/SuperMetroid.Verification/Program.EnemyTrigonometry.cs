@@ -125,7 +125,6 @@ internal static partial class Program
         VerifyNuclearWaffleDefinitions(rom);
         VerifyHibashiDefinitions(rom);
         VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(rom);
-        VerifyMagdollitePhaseDefinitions(rom);
         VerifyFuneNamiheDefinitions(rom);
         VerifyFuneNamiheInstructionProgramDefinitions(rom);
         VerifyMiscDustProjectileDefinitions(rom);

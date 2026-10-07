@@ -525,13 +525,17 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>
+    /// <c>ResetEnemyIfOffScreen</c> ($B3:8BA8) tests the bare enemy center with
+    /// <c>CheckIfEnemyCenterIsOnScreen</c>, not the sprite-padded visibility check.
+    /// </summary>
     private static void ResetNorfairPipeBugIfOffScreen(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         ushort cameraX,
         ushort cameraY)
     {
-        if (!EnemyWithNormalSpritesIsOffScreen(slot, cameraX, cameraY))
+        if (EnemyCenterIsOnScreen(slot, cameraX, cameraY))
             return;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         state.Function = PipeBugEnemyFunction.NorfairWaitForFormation;

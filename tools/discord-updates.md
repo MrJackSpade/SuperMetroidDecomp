@@ -73,7 +73,7 @@ git hook run pre-push
 Use the main checkout's absolute path. A relative `.githooks` resolves inside each
 linked worktree, so worktrees on branches without the current hooks would bypass
 them. The same hooks also reject any commit or push whose author, committer, or
-message names Claude, Anthropic, Codex, or OpenAI (`.githooks/commit-msg` and
+message names Claude or Anthropic, or attributes it to Codex or OpenAI (`.githooks/commit-msg` and
 `.githooks/pre-push`, sharing `.githooks/attribution-guard.sh`).
 
 Git has no client-side `post-push` hook. `.githooks/pre-push` prints instructions

@@ -14,7 +14,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     fi
     for commit in $(git rev-list $range); do
         if ! git log -n1 --format='%an <%ae>%n%cn <%ce>%n%B' "$commit" | reject_blocked_names; then
-            echo "Push blocked: commit $commit names Claude, Anthropic, Codex, or OpenAI." >&2
+            echo "Push blocked: commit $commit carries AI vendor attribution." >&2
             exit 1
         fi
     done
